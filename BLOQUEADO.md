@@ -8,6 +8,43 @@ que hacer exactamente**. Cuando resuelvas uno, táchalo y avísame.
 
 ---
 
+## 0. ⚠️ LA CLAVE DE SESIONES — sin esto nadie puede entrar
+
+**Esto es lo primero de todo. Bloquea todos los demás puntos.**
+
+**Qué pasa:** en `mercatren.com` **no se puede entrar ni crear una cuenta**.
+Lo comprobé: el formulario de entrar devuelve un error. La causa es que falta
+la variable `BETTER_AUTH_SECRET` en el panel del sitio. Sin ella el sistema no
+puede firmar ninguna sesión, así que ninguna cuenta funciona.
+
+**Por qué no puedo:** es una clave secreta que se carga en el panel de
+YaDominios Cloud. Yo no escribo secretos en el repositorio, que es público.
+
+**Qué tienes que hacer:**
+
+1. Genera una cadena larga y aleatoria. En tu terminal:
+
+   ```bash
+   openssl rand -base64 32
+   ```
+
+2. En el panel del sitio, en variables de entorno, crea:
+
+   ```
+   BETTER_AUTH_SECRET
+   ```
+
+   y pega ahí lo que te salió del comando.
+
+3. Republica el sitio.
+
+**Guárdala.** Si esa clave cambia después, todas las sesiones abiertas se
+cierran (las contraseñas no se pierden, solo hay que volver a entrar).
+
+Con eso resuelto, el punto 1 toma treinta segundos.
+
+---
+
 ## 1. Tu cuenta de Soporte en el sitio publicado
 
 **Qué falta:** que exista una cuenta con la que entres al panel de

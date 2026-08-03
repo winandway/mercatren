@@ -22,6 +22,16 @@ import { RUTA_AUTH } from "@/lib/rutas";
 export const getAuth = cache(() => {
   const { env } = getCloudflareContext();
 
+  // Sin esta clave no se puede firmar ninguna sesion, asi que NADIE entra ni
+  // se registra. El fallo de serie es un 500 mudo que no dice que pasa; se
+  // cambia por un aviso que se entiende leyendo los registros del sitio.
+  if (!env.BETTER_AUTH_SECRET) {
+    throw new Error(
+      "Falta BETTER_AUTH_SECRET en las variables del sitio. Sin ella no se " +
+        "puede entrar ni crear cuentas. Se genera con: openssl rand -base64 32",
+    );
+  }
+
   return betterAuth({
     database: drizzleAdapter(getDb(), {
       provider: "sqlite",

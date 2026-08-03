@@ -65,20 +65,30 @@ export async function GET(
  * que basta con mirar de quien es ese pedido: una sola consulta, sin cruces.
  */
 async function puedeVerComprobante(ruta: string) {
-  const usuario = await obtenerUsuario();
-  if (!usuario) return false;
+  // TODO LO DE AQUI FALLA HACIA "NO". Si algo revienta —la sesion no se puede
+  // leer, la base no responde— la respuesta es que no, y arriba se contesta
+  // 404. Un error tecnico jamas puede terminar en un 500 sobre la ruta de los
+  // comprobantes: un 500 ahi ya dice que ese camino existe y que algo pasa
+  // detras. Paso de verdad en produccion.
+  try {
+    const usuario = await obtenerUsuario();
+    if (!usuario) return false;
 
-  if (await esEquipoInterno()) return true;
+    if (await esEquipoInterno()) return true;
 
-  const pedidoId = ruta.split("/")[1];
-  if (!pedidoId) return false;
+    const pedidoId = ruta.split("/")[1];
+    if (!pedidoId) return false;
 
-  const db = getDb();
-  const [suyo] = await db
-    .select({ id: pedidos.id })
-    .from(pedidos)
-    .where(and(eq(pedidos.id, pedidoId), eq(pedidos.clienteId, usuario.id)))
-    .limit(1);
+    const db = getDb();
+    const [suyo] = await db
+      .select({ id: pedidos.id })
+      .from(pedidos)
+      .where(and(eq(pedidos.id, pedidoId), eq(pedidos.clienteId, usuario.id)))
+      .limit(1);
 
-  return Boolean(suyo);
+    return Boolean(suyo);
+  } catch (e) {
+    console.error("[media] no se pudo comprobar el permiso:", e);
+    return false;
+  }
 }
