@@ -102,9 +102,11 @@ describe("quien pago", () => {
 
 describe("cuenta que recibio el pago", () => {
   it("las mayusculas no crean cuentas distintas", () => {
-    expect(normalizarCuentaReceptora("Go@windoce.com")).toBe("go@windoce.com");
-    expect(normalizarCuentaReceptora("  go@windoce.com ")).toBe(
-      "go@windoce.com",
+    expect(normalizarCuentaReceptora("cobros@ejemplo.com")).toBe(
+      "cobros@ejemplo.com",
+    );
+    expect(normalizarCuentaReceptora("  cobros@ejemplo.com ")).toBe(
+      "cobros@ejemplo.com",
     );
   });
 
@@ -119,14 +121,14 @@ describe("lectura completa del comprobante", () => {
     expect(
       interpretarComprobante({
         sender_name: "Adv Plus Banking - 1610",
-        recipient_email: "GO@windoce.com",
+        recipient_email: "COBROS@ejemplo.com",
       }),
     ).toEqual({
       pagadorNombre: "Adv Plus Banking",
       pagadorTipo: "cuenta_bancaria",
       bancoOrigen: "Bank of America",
       cuentaUltimos4: "1610",
-      cuentaReceptora: "go@windoce.com",
+      cuentaReceptora: "cobros@ejemplo.com",
     });
   });
 
