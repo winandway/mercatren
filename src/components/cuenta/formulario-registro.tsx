@@ -1,12 +1,12 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { CampoClave } from "@/components/cuenta/campo-clave";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
 /**
@@ -22,7 +22,7 @@ import { authClient } from "@/lib/auth-client";
  */
 export function FormularioRegistro() {
   const t = useTranslations("entrar");
-  const router = useRouter();
+  const idioma = useLocale();
   const parametros = useSearchParams();
   const destino = parametros.get("destino") ?? "/";
 
@@ -50,8 +50,9 @@ export function FormularioRegistro() {
       return;
     }
 
-    router.push(destino);
-    router.refresh();
+    // Carga completa, por lo mismo que en la pantalla de entrar: acaba de
+    // cambiar quien eres y el servidor tiene que armar la pagina otra vez.
+    window.location.assign(`/${idioma}${destino === "/" ? "" : destino}`);
   }
 
   const clases =

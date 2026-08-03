@@ -1,12 +1,12 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { CampoClave } from "@/components/cuenta/campo-clave";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
 /**
@@ -15,7 +15,7 @@ import { authClient } from "@/lib/auth-client";
  */
 export function FormularioEntrar() {
   const t = useTranslations("entrar");
-  const router = useRouter();
+  const idioma = useLocale();
   const parametros = useSearchParams();
   const destino = parametros.get("destino") ?? "/";
 
@@ -44,19 +44,33 @@ export function FormularioEntrar() {
     /**
      * A DONDE VA CADA QUIEN.
      *
-     * Si venia de una pantalla concreta (el proxy manda aqui con ?destino=),
-     * se le devuelve ahi. Si no, se le lleva a donde tiene algo que hacer: a
-     * quien trabaja en el panel, al panel; a quien compra, a la tienda.
-     *
-     * Antes todo el mundo caia en la portada, incluido el equipo, y desde ahi
-     * no habia ningun camino visible al panel: se quedaban ahi pegados.
+     * Si venia de una pantalla concreta (el middleware manda aqui con
+     * ?destino=), se le devuelve ahi. Si no, se le lleva a donde tiene algo
+     * que hacer: a quien trabaja en el panel, al panel; a quien compra, a la
+     * tienda.
      */
     const rol = (data?.user as { rol?: string } | undefined)?.rol;
     const trabajaEnElPanel =
       rol === "soporte" || rol === "validador" || rol === "vendedor";
 
-    router.push(destino !== "/" ? destino : trabajaEnElPanel ? "/panel" : "/");
-    router.refresh();
+    const ruta = destino !== "/" ? destino : trabajaEnElPanel ? "/panel" : "/";
+
+    /**
+     * SE VA CON UNA CARGA COMPLETA, NO CON NAVEGACION DE CLIENTE.
+     *
+     * Aqui acaba de cambiar quien eres, y de eso depende TODA la pantalla: el
+     * encabezado, el menu lateral, lo que el panel deja ver. Una navegacion de
+     * cliente arrastra lo que el navegador ya tenia armado de cuando no habias
+     * entrado, y ademas depende de que el trabajador de la aplicacion instalada
+     * no se meta en el camino — que era justo lo que estaba pasando: la
+     * navegacion al panel moria en silencio y la persona se quedaba mirando la
+     * misma pantalla, sin ningun error.
+     *
+     * Una carga completa no tiene ese problema: el servidor arma la pagina otra
+     * vez con la sesion nueva. Cuesta una fraccion de segundo y solo pasa una
+     * vez, al entrar.
+     */
+    window.location.assign(`/${idioma}${ruta === "/" ? "" : ruta}`);
   }
 
   return (
