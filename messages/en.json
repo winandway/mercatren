@@ -656,7 +656,14 @@
         "aprobadoTexto": "Your payment is confirmed. The merchant is preparing your order.",
         "rechazado": "Receipt rejected",
         "subidoEl": "Uploaded on"
-      }
+      },
+      "tomarFoto": "Take a photo",
+      "desdeGaleria": "Choose from my photos",
+      "arrastra": "Drag the screenshot here, or tap to choose it",
+      "cambiar": "Change image",
+      "quitar": "Remove",
+      "demasiadoGrande": "That image is over 8 MB. Try a smaller screenshot.",
+      "noEsImagen": "That's not an image. Upload the screenshot of your payment."
     }
   },
   "datosPago": {

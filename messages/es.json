@@ -656,7 +656,14 @@
         "aprobadoTexto": "Tu pago quedó confirmado. El comercio prepara tu pedido.",
         "rechazado": "Comprobante rechazado",
         "subidoEl": "Subido el"
-      }
+      },
+      "tomarFoto": "Tomar foto",
+      "desdeGaleria": "Elegir de mis fotos",
+      "arrastra": "Arrastra la captura aquí o toca para elegirla",
+      "cambiar": "Cambiar imagen",
+      "quitar": "Quitar",
+      "demasiadoGrande": "Esa imagen pesa más de 8 MB. Prueba con una captura más liviana.",
+      "noEsImagen": "Eso no es una imagen. Sube la captura de tu pago."
     }
   },
   "datosPago": {
