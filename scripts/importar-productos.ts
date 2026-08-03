@@ -191,14 +191,39 @@ function main() {
   let conImagenes = 0;
   let publicados = 0;
   let sinPrecio = 0;
+  const sinNombre: string[] = [];
+  let bajadosABorrador = 0;
+  const saltados: string[] = [];
   let slugsDeIdentificador = 0;
   let conStockFraccionado = 0;
 
   for (const p of products) {
     if (!p.id) salir("Hay un producto sin id en el archivo.");
-    if (!p.title_es) salir(`El producto ${p.id} no trae titulo en espanol.`);
 
-    const estado = ESTADOS[p.status ?? "published"] ?? "publicado";
+    let estado = ESTADOS[p.status ?? "published"] ?? "publicado";
+
+    /**
+     * Producto sin nombre.
+     *
+     * No se le inventa uno: se guarda con su codigo interno como referencia y
+     * se deja en BORRADOR, para que no aparezca en la tienda con el titulo en
+     * blanco. El comercio le pone nombre y con la siguiente sincronizacion se
+     * publica solo.
+     *
+     * Si no trae ni nombre ni codigo, no hay por donde agarrarlo y se salta.
+     */
+    let titulo = p.title_es;
+    if (!titulo) {
+      if (!p.sku) {
+        saltados.push(p.id);
+        continue;
+      }
+      titulo = p.sku;
+      if (estado === "publicado") bajadosABorrador++;
+      estado = "borrador";
+      sinNombre.push(p.sku);
+    }
+
     if (estado === "publicado") publicados++;
 
     // Un borrador puede no tener precio todavia (el comercio aun no lo carga);
@@ -226,7 +251,7 @@ function main() {
     const slugUtil = p.slug && !ES_IDENTIFICADOR.test(p.slug) ? p.slug : null;
     if (!slugUtil && p.slug) slugsDeIdentificador++;
 
-    const base = comoSlug(slugUtil || p.title_es) || `producto-${p.id}`;
+    const base = comoSlug(slugUtil || titulo) || `producto-${p.id}`;
     let slug = base;
     let intento = 2;
     while (slugsUsados.has(slug)) slug = `${base}-${intento++}`;
@@ -248,7 +273,7 @@ function main() {
         texto(slug),
         texto(p.sku),
         texto(p.brand),
-        texto(p.title_es),
+        texto(titulo),
         texto(p.title_en),
         texto(p.description_es),
         texto(p.description_en),
@@ -373,6 +398,18 @@ function main() {
         `    su direccion se armo del titulo, para que sea legible.`,
     );
   }
+  if (sinNombre.length > 0) {
+    console.log(
+      `  · ${sinNombre.length} sin nombre: entran como BORRADOR con su codigo\n` +
+        `    como referencia, para que no salgan en blanco en la tienda.\n` +
+        `    Codigos: ${sinNombre.join(", ")}`,
+    );
+  }
+  if (saltados.length > 0) {
+    console.log(
+      `  · ${saltados.length} SALTADOS por no traer ni nombre ni codigo.`,
+    );
+  }
   if (conStockFraccionado > 0) {
     console.log(
       `  · ${conStockFraccionado} con existencias fraccionadas (kg o metros):\n` +
@@ -385,8 +422,14 @@ function main() {
   if (totales.products && totales.products !== products.length) {
     avisos.push(`productos: ${products.length} != ${totales.products}`);
   }
-  if (totales.published && totales.published !== publicados) {
-    avisos.push(`publicados: ${publicados} != ${totales.published}`);
+  // Los que se bajaron a borrador por no tener nombre no cuentan como
+  // descuadre: es una decision de este importador, no un error del archivo.
+  const esperadoPublicados = (totales.published ?? 0) - bajadosABorrador;
+  if (totales.published && esperadoPublicados !== publicados) {
+    avisos.push(
+      `publicados: ${publicados} != ${esperadoPublicados} ` +
+        `(${totales.published} del archivo menos ${bajadosABorrador} sin nombre)`,
+    );
   }
   if (avisos.length) {
     salir(
