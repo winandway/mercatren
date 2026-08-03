@@ -10,6 +10,18 @@ on:
 permissions:
   contents: write
 
+# UNA PUBLICACION A LA VEZ. Sin esto, dos subidas seguidas compilan en
+# paralelo y la que termina ultima gana — que puede ser la MAS VIEJA. Pasó de
+# verdad el 3 ago 2026: una publicación de las 17:38 quedó pisada por otra de
+# un commit anterior que terminó a las 17:43, y el trabajo nuevo desapareció
+# del sitio sin que nada fallara ni se pusiera en rojo.
+#
+# `cancel-in-progress` corta la que se quedó atrás: cada compilación lleva
+# TODO el contenido de main, así que la más nueva siempre basta.
+concurrency:
+  group: publicar-mercatren
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
