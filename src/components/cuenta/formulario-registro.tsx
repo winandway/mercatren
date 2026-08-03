@@ -9,15 +9,23 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
 /**
- * Entrada al sistema. El panel de administracion solo abre para las cuentas
- * con permiso; una cuenta recien creada entra como cliente.
+ * Alta de cuenta para quien va a comprar.
+ *
+ * Sin esta pantalla nadie podia crear una cuenta desde el sitio, y como hace
+ * falta cuenta para comprar, no se podia comprar. El servidor si permitia el
+ * alta; lo que faltaba era la pantalla.
+ *
+ * OJO: una cuenta nueva entra SIEMPRE como cliente. El rol no viaja en este
+ * formulario a proposito (`input: false` en el esquema de la cuenta): quien
+ * entra al panel se decide aparte, nunca desde aqui.
  */
-export function FormularioEntrar() {
+export function FormularioRegistro() {
   const t = useTranslations("entrar");
   const router = useRouter();
   const parametros = useSearchParams();
   const destino = parametros.get("destino") ?? "/";
 
+  const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -28,7 +36,8 @@ export function FormularioEntrar() {
     setEnviando(true);
     setError(null);
 
-    const { error: fallo } = await authClient.signIn.email({
+    const { error: fallo } = await authClient.signUp.email({
+      name: nombre.trim(),
       email: correo.trim(),
       password: clave,
     });
@@ -36,7 +45,7 @@ export function FormularioEntrar() {
     setEnviando(false);
 
     if (fallo) {
-      setError(t("errorCredenciales"));
+      setError(t("errorRegistro"));
       return;
     }
 
@@ -44,8 +53,28 @@ export function FormularioEntrar() {
     router.refresh();
   }
 
+  const clases =
+    "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30";
+
   return (
     <form onSubmit={enviar} className="mt-8 space-y-4">
+      <div>
+        <label htmlFor="nombre" className="block text-sm font-medium">
+          {t("nombre")}
+        </label>
+        <input
+          id="nombre"
+          type="text"
+          required
+          maxLength={80}
+          autoComplete="name"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder={t("nombrePlaceholder")}
+          className={clases}
+        />
+      </div>
+
       <div>
         <label htmlFor="correo" className="block text-sm font-medium">
           {t("correo")}
@@ -58,24 +87,25 @@ export function FormularioEntrar() {
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
           placeholder={t("correoPlaceholder")}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
+          className={clases}
         />
       </div>
 
       <div>
         <label htmlFor="clave" className="block text-sm font-medium">
-          {t("clave")}
+          {t("claveNueva")}
         </label>
         <input
           id="clave"
           type="password"
           required
           minLength={10}
-          autoComplete="current-password"
+          autoComplete="new-password"
           value={clave}
           onChange={(e) => setClave(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
+          className={clases}
         />
+        <p className="mt-1 text-xs text-tinta-suave">{t("claveAyuda")}</p>
       </div>
 
       {error ? (
@@ -95,22 +125,13 @@ export function FormularioEntrar() {
         {enviando ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
         ) : (
-          t("entrar")
+          t("registrarse")
         )}
       </button>
 
-      {/* Sin esto, quien llega sin cuenta no puede comprar: se queda aqui. */}
       <p className="text-center text-sm text-tinta-suave">
-        {t("noTengo")}{" "}
-        <Link
-          href={
-            destino !== "/"
-              ? `/registro?destino=${encodeURIComponent(destino)}`
-              : "/registro"
-          }
-          className="font-semibold text-carga-600 hover:underline"
-        >
-          {t("registrate")}
+        <Link href="/entrar" className="font-semibold hover:text-carga-600">
+          {t("volverEntrar")}
         </Link>
       </p>
     </form>

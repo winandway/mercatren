@@ -10,6 +10,13 @@
  * PROHIBIDO inventar direcciones tipo soporte@mercatren.com: ese buzon no
  * tiene SMTP, no recibe, y el mensaje del cliente se pierde.
  *
+ * Y LO MISMO PARA LAS CUENTAS DEL SISTEMA. Una cuenta de Mercatren se crea
+ * SIEMPRE con un buzon que existe y recibe de verdad. Si se crea con una
+ * direccion inventada y algun dia hay que recuperar la contrasena, el correo
+ * de recuperacion se va al vacio y esa cuenta queda perdida — y suele
+ * descubrirse en el peor momento, en la calle, en medio de una demostracion.
+ * Hoy el unico buzon que recibe es CORREO_CONTACTO.
+ *
  * Vive aparte de enviar.ts para poder importarse desde cualquier componente
  * (el pie de pagina, los terminos) sin arrastrar el cliente de Resend.
  */

@@ -111,6 +111,11 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
 5. **Nuestras cuentas se llaman "Soporte".** Cualquier cuenta de Windoce LLC
    dentro del sistema lleva la palabra Soporte en el nombre visible. El rol
    correspondiente es `soporte`.
+   **Y se crean SIEMPRE con un correo que existe y recibe de verdad**
+   (hoy: `mercatren@windoce.com`). Nunca con una dirección inventada: si algún
+   día hay que recuperar la contraseña, el correo se va al vacío y la cuenta
+   queda perdida — y eso se descubre en el peor momento, en la calle, en medio
+   de una demostración.
 6. **El botón de borrar nunca va a la vista**: siempre dentro del menú de tres
    puntos, y con confirmación aparte.
 7. **El pie de página lleva el crédito de Windoce LLC** con enlace a

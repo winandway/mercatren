@@ -28,6 +28,8 @@
  */
 import { spawnSync } from "node:child_process";
 
+import { CORREO_CONTACTO } from "../src/lib/correo/direcciones.ts";
+
 const argumentos = process.argv.slice(2);
 const opciones = new Map<string, string>();
 const sueltos: string[] = [];
@@ -86,6 +88,34 @@ if (!ROLES.includes(rol)) {
 if (rol !== "vendedor" && !/soporte/i.test(nombre)) {
   salir(
     `El nombre visible de una cuenta nuestra debe contener la palabra "Soporte". Recibido: "${nombre}".`,
+  );
+}
+
+/**
+ * Nuestras cuentas van SIEMPRE a un buzon que existe y recibe de verdad.
+ *
+ * Si se crea una cuenta con una direccion inventada y algun dia hay que
+ * recuperar la contrasena, el correo se va al vacio y esa cuenta queda
+ * perdida. Y eso no se descubre en la oficina: se descubre en la calle, en
+ * medio de una demostracion, cuando ya no hay nada que hacer.
+ *
+ * Hoy el unico buzon de Windoce que recibe es CORREO_CONTACTO. El dominio
+ * mercatren.com solo ENVIA (noreply), asi que ninguna cuenta puede vivir ahi.
+ */
+if (rol !== "vendedor" && correo !== CORREO_CONTACTO) {
+  salir(
+    `Las cuentas nuestras se crean con un buzon que recibe de verdad.\n` +
+      `  Recibido:  ${correo}\n` +
+      `  Tiene que ser: ${CORREO_CONTACTO}\n\n` +
+      `Si esa cuenta pierde la contrasena, el correo de recuperacion tiene que\n` +
+      `llegar a alguien. Una direccion inventada deja la cuenta perdida.`,
+  );
+}
+
+if (/@mercatren\.com$/i.test(correo)) {
+  salir(
+    `El dominio mercatren.com solo ENVIA avisos (noreply); no recibe.\n` +
+      `Una cuenta ahi no podria recuperar nunca su contrasena.`,
   );
 }
 

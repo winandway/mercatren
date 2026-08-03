@@ -8,6 +8,7 @@ import {
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { CambiarClave } from "@/components/cuenta/cambiar-clave";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 
@@ -150,9 +151,7 @@ export default async function PaginaCuenta({
           <ShieldCheck className="h-4 w-4 text-precio-600" aria-hidden />
           {t("tarjetas.seguridad.titulo")}
         </h2>
-        <p className="mt-1 text-sm leading-relaxed text-tinta-suave">
-          {t("tarjetas.seguridad.texto")}
-        </p>
+        <CambiarClave />
       </section>
     </div>
   );
