@@ -1,8 +1,10 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, gt, like, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
+
+import { condicionDeBusqueda } from "./buscar";
 import {
   categorias,
   imagenesProducto,
@@ -96,19 +98,12 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
     condiciones.push(eq(tiendas.slug, filtros.comercio));
   }
 
-  const busqueda = filtros.busqueda?.trim();
-  if (busqueda) {
-    const patron = `%${busqueda.toLowerCase()}%`;
-    condiciones.push(
-      or(
-        like(sql`LOWER(${productos.tituloEs})`, patron),
-        like(sql`LOWER(${productos.tituloEn})`, patron),
-        like(sql`LOWER(${productos.descripcionEs})`, patron),
-        like(sql`LOWER(${productos.marca})`, patron),
-        like(sql`LOWER(${productos.sku})`, patron),
-      )!,
-    );
-  }
+  // La busqueda usa el MISMO motor que el desplegable del encabezado
+  // (src/lib/catalogo/buscar.ts): varias palabras en cualquier orden, sin
+  // acentos, y ordenadas por que tan bien calzan.
+  const { donde: filtroBusqueda, orden: ordenPorRelevancia } =
+    condicionDeBusqueda(filtros.busqueda);
+  if (filtroBusqueda) condiciones.push(filtroBusqueda);
 
   const donde = and(...condiciones);
 
@@ -117,7 +112,8 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
       ? asc(productos.precioCentavos)
       : filtros.orden === "precio_desc"
         ? desc(productos.precioCentavos)
-        : desc(productos.destacado);
+        : // Buscando, lo primero es lo que mejor calza; sin buscar, lo destacado.
+          (ordenPorRelevancia ?? desc(productos.destacado));
 
   const [total] = await db
     .select({ n: count() })

@@ -9,6 +9,7 @@ import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
+import type { Idioma } from "@/lib/dinero";
 
 /**
  * Encabezado del sitio: barra oscura con el buscador ancho arriba, igual que
@@ -36,11 +37,10 @@ export async function Encabezado() {
             <Logo className="h-7 sm:h-9" prioridad />
           </Link>
 
-          <button
-            type="button"
-            className="celda-encabezado hidden items-center gap-1 text-left text-xs lg:flex"
-          >
-            <MapPin className="h-4 w-4 shrink-0" aria-hidden />
+          {/* "Comprar en EE. UU." es informativo, no una herramienta: se
+              queda chiquito y solo aparece cuando sobra sitio. */}
+          <span className="hidden items-center gap-1 px-1 text-left text-xs xl:flex">
+            <MapPin className="h-4 w-4 shrink-0 text-white/70" aria-hidden />
             <span>
               <span className="block text-white/70">{t("entregarEn")}</span>
               <span className="flex items-center gap-1.5 text-sm font-bold">
@@ -48,12 +48,13 @@ export async function Encabezado() {
                 {t("paisPorDefecto")}
               </span>
             </span>
-          </button>
+          </span>
 
-          {/* En celular el buscador baja a su propia fila; de tableta para
-              arriba vuelve al centro y se come todo el espacio libre. */}
+          {/* EL BUSCADOR ES EL PROTAGONISTA. Se come todo el espacio libre y
+              en celular baja a su propia fila para salir completo. Lo demas
+              del encabezado se aprieta o se esconde antes que el. */}
           <div className="order-last w-full min-w-0 basis-full md:order-none md:w-auto md:flex-1 md:basis-auto">
-            <Buscador />
+            <Buscador idioma={locale as Idioma} />
           </div>
 
           <SelectorIdioma />
@@ -68,9 +69,11 @@ export async function Encabezado() {
             </span>
           </Link>
 
+          {/* Los pedidos ya viven en el menu y en la cuenta: aqui solo se
+              muestran cuando la pantalla da de sobra. */}
           <Link
             href="/pedidos"
-            className="celda-encabezado hidden text-xs lg:block"
+            className="celda-encabezado hidden text-xs xl:block"
           >
             <span className="block text-white/70">{t("hola")}</span>
             <span className="block text-sm font-bold">{t("pedidos")}</span>

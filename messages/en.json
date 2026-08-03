@@ -24,7 +24,13 @@
     "cerrar": "Close",
     "comoFunciona": "How it works",
     "ayuda": "Help",
-    "docs": "Documentation"
+    "docs": "Documentation",
+    "sinResultados": "Nothing found for “{texto}”",
+    "verTodos": "See all {n} results",
+    "verTienda": "View store",
+    "agotado": "Out of stock",
+    "cambiarIdioma": "Change language",
+    "comprasEn": "You shop in the United States and pay in dollars."
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., get it wherever you are",

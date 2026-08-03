@@ -24,7 +24,13 @@
     "cerrar": "Cerrar",
     "comoFunciona": "Cómo funciona",
     "ayuda": "Ayuda",
-    "docs": "Documentación"
+    "docs": "Documentación",
+    "sinResultados": "No encontramos nada para «{texto}»",
+    "verTodos": "Ver los {n} resultados",
+    "verTienda": "Ver tienda",
+    "agotado": "Agotado",
+    "cambiarIdioma": "Cambiar idioma",
+    "comprasEn": "Compras en Estados Unidos y pagas en dólares."
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, recibe donde estés",
