@@ -120,6 +120,10 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
    de personas.
 9. **Antes de publicar un cambio que se vea, se prueba en el navegador** y se
    muestra la captura.
+10. **Ningún enlace puede llevar a un 404.** Si se agrega un enlace en el menú
+    o en el pie, la página tiene que existir. `e2e/enlaces.spec.ts` recorre las
+    páginas públicas, junta todos sus enlaces internos y falla si alguno
+    responde 400 o más. Se corre con `npm run e2e`.
 
 ---
 
@@ -445,6 +449,7 @@ npm run db:schema-cloud # regenerar schema.sql (tablas + catálogo para producci
 npm run db:local        # aplicar migraciones + histórico a la base local
 npm run zelle:importar  # rearmar el SQL del histórico de pagos
 npm run cuenta:crear    # crear una cuenta que entra al panel
+npm run db:cargar       # mandar un SQL a la base de PRODUCCIÓN (pide TOKEN_MERCATREN)
 npm run productos:importar # rearmar el SQL del catálogo de un comercio
 npm run iconos          # regenerar iconos y tarjeta social desde el logo
 npm run cf:tipos        # regenerar tipos de los bindings

@@ -33,6 +33,7 @@ const SECCIONES = [
   {
     titulo: "empresa",
     enlaces: [
+      { clave: "nosotros", href: "/nosotros" },
       { clave: "comoFunciona", href: "/como-funciona" },
       { clave: "docs", href: "/docs" },
       { clave: "transparencia", href: "/transparencia" },

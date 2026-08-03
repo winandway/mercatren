@@ -18,7 +18,13 @@
     "vender": "Sell on Mercatren",
     "idioma": "Language",
     "espanol": "Spanish",
-    "ingles": "English"
+    "ingles": "English",
+    "categorias": "Categories",
+    "secciones": "Sections",
+    "cerrar": "Close",
+    "comoFunciona": "How it works",
+    "ayuda": "Help",
+    "docs": "Documentation"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., get it wherever you are",
@@ -69,7 +75,8 @@
       "privacidad": "Privacy",
       "comoFunciona": "How it works",
       "transparencia": "Transparency",
-      "docs": "Documentation"
+      "docs": "Documentation",
+      "nosotros": "About us"
     }
   },
   "comun": {
@@ -747,5 +754,56 @@
       ],
       "boton": "View my wallet"
     }
+  },
+  "misPedidos": {
+    "titulo": "Returns and orders",
+    "entradilla": "All your Mercatren purchases, newest first.",
+    "vacio": "You haven't placed any orders yet.",
+    "vacioBoton": "Browse the catalog",
+    "articulos": "{n, plural, =1 {# item} other {# items}}",
+    "ver": "View order",
+    "pagar": "Pay now",
+    "pagoPendiente": "Payment pending",
+    "pagoEnRevision": "Receipt under review",
+    "pagoRechazado": "Payment not approved",
+    "entrar": "Sign in to see your orders."
+  },
+  "cuenta": {
+    "titulo": "Account and lists",
+    "entradilla": "Your details, your orders, and help — all in one place.",
+    "entrar": "Sign in to see this page.",
+    "tarjetas": {
+      "pedidos": {
+        "titulo": "Your orders",
+        "texto": "Track your purchases, pay the pending ones, and check deliveries."
+      },
+      "datos": {
+        "titulo": "Your details",
+        "texto": "The name and email we use to verify your payments."
+      },
+      "seguridad": {
+        "titulo": "Security",
+        "texto": "Your password is stored encrypted. To change it, use “Forgot your password?” at sign-in."
+      },
+      "ayuda": {
+        "titulo": "Help",
+        "texto": "The most common questions about buying, paying, and receiving."
+      },
+      "panel": {
+        "titulo": "Admin panel",
+        "texto": "Your store: payments, wallet, and verification."
+      }
+    },
+    "nombre": "Name",
+    "correo": "Email",
+    "idioma": "Language",
+    "rol": "Account type",
+    "roles": {
+      "cliente": "Customer",
+      "vendedor": "Merchant",
+      "validador": "Reviewer",
+      "soporte": "Support"
+    },
+    "cerrarSesion": "Sign out"
   }
 }

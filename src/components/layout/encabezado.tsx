@@ -1,12 +1,14 @@
-import { MapPin, Menu } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { MapPin } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
+import { MenuTodo } from "@/components/layout/menu-todo";
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { ContadorCarrito } from "@/components/layout/contador-carrito";
 import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
+import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
 
 /**
  * Encabezado del sitio: barra oscura con el buscador ancho arriba, igual que
@@ -15,6 +17,11 @@ import { Link } from "@/i18n/navigation";
  */
 export async function Encabezado() {
   const t = await getTranslations("encabezado");
+  const locale = await getLocale();
+
+  // Las categorias del menu salen del catalogo real. Si la base no responde,
+  // el menu sale sin ellas: el encabezado nunca puede tumbar la pagina.
+  const categorias = await listarCategoriasConProductos().catch(() => []);
 
   return (
     <header className="sticky top-0 z-50">
@@ -52,7 +59,7 @@ export async function Encabezado() {
           <SelectorIdioma />
 
           <Link
-            href="/entrar"
+            href="/cuenta"
             className="celda-encabezado hidden text-xs sm:block"
           >
             <span className="block text-white/70">{t("hola")}</span>
@@ -76,18 +83,47 @@ export async function Encabezado() {
       {/* Fila de categorias */}
       <div className="bg-riel-800 text-white">
         <div className="mx-auto flex max-w-[1500px] items-center gap-1 overflow-x-auto px-3 py-1 text-sm sm:px-4">
-          <button
-            type="button"
-            className="celda-encabezado flex shrink-0 items-center gap-1 font-bold"
-          >
-            <Menu className="h-4 w-4" aria-hidden />
-            {t("menuTodo")}
-          </button>
+          <MenuTodo
+            etiqueta={t("menuTodo")}
+            tituloCategorias={t("categorias")}
+            tituloSecciones={t("secciones")}
+            cerrar={t("cerrar")}
+            categorias={categorias.map((c) => ({
+              href: `/catalogo?categoria=${c.slug}`,
+              texto: `${locale === "en" ? (c.nombreEn ?? c.nombreEs) : c.nombreEs} (${c.cuantos})`,
+            }))}
+            secciones={[
+              { href: "/catalogo", texto: t("catalogo") },
+              { href: "/vender", texto: t("vender") },
+              { href: "/como-funciona", texto: t("comoFunciona") },
+              { href: "/docs", texto: t("docs") },
+              { href: "/ayuda", texto: t("ayuda") },
+              { href: "/pedidos", texto: t("pedidos") },
+            ]}
+          />
           <Link href="/catalogo" className="celda-encabezado shrink-0">
             {t("catalogo")}
           </Link>
           <Link href="/vender" className="celda-encabezado shrink-0">
             {t("vender")}
+          </Link>
+          <Link
+            href="/como-funciona"
+            className="celda-encabezado hidden shrink-0 sm:block"
+          >
+            {t("comoFunciona")}
+          </Link>
+          <Link
+            href="/docs"
+            className="celda-encabezado hidden shrink-0 md:block"
+          >
+            {t("docs")}
+          </Link>
+          <Link
+            href="/ayuda"
+            className="celda-encabezado hidden shrink-0 md:block"
+          >
+            {t("ayuda")}
           </Link>
         </div>
       </div>

@@ -228,3 +228,37 @@ export async function obtenerPedidoPropio(numero: string) {
 
   return { pedido, renglones, pago: pago ?? null };
 }
+
+/**
+ * Los pedidos de este cliente, del mas nuevo al mas viejo.
+ *
+ * Trae solo lo que hace falta para la lista (numero, estado, total y como va
+ * el pago), no los renglones: el detalle se abre al entrar a cada pedido.
+ */
+export async function listarPedidosPropios() {
+  const usuario = await obtenerUsuario();
+  if (!usuario) return [];
+
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      numero: pedidos.numero,
+      estado: pedidos.estado,
+      totalCentavos: pedidos.totalCentavos,
+      creadoEn: pedidos.creadoEn,
+      articulos: sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id})`,
+      estadoPago: sql<
+        string | null
+      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+    })
+    .from(pedidos)
+    .where(eq(pedidos.clienteId, usuario.id))
+    .orderBy(desc(pedidos.creadoEn));
+
+  return filas;
+}
+
+export type PedidoDeLista = Awaited<
+  ReturnType<typeof listarPedidosPropios>
+>[number];

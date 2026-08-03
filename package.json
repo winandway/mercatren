@@ -25,7 +25,8 @@
     "prepare": "husky",
     "cuenta:crear": "node scripts/crear-cuenta.ts",
     "productos:importar": "node scripts/importar-productos.ts",
-    "db:schema-cloud": "node scripts/generar-schema-cloud.ts"
+    "db:schema-cloud": "node scripts/generar-schema-cloud.ts",
+    "db:cargar": "node scripts/cargar-sql-produccion.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [

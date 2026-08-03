@@ -18,7 +18,13 @@
     "vender": "Vender en Mercatren",
     "idioma": "Idioma",
     "espanol": "Español",
-    "ingles": "Inglés"
+    "ingles": "Inglés",
+    "categorias": "Categorías",
+    "secciones": "Secciones",
+    "cerrar": "Cerrar",
+    "comoFunciona": "Cómo funciona",
+    "ayuda": "Ayuda",
+    "docs": "Documentación"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, recibe donde estés",
@@ -69,7 +75,8 @@
       "privacidad": "Privacidad",
       "comoFunciona": "Cómo funciona",
       "transparencia": "Transparencia",
-      "docs": "Documentación"
+      "docs": "Documentación",
+      "nosotros": "Quiénes somos"
     }
   },
   "comun": {
@@ -747,5 +754,56 @@
       ],
       "boton": "Ver mi billetera"
     }
+  },
+  "misPedidos": {
+    "titulo": "Devoluciones y pedidos",
+    "entradilla": "Todas tus compras en Mercatren, de la más reciente a la más antigua.",
+    "vacio": "Todavía no has hecho ningún pedido.",
+    "vacioBoton": "Ver el catálogo",
+    "articulos": "{n, plural, =1 {# artículo} other {# artículos}}",
+    "ver": "Ver el pedido",
+    "pagar": "Pagar ahora",
+    "pagoPendiente": "Falta el pago",
+    "pagoEnRevision": "Comprobante en revisión",
+    "pagoRechazado": "El pago no se aprobó",
+    "entrar": "Entra con tu cuenta para ver tus pedidos."
+  },
+  "cuenta": {
+    "titulo": "Cuenta y listas",
+    "entradilla": "Tus datos, tus pedidos y la ayuda, todo en un sitio.",
+    "entrar": "Entra con tu cuenta para ver esta página.",
+    "tarjetas": {
+      "pedidos": {
+        "titulo": "Tus pedidos",
+        "texto": "Sigue tus compras, paga las que estén pendientes y revisa las entregas."
+      },
+      "datos": {
+        "titulo": "Tus datos",
+        "texto": "El nombre y el correo con los que verificamos tus pagos."
+      },
+      "seguridad": {
+        "titulo": "Seguridad",
+        "texto": "Tu contraseña se guarda cifrada. Si quieres cambiarla, usa «¿Olvidaste tu contraseña?» al entrar."
+      },
+      "ayuda": {
+        "titulo": "Ayuda",
+        "texto": "Las preguntas más comunes sobre comprar, pagar y recibir."
+      },
+      "panel": {
+        "titulo": "Panel de administración",
+        "texto": "Tu comercio: pagos, billetera y validación."
+      }
+    },
+    "nombre": "Nombre",
+    "correo": "Correo",
+    "idioma": "Idioma",
+    "rol": "Tipo de cuenta",
+    "roles": {
+      "cliente": "Cliente",
+      "vendedor": "Comercio",
+      "validador": "Validador",
+      "soporte": "Soporte"
+    },
+    "cerrarSesion": "Cerrar sesión"
   }
 }
