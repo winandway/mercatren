@@ -13,6 +13,7 @@ import { sql } from "drizzle-orm";
 import {
   index,
   integer,
+  real,
   sqliteTable,
   text,
   uniqueIndex,
@@ -267,7 +268,15 @@ export const productos = sqliteTable(
     precioAntesCentavos: integer("precio_antes_centavos"),
     moneda: text("moneda").notNull().default("USD"),
 
-    existencias: integer("existencias").notNull().default(0),
+    /**
+     * Existencias disponibles. Va con decimales A PROPOSITO: una ferreteria
+     * vende cable por metro y cemento por kilo, y truncar 13.5 kg a 13
+     * corromperia el inventario del comercio.
+     *
+     * Ojo: esto es MERCANCIA, no dinero. El dinero sigue siendo entero en
+     * centavos, sin excepcion.
+     */
+    existencias: real("existencias").notNull().default(0),
     /** Si el comercio no lleva inventario, no se muestra el contador. */
     controlaExistencias: integer("controla_existencias", { mode: "boolean" })
       .notNull()

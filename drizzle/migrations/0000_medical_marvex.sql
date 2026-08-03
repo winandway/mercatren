@@ -204,7 +204,7 @@ CREATE TABLE `productos` (
 	`precio_centavos` integer NOT NULL,
 	`precio_antes_centavos` integer,
 	`moneda` text DEFAULT 'USD' NOT NULL,
-	`existencias` integer DEFAULT 0 NOT NULL,
+	`existencias` real DEFAULT 0 NOT NULL,
 	`controla_existencias` integer DEFAULT true NOT NULL,
 	`unidad` text,
 	`peso_gramos` integer,

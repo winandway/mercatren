@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9bedb059-e24b-493c-a0a5-72888697a645",
+  "id": "172bd129-696b-45ba-b472-7e2f73da32ba",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -1488,7 +1488,7 @@
         },
         "existencias": {
           "name": "existencias",
-          "type": "integer",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,

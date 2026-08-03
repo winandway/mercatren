@@ -31,7 +31,9 @@ export function BotonAgregar({
     );
   }
 
-  const maximo = linea.maximo ?? 99;
+  // Las existencias pueden venir fraccionadas (13.5 kg). Para el selector se
+  // baja al entero: por ahora se compran unidades enteras.
+  const maximo = Math.max(1, Math.floor(linea.maximo ?? 99));
 
   return (
     <div className="flex flex-wrap gap-2">

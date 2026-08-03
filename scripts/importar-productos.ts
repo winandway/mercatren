@@ -114,6 +114,13 @@ function comoSlug(entrada: string) {
     .slice(0, 70);
 }
 
+/**
+ * Un "slug" que en realidad es un identificador interno (UUID o similar).
+ * No sirve para armar una direccion legible.
+ */
+const ES_IDENTIFICADOR =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^[0-9a-f]{24,}$/i;
+
 const ESTADOS: Record<string, "borrador" | "publicado" | "agotado"> = {
   published: "publicado",
   draft: "borrador",
@@ -183,29 +190,55 @@ function main() {
   const filasImagen: string[] = [];
   let conImagenes = 0;
   let publicados = 0;
+  let sinPrecio = 0;
+  let slugsDeIdentificador = 0;
+  let conStockFraccionado = 0;
 
   for (const p of products) {
     if (!p.id) salir("Hay un producto sin id en el archivo.");
     if (!p.title_es) salir(`El producto ${p.id} no trae titulo en espanol.`);
+
+    const estado = ESTADOS[p.status ?? "published"] ?? "publicado";
+    if (estado === "publicado") publicados++;
+
+    // Un borrador puede no tener precio todavia (el comercio aun no lo carga);
+    // se guarda en cero y no se publica. Uno publicado SIN precio si es un
+    // error: se venderia regalado.
     const precio = aCentavos(p.price);
-    if (precio === null || precio < 0) {
-      salir(`El producto ${p.id} trae un precio invalido: ${p.price}`);
+    if (precio === null && estado === "publicado") {
+      salir(`El producto ${p.id} esta publicado pero no trae precio.`);
     }
+    if (precio !== null && precio < 0) {
+      salir(`El producto ${p.id} trae un precio negativo: ${p.price}`);
+    }
+    if (precio === null) sinPrecio++;
 
     const id = `prod-${TIENDA_ID}-${p.id}`;
     idsProducto.push(id);
 
-    // El slug tiene que ser unico dentro del comercio.
-    const base = comoSlug(p.slug || p.title_es) || `producto-${p.id}`;
+    /**
+     * El slug tiene que ser unico dentro del comercio Y legible.
+     * Hay tiendas cuyo "slug" es en realidad el identificador interno; usarlo
+     * dejaria direcciones como /producto/9f3c1a7e-… Cuando pasa eso, la
+     * direccion se arma del titulo. El identificador de origen se sigue
+     * guardando aparte, asi que reimportar no duplica nada.
+     */
+    const slugUtil = p.slug && !ES_IDENTIFICADOR.test(p.slug) ? p.slug : null;
+    if (!slugUtil && p.slug) slugsDeIdentificador++;
+
+    const base = comoSlug(slugUtil || p.title_es) || `producto-${p.id}`;
     let slug = base;
     let intento = 2;
     while (slugsUsados.has(slug)) slug = `${base}-${intento++}`;
     slugsUsados.add(slug);
 
-    const estado = ESTADOS[p.status ?? "published"] ?? "publicado";
-    if (estado === "publicado") publicados++;
-
     const controlaExistencias = p.stock !== null && p.stock !== undefined;
+    // Las existencias van con decimales tal cual vengan: hay mercancia que se
+    // vende por metro o por kilo, y redondear 13.5 kg a 13 le quita al
+    // comercio media unidad de inventario.
+    if (controlaExistencias && !Number.isInteger(Number(p.stock))) {
+      conStockFraccionado++;
+    }
 
     filasProducto.push(
       `(${[
@@ -219,7 +252,7 @@ function main() {
         texto(p.title_en),
         texto(p.description_es),
         texto(p.description_en),
-        numero(precio),
+        numero(precio ?? 0),
         numero(aCentavos(p.compare_at_price)),
         texto(p.currency ?? "USD"),
         numero(controlaExistencias ? Number(p.stock) : 0),
@@ -327,6 +360,25 @@ function main() {
   console.log(`  categorias:        ${categories.length}`);
   console.log(`  con fotos:         ${conImagenes}`);
   console.log(`  fotos en total:    ${filasImagen.length}`);
+
+  // Cosas que no son errores, pero conviene que se sepan.
+  if (sinPrecio > 0) {
+    console.log(
+      `\n  · ${sinPrecio} en borrador sin precio: quedan en $0.00 y NO se publican.`,
+    );
+  }
+  if (slugsDeIdentificador > 0) {
+    console.log(
+      `  · ${slugsDeIdentificador} traian un identificador en vez de nombre:\n` +
+        `    su direccion se armo del titulo, para que sea legible.`,
+    );
+  }
+  if (conStockFraccionado > 0) {
+    console.log(
+      `  · ${conStockFraccionado} con existencias fraccionadas (kg o metros):\n` +
+        `    se guardan tal cual, sin redondear.`,
+    );
+  }
 
   const totales = meta.totals ?? {};
   const avisos: string[] = [];

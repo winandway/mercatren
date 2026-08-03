@@ -262,6 +262,27 @@ cargan todo otra vez a mano: **traen su catálogo desde su propio sistema**.
 - **Traducciones:** si el origen no trae inglés, `titulo_en` queda vacío y en
   pantalla se muestra el español. **No se inventan traducciones.**
 
+Tres cosas que el importador resuelve solo, porque los sistemas de origen no
+siempre traen lo que uno espera:
+
+1. **Slug que en realidad es un identificador.** Hay tiendas cuya URL es el UUID
+   del producto. Usarlo dejaría direcciones como `/producto/9f3c1a7e-…`, así que
+   cuando el slug parece un identificador, la dirección se arma del título. El
+   id de origen se sigue guardando en `externo_id`, así que no se duplica nada.
+2. **Borradores sin precio.** Un producto que el comercio aún no terminó de
+   cargar entra en cero y **no se publica**. Uno publicado sin precio **detiene
+   la importación**: se vendería regalado.
+3. **Existencias con decimales.** `productos.existencias` es un número con
+   decimales a propósito: una ferretería vende cable por metro y cemento por
+   kilo. Truncar 13.5 kg a 13 le quitaría media unidad de inventario al
+   comercio. **Esto vale para mercancía, no para dinero**: el dinero sigue
+   siendo entero en centavos, sin excepción.
+
+**Dependencia a vigilar:** las fotos del catálogo importado viven en el
+servidor del comercio de origen. Si esa tienda se apaga o cambia de dominio,
+las fotos de Mercatren dejan de verse. Cuando el piloto deje de usar su tienda
+vieja, hay que copiarlas a nuestro bucket.
+
 ```bash
 npm run productos:importar                          # desde datos/
 npm run productos:importar -- --archivo=otra/ruta.json
