@@ -338,16 +338,25 @@ async function filaDeProductos(
 /**
  * Todo lo que necesita la portada, de una sola vez.
  * Si el catalogo esta vacio devuelve listas vacias y la portada lo maneja.
+ *
+ * Tambien aguanta una base SIN TABLAS (un sitio recien publicado al que
+ * todavia no se le aplicaron las migraciones): antes que tumbar la portada
+ * con un error 500, se muestra vacia. El catalogo llega con las migraciones.
  */
 export async function obtenerPortada() {
-  const [destacados, nuevos, categorias, comercios] = await Promise.all([
-    filaDeProductos("destacados"),
-    filaDeProductos("nuevos"),
-    listarCategoriasConImagen(),
-    listarComerciosDestacados(),
-  ]);
+  try {
+    const [destacados, nuevos, categorias, comercios] = await Promise.all([
+      filaDeProductos("destacados"),
+      filaDeProductos("nuevos"),
+      listarCategoriasConImagen(),
+      listarComerciosDestacados(),
+    ]);
 
-  return { destacados, nuevos, categorias, comercios };
+    return { destacados, nuevos, categorias, comercios };
+  } catch (e) {
+    console.error("[portada] la base no respondio; se muestra vacia:", e);
+    return { destacados: [], nuevos: [], categorias: [], comercios: [] };
+  }
 }
 
 /** Categorias con una foto de muestra, para los circulos de la portada. */
