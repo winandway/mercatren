@@ -701,7 +701,28 @@
         "Las fotos que ya trajimos a Mercatren no se tocan."
       ]
     },
-    "miCuenta": "Mi cuenta"
+    "miCuenta": "Mi cuenta",
+    "tique": {
+      "titulo": "Comprobante de venta",
+      "seccion": "Ventas entregadas",
+      "cuantas": "{n, plural, =0 {Sin ventas} one {# venta} other {# ventas}}",
+      "pagina": "Página {n} de {de}",
+      "entregado": "Entregado",
+      "buscar": "Buscar por confirmación, banco, monto o comercio",
+      "vacio": "Todavía no hay ventas aprobadas.",
+      "sinResultados": "Ninguna venta coincide con lo que buscas.",
+      "sinBanco": "Banco sin identificar",
+      "imprimir": "Imprimir",
+      "fecha": "Fecha del pago",
+      "confirmacion": "Confirmación",
+      "banco": "Banco",
+      "recibio": "Recibió",
+      "comercio": "Comercio",
+      "aprobado": "Aprobado",
+      "comision": "Comisión de Mercatren",
+      "neto": "Neto para el comercio",
+      "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce LLC."
+    }
   },
   "catalogo": {
     "titulo": "Catálogo",

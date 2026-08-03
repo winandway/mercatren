@@ -66,3 +66,39 @@
     @apply rounded-sm border border-transparent px-2 py-1 transition-colors hover:border-white/60;
   }
 }
+
+/**
+ * Impresión: solo el tique.
+ *
+ * Cuando hay un tique abierto y la persona imprime, todo lo demás de la
+ * pantalla estorba: el menú lateral, el encabezado, la lista de atrás. Se
+ * esconde todo y queda la hoja sola, sin sombras ni bordes redondeados, que
+ * en papel se ven como manchas grises.
+ */
+@media print {
+  body:has(.hoja-tique) > *:not(:has(.hoja-tique)) {
+    display: none !important;
+  }
+
+  body:has(.hoja-tique) {
+    background: #fff;
+  }
+
+  .hoja-tique {
+    position: static !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* El fondo oscuro del modal no se imprime: gastaría media tinta. */
+  .hoja-tique ~ *,
+  [role="dialog"] > button {
+    display: none !important;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

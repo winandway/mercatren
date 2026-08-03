@@ -7,31 +7,22 @@ Lo que depende de ti vive aparte, en `BLOQUEADO.md`.
 
 ---
 
-## 1. Órdenes como tiques imprimibles
+## ~~1. Órdenes como tiques imprimibles~~ — HECHO
 
-**Qué se quiere:** que la ficha del pago —la que ya se ve bonita al abrir un
-pago en el panel— tenga forma de **tique imprimible**, y que la sección
-**Órdenes** deje de estar vacía y se llene con esos pagos.
+Cada pago aprobado sale ya como **tique imprimible** en **Órdenes**, con su
+buscador (confirmación, banco, últimos cuatro, monto, comercio). Al imprimir se
+esconde todo lo demás de la pantalla y queda la hoja sola.
 
-**La regla de negocio:** todo pago aprobado **ya está pagado y ya está
-entregado**. No se espera a que el cliente vaya al negocio ni a que nadie
-confirme nada: al aprobar el pago, la orden nace directamente en estado
-`entregado`. Por eso "productos por entregar" siempre da cero.
+La regla de negocio quedó aplicada: **un pago aprobado ya está pagado y ya está
+entregado**, así que la pestaña "Entregado" cuenta esas ventas y "Preparando"
+queda en cero. No se espera a que nadie confirme nada.
 
-**Qué hay que hacer:**
+Lo único que quedó fuera: la descarga en PDF. Imprimir desde el navegador ya
+permite "Guardar como PDF", así que no compensa el trabajo extra por ahora.
 
-- Darle forma de tique a la ficha del pago: cabecera con la marca, el monto
-  grande, los datos del pago, la comisión y el neto, y una línea de corte.
-  Que se imprima bien en papel de recibo y en hoja normal (`@media print`).
-- Llenar **Órdenes** con los pagos aprobados: cada pago aprobado es una orden
-  entregada, con su número, su fecha, su monto y el comercio.
-- Buscador dentro de Órdenes: por número de confirmación, por monto, por banco,
-  por comercio y por fecha.
-- Botón de imprimir en cada tique, y descarga en PDF si sale barato.
-
-**Ojo con esto:** las órdenes que nacen de un pago aprobado y las órdenes que
-nacen del carrito son la misma sección pero no el mismo camino. Las del carrito
-sí pasan por "esperando el pago". Las del pago aprobado entran ya cerradas.
+**Ojo al tocarlo:** las órdenes que nacen de un pago aprobado y las que nacen
+del carrito son la misma sección pero no el mismo camino. Las del carrito sí
+pasan por "esperando el pago". Las del pago aprobado entran ya cerradas.
 
 ---
 

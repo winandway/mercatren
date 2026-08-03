@@ -701,7 +701,28 @@
         "Photos already brought over to Mercatren are left untouched."
       ]
     },
-    "miCuenta": "My account"
+    "miCuenta": "My account",
+    "tique": {
+      "titulo": "Sales receipt",
+      "seccion": "Delivered sales",
+      "cuantas": "{n, plural, =0 {No sales} one {# sale} other {# sales}}",
+      "pagina": "Page {n} of {de}",
+      "entregado": "Delivered",
+      "buscar": "Search by confirmation, bank, amount or store",
+      "vacio": "No approved sales yet.",
+      "sinResultados": "No sale matches your search.",
+      "sinBanco": "Bank not identified",
+      "imprimir": "Print",
+      "fecha": "Payment date",
+      "confirmacion": "Confirmation",
+      "banco": "Bank",
+      "recibio": "Received by",
+      "comercio": "Store",
+      "aprobado": "Approved",
+      "comision": "Mercatren fee",
+      "neto": "Net to the store",
+      "pie": "Payment collected in the United States and fulfilled by the store. Mercatren is a service of Windoce LLC."
+    }
   },
   "catalogo": {
     "titulo": "Catalog",

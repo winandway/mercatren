@@ -1,6 +1,7 @@
 import { Clock, ShoppingBag, TriangleAlert } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { ListaTiques } from "@/components/panel/lista-tiques";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -9,6 +10,8 @@ import {
   listarPedidosDelPanel,
 } from "@/lib/pedidos/consultas";
 import { cn } from "@/lib/utils";
+import { listarComercios, listarPagos } from "@/lib/zelle/consultas";
+import { aPagoVista } from "@/lib/zelle/vista";
 
 export const dynamic = "force-dynamic";
 
@@ -36,23 +39,56 @@ export default async function PaginaOrdenes({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ estado?: string; comercio?: string }>;
+  searchParams: Promise<{
+    estado?: string;
+    comercio?: string;
+    q?: string;
+    pagina?: string;
+  }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.ordenes");
+  const tt = await getTranslations("panel.tique");
   const tp = await getTranslations("pedido");
   const filtros = await searchParams;
 
-  const [datos, conteo] = await Promise.all([
+  /**
+   * LAS VENTAS YA CERRADAS SON LOS PAGOS APROBADOS.
+   *
+   * Cada pago aprobado ya se cobró y ya se entregó: no se espera a que el
+   * cliente pase por el negocio. Por eso salen aquí como tiques entregados, en
+   * vez de dejar la sección vacía mientras el histórico vive en otra pantalla.
+   *
+   * Se reutiliza `listarPagos`, que ya trae el buscador (código de
+   * confirmación, banco, últimos cuatro, monto, pagador) y —lo importante— ya
+   * respeta el alcance: un comercio solo ve lo suyo.
+   */
+  const [datos, conteo, ventas, comercios] = await Promise.all([
     listarPedidosDelPanel({
       estado: filtros.estado,
       comercio: filtros.comercio,
     }),
     contarPedidosPorEstado(filtros.comercio),
+    listarPagos({
+      tipo: "entrada",
+      estado: "aprobado",
+      comercio: filtros.comercio,
+      busqueda: filtros.q,
+      pagina: Number(filtros.pagina) || 1,
+      porPagina: 24,
+    }),
+    listarComercios().catch(() => []),
   ]);
+
+  const nombrePorTienda = new Map(comercios.map((c) => [c.id, c.nombre]));
+
+  const tiques = ventas.pagos.map((p) => ({
+    pago: aPagoVista(p),
+    comercio: p.tiendaId ? (nombrePorTienda.get(p.tiendaId) ?? null) : null,
+  }));
 
   return (
     <div className="space-y-6">
@@ -84,7 +120,16 @@ export default async function PaginaOrdenes({
             >
               {clave ? tp(`estado.${clave}`) : t("todos")}{" "}
               <span className="tabular-nums opacity-70">
-                {clave ? (conteo[clave] ?? 0) : conteo.total}
+                {/**
+                 * Las ventas aprobadas cuentan como entregadas: ya se cobraron
+                 * y ya se entregaron. Si no se sumaran aquí, "Entregado" diría
+                 * cero teniendo cientos abajo en la pantalla.
+                 */}
+                {clave === "entregado"
+                  ? (conteo.entregado ?? 0) + ventas.total
+                  : clave
+                    ? (conteo[clave] ?? 0)
+                    : conteo.total + ventas.total}
               </span>
             </Link>
           );
@@ -97,16 +142,45 @@ export default async function PaginaOrdenes({
         </p>
       ) : null}
 
+      {/**
+       * Las ventas ya cerradas, como tiques. Solo aparecen cuando no se está
+       * filtrando por otro estado: si alguien pide "esperando el pago", meterle
+       * aquí las entregadas sería contradecir el filtro que acaba de tocar.
+       */}
+      {!filtros.estado || filtros.estado === "entregado" ? (
+        <section className="space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-bold">{tt("seccion")}</h2>
+            <p className="text-sm text-tinta-suave">
+              {tt("cuantas", { n: ventas.total })} ·{" "}
+              <span className="font-semibold tabular-nums">
+                {formatearPrecio(ventas.sumaFiltrada.montoCentavos, idioma)}
+              </span>
+            </p>
+          </div>
+
+          <ListaTiques tiques={tiques} busqueda={filtros.q ?? ""} />
+
+          {ventas.paginas > 1 ? (
+            <p className="text-center text-xs text-tinta-suave">
+              {tt("pagina", { n: ventas.pagina, de: ventas.paginas })}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       {datos.pedidos.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
-          <ShoppingBag
-            className="mx-auto h-10 w-10 text-tinta-suave"
-            aria-hidden
-          />
-          <p className="mt-4 text-sm text-tinta-suave">
-            {conteo.total === 0 ? t("vacio") : t("sinResultados")}
-          </p>
-        </div>
+        conteo.total === 0 ? null : (
+          <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
+            <ShoppingBag
+              className="mx-auto h-10 w-10 text-tinta-suave"
+              aria-hidden
+            />
+            <p className="mt-4 text-sm text-tinta-suave">
+              {t("sinResultados")}
+            </p>
+          </div>
+        )
       ) : (
         <ul className="space-y-2">
           {datos.pedidos.map((p) => {
