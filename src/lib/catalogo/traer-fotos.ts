@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mensajes } from "@/lib/mensajes";
 import { imagenesProducto } from "@/lib/db/schema";
 
 /**
@@ -68,6 +69,8 @@ export async function contarFotosPendientes() {
  * puede detener la migracion de las otras seiscientas.
  */
 export async function traerTandaDeFotos(): Promise<ResultadoTanda> {
+  const t = await mensajes();
+
   try {
     await exigirEquipoInterno();
   } catch {
@@ -76,7 +79,7 @@ export async function traerTandaDeFotos(): Promise<ResultadoTanda> {
       copiadas: 0,
       fallidas: 0,
       faltan: 0,
-      mensaje: "Esta parte es solo para el equipo de Mercatren.",
+      mensaje: t("soloEquipo"),
     };
   }
 

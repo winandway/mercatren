@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mensajes } from "@/lib/mensajes";
 import {
   itemsPedido,
   pagosZelle,
@@ -43,11 +44,13 @@ async function siguienteNumero(db: ReturnType<typeof getDb>) {
 export async function crearPedido(
   entrada: DatosPedido,
 ): Promise<ResultadoPedido> {
+  const t = await mensajes();
+
   const usuario = await obtenerUsuario();
   if (!usuario) {
     return {
       ok: false,
-      mensaje: "Entra con tu cuenta para terminar la compra.",
+      mensaje: t("entraParaComprar"),
     };
   }
 
@@ -55,8 +58,7 @@ export async function crearPedido(
   if (!revisado.success) {
     return {
       ok: false,
-      mensaje:
-        revisado.error.issues[0]?.message ?? "Faltan datos para el pedido.",
+      mensaje: revisado.error.issues[0]?.message ?? t("faltanDatosPedido"),
     };
   }
 
@@ -65,7 +67,7 @@ export async function crearPedido(
   if (metodoPago !== "zelle") {
     return {
       ok: false,
-      mensaje: "Por ahora solo está habilitado el pago por Zelle.",
+      mensaje: t("soloZellePorAhora"),
     };
   }
 
@@ -105,20 +107,22 @@ export async function crearPedido(
     if (!producto) {
       return {
         ok: false,
-        mensaje:
-          "Uno de los productos del carrito ya no está en el catálogo. Quítalo y vuelve a intentar.",
+        mensaje: t("productoFueraDelCatalogo"),
       };
     }
     if (producto.estado !== "publicado" || producto.tiendaEstado !== "activa") {
       return {
         ok: false,
-        mensaje: `"${producto.tituloEs}" ya no está a la venta. Quítalo del carrito.`,
+        mensaje: t("productoFueraDeVenta", { producto: producto.tituloEs }),
       };
     }
     if (producto.controlaExistencias && producto.existencias < linea.cantidad) {
       return {
         ok: false,
-        mensaje: `De "${producto.tituloEs}" solo quedan ${producto.existencias}.`,
+        mensaje: t("sinSuficiente", {
+          producto: producto.tituloEs,
+          quedan: producto.existencias,
+        }),
       };
     }
 
@@ -143,7 +147,7 @@ export async function crearPedido(
   }
 
   if (subtotal <= 0) {
-    return { ok: false, mensaje: "El pedido no tiene monto que cobrar." };
+    return { ok: false, mensaje: t("pedidoSinMonto") };
   }
 
   const pedidoId = nanoid();

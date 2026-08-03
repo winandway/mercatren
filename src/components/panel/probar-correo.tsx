@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
 import { enviarCorreoDePrueba } from "@/lib/correo/acciones";
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
  * que dejó de funcionar es que un cliente se queje de que nunca le llegó nada.
  */
 export function ProbarCorreo() {
+  const t = useTranslations("panel.configuracion.correos");
   const [estado, accion, enviando] = useActionState(enviarCorreoDePrueba, null);
 
   return (
@@ -23,7 +25,7 @@ export function ProbarCorreo() {
           type="email"
           name="correo"
           required
-          placeholder="Dirección donde quieres recibir la prueba"
+          placeholder={t("pruebaDonde")}
           className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
         />
         <button
@@ -36,7 +38,7 @@ export function ProbarCorreo() {
           ) : (
             <Send className="h-4 w-4" aria-hidden />
           )}
-          {enviando ? "Enviando…" : "Enviar prueba"}
+          {enviando ? t("pruebaEnviando") : t("pruebaBoton")}
         </button>
       </div>
 

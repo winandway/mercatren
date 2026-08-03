@@ -1,5 +1,6 @@
 "use server";
 
+import { mensajes } from "@/lib/mensajes";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { correoBienvenida } from "@/lib/correo/correos";
 
@@ -20,10 +21,12 @@ export async function enviarCorreoDePrueba(
   _estadoPrevio: unknown,
   datos: FormData,
 ): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
   const usuario = await obtenerUsuario().catch(() => null);
 
   if (usuario?.rol !== "soporte") {
-    return { ok: false, mensaje: "No tienes permiso para esto." };
+    return { ok: false, mensaje: t("sinPermiso") };
   }
 
   const correo = String(datos.get("correo") ?? "")
@@ -31,7 +34,7 @@ export async function enviarCorreoDePrueba(
     .toLowerCase();
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-    return { ok: false, mensaje: "Escribe una dirección de correo válida." };
+    return { ok: false, mensaje: t("escribeCorreo") };
   }
 
   const resultado = await correoBienvenida({
@@ -41,12 +44,14 @@ export async function enviarCorreoDePrueba(
   });
 
   if (resultado.enviado) {
-    return { ok: true, mensaje: `Enviado a ${correo}. Revisa la bandeja.` };
+    return { ok: true, mensaje: t("correoEnviado", { correo }) };
   }
 
   // El motivo real, no un "no se pudo": esta pantalla existe para diagnosticar.
   return {
     ok: false,
-    mensaje: `No salió — ${resultado.motivo ?? "sin motivo del servicio"}`,
+    mensaje: t("correoNoSalio", {
+      motivo: resultado.motivo ?? t("correoSinMotivo"),
+    }),
   };
 }

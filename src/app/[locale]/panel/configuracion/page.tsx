@@ -36,8 +36,8 @@ const VARIABLES_DE_PAGO = [
 
 /** Lo que esta construido pero todavia no tiene servicio detras. */
 const PENDIENTES = [
-  { clave: "CLOUDFLARE_EMAIL_TOKEN", que: "Envío de avisos por correo" },
-  { clave: "STRIPE_SECRET_KEY", que: "Pago con tarjeta" },
+  { clave: "CLOUDFLARE_EMAIL_TOKEN", que: "correo" },
+  { clave: "STRIPE_SECRET_KEY", que: "tarjeta" },
 ] as const;
 
 /**
@@ -215,7 +215,7 @@ export default async function PaginaConfiguracion({
                     aria-hidden
                   />
                 )}
-                <span className="flex-1">{p.que}</span>
+                <span className="flex-1">{t(`pendientes.${p.que}`)}</span>
                 <span className="font-mono text-xs text-tinta-suave">
                   {p.clave}
                 </span>

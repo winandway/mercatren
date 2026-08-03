@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { MenuLateral } from "@/components/panel/menu-lateral";
 import { redirect } from "@/i18n/navigation";
@@ -13,10 +13,19 @@ import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
 /** El panel lee la base en cada visita: nunca se genera de antemano. */
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Administración",
-  robots: { index: false, follow: false },
-};
+/**
+ * El titulo de la pestaña también va traducido: un banco o un inversionista
+ * que abra el panel en inglés no debería ver "Administración" arriba.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "panel" });
+  return { title: t("titulo"), robots: { index: false, follow: false } };
+}
 
 export default async function LayoutPanel({
   children,

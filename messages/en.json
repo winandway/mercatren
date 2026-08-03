@@ -682,7 +682,10 @@
         "envia": "System sender",
         "enviaAyuda": "Sends notices only. Doesn't receive replies.",
         "pruebaTitulo": "Test delivery",
-        "pruebaTexto": "Sends the real welcome email to the address you enter. If this one arrives, they all do — they share the same template and the same path."
+        "pruebaTexto": "Sends the real welcome email to the address you enter. If this one arrives, they all do — they share the same template and the same path.",
+        "pruebaDonde": "Address where you want to receive the test",
+        "pruebaBoton": "Send test",
+        "pruebaEnviando": "Sending…"
       },
       "variables": {
         "titulo": "Details of the account that receives payments",
@@ -692,7 +695,9 @@
       },
       "pendientes": {
         "titulo": "Left to connect",
-        "texto": "Built and waiting for its service."
+        "texto": "Built and waiting for its service.",
+        "correo": "Email notifications",
+        "tarjeta": "Card payments"
       }
     },
     "fotos": {
@@ -745,6 +750,56 @@
       "comision": "Mercatren fee",
       "neto": "Net to the store",
       "pie": "Payment collected in the United States and fulfilled by the store. Mercatren is a service of Windoce LLC."
+    },
+    "mensajes": {
+      "sinPermiso": "You don't have permission for this.",
+      "sinPermisoAprobar": "You don't have permission to approve payments.",
+      "sinPermisoRechazar": "You don't have permission to reject payments.",
+      "soloEquipo": "This section is for the Mercatren team only.",
+      "pagoNoExiste": "We couldn't find that payment.",
+      "pagoYaRevisado": "That payment has already been reviewed.",
+      "soloEntradas": "Only incoming payments are credited. A withdrawal doesn't add up.",
+      "pagoSinComercio": "This payment has no store assigned, so there's no one to credit.",
+      "sinBilletera": "That store doesn't have a wallet yet.",
+      "pagoAprobado": "Payment approved and credited to the store.",
+      "pagoRechazado": "Payment rejected.",
+      "motivoObligatorio": "Enter a reason for the rejection — the store needs to know why.",
+      "tiendaNoExiste": "We couldn't find that store.",
+      "tiendaSinIdentificar": "It's not clear which store to save.",
+      "tiendaGuardada": "Saved. This is how your store looks now.",
+      "correoInvalido": "That email address isn't valid.",
+      "direccionInvalida": "That address isn't valid.",
+      "productoNoExiste": "That product no longer exists.",
+      "productoAjeno": "That product doesn't belong to your store.",
+      "productoSinTienda": "It's not clear which store this product belongs to.",
+      "precioMayorQueCero": "The price has to be greater than zero.",
+      "sinPrecioNoSePublica": "A product can't be published without a price.",
+      "ponlePrecio": "Set a price before publishing it.",
+      "fotoNoExiste": "That photo no longer exists.",
+      "fotoAjena": "That photo doesn't belong to your store.",
+      "fotoQuitada": "Photo removed.",
+      "fuenteNoExiste": "We couldn't find that source.",
+      "fuenteAjena": "That source doesn't belong to your store.",
+      "fuenteSinDireccion": "This source doesn't have an address set up yet.",
+      "direccionGuardada": "Address saved.",
+      "direccionHttps": "The address has to start with https://",
+      "archivoSinProductos": "The file doesn't contain any products.",
+      "archivoIlegible": "We couldn't read the file: {detalle}",
+      "listo": "Done.",
+      "correoEnviado": "Sent to {correo}. Check the inbox.",
+      "correoNoSalio": "It didn't go out — {motivo}",
+      "correoSinMotivo": "no reason given by the service",
+      "escribeCorreo": "Enter a valid email address.",
+      "productoFueraDeVenta": "“{producto}” is no longer for sale. Remove it from your cart.",
+      "sinSuficiente": "Only {quedan} left of “{producto}”.",
+      "nombreTiendaObligatorio": "The store name is required.",
+      "revisaLosDatos": "Check the details.",
+      "entraParaComprar": "Sign in to your account to complete the purchase.",
+      "faltanDatosPedido": "Some order details are missing.",
+      "soloZellePorAhora": "Zelle is the only payment method available right now.",
+      "productoFueraDelCatalogo": "One of the products in your cart is no longer in the catalog. Remove it and try again.",
+      "pedidoSinMonto": "This order has no amount to charge.",
+      "ponlePrecioAlProducto": "Set a price for the product."
     }
   },
   "catalogo": {

@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
+import { mensajes } from "@/lib/mensajes";
 import {
   billeteras,
   itemsPedido,
@@ -73,10 +74,12 @@ export type Resultado =
  * medio segundo antes, esta llamada no hace nada y avisa.
  */
 export async function aprobarPago(id: string): Promise<Resultado> {
+  const t = await mensajes();
+
   try {
     await exigirEquipoInterno();
   } catch {
-    return { ok: false, mensaje: "No tienes permiso para aprobar pagos." };
+    return { ok: false, mensaje: t("sinPermisoAprobar") };
   }
 
   const db = getDb();
@@ -88,21 +91,20 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     .where(eq(pagosZelle.id, id))
     .limit(1);
 
-  if (!pago) return { ok: false, mensaje: "No encontramos ese pago." };
+  if (!pago) return { ok: false, mensaje: t("pagoNoExiste") };
   if (pago.estado !== "pendiente") {
-    return { ok: false, mensaje: "Ese pago ya fue revisado." };
+    return { ok: false, mensaje: t("pagoYaRevisado") };
   }
   if (pago.tipo !== "entrada") {
     return {
       ok: false,
-      mensaje: "Solo se acreditan las entradas. Un retiro no suma.",
+      mensaje: t("soloEntradas"),
     };
   }
   if (!pago.tiendaId) {
     return {
       ok: false,
-      mensaje:
-        "El pago no tiene comercio asignado; no se sabe a quien acreditarle.",
+      mensaje: t("pagoSinComercio"),
     };
   }
 
@@ -115,7 +117,7 @@ export async function aprobarPago(id: string): Promise<Resultado> {
   if (!billetera) {
     return {
       ok: false,
-      mensaje: "Ese comercio todavia no tiene billetera abierta.",
+      mensaje: t("sinBilletera"),
     };
   }
 
@@ -241,7 +243,7 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     });
   }
 
-  return { ok: true, mensaje: "Pago aprobado y acreditado al comercio." };
+  return { ok: true, mensaje: t("pagoAprobado") };
 }
 
 /** Rechaza un pago pendiente. No toca ningun saldo. */
@@ -249,18 +251,19 @@ export async function rechazarPago(
   id: string,
   motivo: string,
 ): Promise<Resultado> {
+  const t = await mensajes();
+
   try {
     await exigirEquipoInterno();
   } catch {
-    return { ok: false, mensaje: "No tienes permiso para rechazar pagos." };
+    return { ok: false, mensaje: t("sinPermisoRechazar") };
   }
 
   const limpio = motivo.trim();
   if (limpio.length < 5) {
     return {
       ok: false,
-      mensaje:
-        "Escribe el motivo del rechazo: el comercio necesita saber por que.",
+      mensaje: t("motivoObligatorio"),
     };
   }
 
@@ -278,9 +281,9 @@ export async function rechazarPago(
     .where(eq(pagosZelle.id, id))
     .limit(1);
 
-  if (!pago) return { ok: false, mensaje: "No encontramos ese pago." };
+  if (!pago) return { ok: false, mensaje: t("pagoNoExiste") };
   if (pago.estado !== "pendiente") {
-    return { ok: false, mensaje: "Ese pago ya fue revisado." };
+    return { ok: false, mensaje: t("pagoYaRevisado") };
   }
 
   await db
@@ -307,5 +310,5 @@ export async function rechazarPago(
     );
   }
 
-  return { ok: true, mensaje: "Pago rechazado." };
+  return { ok: true, mensaje: t("pagoRechazado") };
 }

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mensajes } from "@/lib/mensajes";
 import {
   categorias,
   fuentesCatalogo,
@@ -122,6 +123,8 @@ const ESTADOS: Record<string, "publicado" | "borrador" | "agotado"> = {
 export async function sincronizarCatalogo(
   fuenteId: string,
 ): Promise<ResultadoSincronizacion> {
+  const t = await mensajes();
+
   const alcance = await obtenerAlcance();
   const db = getDb();
 
@@ -131,15 +134,15 @@ export async function sincronizarCatalogo(
     .where(eq(fuentesCatalogo.id, fuenteId))
     .limit(1);
 
-  if (!fuente) return { ok: false, mensaje: "No encontramos esa fuente." };
+  if (!fuente) return { ok: false, mensaje: t("fuenteNoExiste") };
 
   if (alcance.tipo === "tienda" && fuente.tiendaId !== alcance.tiendaId) {
-    return { ok: false, mensaje: "Esa fuente no es de tu tienda." };
+    return { ok: false, mensaje: t("fuenteAjena") };
   }
   if (!fuente.url) {
     return {
       ok: false,
-      mensaje: "Esta fuente todavía no tiene una dirección configurada.",
+      mensaje: t("fuenteSinDireccion"),
     };
   }
 
@@ -163,12 +166,12 @@ export async function sincronizarCatalogo(
       })
       .where(eq(fuentesCatalogo.id, fuenteId));
 
-    return { ok: false, mensaje: `No se pudo leer el archivo: ${detalle}` };
+    return { ok: false, mensaje: t("archivoIlegible", { detalle }) };
   }
 
   const lista = archivo.products ?? [];
   if (lista.length === 0) {
-    return { ok: false, mensaje: "El archivo no trae productos." };
+    return { ok: false, mensaje: t("archivoSinProductos") };
   }
 
   const tiendaId = fuente.tiendaId;
@@ -352,6 +355,8 @@ export async function sincronizarCatalogo(
 export async function guardarFuente(
   formulario: FormData,
 ): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
   const alcance = await obtenerAlcance();
   const db = getDb();
 
@@ -364,15 +369,15 @@ export async function guardarFuente(
     .where(eq(fuentesCatalogo.id, id))
     .limit(1);
 
-  if (!fuente) return { ok: false, mensaje: "No encontramos esa fuente." };
+  if (!fuente) return { ok: false, mensaje: t("fuenteNoExiste") };
   if (alcance.tipo === "tienda" && fuente.tiendaId !== alcance.tiendaId) {
-    return { ok: false, mensaje: "Esa fuente no es de tu tienda." };
+    return { ok: false, mensaje: t("fuenteAjena") };
   }
 
   if (url && !/^https:\/\//.test(url)) {
     return {
       ok: false,
-      mensaje: "La dirección tiene que empezar por https://",
+      mensaje: t("direccionHttps"),
     };
   }
 
@@ -382,5 +387,5 @@ export async function guardarFuente(
     .where(eq(fuentesCatalogo.id, id));
 
   revalidatePath("/[locale]/panel", "layout");
-  return { ok: true, mensaje: "Dirección guardada." };
+  return { ok: true, mensaje: t("direccionGuardada") };
 }

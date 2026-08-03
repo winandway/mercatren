@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mensajes } from "@/lib/mensajes";
 import { tiendas } from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
 
@@ -22,30 +23,35 @@ import { borrarImagen, subirImagen } from "@/lib/subidas";
  *   - su slug (romperia los enlaces que ya circulan).
  */
 
-const esquema = z.object({
-  nombre: z
-    .string()
-    .trim()
-    .min(2, "El nombre de la tienda es obligatorio.")
-    .max(80),
-  descripcionEs: z.string().trim().max(600).optional(),
-  descripcionEn: z.string().trim().max(600).optional(),
-  razonSocial: z.string().trim().max(120).optional(),
-  identificacionFiscal: z.string().trim().max(40).optional(),
-  correoContacto: z
-    .union([z.literal(""), z.string().trim().email("Ese correo no es válido.")])
-    .optional(),
-  telefono: z.string().trim().max(40).optional(),
-  direccion: z.string().trim().max(200).optional(),
-  ciudad: z.string().trim().max(80).optional(),
-  sitioWeb: z
-    .union([
-      z.literal(""),
-      z.string().trim().url("Esa dirección no es válida."),
-    ])
-    .optional(),
-  horario: z.string().trim().max(200).optional(),
-});
+/**
+ * El esquema se arma con los textos ya traducidos.
+ *
+ * Antes era una constante del modulo, y ahi no hay idioma todavia: los
+ * avisos de validacion salian siempre en espanol aunque la persona
+ * estuviera usando el panel en ingles.
+ */
+/** Los textos traducidos que necesita el esquema. */
+type Textos = Awaited<ReturnType<typeof mensajes>>;
+
+function construirEsquema(t: Textos) {
+  return z.object({
+    nombre: z.string().trim().min(2, t("nombreTiendaObligatorio")).max(80),
+    descripcionEs: z.string().trim().max(600).optional(),
+    descripcionEn: z.string().trim().max(600).optional(),
+    razonSocial: z.string().trim().max(120).optional(),
+    identificacionFiscal: z.string().trim().max(40).optional(),
+    correoContacto: z
+      .union([z.literal(""), z.string().trim().email(t("correoInvalido"))])
+      .optional(),
+    telefono: z.string().trim().max(40).optional(),
+    direccion: z.string().trim().max(200).optional(),
+    ciudad: z.string().trim().max(80).optional(),
+    sitioWeb: z
+      .union([z.literal(""), z.string().trim().url(t("direccionInvalida"))])
+      .optional(),
+    horario: z.string().trim().max(200).optional(),
+  });
+}
 
 export type ResultadoTienda =
   { ok: true; mensaje: string } | { ok: false; mensaje: string };
@@ -59,6 +65,8 @@ function oNulo(valor: string | undefined) {
 export async function guardarMiTienda(
   formulario: FormData,
 ): Promise<ResultadoTienda> {
+  const t = await mensajes();
+
   const alcance = await obtenerAlcance();
 
   // El equipo de Mercatren puede editar la tienda que este viendo; un
@@ -69,10 +77,10 @@ export async function guardarMiTienda(
       : String(formulario.get("tiendaId") ?? "");
 
   if (!tiendaId) {
-    return { ok: false, mensaje: "No se sabe qué tienda hay que guardar." };
+    return { ok: false, mensaje: t("tiendaSinIdentificar") };
   }
 
-  const revisado = esquema.safeParse({
+  const revisado = construirEsquema(t).safeParse({
     nombre: formulario.get("nombre"),
     descripcionEs: formulario.get("descripcionEs"),
     descripcionEn: formulario.get("descripcionEn"),
@@ -89,7 +97,7 @@ export async function guardarMiTienda(
   if (!revisado.success) {
     return {
       ok: false,
-      mensaje: revisado.error.issues[0]?.message ?? "Revisa los datos.",
+      mensaje: revisado.error.issues[0]?.message ?? t("revisaLosDatos"),
     };
   }
 
@@ -103,7 +111,7 @@ export async function guardarMiTienda(
     .where(eq(tiendas.id, tiendaId))
     .limit(1);
 
-  if (!actual) return { ok: false, mensaje: "No encontramos esa tienda." };
+  if (!actual) return { ok: false, mensaje: t("tiendaNoExiste") };
 
   const datos = revisado.data;
   const cambios: Record<string, unknown> = {
@@ -150,5 +158,5 @@ export async function guardarMiTienda(
   revalidatePath("/[locale]/panel", "layout");
   revalidatePath("/[locale]/tienda/[slug]", "page");
 
-  return { ok: true, mensaje: "Guardado. Tu tienda ya se ve así." };
+  return { ok: true, mensaje: t("tiendaGuardada") };
 }

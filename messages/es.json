@@ -682,7 +682,10 @@
         "envia": "Remitente del sistema",
         "enviaAyuda": "Solo envía avisos. No recibe respuestas.",
         "pruebaTitulo": "Probar el envío",
-        "pruebaTexto": "Manda el correo de bienvenida real a la dirección que escribas. Si este llega, llegan todos: usan la misma plantilla y el mismo camino."
+        "pruebaTexto": "Manda el correo de bienvenida real a la dirección que escribas. Si este llega, llegan todos: usan la misma plantilla y el mismo camino.",
+        "pruebaDonde": "Dirección donde quieres recibir la prueba",
+        "pruebaBoton": "Enviar prueba",
+        "pruebaEnviando": "Enviando…"
       },
       "variables": {
         "titulo": "Datos de la cuenta que recibe los pagos",
@@ -692,7 +695,9 @@
       },
       "pendientes": {
         "titulo": "Lo que falta por conectar",
-        "texto": "Está construido y esperando su servicio."
+        "texto": "Está construido y esperando su servicio.",
+        "correo": "Envío de avisos por correo",
+        "tarjeta": "Pago con tarjeta"
       }
     },
     "fotos": {
@@ -745,6 +750,56 @@
       "comision": "Comisión de Mercatren",
       "neto": "Neto para el comercio",
       "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce LLC."
+    },
+    "mensajes": {
+      "sinPermiso": "No tienes permiso para esto.",
+      "sinPermisoAprobar": "No tienes permiso para aprobar pagos.",
+      "sinPermisoRechazar": "No tienes permiso para rechazar pagos.",
+      "soloEquipo": "Esta parte es solo para el equipo de Mercatren.",
+      "pagoNoExiste": "No encontramos ese pago.",
+      "pagoYaRevisado": "Ese pago ya fue revisado.",
+      "soloEntradas": "Solo se acreditan las entradas. Un retiro no suma.",
+      "pagoSinComercio": "El pago no tiene comercio asignado; no se sabe a quién acreditarle.",
+      "sinBilletera": "Ese comercio todavía no tiene billetera abierta.",
+      "pagoAprobado": "Pago aprobado y acreditado al comercio.",
+      "pagoRechazado": "Pago rechazado.",
+      "motivoObligatorio": "Escribe el motivo del rechazo: el comercio necesita saber por qué.",
+      "tiendaNoExiste": "No encontramos esa tienda.",
+      "tiendaSinIdentificar": "No se sabe qué tienda hay que guardar.",
+      "tiendaGuardada": "Guardado. Tu tienda ya se ve así.",
+      "correoInvalido": "Ese correo no es válido.",
+      "direccionInvalida": "Esa dirección no es válida.",
+      "productoNoExiste": "Ese producto ya no existe.",
+      "productoAjeno": "Ese producto no es de tu tienda.",
+      "productoSinTienda": "No se sabe a qué tienda va este producto.",
+      "precioMayorQueCero": "El precio tiene que ser mayor que cero.",
+      "sinPrecioNoSePublica": "No se puede publicar un producto sin precio.",
+      "ponlePrecio": "Ponle precio antes de publicarlo.",
+      "fotoNoExiste": "Esa foto ya no existe.",
+      "fotoAjena": "Esa foto no es de tu tienda.",
+      "fotoQuitada": "Foto quitada.",
+      "fuenteNoExiste": "No encontramos esa fuente.",
+      "fuenteAjena": "Esa fuente no es de tu tienda.",
+      "fuenteSinDireccion": "Esta fuente todavía no tiene una dirección configurada.",
+      "direccionGuardada": "Dirección guardada.",
+      "direccionHttps": "La dirección tiene que empezar por https://",
+      "archivoSinProductos": "El archivo no trae productos.",
+      "archivoIlegible": "No se pudo leer el archivo: {detalle}",
+      "listo": "Listo.",
+      "correoEnviado": "Enviado a {correo}. Revisa la bandeja.",
+      "correoNoSalio": "No salió — {motivo}",
+      "correoSinMotivo": "sin motivo del servicio",
+      "escribeCorreo": "Escribe una dirección de correo válida.",
+      "productoFueraDeVenta": "«{producto}» ya no está a la venta. Quítalo del carrito.",
+      "sinSuficiente": "De «{producto}» solo quedan {quedan}.",
+      "nombreTiendaObligatorio": "El nombre de la tienda es obligatorio.",
+      "revisaLosDatos": "Revisa los datos.",
+      "entraParaComprar": "Entra con tu cuenta para terminar la compra.",
+      "faltanDatosPedido": "Faltan datos para el pedido.",
+      "soloZellePorAhora": "Por ahora solo está habilitado el pago por Zelle.",
+      "productoFueraDelCatalogo": "Uno de los productos del carrito ya no está en el catálogo. Quítalo y vuelve a intentar.",
+      "pedidoSinMonto": "El pedido no tiene monto que cobrar.",
+      "ponlePrecioAlProducto": "Ponle precio al producto."
     }
   },
   "catalogo": {

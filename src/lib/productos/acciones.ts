@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mensajes } from "@/lib/mensajes";
 import { imagenesProducto, productos } from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
 
@@ -24,32 +25,41 @@ import { borrarImagen, subirImagen } from "@/lib/subidas";
  *     metro y cemento por kilo.
  */
 
-const esquema = z.object({
-  tituloEs: z
-    .string()
-    .trim()
-    .min(2, "El nombre del producto es obligatorio.")
-    .max(160),
-  tituloEn: z.string().trim().max(160).optional(),
-  descripcionEs: z.string().trim().max(2000).optional(),
-  descripcionEn: z.string().trim().max(2000).optional(),
-  sku: z.string().trim().max(60).optional(),
-  marca: z.string().trim().max(80).optional(),
-  unidad: z.string().trim().max(30).optional(),
-  precio: z
-    .string()
-    .trim()
-    .min(1, "Ponle precio al producto.")
-    .refine(
-      (v) => Number(v.replace(",", ".")) > 0,
-      "El precio tiene que ser mayor que cero.",
-    ),
-  precioAntes: z.string().trim().optional(),
-  existencias: z.string().trim().optional(),
-  controlaExistencias: z.string().optional(),
-  estado: z.enum(["borrador", "publicado", "agotado"]),
-  destacado: z.string().optional(),
-});
+/**
+ * El esquema se arma con los textos ya traducidos.
+ *
+ * Antes era una constante del modulo, y ahi no hay idioma todavia: los
+ * avisos de validacion salian siempre en espanol aunque la persona
+ * estuviera usando el panel en ingles.
+ */
+/** Los textos traducidos que necesita el esquema. */
+type Textos = Awaited<ReturnType<typeof mensajes>>;
+
+function construirEsquema(t: Textos) {
+  return z.object({
+    tituloEs: z
+      .string()
+      .trim()
+      .min(2, "El nombre del producto es obligatorio.")
+      .max(160),
+    tituloEn: z.string().trim().max(160).optional(),
+    descripcionEs: z.string().trim().max(2000).optional(),
+    descripcionEn: z.string().trim().max(2000).optional(),
+    sku: z.string().trim().max(60).optional(),
+    marca: z.string().trim().max(80).optional(),
+    unidad: z.string().trim().max(30).optional(),
+    precio: z
+      .string()
+      .trim()
+      .min(1, t("ponlePrecioAlProducto"))
+      .refine((v) => Number(v.replace(",", ".")) > 0, t("precioMayorQueCero")),
+    precioAntes: z.string().trim().optional(),
+    existencias: z.string().trim().optional(),
+    controlaExistencias: z.string().optional(),
+    estado: z.enum(["borrador", "publicado", "agotado"]),
+    destacado: z.string().optional(),
+  });
+}
 
 export type ResultadoProducto =
   { ok: true; mensaje: string; id: string } | { ok: false; mensaje: string };
@@ -103,6 +113,8 @@ async function slugLibre(
 export async function guardarProducto(
   formulario: FormData,
 ): Promise<ResultadoProducto> {
+  const t = await mensajes();
+
   const alcance = await obtenerAlcance();
   const db = getDb();
   const id = String(formulario.get("id") ?? "").trim() || null;
@@ -118,11 +130,11 @@ export async function guardarProducto(
       .where(eq(productos.id, id))
       .limit(1);
 
-    if (!existente) return { ok: false, mensaje: "Ese producto ya no existe." };
+    if (!existente) return { ok: false, mensaje: t("productoNoExiste") };
 
     // La comprobacion que impide tocar el producto de otro comercio.
     if (alcance.tipo === "tienda" && existente.tiendaId !== alcance.tiendaId) {
-      return { ok: false, mensaje: "Ese producto no es de tu tienda." };
+      return { ok: false, mensaje: t("productoAjeno") };
     }
     tiendaId = existente.tiendaId;
   } else if (!tiendaId) {
@@ -130,28 +142,30 @@ export async function guardarProducto(
   }
 
   if (!tiendaId) {
-    return { ok: false, mensaje: "No se sabe a qué tienda va este producto." };
+    return { ok: false, mensaje: t("productoSinTienda") };
   }
 
-  const revisado = esquema.safeParse(Object.fromEntries(formulario));
+  const revisado = construirEsquema(t).safeParse(
+    Object.fromEntries(formulario),
+  );
   if (!revisado.success) {
     return {
       ok: false,
-      mensaje: revisado.error.issues[0]?.message ?? "Revisa los datos.",
+      mensaje: revisado.error.issues[0]?.message ?? t("revisaLosDatos"),
     };
   }
 
   const d = revisado.data;
   const precioCentavos = aCentavos(d.precio);
   if (precioCentavos === null || precioCentavos <= 0) {
-    return { ok: false, mensaje: "El precio tiene que ser mayor que cero." };
+    return { ok: false, mensaje: t("precioMayorQueCero") };
   }
 
   // Un producto publicado sin precio se venderia regalado.
   if (d.estado === "publicado" && precioCentavos <= 0) {
     return {
       ok: false,
-      mensaje: "No se puede publicar un producto sin precio.",
+      mensaje: t("sinPrecioNoSePublica"),
     };
   }
 
@@ -234,6 +248,8 @@ export async function guardarProducto(
 export async function borrarFoto(
   imagenId: string,
 ): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
   const alcance = await obtenerAlcance();
   const db = getDb();
 
@@ -248,9 +264,9 @@ export async function borrarFoto(
     .where(eq(imagenesProducto.id, imagenId))
     .limit(1);
 
-  if (!fila) return { ok: false, mensaje: "Esa foto ya no existe." };
+  if (!fila) return { ok: false, mensaje: t("fotoNoExiste") };
   if (alcance.tipo === "tienda" && fila.tiendaId !== alcance.tiendaId) {
-    return { ok: false, mensaje: "Esa foto no es de tu tienda." };
+    return { ok: false, mensaje: t("fotoAjena") };
   }
 
   await db.delete(imagenesProducto).where(eq(imagenesProducto.id, imagenId));
@@ -260,7 +276,7 @@ export async function borrarFoto(
   if (fila.clave) await borrarImagen(fila.clave);
 
   revalidatePath("/[locale]/panel", "layout");
-  return { ok: true, mensaje: "Foto quitada." };
+  return { ok: true, mensaje: t("fotoQuitada") };
 }
 
 /** Publica o retira un producto de la tienda, sin abrir el formulario. */
@@ -268,6 +284,8 @@ export async function cambiarEstadoProducto(
   id: string,
   estado: "borrador" | "publicado" | "agotado",
 ): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
   const alcance = await obtenerAlcance();
   const db = getDb();
 
@@ -277,12 +295,12 @@ export async function cambiarEstadoProducto(
     .where(eq(productos.id, id))
     .limit(1);
 
-  if (!producto) return { ok: false, mensaje: "Ese producto ya no existe." };
+  if (!producto) return { ok: false, mensaje: t("productoNoExiste") };
   if (alcance.tipo === "tienda" && producto.tiendaId !== alcance.tiendaId) {
-    return { ok: false, mensaje: "Ese producto no es de tu tienda." };
+    return { ok: false, mensaje: t("productoAjeno") };
   }
   if (estado === "publicado" && producto.precio <= 0) {
-    return { ok: false, mensaje: "Ponle precio antes de publicarlo." };
+    return { ok: false, mensaje: t("ponlePrecio") };
   }
 
   await db
@@ -293,5 +311,5 @@ export async function cambiarEstadoProducto(
   revalidatePath("/[locale]/panel", "layout");
   revalidatePath("/[locale]/catalogo", "page");
 
-  return { ok: true, mensaje: "Listo." };
+  return { ok: true, mensaje: t("listo") };
 }
