@@ -36,22 +36,29 @@ contraseñas de otras personas no pasan por mis manos.
 
 ---
 
-## 3. El token de correo no está llegando al sitio
+## 3. El sitio dejó de tomar las versiones nuevas
 
-**Qué falta:** que `CLOUDFLARE_EMAIL_TOKEN` llegue de verdad al sitio
-publicado.
+**Qué pasa:** desde el despliegue de "cerrar sesión", `mercatren.com` sigue
+sirviendo esa versión. Todo lo que publiqué después —los arreglos del envío de
+correos— está subido pero **no está en vivo**.
 
-**Cómo comprobarlo tú mismo:** entra a **Panel → Configuración**. Abajo, en
-"Lo que falta por conectar", la línea del correo dice **Configurada** o
-**Falta**. Y más arriba, en "Probar el envío", puedes mandarte un correo de
-prueba: si no sale, ahora te dice el motivo exacto.
+**Cómo lo sé:** la rama que publica el sitio (`yapanel-build`) tiene el último
+cambio, y comprobé que el archivo publicado lo lleva dentro. Cada publicación
+termina en verde. Pero el sitio responde con el formato de mensaje de una
+versión de hace seis publicaciones, y eso no cambió ni después de 40 minutos.
 
-**Qué tienes que hacer si dice "Falta":** cargarla en el panel de YaDominios
-Cloud (variables de entorno del sitio) y volver a publicar para que el sitio la
-tome.
+**Qué tienes que hacer:** entrar al panel de YaDominios Cloud y **publicar el
+sitio a mano**. Si sigue igual, preguntarles por qué no está sirviendo la
+última versión de la rama conectada.
 
-**Ya resuelto:** Resend está fuera; el envío ya va por Cloudflare Email
-Sending, con las 7 plantillas de siempre.
+**Lo que se destraba con eso:** los correos automáticos (bienvenida,
+recuperar contraseña, aviso de compra, pago aprobado). El código ya está
+migrado de Resend al servicio de Cloudflare, con las 7 plantillas de siempre.
+Para comprobarlo: **Panel → Configuración → Probar el envío**, que dice el
+motivo exacto si algo no sale.
+
+**El token sí está bien.** En esa misma pantalla, la línea
+`CLOUDFLARE_EMAIL_TOKEN` dice **Configurada**.
 
 ---
 
