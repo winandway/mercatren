@@ -9,6 +9,19 @@ import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * El punto de color de cada cuenta.
+ *
+ * Verde solo el que opera de verdad. Sin esta distinción, una demostración
+ * con 120 cuentas todas en verde y un único comercio real se lee como números
+ * inflados — y quien mira tiene razón en desconfiar.
+ */
+const TONO_ESTADO: Record<string, string> = {
+  activo: "bg-precio-600",
+  inactivo: "bg-red-500",
+  demostracion: "bg-slate-300",
+};
+
 const TONO_ROL: Record<string, string> = {
   soporte: "bg-riel-900 text-white",
   validador: "bg-blue-100 text-blue-900",
@@ -63,13 +76,28 @@ export default async function PaginaUsuarios({
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-riel-900 text-sm font-bold text-white">
                     {u.nombre.trim()[0]?.toUpperCase() ?? "?"}
                   </span>
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-[11px] font-bold",
-                      TONO_ROL[u.rol] ?? TONO_ROL.cliente,
-                    )}
-                  >
-                    {t(`roles.${u.rol}`)}
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="flex items-center gap-1.5 text-[11px] font-medium text-tinta-suave"
+                      title={t(`estados.${u.estadoCuenta}`)}
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "h-2 w-2 shrink-0 rounded-full",
+                          TONO_ESTADO[u.estadoCuenta],
+                        )}
+                      />
+                      {t(`estados.${u.estadoCuenta}`)}
+                    </span>
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                        TONO_ROL[u.rol] ?? TONO_ROL.cliente,
+                      )}
+                    >
+                      {t(`roles.${u.rol}`)}
+                    </span>
                   </span>
                 </div>
 

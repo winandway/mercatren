@@ -28,6 +28,19 @@ export type FichaUsuario = {
   pais: string | null;
   telefono: string | null;
   creadoEn: number;
+  /**
+   * EN QUÉ ESTADO ESTÁ LA CUENTA. Se enseña con un punto de color.
+   *
+   * Hace falta para no mentir. Si en una demostración salen 120 cuentas todas
+   * en verde teniendo un solo comercio real, lo primero que piensa quien mira
+   * es que los números están inflados — y con razón. Marcar cuáles operan de
+   * verdad y cuáles son de muestra da MÁS credibilidad, no menos.
+   *
+   *   activo        → opera de verdad hoy
+   *   inactivo      → existe pero su comercio no está activo
+   *   demostracion  → cuenta sembrada para enseñar el sistema
+   */
+  estadoCuenta: "activo" | "inactivo" | "demostracion";
   tienda: {
     id: string;
     nombre: string;
@@ -51,7 +64,22 @@ function aFicha(f: {
   tienda: typeof tiendas.$inferSelect | null;
 }): FichaUsuario {
   const { usuario, tienda } = f;
+
+  /**
+   * Las cuentas de muestra llevan el prefijo `demo-` en el id. Se marcan
+   * aparte a propósito: una cuenta sembrada no es una cuenta "inactiva", es
+   * una que nunca fue real, y mezclarlas sería justo lo que se quiere evitar.
+   */
+  const esDemostracion = usuario.id.startsWith("demo-");
+
+  const estadoCuenta = esDemostracion
+    ? ("demostracion" as const)
+    : usuario.rol === "vendedor" && tienda?.estado !== "activa"
+      ? ("inactivo" as const)
+      : ("activo" as const);
+
   return {
+    estadoCuenta,
     id: usuario.id,
     nombre: usuario.name,
     correo: usuario.email,

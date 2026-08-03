@@ -851,7 +851,13 @@
         "paisEmpresa": "País",
         "sitioWeb": "Sitio web",
         "horario": "Horario",
-        "comision": "Comisión"
+        "comision": "Comisión",
+        "estado": "Estado"
+      },
+      "estados": {
+        "activo": "Activo",
+        "inactivo": "Inactivo",
+        "demostracion": "Demostración"
       }
     }
   },

@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
+import { cn } from "@/lib/utils";
 import {
   obtenerUsuarioPorId,
   resumenDelComercio,
@@ -37,6 +38,10 @@ export default async function FichaDeUsuario({
 
   const cuenta = [
     { etiqueta: t("campos.correo"), valor: usuario.correo },
+    {
+      etiqueta: t("campos.estado"),
+      valor: t(`estados.${usuario.estadoCuenta}`),
+    },
     { etiqueta: t("campos.rol"), valor: t(`roles.${usuario.rol}`) },
     { etiqueta: t("campos.idioma"), valor: t(`idiomas.${usuario.idioma}`) },
     { etiqueta: t("campos.pais"), valor: usuario.pais },
@@ -89,6 +94,18 @@ export default async function FichaDeUsuario({
         <div className="min-w-0">
           <h1 className="flex items-center gap-2 truncate text-2xl font-bold tracking-tight">
             {usuario.nombre}
+            {/* El punto de color, también aquí: es lo primero que se mira. */}
+            <span
+              aria-hidden
+              className={cn(
+                "h-2.5 w-2.5 shrink-0 rounded-full",
+                usuario.estadoCuenta === "activo"
+                  ? "bg-precio-600"
+                  : usuario.estadoCuenta === "inactivo"
+                    ? "bg-red-500"
+                    : "bg-slate-300",
+              )}
+            />
             {usuario.correoVerificado ? (
               <BadgeCheck
                 className="h-5 w-5 shrink-0 text-precio-600"
