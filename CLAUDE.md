@@ -460,6 +460,13 @@ pasar su flujo tal cual falla en el servidor de desarrollo.
 
 ## Comandos
 
+**Ojo al correr `npm run e2e`:** apaga antes cualquier `npm run dev` que
+tengas abierto. Dos servidores de desarrollo sobre la misma carpeta `.next`
+se corrompen la caché entre ellos y el sitio empieza a dar 500 con un error de
+JSON que no tiene nada que ver con el código. Las pruebas corren con **dos
+procesos como máximo** (`playwright.config.ts`) porque el servidor de
+desarrollo compila cada ruta la primera vez que se pide.
+
 ```
 npm run dev             # servidor local
 npm run build           # genera el service worker y compila

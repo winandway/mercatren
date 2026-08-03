@@ -4,6 +4,10 @@ import { expect, test } from "@playwright/test";
  * La direccion raiz no tiene idioma: el sitio mira el idioma del navegador y
  * manda al visitante a /es o a /en. Por eso cada grupo fija el idioma del
  * navegador antes de abrir la pagina.
+ *
+ * OJO: el idioma principal es el INGLES. Mercatren cobra en Estados Unidos,
+ * asi que quien llega sin senal clara ve el sitio en ingles; el espanol sale
+ * cuando el navegador lo pide.
  */
 
 test.describe("Visitante con el navegador en espanol", () => {
@@ -15,7 +19,10 @@ test.describe("Visitante con el navegador en espanol", () => {
     await page.goto("/");
 
     await expect(page).toHaveURL(/\/es$/);
-    await expect(page.getByRole("searchbox")).toBeVisible();
+    // El buscador se anuncia como "combobox" y no como "searchbox" porque
+    // sugiere productos mientras se escribe: esa es la figura correcta para
+    // un campo con lista de sugerencias.
+    await expect(page.getByRole("combobox", { name: /Buscar/ })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       /Compra en Estados Unidos/i,
     );
@@ -23,7 +30,11 @@ test.describe("Visitante con el navegador en espanol", () => {
 
   test("el selector cambia el sitio a ingles", async ({ page }) => {
     await page.goto("/es");
-    await page.getByRole("button", { name: "Inglés" }).click();
+
+    // El selector es una sola casilla que abre un panel, como en las tiendas
+    // grandes: primero se abre, despues se elige.
+    await page.getByRole("button", { name: "Idioma" }).click();
+    await page.getByRole("button", { name: /Inglés — EN/ }).click();
 
     await expect(page).toHaveURL(/\/en$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
