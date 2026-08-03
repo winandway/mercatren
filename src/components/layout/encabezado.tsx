@@ -2,6 +2,7 @@ import { LayoutDashboard, MapPin } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
+import { MenuCuenta } from "@/components/layout/menu-cuenta";
 import { MenuTodo } from "@/components/layout/menu-todo";
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { ContadorCarrito } from "@/components/layout/contador-carrito";
@@ -81,19 +82,27 @@ export async function Encabezado() {
             </Link>
           ) : null}
 
-          <Link
-            href={usuario ? "/cuenta" : "/entrar"}
-            className="celda-encabezado hidden text-xs sm:block"
-          >
-            <span className="block max-w-32 truncate text-white/70">
-              {usuario
-                ? `${t("hola")} ${usuario.name?.split(" ")[0]}`
-                : t("hola")}
-            </span>
-            <span className="block text-sm font-bold">
-              {usuario ? t("cuentaYListas") : t("identificate")}
-            </span>
-          </Link>
+          {/* Quien entro tiene aqui su menu, con la salida incluida. Antes
+              esto era un enlace suelto y no habia forma de cerrar sesion en
+              todo el sitio. */}
+          {usuario ? (
+            <MenuCuenta
+              nombre={usuario.name ?? ""}
+              trabajaEnElPanel={trabajaEnElPanel}
+            />
+          ) : (
+            <Link
+              href="/entrar"
+              className="celda-encabezado hidden text-xs sm:block"
+            >
+              <span className="block max-w-32 truncate text-white/70">
+                {t("hola")}
+              </span>
+              <span className="block text-sm font-bold">
+                {t("identificate")}
+              </span>
+            </Link>
+          )}
 
           {/* Los pedidos ya viven en el menu y en la cuenta: aqui solo se
               muestran cuando la pantalla da de sobra. */}

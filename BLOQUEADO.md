@@ -8,86 +8,91 @@ que hacer exactamente**. Cuando resuelvas uno, táchalo y avísame.
 
 ---
 
-## 1. Tu cuenta de Soporte en el sitio publicado
+## 1. Cambiar la contraseña temporal del superadmin
 
-**Qué falta:** que exista una cuenta con la que entres al panel de
-administración en `mercatren.com`.
+**Qué falta:** que la cuenta `mercatren@windoce.com` deje de usar la contraseña
+temporal que te pasé por chat.
 
-**Por qué no puedo:** crear una cuenta exige poner una contraseña. No invento
-contraseñas para tus cuentas reales ni te las pido por chat: la eliges tú y no
-pasa por mis manos.
+**Por qué no puedo:** una contraseña que pasó por un chat ya no es secreta.
 
-**Qué tienes que hacer:**
+**Qué tienes que hacer:** entra a **Panel → Cuenta → Cambiar contraseña** y
+pon la tuya. Al guardarla se cierran las demás sesiones automáticamente.
 
-1. Entra a `https://mercatren.com/es/entrar`
-2. Crea la cuenta con tu correo y la contraseña que quieras.
-3. Dime el correo que usaste.
-
-Con eso yo te subo el rol a `soporte` y ya entras al panel con todos los
-permisos. El nombre visible debe llevar la palabra **Soporte** (regla del
-proyecto).
-
-**Este punto es el que más desbloquea.** Sin él no se puede:
-
-- Traer las fotos del catálogo en producción (ver punto 7).
-- Validar pagos reales.
-- Ver el histórico de los 743 movimientos que ya está cargado.
+**Ya resuelto:** la cuenta existe, entra al panel y tiene rol `soporte`.
 
 ---
 
 ## 2. Las cuentas del comercio piloto y del validador
 
-**Qué falta:** que Bley Ferretería tenga su cuenta para entrar a ver sus pagos
-y su billetera, y que exista al menos un validador.
+**Qué falta:** que Bley Ferretería tenga su cuenta para ver sus pagos y su
+billetera, y que exista al menos un validador.
 
-**Por qué no puedo:** lo mismo — contraseñas.
+**Por qué no puedo:** crear una cuenta exige poner una contraseña, y las
+contraseñas de otras personas no pasan por mis manos.
 
 **Qué tienes que hacer:** que cada persona se registre en
-`mercatren.com/es/entrar` y me pases los correos. Yo les asigno el rol
+`mercatren.com/es/registro` y me pases los correos. Yo les asigno el rol
 (`vendedor` vinculado a su tienda, o `validador`).
 
 ---
 
-## 3. Revisión legal de términos y privacidad
+## 3. El token de correo no está llegando al sitio
 
-**Qué falta:** que un abogado lea lo que ya está publicado en
-`/terminos` y `/privacidad`.
+**Qué falta:** que `CLOUDFLARE_EMAIL_TOKEN` llegue de verdad al sitio
+publicado.
 
-**Por qué no puedo:** puedo describir con precisión cómo funciona la
-operación, pero no puedo dar por buena la parte de responsabilidad, la ley
-aplicable ni afirmar la calificación regulatoria del servicio. Eso lo firma un
-abogado, no una página.
+**Cómo comprobarlo tú mismo:** entra a **Panel → Configuración**. Abajo, en
+"Lo que falta por conectar", la línea del correo dice **Configurada** o
+**Falta**. Y más arriba, en "Probar el envío", puedes mandarte un correo de
+prueba: si no sale, ahora te dice el motivo exacto.
 
-**Qué tienes que hacer:** pasárselos al abogado del proyecto y decirme qué hay
-que cambiar. Están escritos completos y en los dos idiomas; probablemente sea
-retocar, no rehacer.
+**Qué tienes que hacer si dice "Falta":** cargarla en el panel de YaDominios
+Cloud (variables de entorno del sitio) y volver a publicar para que el sitio la
+tome.
+
+**Ya resuelto:** Resend está fuera; el envío ya va por Cloudflare Email
+Sending, con las 7 plantillas de siempre.
 
 ---
 
-## 4. Verificación de Google Search Console
+## 4. Revisión legal de términos y privacidad
+
+**Qué falta:** que un abogado lea lo que está publicado en `/terminos` y
+`/privacidad`.
+
+**Por qué no puedo:** puedo describir con precisión cómo funciona la operación,
+pero no puedo dar por buena la parte de responsabilidad, la ley aplicable ni
+afirmar la calificación regulatoria del servicio. Eso lo firma un abogado, no
+una página.
+
+**Qué tienes que hacer:** pasárselos al abogado y decirme qué cambiar. Están
+completos y en los dos idiomas; probablemente sea retocar, no rehacer.
+
+---
+
+## 5. Verificación de Google Search Console
 
 **Qué falta:** confirmar que la verificación del dominio sigue en pie.
 
 **Por qué no puedo:** el registro de verificación vive en tu panel de DNS.
 
-**Qué tienes que hacer:** si Search Console te pide verificar de nuevo (se
-perdió el registro TXT anterior al mover los nameservers), me pasas lo que te
-muestre y te digo dónde ponerlo. El mapa del sitio ya está enviado y aceptado
-con 629 direcciones.
+**Qué tienes que hacer:** si Search Console te pide verificar de nuevo, me pasas
+lo que te muestre y te digo dónde ponerlo. El mapa del sitio ya está enviado y
+aceptado con 629 direcciones.
 
 ---
 
-## 5. Datos bancarios en producción
+## 6. Datos bancarios en producción
 
 **Qué falta:** que las variables de la cuenta que recibe los pagos estén
-cargadas en el panel de YaDominios Cloud.
+cargadas en el panel de YaDominios Cloud. Hoy **faltan todas**; se ve en
+**Panel → Configuración**.
 
 **Por qué no puedo:** no escribo números de cuenta ni rutas ACH en ningún
 archivo. El repositorio es público y esos datos permiten intentar un cobro no
 autorizado.
 
-**Qué tienes que hacer:** en el panel del sitio, sección de variables de
-entorno, cargar:
+**Qué tienes que hacer:** cargar en el panel del sitio:
 
 - `PAGO_BENEFICIARIO`
 - `PAGO_BANCO`
@@ -96,7 +101,6 @@ entorno, cargar:
 - `PAGO_RUTA_WIRE`
 - `ZELLE_CORREO_RECEPTOR`
 - `PAGO_SOPORTE_TELEFONO`
-- `BETTER_AUTH_SECRET` (una cadena larga aleatoria)
 
 Los valores los tienes en tu archivo local `.dev.vars`. Mientras falten, la
 página del pedido avisa que el equipo aún no los configuró; **nunca inventa
@@ -104,38 +108,18 @@ datos**.
 
 ---
 
-## 6. El sistema de notificaciones
-
-**Qué falta:** conectar el envío de avisos con el servicio propio de
-YaDominios Cloud.
-
-**Por qué no puedo:** todavía no existe; lo están construyendo ustedes.
-
-**Qué tienes que hacer:** cuando esté listo, pasarme cómo se llama y cómo se
-le habla. Las 7 plantillas y los 7 momentos donde se dispara cada aviso ya
-están hechos y funcionando; solo se cambia la pieza que entrega el mensaje.
-Es un archivo.
-
----
-
 ## 7. Traer las fotos del catálogo en producción
 
-**Qué falta:** pulsar un botón. Nada más.
+**Qué falta:** pulsar un botón. Nada más. **Ya lo puedes hacer tú**: la cuenta
+de soporte existe y entra al panel.
 
-**Ya está hecho:** construí la herramienta y **la probé de verdad**: en mi
-copia local trajo las **689 fotos** desde el servidor del comercio a nuestro
-almacenamiento, sin fallar ninguna. Va por tandas, con barra de avance, se
-puede parar y retomar, y repetirla no duplica nada.
+**Ya está hecho y probado:** en mi copia local trajo las **689 fotos** desde el
+servidor del comercio a nuestro almacenamiento, sin fallar ninguna. Va por
+tandas, con barra de avance, se puede parar y retomar, y repetirla no duplica
+nada.
 
-**Por qué no puedo hacerlo yo en producción:** la herramienta vive dentro del
-panel y exige una sesión del equipo de Mercatren. No hay ninguna cuenta creada
-todavía (punto 1).
-
-**Qué tienes que hacer:**
-
-1. Crear tu cuenta (punto 1) y decirme el correo.
-2. Entrar a **Panel → Configuración → Fotos del catálogo**.
-3. Pulsar **"Traer las fotos"** y dejarlo correr. Tarda unos minutos.
+**Qué tienes que hacer:** entrar a **Panel → Configuración → Fotos del
+catálogo** y pulsar **"Traer las fotos"**. Tarda unos minutos.
 
 **Riesgo mientras tanto:** las fotos de `mercatren.com` se sirven desde el
 servidor del comercio. Si esa tienda se apaga, el catálogo se queda sin

@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { CambiarClave } from "@/components/cuenta/cambiar-clave";
+import { Salir } from "@/components/cuenta/salir";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 
@@ -152,6 +153,12 @@ export default async function PaginaCuenta({
           {t("tarjetas.seguridad.titulo")}
         </h2>
         <CambiarClave />
+
+        {/* Salir tiene que estar donde se busca, y sin esconderse: en una
+            computadora compartida es lo que impide que el siguiente entre. */}
+        <div className="mt-6 border-t border-borde pt-5">
+          <Salir />
+        </div>
       </section>
     </div>
   );

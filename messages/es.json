@@ -273,7 +273,8 @@
       "errorActual": "La contraseña actual no es correcta."
     },
     "verClave": "Ver la contraseña",
-    "ocultarClave": "Ocultar la contraseña"
+    "ocultarClave": "Ocultar la contraseña",
+    "errorEscudo": "No pudimos comprobar que eres una persona. Vuelve a intentarlo."
   },
   "panel": {
     "titulo": "Administración",
@@ -699,7 +700,8 @@
         "Un producto publicado sin precio entra como borrador, para que no se venda regalado.",
         "Las fotos que ya trajimos a Mercatren no se tocan."
       ]
-    }
+    },
+    "miCuenta": "Mi cuenta"
   },
   "catalogo": {
     "titulo": "Catálogo",
@@ -1089,6 +1091,8 @@
       "validador": "Validador",
       "soporte": "Soporte"
     },
-    "cerrarSesion": "Cerrar sesión"
+    "cerrarSesion": "Cerrar sesión",
+    "salir": "Cerrar sesión",
+    "saliendo": "Cerrando…"
   }
 }

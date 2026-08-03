@@ -11,12 +11,14 @@ import {
   Wallet,
   ShoppingBag,
   Store,
+  UserRound,
   Users,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { Salir } from "@/components/cuenta/salir";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
@@ -160,13 +162,31 @@ export function MenuLateral({
         })}
       </div>
 
-      <Link
-        href="/"
-        className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/5 hover:text-white"
-      >
-        <ArrowUpRight className="h-4 w-4" aria-hidden />
-        {t("irAlSitio")}
-      </Link>
+      <div className="space-y-0.5 border-t border-white/10 pt-3">
+        <Link
+          href="/cuenta"
+          onClick={() => setAbierto(false)}
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <UserRound className="h-4 w-4" aria-hidden />
+          {t("miCuenta")}
+        </Link>
+
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <ArrowUpRight className="h-4 w-4" aria-hidden />
+          {t("irAlSitio")}
+        </Link>
+
+        {/* Aqui dentro hay dinero de comercios: salir tiene que estar a un
+            toque, en la misma pantalla donde se trabaja. */}
+        <Salir
+          variante="enlace"
+          className="w-full rounded-lg px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+        />
+      </div>
     </nav>
   );
 

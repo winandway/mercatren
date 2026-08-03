@@ -47,6 +47,14 @@ interface CloudflareEnv {
    */
   CLOUDFLARE_EMAIL_TOKEN: string;
   CORREO_REMITENTE: string;
+
+  /**
+   * Escudo anti-robots de la entrada (Cloudflare Turnstile). La clave del
+   * sitio es publica y va al navegador; el secreto NUNCA sale del servidor.
+   * Si faltan, no hay escudo y la entrada funciona como siempre.
+   */
+  TURNSTILE_CLAVE_SITIO?: string;
+  TURNSTILE_SECRETO?: string;
 }
 
 declare namespace NodeJS {

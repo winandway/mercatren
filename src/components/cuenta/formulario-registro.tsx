@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { CampoClave } from "@/components/cuenta/campo-clave";
+import { Escudo } from "@/components/cuenta/escudo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
@@ -20,7 +21,7 @@ import { authClient } from "@/lib/auth-client";
  * formulario a proposito (`input: false` en el esquema de la cuenta): quien
  * entra al panel se decide aparte, nunca desde aqui.
  */
-export function FormularioRegistro() {
+export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
   const t = useTranslations("entrar");
   const idioma = useLocale();
   const parametros = useSearchParams();
@@ -29,6 +30,7 @@ export function FormularioRegistro() {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
+  const [pase, setPase] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,16 +39,15 @@ export function FormularioRegistro() {
     setEnviando(true);
     setError(null);
 
-    const { error: fallo } = await authClient.signUp.email({
-      name: nombre.trim(),
-      email: correo.trim(),
-      password: clave,
-    });
+    const { error: fallo } = await authClient.signUp.email(
+      { name: nombre.trim(), email: correo.trim(), password: clave },
+      { headers: pase ? { "x-escudo": pase } : {} },
+    );
 
     setEnviando(false);
 
     if (fallo) {
-      setError(t("errorRegistro"));
+      setError(fallo.status === 403 ? t("errorEscudo") : t("errorRegistro"));
       return;
     }
 
@@ -102,6 +103,8 @@ export function FormularioRegistro() {
         autoComplete="new-password"
         minimo={10}
       />
+
+      <Escudo claveSitio={claveEscudo} idioma={idioma} onPase={setPase} />
 
       {error ? (
         <p

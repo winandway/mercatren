@@ -273,7 +273,8 @@
       "errorActual": "That current password isn't right."
     },
     "verClave": "Show password",
-    "ocultarClave": "Hide password"
+    "ocultarClave": "Hide password",
+    "errorEscudo": "We couldn't verify that you're a person. Please try again."
   },
   "panel": {
     "titulo": "Admin",
@@ -699,7 +700,8 @@
         "A published product with no price comes in as a draft, so it isn't given away.",
         "Photos already brought over to Mercatren are left untouched."
       ]
-    }
+    },
+    "miCuenta": "My account"
   },
   "catalogo": {
     "titulo": "Catalog",
@@ -1089,6 +1091,8 @@
       "validador": "Reviewer",
       "soporte": "Support"
     },
-    "cerrarSesion": "Sign out"
+    "cerrarSesion": "Sign out",
+    "salir": "Sign out",
+    "saliendo": "Signing out…"
   }
 }

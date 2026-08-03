@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { CampoClave } from "@/components/cuenta/campo-clave";
+import { Escudo } from "@/components/cuenta/escudo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
@@ -13,7 +14,7 @@ import { authClient } from "@/lib/auth-client";
  * Entrada al sistema. El panel de administracion solo abre para las cuentas
  * con permiso; una cuenta recien creada entra como cliente.
  */
-export function FormularioEntrar() {
+export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
   const t = useTranslations("entrar");
   const idioma = useLocale();
   const parametros = useSearchParams();
@@ -21,6 +22,7 @@ export function FormularioEntrar() {
 
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
+  const [pase, setPase] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,15 +31,19 @@ export function FormularioEntrar() {
     setEnviando(true);
     setError(null);
 
-    const { data, error: fallo } = await authClient.signIn.email({
-      email: correo.trim(),
-      password: clave,
-    });
+    const { data, error: fallo } = await authClient.signIn.email(
+      { email: correo.trim(), password: clave },
+      // El pase del escudo anti-robots. Si no hay escudo configurado va vacio
+      // y el servidor tampoco lo exige.
+      { headers: pase ? { "x-escudo": pase } : {} },
+    );
 
     setEnviando(false);
 
     if (fallo) {
-      setError(t("errorCredenciales"));
+      setError(
+        fallo.status === 403 ? t("errorEscudo") : t("errorCredenciales"),
+      );
       return;
     }
 
@@ -98,6 +104,8 @@ export function FormularioEntrar() {
         onChange={setClave}
         minimo={10}
       />
+
+      <Escudo claveSitio={claveEscudo} idioma={idioma} onPase={setPase} />
 
       {error ? (
         <p
