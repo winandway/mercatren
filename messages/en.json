@@ -412,5 +412,58 @@
         "acreditado": "{monto} credited to the merchant."
       }
     }
+  },
+  "catalogo": {
+    "titulo": "Catalog",
+    "subtitulo": "Everything you can order through Mercatren.",
+    "buscarEtiqueta": "Search the catalog",
+    "buscarPlaceholder": "Search by name, brand or code",
+    "buscar": "Search",
+    "resultados": "{n, plural, =0 {No products} one {# product} other {# products}}",
+    "sinResultados": "No products match that search. Try another word.",
+    "vacio": "No products published yet. Coming soon.",
+    "limpiar": "Clear filters",
+    "filtros": {
+      "categoria": "Category",
+      "comercio": "Merchant",
+      "orden": "Sort by",
+      "todas": "All",
+      "todos": "All"
+    },
+    "orden": {
+      "recientes": "Featured first",
+      "precioAsc": "Price: low to high",
+      "precioDesc": "Price: high to low"
+    },
+    "producto": {
+      "agregar": "Add to cart",
+      "sinExistencias": "Out of stock",
+      "disponible": "In stock",
+      "disponibles": "{n, plural, one {# left} other {# left}}",
+      "ultimasUnidades": "Only a few left!",
+      "vendidoPor": "Sold by",
+      "sku": "Code",
+      "marca": "Brand",
+      "categoria": "Category",
+      "descripcion": "Description",
+      "sinDescripcion": "This product has no description yet.",
+      "porUnidad": "per {unidad}",
+      "antes": "Was",
+      "ahorras": "You save {monto}",
+      "sinFoto": "No photo",
+      "verFoto": "View the photo larger",
+      "foto": "Photo {n} of {total}",
+      "cerrarFoto": "Close photo",
+      "anterior": "Previous photo",
+      "siguiente": "Next photo",
+      "volverCatalogo": "Back to catalog",
+      "noEncontrado": "We couldn't find this product",
+      "noEncontradoTexto": "It may no longer be for sale."
+    },
+    "paginacion": {
+      "anterior": "Previous",
+      "siguiente": "Next",
+      "posicion": "Page {pagina} of {paginas}"
+    }
   }
 }

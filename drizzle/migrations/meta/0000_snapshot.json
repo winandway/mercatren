@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a5b00f70-d271-48f1-b268-bbb9dae56c69",
+  "id": "9bedb059-e24b-493c-a0a5-72888697a645",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -246,6 +246,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tienda_id": {
+          "name": "tienda_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "slug": {
           "name": "slug",
           "type": "text",
@@ -264,7 +271,7 @@
           "name": "nombre_en",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "padre_id": {
@@ -281,12 +288,20 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
+        },
+        "externo_id": {
+          "name": "externo_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
-        "categorias_slug_unique": {
-          "name": "categorias_slug_unique",
+        "idx_categorias_tienda_slug": {
+          "name": "idx_categorias_tienda_slug",
           "columns": [
+            "tienda_id",
             "slug"
           ],
           "isUnique": true
@@ -299,7 +314,134 @@
           "isUnique": false
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "categorias_tienda_id_tiendas_id_fk": {
+          "name": "categorias_tienda_id_tiendas_id_fk",
+          "tableFrom": "categorias",
+          "tableTo": "tiendas",
+          "columnsFrom": [
+            "tienda_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "fuentes_catalogo": {
+      "name": "fuentes_catalogo",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tienda_id": {
+          "name": "tienda_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'activa'"
+        },
+        "cada_minutos": {
+          "name": "cada_minutos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 15
+        },
+        "ultima_sincronizacion": {
+          "name": "ultima_sincronizacion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ultimo_resultado": {
+          "name": "ultimo_resultado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "productos_sincronizados": {
+          "name": "productos_sincronizados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "idx_fuentes_tienda": {
+          "name": "idx_fuentes_tienda",
+          "columns": [
+            "tienda_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fuentes_catalogo_tienda_id_tiendas_id_fk": {
+          "name": "fuentes_catalogo_tienda_id_tiendas_id_fk",
+          "tableFrom": "fuentes_catalogo",
+          "tableTo": "tiendas",
+          "columnsFrom": [
+            "tienda_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -325,7 +467,14 @@
           "name": "clave",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "texto_alt_es": {
@@ -1273,6 +1422,20 @@
           "notNull": true,
           "autoincrement": false
         },
+        "sku": {
+          "name": "sku",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "marca": {
+          "name": "marca",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "titulo_es": {
           "name": "titulo_es",
           "type": "text",
@@ -1284,7 +1447,7 @@
           "name": "titulo_en",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "descripcion_es": {
@@ -1308,6 +1471,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "precio_antes_centavos": {
+          "name": "precio_antes_centavos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "moneda": {
           "name": "moneda",
           "type": "text",
@@ -1323,6 +1493,21 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
+        },
+        "controla_existencias": {
+          "name": "controla_existencias",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "unidad": {
+          "name": "unidad",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "peso_gramos": {
           "name": "peso_gramos",
@@ -1346,6 +1531,27 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "fuente_id": {
+          "name": "fuente_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "externo_id": {
+          "name": "externo_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sincronizado_en": {
+          "name": "sincronizado_en",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "creado_en": {
           "name": "creado_en",
@@ -1373,6 +1579,14 @@
           ],
           "isUnique": true
         },
+        "idx_productos_externo": {
+          "name": "idx_productos_externo",
+          "columns": [
+            "tienda_id",
+            "externo_id"
+          ],
+          "isUnique": true
+        },
         "idx_productos_estado": {
           "name": "idx_productos_estado",
           "columns": [
@@ -1384,6 +1598,13 @@
           "name": "idx_productos_categoria",
           "columns": [
             "categoria_id"
+          ],
+          "isUnique": false
+        },
+        "idx_productos_destacado": {
+          "name": "idx_productos_destacado",
+          "columns": [
+            "destacado"
           ],
           "isUnique": false
         }
@@ -1413,6 +1634,19 @@
             "id"
           ],
           "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "productos_fuente_id_fuentes_catalogo_id_fk": {
+          "name": "productos_fuente_id_fuentes_catalogo_id_fk",
+          "tableFrom": "productos",
+          "tableTo": "fuentes_catalogo",
+          "columnsFrom": [
+            "fuente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },

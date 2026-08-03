@@ -171,13 +171,72 @@ export const categorias = sqliteTable(
   "categorias",
   {
     id: text("id").primaryKey(),
-    slug: text("slug").notNull().unique(),
+    /** A que comercio pertenece. Cada tienda arma sus propias categorias. */
+    tiendaId: text("tienda_id").references(() => tiendas.id, {
+      onDelete: "cascade",
+    }),
+    slug: text("slug").notNull(),
     nombreEs: text("nombre_es").notNull(),
-    nombreEn: text("nombre_en").notNull(),
+    nombreEn: text("nombre_en"),
     padreId: text("padre_id"),
     orden: integer("orden").notNull().default(0),
+    /** Id que tenia en el sistema de donde se sincroniza. */
+    externoId: text("externo_id"),
   },
-  (t) => [index("idx_categorias_padre").on(t.padreId)],
+  (t) => [
+    uniqueIndex("idx_categorias_tienda_slug").on(t.tiendaId, t.slug),
+    index("idx_categorias_padre").on(t.padreId),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
+/* Sincronizacion con la tienda de origen del comercio                        */
+/* -------------------------------------------------------------------------- */
+/*
+ * Hay comercios que ya tienen su propia tienda montada por fuera (el piloto es
+ * uno). En vez de obligarlos a cargar todo otra vez a mano, Mercatren lee su
+ * catalogo de una direccion que ellos publican y se mantiene al dia solo.
+ *
+ * El formato de ese archivo es EL MISMO que el de la exportacion manual, asi
+ * que traer el catalogo por archivo o por conexion automatica no cambia nada
+ * del otro lado.
+ */
+
+export const ESTADOS_FUENTE = ["activa", "pausada", "con_error"] as const;
+
+export const fuentesCatalogo = sqliteTable(
+  "fuentes_catalogo",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    nombre: text("nombre").notNull(),
+    /** Direccion publica del archivo de catalogo del comercio. */
+    url: text("url"),
+    /**
+     * Llave para leer ese archivo, si esta protegido, y para que ellos puedan
+     * avisarnos de un cambio. NUNCA se muestra completa en pantalla.
+     */
+    token: text("token"),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_FUENTE)[number]>()
+      .notNull()
+      .default("activa"),
+    /** Cada cuantos minutos se vuelve a mirar. */
+    cadaMinutos: integer("cada_minutos").notNull().default(15),
+    ultimaSincronizacion: integer("ultima_sincronizacion", {
+      mode: "timestamp",
+    }),
+    ultimoResultado: text("ultimo_resultado"),
+    productosSincronizados: integer("productos_sincronizados")
+      .notNull()
+      .default(0),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_fuentes_tienda").on(t.tiendaId)],
 );
 
 export const ESTADOS_PRODUCTO = ["borrador", "publicado", "agotado"] as const;
@@ -191,14 +250,32 @@ export const productos = sqliteTable(
       .references(() => tiendas.id, { onDelete: "cascade" }),
     categoriaId: text("categoria_id").references(() => categorias.id),
     slug: text("slug").notNull(),
+    sku: text("sku"),
+    marca: text("marca"),
+
     tituloEs: text("titulo_es").notNull(),
-    tituloEn: text("titulo_en").notNull(),
+    /**
+     * Puede venir vacio: si el comercio no tiene traduccion, NO se inventa.
+     * En pantalla se muestra el espanol como respaldo.
+     */
+    tituloEn: text("titulo_en"),
     descripcionEs: text("descripcion_es"),
     descripcionEn: text("descripcion_en"),
+
     precioCentavos: integer("precio_centavos").notNull(),
+    /** Precio tachado, cuando el producto esta en oferta. */
+    precioAntesCentavos: integer("precio_antes_centavos"),
     moneda: text("moneda").notNull().default("USD"),
+
     existencias: integer("existencias").notNull().default(0),
+    /** Si el comercio no lleva inventario, no se muestra el contador. */
+    controlaExistencias: integer("controla_existencias", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    /** Como se vende: unidad, metro, kg, saco… */
+    unidad: text("unidad"),
     pesoGramos: integer("peso_gramos"),
+
     estado: text("estado")
       .$type<(typeof ESTADOS_PRODUCTO)[number]>()
       .notNull()
@@ -206,6 +283,16 @@ export const productos = sqliteTable(
     destacado: integer("destacado", { mode: "boolean" })
       .notNull()
       .default(false),
+
+    // De donde salio este producto. Sin esto, cada sincronizacion crearia
+    // duplicados en vez de actualizar lo que ya existe.
+    fuenteId: text("fuente_id").references(() => fuentesCatalogo.id, {
+      onDelete: "set null",
+    }),
+    /** Id que tiene el producto en la tienda de origen. */
+    externoId: text("externo_id"),
+    sincronizadoEn: integer("sincronizado_en", { mode: "timestamp" }),
+
     creadoEn: integer("creado_en", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -215,8 +302,12 @@ export const productos = sqliteTable(
   },
   (t) => [
     uniqueIndex("idx_productos_tienda_slug").on(t.tiendaId, t.slug),
+    // La pareja tienda + id de origen es lo que hace que reimportar actualice
+    // en vez de duplicar.
+    uniqueIndex("idx_productos_externo").on(t.tiendaId, t.externoId),
     index("idx_productos_estado").on(t.estado),
     index("idx_productos_categoria").on(t.categoriaId),
+    index("idx_productos_destacado").on(t.destacado),
   ],
 );
 
@@ -227,8 +318,14 @@ export const imagenesProducto = sqliteTable(
     productoId: text("producto_id")
       .notNull()
       .references(() => productos.id, { onDelete: "cascade" }),
-    /** Ruta del archivo dentro del bucket (env.BUCKET). */
-    clave: text("clave").notNull(),
+    /**
+     * Una foto vive en uno de dos sitios, nunca en los dos:
+     *  - `clave`: subida por el comercio a nuestro bucket (env.BUCKET).
+     *  - `url`: ya estaba publicada en la tienda de origen y se muestra de ahi.
+     * Las fotos que llegan por sincronizacion NO se copian.
+     */
+    clave: text("clave"),
+    url: text("url"),
     textoAltEs: text("texto_alt_es"),
     textoAltEn: text("texto_alt_en"),
     orden: integer("orden").notNull().default(0),
@@ -554,7 +651,10 @@ export const pagosZelle = sqliteTable(
 
 export type Usuario = typeof user.$inferSelect;
 export type Tienda = typeof tiendas.$inferSelect;
+export type Categoria = typeof categorias.$inferSelect;
+export type FuenteCatalogo = typeof fuentesCatalogo.$inferSelect;
 export type Producto = typeof productos.$inferSelect;
+export type ImagenProducto = typeof imagenesProducto.$inferSelect;
 export type Pedido = typeof pedidos.$inferSelect;
 export type ItemPedido = typeof itemsPedido.$inferSelect;
 export type Pago = typeof pagos.$inferSelect;

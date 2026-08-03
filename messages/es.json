@@ -412,5 +412,58 @@
         "acreditado": "Se le acreditó {monto} al comercio."
       }
     }
+  },
+  "catalogo": {
+    "titulo": "Catálogo",
+    "subtitulo": "Todo lo que puedes pedir a través de Mercatren.",
+    "buscarEtiqueta": "Buscar en el catálogo",
+    "buscarPlaceholder": "Busca por nombre, marca o código",
+    "buscar": "Buscar",
+    "resultados": "{n, plural, =0 {Ningún producto} one {# producto} other {# productos}}",
+    "sinResultados": "No encontramos productos con esa búsqueda. Prueba con otra palabra.",
+    "vacio": "Todavía no hay productos publicados. Muy pronto.",
+    "limpiar": "Quitar filtros",
+    "filtros": {
+      "categoria": "Categoría",
+      "comercio": "Comercio",
+      "orden": "Ordenar por",
+      "todas": "Todas",
+      "todos": "Todos"
+    },
+    "orden": {
+      "recientes": "Destacados primero",
+      "precioAsc": "Precio: de menor a mayor",
+      "precioDesc": "Precio: de mayor a menor"
+    },
+    "producto": {
+      "agregar": "Agregar al carrito",
+      "sinExistencias": "Sin existencias",
+      "disponible": "Disponible",
+      "disponibles": "{n, plural, one {Queda #} other {Quedan #}}",
+      "ultimasUnidades": "¡Últimas unidades!",
+      "vendidoPor": "Vendido por",
+      "sku": "Código",
+      "marca": "Marca",
+      "categoria": "Categoría",
+      "descripcion": "Descripción",
+      "sinDescripcion": "Este producto todavía no tiene descripción.",
+      "porUnidad": "por {unidad}",
+      "antes": "Antes",
+      "ahorras": "Ahorras {monto}",
+      "sinFoto": "Sin foto",
+      "verFoto": "Ver la foto en grande",
+      "foto": "Foto {n} de {total}",
+      "cerrarFoto": "Cerrar la foto",
+      "anterior": "Foto anterior",
+      "siguiente": "Foto siguiente",
+      "volverCatalogo": "Volver al catálogo",
+      "noEncontrado": "No encontramos este producto",
+      "noEncontradoTexto": "Puede que ya no esté a la venta."
+    },
+    "paginacion": {
+      "anterior": "Anterior",
+      "siguiente": "Siguiente",
+      "posicion": "Página {pagina} de {paginas}"
+    }
   }
 }

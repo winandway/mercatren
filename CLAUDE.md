@@ -242,6 +242,40 @@ Dos cosas al tocar estas páginas:
 Lo privado es privado y lo público es público: los montos, los comprobantes y
 los datos de quienes pagaron **nunca** salen a estas páginas.
 
+## Catálogo y sincronización
+
+Los comercios que ya tienen su tienda montada por fuera (el piloto es uno) no
+cargan todo otra vez a mano: **traen su catálogo desde su propio sistema**.
+
+- **El archivo de exportación ES el contrato de la API.** El mismo JSON sirve
+  para importarlo a mano hoy y para que Mercatren lo lea solo mañana desde una
+  dirección que ellos publiquen (`fuentes_catalogo.url`).
+- **Cada producto guarda de dónde viene**: `fuente_id` + `externo_id`. La pareja
+  (tienda, externo_id) es única, así que reimportar **actualiza** en vez de
+  duplicar. Sin eso, la segunda sincronización llenaría el catálogo de copias.
+- **Las fotos no se copian.** Si vienen de la tienda de origen se guarda su
+  dirección (`imagenes_producto.url`) y se muestran desde ahí; si las sube el
+  comercio a nuestro bucket, va `clave` y se sirven por `/media`. Una foto usa
+  uno de los dos campos, nunca los dos.
+- **Lo que el comercio quita de su tienda pasa a borrador, no se borra**: puede
+  tener pedidos viejos colgando.
+- **Traducciones:** si el origen no trae inglés, `titulo_en` queda vacío y en
+  pantalla se muestra el español. **No se inventan traducciones.**
+
+```bash
+npm run productos:importar                          # desde datos/
+npm run productos:importar -- --archivo=otra/ruta.json
+```
+
+El importador **se detiene** si los totales no cuadran con los del propio
+archivo.
+
+## El carrito
+
+Vive en el navegador (`src/lib/carrito/store.ts`, se guarda solo). **Nunca se
+confía en él para cobrar**: al pagar, el pedido se arma en el servidor y ahí se
+vuelven a comprobar precios y existencias.
+
 ## Comandos
 
 ```
@@ -256,6 +290,7 @@ npm run db:generar      # generar SQL de migración (NO la aplica)
 npm run db:local        # aplicar migraciones + histórico a la base local
 npm run zelle:importar  # rearmar el SQL del histórico de pagos
 npm run cuenta:crear    # crear una cuenta que entra al panel
+npm run productos:importar # rearmar el SQL del catálogo de un comercio
 npm run iconos          # regenerar iconos y tarjeta social desde el logo
 npm run cf:tipos        # regenerar tipos de los bindings
 npm run cf:build        # compilar para YaDominios Cloud

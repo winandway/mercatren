@@ -23,7 +23,8 @@
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare preview",
     "prepare": "husky",
-    "cuenta:crear": "node scripts/crear-cuenta.ts"
+    "cuenta:crear": "node scripts/crear-cuenta.ts",
+    "productos:importar": "node scripts/importar-productos.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [
