@@ -68,7 +68,8 @@
       "terminos": "Términos y condiciones",
       "privacidad": "Privacidad",
       "comoFunciona": "Cómo funciona",
-      "transparencia": "Transparencia"
+      "transparencia": "Transparencia",
+      "docs": "Documentación"
     }
   },
   "comun": {
@@ -630,5 +631,36 @@
     "noEncontradaTexto": "Puede que ya no esté activa.",
     "verComercios": "Ver todos los comercios",
     "sinDescripcion": "Este comercio todavía no escribió su presentación."
+  },
+  "docs": {
+    "titulo": "Documentación",
+    "entradilla": "Los documentos públicos de Mercatren: cómo funciona el modelo, por dónde va el dinero y qué evidencia queda de cada operación. Abiertos, sin registro y sin necesidad de entrar con una cuenta.",
+    "indice": "En esta página",
+    "volver": "Documentación",
+    "version": "Versión",
+    "actualizado": "Actualizado",
+    "leer": "Leer el documento",
+    "descargar": "Descargar el PDF completo",
+    "descargarNota": "20 páginas. Incluye la estructura contractual, el encuadre regulatorio, los controles de cumplimiento y el plan de crecimiento.",
+    "imprimir": "Imprimir esta página",
+    "paraBancos": "Para bancos y cumplimiento",
+    "paraBancosTexto": "Si estás revisando esta operación desde un banco, una auditoría o un área de cumplimiento, el PDF completo incluye los apartados que no se publican en esta página.",
+    "documentos": {
+      "modelo": {
+        "nombre": "Modelo de negocio y flujo de fondos",
+        "resumen": "El documento operativo completo: el ciclo de una orden, quién es quién, qué cruza la frontera y qué no, por qué se cobra por Zelle y la economía de cada operación.",
+        "etiqueta": "Documento principal"
+      },
+      "comoFunciona": {
+        "nombre": "Cómo funciona Mercatren",
+        "resumen": "La versión corta para quien va a comprar o a vender: los pasos, los tiempos y las formas de pago.",
+        "etiqueta": "Guía rápida"
+      },
+      "transparencia": {
+        "nombre": "Transparencia",
+        "resumen": "Quiénes somos, qué límites tiene el servicio, qué controles aplicamos y cuánto tiempo guardamos los registros.",
+        "etiqueta": "Política"
+      }
+    }
   }
 }

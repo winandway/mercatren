@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { Proveedores } from "@/components/proveedores";
 import { RegistroAppInstalable } from "@/components/registro-app-instalable";
 import { routing } from "@/i18n/routing";
+import { SITIO } from "@/lib/sitio";
 
 import "../globals.css";
 
@@ -19,8 +20,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const SITIO_URL = process.env.NEXT_PUBLIC_SITIO_URL ?? "https://mercatren.com";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -36,7 +35,7 @@ export async function generateMetadata({
   const titulo = `${t("nombre")} — ${t("lema")}`;
 
   return {
-    metadataBase: new URL(SITIO_URL),
+    metadataBase: new URL(SITIO.url),
     title: {
       default: titulo,
       template: `%s | ${t("nombre")}`,
@@ -100,12 +99,30 @@ export default async function LayoutIdioma({
   }
   setRequestLocale(locale);
 
+  // La ficha de la organizacion para Google: Mercatren es la marca y
+  // Windoce LLC la sociedad que la opera. Una sola vez, en el layout.
+  const fichaOrganizacion = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITIO.nombre,
+    legalName: SITIO.sociedad,
+    url: SITIO.url,
+    logo: `${SITIO.url}/icon-512.png`,
+  };
+
   return (
     <html
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <script
+          type="application/ld+json"
+          // Contenido nuestro, generado aqui mismo; no entra nada de fuera.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(fichaOrganizacion),
+          }}
+        />
         <NextIntlClientProvider>
           <Proveedores>
             {children}

@@ -2,6 +2,7 @@ import { MapPin, Menu } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
+import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { ContadorCarrito } from "@/components/layout/contador-carrito";
 import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { Logo } from "@/components/marca/logo";
@@ -35,7 +36,8 @@ export async function Encabezado() {
             <MapPin className="h-4 w-4 shrink-0" aria-hidden />
             <span>
               <span className="block text-white/70">{t("entregarEn")}</span>
-              <span className="block text-sm font-bold">
+              <span className="flex items-center gap-1.5 text-sm font-bold">
+                <BanderaEEUU className="h-3.5 w-3.5" />
                 {t("paisPorDefecto")}
               </span>
             </span>

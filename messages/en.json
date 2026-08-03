@@ -68,7 +68,8 @@
       "terminos": "Terms and conditions",
       "privacidad": "Privacy",
       "comoFunciona": "How it works",
-      "transparencia": "Transparency"
+      "transparencia": "Transparency",
+      "docs": "Documentation"
     }
   },
   "comun": {
@@ -630,5 +631,36 @@
     "noEncontradaTexto": "It may no longer be active.",
     "verComercios": "See all merchants",
     "sinDescripcion": "This merchant hasn't written their introduction yet."
+  },
+  "docs": {
+    "titulo": "Documentation",
+    "entradilla": "Mercatren's public documents: how the model works, where the money goes, and what evidence each transaction leaves. Open, no sign-up, no account needed.",
+    "indice": "On this page",
+    "volver": "Documentation",
+    "version": "Version",
+    "actualizado": "Updated",
+    "leer": "Read the document",
+    "descargar": "Download the full PDF",
+    "descargarNota": "20 pages. Covers contractual structure, regulatory framing, compliance controls, and the growth plan.",
+    "imprimir": "Print this page",
+    "paraBancos": "For banks and compliance",
+    "paraBancosTexto": "If you are reviewing this operation from a bank, an audit, or a compliance team, the full PDF includes the sections that are not published on this page.",
+    "documentos": {
+      "modelo": {
+        "nombre": "Business model and flow of funds",
+        "resumen": "The complete operating document: the cycle of an order, who is who, what crosses the border and what does not, why we collect by Zelle, and the economics of each transaction.",
+        "etiqueta": "Main document"
+      },
+      "comoFunciona": {
+        "nombre": "How Mercatren works",
+        "resumen": "The short version for buyers and sellers: the steps, the timing, and the payment methods.",
+        "etiqueta": "Quick guide"
+      },
+      "transparencia": {
+        "nombre": "Transparency",
+        "resumen": "Who we are, the limits of the service, the controls we apply, and how long we keep records.",
+        "etiqueta": "Policy"
+      }
+    }
   }
 }

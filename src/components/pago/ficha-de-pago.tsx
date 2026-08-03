@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  AlertTriangle,
-  Building2,
-  Check,
-  Copy,
-  Mail,
-  Phone,
-  Zap,
-} from "lucide-react";
+import { Building2, Check, Copy, Mail, Phone, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { cn } from "@/lib/utils";
 
 export type DatosDePago = {
@@ -155,10 +148,7 @@ export function FichaDePago({
 
       {/* Regla del negocio: solo desde Estados Unidos */}
       <div className="flex gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-        <AlertTriangle
-          className="mt-0.5 h-4 w-4 shrink-0 text-amber-700"
-          aria-hidden
-        />
+        <BanderaEEUU className="mt-0.5 h-5 w-5" />
         <p className="text-sm text-amber-900">
           <span className="font-semibold">{t("soloEstadosUnidos")}</span>{" "}
           {t("soloEstadosUnidosDetalle")}

@@ -221,8 +221,21 @@ expresa y se hace aparte.
 
 ## Lo que se le cuenta al público
 
-Dos páginas abiertas, sin necesidad de cuenta:
+Páginas abiertas, sin necesidad de cuenta:
 
+- **`/docs`** — el índice de la documentación pública. Es el enlace que se
+  comparte cuando alguien (un banco, un socio) pide "muéstrame cómo funciona":
+  un clic y está, sin login.
+- **`/docs/modelo-de-negocio`** — el documento del modelo en HTML, bilingüe:
+  "Comercio electrónico transfronterizo con liquidación doméstica". Publica la
+  parte comercial del PDF (qué es, quién es quién, el ciclo con sus figuras,
+  la evidencia, por qué Zelle, la economía y el resumen final). Los apartados
+  de encuadre regulatorio, controles y plan de crecimiento **NO se publican**:
+  van solo en el PDF completo (`public/docs/mercatren-modelo-de-negocio.pdf`),
+  que se descarga desde esa misma página y está excluido de Google en
+  `robots.ts`. El contenido vive en `src/contenido/docs/modelo.es.ts` y
+  `modelo.en.ts`; si cambia el modelo, se actualizan LOS DOS y se sube la
+  versión (V2 → V3) con su fecha.
 - **`/como-funciona`** — para clientes, pagadores y comercios. Qué es el
   servicio, el paso a paso, **qué NO es** (no es remesa, no hay cambio de
   divisas, no se mueve dinero entre particulares) y por qué cada forma de pago
@@ -241,6 +254,23 @@ Dos cosas al tocar estas páginas:
 
 Lo privado es privado y lo público es público: los montos, los comprobantes y
 los datos de quienes pagaron **nunca** salen a estas páginas.
+
+### SEO (posicionarse como los creadores del modelo)
+
+- La dirección canónica del sitio y la sociedad viven en **`src/lib/sitio.ts`**
+  (`SITIO.url`, `SITIO.nombre` = marca Mercatren, `SITIO.sociedad` = Windoce
+  LLC). No duplicar esa constante en otro lado.
+- **`src/app/sitemap.ts`** arma `mercatren.com/sitemap.xml` con las páginas
+  fijas + tiendas activas + productos publicados, cada una con sus dos idiomas
+  (hreflang). Esa dirección es la que se envía a **Google Search Console**.
+- **`src/app/robots.ts`** cierra panel, carrito, checkout, pedido, entrar,
+  `/datos/`, `/media/` y el PDF completo del modelo.
+- Datos estructurados: `Organization` en el layout; `Article` + `FAQPage` en
+  `/docs/modelo-de-negocio`. Página nueva pública = agregarla al sitemap y
+  darle `alternates` con `rutaCanonica()` de `src/lib/sitio.ts`.
+- El término que se quiere posicionar: **"comercio electrónico transfronterizo
+  con liquidación doméstica"** (en inglés: _cross-border ecommerce with
+  domestic settlement_).
 
 ## Catálogo y sincronización
 
