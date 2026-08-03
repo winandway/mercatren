@@ -133,6 +133,32 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
     `<CampoClave>` (`src/components/cuenta/campo-clave.tsx`), que trae el ojito
     para verla y arranca oculta. `tests/unit/campo-clave.test.ts` falla si
     aparece un `type="password"` suelto en cualquier otro archivo.
+12. **Se puede entrar y se puede salir.** Cerrar sesión vive en el menú de
+    "Cuenta y listas" del encabezado, en `/cuenta` y en el menú del panel.
+    Avisa al servidor y luego hace una **carga completa**: con una navegación
+    de cliente el encabezado se quedaría como estaba y el botón de Panel
+    seguiría ahí.
+
+---
+
+## El trabajador de la aplicación instalable NO guarda nada con sesión
+
+Serwist trae una regla para no cachear nunca la autenticación, pero está
+escrita para `/api/auth/...`. **Como aquí no se usa `/api/` (regla 1), esa
+protección no se activa sola.** Por eso `src/sw.ts` declara explícitamente que
+`/datos`, `/media`, `/upload` y las pantallas con sesión (panel, entrar,
+registro, cuenta) van **siempre a la red**.
+
+Si se quita, vuelve un fallo muy difícil de ver: al entrar, la navegación al
+panel devuelve una respuesta redirigida guardada de cuando la persona no había
+entrado, el navegador la rechaza y la navegación **muere en silencio, sin
+error**. Aguanta recargar y cambiar de navegador, porque el problema ya no está
+en el código sino guardado dentro del navegador.
+
+**Y no se ve al probar en local**: el trabajador solo se registra en
+producción (`src/components/registro-app-instalable.tsx`). Cualquier cambio que
+toque sesión, panel o comprobantes hay que comprobarlo **en el sitio
+publicado**, no solo en `npm run dev`.
 
 ---
 
@@ -408,24 +434,32 @@ ponerse un precio de un dólar, aquí no le sirve de nada.
   correo**.
 - El número de pedido es correlativo y legible: `MT-000001`.
 
-## Correos del sistema (Resend)
+## Correos del sistema (Cloudflare Email Service)
 
 Dos direcciones, y no se inventan otras (**regla del proyecto**):
 
 - **`mercatren@windoce.com` RECIBE.** Es el buzón real y funcional: el
   contacto de la web, el que figura en términos y condiciones, y el Reply-To
   de todo lo que enviamos. Vive en `src/lib/correo/direcciones.ts`.
-- **`noreply@mercatren.com` SOLO ENVÍA** (vía Resend). Es la voz del
-  sistema: bienvenida, contraseña, compra, pagos. No recibe nada.
-- **PROHIBIDO** poner de contacto un correo `@mercatren.com` sin SMTP
+- **`avisos@mercatren.com` SOLO ENVÍA.** Es la voz del sistema: bienvenida,
+  contraseña, compra, pagos. No recibe nada. Cualquier buzón `@mercatren.com`
+  sirve de remitente: el dominio entero está autorizado y firmado.
+- **PROHIBIDO** poner de contacto un correo `@mercatren.com` sin buzón real
   (ej. soporte@mercatren.com): no recibe y el mensaje del cliente se pierde.
 
-Cómo está armado: `src/lib/correo/` — `direcciones.ts` (las dos
-direcciones), `plantilla.ts` (HTML de tablas con estilos en línea, que es lo
-único que se ve bien en Gmail/Outlook), `correos.ts` (los envíos, uno por
-momento del negocio), `enviar.ts` (el cliente de Resend). Los textos viven en
-`messages/*.json` bajo `correos` y salen **en el idioma guardado en la
-cuenta del destinatario**, no en el de quien dispara la acción.
+Cómo está armado: `src/lib/correo/` — `direcciones.ts` (las dos direcciones),
+`plantilla.ts` (HTML de tablas con estilos en línea, que es lo único que se ve
+bien en Gmail/Outlook), `correos.ts` (los envíos, uno por momento del negocio),
+`enviar.ts` (la llamada al servicio), `rebotes.ts` (a quien rebota no se le
+vuelve a escribir), `sonda.ts` (diagnóstico). Los textos viven en
+`messages/*.json` bajo `correos` y salen **en el idioma guardado en la cuenta
+del destinatario**, no en el de quien dispara la acción.
+
+**Ojo con los nombres de los campos.** El servicio usa `email` (no `address`) y
+`replyTo` en una sola palabra (no `reply_to`), y `to`/`from` van como texto
+plano. Con otros nombres responde `invalid_request_schema` y no manda nada, sin
+decir qué campo falla. Se comprueba con **Panel → Configuración → Probar el
+envío**, que además dice el motivo exacto cuando algo no sale.
 
 Los 7 correos y dónde se disparan: bienvenida (alta de cuenta, hook de Better
 Auth) · restablecer contraseña (`sendResetPassword`) · gracias por su compra
@@ -433,11 +467,24 @@ Auth) · restablecer contraseña (`sendResetPassword`) · gracias por su compra
 aprobada y venta acreditada al comercio (`aprobarPago`) · pago no aprobado
 con el motivo (`rechazarPago`).
 
-**El correo nunca es requisito:** si Resend falla o `RESEND_API_KEY` no está
-configurada, se registra el aviso perdido y la operación sigue. Un pago
-aprobado jamás se deshace porque el aviso no salió. Para que los envíos
-funcionen hace falta la clave en el panel y el dominio mercatren.com
-verificado en Resend.
+**El correo nunca es requisito:** si el envío falla o `CLOUDFLARE_EMAIL_TOKEN`
+no está configurada, se registra el aviso perdido y la operación sigue. Un pago
+aprobado jamás se deshace porque el aviso no salió.
+
+## El login: escudo anti-fuerza bruta
+
+`/entrar` y `/registro` llevan Cloudflare Turnstile. Sin él, cualquiera puede
+probar miles de contraseñas por minuto contra cuentas que ven el dinero de los
+comercios.
+
+- **La comprobación de verdad va en el servidor** (`src/lib/escudo.ts`, llamada
+  desde `src/app/datos/auth/[...all]/route.ts`), **antes de mirar la
+  contraseña**. El recuadro del navegador se lo puede saltar cualquiera.
+- El pase viaja en la cabecera `x-escudo`, no en el cuerpo, para que Better
+  Auth reciba la petición tal como la espera.
+- **Se apaga solo si no está configurado** (`TURNSTILE_CLAVE_SITIO` y
+  `TURNSTILE_SECRETO`): sin claves, la entrada funciona como siempre. Y si
+  Cloudflare no responde, deja pasar — detrás siguen la contraseña y el rol.
 
 ## Los datos bancarios NO van en el código (REGLA CRÍTICA)
 

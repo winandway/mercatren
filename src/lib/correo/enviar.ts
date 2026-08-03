@@ -50,14 +50,12 @@ type Envio = {
  * Separa "Mercatren <avisos@mercatren.com>" en sus dos partes, porque el
  * servicio los pide en campos distintos.
  *
- * OJO CON LOS NOMBRES DE LOS CAMPOS: el servicio usa `email` (no `address`) y
- * `replyTo` en una sola palabra (no `reply_to`). Con los otros nombres
- * responde `invalid_request_schema` y no manda nada.
+ * El servicio los pide como `{ address, name }`.
  */
 function partirRemitente(remitente: string) {
   const con = remitente.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
-  if (con) return { name: con[1] || "Mercatren", email: con[2] };
-  return { name: "Mercatren", email: remitente.trim() };
+  if (con) return { name: con[1] || "Mercatren", address: con[2] };
+  return { name: "Mercatren", address: remitente.trim() };
 }
 
 type Respuesta = {
@@ -105,16 +103,18 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
         "content-type": "application/json",
       },
       /**
-       * La forma EXACTA del ejemplo oficial: todo texto plano.
+       * OJO CON `reply_to`: va con guion bajo y en TEXTO PLANO.
        *
-       * Se probo con `from` como objeto `{email, name}` y el servicio
-       * respondio `invalid_request_schema`. La forma con nombre visible se
-       * escribe a la manera de siempre del correo: `Nombre <buzon@dominio>`.
+       * Aqui se perdio un buen rato. `replyTo` en una sola palabra es el
+       * formato del binding de Workers; esta API REST habla con guiones bajos,
+       * y ante el nombre equivocado responde `invalid_request_schema` sin
+       * decir cual de los campos le molesta. Tampoco acepta una lista de
+       * objetos en ese campo: una direccion, en texto.
        */
       body: JSON.stringify({
-        from: de.name ? `${de.name} <${de.email}>` : de.email,
-        to: destino,
-        replyTo: CORREO_CONTACTO,
+        from: { address: de.address, name: de.name },
+        to: [destino],
+        reply_to: CORREO_CONTACTO,
         subject: asunto,
         text: texto,
         html,

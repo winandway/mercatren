@@ -2,8 +2,6 @@
 
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { correoBienvenida } from "@/lib/correo/correos";
-import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
-import { sondearEnvio } from "@/lib/correo/sonda";
 
 /**
  * Prueba de humo del envio de correos, desde el panel.
@@ -44,30 +42,6 @@ export async function enviarCorreoDePrueba(
 
   if (resultado.enviado) {
     return { ok: true, mensaje: `Enviado a ${correo}. Revisa la bandeja.` };
-  }
-
-  /**
-   * Si el servicio rechaza la forma del mensaje, se sondea.
-   *
-   * El codigo que devuelve (`invalid_request_schema`) no dice que campo esta
-   * mal, asi que la sonda prueba las formas posibles y dice cual acepta. Sin
-   * esto habria que gastar un despliegue por cada intento.
-   */
-  if (resultado.motivo?.includes("invalid_request_schema")) {
-    const sonda = await sondearEnvio(correo, CORREO_CONTACTO);
-
-    if (sonda.funciona) {
-      return {
-        ok: true,
-        mensaje: `Enviado a ${correo} con la forma «${sonda.funciona}». Revisa la bandeja.`,
-      };
-    }
-
-    const resumen = sonda.detalle
-      .map((d) => `${d.forma}: ${d.estado} ${d.respuesta}`)
-      .join(" || ");
-
-    return { ok: false, mensaje: `Ninguna forma sirvió — ${resumen}` };
   }
 
   // El motivo real, no un "no se pudo": esta pantalla existe para diagnosticar.
