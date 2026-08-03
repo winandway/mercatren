@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { LayoutDashboard, MapPin } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
@@ -8,6 +8,7 @@ import { ContadorCarrito } from "@/components/layout/contador-carrito";
 import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
+import { obtenerUsuario } from "@/lib/autorizacion";
 import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 
@@ -23,6 +24,15 @@ export async function Encabezado() {
   // Las categorias del menu salen del catalogo real. Si la base no responde,
   // el menu sale sin ellas: el encabezado nunca puede tumbar la pagina.
   const categorias = await listarCategoriasConProductos().catch(() => []);
+
+  // Quien entro, para saludarlo por su nombre y para abrirle el panel si
+  // trabaja ahi. Si algo falla al leer la sesion, se sigue como visitante:
+  // el encabezado nunca puede tumbar la pagina.
+  const usuario = await obtenerUsuario().catch(() => null);
+  const trabajaEnElPanel =
+    usuario?.rol === "soporte" ||
+    usuario?.rol === "validador" ||
+    usuario?.rol === "vendedor";
 
   return (
     <header className="sticky top-0 z-50">
@@ -59,13 +69,29 @@ export async function Encabezado() {
 
           <SelectorIdioma />
 
+          {/* Al que trabaja en el panel se le pone el panel a un toque: es
+              donde va siempre, y antes no habia ningun camino visible. */}
+          {trabajaEnElPanel ? (
+            <Link
+              href="/panel"
+              className="celda-encabezado flex shrink-0 items-center gap-1.5 text-xs font-bold"
+            >
+              <LayoutDashboard className="h-4 w-4" aria-hidden />
+              <span className="hidden sm:inline">{t("panel")}</span>
+            </Link>
+          ) : null}
+
           <Link
-            href="/cuenta"
+            href={usuario ? "/cuenta" : "/entrar"}
             className="celda-encabezado hidden text-xs sm:block"
           >
-            <span className="block text-white/70">{t("hola")}</span>
+            <span className="block max-w-32 truncate text-white/70">
+              {usuario
+                ? `${t("hola")} ${usuario.name?.split(" ")[0]}`
+                : t("hola")}
+            </span>
             <span className="block text-sm font-bold">
-              {t("cuentaYListas")}
+              {usuario ? t("cuentaYListas") : t("identificate")}
             </span>
           </Link>
 

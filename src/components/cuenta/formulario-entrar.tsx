@@ -28,7 +28,7 @@ export function FormularioEntrar() {
     setEnviando(true);
     setError(null);
 
-    const { error: fallo } = await authClient.signIn.email({
+    const { data, error: fallo } = await authClient.signIn.email({
       email: correo.trim(),
       password: clave,
     });
@@ -40,7 +40,21 @@ export function FormularioEntrar() {
       return;
     }
 
-    router.push(destino);
+    /**
+     * A DONDE VA CADA QUIEN.
+     *
+     * Si venia de una pantalla concreta (el proxy manda aqui con ?destino=),
+     * se le devuelve ahi. Si no, se le lleva a donde tiene algo que hacer: a
+     * quien trabaja en el panel, al panel; a quien compra, a la tienda.
+     *
+     * Antes todo el mundo caia en la portada, incluido el equipo, y desde ahi
+     * no habia ningun camino visible al panel: se quedaban ahi pegados.
+     */
+    const rol = (data?.user as { rol?: string } | undefined)?.rol;
+    const trabajaEnElPanel =
+      rol === "soporte" || rol === "validador" || rol === "vendedor";
+
+    router.push(destino !== "/" ? destino : trabajaEnElPanel ? "/panel" : "/");
     router.refresh();
   }
 

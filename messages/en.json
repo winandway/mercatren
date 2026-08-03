@@ -8,7 +8,7 @@
     "buscar": "Search",
     "entregarEn": "Deliver to",
     "paisPorDefecto": "United States",
-    "hola": "Hello",
+    "hola": "Hi,",
     "identificate": "Sign in",
     "cuentaYListas": "Account & Lists",
     "pedidos": "Returns & Orders",
@@ -30,7 +30,8 @@
     "verTienda": "View store",
     "agotado": "Out of stock",
     "cambiarIdioma": "Change language",
-    "comprasEn": "You shop in the United States and pay in dollars."
+    "comprasEn": "You shop in the United States and pay in dollars.",
+    "panel": "Panel"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., get it wherever you are",

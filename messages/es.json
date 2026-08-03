@@ -8,7 +8,7 @@
     "buscar": "Buscar",
     "entregarEn": "Entregar en",
     "paisPorDefecto": "Estados Unidos",
-    "hola": "Hola",
+    "hola": "Hola,",
     "identificate": "Identifícate",
     "cuentaYListas": "Cuenta y listas",
     "pedidos": "Devoluciones y pedidos",
@@ -30,7 +30,8 @@
     "verTienda": "Ver tienda",
     "agotado": "Agotado",
     "cambiarIdioma": "Cambiar idioma",
-    "comprasEn": "Compras en Estados Unidos y pagas en dólares."
+    "comprasEn": "Compras en Estados Unidos y pagas en dólares.",
+    "panel": "Panel"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, recibe donde estés",
