@@ -656,7 +656,9 @@
         "titulo": "Email",
         "recibe": "Inbox that receives",
         "envia": "System sender",
-        "enviaAyuda": "Sends notices only. Doesn't receive replies."
+        "enviaAyuda": "Sends notices only. Doesn't receive replies.",
+        "pruebaTitulo": "Test delivery",
+        "pruebaTexto": "Sends the real welcome email to the address you enter. If this one arrives, they all do — they share the same template and the same path."
       },
       "variables": {
         "titulo": "Details of the account that receives payments",

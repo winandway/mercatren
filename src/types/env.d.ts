@@ -40,8 +40,12 @@ interface CloudflareEnv {
   ZELLE_CORREO_RECEPTOR?: string;
   ZELLE_NOMBRE_RECEPTOR?: string;
 
-  /** Envio de correos (confirmaciones de pedido, avisos de envio). */
-  RESEND_API_KEY: string;
+  /**
+   * Envio de correos del sistema, con el servicio propio de Mercatren
+   * (Cloudflare Email Sending). El remitente debe ser @mercatren.com: el
+   * dominio entero esta autorizado y firmado.
+   */
+  CLOUDFLARE_EMAIL_TOKEN: string;
   CORREO_REMITENTE: string;
 }
 

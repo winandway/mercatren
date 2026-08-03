@@ -1,0 +1,50 @@
+"use server";
+
+import { obtenerUsuario } from "@/lib/autorizacion";
+import { correoBienvenida } from "@/lib/correo/correos";
+
+/**
+ * Prueba de humo del envio de correos, desde el panel.
+ *
+ * Existe porque el correo es la unica pieza del sistema que no se puede
+ * comprobar mirando la pantalla: sale del servidor y llega a otro lado. Sin
+ * esto, la unica forma de saber si funciona es esperar a que un cliente se
+ * queje de que no le llego nada.
+ *
+ * Manda el correo de bienvenida real, no uno inventado: si este llega, llegan
+ * todos, porque todos usan la misma plantilla y el mismo camino.
+ *
+ * SOLO SOPORTE. Un vendedor no dispara correos a direcciones ajenas.
+ */
+export async function enviarCorreoDePrueba(
+  _estadoPrevio: unknown,
+  datos: FormData,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const usuario = await obtenerUsuario().catch(() => null);
+
+  if (usuario?.rol !== "soporte") {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const correo = String(datos.get("correo") ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    return { ok: false, mensaje: "Escribe una dirección de correo válida." };
+  }
+
+  const resultado = await correoBienvenida({
+    email: correo,
+    name: usuario.name ?? null,
+    idioma: "es",
+  });
+
+  return resultado.enviado
+    ? { ok: true, mensaje: `Enviado a ${correo}. Revisa la bandeja.` }
+    : {
+        ok: false,
+        mensaje:
+          "No salió. Revisa que CLOUDFLARE_EMAIL_TOKEN esté cargado en el panel del sitio.",
+      };
+}

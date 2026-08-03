@@ -656,7 +656,9 @@
         "titulo": "Correos",
         "recibe": "Buzón que recibe",
         "envia": "Remitente del sistema",
-        "enviaAyuda": "Solo envía avisos. No recibe respuestas."
+        "enviaAyuda": "Solo envía avisos. No recibe respuestas.",
+        "pruebaTitulo": "Probar el envío",
+        "pruebaTexto": "Manda el correo de bienvenida real a la dirección que escribas. Si este llega, llegan todos: usan la misma plantilla y el mismo camino."
       },
       "variables": {
         "titulo": "Datos de la cuenta que recibe los pagos",

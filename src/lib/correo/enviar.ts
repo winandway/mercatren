@@ -1,15 +1,18 @@
 import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { Resend } from "resend";
 
 /**
- * El envio de correos del sistema, con Resend.
+ * El envio de correos del sistema, con el servicio propio de Mercatren
+ * (Cloudflare Email Sending). No hay libreria que instalar: es una llamada
+ * HTTP directa.
  *
  * LAS DOS DIRECCIONES (regla del proyecto, no inventar otras):
  *
- * - `noreply@mercatren.com` SOLO ENVIA. Es la voz del sistema: avisos de
+ * - `avisos@mercatren.com` SOLO ENVIA. Es la voz del sistema: avisos de
  *   compra, pagos, contrasenas. No recibe nada; responderle no llega a nadie.
+ *   Cualquier buzon @mercatren.com sirve como remitente: el dominio entero
+ *   esta autorizado y firmado.
  * - `mercatren@windoce.com` SOLO RECIBE. Es el buzon real y funcional donde
  *   entra el contacto de la web, y el que figura en terminos y condiciones.
  *   Va como Reply-To en cada envio: si alguien responde un aviso, la
@@ -18,60 +21,114 @@ import { Resend } from "resend";
  * PROHIBIDO usar direcciones tipo soporte@mercatren.com como contacto: ese
  * buzon no existe y el mensaje se pierde.
  *
- * Sin RESEND_API_KEY configurada no se envia nada y el sistema sigue
- * funcionando igual: el correo es un aviso, nunca un requisito.
+ * SOLO TRANSACCIONAL: confirmaciones, avisos y recuperacion de contrasena.
+ * Nada de promociones ni envios masivos por aqui.
+ *
+ * Sin el token configurado no se envia nada y el sistema sigue funcionando
+ * igual: el correo es un aviso, nunca un requisito. Un pago aprobado no se
+ * desaprueba porque el aviso no salio.
  */
 
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "./direcciones";
+import { anotarRebote, tieneRebote } from "./rebotes";
 
 export { CORREO_CONTACTO, CORREO_REMITENTE };
+
+/** La cuenta de Cloudflare de Mercatren. No es un secreto; el token si. */
+const CUENTA = "4d9e131f2c18bc10ac4700d689d5556c";
+const ENVIO = `https://api.cloudflare.com/client/v4/accounts/${CUENTA}/email/sending/send`;
 
 type Envio = {
   a: string;
   asunto: string;
   html: string;
-  /** Version en texto plano, para clientes de correo viejos y para el spam score. */
+  /** Version en texto plano. SIEMPRE va: sin ella el correo cae en spam. */
   texto: string;
 };
 
 /**
- * Envia un correo. Nunca lanza: si falla, se registra y la operacion que lo
- * pidio sigue su curso — un pago aprobado no se desaprueba porque el aviso
- * no salio.
+ * Separa "Mercatren <avisos@mercatren.com>" en sus dos partes, porque el
+ * servicio los pide en campos distintos.
+ */
+function partirRemitente(remitente: string) {
+  const con = remitente.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+  if (con) return { name: con[1] || "Mercatren", address: con[2] };
+  return { name: "Mercatren", address: remitente.trim() };
+}
+
+type Respuesta = {
+  success?: boolean;
+  errors?: { message?: string }[];
+  result?: { message_id?: string; permanent_bounces?: string[] };
+  permanent_bounces?: string[];
+};
+
+/**
+ * Envia un correo. Nunca lanza y NUNCA reintenta en bucle: si falla, se
+ * registra y la operacion que lo pidio sigue su curso.
  */
 export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
   const { env } = getCloudflareContext();
-  const clave = env.RESEND_API_KEY;
+  const token = env.CLOUDFLARE_EMAIL_TOKEN;
 
-  if (!clave) {
+  if (!token) {
     console.warn(
-      `[correo] RESEND_API_KEY sin configurar; no se envio "${asunto}" a ${a}`,
+      `[correo] CLOUDFLARE_EMAIL_TOKEN sin configurar; no se envio "${asunto}" a ${a}`,
     );
     return { enviado: false as const };
   }
 
+  const destino = a.trim().toLowerCase();
+
+  // A quien rebota de forma permanente no se le vuelve a escribir: insistir
+  // ensucia la reputacion del dominio y perjudica los correos que si llegan.
+  if (await tieneRebote(destino)) {
+    console.warn(`[correo] ${destino} rebota de forma permanente; no se envia`);
+    return { enviado: false as const };
+  }
+
+  const de = partirRemitente(env.CORREO_REMITENTE || CORREO_REMITENTE);
+
   try {
-    const resend = new Resend(clave);
-    const { error } = await resend.emails.send({
-      from: CORREO_REMITENTE,
-      to: a,
-      replyTo: CORREO_CONTACTO,
-      subject: asunto,
-      html,
-      text: texto,
+    const respuesta = await fetch(ENVIO, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        from: { address: de.address, name: de.name },
+        to: [{ address: destino }],
+        reply_to: [{ address: CORREO_CONTACTO }],
+        subject: asunto,
+        text: texto,
+        html,
+      }),
     });
 
-    if (error) {
-      console.error(
-        `[correo] Resend rechazo "${asunto}" a ${a}:`,
-        error.message,
-      );
+    const cuerpo = (await respuesta
+      .json()
+      .catch(() => null)) as Respuesta | null;
+
+    const rebotes =
+      cuerpo?.result?.permanent_bounces ?? cuerpo?.permanent_bounces;
+    if (rebotes?.some((correo) => correo.trim().toLowerCase() === destino)) {
+      await anotarRebote(destino);
+      console.warn(`[correo] ${destino} rebota de forma permanente; anotado`);
       return { enviado: false as const };
     }
 
-    return { enviado: true as const };
+    if (!respuesta.ok || !cuerpo?.success) {
+      const motivo =
+        cuerpo?.errors?.map((e) => e.message).join("; ") ||
+        `HTTP ${respuesta.status}`;
+      console.error(`[correo] rechazado "${asunto}" a ${destino}: ${motivo}`);
+      return { enviado: false as const };
+    }
+
+    return { enviado: true as const, id: cuerpo.result?.message_id };
   } catch (e) {
-    console.error(`[correo] fallo enviando "${asunto}" a ${a}:`, e);
+    console.error(`[correo] fallo enviando "${asunto}" a ${destino}:`, e);
     return { enviado: false as const };
   }
 }

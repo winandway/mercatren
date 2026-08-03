@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
@@ -35,7 +36,7 @@ const VARIABLES_DE_PAGO = [
 
 /** Lo que esta construido pero todavia no tiene servicio detras. */
 const PENDIENTES = [
-  { clave: "RESEND_API_KEY", que: "Envío de avisos por correo" },
+  { clave: "CLOUDFLARE_EMAIL_TOKEN", que: "Envío de avisos por correo" },
   { clave: "STRIPE_SECRET_KEY", que: "Pago con tarjeta" },
 ] as const;
 
@@ -118,6 +119,14 @@ export default async function PaginaConfiguracion({
             </p>
           </div>
         </dl>
+
+        <div className="mt-4 border-t border-borde pt-4">
+          <h3 className="text-sm font-semibold">{t("correos.pruebaTitulo")}</h3>
+          <p className="mt-1 text-sm text-tinta-suave">
+            {t("correos.pruebaTexto")}
+          </p>
+          <ProbarCorreo />
+        </div>
       </section>
 
       {/* Las variables de cobro: solo si estan, nunca su valor. */}
