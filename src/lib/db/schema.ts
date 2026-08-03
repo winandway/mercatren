@@ -374,9 +374,18 @@ export const pedidos = sqliteTable(
     impuestosCentavos: integer("impuestos_centavos").notNull().default(0),
     totalCentavos: integer("total_centavos").notNull().default(0),
     moneda: text("moneda").notNull().default("USD"),
-    /** Direccion completa guardada como JSON para no perder el historico. */
+    /** Como eligio pagar. La forma decide que pasa despues del pedido. */
+    metodoPago: text("metodo_pago").$type<(typeof METODOS_PAGO)[number]>(),
+    /**
+     * Direccion completa guardada como JSON para no perder el historico:
+     * si el cliente cambia su direccion manana, el pedido viejo conserva
+     * a donde se mando de verdad.
+     */
     direccionEntrega: text("direccion_entrega", { mode: "json" }),
     paisDestino: text("pais_destino"),
+    /** Con quien hablar por este pedido. */
+    telefonoContacto: text("telefono_contacto"),
+    notasCliente: text("notas_cliente"),
     creadoEn: integer("creado_en", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
@@ -626,6 +635,11 @@ export const pagosZelle = sqliteTable(
     sellerCuenta: text("seller_cuenta"),
     sellerReferencia: text("seller_referencia"),
     tiendaId: text("tienda_id").references(() => tiendas.id),
+    /**
+     * Que pedido esta pagando. El historico importado no tiene pedido (venia
+     * de otro sistema); los pagos nuevos si.
+     */
+    pedidoId: text("pedido_id").references(() => pedidos.id),
 
     // Quien lo reviso (solo para los pagos nuevos).
     validadorId: text("validador_id").references(() => user.id),

@@ -291,11 +291,25 @@ npm run productos:importar -- --archivo=otra/ruta.json
 El importador **se detiene** si los totales no cuadran con los del propio
 archivo.
 
-## El carrito
+## El carrito y la compra
 
-Vive en el navegador (`src/lib/carrito/store.ts`, se guarda solo). **Nunca se
-confía en él para cobrar**: al pagar, el pedido se arma en el servidor y ahí se
-vuelven a comprobar precios y existencias.
+El carrito vive en el navegador (`src/lib/carrito/store.ts`, se guarda solo) y
+sirve **solo para saber qué quiere comprar el cliente**. Al confirmar,
+`crearPedido()` vuelve a leer de la base el precio, la disponibilidad y la
+comisión de cada producto. Si alguien manipula lo que tiene guardado para
+ponerse un precio de un dólar, aquí no le sirve de nada.
+
+- **Hay que tener cuenta para comprar**: el pago debe poder acreditarse a
+  alguien y el cliente tiene que poder seguir su pedido.
+- **Las existencias NO se descuentan al crear el pedido**, sino cuando el pago
+  queda confirmado. Así un carrito abandonado no deja mercancía bloqueada. A
+  cambio, el validador tiene que mirar que quede stock antes de aprobar.
+- **Envío e impuestos van en cero por ahora**: se acuerdan con el comercio.
+  Cuando se definan, entran en `crearPedido()` y en el total.
+- **La cuenta de Zelle que recibe los pagos sale de `ZELLE_CORREO_RECEPTOR`.**
+  Si no está configurada, la pantalla del pedido lo dice; **no inventa un
+  correo**.
+- El número de pedido es correlativo y legible: `MT-000001`.
 
 ## Comandos
 

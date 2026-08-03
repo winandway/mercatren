@@ -465,5 +465,93 @@
       "siguiente": "Siguiente",
       "posicion": "Página {pagina} de {paginas}"
     }
+  },
+  "carrito": {
+    "titulo": "Tu carrito",
+    "vacio": "Tu carrito está vacío",
+    "vacioTexto": "Cuando agregues productos van a aparecer aquí.",
+    "verCatalogo": "Ver el catálogo",
+    "seguirComprando": "Seguir comprando",
+    "articulos": "{n, plural, one {# artículo} other {# artículos}}",
+    "cantidad": "Cantidad",
+    "quitar": "Quitar",
+    "vaciar": "Vaciar el carrito",
+    "masOpciones": "Más opciones",
+    "confirmarVaciar": "¿Seguro que quieres vaciar el carrito?",
+    "si": "Sí, vaciar",
+    "no": "Cancelar",
+    "subtotal": "Subtotal",
+    "envio": "Envío",
+    "envioPorAcordar": "Se acuerda con el comercio",
+    "total": "Total",
+    "pagar": "Continuar con el pago",
+    "vendidoPor": "Vendido por"
+  },
+  "checkout": {
+    "titulo": "Terminar la compra",
+    "necesitaCuenta": "Entra con tu cuenta para terminar la compra.",
+    "entrar": "Entrar",
+    "entrega": {
+      "titulo": "¿A dónde va el pedido?",
+      "nombre": "Nombre de quien recibe",
+      "nombrePlaceholder": "Nombre y apellido",
+      "telefono": "Teléfono de contacto",
+      "telefonoPlaceholder": "Número de celular",
+      "pais": "País",
+      "paisPlaceholder": "País de entrega",
+      "ciudad": "Ciudad",
+      "ciudadPlaceholder": "Ciudad",
+      "direccion": "Dirección",
+      "direccionPlaceholder": "Calle, número, sector",
+      "referencia": "Punto de referencia",
+      "referenciaPlaceholder": "Algo que ayude a encontrar el lugar",
+      "notas": "Notas para el comercio",
+      "notasPlaceholder": "Algo que el comercio deba saber",
+      "opcional": "Opcional"
+    },
+    "pago": {
+      "titulo": "¿Cómo vas a pagar?",
+      "zelle": "Zelle",
+      "zelleTexto": "Transfieres desde tu banco de Estados Unidos y subes la captura. Comisión 3%.",
+      "tarjeta": "Tarjeta de crédito o débito",
+      "tarjetaTexto": "Comisión 5%.",
+      "billetera": "Saldo en mi billetera",
+      "billeteraTexto": "Sin costo extra.",
+      "proximamente": "Próximamente"
+    },
+    "resumen": "Resumen del pedido",
+    "confirmar": "Confirmar pedido",
+    "procesando": "Creando tu pedido…",
+    "error": "No pudimos crear el pedido."
+  },
+  "pedido": {
+    "titulo": "Pedido {numero}",
+    "creado": "¡Listo! Tu pedido quedó registrado.",
+    "creadoTexto": "Ahora falta el pago. Sigue los pasos de abajo y tu pedido se prepara apenas lo verifiquemos.",
+    "estado": {
+      "pendiente_pago": "Esperando el pago",
+      "pagado": "Pagado",
+      "preparando": "Preparando",
+      "enviado": "Enviado",
+      "entregado": "Entregado",
+      "cancelado": "Cancelado",
+      "reembolsado": "Reembolsado"
+    },
+    "articulos": "Artículos",
+    "entrega": "Entrega",
+    "total": "Total a pagar",
+    "comoPagar": "Cómo pagar por Zelle",
+    "pasosZelle": [
+      "Abre tu banco y elige enviar dinero por Zelle.",
+      "Envía el monto exacto del pedido al correo que aparece abajo.",
+      "Guarda la captura de la confirmación.",
+      "Súbela aquí. Una persona la verifica contra el banco y tu pedido arranca."
+    ],
+    "correoZelle": "Enviar a este correo",
+    "montoExacto": "Monto exacto",
+    "referenciaPedido": "Pon el número del pedido en la nota, si tu banco lo permite.",
+    "subirCaptura": "Subir la captura del pago",
+    "avisoDatosPago": "Los datos de la cuenta que recibe los configura el equipo de Mercatren.",
+    "verPedidos": "Ver mis pedidos"
   }
 }

@@ -20,6 +20,10 @@ interface CloudflareEnv {
   STRIPE_WEBHOOK_SECRET: string;
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
 
+  /** Cuenta de Zelle que recibe los pagos de los clientes. */
+  ZELLE_CORREO_RECEPTOR?: string;
+  ZELLE_NOMBRE_RECEPTOR?: string;
+
   /** Envio de correos (confirmaciones de pedido, avisos de envio). */
   RESEND_API_KEY: string;
   CORREO_REMITENTE: string;

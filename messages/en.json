@@ -465,5 +465,93 @@
       "siguiente": "Next",
       "posicion": "Page {pagina} of {paginas}"
     }
+  },
+  "carrito": {
+    "titulo": "Your cart",
+    "vacio": "Your cart is empty",
+    "vacioTexto": "Anything you add will show up here.",
+    "verCatalogo": "Browse the catalog",
+    "seguirComprando": "Keep shopping",
+    "articulos": "{n, plural, one {# item} other {# items}}",
+    "cantidad": "Quantity",
+    "quitar": "Remove",
+    "vaciar": "Empty the cart",
+    "masOpciones": "More options",
+    "confirmarVaciar": "Empty the whole cart?",
+    "si": "Yes, empty it",
+    "no": "Cancel",
+    "subtotal": "Subtotal",
+    "envio": "Shipping",
+    "envioPorAcordar": "Agreed with the merchant",
+    "total": "Total",
+    "pagar": "Continue to payment",
+    "vendidoPor": "Sold by"
+  },
+  "checkout": {
+    "titulo": "Complete your purchase",
+    "necesitaCuenta": "Sign in to complete your purchase.",
+    "entrar": "Sign in",
+    "entrega": {
+      "titulo": "Where is it going?",
+      "nombre": "Who receives it",
+      "nombrePlaceholder": "First and last name",
+      "telefono": "Contact phone",
+      "telefonoPlaceholder": "Mobile number",
+      "pais": "Country",
+      "paisPlaceholder": "Delivery country",
+      "ciudad": "City",
+      "ciudadPlaceholder": "City",
+      "direccion": "Address",
+      "direccionPlaceholder": "Street, number, area",
+      "referencia": "Landmark",
+      "referenciaPlaceholder": "Anything that helps find the place",
+      "notas": "Notes for the merchant",
+      "notasPlaceholder": "Anything the merchant should know",
+      "opcional": "Optional"
+    },
+    "pago": {
+      "titulo": "How are you paying?",
+      "zelle": "Zelle",
+      "zelleTexto": "Transfer from your U.S. bank and upload the receipt. 3% fee.",
+      "tarjeta": "Credit or debit card",
+      "tarjetaTexto": "5% fee.",
+      "billetera": "My wallet balance",
+      "billeteraTexto": "No extra cost.",
+      "proximamente": "Coming soon"
+    },
+    "resumen": "Order summary",
+    "confirmar": "Place order",
+    "procesando": "Creating your order…",
+    "error": "We couldn't create the order."
+  },
+  "pedido": {
+    "titulo": "Order {numero}",
+    "creado": "Done! Your order is on record.",
+    "creadoTexto": "Payment is the last step. Follow the instructions below and your order starts as soon as we verify it.",
+    "estado": {
+      "pendiente_pago": "Awaiting payment",
+      "pagado": "Paid",
+      "preparando": "Being prepared",
+      "enviado": "Shipped",
+      "entregado": "Delivered",
+      "cancelado": "Cancelled",
+      "reembolsado": "Refunded"
+    },
+    "articulos": "Items",
+    "entrega": "Delivery",
+    "total": "Amount to pay",
+    "comoPagar": "How to pay with Zelle",
+    "pasosZelle": [
+      "Open your bank and choose to send money with Zelle.",
+      "Send the exact order amount to the email shown below.",
+      "Save the confirmation screenshot.",
+      "Upload it here. A person checks it against the bank and your order gets going."
+    ],
+    "correoZelle": "Send to this email",
+    "montoExacto": "Exact amount",
+    "referenciaPedido": "Add the order number in the note, if your bank allows it.",
+    "subirCaptura": "Upload the payment receipt",
+    "avisoDatosPago": "The receiving account details are set by the Mercatren team.",
+    "verPedidos": "View my orders"
   }
 }
