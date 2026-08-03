@@ -21,6 +21,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      # El candado se genera con npm 11 en la computadora de trabajo; aqui se
+      # usa el mismo npm para que "funciona local" y "funciona aqui" sea lo
+      # mismo. Node 22 trae npm 10 y ese lee el candado mas estricto.
+      - name: Usar el mismo npm que en local
+        run: npm install -g npm@11
+
       - name: Instalar dependencias
         run: npm ci
 
