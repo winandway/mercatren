@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="101.5" viewBox="0 0 130 101.5" fill="none" role="img" aria-label="Mercatren">
+  <g transform="translate(17,-3.5)">
+    <path d="M 6 34 H 22 M 6 24 H 34" stroke="#FF6B1A" stroke-width="5"
+          stroke-linecap="round" fill="none"/>
+    <path d="M 10 68 L 10 46 Q 10 42 14 42 L 46 42 Q 72 42 86 64 Q 89 68 85 68 Z" fill="#FF6B1A"/>
+    <path d="M 52 48 Q 62 48 69 56 L 54 56 Q 50 56 50 52 Q 50 48 52 48 Z" fill="#10263A"/>
+    <circle cx="30" cy="73" r="6" fill="#10263A"/>
+    <circle cx="58" cy="73" r="6" fill="#10263A"/>
+    <path d="M 4 84 H 92" stroke="#10263A" stroke-width="6" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>
