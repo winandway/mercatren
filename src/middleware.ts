@@ -9,11 +9,17 @@ const idiomas = createMiddleware(routing);
 const ES_PANEL = new RegExp(`^/(${routing.locales.join("|")})/panel(/|$)`);
 
 /**
+ * OJO AL NOMBRE: Next 16 recomienda llamar a este archivo proxy.ts, pero
+ * proxy compila SIEMPRE como funcion Node y el adaptador de Cloudflare
+ * (OpenNext) solo acepta el middleware en runtime edge. Por eso se queda con
+ * la convencion middleware.ts, que sigue compilando a edge. No renombrar a
+ * proxy.ts hasta que OpenNext lo soporte.
+ *
  * Primera barrera del panel: si no hay ni siquiera una cookie de sesion, se
  * corta aqui y la pagina ni se arma. La comprobacion de verdad (que el rol
  * tenga permiso) se hace despues, en las consultas.
  */
-export default function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (ES_PANEL.test(pathname)) {

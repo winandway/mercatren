@@ -56,7 +56,7 @@ src/lib/alcance.ts          qué comercio puede ver quién (puro, con pruebas)
 src/lib/autorizacion.ts     sesión, roles y alcance
 src/lib/zelle/              contabilidad, lectura de comprobantes, consultas, acciones
 src/i18n/                   configuración de idiomas y navegación
-src/proxy.ts                idioma y primera barrera del panel (en Next 16 se llama proxy)
+src/middleware.ts           idioma y primera barrera del panel (NO renombrar a proxy.ts)
 src/sw.ts                   trabajador de la aplicación instalable
 messages/es.json            textos en español
 messages/en.json            textos en inglés
@@ -65,6 +65,13 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
 tests/ e2e/                 pruebas
 scripts/                    iconos, importación del histórico, alta de cuentas
 ```
+
+**Ojo con el middleware:** Next 16 recomienda `proxy.ts`, pero proxy compila
+SIEMPRE como funcion Node y el adaptador de Cloudflare (OpenNext) solo acepta
+el middleware en runtime edge: el build de publicacion se cae con "Node.js
+middleware is not currently supported". Por eso el archivo se llama
+`src/middleware.ts` (convencion vieja, compila a edge). No renombrarlo a
+proxy.ts hasta que OpenNext lo soporte.
 
 **Ojo con el service worker:** el plugin `@serwist/next` trabaja con webpack y
 este proyecto compila con Turbopack, así que `public/sw.js` lo genera
