@@ -649,6 +649,25 @@
       "copiadas": "{n} copied",
       "fallidas": "{n} couldn't be fetched",
       "todasNuestras": "Every catalog photo is already on Mercatren."
+    },
+    "sincronizacion": {
+      "titulo": "Sync my catalog",
+      "texto": "If you already keep your catalog in another system, publish the export file there and put its address here. Mercatren reads it and updates prices and stock without you entering anything by hand.",
+      "direccion": "File address",
+      "direccionAyuda": "Must start with https:// and return the export file in JSON.",
+      "guardar": "Save address",
+      "sincronizar": "Sync now",
+      "sincronizando": "Syncing…",
+      "sinDireccion": "Add your file address to be able to sync.",
+      "ultima": "Last sync",
+      "nunca": "Not synced yet",
+      "queHace": "What syncing does",
+      "reglas": [
+        "Products that already exist are updated, not duplicated.",
+        "Anything you remove from your system becomes a draft, never deleted: it may have past orders.",
+        "A published product with no price comes in as a draft, so it isn't given away.",
+        "Photos already brought over to Mercatren are left untouched."
+      ]
     }
   },
   "catalogo": {

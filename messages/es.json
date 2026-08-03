@@ -649,6 +649,25 @@
       "copiadas": "{n} copiadas",
       "fallidas": "{n} no se pudieron traer",
       "todasNuestras": "Todas las fotos del catálogo ya están en Mercatren."
+    },
+    "sincronizacion": {
+      "titulo": "Sincronizar mi catálogo",
+      "texto": "Si ya llevas tu catálogo en otro sistema, publica ahí el archivo de exportación y pon su dirección aquí. Mercatren lo lee y actualiza precios y existencias sin que cargues nada a mano.",
+      "direccion": "Dirección del archivo",
+      "direccionAyuda": "Tiene que empezar por https:// y devolver el archivo de exportación en JSON.",
+      "guardar": "Guardar dirección",
+      "sincronizar": "Sincronizar ahora",
+      "sincronizando": "Sincronizando…",
+      "sinDireccion": "Pon la dirección de tu archivo para poder sincronizar.",
+      "ultima": "Última sincronización",
+      "nunca": "Todavía no se ha sincronizado",
+      "queHace": "Qué hace al sincronizar",
+      "reglas": [
+        "Los productos que ya existen se actualizan, no se duplican.",
+        "Lo que quites de tu sistema pasa a borrador, nunca se borra: puede tener pedidos viejos.",
+        "Un producto publicado sin precio entra como borrador, para que no se venda regalado.",
+        "Las fotos que ya trajimos a Mercatren no se tocan."
+      ]
     }
   },
   "catalogo": {

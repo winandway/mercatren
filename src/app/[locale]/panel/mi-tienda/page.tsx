@@ -1,12 +1,15 @@
 import { eq } from "drizzle-orm";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FormularioMiTienda } from "@/components/panel/formulario-mi-tienda";
+import { SincronizarCatalogo } from "@/components/panel/sincronizar-catalogo";
 import { Link } from "@/i18n/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { tiendas } from "@/lib/db/schema";
+import { fuentesCatalogo, tiendas } from "@/lib/db/schema";
+import type { Idioma } from "@/lib/dinero";
+import { fechaHora } from "@/lib/fechas";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +32,7 @@ export default async function PaginaMiTienda({
   setRequestLocale(locale);
 
   const t = await getTranslations("panel.miTienda");
+  const ts = await getTranslations("panel.sincronizacion");
   const alcance = await obtenerAlcance();
   const { comercio } = await searchParams;
 
@@ -59,6 +63,13 @@ export default async function PaginaMiTienda({
     );
   }
 
+  // La fuente de catalogo del comercio, si tiene una.
+  const [fuente] = await db
+    .select()
+    .from(fuentesCatalogo)
+    .where(eq(fuentesCatalogo.tiendaId, tienda.id))
+    .limit(1);
+
   const enBucket = (clave: string | null) =>
     clave ? `${RUTA_MEDIA}/${clave}` : null;
 
@@ -80,6 +91,28 @@ export default async function PaginaMiTienda({
           <ExternalLink className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </header>
+
+      {/* Si el comercio trae su catalogo de otro sistema, aqui lo conecta. */}
+      {fuente ? (
+        <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <RefreshCw className="h-4 w-4 text-carga-500" aria-hidden />
+            {ts("titulo")}
+          </h2>
+          <div className="mt-3">
+            <SincronizarCatalogo
+              fuenteId={fuente.id}
+              url={fuente.url}
+              ultima={
+                fuente.ultimaSincronizacion
+                  ? fechaHora(fuente.ultimaSincronizacion, locale as Idioma)
+                  : null
+              }
+              ultimoResultado={fuente.ultimoResultado}
+            />
+          </div>
+        </section>
+      ) : null}
 
       <FormularioMiTienda
         tienda={{

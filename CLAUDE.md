@@ -363,6 +363,14 @@ catálogo** hay un botón que las copia a nuestro bucket por tandas, con barra
 de avance; se puede parar y retomar. Es idempotente: solo mira las que aún
 tienen `url` y no tienen `clave`. Una foto que falle no detiene a las demás.
 
+**La sincronización ya no necesita el archivo local.** En **Mi tienda →
+Sincronizar mi catálogo** el comercio pone la dirección donde publica su
+archivo de exportación y Mercatren lo lee: actualiza lo que existe (por
+`fuente_id` + `externo_id`), pasa a borrador lo que él quitó, deja en
+borrador lo publicado sin precio, y **no toca las fotos que ya se trajeron a
+nuestro bucket**. El importador de línea de comandos sigue sirviendo para la
+primera carga:
+
 ```bash
 npm run productos:importar                          # desde datos/
 npm run productos:importar -- --archivo=otra/ruta.json
