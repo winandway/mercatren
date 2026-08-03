@@ -1,9 +1,11 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { CheckCircle2, Info } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { FichaDePago } from "@/components/pago/ficha-de-pago";
+import { FormularioComprobante } from "@/components/pago/formulario-comprobante";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
@@ -43,7 +45,7 @@ export default async function PaginaPedido({
 
   if (!datos) notFound();
 
-  const { pedido, renglones } = datos;
+  const { pedido, renglones, pago } = datos;
   const direccion = pedido.direccionEntrega as {
     nombre?: string;
     pais?: string;
@@ -52,9 +54,20 @@ export default async function PaginaPedido({
     referencia?: string | null;
   } | null;
 
-  // La cuenta que recibe los pagos se configura en el panel, no se inventa.
+  // Los datos de la cuenta que recibe salen de las variables del entorno:
+  // en el codigo no hay ningun numero de cuenta escrito.
   const { env } = getCloudflareContext();
-  const correoZelle = env.ZELLE_CORREO_RECEPTOR;
+  const datosDePago = {
+    beneficiario: env.PAGO_BENEFICIARIO ?? null,
+    banco: env.PAGO_BANCO ?? null,
+    cuenta: env.PAGO_CUENTA ?? null,
+    rutaAch: env.PAGO_RUTA_ACH ?? null,
+    rutaWire: env.PAGO_RUTA_WIRE ?? null,
+    zelleCorreo: env.ZELLE_CORREO_RECEPTOR ?? null,
+    zelleNombre: env.ZELLE_NOMBRE_RECEPTOR ?? null,
+    soporteTelefono: env.PAGO_SOPORTE_TELEFONO ?? null,
+    soporteCorreo: env.PAGO_SOPORTE_CORREO ?? null,
+  };
 
   const pasos = t.raw("pasosZelle") as string[];
 
@@ -137,44 +150,65 @@ export default async function PaginaPedido({
 
       {/* Como pagar */}
       {pedido.estado === "pendiente_pago" ? (
-        <section className="mt-4 rounded-xl border border-carga-500/40 bg-carga-500/5 p-5">
-          <h2 className="text-lg font-bold">{t("comoPagar")}</h2>
-
-          <ol className="mt-3 space-y-2">
-            {pasos.map((paso, indice) => (
-              <li key={paso} className="flex gap-3 text-sm">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-riel-900 text-xs font-bold text-white">
-                  {indice + 1}
-                </span>
-                <span>{paso}</span>
-              </li>
-            ))}
-          </ol>
-
-          <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg bg-white p-3">
-              <dt className="text-xs text-tinta-suave">{t("montoExacto")}</dt>
-              <dd className="text-xl font-bold tabular-nums">
-                {formatearPrecio(pedido.totalCentavos, idioma, pedido.moneda)}
-              </dd>
-            </div>
-            <div className="rounded-lg bg-white p-3">
-              <dt className="text-xs text-tinta-suave">{t("correoZelle")}</dt>
-              <dd className="text-sm font-bold break-all">
-                {correoZelle ?? (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-tinta-suave">
-                    <Info className="h-3.5 w-3.5" aria-hidden />
-                    {t("avisoDatosPago")}
+        <>
+          <section className="mt-6">
+            <h2 className="text-lg font-bold">{t("comoPagar")}</h2>
+            <ol className="mt-3 space-y-2">
+              {pasos.map((paso, indice) => (
+                <li key={paso} className="flex gap-3 text-sm">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-riel-900 text-xs font-bold text-white">
+                    {indice + 1}
                   </span>
-                )}
-              </dd>
-            </div>
-          </dl>
+                  <span>{paso}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-          <p className="mt-3 text-xs text-tinta-suave">
-            {t("referenciaPedido")}
-          </p>
-        </section>
+          <div className="mt-5">
+            <FichaDePago
+              datos={datosDePago}
+              monto={formatearPrecio(
+                pedido.totalCentavos,
+                idioma,
+                pedido.moneda,
+              )}
+              numeroPedido={pedido.numero}
+            />
+          </div>
+
+          <div className="mt-5">
+            {pago && pago.estado === "pendiente" ? (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+                <p className="flex items-center gap-2 font-bold text-emerald-900">
+                  <CheckCircle2 className="h-5 w-5" aria-hidden />
+                  {t("subida.estado.pendiente")}
+                </p>
+                <p className="mt-1 text-sm text-emerald-800">
+                  {t("subida.estado.pendienteTexto")}
+                </p>
+                {pago.subidoEn ? (
+                  <p className="mt-2 text-xs text-emerald-700">
+                    {t("subida.estado.subidoEl")}{" "}
+                    {fechaHora(pago.subidoEn, idioma)}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                {pago && pago.estado === "rechazado" ? (
+                  <p className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <span className="font-semibold">
+                      {t("subida.estado.rechazado")}:
+                    </span>{" "}
+                    {pago.motivoRechazo}
+                  </p>
+                ) : null}
+                <FormularioComprobante numero={pedido.numero} />
+              </>
+            )}
+          </div>
+        </>
       ) : null}
 
       <div className="mt-6">

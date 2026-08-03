@@ -20,7 +20,23 @@ interface CloudflareEnv {
   STRIPE_WEBHOOK_SECRET: string;
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
 
-  /** Cuenta de Zelle que recibe los pagos de los clientes. */
+  /**
+   * Datos de la cuenta que recibe los pagos de los clientes.
+   *
+   * NUNCA van escritos en el codigo: el repositorio es publico, y un numero de
+   * cuenta junto a su ruta ACH es justo lo que hace falta para intentar un
+   * cobro no autorizado. Se cargan en el panel de YaDominios Cloud, y en la
+   * computadora de cada quien en .dev.vars (que no se sube).
+   *
+   * Solo se le muestran al cliente que tiene un pedido por pagar.
+   */
+  PAGO_BENEFICIARIO?: string;
+  PAGO_BANCO?: string;
+  PAGO_CUENTA?: string;
+  PAGO_RUTA_ACH?: string;
+  PAGO_RUTA_WIRE?: string;
+  PAGO_SOPORTE_TELEFONO?: string;
+  PAGO_SOPORTE_CORREO?: string;
   ZELLE_CORREO_RECEPTOR?: string;
   ZELLE_NOMBRE_RECEPTOR?: string;
 

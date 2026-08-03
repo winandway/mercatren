@@ -552,6 +552,64 @@
     "referenciaPedido": "Add the order number in the note, if your bank allows it.",
     "subirCaptura": "Upload the payment receipt",
     "avisoDatosPago": "The receiving account details are set by the Mercatren team.",
-    "verPedidos": "View my orders"
+    "verPedidos": "View my orders",
+    "subida": {
+      "titulo": "Upload your receipt",
+      "texto": "Once you've paid, upload the screenshot. A person checks it against the bank and your order gets going.",
+      "archivo": "Payment screenshot",
+      "archivoAyuda": "A JPG, PNG or WEBP image. 8 MB max.",
+      "codigo": "Confirmation number",
+      "codigoOpcional": "Optional",
+      "codigoPlaceholder": "The one your bank gives you",
+      "enviar": "Send receipt",
+      "enviando": "Uploading…",
+      "elegirArchivo": "Choose image",
+      "sinArchivo": "No image chosen",
+      "estado": {
+        "pendiente": "Receipt under review",
+        "pendienteTexto": "We got your screenshot. We're verifying it against the bank.",
+        "aprobado": "Payment verified",
+        "aprobadoTexto": "Your payment is confirmed. The merchant is preparing your order.",
+        "rechazado": "Receipt rejected",
+        "subidoEl": "Uploaded on"
+      }
+    }
+  },
+  "datosPago": {
+    "titulo": "Payment details",
+    "recomendado": "Recommended",
+    "instantaneo": "Instant",
+    "copiar": "Copy",
+    "copiado": "Copied",
+    "soloEstadosUnidos": "We only accept payments from U.S. banks.",
+    "soloEstadosUnidosDetalle": "We do not receive international transfers or payments in another currency.",
+    "ponerReferencia": "Add order number {numero} in the note or reference if your bank allows it. It helps us verify faster.",
+    "sinConfigurar": "The Mercatren team hasn't loaded the account details yet. Get in touch and we'll send them to you.",
+    "zelle": {
+      "titulo": "Zelle",
+      "subtitulo": "Arrives in minutes",
+      "enviarA": "Send to this email",
+      "aNombreDe": "Account name"
+    },
+    "transferencia": {
+      "titulo": "Bank transfer",
+      "subtitulo": "ACH or wire, within the United States",
+      "beneficiario": "Beneficiary",
+      "banco": "Bank",
+      "cuenta": "Account number",
+      "rutaAch": "ACH routing number",
+      "rutaAchDetalle": "Deposits and regular transfers",
+      "rutaWire": "Wire routing number",
+      "rutaWireDetalle": "Wire transfers"
+    },
+    "monto": {
+      "titulo": "Exact amount to send",
+      "aviso": "Send the exact amount. If your bank charges a fee, add it separately."
+    },
+    "soporte": {
+      "titulo": "Questions about the payment?",
+      "telefono": "Phone",
+      "correo": "Email"
+    }
   }
 }

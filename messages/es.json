@@ -552,6 +552,64 @@
     "referenciaPedido": "Pon el número del pedido en la nota, si tu banco lo permite.",
     "subirCaptura": "Subir la captura del pago",
     "avisoDatosPago": "Los datos de la cuenta que recibe los configura el equipo de Mercatren.",
-    "verPedidos": "Ver mis pedidos"
+    "verPedidos": "Ver mis pedidos",
+    "subida": {
+      "titulo": "Sube tu comprobante",
+      "texto": "Cuando hayas hecho el pago, sube la captura. Una persona la revisa contra el banco y tu pedido arranca.",
+      "archivo": "Captura del pago",
+      "archivoAyuda": "Una imagen JPG, PNG o WEBP. Máximo 8 MB.",
+      "codigo": "Número de confirmación",
+      "codigoOpcional": "Opcional",
+      "codigoPlaceholder": "El que te da tu banco",
+      "enviar": "Enviar comprobante",
+      "enviando": "Subiendo…",
+      "elegirArchivo": "Elegir imagen",
+      "sinArchivo": "Ninguna imagen elegida",
+      "estado": {
+        "pendiente": "Comprobante en revisión",
+        "pendienteTexto": "Ya recibimos tu captura. La estamos verificando contra el banco.",
+        "aprobado": "Pago verificado",
+        "aprobadoTexto": "Tu pago quedó confirmado. El comercio prepara tu pedido.",
+        "rechazado": "Comprobante rechazado",
+        "subidoEl": "Subido el"
+      }
+    }
+  },
+  "datosPago": {
+    "titulo": "Datos para pagar",
+    "recomendado": "Recomendado",
+    "instantaneo": "Instantáneo",
+    "copiar": "Copiar",
+    "copiado": "Copiado",
+    "soloEstadosUnidos": "Solo se aceptan pagos desde bancos de Estados Unidos.",
+    "soloEstadosUnidosDetalle": "No recibimos transferencias internacionales ni pagos en otra moneda.",
+    "ponerReferencia": "Pon el número de pedido {numero} en la nota o referencia, si tu banco lo permite. Así lo verificamos más rápido.",
+    "sinConfigurar": "El equipo de Mercatren todavía no cargó los datos de la cuenta. Escríbenos y te los pasamos.",
+    "zelle": {
+      "titulo": "Zelle",
+      "subtitulo": "Llega en minutos",
+      "enviarA": "Enviar a este correo",
+      "aNombreDe": "A nombre de"
+    },
+    "transferencia": {
+      "titulo": "Transferencia bancaria",
+      "subtitulo": "ACH o wire, dentro de Estados Unidos",
+      "beneficiario": "Beneficiario",
+      "banco": "Banco",
+      "cuenta": "Número de cuenta",
+      "rutaAch": "Ruta ACH",
+      "rutaAchDetalle": "Depósitos y transferencias normales",
+      "rutaWire": "Ruta wire",
+      "rutaWireDetalle": "Transferencias cable"
+    },
+    "monto": {
+      "titulo": "Monto exacto a enviar",
+      "aviso": "Envía el monto exacto. Si el banco te cobra algo, súmalo aparte."
+    },
+    "soporte": {
+      "titulo": "¿Dudas con el pago?",
+      "telefono": "Teléfono",
+      "correo": "Correo"
+    }
   }
 }

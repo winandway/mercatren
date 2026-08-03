@@ -1,11 +1,17 @@
 "use server";
 
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { itemsPedido, pedidos, productos, tiendas } from "@/lib/db/schema";
+import {
+  itemsPedido,
+  pagosZelle,
+  pedidos,
+  productos,
+  tiendas,
+} from "@/lib/db/schema";
 import { calcularComisionCentavos } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
 
@@ -199,5 +205,18 @@ export async function obtenerPedidoPropio(numero: string) {
     .from(itemsPedido)
     .where(eq(itemsPedido.pedidoId, pedido.id));
 
-  return { pedido, renglones };
+  // Si ya subio el comprobante, se muestra en que va en vez del formulario.
+  const [pago] = await db
+    .select({
+      id: pagosZelle.id,
+      estado: pagosZelle.estado,
+      subidoEn: pagosZelle.subidoEn,
+      motivoRechazo: pagosZelle.motivoRechazo,
+    })
+    .from(pagosZelle)
+    .where(eq(pagosZelle.pedidoId, pedido.id))
+    .orderBy(desc(pagosZelle.creadoEn))
+    .limit(1);
+
+  return { pedido, renglones, pago: pago ?? null };
 }

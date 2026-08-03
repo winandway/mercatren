@@ -311,6 +311,44 @@ ponerse un precio de un dólar, aquí no le sirve de nada.
   correo**.
 - El número de pedido es correlativo y legible: `MT-000001`.
 
+## Los datos bancarios NO van en el código (REGLA CRÍTICA)
+
+La cuenta que recibe los pagos, sus rutas ACH y wire y el correo de Zelle salen
+**siempre** de variables de entorno: `PAGO_CUENTA`, `PAGO_RUTA_ACH`,
+`PAGO_RUTA_WIRE`, `ZELLE_CORREO_RECEPTOR` y compañía.
+
+**Por qué:** el repositorio es público. Un número de cuenta junto a su ruta ACH
+es justo lo que hace falta para intentar un cobro no autorizado en Estados
+Unidos. En local van en `.dev.vars`; en producción, en el panel de YaDominios
+Cloud. Si faltan, la pantalla del pedido lo dice; **nunca inventa datos**.
+
+Tampoco es una página pública: los datos se le muestran **solo al cliente que
+tiene ese pedido por pagar**.
+
+**Solo se aceptan pagos desde bancos de Estados Unidos.** Por eso no se ofrece
+SWIFT ni transferencia internacional, y la ficha lo avisa.
+
+## El comprobante de pago
+
+El cliente sube la captura en la página de su pedido y entra a la **misma cola
+de validación** que ya usa el equipo. No hay acreditación automática: una
+persona lo comprueba contra el banco.
+
+- El archivo se guarda en el bucket como
+  `comprobantes/<id del pedido>/<código aleatorio>.<ext>`.
+- **La ruta `/media` los protege:** los comprobantes solo los ve el dueño del
+  pedido y el equipo de Mercatren. Otro cliente recibe **404**, no un "no
+  puedes" — así ni siquiera se confirma que el archivo existe. Las fotos de
+  productos sí son públicas.
+- Si el pedido mezcla varios comercios, el pago queda **sin comercio asignado**
+  y lo resuelve el equipo: repartir un pago entre comercios es una decisión de
+  negocio, no algo que deba adivinar el sistema.
+- Solo se acepta una captura pendiente por pedido.
+
+**Ojo con la ruta `/media`:** devuelve el contenido completo del archivo, no el
+flujo del bucket, y arma las cabeceras a mano. Copiar los metadatos de R2 o
+pasar su flujo tal cual falla en el servidor de desarrollo.
+
 ## Comandos
 
 ```
