@@ -639,6 +639,16 @@
         "titulo": "Left to connect",
         "texto": "Built and waiting for its service."
       }
+    },
+    "fotos": {
+      "titulo": "Catalog photos",
+      "texto": "These photos are still served from the origin merchant's server. If that store goes down, the catalog loses its images. Copy them to Mercatren and that dependency is gone.",
+      "empezar": "Bring the photos over",
+      "copiando": "Copying…",
+      "parar": "Stop",
+      "copiadas": "{n} copied",
+      "fallidas": "{n} couldn't be fetched",
+      "todasNuestras": "Every catalog photo is already on Mercatren."
     }
   },
   "catalogo": {

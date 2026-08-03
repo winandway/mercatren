@@ -356,10 +356,12 @@ siempre traen lo que uno espera:
    comercio. **Esto vale para mercancía, no para dinero**: el dinero sigue
    siendo entero en centavos, sin excepción.
 
-**Dependencia a vigilar:** las fotos del catálogo importado viven en el
-servidor del comercio de origen. Si esa tienda se apaga o cambia de dominio,
-las fotos de Mercatren dejan de verse. Cuando el piloto deje de usar su tienda
-vieja, hay que copiarlas a nuestro bucket.
+**Las fotos importadas se traen desde el panel.** El catálogo importado
+apunta a las fotos del servidor del comercio de origen, y si esa tienda se
+apaga, Mercatren se queda sin imágenes. En **Configuración → Fotos del
+catálogo** hay un botón que las copia a nuestro bucket por tandas, con barra
+de avance; se puede parar y retomar. Es idempotente: solo mira las que aún
+tienen `url` y no tienen `clave`. Una foto que falle no detiene a las demás.
 
 ```bash
 npm run productos:importar                          # desde datos/

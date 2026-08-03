@@ -1,7 +1,16 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { Check, Mail, Settings, TriangleAlert, Wallet } from "lucide-react";
+import {
+  Check,
+  ImageIcon,
+  Mail,
+  Settings,
+  TriangleAlert,
+  Wallet,
+} from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { TraerFotos } from "@/components/panel/traer-fotos";
+import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +55,8 @@ export default async function PaginaConfiguracion({
   setRequestLocale(locale);
 
   const t = await getTranslations("panel.configuracion");
+  const tf = await getTranslations("panel.fotos");
+  const fotosPendientes = await contarFotosPendientes();
 
   const { env } = getCloudflareContext();
   const puesta = (clave: string) =>
@@ -158,6 +169,17 @@ export default async function PaginaConfiguracion({
             );
           })}
         </ul>
+      </section>
+
+      {/* Las fotos que todavia dependen del servidor de origen. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <ImageIcon className="h-4 w-4 text-carga-500" aria-hidden />
+          {tf("titulo")}
+        </h2>
+        <div className="mt-3">
+          <TraerFotos pendientes={fotosPendientes} />
+        </div>
       </section>
 
       {/* Lo construido que espera su servicio. */}

@@ -639,6 +639,16 @@
         "titulo": "Lo que falta por conectar",
         "texto": "Está construido y esperando su servicio."
       }
+    },
+    "fotos": {
+      "titulo": "Fotos del catálogo",
+      "texto": "Estas fotos todavía se sirven desde el servidor del comercio de origen. Si esa tienda se apaga, el catálogo se queda sin imágenes. Cópialas a Mercatren y esa dependencia desaparece.",
+      "empezar": "Traer las fotos",
+      "copiando": "Copiando…",
+      "parar": "Parar",
+      "copiadas": "{n} copiadas",
+      "fallidas": "{n} no se pudieron traer",
+      "todasNuestras": "Todas las fotos del catálogo ya están en Mercatren."
     }
   },
   "catalogo": {
