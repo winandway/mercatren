@@ -560,6 +560,45 @@ export const movimientosBilletera = sqliteTable(
   ],
 );
 
+/**
+ * Los retiros de la COMISIÓN, que son de Mercatren, no del comercio.
+ *
+ * Son dos billeteras distintas y no se mezclan nunca:
+ *
+ * - La del comercio: entra el 97% de cada pago aprobado, sale cuando él pide
+ *   su dinero. Vive en `billeteras` y sus retiros son `pagos_zelle` con
+ *   `tipo = 'retiro'`.
+ * - La del operador (esta): entra el 3% de cada pago aprobado, sale cuando
+ *   Mercatren retira lo suyo. Los ingresos se calculan de las comisiones ya
+ *   cobradas; lo único que hay que guardar son las salidas.
+ *
+ * Confundirlas sería restarle al comercio dinero que nunca fue suyo, o
+ * apuntarnos un saldo que en realidad le debemos a él.
+ *
+ * LA NOTA NO SE MUESTRA. Es interna del operador: se guarda para la
+ * contabilidad, pero no sale en ninguna pantalla.
+ */
+export const retirosFee = sqliteTable(
+  "retiros_fee",
+  {
+    id: text("id").primaryKey(),
+    /** Siempre en centavos enteros, como todo el dinero del proyecto. */
+    montoCentavos: integer("monto_centavos").notNull(),
+    moneda: text("moneda").notNull().default("USD"),
+    /** Cuándo se hizo el retiro de verdad. */
+    hechoEn: integer("hecho_en", { mode: "timestamp" }).notNull(),
+    /** Interna: no se muestra en la interfaz. */
+    nota: text("nota"),
+    /** De dónde salió el registro: 'import' del sistema anterior, o 'live'. */
+    origen: text("origen").$type<"import" | "live">().notNull().default("live"),
+    hechoPorId: text("hecho_por_id").references(() => user.id),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_retiros_fee_fecha").on(t.hechoEn)],
+);
+
 export const ORIGENES_PAGO_ZELLE = ["import", "live"] as const;
 export const TIPOS_PAGO_ZELLE = ["entrada", "retiro"] as const;
 export const ESTADOS_PAGO_ZELLE = [

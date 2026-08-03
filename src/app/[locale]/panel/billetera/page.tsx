@@ -7,6 +7,7 @@ import { fechaCorta } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
 import {
   listarMovimientosReales,
+  obtenerBilleteraOperador,
   obtenerPosicion,
 } from "@/lib/zelle/billetera";
 
@@ -33,10 +34,11 @@ export default async function PaginaBilletera({
   const { comercio } = await searchParams;
   const t = await getTranslations("panel.billetera");
 
-  const [posicion, movimientos, interno] = await Promise.all([
+  const [posicion, movimientos, interno, operador] = await Promise.all([
     obtenerPosicion(comercio),
     listarMovimientosReales(comercio),
     esEquipoInterno(),
+    obtenerBilleteraOperador().catch(() => null),
   ]);
 
   if (!posicion) {
@@ -151,20 +153,71 @@ export default async function PaginaBilletera({
         </dl>
       </section>
 
-      {/* La comisión de Mercatren: solo el equipo. */}
-      {interno ? (
-        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      {/**
+       * LA CAJA DEL OPERADOR: la comisión de Mercatren.
+       *
+       * Es una billetera APARTE de la del comercio. Un retiro del comercio no
+       * la toca, y un retiro de comisión no toca la de él. Solo la ve el
+       * equipo: a un comercio no le corresponde saber cuánto lleva ganado
+       * Mercatren.
+       */}
+      {interno && operador ? (
+        <section className="rounded-xl border border-carga-500/30 bg-white p-4 shadow-sm sm:p-5">
           <h2 className="flex items-center gap-2 text-sm font-bold">
             <PiggyBank className="h-4 w-4 text-carga-500" aria-hidden />
             {t("comision.titulo")}
           </h2>
           <p className="mt-1 text-sm text-tinta-suave">{t("comision.texto")}</p>
-          <p className="mt-3 text-2xl font-bold tabular-nums">
-            {dinero(posicion.comisionGanadaCentavos)}
-          </p>
-          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            {t("comision.faltaRetirado")}
-          </p>
+
+          <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-lg bg-carga-500/10 px-4 py-3">
+              <dt className="text-xs text-tinta-suave">
+                {t("comision.disponible")}
+              </dt>
+              <dd className="mt-0.5 text-2xl font-extrabold tabular-nums">
+                {dinero(operador.disponibleCentavos)}
+              </dd>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-4 py-3">
+              <dt className="text-xs text-tinta-suave">
+                {t("comision.ganado")}
+              </dt>
+              <dd className="mt-0.5 text-lg font-bold tabular-nums">
+                {dinero(operador.ganadoCentavos)}
+              </dd>
+            </div>
+            <div className="rounded-lg bg-slate-50 px-4 py-3">
+              <dt className="text-xs text-tinta-suave">
+                {t("comision.retirado")}
+              </dt>
+              <dd className="mt-0.5 text-lg font-bold tabular-nums">
+                {dinero(operador.retiradoCentavos)}
+              </dd>
+              <dd className="text-xs text-tinta-suave">
+                {t("comision.cuantosRetiros", { n: operador.retiros.length })}
+              </dd>
+            </div>
+          </dl>
+
+          {operador.retiros.length > 0 ? (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-sm font-semibold text-tinta-suave hover:text-tinta">
+                {t("comision.verRetiros")}
+              </summary>
+              <ul className="mt-2 divide-y divide-slate-100 text-sm">
+                {operador.retiros.map((r) => (
+                  <li key={r.id} className="flex justify-between gap-4 py-2">
+                    <span className="text-tinta-suave">
+                      {fechaCorta(r.fecha, idioma)}
+                    </span>
+                    <span className="font-semibold tabular-nums">
+                      {dinero(r.montoCentavos)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
         </section>
       ) : null}
 

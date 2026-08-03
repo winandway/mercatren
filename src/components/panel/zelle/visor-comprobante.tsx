@@ -1,11 +1,12 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Printer, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-import { formatearPrecio, type Idioma } from "@/lib/dinero";
-import { fechaHora, fechaLarga, soloHora, ZONA } from "@/lib/fechas";
+import { HojaTique } from "@/components/panel/hoja-tique";
+import { type Idioma } from "@/lib/dinero";
+import { fechaHora, soloHora } from "@/lib/fechas";
 import type { PagoVista } from "@/lib/zelle/vista";
 
 /**
@@ -14,12 +15,15 @@ import type { PagoVista } from "@/lib/zelle/vista";
  */
 export function VisorComprobante({
   pago,
+  comercio,
   onCerrar,
 }: {
   pago: PagoVista;
+  comercio?: string | null;
   onCerrar: () => void;
 }) {
   const t = useTranslations("panel.zelle");
+  const tt = useTranslations("panel.tique");
   const idioma = useLocale() as Idioma;
   const [falloImagen, setFalloImagen] = useState(false);
   const cerrarRef = useRef<HTMLButtonElement>(null);
@@ -40,47 +44,24 @@ export function VisorComprobante({
     };
   }, [onCerrar]);
 
-  const datos: { etiqueta: string; valor: string | null }[] = [
-    {
-      etiqueta: t("pago.fechaPago"),
-      valor: pago.fechaTransaccion
-        ? fechaLarga(pago.fechaTransaccion, idioma)
-        : null,
-    },
-    {
-      etiqueta: t("pago.subido"),
-      valor: pago.subidoEn
-        ? `${fechaHora(pago.subidoEn, idioma)} · ${soloHora(pago.subidoEn, idioma)}`
-        : null,
-    },
-    {
-      etiqueta: t("pago.aprobado"),
-      valor: pago.aprobadoEn ? fechaHora(pago.aprobadoEn, idioma) : null,
-    },
-    { etiqueta: t("pago.codigo"), valor: pago.codigoConfirmacion },
-    {
-      etiqueta: t("pago.banco"),
-      valor:
-        [
-          pago.bancoOrigen,
-          pago.cuentaUltimos4 ? `…${pago.cuentaUltimos4}` : null,
-        ]
-          .filter(Boolean)
-          .join(" · ") || null,
-    },
-    { etiqueta: t("pago.recibio"), valor: pago.cuentaReceptora },
-    {
-      etiqueta: t("pago.comision"),
-      valor: formatearPrecio(pago.comisionCentavos, idioma, pago.moneda),
-    },
-    {
-      etiqueta: t("pago.neto"),
-      valor: formatearPrecio(pago.netoCentavos, idioma, pago.moneda),
-    },
-    { etiqueta: t("visor.quienSubio"), valor: pago.sellerCuenta },
-    { etiqueta: t("pago.nota"), valor: pago.notas },
-    { etiqueta: t("pago.motivoRechazo"), valor: pago.motivoRechazo },
-  ];
+  /**
+   * Lo que NO va en el tique pero sí hace falta para validar: cuándo se subió
+   * la captura, quién la subió y, si se rechazó, por qué. Un comprobante que
+   * se imprime para el cliente no lleva eso.
+   */
+  const extras = (
+    [
+      {
+        etiqueta: t("pago.subido"),
+        valor: pago.subidoEn
+          ? `${fechaHora(pago.subidoEn, idioma)} · ${soloHora(pago.subidoEn, idioma)}`
+          : null,
+      },
+      { etiqueta: t("visor.quienSubio"), valor: pago.sellerCuenta },
+      { etiqueta: t("pago.nota"), valor: pago.notas },
+      { etiqueta: t("pago.motivoRechazo"), valor: pago.motivoRechazo },
+    ] as { etiqueta: string; valor: string | null }[]
+  ).filter((d) => d.valor);
 
   return (
     <div
@@ -124,27 +105,32 @@ export function VisorComprobante({
           )}
         </div>
 
-        {/* Los datos */}
-        <div className="w-full shrink-0 overflow-y-auto border-t border-slate-200 p-5 sm:max-h-[80vh] sm:w-80 sm:border-t-0 sm:border-l">
-          <p className="text-xs font-medium text-tinta-suave">
-            {t("visor.datos")}
-          </p>
-          <p className="mt-1 text-3xl font-bold tracking-tight tabular-nums">
-            {formatearPrecio(pago.montoCentavos, idioma, pago.moneda)}
-          </p>
-          <p className="mt-1 text-sm text-tinta-suave">
-            {pago.pagadorNombre ?? t(`pagador.${pago.pagadorTipo}`)}
-          </p>
-          {pago.pagadorCorreo ? (
-            <p className="text-sm break-all text-tinta-suave">
-              {pago.pagadorCorreo}
-            </p>
-          ) : null}
+        {/**
+         * EL COSTADO ES EL TIQUE.
+         *
+         * Antes era una lista de datos sueltos; ahora es el mismo comprobante
+         * imprimible que sale en Órdenes, al lado de la captura del banco. Es
+         * la misma pieza (`HojaTique`), no una copia: si se toca una, se toca
+         * la otra.
+         */}
+        <div className="hoja-tique w-full shrink-0 overflow-y-auto border-t border-slate-200 bg-white sm:max-h-[80vh] sm:w-80 sm:border-t-0 sm:border-l">
+          <div className="flex justify-end p-2 print:hidden">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-tinta-suave transition-colors hover:bg-slate-100 hover:text-tinta"
+            >
+              <Printer className="h-4 w-4" aria-hidden />
+              {tt("imprimir")}
+            </button>
+          </div>
 
-          <dl className="mt-5 space-y-3">
-            {datos
-              .filter((d) => d.valor)
-              .map((d) => (
+          <HojaTique pago={pago} comercio={comercio ?? null} />
+
+          {/* Lo que solo importa al validar, fuera del tique. */}
+          {extras.length > 0 ? (
+            <dl className="space-y-3 border-t border-slate-200 px-6 py-4 sm:px-8">
+              {extras.map((d) => (
                 <div key={d.etiqueta}>
                   <dt className="text-[11px] tracking-wide text-tinta-suave uppercase">
                     {d.etiqueta}
@@ -152,11 +138,8 @@ export function VisorComprobante({
                   <dd className="text-sm font-medium break-words">{d.valor}</dd>
                 </div>
               ))}
-          </dl>
-
-          <p className="mt-5 border-t border-slate-200 pt-3 text-[11px] text-tinta-suave">
-            {ZONA}
-          </p>
+            </dl>
+          ) : null}
         </div>
       </div>
     </div>

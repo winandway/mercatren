@@ -318,9 +318,13 @@
         "rechazado": "Rejected"
       },
       "comision": {
-        "titulo": "Mercatren's fee from this store",
-        "texto": "3% of everything approved. This is what Mercatren earns on this account.",
-        "faltaRetirado": "We still need to load how much of this fee has already been withdrawn — that figure lives in the previous system and hasn't been imported yet."
+        "titulo": "Mercatren's own balance (3% fee)",
+        "texto": "A separate wallet from the store's. A store withdrawal doesn't touch it, and a withdrawal here doesn't touch theirs.",
+        "disponible": "Available to withdraw",
+        "ganado": "Earned to date",
+        "retirado": "Already withdrawn",
+        "cuantosRetiros": "{n, plural, =0 {No withdrawals} one {# withdrawal} other {# withdrawals}}",
+        "verRetiros": "See withdrawals"
       },
       "sinBilletera": "No store has a wallet yet.",
       "movimientos": "Activity",

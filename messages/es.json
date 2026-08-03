@@ -318,9 +318,13 @@
         "rechazado": "Rechazado"
       },
       "comision": {
-        "titulo": "La comisión de Mercatren con este comercio",
-        "texto": "El 3% de todo lo aprobado. Es lo que gana Mercatren por esta cuenta.",
-        "faltaRetirado": "Falta cargar cuánto de esta comisión ya se retiró: ese dato vive en el sistema anterior y todavía no se ha traído."
+        "titulo": "La caja de Mercatren (comisión del 3%)",
+        "texto": "Billetera aparte de la del comercio. Un retiro suyo no la toca, y un retiro de aquí no toca la de él.",
+        "disponible": "Disponible para retirar",
+        "ganado": "Ganado histórico",
+        "retirado": "Ya retirado",
+        "cuantosRetiros": "{n, plural, =0 {Sin retiros} one {# retiro} other {# retiros}}",
+        "verRetiros": "Ver los retiros"
       },
       "sinBilletera": "Todavía no hay ningún comercio con billetera.",
       "movimientos": "Movimientos",

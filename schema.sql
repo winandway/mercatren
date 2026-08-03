@@ -313,15 +313,29 @@ CREATE TABLE IF NOT EXISTS `verification` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_verification_identifier` ON `verification` (`identifier`);
+-- ── Tablas (0001_curly_lady_deathstrike.sql) ──
+CREATE TABLE IF NOT EXISTS `retiros_fee` (
+	`id` text PRIMARY KEY NOT NULL,
+	`monto_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`hecho_en` integer NOT NULL,
+	`nota` text,
+	`origen` text DEFAULT 'live' NOT NULL,
+	`hecho_por_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_retiros_fee_fecha` ON `retiros_fee` (`hecho_en`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785759584, 1785759584)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785772713, 1785772713)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785759584)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785772713)
 ON CONFLICT(tienda_id) DO NOTHING;

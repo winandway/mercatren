@@ -4,7 +4,7 @@ import { and, desc, eq, gte, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { billeteras, pagosZelle, tiendas } from "@/lib/db/schema";
+import { billeteras, pagosZelle, retirosFee, tiendas } from "@/lib/db/schema";
 
 /**
  * La billetera del comercio, con su posición REAL.
@@ -134,8 +134,15 @@ export async function obtenerPosicion(
     .from(pagosZelle)
     .where(eq(pagosZelle.tiendaId, tiendaId));
 
+  /**
+   * El mes se agrupa por la fecha en que se APROBÓ el pago, no por la fecha
+   * en que el pagador hizo la transferencia. Es lo correcto y además es como
+   * lo cuenta el sistema de origen: un pago transferido el 31 y aprobado el 1
+   * pertenece al mes en que entró el dinero de verdad. Comprobado — así da
+   * exactamente sus cifras de agosto.
+   */
   const desde = inicioDelMes();
-  const enElMes = gte(pagosZelle.fechaTransaccion, desde);
+  const enElMes = gte(pagosZelle.aprobadoEn, desde);
 
   const [mes] = await db
     .select({
@@ -238,4 +245,69 @@ export async function listarMovimientosReales(
       saldoResultanteCentavos: saldoResultante,
     };
   });
+}
+
+/**
+ * LA BILLETERA DEL OPERADOR: la comisión de Mercatren.
+ *
+ * Es una billetera APARTE de la del comercio y nunca se mezclan:
+ *
+ * - Entra el 3% de cada pago aprobado (eso ya está guardado en cada pago, no
+ *   hace falta apuntarlo dos veces).
+ * - Sale cuando Mercatren retira lo suyo, y eso sí hay que guardarlo:
+ *   `retiros_fee`.
+ * - Un retiro del comercio NO toca esta billetera, y un retiro de comisión NO
+ *   toca la del comercio. Confundirlas sería restarle al comercio dinero que
+ *   nunca fue suyo, o apuntarnos un saldo que en realidad le debemos a él.
+ *
+ * Solo la ve el equipo de Mercatren: a un comercio no le corresponde saber
+ * cuánto lleva ganado el operador.
+ */
+export type BilleteraOperador = {
+  ganadoCentavos: number;
+  retiradoCentavos: number;
+  disponibleCentavos: number;
+  retiros: { id: string; fecha: number; montoCentavos: number }[];
+};
+
+export async function obtenerBilleteraOperador(): Promise<BilleteraOperador | null> {
+  const alcance = await obtenerAlcance();
+  // Un comercio no ve la caja del operador.
+  if (alcance.tipo !== "todos") return null;
+
+  const db = getDb();
+
+  const [ganado] = await db
+    .select({
+      total: sql<number>`COALESCE(SUM(${pagosZelle.comisionCentavos}), 0)`,
+    })
+    .from(pagosZelle)
+    .where(ENTRADA_APROBADA);
+
+  const filas = await db
+    .select({
+      id: retirosFee.id,
+      montoCentavos: retirosFee.montoCentavos,
+      hechoEn: retirosFee.hechoEn,
+    })
+    .from(retirosFee)
+    .orderBy(desc(retirosFee.hechoEn));
+
+  const ganadoCentavos = Number(ganado?.total ?? 0);
+  const retiradoCentavos = filas.reduce(
+    (total, f) => total + Number(f.montoCentavos),
+    0,
+  );
+
+  return {
+    ganadoCentavos,
+    retiradoCentavos,
+    disponibleCentavos: ganadoCentavos - retiradoCentavos,
+    // La nota de cada retiro es interna: no sale de aquí.
+    retiros: filas.map((f) => ({
+      id: f.id,
+      fecha: Number(f.hechoEn) * 1000,
+      montoCentavos: Number(f.montoCentavos),
+    })),
+  };
 }
