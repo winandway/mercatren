@@ -95,12 +95,25 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
 
   const de = partirRemitente(env.CORREO_REMITENTE || CORREO_REMITENTE);
 
+  /**
+   * `reply_to` SOLO acepta una direccion del dominio autorizado a enviar.
+   *
+   * Nuestro buzon real (`mercatren@windoce.com`) es de otro dominio, asi que
+   * no cabe aqui: se pone el propio remitente. No se pierde el contacto — la
+   * direccion de verdad va escrita dentro de cada correo (`contacto` en la
+   * plantilla), que es donde la gente la busca.
+   *
+   * Cuando `avisos@mercatren.com` tenga reenvio al buzon real, responder a un
+   * aviso llegara solo y esto ya queda listo.
+   */
+  const responderA = CORREO_CONTACTO.endsWith(`@${de.address.split("@")[1]}`)
+    ? CORREO_CONTACTO
+    : de.address;
+
   const mensaje = {
     from: { address: de.address, name: de.name },
     to: [destino],
-    ...(CORREO_CONTACTO.endsWith(`@${de.address.split("@")[1]}`)
-      ? { reply_to: CORREO_CONTACTO }
-      : {}),
+    reply_to: responderA,
     subject: asunto,
     text: texto,
     html,
