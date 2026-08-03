@@ -103,18 +103,29 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
         "content-type": "application/json",
       },
       /**
-       * OJO CON `reply_to`: va con guion bajo y en TEXTO PLANO.
+       * OJO CON `reply_to`: guion bajo, texto plano, y SOLO del dominio
+       * autorizado.
        *
-       * Aqui se perdio un buen rato. `replyTo` en una sola palabra es el
-       * formato del binding de Workers; esta API REST habla con guiones bajos,
-       * y ante el nombre equivocado responde `invalid_request_schema` sin
-       * decir cual de los campos le molesta. Tampoco acepta una lista de
-       * objetos en ese campo: una direccion, en texto.
+       * Dos trampas seguidas, las dos con el mismo error a ciegas
+       * (`invalid_request_schema`, sin decir que campo):
+       *
+       * 1. `replyTo` en una sola palabra es el formato del binding de
+       *    Workers; esta API REST habla con guiones bajos.
+       * 2. Solo acepta una direccion del dominio que tiene autorizado a
+       *    enviar. Nuestro buzon real es `mercatren@windoce.com` — otro
+       *    dominio —, asi que ahi no cabe y el campo se omite.
+       *
+       * No pasa nada por omitirlo: la direccion de contacto real va escrita
+       * dentro de cada correo (`contacto` en la plantilla), que es donde la
+       * gente la busca. Cuando `avisos@mercatren.com` tenga reenvio al buzon
+       * de verdad, se podra poner aqui y las respuestas llegaran solas.
        */
       body: JSON.stringify({
         from: { address: de.address, name: de.name },
         to: [destino],
-        reply_to: CORREO_CONTACTO,
+        ...(CORREO_CONTACTO.endsWith(`@${de.address.split("@")[1]}`)
+          ? { reply_to: CORREO_CONTACTO }
+          : {}),
         subject: asunto,
         text: texto,
         html,
