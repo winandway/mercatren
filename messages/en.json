@@ -304,15 +304,33 @@
     },
     "billetera": {
       "titulo": "Wallet",
-      "subtitulo": "What Mercatren owes this merchant for payments already verified.",
+      "subtitulo": "What the store has available and what it has already withdrawn.",
       "saldo": "Available balance",
-      "proveedor": "Wallet service",
-      "pendienteConexion": "The balance will sync with {proveedor} once the service is connected. For now it is kept here.",
-      "sinBilletera": "This merchant has no wallet open yet.",
+      "saldoAyuda": "Net after fees and withdrawals. That money sits in the bank account, held for the store until they request it.",
+      "acreditado": "Credited in total",
+      "yaRetirado": "Already withdrawn",
+      "cuantosRetiros": "{n, plural, =0 {No withdrawals} one {# withdrawal} other {# withdrawals}}",
+      "esteMes": "This month",
+      "mes": {
+        "bruto": "Gross collected",
+        "comision": "Mercatren fee",
+        "retirado": "Withdrawn",
+        "rechazado": "Rejected"
+      },
+      "comision": {
+        "titulo": "Mercatren's fee from this store",
+        "texto": "3% of everything approved. This is what Mercatren earns on this account.",
+        "faltaRetirado": "We still need to load how much of this fee has already been withdrawn — that figure lives in the previous system and hasn't been imported yet."
+      },
+      "sinBilletera": "No store has a wallet yet.",
       "movimientos": "Activity",
       "sinMovimientos": "No activity yet. Every approved payment will show up here.",
-      "avisoHistorico": "The history brought over from the previous system was already settled, so the balance starts at zero. Only what gets approved from now on adds up.",
+      "avisoHistorico": "The balance isn't typed in by hand: it's everything credited minus everything the store has withdrawn. Each approved payment raises it automatically.",
+      "proveedor": "Wallet provider",
+      "pendienteConexion": "The balance will sync with {proveedor} once the service is connected. For now it's tracked here.",
       "tipos": {
+        "entrada": "Payment credited",
+        "retiro": "Store withdrawal",
         "recarga": "Payment credited",
         "compra": "Purchase",
         "reembolso": "Refund",
@@ -323,7 +341,8 @@
         "concepto": "Description",
         "monto": "Amount",
         "saldo": "Balance after"
-      }
+      },
+      "datosHasta": "Data runs through {fecha}. Anything after that hasn't been imported from the previous system yet."
     },
     "comercios": {
       "titulo": "Merchants",

@@ -304,15 +304,33 @@
     },
     "billetera": {
       "titulo": "Billetera",
-      "subtitulo": "Lo que Mercatren le debe al comercio por los pagos ya validados.",
+      "subtitulo": "Lo que el comercio tiene a su favor y lo que ya se llevó.",
       "saldo": "Saldo disponible",
-      "proveedor": "Servicio de billetera",
-      "pendienteConexion": "El saldo se sincronizará con {proveedor} cuando se conecte el servicio. Por ahora se lleva aquí.",
-      "sinBilletera": "Este comercio todavía no tiene billetera abierta.",
+      "saldoAyuda": "Neto tras comisiones y retiros. Ese dinero está en la cuenta del banco, a favor del comercio, esperando a que lo pida.",
+      "acreditado": "Acreditado en total",
+      "yaRetirado": "Ya retirado",
+      "cuantosRetiros": "{n, plural, =0 {Sin retiros} one {# retiro} other {# retiros}}",
+      "esteMes": "Este mes",
+      "mes": {
+        "bruto": "Bruto cobrado",
+        "comision": "Comisión de Mercatren",
+        "retirado": "Retirado",
+        "rechazado": "Rechazado"
+      },
+      "comision": {
+        "titulo": "La comisión de Mercatren con este comercio",
+        "texto": "El 3% de todo lo aprobado. Es lo que gana Mercatren por esta cuenta.",
+        "faltaRetirado": "Falta cargar cuánto de esta comisión ya se retiró: ese dato vive en el sistema anterior y todavía no se ha traído."
+      },
+      "sinBilletera": "Todavía no hay ningún comercio con billetera.",
       "movimientos": "Movimientos",
       "sinMovimientos": "Todavía no hay movimientos. Cada pago que se apruebe aparecerá aquí.",
-      "avisoHistorico": "El histórico que se trajo del sistema anterior ya fue liquidado, por eso el saldo arranca en cero. Solo suma lo que se apruebe de ahora en adelante.",
+      "avisoHistorico": "El saldo no está escrito a mano: sale de restarle a todo lo acreditado lo que el comercio ya retiró. Cada pago que se apruebe lo sube solo.",
+      "proveedor": "Servicio de billetera",
+      "pendienteConexion": "El saldo se sincronizará con {proveedor} cuando se conecte el servicio. Por ahora se lleva aquí.",
       "tipos": {
+        "entrada": "Pago acreditado",
+        "retiro": "Retiro del comercio",
         "recarga": "Pago acreditado",
         "compra": "Compra",
         "reembolso": "Reembolso",
@@ -323,7 +341,8 @@
         "concepto": "Concepto",
         "monto": "Monto",
         "saldo": "Saldo después"
-      }
+      },
+      "datosHasta": "Los datos llegan hasta el {fecha}. Lo posterior todavía no se ha traído del sistema anterior."
     },
     "comercios": {
       "titulo": "Comercios",

@@ -234,9 +234,28 @@ sola; hay que aplicar el ALTER a mano, una vez, con el token.
 `Bley Ferretería` (id `tienda-bley-ferreteria`) viene del MVP anterior. Lo crea
 el propio importador con los datos del archivo, junto con su billetera.
 
-**La billetera arranca en CERO a propósito:** todo el histórico ya se le liquidó
-en el sistema anterior, así que darle ese saldo aquí sería pagarle dos veces.
-Solo suma lo que se apruebe de ahora en adelante.
+**El saldo de su billetera NO se escribe a mano: se calcula.**
+
+```
+entradas aprobadas − comisión = neto del comercio
+neto − retiros ya hechos      = lo que tiene a su favor
+```
+
+Con el histórico eso da **$24,283.75**, exactamente lo que el comercio ve en su
+sistema anterior. Ese dinero no está en una cuenta aparte: está en la cuenta
+del banco, a favor de él, esperando a que lo pida.
+
+**Antes esto estaba mal.** Aquí decía que la billetera arrancaba en cero porque
+el histórico "ya se le había liquidado". No es cierto: de los $327,143.25 que
+se le acreditaron, retiró $302,859.50 en 70 retiros y el resto sigue siendo
+suyo. Lo corrigió el dueño del negocio el 3 ago 2026 con las capturas del
+sistema anterior.
+
+**Ojo con la regla de los retiros.** En los totales del NEGOCIO (ingresos,
+comisión) los retiros no se suman nunca — eso sigue igual. Pero el saldo de una
+billetera es justo lo contrario: es lo que queda DESPUÉS de restarlos. Son dos
+preguntas distintas sobre los mismos datos. La cuenta vive en
+`src/lib/zelle/billetera.ts`.
 
 Sus productos todavía no se han migrado.
 
