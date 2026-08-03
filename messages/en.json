@@ -294,7 +294,8 @@
       "clientes": "Customers",
       "configuracion": "Settings",
       "miTienda": "My store",
-      "misProductos": "My products"
+      "misProductos": "My products",
+      "usuarios": "Users"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -803,6 +804,49 @@
       "productoFueraDelCatalogo": "One of the products in your cart is no longer in the catalog. Remove it and try again.",
       "pedidoSinMonto": "This order has no amount to charge.",
       "ponlePrecioAlProducto": "Set a price for the product."
+    },
+    "usuarios": {
+      "titulo": "Users",
+      "subtitulo": "Every account in the system: stores, validators and the team.",
+      "vacio": "No accounts yet.",
+      "verificado": "Email verified",
+      "volver": "Back to users",
+      "desde": "Since {fecha}",
+      "laCuenta": "The account",
+      "laEmpresa": "The company",
+      "ventas": "Approved sales",
+      "bruto": "Gross collected",
+      "neto": "Net to the store",
+      "verBilletera": "See their wallet",
+      "verTienda": "See their store",
+      "roles": {
+        "soporte": "Support",
+        "validador": "Validator",
+        "vendedor": "Store",
+        "cliente": "Customer"
+      },
+      "idiomas": {
+        "es": "Spanish",
+        "en": "English"
+      },
+      "campos": {
+        "correo": "Email",
+        "rol": "Role",
+        "idioma": "Language",
+        "pais": "Country",
+        "telefono": "Phone",
+        "alta": "Signed up",
+        "razonSocial": "Legal name",
+        "identificacion": "Tax ID",
+        "tienda": "Store name",
+        "correoEmpresa": "Company email",
+        "direccion": "Address",
+        "ciudad": "City",
+        "paisEmpresa": "Country",
+        "sitioWeb": "Website",
+        "horario": "Hours",
+        "comision": "Fee"
+      }
     }
   },
   "catalogo": {

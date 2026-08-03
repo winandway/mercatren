@@ -294,7 +294,8 @@
       "clientes": "Clientes",
       "configuracion": "Configuración",
       "miTienda": "Mi tienda",
-      "misProductos": "Mis productos"
+      "misProductos": "Mis productos",
+      "usuarios": "Usuarios"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -803,6 +804,49 @@
       "productoFueraDelCatalogo": "Uno de los productos del carrito ya no está en el catálogo. Quítalo y vuelve a intentar.",
       "pedidoSinMonto": "El pedido no tiene monto que cobrar.",
       "ponlePrecioAlProducto": "Ponle precio al producto."
+    },
+    "usuarios": {
+      "titulo": "Usuarios",
+      "subtitulo": "Todas las cuentas del sistema: comercios, validadores y el equipo.",
+      "vacio": "Todavía no hay cuentas.",
+      "verificado": "Correo verificado",
+      "volver": "Volver a usuarios",
+      "desde": "Desde el {fecha}",
+      "laCuenta": "La cuenta",
+      "laEmpresa": "La empresa",
+      "ventas": "Ventas aprobadas",
+      "bruto": "Bruto cobrado",
+      "neto": "Neto del comercio",
+      "verBilletera": "Ver su billetera",
+      "verTienda": "Ver su tienda",
+      "roles": {
+        "soporte": "Soporte",
+        "validador": "Validador",
+        "vendedor": "Comercio",
+        "cliente": "Cliente"
+      },
+      "idiomas": {
+        "es": "Español",
+        "en": "Inglés"
+      },
+      "campos": {
+        "correo": "Correo",
+        "rol": "Rol",
+        "idioma": "Idioma",
+        "pais": "País",
+        "telefono": "Teléfono",
+        "alta": "Se registró",
+        "razonSocial": "Razón social",
+        "identificacion": "Identificación fiscal",
+        "tienda": "Nombre de la tienda",
+        "correoEmpresa": "Correo de la empresa",
+        "direccion": "Dirección",
+        "ciudad": "Ciudad",
+        "paisEmpresa": "País",
+        "sitioWeb": "Sitio web",
+        "horario": "Horario",
+        "comision": "Comisión"
+      }
     }
   },
   "catalogo": {

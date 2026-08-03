@@ -1,0 +1,104 @@
+import { BadgeCheck, Store, UserRound } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import { Link } from "@/i18n/navigation";
+import type { Idioma } from "@/lib/dinero";
+import { fechaCorta } from "@/lib/fechas";
+import { listarUsuarios } from "@/lib/usuarios/consultas";
+import { cn } from "@/lib/utils";
+
+export const dynamic = "force-dynamic";
+
+const TONO_ROL: Record<string, string> = {
+  soporte: "bg-riel-900 text-white",
+  validador: "bg-blue-100 text-blue-900",
+  vendedor: "bg-carga-500/20 text-carga-700",
+  cliente: "bg-slate-200 text-slate-700",
+};
+
+/**
+ * Todas las cuentas del sistema.
+ *
+ * Distinto de "Clientes", que solo lista a quien ha COMPRADO. Aquí sale todo
+ * el que tiene cuenta — comercios, validadores, el equipo —, que es lo que
+ * hace falta para comprobar de un vistazo que un comercio ya está dado de
+ * alta y con qué correo entra.
+ */
+export default async function PaginaUsuarios({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const idioma = locale as Idioma;
+
+  const t = await getTranslations("panel.usuarios");
+  const usuarios = await listarUsuarios().catch(() => []);
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight">{t("titulo")}</h1>
+        <p className="mt-1 text-sm text-tinta-suave">{t("subtitulo")}</p>
+      </header>
+
+      {usuarios.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
+          <UserRound
+            className="mx-auto h-10 w-10 text-tinta-suave"
+            aria-hidden
+          />
+          <p className="mt-4 text-sm text-tinta-suave">{t("vacio")}</p>
+        </div>
+      ) : (
+        <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {usuarios.map((u) => (
+            <li key={u.id}>
+              <Link
+                href={`/panel/usuarios/${u.id}`}
+                className="block h-full rounded-xl border border-borde bg-white p-4 transition-colors hover:border-carga-500"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-riel-900 text-sm font-bold text-white">
+                    {u.nombre.trim()[0]?.toUpperCase() ?? "?"}
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                      TONO_ROL[u.rol] ?? TONO_ROL.cliente,
+                    )}
+                  >
+                    {t(`roles.${u.rol}`)}
+                  </span>
+                </div>
+
+                <p className="mt-3 flex items-center gap-1.5 font-semibold">
+                  <span className="truncate">{u.nombre}</span>
+                  {u.correoVerificado ? (
+                    <BadgeCheck
+                      className="h-4 w-4 shrink-0 text-precio-600"
+                      aria-label={t("verificado")}
+                    />
+                  ) : null}
+                </p>
+                <p className="truncate text-sm text-tinta-suave">{u.correo}</p>
+
+                {u.tienda ? (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-tinta-suave">
+                    <Store className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <span className="truncate">{u.tienda.nombre}</span>
+                  </p>
+                ) : null}
+
+                <p className="mt-1 text-xs text-tinta-suave">
+                  {t("desde", { fecha: fechaCorta(u.creadoEn, idioma) ?? "—" })}
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

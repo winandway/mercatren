@@ -55,6 +55,13 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       },
       // Cada comercio ve SUS clientes; el equipo, todos.
       { href: "/panel/clientes", clave: "clientes", Icono: Users },
+      // Las CUENTAS del sistema, que no es lo mismo que los compradores.
+      {
+        href: "/panel/usuarios",
+        clave: "usuarios",
+        Icono: UserRound,
+        soloInterno: true,
+      },
     ],
   },
   {
