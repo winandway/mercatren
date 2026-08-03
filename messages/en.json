@@ -271,7 +271,9 @@
       "noCoinciden": "The two new passwords don't match.",
       "corta": "The new password needs at least 10 characters.",
       "errorActual": "That current password isn't right."
-    }
+    },
+    "verClave": "Show password",
+    "ocultarClave": "Hide password"
   },
   "panel": {
     "titulo": "Admin",

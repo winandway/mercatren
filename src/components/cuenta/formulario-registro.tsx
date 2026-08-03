@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { CampoClave } from "@/components/cuenta/campo-clave";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
@@ -91,22 +92,15 @@ export function FormularioRegistro() {
         />
       </div>
 
-      <div>
-        <label htmlFor="clave" className="block text-sm font-medium">
-          {t("claveNueva")}
-        </label>
-        <input
-          id="clave"
-          type="password"
-          required
-          minLength={10}
-          autoComplete="new-password"
-          value={clave}
-          onChange={(e) => setClave(e.target.value)}
-          className={clases}
-        />
-        <p className="mt-1 text-xs text-tinta-suave">{t("claveAyuda")}</p>
-      </div>
+      <CampoClave
+        nombre="clave"
+        etiqueta={t("claveNueva")}
+        ayuda={t("claveAyuda")}
+        valor={clave}
+        onChange={setClave}
+        autoComplete="new-password"
+        minimo={10}
+      />
 
       {error ? (
         <p

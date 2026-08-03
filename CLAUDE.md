@@ -129,6 +129,10 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
     o en el pie, la página tiene que existir. `e2e/enlaces.spec.ts` recorre las
     páginas públicas, junta todos sus enlaces internos y falla si alguno
     responde 400 o más. Se corre con `npm run e2e`.
+11. **Ninguna contraseña se escribe a ciegas.** Toda casilla de contraseña usa
+    `<CampoClave>` (`src/components/cuenta/campo-clave.tsx`), que trae el ojito
+    para verla y arranca oculta. `tests/unit/campo-clave.test.ts` falla si
+    aparece un `type="password"` suelto en cualquier otro archivo.
 
 ---
 

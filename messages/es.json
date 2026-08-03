@@ -271,7 +271,9 @@
       "noCoinciden": "Las dos contraseñas nuevas no son iguales.",
       "corta": "La contraseña nueva necesita al menos 10 caracteres.",
       "errorActual": "La contraseña actual no es correcta."
-    }
+    },
+    "verClave": "Ver la contraseña",
+    "ocultarClave": "Ocultar la contraseña"
   },
   "panel": {
     "titulo": "Administración",

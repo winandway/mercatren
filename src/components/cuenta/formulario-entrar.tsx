@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { CampoClave } from "@/components/cuenta/campo-clave";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
@@ -76,21 +77,13 @@ export function FormularioEntrar() {
         />
       </div>
 
-      <div>
-        <label htmlFor="clave" className="block text-sm font-medium">
-          {t("clave")}
-        </label>
-        <input
-          id="clave"
-          type="password"
-          required
-          minLength={10}
-          autoComplete="current-password"
-          value={clave}
-          onChange={(e) => setClave(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
-        />
-      </div>
+      <CampoClave
+        nombre="clave"
+        etiqueta={t("clave")}
+        valor={clave}
+        onChange={setClave}
+        minimo={10}
+      />
 
       {error ? (
         <p

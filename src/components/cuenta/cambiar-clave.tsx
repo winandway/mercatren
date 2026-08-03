@@ -4,6 +4,7 @@ import { KeyRound, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { CampoClave } from "@/components/cuenta/campo-clave";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -28,9 +29,6 @@ export function CambiarClave() {
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(
     null,
   );
-
-  const clases =
-    "mt-1 w-full rounded-lg border border-borde px-3 py-2.5 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30";
 
   async function enviar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -84,43 +82,30 @@ export function CambiarClave() {
         </p>
       ) : null}
 
-      <label className="block">
-        <span className="text-sm font-medium">{t("actual")}</span>
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          value={actual}
-          onChange={(e) => setActual(e.target.value)}
-          className={clases}
-        />
-      </label>
+      <CampoClave
+        nombre="actual"
+        etiqueta={t("actual")}
+        valor={actual}
+        onChange={setActual}
+      />
 
-      <label className="block">
-        <span className="text-sm font-medium">{t("nueva")}</span>
-        <input
-          type="password"
-          required
-          minLength={10}
-          autoComplete="new-password"
-          value={nueva}
-          onChange={(e) => setNueva(e.target.value)}
-          className={clases}
-        />
-      </label>
+      <CampoClave
+        nombre="nueva"
+        etiqueta={t("nueva")}
+        valor={nueva}
+        onChange={setNueva}
+        autoComplete="new-password"
+        minimo={10}
+      />
 
-      <label className="block">
-        <span className="text-sm font-medium">{t("repetir")}</span>
-        <input
-          type="password"
-          required
-          minLength={10}
-          autoComplete="new-password"
-          value={repetida}
-          onChange={(e) => setRepetida(e.target.value)}
-          className={clases}
-        />
-      </label>
+      <CampoClave
+        nombre="repetir"
+        etiqueta={t("repetir")}
+        valor={repetida}
+        onChange={setRepetida}
+        autoComplete="new-password"
+        minimo={10}
+      />
 
       <button
         type="submit"
