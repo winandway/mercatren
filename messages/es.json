@@ -705,6 +705,11 @@
         "texto": "Está construido y esperando su servicio.",
         "correo": "Envío de avisos por correo",
         "tarjeta": "Pago con tarjeta"
+      },
+      "idioma": {
+        "titulo": "Idioma del panel",
+        "texto": "Elige en qué idioma quieres ver el panel. Se recuerda para la próxima vez.",
+        "ayuda": "El cambio se aplica a todo el panel, no solo a esta pantalla."
       }
     },
     "fotos": {

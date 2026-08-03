@@ -705,6 +705,11 @@
         "texto": "Built and waiting for its service.",
         "correo": "Email notifications",
         "tarjeta": "Card payments"
+      },
+      "idioma": {
+        "titulo": "Panel language",
+        "texto": "Choose the language you want the panel in. It's remembered next time.",
+        "ayuda": "The change applies to the whole panel, not just this screen."
       }
     },
     "fotos": {

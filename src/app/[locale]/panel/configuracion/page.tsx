@@ -2,6 +2,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import {
   Check,
   ImageIcon,
+  Languages,
   Mail,
   Settings,
   TriangleAlert,
@@ -9,6 +10,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
@@ -76,6 +78,16 @@ export default async function PaginaConfiguracion({
           {t("subtitulo")}
         </p>
       </header>
+
+      {/* El idioma, lo primero: es lo que se cambia con prisa. */}
+      <section className="rounded-xl border border-carga-500/30 bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Languages className="h-4 w-4 text-carga-500" aria-hidden />
+          {t("idioma.titulo")}
+        </h2>
+        <p className="mt-1 text-sm text-tinta-suave">{t("idioma.texto")}</p>
+        <IdiomaDelPanel />
+      </section>
 
       {/* Como opera el servicio. */}
       <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">

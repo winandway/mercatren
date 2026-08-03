@@ -7,6 +7,7 @@ import {
   Package,
   Receipt,
   Settings,
+  Languages,
   ShieldCheck,
   Wallet,
   ShoppingBag,
@@ -15,11 +16,11 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Salir } from "@/components/cuenta/salir";
-import { Link, usePathname } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 type Entrada = {
@@ -89,6 +90,9 @@ export function MenuLateral({
 }) {
   const t = useTranslations("panel");
   const pathname = usePathname();
+  const router = useRouter();
+  const idioma = useLocale();
+  const otroIdioma = idioma === "es" ? "en" : "es";
   const [abierto, setAbierto] = useState(false);
 
   const contenido = (
@@ -176,6 +180,17 @@ export function MenuLateral({
       </div>
 
       <div className="space-y-0.5 border-t border-white/10 pt-3">
+        {/* Cambiar de idioma sin tener que ir a Configuración: delante de
+            alguien que no habla español, cada clic de más se nota. */}
+        <button
+          type="button"
+          onClick={() => router.replace(pathname, { locale: otroIdioma })}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <Languages className="h-4 w-4" aria-hidden />
+          {otroIdioma === "en" ? "English" : "Español"}
+        </button>
+
         <Link
           href="/cuenta"
           onClick={() => setAbierto(false)}
