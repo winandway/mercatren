@@ -6,13 +6,13 @@ import { RUTA_AUTH } from "@/lib/rutas";
 
 /**
  * Cliente de login para el navegador.
- * Apunta al mismo origen del sitio, en la ruta /datos/auth.
+ *
+ * El `basePath` va como opcion propia y NO pegado al `baseURL`: si se mete
+ * dentro de la direccion, la libreria le agrega igual su ruta por defecto
+ * (/api/auth) y las peticiones terminan en una direccion que no existe.
  */
 export const authClient = createAuthClient({
-  baseURL:
-    typeof window === "undefined"
-      ? RUTA_AUTH
-      : `${window.location.origin}${RUTA_AUTH}`,
+  basePath: RUTA_AUTH,
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;

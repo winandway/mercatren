@@ -63,5 +63,159 @@
   "noEncontrado": {
     "titulo": "No encontramos esta página",
     "texto": "La dirección no existe o el producto ya no está disponible."
+  },
+  "entrar": {
+    "titulo": "Entrar",
+    "subtitulo": "Accede con la cuenta que te asignaron.",
+    "correo": "Correo electrónico",
+    "correoPlaceholder": "correo@ejemplo.com",
+    "clave": "Contraseña",
+    "entrar": "Entrar",
+    "errorCredenciales": "El correo o la contraseña no coinciden."
+  },
+  "panel": {
+    "titulo": "Administración",
+    "irAlSitio": "Ir al sitio",
+    "abrirMenu": "Abrir menú",
+    "cerrarMenu": "Cerrar menú",
+    "menu": {
+      "operacion": "Operación",
+      "catalogo": "Catálogo",
+      "sistema": "Sistema",
+      "resumen": "Resumen",
+      "pagosZelle": "Pagos Zelle",
+      "validacion": "Por validar",
+      "ordenes": "Órdenes",
+      "tiendas": "Tiendas",
+      "clientes": "Clientes",
+      "configuracion": "Configuración"
+    },
+    "resumen": {
+      "titulo": "Resumen",
+      "subtitulo": "Estado general de la operación.",
+      "verPagos": "Ver los pagos"
+    },
+    "enConstruccion": {
+      "titulo": "Sección en preparación",
+      "texto": "Esta parte todavía no tiene datos cargados. La estructura ya está lista para cuando se conecte."
+    },
+    "zelle": {
+      "titulo": "Pagos Zelle",
+      "subtitulo": "Pasarela de cobros por comercio. Cada pago se revisa contra el banco antes de acreditarse.",
+      "cuenta": "Cuenta",
+      "periodoDatos": "Movimientos entre {desde} y {hasta}",
+      "tarjetas": {
+        "ingresos": "Ingresos aprobados",
+        "ingresosPie": "{n, plural, one {# pago aprobado} other {# pagos aprobados}}",
+        "comision": "Comisión de Mercatren",
+        "comisionPie": "3% sobre lo aprobado",
+        "neto": "Neto a comercios",
+        "netoPie": "Después de comisión",
+        "sellers": "Comercios activos",
+        "sellersPie": "Con pagos registrados",
+        "pendientes": "Esperando validación",
+        "pendientesPie": "{monto} por revisar",
+        "rechazados": "Rechazados",
+        "rechazadosPie": "No entraron a caja",
+        "bancos": "Bancos de origen",
+        "bancosPie": "Detectados en los comprobantes",
+        "retiros": "Retiros",
+        "retirosPie": "No se contabilizan"
+      },
+      "noContabiliza": "No se contabiliza",
+      "cierre": {
+        "titulo": "Cierre de ventas",
+        "porDia": "Por día",
+        "porSemana": "Por semana",
+        "porMes": "Por mes",
+        "periodo": "Período",
+        "pagos": "Pagos",
+        "monto": "Ingresos",
+        "comision": "Comisión",
+        "neto": "Neto",
+        "total": "Total",
+        "soloEntradas": "Solo entradas aprobadas. Los retiros quedan fuera.",
+        "verTodo": "Ver todos los períodos",
+        "verMenos": "Ver menos"
+      },
+      "buscador": {
+        "etiqueta": "Buscar pago",
+        "placeholder": "Monto, código de confirmación, nombre, correo o banco",
+        "buscar": "Buscar",
+        "limpiar": "Limpiar",
+        "resultados": "{n, plural, =0 {Ningún pago encontrado} one {# pago encontrado} other {# pagos encontrados}}",
+        "sinResultados": "Ningún pago coincide con la búsqueda.",
+        "sumaFiltrada": "{monto} en entradas aprobadas dentro de este filtro"
+      },
+      "filtros": {
+        "titulo": "Filtros",
+        "todas": "Todas",
+        "todos": "Todos",
+        "cuentaReceptora": "Cuenta que recibió",
+        "banco": "Banco de origen",
+        "estado": "Estado",
+        "tipo": "Tipo de movimiento",
+        "limpiar": "Quitar filtros"
+      },
+      "estados": {
+        "aprobado": "Aprobado",
+        "pendiente": "Pendiente",
+        "rechazado": "Rechazado"
+      },
+      "tipos": {
+        "entrada": "Entrada",
+        "retiro": "Retiro"
+      },
+      "pagador": {
+        "persona": "Persona",
+        "empresa": "Empresa",
+        "cuenta_bancaria": "Cuenta bancaria",
+        "desconocido": "Sin identificar"
+      },
+      "pago": {
+        "subido": "Captura subida",
+        "aprobado": "Aprobado",
+        "fechaPago": "Fecha del pago",
+        "codigo": "Confirmación",
+        "sinCodigo": "Sin código",
+        "banco": "Banco",
+        "bancoSinDetectar": "Banco sin identificar",
+        "cuentaTerminada": "Cuenta …{ultimos4}",
+        "recibio": "Recibió",
+        "sinCuentaReceptora": "Cuenta receptora sin registrar",
+        "comision": "Comisión",
+        "neto": "Neto",
+        "recibo": "Comprobante",
+        "sinRecibo": "Sin comprobante",
+        "motivoRechazo": "Motivo del rechazo",
+        "nota": "Nota",
+        "importado": "Histórico",
+        "enVivo": "Nuevo",
+        "progresoSubido": "Subido",
+        "progresoRevision": "En revisión",
+        "progresoAprobado": "Acreditado",
+        "progresoRechazado": "Rechazado"
+      },
+      "visor": {
+        "titulo": "Comprobante del pago",
+        "cerrar": "Cerrar",
+        "imagenNoCarga": "No se pudo mostrar la imagen del comprobante.",
+        "datos": "Datos del pago",
+        "quienSubio": "Comercio que lo subió"
+      },
+      "paginacion": {
+        "anterior": "Anterior",
+        "siguiente": "Siguiente",
+        "posicion": "Página {pagina} de {paginas}"
+      },
+      "validacion": {
+        "titulo": "Pagos por validar",
+        "subtitulo": "Capturas que subió un comercio y todavía nadie revisó contra el banco.",
+        "vacio": "No hay pagos esperando revisión.",
+        "aprobar": "Aprobar y acreditar",
+        "rechazar": "Rechazar",
+        "aviso": "La aprobación y el rechazo se conectan cuando entre en marcha la billetera. Por ahora esta pantalla solo muestra la cola."
+      }
+    }
   }
 }

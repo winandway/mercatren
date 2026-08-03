@@ -4,8 +4,6 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { Encabezado } from "@/components/layout/encabezado";
-import { PiePagina } from "@/components/layout/pie-pagina";
 import { Proveedores } from "@/components/proveedores";
 import { RegistroAppInstalable } from "@/components/registro-app-instalable";
 import { routing } from "@/i18n/routing";
@@ -110,9 +108,7 @@ export default async function LayoutIdioma({
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider>
           <Proveedores>
-            <Encabezado />
-            <main className="flex-1">{children}</main>
-            <PiePagina />
+            {children}
             <RegistroAppInstalable />
           </Proveedores>
         </NextIntlClientProvider>

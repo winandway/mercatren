@@ -345,21 +345,18 @@ export const pagos = sqliteTable(
 );
 
 /* -------------------------------------------------------------------------- */
-/* CIMIENTOS: billetera (WaaS de tokiia.com) y recargas por Zelle             */
+/* Pagos por Zelle y billetera (WaaS de tokiia.com)                           */
 /* -------------------------------------------------------------------------- */
 /*
- * Estas tres tablas quedan listas a proposito, pero el modulo TODAVIA NO se
- * programa. Estan aqui para que el resto del sistema se construya sabiendo que
- * existiran, y para no tener que migrar la base despues.
+ * Flujo del negocio:
+ *   1. El pagador (normalmente un familiar que vive en Estados Unidos) hace la
+ *      transferencia por Zelle y sube la captura del envio.
+ *   2. Un VALIDADOR revisa que el pago este de verdad en el banco.
+ *   3. Al aprobarlo, el monto se acredita a la billetera del comercio.
+ *   4. El comercio entrega el producto en su pais.
  *
- * Flujo previsto (pendiente de construir):
- *   1. El cliente elige "Pagar con Zelle" y ve la ficha con los datos de pago.
- *   2. Hace la transferencia por su cuenta y sube la captura del envio.
- *      La imagen se guarda en el bucket (env.BUCKET) y queda como "pendiente".
- *   3. Una cuenta con rol "validador" revisa la captura y la aprueba o rechaza.
- *   4. Si la aprueba, el monto se acredita a la billetera del cliente.
- *   5. La billetera se apoya en el servicio WaaS de tokiia.com: el saldo local
- *      es un espejo del saldo del proveedor, nunca la fuente de verdad.
+ * La billetera se apoya en el servicio WaaS de tokiia.com: el saldo que se
+ * guarda aqui es un espejo, la fuente de verdad es el proveedor.
  */
 
 export const billeteras = sqliteTable(
@@ -416,42 +413,124 @@ export const movimientosBilletera = sqliteTable(
   (t) => [index("idx_movimientos_billetera").on(t.billeteraId)],
 );
 
-export const ESTADOS_RECARGA_ZELLE = [
+export const ORIGENES_PAGO_ZELLE = ["import", "live"] as const;
+export const TIPOS_PAGO_ZELLE = ["entrada", "retiro"] as const;
+export const ESTADOS_PAGO_ZELLE = [
+  "aprobado",
   "pendiente",
-  "en_revision",
-  "aprobada",
-  "rechazada",
+  "rechazado",
+] as const;
+export const TIPOS_PAGADOR = [
+  "persona",
+  "empresa",
+  "cuenta_bancaria",
+  "desconocido",
 ] as const;
 
-export const recargasZelle = sqliteTable(
-  "recargas_zelle",
+/**
+ * Pagos por Zelle. Una sola tabla para dos cosas:
+ *
+ *  - `origen = "import"`: el historico ya procesado que se trajo del sistema
+ *    anterior. Esos registros estan congelados y no se vuelven a tocar.
+ *  - `origen = "live"`: lo que entra por este sistema de ahora en adelante.
+ *
+ * REGLA DE CONTABILIDAD: solo `tipo = "entrada"` suma. Los retiros se guardan
+ * y se listan, pero JAMAS entran en un total.
+ */
+export const pagosZelle = sqliteTable(
+  "pagos_zelle",
   {
     id: text("id").primaryKey(),
-    usuarioId: text("usuario_id")
+    origen: text("origen")
+      .$type<(typeof ORIGENES_PAGO_ZELLE)[number]>()
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    montoDeclaradoCentavos: integer("monto_declarado_centavos").notNull(),
-    moneda: text("moneda").notNull().default("USD"),
-    /** Ruta de la captura del envio dentro del bucket (env.BUCKET). */
-    capturaClave: text("captura_clave"),
-    /** Numero de confirmacion que da Zelle, escrito por el cliente. */
-    referenciaZelle: text("referencia_zelle"),
-    nombreRemitente: text("nombre_remitente"),
+      .default("live"),
+    tipo: text("tipo")
+      .$type<(typeof TIPOS_PAGO_ZELLE)[number]>()
+      .notNull()
+      .default("entrada"),
     estado: text("estado")
-      .$type<(typeof ESTADOS_RECARGA_ZELLE)[number]>()
+      .$type<(typeof ESTADOS_PAGO_ZELLE)[number]>()
       .notNull()
       .default("pendiente"),
-    /** Cuenta con rol "validador" que reviso la captura. */
+
+    // Dinero, siempre en centavos enteros.
+    montoCentavos: integer("monto_centavos").notNull(),
+    comisionCentavos: integer("comision_centavos").notNull().default(0),
+    netoCentavos: integer("neto_centavos").notNull().default(0),
+    moneda: text("moneda").notNull().default("USD"),
+
+    /**
+     * Captura del comprobante. En el historico es una direccion publica del
+     * almacenamiento original (no se migraron las imagenes); en los pagos
+     * nuevos apunta al bucket propio.
+     */
+    reciboUrl: text("recibo_url"),
+
+    notas: text("notas"),
+    motivoRechazo: text("motivo_rechazo"),
+
+    /** Cuando el pagador subio la captura. */
+    subidoEn: integer("subido_en", { mode: "timestamp" }),
+    /** Cuando el validador la aprobo. */
+    aprobadoEn: integer("aprobado_en", { mode: "timestamp" }),
+    /** Fecha del pago segun el propio comprobante. */
+    fechaTransaccion: integer("fecha_transaccion", { mode: "timestamp" }),
+
+    /** Numero de confirmacion que da Zelle. */
+    codigoConfirmacion: text("codigo_confirmacion"),
+
+    // De donde vino el pago. Ojo: en las capturas, el nombre de origen suele
+    // ser el producto bancario y no la persona, por eso se guarda el texto
+    // crudo y aparte lo que se pudo deducir.
+    pagadorNombreCrudo: text("pagador_nombre_crudo"),
+    pagadorNombre: text("pagador_nombre"),
+    pagadorCorreo: text("pagador_correo"),
+    pagadorTipo: text("pagador_tipo")
+      .$type<(typeof TIPOS_PAGADOR)[number]>()
+      .notNull()
+      .default("desconocido"),
+    bancoOrigen: text("banco_origen"),
+    cuentaUltimos4: text("cuenta_ultimos4"),
+
+    // Cuenta que recibio el dinero. El nombre viene con muchas variantes del
+    // lector automatico; el correo es el dato exacto.
+    receptorNombreCrudo: text("receptor_nombre_crudo"),
+    cuentaReceptora: text("cuenta_receptora"),
+
+    plataforma: text("plataforma"),
+    /** Sentido que traia el comprobante original (dato crudo, informativo). */
+    direccionComprobante: text("direccion_comprobante"),
+
+    // A que comercio pertenece el pago.
+    sellerCuenta: text("seller_cuenta"),
+    sellerReferencia: text("seller_referencia"),
+    tiendaId: text("tienda_id").references(() => tiendas.id),
+
+    // Quien lo reviso (solo para los pagos nuevos).
     validadorId: text("validador_id").references(() => user.id),
-    notaValidador: text("nota_validador"),
     revisadoEn: integer("revisado_en", { mode: "timestamp" }),
+
+    // Enlace con la billetera cuando el pago se acredita.
+    billeteraId: text("billetera_id").references(() => billeteras.id),
+    movimientoBilleteraId: text("movimiento_billetera_id").references(
+      () => movimientosBilletera.id,
+    ),
+
     creadoEn: integer("creado_en", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
   },
   (t) => [
-    index("idx_recargas_usuario").on(t.usuarioId),
-    index("idx_recargas_estado").on(t.estado),
+    index("idx_zelle_estado").on(t.estado),
+    index("idx_zelle_tipo").on(t.tipo),
+    index("idx_zelle_origen").on(t.origen),
+    index("idx_zelle_subido").on(t.subidoEn),
+    index("idx_zelle_cuenta_receptora").on(t.cuentaReceptora),
+    index("idx_zelle_banco").on(t.bancoOrigen),
+    index("idx_zelle_codigo").on(t.codigoConfirmacion),
+    index("idx_zelle_monto").on(t.montoCentavos),
+    index("idx_zelle_seller").on(t.sellerCuenta),
   ],
 );
 
@@ -466,4 +545,6 @@ export type Pedido = typeof pedidos.$inferSelect;
 export type ItemPedido = typeof itemsPedido.$inferSelect;
 export type Pago = typeof pagos.$inferSelect;
 export type Billetera = typeof billeteras.$inferSelect;
-export type RecargaZelle = typeof recargasZelle.$inferSelect;
+export type MovimientoBilletera = typeof movimientosBilletera.$inferSelect;
+export type PagoZelle = typeof pagosZelle.$inferSelect;
+export type PagoZelleNuevo = typeof pagosZelle.$inferInsert;

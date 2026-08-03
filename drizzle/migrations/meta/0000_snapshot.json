@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "57d3d5f9-8f28-480f-8a64-471603b2a79f",
+  "id": "29b6c357-3e95-4a88-9c16-930cb54c5d83",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -704,6 +704,372 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
+    "pagos_zelle": {
+      "name": "pagos_zelle",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "origen": {
+          "name": "origen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'live'"
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'entrada'"
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pendiente'"
+        },
+        "monto_centavos": {
+          "name": "monto_centavos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "comision_centavos": {
+          "name": "comision_centavos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "neto_centavos": {
+          "name": "neto_centavos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "moneda": {
+          "name": "moneda",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'USD'"
+        },
+        "recibo_url": {
+          "name": "recibo_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "notas": {
+          "name": "notas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "motivo_rechazo": {
+          "name": "motivo_rechazo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "subido_en": {
+          "name": "subido_en",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "aprobado_en": {
+          "name": "aprobado_en",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fecha_transaccion": {
+          "name": "fecha_transaccion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "codigo_confirmacion": {
+          "name": "codigo_confirmacion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pagador_nombre_crudo": {
+          "name": "pagador_nombre_crudo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pagador_nombre": {
+          "name": "pagador_nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pagador_correo": {
+          "name": "pagador_correo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pagador_tipo": {
+          "name": "pagador_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'desconocido'"
+        },
+        "banco_origen": {
+          "name": "banco_origen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cuenta_ultimos4": {
+          "name": "cuenta_ultimos4",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "receptor_nombre_crudo": {
+          "name": "receptor_nombre_crudo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cuenta_receptora": {
+          "name": "cuenta_receptora",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "plataforma": {
+          "name": "plataforma",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "direccion_comprobante": {
+          "name": "direccion_comprobante",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "seller_cuenta": {
+          "name": "seller_cuenta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "seller_referencia": {
+          "name": "seller_referencia",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tienda_id": {
+          "name": "tienda_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "validador_id": {
+          "name": "validador_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revisado_en": {
+          "name": "revisado_en",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "billetera_id": {
+          "name": "billetera_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "movimiento_billetera_id": {
+          "name": "movimiento_billetera_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {
+        "idx_zelle_estado": {
+          "name": "idx_zelle_estado",
+          "columns": [
+            "estado"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_tipo": {
+          "name": "idx_zelle_tipo",
+          "columns": [
+            "tipo"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_origen": {
+          "name": "idx_zelle_origen",
+          "columns": [
+            "origen"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_subido": {
+          "name": "idx_zelle_subido",
+          "columns": [
+            "subido_en"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_cuenta_receptora": {
+          "name": "idx_zelle_cuenta_receptora",
+          "columns": [
+            "cuenta_receptora"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_banco": {
+          "name": "idx_zelle_banco",
+          "columns": [
+            "banco_origen"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_codigo": {
+          "name": "idx_zelle_codigo",
+          "columns": [
+            "codigo_confirmacion"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_monto": {
+          "name": "idx_zelle_monto",
+          "columns": [
+            "monto_centavos"
+          ],
+          "isUnique": false
+        },
+        "idx_zelle_seller": {
+          "name": "idx_zelle_seller",
+          "columns": [
+            "seller_cuenta"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "pagos_zelle_tienda_id_tiendas_id_fk": {
+          "name": "pagos_zelle_tienda_id_tiendas_id_fk",
+          "tableFrom": "pagos_zelle",
+          "tableTo": "tiendas",
+          "columnsFrom": [
+            "tienda_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pagos_zelle_validador_id_user_id_fk": {
+          "name": "pagos_zelle_validador_id_user_id_fk",
+          "tableFrom": "pagos_zelle",
+          "tableTo": "user",
+          "columnsFrom": [
+            "validador_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pagos_zelle_billetera_id_billeteras_id_fk": {
+          "name": "pagos_zelle_billetera_id_billeteras_id_fk",
+          "tableFrom": "pagos_zelle",
+          "tableTo": "billeteras",
+          "columnsFrom": [
+            "billetera_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pagos_zelle_movimiento_billetera_id_movimientos_billetera_id_fk": {
+          "name": "pagos_zelle_movimiento_billetera_id_movimientos_billetera_id_fk",
+          "tableFrom": "pagos_zelle",
+          "tableTo": "movimientos_billetera",
+          "columnsFrom": [
+            "movimiento_billetera_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "pedidos": {
       "name": "pedidos",
       "columns": {
@@ -1015,145 +1381,6 @@
           "tableTo": "categorias",
           "columnsFrom": [
             "categoria_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "recargas_zelle": {
-      "name": "recargas_zelle",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "usuario_id": {
-          "name": "usuario_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "monto_declarado_centavos": {
-          "name": "monto_declarado_centavos",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "moneda": {
-          "name": "moneda",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'USD'"
-        },
-        "captura_clave": {
-          "name": "captura_clave",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "referencia_zelle": {
-          "name": "referencia_zelle",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "nombre_remitente": {
-          "name": "nombre_remitente",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "estado": {
-          "name": "estado",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'pendiente'"
-        },
-        "validador_id": {
-          "name": "validador_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "nota_validador": {
-          "name": "nota_validador",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "revisado_en": {
-          "name": "revisado_en",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "creado_en": {
-          "name": "creado_en",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {
-        "idx_recargas_usuario": {
-          "name": "idx_recargas_usuario",
-          "columns": [
-            "usuario_id"
-          ],
-          "isUnique": false
-        },
-        "idx_recargas_estado": {
-          "name": "idx_recargas_estado",
-          "columns": [
-            "estado"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {
-        "recargas_zelle_usuario_id_user_id_fk": {
-          "name": "recargas_zelle_usuario_id_user_id_fk",
-          "tableFrom": "recargas_zelle",
-          "tableTo": "user",
-          "columnsFrom": [
-            "usuario_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "recargas_zelle_validador_id_user_id_fk": {
-          "name": "recargas_zelle_validador_id_user_id_fk",
-          "tableFrom": "recargas_zelle",
-          "tableTo": "user",
-          "columnsFrom": [
-            "validador_id"
           ],
           "columnsTo": [
             "id"

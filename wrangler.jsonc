@@ -1,10 +1,15 @@
 /**
  * Configuracion del Worker para compilar Mercatren.
  *
- * Este archivo lo usa el proceso de compilacion (opennextjs-cloudflare + wrangler)
- * y el servidor de desarrollo local. En produccion, YaDominios Cloud inyecta por
- * su cuenta la base de datos (DB), el bucket de archivos (BUCKET) y los estaticos
- * (ASSETS), asi que los identificadores de aqui solo sirven para trabajar local.
+ * Este archivo lo usa el proceso de compilacion (opennextjs-cloudflare +
+ * wrangler) y el servidor de desarrollo local. En produccion, YaDominios Cloud
+ * inyecta por su cuenta la base de datos (DB), el bucket de archivos (BUCKET) y
+ * los estaticos (ASSETS), asi que los identificadores de aqui solo sirven para
+ * trabajar local.
+ *
+ * OJO: nada de comas finales. Aunque la extension sea .jsonc, hay herramientas
+ * que leen este archivo con un lector de JSON estricto y una coma de mas rompe
+ * el arranque. Por eso esta en .prettierignore.
  *
  * Lo que rige en la plataforma publicada es yadominios.json.
  */
@@ -17,7 +22,7 @@
 
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS",
+    "binding": "ASSETS"
   },
 
   // Base de datos SQLite. En local wrangler crea una copia dentro de .wrangler/
@@ -27,19 +32,19 @@
       "binding": "DB",
       "database_name": "mercatren",
       "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "drizzle/migrations",
-    },
+      "migrations_dir": "drizzle/migrations"
+    }
   ],
 
-  // Archivos de los vendedores: fotos de productos y capturas de pago.
+  // Archivos de los comercios: fotos de productos y capturas de pago.
   "r2_buckets": [
     {
       "binding": "BUCKET",
-      "bucket_name": "mercatren",
-    },
+      "bucket_name": "mercatren"
+    }
   ],
 
   "observability": {
-    "enabled": true,
-  },
+    "enabled": true
+  }
 }

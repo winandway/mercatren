@@ -47,9 +47,11 @@ Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.
 ### Estructura
 
 ```
-src/app/[locale]/      páginas públicas y paneles (todo va dentro del idioma)
-src/app/datos/         rutas de servidor (login, avisos de Stripe…)
-src/components/        layout, marca, ui
+src/app/[locale]/(tienda)/  lo que ve el público (con encabezado y pie)
+src/app/[locale]/panel/     administración (menú lateral, exige sesión)
+src/app/datos/              rutas de servidor (login, avisos de Stripe…)
+src/components/             layout, marca, panel, ui
+src/lib/zelle/              contabilidad, lectura de comprobantes, consultas
 src/i18n/              configuración de idiomas y navegación
 src/lib/               db, auth, stripe, dinero, rutas, utils
 src/proxy.ts           redirección por idioma (en Next 16 se llama proxy, no middleware)
@@ -97,24 +99,79 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
 
 ---
 
-## Módulo pendiente: pago por Zelle + billetera (WaaS de tokiia.com)
+## Panel de administración
 
-**Todavía NO está programado. Los cimientos ya están puestos** (las tablas
-existen en `src/lib/db/schema.ts` y en la primera migración), para no tener que
-migrar la base cuando se construya.
+Vive en `/[locale]/panel` y **exige sesión con rol `soporte` o `validador`**.
+Sin eso, redirige a `/entrar`. Ahí adentro hay dinero real de comercios y datos
+de quienes pagaron: nunca se deja abierto.
 
-Flujo previsto:
+Para crear la cuenta de acceso (con el servidor levantado):
 
-1. El cliente elige **"Pagar con Zelle"** y ve la **ficha con los datos de pago**.
-2. Hace la transferencia por su cuenta y **sube la captura del envío**. La imagen
-   se guarda en el bucket (`env.BUCKET`) y la solicitud queda en `pendiente`.
-3. Una cuenta con rol **`validador`** revisa la captura y la aprueba o la rechaza.
-4. Si la aprueba, el monto **se acredita a la billetera** del cliente.
-5. La billetera se apoya en el servicio **WaaS de tokiia.com**: el saldo que
-   guardamos es un **espejo**; la fuente de verdad es el proveedor.
+```bash
+CLAVE='tu-contraseña-larga' npm run soporte:crear -- "Soporte Windoce" soporte@windoce.com
+```
 
-Tablas ya creadas: `recargas_zelle`, `billeteras`, `movimientos_billetera`.
-Método de pago `zelle` y `billetera` ya contemplados en la tabla `pagos`.
+El nombre visible **debe** contener la palabra "Soporte"; el script no deja
+guardar otra cosa. El rol no se puede mandar desde el formulario de registro: se
+asigna aparte, a propósito.
+
+Secciones: Resumen · **Pagos Zelle** · Por validar · Órdenes · Tiendas ·
+Clientes · Configuración. Las cuatro últimas están con la estructura lista y sin
+datos todavía.
+
+## Pagos por Zelle
+
+Es la pasarela de cobros por comercio. El flujo del negocio:
+
+1. El pagador (normalmente un familiar en Estados Unidos) transfiere por Zelle y
+   **sube la captura**.
+2. Un **validador** comprueba que el pago esté de verdad en el banco.
+3. Al aprobarlo, el monto **se acredita a la billetera** del comercio.
+4. El comercio entrega el producto en su país.
+
+La billetera se apoya en el **WaaS de tokiia.com**: el saldo que guardamos es un
+espejo, la fuente de verdad es el proveedor. Las pantallas de aprobar/rechazar y
+la conexión con el proveedor **todavía no están hechas**; la cola de validación
+ya se ve en `/panel/validacion`.
+
+### Reglas de estos datos (NO negociables)
+
+1. **Solo suman las entradas.** `tipo = 'retiro'` se guarda y se lista, pero
+   jamás entra en un total. La regla vive en `src/lib/zelle/contabilidad.ts` y
+   tiene pruebas; en la base es el filtro `tipo = 'entrada'`.
+2. **Una sola tabla para todo:** `pagos_zelle`. El histórico importado va con
+   `origen = 'import'` y los pagos nuevos con `origen = 'live'`.
+3. **El histórico está congelado.** Son operaciones ya procesadas de la cuenta
+   de prueba en vivo (Bley Ferretería): 743 movimientos, **666 entradas
+   aprobadas por $337,261.22**, más 5 rechazadas y 2 pendientes.
+4. **Las capturas no se migraron.** Cada registro guarda la dirección pública de
+   su imagen en el almacenamiento original y se muestra desde ahí.
+5. **El archivo fuente no entra al repositorio** (ver `datos/LEEME.md`): trae
+   nombres, correos y comprobantes de personas reales, y el repo es público.
+
+### Cuidado con lo que dice el comprobante
+
+El lector automático guarda en `sender_name` lo que sale en la captura, y **casi
+nunca es el nombre de quien paga**: suele ser el producto bancario de la cuenta
+de origen ("Adv SafeBalance Banking - 1030"). Por eso `src/lib/zelle/clasificar.ts`
+separa lo que sí se puede saber — banco, últimos cuatro dígitos y si detrás hay
+una persona, una empresa o solo una cuenta — y deja "sin identificar" cuando no
+alcanza. **No inventar el pagador a partir de ese campo.**
+
+Lo mismo con `recipient_name`: llega con decenas de variantes ("WINDOC",
+"Windows Llc", "Wind Once Llc"). La cuenta receptora se identifica por el
+**correo**, que sí es exacto.
+
+### Reimportar el histórico
+
+```bash
+npm run zelle:importar   # arma el SQL desde datos/ y comprueba los números
+npm run db:local         # migraciones + datos en la base de tu computadora
+```
+
+El importador **se detiene** si los totales no cuadran con los números de
+control del propio archivo. Llevar esto a producción requiere autorización
+expresa y se hace aparte.
 
 ---
 
@@ -129,6 +186,9 @@ npm run e2e             # pruebas de punta a punta
 npm run typecheck       # revisar tipos
 npm run lint            # revisar código
 npm run db:generar      # generar SQL de migración (NO la aplica)
+npm run db:local        # aplicar migraciones + histórico a la base local
+npm run zelle:importar  # rearmar el SQL del histórico de pagos
+npm run soporte:crear   # crear la cuenta que entra al panel
 npm run iconos          # regenerar iconos y tarjeta social desde el logo
 npm run cf:tipos        # regenerar tipos de los bindings
 npm run cf:build        # compilar para YaDominios Cloud

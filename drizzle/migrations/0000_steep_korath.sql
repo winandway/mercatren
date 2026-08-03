@@ -98,6 +98,55 @@ CREATE TABLE `pagos` (
 --> statement-breakpoint
 CREATE INDEX `idx_pagos_pedido` ON `pagos` (`pedido_id`);--> statement-breakpoint
 CREATE INDEX `idx_pagos_estado` ON `pagos` (`estado`);--> statement-breakpoint
+CREATE TABLE `pagos_zelle` (
+	`id` text PRIMARY KEY NOT NULL,
+	`origen` text DEFAULT 'live' NOT NULL,
+	`tipo` text DEFAULT 'entrada' NOT NULL,
+	`estado` text DEFAULT 'pendiente' NOT NULL,
+	`monto_centavos` integer NOT NULL,
+	`comision_centavos` integer DEFAULT 0 NOT NULL,
+	`neto_centavos` integer DEFAULT 0 NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`recibo_url` text,
+	`notas` text,
+	`motivo_rechazo` text,
+	`subido_en` integer,
+	`aprobado_en` integer,
+	`fecha_transaccion` integer,
+	`codigo_confirmacion` text,
+	`pagador_nombre_crudo` text,
+	`pagador_nombre` text,
+	`pagador_correo` text,
+	`pagador_tipo` text DEFAULT 'desconocido' NOT NULL,
+	`banco_origen` text,
+	`cuenta_ultimos4` text,
+	`receptor_nombre_crudo` text,
+	`cuenta_receptora` text,
+	`plataforma` text,
+	`direccion_comprobante` text,
+	`seller_cuenta` text,
+	`seller_referencia` text,
+	`tienda_id` text,
+	`validador_id` text,
+	`revisado_en` integer,
+	`billetera_id` text,
+	`movimiento_billetera_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`validador_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`billetera_id`) REFERENCES `billeteras`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`movimiento_billetera_id`) REFERENCES `movimientos_billetera`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `idx_zelle_estado` ON `pagos_zelle` (`estado`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_tipo` ON `pagos_zelle` (`tipo`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_origen` ON `pagos_zelle` (`origen`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_subido` ON `pagos_zelle` (`subido_en`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_cuenta_receptora` ON `pagos_zelle` (`cuenta_receptora`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_banco` ON `pagos_zelle` (`banco_origen`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_codigo` ON `pagos_zelle` (`codigo_confirmacion`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_monto` ON `pagos_zelle` (`monto_centavos`);--> statement-breakpoint
+CREATE INDEX `idx_zelle_seller` ON `pagos_zelle` (`seller_cuenta`);--> statement-breakpoint
 CREATE TABLE `pedidos` (
 	`id` text PRIMARY KEY NOT NULL,
 	`numero` text NOT NULL,
@@ -142,25 +191,6 @@ CREATE TABLE `productos` (
 CREATE UNIQUE INDEX `idx_productos_tienda_slug` ON `productos` (`tienda_id`,`slug`);--> statement-breakpoint
 CREATE INDEX `idx_productos_estado` ON `productos` (`estado`);--> statement-breakpoint
 CREATE INDEX `idx_productos_categoria` ON `productos` (`categoria_id`);--> statement-breakpoint
-CREATE TABLE `recargas_zelle` (
-	`id` text PRIMARY KEY NOT NULL,
-	`usuario_id` text NOT NULL,
-	`monto_declarado_centavos` integer NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`captura_clave` text,
-	`referencia_zelle` text,
-	`nombre_remitente` text,
-	`estado` text DEFAULT 'pendiente' NOT NULL,
-	`validador_id` text,
-	`nota_validador` text,
-	`revisado_en` integer,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`validador_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE INDEX `idx_recargas_usuario` ON `recargas_zelle` (`usuario_id`);--> statement-breakpoint
-CREATE INDEX `idx_recargas_estado` ON `recargas_zelle` (`estado`);--> statement-breakpoint
 CREATE TABLE `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`token` text NOT NULL,

@@ -1,8 +1,36 @@
+import { getSessionCookie } from "better-auth/cookies";
 import createMiddleware from "next-intl/middleware";
+import { NextResponse, type NextRequest } from "next/server";
 
 import { routing } from "./i18n/routing";
 
-export default createMiddleware(routing);
+const idiomas = createMiddleware(routing);
+
+const ES_PANEL = new RegExp(`^/(${routing.locales.join("|")})/panel(/|$)`);
+
+/**
+ * Primera barrera del panel: si no hay ni siquiera una cookie de sesion, se
+ * corta aqui y la pagina ni se arma. La comprobacion de verdad (que el rol
+ * tenga permiso) se hace despues, en las consultas.
+ */
+export default function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (ES_PANEL.test(pathname)) {
+    const cookie = getSessionCookie(request, { cookiePrefix: "mercatren" });
+
+    if (!cookie) {
+      const idioma = pathname.split("/")[1];
+      const destino = pathname.slice(idioma.length + 1) || "/panel";
+      const url = request.nextUrl.clone();
+      url.pathname = `/${idioma}/entrar`;
+      url.search = `?destino=${encodeURIComponent(destino)}`;
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return idiomas(request);
+}
 
 export const config = {
   /**

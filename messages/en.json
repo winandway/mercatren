@@ -63,5 +63,159 @@
   "noEncontrado": {
     "titulo": "We couldn't find this page",
     "texto": "The address doesn't exist, or the product is no longer available."
+  },
+  "entrar": {
+    "titulo": "Sign in",
+    "subtitulo": "Use the account you were given.",
+    "correo": "Email",
+    "correoPlaceholder": "you@example.com",
+    "clave": "Password",
+    "entrar": "Sign in",
+    "errorCredenciales": "That email and password don't match."
+  },
+  "panel": {
+    "titulo": "Admin",
+    "irAlSitio": "Go to site",
+    "abrirMenu": "Open menu",
+    "cerrarMenu": "Close menu",
+    "menu": {
+      "operacion": "Operations",
+      "catalogo": "Catalog",
+      "sistema": "System",
+      "resumen": "Overview",
+      "pagosZelle": "Zelle Payments",
+      "validacion": "To review",
+      "ordenes": "Orders",
+      "tiendas": "Stores",
+      "clientes": "Customers",
+      "configuracion": "Settings"
+    },
+    "resumen": {
+      "titulo": "Overview",
+      "subtitulo": "How the operation is doing.",
+      "verPagos": "View payments"
+    },
+    "enConstruccion": {
+      "titulo": "Section being prepared",
+      "texto": "This area has no data loaded yet. The structure is ready for when it gets connected."
+    },
+    "zelle": {
+      "titulo": "Zelle Payments",
+      "subtitulo": "Payment gateway per merchant. Every payment is checked against the bank before it is credited.",
+      "cuenta": "Account",
+      "periodoDatos": "Activity from {desde} to {hasta}",
+      "tarjetas": {
+        "ingresos": "Approved inflows",
+        "ingresosPie": "{n, plural, one {# approved payment} other {# approved payments}}",
+        "comision": "Mercatren fee",
+        "comisionPie": "3% of approved volume",
+        "neto": "Net to merchants",
+        "netoPie": "After the fee",
+        "sellers": "Active merchants",
+        "sellersPie": "With payments on record",
+        "pendientes": "Awaiting review",
+        "pendientesPie": "{monto} to be checked",
+        "rechazados": "Rejected",
+        "rechazadosPie": "Never hit the books",
+        "bancos": "Originating banks",
+        "bancosPie": "Detected on the receipts",
+        "retiros": "Withdrawals",
+        "retirosPie": "Never counted"
+      },
+      "noContabiliza": "Not counted",
+      "cierre": {
+        "titulo": "Sales close",
+        "porDia": "By day",
+        "porSemana": "By week",
+        "porMes": "By month",
+        "periodo": "Period",
+        "pagos": "Payments",
+        "monto": "Inflows",
+        "comision": "Fee",
+        "neto": "Net",
+        "total": "Total",
+        "soloEntradas": "Approved inflows only. Withdrawals are left out.",
+        "verTodo": "Show every period",
+        "verMenos": "Show less"
+      },
+      "buscador": {
+        "etiqueta": "Search payment",
+        "placeholder": "Amount, confirmation code, name, email or bank",
+        "buscar": "Search",
+        "limpiar": "Clear",
+        "resultados": "{n, plural, =0 {No payments found} one {# payment found} other {# payments found}}",
+        "sinResultados": "No payment matches this search.",
+        "sumaFiltrada": "{monto} in approved inflows within this filter"
+      },
+      "filtros": {
+        "titulo": "Filters",
+        "todas": "All",
+        "todos": "All",
+        "cuentaReceptora": "Receiving account",
+        "banco": "Originating bank",
+        "estado": "Status",
+        "tipo": "Movement type",
+        "limpiar": "Clear filters"
+      },
+      "estados": {
+        "aprobado": "Approved",
+        "pendiente": "Pending",
+        "rechazado": "Rejected"
+      },
+      "tipos": {
+        "entrada": "Inflow",
+        "retiro": "Withdrawal"
+      },
+      "pagador": {
+        "persona": "Individual",
+        "empresa": "Business",
+        "cuenta_bancaria": "Bank account",
+        "desconocido": "Unidentified"
+      },
+      "pago": {
+        "subido": "Receipt uploaded",
+        "aprobado": "Approved",
+        "fechaPago": "Payment date",
+        "codigo": "Confirmation",
+        "sinCodigo": "No code",
+        "banco": "Bank",
+        "bancoSinDetectar": "Bank not identified",
+        "cuentaTerminada": "Account …{ultimos4}",
+        "recibio": "Received by",
+        "sinCuentaReceptora": "Receiving account not recorded",
+        "comision": "Fee",
+        "neto": "Net",
+        "recibo": "Receipt",
+        "sinRecibo": "No receipt",
+        "motivoRechazo": "Reason for rejection",
+        "nota": "Note",
+        "importado": "Historical",
+        "enVivo": "New",
+        "progresoSubido": "Uploaded",
+        "progresoRevision": "Under review",
+        "progresoAprobado": "Credited",
+        "progresoRechazado": "Rejected"
+      },
+      "visor": {
+        "titulo": "Payment receipt",
+        "cerrar": "Close",
+        "imagenNoCarga": "The receipt image could not be displayed.",
+        "datos": "Payment details",
+        "quienSubio": "Merchant who uploaded it"
+      },
+      "paginacion": {
+        "anterior": "Previous",
+        "siguiente": "Next",
+        "posicion": "Page {pagina} of {paginas}"
+      },
+      "validacion": {
+        "titulo": "Payments to review",
+        "subtitulo": "Receipts uploaded by a merchant that nobody has checked against the bank yet.",
+        "vacio": "No payments are waiting for review.",
+        "aprobar": "Approve and credit",
+        "rechazar": "Reject",
+        "aviso": "Approving and rejecting get wired up once the wallet goes live. For now this screen only shows the queue."
+      }
+    }
   }
 }
