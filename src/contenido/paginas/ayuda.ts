@@ -12,6 +12,7 @@ export const AYUDA_ES: PaginaContenido = {
   entradilla:
     "Las preguntas más comunes sobre comprar, pagar, recibir y vender en Mercatren. Si no encuentras la tuya, escríbenos: contesta una persona.",
   indiceTitulo: "Temas",
+  esPreguntasFrecuentes: true,
   secciones: [
     {
       id: "comprar",
@@ -203,6 +204,7 @@ export const AYUDA_EN: PaginaContenido = {
   entradilla:
     "The most common questions about buying, paying, receiving, and selling on Mercatren. If yours isn't here, write to us — a person answers.",
   indiceTitulo: "Topics",
+  esPreguntasFrecuentes: true,
   secciones: [
     {
       id: "comprar",

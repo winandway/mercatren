@@ -22,6 +22,12 @@ export type PaginaContenido = {
     titulo: string;
     bloques: Bloque[];
   }[];
+  /**
+   * Marca la pagina como preguntas frecuentes. Con esto, cada punto de lista
+   * que tenga titulo se le entrega a Google como pregunta y respuesta, y las
+   * puede mostrar desplegadas en los resultados.
+   */
+  esPreguntasFrecuentes?: boolean;
   /** Nota al pie, en letra chica. */
   cierre?: string;
 };

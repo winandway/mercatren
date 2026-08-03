@@ -40,18 +40,30 @@ function entrada(
   };
 }
 
-/** Las paginas fijas, en orden de importancia. */
+/**
+ * Las paginas fijas, en orden de importancia.
+ *
+ * OJO al agregar una pagina publica: si no entra en esta lista, Google no la
+ * encuentra por el mapa. La prueba de enlaces (e2e/enlaces.spec.ts) comprueba
+ * que no haya 404; esta lista comprueba que ademas se busque.
+ */
 const FIJAS: [
   string,
   number,
   MetadataRoute.Sitemap[number]["changeFrequency"],
 ][] = [
   ["", 1, "daily"],
-  ["/docs/modelo-de-negocio", 0.9, "monthly"],
   ["/catalogo", 0.9, "daily"],
+  ["/docs/modelo-de-negocio", 0.9, "monthly"],
   ["/docs", 0.8, "monthly"],
+  ["/vender", 0.8, "monthly"],
   ["/como-funciona", 0.7, "monthly"],
+  ["/nosotros", 0.7, "monthly"],
   ["/transparencia", 0.7, "monthly"],
+  ["/vender/comisiones", 0.6, "monthly"],
+  ["/ayuda", 0.6, "monthly"],
+  ["/terminos", 0.4, "yearly"],
+  ["/privacidad", 0.4, "yearly"],
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

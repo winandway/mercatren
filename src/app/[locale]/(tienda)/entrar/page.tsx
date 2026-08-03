@@ -1,8 +1,20 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FormularioEntrar } from "@/components/cuenta/formulario-entrar";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "entrar" });
+  // Una pantalla de entrar no aporta nada en un buscador y ensucia el sitio.
+  return { title: t("titulo"), robots: { index: false, follow: false } };
+}
 
 export default async function PaginaEntrar({
   params,

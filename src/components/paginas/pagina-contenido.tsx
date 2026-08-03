@@ -12,8 +12,41 @@ import type { PaginaContenido } from "@/contenido/paginas/tipos";
 export function PaginaDeContenido({ pagina }: { pagina: PaginaContenido }) {
   const conIndice = pagina.indiceTitulo && pagina.secciones.length > 3;
 
+  // En una pagina de preguntas frecuentes, cada punto con titulo es una
+  // pregunta con su respuesta. Se las entregamos a Google en su formato para
+  // que pueda mostrarlas desplegadas en los resultados.
+  const preguntas = pagina.esPreguntasFrecuentes
+    ? pagina.secciones.flatMap((s) =>
+        s.bloques.flatMap((b) =>
+          b.tipo === "lista"
+            ? b.puntos
+                .filter((p) => p.titulo)
+                .map((p) => ({
+                  "@type": "Question" as const,
+                  name: p.titulo!,
+                  acceptedAnswer: { "@type": "Answer" as const, text: p.texto },
+                }))
+            : [],
+        ),
+      )
+    : [];
+
   return (
     <>
+      {preguntas.length > 0 ? (
+        <script
+          type="application/ld+json"
+          // Contenido nuestro, armado aqui mismo desde el archivo de contenido.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: preguntas,
+            }),
+          }}
+        />
+      ) : null}
+
       <header className="bg-riel-900 text-white">
         <div className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
           <h1 className="text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">
