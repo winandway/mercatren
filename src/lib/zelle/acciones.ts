@@ -9,9 +9,11 @@ import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
 import {
   billeteras,
+  itemsPedido,
   movimientosBilletera,
   pagosZelle,
   pedidos,
+  productos,
   tiendas,
   user,
 } from "@/lib/db/schema";
@@ -122,6 +124,23 @@ export async function aprobarPago(id: string): Promise<Resultado> {
   // Al comercio le toca el neto: el monto menos la comision de Mercatren.
   const acreditado = pago.netoCentavos;
 
+  /**
+   * Los renglones del pedido, para descontarlos del inventario.
+   *
+   * Se leen ANTES del envio por lotes porque ahi solo caben sentencias
+   * armadas con el constructor; una consulta cruda dentro del lote lo tumba
+   * entero, y con el se caeria tambien la acreditacion del dinero.
+   */
+  const renglones = pago.pedidoId
+    ? await db
+        .select({
+          productoId: itemsPedido.productoId,
+          cantidad: itemsPedido.cantidad,
+        })
+        .from(itemsPedido)
+        .where(eq(itemsPedido.pedidoId, pago.pedidoId))
+    : [];
+
   await db.batch([
     db.insert(movimientosBilletera).values({
       id: movimientoId,
@@ -156,6 +175,50 @@ export async function aprobarPago(id: string): Promise<Resultado> {
       })
       // La condicion evita aprobarlo dos veces si alguien se adelanto.
       .where(and(eq(pagosZelle.id, id), eq(pagosZelle.estado, "pendiente"))),
+
+    /**
+     * EL PEDIDO PASA A PAGADO Y SE DESCUENTA EL INVENTARIO.
+     *
+     * Sin esto el circulo no cierra: el dinero entraba a la billetera del
+     * comercio pero el pedido se quedaba en "esperando el pago" para siempre.
+     * El cliente que YA PAGO seguia viendo que debia, y nadie preparaba nada.
+     *
+     * El inventario se descuenta AQUI, no al crear el pedido, para que un
+     * carrito abandonado no deje mercancia bloqueada. A cambio, quien valida
+     * tiene que mirar que quede existencia antes de aprobar.
+     *
+     * Va en el mismo envio que la acreditacion: o entra todo, o no entra
+     * nada. Acreditar el dinero y dejar el pedido a medias seria peor que
+     * fallar.
+     */
+    ...(pago.pedidoId
+      ? [
+          db
+            .update(pedidos)
+            .set({ estado: "pagado", actualizadoEn: ahora })
+            .where(
+              and(
+                eq(pedidos.id, pago.pedidoId),
+                eq(pedidos.estado, "pendiente_pago"),
+              ),
+            ),
+
+          // MAX(0, ...) porque un inventario en negativo no existe: si dos
+          // pedidos se aprueban casi a la vez, se queda en cero y el comercio
+          // lo ve, en vez de arrastrar un numero imposible.
+          ...renglones
+            .filter((r) => r.productoId)
+            .map((r) =>
+              db
+                .update(productos)
+                .set({
+                  existencias: sql`MAX(0, ${productos.existencias} - ${r.cantidad})`,
+                  actualizadoEn: ahora,
+                })
+                .where(eq(productos.id, r.productoId!)),
+            ),
+        ]
+      : []),
   ]);
 
   revalidatePath("/[locale]/panel", "layout");
