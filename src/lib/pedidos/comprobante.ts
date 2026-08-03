@@ -135,6 +135,13 @@ export async function subirComprobante(
   revalidatePath("/[locale]/pedido/[numero]", "page");
   revalidatePath("/[locale]/panel", "layout");
 
+  // Aviso al cliente: su comprobante entro a revision.
+  const { correoComprobanteRecibido } = await import("@/lib/correo/correos");
+  await correoComprobanteRecibido(
+    { email: usuario.email, name: usuario.name, idioma: usuario.idioma },
+    { numero: pedido.numero, totalCentavos: pedido.totalCentavos },
+  );
+
   return {
     ok: true,
     mensaje:

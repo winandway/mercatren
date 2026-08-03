@@ -2,7 +2,7 @@ import { Building2, FileText, ListChecks, Lock, Route } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { Link } from "@/i18n/navigation";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { routing } from "@/i18n/routing";
 
 export function generateStaticParams() {
@@ -99,9 +99,13 @@ export default async function PaginaTransparencia({
         <section className="rounded-xl bg-riel-900 p-6 text-white sm:p-8">
           <h2 className="text-xl font-bold">{t("contacto.titulo")}</h2>
           <p className="mt-2 text-white/80">{t("contacto.texto")}</p>
-          <Link href="/contacto" className="boton-principal mt-5">
-            {t("contacto.boton")}
-          </Link>
+          {/* El buzon real y funcional. Ver src/lib/correo/direcciones.ts */}
+          <a
+            href={`mailto:${CORREO_CONTACTO}`}
+            className="boton-principal mt-5"
+          >
+            {t("contacto.boton")} · {CORREO_CONTACTO}
+          </a>
         </section>
 
         <p className="border-t border-borde pt-6 text-xs text-tinta-suave">

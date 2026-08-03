@@ -5,8 +5,52 @@ import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
+import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
-import { billeteras, movimientosBilletera, pagosZelle } from "@/lib/db/schema";
+import {
+  billeteras,
+  movimientosBilletera,
+  pagosZelle,
+  pedidos,
+  tiendas,
+  user,
+} from "@/lib/db/schema";
+
+/**
+ * Con quien hablar de un pago: el cliente que lo hizo (via su pedido) y el
+ * dueno del comercio al que se le acredita. El historico importado no tiene
+ * pedido, asi que ahi no se avisa a nadie — esas operaciones ya pasaron.
+ */
+async function contactosDelPago(
+  db: Db,
+  pago: { pedidoId: string | null; tiendaId: string | null },
+) {
+  const [cliente] = pago.pedidoId
+    ? await db
+        .select({
+          email: user.email,
+          name: user.name,
+          idioma: user.idioma,
+          numero: pedidos.numero,
+          totalCentavos: pedidos.totalCentavos,
+        })
+        .from(pedidos)
+        .innerJoin(user, eq(user.id, pedidos.clienteId))
+        .where(eq(pedidos.id, pago.pedidoId))
+        .limit(1)
+    : [];
+
+  const [comercio] = pago.tiendaId
+    ? await db
+        .select({ email: user.email, name: user.name, idioma: user.idioma })
+        .from(tiendas)
+        .innerJoin(user, eq(user.id, tiendas.propietarioId))
+        .where(eq(tiendas.id, pago.tiendaId))
+        .limit(1)
+    : [];
+
+  return { cliente: cliente ?? null, comercio: comercio ?? null };
+}
 
 /**
  * Lo que hace el validador con un pago.
@@ -116,6 +160,24 @@ export async function aprobarPago(id: string): Promise<Resultado> {
 
   revalidatePath("/[locale]/panel", "layout");
 
+  // Los avisos salen despues de acreditar y nunca lo deshacen: al cliente,
+  // que su compra fue aprobada; al comercio, que el neto entro a su saldo.
+  const { correoCompraAprobada, correoVentaAcreditada } =
+    await import("@/lib/correo/correos");
+  const { cliente, comercio } = await contactosDelPago(db, pago);
+  if (cliente) {
+    await correoCompraAprobada(cliente, {
+      numero: cliente.numero,
+      totalCentavos: cliente.totalCentavos,
+    });
+  }
+  if (comercio) {
+    await correoVentaAcreditada(comercio, {
+      montoCentavos: acreditado,
+      referencia: cliente?.numero ?? pago.codigoConfirmacion,
+    });
+  }
+
   return { ok: true, mensaje: "Pago aprobado y acreditado al comercio." };
 }
 
@@ -144,7 +206,11 @@ export async function rechazarPago(
   const ahora = new Date();
 
   const [pago] = await db
-    .select({ estado: pagosZelle.estado })
+    .select({
+      estado: pagosZelle.estado,
+      pedidoId: pagosZelle.pedidoId,
+      tiendaId: pagosZelle.tiendaId,
+    })
     .from(pagosZelle)
     .where(eq(pagosZelle.id, id))
     .limit(1);
@@ -165,6 +231,18 @@ export async function rechazarPago(
     .where(and(eq(pagosZelle.id, id), eq(pagosZelle.estado, "pendiente")));
 
   revalidatePath("/[locale]/panel", "layout");
+
+  // Aviso al cliente con el motivo tal cual lo escribio el validador, y el
+  // camino para resolverlo: subir otro comprobante o escribir al buzon real.
+  const { correoPagoRechazado } = await import("@/lib/correo/correos");
+  const { cliente } = await contactosDelPago(db, pago);
+  if (cliente) {
+    await correoPagoRechazado(
+      cliente,
+      { numero: cliente.numero, totalCentavos: cliente.totalCentavos },
+      limpio,
+    );
+  }
 
   return { ok: true, mensaje: "Pago rechazado." };
 }

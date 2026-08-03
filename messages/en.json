@@ -662,5 +662,90 @@
         "etiqueta": "Policy"
       }
     }
+  },
+  "correos": {
+    "comun": {
+      "hola": "Hi {nombre},",
+      "holaSinNombre": "Hi,",
+      "contacto": "Need help? Write to us at",
+      "motivo": "You are receiving this notice because you have an account on mercatren.com.",
+      "pedido": "Order",
+      "total": "Total",
+      "comercio": "Merchant",
+      "monto": "Amount"
+    },
+    "bienvenida": {
+      "asunto": "Your Mercatren account is ready",
+      "previo": "You can now shop and track your orders.",
+      "titulo": "Welcome to Mercatren",
+      "parrafos": [
+        "Your account is set up. You can shop from the merchants in our catalog, pay from the United States, and follow every order through delivery.",
+        "Every payment is documented: who bought, what they bought, and when it was delivered."
+      ],
+      "boton": "Go to Mercatren"
+    },
+    "restablecer": {
+      "asunto": "Reset your Mercatren password",
+      "previo": "The link expires soon.",
+      "titulo": "Forgot your password?",
+      "parrafos": [
+        "We received a request to reset your account password. Tap the button to create a new one."
+      ],
+      "boton": "Create a new password",
+      "aviso": "If you didn't request this, you can ignore this email — your account is safe and your password won't change."
+    },
+    "graciasCompra": {
+      "asunto": "We received your order {numero}",
+      "previo": "One step left: the Zelle payment.",
+      "titulo": "Thank you for your purchase!",
+      "parrafos": [
+        "Your order is confirmed and the merchandise is reserved in your name."
+      ],
+      "siguiente": "Next step: send the Zelle payment and upload the screenshot on your order page. The exact details are there.",
+      "boton": "View my order and pay"
+    },
+    "comprobanteRecibido": {
+      "asunto": "We received your receipt for order {numero}",
+      "previo": "We are verifying it against the bank.",
+      "titulo": "Your receipt is under review",
+      "parrafos": [
+        "We have your payment screenshot. A member of our team is verifying it directly against the bank — this is not an automated process.",
+        "We'll email you as soon as it's approved."
+      ],
+      "boton": "Track my order"
+    },
+    "compraAprobada": {
+      "asunto": "Your payment for order {numero} was approved",
+      "previo": "The merchant is preparing your delivery.",
+      "titulo": "Payment approved!",
+      "parrafos": [
+        "We verified your payment at the bank and it has been approved. The merchant has been notified and is preparing your delivery."
+      ],
+      "boton": "View my order"
+    },
+    "pagoRechazado": {
+      "asunto": "We couldn't approve your payment for order {numero}",
+      "previo": "Write to us and we'll sort it out together.",
+      "titulo": "Your payment couldn't be approved",
+      "parrafos": [
+        "We reviewed the receipt you uploaded and couldn't approve it. This is the reason our reviewer left:"
+      ],
+      "motivo": "Reason: {motivo}",
+      "despues": [
+        "Your order is still reserved — you can upload a new receipt from your order page.",
+        "If you believe this is a mistake or need help, write to us and we'll sort it out together."
+      ],
+      "boton": "Go to my order"
+    },
+    "ventaAcreditada": {
+      "asunto": "Sale credited: {monto} to your wallet",
+      "previo": "The payment was verified and the net amount is in your balance.",
+      "titulo": "A sale was credited to you",
+      "parrafos": [
+        "We verified a payment from one of your customers, and the net amount (total minus the fee) has been credited to your Mercatren wallet.",
+        "You can now coordinate delivery with your customer."
+      ],
+      "boton": "View my wallet"
+    }
   }
 }

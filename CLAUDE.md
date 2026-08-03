@@ -348,6 +348,37 @@ ponerse un precio de un dólar, aquí no le sirve de nada.
   correo**.
 - El número de pedido es correlativo y legible: `MT-000001`.
 
+## Correos del sistema (Resend)
+
+Dos direcciones, y no se inventan otras (**regla del proyecto**):
+
+- **`mercatren@windoce.com` RECIBE.** Es el buzón real y funcional: el
+  contacto de la web, el que figura en términos y condiciones, y el Reply-To
+  de todo lo que enviamos. Vive en `src/lib/correo/direcciones.ts`.
+- **`noreply@mercatren.com` SOLO ENVÍA** (vía Resend). Es la voz del
+  sistema: bienvenida, contraseña, compra, pagos. No recibe nada.
+- **PROHIBIDO** poner de contacto un correo `@mercatren.com` sin SMTP
+  (ej. soporte@mercatren.com): no recibe y el mensaje del cliente se pierde.
+
+Cómo está armado: `src/lib/correo/` — `direcciones.ts` (las dos
+direcciones), `plantilla.ts` (HTML de tablas con estilos en línea, que es lo
+único que se ve bien en Gmail/Outlook), `correos.ts` (los envíos, uno por
+momento del negocio), `enviar.ts` (el cliente de Resend). Los textos viven en
+`messages/*.json` bajo `correos` y salen **en el idioma guardado en la
+cuenta del destinatario**, no en el de quien dispara la acción.
+
+Los 7 correos y dónde se disparan: bienvenida (alta de cuenta, hook de Better
+Auth) · restablecer contraseña (`sendResetPassword`) · gracias por su compra
+(`crearPedido`) · comprobante en revisión (`subirComprobante`) · compra
+aprobada y venta acreditada al comercio (`aprobarPago`) · pago no aprobado
+con el motivo (`rechazarPago`).
+
+**El correo nunca es requisito:** si Resend falla o `RESEND_API_KEY` no está
+configurada, se registra el aviso perdido y la operación sigue. Un pago
+aprobado jamás se deshace porque el aviso no salió. Para que los envíos
+funcionen hace falta la clave en el panel y el dominio mercatren.com
+verificado en Resend.
+
 ## Los datos bancarios NO van en el código (REGLA CRÍTICA)
 
 La cuenta que recibe los pagos, sus rutas ACH y wire y el correo de Zelle salen

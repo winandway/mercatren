@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
+
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 
@@ -22,7 +24,10 @@ const SECCIONES = [
     titulo: "ayuda",
     enlaces: [
       { clave: "centroAyuda", href: "/ayuda" },
-      { clave: "contacto", href: "/contacto" },
+      // El contacto abre el buzon REAL (mercatren@windoce.com). Nunca poner
+      // aqui un correo @mercatren.com sin SMTP: no recibe y el mensaje se
+      // pierde. noreply@mercatren.com es solo para ENVIAR avisos del sistema.
+      { clave: "contacto", href: `mailto:${CORREO_CONTACTO}` },
     ],
   },
   {
@@ -55,9 +60,15 @@ export async function PiePagina() {
               <ul className="space-y-2 text-sm text-white/70">
                 {seccion.enlaces.map((enlace) => (
                   <li key={enlace.clave}>
-                    <Link href={enlace.href} className="hover:text-carga-400">
-                      {t(`enlaces.${enlace.clave}`)}
-                    </Link>
+                    {enlace.href.startsWith("mailto:") ? (
+                      <a href={enlace.href} className="hover:text-carga-400">
+                        {t(`enlaces.${enlace.clave}`)}
+                      </a>
+                    ) : (
+                      <Link href={enlace.href} className="hover:text-carga-400">
+                        {t(`enlaces.${enlace.clave}`)}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -182,6 +182,14 @@ export async function crearPedido(
     ),
   ]);
 
+  // Gracias por su compra + el paso que falta (pagar por Zelle). El correo
+  // nunca frena el pedido: si falla, el pedido ya quedo registrado igual.
+  const { correoGraciasCompra } = await import("@/lib/correo/correos");
+  await correoGraciasCompra(
+    { email: usuario.email, name: usuario.name, idioma: usuario.idioma },
+    { numero, totalCentavos: subtotal },
+  );
+
   return { ok: true, numero };
 }
 

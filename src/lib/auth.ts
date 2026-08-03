@@ -34,6 +34,36 @@ export const getAuth = cache(() => {
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 10,
+      // El enlace para crear una contrasena nueva sale por correo, en el
+      // idioma que la cuenta tenga guardado.
+      sendResetPassword: async ({ user: cuenta, url }) => {
+        const { correoRestablecerClave } = await import("@/lib/correo/correos");
+        await correoRestablecerClave(
+          {
+            email: cuenta.email,
+            name: cuenta.name,
+            idioma: (cuenta as { idioma?: string }).idioma,
+          },
+          url,
+        );
+      },
+    },
+
+    databaseHooks: {
+      user: {
+        create: {
+          // La bienvenida sale al crear la cuenta. Si el correo falla, la
+          // cuenta se crea igual: avisar nunca es requisito.
+          after: async (cuenta) => {
+            const { correoBienvenida } = await import("@/lib/correo/correos");
+            await correoBienvenida({
+              email: cuenta.email,
+              name: cuenta.name,
+              idioma: (cuenta as { idioma?: string }).idioma,
+            });
+          },
+        },
+      },
     },
 
     user: {

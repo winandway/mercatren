@@ -662,5 +662,90 @@
         "etiqueta": "Política"
       }
     }
+  },
+  "correos": {
+    "comun": {
+      "hola": "Hola, {nombre}",
+      "holaSinNombre": "Hola",
+      "contacto": "¿Necesitas ayuda? Escríbenos a",
+      "motivo": "Recibes este aviso porque tienes una cuenta en mercatren.com.",
+      "pedido": "Pedido",
+      "total": "Total",
+      "comercio": "Comercio",
+      "monto": "Monto"
+    },
+    "bienvenida": {
+      "asunto": "Tu cuenta en Mercatren quedó lista",
+      "previo": "Ya puedes comprar y seguir tus pedidos.",
+      "titulo": "Bienvenido a Mercatren",
+      "parrafos": [
+        "Tu cuenta quedó creada. Desde ella puedes comprar en los comercios del catálogo, pagar desde Estados Unidos y seguir cada pedido hasta la entrega.",
+        "Todo pago queda documentado: quién compró, qué compró y cuándo se entregó."
+      ],
+      "boton": "Entrar a Mercatren"
+    },
+    "restablecer": {
+      "asunto": "Restablece tu contraseña de Mercatren",
+      "previo": "El enlace vence pronto.",
+      "titulo": "¿Olvidaste tu contraseña?",
+      "parrafos": [
+        "Recibimos un pedido para restablecer la contraseña de tu cuenta. Toca el botón y crea una nueva."
+      ],
+      "boton": "Crear una contraseña nueva",
+      "aviso": "Si no lo pediste tú, ignora este correo: tu cuenta sigue segura y tu contraseña no cambia."
+    },
+    "graciasCompra": {
+      "asunto": "Recibimos tu pedido {numero}",
+      "previo": "Falta un paso: el pago por Zelle.",
+      "titulo": "¡Gracias por tu compra!",
+      "parrafos": [
+        "Tu pedido quedó registrado y la mercancía está reservada a tu nombre."
+      ],
+      "siguiente": "Siguiente paso: haz el pago por Zelle y sube la captura en la página de tu pedido. Los datos exactos están ahí.",
+      "boton": "Ver mi pedido y pagar"
+    },
+    "comprobanteRecibido": {
+      "asunto": "Recibimos tu comprobante del pedido {numero}",
+      "previo": "Lo estamos verificando contra el banco.",
+      "titulo": "Tu comprobante está en revisión",
+      "parrafos": [
+        "Ya tenemos la captura de tu pago. Una persona del equipo la está verificando directamente contra el banco; no es un proceso automático.",
+        "Te avisamos por este medio apenas quede aprobado."
+      ],
+      "boton": "Seguir mi pedido"
+    },
+    "compraAprobada": {
+      "asunto": "Tu pago del pedido {numero} fue aprobado",
+      "previo": "El comercio ya prepara la entrega.",
+      "titulo": "¡Pago aprobado!",
+      "parrafos": [
+        "Verificamos tu pago en el banco y quedó aprobado. El comercio ya recibió el aviso y prepara la entrega del pedido."
+      ],
+      "boton": "Ver mi pedido"
+    },
+    "pagoRechazado": {
+      "asunto": "No pudimos aprobar tu pago del pedido {numero}",
+      "previo": "Escríbenos y lo resolvemos contigo.",
+      "titulo": "Tu pago no pudo aprobarse",
+      "parrafos": [
+        "Revisamos el comprobante que subiste y no pudimos aprobarlo. Este es el motivo que dejó el validador:"
+      ],
+      "motivo": "Motivo: {motivo}",
+      "despues": [
+        "Tu pedido sigue reservado: puedes subir un comprobante nuevo desde la página del pedido.",
+        "Si crees que es un error o necesitas ayuda, escríbenos y lo resolvemos contigo."
+      ],
+      "boton": "Ir a mi pedido"
+    },
+    "ventaAcreditada": {
+      "asunto": "Venta acreditada: {monto} a tu billetera",
+      "previo": "El pago fue verificado y el neto ya está en tu saldo.",
+      "titulo": "Te acreditamos una venta",
+      "parrafos": [
+        "Verificamos un pago de un cliente tuyo y el neto (monto menos la comisión) ya está acreditado en tu billetera de Mercatren.",
+        "Ya puedes coordinar la entrega del pedido con tu cliente."
+      ],
+      "boton": "Ver mi billetera"
+    }
   }
 }
