@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, like, or, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import {
@@ -269,4 +269,170 @@ export async function listarComerciosDelCatalogo() {
     .orderBy(desc(count(productos.id)));
 
   return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Lo que arma la portada                                                     */
+/* -------------------------------------------------------------------------- */
+
+/** Los productos de una fila de la portada. */
+async function filaDeProductos(
+  orden: "destacados" | "nuevos" | "baratos",
+  limite = 12,
+) {
+  const db = getDb();
+
+  const criterio =
+    orden === "nuevos"
+      ? desc(productos.creadoEn)
+      : orden === "baratos"
+        ? asc(productos.precioCentavos)
+        : desc(productos.destacado);
+
+  const filas = await db
+    .select({
+      id: productos.id,
+      slug: productos.slug,
+      tituloEs: productos.tituloEs,
+      tituloEn: productos.tituloEn,
+      precioCentavos: productos.precioCentavos,
+      precioAntesCentavos: productos.precioAntesCentavos,
+      moneda: productos.moneda,
+      existencias: productos.existencias,
+      controlaExistencias: productos.controlaExistencias,
+      unidad: productos.unidad,
+      marca: productos.marca,
+      destacado: productos.destacado,
+      tiendaNombre: tiendas.nombre,
+      tiendaSlug: tiendas.slug,
+      fotoUrl: PRIMERA_FOTO.url,
+      fotoClave: PRIMERA_FOTO.clave,
+      fotoAlt: PRIMERA_FOTO.alt,
+    })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(and(VISIBLE, gt(productos.precioCentavos, 0)))
+    .orderBy(criterio, desc(productos.actualizadoEn))
+    .limit(limite);
+
+  return filas.map((f): ProductoLista => ({
+    id: f.id,
+    slug: f.slug,
+    tituloEs: f.tituloEs,
+    tituloEn: f.tituloEn,
+    precioCentavos: f.precioCentavos,
+    precioAntesCentavos: f.precioAntesCentavos,
+    moneda: f.moneda,
+    existencias: f.existencias,
+    controlaExistencias: f.controlaExistencias,
+    unidad: f.unidad,
+    marca: f.marca,
+    destacado: f.destacado,
+    tiendaNombre: f.tiendaNombre,
+    tiendaSlug: f.tiendaSlug,
+    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+    imagenAlt: f.fotoAlt,
+  }));
+}
+
+/**
+ * Todo lo que necesita la portada, de una sola vez.
+ * Si el catalogo esta vacio devuelve listas vacias y la portada lo maneja.
+ */
+export async function obtenerPortada() {
+  const [destacados, nuevos, categorias, comercios] = await Promise.all([
+    filaDeProductos("destacados"),
+    filaDeProductos("nuevos"),
+    listarCategoriasConImagen(),
+    listarComerciosDestacados(),
+  ]);
+
+  return { destacados, nuevos, categorias, comercios };
+}
+
+/** Categorias con una foto de muestra, para los circulos de la portada. */
+export async function listarCategoriasConImagen() {
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      slug: categorias.slug,
+      nombreEs: categorias.nombreEs,
+      nombreEn: categorias.nombreEn,
+      cuantos: count(productos.id),
+      fotoUrl: sql<
+        string | null
+      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} JOIN ${productos} AS p2 ON p2.id = ${imagenesProducto.productoId} WHERE p2.categoria_id = ${categorias.id} AND p2.estado = 'publicado' LIMIT 1)`,
+      fotoClave: sql<
+        string | null
+      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} JOIN ${productos} AS p3 ON p3.id = ${imagenesProducto.productoId} WHERE p3.categoria_id = ${categorias.id} AND p3.estado = 'publicado' LIMIT 1)`,
+    })
+    .from(categorias)
+    .innerJoin(productos, eq(productos.categoriaId, categorias.id))
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(VISIBLE)
+    .groupBy(
+      categorias.id,
+      categorias.slug,
+      categorias.nombreEs,
+      categorias.nombreEn,
+    )
+    .orderBy(desc(count(productos.id)));
+
+  return filas.map((f) => ({
+    slug: f.slug,
+    nombreEs: f.nombreEs,
+    nombreEn: f.nombreEn,
+    cuantos: Number(f.cuantos),
+    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+  }));
+}
+
+/** Comercios con catalogo, para la portada y el listado de tiendas. */
+export async function listarComerciosDestacados() {
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      slug: tiendas.slug,
+      nombre: tiendas.nombre,
+      descripcionEs: tiendas.descripcionEs,
+      descripcionEn: tiendas.descripcionEn,
+      paisOrigen: tiendas.paisOrigen,
+      cuantos: count(productos.id),
+    })
+    .from(tiendas)
+    .innerJoin(productos, eq(productos.tiendaId, tiendas.id))
+    .where(VISIBLE)
+    .groupBy(tiendas.id, tiendas.slug, tiendas.nombre)
+    .orderBy(desc(count(productos.id)));
+
+  return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
+}
+
+/** La tienda de un comercio: sus datos y sus productos. */
+export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
+  const db = getDb();
+
+  const [tienda] = await db
+    .select({
+      id: tiendas.id,
+      slug: tiendas.slug,
+      nombre: tiendas.nombre,
+      descripcionEs: tiendas.descripcionEs,
+      descripcionEn: tiendas.descripcionEn,
+      paisOrigen: tiendas.paisOrigen,
+      logoClave: tiendas.logoClave,
+      portadaClave: tiendas.portadaClave,
+      creadoEn: tiendas.creadoEn,
+    })
+    .from(tiendas)
+    .where(and(eq(tiendas.slug, slug), eq(tiendas.estado, "activa")))
+    .limit(1);
+
+  if (!tienda) return null;
+
+  const listado = await listarProductos({ comercio: slug, pagina });
+
+  return { tienda, ...listado };
 }

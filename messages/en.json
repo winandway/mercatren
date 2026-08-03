@@ -36,7 +36,18 @@
     },
     "enConstruccion": "We're building the catalog. You'll be able to shop here very soon.",
     "verDetalle": "See how it works in detail",
-    "paraBancos": "Information for banks and partners"
+    "paraBancos": "Information for banks and partners",
+    "categorias": "Shop by category",
+    "destacados": "This week's picks",
+    "nuevos": "Just arrived",
+    "verTodo": "See all",
+    "anterior": "See previous",
+    "siguiente": "See next",
+    "comercios": "Merchants on Mercatren",
+    "comerciosTexto": "Every merchant with their own storefront. Step in and see everything they carry.",
+    "verTienda": "Visit the store",
+    "productosDisponibles": "{n, plural, one {# product} other {# products}}",
+    "catalogoVacio": "We're loading the catalog. You'll be able to shop here very soon."
   },
   "piePagina": {
     "derechos": "All rights reserved.",
@@ -611,5 +622,13 @@
       "telefono": "Phone",
       "correo": "Email"
     }
+  },
+  "tiendaPublica": {
+    "productos": "Products in this store",
+    "desde": "On Mercatren since",
+    "noEncontrada": "We couldn't find this store",
+    "noEncontradaTexto": "It may no longer be active.",
+    "verComercios": "See all merchants",
+    "sinDescripcion": "This merchant hasn't written their introduction yet."
   }
 }

@@ -111,7 +111,7 @@ export default async function PaginaProducto({
             <Store className="h-4 w-4" aria-hidden />
             {t("vendidoPor")}{" "}
             <Link
-              href={`/catalogo?comercio=${ficha.tiendaSlug}`}
+              href={`/tienda/${ficha.tiendaSlug}`}
               className="font-semibold text-riel-900 hover:text-carga-600"
             >
               {ficha.tiendaNombre}

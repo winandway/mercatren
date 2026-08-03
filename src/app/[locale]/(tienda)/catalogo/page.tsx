@@ -93,7 +93,7 @@ export default async function PaginaCatalogo({
           {hayBusqueda ? t("sinResultados") : t("vacio")}
         </p>
       ) : (
-        <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
           {resultado.productos.map((producto) => (
             <li key={producto.id}>
               <TarjetaProducto producto={producto} idioma={idioma} />

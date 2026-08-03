@@ -36,7 +36,18 @@
     },
     "enConstruccion": "Estamos armando el catálogo. Muy pronto vas a poder comprar aquí.",
     "verDetalle": "Ver cómo funciona en detalle",
-    "paraBancos": "Información para bancos y socios"
+    "paraBancos": "Información para bancos y socios",
+    "categorias": "Explora por categoría",
+    "destacados": "Destacados de la semana",
+    "nuevos": "Recién llegados",
+    "verTodo": "Ver todo",
+    "anterior": "Ver anteriores",
+    "siguiente": "Ver siguientes",
+    "comercios": "Comercios en Mercatren",
+    "comerciosTexto": "Cada comercio con su propia tienda. Entra y mira todo lo que tiene.",
+    "verTienda": "Entrar a la tienda",
+    "productosDisponibles": "{n, plural, one {# producto} other {# productos}}",
+    "catalogoVacio": "Estamos cargando el catálogo. Muy pronto vas a poder comprar aquí."
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",
@@ -611,5 +622,13 @@
       "telefono": "Teléfono",
       "correo": "Correo"
     }
+  },
+  "tiendaPublica": {
+    "productos": "Productos de la tienda",
+    "desde": "En Mercatren desde",
+    "noEncontrada": "No encontramos esta tienda",
+    "noEncontradaTexto": "Puede que ya no esté activa.",
+    "verComercios": "Ver todos los comercios",
+    "sinDescripcion": "Este comercio todavía no escribió su presentación."
   }
 }

@@ -139,11 +139,14 @@ const PILOTO = {
  * saldo aqui seria pagarle dos veces. Solo suma lo que se apruebe de ahora en
  * adelante.
  */
-function sqlDelComercio(referencia: string, ahora: number) {
+function sqlDelComercio(ahora: number) {
   return [
     "-- Comercio piloto y su billetera (saldo en cero: el historico ya se liquido).",
     `INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)`,
-    `VALUES (${texto(PILOTO.id)}, ${texto(PILOTO.slug)}, ${texto(PILOTO.nombre)}, 'activa', ${PILOTO.comisionPuntosBase}, ${texto(PILOTO.paisOrigen)}, ${texto(`Comercio piloto de Mercatren. Historico traido de ${referencia}`)}, ${texto(`Mercatren pilot merchant. History migrated from ${referencia}`)}, ${ahora}, ${ahora})`,
+    // La descripcion va VACIA a proposito: ese texto lo lee el publico en la
+    // pagina de la tienda, y ahi no se cuelan datos internos ni enlaces del
+    // sistema anterior. La escribe el propio comercio desde su panel.
+    `VALUES (${texto(PILOTO.id)}, ${texto(PILOTO.slug)}, ${texto(PILOTO.nombre)}, 'activa', ${PILOTO.comisionPuntosBase}, ${texto(PILOTO.paisOrigen)}, NULL, NULL, ${ahora}, ${ahora})`,
     "ON CONFLICT(id) DO UPDATE SET nombre = excluded.nombre, estado = excluded.estado;",
     "",
     `INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)`,
@@ -209,7 +212,7 @@ function main() {
     "-- Generado por scripts/importar-zelle.ts. NO editar a mano.",
     `-- Origen: ${meta.account} — ${deposits.length} movimientos.`,
     "",
-    ...sqlDelComercio(meta.reference_page, ahora),
+    ...sqlDelComercio(ahora),
     "DELETE FROM pagos_zelle WHERE origen = 'import';",
     "",
   ];
