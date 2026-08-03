@@ -27,6 +27,12 @@ Con eso yo te subo el rol a `soporte` y ya entras al panel con todos los
 permisos. El nombre visible debe llevar la palabra **Soporte** (regla del
 proyecto).
 
+**Este punto es el que más desbloquea.** Sin él no se puede:
+
+- Traer las fotos del catálogo en producción (ver punto 7).
+- Validar pagos reales.
+- Ver el histórico de los 743 movimientos que ya está cargado.
+
 ---
 
 ## 2. Las cuentas del comercio piloto y del validador
@@ -112,15 +118,25 @@ Es un archivo.
 
 ---
 
-## 7. Las fotos del catálogo viven en el servidor del comercio
+## 7. Traer las fotos del catálogo en producción
 
-**Qué falta:** decidir cuándo copiamos las fotos a nuestro almacenamiento.
+**Qué falta:** pulsar un botón. Nada más.
 
-**Por qué no puedo (todavía):** puedo hacerlo yo, pero son 622 productos
-descargando de un servidor ajeno, y conviene avisarle al comercio antes.
+**Ya está hecho:** construí la herramienta y **la probé de verdad**: en mi
+copia local trajo las **689 fotos** desde el servidor del comercio a nuestro
+almacenamiento, sin fallar ninguna. Va por tandas, con barra de avance, se
+puede parar y retomar, y repetirla no duplica nada.
 
-**Riesgo mientras tanto:** si esa tienda vieja se apaga o cambia de dominio,
-el catálogo de Mercatren se queda sin fotos de un día para otro.
+**Por qué no puedo hacerlo yo en producción:** la herramienta vive dentro del
+panel y exige una sesión del equipo de Mercatren. No hay ninguna cuenta creada
+todavía (punto 1).
 
-**Qué tienes que hacer:** decirme cuándo lo hago. Es un rato de proceso y
-queda resuelto para siempre.
+**Qué tienes que hacer:**
+
+1. Crear tu cuenta (punto 1) y decirme el correo.
+2. Entrar a **Panel → Configuración → Fotos del catálogo**.
+3. Pulsar **"Traer las fotos"** y dejarlo correr. Tarda unos minutos.
+
+**Riesgo mientras tanto:** las fotos de `mercatren.com` se sirven desde el
+servidor del comercio. Si esa tienda se apaga, el catálogo se queda sin
+imágenes de un día para otro.
