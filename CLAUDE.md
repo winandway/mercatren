@@ -50,17 +50,20 @@ Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.
 src/app/[locale]/(tienda)/  lo que ve el público (con encabezado y pie)
 src/app/[locale]/panel/     administración (menú lateral, exige sesión)
 src/app/datos/              rutas de servidor (login, avisos de Stripe…)
-src/components/             layout, marca, panel, ui
-src/lib/zelle/              contabilidad, lectura de comprobantes, consultas
-src/i18n/              configuración de idiomas y navegación
-src/lib/               db, auth, stripe, dinero, rutas, utils
-src/proxy.ts           redirección por idioma (en Next 16 se llama proxy, no middleware)
-src/sw.ts              trabajador de la aplicación instalable
-messages/es.json       textos en español
-messages/en.json       textos en inglés
-drizzle/migrations/    SQL versionado (no se aplica solo)
-tests/ e2e/            pruebas
-scripts/               generación de iconos
+src/components/             layout, marca, panel, cuenta, ui
+src/lib/                    db, auth, stripe, dinero, fechas, rutas, utils
+src/lib/alcance.ts          qué comercio puede ver quién (puro, con pruebas)
+src/lib/autorizacion.ts     sesión, roles y alcance
+src/lib/zelle/              contabilidad, lectura de comprobantes, consultas, acciones
+src/i18n/                   configuración de idiomas y navegación
+src/proxy.ts                idioma y primera barrera del panel (en Next 16 se llama proxy)
+src/sw.ts                   trabajador de la aplicación instalable
+messages/es.json            textos en español
+messages/en.json            textos en inglés
+datos/                      archivos fuente reales (NO se suben al repo)
+drizzle/migrations/         SQL versionado (no se aplica solo)
+tests/ e2e/                 pruebas
+scripts/                    iconos, importación del histórico, alta de cuentas
 ```
 
 **Ojo con el service worker:** el plugin `@serwist/next` trabaja con webpack y
@@ -77,8 +80,9 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
    archivos estáticos antes de llegar al código. Se usa `/datos`, `/media` y
    `/upload` (ver `src/lib/rutas.ts`). El login vive en `/datos/auth`.
 2. **El dinero siempre en centavos enteros.** Nunca decimales. Las comisiones
-   van en puntos base (1000 = 10%). Todo eso está en `src/lib/dinero.ts` y tiene
-   pruebas: si se toca, las pruebas deben seguir pasando.
+   van en puntos base (300 = 3%, que es la del piloto). Todo eso está en
+   `src/lib/dinero.ts` y tiene pruebas: si se toca, las pruebas deben seguir
+   pasando.
 3. **Todo texto del público es bilingüe.** Se agrega en `messages/es.json` _y_ en
    `messages/en.json`. Hay una prueba que falla si falta una traducción. En el
    panel, cada campo que ve el público lleva dos casillas (español e inglés).
@@ -99,25 +103,59 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
 
 ---
 
+## Esto es un servicio para MUCHOS comercios (regla de cabecera)
+
+Mercatren **no es el panel de un cliente**. Es un servicio multi-comercio: hoy
+hay un piloto, y los que lleguen se registran solos. Cada comercio entra con su
+cuenta y **solo ve sus pagos y su saldo**.
+
+Por eso, cualquier consulta nueva que devuelva dinero o datos de pagadores
+**tiene que pasar por el alcance** (`obtenerAlcance()` en
+`src/lib/autorizacion.ts`). La decisión de qué comercio se consulta está en
+`src/lib/alcance.ts`, es pura y tiene pruebas: si quien pregunta es un comercio,
+se usa el suyo aunque en la dirección venga pedido otro.
+
+| Rol         | Qué ve                                                     |
+| ----------- | ---------------------------------------------------------- |
+| `soporte`   | Toda la operación, todos los comercios, y la configuración |
+| `validador` | Toda la operación y la cola de validación                  |
+| `vendedor`  | Solo su propio comercio: sus pagos y su billetera          |
+| `cliente`   | No entra al panel                                          |
+
 ## Panel de administración
 
-Vive en `/[locale]/panel` y **exige sesión con rol `soporte` o `validador`**.
-Sin eso, redirige a `/entrar`. Ahí adentro hay dinero real de comercios y datos
-de quienes pagaron: nunca se deja abierto.
+Vive en `/[locale]/panel` y **exige sesión con un rol con permiso**. Sin eso,
+redirige a `/entrar`. Ahí adentro hay dinero real de comercios y datos de
+quienes pagaron: nunca se deja abierto.
 
-Para crear la cuenta de acceso (con el servidor levantado):
+Para crear cuentas (con el servidor levantado):
 
 ```bash
-CLAVE='tu-contraseña-larga' npm run soporte:crear -- "Soporte Windoce" soporte@windoce.com
+# equipo de Mercatren
+CLAVE='tu-contraseña-larga' npm run cuenta:crear -- "Soporte Windoce" soporte@windoce.com
+
+# un comercio, vinculado a su tienda
+CLAVE='…' npm run cuenta:crear -- --rol=vendedor --tienda=tienda-bley-ferreteria "Bley Ferretería" correo@delcomercio.com
 ```
 
-El nombre visible **debe** contener la palabra "Soporte"; el script no deja
-guardar otra cosa. El rol no se puede mandar desde el formulario de registro: se
-asigna aparte, a propósito.
+El nombre visible de una cuenta nuestra **debe** contener la palabra "Soporte";
+el script no deja guardar otra cosa. El rol no se puede mandar desde el
+formulario de registro: se asigna aparte, a propósito.
 
-Secciones: Resumen · **Pagos Zelle** · Por validar · Órdenes · Tiendas ·
-Clientes · Configuración. Las cuatro últimas están con la estructura lista y sin
-datos todavía.
+Secciones: Resumen · **Pagos Zelle** · Por validar · Billetera · Órdenes ·
+Comercios · Clientes · Configuración. Las tres últimas son solo del equipo, y
+Órdenes y Clientes todavía no tienen datos.
+
+## El comercio piloto
+
+`Bley Ferretería` (id `tienda-bley-ferreteria`) viene del MVP anterior. Lo crea
+el propio importador con los datos del archivo, junto con su billetera.
+
+**La billetera arranca en CERO a propósito:** todo el histórico ya se le liquidó
+en el sistema anterior, así que darle ese saldo aquí sería pagarle dos veces.
+Solo suma lo que se apruebe de ahora en adelante.
+
+Sus productos todavía no se han migrado.
 
 ## Pagos por Zelle
 
@@ -129,10 +167,16 @@ Es la pasarela de cobros por comercio. El flujo del negocio:
 3. Al aprobarlo, el monto **se acredita a la billetera** del comercio.
 4. El comercio entrega el producto en su país.
 
-La billetera se apoya en el **WaaS de tokiia.com**: el saldo que guardamos es un
-espejo, la fuente de verdad es el proveedor. Las pantallas de aprobar/rechazar y
-la conexión con el proveedor **todavía no están hechas**; la cola de validación
-ya se ve en `/panel/validacion`.
+Aprobar y rechazar ya funcionan en `/panel/validacion`: al aprobar, el **neto**
+(monto menos comisión) se le acredita al comercio y queda el movimiento en su
+billetera. Rechazar obliga a escribir el motivo. Todo el trabajo de aprobar va
+en un solo envío a la base y el saldo se suma con `saldo = saldo + X`, para que
+dos validadores a la vez no se pisen.
+
+Lo que **falta**: conectar la billetera con el **WaaS de tokiia.com**. El saldo
+que guardamos es un espejo; cuando se conecte, la fuente de verdad pasa a ser el
+proveedor y hay que sincronizar (`billeteras.proveedorBilleteraId` y
+`sincronizadoEn` ya están para eso).
 
 ### Reglas de estos datos (NO negociables)
 
@@ -175,6 +219,29 @@ expresa y se hace aparte.
 
 ---
 
+## Lo que se le cuenta al público
+
+Dos páginas abiertas, sin necesidad de cuenta:
+
+- **`/como-funciona`** — para clientes, pagadores y comercios. Qué es el
+  servicio, el paso a paso, **qué NO es** (no es remesa, no hay cambio de
+  divisas, no se mueve dinero entre particulares) y por qué cada forma de pago
+  cuesta distinto: Zelle 3%, tarjeta 5%, saldo sin costo.
+- **`/transparencia`** — pensada para **bancos, procesadores de pago y socios**.
+  Por dónde pasa el dinero paso a paso, qué no incluye la operación, cómo se
+  verifica cada pago y qué queda registrado.
+
+Dos cosas al tocar estas páginas:
+
+1. **Describen cómo funciona la operación; no afirman su calificación
+   regulatoria.** Nada de escribir que somos o no somos tal figura legal: eso lo
+   decide el abogado del proyecto, no la página.
+2. **Los textos legales de verdad (términos, privacidad) están pendientes de
+   revisión legal** antes de publicarse.
+
+Lo privado es privado y lo público es público: los montos, los comprobantes y
+los datos de quienes pagaron **nunca** salen a estas páginas.
+
 ## Comandos
 
 ```
@@ -188,7 +255,7 @@ npm run lint            # revisar código
 npm run db:generar      # generar SQL de migración (NO la aplica)
 npm run db:local        # aplicar migraciones + histórico a la base local
 npm run zelle:importar  # rearmar el SQL del histórico de pagos
-npm run soporte:crear   # crear la cuenta que entra al panel
+npm run cuenta:crear    # crear una cuenta que entra al panel
 npm run iconos          # regenerar iconos y tarjeta social desde el logo
 npm run cf:tipos        # regenerar tipos de los bindings
 npm run cf:build        # compilar para YaDominios Cloud

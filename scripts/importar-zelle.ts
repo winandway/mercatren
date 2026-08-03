@@ -112,8 +112,46 @@ const COLUMNAS = [
   "direccion_comprobante",
   "seller_cuenta",
   "seller_referencia",
+  "tienda_id",
   "creado_en",
 ];
+
+/**
+ * El comercio piloto: el primer cliente de Mercatren, que viene del sistema
+ * anterior. Sus datos salen del propio archivo, no se inventan.
+ *
+ * Mercatren es multi-comercio: este es el primero, y los que vengan despues se
+ * registran solos. Por eso el historico se cuelga de una TIENDA y no de una
+ * configuracion global.
+ */
+const PILOTO = {
+  id: "tienda-bley-ferreteria",
+  slug: "bley-ferreteria",
+  nombre: "Bley Ferretería",
+  paisOrigen: "VE",
+  /** 3% — es la comision que aparece cobrada en todo el historico. */
+  comisionPuntosBase: 300,
+};
+
+/**
+ * OJO CON EL SALDO: la billetera del comercio arranca en CERO a proposito.
+ * Todo lo del historico ya se le liquido en el sistema anterior; darle ese
+ * saldo aqui seria pagarle dos veces. Solo suma lo que se apruebe de ahora en
+ * adelante.
+ */
+function sqlDelComercio(referencia: string, ahora: number) {
+  return [
+    "-- Comercio piloto y su billetera (saldo en cero: el historico ya se liquido).",
+    `INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)`,
+    `VALUES (${texto(PILOTO.id)}, ${texto(PILOTO.slug)}, ${texto(PILOTO.nombre)}, 'activa', ${PILOTO.comisionPuntosBase}, ${texto(PILOTO.paisOrigen)}, ${texto(`Comercio piloto de Mercatren. Historico traido de ${referencia}`)}, ${texto(`Mercatren pilot merchant. History migrated from ${referencia}`)}, ${ahora}, ${ahora})`,
+    "ON CONFLICT(id) DO UPDATE SET nombre = excluded.nombre, estado = excluded.estado;",
+    "",
+    `INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)`,
+    `VALUES (${texto(`billetera-${PILOTO.slug}`)}, ${texto(PILOTO.id)}, 0, 'USD', 'tokiia', 'activa', ${ahora})`,
+    "ON CONFLICT(tienda_id) DO NOTHING;",
+    "",
+  ];
+}
 
 function main() {
   const archivo: Archivo = JSON.parse(readFileSync(ENTRADA, "utf8"));
@@ -157,6 +195,7 @@ function main() {
       texto(m.direction),
       texto(meta.account),
       texto(meta.reference_page),
+      texto(PILOTO.id),
       numero(ahora),
     ];
 
@@ -170,6 +209,7 @@ function main() {
     "-- Generado por scripts/importar-zelle.ts. NO editar a mano.",
     `-- Origen: ${meta.account} — ${deposits.length} movimientos.`,
     "",
+    ...sqlDelComercio(meta.reference_page, ahora),
     "DELETE FROM pagos_zelle WHERE origen = 'import';",
     "",
   ];

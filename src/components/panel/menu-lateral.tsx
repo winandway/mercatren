@@ -7,6 +7,7 @@ import {
   Receipt,
   Settings,
   ShieldCheck,
+  Wallet,
   ShoppingBag,
   Store,
   Users,
@@ -22,7 +23,8 @@ type Entrada = {
   href: string;
   clave: string;
   Icono: typeof LayoutDashboard;
-  insignia?: number;
+  /** true = solo el equipo de Mercatren la ve. */
+  soloInterno?: boolean;
 };
 
 const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
@@ -32,25 +34,50 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       { href: "/panel", clave: "resumen", Icono: LayoutDashboard },
       { href: "/panel/pagos-zelle", clave: "pagosZelle", Icono: Receipt },
       { href: "/panel/validacion", clave: "validacion", Icono: ShieldCheck },
+      { href: "/panel/billetera", clave: "billetera", Icono: Wallet },
     ],
   },
   {
     titulo: "catalogo",
     entradas: [
       { href: "/panel/ordenes", clave: "ordenes", Icono: ShoppingBag },
-      { href: "/panel/tiendas", clave: "tiendas", Icono: Store },
-      { href: "/panel/clientes", clave: "clientes", Icono: Users },
+      {
+        href: "/panel/tiendas",
+        clave: "tiendas",
+        Icono: Store,
+        soloInterno: true,
+      },
+      {
+        href: "/panel/clientes",
+        clave: "clientes",
+        Icono: Users,
+        soloInterno: true,
+      },
     ],
   },
   {
     titulo: "sistema",
     entradas: [
-      { href: "/panel/configuracion", clave: "configuracion", Icono: Settings },
+      {
+        href: "/panel/configuracion",
+        clave: "configuracion",
+        Icono: Settings,
+        soloInterno: true,
+      },
     ],
   },
 ];
 
-export function MenuLateral({ porValidar = 0 }: { porValidar?: number }) {
+export function MenuLateral({
+  porValidar = 0,
+  esInterno = false,
+  nombre = "",
+}: {
+  porValidar?: number;
+  /** El equipo de Mercatren ve la operacion completa; un comercio, solo la suya. */
+  esInterno?: boolean;
+  nombre?: string;
+}) {
   const t = useTranslations("panel");
   const pathname = usePathname();
   const [abierto, setAbierto] = useState(false);
@@ -71,60 +98,66 @@ export function MenuLateral({ porValidar = 0 }: { porValidar?: number }) {
             Mercatren
           </span>
           <span className="block truncate text-xs text-white/50">
-            {t("titulo")}
+            {nombre || t("titulo")}
           </span>
         </span>
       </div>
 
       <div className="flex flex-1 flex-col gap-6">
-        {GRUPOS.map((grupo) => (
-          <div key={grupo.titulo}>
-            <h2 className="px-3 pb-2 text-[11px] font-semibold tracking-wider text-white/40 uppercase">
-              {t(`menu.${grupo.titulo}`)}
-            </h2>
-            <ul className="space-y-0.5">
-              {grupo.entradas.map(({ href, clave, Icono }) => {
-                const activo =
-                  href === "/panel"
-                    ? pathname === "/panel"
-                    : pathname.startsWith(href);
-                const insignia = clave === "validacion" ? porValidar : 0;
+        {GRUPOS.map((grupo) => {
+          const entradas = grupo.entradas.filter(
+            (e) => esInterno || !e.soloInterno,
+          );
+          if (entradas.length === 0) return null;
+          return (
+            <div key={grupo.titulo}>
+              <h2 className="px-3 pb-2 text-[11px] font-semibold tracking-wider text-white/40 uppercase">
+                {t(`menu.${grupo.titulo}`)}
+              </h2>
+              <ul className="space-y-0.5">
+                {entradas.map(({ href, clave, Icono }) => {
+                  const activo =
+                    href === "/panel"
+                      ? pathname === "/panel"
+                      : pathname.startsWith(href);
+                  const insignia = clave === "validacion" ? porValidar : 0;
 
-                return (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      onClick={() => setAbierto(false)}
-                      aria-current={activo ? "page" : undefined}
-                      className={cn(
-                        "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                        activo
-                          ? "bg-riel-800 font-semibold text-white"
-                          : "text-white/70 hover:bg-white/5 hover:text-white",
-                      )}
-                    >
-                      {activo ? (
-                        <span
-                          aria-hidden
-                          className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r bg-carga-500"
-                        />
-                      ) : null}
-                      <Icono className="h-4 w-4 shrink-0" aria-hidden />
-                      <span className="min-w-0 flex-1 truncate">
-                        {t(`menu.${clave}`)}
-                      </span>
-                      {insignia > 0 ? (
-                        <span className="shrink-0 rounded-full bg-carga-500 px-1.5 py-0.5 text-[11px] font-bold text-riel-950">
-                          {insignia}
+                  return (
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        onClick={() => setAbierto(false)}
+                        aria-current={activo ? "page" : undefined}
+                        className={cn(
+                          "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                          activo
+                            ? "bg-riel-800 font-semibold text-white"
+                            : "text-white/70 hover:bg-white/5 hover:text-white",
+                        )}
+                      >
+                        {activo ? (
+                          <span
+                            aria-hidden
+                            className="absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r bg-carga-500"
+                          />
+                        ) : null}
+                        <Icono className="h-4 w-4 shrink-0" aria-hidden />
+                        <span className="min-w-0 flex-1 truncate">
+                          {t(`menu.${clave}`)}
                         </span>
-                      ) : null}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                        {insignia > 0 ? (
+                          <span className="shrink-0 rounded-full bg-carga-500 px-1.5 py-0.5 text-[11px] font-bold text-riel-950">
+                            {insignia}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </div>
 
       <Link

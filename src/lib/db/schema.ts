@@ -131,9 +131,14 @@ export const tiendas = sqliteTable(
   "tiendas",
   {
     id: text("id").primaryKey(),
-    propietarioId: text("propietario_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    /**
+     * Dueno del comercio. Puede quedar vacio un rato: cuando se trae un
+     * comercio de otro sistema, primero entran sus datos y despues se le
+     * asigna la cuenta con la que va a entrar.
+     */
+    propietarioId: text("propietario_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
     slug: text("slug").notNull().unique(),
     nombre: text("nombre").notNull(),
     descripcionEs: text("descripcion_es"),
@@ -144,8 +149,8 @@ export const tiendas = sqliteTable(
       .$type<(typeof ESTADOS_TIENDA)[number]>()
       .notNull()
       .default("borrador"),
-    /** Comision de Mercatren sobre cada venta, en puntos base (1000 = 10%). */
-    comisionPuntosBase: integer("comision_puntos_base").notNull().default(1000),
+    /** Comision de Mercatren sobre cada venta, en puntos base (300 = 3%). */
+    comisionPuntosBase: integer("comision_puntos_base").notNull().default(300),
     /** Cuenta conectada de Stripe del vendedor, para el pago dividido. */
     stripeCuentaId: text("stripe_cuenta_id"),
     paisOrigen: text("pais_origen").notNull().default("US"),
@@ -363,9 +368,13 @@ export const billeteras = sqliteTable(
   "billeteras",
   {
     id: text("id").primaryKey(),
-    usuarioId: text("usuario_id")
+    /**
+     * La billetera es DEL COMERCIO, no de una persona. Si manana cambia el
+     * dueno de la tienda, el saldo sigue siendo de la tienda.
+     */
+    tiendaId: text("tienda_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" })
+      .references(() => tiendas.id, { onDelete: "cascade" })
       .unique(),
     /** Espejo del saldo del proveedor. La fuente de verdad es tokiia.com. */
     saldoCentavos: integer("saldo_centavos").notNull().default(0),
@@ -382,7 +391,7 @@ export const billeteras = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`),
   },
-  (t) => [index("idx_billeteras_usuario").on(t.usuarioId)],
+  (t) => [index("idx_billeteras_tienda").on(t.tiendaId)],
 );
 
 export const TIPOS_MOVIMIENTO = [
@@ -403,14 +412,19 @@ export const movimientosBilletera = sqliteTable(
     /** Positivo suma, negativo resta. Siempre en centavos. */
     montoCentavos: integer("monto_centavos").notNull(),
     saldoResultanteCentavos: integer("saldo_resultante_centavos").notNull(),
-    /** De donde viene: id de recarga Zelle, de pedido, de ajuste manual. */
+    /** De donde viene: id del pago Zelle, del pedido, del ajuste manual. */
     referencia: text("referencia"),
     nota: text("nota"),
+    /** Quien lo hizo, cuando fue un movimiento a mano. */
+    hechoPorId: text("hecho_por_id").references(() => user.id),
     creadoEn: integer("creado_en", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),
   },
-  (t) => [index("idx_movimientos_billetera").on(t.billeteraId)],
+  (t) => [
+    index("idx_movimientos_billetera").on(t.billeteraId),
+    index("idx_movimientos_referencia").on(t.referencia),
+  ],
 );
 
 export const ORIGENES_PAGO_ZELLE = ["import", "live"] as const;

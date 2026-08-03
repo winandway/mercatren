@@ -34,7 +34,9 @@
       "tresTitulo": "It arrives at your door",
       "tresTexto": "We consolidate, ship and keep you posted at every step until the order is in your hands."
     },
-    "enConstruccion": "We're building the catalog. You'll be able to shop here very soon."
+    "enConstruccion": "We're building the catalog. You'll be able to shop here very soon.",
+    "verDetalle": "See how it works in detail",
+    "paraBancos": "Information for banks and partners"
   },
   "piePagina": {
     "derechos": "All rights reserved.",
@@ -53,7 +55,9 @@
       "centroAyuda": "Help center",
       "contacto": "Contact",
       "terminos": "Terms and conditions",
-      "privacidad": "Privacy"
+      "privacidad": "Privacy",
+      "comoFunciona": "How it works",
+      "transparencia": "Transparency"
     }
   },
   "comun": {
@@ -63,6 +67,141 @@
   "noEncontrado": {
     "titulo": "We couldn't find this page",
     "texto": "The address doesn't exist, or the product is no longer available."
+  },
+  "comoFunciona": {
+    "titulo": "How Mercatren works",
+    "entradilla": "A merchant outside the United States makes the sale. Their customer — or the family member backing them — pays from inside the United States. Mercatren records the order, verifies the payment and pays the merchant's suppliers here. The goods are handed over in the merchant's own country.",
+    "queEs": {
+      "titulo": "What the service is",
+      "texto": "Mercatren is a cross-border e-commerce service operated by Windoce LLC (United States). It works as a buying agent and a selling agent at once: the merchant gets an online store to sell from, and whoever pays from the United States gets an orderly, documented way to cover that order.",
+      "puntos": [
+        "The merchant lists their products and takes orders.",
+        "The payer pays from inside the United States, in dollars, into a Windoce LLC account.",
+        "Every payment is checked against the bank before it counts.",
+        "Mercatren charges a service fee and pays the merchant's suppliers in the United States.",
+        "The merchant hands over the goods in their own country."
+      ]
+    },
+    "pasos": {
+      "titulo": "Step by step",
+      "lista": [
+        {
+          "titulo": "The order is placed",
+          "texto": "The customer picks what they need from the merchant's store. It is recorded in full: what, how much, for whom and where it goes."
+        },
+        {
+          "titulo": "It gets paid from the U.S.",
+          "texto": "The payer — often a family member living here — covers the order and uploads the receipt. They are not wiring money to a person: they are paying Windoce LLC for a service."
+        },
+        {
+          "titulo": "The payment is verified",
+          "texto": "Someone on our team confirms the money actually landed in the bank. If something doesn't add up, it is rejected with a reason. Nothing is credited on its own."
+        },
+        {
+          "titulo": "It is credited and delivered",
+          "texto": "The amount is credited to the merchant, Mercatren pays their suppliers in the United States, and the merchant delivers in their own country."
+        }
+      ]
+    },
+    "queNoEs": {
+      "titulo": "What Mercatren is NOT",
+      "puntos": [
+        "It is not a remittance. Money is not sent to a person in another country.",
+        "We do not exchange currency. Everything is charged and paid in dollars.",
+        "We do not move money between private individuals. Payment comes into Windoce LLC for a service and goes out to commercial suppliers.",
+        "We are not a bank and we do not lend."
+      ]
+    },
+    "pagos": {
+      "titulo": "Payment methods, and why they cost differently",
+      "texto": "The cost of each payment method isn't arbitrary: it follows what it costs us to collect that way and the risk it carries. We'd rather say it plainly.",
+      "metodos": [
+        {
+          "nombre": "Zelle",
+          "costo": "3%",
+          "texto": "The one our customers use most, and the cheapest. It moves directly between U.S. banks, it can't be reversed on a whim, and it costs little to process. That's why the fee can be 3%."
+        },
+        {
+          "nombre": "Credit or debit card",
+          "costo": "5%",
+          "texto": "It costs more because the payment processor takes its cut and because a card purchase can be disputed months later. On a large order — one or two thousand dollars — that gap matters, which is why most people choose Zelle."
+        },
+        {
+          "nombre": "Wallet balance",
+          "costo": "No extra cost",
+          "texto": "If you already have a credited balance with Mercatren, spending it costs nothing: that payment was verified up front."
+        }
+      ]
+    },
+    "paraComercios": {
+      "titulo": "If you run a business outside the United States",
+      "texto": "You open your store, list your products, and we handle collection inside the United States and the verification of every payment. You sign in with your own account and see only what's yours: your orders, your payments and your balance.",
+      "boton": "Open my store"
+    },
+    "verTransparencia": "Information for banks and partners"
+  },
+  "transparencia": {
+    "titulo": "How Mercatren operates",
+    "entradilla": "This page describes our operation for banks, payment processors, partners and anyone who needs to understand exactly what we do and what we don't.",
+    "quienes": {
+      "titulo": "Who we are",
+      "texto": "Mercatren is a service operated by Windoce LLC, incorporated in the United States. We provide cross-border e-commerce services to established businesses outside the United States whose buyers, or the people paying on their behalf, are located in the United States.",
+      "lanzamiento": "Startup launching in 2026."
+    },
+    "flujo": {
+      "titulo": "Where the money goes",
+      "texto": "One path, always the same, always documented:",
+      "pasos": [
+        "The payer, located in the United States, pays in dollars into a Windoce LLC account at a U.S. bank.",
+        "Windoce LLC records the order that payment belongs to, with its amount, its date and its receipt.",
+        "A reviewer on our team confirms the deposit against the bank statement. Only then does the transaction count.",
+        "Windoce LLC retains its service fee.",
+        "Windoce LLC makes consolidated payments to suppliers in the United States, applied against the merchant's existing commercial invoices.",
+        "The merchant delivers the goods or services to their customer in their own country."
+      ]
+    },
+    "limites": {
+      "titulo": "What the operation does not include",
+      "puntos": [
+        "No money is sent to private individuals abroad.",
+        "No currency exchange takes place: we collect and pay in dollars.",
+        "No funds are transferred between private accounts.",
+        "No third-party funds are held for open-ended use: a credited balance corresponds to orders of an identified merchant.",
+        "No credit or banking services are offered."
+      ]
+    },
+    "controles": {
+      "titulo": "How we verify each payment",
+      "puntos": [
+        "Every payment arrives with its receipt, which is archived and available for review.",
+        "A person on the team confirms the deposit against the bank before it is credited. There is no automatic crediting.",
+        "Rejected payments are kept on record along with the reason for rejection.",
+        "Each merchant is identified and their transactions are kept separate from everyone else's.",
+        "Withdrawals are recorded but never counted as income, so sales figures cannot be inflated."
+      ]
+    },
+    "registros": {
+      "titulo": "What is recorded for each transaction",
+      "puntos": [
+        "Amount, fee and net, in dollars.",
+        "Payment date, receipt upload date and verification date.",
+        "Transfer confirmation number.",
+        "Receiving account and originating bank whenever the receipt shows it.",
+        "The merchant the transaction belongs to.",
+        "Who verified the payment, and when."
+      ]
+    },
+    "comisiones": {
+      "titulo": "Fees, and why they differ",
+      "texto": "The fee covers the service, the verification of every payment and the cost of collecting through that method. It differs by payment method because the cost and the risk differ too.",
+      "nota": "The fee applied to each transaction is recorded and visible both to the merchant and to us."
+    },
+    "contacto": {
+      "titulo": "Need more detail?",
+      "texto": "If you represent a bank, a payment processor or a commercial partner and need further documentation about the operation, get in touch.",
+      "boton": "Contact Mercatren"
+    },
+    "avisoLegal": "This page describes how the operation works in practice. It is not legal or tax advice, and it does not replace the service's terms and conditions."
   },
   "entrar": {
     "titulo": "Sign in",
@@ -85,10 +224,60 @@
       "resumen": "Overview",
       "pagosZelle": "Zelle Payments",
       "validacion": "To review",
+      "billetera": "Wallet",
       "ordenes": "Orders",
-      "tiendas": "Stores",
+      "tiendas": "Merchants",
       "clientes": "Customers",
       "configuracion": "Settings"
+    },
+    "comercio": {
+      "etiqueta": "Merchant",
+      "todos": "All merchants",
+      "viendo": "Viewing: {nombre}",
+      "tuComercio": "Your store"
+    },
+    "billetera": {
+      "titulo": "Wallet",
+      "subtitulo": "What Mercatren owes this merchant for payments already verified.",
+      "saldo": "Available balance",
+      "proveedor": "Wallet service",
+      "pendienteConexion": "The balance will sync with {proveedor} once the service is connected. For now it is kept here.",
+      "sinBilletera": "This merchant has no wallet open yet.",
+      "movimientos": "Activity",
+      "sinMovimientos": "No activity yet. Every approved payment will show up here.",
+      "avisoHistorico": "The history brought over from the previous system was already settled, so the balance starts at zero. Only what gets approved from now on adds up.",
+      "tipos": {
+        "recarga": "Payment credited",
+        "compra": "Purchase",
+        "reembolso": "Refund",
+        "ajuste": "Adjustment"
+      },
+      "columnas": {
+        "fecha": "Date",
+        "concepto": "Description",
+        "monto": "Amount",
+        "saldo": "Balance after"
+      }
+    },
+    "comercios": {
+      "titulo": "Merchants",
+      "subtitulo": "Each merchant signs in with their own account and only sees their payments and their balance.",
+      "columnas": {
+        "nombre": "Merchant",
+        "pais": "Country",
+        "comision": "Fee",
+        "pagos": "Approved payments",
+        "ingresos": "Inflows",
+        "saldo": "Balance",
+        "estado": "Status"
+      },
+      "estados": {
+        "activa": "Active",
+        "borrador": "Being set up",
+        "suspendida": "Suspended"
+      },
+      "vacio": "No merchants registered yet.",
+      "verPagos": "View their payments"
     },
     "resumen": {
       "titulo": "Overview",
@@ -214,7 +403,13 @@
         "vacio": "No payments are waiting for review.",
         "aprobar": "Approve and credit",
         "rechazar": "Reject",
-        "aviso": "Approving and rejecting get wired up once the wallet goes live. For now this screen only shows the queue."
+        "aviso": "Approving credits the net amount to the merchant's wallet. Check the payment actually landed in the bank first.",
+        "motivoTitulo": "Why is it being rejected?",
+        "motivoPlaceholder": "Reason for rejection",
+        "confirmarRechazo": "Confirm rejection",
+        "cancelar": "Cancel",
+        "trabajando": "One moment…",
+        "acreditado": "{monto} credited to the merchant."
       }
     }
   }

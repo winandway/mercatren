@@ -33,6 +33,7 @@ type Parametros = {
   banco?: string;
   estado?: string;
   tipo?: string;
+  comercio?: string;
   pagina?: string;
 };
 
@@ -52,17 +53,18 @@ export default async function PaginaPagosZelle({
 
   const [resumen, opciones, cierreDia, cierreSemana, cierreMes, listado] =
     await Promise.all([
-      obtenerResumen(),
-      obtenerOpcionesFiltros(),
-      obtenerCierre("dia"),
-      obtenerCierre("semana"),
-      obtenerCierre("mes"),
+      obtenerResumen(filtros.comercio),
+      obtenerOpcionesFiltros(filtros.comercio),
+      obtenerCierre("dia", filtros.comercio),
+      obtenerCierre("semana", filtros.comercio),
+      obtenerCierre("mes", filtros.comercio),
       listarPagos({
         busqueda: filtros.q,
         cuentaReceptora: filtros.cuenta,
         banco: filtros.banco,
         estado: filtros.estado as "aprobado" | "pendiente" | "rechazado",
         tipo: filtros.tipo as "entrada" | "retiro",
+        comercio: filtros.comercio,
         pagina: Number(filtros.pagina) || 1,
       }),
     ]);

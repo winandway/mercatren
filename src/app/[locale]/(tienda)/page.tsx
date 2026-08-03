@@ -1,4 +1,4 @@
-import { PackageCheck, Plane, ShoppingBag } from "lucide-react";
+import { PackageCheck, Plane, ShieldCheck, ShoppingBag } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
@@ -61,6 +61,22 @@ export default async function PaginaInicio({
               </article>
             );
           })}
+        </div>
+
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link
+            href="/como-funciona"
+            className="inline-flex items-center gap-2 rounded-lg border border-riel-800 px-4 py-2 text-sm font-semibold text-riel-900 transition-colors hover:bg-riel-900 hover:text-white"
+          >
+            {t("verDetalle")}
+          </Link>
+          <Link
+            href="/transparencia"
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-tinta-suave transition-colors hover:text-riel-900"
+          >
+            <ShieldCheck className="h-4 w-4" aria-hidden />
+            {t("paraBancos")}
+          </Link>
         </div>
 
         <p className="mt-10 rounded-lg bg-carga-500/10 px-4 py-3 text-sm text-riel-800">

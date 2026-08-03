@@ -18,7 +18,7 @@ CREATE TABLE `account` (
 CREATE INDEX `idx_account_user` ON `account` (`user_id`);--> statement-breakpoint
 CREATE TABLE `billeteras` (
 	`id` text PRIMARY KEY NOT NULL,
-	`usuario_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
 	`saldo_centavos` integer DEFAULT 0 NOT NULL,
 	`moneda` text DEFAULT 'USD' NOT NULL,
 	`proveedor` text DEFAULT 'tokiia' NOT NULL,
@@ -26,11 +26,11 @@ CREATE TABLE `billeteras` (
 	`estado` text DEFAULT 'activa' NOT NULL,
 	`sincronizado_en` integer,
 	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `billeteras_usuario_id_unique` ON `billeteras` (`usuario_id`);--> statement-breakpoint
-CREATE INDEX `idx_billeteras_usuario` ON `billeteras` (`usuario_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `billeteras_tienda_id_unique` ON `billeteras` (`tienda_id`);--> statement-breakpoint
+CREATE INDEX `idx_billeteras_tienda` ON `billeteras` (`tienda_id`);--> statement-breakpoint
 CREATE TABLE `categorias` (
 	`id` text PRIMARY KEY NOT NULL,
 	`slug` text NOT NULL,
@@ -78,11 +78,14 @@ CREATE TABLE `movimientos_billetera` (
 	`saldo_resultante_centavos` integer NOT NULL,
 	`referencia` text,
 	`nota` text,
+	`hecho_por_id` text,
 	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`billetera_id`) REFERENCES `billeteras`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`billetera_id`) REFERENCES `billeteras`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE INDEX `idx_movimientos_billetera` ON `movimientos_billetera` (`billetera_id`);--> statement-breakpoint
+CREATE INDEX `idx_movimientos_referencia` ON `movimientos_billetera` (`referencia`);--> statement-breakpoint
 CREATE TABLE `pagos` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -207,7 +210,7 @@ CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-
 CREATE INDEX `idx_session_user` ON `session` (`user_id`);--> statement-breakpoint
 CREATE TABLE `tiendas` (
 	`id` text PRIMARY KEY NOT NULL,
-	`propietario_id` text NOT NULL,
+	`propietario_id` text,
 	`slug` text NOT NULL,
 	`nombre` text NOT NULL,
 	`descripcion_es` text,
@@ -215,12 +218,12 @@ CREATE TABLE `tiendas` (
 	`logo_clave` text,
 	`portada_clave` text,
 	`estado` text DEFAULT 'borrador' NOT NULL,
-	`comision_puntos_base` integer DEFAULT 1000 NOT NULL,
+	`comision_puntos_base` integer DEFAULT 300 NOT NULL,
 	`stripe_cuenta_id` text,
 	`pais_origen` text DEFAULT 'US' NOT NULL,
 	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
 	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`propietario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`propietario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `tiendas_slug_unique` ON `tiendas` (`slug`);--> statement-breakpoint

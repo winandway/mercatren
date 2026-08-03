@@ -15,6 +15,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { AccionesValidacion } from "@/components/panel/zelle/acciones-validacion";
 import { VisorComprobante } from "@/components/panel/zelle/visor-comprobante";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
@@ -49,7 +50,14 @@ const ESTILO_ESTADO = {
   },
 } as const;
 
-export function ListaPagos({ pagos }: { pagos: PagoVista[] }) {
+export function ListaPagos({
+  pagos,
+  conAcciones = false,
+}: {
+  pagos: PagoVista[];
+  /** Muestra los botones de aprobar y rechazar (solo en la cola de validacion). */
+  conAcciones?: boolean;
+}) {
   const [abierto, setAbierto] = useState<PagoVista | null>(null);
   const t = useTranslations("panel.zelle");
 
@@ -66,7 +74,11 @@ export function ListaPagos({ pagos }: { pagos: PagoVista[] }) {
       <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {pagos.map((pago) => (
           <li key={pago.id}>
-            <TarjetaPago pago={pago} onVerRecibo={() => setAbierto(pago)} />
+            <TarjetaPago
+              pago={pago}
+              conAcciones={conAcciones}
+              onVerRecibo={() => setAbierto(pago)}
+            />
           </li>
         ))}
       </ul>
@@ -80,9 +92,11 @@ export function ListaPagos({ pagos }: { pagos: PagoVista[] }) {
 
 function TarjetaPago({
   pago,
+  conAcciones,
   onVerRecibo,
 }: {
   pago: PagoVista;
+  conAcciones?: boolean;
   onVerRecibo: () => void;
 }) {
   const t = useTranslations("panel.zelle");
@@ -255,6 +269,10 @@ function TarjetaPago({
           {pago.origen === "import" ? t("pago.importado") : t("pago.enVivo")}
         </span>
       </div>
+
+      {conAcciones && pago.estado === "pendiente" ? (
+        <AccionesValidacion pagoId={pago.id} />
+      ) : null}
     </article>
   );
 }

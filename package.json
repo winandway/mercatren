@@ -19,11 +19,11 @@
     "db:estudio": "drizzle-kit studio",
     "db:local": "wrangler d1 migrations apply mercatren --local && wrangler d1 execute mercatren --local --file=.local/zelle-historico.sql",
     "zelle:importar": "node scripts/importar-zelle.ts",
-    "soporte:crear": "node scripts/crear-soporte.ts",
     "cf:tipos": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "cuenta:crear": "node scripts/crear-cuenta.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [
