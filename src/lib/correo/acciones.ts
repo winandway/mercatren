@@ -40,11 +40,13 @@ export async function enviarCorreoDePrueba(
     idioma: "es",
   });
 
-  return resultado.enviado
-    ? { ok: true, mensaje: `Enviado a ${correo}. Revisa la bandeja.` }
-    : {
-        ok: false,
-        mensaje:
-          "No salió. Revisa que CLOUDFLARE_EMAIL_TOKEN esté cargado en el panel del sitio.",
-      };
+  if (resultado.enviado) {
+    return { ok: true, mensaje: `Enviado a ${correo}. Revisa la bandeja.` };
+  }
+
+  // El motivo real, no un "no se pudo": esta pantalla existe para diagnosticar.
+  return {
+    ok: false,
+    mensaje: `No salió — ${resultado.motivo ?? "sin motivo del servicio"}`,
+  };
 }

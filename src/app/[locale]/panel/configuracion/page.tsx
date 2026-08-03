@@ -219,6 +219,14 @@ export default async function PaginaConfiguracion({
                 <span className="font-mono text-xs text-tinta-suave">
                   {p.clave}
                 </span>
+                <span
+                  className={cn(
+                    "shrink-0 text-xs font-semibold",
+                    ok ? "text-precio-600" : "text-tinta-suave",
+                  )}
+                >
+                  {ok ? t("variables.configurada") : t("variables.falta")}
+                </span>
               </li>
             );
           })}

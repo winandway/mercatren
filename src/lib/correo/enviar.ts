@@ -72,10 +72,9 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
   const token = env.CLOUDFLARE_EMAIL_TOKEN;
 
   if (!token) {
-    console.warn(
-      `[correo] CLOUDFLARE_EMAIL_TOKEN sin configurar; no se envio "${asunto}" a ${a}`,
-    );
-    return { enviado: false as const };
+    const motivo = "CLOUDFLARE_EMAIL_TOKEN no llega al sitio";
+    console.warn(`[correo] ${motivo}; no se envio "${asunto}" a ${a}`);
+    return { enviado: false as const, motivo };
   }
 
   const destino = a.trim().toLowerCase();
@@ -83,8 +82,9 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
   // A quien rebota de forma permanente no se le vuelve a escribir: insistir
   // ensucia la reputacion del dominio y perjudica los correos que si llegan.
   if (await tieneRebote(destino)) {
-    console.warn(`[correo] ${destino} rebota de forma permanente; no se envia`);
-    return { enviado: false as const };
+    const motivo = `${destino} rebota de forma permanente; no se le vuelve a escribir`;
+    console.warn(`[correo] ${motivo}`);
+    return { enviado: false as const, motivo };
   }
 
   const de = partirRemitente(env.CORREO_REMITENTE || CORREO_REMITENTE);
@@ -114,21 +114,23 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
       cuerpo?.result?.permanent_bounces ?? cuerpo?.permanent_bounces;
     if (rebotes?.some((correo) => correo.trim().toLowerCase() === destino)) {
       await anotarRebote(destino);
-      console.warn(`[correo] ${destino} rebota de forma permanente; anotado`);
-      return { enviado: false as const };
+      const motivo = `${destino} rebota de forma permanente; queda anotado`;
+      console.warn(`[correo] ${motivo}`);
+      return { enviado: false as const, motivo };
     }
 
     if (!respuesta.ok || !cuerpo?.success) {
       const motivo =
         cuerpo?.errors?.map((e) => e.message).join("; ") ||
-        `HTTP ${respuesta.status}`;
+        `el servicio respondió HTTP ${respuesta.status}`;
       console.error(`[correo] rechazado "${asunto}" a ${destino}: ${motivo}`);
-      return { enviado: false as const };
+      return { enviado: false as const, motivo };
     }
 
     return { enviado: true as const, id: cuerpo.result?.message_id };
   } catch (e) {
+    const motivo = e instanceof Error ? e.message : "fallo de red";
     console.error(`[correo] fallo enviando "${asunto}" a ${destino}:`, e);
-    return { enviado: false as const };
+    return { enviado: false as const, motivo };
   }
 }
