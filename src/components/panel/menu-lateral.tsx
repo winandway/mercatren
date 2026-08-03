@@ -51,12 +51,8 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         Icono: Store,
         soloInterno: true,
       },
-      {
-        href: "/panel/clientes",
-        clave: "clientes",
-        Icono: Users,
-        soloInterno: true,
-      },
+      // Cada comercio ve SUS clientes; el equipo, todos.
+      { href: "/panel/clientes", clave: "clientes", Icono: Users },
     ],
   },
   {

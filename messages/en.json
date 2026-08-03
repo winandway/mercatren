@@ -576,6 +576,38 @@
       "estadoBorrador": "Draft (hidden)",
       "estadoPublicado": "Published",
       "estadoAgotado": "Out of stock"
+    },
+    "ordenes": {
+      "titulo": "Orders",
+      "subtitulo": "The purchases that came in. Each merchant sees their own.",
+      "subtituloEquipo": "Every purchase on the platform.",
+      "vacio": "No orders yet.",
+      "sinResultados": "No orders in this status.",
+      "soloTuParte": "Amounts cover only your products in each order.",
+      "columna": {
+        "orden": "Order",
+        "cliente": "Customer",
+        "monto": "Amount",
+        "estado": "Status"
+      },
+      "articulos": "{n, plural, =1 {# item} other {# items}}",
+      "pagoPendiente": "Payment pending",
+      "pagoEnRevision": "Receipt under review",
+      "pagoRechazado": "Payment declined",
+      "todos": "All"
+    },
+    "clientes": {
+      "titulo": "Customers",
+      "subtitulo": "Who has bought from you and how much they've spent.",
+      "subtituloEquipo": "Everyone who has bought on Mercatren.",
+      "vacio": "No customers yet.",
+      "columna": {
+        "cliente": "Customer",
+        "pedidos": "Orders",
+        "gastado": "Spent",
+        "ultimo": "Last purchase"
+      },
+      "pedidos": "{n, plural, =1 {# order} other {# orders}}"
     }
   },
   "catalogo": {

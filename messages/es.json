@@ -576,6 +576,38 @@
       "estadoBorrador": "Borrador (no se ve)",
       "estadoPublicado": "Publicado",
       "estadoAgotado": "Agotado"
+    },
+    "ordenes": {
+      "titulo": "Órdenes",
+      "subtitulo": "Las compras que entraron. Cada comercio ve las suyas.",
+      "subtituloEquipo": "Todas las compras de la plataforma.",
+      "vacio": "Todavía no hay órdenes.",
+      "sinResultados": "Ninguna orden en este estado.",
+      "soloTuParte": "Los importes son solo de tus productos en cada orden.",
+      "columna": {
+        "orden": "Orden",
+        "cliente": "Cliente",
+        "monto": "Monto",
+        "estado": "Estado"
+      },
+      "articulos": "{n, plural, =1 {# artículo} other {# artículos}}",
+      "pagoPendiente": "Falta el pago",
+      "pagoEnRevision": "Comprobante en revisión",
+      "pagoRechazado": "Pago rechazado",
+      "todos": "Todas"
+    },
+    "clientes": {
+      "titulo": "Clientes",
+      "subtitulo": "Quiénes te han comprado y cuánto llevan gastado contigo.",
+      "subtituloEquipo": "Todas las personas que han comprado en Mercatren.",
+      "vacio": "Todavía no hay clientes.",
+      "columna": {
+        "cliente": "Cliente",
+        "pedidos": "Pedidos",
+        "gastado": "Gastado",
+        "ultimo": "Última compra"
+      },
+      "pedidos": "{n, plural, =1 {# pedido} other {# pedidos}}"
     }
   },
   "catalogo": {
