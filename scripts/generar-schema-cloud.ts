@@ -2,15 +2,21 @@
  * Arma el schema.sql que YaDominios Cloud ejecuta contra la base del sitio
  * (env.DB) en cada publicacion.
  *
- * Que lleva:
+ * Que lleva, y SOLO eso:
  *   1. Las tablas (el DDL de drizzle/migrations, vuelto idempotente con
  *      IF NOT EXISTS, porque el archivo corre en CADA despliegue).
  *   2. El comercio piloto y su billetera EN CERO (ON CONFLICT DO NOTHING:
  *      jamas pisa un saldo que ya este andando en produccion).
- *   3. El catalogo del piloto (.local/catalogo.sql), que ya es idempotente:
- *      todos sus INSERT hacen upsert por (tienda, externo_id).
+ *
+ * SE MANTIENE CHICO A PROPOSITO (unos 13 KB). Este archivo se ejecuta entero
+ * en cada publicacion, antes de que el sitio quede en vivo: meterle los 689
+ * productos lo llevaba a 556 KB y 76 sentencias, y un despliegue que tarda de
+ * mas se cae y deja el sitio sin publicar. Las tablas son lo unico que el
+ * sitio NECESITA para arrancar; los datos se cargan despues, una sola vez.
  *
  * Que NO lleva, a proposito:
+ *   - El catalogo (.local/catalogo.sql). Se carga aparte, una vez, contra la
+ *     base del sitio. No hace falta repetirlo en cada despliegue.
  *   - El historico de pagos Zelle. Trae nombres y correos de personas reales
  *     y el repositorio es publico. Ese se carga aparte, directo a la base,
  *     con autorizacion expresa (ver datos/LEEME.md).
@@ -27,7 +33,6 @@ import path from "node:path";
 
 const RAIZ = process.cwd();
 const MIGRACIONES = path.join(RAIZ, "drizzle", "migrations");
-const CATALOGO = path.join(RAIZ, ".local", "catalogo.sql");
 const SALIDA = path.join(RAIZ, "schema.sql");
 
 /** El piloto, igual que en scripts/importar-zelle.ts. */
@@ -89,33 +94,17 @@ function seedDelPiloto() {
   ].join("\n");
 }
 
-function catalogo() {
-  const sql = readFileSync(CATALOGO, "utf8");
-
-  // Cinturon y tirantes: este archivo termina en un repositorio publico.
-  // Si algun dia el importador dejara pasar un correo, mejor que reviente
-  // aqui que publicarlo.
-  if (/@(gmail|hotmail|yahoo|outlook|icloud)\./i.test(sql)) {
-    throw new Error(
-      "El catalogo trae lo que parece un correo personal; no se publica.",
-    );
-  }
-
-  return `-- ── Catalogo del piloto (generado por scripts/importar-productos.ts) ──\n${sql.trim()}`;
-}
-
 const partes = [
   "-- schema.sql — YaDominios Cloud lo ejecuta contra env.DB en cada publicacion.",
   "-- Generado por scripts/generar-schema-cloud.ts. NO editar a mano:",
   "--   npm run db:schema-cloud",
   "-- Todo lo de aqui es idempotente: correr dos veces deja lo mismo.",
-  "-- El historico Zelle NO va aqui (datos personales; repo publico).",
+  "-- SOLO tablas y el comercio piloto: esto corre en CADA publicacion y tiene",
+  "-- que ser rapido. El catalogo y el historico se cargan aparte, una vez.",
   "",
   ...ddlIdempotente(),
   "",
   seedDelPiloto(),
-  "",
-  catalogo(),
   "",
 ];
 

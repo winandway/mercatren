@@ -29,8 +29,13 @@ Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.
 - **Las tablas llegan a producción por `schema.sql`** (en la raíz del repo):
   YaDominios Cloud lo ejecuta contra `env.DB` en cada publicación. Se genera
   con `npm run db:schema-cloud` (DDL idempotente + comercio piloto con
-  billetera en CERO + catálogo público) y **se commitea**. Si una migración
-  nueva trae ALTER/DROP, el generador se detiene: ese cambio se piensa a mano.
+  billetera en CERO) y **se commitea**. Si una migración nueva trae ALTER/DROP,
+  el generador se detiene: ese cambio se piensa a mano.
+- **`schema.sql` se mantiene CHICO (~13 KB).** Corre entero en cada
+  publicación, antes de que el sitio quede en vivo: con el catálogo dentro
+  pesaba 556 KB y un despliegue lento se cae y deja el sitio sin publicar.
+  Solo van las tablas, que es lo único que el sitio necesita para arrancar.
+  **El catálogo y el histórico se cargan aparte, una sola vez.**
 - **El histórico Zelle JAMÁS va en schema.sql**: trae nombres y correos de
   personas reales y el repositorio es público. Se carga aparte, directo a la
   base, con autorización expresa.
