@@ -40,6 +40,8 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
   {
     titulo: "catalogo",
     entradas: [
+      // Su propia tienda: la marca, la ficha y los datos de la empresa.
+      { href: "/panel/mi-tienda", clave: "miTienda", Icono: Store },
       { href: "/panel/ordenes", clave: "ordenes", Icono: ShoppingBag },
       {
         href: "/panel/tiendas",

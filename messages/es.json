@@ -253,7 +253,8 @@
       "ordenes": "Órdenes",
       "tiendas": "Comercios",
       "clientes": "Clientes",
-      "configuracion": "Configuración"
+      "configuracion": "Configuración",
+      "miTienda": "Mi tienda"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -435,6 +436,55 @@
         "cancelar": "Cancelar",
         "trabajando": "Un momento…",
         "acreditado": "Se le acreditó {monto} al comercio."
+      }
+    },
+    "miTienda": {
+      "titulo": "Mi tienda",
+      "subtitulo": "Así te ve quien entra a comprar. Todo lo que llenes aquí sale en tu tienda.",
+      "verTienda": "Ver mi tienda",
+      "guardar": "Guardar cambios",
+      "guardando": "Guardando…",
+      "sinTienda": "Esta cuenta todavía no tiene un comercio asignado. Escribe a soporte.",
+      "marca": {
+        "titulo": "Tu marca",
+        "texto": "El logo y la portada son lo primero que ve un cliente.",
+        "logo": "Logo",
+        "logoAyuda": "Cuadrado, mínimo 200×200. JPG, PNG o WEBP, hasta 5 MB.",
+        "portada": "Portada",
+        "portadaAyuda": "Ancha, tipo 1600×400. Es la franja de arriba de tu tienda.",
+        "cambiar": "Cambiar imagen",
+        "sinLogo": "Sin logo todavía",
+        "sinPortada": "Sin portada todavía"
+      },
+      "ficha": {
+        "titulo": "Tu ficha",
+        "texto": "El nombre y la descripción que lee el cliente. En los dos idiomas.",
+        "nombre": "Nombre de la tienda",
+        "nombreAyuda": "Como quieres que te vean. Sale en cada producto tuyo.",
+        "descripcionEs": "Descripción en español",
+        "descripcionEn": "Descripción en inglés",
+        "descripcionAyuda": "Qué vendes y qué te hace distinto. Dos o tres líneas bastan.",
+        "placeholderDescripcion": "Qué vende tu comercio"
+      },
+      "empresa": {
+        "titulo": "Datos de la empresa",
+        "texto": "Lo que le da confianza a quien te compra. Lo que dejes vacío no se muestra.",
+        "razonSocial": "Razón social",
+        "identificacionFiscal": "Identificación fiscal",
+        "correoContacto": "Correo de contacto",
+        "telefono": "Teléfono",
+        "direccion": "Dirección",
+        "ciudad": "Ciudad",
+        "sitioWeb": "Sitio web",
+        "horario": "Horario de atención",
+        "placeholderRazon": "Nombre legal de la empresa",
+        "placeholderFiscal": "Número de identificación fiscal",
+        "placeholderCorreo": "correo@ejemplo.com",
+        "placeholderTelefono": "Número de contacto",
+        "placeholderDireccion": "Dirección del local",
+        "placeholderCiudad": "Ciudad",
+        "placeholderWeb": "https://ejemplo.com",
+        "placeholderHorario": "Días y horas de atención"
       }
     }
   },
@@ -643,7 +693,16 @@
     "noEncontrada": "No encontramos esta tienda",
     "noEncontradaTexto": "Puede que ya no esté activa.",
     "verComercios": "Ver todos los comercios",
-    "sinDescripcion": "Este comercio todavía no escribió su presentación."
+    "sinDescripcion": "Este comercio todavía no escribió su presentación.",
+    "datosEmpresa": "Datos de la empresa",
+    "razonSocial": "Razón social",
+    "identificacionFiscal": "Identificación fiscal",
+    "correo": "Correo",
+    "telefono": "Teléfono",
+    "direccion": "Dirección",
+    "sitioWeb": "Sitio web",
+    "horario": "Horario",
+    "verificado": "Comercio verificado por Mercatren"
   },
   "docs": {
     "titulo": "Documentación",

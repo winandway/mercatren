@@ -253,7 +253,8 @@
       "ordenes": "Orders",
       "tiendas": "Merchants",
       "clientes": "Customers",
-      "configuracion": "Settings"
+      "configuracion": "Settings",
+      "miTienda": "My store"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -435,6 +436,55 @@
         "cancelar": "Cancel",
         "trabajando": "One moment…",
         "acreditado": "{monto} credited to the merchant."
+      }
+    },
+    "miTienda": {
+      "titulo": "My store",
+      "subtitulo": "This is how shoppers see you. Everything you fill in here appears in your store.",
+      "verTienda": "View my store",
+      "guardar": "Save changes",
+      "guardando": "Saving…",
+      "sinTienda": "This account doesn't have a store assigned yet. Write to support.",
+      "marca": {
+        "titulo": "Your brand",
+        "texto": "Your logo and cover are the first thing a customer sees.",
+        "logo": "Logo",
+        "logoAyuda": "Square, at least 200×200. JPG, PNG, or WEBP, up to 5 MB.",
+        "portada": "Cover",
+        "portadaAyuda": "Wide, around 1600×400. It's the banner at the top of your store.",
+        "cambiar": "Change image",
+        "sinLogo": "No logo yet",
+        "sinPortada": "No cover yet"
+      },
+      "ficha": {
+        "titulo": "Your profile",
+        "texto": "The name and description customers read. In both languages.",
+        "nombre": "Store name",
+        "nombreAyuda": "How you want to be seen. It appears on every product of yours.",
+        "descripcionEs": "Description in Spanish",
+        "descripcionEn": "Description in English",
+        "descripcionAyuda": "What you sell and what makes you different. Two or three lines is enough.",
+        "placeholderDescripcion": "What your business sells"
+      },
+      "empresa": {
+        "titulo": "Company details",
+        "texto": "What builds trust with your buyers. Anything left blank is not shown.",
+        "razonSocial": "Legal name",
+        "identificacionFiscal": "Tax ID",
+        "correoContacto": "Contact email",
+        "telefono": "Phone",
+        "direccion": "Address",
+        "ciudad": "City",
+        "sitioWeb": "Website",
+        "horario": "Business hours",
+        "placeholderRazon": "Registered company name",
+        "placeholderFiscal": "Tax identification number",
+        "placeholderCorreo": "name@example.com",
+        "placeholderTelefono": "Contact number",
+        "placeholderDireccion": "Street address",
+        "placeholderCiudad": "City",
+        "placeholderWeb": "https://example.com",
+        "placeholderHorario": "Days and hours"
       }
     }
   },
@@ -643,7 +693,16 @@
     "noEncontrada": "We couldn't find this store",
     "noEncontradaTexto": "It may no longer be active.",
     "verComercios": "See all merchants",
-    "sinDescripcion": "This merchant hasn't written their introduction yet."
+    "sinDescripcion": "This merchant hasn't written their introduction yet.",
+    "datosEmpresa": "Company details",
+    "razonSocial": "Legal name",
+    "identificacionFiscal": "Tax ID",
+    "correo": "Email",
+    "telefono": "Phone",
+    "direccion": "Address",
+    "sitioWeb": "Website",
+    "horario": "Hours",
+    "verificado": "Merchant verified by Mercatren"
   },
   "docs": {
     "titulo": "Documentation",

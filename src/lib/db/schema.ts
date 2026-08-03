@@ -155,6 +155,24 @@ export const tiendas = sqliteTable(
     /** Cuenta conectada de Stripe del vendedor, para el pago dividido. */
     stripeCuentaId: text("stripe_cuenta_id"),
     paisOrigen: text("pais_origen").notNull().default("US"),
+
+    /**
+     * Los datos de la empresa, tal como los quiere mostrar el comercio en su
+     * tienda. Los llena el propio comercio desde su panel.
+     *
+     * Todos opcionales a proposito: un comercio puede empezar a vender con el
+     * nombre y completar su ficha despues. Lo que este vacio simplemente no
+     * se muestra, en vez de salir un hueco.
+     */
+    razonSocial: text("razon_social"),
+    identificacionFiscal: text("identificacion_fiscal"),
+    correoContacto: text("correo_contacto"),
+    telefono: text("telefono"),
+    direccion: text("direccion"),
+    ciudad: text("ciudad"),
+    sitioWeb: text("sitio_web"),
+    /** Horario de atencion, en texto libre: cada comercio tiene el suyo. */
+    horario: text("horario"),
     creadoEn: integer("creado_en", { mode: "timestamp" })
       .notNull()
       .default(sql`(unixepoch())`),

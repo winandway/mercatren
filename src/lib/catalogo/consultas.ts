@@ -430,6 +430,16 @@ export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
       logoClave: tiendas.logoClave,
       portadaClave: tiendas.portadaClave,
       creadoEn: tiendas.creadoEn,
+      // La ficha de la empresa, tal como la lleno el comercio. Lo que este
+      // vacio no se muestra: mejor una ficha corta que una con huecos.
+      razonSocial: tiendas.razonSocial,
+      identificacionFiscal: tiendas.identificacionFiscal,
+      correoContacto: tiendas.correoContacto,
+      telefono: tiendas.telefono,
+      direccion: tiendas.direccion,
+      ciudad: tiendas.ciudad,
+      sitioWeb: tiendas.sitioWeb,
+      horario: tiendas.horario,
     })
     .from(tiendas)
     .where(and(eq(tiendas.slug, slug), eq(tiendas.estado, "activa")))

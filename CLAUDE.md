@@ -170,6 +170,30 @@ Secciones: Resumen · **Pagos Zelle** · Por validar · Billetera · Órdenes ·
 Comercios · Clientes · Configuración. Las tres últimas son solo del equipo, y
 Órdenes y Clientes todavía no tienen datos.
 
+## El comercio se administra solo
+
+En `/panel/mi-tienda` cada comercio maneja lo suyo: **logo, portada,
+descripción bilingüe y datos de empresa** (razón social, identificación
+fiscal, correo, teléfono, dirección, ciudad, sitio web y horario). Todo eso
+sale en su tienda pública; **lo que deja vacío no se muestra**, para que la
+ficha nunca tenga huecos.
+
+- La tienda que se edita sale del **alcance de la sesión**, nunca de la
+  dirección: un vendedor solo puede tocar la suya. El equipo puede abrir la de
+  un comercio con `?comercio=slug`.
+- El comercio **no** puede cambiar su comisión, su estado ni su slug: lo
+  primero lo acuerda Mercatren y lo último rompería los enlaces que circulan.
+- Las imágenes se suben con `src/lib/subidas.ts` (tipo y tamaño se comprueban
+  en el servidor, no en el navegador) y la anterior se borra **después** de
+  guardar la nueva.
+
+**Columnas nuevas en `tiendas`:** `razon_social`, `identificacion_fiscal`,
+`correo_contacto`, `telefono`, `direccion`, `ciudad`, `sitio_web`, `horario`.
+Se aplicaron a producción con `ALTER TABLE` vía `npm run db:cargar`, y a la
+base local igual. **Ojo al agregar columnas:** `schema.sql` solo trae
+`CREATE TABLE IF NOT EXISTS`, así que una base que ya existe NO las recibe
+sola; hay que aplicar el ALTER a mano, una vez, con el token.
+
 ## El comercio piloto
 
 `Bley Ferretería` (id `tienda-bley-ferreteria`) viene del MVP anterior. Lo crea
