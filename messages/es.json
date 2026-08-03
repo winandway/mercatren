@@ -608,6 +608,37 @@
         "ultimo": "Última compra"
       },
       "pedidos": "{n, plural, =1 {# pedido} other {# pedidos}}"
+    },
+    "configuracion": {
+      "titulo": "Configuración",
+      "subtitulo": "Cómo está montado el servicio y qué falta por conectar. Solo lo ve el equipo de Mercatren.",
+      "operacion": {
+        "titulo": "La operación",
+        "comision": "Comisión por venta",
+        "comisionValor": "3 % sobre el valor del pedido",
+        "moneda": "Moneda",
+        "monedaValor": "Dólares de Estados Unidos, en todo el ciclo",
+        "cobro": "Forma de cobro",
+        "cobroValor": "Zelle y transferencia desde bancos de Estados Unidos",
+        "retencion": "Conservación de registros",
+        "retencionValor": "Cinco años por operación"
+      },
+      "correos": {
+        "titulo": "Correos",
+        "recibe": "Buzón que recibe",
+        "envia": "Remitente del sistema",
+        "enviaAyuda": "Solo envía avisos. No recibe respuestas."
+      },
+      "variables": {
+        "titulo": "Datos de la cuenta que recibe los pagos",
+        "texto": "Nunca se escriben en el código: viven en las variables del panel de la plataforma. Si falta alguna, la pantalla del pedido lo avisa y no inventa datos.",
+        "configurada": "Configurada",
+        "falta": "Falta"
+      },
+      "pendientes": {
+        "titulo": "Lo que falta por conectar",
+        "texto": "Está construido y esperando su servicio."
+      }
     }
   },
   "catalogo": {

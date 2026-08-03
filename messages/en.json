@@ -608,6 +608,37 @@
         "ultimo": "Last purchase"
       },
       "pedidos": "{n, plural, =1 {# order} other {# orders}}"
+    },
+    "configuracion": {
+      "titulo": "Settings",
+      "subtitulo": "How the service is set up and what's left to connect. Only the Mercatren team sees this.",
+      "operacion": {
+        "titulo": "The operation",
+        "comision": "Fee per sale",
+        "comisionValor": "3% of the order value",
+        "moneda": "Currency",
+        "monedaValor": "US dollars, throughout the cycle",
+        "cobro": "Collection method",
+        "cobroValor": "Zelle and transfers from US banks",
+        "retencion": "Record retention",
+        "retencionValor": "Five years per transaction"
+      },
+      "correos": {
+        "titulo": "Email",
+        "recibe": "Inbox that receives",
+        "envia": "System sender",
+        "enviaAyuda": "Sends notices only. Doesn't receive replies."
+      },
+      "variables": {
+        "titulo": "Details of the account that receives payments",
+        "texto": "Never written in the code: they live in the platform's environment variables. If one is missing, the order screen says so and never invents data.",
+        "configurada": "Set",
+        "falta": "Missing"
+      },
+      "pendientes": {
+        "titulo": "Left to connect",
+        "texto": "Built and waiting for its service."
+      }
     }
   },
   "catalogo": {
