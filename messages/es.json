@@ -83,7 +83,16 @@
       "transparencia": "Transparencia",
       "docs": "Documentación",
       "nosotros": "Quiénes somos"
-    }
+    },
+    "lema": "Compra en Estados Unidos, recibe donde estés.",
+    "descripcion": "Mercatren conecta a comercios de todo el mundo con quien paga desde Estados Unidos. Cada operación queda documentada de punta a punta.",
+    "contactoTitulo": "¿Necesitas ayuda?",
+    "contactoTexto": "Escríbenos y contesta una persona.",
+    "soloEEUU": "Cobros únicamente desde bancos de Estados Unidos",
+    "operadoPor": "Mercatren es un servicio operado por",
+    "vendeConNosotros": "¿Tienes un comercio?",
+    "vendeTexto": "Abre tu tienda y cobra en dólares.",
+    "vendeBoton": "Empezar a vender"
   },
   "comun": {
     "cargando": "Cargando…",

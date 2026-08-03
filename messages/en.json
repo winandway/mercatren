@@ -83,7 +83,16 @@
       "transparencia": "Transparency",
       "docs": "Documentation",
       "nosotros": "About us"
-    }
+    },
+    "lema": "Buy in the United States, receive it wherever you are.",
+    "descripcion": "Mercatren connects merchants worldwide with the people who pay from the United States. Every transaction is documented end to end.",
+    "contactoTitulo": "Need help?",
+    "contactoTexto": "Write to us and a person answers.",
+    "soloEEUU": "Payments accepted only from US banks",
+    "operadoPor": "Mercatren is a service operated by",
+    "vendeConNosotros": "Run a business?",
+    "vendeTexto": "Open your store and collect in dollars.",
+    "vendeBoton": "Start selling"
   },
   "comun": {
     "cargando": "Loading…",
