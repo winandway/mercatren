@@ -749,7 +749,10 @@
       "aprobado": "Aprobado",
       "comision": "Comisión de Mercatren",
       "neto": "Neto para el comercio",
-      "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce LLC."
+      "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce LLC.",
+      "trayendoMas": "Trayendo más ventas…",
+      "esoEsTodo": "Eso es todo: {n} ventas.",
+      "verMas": "Ver más"
     },
     "mensajes": {
       "sinPermiso": "No tienes permiso para esto.",

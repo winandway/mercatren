@@ -749,7 +749,10 @@
       "aprobado": "Approved",
       "comision": "Mercatren fee",
       "neto": "Net to the store",
-      "pie": "Payment collected in the United States and fulfilled by the store. Mercatren is a service of Windoce LLC."
+      "pie": "Payment collected in the United States and fulfilled by the store. Mercatren is a service of Windoce LLC.",
+      "trayendoMas": "Loading more sales…",
+      "esoEsTodo": "That's everything: {n} sales.",
+      "verMas": "Show more"
     },
     "mensajes": {
       "sinPermiso": "You don't have permission for this.",

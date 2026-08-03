@@ -159,13 +159,13 @@ export default async function PaginaOrdenes({
             </p>
           </div>
 
-          <ListaTiques tiques={tiques} busqueda={filtros.q ?? ""} />
-
-          {ventas.paginas > 1 ? (
-            <p className="text-center text-xs text-tinta-suave">
-              {tt("pagina", { n: ventas.pagina, de: ventas.paginas })}
-            </p>
-          ) : null}
+          {/* Carga infinita: nadie va a pulsar "siguiente" 27 veces. */}
+          <ListaTiques
+            key={filtros.q ?? ""}
+            tiques={tiques}
+            busqueda={filtros.q ?? ""}
+            paginas={ventas.paginas}
+          />
         </section>
       ) : null}
 
