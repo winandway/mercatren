@@ -31,7 +31,8 @@
     "agotado": "Agotado",
     "cambiarIdioma": "Cambiar idioma",
     "comprasEn": "Compras en Estados Unidos y pagas en dólares.",
-    "panel": "Panel"
+    "panel": "Panel",
+    "crearCuenta": "Crear cuenta"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, recibe donde estés",
@@ -291,11 +292,11 @@
       "billetera": "Billetera",
       "ordenes": "Órdenes",
       "tiendas": "Comercios",
-      "clientes": "Clientes",
+      "clientes": "Compradores",
       "configuracion": "Configuración",
       "miTienda": "Mi tienda",
       "misProductos": "Mis productos",
-      "usuarios": "Usuarios"
+      "usuarios": "Cuentas"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -651,17 +652,18 @@
       "todos": "Todas"
     },
     "clientes": {
-      "titulo": "Clientes",
+      "titulo": "Compradores",
       "subtitulo": "Quiénes te han comprado y cuánto llevan gastado contigo.",
-      "subtituloEquipo": "Todas las personas que han comprado en Mercatren.",
-      "vacio": "Todavía no hay clientes.",
+      "subtituloEquipo": "Todas las personas que han comprado en las tiendas de Mercatren.",
+      "vacio": "Todavía nadie ha comprado. Cuando alguien haga su primera compra, aparecerá aquí.",
       "columna": {
         "cliente": "Cliente",
         "pedidos": "Pedidos",
         "gastado": "Gastado",
         "ultimo": "Última compra"
       },
-      "pedidos": "{n, plural, =1 {# pedido} other {# pedidos}}"
+      "pedidos": "{n, plural, =1 {# pedido} other {# pedidos}}",
+      "pista": "¿Buscas un comercio o una cuenta del sistema? Están en Cuentas."
     },
     "configuracion": {
       "titulo": "Configuración",
@@ -806,11 +808,11 @@
       "ponlePrecioAlProducto": "Ponle precio al producto."
     },
     "usuarios": {
-      "titulo": "Usuarios",
-      "subtitulo": "Todas las cuentas del sistema: comercios, validadores y el equipo.",
+      "titulo": "Cuentas",
+      "subtitulo": "Todo el que entra al sistema: comercios, validadores y el equipo. Aquí no salen los compradores.",
       "vacio": "Todavía no hay cuentas.",
       "verificado": "Correo verificado",
-      "volver": "Volver a usuarios",
+      "volver": "Volver a cuentas",
       "desde": "Desde el {fecha}",
       "laCuenta": "La cuenta",
       "laEmpresa": "La empresa",

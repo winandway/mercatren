@@ -1,4 +1,4 @@
-import { LayoutDashboard, MapPin } from "lucide-react";
+import { LayoutDashboard, MapPin, UserRound } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
@@ -91,15 +91,27 @@ export async function Encabezado() {
               trabajaEnElPanel={trabajaEnElPanel}
             />
           ) : (
+            /**
+             * ENTRAR TIENE QUE VERSE EN EL CELULAR.
+             *
+             * Estaba en `hidden sm:block`, así que en un teléfono no había
+             * NINGUNA forma de entrar ni de crear cuenta desde el encabezado —
+             * y el teléfono es por donde entra casi todo el mundo. Ahora en
+             * pantalla chica sale el icono, y en grande el texto de siempre.
+             */
             <Link
               href="/entrar"
-              className="celda-encabezado hidden text-xs sm:block"
+              aria-label={t("identificate")}
+              className="celda-encabezado flex shrink-0 items-center gap-1.5 text-xs"
             >
-              <span className="block max-w-32 truncate text-white/70">
-                {t("hola")}
-              </span>
-              <span className="block text-sm font-bold">
-                {t("identificate")}
+              <UserRound className="h-5 w-5 sm:hidden" aria-hidden />
+              <span className="hidden sm:block">
+                <span className="block max-w-32 truncate text-white/70">
+                  {t("hola")}
+                </span>
+                <span className="block text-sm font-bold">
+                  {t("identificate")}
+                </span>
               </span>
             </Link>
           )}
@@ -131,6 +143,14 @@ export async function Encabezado() {
               texto: `${locale === "en" ? (c.nombreEn ?? c.nombreEs) : c.nombreEs} (${c.cuantos})`,
             }))}
             secciones={[
+              /* En el celular este menú es la vía principal: aquí tiene que
+                 estar la entrada, que es lo primero que busca quien llega. */
+              ...(usuario
+                ? []
+                : [
+                    { href: "/entrar", texto: t("identificate") },
+                    { href: "/registro", texto: t("crearCuenta") },
+                  ]),
               { href: "/catalogo", texto: t("catalogo") },
               { href: "/vender", texto: t("vender") },
               { href: "/como-funciona", texto: t("comoFunciona") },

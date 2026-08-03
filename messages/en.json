@@ -31,7 +31,8 @@
     "agotado": "Out of stock",
     "cambiarIdioma": "Change language",
     "comprasEn": "You shop in the United States and pay in dollars.",
-    "panel": "Panel"
+    "panel": "Panel",
+    "crearCuenta": "Create account"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., get it wherever you are",
@@ -291,11 +292,11 @@
       "billetera": "Wallet",
       "ordenes": "Orders",
       "tiendas": "Merchants",
-      "clientes": "Customers",
+      "clientes": "Buyers",
       "configuracion": "Settings",
       "miTienda": "My store",
       "misProductos": "My products",
-      "usuarios": "Users"
+      "usuarios": "Accounts"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -651,17 +652,18 @@
       "todos": "All"
     },
     "clientes": {
-      "titulo": "Customers",
+      "titulo": "Buyers",
       "subtitulo": "Who has bought from you and how much they've spent.",
-      "subtituloEquipo": "Everyone who has bought on Mercatren.",
-      "vacio": "No customers yet.",
+      "subtituloEquipo": "Everyone who has bought from a Mercatren store.",
+      "vacio": "Nobody has bought yet. The first purchase will show up here.",
       "columna": {
         "cliente": "Customer",
         "pedidos": "Orders",
         "gastado": "Spent",
         "ultimo": "Last purchase"
       },
-      "pedidos": "{n, plural, =1 {# order} other {# orders}}"
+      "pedidos": "{n, plural, =1 {# order} other {# orders}}",
+      "pista": "Looking for a store or a system account? They're under Accounts."
     },
     "configuracion": {
       "titulo": "Settings",
@@ -806,11 +808,11 @@
       "ponlePrecioAlProducto": "Set a price for the product."
     },
     "usuarios": {
-      "titulo": "Users",
-      "subtitulo": "Every account in the system: stores, validators and the team.",
+      "titulo": "Accounts",
+      "subtitulo": "Everyone who signs in: stores, validators and the team. Buyers are not listed here.",
       "vacio": "No accounts yet.",
       "verificado": "Email verified",
-      "volver": "Back to users",
+      "volver": "Back to accounts",
       "desde": "Since {fecha}",
       "laCuenta": "The account",
       "laEmpresa": "The company",

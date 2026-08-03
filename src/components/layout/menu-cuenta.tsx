@@ -66,15 +66,21 @@ export function MenuCuenta({
         type="button"
         onClick={() => setAbierto((v) => !v)}
         aria-expanded={abierto}
-        className="celda-encabezado hidden items-center gap-1 text-left text-xs sm:flex"
+        aria-label={t("cuentaYListas")}
+        className="celda-encabezado flex shrink-0 items-center gap-1 text-left text-xs"
       >
-        <span className="min-w-0">
+        {/* En el celular solo cabe el icono; en pantalla grande, el saludo. */}
+        <UserRound className="h-5 w-5 sm:hidden" aria-hidden />
+        <span className="hidden min-w-0 sm:block">
           <span className="block max-w-32 truncate text-white/70">
             {`${t("hola")} ${nombre.split(" ")[0]}`}
           </span>
           <span className="block text-sm font-bold">{t("cuentaYListas")}</span>
         </span>
-        <ChevronDown className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
+        <ChevronDown
+          className="hidden h-3 w-3 shrink-0 opacity-70 sm:block"
+          aria-hidden
+        />
       </button>
 
       {abierto ? (

@@ -1,6 +1,8 @@
 import { Users } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Link } from "@/i18n/navigation";
+
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -28,6 +30,7 @@ export default async function PaginaClientes({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.clientes");
+  const tm = await getTranslations("panel.menu");
   const { comercio } = await searchParams;
 
   const alcance = await obtenerAlcance();
@@ -46,6 +49,18 @@ export default async function PaginaClientes({
         <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
           <Users className="mx-auto h-10 w-10 text-tinta-suave" aria-hidden />
           <p className="mt-4 text-sm text-tinta-suave">{t("vacio")}</p>
+
+          {/* Aquí es donde se confunde la gente: entra buscando un comercio y
+              encuentra la pantalla vacía. Se le dice a dónde ir. */}
+          <p className="mt-2 text-sm text-tinta-suave">
+            {t("pista")}{" "}
+            <Link
+              href="/panel/usuarios"
+              className="font-semibold text-carga-600 hover:underline"
+            >
+              {tm("usuarios")}
+            </Link>
+          </p>
         </div>
       ) : (
         <ul className="space-y-2">
