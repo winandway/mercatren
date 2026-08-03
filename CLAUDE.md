@@ -497,6 +497,14 @@ npm run cf:tipos        # regenerar tipos de los bindings
 npm run cf:build        # compilar para YaDominios Cloud
 ```
 
+**La clave de sesiones se resuelve sola.** `BETTER_AUTH_SECRET` manda si
+está cargada en el panel; si no, el sitio genera una la primera vez y la
+guarda en su propia base (tabla `configuracion`, llave `auth_secret`). Se
+hizo así porque un sitio recién publicado se quedaba sin poder autenticar a
+nadie hasta que una persona entrara al panel a cargarla, y eso pasó de verdad
+en producción. Cargar la variable después sigue siendo lo correcto y tiene
+prioridad.
+
 **Secretos:** nunca en el repositorio. Local en `.dev.vars`, producción en el
 panel de YaDominios Cloud. La lista está en `.env.example`.
 

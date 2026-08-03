@@ -31,7 +31,8 @@ export const ROLES_INTERNOS: Rol[] = ["soporte", "validador"];
 
 /** La sesion de esta peticion. Se consulta una sola vez por peticion. */
 export const obtenerSesion = cache(async () => {
-  return getAuth().api.getSession({ headers: await headers() });
+  const auth = await getAuth();
+  return auth.api.getSession({ headers: await headers() });
 });
 
 export const obtenerUsuario = cache(async () => {

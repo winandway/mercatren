@@ -45,6 +45,12 @@ CREATE TABLE `categorias` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX `idx_categorias_tienda_slug` ON `categorias` (`tienda_id`,`slug`);--> statement-breakpoint
 CREATE INDEX `idx_categorias_padre` ON `categorias` (`padre_id`);--> statement-breakpoint
+CREATE TABLE `configuracion` (
+	`clave` text PRIMARY KEY NOT NULL,
+	`valor` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `fuentes_catalogo` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text NOT NULL,

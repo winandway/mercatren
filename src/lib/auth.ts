@@ -6,6 +6,8 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { cache } from "react";
 
+import { eq } from "drizzle-orm";
+
 import { getDb, schema } from "@/lib/db";
 import { RUTA_AUTH } from "@/lib/rutas";
 
@@ -19,18 +21,61 @@ import { RUTA_AUTH } from "@/lib/rutas";
  * archivos estaticos antes de llegar al codigo, asi que el login vive en
  * /datos/auth (ver src/lib/rutas.ts).
  */
-export const getAuth = cache(() => {
-  const { env } = getCloudflareContext();
+/** La clave guardada en la base, bajo esta llave. */
+const LLAVE_SECRETO = "auth_secret";
 
-  // Sin esta clave no se puede firmar ninguna sesion, asi que NADIE entra ni
-  // se registra. El fallo de serie es un 500 mudo que no dice que pasa; se
-  // cambia por un aviso que se entiende leyendo los registros del sitio.
-  if (!env.BETTER_AUTH_SECRET) {
-    throw new Error(
-      "Falta BETTER_AUTH_SECRET en las variables del sitio. Sin ella no se " +
-        "puede entrar ni crear cuentas. Se genera con: openssl rand -base64 32",
-    );
-  }
+/**
+ * La clave con la que se firman las sesiones.
+ *
+ * Sin ella NADIE puede entrar ni crear una cuenta. Se busca en dos sitios, en
+ * este orden:
+ *
+ *   1. La variable de entorno del panel. Es lo correcto y SIEMPRE manda.
+ *   2. La propia base del sitio. Si nadie cargo la variable, el sitio se
+ *      genera una la primera vez y la guarda ahi.
+ *
+ * El segundo camino existe porque el repositorio es publico y la clave no
+ * puede ir en el codigo: sin el, un sitio recien publicado se queda sin
+ * poder autenticar a nadie hasta que una persona entre al panel a cargarla,
+ * y eso es justo lo que paso en produccion. La base del sitio es privada, asi
+ * que guardarla ahi no la expone mas de lo que la expondria el panel.
+ *
+ * El INSERT es "o ignora": si dos peticiones llegan a la vez, gana una sola y
+ * las dos terminan usando la misma clave.
+ */
+async function secretoDeSesiones(env: CloudflareEnv) {
+  if (env.BETTER_AUTH_SECRET) return env.BETTER_AUTH_SECRET;
+
+  const db = getDb();
+
+  const [guardado] = await db
+    .select({ valor: schema.configuracion.valor })
+    .from(schema.configuracion)
+    .where(eq(schema.configuracion.clave, LLAVE_SECRETO))
+    .limit(1);
+
+  if (guardado?.valor) return guardado.valor;
+
+  // Se genera con el generador criptografico del entorno, no con Math.random.
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  const nuevo = btoa(String.fromCharCode(...bytes));
+
+  await db
+    .insert(schema.configuracion)
+    .values({ clave: LLAVE_SECRETO, valor: nuevo })
+    .onConflictDoNothing();
+
+  const [definitivo] = await db
+    .select({ valor: schema.configuracion.valor })
+    .from(schema.configuracion)
+    .where(eq(schema.configuracion.clave, LLAVE_SECRETO))
+    .limit(1);
+
+  return definitivo?.valor ?? nuevo;
+}
+
+export const getAuth = cache(async () => {
+  const { env } = getCloudflareContext();
 
   return betterAuth({
     database: drizzleAdapter(getDb(), {
@@ -38,7 +83,7 @@ export const getAuth = cache(() => {
       schema,
     }),
     basePath: RUTA_AUTH,
-    secret: env.BETTER_AUTH_SECRET,
+    secret: await secretoDeSesiones(env),
     baseURL: env.NEXT_PUBLIC_SITIO_URL,
 
     emailAndPassword: {

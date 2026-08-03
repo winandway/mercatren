@@ -703,3 +703,22 @@ export type Billetera = typeof billeteras.$inferSelect;
 export type MovimientoBilletera = typeof movimientosBilletera.$inferSelect;
 export type PagoZelle = typeof pagosZelle.$inferSelect;
 export type PagoZelleNuevo = typeof pagosZelle.$inferInsert;
+
+/**
+ * Ajustes internos del sitio que no pueden vivir en el repositorio.
+ *
+ * Existe por un caso concreto: la clave con la que se firman las sesiones.
+ * Sin ella nadie puede entrar, y no puede ir en el codigo porque el
+ * repositorio es publico. Lo normal es cargarla como variable de entorno en
+ * el panel; si ese paso no se hizo, el sitio se genera una y la guarda aqui,
+ * en su propia base, para poder funcionar solo.
+ *
+ * La variable de entorno SIEMPRE manda sobre lo que haya aqui.
+ */
+export const configuracion = sqliteTable("configuracion", {
+  clave: text("clave").primaryKey(),
+  valor: text("valor").notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
