@@ -36,6 +36,12 @@ jobs:
           npm run lint
           npm run test:run
 
+      # La base local nace vacia en esta maquina: hay que crearle las tablas o
+      # la portada (que consulta el catalogo) no levanta. Sin datos: los datos
+      # reales no viven en el repositorio.
+      - name: Preparar la base de datos local
+        run: npx wrangler d1 migrations apply mercatren --local
+
       # Solo el navegador de escritorio: el de celular usa WebKit y en el
       # servidor de compilacion tarda mucho en descargarse.
       - name: Pruebas de punta a punta
