@@ -49,11 +49,15 @@ type Envio = {
 /**
  * Separa "Mercatren <avisos@mercatren.com>" en sus dos partes, porque el
  * servicio los pide en campos distintos.
+ *
+ * OJO CON LOS NOMBRES DE LOS CAMPOS: el servicio usa `email` (no `address`) y
+ * `replyTo` en una sola palabra (no `reply_to`). Con los otros nombres
+ * responde `invalid_request_schema` y no manda nada.
  */
 function partirRemitente(remitente: string) {
   const con = remitente.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
-  if (con) return { name: con[1] || "Mercatren", address: con[2] };
-  return { name: "Mercatren", address: remitente.trim() };
+  if (con) return { name: con[1] || "Mercatren", email: con[2] };
+  return { name: "Mercatren", email: remitente.trim() };
 }
 
 type Respuesta = {
@@ -97,9 +101,9 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        from: { address: de.address, name: de.name },
-        to: [{ address: destino }],
-        reply_to: [{ address: CORREO_CONTACTO }],
+        from: { email: de.email, name: de.name },
+        to: destino,
+        replyTo: CORREO_CONTACTO,
         subject: asunto,
         text: texto,
         html,
