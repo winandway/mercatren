@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   LayoutDashboard,
   Menu,
+  Package,
   Receipt,
   Settings,
   ShieldCheck,
@@ -42,6 +43,7 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
     entradas: [
       // Su propia tienda: la marca, la ficha y los datos de la empresa.
       { href: "/panel/mi-tienda", clave: "miTienda", Icono: Store },
+      { href: "/panel/productos", clave: "misProductos", Icono: Package },
       { href: "/panel/ordenes", clave: "ordenes", Icono: ShoppingBag },
       {
         href: "/panel/tiendas",

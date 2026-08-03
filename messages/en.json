@@ -263,7 +263,8 @@
       "tiendas": "Merchants",
       "clientes": "Customers",
       "configuracion": "Settings",
-      "miTienda": "My store"
+      "miTienda": "My store",
+      "misProductos": "My products"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -495,6 +496,86 @@
         "placeholderWeb": "https://example.com",
         "placeholderHorario": "Days and hours"
       }
+    },
+    "misProductos": {
+      "titulo": "My products",
+      "subtitulo": "Your catalog. What you publish here appears in your store and in search.",
+      "nuevo": "New product",
+      "buscar": "Search my products",
+      "sinTienda": "This account doesn't have a store assigned yet. Write to support.",
+      "vacio": "You don't have any products yet.",
+      "vacioBoton": "Create the first one",
+      "sinResultados": "No product matches your search.",
+      "estados": {
+        "todos": "All",
+        "publicado": "Published",
+        "borrador": "Drafts",
+        "agotado": "Out of stock"
+      },
+      "columna": {
+        "producto": "Product",
+        "precio": "Price",
+        "existencias": "Stock",
+        "estado": "Status"
+      },
+      "sinFoto": "No photo",
+      "publicar": "Publish",
+      "despublicar": "Move to draft",
+      "editar": "Edit",
+      "verEnTienda": "View in store",
+      "acciones": "Actions",
+      "sinControl": "Not tracked",
+      "guardado": "Saved"
+    },
+    "producto": {
+      "tituloNuevo": "New product",
+      "tituloEditar": "Edit product",
+      "volver": "Back to my products",
+      "guardar": "Save product",
+      "guardando": "Saving…",
+      "basico": {
+        "titulo": "The essentials",
+        "texto": "Name and price are the only required fields."
+      },
+      "nombreEs": "Name in Spanish",
+      "nombreEn": "Name in English",
+      "nombreAyuda": "If you leave English blank, the Spanish name is shown.",
+      "descripcionEs": "Description in Spanish",
+      "descripcionEn": "Description in English",
+      "precio": "Price in dollars",
+      "precioAntes": "Compare-at price (for sales)",
+      "precioAyuda": "Use a dot or comma. Example: 12.50",
+      "inventario": {
+        "titulo": "Inventory",
+        "texto": "How much you have and how you sell it."
+      },
+      "existencias": "Stock",
+      "existenciasAyuda": "Decimals are allowed: 13.5 kg, 4.75 meters.",
+      "controla": "Track stock",
+      "controlaAyuda": "Turn this off if you sell to order and never run out.",
+      "unidad": "Sold by",
+      "unidadPlaceholder": "unit, meter, kg, bag",
+      "sku": "Internal code",
+      "skuPlaceholder": "The one you use in your inventory",
+      "marca": "Brand",
+      "marcaPlaceholder": "Product brand",
+      "fotos": {
+        "titulo": "Photos",
+        "texto": "The first one shows in listings. Up to 8."
+      },
+      "agregarFotos": "Add photos",
+      "quitarFoto": "Remove photo",
+      "fotoDeOrigen": "Comes from your other system",
+      "publicacion": {
+        "titulo": "Publishing",
+        "texto": "A draft is invisible until you publish it."
+      },
+      "estado": "Status",
+      "destacado": "Feature in my store",
+      "destacadoAyuda": "It shows first in the listing.",
+      "estadoBorrador": "Draft (hidden)",
+      "estadoPublicado": "Published",
+      "estadoAgotado": "Out of stock"
     }
   },
   "catalogo": {

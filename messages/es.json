@@ -263,7 +263,8 @@
       "tiendas": "Comercios",
       "clientes": "Clientes",
       "configuracion": "Configuración",
-      "miTienda": "Mi tienda"
+      "miTienda": "Mi tienda",
+      "misProductos": "Mis productos"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -495,6 +496,86 @@
         "placeholderWeb": "https://ejemplo.com",
         "placeholderHorario": "Días y horas de atención"
       }
+    },
+    "misProductos": {
+      "titulo": "Mis productos",
+      "subtitulo": "Tu catálogo. Lo que publiques aquí sale en tu tienda y en el buscador.",
+      "nuevo": "Nuevo producto",
+      "buscar": "Buscar en mis productos",
+      "sinTienda": "Esta cuenta todavía no tiene un comercio asignado. Escribe a soporte.",
+      "vacio": "Todavía no tienes productos.",
+      "vacioBoton": "Crear el primero",
+      "sinResultados": "Ningún producto coincide con lo que buscas.",
+      "estados": {
+        "todos": "Todos",
+        "publicado": "Publicados",
+        "borrador": "Borradores",
+        "agotado": "Agotados"
+      },
+      "columna": {
+        "producto": "Producto",
+        "precio": "Precio",
+        "existencias": "Existencias",
+        "estado": "Estado"
+      },
+      "sinFoto": "Sin foto",
+      "publicar": "Publicar",
+      "despublicar": "Pasar a borrador",
+      "editar": "Editar",
+      "verEnTienda": "Ver en la tienda",
+      "acciones": "Acciones",
+      "sinControl": "Sin control",
+      "guardado": "Guardado"
+    },
+    "producto": {
+      "tituloNuevo": "Nuevo producto",
+      "tituloEditar": "Editar producto",
+      "volver": "Volver a mis productos",
+      "guardar": "Guardar producto",
+      "guardando": "Guardando…",
+      "basico": {
+        "titulo": "Lo esencial",
+        "texto": "El nombre y el precio son lo único obligatorio."
+      },
+      "nombreEs": "Nombre en español",
+      "nombreEn": "Nombre en inglés",
+      "nombreAyuda": "Si no pones el inglés, se muestra el español.",
+      "descripcionEs": "Descripción en español",
+      "descripcionEn": "Descripción en inglés",
+      "precio": "Precio en dólares",
+      "precioAntes": "Precio antes (para ofertas)",
+      "precioAyuda": "Usa punto o coma. Ejemplo: 12.50",
+      "inventario": {
+        "titulo": "Inventario",
+        "texto": "Cuánto tienes y cómo lo vendes."
+      },
+      "existencias": "Existencias",
+      "existenciasAyuda": "Puede llevar decimales: 13.5 kg, 4.75 metros.",
+      "controla": "Llevar control de existencias",
+      "controlaAyuda": "Quítalo si vendes por encargo y nunca se agota.",
+      "unidad": "Se vende por",
+      "unidadPlaceholder": "unidad, metro, kg, saco",
+      "sku": "Código interno",
+      "skuPlaceholder": "El que usas en tu inventario",
+      "marca": "Marca",
+      "marcaPlaceholder": "Marca del producto",
+      "fotos": {
+        "titulo": "Fotos",
+        "texto": "La primera es la que se ve en el listado. Hasta 8."
+      },
+      "agregarFotos": "Agregar fotos",
+      "quitarFoto": "Quitar foto",
+      "fotoDeOrigen": "Viene de tu otro sistema",
+      "publicacion": {
+        "titulo": "Publicación",
+        "texto": "Un borrador no lo ve nadie hasta que lo publiques."
+      },
+      "estado": "Estado",
+      "destacado": "Destacar en mi tienda",
+      "destacadoAyuda": "Sale primero en el listado.",
+      "estadoBorrador": "Borrador (no se ve)",
+      "estadoPublicado": "Publicado",
+      "estadoAgotado": "Agotado"
     }
   },
   "catalogo": {

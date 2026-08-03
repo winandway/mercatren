@@ -1,0 +1,47 @@
+import { ArrowLeft } from "lucide-react";
+import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+
+import { FormularioProducto } from "@/components/panel/formulario-producto";
+import { Link } from "@/i18n/navigation";
+import { obtenerMiProducto } from "@/lib/productos/consultas";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * Edicion de un producto del comercio.
+ *
+ * Si el producto no es de su tienda, obtenerMiProducto devuelve null y aqui
+ * sale un 404: al comercio ajeno ni siquiera se le confirma que exista.
+ */
+export default async function PaginaEditarProducto({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}) {
+  const { locale, id } = await params;
+  setRequestLocale(locale);
+
+  const t = await getTranslations("panel.producto");
+  const datos = await obtenerMiProducto(id);
+  if (!datos) notFound();
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <Link
+          href="/panel/productos"
+          className="inline-flex items-center gap-1.5 text-sm text-tinta-suave hover:text-tinta"
+        >
+          <ArrowLeft className="h-4 w-4" aria-hidden />
+          {t("volver")}
+        </Link>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight">
+          {t("tituloEditar")}
+        </h1>
+      </div>
+
+      <FormularioProducto producto={datos.producto} imagenes={datos.imagenes} />
+    </div>
+  );
+}
