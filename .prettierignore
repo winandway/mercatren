@@ -1,0 +1,12 @@
+node_modules
+.next
+.open-next
+.dist-worker
+.wrangler
+out-deploy
+coverage
+public/sw.js
+public/logo_mercatren
+cloudflare-env.d.ts
+package-lock.json
+drizzle/migrations

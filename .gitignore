@@ -30,12 +30,28 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# Secretos: nunca se suben. El unico que si va al repo es el ejemplo vacio.
 .env*
-
-# vercel
-.vercel
+!.env.example
+.dev.vars
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Compilacion para YaDominios Cloud
+/.open-next/
+/.dist-worker/
+/out-deploy/
+/.wrangler/
+
+# Service worker: lo genera Serwist en cada build
+/public/sw.js
+/public/sw.js.map
+/public/swe-worker*.js
+
+# Pruebas de punta a punta
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

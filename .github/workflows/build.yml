@@ -1,0 +1,56 @@
+name: build-para-yadominios-cloud
+
+# Cada vez que se sube algo a main, se compila la aplicacion y el resultado
+# queda en la rama yapanel-build, que es la que YaDominios Cloud publica.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Revisar tipos y pruebas
+        run: |
+          npx tsc --noEmit
+          npm run lint
+          npm run test:run
+
+      # Solo el navegador de escritorio: el de celular usa WebKit y en el
+      # servidor de compilacion tarda mucho en descargarse.
+      - name: Pruebas de punta a punta
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test --project=escritorio
+
+      - name: Compilar con OpenNext
+        run: npx opennextjs-cloudflare build
+
+      - name: Empaquetar en un solo _worker.js
+        run: |
+          npx wrangler deploy --dry-run --outdir=.dist-worker --minify
+          mkdir out-deploy
+          cp .dist-worker/worker.js out-deploy/_worker.js
+          cp -r .open-next/assets/* out-deploy/ 2>/dev/null || true
+          cp yadominios.json out-deploy/ 2>/dev/null || true
+
+      - name: Publicar en la rama yapanel-build
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: yapanel-build
+          publish_dir: ./out-deploy

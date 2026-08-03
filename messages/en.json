@@ -1,0 +1,67 @@
+{
+  "marca": {
+    "nombre": "Mercatren",
+    "lema": "Your cross-border buying and selling agent"
+  },
+  "encabezado": {
+    "buscarPlaceholder": "Search products, stores and brands",
+    "buscar": "Search",
+    "entregarEn": "Deliver to",
+    "paisPorDefecto": "United States",
+    "hola": "Hello",
+    "identificate": "Sign in",
+    "cuentaYListas": "Account & Lists",
+    "pedidos": "Returns & Orders",
+    "carrito": "Cart",
+    "menuTodo": "All",
+    "catalogo": "Catalog",
+    "vender": "Sell on Mercatren",
+    "idioma": "Language",
+    "espanol": "Spanish",
+    "ingles": "English"
+  },
+  "inicio": {
+    "tituloHero": "Shop in the U.S., get it wherever you are",
+    "subtituloHero": "Mercatren buys for you and sells for you. One place to bring products from the United States, and one place for sellers to reach new countries.",
+    "verCatalogo": "Browse catalog",
+    "abrirTienda": "Open my store",
+    "comoFunciona": "How it works",
+    "pasos": {
+      "unoTitulo": "Pick what you want",
+      "unoTexto": "Browse the stores in our catalog, or ask us for a product from any U.S. store.",
+      "dosTitulo": "We buy it for you",
+      "dosTexto": "Mercatren places the order on your behalf, receives the package and checks it before shipping.",
+      "tresTitulo": "It arrives at your door",
+      "tresTexto": "We consolidate, ship and keep you posted at every step until the order is in your hands."
+    },
+    "enConstruccion": "We're building the catalog. You'll be able to shop here very soon."
+  },
+  "piePagina": {
+    "derechos": "All rights reserved.",
+    "desarrolladoPor": "Developed by",
+    "secciones": {
+      "comprar": "Shop",
+      "vender": "Sell",
+      "ayuda": "Help",
+      "empresa": "Company"
+    },
+    "enlaces": {
+      "catalogo": "Catalog",
+      "seguimiento": "Track my order",
+      "abrirTienda": "Open a store",
+      "comisiones": "Fees",
+      "centroAyuda": "Help center",
+      "contacto": "Contact",
+      "terminos": "Terms and conditions",
+      "privacidad": "Privacy"
+    }
+  },
+  "comun": {
+    "cargando": "Loading…",
+    "volverInicio": "Back to home"
+  },
+  "noEncontrado": {
+    "titulo": "We couldn't find this page",
+    "texto": "The address doesn't exist, or the product is no longer available."
+  }
+}

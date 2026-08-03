@@ -1,0 +1,224 @@
+CREATE TABLE `account` (
+	`id` text PRIMARY KEY NOT NULL,
+	`account_id` text NOT NULL,
+	`provider_id` text NOT NULL,
+	`user_id` text NOT NULL,
+	`access_token` text,
+	`refresh_token` text,
+	`id_token` text,
+	`access_token_expires_at` integer,
+	`refresh_token_expires_at` integer,
+	`scope` text,
+	`password` text,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_account_user` ON `account` (`user_id`);--> statement-breakpoint
+CREATE TABLE `billeteras` (
+	`id` text PRIMARY KEY NOT NULL,
+	`usuario_id` text NOT NULL,
+	`saldo_centavos` integer DEFAULT 0 NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`proveedor` text DEFAULT 'tokiia' NOT NULL,
+	`proveedor_billetera_id` text,
+	`estado` text DEFAULT 'activa' NOT NULL,
+	`sincronizado_en` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `billeteras_usuario_id_unique` ON `billeteras` (`usuario_id`);--> statement-breakpoint
+CREATE INDEX `idx_billeteras_usuario` ON `billeteras` (`usuario_id`);--> statement-breakpoint
+CREATE TABLE `categorias` (
+	`id` text PRIMARY KEY NOT NULL,
+	`slug` text NOT NULL,
+	`nombre_es` text NOT NULL,
+	`nombre_en` text NOT NULL,
+	`padre_id` text,
+	`orden` integer DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `categorias_slug_unique` ON `categorias` (`slug`);--> statement-breakpoint
+CREATE INDEX `idx_categorias_padre` ON `categorias` (`padre_id`);--> statement-breakpoint
+CREATE TABLE `imagenes_producto` (
+	`id` text PRIMARY KEY NOT NULL,
+	`producto_id` text NOT NULL,
+	`clave` text NOT NULL,
+	`texto_alt_es` text,
+	`texto_alt_en` text,
+	`orden` integer DEFAULT 0 NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_imagenes_producto` ON `imagenes_producto` (`producto_id`);--> statement-breakpoint
+CREATE TABLE `items_pedido` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`producto_id` text,
+	`tienda_id` text NOT NULL,
+	`titulo` text NOT NULL,
+	`precio_unitario_centavos` integer NOT NULL,
+	`cantidad` integer DEFAULT 1 NOT NULL,
+	`subtotal_centavos` integer NOT NULL,
+	`comision_centavos` integer DEFAULT 0 NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `idx_items_pedido` ON `items_pedido` (`pedido_id`);--> statement-breakpoint
+CREATE INDEX `idx_items_tienda` ON `items_pedido` (`tienda_id`);--> statement-breakpoint
+CREATE TABLE `movimientos_billetera` (
+	`id` text PRIMARY KEY NOT NULL,
+	`billetera_id` text NOT NULL,
+	`tipo` text NOT NULL,
+	`monto_centavos` integer NOT NULL,
+	`saldo_resultante_centavos` integer NOT NULL,
+	`referencia` text,
+	`nota` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`billetera_id`) REFERENCES `billeteras`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_movimientos_billetera` ON `movimientos_billetera` (`billetera_id`);--> statement-breakpoint
+CREATE TABLE `pagos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`metodo` text NOT NULL,
+	`estado` text DEFAULT 'pendiente' NOT NULL,
+	`monto_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`referencia_externa` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE INDEX `idx_pagos_pedido` ON `pagos` (`pedido_id`);--> statement-breakpoint
+CREATE INDEX `idx_pagos_estado` ON `pagos` (`estado`);--> statement-breakpoint
+CREATE TABLE `pedidos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`numero` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`estado` text DEFAULT 'pendiente_pago' NOT NULL,
+	`subtotal_centavos` integer DEFAULT 0 NOT NULL,
+	`envio_centavos` integer DEFAULT 0 NOT NULL,
+	`impuestos_centavos` integer DEFAULT 0 NOT NULL,
+	`total_centavos` integer DEFAULT 0 NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`direccion_entrega` text,
+	`pais_destino` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `pedidos_numero_unique` ON `pedidos` (`numero`);--> statement-breakpoint
+CREATE INDEX `idx_pedidos_cliente` ON `pedidos` (`cliente_id`);--> statement-breakpoint
+CREATE INDEX `idx_pedidos_estado` ON `pedidos` (`estado`);--> statement-breakpoint
+CREATE TABLE `productos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`categoria_id` text,
+	`slug` text NOT NULL,
+	`titulo_es` text NOT NULL,
+	`titulo_en` text NOT NULL,
+	`descripcion_es` text,
+	`descripcion_en` text,
+	`precio_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`existencias` integer DEFAULT 0 NOT NULL,
+	`peso_gramos` integer,
+	`estado` text DEFAULT 'borrador' NOT NULL,
+	`destacado` integer DEFAULT false NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`categoria_id`) REFERENCES `categorias`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `idx_productos_tienda_slug` ON `productos` (`tienda_id`,`slug`);--> statement-breakpoint
+CREATE INDEX `idx_productos_estado` ON `productos` (`estado`);--> statement-breakpoint
+CREATE INDEX `idx_productos_categoria` ON `productos` (`categoria_id`);--> statement-breakpoint
+CREATE TABLE `recargas_zelle` (
+	`id` text PRIMARY KEY NOT NULL,
+	`usuario_id` text NOT NULL,
+	`monto_declarado_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`captura_clave` text,
+	`referencia_zelle` text,
+	`nombre_remitente` text,
+	`estado` text DEFAULT 'pendiente' NOT NULL,
+	`validador_id` text,
+	`nota_validador` text,
+	`revisado_en` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`validador_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `idx_recargas_usuario` ON `recargas_zelle` (`usuario_id`);--> statement-breakpoint
+CREATE INDEX `idx_recargas_estado` ON `recargas_zelle` (`estado`);--> statement-breakpoint
+CREATE TABLE `session` (
+	`id` text PRIMARY KEY NOT NULL,
+	`token` text NOT NULL,
+	`user_id` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`ip_address` text,
+	`user_agent` text,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-breakpoint
+CREATE INDEX `idx_session_user` ON `session` (`user_id`);--> statement-breakpoint
+CREATE TABLE `tiendas` (
+	`id` text PRIMARY KEY NOT NULL,
+	`propietario_id` text NOT NULL,
+	`slug` text NOT NULL,
+	`nombre` text NOT NULL,
+	`descripcion_es` text,
+	`descripcion_en` text,
+	`logo_clave` text,
+	`portada_clave` text,
+	`estado` text DEFAULT 'borrador' NOT NULL,
+	`comision_puntos_base` integer DEFAULT 1000 NOT NULL,
+	`stripe_cuenta_id` text,
+	`pais_origen` text DEFAULT 'US' NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`propietario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `tiendas_slug_unique` ON `tiendas` (`slug`);--> statement-breakpoint
+CREATE INDEX `idx_tiendas_propietario` ON `tiendas` (`propietario_id`);--> statement-breakpoint
+CREATE INDEX `idx_tiendas_estado` ON `tiendas` (`estado`);--> statement-breakpoint
+CREATE TABLE `user` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`email` text NOT NULL,
+	`email_verified` integer DEFAULT false NOT NULL,
+	`image` text,
+	`rol` text DEFAULT 'cliente' NOT NULL,
+	`idioma` text DEFAULT 'es' NOT NULL,
+	`pais_entrega` text,
+	`telefono` text,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
+CREATE INDEX `idx_user_rol` ON `user` (`rol`);--> statement-breakpoint
+CREATE TABLE `verification` (
+	`id` text PRIMARY KEY NOT NULL,
+	`identifier` text NOT NULL,
+	`value` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX `idx_verification_identifier` ON `verification` (`identifier`);

@@ -1,0 +1,67 @@
+{
+  "marca": {
+    "nombre": "Mercatren",
+    "lema": "Tu agente de compras y ventas entre países"
+  },
+  "encabezado": {
+    "buscarPlaceholder": "Buscar productos, tiendas y marcas",
+    "buscar": "Buscar",
+    "entregarEn": "Entregar en",
+    "paisPorDefecto": "Estados Unidos",
+    "hola": "Hola",
+    "identificate": "Identifícate",
+    "cuentaYListas": "Cuenta y listas",
+    "pedidos": "Devoluciones y pedidos",
+    "carrito": "Carrito",
+    "menuTodo": "Todo",
+    "catalogo": "Catálogo",
+    "vender": "Vender en Mercatren",
+    "idioma": "Idioma",
+    "espanol": "Español",
+    "ingles": "Inglés"
+  },
+  "inicio": {
+    "tituloHero": "Compra en Estados Unidos, recibe donde estés",
+    "subtituloHero": "Mercatren compra por ti y vende por ti. Un solo lugar para traer productos de Estados Unidos y para que los vendedores lleguen a nuevos países.",
+    "verCatalogo": "Ver catálogo",
+    "abrirTienda": "Abrir mi tienda",
+    "comoFunciona": "Cómo funciona",
+    "pasos": {
+      "unoTitulo": "Elige lo que quieres",
+      "unoTexto": "Busca entre las tiendas del catálogo o pídenos un producto de cualquier tienda de Estados Unidos.",
+      "dosTitulo": "Nosotros compramos",
+      "dosTexto": "Mercatren hace la compra a tu nombre, recibe el paquete y lo revisa antes de enviarlo.",
+      "tresTitulo": "Te llega a casa",
+      "tresTexto": "Consolidamos, enviamos y te avisamos en cada paso hasta que el pedido esté en tus manos."
+    },
+    "enConstruccion": "Estamos armando el catálogo. Muy pronto vas a poder comprar aquí."
+  },
+  "piePagina": {
+    "derechos": "Todos los derechos reservados.",
+    "desarrolladoPor": "Desarrollado por",
+    "secciones": {
+      "comprar": "Comprar",
+      "vender": "Vender",
+      "ayuda": "Ayuda",
+      "empresa": "Empresa"
+    },
+    "enlaces": {
+      "catalogo": "Catálogo",
+      "seguimiento": "Seguir mi pedido",
+      "abrirTienda": "Abrir una tienda",
+      "comisiones": "Comisiones",
+      "centroAyuda": "Centro de ayuda",
+      "contacto": "Contacto",
+      "terminos": "Términos y condiciones",
+      "privacidad": "Privacidad"
+    }
+  },
+  "comun": {
+    "cargando": "Cargando…",
+    "volverInicio": "Volver al inicio"
+  },
+  "noEncontrado": {
+    "titulo": "No encontramos esta página",
+    "texto": "La dirección no existe o el producto ya no está disponible."
+  }
+}

@@ -1,0 +1,45 @@
+/**
+ * Configuracion del Worker para compilar Mercatren.
+ *
+ * Este archivo lo usa el proceso de compilacion (opennextjs-cloudflare + wrangler)
+ * y el servidor de desarrollo local. En produccion, YaDominios Cloud inyecta por
+ * su cuenta la base de datos (DB), el bucket de archivos (BUCKET) y los estaticos
+ * (ASSETS), asi que los identificadores de aqui solo sirven para trabajar local.
+ *
+ * Lo que rige en la plataforma publicada es yadominios.json.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mercatren",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+
+  // Base de datos SQLite. En local wrangler crea una copia dentro de .wrangler/
+  // y nunca toca nada remoto. En produccion la reemplaza YaDominios Cloud.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mercatren",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle/migrations",
+    },
+  ],
+
+  // Archivos de los vendedores: fotos de productos y capturas de pago.
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "mercatren",
+    },
+  ],
+
+  "observability": {
+    "enabled": true,
+  },
+}

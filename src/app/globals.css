@@ -1,26 +1,68 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* -------------------------------------------------------------------------- */
+/* Identidad de Mercatren                                                     */
+/* -------------------------------------------------------------------------- */
+
+/* Los dos colores oficiales salen del logo:
+   azul #10263A (riel) y naranja #FF6B1A (carga). */
+@theme {
+  /* Azul del riel: barras superiores y pie de pagina. */
+  --color-riel-950: #0a1826;
+  --color-riel-900: #10263a;
+  --color-riel-800: #17334c;
+  --color-riel-700: #204361;
+
+  /* Naranja de la carga: botones principales y detalles. */
+  --color-carga-300: #ffb183;
+  --color-carga-400: #ff8a47;
+  --color-carga-500: #ff6b1a;
+  --color-carga-600: #e05609;
+
+  /* Verde del precio y avisos de disponible. */
+  --color-precio-600: #0f7a4a;
+
+  --color-fondo: #ffffff;
+  --color-tinta: #10263a;
+  --color-tinta-suave: #566573;
+  --color-borde: #e3e6e6;
+
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-fondo);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+  }
+
+  /* Que el foco del teclado siempre se vea: accesibilidad basica. */
+  :focus-visible {
+    outline: 2px solid var(--color-carga-500);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Boton principal, el ambar de Mercatren. */
+  .boton-principal {
+    @apply inline-flex items-center justify-center rounded-lg bg-carga-500 px-5 py-2.5 text-sm font-semibold text-riel-950 transition-colors hover:bg-carga-600 focus-visible:outline-2;
+  }
+
+  .boton-secundario {
+    @apply inline-flex items-center justify-center rounded-lg border border-riel-800 px-5 py-2.5 text-sm font-semibold text-riel-900 transition-colors hover:bg-riel-900 hover:text-white;
+  }
+
+  /* Cada bloque del encabezado oscuro que se ilumina al pasar el mouse. */
+  .celda-encabezado {
+    @apply rounded-sm border border-transparent px-2 py-1 transition-colors hover:border-white/60;
+  }
 }
