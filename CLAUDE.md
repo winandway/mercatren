@@ -26,6 +26,14 @@ Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.
   aunque "hagan falta". Se propone y se espera el sí.
 - Las migraciones se **escriben** libremente en `drizzle/migrations/`, pero
   **aplicarlas contra la base real requiere autorización expresa cada vez**.
+- **Las tablas llegan a producción por `schema.sql`** (en la raíz del repo):
+  YaDominios Cloud lo ejecuta contra `env.DB` en cada publicación. Se genera
+  con `npm run db:schema-cloud` (DDL idempotente + comercio piloto con
+  billetera en CERO + catálogo público) y **se commitea**. Si una migración
+  nueva trae ALTER/DROP, el generador se detiene: ese cambio se piensa a mano.
+- **El histórico Zelle JAMÁS va en schema.sql**: trae nombres y correos de
+  personas reales y el repositorio es público. Se carga aparte, directo a la
+  base, con autorización expresa.
 
 ---
 
@@ -428,6 +436,7 @@ npm run e2e             # pruebas de punta a punta
 npm run typecheck       # revisar tipos
 npm run lint            # revisar código
 npm run db:generar      # generar SQL de migración (NO la aplica)
+npm run db:schema-cloud # regenerar schema.sql (tablas + catálogo para producción)
 npm run db:local        # aplicar migraciones + histórico a la base local
 npm run zelle:importar  # rearmar el SQL del histórico de pagos
 npm run cuenta:crear    # crear una cuenta que entra al panel

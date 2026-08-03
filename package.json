@@ -24,7 +24,8 @@
     "cf:preview": "opennextjs-cloudflare preview",
     "prepare": "husky",
     "cuenta:crear": "node scripts/crear-cuenta.ts",
-    "productos:importar": "node scripts/importar-productos.ts"
+    "productos:importar": "node scripts/importar-productos.ts",
+    "db:schema-cloud": "node scripts/generar-schema-cloud.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [

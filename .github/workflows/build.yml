@@ -59,6 +59,9 @@ jobs:
           cp .dist-worker/worker.js out-deploy/_worker.js
           cp -r .open-next/assets/* out-deploy/ 2>/dev/null || true
           cp yadominios.json out-deploy/ 2>/dev/null || true
+          # YaDominios Cloud ejecuta schema.sql contra la base del sitio en
+          # cada publicacion. Se genera con: npm run db:schema-cloud
+          cp schema.sql out-deploy/
 
       - name: Publicar en la rama yapanel-build
         uses: peaceiris/actions-gh-pages@v4
