@@ -62,7 +62,11 @@ function partirRemitente(remitente: string) {
 
 type Respuesta = {
   success?: boolean;
-  errors?: { message?: string }[];
+  errors?: {
+    message?: string;
+    documentation_url?: string;
+    error_chain?: { message?: string }[];
+  }[];
   result?: { message_id?: string; permanent_bounces?: string[] };
   permanent_bounces?: string[];
 };
@@ -100,8 +104,15 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
         authorization: `Bearer ${token}`,
         "content-type": "application/json",
       },
+      /**
+       * La forma EXACTA del ejemplo oficial: todo texto plano.
+       *
+       * Se probo con `from` como objeto `{email, name}` y el servicio
+       * respondio `invalid_request_schema`. La forma con nombre visible se
+       * escribe a la manera de siempre del correo: `Nombre <buzon@dominio>`.
+       */
       body: JSON.stringify({
-        from: { email: de.email, name: de.name },
+        from: de.name ? `${de.name} <${de.email}>` : de.email,
         to: destino,
         replyTo: CORREO_CONTACTO,
         subject: asunto,
@@ -124,9 +135,23 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
     }
 
     if (!respuesta.ok || !cuerpo?.success) {
+      /**
+       * El detalle completo, no solo el mensaje corto. Cuando el servicio
+       * rechaza la forma del mensaje, el "que campo" viene en los detalles;
+       * sin eso hay que adivinar a ciegas.
+       */
       const motivo =
-        cuerpo?.errors?.map((e) => e.message).join("; ") ||
-        `el servicio respondió HTTP ${respuesta.status}`;
+        cuerpo?.errors
+          ?.map((e) =>
+            [
+              e.message,
+              e.error_chain?.map((c) => c.message).join(" / "),
+              e.documentation_url,
+            ]
+              .filter(Boolean)
+              .join(" · "),
+          )
+          .join("; ") || `el servicio respondió HTTP ${respuesta.status}`;
       console.error(`[correo] rechazado "${asunto}" a ${destino}: ${motivo}`);
       return { enviado: false as const, motivo };
     }
