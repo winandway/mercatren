@@ -296,7 +296,8 @@
       "configuracion": "Settings",
       "miTienda": "My store",
       "misProductos": "My products",
-      "usuarios": "Accounts"
+      "usuarios": "Accounts",
+      "validacionComercio": "Under review"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -500,7 +501,10 @@
         "confirmarRechazo": "Confirm rejection",
         "cancelar": "Cancel",
         "trabajando": "One moment…",
-        "acreditado": "{monto} credited to the merchant."
+        "acreditado": "{monto} credited to the merchant.",
+        "tituloComercio": "Your payments under review",
+        "subtituloComercio": "Payments you received that Mercatren is checking against the bank. Once confirmed, the net amount lands in your wallet.",
+        "avisoComercio": "The Mercatren team checks these against the bank — not the store. That's what makes the verification worth anything: nobody approves their own payments."
       }
     },
     "miTienda": {

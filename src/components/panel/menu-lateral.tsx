@@ -125,6 +125,12 @@ export function MenuLateral({
               </h2>
               <ul className="space-y-0.5">
                 {entradas.map(({ href, clave, Icono }) => {
+                  /* La cola de validación se llama distinto para el comercio:
+                     él no valida nada, solo ve en qué va lo suyo. */
+                  const etiqueta =
+                    clave === "validacion" && !esInterno
+                      ? "validacionComercio"
+                      : clave;
                   const activo =
                     href === "/panel"
                       ? pathname === "/panel"
@@ -152,7 +158,7 @@ export function MenuLateral({
                         ) : null}
                         <Icono className="h-4 w-4 shrink-0" aria-hidden />
                         <span className="min-w-0 flex-1 truncate">
-                          {t(`menu.${clave}`)}
+                          {t(`menu.${etiqueta}`)}
                         </span>
                         {insignia > 0 ? (
                           <span className="shrink-0 rounded-full bg-carga-500 px-1.5 py-0.5 text-[11px] font-bold text-riel-950">

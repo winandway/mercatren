@@ -296,7 +296,8 @@
       "configuracion": "Configuración",
       "miTienda": "Mi tienda",
       "misProductos": "Mis productos",
-      "usuarios": "Cuentas"
+      "usuarios": "Cuentas",
+      "validacionComercio": "En revisión"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -500,7 +501,10 @@
         "confirmarRechazo": "Confirmar rechazo",
         "cancelar": "Cancelar",
         "trabajando": "Un momento…",
-        "acreditado": "Se le acreditó {monto} al comercio."
+        "acreditado": "Se le acreditó {monto} al comercio.",
+        "tituloComercio": "Tus pagos en revisión",
+        "subtituloComercio": "Pagos que recibiste y que Mercatren está comprobando contra el banco. En cuanto se confirmen, el neto entra a tu billetera.",
+        "avisoComercio": "La comprobación la hace el equipo de Mercatren contra el banco, no el comercio. Es lo que le da valor a la verificación: nadie aprueba sus propios cobros."
       }
     },
     "miTienda": {
