@@ -95,6 +95,17 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
 
   const de = partirRemitente(env.CORREO_REMITENTE || CORREO_REMITENTE);
 
+  const mensaje = {
+    from: { address: de.address, name: de.name },
+    to: [destino],
+    ...(CORREO_CONTACTO.endsWith(`@${de.address.split("@")[1]}`)
+      ? { reply_to: CORREO_CONTACTO }
+      : {}),
+    subject: asunto,
+    text: texto,
+    html,
+  };
+
   try {
     const respuesta = await fetch(ENVIO, {
       method: "POST",
@@ -120,21 +131,19 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
        * gente la busca. Cuando `avisos@mercatren.com` tenga reenvio al buzon
        * de verdad, se podra poner aqui y las respuestas llegaran solas.
        */
-      body: JSON.stringify({
-        from: { address: de.address, name: de.name },
-        to: [destino],
-        ...(CORREO_CONTACTO.endsWith(`@${de.address.split("@")[1]}`)
-          ? { reply_to: CORREO_CONTACTO }
-          : {}),
-        subject: asunto,
-        text: texto,
-        html,
-      }),
+      body: JSON.stringify(mensaje),
     });
 
-    const cuerpo = (await respuesta
-      .json()
-      .catch(() => null)) as Respuesta | null;
+    // Se lee como texto para poder enseñarlo tal cual cuando algo falla: el
+    // servicio a veces manda detalles que no caben en la forma esperada.
+    const crudo = await respuesta.text();
+    const cuerpo = (() => {
+      try {
+        return JSON.parse(crudo) as Respuesta;
+      } catch {
+        return null;
+      }
+    })();
 
     const rebotes =
       cuerpo?.result?.permanent_bounces ?? cuerpo?.permanent_bounces;
@@ -147,22 +156,21 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
 
     if (!respuesta.ok || !cuerpo?.success) {
       /**
-       * El detalle completo, no solo el mensaje corto. Cuando el servicio
-       * rechaza la forma del mensaje, el "que campo" viene en los detalles;
-       * sin eso hay que adivinar a ciegas.
+       * La respuesta TAL CUAL, y qué se mandó.
+       *
+       * El servicio devuelve un código sin decir qué campo le molesta, así que
+       * un resumen bonito no sirve para nada: hay que ver la respuesta entera
+       * y el mensaje que salió, lado a lado. Solo se enseña en el panel, al
+       * equipo, y no lleva ningún secreto: el token va en la cabecera, nunca
+       * en el cuerpo.
        */
-      const motivo =
-        cuerpo?.errors
-          ?.map((e) =>
-            [
-              e.message,
-              e.error_chain?.map((c) => c.message).join(" / "),
-              e.documentation_url,
-            ]
-              .filter(Boolean)
-              .join(" · "),
-          )
-          .join("; ") || `el servicio respondió HTTP ${respuesta.status}`;
+      const enviado = JSON.stringify({
+        ...mensaje,
+        text: `(${texto.length} caracteres)`,
+        html: `(${html.length} caracteres)`,
+      });
+
+      const motivo = `HTTP ${respuesta.status} · respondió ${crudo.slice(0, 400)} · se mandó ${enviado.slice(0, 400)}`;
       console.error(`[correo] rechazado "${asunto}" a ${destino}: ${motivo}`);
       return { enviado: false as const, motivo };
     }
