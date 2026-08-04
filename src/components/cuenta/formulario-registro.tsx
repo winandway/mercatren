@@ -36,8 +36,18 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
 
   async function enviar(evento: React.FormEvent) {
     evento.preventDefault();
-    setEnviando(true);
     setError(null);
+
+    // Se corta ANTES de llamar al servidor, con el motivo de verdad. Una
+    // contraseña de 9 caracteres rebotaba en el servidor y la pantalla decía
+    // "puede que ese correo ya esté registrado": la persona cambiaba de
+    // correo tres veces y el problema era la clave. Pasó de verdad.
+    if (clave.length < 10) {
+      setError(t("errorClaveCorta"));
+      return;
+    }
+
+    setEnviando(true);
 
     const { error: fallo } = await authClient.signUp.email(
       { name: nombre.trim(), email: correo.trim(), password: clave },
@@ -47,7 +57,26 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
     setEnviando(false);
 
     if (fallo) {
-      setError(fallo.status === 403 ? t("errorEscudo") : t("errorRegistro"));
+      /**
+       * EL MOTIVO REAL, no uno genérico. Culpar al correo cuando el problema
+       * es la contraseña manda a la persona a pelear con lo que sí estaba
+       * bien. En el registro decir "ese correo ya tiene cuenta" es lo normal
+       * (Amazon lo dice); lo que no se puede es decirlo cuando no es cierto.
+       */
+      const codigo = (fallo as { code?: string }).code;
+      setError(
+        fallo.status === 403
+          ? t("errorEscudo")
+          : codigo === "PASSWORD_TOO_SHORT"
+            ? t("errorClaveCorta")
+            : codigo === "PASSWORD_TOO_LONG"
+              ? t("errorClaveLarga")
+              : codigo === "USER_ALREADY_EXISTS"
+                ? t("errorCorreoOcupado")
+                : codigo === "INVALID_EMAIL"
+                  ? t("errorCorreoInvalido")
+                  : t("errorRegistro"),
+      );
       return;
     }
 
