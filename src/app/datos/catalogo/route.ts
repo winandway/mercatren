@@ -1,0 +1,35 @@
+import { parrillaDeProductos } from "@/lib/catalogo/consultas";
+
+/**
+ * Las siguientes tandas de la parrilla de la portada.
+ *
+ * Va en /datos y no en /api porque en YaDominios Cloud ese prefijo lo capturan
+ * los archivos estáticos antes de llegar al código.
+ *
+ * LA SEMILLA VIENE DEL NAVEGADOR y es la que se generó al entrar. Sin ella
+ * cada tanda barajaría de nuevo, y al bajar se verían productos repetidos y
+ * otros que nunca aparecen. Es la misma visita, así que es el mismo orden.
+ *
+ * Todo lo que sale de aquí es público: son los productos publicados de
+ * comercios activos, lo mismo que ya se ve en el catálogo.
+ */
+export async function GET(peticion: Request) {
+  const url = new URL(peticion.url);
+
+  const pagina = Math.max(1, Number(url.searchParams.get("pagina")) || 1);
+  // Si llega una semilla rara, se usa una fija: mejor un orden estable que un
+  // error. El |0 la deja en entero y descarta cualquier cosa que no sea número.
+  const semilla = Number(url.searchParams.get("semilla")) | 0 || 7919;
+
+  try {
+    const tanda = await parrillaDeProductos(semilla, pagina, 24);
+    return Response.json({
+      productos: tanda.productos,
+      pagina: tanda.pagina,
+      paginas: tanda.paginas,
+    });
+  } catch {
+    // Que la portada deje de crecer es feo; que reviente, peor.
+    return Response.json({ productos: [], pagina, paginas: pagina });
+  }
+}

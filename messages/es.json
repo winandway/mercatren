@@ -69,7 +69,14 @@
     "descubreTexto": "Cambia cada vez que entras.",
     "baratos": "Menos de lo que crees",
     "ofertas": "Bajaron de precio",
-    "verTodos": "Ver los 622 productos"
+    "verTodos": "Ver los 622 productos",
+    "todoElCatalogo": "Todo lo que hay",
+    "cargandoMas": "Trayendo más…",
+    "yaViste": "Ya viste todo el catálogo.",
+    "cuantosHay": "{n} productos",
+    "verTodoDe": "Ver todo",
+    "masVariados": "Más productos",
+    "masVariadosTexto": "De todo un poco, distinto cada vez que entras."
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",

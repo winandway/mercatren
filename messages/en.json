@@ -69,7 +69,14 @@
     "descubreTexto": "Changes every time you visit.",
     "baratos": "Less than you would think",
     "ofertas": "Price just dropped",
-    "verTodos": "See all products"
+    "verTodos": "See all products",
+    "todoElCatalogo": "Everything in store",
+    "cargandoMas": "Loading more…",
+    "yaViste": "That is the whole catalog.",
+    "cuantosHay": "{n} products",
+    "verTodoDe": "See all",
+    "masVariados": "More products",
+    "masVariadosTexto": "A bit of everything, different every time you visit."
   },
   "piePagina": {
     "derechos": "All rights reserved.",

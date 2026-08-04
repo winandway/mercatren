@@ -1,5 +1,7 @@
+"use client";
+
 import { ImageOff } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 import { PrecioTienda } from "@/components/catalogo/precio-tienda";
 import { Link } from "@/i18n/navigation";
@@ -15,15 +17,21 @@ const POCAS_UNIDADES = 5;
  *
  * La foto manda: ocupa casi toda la tarjeta, sobre fondo blanco y sin marco,
  * que es como se ven las tiendas de verdad. Lo demas acompana.
+ *
+ * VA EN EL NAVEGADOR ("use client") aunque no tenga ni un boton. La razon es
+ * la parrilla que carga sola al bajar: esa si es de cliente, y una tarjeta de
+ * servidor no puede vivir dentro. Como aqui lo unico que hacia falta del
+ * servidor eran cuatro etiquetas traducidas, se leen con `useTranslations` y
+ * la tarjeta sirve igual en los dos lados.
  */
-export async function TarjetaProducto({
+export function TarjetaProducto({
   producto,
   idioma,
 }: {
   producto: ProductoLista;
   idioma: Idioma;
 }) {
-  const t = await getTranslations("catalogo.producto");
+  const t = useTranslations("catalogo.producto");
 
   // Si el comercio no tiene traduccion, se muestra el espanol. No se inventa.
   const titulo =
@@ -50,7 +58,9 @@ export async function TarjetaProducto({
   return (
     <Link
       href={`/producto/${producto.slug}`}
-      className="group flex h-full flex-col rounded-xl bg-white p-3 transition-shadow duration-200 hover:shadow-[0_2px_16px_rgba(16,38,58,0.12)]"
+      /* Menos relleno en el celular: con tres por hilera cada tarjeta mide
+         unos 110px, y 12px de aire por lado se comen la foto. */
+      className="group flex h-full flex-col rounded-xl bg-white p-1.5 transition-shadow duration-200 hover:shadow-[0_2px_16px_rgba(16,38,58,0.12)] sm:p-3"
     >
       <div className="relative aspect-square overflow-hidden rounded-lg">
         {producto.imagenUrl ? (

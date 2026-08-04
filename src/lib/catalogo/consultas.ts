@@ -295,199 +295,32 @@ export async function listarComerciosDelCatalogo() {
 
 /** Los productos de una fila de la portada. */
 /**
- * UNA FILA DE LA PORTADA.
- *
- * "azar" baraja de verdad, en la base, en cada visita. Con 622 productos y
- * dos filas fijas, quien entraba tres veces veía exactamente lo mismo tres
- * veces y se iba pensando que la tienda tenía veinte cosas. Barajando, la
- * portada se siente viva y el catálogo entero termina asomándose.
- *
- * ORDER BY RANDOM() sobre 622 filas no cuesta nada. El día que sean cien mil
- * habrá que cambiarlo por una muestra sobre un rango de ids — pero cambiarlo
- * antes de tiempo sería complicar el código por un problema que no existe.
- */
-async function filaDeProductos(
-  orden: "destacados" | "nuevos" | "baratos" | "azar" | "ofertas",
-  limite = 12,
-  departamento?: string,
-) {
-  const db = getDb();
-
-  const criterio =
-    orden === "nuevos"
-      ? desc(productos.creadoEn)
-      : orden === "baratos"
-        ? asc(productos.precioCentavos)
-        : orden === "azar"
-          ? sql`RANDOM()`
-          : orden === "ofertas"
-            ? sql`RANDOM()`
-            : desc(productos.destacado);
-
-  const filas = await db
-    .select({
-      id: productos.id,
-      slug: productos.slug,
-      tituloEs: productos.tituloEs,
-      tituloEn: productos.tituloEn,
-      precioCentavos: productos.precioCentavos,
-      precioAntesCentavos: productos.precioAntesCentavos,
-      moneda: productos.moneda,
-      existencias: productos.existencias,
-      controlaExistencias: productos.controlaExistencias,
-      unidad: productos.unidad,
-      marca: productos.marca,
-      destacado: productos.destacado,
-      tiendaNombre: tiendas.nombre,
-      tiendaSlug: tiendas.slug,
-      fotoUrl: PRIMERA_FOTO.url,
-      fotoClave: PRIMERA_FOTO.clave,
-      fotoAlt: PRIMERA_FOTO.alt,
-    })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(
-      and(
-        VISIBLE,
-        gt(productos.precioCentavos, 0),
-        // Una oferta de verdad: solo si hay precio anterior y es mayor.
-        orden === "ofertas"
-          ? sql`${productos.precioAntesCentavos} > ${productos.precioCentavos}`
-          : undefined,
-        // Los de un departamento: los suyos y los de sus subcategorías.
-        departamento
-          ? sql`${productos.categoriaId} IN (
-              SELECT c.id FROM categorias c
-              WHERE c.slug = ${departamento} AND c.tienda_id IS NULL
-              UNION ALL
-              SELECT h.id FROM categorias h
-              JOIN categorias d ON d.id = h.padre_id
-              WHERE d.slug = ${departamento} AND d.tienda_id IS NULL
-            )`
-          : undefined,
-      ),
-    )
-    // El desempate por azar también, si no las filas barajadas se repiten
-    // entre sí cuando muchos productos comparten el mismo criterio.
-    .orderBy(
-      criterio,
-      orden === "azar" || orden === "ofertas"
-        ? sql`RANDOM()`
-        : desc(productos.actualizadoEn),
-    )
-    .limit(limite);
-
-  return filas.map((f): ProductoLista => ({
-    id: f.id,
-    slug: f.slug,
-    tituloEs: f.tituloEs,
-    tituloEn: f.tituloEn,
-    precioCentavos: f.precioCentavos,
-    precioAntesCentavos: f.precioAntesCentavos,
-    moneda: f.moneda,
-    existencias: f.existencias,
-    controlaExistencias: f.controlaExistencias,
-    unidad: f.unidad,
-    marca: f.marca,
-    destacado: f.destacado,
-    tiendaNombre: f.tiendaNombre,
-    tiendaSlug: f.tiendaSlug,
-    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-    imagenAlt: f.fotoAlt,
-  }));
-}
-
-/**
  * Todo lo que necesita la portada, de una sola vez.
- * Si el catalogo esta vacio devuelve listas vacias y la portada lo maneja.
  *
- * Tambien aguanta una base SIN TABLAS (un sitio recien publicado al que
- * todavia no se le aplicaron las migraciones): antes que tumbar la portada
- * con un error 500, se muestra vacia. El catalogo llega con las migraciones.
+ * Si la base no responde devuelve listas vacias y la portada lo maneja: antes
+ * que tumbarla con un error 500, se muestra vacia.
  */
-export async function obtenerPortada(idioma = "es") {
+export async function obtenerPortada(idioma = "es", semilla = 7919) {
   const vacia = {
-    descubre: [],
-    destacados: [],
-    nuevos: [],
-    baratos: [],
-    ofertas: [],
+    parrilla: { productos: [], total: 0, pagina: 1, paginas: 1 },
     departamentos: [],
+    bandas: [],
     comercios: [],
   };
 
   try {
-    const [
-      descubre,
-      destacados,
-      nuevos,
-      baratos,
-      ofertas,
-      departamentos,
-      comercios,
-    ] = await Promise.all([
-      // La primera fila baraja: es la que decide si quien entra siente que
-      // hay tienda o siente que ya lo vio todo.
-      filaDeProductos("azar", 14),
-      filaDeProductos("destacados", 14),
-      filaDeProductos("nuevos", 14),
-      filaDeProductos("baratos", 14),
-      filaDeProductos("ofertas", 14),
+    const [parrilla, departamentos, bandas, comercios] = await Promise.all([
+      parrillaDeProductos(semilla, 1, 24),
       listarDepartamentosDePortada(idioma),
+      bandasDeDepartamentos(idioma),
       listarComerciosDestacados(),
     ]);
 
-    return {
-      descubre,
-      destacados,
-      nuevos,
-      baratos,
-      ofertas,
-      departamentos,
-      comercios,
-    };
+    return { parrilla, departamentos, bandas, comercios };
   } catch (e) {
     console.error("[portada] la base no respondio; se muestra vacia:", e);
     return vacia;
   }
-}
-
-/** Categorias con una foto de muestra, para los circulos de la portada. */
-export async function listarCategoriasConImagen() {
-  const db = getDb();
-
-  const filas = await db
-    .select({
-      slug: categorias.slug,
-      nombreEs: categorias.nombreEs,
-      nombreEn: categorias.nombreEn,
-      cuantos: count(productos.id),
-      fotoUrl: sql<
-        string | null
-      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} JOIN ${productos} AS p2 ON p2.id = ${imagenesProducto.productoId} WHERE p2.categoria_id = ${categorias.id} AND p2.estado = 'publicado' LIMIT 1)`,
-      fotoClave: sql<
-        string | null
-      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} JOIN ${productos} AS p3 ON p3.id = ${imagenesProducto.productoId} WHERE p3.categoria_id = ${categorias.id} AND p3.estado = 'publicado' LIMIT 1)`,
-    })
-    .from(categorias)
-    .innerJoin(productos, eq(productos.categoriaId, categorias.id))
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(VISIBLE)
-    .groupBy(
-      categorias.id,
-      categorias.slug,
-      categorias.nombreEs,
-      categorias.nombreEn,
-    )
-    .orderBy(desc(count(productos.id)));
-
-  return filas.map((f) => ({
-    slug: f.slug,
-    nombreEs: f.nombreEs,
-    nombreEn: f.nombreEn,
-    cuantos: Number(f.cuantos),
-    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-  }));
 }
 
 /** Comercios con catalogo, para la portada y el listado de tiendas. */
@@ -572,6 +405,23 @@ export type DepartamentoDePortada = {
   cuantos: number;
 };
 
+/**
+ * LOS DEPARTAMENTOS PARA LA PORTADA.
+ *
+ * Salen SIEMPRE los 22, tengan productos o no. Un departamento vacío no es un
+ * hueco: es el cartel que le dice a quien llega "aquí se pueden vender motos".
+ * Esconderlos hasta que alguien venda motos es esperar a que aparezca solo el
+ * vendedor que no sabe que puede vender aquí.
+ *
+ * NO SE TRAE NINGUNA FOTO: el círculo lleva siempre el icono. La imagen de un
+ * departamento de Mercatren no puede depender de qué producto subió un cliente
+ * ese día — esa parte del sitio es nuestra.
+ *
+ * Se cuenta el departamento Y sus subcategorías: los productos de Bley cuelgan
+ * de "PVC" y "Hierro", que a su vez cuelgan de "Ferretería y construcción".
+ * Contando solo el departamento saldría en cero teniendo 622 productos debajo.
+ */
+
 export async function listarDepartamentosDePortada(
   idioma: string,
 ): Promise<DepartamentoDePortada[]> {
@@ -618,4 +468,197 @@ export async function listarDepartamentosDePortada(
       cuantos: Number(fila?.cuantos ?? 0),
     };
   });
+}
+
+/**
+ * LA PARRILLA DE LA PORTADA: todos los productos, barajados, por tandas.
+ *
+ * POR QUÉ NO `ORDER BY RANDOM()` AQUÍ. Barajar de nuevo en cada tanda haría
+ * que la página 2 repitiera productos de la página 1 y se saltara otros: al
+ * bajar, el cliente vería el mismo taladro tres veces. Hace falta un orden
+ * que sea distinto en cada visita pero ESTABLE dentro de la visita.
+ *
+ * La solución es una semilla: se genera una vez al entrar y se arrastra en
+ * todas las tandas. `(rowid * semilla) % primo` reparte las filas de una
+ * forma que parece azar y siempre da el mismo resultado con la misma semilla.
+ * Barato y sin tablas de más.
+ */
+export async function parrillaDeProductos(
+  semilla: number,
+  pagina = 1,
+  porPagina = 24,
+) {
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      id: productos.id,
+      slug: productos.slug,
+      tituloEs: productos.tituloEs,
+      tituloEn: productos.tituloEn,
+      precioCentavos: productos.precioCentavos,
+      precioAntesCentavos: productos.precioAntesCentavos,
+      moneda: productos.moneda,
+      existencias: productos.existencias,
+      controlaExistencias: productos.controlaExistencias,
+      unidad: productos.unidad,
+      marca: productos.marca,
+      destacado: productos.destacado,
+      tiendaNombre: tiendas.nombre,
+      tiendaSlug: tiendas.slug,
+      fotoUrl: PRIMERA_FOTO.url,
+      fotoClave: PRIMERA_FOTO.clave,
+      fotoAlt: PRIMERA_FOTO.alt,
+    })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(and(VISIBLE, gt(productos.precioCentavos, 0)))
+    /**
+     * 104729 es primo: con un primo el reparto no cae en ciclos cortos y no
+     * se agrupan los productos de la misma tienda.
+     *
+     * `rowid` es la columna interna de SQLite y Drizzle no la conoce, asi que
+     * va escrita a mano. Se cualifica con el nombre de la tabla porque hay un
+     * JOIN y sin eso seria ambigua.
+     */
+    .orderBy(sql`((productos.rowid * ${semilla}) % 104729)`, productos.id)
+    .limit(porPagina)
+    .offset((pagina - 1) * porPagina);
+
+  const [conteo] = await db
+    .select({ n: sql<number>`COUNT(*)` })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(and(VISIBLE, gt(productos.precioCentavos, 0)));
+
+  const total = Number(conteo?.n ?? 0);
+
+  return {
+    productos: filas.map((f): ProductoLista => ({
+      id: f.id,
+      slug: f.slug,
+      tituloEs: f.tituloEs,
+      tituloEn: f.tituloEn,
+      precioCentavos: f.precioCentavos,
+      precioAntesCentavos: f.precioAntesCentavos,
+      moneda: f.moneda,
+      existencias: f.existencias,
+      controlaExistencias: f.controlaExistencias,
+      unidad: f.unidad,
+      marca: f.marca,
+      destacado: f.destacado,
+      tiendaNombre: f.tiendaNombre,
+      tiendaSlug: f.tiendaSlug,
+      imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+      imagenAlt: f.fotoAlt,
+    })),
+    total,
+    pagina,
+    paginas: Math.max(1, Math.ceil(total / porPagina)),
+  };
+}
+
+/**
+ * LAS BANDAS DE LA PORTADA: un departamento, sus productos, el siguiente.
+ *
+ * Es como baja Amazon: en vez de una parrilla plana de seiscientas cosas
+ * sueltas, el cliente va pasando por "ferretería", "repuestos", "motos", y en
+ * cada tramo entiende dónde está. Una parrilla plana se lee como un depósito;
+ * las bandas se leen como una tienda por departamentos, que es lo que somos.
+ *
+ * SOLO BAJAN LOS QUE TIENEN PRODUCTOS. Un departamento vacío con un título y
+ * nada debajo parece un error. Los vacíos se quedan arriba en la tira, que es
+ * donde sí sirven: ahí son el cartel que dice "aquí se pueden vender motos".
+ *
+ * Van ordenados por cantidad: primero el que más tiene, que es el que más
+ * probabilidad tiene de enganchar a quien acaba de entrar.
+ */
+export type BandaDeDepartamento = {
+  slug: string;
+  nombre: string;
+  cuantos: number;
+  productos: ProductoLista[];
+};
+
+export async function bandasDeDepartamentos(
+  idioma: string,
+  cuantasBandas = 6,
+  porBanda = 21,
+): Promise<BandaDeDepartamento[]> {
+  const conProductos = (await listarDepartamentosDePortada(idioma))
+    .filter((d) => d.cuantos > 0)
+    .sort((a, b) => b.cuantos - a.cuantos)
+    .slice(0, cuantasBandas);
+
+  if (conProductos.length === 0) return [];
+
+  const db = getDb();
+
+  return Promise.all(
+    conProductos.map(async (d) => {
+      const filas = await db
+        .select({
+          id: productos.id,
+          slug: productos.slug,
+          tituloEs: productos.tituloEs,
+          tituloEn: productos.tituloEn,
+          precioCentavos: productos.precioCentavos,
+          precioAntesCentavos: productos.precioAntesCentavos,
+          moneda: productos.moneda,
+          existencias: productos.existencias,
+          controlaExistencias: productos.controlaExistencias,
+          unidad: productos.unidad,
+          marca: productos.marca,
+          destacado: productos.destacado,
+          tiendaNombre: tiendas.nombre,
+          tiendaSlug: tiendas.slug,
+          fotoUrl: PRIMERA_FOTO.url,
+          fotoClave: PRIMERA_FOTO.clave,
+          fotoAlt: PRIMERA_FOTO.alt,
+        })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .where(
+          and(
+            VISIBLE,
+            gt(productos.precioCentavos, 0),
+            sql`${productos.categoriaId} IN (
+              SELECT c.id FROM categorias c
+               WHERE c.slug = ${d.slug} AND c.tienda_id IS NULL
+              UNION
+              SELECT h.id FROM categorias h
+                JOIN categorias p ON p.id = h.padre_id
+               WHERE p.slug = ${d.slug} AND p.tienda_id IS NULL
+            )`,
+          ),
+        )
+        // Barajado: la banda enseña una muestra, no siempre los mismos 21.
+        .orderBy(sql`RANDOM()`)
+        .limit(porBanda);
+
+      return {
+        slug: d.slug,
+        nombre: d.nombre,
+        cuantos: d.cuantos,
+        productos: filas.map((f): ProductoLista => ({
+          id: f.id,
+          slug: f.slug,
+          tituloEs: f.tituloEs,
+          tituloEn: f.tituloEn,
+          precioCentavos: f.precioCentavos,
+          precioAntesCentavos: f.precioAntesCentavos,
+          moneda: f.moneda,
+          existencias: f.existencias,
+          controlaExistencias: f.controlaExistencias,
+          unidad: f.unidad,
+          marca: f.marca,
+          destacado: f.destacado,
+          tiendaNombre: f.tiendaNombre,
+          tiendaSlug: f.tiendaSlug,
+          imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+          imagenAlt: f.fotoAlt,
+        })),
+      };
+    }),
+  );
 }
