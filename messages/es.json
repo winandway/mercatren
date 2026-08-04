@@ -843,7 +843,12 @@
       "retiroPagado": "Retiro marcado como pagado.",
       "retiroRechazado": "Retiro rechazado. El monto vuelve a estar disponible.",
       "retiroCancelado": "Retiro cancelado. El monto vuelve a estar disponible.",
-      "retiroYaResuelto": "Ese retiro ya lo resolvió alguien más."
+      "retiroYaResuelto": "Ese retiro ya lo resolvió alguien más.",
+      "pedidoNoExiste": "Ese pedido no existe.",
+      "pedidoAjeno": "Ese pedido no es de tu comercio.",
+      "pedidoNoSePuedeAvanzar": "Ese pedido ya no está en ese punto.",
+      "pedidoEnviado": "Pedido marcado como enviado.",
+      "pedidoEntregado": "Pedido marcado como entregado."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -960,6 +965,24 @@
       "seguroCancelar": "¿Seguro que quieres cancelar este retiro?",
       "masOpciones": "Más opciones",
       "pedirPorElComercio": "Registrar un retiro del comercio"
+    },
+    "pedido": {
+      "volver": "Volver a Órdenes",
+      "entrega": "A dónde va",
+      "sinDireccion": "El cliente no dejó una dirección. Escríbele antes de mandarlo.",
+      "telefono": "Teléfono",
+      "notas": "Nota del cliente",
+      "cliente": "Cliente",
+      "loQueLleva": "Lo que lleva",
+      "tuParte": "Solo se muestran tus renglones de este pedido.",
+      "totalTuParte": "Total de tu parte",
+      "total": "Total del pedido",
+      "marcarEnviado": "Marcar como enviado",
+      "marcarEntregado": "Marcar como entregado",
+      "yaCerrado": "Este pedido ya está cerrado.",
+      "sinPagar": "Todavía no está pagado. Cuando se apruebe el comprobante, aquí saldrán los botones para cerrarlo.",
+      "copiar": "Copiar la dirección",
+      "copiada": "Copiada"
     }
   },
   "catalogo": {

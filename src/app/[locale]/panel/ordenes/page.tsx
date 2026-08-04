@@ -188,49 +188,53 @@ export default async function PaginaOrdenes({
             const rechazado = p.estadoPago === "rechazado";
 
             return (
-              <li
-                key={p.numero}
-                className="rounded-xl border border-borde bg-white p-4"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-sm font-bold">
-                        {p.numero}
-                      </span>
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-[11px] font-semibold",
-                          TONO_ESTADO[p.estado],
-                        )}
-                      >
-                        {tp(`estado.${p.estado}`)}
-                      </span>
-                    </p>
-                    <p className="mt-1 truncate text-sm">{p.clienteNombre}</p>
-                    <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-tinta-suave">
-                      <span>{fechaCorta(p.creadoEn, idioma)}</span>
-                      <span>{t("articulos", { n: p.articulos })}</span>
-                      {p.paisDestino ? <span>{p.paisDestino}</span> : null}
+              /* La fila entera abre la ficha: ahí está la dirección de
+                 entrega y el botón que cierra la venta. */
+              <li key={p.numero}>
+                <Link
+                  href={`/panel/ordenes/${p.numero}`}
+                  className="block rounded-xl border border-borde bg-white p-4 transition-colors hover:border-carga-500"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-sm font-bold">
+                          {p.numero}
+                        </span>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                            TONO_ESTADO[p.estado],
+                          )}
+                        >
+                          {tp(`estado.${p.estado}`)}
+                        </span>
+                      </p>
+                      <p className="mt-1 truncate text-sm">{p.clienteNombre}</p>
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-tinta-suave">
+                        <span>{fechaCorta(p.creadoEn, idioma)}</span>
+                        <span>{t("articulos", { n: p.articulos })}</span>
+                        {p.paisDestino ? <span>{p.paisDestino}</span> : null}
+                      </p>
+                    </div>
+
+                    <p className="text-lg font-extrabold tabular-nums">
+                      {formatearPrecio(p.montoCentavos, idioma)}
                     </p>
                   </div>
 
-                  <p className="text-lg font-extrabold tabular-nums">
-                    {formatearPrecio(p.montoCentavos, idioma)}
-                  </p>
-                </div>
-
-                {enRevision ? (
-                  <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-blue-800">
-                    <Clock className="h-3.5 w-3.5" aria-hidden />
-                    {t("pagoEnRevision")}
-                  </p>
-                ) : rechazado ? (
-                  <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-red-700">
-                    <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
-                    {t("pagoRechazado")}
-                  </p>
-                ) : null}
+                  {enRevision ? (
+                    <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-blue-800">
+                      <Clock className="h-3.5 w-3.5" aria-hidden />
+                      {t("pagoEnRevision")}
+                    </p>
+                  ) : rechazado ? (
+                    <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-red-700">
+                      <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
+                      {t("pagoRechazado")}
+                    </p>
+                  ) : null}
+                </Link>
               </li>
             );
           })}

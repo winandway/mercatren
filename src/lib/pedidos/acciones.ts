@@ -2,8 +2,9 @@
 
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { revalidatePath } from "next/cache";
 
-import { obtenerUsuario } from "@/lib/autorizacion";
+import { obtenerAlcance, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
 import {
@@ -266,3 +267,84 @@ export async function listarPedidosPropios() {
 export type PedidoDeLista = Awaited<
   ReturnType<typeof listarPedidosPropios>
 >[number];
+
+/**
+ * EL COMERCIO CIERRA LA VENTA.
+ *
+ * Antes el pedido se quedaba en "pagado" para siempre: nadie tenía forma de
+ * decir que ya lo había entregado. El cliente no sabía en qué iba lo suyo y el
+ * comercio no podía distinguir lo que le faltaba por sacar de lo ya cerrado.
+ *
+ * SOLO SE AVANZA, NUNCA SE RETROCEDE. De "pagado" se pasa a "enviado" o
+ * directo a "entregado" —muchas entregas son en mano, el mismo día— y de
+ * "enviado" a "entregado". Volver atrás no se ofrece: un pedido entregado que
+ * de pronto vuelve a "pagado" es la clase de cosa que nadie sabe explicar
+ * después. Si hubo un error, se resuelve hablando, no cambiando el estado.
+ *
+ * Un pedido sin pagar no se toca: entregar mercancía que nadie pagó no es una
+ * decisión que deba poder tomarse con un clic.
+ */
+const AVANCES: Record<string, string[]> = {
+  pagado: ["enviado", "entregado"],
+  preparando: ["enviado", "entregado"],
+  enviado: ["entregado"],
+};
+
+export async function avanzarPedido(
+  numero: string,
+  nuevoEstado: "enviado" | "entregado",
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
+  const alcance = await obtenerAlcance().catch(() => null);
+  if (!alcance) return { ok: false, mensaje: t("sinPermiso") };
+
+  const db = getDb();
+
+  const [pedido] = await db
+    .select({ id: pedidos.id, estado: pedidos.estado })
+    .from(pedidos)
+    .where(eq(pedidos.numero, numero))
+    .limit(1);
+
+  if (!pedido) return { ok: false, mensaje: t("pedidoNoExiste") };
+
+  // Un comercio solo toca los pedidos en los que vendió algo.
+  if (alcance.tipo === "tienda") {
+    const [suyo] = await db
+      .select({ id: itemsPedido.id })
+      .from(itemsPedido)
+      .where(
+        and(
+          eq(itemsPedido.pedidoId, pedido.id),
+          eq(itemsPedido.tiendaId, alcance.tiendaId),
+        ),
+      )
+      .limit(1);
+
+    if (!suyo) return { ok: false, mensaje: t("pedidoAjeno") };
+  }
+
+  if (!AVANCES[pedido.estado]?.includes(nuevoEstado)) {
+    return { ok: false, mensaje: t("pedidoNoSePuedeAvanzar") };
+  }
+
+  // Con el estado en el WHERE: si otra persona lo movió medio segundo antes,
+  // esta llamada no hace nada en vez de pisar su trabajo.
+  const movido = await db
+    .update(pedidos)
+    .set({ estado: nuevoEstado, actualizadoEn: new Date() })
+    .where(and(eq(pedidos.id, pedido.id), eq(pedidos.estado, pedido.estado)))
+    .returning({ id: pedidos.id });
+
+  if (movido.length === 0) {
+    return { ok: false, mensaje: t("pedidoNoSePuedeAvanzar") };
+  }
+
+  revalidatePath("/[locale]/panel", "layout");
+  return {
+    ok: true,
+    mensaje:
+      nuevoEstado === "enviado" ? t("pedidoEnviado") : t("pedidoEntregado"),
+  };
+}

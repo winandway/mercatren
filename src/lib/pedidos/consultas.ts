@@ -187,3 +187,120 @@ export async function listarClientes(comercioPedido?: string) {
     gastadoCentavos: Number(f.gastadoCentavos),
   }));
 }
+
+/**
+ * UN pedido, con todo lo que hace falta para entregarlo.
+ *
+ * Hasta ahora el panel enseñaba el pedido pero no a dónde mandarlo: el
+ * comercio veía "MT-000012 · pagado" y tenía que llamar al cliente para
+ * preguntarle su dirección. La dirección se guarda en el pedido justo para
+ * esto, congelada tal como estaba el día de la compra.
+ *
+ * ALCANCE: un comercio solo abre un pedido en el que tenga algún renglón, y
+ * solo ve SUS renglones. Un pedido puede mezclar comercios, y lo que le compró
+ * a otro no es asunto suyo.
+ */
+export type PedidoDelPanel = {
+  id: string;
+  numero: string;
+  estado: (typeof ESTADOS_PEDIDO)[number];
+  creadoEn: number;
+  totalCentavos: number;
+  moneda: string;
+  cliente: { nombre: string; correo: string };
+  entrega: {
+    direccion: Record<string, string> | null;
+    pais: string | null;
+    telefono: string | null;
+    notas: string | null;
+  };
+  renglones: {
+    id: string;
+    titulo: string;
+    cantidad: number;
+    subtotalCentavos: number;
+    tiendaId: string | null;
+  }[];
+  /** true cuando los renglones que se ven son solo los de este comercio. */
+  soloDeEsteComercio: boolean;
+};
+
+export async function obtenerPedidoDelPanel(
+  numero: string,
+): Promise<PedidoDelPanel | null> {
+  const db = getDb();
+  const tiendaId = await tiendaDelAlcance();
+
+  const [pedido] = await db
+    .select({
+      id: pedidos.id,
+      numero: pedidos.numero,
+      estado: pedidos.estado,
+      creadoEn: pedidos.creadoEn,
+      totalCentavos: pedidos.totalCentavos,
+      moneda: pedidos.moneda,
+      direccionEntrega: pedidos.direccionEntrega,
+      paisDestino: pedidos.paisDestino,
+      telefonoContacto: pedidos.telefonoContacto,
+      notasCliente: pedidos.notasCliente,
+      clienteNombre: user.name,
+      clienteCorreo: user.email,
+    })
+    .from(pedidos)
+    .innerJoin(user, eq(user.id, pedidos.clienteId))
+    .where(eq(pedidos.numero, numero))
+    .limit(1);
+
+  if (!pedido) return null;
+
+  const renglones = await db
+    .select({
+      id: itemsPedido.id,
+      titulo: itemsPedido.titulo,
+      cantidad: itemsPedido.cantidad,
+      subtotalCentavos: itemsPedido.subtotalCentavos,
+      tiendaId: itemsPedido.tiendaId,
+    })
+    .from(itemsPedido)
+    .where(
+      tiendaId
+        ? and(
+            eq(itemsPedido.pedidoId, pedido.id),
+            eq(itemsPedido.tiendaId, tiendaId),
+          )
+        : eq(itemsPedido.pedidoId, pedido.id),
+    );
+
+  // Un comercio sin ningún renglón aquí no tiene nada que hacer en este
+  // pedido: se responde como si no existiera, igual que con los comprobantes.
+  if (tiendaId && renglones.length === 0) return null;
+
+  return {
+    id: pedido.id,
+    numero: pedido.numero,
+    estado: pedido.estado,
+    creadoEn:
+      pedido.creadoEn instanceof Date
+        ? pedido.creadoEn.getTime()
+        : Number(pedido.creadoEn) * 1000,
+    // A un comercio se le suman SUS renglones, no el total del pedido.
+    totalCentavos: tiendaId
+      ? renglones.reduce((t, r) => t + Number(r.subtotalCentavos), 0)
+      : Number(pedido.totalCentavos),
+    moneda: pedido.moneda,
+    cliente: { nombre: pedido.clienteNombre, correo: pedido.clienteCorreo },
+    entrega: {
+      direccion:
+        (pedido.direccionEntrega as Record<string, string> | null) ?? null,
+      pais: pedido.paisDestino,
+      telefono: pedido.telefonoContacto,
+      notas: pedido.notasCliente,
+    },
+    renglones: renglones.map((r) => ({
+      ...r,
+      cantidad: Number(r.cantidad),
+      subtotalCentavos: Number(r.subtotalCentavos),
+    })),
+    soloDeEsteComercio: Boolean(tiendaId),
+  };
+}

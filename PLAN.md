@@ -25,10 +25,13 @@ aquí a medida que se terminan.
       correo, se pone la clave nueva y se entra con ella. Nunca dice si el
       correo existe o no._
 
-- [ ] **3. Entrega del pedido.** El comercio no ve a dónde mandar el producto
+- [x] **3. Entrega del pedido.** El comercio no ve a dónde mandar el producto
       ni tiene cómo marcarlo entregado, así que el pedido se queda en "pagado"
       para siempre. Falta la ficha con los datos de entrega y el botón que
       cierra la venta.
+      _Ficha nueva en `/panel/ordenes/<número>`: dirección, teléfono, nota del
+      cliente, qué lleva y los botones para cerrarla. Probado: pasa a
+      "Entregado" y los botones desaparecen._
 
 - [ ] **4. Probar en el navegador, publicar y verificar en vivo.** Los tres de
       arriba se ven en pantalla, así que van al preview antes del build, con

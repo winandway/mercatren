@@ -843,7 +843,12 @@
       "retiroPagado": "Withdrawal marked as paid.",
       "retiroRechazado": "Withdrawal declined. The amount is available again.",
       "retiroCancelado": "Withdrawal canceled. The amount is available again.",
-      "retiroYaResuelto": "Someone else already handled that withdrawal."
+      "retiroYaResuelto": "Someone else already handled that withdrawal.",
+      "pedidoNoExiste": "That order does not exist.",
+      "pedidoAjeno": "That order does not belong to your store.",
+      "pedidoNoSePuedeAvanzar": "That order is no longer at that stage.",
+      "pedidoEnviado": "Order marked as shipped.",
+      "pedidoEntregado": "Order marked as delivered."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -960,6 +965,24 @@
       "seguroCancelar": "Are you sure you want to cancel this withdrawal?",
       "masOpciones": "More options",
       "pedirPorElComercio": "Record a merchant withdrawal"
+    },
+    "pedido": {
+      "volver": "Back to Orders",
+      "entrega": "Where it goes",
+      "sinDireccion": "The customer did not leave an address. Write to them before shipping.",
+      "telefono": "Phone",
+      "notas": "Customer note",
+      "cliente": "Customer",
+      "loQueLleva": "What is in it",
+      "tuParte": "Only your line items for this order are shown.",
+      "totalTuParte": "Your share total",
+      "total": "Order total",
+      "marcarEnviado": "Mark as shipped",
+      "marcarEntregado": "Mark as delivered",
+      "yaCerrado": "This order is already closed.",
+      "sinPagar": "Not paid yet. Once the receipt is approved, the buttons to close it will appear here.",
+      "copiar": "Copy the address",
+      "copiada": "Copied"
     }
   },
   "catalogo": {
