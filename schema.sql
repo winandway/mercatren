@@ -359,11 +359,11 @@ CREATE INDEX IF NOT EXISTS `idx_retiros_fecha` ON `retiros` (`creado_en`);
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785861390, 1785861390)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785862355, 1785862355)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785861390)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785862355)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
@@ -435,4 +435,7 @@ VALUES ('dep-agro-campo', NULL, 'agro-campo', 'Agro y campo', 'Farm & Agricultur
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
 VALUES ('dep-industrial-equipos', NULL, 'industrial-equipos', 'Industrial y equipos', 'Industrial & Equipment', NULL, 21)
+ON CONFLICT(id) DO NOTHING;
+INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
+VALUES ('dep-otros', NULL, 'otros', 'Otros', 'Other', NULL, 22)
 ON CONFLICT(id) DO NOTHING;
