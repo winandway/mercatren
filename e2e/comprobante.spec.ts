@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import es from "../messages/es.json";
+
 /**
  * La subida del comprobante, en el telefono.
  *
@@ -32,9 +34,17 @@ test.describe("Subir el comprobante", () => {
     );
 
     await page.goto("/es/entrar");
-    await page.getByLabel(/Correo/i).fill(CUENTA.email);
-    await page.getByLabel(/Contraseña/i).fill(CUENTA.clave);
-    await page.getByRole("button", { name: "Entrar" }).click();
+    /* Por ROL y con el texto de los mensajes, no por etiqueta suelta:
+       "Contraseña" también casa con el botón del ojito que hay dentro de la
+       casilla, y el texto del botón cambió de "Entrar" a "Iniciar sesión". Las
+       dos cosas dejaron esta prueba rota sin que nadie lo viera. */
+    await page
+      .getByRole("textbox", { name: es.entrar.correo })
+      .fill(CUENTA.email);
+    await page
+      .getByRole("textbox", { name: es.entrar.clave })
+      .fill(CUENTA.clave);
+    await page.getByRole("button", { name: es.entrar.entrar }).click();
 
     const respuesta = await page.goto(`/es/pedido/${PEDIDO}`);
     test.skip(

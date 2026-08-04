@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import es from "../messages/es.json";
+
 /**
  * El panel muestra dinero real de comercios y datos de quienes pagaron.
  * Estas pruebas cuidan que no se pueda mirar sin permiso.
@@ -19,8 +21,11 @@ test.describe("Panel sin sesion", () => {
     test(`${ruta} manda a la pantalla de entrar`, async ({ page }) => {
       await page.goto(ruta);
       await expect(page).toHaveURL(/\/es\/entrar/);
+      /* El título sale de los textos, no escrito a mano aquí. Cuando pasó
+         de "Entrar" a "Iniciar sesión", esta prueba se quedó atrás y estuvo
+         tumbando la publicación sin que nadie lo notara. */
       await expect(
-        page.getByRole("heading", { level: 1, name: "Entrar" }),
+        page.getByRole("heading", { level: 1, name: es.entrar.titulo }),
       ).toBeVisible();
     });
   }
