@@ -29,6 +29,8 @@
  * ahi hay que decidir a mano como llevar ese cambio a produccion.
  */
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+
+import { DEPARTAMENTOS } from "../src/lib/catalogo/departamentos.ts";
 import path from "node:path";
 
 const RAIZ = process.cwd();
@@ -94,6 +96,38 @@ function seedDelPiloto() {
   ].join("\n");
 }
 
+/**
+ * LOS DEPARTAMENTOS DE MERCATREN.
+ *
+ * Viven en `categorias` con `tienda_id = NULL`, que es lo que significa "de la
+ * casa, no de un comercio". Se siembran aqui para que lleguen solos a
+ * produccion en cada publicacion: son navegacion del sitio, no datos de un
+ * cliente, asi que no tiene sentido cargarlos a mano.
+ *
+ * DO NOTHING sobre el slug: republicar mil veces deja exactamente los mismos.
+ * Si manana se renombra uno en departamentos.ts, el nombre nuevo NO pisa al
+ * viejo — eso se hace a proposito, con un UPDATE pensado, no de rebote en un
+ * despliegue.
+ */
+function seedDeDepartamentos() {
+  const lineas = [
+    "-- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──",
+    "-- Es la lista cerrada que elige el vendedor. Si cada comercio inventara",
+    "-- la suya, el mismo taladro acabaria en cuatro categorias distintas y",
+    "-- quien busca taladros encontraria una.",
+  ];
+
+  for (const [indice, d] of DEPARTAMENTOS.entries()) {
+    lineas.push(
+      `INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)`,
+      `VALUES (${texto(`dep-${d.slug}`)}, NULL, ${texto(d.slug)}, ${texto(d.es)}, ${texto(d.en)}, NULL, ${indice})`,
+      "ON CONFLICT(id) DO NOTHING;",
+    );
+  }
+
+  return lineas.join("\n");
+}
+
 const partes = [
   "-- schema.sql — YaDominios Cloud lo ejecuta contra env.DB en cada publicacion.",
   "-- Generado por scripts/generar-schema-cloud.ts. NO editar a mano:",
@@ -105,6 +139,8 @@ const partes = [
   ...ddlIdempotente(),
   "",
   seedDelPiloto(),
+  "",
+  seedDeDepartamentos(),
   "",
 ];
 

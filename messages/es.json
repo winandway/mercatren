@@ -61,7 +61,15 @@
     "comerciosTexto": "Cada comercio con su propia tienda. Entra y mira todo lo que tiene.",
     "verTienda": "Entrar a la tienda",
     "productosDisponibles": "{n, plural, one {# producto} other {# productos}}",
-    "catalogoVacio": "Estamos cargando el catálogo. Muy pronto vas a poder comprar aquí."
+    "catalogoVacio": "Estamos cargando el catálogo. Muy pronto vas a poder comprar aquí.",
+    "departamentos": "Compra por departamento",
+    "departamentosTexto": "Todo lo que se mueve en Mercatren, ordenado. Toca uno y mira lo que hay.",
+    "proximamente": "Próximamente",
+    "descubre": "Descubre algo nuevo",
+    "descubreTexto": "Cambia cada vez que entras.",
+    "baratos": "Menos de lo que crees",
+    "ofertas": "Bajaron de precio",
+    "verTodos": "Ver los 622 productos"
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",
@@ -637,7 +645,10 @@
       "destacadoAyuda": "Sale primero en el listado.",
       "estadoBorrador": "Borrador (no se ve)",
       "estadoPublicado": "Publicado",
-      "estadoAgotado": "Agotado"
+      "estadoAgotado": "Agotado",
+      "departamento": "Departamento",
+      "sinDepartamento": "Sin departamento",
+      "departamentoAyuda": "Elige dónde va tu producto. Sin esto se vende igual, pero no sale cuando la gente navega la portada."
     },
     "ordenes": {
       "titulo": "Órdenes",

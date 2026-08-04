@@ -2,6 +2,10 @@ import "server-only";
 
 import { and, asc, count, desc, eq, gt, sql } from "drizzle-orm";
 
+import {
+  DEPARTAMENTOS,
+  nombreDepartamento,
+} from "@/lib/catalogo/departamentos";
 import { getDb } from "@/lib/db";
 
 import { condicionDeBusqueda } from "./buscar";
@@ -91,8 +95,26 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
 
   const condiciones = [VISIBLE];
 
+  /**
+   * El slug puede ser un DEPARTAMENTO de Mercatren o una categoria del propio
+   * comercio, y desde fuera no se distinguen: los dos llegan igual en la
+   * direccion. Se acepta cualquiera de los dos.
+   *
+   * Si es departamento hay que traer tambien lo que cuelga de el. Los
+   * productos de Bley estan en "PVC" y "Hierro", que cuelgan de "Ferreteria y
+   * construccion": buscando solo el departamento, quien lo toca veria cero
+   * productos teniendo 622 debajo. Eso pasaba y por eso esta esta consulta.
+   */
   if (filtros.categoria) {
-    condiciones.push(eq(categorias.slug, filtros.categoria));
+    condiciones.push(
+      sql`${productos.categoriaId} IN (
+        SELECT c.id FROM categorias c WHERE c.slug = ${filtros.categoria}
+        UNION
+        SELECT h.id FROM categorias h
+          JOIN categorias d ON d.id = h.padre_id
+         WHERE d.slug = ${filtros.categoria} AND d.tienda_id IS NULL
+      )`,
+    );
   }
   if (filtros.comercio) {
     condiciones.push(eq(tiendas.slug, filtros.comercio));
@@ -272,9 +294,22 @@ export async function listarComerciosDelCatalogo() {
 /* -------------------------------------------------------------------------- */
 
 /** Los productos de una fila de la portada. */
+/**
+ * UNA FILA DE LA PORTADA.
+ *
+ * "azar" baraja de verdad, en la base, en cada visita. Con 622 productos y
+ * dos filas fijas, quien entraba tres veces veía exactamente lo mismo tres
+ * veces y se iba pensando que la tienda tenía veinte cosas. Barajando, la
+ * portada se siente viva y el catálogo entero termina asomándose.
+ *
+ * ORDER BY RANDOM() sobre 622 filas no cuesta nada. El día que sean cien mil
+ * habrá que cambiarlo por una muestra sobre un rango de ids — pero cambiarlo
+ * antes de tiempo sería complicar el código por un problema que no existe.
+ */
 async function filaDeProductos(
-  orden: "destacados" | "nuevos" | "baratos",
+  orden: "destacados" | "nuevos" | "baratos" | "azar" | "ofertas",
   limite = 12,
+  departamento?: string,
 ) {
   const db = getDb();
 
@@ -283,7 +318,11 @@ async function filaDeProductos(
       ? desc(productos.creadoEn)
       : orden === "baratos"
         ? asc(productos.precioCentavos)
-        : desc(productos.destacado);
+        : orden === "azar"
+          ? sql`RANDOM()`
+          : orden === "ofertas"
+            ? sql`RANDOM()`
+            : desc(productos.destacado);
 
   const filas = await db
     .select({
@@ -307,8 +346,35 @@ async function filaDeProductos(
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(and(VISIBLE, gt(productos.precioCentavos, 0)))
-    .orderBy(criterio, desc(productos.actualizadoEn))
+    .where(
+      and(
+        VISIBLE,
+        gt(productos.precioCentavos, 0),
+        // Una oferta de verdad: solo si hay precio anterior y es mayor.
+        orden === "ofertas"
+          ? sql`${productos.precioAntesCentavos} > ${productos.precioCentavos}`
+          : undefined,
+        // Los de un departamento: los suyos y los de sus subcategorías.
+        departamento
+          ? sql`${productos.categoriaId} IN (
+              SELECT c.id FROM categorias c
+              WHERE c.slug = ${departamento} AND c.tienda_id IS NULL
+              UNION ALL
+              SELECT h.id FROM categorias h
+              JOIN categorias d ON d.id = h.padre_id
+              WHERE d.slug = ${departamento} AND d.tienda_id IS NULL
+            )`
+          : undefined,
+      ),
+    )
+    // El desempate por azar también, si no las filas barajadas se repiten
+    // entre sí cuando muchos productos comparten el mismo criterio.
+    .orderBy(
+      criterio,
+      orden === "azar" || orden === "ofertas"
+        ? sql`RANDOM()`
+        : desc(productos.actualizadoEn),
+    )
     .limit(limite);
 
   return filas.map((f): ProductoLista => ({
@@ -339,19 +405,50 @@ async function filaDeProductos(
  * todavia no se le aplicaron las migraciones): antes que tumbar la portada
  * con un error 500, se muestra vacia. El catalogo llega con las migraciones.
  */
-export async function obtenerPortada() {
+export async function obtenerPortada(idioma = "es") {
+  const vacia = {
+    descubre: [],
+    destacados: [],
+    nuevos: [],
+    baratos: [],
+    ofertas: [],
+    departamentos: [],
+    comercios: [],
+  };
+
   try {
-    const [destacados, nuevos, categorias, comercios] = await Promise.all([
-      filaDeProductos("destacados"),
-      filaDeProductos("nuevos"),
-      listarCategoriasConImagen(),
+    const [
+      descubre,
+      destacados,
+      nuevos,
+      baratos,
+      ofertas,
+      departamentos,
+      comercios,
+    ] = await Promise.all([
+      // La primera fila baraja: es la que decide si quien entra siente que
+      // hay tienda o siente que ya lo vio todo.
+      filaDeProductos("azar", 14),
+      filaDeProductos("destacados", 14),
+      filaDeProductos("nuevos", 14),
+      filaDeProductos("baratos", 14),
+      filaDeProductos("ofertas", 14),
+      listarDepartamentosDePortada(idioma),
       listarComerciosDestacados(),
     ]);
 
-    return { destacados, nuevos, categorias, comercios };
+    return {
+      descubre,
+      destacados,
+      nuevos,
+      baratos,
+      ofertas,
+      departamentos,
+      comercios,
+    };
   } catch (e) {
     console.error("[portada] la base no respondio; se muestra vacia:", e);
-    return { destacados: [], nuevos: [], categorias: [], comercios: [] };
+    return vacia;
   }
 }
 
@@ -450,4 +547,98 @@ export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
   const listado = await listarProductos({ comercio: slug, pagina });
 
   return { tienda, ...listado };
+}
+
+/**
+ * LOS DEPARTAMENTOS PARA LA PORTADA.
+ *
+ * Salen SIEMPRE los 22, tengan productos o no. Un departamento vacío no es un
+ * hueco: es el cartel que le dice a quien llega "aquí se pueden vender motos".
+ * Esconderlos hasta que alguien venda motos es esperar a que aparezca solo el
+ * vendedor que no sabe que puede vender aquí.
+ *
+ * El que tiene productos se lleva una foto de verdad; el que no, su icono.
+ *
+ * Se cuenta el departamento Y sus subcategorías: los productos de Bley cuelgan
+ * de "PVC" y "Hierro", que a su vez cuelgan de "Ferretería y construcción".
+ * Contando solo el departamento saldría en cero teniendo 622 productos debajo.
+ */
+export type DepartamentoDePortada = {
+  slug: string;
+  nombre: string;
+  icono: string;
+  cuantos: number;
+  imagenUrl: string | null;
+};
+
+export async function listarDepartamentosDePortada(
+  idioma: string,
+): Promise<DepartamentoDePortada[]> {
+  const db = getDb();
+
+  /**
+   * "Los productos de este departamento" = los que cuelgan de él directamente
+   * MÁS los que cuelgan de una subcategoría suya. Los de Bley están en "PVC" y
+   * "Hierro", que cuelgan de "Ferretería y construcción": contando solo el
+   * departamento saldría en cero teniendo 622 productos debajo.
+   */
+  const DEL_DEPARTAMENTO = sql`
+    p.estado = 'publicado'
+    AND t.estado = 'activa'
+    AND (
+      p.categoria_id = d.id
+      OR p.categoria_id IN (
+        SELECT h.id FROM categorias h WHERE h.padre_id = d.id
+      )
+    )
+  `;
+
+  const filas = await db.all<{
+    slug: string;
+    cuantos: number;
+    foto_url: string | null;
+    foto_clave: string | null;
+  }>(sql`
+    SELECT
+      d.slug AS slug,
+      (SELECT COUNT(*)
+         FROM productos p
+         JOIN tiendas t ON t.id = p.tienda_id
+        WHERE ${DEL_DEPARTAMENTO}) AS cuantos,
+      (SELECT i.url
+         FROM imagenes_producto i
+        WHERE i.producto_id = (
+          SELECT p.id FROM productos p
+            JOIN tiendas t ON t.id = p.tienda_id
+           WHERE ${DEL_DEPARTAMENTO}
+           LIMIT 1)
+        LIMIT 1) AS foto_url,
+      (SELECT i.clave
+         FROM imagenes_producto i
+        WHERE i.producto_id = (
+          SELECT p.id FROM productos p
+            JOIN tiendas t ON t.id = p.tienda_id
+           WHERE ${DEL_DEPARTAMENTO}
+           LIMIT 1)
+        LIMIT 1) AS foto_clave
+    FROM categorias d
+    WHERE d.tienda_id IS NULL
+  `);
+
+  const porSlug = new Map(filas.map((f) => [f.slug, f]));
+
+  // El orden y los nombres salen del código, no de la base: la lista es
+  // nuestra y así no depende de que la siembra haya corrido.
+  return DEPARTAMENTOS.map((d) => {
+    const fila = porSlug.get(d.slug);
+    return {
+      slug: d.slug,
+      nombre: nombreDepartamento(d, idioma),
+      icono: d.icono,
+      cuantos: Number(fila?.cuantos ?? 0),
+      imagenUrl: fila
+        ? direccionImagen({ url: fila.foto_url, clave: fila.foto_clave })
+        : null,
+    };
+  });
 }

@@ -1,10 +1,14 @@
 "use client";
 
 import { ImagePlus, Loader2, Save, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
+import {
+  DEPARTAMENTOS,
+  nombreDepartamento,
+} from "@/lib/catalogo/departamentos";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +29,7 @@ type Producto = {
   controlaExistencias: boolean;
   estado: string;
   destacado: boolean;
+  categoriaId: string | null;
 };
 
 /** De centavos a lo que se escribe en la casilla. */
@@ -104,6 +109,7 @@ export function FormularioProducto({
   tiendaId?: string;
 }) {
   const t = useTranslations("panel.producto");
+  const idioma = useLocale();
   const router = useRouter();
 
   const [guardando, setGuardando] = useState(false);
@@ -365,6 +371,37 @@ export function FormularioProducto({
         <p className="mt-1 text-sm text-tinta-suave">
           {t("publicacion.texto")}
         </p>
+
+        {/**
+         * EL DEPARTAMENTO, de una lista cerrada.
+         *
+         * El comercio elige de la lista de Mercatren; no escribe la suya. Si
+         * cada uno inventara su categoría, el mismo taladro acabaría en
+         * "Herramientas", "Ferreteria" y "Tools", y quien busca taladros
+         * encontraría uno de tres.
+         *
+         * Sin departamento el producto se vende igual, pero no sale al
+         * navegar por la portada — y ahí es donde lo va a encontrar quien
+         * todavía no sabe que existe.
+         */}
+        <label className="mt-4 block max-w-md">
+          <span className="text-sm font-semibold">{t("departamento")}</span>
+          <select
+            name="categoriaId"
+            defaultValue={producto?.categoriaId ?? ""}
+            className="mt-1 w-full rounded-lg border border-borde bg-white px-3 py-2.5 text-sm outline-none focus:border-carga-500"
+          >
+            <option value="">{t("sinDepartamento")}</option>
+            {DEPARTAMENTOS.map((d) => (
+              <option key={d.slug} value={`dep-${d.slug}`}>
+                {nombreDepartamento(d, idioma)}
+              </option>
+            ))}
+          </select>
+          <span className="mt-1 block text-xs text-tinta-suave">
+            {t("departamentoAyuda")}
+          </span>
+        </label>
 
         <label className="mt-4 block max-w-xs">
           <span className="text-sm font-semibold">{t("estado")}</span>

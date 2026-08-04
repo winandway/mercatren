@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
+import { adivinarDepartamento } from "@/lib/catalogo/departamentos";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
 import {
@@ -177,12 +178,27 @@ export async function sincronizarCatalogo(
   const tiendaId = fuente.tiendaId;
   const ahora = new Date();
 
-  // Las categorias del comercio, primero: los productos apuntan a ellas.
+  /**
+   * Las categorias del comercio, primero: los productos apuntan a ellas.
+   *
+   * Y CADA UNA SE CUELGA DE UN DEPARTAMENTO DE MERCATREN. El comercio manda
+   * "PVC" y "Hierro"; nosotros los reconocemos como ferreteria y los colgamos
+   * de ese departamento. Sin esto, sus productos existirian pero no saldrian
+   * en ninguna parte del sitio: quien busca por departamento no los veria.
+   *
+   * Lo que no se reconoce se deja sin colgar a proposito. Es mejor que el
+   * equipo lo asigne despues a que quede en el departamento equivocado, donde
+   * lo encontraria justo quien no lo buscaba.
+   */
   const idCategoria = new Map<string, string>();
   for (const c of archivo.categories ?? []) {
     if (!c.id) continue;
     const id = `cat-${tiendaId}-${c.slug ?? c.id}`;
     idCategoria.set(c.id, id);
+
+    const departamento = adivinarDepartamento(
+      `${c.name_es ?? ""} ${c.slug ?? ""}`,
+    );
 
     await db
       .insert(categorias)
@@ -192,11 +208,16 @@ export async function sincronizarCatalogo(
         slug: c.slug ?? c.id,
         nombreEs: c.name_es ?? c.id,
         nombreEn: c.name_en ?? null,
+        padreId: departamento ? `dep-${departamento}` : null,
         externoId: c.id,
       })
       .onConflictDoUpdate({
         target: categorias.id,
-        set: { nombreEs: c.name_es ?? c.id, nombreEn: c.name_en ?? null },
+        set: {
+          nombreEs: c.name_es ?? c.id,
+          nombreEn: c.name_en ?? null,
+          padreId: departamento ? `dep-${departamento}` : null,
+        },
       });
   }
 

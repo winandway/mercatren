@@ -4,17 +4,35 @@ import {
   Plane,
   ShieldCheck,
   ShoppingBag,
+  Shuffle,
   Store,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { CirculosCategorias } from "@/components/catalogo/circulos-categorias";
 import { FilaProductos } from "@/components/catalogo/fila-productos";
+import { RejillaDepartamentos } from "@/components/catalogo/rejilla-departamentos";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { Link } from "@/i18n/navigation";
 import { obtenerPortada, type ProductoLista } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 
+/**
+ * La portada.
+ *
+ * DOS COSAS QUE LA HACEN DISTINTA:
+ *
+ * 1. LA PRIMERA FILA BARAJA EN CADA VISITA. Con 622 productos y dos filas
+ *    fijas, quien entraba tres veces veía lo mismo tres veces y se iba
+ *    pensando que aquí hay veinte cosas. Ahora el catálogo entero se va
+ *    asomando solo.
+ *
+ * 2. LOS DEPARTAMENTOS VAN EN EL CENTRO y salen todos, tengan productos o no.
+ *    Son la lista cerrada de Mercatren, no las categorías que cada comercio
+ *    inventa: uno vacío es el cartel que le dice al que llega "aquí se pueden
+ *    vender motos".
+ *
+ * Por eso NO se puede cachear: `force-dynamic` es lo que permite barajar.
+ */
 export const dynamic = "force-dynamic";
 
 const ICONOS = [ShoppingBag, PackageCheck, Plane];
@@ -30,22 +48,38 @@ export default async function PaginaInicio({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("inicio");
-  const { destacados, nuevos, categorias, comercios } = await obtenerPortada();
+  const {
+    descubre,
+    destacados,
+    nuevos,
+    baratos,
+    ofertas,
+    departamentos,
+    comercios,
+  } = await obtenerPortada(idioma);
 
-  const hayCatalogo = destacados.length > 0;
+  const hayCatalogo = descubre.length > 0;
+  const etiquetas = { anterior: t("anterior"), siguiente: t("siguiente") };
 
   return (
     <>
       {/* Lo primero que se ve */}
-      <section className="bg-riel-800 text-white">
-        <div className="mx-auto max-w-[1500px] px-4 py-10 sm:py-14">
-          <h1 className="max-w-3xl text-2xl font-extrabold tracking-tight text-balance sm:text-4xl">
+      <section className="relative overflow-hidden bg-riel-900 text-white">
+        {/* Un resplandor naranja detrás del título: da profundidad sin meter
+            una foto que tarde en cargar. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-carga-500/20 blur-3xl"
+        />
+
+        <div className="relative mx-auto max-w-[1500px] px-4 py-14 sm:py-20">
+          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-balance sm:text-5xl">
             {t("tituloHero")}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm text-white/80 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm text-white/80 sm:text-lg">
             {t("subtituloHero")}
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/catalogo" className="boton-principal">
               {t("verCatalogo")}
             </Link>
@@ -59,30 +93,65 @@ export default async function PaginaInicio({
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1500px] space-y-10 px-4 py-8">
-        {/* Categorias en circulos */}
-        {categorias.length > 0 ? (
+      <div className="mx-auto max-w-[1500px] space-y-12 px-4 py-10">
+        {/* LOS DEPARTAMENTOS, en el centro. Es el mapa del sitio. */}
+        {departamentos.length > 0 ? (
           <section>
-            <h2 className="mb-4 text-lg font-bold">{t("categorias")}</h2>
-            <CirculosCategorias categorias={categorias} idioma={idioma} />
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-xl font-bold sm:text-2xl">
+                {t("departamentos")}
+              </h2>
+              <p className="mt-1.5 text-sm text-balance text-tinta-suave">
+                {t("departamentosTexto")}
+              </p>
+            </div>
+
+            <div className="mt-8">
+              <RejillaDepartamentos
+                departamentos={departamentos}
+                textoVacio={t("proximamente")}
+              />
+            </div>
           </section>
         ) : null}
 
         {hayCatalogo ? (
           <>
+            {/* La fila que baraja. Va primera a propósito: es la que hace que
+                la portada se sienta distinta cada vez. */}
+            <Carrusel
+              titulo={t("descubre")}
+              ayuda={t("descubreTexto")}
+              conIcono
+              verTodo={t("verTodo")}
+              hrefVerTodo="/catalogo"
+              productos={descubre}
+              idioma={idioma}
+              etiquetas={etiquetas}
+            />
+
             <Carrusel
               titulo={t("destacados")}
               verTodo={t("verTodo")}
               hrefVerTodo="/catalogo"
               productos={destacados}
               idioma={idioma}
-              etiquetas={{ anterior: t("anterior"), siguiente: t("siguiente") }}
+              etiquetas={etiquetas}
+            />
+
+            <Carrusel
+              titulo={t("ofertas")}
+              verTodo={t("verTodo")}
+              hrefVerTodo="/catalogo"
+              productos={ofertas}
+              idioma={idioma}
+              etiquetas={etiquetas}
             />
 
             {/* Los comercios, que es de lo que va esto */}
             {comercios.length > 0 ? (
               <section>
-                <h2 className="text-lg font-bold">{t("comercios")}</h2>
+                <h2 className="text-xl font-bold">{t("comercios")}</h2>
                 <p className="mt-1 text-sm text-tinta-suave">
                   {t("comerciosTexto")}
                 </p>
@@ -123,7 +192,16 @@ export default async function PaginaInicio({
               hrefVerTodo="/catalogo?orden=recientes"
               productos={nuevos}
               idioma={idioma}
-              etiquetas={{ anterior: t("anterior"), siguiente: t("siguiente") }}
+              etiquetas={etiquetas}
+            />
+
+            <Carrusel
+              titulo={t("baratos")}
+              verTodo={t("verTodo")}
+              hrefVerTodo="/catalogo?orden=precio_asc"
+              productos={baratos}
+              idioma={idioma}
+              etiquetas={etiquetas}
             />
           </>
         ) : (
@@ -176,6 +254,8 @@ export default async function PaginaInicio({
 /** Un bloque con titulo, enlace a "ver todo" y la fila desplazable. */
 async function Carrusel({
   titulo,
+  ayuda,
+  conIcono,
   verTodo,
   hrefVerTodo,
   productos,
@@ -183,18 +263,36 @@ async function Carrusel({
   etiquetas,
 }: {
   titulo: string;
+  /** Una línea debajo del título. Solo la lleva la fila que baraja. */
+  ayuda?: string;
+  conIcono?: boolean;
   verTodo: string;
   hrefVerTodo: string;
   productos: ProductoLista[];
   idioma: Idioma;
   etiquetas: { anterior: string; siguiente: string };
 }) {
+  // Una fila vacía no se dibuja: un título con nada debajo se lee como que
+  // algo se rompió.
   if (productos.length === 0) return null;
 
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="text-lg font-bold">{titulo}</h2>
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-2 text-xl font-bold">
+            {conIcono ? (
+              <Shuffle
+                className="h-4 w-4 shrink-0 text-carga-500"
+                aria-hidden
+              />
+            ) : null}
+            {titulo}
+          </h2>
+          {ayuda ? (
+            <p className="mt-0.5 text-sm text-tinta-suave">{ayuda}</p>
+          ) : null}
+        </div>
         <Link
           href={hrefVerTodo}
           className="shrink-0 text-sm font-semibold text-riel-700 hover:text-carga-600"

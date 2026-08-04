@@ -46,6 +46,12 @@ function construirEsquema(t: Textos) {
     descripcionEs: z.string().trim().max(2000).optional(),
     descripcionEn: z.string().trim().max(2000).optional(),
     sku: z.string().trim().max(60).optional(),
+    /**
+     * El departamento de Mercatren. Llega como "dep-<slug>" y puede venir
+     * vacio: un producto sin departamento se vende igual, solo que no sale al
+     * navegar por la portada.
+     */
+    categoriaId: z.string().trim().max(80).optional(),
     marca: z.string().trim().max(80).optional(),
     unidad: z.string().trim().max(30).optional(),
     precio: z
@@ -181,6 +187,7 @@ export async function guardarProducto(
     descripcionEs: d.descripcionEs?.trim() || null,
     descripcionEn: d.descripcionEn?.trim() || null,
     sku: d.sku?.trim() || null,
+    categoriaId: d.categoriaId?.trim() || null,
     marca: d.marca?.trim() || null,
     unidad: d.unidad?.trim() || null,
     precioCentavos,

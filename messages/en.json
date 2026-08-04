@@ -61,7 +61,15 @@
     "comerciosTexto": "Every merchant with their own storefront. Step in and see everything they carry.",
     "verTienda": "Visit the store",
     "productosDisponibles": "{n, plural, one {# product} other {# products}}",
-    "catalogoVacio": "We're loading the catalog. You'll be able to shop here very soon."
+    "catalogoVacio": "We're loading the catalog. You'll be able to shop here very soon.",
+    "departamentos": "Shop by department",
+    "departamentosTexto": "Everything moving through Mercatren, organized. Tap one and see what is inside.",
+    "proximamente": "Coming soon",
+    "descubre": "Discover something new",
+    "descubreTexto": "Changes every time you visit.",
+    "baratos": "Less than you would think",
+    "ofertas": "Price just dropped",
+    "verTodos": "See all products"
   },
   "piePagina": {
     "derechos": "All rights reserved.",
@@ -637,7 +645,10 @@
       "destacadoAyuda": "It shows first in the listing.",
       "estadoBorrador": "Draft (hidden)",
       "estadoPublicado": "Published",
-      "estadoAgotado": "Out of stock"
+      "estadoAgotado": "Out of stock",
+      "departamento": "Department",
+      "sinDepartamento": "No department",
+      "departamentoAyuda": "Choose where your product belongs. Without it the product still sells, but it will not show up when people browse the homepage."
     },
     "ordenes": {
       "titulo": "Orders",
