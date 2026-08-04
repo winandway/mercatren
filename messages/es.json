@@ -297,7 +297,8 @@
       "miTienda": "Mi tienda",
       "misProductos": "Mis productos",
       "usuarios": "Cuentas",
-      "validacionComercio": "En revisión"
+      "validacionComercio": "En revisión",
+      "retiros": "Retiros"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -824,7 +825,24 @@
       "faltaPais": "Escribe el país.",
       "yaTienesComercio": "Ya tienes un comercio registrado con esta cuenta.",
       "comercioEnRevision": "Listo. Tu comercio quedó registrado y el equipo de Mercatren lo va a revisar.",
-      "comercioAprobado": "Comercio aprobado. Ya puede vender."
+      "comercioAprobado": "Comercio aprobado. Ya puede vender.",
+      "soloComercio": "Entra con tu cuenta de comercio para pedir un retiro.",
+      "faltaMonto": "Escribe cuánto quieres retirar.",
+      "montoInvalido": "Ese monto no se entiende. Escríbelo así: 1000.50",
+      "montoMayorAlDisponible": "Estás pidiendo más de lo que tienes disponible.",
+      "faltaComercioDestino": "Elige a qué comercio le mandamos el dinero.",
+      "destinoEsElMismo": "No puedes mandarte el dinero a ti mismo.",
+      "comercioDestinoNoExiste": "Ese comercio no está activo en Mercatren.",
+      "faltaTitular": "Escribe el nombre del titular de la cuenta.",
+      "faltaBanco": "Escribe el nombre del banco.",
+      "faltaCuenta": "Escribe el número de cuenta.",
+      "faltaRuta": "Escribe el número de ruta del banco.",
+      "faltaMotivo": "Escribe por qué no se puede hacer el retiro.",
+      "retiroPedido": "Listo. Tu retiro quedó pedido y el monto se apartó de tu saldo.",
+      "retiroPagado": "Retiro marcado como pagado.",
+      "retiroRechazado": "Retiro rechazado. El monto vuelve a estar disponible.",
+      "retiroCancelado": "Retiro cancelado. El monto vuelve a estar disponible.",
+      "retiroYaResuelto": "Ese retiro ya lo resolvió alguien más."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -887,6 +905,60 @@
         "producto": "Carga tu primer producto",
         "publicar": "Publícalo para que se vea"
       }
+    },
+    "retiros": {
+      "titulo": "Retiros",
+      "subtituloComercio": "Saca tu dinero cuando quieras. Lo pides aquí y nosotros hacemos la transferencia.",
+      "subtituloEquipo": "Lo que los comercios han pedido sacar. Haz la transferencia en el banco y márcala aquí.",
+      "disponible": "Disponible para retirar",
+      "enTramite": "Pedido, esperando transferencia",
+      "saldoTotal": "Saldo total",
+      "pedir": "Retirar mi dinero",
+      "cuanto": "¿Cuánto quieres retirar?",
+      "cuantoAyuda": "Puedes pedir hasta {monto}.",
+      "todo": "Retirar todo",
+      "comoLoQuieres": "¿Cómo lo quieres recibir?",
+      "formas": {
+        "comercio": "A otro comercio de Mercatren",
+        "comercioAyuda": "Llega al momento y no cuesta nada.",
+        "ach": "Transferencia ACH",
+        "achAyuda": "A tu cuenta de Estados Unidos. Llega en 1 a 3 días hábiles.",
+        "wire": "Transferencia bancaria (wire)",
+        "wireAyuda": "El mismo día, para montos grandes. El banco puede cobrar una cuota."
+      },
+      "aQuienComercio": "¿A qué comercio?",
+      "eligeComercio": "Elige un comercio",
+      "titular": "Nombre del titular de la cuenta",
+      "banco": "Banco",
+      "cuenta": "Número de cuenta",
+      "ruta": "Número de ruta",
+      "nota": "¿Algo que debamos saber?",
+      "notaOpcional": "Opcional",
+      "enviar": "Pedir el retiro",
+      "enviando": "Pidiendo…",
+      "cancelar": "Cancelar",
+      "soloEstadosUnidos": "Solo se transfiere a cuentas de bancos de Estados Unidos.",
+      "avisoManual": "Un retiro no es automático: alguien del equipo hace la transferencia y la marca aquí.",
+      "sinRetiros": "Todavía no has pedido ningún retiro.",
+      "sinRetirosEquipo": "No hay retiros pendientes.",
+      "estados": {
+        "solicitado": "Esperando transferencia",
+        "pagado": "Pagado",
+        "rechazado": "Rechazado",
+        "cancelado": "Cancelado"
+      },
+      "aCuenta": "Cuenta terminada en {cuatro}",
+      "marcarPagado": "Ya lo pagué",
+      "referencia": "Referencia del banco",
+      "referenciaAyuda": "Opcional, pero es lo que el comercio reclama si no le llega.",
+      "confirmarPago": "Confirmar",
+      "rechazar": "No se puede hacer",
+      "motivo": "¿Por qué no se puede hacer?",
+      "confirmarRechazo": "Rechazar el retiro",
+      "cancelarMio": "Cancelar mi retiro",
+      "seguroCancelar": "¿Seguro que quieres cancelar este retiro?",
+      "masOpciones": "Más opciones",
+      "pedirPorElComercio": "Registrar un retiro del comercio"
     }
   },
   "catalogo": {

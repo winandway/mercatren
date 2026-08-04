@@ -297,7 +297,8 @@
       "miTienda": "My store",
       "misProductos": "My products",
       "usuarios": "Accounts",
-      "validacionComercio": "Under review"
+      "validacionComercio": "Under review",
+      "retiros": "Withdrawals"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -824,7 +825,24 @@
       "faltaPais": "Enter the country.",
       "yaTienesComercio": "This account already has a store registered.",
       "comercioEnRevision": "Done. Your store is registered and the Mercatren team will review it.",
-      "comercioAprobado": "Store approved. They can start selling."
+      "comercioAprobado": "Store approved. They can start selling.",
+      "soloComercio": "Sign in with your merchant account to request a withdrawal.",
+      "faltaMonto": "Enter how much you want to withdraw.",
+      "montoInvalido": "That amount is not valid. Write it like this: 1000.50",
+      "montoMayorAlDisponible": "You are requesting more than you have available.",
+      "faltaComercioDestino": "Choose which merchant should receive the money.",
+      "destinoEsElMismo": "You cannot send the money to yourself.",
+      "comercioDestinoNoExiste": "That merchant is not active on Mercatren.",
+      "faltaTitular": "Enter the account holder’s name.",
+      "faltaBanco": "Enter the bank name.",
+      "faltaCuenta": "Enter the account number.",
+      "faltaRuta": "Enter the bank routing number.",
+      "faltaMotivo": "Explain why the withdrawal cannot be made.",
+      "retiroPedido": "Done. Your withdrawal was requested and the amount is now on hold.",
+      "retiroPagado": "Withdrawal marked as paid.",
+      "retiroRechazado": "Withdrawal declined. The amount is available again.",
+      "retiroCancelado": "Withdrawal canceled. The amount is available again.",
+      "retiroYaResuelto": "Someone else already handled that withdrawal."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -887,6 +905,60 @@
         "producto": "Add your first product",
         "publicar": "Publish it so people can see it"
       }
+    },
+    "retiros": {
+      "titulo": "Withdrawals",
+      "subtituloComercio": "Take out your money whenever you want. Request it here and we make the transfer.",
+      "subtituloEquipo": "What merchants have asked to withdraw. Make the transfer at the bank and mark it here.",
+      "disponible": "Available to withdraw",
+      "enTramite": "Requested, awaiting transfer",
+      "saldoTotal": "Total balance",
+      "pedir": "Withdraw my money",
+      "cuanto": "How much do you want to withdraw?",
+      "cuantoAyuda": "You can request up to {monto}.",
+      "todo": "Withdraw all",
+      "comoLoQuieres": "How do you want to receive it?",
+      "formas": {
+        "comercio": "To another Mercatren merchant",
+        "comercioAyuda": "Arrives instantly and costs nothing.",
+        "ach": "ACH transfer",
+        "achAyuda": "To your U.S. bank account. Arrives in 1 to 3 business days.",
+        "wire": "Wire transfer",
+        "wireAyuda": "Same day, for larger amounts. Your bank may charge a fee."
+      },
+      "aQuienComercio": "Which merchant?",
+      "eligeComercio": "Choose a merchant",
+      "titular": "Account holder’s name",
+      "banco": "Bank",
+      "cuenta": "Account number",
+      "ruta": "Routing number",
+      "nota": "Anything we should know?",
+      "notaOpcional": "Optional",
+      "enviar": "Request withdrawal",
+      "enviando": "Requesting…",
+      "cancelar": "Cancel",
+      "soloEstadosUnidos": "Transfers go only to U.S. bank accounts.",
+      "avisoManual": "A withdrawal is not automatic: someone on the team makes the transfer and marks it here.",
+      "sinRetiros": "You have not requested any withdrawals yet.",
+      "sinRetirosEquipo": "No withdrawals pending.",
+      "estados": {
+        "solicitado": "Awaiting transfer",
+        "pagado": "Paid",
+        "rechazado": "Declined",
+        "cancelado": "Canceled"
+      },
+      "aCuenta": "Account ending in {cuatro}",
+      "marcarPagado": "I already paid it",
+      "referencia": "Bank reference",
+      "referenciaAyuda": "Optional, but it is what the merchant will ask for if it does not arrive.",
+      "confirmarPago": "Confirm",
+      "rechazar": "Cannot be done",
+      "motivo": "Why can it not be done?",
+      "confirmarRechazo": "Decline withdrawal",
+      "cancelarMio": "Cancel my withdrawal",
+      "seguroCancelar": "Are you sure you want to cancel this withdrawal?",
+      "masOpciones": "More options",
+      "pedirPorElComercio": "Record a merchant withdrawal"
     }
   },
   "catalogo": {

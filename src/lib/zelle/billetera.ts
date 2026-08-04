@@ -4,7 +4,13 @@ import { and, desc, eq, gte, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { billeteras, pagosZelle, retirosFee, tiendas } from "@/lib/db/schema";
+import {
+  billeteras,
+  pagosZelle,
+  retiros,
+  retirosFee,
+  tiendas,
+} from "@/lib/db/schema";
 
 /**
  * La billetera del comercio, con su posición REAL.
@@ -82,6 +88,14 @@ export type PosicionBilletera = {
   proveedor: string;
   /** Lo que el comercio tiene a su favor ahora mismo. */
   saldoCentavos: number;
+  /**
+   * Lo que ya pidió y todavía no le hemos mandado.
+   *
+   * Está apartado a propósito: mientras esté aquí no se puede volver a pedir.
+   */
+  enTramiteCentavos: number;
+  /** Lo que puede pedir hoy: el saldo menos lo que ya está en trámite. */
+  disponibleCentavos: number;
   /** Todo lo que se le ha acreditado desde el principio. */
   netoHistoricoCentavos: number;
   /** Todo lo que ya se llevó. */
@@ -160,18 +174,43 @@ export async function obtenerPosicion(
     .where(eq(billeteras.tiendaId, tiendaId))
     .limit(1);
 
+  /**
+   * Los retiros salen de DOS sitios y no se pisan:
+   *
+   * - los del histórico, que llegaron dentro de `pagos_zelle` y están
+   *   congelados,
+   * - y los que se piden desde aquí, que viven en `retiros`.
+   *
+   * Los que están pedidos y aún no se han hecho no bajan el saldo —todavía es
+   * suyo— pero sí se apartan, para que no pueda pedir dos veces lo mismo.
+   */
+  const [pedidos] = await db
+    .select({
+      pagado: sql<number>`COALESCE(SUM(CASE WHEN ${retiros.estado} = 'pagado' THEN ${retiros.montoCentavos} ELSE 0 END), 0)`,
+      enTramite: sql<number>`COALESCE(SUM(CASE WHEN ${retiros.estado} = 'solicitado' THEN ${retiros.montoCentavos} ELSE 0 END), 0)`,
+      veces: sql<number>`COALESCE(SUM(CASE WHEN ${retiros.estado} = 'pagado' THEN 1 ELSE 0 END), 0)`,
+    })
+    .from(retiros)
+    .where(eq(retiros.tiendaId, tiendaId));
+
   const neto = Number(datos?.netoHistorico ?? 0);
-  const retirado = Number(datos?.retirado ?? 0);
+  const retirado = Number(datos?.retirado ?? 0) + Number(pedidos?.pagado ?? 0);
+  const enTramite = Number(pedidos?.enTramite ?? 0);
+  const saldo = neto - retirado;
 
   return {
     tiendaId,
     nombreTienda: tienda.nombre,
     moneda: billetera?.moneda ?? "USD",
     proveedor: billetera?.proveedor ?? "tokiia",
-    saldoCentavos: neto - retirado,
+    saldoCentavos: saldo,
+    enTramiteCentavos: enTramite,
+    // Nunca por debajo de cero: si algo cuadrara mal, que no invite a pedir
+    // dinero que no hay.
+    disponibleCentavos: Math.max(0, saldo - enTramite),
     netoHistoricoCentavos: neto,
     retiradoCentavos: retirado,
-    retiros: Number(datos?.retiros ?? 0),
+    retiros: Number(datos?.retiros ?? 0) + Number(pedidos?.veces ?? 0),
     mes: {
       brutoCentavos: Number(mes?.bruto ?? 0),
       comisionCentavos: Number(mes?.comision ?? 0),
@@ -208,42 +247,78 @@ export async function listarMovimientosReales(
 
   const db = getDb();
 
-  const filas = await db
-    .select({
-      id: pagosZelle.id,
-      fecha: pagosZelle.fechaTransaccion,
-      tipo: pagosZelle.tipo,
-      monto: pagosZelle.montoCentavos,
-      neto: pagosZelle.netoCentavos,
-      codigo: pagosZelle.codigoConfirmacion,
-      banco: pagosZelle.bancoOrigen,
-      nota: pagosZelle.notas,
-    })
-    .from(pagosZelle)
-    .where(
-      and(
-        eq(pagosZelle.tiendaId, posicion.tiendaId),
-        eq(pagosZelle.estado, "aprobado"),
-      ),
-    )
-    .orderBy(desc(pagosZelle.fechaTransaccion), desc(pagosZelle.id))
-    .limit(limite);
+  const [filas, salidas] = await Promise.all([
+    db
+      .select({
+        id: pagosZelle.id,
+        fecha: pagosZelle.fechaTransaccion,
+        tipo: pagosZelle.tipo,
+        monto: pagosZelle.montoCentavos,
+        neto: pagosZelle.netoCentavos,
+        codigo: pagosZelle.codigoConfirmacion,
+        banco: pagosZelle.bancoOrigen,
+        nota: pagosZelle.notas,
+      })
+      .from(pagosZelle)
+      .where(
+        and(
+          eq(pagosZelle.tiendaId, posicion.tiendaId),
+          eq(pagosZelle.estado, "aprobado"),
+        ),
+      )
+      .orderBy(desc(pagosZelle.fechaTransaccion), desc(pagosZelle.id))
+      .limit(limite),
 
-  let saldo = posicion.saldoCentavos;
+    // Los retiros que se pidieron desde el sitio y ya se pagaron.
+    db
+      .select({
+        id: retiros.id,
+        fecha: retiros.resueltoEn,
+        monto: retiros.montoCentavos,
+        referencia: retiros.referencia,
+        forma: retiros.forma,
+      })
+      .from(retiros)
+      .where(
+        and(
+          eq(retiros.tiendaId, posicion.tiendaId),
+          eq(retiros.estado, "pagado"),
+        ),
+      )
+      .orderBy(desc(retiros.resueltoEn))
+      .limit(limite),
+  ]);
 
-  return filas.map((f) => {
-    const monto = f.tipo === "retiro" ? -Number(f.monto) : Number(f.neto);
-    const saldoResultante = saldo;
-    saldo -= monto;
-
-    return {
+  const movimientos: MovimientoBilletera[] = [
+    ...filas.map((f) => ({
       id: f.id,
       fecha: f.fecha ? Number(f.fecha) * 1000 : null,
       tipo: f.tipo,
       concepto: f.nota ?? f.codigo ?? f.banco,
-      montoCentavos: monto,
-      saldoResultanteCentavos: saldoResultante,
-    };
+      montoCentavos: f.tipo === "retiro" ? -Number(f.monto) : Number(f.neto),
+      saldoResultanteCentavos: 0,
+    })),
+    ...salidas.map((s) => ({
+      id: s.id,
+      // `resueltoEn` llega como Date; multiplicarlo por mil daría el año 58560.
+      fecha: s.fecha instanceof Date ? s.fecha.getTime() : null,
+      tipo: "retiro" as const,
+      concepto: s.referencia ?? s.forma,
+      montoCentavos: -Number(s.monto),
+      saldoResultanteCentavos: 0,
+    })),
+  ]
+    // Del más nuevo al más viejo: la columna de saldo se calcula hacia atrás
+    // desde el de hoy, así que el orden no es cosmético.
+    .sort((a, b) => (b.fecha ?? 0) - (a.fecha ?? 0))
+    .slice(0, limite);
+
+  let saldo = posicion.saldoCentavos;
+
+  return movimientos.map((m) => {
+    const saldoResultante = saldo;
+    saldo -= m.montoCentavos;
+    return { ...m, saldoResultanteCentavos: saldoResultante };
   });
 }
 

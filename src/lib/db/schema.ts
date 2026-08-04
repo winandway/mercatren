@@ -612,6 +612,99 @@ export const retirosFee = sqliteTable(
   (t) => [index("idx_retiros_fee_fecha").on(t.hechoEn)],
 );
 
+/* -------------------------------------------------------------------------- */
+/* Retiros del comercio                                                       */
+/* -------------------------------------------------------------------------- */
+
+export const FORMAS_RETIRO = ["comercio", "ach", "wire"] as const;
+
+export const ESTADOS_RETIRO = [
+  "solicitado",
+  "pagado",
+  "rechazado",
+  "cancelado",
+] as const;
+
+/**
+ * Cuando el comercio pide que le manden su dinero.
+ *
+ * POR QUÉ NO VA EN `pagos_zelle`. Los 70 retiros del histórico sí viven ahí,
+ * porque llegaron así del sistema anterior y ese histórico está congelado.
+ * Pero un retiro de verdad no es un pago de Zelle: no tiene pagador, no tiene
+ * comprobante que validar, y sobre todo tiene un estado ANTES de existir como
+ * movimiento — está pedido pero todavía no se ha hecho. Meterlo ahí obligaría
+ * a que media tabla tuviera columnas vacías y a que cada consulta de pagos
+ * recordara excluirlo.
+ *
+ * Así que el dinero que ya salió se cuenta de dos sitios: el histórico
+ * congelado y esta tabla. Son conjuntos que no se pisan.
+ *
+ * EL SALDO SE APARTA AL PEDIRLO, no al pagarlo. Entre que el comercio lo pide
+ * y nosotros vamos al banco pasan horas; si en ese rato el saldo siguiera
+ * entero, con $2,000 podría pedir $1,000 tres veces y le deberíamos $1,000 que
+ * nunca tuvo. Por eso la billetera muestra tres números: lo que tiene, lo que
+ * está en trámite y lo que puede pedir hoy.
+ *
+ * NOSOTROS TRANSFERIMOS A MANO. Esto no mueve dinero solo: alguien del equipo
+ * hace la transferencia en el banco y luego marca aquí que ya la hizo. El
+ * botón no paga; deja constancia de que se pagó.
+ */
+export const retiros = sqliteTable(
+  "retiros",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    /** Quién lo pidió. Se guarda por si después hay que preguntarle. */
+    solicitadoPorId: text("solicitado_por_id").references(() => user.id),
+    /** Siempre en centavos enteros, como todo el dinero del proyecto. */
+    montoCentavos: integer("monto_centavos").notNull(),
+    moneda: text("moneda").notNull().default("USD"),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_RETIRO)[number]>()
+      .notNull()
+      .default("solicitado"),
+    /**
+     * Cómo quiere recibirlo:
+     *
+     * - `comercio`: a la billetera de otro comercio de Mercatren. No sale del
+     *   sistema, así que es inmediato y no cuesta nada.
+     * - `ach`: transferencia normal a su cuenta de Estados Unidos.
+     * - `wire`: transferencia bancaria, para montos grandes o con prisa.
+     */
+    forma: text("forma").$type<(typeof FORMAS_RETIRO)[number]>().notNull(),
+    /**
+     * A dónde va, según la forma. Se guarda como JSON porque cada forma pide
+     * datos distintos y no tiene sentido una columna por cada campo posible.
+     *
+     * Y se guarda TAL COMO ESTABA el día del retiro: si el comercio cambia de
+     * banco el año que viene, el retiro viejo tiene que seguir diciendo a
+     * dónde se mandó de verdad.
+     */
+    destino: text("destino", { mode: "json" }),
+    /** Cuando la forma es `comercio`: a qué tienda va. */
+    destinoTiendaId: text("destino_tienda_id").references(() => tiendas.id),
+    /** Lo que el comercio quiera aclarar al pedirlo. */
+    notaComercio: text("nota_comercio"),
+    /** Por qué no se hizo. Obligatorio al rechazar: nadie se queda sin saber. */
+    motivoRechazo: text("motivo_rechazo"),
+    /** Referencia que dé el banco. Es lo que el comercio reclama si no llega. */
+    referencia: text("referencia"),
+    /** Quién del equipo lo resolvió. */
+    resueltoPorId: text("resuelto_por_id").references(() => user.id),
+    resueltoEn: integer("resuelto_en", { mode: "timestamp" }),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_retiros_tienda").on(t.tiendaId),
+    index("idx_retiros_estado").on(t.estado),
+    index("idx_retiros_fecha").on(t.creadoEn),
+  ],
+);
+
 export const ORIGENES_PAGO_ZELLE = ["import", "live"] as const;
 export const TIPOS_PAGO_ZELLE = ["entrada", "retiro"] as const;
 export const ESTADOS_PAGO_ZELLE = [

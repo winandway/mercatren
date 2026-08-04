@@ -1,6 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight, PiggyBank, Wallet } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -33,6 +34,7 @@ export default async function PaginaBilletera({
 
   const { comercio } = await searchParams;
   const t = await getTranslations("panel.billetera");
+  const tr = await getTranslations("panel.retiros");
 
   const [posicion, movimientos, interno, operador] = await Promise.all([
     obtenerPosicion(comercio),
@@ -95,6 +97,27 @@ export default async function PaginaBilletera({
               <p className="mt-3 truncate text-sm font-semibold">
                 {posicion.nombreTienda}
               </p>
+
+              {/* Sacar el dinero tiene que estar donde se mira el saldo: es
+                  lo primero que uno quiere hacer al verlo. */}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/panel/retiros"
+                  className="inline-flex items-center gap-2 rounded-lg bg-carga-500 px-4 py-2 text-sm font-semibold text-riel-950 transition-colors hover:bg-carga-400"
+                >
+                  <ArrowUpRight className="h-4 w-4" aria-hidden />
+                  {tr("pedir")}
+                </Link>
+
+                {posicion.enTramiteCentavos > 0 ? (
+                  <span className="text-sm text-white/70">
+                    {tr("enTramite")}:{" "}
+                    <b className="font-semibold text-white tabular-nums">
+                      {dinero(posicion.enTramiteCentavos)}
+                    </b>
+                  </span>
+                ) : null}
+              </div>
             </div>
             <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-carga-400">
               <Wallet className="h-5 w-5" aria-hidden />

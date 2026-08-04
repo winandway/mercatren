@@ -8,6 +8,7 @@ import {
   tienePermisoDePanel,
   obtenerUsuario,
 } from "@/lib/autorizacion";
+import { contarRetirosPendientes } from "@/lib/retiros/consultas";
 import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
 
@@ -66,12 +67,16 @@ export default async function LayoutPanel({
 
   // Si la cuenta es de un comercio que todavia no tiene tienda asignada, la
   // consulta avisa en vez de romper la pantalla.
-  const pendientes = await listarPendientesDeValidacion().catch(() => []);
+  const [pendientes, porRetirar] = await Promise.all([
+    listarPendientesDeValidacion().catch(() => []),
+    contarRetirosPendientes().catch(() => 0),
+  ]);
 
   return (
     <div className="min-h-screen bg-slate-50">
       <MenuLateral
         porValidar={pendientes.length}
+        porRetirar={porRetirar}
         esInterno={interno}
         nombre={usuario?.name ?? ""}
       />

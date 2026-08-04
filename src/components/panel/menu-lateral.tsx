@@ -39,6 +39,8 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       { href: "/panel/pagos-zelle", clave: "pagosZelle", Icono: Receipt },
       { href: "/panel/validacion", clave: "validacion", Icono: ShieldCheck },
       { href: "/panel/billetera", clave: "billetera", Icono: Wallet },
+      // Sacar el dinero de la billetera: el comercio pide, el equipo paga.
+      { href: "/panel/retiros", clave: "retiros", Icono: ArrowUpRight },
     ],
   },
   {
@@ -80,10 +82,13 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
 
 export function MenuLateral({
   porValidar = 0,
+  porRetirar = 0,
   esInterno = false,
   nombre = "",
 }: {
   porValidar?: number;
+  /** Retiros esperando a que alguien haga la transferencia. */
+  porRetirar?: number;
   /** El equipo de Mercatren ve la operacion completa; un comercio, solo la suya. */
   esInterno?: boolean;
   nombre?: string;
@@ -139,7 +144,12 @@ export function MenuLateral({
                     href === "/panel"
                       ? pathname === "/panel"
                       : pathname.startsWith(href);
-                  const insignia = clave === "validacion" ? porValidar : 0;
+                  const insignia =
+                    clave === "validacion"
+                      ? porValidar
+                      : clave === "retiros"
+                        ? porRetirar
+                        : 0;
 
                   return (
                     <li key={href}>
