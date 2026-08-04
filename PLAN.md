@@ -43,6 +43,52 @@ Lo que está en marcha. Se marca aquí a medida que se termina.
 
 ---
 
+## Plan de pagos — tarjeta protagonista, Zelle desde $200
+
+Decidido el 4 ago 2026 (pendiente solo la decisión del fee, abajo).
+
+**Las reglas del negocio:**
+
+- **Tarjeta (Stripe) es el método principal.** Cualquier monto. Comisión de
+  Mercatren: **2%** (200 puntos base). El fee de Stripe (2.9% + $0.30) es
+  aparte y lo cobra Stripe.
+- **Zelle solo desde $200.** Debajo de eso la opción NO aparece en el
+  checkout, con su explicación. Comisión: **3%**, como hasta ahora.
+- **Zelle se puede prender y apagar** desde Panel → Configuración, sin
+  publicar nada. Lo mismo para tarjeta. Guardado en la tabla `configuracion`.
+- **Datos del receptor Zelle:** correo `pay@windoce.com`, beneficiario
+  Windoce LLC. Van en las variables del panel (`ZELLE_CORREO_RECEPTOR`,
+  `PAGO_BENEFICIARIO`), nunca en el repo.
+- **Pedido mínimo con tarjeta: $2.00.** En una venta de $0.48 los $0.30
+  fijos de Stripe se comen el 65%; el mínimo protege al comercio.
+
+**La decisión pendiente — quién paga el fee de Stripe:**
+
+Recomendación: **nada de recargos al cliente.** El precio de la etiqueta es
+lo que paga; el 2% de Mercatren y el fee de Stripe se descuentan del lado
+del comercio, con el desglose línea por línea en su panel (bruto − comisión
+− fee = neto). Es lo que hacen Amazon, eBay y Mercado Libre, y esquiva el
+problema legal de los recargos por tarjeta (prohibidos en varios estados,
+regulados por Visa/Mastercard, y Stripe exige avisos). El "consentimiento
+del cliente" deja de hacer falta porque no hay recargo que consentir.
+
+**Los pasos, en orden:**
+
+- [ ] **1. Comisión por método.** Hoy `comision_puntos_base` es una sola
+      (300). Pasa a dos: Zelle 300, tarjeta 200. La cuenta vive en
+      `src/lib/dinero.ts` y sus pruebas se amplían.
+- [ ] **2. Reglas del checkout.** Zelle solo si el total ≥ $200 (con el
+      motivo visible cuando no llega); pedido mínimo $2 con tarjeta;
+      interruptores por método en Configuración.
+- [ ] **3. Pantalla de cobro con Stripe.** Payment Element embebido, webhook
+      en `/datos/stripe` (nunca `/api/`), acreditación a la billetera del
+      comercio con el neto ya descontado, y el desglose en la ficha de la
+      venta. Necesita `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` en el
+      panel (las carga el dueño).
+- [ ] **4. Transparencia con el comercio.** En /vender/comisiones y en el
+      panel: la tabla de comisiones por método, y en cada venta el desglose
+      exacto de a dónde fue cada centavo.
+
 ## Lo que sigue
 
 - [ ] **La cola de "Otros" en el panel.** Hoy "Otros" ya recoge lo que no
