@@ -32,6 +32,14 @@ export default function robots(): MetadataRoute.Robots {
           "/entrar",
           "/es/entrar",
           "/en/entrar",
+          // Recuperar la contraseña: el enlace del correo lleva un pase en la
+          // dirección y eso no puede acabar en un buscador.
+          "/olvide-mi-clave",
+          "/es/olvide-mi-clave",
+          "/en/olvide-mi-clave",
+          "/nueva-clave",
+          "/es/nueva-clave",
+          "/en/nueva-clave",
           "/datos/",
           "/media/",
           "/docs/mercatren-modelo-de-negocio.pdf",

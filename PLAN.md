@@ -18,9 +18,12 @@ aquí a medida que se terminan.
       71 retiros. Tabla `retiros` nueva, tres formas, y el saldo apartado
       mientras espera._
 
-- [ ] **2. Olvidé mi contraseña.** El correo ya existe y funciona; falta la
+- [x] **2. Olvidé mi contraseña.** El correo ya existe y funciona; falta la
       pantalla que lo dispara y la que permite poner la nueva. Hoy quien se
       olvida de su clave se queda afuera y tiene que llamarte.
+      _Probado el ciclo entero: se pide el enlace, se abre como llegaría por
+      correo, se pone la clave nueva y se entra con ella. Nunca dice si el
+      correo existe o no._
 
 - [ ] **3. Entrega del pedido.** El comercio no ve a dónde mandar el producto
       ni tiene cómo marcarlo entregado, así que el pedido se queda en "pagado"

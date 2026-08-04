@@ -275,7 +275,8 @@
     },
     "verClave": "Ver la contraseña",
     "ocultarClave": "Ocultar la contraseña",
-    "errorEscudo": "No pudimos comprobar que eres una persona. Vuelve a intentarlo."
+    "errorEscudo": "No pudimos comprobar que eres una persona. Vuelve a intentarlo.",
+    "olvide": "¿Olvidaste tu contraseña?"
   },
   "panel": {
     "titulo": "Administración",
@@ -1387,5 +1388,28 @@
       "sitioWeb": "https://",
       "descripcionEs": "En una o dos líneas"
     }
+  },
+  "clave": {
+    "titulo": "¿Olvidaste tu contraseña?",
+    "texto": "Escribe tu correo y te mandamos un enlace para poner una nueva.",
+    "correo": "Correo electrónico",
+    "enviar": "Mandarme el enlace",
+    "enviando": "Mandando…",
+    "listoTitulo": "Revisa tu correo",
+    "listoTexto": "Si esa dirección tiene una cuenta en Mercatren, ya salió el enlace. Revisa también la carpeta de correo no deseado.",
+    "volver": "Volver a iniciar sesión",
+    "nuevaTitulo": "Pon tu contraseña nueva",
+    "nuevaTexto": "Escríbela dos veces para que no quede una que no querías.",
+    "nueva": "Contraseña nueva",
+    "repetir": "Escríbela otra vez",
+    "minimo": "Al menos 10 caracteres.",
+    "guardar": "Guardar la contraseña",
+    "guardando": "Guardando…",
+    "noCoinciden": "Las dos contraseñas no son iguales.",
+    "cortaDemas": "La contraseña tiene que tener al menos 10 caracteres.",
+    "enlaceVencido": "Ese enlace ya no sirve. Pide uno nuevo.",
+    "cambiada": "Listo. Ya puedes entrar con tu contraseña nueva.",
+    "sinEnlace": "Abre el enlace que te llegó por correo para poner una contraseña nueva.",
+    "algoFallo": "No se pudo. Inténtalo otra vez en un momento."
   }
 }

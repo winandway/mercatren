@@ -128,6 +128,16 @@ export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
         )}
       </button>
 
+      {/* Debajo del botón, que es donde se mira cuando la contraseña falla. */}
+      <p className="text-center">
+        <Link
+          href="/olvide-mi-clave"
+          className="text-sm text-carga-600 hover:underline"
+        >
+          {t("olvide")}
+        </Link>
+      </p>
+
       {/**
        * CREAR CUENTA ES UN BOTÓN, NO UN ENLACE PERDIDO.
        *

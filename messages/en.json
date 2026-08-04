@@ -275,7 +275,8 @@
     },
     "verClave": "Show password",
     "ocultarClave": "Hide password",
-    "errorEscudo": "We couldn't verify that you're a person. Please try again."
+    "errorEscudo": "We couldn't verify that you're a person. Please try again.",
+    "olvide": "Forgot your password?"
   },
   "panel": {
     "titulo": "Admin",
@@ -1387,5 +1388,28 @@
       "sitioWeb": "https://",
       "descripcionEs": "In a line or two"
     }
+  },
+  "clave": {
+    "titulo": "Forgot your password?",
+    "texto": "Enter your email and we will send you a link to set a new one.",
+    "correo": "Email address",
+    "enviar": "Send me the link",
+    "enviando": "Sending…",
+    "listoTitulo": "Check your email",
+    "listoTexto": "If that address has a Mercatren account, the link is on its way. Check your spam folder too.",
+    "volver": "Back to sign in",
+    "nuevaTitulo": "Set your new password",
+    "nuevaTexto": "Type it twice so you do not end up with one you did not mean.",
+    "nueva": "New password",
+    "repetir": "Type it again",
+    "minimo": "At least 10 characters.",
+    "guardar": "Save password",
+    "guardando": "Saving…",
+    "noCoinciden": "The two passwords do not match.",
+    "cortaDemas": "Your password must be at least 10 characters.",
+    "enlaceVencido": "That link is no longer valid. Request a new one.",
+    "cambiada": "All set. You can sign in with your new password now.",
+    "sinEnlace": "Open the link we emailed you to set a new password.",
+    "algoFallo": "That did not work. Please try again in a moment."
   }
 }
