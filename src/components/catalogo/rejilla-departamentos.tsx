@@ -9,6 +9,7 @@ import {
   Flower2,
   Hammer,
   HeartPulse,
+  Package,
   Laptop,
   PaintRoller,
   Refrigerator,
@@ -25,7 +26,6 @@ import {
 
 import { Link } from "@/i18n/navigation";
 import type { DepartamentoDePortada } from "@/lib/catalogo/consultas";
-import { cn } from "@/lib/utils";
 
 /**
  * Los departamentos de Mercatren, en el centro de la portada.
@@ -35,9 +35,15 @@ import { cn } from "@/lib/utils";
  * solo enseñáramos los que ya tienen productos, la portada le contaría al
  * vendedor nuevo que esto es una ferretería y se iría.
  *
- * El que tiene productos se lleva la foto de uno de ellos; el que todavía no,
- * su icono sobre el azul de la marca. Se distinguen a simple vista sin que
- * haga falta escribir "vacío" en ningún sitio.
+ * SIEMPRE EL ICONO, NUNCA UNA FOTO DE PRODUCTO. Se probó sacando una foto
+ * real del departamento y quedaba mal: entre veintiún círculos iguales, uno
+ * con la foto de una lámina de zinc de un comercio rompía la fila entera. Y
+ * peor que feo: la imagen de un departamento de Mercatren acababa dependiendo
+ * de qué producto hubiera subido un cliente ese día. Esta parte del sitio es
+ * nuestra y la controlamos nosotros.
+ *
+ * Lo que sí cambia es el pie: el que tiene productos enseña cuántos, el que
+ * no dice "Próximamente".
  */
 
 const ICONOS = {
@@ -63,6 +69,7 @@ const ICONOS = {
   Briefcase,
   Wheat,
   Factory,
+  Package,
 } as const;
 
 export function RejillaDepartamentos({
@@ -85,31 +92,11 @@ export function RejillaDepartamentos({
               href={`/catalogo?categoria=${d.slug}`}
               className="group flex flex-col items-center gap-2 text-center"
             >
-              <span
-                className={cn(
-                  "relative flex aspect-square w-full max-w-[104px] items-center justify-center overflow-hidden rounded-full ring-1 transition-all",
-                  tiene
-                    ? "bg-slate-100 ring-borde group-hover:ring-2 group-hover:ring-carga-500"
-                    : "bg-riel-900 ring-riel-900/10 group-hover:ring-2 group-hover:ring-carga-500",
-                )}
-              >
-                {tiene && d.imagenUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={d.imagenUrl}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <Icono
-                    className={cn(
-                      "h-8 w-8",
-                      tiene ? "text-tinta-suave" : "text-carga-400",
-                    )}
-                    aria-hidden
-                  />
-                )}
+              <span className="relative flex aspect-square w-full max-w-[104px] items-center justify-center rounded-full bg-riel-900 ring-1 ring-riel-900/10 transition-all group-hover:ring-2 group-hover:ring-carga-500">
+                <Icono
+                  className="h-8 w-8 text-carga-400 transition-transform duration-300 group-hover:scale-110"
+                  aria-hidden
+                />
               </span>
 
               <span className="min-w-0">

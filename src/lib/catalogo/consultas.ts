@@ -557,7 +557,9 @@ export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
  * Esconderlos hasta que alguien venda motos es esperar a que aparezca solo el
  * vendedor que no sabe que puede vender aquí.
  *
- * El que tiene productos se lleva una foto de verdad; el que no, su icono.
+ * NO SE TRAE NINGUNA FOTO: el círculo lleva siempre el icono. La imagen de un
+ * departamento de Mercatren no puede depender de qué producto subió un cliente
+ * ese día — esa parte del sitio es nuestra.
  *
  * Se cuenta el departamento Y sus subcategorías: los productos de Bley cuelgan
  * de "PVC" y "Hierro", que a su vez cuelgan de "Ferretería y construcción".
@@ -568,7 +570,6 @@ export type DepartamentoDePortada = {
   nombre: string;
   icono: string;
   cuantos: number;
-  imagenUrl: string | null;
 };
 
 export async function listarDepartamentosDePortada(
@@ -593,34 +594,13 @@ export async function listarDepartamentosDePortada(
     )
   `;
 
-  const filas = await db.all<{
-    slug: string;
-    cuantos: number;
-    foto_url: string | null;
-    foto_clave: string | null;
-  }>(sql`
+  const filas = await db.all<{ slug: string; cuantos: number }>(sql`
     SELECT
       d.slug AS slug,
       (SELECT COUNT(*)
          FROM productos p
          JOIN tiendas t ON t.id = p.tienda_id
-        WHERE ${DEL_DEPARTAMENTO}) AS cuantos,
-      (SELECT i.url
-         FROM imagenes_producto i
-        WHERE i.producto_id = (
-          SELECT p.id FROM productos p
-            JOIN tiendas t ON t.id = p.tienda_id
-           WHERE ${DEL_DEPARTAMENTO}
-           LIMIT 1)
-        LIMIT 1) AS foto_url,
-      (SELECT i.clave
-         FROM imagenes_producto i
-        WHERE i.producto_id = (
-          SELECT p.id FROM productos p
-            JOIN tiendas t ON t.id = p.tienda_id
-           WHERE ${DEL_DEPARTAMENTO}
-           LIMIT 1)
-        LIMIT 1) AS foto_clave
+        WHERE ${DEL_DEPARTAMENTO}) AS cuantos
     FROM categorias d
     WHERE d.tienda_id IS NULL
   `);
@@ -636,9 +616,6 @@ export async function listarDepartamentosDePortada(
       nombre: nombreDepartamento(d, idioma),
       icono: d.icono,
       cuantos: Number(fila?.cuantos ?? 0),
-      imagenUrl: fila
-        ? direccionImagen({ url: fila.foto_url, clave: fila.foto_clave })
-        : null,
     };
   });
 }

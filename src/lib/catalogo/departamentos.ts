@@ -47,7 +47,8 @@ export type IconoDepartamento =
   | "Flower2"
   | "Briefcase"
   | "Wheat"
-  | "Factory";
+  | "Factory"
+  | "Package";
 
 export type Departamento = {
   slug: string;
@@ -193,6 +194,23 @@ export const DEPARTAMENTOS: Departamento[] = [
     es: "Industrial y equipos",
     en: "Industrial & Equipment",
     icono: "Factory",
+  },
+  /**
+   * "OTROS" VA SIEMPRE AL FINAL, Y ES EL MÁS IMPORTANTE DE LA LISTA.
+   *
+   * Un vendedor que no encuentra su departamento tiene dos salidas: irse, o
+   * dejarlo aquí. Esta casilla existe para que elija la segunda.
+   *
+   * Y no es un cajón de sastre: es de dónde sale el próximo departamento.
+   * Cada tanto se mira qué se acumuló aquí; si hay diez vendedores de
+   * instrumentos musicales, se crea "Instrumentos musicales" y se mueven. La
+   * lista crece con lo que el mercado trae, no con lo que adivinemos hoy.
+   */
+  {
+    slug: "otros",
+    es: "Otros",
+    en: "Other",
+    icono: "Package",
   },
 ];
 
