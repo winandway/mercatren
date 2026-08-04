@@ -1,11 +1,12 @@
 import { ArrowRight, Clock, PiggyBank, Store, TrendingUp } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { PrimerosPasos } from "@/components/panel/primeros-pasos";
 import { TarjetaMetrica } from "@/components/panel/tarjeta-metrica";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
-import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
+import { primerosPasos } from "@/lib/tiendas/consultas";
 import { obtenerResumen } from "@/lib/zelle/consultas";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,8 @@ export default async function PaginaResumen({
    * saber por qué. No está roto: está esperando que Mercatren lo apruebe. Si
    * no se le dice, lo primero que hace es escribir preguntando qué pasó.
    */
-  const miTienda = await tiendaDeLaSesion().catch(() => null);
+  const guia = await primerosPasos().catch(() => null);
+  const miTienda = guia?.tienda ?? null;
   const enEspera = miTienda?.estado === "pendiente";
 
   return (
@@ -47,6 +49,9 @@ export default async function PaginaResumen({
           </p>
         </section>
       ) : null}
+
+      {/* Los cuatro pasos para estar vendiendo. Desaparece al completarlos. */}
+      {guia ? <PrimerosPasos pasos={guia.pasos} /> : null}
       <header>
         <h1 className="text-2xl font-bold tracking-tight">
           {t("resumen.titulo")}

@@ -877,6 +877,16 @@
       "aprobarComercio": "Approve and let them sell",
       "esperaAprobacion": "This store is awaiting approval",
       "esperaAprobacionTexto": "They signed up with their details and can't sell yet. Review them before approving."
+    },
+    "primerosPasos": {
+      "titulo": "To start selling",
+      "llevas": "{hechos} of {total}",
+      "pasos": {
+        "marca": "Upload your store logo",
+        "ficha": "Describe what you sell",
+        "producto": "Add your first product",
+        "publicar": "Publish it so people can see it"
+      }
     }
   },
   "catalogo": {

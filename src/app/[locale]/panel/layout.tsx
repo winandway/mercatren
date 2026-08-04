@@ -8,6 +8,7 @@ import {
   tienePermisoDePanel,
   obtenerUsuario,
 } from "@/lib/autorizacion";
+import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
 
 /** El panel lee la base en cada visita: nunca se genera de antemano. */
@@ -47,6 +48,21 @@ export default async function LayoutPanel({
     obtenerUsuario(),
     esEquipoInterno(),
   ]);
+
+  /**
+   * UN COMERCIO SIN TIENDA NO PUEDE VER EL PANEL, PERO TAMPOCO DEBE ROMPERLO.
+   *
+   * `obtenerAlcance()` lanza cuando un vendedor no tiene comercio asignado, y
+   * eso dejaba la pantalla en un error crudo. Puede pasar con una cuenta a la
+   * que se le quitó la tienda, o si algo se corta a mitad del alta.
+   *
+   * En vez del error, se le manda a terminar su alta, que es lo único que le
+   * falta para poder entrar.
+   */
+  if (!interno && usuario?.rol === "vendedor") {
+    const suya = await tiendaDeLaSesion().catch(() => null);
+    if (!suya) redirect({ href: "/vender/empezar", locale });
+  }
 
   // Si la cuenta es de un comercio que todavia no tiene tienda asignada, la
   // consulta avisa en vez de romper la pantalla.

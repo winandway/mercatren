@@ -877,6 +877,16 @@
       "aprobarComercio": "Aprobar y dejarlo vender",
       "esperaAprobacion": "Este comercio espera aprobación",
       "esperaAprobacionTexto": "Se dio de alta con sus datos y todavía no puede vender. Revísalos antes de aprobarlo."
+    },
+    "primerosPasos": {
+      "titulo": "Para empezar a vender",
+      "llevas": "{hechos} de {total}",
+      "pasos": {
+        "marca": "Sube el logo de tu tienda",
+        "ficha": "Cuenta qué vendes en tu ficha",
+        "producto": "Carga tu primer producto",
+        "publicar": "Publícalo para que se vea"
+      }
     }
   },
   "catalogo": {
