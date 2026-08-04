@@ -168,6 +168,18 @@ export const VENDER_ES: PaginaContenido = {
       ],
     },
   ],
+  /**
+   * El paso siguiente. Sin esto, quien terminaba de leer llegaba al pie sin
+   * ningún camino: el único botón grande de abajo lo devolvía a esta misma
+   * página.
+   */
+  accion: {
+    titulo: "¿Listo para vender en Mercatren?",
+    texto:
+      "Crea tu cuenta y cuéntanos de tu comercio. Estamos en fase piloto: damos de alta pocos a la vez para acompañar bien a cada uno.",
+    boton: "Crear mi cuenta de comercio",
+    href: "/registro?vender=1",
+  },
 };
 
 export const VENDER_EN: PaginaContenido = {
@@ -331,6 +343,13 @@ export const VENDER_EN: PaginaContenido = {
       ],
     },
   ],
+  accion: {
+    titulo: "Ready to sell on Mercatren?",
+    texto:
+      "Create your account and tell us about your business. We're in pilot: we onboard a few at a time so we can support each one properly.",
+    boton: "Create my merchant account",
+    href: "/registro?vender=1",
+  },
 };
 
 /** Pagina de comisiones: un solo numero, explicado sin letra chica. */

@@ -128,20 +128,26 @@ export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
         )}
       </button>
 
-      {/* Sin esto, quien llega sin cuenta no puede comprar: se queda aqui. */}
-      <p className="text-center text-sm text-tinta-suave">
-        {t("noTengo")}{" "}
+      {/**
+       * CREAR CUENTA ES UN BOTÓN, NO UN ENLACE PERDIDO.
+       *
+       * Quien llega sin cuenta es justo el que más ayuda necesita, y antes
+       * tenía que encontrar un enlace pequeño debajo del botón grande. Se le
+       * separa con una línea y se le da su propio botón, como hace Amazon.
+       */}
+      <div className="border-t border-borde pt-4">
+        <p className="text-center text-sm text-tinta-suave">{t("noTengo")}</p>
         <Link
           href={
             destino !== "/"
               ? `/registro?destino=${encodeURIComponent(destino)}`
               : "/registro"
           }
-          className="font-semibold text-carga-600 hover:underline"
+          className="boton-secundario mt-3 w-full"
         >
           {t("registrate")}
         </Link>
-      </p>
+      </div>
     </form>
   );
 }

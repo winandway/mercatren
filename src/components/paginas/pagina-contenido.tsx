@@ -1,6 +1,9 @@
+import { ArrowRight } from "lucide-react";
+
 import { Bloques } from "@/components/docs/bloques";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import type { PaginaContenido } from "@/contenido/paginas/tipos";
+import { Link } from "@/i18n/navigation";
 
 /**
  * El molde de todas las paginas de texto del sitio: terminos, privacidad,
@@ -120,6 +123,23 @@ export function PaginaDeContenido({ pagina }: { pagina: PaginaContenido }) {
                 />
               </section>
             ))}
+
+            {/* El paso siguiente, al final de la lectura. */}
+            {pagina.accion ? (
+              <div className="mt-10 rounded-xl border border-carga-500/40 bg-carga-500/5 p-6 text-center">
+                <p className="text-lg font-bold">{pagina.accion.titulo}</p>
+                <p className="mx-auto mt-1 max-w-md text-sm text-tinta-suave">
+                  {pagina.accion.texto}
+                </p>
+                <Link
+                  href={pagina.accion.href}
+                  className="boton-principal mt-5 gap-2"
+                >
+                  {pagina.accion.boton}
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
+              </div>
+            ) : null}
 
             {pagina.cierre ? (
               <p className="mt-10 border-t border-borde pt-6 text-xs leading-relaxed text-tinta-suave">

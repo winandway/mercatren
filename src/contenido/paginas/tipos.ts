@@ -30,4 +30,14 @@ export type PaginaContenido = {
   esPreguntasFrecuentes?: boolean;
   /** Nota al pie, en letra chica. */
   cierre?: string;
+  /**
+   * El botón del final. Sin esto, una página que convence deja a la persona
+   * mirando el pie sin ningún camino: se emociona y se queda ahí.
+   */
+  accion?: {
+    titulo: string;
+    texto: string;
+    boton: string;
+    href: string;
+  };
 };
