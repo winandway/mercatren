@@ -2,6 +2,7 @@ import { ArrowLeft, BadgeCheck, Store, UserRound } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AprobarComercio } from "@/components/panel/aprobar-comercio";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
@@ -174,6 +175,19 @@ export default async function FichaDeUsuario({
                 </dd>
               </div>
             </dl>
+          ) : null}
+
+          {/* La solicitud espera una decisión: se pone donde se ve. */}
+          {usuario.tienda.estado === "pendiente" ? (
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-semibold text-amber-900">
+                {t("esperaAprobacion")}
+              </p>
+              <p className="mt-1 mb-3 text-sm text-amber-900/80">
+                {t("esperaAprobacionTexto")}
+              </p>
+              <AprobarComercio tiendaId={usuario.tienda.id} />
+            </div>
           ) : null}
 
           <div className="mt-4 flex flex-wrap gap-2 border-t border-borde pt-4">

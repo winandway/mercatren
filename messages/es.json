@@ -366,7 +366,8 @@
       "estados": {
         "activa": "Activo",
         "borrador": "En preparación",
-        "suspendida": "Suspendido"
+        "suspendida": "Suspendido",
+        "pendiente": "Pendiente de aprobar"
       },
       "vacio": "Todavía no hay comercios registrados.",
       "verPagos": "Ver sus pagos"
@@ -814,7 +815,16 @@
       "soloZellePorAhora": "Por ahora solo está habilitado el pago por Zelle.",
       "productoFueraDelCatalogo": "Uno de los productos del carrito ya no está en el catálogo. Quítalo y vuelve a intentar.",
       "pedidoSinMonto": "El pedido no tiene monto que cobrar.",
-      "ponlePrecioAlProducto": "Ponle precio al producto."
+      "ponlePrecioAlProducto": "Ponle precio al producto.",
+      "faltaRazonSocial": "Escribe la razón social de la empresa.",
+      "faltaIdentificacion": "Falta la identificación fiscal (RIF, EIN o equivalente).",
+      "faltaTelefono": "Escribe un teléfono de contacto.",
+      "faltaDireccion": "Escribe la dirección de la empresa.",
+      "faltaCiudad": "Escribe la ciudad.",
+      "faltaPais": "Escribe el país.",
+      "yaTienesComercio": "Ya tienes un comercio registrado con esta cuenta.",
+      "comercioEnRevision": "Listo. Tu comercio quedó registrado y el equipo de Mercatren lo va a revisar.",
+      "comercioAprobado": "Comercio aprobado. Ya puede vender."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -863,7 +873,10 @@
         "activo": "Activo",
         "inactivo": "Inactivo",
         "demostracion": "Demostración"
-      }
+      },
+      "aprobarComercio": "Aprobar y dejarlo vender",
+      "esperaAprobacion": "Este comercio espera aprobación",
+      "esperaAprobacionTexto": "Se dio de alta con sus datos y todavía no puede vender. Revísalos antes de aprobarlo."
     }
   },
   "catalogo": {
@@ -1257,5 +1270,40 @@
     "cerrarSesion": "Cerrar sesión",
     "salir": "Cerrar sesión",
     "saliendo": "Cerrando…"
+  },
+  "comercio": {
+    "titulo": "Registra tu comercio",
+    "entradilla": "Cuéntanos de tu empresa. Con esto abrimos tu tienda y tu billetera.",
+    "porQueLosDatos": "Pedimos estos datos porque cada venta se cobra en Estados Unidos a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda.",
+    "opcional": "opcional",
+    "enviar": "Registrar mi comercio",
+    "enviando": "Registrando…",
+    "seGuardaSolo": "Lo que escribas se guarda en este navegador. Si cierras y vuelves, sigue aquí.",
+    "soloQuieroComprar": "¿Solo quieres comprar?",
+    "irAlCatalogo": "Ir al catálogo",
+    "campos": {
+      "nombre": "Nombre de tu tienda",
+      "razonSocial": "Razón social",
+      "identificacionFiscal": "Identificación fiscal",
+      "paisOrigen": "País",
+      "ciudad": "Ciudad",
+      "direccion": "Dirección",
+      "telefono": "Teléfono",
+      "correoContacto": "Correo de la empresa",
+      "sitioWeb": "Sitio web",
+      "descripcionEs": "Qué vendes"
+    },
+    "ayudas": {
+      "nombre": "Como quieres que te vean tus clientes",
+      "razonSocial": "El nombre legal de la empresa",
+      "identificacionFiscal": "RIF, EIN o el que corresponda",
+      "paisOrigen": "Donde entregas la mercancía",
+      "ciudad": "Ciudad",
+      "direccion": "Calle, número, sector",
+      "telefono": "Número de contacto",
+      "correoContacto": "correo@ejemplo.com",
+      "sitioWeb": "https://",
+      "descripcionEs": "En una o dos líneas"
+    }
   }
 }

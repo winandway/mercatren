@@ -126,7 +126,20 @@ export const verification = sqliteTable(
 /* Tiendas y catalogo                                                         */
 /* -------------------------------------------------------------------------- */
 
-export const ESTADOS_TIENDA = ["borrador", "activa", "suspendida"] as const;
+/**
+ * En qué punto está una tienda.
+ *
+ * `pendiente` es el estado en que nace cuando un comercio se da de alta solo:
+ * ya escribió sus datos, pero todavía no vende. Alguien de Mercatren tiene
+ * que aprobarla. Sin ese paso cualquiera podría ponerse a cobrar en nombre
+ * del servicio, que es justo lo que no puede pasar.
+ */
+export const ESTADOS_TIENDA = [
+  "borrador",
+  "pendiente",
+  "activa",
+  "suspendida",
+] as const;
 
 export const tiendas = sqliteTable(
   "tiendas",

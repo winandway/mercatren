@@ -5,6 +5,7 @@ import { TarjetaMetrica } from "@/components/panel/tarjeta-metrica";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
+import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
 import { obtenerResumen } from "@/lib/zelle/consultas";
 
 export const dynamic = "force-dynamic";
@@ -22,8 +23,30 @@ export default async function PaginaResumen({
   const tz = await getTranslations("panel.zelle");
   const resumen = await obtenerResumen();
 
+  /**
+   * Un comercio recién dado de alta entra a un panel con todo en cero y sin
+   * saber por qué. No está roto: está esperando que Mercatren lo apruebe. Si
+   * no se le dice, lo primero que hace es escribir preguntando qué pasó.
+   */
+  const miTienda = await tiendaDeLaSesion().catch(() => null);
+  const enEspera = miTienda?.estado === "pendiente";
+
   return (
     <div className="space-y-6">
+      {enEspera ? (
+        <section className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="flex items-center gap-2 font-bold text-amber-900">
+            <Clock className="h-5 w-5" aria-hidden />
+            {t("enRevision.titulo")}
+          </h2>
+          <p className="mt-2 text-sm text-amber-900/90">
+            {t("enRevision.texto", { tienda: miTienda?.nombre ?? "" })}
+          </p>
+          <p className="mt-2 text-sm text-amber-900/90">
+            {t("enRevision.mientras")}
+          </p>
+        </section>
+      ) : null}
       <header>
         <h1 className="text-2xl font-bold tracking-tight">
           {t("resumen.titulo")}

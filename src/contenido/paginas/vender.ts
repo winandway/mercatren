@@ -178,7 +178,7 @@ export const VENDER_ES: PaginaContenido = {
     texto:
       "Crea tu cuenta y cuéntanos de tu comercio. Estamos en fase piloto: damos de alta pocos a la vez para acompañar bien a cada uno.",
     boton: "Crear mi cuenta de comercio",
-    href: "/registro?vender=1",
+    href: "/vender/empezar",
   },
 };
 
@@ -348,7 +348,7 @@ export const VENDER_EN: PaginaContenido = {
     texto:
       "Create your account and tell us about your business. We're in pilot: we onboard a few at a time so we can support each one properly.",
     boton: "Create my merchant account",
-    href: "/registro?vender=1",
+    href: "/vender/empezar",
   },
 };
 

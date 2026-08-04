@@ -10,6 +10,8 @@ export const dynamic = "force-dynamic";
 const ESTILO_ESTADO = {
   activa: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
   borrador: "bg-slate-100 text-tinta-suave",
+  // Se dio de alta solo y espera que Mercatren la revise.
+  pendiente: "bg-amber-50 text-amber-800 ring-1 ring-amber-200",
   suspendida: "bg-red-50 text-red-700 ring-1 ring-red-200",
 } as const;
 

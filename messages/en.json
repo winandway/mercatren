@@ -366,7 +366,8 @@
       "estados": {
         "activa": "Active",
         "borrador": "Being set up",
-        "suspendida": "Suspended"
+        "suspendida": "Suspended",
+        "pendiente": "Pending approval"
       },
       "vacio": "No merchants registered yet.",
       "verPagos": "View their payments"
@@ -814,7 +815,16 @@
       "soloZellePorAhora": "Zelle is the only payment method available right now.",
       "productoFueraDelCatalogo": "One of the products in your cart is no longer in the catalog. Remove it and try again.",
       "pedidoSinMonto": "This order has no amount to charge.",
-      "ponlePrecioAlProducto": "Set a price for the product."
+      "ponlePrecioAlProducto": "Set a price for the product.",
+      "faltaRazonSocial": "Enter the company's legal name.",
+      "faltaIdentificacion": "Tax ID is missing (EIN, RIF or equivalent).",
+      "faltaTelefono": "Enter a contact phone number.",
+      "faltaDireccion": "Enter the company address.",
+      "faltaCiudad": "Enter the city.",
+      "faltaPais": "Enter the country.",
+      "yaTienesComercio": "This account already has a store registered.",
+      "comercioEnRevision": "Done. Your store is registered and the Mercatren team will review it.",
+      "comercioAprobado": "Store approved. They can start selling."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -863,7 +873,10 @@
         "activo": "Active",
         "inactivo": "Inactive",
         "demostracion": "Demo"
-      }
+      },
+      "aprobarComercio": "Approve and let them sell",
+      "esperaAprobacion": "This store is awaiting approval",
+      "esperaAprobacionTexto": "They signed up with their details and can't sell yet. Review them before approving."
     }
   },
   "catalogo": {
@@ -1257,5 +1270,40 @@
     "cerrarSesion": "Sign out",
     "salir": "Sign out",
     "saliendo": "Signing out…"
+  },
+  "comercio": {
+    "titulo": "Register your business",
+    "entradilla": "Tell us about your company. We'll open your store and your wallet with this.",
+    "porQueLosDatos": "We ask for this because every sale is collected in the United States under your company's name and stays on record. We can't open the store without it.",
+    "opcional": "optional",
+    "enviar": "Register my business",
+    "enviando": "Registering…",
+    "seGuardaSolo": "What you type is saved in this browser. Close it and come back — it'll still be here.",
+    "soloQuieroComprar": "Just want to buy?",
+    "irAlCatalogo": "Go to the catalog",
+    "campos": {
+      "nombre": "Your store name",
+      "razonSocial": "Legal name",
+      "identificacionFiscal": "Tax ID",
+      "paisOrigen": "Country",
+      "ciudad": "City",
+      "direccion": "Address",
+      "telefono": "Phone",
+      "correoContacto": "Company email",
+      "sitioWeb": "Website",
+      "descripcionEs": "What you sell"
+    },
+    "ayudas": {
+      "nombre": "How you want customers to see you",
+      "razonSocial": "The company's legal name",
+      "identificacionFiscal": "EIN, RIF or equivalent",
+      "paisOrigen": "Where you deliver",
+      "ciudad": "City",
+      "direccion": "Street, number, area",
+      "telefono": "Contact number",
+      "correoContacto": "email@example.com",
+      "sitioWeb": "https://",
+      "descripcionEs": "In a line or two"
+    }
   }
 }
