@@ -40,9 +40,20 @@ está configurada; falta la pantalla de cobro.
 
 ---
 
-## 4. Retiros del comercio
+## ~~4. Retiros del comercio~~ — HECHO
 
-Que el comercio pueda sacar su saldo. Va después de la billetera y del WaaS.
+El comercio pide su dinero desde **Retiros** y elige cómo: a otro comercio de
+Mercatren, ACH o wire. El monto **se aparta al pedirlo**, no al pagarlo, así
+que la billetera enseña tres números: lo que tiene, lo que está en trámite y
+lo que puede pedir hoy.
+
+Al equipo le entra en una cola. **Esto no mueve dinero**: alguien hace la
+transferencia en el banco y luego toca "Ya lo pagué", que es lo que hace bajar
+el saldo y deja la referencia. Por eso el botón no se llama "Pagar".
+
+**Ojo:** los 70 retiros del histórico siguen en `pagos_zelle`, congelados. Los
+nuevos viven en la tabla `retiros`. El saldo suma los dos conjuntos, que no se
+pisan (`src/lib/zelle/billetera.ts`).
 
 ---
 
@@ -61,7 +72,22 @@ pasa a ser el proveedor y hay que sincronizar. Los campos
 
 ---
 
-## 7. Alta de comercios por su cuenta
+## ~~7. Alta de comercios por su cuenta~~ — HECHO
 
-Que un comercio nuevo se registre solo, cargue su tienda y empiece a vender sin
-que nadie del equipo tenga que crearle nada a mano.
+Se registra en `/vender`, llena los datos de su empresa —todos obligatorios— y
+la tienda nace **pendiente** hasta que el equipo la aprueba desde Cuentas. Al
+entrar ve la guía de los cuatro primeros pasos.
+
+---
+
+## 8. Envío e impuestos
+
+(antes el punto 5, se mantiene) Hoy van en cero a propósito.
+
+---
+
+## 9. Aviso al comercio cuando le piden un retiro
+
+Hoy el retiro entra en la cola y se ve al abrir el panel. Falta el correo que
+avise al equipo de que hay dinero esperando, y el que le confirme al comercio
+que ya salió su transferencia. Los 7 correos que ya existen son el molde.

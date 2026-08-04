@@ -33,9 +33,16 @@ aquí a medida que se terminan.
       cliente, qué lleva y los botones para cerrarla. Probado: pasa a
       "Entregado" y los botones desaparecen._
 
-- [ ] **4. Probar en el navegador, publicar y verificar en vivo.** Los tres de
+- [x] **4. Probar en el navegador, publicar y verificar en vivo.** Los tres de
       arriba se ven en pantalla, así que van al preview antes del build, con
       captura, y después se comprueban en el sitio publicado.
+      _Y apareció algo gordo: **las últimas cuatro publicaciones habían
+      fallado** y el sitio llevaba desde "Vender en Mercatren" sin recibir
+      nada. No era el código nuevo: eran tres pruebas que se quedaron atrás
+      cuando el título pasó de "Entrar" a "Iniciar sesión" y cuando se agregó
+      el ojito de la contraseña. Arregladas, la publicación salió verde y
+      todo lo atrasado entró de golpe. La tabla `retiros` se creó sola en
+      producción._
 
 ---
 

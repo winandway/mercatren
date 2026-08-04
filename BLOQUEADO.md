@@ -36,29 +36,16 @@ contraseñas de otras personas no pasan por mis manos.
 
 ---
 
-## 3. El sitio dejó de tomar las versiones nuevas
+## ~~3. El sitio dejó de tomar las versiones nuevas~~ — RESUELTO
 
-**Qué pasa:** desde el despliegue de "cerrar sesión", `mercatren.com` sigue
-sirviendo esa versión. Todo lo que publiqué después —los arreglos del envío de
-correos— está subido pero **no está en vivo**.
+**Qué era:** no era YaDominios Cloud. Las publicaciones **fallaban** en las
+pruebas automáticas y por eso nunca llegaban al sitio; el panel no tenía nada
+que servir. Las últimas cuatro se cayeron por lo mismo: tres pruebas que se
+quedaron escritas con textos viejos ("Entrar" en vez de "Iniciar sesión") y
+una que empezó a encontrar dos cosas al agregarse el ojito de la contraseña.
 
-**Cómo lo sé:** la rama que publica el sitio (`yapanel-build`) tiene el último
-cambio, y comprobé que el archivo publicado lo lleva dentro. Cada publicación
-termina en verde. Pero el sitio responde con el formato de mensaje de una
-versión de hace seis publicaciones, y eso no cambió ni después de 40 minutos.
-
-**Qué tienes que hacer:** entrar al panel de YaDominios Cloud y **publicar el
-sitio a mano**. Si sigue igual, preguntarles por qué no está sirviendo la
-última versión de la rama conectada.
-
-**Lo que se destraba con eso:** los correos automáticos (bienvenida,
-recuperar contraseña, aviso de compra, pago aprobado). El código ya está
-migrado de Resend al servicio de Cloudflare, con las 7 plantillas de siempre.
-Para comprobarlo: **Panel → Configuración → Probar el envío**, que dice el
-motivo exacto si algo no sale.
-
-**El token sí está bien.** En esa misma pantalla, la línea
-`CLOUDFLARE_EMAIL_TOKEN` dice **Configurada**.
+Arregladas el 4 ago 2026, la publicación salió verde y todo lo atrasado entró
+de golpe. **No tienes que hacer nada.**
 
 ---
 

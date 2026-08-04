@@ -133,7 +133,11 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
     `<CampoClave>` (`src/components/cuenta/campo-clave.tsx`), que trae el ojito
     para verla y arranca oculta. `tests/unit/campo-clave.test.ts` falla si
     aparece un `type="password"` suelto en cualquier otro archivo.
-12. **Se puede entrar y se puede salir.** Cerrar sesión vive en el menú de
+12. **Quien olvida su contraseña se recupera solo.** `/olvide-mi-clave` pide
+    el enlace y `/nueva-clave` recibe el del correo. La pantalla **nunca dice
+    si el correo existe**: con otra respuesta para uno desconocido sería una
+    forma cómoda de averiguar quién tiene cuenta aquí.
+13. **Se puede entrar y se puede salir.** Cerrar sesión vive en el menú de
     "Cuenta y listas" del encabezado, en `/cuenta` y en el menú del panel.
     Avisa al servidor y luego hace una **carga completa**: con una navegación
     de cliente el encabezado se quedaría como estaba y el botón de Panel
@@ -274,6 +278,14 @@ Aprobar y rechazar ya funcionan en `/panel/validacion`: al aprobar, el **neto**
 billetera. Rechazar obliga a escribir el motivo. Todo el trabajo de aprobar va
 en un solo envío a la base y el saldo se suma con `saldo = saldo + X`, para que
 dos validadores a la vez no se pisen.
+
+**Sacar el dinero ya funciona.** En `/panel/retiros` el comercio pide cuánto
+y cómo —a otro comercio de Mercatren, ACH o wire—, el monto **se aparta al
+pedirlo** (si no, con $2,000 pediría $1,000 tres veces) y al equipo le entra
+en una cola. El botón del equipo dice **"Ya lo pagué"**, no "Pagar": la
+transferencia la hace una persona en el banco y aquí solo queda la
+constancia. Los retiros nuevos viven en la tabla `retiros`; los 70 del
+histórico siguen congelados en `pagos_zelle` y el saldo suma los dos.
 
 Lo que **falta**: conectar la billetera con el **WaaS de tokiia.com**. El saldo
 que guardamos es un espejo; cuando se conecte, la fuente de verdad pasa a ser el
@@ -544,6 +556,15 @@ flujo del bucket, y arma las cabeceras a mano. Copiar los metadatos de R2 o
 pasar su flujo tal cual falla en el servidor de desarrollo.
 
 ## Comandos
+
+**Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan
+de `messages/es.json` y buscan por rol. Se aprendió caro: cuando el título
+pasó de "Entrar" a "Iniciar sesión" y cuando se agregó el ojito de la
+contraseña —que hizo que buscar por la etiqueta "Contraseña" encontrara dos
+cosas—, las pruebas se quedaron atrás y **tumbaron cuatro publicaciones
+seguidas sin que nadie lo notara**: el sitio pasó días sin recibir nada
+mientras cada commit parecía subido. Si una prueba busca un texto literal de
+la interfaz, está mal.
 
 **Ojo al correr `npm run e2e`:** apaga antes cualquier `npm run dev` que
 tengas abierto. Dos servidores de desarrollo sobre la misma carpeta `.next`
