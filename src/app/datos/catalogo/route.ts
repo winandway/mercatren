@@ -1,7 +1,14 @@
 import { parrillaDeProductos } from "@/lib/catalogo/consultas";
+import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
+import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 
 /**
  * Las siguientes tandas de la parrilla de la portada.
+ *
+ * LA CIUDAD VIENE DE LA COOKIE, la misma que leyó la portada: si la primera
+ * tanda salió filtrada por Caracas, las siguientes también, o al bajar
+ * aparecería mercancía de otra ciudad. `todas=1` la ignora (es la portada en
+ * "toda Venezuela").
  *
  * Va en /datos y no en /api porque en YaDominios Cloud ese prefijo lo capturan
  * los archivos estáticos antes de llegar al código.
@@ -22,7 +29,11 @@ export async function GET(peticion: Request) {
   const semilla = Number(url.searchParams.get("semilla")) | 0 || 7919;
 
   try {
-    const tanda = await parrillaDeProductos(semilla, pagina, 24);
+    const zona =
+      url.searchParams.get("todas") === "1" ? null : await zonaDelCliente();
+    const visibles = zona ? ciudadesVisiblesDesde(zona.slug) : undefined;
+
+    const tanda = await parrillaDeProductos(semilla, pagina, 24, visibles);
     return Response.json({
       productos: tanda.productos,
       pagina: tanda.pagina,

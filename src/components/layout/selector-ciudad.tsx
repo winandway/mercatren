@@ -1,51 +1,65 @@
 "use client";
 
-import { Check, ChevronDown, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  MapPin,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-import { ZONAS } from "@/lib/entrega/zonas";
+import { ESTADOS, type EstadoVE } from "@/lib/entrega/zonas";
 import { cn } from "@/lib/utils";
 
 /**
- * Dónde está quien compra.
+ * Dónde está quien compra: ESTADO → CIUDAD, como el mapa real de Venezuela.
  *
- * Antes aquí decía "Entregar en 🇺🇸 Estados Unidos", escrito a fuego en el
- * código. No detectaba nada: le decía Estados Unidos a alguien parado en
- * Caracas. Y encima era mentira — la mercancía está en El Vigía y en Caracas.
+ * La primera versión era una lista plana de pueblos escrita a mano y el dueño
+ * la mandó a rehacer ("una chapuza"): Caños Zancudo al lado de Caracas, sin
+ * jerarquía. Ahora el cliente toca su estado y adentro están sus ciudades —
+ * las 481 oficiales del país, así que la de un vendedor nuevo ya existe.
  *
- * SE PREGUNTA, NO SE ADIVINA. Nada de IP ni de GPS: la IP se equivoca (un
- * celular en El Vigía puede salir con IP de Bogotá) y el GPS pide un permiso
- * que la mayoría niega. Amazon pregunta el código postal; aquí se pregunta la
- * ciudad.
+ * EL BOMBILLO VERDE dice dónde Mercatren ya está: un punto en cada estado y
+ * ciudad con mercancía que retirar. El que abre la lista ve de un golpe la
+ * cobertura — y un vendedor ve dónde falta un negocio por abrir.
  *
- * SE GUARDA EN UNA COOKIE para que el servidor pueda leerla y calcular, en
- * cada producto, si le queda cerca o lejos. Un año de vida: nadie quiere
- * decir dónde vive dos veces.
+ * SE PREGUNTA, NO SE ADIVINA. Nada de IP (un celular en El Vigía puede salir
+ * con IP de Bogotá) ni de GPS (pide un permiso que la mayoría niega). Amazon
+ * pregunta el código postal; aquí se pregunta la ciudad.
  *
- * Al elegir se RECARGA la página entera. Los avisos de retiro los arma el
- * servidor producto por producto; con una navegación de cliente seguirían
- * mostrando la ciudad anterior.
+ * Al elegir se RECARGA la página entera: el filtro del catálogo y los avisos
+ * de retiro los arma el servidor, y con una navegación de cliente seguirían
+ * enseñando la ciudad anterior.
  */
-/**
- * Guarda la ciudad y recarga.
- *
- * Va fuera del componente porque escribir `document.cookie` desde dentro es
- * tocar algo de afuera, y el compilador de React lo marca — con razón: si
- * mañana esa línea se colara en el render, se ejecutaría en cada dibujo.
- */
-function guardarYRecargar(slug: string) {
-  // Un año, y en toda la ruta del sitio: nadie quiere decir dónde vive dos
-  // veces. `lax` alcanza de sobra — esto no es una credencial.
-  document.cookie = `mercatren_zona=${slug}; path=/; max-age=31536000; samesite=lax`;
+function guardarYRecargar(slug: string | null) {
+  // Un año de vida: nadie quiere decir dónde vive dos veces. `lax` alcanza —
+  // esto no es una credencial. Con null se borra: "toda Venezuela".
+  document.cookie = slug
+    ? `mercatren_zona=${slug}; path=/; max-age=31536000; samesite=lax`
+    : "mercatren_zona=; path=/; max-age=0; samesite=lax";
   window.location.reload();
+}
+
+/** El bombillo verde: aquí ya hay mercancía. */
+function Bombillo() {
+  return (
+    <span
+      className="h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+      aria-hidden
+    />
+  );
 }
 
 export function SelectorCiudad({
   zonaActual,
+  cobertura,
   enLinea = false,
 }: {
   zonaActual: string | null;
+  /** productos por ciudad (slug → cuántos), para encender los bombillos. */
+  cobertura: Record<string, number>;
   /**
    * De una sola línea, para la barra del celular.
    *
@@ -57,9 +71,17 @@ export function SelectorCiudad({
 }) {
   const t = useTranslations("entrega");
   const [abierto, setAbierto] = useState(false);
+  const [estadoAbierto, setEstadoAbierto] = useState<EstadoVE | null>(null);
   const caja = useRef<HTMLDivElement>(null);
 
-  const elegida = ZONAS.find((z) => z.slug === zonaActual);
+  const elegida = (() => {
+    for (const e of ESTADOS)
+      for (const c of e.ciudades) if (c.slug === zonaActual) return c;
+    return null;
+  })();
+
+  const estadoTieneCobertura = (e: EstadoVE) =>
+    e.ciudades.some((c) => cobertura[c.slug]);
 
   useEffect(() => {
     if (!abierto) return;
@@ -77,15 +99,23 @@ export function SelectorCiudad({
     };
   }, [abierto]);
 
-  function elegir(slug: string) {
-    guardarYRecargar(slug);
+  function abrir() {
+    // Siempre arranca en los estados; si ya eligió, con el suyo abierto para
+    // que cambiar de ciudad dentro del mismo estado sea un solo toque.
+    setEstadoAbierto(
+      elegida
+        ? (ESTADOS.find((e) => e.ciudades.some((c) => c.slug === zonaActual)) ??
+            null)
+        : null,
+    );
+    setAbierto((v) => !v);
   }
 
   return (
     <div ref={caja} className="relative">
       <button
         type="button"
-        onClick={() => setAbierto((v) => !v)}
+        onClick={abrir}
         aria-expanded={abierto}
         aria-label={t("ayuda")}
         className="flex items-center gap-1 rounded-lg px-1 py-0.5 text-left text-xs transition-colors hover:bg-white/10"
@@ -114,38 +144,109 @@ export function SelectorCiudad({
       </button>
 
       {abierto ? (
-        <div className="absolute top-full left-0 z-50 mt-1 max-h-[70vh] w-64 overflow-y-auto rounded-lg bg-white py-1 text-tinta shadow-xl ring-1 ring-black/10">
-          <p className="px-3 py-2 text-xs text-tinta-suave">{t("ayuda")}</p>
+        <div className="absolute top-full left-0 z-50 mt-1 max-h-[70vh] w-72 overflow-y-auto rounded-lg bg-white py-1 text-tinta shadow-xl ring-1 ring-black/10">
+          {estadoAbierto === null ? (
+            <>
+              <p className="px-3 py-2 text-xs text-tinta-suave">{t("ayuda")}</p>
 
-          <ul>
-            {ZONAS.map((z) => (
-              <li key={z.slug}>
+              {/* Volver a ver todo, sin ciudad. */}
+              {zonaActual ? (
                 <button
                   type="button"
-                  onClick={() => elegir(z.slug)}
-                  className={cn(
-                    "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50",
-                    z.slug === zonaActual && "font-semibold",
-                  )}
+                  onClick={() => guardarYRecargar(null)}
+                  className="flex w-full items-center gap-2 border-b border-borde px-3 py-2 text-left text-sm font-semibold hover:bg-slate-50"
                 >
-                  {z.slug === zonaActual ? (
-                    <Check
-                      className="h-4 w-4 shrink-0 text-precio-600"
-                      aria-hidden
-                    />
-                  ) : (
-                    <span className="w-4 shrink-0" aria-hidden />
-                  )}
-                  <span className="min-w-0">
-                    <span className="block truncate">{z.nombre}</span>
-                    <span className="block text-xs text-tinta-suave">
-                      {z.region}
-                    </span>
-                  </span>
+                  <span className="w-4 shrink-0" aria-hidden />
+                  {t("todaVenezuela")}
                 </button>
-              </li>
-            ))}
-          </ul>
+              ) : null}
+
+              <ul>
+                {ESTADOS.map((estado) => {
+                  const activo = estado.ciudades.some(
+                    (c) => c.slug === zonaActual,
+                  );
+                  return (
+                    <li key={estado.slug}>
+                      <button
+                        type="button"
+                        onClick={() => setEstadoAbierto(estado)}
+                        className={cn(
+                          "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50",
+                          activo && "font-semibold",
+                        )}
+                      >
+                        {estadoTieneCobertura(estado) ? (
+                          <Bombillo />
+                        ) : (
+                          <span className="w-2 shrink-0" aria-hidden />
+                        )}
+                        <span className="min-w-0 flex-1 truncate">
+                          {estado.nombre}
+                        </span>
+                        {estadoTieneCobertura(estado) ? (
+                          <span className="shrink-0 text-[11px] font-medium text-emerald-700">
+                            {t("mercatrenAqui")}
+                          </span>
+                        ) : null}
+                        <ChevronRight
+                          className="h-4 w-4 shrink-0 text-tinta-suave"
+                          aria-hidden
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setEstadoAbierto(null)}
+                className="flex w-full items-center gap-2 border-b border-borde px-3 py-2 text-left text-sm font-semibold hover:bg-slate-50"
+              >
+                <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+                {estadoAbierto.nombre}
+              </button>
+
+              <ul>
+                {estadoAbierto.ciudades.map((ciudad) => {
+                  const cuantos = cobertura[ciudad.slug];
+                  return (
+                    <li key={ciudad.slug}>
+                      <button
+                        type="button"
+                        onClick={() => guardarYRecargar(ciudad.slug)}
+                        className={cn(
+                          "flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50",
+                          ciudad.slug === zonaActual && "font-semibold",
+                        )}
+                      >
+                        {ciudad.slug === zonaActual ? (
+                          <Check
+                            className="h-4 w-4 shrink-0 text-precio-600"
+                            aria-hidden
+                          />
+                        ) : (
+                          <span className="w-4 shrink-0" aria-hidden />
+                        )}
+                        <span className="min-w-0 flex-1 truncate">
+                          {ciudad.nombre}
+                        </span>
+                        {cuantos ? (
+                          <span className="flex shrink-0 items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                            <Bombillo />
+                            {t("productosAqui", { n: cuantos })}
+                          </span>
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </div>
       ) : null}
     </div>

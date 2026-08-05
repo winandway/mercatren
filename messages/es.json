@@ -1493,12 +1493,23 @@
     "dondeEstas": "¿Dónde estás?",
     "eligeCiudad": "Elige tu ciudad",
     "retirasEn": "Retiras en",
-    "ayuda": "Elige tu ciudad y te decimos dónde retirar cada producto.",
+    "ayuda": "Elige tu estado y tu ciudad, y te decimos dónde retirar cada producto.",
     "seRetiraEn": "Se retira en",
     "aqui": "Está en tu ciudad. Pasas y lo recoges.",
-    "cerca": "Está en {ciudad}, cerquita de ti. Puedes ir a buscarlo.",
+    "cerca": "Está en {ciudad}, te queda cerca. Puedes ir a buscarlo.",
     "lejos": "Ojo: está en {ciudad}. Tendrías que ir hasta allá a retirarlo.",
     "sinDireccion": "El comercio aún no cargó la dirección exacta. Escríbele antes de ir.",
-    "todoEsRetiro": "Por ahora todo se retira en el depósito. No hacemos entregas a domicilio."
+    "todoEsRetiro": "Por ahora todo se retira en el depósito. No hacemos entregas a domicilio.",
+    "todaVenezuela": "Toda Venezuela",
+    "mercatrenAqui": "Mercatren está aquí",
+    "productosAqui": "{n} productos",
+    "viendoZona": "Estás viendo lo que se retira en {ciudad} o cerca.",
+    "verTodaVenezuela": "Ver toda Venezuela",
+    "viendoTodaVenezuela": "Estás viendo todo Venezuela.",
+    "volverAMiZona": "Ver solo lo de {ciudad}",
+    "sinComerciosTitulo": "En {ciudad} todavía no hay comercios de Mercatren",
+    "sinComerciosTexto": "Te mostramos el catálogo completo del país; cada producto dice en qué ciudad se retira.",
+    "sinComerciosCatalogo": "Mira el catálogo de toda Venezuela; cada producto dice en qué ciudad se retira.",
+    "abreTuTiendaAqui": "¿Vendes en {ciudad}? Abre tu tienda y sé el primero"
   }
 }

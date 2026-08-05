@@ -11,6 +11,8 @@ import {
   listarProductos,
   type OrdenCatalogo,
 } from "@/lib/catalogo/consultas";
+import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
+import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +34,7 @@ type Parametros = {
   comercio?: string;
   orden?: string;
   pagina?: string;
+  todas?: string;
 };
 
 export default async function PaginaCatalogo({
@@ -47,6 +50,17 @@ export default async function PaginaCatalogo({
 
   const filtros = await searchParams;
   const t = await getTranslations("catalogo");
+  const tEntrega = await getTranslations("entrega");
+
+  /**
+   * EL FILTRO POR CIUDAD, igual que en la portada: quien eligió Caracas ve
+   * lo que se retira en Caracas o cerca. `?todas=1` enseña el país entero
+   * sin borrar la ciudad elegida.
+   */
+  const zona = await zonaDelCliente();
+  const verTodas = filtros.todas === "1";
+  const visibles =
+    zona && !verTodas ? ciudadesVisiblesDesde(zona.slug) : undefined;
 
   const [resultado, categorias, comercios] = await Promise.all([
     listarProductos({
@@ -55,6 +69,7 @@ export default async function PaginaCatalogo({
       comercio: filtros.comercio,
       orden: filtros.orden as OrdenCatalogo,
       pagina: Number(filtros.pagina) || 1,
+      zona: visibles,
     }),
     listarCategoriasConProductos(),
     listarComerciosDelCatalogo(),
@@ -63,6 +78,15 @@ export default async function PaginaCatalogo({
   const hayBusqueda = Boolean(
     filtros.q || filtros.categoria || filtros.comercio,
   );
+
+  // Para "ver toda Venezuela" conservando la búsqueda y los filtros activos.
+  const parametrosSinZona = new URLSearchParams();
+  for (const [clave, valor] of Object.entries(filtros)) {
+    if (valor && clave !== "todas" && clave !== "pagina")
+      parametrosSinZona.set(clave, valor);
+  }
+  const haciaTodas = `/catalogo?${new URLSearchParams([...parametrosSinZona, ["todas", "1"]]).toString()}`;
+  const haciaMiZona = `/catalogo${parametrosSinZona.size ? `?${parametrosSinZona.toString()}` : ""}`;
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8">
@@ -84,14 +108,54 @@ export default async function PaginaCatalogo({
         }))}
       />
 
-      <p className="mt-5 mb-4 text-sm font-medium">
+      <p className="mt-5 mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm font-medium">
         {t("resultados", { n: resultado.total })}
+        {/* La franja del filtro: que se sepa que esto está acotado a su zona,
+            con la puerta a ver el país entero sin perder su ciudad. */}
+        {visibles && zona ? (
+          <>
+            <span className="font-normal text-tinta-suave">
+              {tEntrega("viendoZona", { ciudad: zona.nombre })}
+            </span>
+            <Link
+              href={haciaTodas}
+              className="font-semibold text-riel-700 underline-offset-2 hover:text-carga-600 hover:underline"
+            >
+              {tEntrega("verTodaVenezuela")}
+            </Link>
+          </>
+        ) : null}
+        {verTodas && zona ? (
+          <Link
+            href={haciaMiZona}
+            className="font-semibold text-riel-700 underline-offset-2 hover:text-carga-600 hover:underline"
+          >
+            {tEntrega("volverAMiZona", { ciudad: zona.nombre })}
+          </Link>
+        ) : null}
       </p>
 
       {resultado.productos.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-borde px-6 py-16 text-center text-sm text-tinta-suave">
-          {hayBusqueda ? t("sinResultados") : t("vacio")}
-        </p>
+        <div className="rounded-xl border border-dashed border-borde px-6 py-16 text-center text-sm text-tinta-suave">
+          {visibles && zona ? (
+            <>
+              <p className="font-semibold text-tinta">
+                {tEntrega("sinComerciosTitulo", { ciudad: zona.nombre })}
+              </p>
+              <p className="mx-auto mt-1 max-w-md">
+                {tEntrega("sinComerciosCatalogo")}
+              </p>
+              <Link
+                href={haciaTodas}
+                className="mt-3 inline-block font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+              >
+                {tEntrega("verTodaVenezuela")}
+              </Link>
+            </>
+          ) : (
+            <p>{hayBusqueda ? t("sinResultados") : t("vacio")}</p>
+          )}
+        </div>
       ) : (
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
           {resultado.productos.map((producto) => (

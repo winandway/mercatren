@@ -1493,12 +1493,23 @@
     "dondeEstas": "Where are you?",
     "eligeCiudad": "Choose your city",
     "retirasEn": "Pick up in",
-    "ayuda": "Choose your city and we will tell you where to pick up each product.",
+    "ayuda": "Choose your state and city, and we'll tell you where to pick up each product.",
     "seRetiraEn": "Pick up at",
     "aqui": "It is in your city. Stop by and grab it.",
-    "cerca": "It is in {ciudad}, close to you. You can go get it.",
+    "cerca": "It's in {ciudad}, not far from you. You can go pick it up.",
     "lejos": "Heads up: it is in {ciudad}. You would have to travel there to pick it up.",
     "sinDireccion": "The store has not added the exact address yet. Message them before going.",
-    "todoEsRetiro": "For now everything is picked up at the warehouse. We do not deliver yet."
+    "todoEsRetiro": "For now everything is picked up at the warehouse. We do not deliver yet.",
+    "todaVenezuela": "All of Venezuela",
+    "mercatrenAqui": "Mercatren is here",
+    "productosAqui": "{n} products",
+    "viendoZona": "You're seeing what's available for pickup in or near {ciudad}.",
+    "verTodaVenezuela": "See all of Venezuela",
+    "viendoTodaVenezuela": "You're seeing all of Venezuela.",
+    "volverAMiZona": "Show only {ciudad}",
+    "sinComerciosTitulo": "No Mercatren sellers in {ciudad} yet",
+    "sinComerciosTexto": "Here's the full nationwide catalog — every product shows its pickup city.",
+    "sinComerciosCatalogo": "Browse the nationwide catalog — every product shows its pickup city.",
+    "abreTuTiendaAqui": "Do you sell in {ciudad}? Open your store and be the first"
   }
 }

@@ -11,6 +11,7 @@ import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
+import { coberturaPorCiudad } from "@/lib/entrega/cobertura";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import type { Idioma } from "@/lib/dinero";
 
@@ -32,6 +33,8 @@ export async function Encabezado() {
   // el encabezado nunca puede tumbar la pagina.
   const usuario = await obtenerUsuario().catch(() => null);
   const zona = await zonaDelCliente();
+  // Los bombillos verdes del selector: en qué ciudades ya hay mercancía.
+  const cobertura = await coberturaPorCiudad();
   const trabajaEnElPanel =
     usuario?.rol === "soporte" ||
     usuario?.rol === "validador" ||
@@ -54,7 +57,10 @@ export async function Encabezado() {
               decía "Estados Unidos" y no detectaba nada — le decía lo mismo a
               alguien parado en Caracas. Ahora se pregunta y se recuerda. */}
           <div className="hidden xl:block">
-            <SelectorCiudad zonaActual={zona?.slug ?? null} />
+            <SelectorCiudad
+              zonaActual={zona?.slug ?? null}
+              cobertura={cobertura}
+            />
           </div>
 
           {/* EL BUSCADOR ES EL PROTAGONISTA. Se come todo el espacio libre y
@@ -133,7 +139,11 @@ export async function Encabezado() {
           de lado a lado, imposible de no ver. */}
       <div className="border-b border-white/10 bg-riel-800 text-white xl:hidden">
         <div className="mx-auto flex max-w-[1500px] px-3 py-1 sm:px-4">
-          <SelectorCiudad zonaActual={zona?.slug ?? null} enLinea />
+          <SelectorCiudad
+            zonaActual={zona?.slug ?? null}
+            cobertura={cobertura}
+            enLinea
+          />
         </div>
       </div>
 

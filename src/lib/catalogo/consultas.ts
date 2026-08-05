@@ -41,7 +41,32 @@ export type FiltrosCatalogo = {
   orden?: OrdenCatalogo;
   pagina?: number;
   porPagina?: number;
+  /** Slugs de ciudad: solo productos cuyo depósito esté en alguna de ellas. */
+  zona?: string[];
 };
+
+/**
+ * EL FILTRO POR CIUDAD: quien eligió Caracas ve lo que se retira en Caracas.
+ *
+ * Antes elegir ciudad no filtraba nada — salía todo lo de El Vigía aunque
+ * uno estuviera parado en Caracas, y el dueño lo mandó a corregir: "debería
+ * salir todo lo que hay en Caracas cuando seleccione Caracas".
+ *
+ * Se filtra por el DEPÓSITO del producto, que es donde de verdad está la
+ * mercancía. La lista de ciudades llega ya armada (la ciudad del cliente +
+ * su estado + los pueblos vecinos, ver ciudadesVisiblesDesde); aquí solo se
+ * traduce a SQL.
+ */
+function enZona(ciudades: string[]) {
+  return sql`${productos.depositoId} IN (
+    SELECT dz.id FROM ${depositos} dz
+     WHERE dz.activo = 1
+       AND dz.zona IN (${sql.join(
+         ciudades.map((c) => sql`${c}`),
+         sql`, `,
+       )})
+  )`;
+}
 
 /**
  * La direccion de una foto.
@@ -119,6 +144,9 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
   }
   if (filtros.comercio) {
     condiciones.push(eq(tiendas.slug, filtros.comercio));
+  }
+  if (filtros.zona?.length) {
+    condiciones.push(enZona(filtros.zona));
   }
 
   // La busqueda usa el MISMO motor que el desplegable del encabezado
@@ -348,7 +376,11 @@ export async function listarComerciosDelCatalogo() {
  * Si la base no responde devuelve listas vacias y la portada lo maneja: antes
  * que tumbarla con un error 500, se muestra vacia.
  */
-export async function obtenerPortada(idioma = "es", semilla = 7919) {
+export async function obtenerPortada(
+  idioma = "es",
+  semilla = 7919,
+  zona?: string[],
+) {
   const vacia = {
     parrilla: { productos: [], total: 0, pagina: 1, paginas: 1 },
     departamentos: [],
@@ -358,9 +390,11 @@ export async function obtenerPortada(idioma = "es", semilla = 7919) {
 
   try {
     const [parrilla, departamentos, bandas, comercios] = await Promise.all([
-      parrillaDeProductos(semilla, 1, 24),
+      parrillaDeProductos(semilla, 1, 24, zona),
+      // La tira de arriba enseña TODOS los departamentos del servicio, con o
+      // sin zona: es el cartel de "esto se puede vender aquí", no el filtro.
       listarDepartamentosDePortada(idioma),
-      bandasDeDepartamentos(idioma),
+      bandasDeDepartamentos(idioma, 6, 21, zona),
       listarComerciosDestacados(),
     ]);
 
@@ -472,6 +506,7 @@ export type DepartamentoDePortada = {
 
 export async function listarDepartamentosDePortada(
   idioma: string,
+  zona?: string[],
 ): Promise<DepartamentoDePortada[]> {
   const db = getDb();
 
@@ -480,7 +515,22 @@ export async function listarDepartamentosDePortada(
    * MÁS los que cuelgan de una subcategoría suya. Los de Bley están en "PVC" y
    * "Hierro", que cuelgan de "Ferretería y construcción": contando solo el
    * departamento saldría en cero teniendo 622 productos debajo.
+   *
+   * Con zona elegida, los conteos también se acotan a lo que se retira ahí:
+   * un departamento que en Caracas está vacío no puede bajar como banda
+   * llena de mercancía de otra ciudad.
    */
+  const FILTRO_ZONA = zona?.length
+    ? sql`AND p.deposito_id IN (
+        SELECT dz.id FROM depositos dz
+         WHERE dz.activo = 1
+           AND dz.zona IN (${sql.join(
+             zona.map((c) => sql`${c}`),
+             sql`, `,
+           )})
+      )`
+    : sql``;
+
   const DEL_DEPARTAMENTO = sql`
     p.estado = 'publicado'
     AND t.estado = 'activa'
@@ -490,6 +540,7 @@ export async function listarDepartamentosDePortada(
         SELECT h.id FROM categorias h WHERE h.padre_id = d.id
       )
     )
+    ${FILTRO_ZONA}
   `;
 
   const filas = await db.all<{ slug: string; cuantos: number }>(sql`
@@ -535,8 +586,13 @@ export async function parrillaDeProductos(
   semilla: number,
   pagina = 1,
   porPagina = 24,
+  zona?: string[],
 ) {
   const db = getDb();
+
+  const donde = zona?.length
+    ? and(VISIBLE, gt(productos.precioCentavos, 0), enZona(zona))
+    : and(VISIBLE, gt(productos.precioCentavos, 0));
 
   const filas = await db
     .select({
@@ -560,7 +616,7 @@ export async function parrillaDeProductos(
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(and(VISIBLE, gt(productos.precioCentavos, 0)))
+    .where(donde)
     /**
      * 104729 es primo: con un primo el reparto no cae en ciclos cortos y no
      * se agrupan los productos de la misma tienda.
@@ -577,7 +633,7 @@ export async function parrillaDeProductos(
     .select({ n: sql<number>`COUNT(*)` })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(and(VISIBLE, gt(productos.precioCentavos, 0)));
+    .where(donde);
 
   const total = Number(conteo?.n ?? 0);
 
@@ -632,8 +688,9 @@ export async function bandasDeDepartamentos(
   idioma: string,
   cuantasBandas = 6,
   porBanda = 21,
+  zona?: string[],
 ): Promise<BandaDeDepartamento[]> {
-  const conProductos = (await listarDepartamentosDePortada(idioma))
+  const conProductos = (await listarDepartamentosDePortada(idioma, zona))
     .filter((d) => d.cuantos > 0)
     .sort((a, b) => b.cuantos - a.cuantos)
     .slice(0, cuantasBandas);
@@ -670,6 +727,7 @@ export async function bandasDeDepartamentos(
           and(
             VISIBLE,
             gt(productos.precioCentavos, 0),
+            ...(zona?.length ? [enZona(zona)] : []),
             sql`${productos.categoriaId} IN (
               SELECT c.id FROM categorias c
                WHERE c.slug = ${d.slug} AND c.tienda_id IS NULL

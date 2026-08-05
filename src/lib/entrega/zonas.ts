@@ -7,84 +7,81 @@
  * donde está — y eso hay que decírselo al cliente antes de que pague, no
  * después.
  *
- * Por eso las zonas NO son una barrera: son un aviso. Nadie tiene prohibido
- * comprar algo que está lejos; el que compra decide si puede llegar. Lo único
- * que no se vale es que se entere después.
+ * EL MAPA ES LA DIVISIÓN REAL DE VENEZUELA (src/lib/entrega/venezuela.ts):
+ * 24 estados con sus ciudades oficiales. El cliente elige estado → ciudad.
+ * La primera versión era una lista plana de pueblos escrita a mano y el
+ * dueño la mandó a rehacer: con la división real, cuando un comercio de
+ * cualquier ciudad del país abra su tienda, su ciudad ya existe aquí.
+ *
+ * Las zonas NO son una barrera: son un aviso. Nadie tiene prohibido comprar
+ * algo que está lejos; el que compra decide si puede llegar. Lo único que no
+ * se vale es que se entere después.
  *
  *   aqui   → está en tu misma ciudad. Pasas y lo recoges.
- *   cerca  → está en un pueblo vecino, a un rato en carro.
+ *   cerca  → está en tu estado o en un pueblo vecino, a un rato en carro.
  *   lejos  → está a horas. Se compra igual, pero avisando fuerte.
  *
  * Cuando exista el reparto —con mototaxis o apps de delivery, y solo para
- * cosas chicas: una cinta métrica, no una lámina— esto crece con un estado
- * más. Está anotado en PLAN.md y NO se promete en ninguna pantalla hasta que
- * el transporte exista de verdad.
- *
- * LA LISTA ES NUESTRA Y CERRADA, como los departamentos. Si cada comercio
- * escribe la suya, "El Vigía", "el vigia" y "Vigía" son tres ciudades
- * distintas y ningún cliente encuentra nada.
+ * cosas chicas— esto crece con un estado más. Está anotado en PLAN.md y NO
+ * se promete en ninguna pantalla hasta que el transporte exista de verdad.
  */
 
+import { VENEZUELA, type CiudadVE, type EstadoVE } from "./venezuela";
+
+export type { CiudadVE, EstadoVE };
+export const ESTADOS: EstadoVE[] = VENEZUELA;
+
+/** Una ciudad con su estado a cuestas, que es como se usa en pantalla. */
 export type Zona = {
   slug: string;
   nombre: string;
-  /** El estado o región, para que no se confundan dos ciudades homónimas. */
+  /** El nombre del estado, para que no se confundan dos ciudades homónimas. */
   region: string;
-  /**
-   * Ciudades que quedan a un rato de aquí.
-   *
-   * Solo se llenan en las zonas donde hay depósito. A quien vive en una de
-   * ellas se le dice "te queda cerca" en vez de "está lejos": no es lo mismo
-   * media hora que siete horas, y esa diferencia decide la compra.
-   */
-  cerca?: string[];
+  estadoSlug: string;
 };
 
-export const ZONAS: Zona[] = [
-  {
-    slug: "el-vigia",
-    nombre: "El Vigía",
-    region: "Mérida",
-    // Los pueblos que el dueño nombró: están a un rato en carro.
-    cerca: [
-      "canos-zancudo",
-      "tucani",
-      "el-chivo",
-      "los-naranjos",
-      "cuatro-esquinas",
-      "la-tendida",
-      "merida",
-      "santa-aurora",
-      "el-zulia",
-    ],
-  },
-  { slug: "caracas", nombre: "Caracas", region: "Distrito Capital" },
+/**
+ * Índice ciudad → zona, armado una vez. Son ~480 ciudades: un Map en memoria
+ * resuelve cualquier búsqueda sin recorrer los 24 estados cada vez.
+ */
+const POR_SLUG = new Map<string, Zona>();
+for (const estado of VENEZUELA) {
+  for (const ciudad of estado.ciudades) {
+    POR_SLUG.set(ciudad.slug, {
+      slug: ciudad.slug,
+      nombre: ciudad.nombre,
+      region: estado.nombre,
+      estadoSlug: estado.slug,
+    });
+  }
+}
 
-  /* Los alrededores de El Vigía. No tienen depósito propio: existen para que
-     quien vive ahí pueda elegirse y le salga "te queda cerca". */
-  { slug: "canos-zancudo", nombre: "Caños Zancudo", region: "Mérida" },
-  { slug: "tucani", nombre: "Tucaní", region: "Mérida" },
-  { slug: "el-chivo", nombre: "El Chivo", region: "Mérida" },
-  { slug: "los-naranjos", nombre: "Los Naranjos", region: "Mérida" },
-  { slug: "cuatro-esquinas", nombre: "Cuatro Esquinas", region: "Mérida" },
-  { slug: "la-tendida", nombre: "La Tendida", region: "Táchira" },
-  { slug: "merida", nombre: "Mérida", region: "Mérida" },
-  { slug: "santa-aurora", nombre: "Santa Aurora", region: "Mérida" },
-  { slug: "el-zulia", nombre: "El Zulia", region: "Zulia" },
-
-  /* Otras ciudades grandes: todavía sin comercio. Salen en la lista para que
-     quien viva ahí pueda elegirse y entienda por qué no le llega — y para
-     que se vea dónde nos falta un vendedor. */
-  { slug: "san-cristobal", nombre: "San Cristóbal", region: "Táchira" },
-  { slug: "maracaibo", nombre: "Maracaibo", region: "Zulia" },
-  { slug: "valencia", nombre: "Valencia", region: "Carabobo" },
-  { slug: "barquisimeto", nombre: "Barquisimeto", region: "Lara" },
-  { slug: "maracay", nombre: "Maracay", region: "Aragua" },
-];
-
-export function zonaPorSlug(slug: string | null | undefined) {
+export function zonaPorSlug(slug: string | null | undefined): Zona | null {
   if (!slug) return null;
-  return ZONAS.find((z) => z.slug === slug) ?? null;
+  return POR_SLUG.get(slug) ?? null;
+}
+
+/**
+ * VECINOS QUE CRUZAN LA RAYA DEL ESTADO.
+ *
+ * El estado ya agrupa solo ("estás en Mérida, El Vigía te queda cerca"),
+ * pero la geografía no respeta límites administrativos: el Sur del Lago está
+ * pegado a El Vigía y es estado Zulia, y La Tendida es Táchira. Para quien
+ * vive ahí, El Vigía es "cerquita" aunque el mapa político diga otra cosa.
+ *
+ * Se agregan pares a medida que aparezcan depósitos en más ciudades.
+ */
+const VECINOS: Record<string, string[]> = {
+  "el-vigia": [
+    "la-tendida", // Táchira, a la salida hacia el llano
+    "el-chivo", // Zulia, Sur del Lago
+    "santa-barbara-del-zulia", // Zulia, Sur del Lago
+    "san-carlos-del-zulia", // Zulia, Sur del Lago
+  ],
+};
+
+function sonVecinos(a: string, b: string): boolean {
+  return Boolean(VECINOS[a]?.includes(b) || VECINOS[b]?.includes(a));
 }
 
 /** Qué tan lejos le queda al cliente lo que quiere comprar. */
@@ -109,8 +106,40 @@ export function distanciaDeRetiro(
   if (!zonaProducto || !zonaCliente) return "aqui";
   if (zonaProducto === zonaCliente) return "aqui";
 
-  const zona = zonaPorSlug(zonaProducto);
-  if (zona?.cerca?.includes(zonaCliente)) return "cerca";
+  const producto = POR_SLUG.get(zonaProducto);
+  const cliente = POR_SLUG.get(zonaCliente);
+  if (!producto || !cliente) return "aqui";
+
+  if (producto.estadoSlug === cliente.estadoSlug) return "cerca";
+  if (sonVecinos(zonaProducto, zonaCliente)) return "cerca";
 
   return "lejos";
+}
+
+/**
+ * LAS CIUDADES QUE "CUENTAN COMO CERCA" PARA FILTRAR EL CATÁLOGO.
+ *
+ * Cuando el cliente elige su ciudad, la portada y el catálogo enseñan lo que
+ * puede ir a buscar: lo de su ciudad, lo del resto de su estado y lo de los
+ * pueblos vecinos de la lista de arriba. Elegir Caracas enseña lo de Caracas;
+ * elegir Tucaní enseña lo de El Vigía (mismo estado); elegir Valencia no
+ * enseña nada de Mérida — y esa ausencia es el aviso de que ahí falta un
+ * comercio.
+ */
+export function ciudadesVisiblesDesde(slug: string): string[] {
+  const zona = POR_SLUG.get(slug);
+  if (!zona) return [];
+
+  const estado = VENEZUELA.find((e) => e.slug === zona.estadoSlug);
+  const delEstado = estado?.ciudades.map((c) => c.slug) ?? [slug];
+
+  const vecinas = new Set<string>(delEstado);
+  for (const [a, lista] of Object.entries(VECINOS)) {
+    if (a === slug || delEstado.includes(a)) {
+      for (const v of lista) vecinas.add(v);
+    }
+    if (lista.includes(slug)) vecinas.add(a);
+  }
+
+  return [...vecinas];
 }

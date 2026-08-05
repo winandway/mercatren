@@ -164,6 +164,23 @@ si puede llegar; lo único que no se vale es que se entere después de pagar.
       tono que corresponde a la distancia: gris "pasas y lo recoges" ·
       naranja "cerquita de ti" · ámbar con triángulo "tendrías que ir hasta
       allá". Los tres probados en el navegador.
+- [x] **El mapa de verdad: estado → ciudad (5 ago 2026).** La lista plana de
+      pueblos era "una chapuza" (palabras del dueño) y se rehízo con la
+      división oficial de Venezuela: 24 estados y 481 ciudades
+      (`src/lib/entrega/venezuela.ts`, fuente pública zokeber/venezuela-json).
+      El selector abre por estados; cuando un comercio de Valera o Puerto
+      Ordaz llegue, su ciudad ya existe.
+- [x] **El bombillo verde.** El selector marca dónde Mercatren ya está
+      ("Mercatren está aquí" en el estado; "N productos" en la ciudad). Sale
+      de los depósitos con productos publicados, no de una lista a mano —
+      crece solo. Y de paso enseña dónde FALTA un comercio.
+- [x] **Elegir ciudad FILTRA el catálogo.** Caracas enseña lo de Caracas
+      (114); El Vigía lo suyo (507); Tucaní ve lo de su estado. La regla:
+      tu ciudad + tu estado + los vecinos que cruzan la raya (Sur del Lago y
+      La Tendida cuentan como cerca de El Vigía). En una ciudad sin comercios
+      no se esconde el sitio: aviso claro + catálogo del país + "¿Vendes en
+      Valencia? Abre tu tienda y sé el primero". Siempre hay salida a "Ver
+      toda Venezuela" sin perder la ciudad elegida.
 - [ ] **El aviso de retiro en el checkout.** Falta ahí; en la ficha ya está.
 - [ ] **Que el pedido y el correo digan dónde retirar.** Hoy el pedido pide
       dirección de entrega como si fuéramos a llevarlo.

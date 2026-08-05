@@ -14,6 +14,8 @@ import { Link } from "@/i18n/navigation";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { obtenerPortada } from "@/lib/catalogo/consultas";
 import { nuevaSemilla } from "@/lib/catalogo/semilla";
+import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
+import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
 import { cn } from "@/lib/utils";
 
@@ -44,22 +46,46 @@ const PASOS = ["uno", "dos", "tres"] as const;
 
 export default async function PaginaInicio({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ todas?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const idioma = locale as Idioma;
 
   const t = await getTranslations("inicio");
+  const tEntrega = await getTranslations("entrega");
+
+  /**
+   * EL FILTRO POR CIUDAD. Quien eligió Caracas ve lo de Caracas; quien
+   * eligió Tucaní ve lo de su estado (El Vigía incluido); quien no eligió
+   * nada ve todo. `?todas=1` es la salida: enseña el país entero SIN borrar
+   * la ciudad elegida, que sigue mandando en los avisos de cada ficha.
+   */
+  const zona = await zonaDelCliente();
+  const verTodas = (await searchParams).todas === "1";
+  const visibles =
+    zona && !verTodas ? ciudadesVisiblesDesde(zona.slug) : undefined;
 
   // Una semilla por visita. Se pasa al navegador para que las tandas
   // siguientes sigan el mismo orden.
   const semilla = nuevaSemilla();
-  const { parrilla, departamentos, bandas, comercios } = await obtenerPortada(
-    idioma,
-    semilla,
-  );
+  let portada = await obtenerPortada(idioma, semilla, visibles);
+
+  /**
+   * EN TU CIUDAD TODAVÍA NO HAY NADA. Una portada en blanco parece un sitio
+   * muerto, así que se enseña el catálogo completo — pero avisando primero,
+   * y con la invitación que le da sentido al bombillo apagado: aquí falta un
+   * comercio, y ese comercio puede ser tuyo.
+   */
+  const sinCobertura = Boolean(visibles && portada.parrilla.total === 0);
+  if (sinCobertura) {
+    portada = await obtenerPortada(idioma, semilla);
+  }
+  const { parrilla, departamentos, bandas, comercios } = portada;
+  const filtrada = Boolean(visibles) && !sinCobertura;
 
   return (
     <>
@@ -121,6 +147,53 @@ export default async function PaginaInicio({
           </div>
         ) : null}
 
+        {/* LA FRANJA DEL FILTRO: el cliente tiene que saber que el catálogo
+            está acotado a su zona, y tener la puerta para ver el país entero
+            sin perder su ciudad elegida. */}
+        {filtrada && zona ? (
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-borde py-2.5 text-sm">
+            <span className="font-semibold">
+              {tEntrega("viendoZona", { ciudad: zona.nombre })}
+            </span>
+            <Link
+              href="/?todas=1"
+              className="font-semibold text-riel-700 underline-offset-2 hover:text-carga-600 hover:underline"
+            >
+              {tEntrega("verTodaVenezuela")}
+            </Link>
+          </p>
+        ) : null}
+        {verTodas && zona ? (
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-borde py-2.5 text-sm">
+            <span className="font-semibold">
+              {tEntrega("viendoTodaVenezuela")}
+            </span>
+            <Link
+              href="/"
+              className="font-semibold text-riel-700 underline-offset-2 hover:text-carga-600 hover:underline"
+            >
+              {tEntrega("volverAMiZona", { ciudad: zona.nombre })}
+            </Link>
+          </p>
+        ) : null}
+
+        {/* EL BOMBILLO APAGADO, dicho de frente: en tu ciudad no hay nada
+            todavía — y la invitación a que el primero seas tú. */}
+        {sinCobertura && zona ? (
+          <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <p className="font-semibold">
+              {tEntrega("sinComerciosTitulo", { ciudad: zona.nombre })}
+            </p>
+            <p className="mt-0.5">{tEntrega("sinComerciosTexto")}</p>
+            <Link
+              href="/vender"
+              className="mt-1.5 inline-block font-semibold underline underline-offset-2 hover:text-carga-600"
+            >
+              {tEntrega("abreTuTiendaAqui", { ciudad: zona.nombre })}
+            </Link>
+          </div>
+        ) : null}
+
         {/**
          * LAS BANDAS: un departamento, sus productos, el siguiente.
          *
@@ -171,6 +244,7 @@ export default async function PaginaInicio({
               idioma={idioma}
               textoCargando={t("cargandoMas")}
               textoFinal={t("yaViste")}
+              sinFiltroDeZona={!filtrada}
             />
           </section>
         ) : (

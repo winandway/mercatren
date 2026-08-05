@@ -26,6 +26,7 @@ export function ParrillaInfinita({
   idioma,
   textoCargando,
   textoFinal,
+  sinFiltroDeZona = false,
 }: {
   inicial: ProductoLista[];
   semilla: number;
@@ -33,6 +34,13 @@ export function ParrillaInfinita({
   idioma: Idioma;
   textoCargando: string;
   textoFinal: string;
+  /**
+   * La primera tanda la armó el servidor; las siguientes tienen que seguir la
+   * MISMA regla, o al bajar aparecería mercancía de otra ciudad en una
+   * portada filtrada. El servidor de tandas lee la ciudad de la cookie; esta
+   * bandera le dice cuándo ignorarla (portada en "toda Venezuela").
+   */
+  sinFiltroDeZona?: boolean;
 }) {
   const [productos, setProductos] = useState(inicial);
   const [pagina, setPagina] = useState(1);
@@ -47,7 +55,7 @@ export function ParrillaInfinita({
     try {
       const siguiente = pagina + 1;
       const r = await fetch(
-        `/datos/catalogo?pagina=${siguiente}&semilla=${semilla}`,
+        `/datos/catalogo?pagina=${siguiente}&semilla=${semilla}${sinFiltroDeZona ? "&todas=1" : ""}`,
       );
       const datos = (await r.json()) as { productos: ProductoLista[] };
 
@@ -65,7 +73,7 @@ export function ParrillaInfinita({
     } finally {
       setCargando(false);
     }
-  }, [cargando, hayMas, pagina, paginas, semilla]);
+  }, [cargando, hayMas, pagina, paginas, semilla, sinFiltroDeZona]);
 
   /**
    * Se mide la posición a mano en vez de usar IntersectionObserver, igual que
