@@ -49,7 +49,7 @@ export async function PiePagina() {
   const anio = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 bg-riel-900 text-white">
+    <footer className="mt-16 bg-riel-900 text-white" data-solo-pantalla>
       {/* Franja de llamada al comercio. El pie de una tienda lo lee mucha
           gente que llego a mirar; aqui es donde se le ofrece vender. */}
       <div className="border-b border-white/10 bg-riel-950">
@@ -134,12 +134,12 @@ export async function PiePagina() {
         {/* Quien opera el servicio. Un banco o un socio lo busca aqui. */}
         <p className="mt-10 border-t border-white/10 pt-6 text-xs text-white/50">
           {t("operadoPor")}{" "}
-          <span className="font-semibold text-white/70">Windoce LLC</span>,
+          <span className="font-semibold text-white/70">Windoce, LLC</span>,
           Estados Unidos.
         </p>
       </div>
 
-      {/* Credito del desarrollador: va en todos los sitios de Windoce LLC. */}
+      {/* Credito del desarrollador: va en todos los sitios de Windoce, LLC. */}
       <div className="border-t border-white/10 bg-riel-950">
         <div className="mx-auto max-w-[1500px] px-4 py-5 text-center text-xs text-white/60">
           © {anio} mercatren.com | {t("derechos")} {t("desarrolladoPor")}{" "}
@@ -149,7 +149,7 @@ export async function PiePagina() {
             rel="noopener noreferrer"
             className="font-semibold text-white/80 transition-colors hover:text-carga-400"
           >
-            Windoce LLC
+            Windoce, LLC
           </a>
         </div>
       </div>

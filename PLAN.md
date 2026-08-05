@@ -57,7 +57,7 @@ Decidido el 4 ago 2026 (pendiente solo la decisión del fee, abajo).
 - **Zelle se puede prender y apagar** desde Panel → Configuración, sin
   publicar nada. Lo mismo para tarjeta. Guardado en la tabla `configuracion`.
 - **Datos del receptor Zelle:** correo `pay@windoce.com`, beneficiario
-  Windoce LLC. Van en las variables del panel (`ZELLE_CORREO_RECEPTOR`,
+  Windoce, LLC. Van en las variables del panel (`ZELLE_CORREO_RECEPTOR`,
   `PAGO_BENEFICIARIO`), nunca en el repo.
 - **El fee viaja DENTRO del precio publicado (decidido y HECHO).** El
   comercio escribe su precio y el robotito publica base + ajuste:

@@ -62,17 +62,22 @@ export type Seccion = {
 
 /** Los textos de los dibujos. Van aqui para que se traduzcan como el resto. */
 export type TextosFiguras = {
+  /**
+   * Figura 1: la compraventa. A la izquierda Estados Unidos, donde ocurre
+   * toda la operacion comercial; a la derecha, la entrega del producto.
+   */
   ciclo: {
     titulo: string;
     eeuu: string;
     venezuela: string;
-    pagador: { rol: string; nombre: string; detalle: string };
+    comprador: { rol: string; nombre: string; detalle: string };
     mercatren: { rol: string; nombre: string; detalle: string };
     proveedor: { rol: string; nombre: string; detalle: string };
     comercio: { rol: string; nombre: string; detalle: string };
     consumidor: { rol: string; nombre: string; detalle: string };
     paga: string;
-    liquida: string;
+    /** El segundo movimiento de dinero: la compra de la mercancia. */
+    compra: string;
     pide: string;
     entrega: string;
     enlace: string;
@@ -80,14 +85,24 @@ export type TextosFiguras = {
     fuera: string;
     pie: string;
   };
+  /**
+   * Figura 2: lo que Mercatren no hace, y lo que si hace.
+   *
+   * Arriba, en rojo, la figura que el modelo NO tiene: recibir dinero de una
+   * persona para entregarselo a otra. Abajo, la real: una compraventa de
+   * mercancia con dos facturas, cerrada dentro de Estados Unidos.
+   */
   frontera: {
-    remesaTitulo: string;
-    remesaTexto: string;
-    remesaCajas: string[];
-    remesaCruza: string;
-    nuestroTitulo: string;
-    nuestroTexto: string;
-    nuestrasCajas: string[];
+    noTitulo: string;
+    noTexto: string;
+    noCajas: string[];
+    noNota: string;
+    siTitulo: string;
+    siTexto: string;
+    /** Lo que ocurre dentro de Estados Unidos. */
+    siCajas: string[];
+    /** Lo unico que cruza la frontera: el producto. */
+    cruzaCajas: string[];
     circuito: string;
     frontera: string;
     consecuencia: string;

@@ -41,7 +41,7 @@ export async function Encabezado() {
     usuario?.rol === "vendedor";
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="sticky top-0 z-50" data-solo-pantalla>
       {/* Fila principal */}
       <div className="bg-riel-900 text-white">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 sm:px-4">

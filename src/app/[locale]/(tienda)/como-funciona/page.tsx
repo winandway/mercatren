@@ -39,6 +39,7 @@ export default async function PaginaComoFunciona({
   const pasos = t.raw("pasos.lista") as Paso[];
   const queNoEs = t.raw("queNoEs.puntos") as string[];
   const metodos = t.raw("pagos.metodos") as Metodo[];
+  const pasosComercio = t.raw("paraComercios.puntos") as string[];
 
   return (
     <>
@@ -134,6 +135,24 @@ export default async function PaginaComoFunciona({
         <section className="rounded-xl bg-riel-900 p-6 text-white sm:p-8">
           <h2 className="text-2xl font-bold">{t("paraComercios.titulo")}</h2>
           <p className="mt-3 text-white/80">{t("paraComercios.texto")}</p>
+
+          {/* Los cuatro pasos del comercio. El cuarto se dice como lo que es
+              —el pago de una compra de mercancía— y no como la entrega de
+              dinero cobrado por él: eso último describiría una agencia. */}
+          <ol className="mt-5 space-y-2.5">
+            {pasosComercio.map((paso, i) => (
+              <li key={paso} className="flex gap-3 text-sm text-white/80">
+                <span
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-white"
+                  aria-hidden
+                >
+                  {i + 1}
+                </span>
+                {paso}
+              </li>
+            ))}
+          </ol>
+
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/vender" className="boton-principal">
               {t("paraComercios.boton")}

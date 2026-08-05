@@ -27,7 +27,8 @@
     "productos:importar": "node scripts/importar-productos.ts",
     "db:schema-cloud": "node scripts/generar-schema-cloud.ts",
     "db:cargar": "node scripts/cargar-sql-produccion.ts",
-    "ubicaciones:importar": "node scripts/importar-ubicaciones.ts"
+    "ubicaciones:importar": "node scripts/importar-ubicaciones.ts",
+    "docs:pdf": "tsx scripts/pdf-modelo.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [

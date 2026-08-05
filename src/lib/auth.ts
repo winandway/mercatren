@@ -124,7 +124,7 @@ export const getAuth = cache(async () => {
     user: {
       additionalFields: {
         // Quien es cada cuenta dentro del sistema.
-        // "soporte" es la cuenta interna de Windoce LLC y siempre lleva la
+        // "soporte" es la cuenta interna de Windoce, LLC y siempre lleva la
         // palabra Soporte en el nombre visible.
         rol: {
           type: "string",

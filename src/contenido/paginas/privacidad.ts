@@ -25,7 +25,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Windoce LLC, sociedad registrada en Estados Unidos, operando bajo la marca Mercatren. Para cualquier asunto de privacidad puedes escribirnos a mercatren@windoce.com.",
+            "Windoce, LLC, sociedad registrada en Estados Unidos, operando bajo la marca Mercatren. Para cualquier asunto de privacidad puedes escribirnos a mercatren@windoce.com.",
         },
       ],
     },
@@ -268,7 +268,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
             },
             {
               texto:
-                "Dentro del panel, cada comercio ve únicamente sus propios pagos y su propio saldo. Está comprobado con pruebas automáticas.",
+                "Dentro del panel, cada proveedor ve únicamente sus propias operaciones y lo que se le compró. Está comprobado con pruebas automáticas.",
             },
             {
               texto:
@@ -306,7 +306,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
     },
   ],
   cierre:
-    "Mercatren es una marca de Windoce LLC, sociedad registrada en Estados Unidos.",
+    "Mercatren es una marca de Windoce, LLC, sociedad registrada en Estados Unidos.",
 };
 
 export const PRIVACIDAD_EN: PaginaContenido = {
@@ -324,7 +324,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Windoce LLC, a company registered in the United States, operating under the Mercatren brand. For any privacy matter, write to us at mercatren@windoce.com.",
+            "Windoce, LLC, a company registered in the United States, operating under the Mercatren brand. For any privacy matter, write to us at mercatren@windoce.com.",
         },
       ],
     },
@@ -431,7 +431,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
             {
               titulo: "Meeting our obligations",
               texto:
-                "verifying the payer's identity, screening against sanctions lists, detecting unusual transactions, and retaining the file for each operation.",
+                "verifying the buyer's identity, screening against sanctions lists, detecting unusual transactions, and retaining the file for each operation.",
             },
             {
               titulo: "Improving the service",
@@ -567,7 +567,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
             },
             {
               texto:
-                "Inside the panel, each merchant sees only their own payments and their own balance. This is enforced and covered by automated tests.",
+                "Inside the panel, each supplier sees only their own transactions and what was purchased from them. This is enforced and covered by automated tests.",
             },
             {
               texto:
@@ -605,5 +605,5 @@ export const PRIVACIDAD_EN: PaginaContenido = {
     },
   ],
   cierre:
-    "Mercatren is a brand of Windoce LLC, a company registered in the United States.",
+    "Mercatren is a brand of Windoce, LLC, a company registered in the United States.",
 };

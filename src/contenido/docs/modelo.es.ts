@@ -3,37 +3,51 @@ import type { Documento } from "./tipos";
 /**
  * El modelo de negocio de Mercatren, en publico.
  *
- * Es la version comercial del documento operativo: explica el ciclo, por donde
- * entra y sale cada dolar y por que la operacion no es un envio de remesas.
- * Los apartados de encuadre regulatorio, controles internos y plan de
- * crecimiento no se publican aqui; van en el PDF completo, que se entrega a
- * bancos y socios bajo pedido.
+ * V3 — REESTRUCTURACION LEGAL (agosto de 2026). La version anterior describia
+ * a Mercatren como un agente que cobraba y liquidaba dinero por cuenta de
+ * terceros. Esa redaccion coincide, palabra por palabra, con la definicion
+ * regulatoria de money transmission en Estados Unidos, y era la causa por la
+ * que procesadores y bancos cierran cuentas.
+ *
+ * El modelo real siempre fue otro: compra y reventa de mercancia por cuenta
+ * propia. Windoce, LLC compra al proveedor a nombre propio y revende al
+ * comprador estadounidense. La correccion es de redaccion y de documentacion
+ * contractual, no de operacion.
+ *
+ * Vocabulario PROHIBIDO en este archivo y en todo el sitio: cobrar por cuenta
+ * de, liquidar, liquidacion, custodia, saldo, fondos, billetera, comision
+ * sobre el pago, agente, mandato, pagador, beneficiario, instruccion de pago.
+ * Ver el prompt de reestructuracion legal para la tabla completa.
  */
 export const MODELO_ES: Documento = {
-  titulo: "Comercio electrónico transfronterizo con liquidación doméstica",
+  titulo:
+    "Comercio electrónico transfronterizo con compra y reventa en Estados Unidos",
   subtitulo:
-    "Cómo funciona el ciclo, por dónde entra y sale cada dólar, qué evidencia queda en cada paso y por qué la operación no constituye envío de remesas.",
+    "Qué vende Mercatren y a quién, cómo se documenta cada operación, por qué la estructura es una compraventa de mercancía y qué evidencia queda en cada paso.",
   resumen:
-    "Mercatren es un servicio de compras internacionales por cuenta ajena: un comercio fuera de Estados Unidos publica sus productos, alguien en Estados Unidos los compra y nosotros cobramos y liquidamos ese pago dentro de Estados Unidos. Cobramos 3 % por la gestión.",
-  version: "V2",
-  actualizado: "3 de agosto de 2026",
+    "Mercatren es una tienda en línea operada por Windoce, LLC. El comprador en Estados Unidos adquiere un producto del catálogo y designa la dirección donde debe entregarse. Windoce, LLC compra esa mercancía al proveedor a nombre propio y la revende al comprador. El precio publicado es el precio final e incluye nuestro margen comercial.",
+  version: "V3",
+  actualizado: "5 de agosto de 2026",
 
   entradilla: [
-    "Mercatren es un servicio de compras internacionales por cuenta ajena. Un comercio en Venezuela publica sus productos en nuestra plataforma; una persona en Estados Unidos compra esos productos y designa a quién se entregan; nosotros cobramos ese pago dentro de Estados Unidos y lo aplicamos, siguiendo instrucción escrita del comercio, al pago de su proveedor mayorista, también en Estados Unidos. Cobramos 3 % por la gestión.",
+    "Mercatren es una tienda en línea operada por Windoce, LLC, sociedad registrada en Delaware, Estados Unidos. Un comprador en Estados Unidos elige un producto del catálogo, paga el precio publicado desde un banco estadounidense y designa la dirección donde debe entregarse. Windoce, LLC compra esa mercancía al proveedor a nombre propio, con factura emitida a su nombre, y la revende al comprador, con factura de venta a nombre de este.",
+    "No recibimos ni administramos dinero de terceros. Cada transacción es una compraventa de mercancía entre el comprador y Windoce, LLC. El ingreso de la operación es el precio de venta de un producto propio; el egreso es el costo de la mercancía vendida. El producto se entrega físicamente en la dirección designada: en ningún caso se entrega dinero.",
   ],
 
   cifras: [
     {
-      valor: "0 US$",
-      texto: "sale de Estados Unidos en cualquier punto del ciclo",
+      valor: "2",
+      texto:
+        "facturas por operación: la de compra al proveedor y la de venta al comprador",
     },
     {
-      valor: "3 %",
-      texto: "comisión sobre el valor de la orden; es todo nuestro ingreso",
+      valor: "100 %",
+      texto: "de los pagos aceptados provienen de bancos de Estados Unidos",
     },
     {
-      valor: "1",
-      texto: "cliente comercial activo hoy; el modelo está en fase piloto",
+      valor: "0",
+      texto:
+        "cuentas, saldos de usuario o dinero de terceros bajo nuestra administración",
     },
     { valor: "5 años", texto: "de conservación de registros por operación" },
   ],
@@ -42,38 +56,39 @@ export const MODELO_ES: Documento = {
     {
       titulo: "Uno",
       texto:
-        "No es un envío lineal de dinero de A hacia B: es un ciclo cerrado que se retroalimenta. El pago de hoy repone el inventario que genera la venta de mañana.",
+        "La estructura es una compraventa. Windoce, LLC compra la mercancía como principal y la revende como principal. La propiedad del producto pasa del proveedor a Windoce, LLC y de Windoce, LLC al comprador.",
     },
     {
       titulo: "Dos",
       texto:
-        "Todo el circuito de dinero ocurre dentro de Estados Unidos, y nada de lo que Mercatren mueve cruza la frontera. El abastecimiento del comercio lo resuelve su proveedor a través de su propia sucursal local, sin intervención nuestra.",
+        "El dinero que entra es ingreso propio por la venta de un producto, no dinero de un tercero. El dinero que sale es costo de mercancía vendida, no un pago por cuenta de nadie.",
     },
     {
       titulo: "Tres",
       texto:
-        "El comercio no es nuestro. Es un cliente independiente que nos contrata como agente de compras y de cobro, igual que contrataría a un despachante o a una casilla de envíos.",
+        "El comprador de registro es la persona en Estados Unidos. La persona en la dirección de entrega recibe un producto físico, exactamente igual que cuando alguien compra un regalo en línea y lo hace enviar a otra dirección.",
     },
   ],
 
   indiceTitulo: "Cómo leer este documento",
 
   secciones: [
+    /* ---------------------------------------------------------------- */
     {
-      id: "que-es",
+      id: "resumen-ejecutivo",
       numero: "1",
-      titulo: "Qué es Mercatren y con qué no debe confundirse",
+      titulo: "Resumen ejecutivo: qué vende Mercatren y a quién",
       etiqueta: "posicionamiento",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "La forma más corta de decirlo: somos un agente de compras transnacional con plataforma propia. El modelo se parece al de un personal shopper o al de un despachante de aduanas, pero opera como comercio electrónico y a escala de software.",
+            "Mercatren vende productos físicos a compradores residentes en Estados Unidos. Opera como una tienda en línea con catálogo, carrito, pago y factura, y es un servicio de Windoce, LLC (Delaware, Estados Unidos).",
         },
         {
           tipo: "parrafo",
           texto:
-            "Existe un vacío concreto que este modelo llena. Un comercio venezolano tiene clientes cuyo poder de compra está en Estados Unidos, y tiene proveedores a los que debe pagar en Estados Unidos. Hoy resuelve esas dos puntas por separado y de forma artesanal: el cliente busca cómo hacer llegar el pago, y el comercio busca cómo juntar dólares para su proveedor. Mercatren conecta las dos puntas en una sola operación documentada y las convierte en una compra.",
+            "Lo que distingue al servicio es dónde se entrega. Muchos compradores en Estados Unidos quieren adquirir un producto y hacerlo llegar a una dirección en otro país: material de construcción para una obra familiar, repuestos, electrodomésticos. Mercatren publica catálogos de proveedores con presencia en esos destinos, vende el producto al comprador estadounidense y hace que se entregue en la dirección que él designa.",
         },
         {
           tipo: "dosColumnas",
@@ -81,110 +96,162 @@ export const MODELO_ES: Documento = {
             titulo: "Lo que sí somos",
             tono: "bien",
             puntos: [
-              "Operador de una plataforma de comercio electrónico.",
-              "Agente de cobro designado por el comercio vendedor.",
-              "Gestor administrativo de compras internacionales.",
-              "Proveedor de software y de conciliación documental.",
+              "Una tienda en línea que vende mercancía por cuenta propia.",
+              "Comprador de esa mercancía frente al proveedor, con factura a nombre de Windoce, LLC.",
+              "Vendedor frente al comprador estadounidense, con factura de venta a su nombre.",
+              "Responsables del precio publicado, que es el precio final de venta.",
             ],
           },
           derecha: {
             titulo: "Lo que no somos",
             tono: "ojo",
             puntos: [
-              "No enviamos remesas ni dinero entre particulares.",
-              "No hacemos cambio de divisas ni operamos con bolívares.",
-              "No compramos mercancía para revenderla: no somos dueños de inventario.",
-              "No captamos depósitos ni pagamos rendimientos.",
-              "No transportamos, importamos, despachamos ni financiamos ningún movimiento de mercancía.",
+              "No somos una entidad financiera y no ofrecemos cuentas.",
+              "No mantenemos dinero de terceros ni administramos dinero ajeno.",
+              "No entregamos dinero a nadie: entregamos productos.",
+              "No actuamos como representantes de ninguna de las partes.",
+              "No hacemos cambio de divisas ni operamos con moneda distinta del dólar estadounidense.",
             ],
           },
         },
         {
           tipo: "aviso",
-          tono: "neutro",
-          titulo: "Sobre el comercio piloto",
+          tono: "acento",
+          titulo: "La frase que resume la estructura",
           parrafos: [
-            "La ferretería con la que operamos hoy es una empresa venezolana independiente, con sus propios dueños, su propio inventario y su propia relación comercial con el proveedor. No es una filial, ni una empresa vinculada, ni un negocio nuestro. Nosotros no fijamos sus precios, no somos dueños de lo que vende y no participamos en su entrega. Es nuestro primer cliente comercial, y en el futuro habrá más.",
+            "Mercatren compra la mercancía a nombre propio y la revende al comprador en Estados Unidos. El precio publicado es el precio final de venta e incluye nuestro margen comercial.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "quien-es-quien",
+      id: "estructura-contractual",
       numero: "2",
-      titulo: "Quién es quién en la operación",
-      etiqueta: "participantes",
+      titulo: "Estructura contractual",
+      etiqueta: "quién contrata con quién",
       bloques: [
         {
+          tipo: "parrafo",
+          texto:
+            "Cada operación son dos contratos de compraventa consecutivos, no un encargo. Windoce, LLC es parte de los dos, y en los dos actúa como principal: compra para sí y vende lo suyo.",
+        },
+        {
           tipo: "tabla",
-          encabezados: ["Parte", "Quién es", "Qué hace y qué no hace"],
+          encabezados: ["Parte", "Quién es", "Qué contrata"],
           filas: [
             [
-              "A · Cliente",
-              "Comercio en Venezuela. Empresa independiente",
-              "Es nuestro cliente comercial. Publica y administra su propio catálogo en la plataforma, fija sus precios, atiende al consumidor y hace la entrega física dentro de Venezuela. Mantiene por su cuenta una línea de crédito con su proveedor mayorista. Nos designa por escrito como su agente de cobro.",
+              "A · Comprador",
+              "Persona en Estados Unidos",
+              "Compra un producto a Windoce, LLC y paga el precio publicado desde un banco estadounidense. Designa la dirección de entrega y responde por su exactitud. Recibe factura de venta a su nombre.",
             ],
             [
-              "B · Nosotros",
-              "Mercatren, servicio operado por Windoce LLC. Sociedad registrada en Estados Unidos",
-              "Opera la plataforma, verifica y acepta las órdenes, recibe los pagos en Estados Unidos, concilia cada depósito contra su orden, emite la documentación, cobra su comisión del 3 % y ejecuta la liquidación al proveedor autorizado siguiendo instrucción escrita del cliente A. No es dueña de mercancía ni asume el riesgo comercial de la venta.",
+              "B · Windoce, LLC",
+              "Sociedad registrada en Delaware, Estados Unidos. Opera la marca Mercatren",
+              "Compra la mercancía al proveedor a nombre propio y la revende al comprador. Fija y publica el precio final de venta. Emite la factura de venta y conserva la factura de compra. Asume el riesgo comercial de la operación.",
             ],
             [
               "C · Proveedor",
-              "Mayorista en Estados Unidos. Empresa estadounidense",
-              "Es el proveedor de A y su acreedor comercial. Le vende mercancía y le otorga crédito. Recibe de nosotros pagos que se aplican a facturas concretas y preexistentes entre él y A. En este caso tiene sucursal propia en Venezuela, y el abastecimiento de A es un asunto interno suyo en el que Mercatren no interviene.",
+              "Comercio que publica su catálogo en Mercatren",
+              "Vende la mercancía a Windoce, LLC y le emite factura a su nombre. Despacha el producto a la dirección designada en la orden. Cobra el precio de la mercancía vendida contra su factura.",
             ],
             [
-              "D · Pagador",
-              "Comprador en Estados Unidos. Persona residente en EE. UU.",
-              "Compra los productos y designa a quién se entregan en Venezuela, normalmente un familiar. Jurídicamente es un comprador de bienes, no un remitente de fondos: paga un precio de compra contra una orden identificada, no transfiere dinero a una persona.",
+              "— · Dirección de entrega",
+              "Domicilio designado por el comprador",
+              "No es parte del contrato. Es el lugar donde debe entregarse el producto. Quien lo recibe firma la entrega de una mercancía; no recibe dinero en ninguna forma.",
             ],
-            [
-              "— · Beneficiario",
-              "Consumidor final en Venezuela",
-              "Elige el producto en el mostrador o en el catálogo y lo recibe. No recibe dinero en ningún momento ni interviene en el pago.",
-            ],
+          ],
+        },
+        {
+          tipo: "subtitulo",
+          texto: "El flujo documental de una operación",
+        },
+        {
+          tipo: "fases",
+          fases: [
+            {
+              titulo: "1. Orden de compra",
+              ocurre:
+                "El comprador confirma su pedido y paga el precio publicado.",
+              evidencia: [
+                "Orden con número correlativo, productos, precio unitario y total",
+                "Dirección de entrega designada por el comprador",
+                "Identificación del comprador y confirmación de que el pago proviene de un banco de Estados Unidos",
+              ],
+            },
+            {
+              titulo: "2. Factura del proveedor a Windoce, LLC",
+              ocurre:
+                "Windoce, LLC compra la mercancía al proveedor a nombre propio.",
+              evidencia: [
+                "Factura emitida por el proveedor a nombre de Windoce, LLC",
+                "Detalle de la mercancía y precio de compra",
+                "Referencia a la orden que la origina",
+              ],
+            },
+            {
+              titulo: "3. Factura de venta al comprador",
+              ocurre:
+                "Windoce, LLC revende la mercancía al comprador estadounidense.",
+              evidencia: [
+                "Factura de venta emitida por Windoce, LLC a nombre del comprador",
+                "Precio final de venta, el mismo que estaba publicado",
+                "Vinculación con la orden y con la factura de compra",
+              ],
+            },
+            {
+              titulo: "4. Comprobante de entrega",
+              ocurre:
+                "El producto se entrega en la dirección designada por el comprador.",
+              evidencia: [
+                "Constancia de entrega con fecha",
+                "Identificación de quien recibe la mercancía",
+                "Cierre de la orden en el sistema",
+              ],
+            },
           ],
         },
         {
           tipo: "aviso",
-          tono: "acento",
-          titulo: "La distinción que sostiene todo el modelo",
+          tono: "bien",
+          titulo: "Por qué importa que las dos facturas existan",
           parrafos: [
-            "En una remesa hay un remitente que entrega dinero y un beneficiario que lo recibe. Aquí no existe ninguno de los dos: hay un comprador que paga un precio y un destinatario que recibe un producto. Nadie en Venezuela recibe fondos en ningún momento del ciclo.",
+            "Sin la factura de compra a nombre de Windoce, LLC, la figura de reventa no se sostiene ante una auditoría: quedaría una entrada de dinero sin una compra que la respalde. Con las dos facturas, cada operación se lee como lo que es — una mercancía comprada y revendida — y el margen comercial aparece como diferencia entre dos precios, no como un porcentaje retenido sobre dinero ajeno.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
       id: "el-ciclo",
       numero: "3",
-      titulo: "El ciclo completo, en un mapa",
+      titulo: "La operación completa, en un mapa",
       etiqueta: "diagrama principal",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Este es el diagrama central del documento. Conviene leerlo como un circuito que gira, no como una cadena que termina: el paso 7 alimenta al paso 1 del ciclo siguiente.",
+            "Este es el diagrama central del documento. A la izquierda, dentro de Estados Unidos, ocurre toda la operación comercial: la venta al comprador y la compra al proveedor. A la derecha, lo único que se mueve es el producto.",
         },
         { tipo: "figuraCiclo" },
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "Por qué es un ciclo y no un envío",
+          titulo: "Las dos puntas son compraventas",
           parrafos: [
-            "El pago del paso 4 no termina en el paso 6. Al quedar su cuenta al día, el comercio conserva su línea de crédito y puede seguir vendiendo, y esa venta origina la próxima orden. Cada vuelta del ciclo aumenta su capacidad comercial. Por eso la métrica que importa no es cuántos pagos procesamos, sino cuántas veces gira el ciclo por comercio y por mes.",
+            "El comprador no entrega dinero para que llegue a alguien: paga el precio de un producto que compró. Windoce, LLC no aplica ese dinero a la cuenta de un tercero: compra con recursos propios la mercancía que ya vendió. Son dos compraventas encadenadas, y cada una queda documentada con su factura.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "los-siete-movimientos",
+      id: "los-movimientos",
       numero: "4",
-      titulo: "Los siete movimientos, uno por uno",
+      titulo: "La operación paso a paso",
       etiqueta: "proceso",
       bloques: [
         {
@@ -192,66 +259,51 @@ export const MODELO_ES: Documento = {
           pasos: [
             {
               numero: "1",
-              etiqueta: "Consumidor final → Comercio · dentro de Venezuela",
-              titulo: "El consumidor elige el producto y lo aparta",
+              etiqueta: "Comprador · Estados Unidos",
+              titulo: "El comprador elige el producto y confirma su pedido",
               parrafos: [
-                "Un cliente llega al mostrador o al catálogo en línea del comercio y pide uno o varios productos. El comercio cotiza en dólares y aparta la mercancía. Mercatren todavía no ha intervenido.",
+                "El comprador entra al catálogo de Mercatren, elige uno o varios productos y confirma el pedido. El sistema vuelve a leer de la base el precio y la disponibilidad de cada producto en ese momento: el precio que se cobra es el precio publicado, no el que traiga guardado el navegador.",
               ],
             },
             {
               numero: "2",
-              etiqueta: "Comercio → Mercatren · información",
-              titulo: "El comercio registra la orden en la plataforma",
+              etiqueta: "Comprador → Windoce, LLC · Estados Unidos",
+              titulo:
+                "Paga el precio publicado desde un banco de Estados Unidos",
               parrafos: [
-                "El comercio carga la orden con los productos, las cantidades y el monto cerrado en dólares. El sistema genera un número de orden único, con sello de tiempo, y emite un enlace de pago asociado exclusivamente a esa orden.",
-                "Aquí no se mueve dinero. Solo se crea el registro que después tendrá que calzar, dólar por dólar, con el depósito recibido.",
+                "El comprador paga el precio final de venta. Solo se aceptan pagos originados en bancos de Estados Unidos, y esa comprobación se hace antes de dar la orden por buena. Ese importe es ingreso propio de Windoce, LLC desde el momento de la venta.",
               ],
             },
             {
               numero: "3",
-              etiqueta: "Consumidor → Pagador en EE. UU. · información",
-              titulo: "El enlace llega a quien va a pagar",
+              etiqueta: "Comprador · en el pedido",
+              titulo: "Designa la dirección de entrega",
               parrafos: [
-                "El consumidor comparte el enlace con su familiar o allegado en Estados Unidos, que es quien realiza la compra. El enlace muestra qué se está comprando, a qué comercio, por cuánto y quién lo recibirá.",
-                "Esta transparencia es deliberada: el pagador no está enviando dinero a una persona, está comprando bienes identificados a un comercio identificado.",
+                "El comprador indica el domicilio donde debe entregarse el producto y responde por su exactitud. Esa dirección es un dato de la orden, igual que en cualquier compra en línea que se envía a un destinatario distinto de quien paga.",
               ],
             },
             {
               numero: "4",
-              etiqueta: "Pagador → Mercatren · dinero, dentro de EE. UU.",
-              titulo:
-                "El pagador liquida la orden y nosotros verificamos y aceptamos",
+              etiqueta: "Windoce, LLC → Proveedor",
+              titulo: "Windoce, LLC compra la mercancía a nombre propio",
               parrafos: [
-                "El pago se recibe por Zelle en la cuenta bancaria de Mercatren en Estados Unidos. El apartado 7 explica por qué Zelle y no tarjeta.",
-                "Este es el punto de control del modelo. Nada se acepta automáticamente: verificamos la identidad del pagador, contrastamos su nombre contra listas de sanciones, comprobamos que el monto recibido calce exactamente con la orden y revisamos que no haya patrones de fraccionamiento. Solo entonces la orden pasa a estado aceptado. Si algo no cuadra, se rechaza y se devuelve, y queda registrado el motivo.",
+                "Con la venta cerrada, Windoce, LLC compra al proveedor la mercancía vendida. El proveedor emite factura a nombre de Windoce, LLC. Esa compra es costo de la mercancía vendida, y se paga contra factura a cuentas bancarias de Estados Unidos.",
               ],
             },
             {
               numero: "5",
-              etiqueta: "Mercatren → Comercio → Consumidor",
-              titulo: "Confirmado el pago, el comercio entrega",
+              etiqueta: "Proveedor → Dirección designada",
+              titulo: "El proveedor despacha el producto",
               parrafos: [
-                "La plataforma notifica al comercio que la orden está pagada y aceptada. El comercio entrega el producto al consumidor en Venezuela y registra la entrega en el sistema.",
-                "Conviene subrayar el orden: la entrega ocurre aquí, no al final. Los pasos 6 y 7 corren después y por un carril distinto. Confundir ambos carriles es lo que hace que el modelo parezca un envío de dinero cuando no lo es.",
+                "El proveedor entrega la mercancía en la dirección designada en la orden. Queda constancia de la entrega con fecha y con la identificación de quien la recibe. Lo que se entrega es un producto físico: en ningún caso se entrega dinero.",
               ],
             },
             {
               numero: "6",
-              etiqueta:
-                "Mercatren → Proveedor mayorista · dinero, dentro de EE. UU.",
-              titulo: "Liquidación consolidada al proveedor autorizado",
+              etiqueta: "Windoce, LLC → Comprador",
+              titulo: "Se emite la factura de venta y se cierra la orden",
               parrafos: [
-                "Los cobros se acumulan en el saldo del comercio. Cuando el comercio lo instruye por escrito, identificando las facturas concretas que quiere abonar, ejecutamos una transferencia consolidada a su proveedor en Estados Unidos.",
-                "Consolidar no es una preferencia estética: reduce costos de transferencia, produce una conciliación limpia entre lotes de órdenes y pagos, y evita el patrón de cientos de micropagos que cualquier área de cumplimiento bancario mira con recelo. Cada transferencia se aplica a facturas comerciales preexistentes entre el proveedor y el comercio.",
-              ],
-            },
-            {
-              numero: "7",
-              etiqueta: "Proveedor → Comercio · fuera del alcance de Mercatren",
-              titulo: "El crédito queda vigente y el inventario se repone",
-              parrafos: [
-                "Con su cuenta al día, el comercio mantiene su línea de crédito y sigue abasteciéndose. En este caso el proveedor tiene sucursal propia en Venezuela, de modo que el suministro es un asunto interno entre el proveedor y su cliente.",
-                "Mercatren no transporta, no importa, no despacha, no financia el transporte y no controla ese movimiento. Nuestra intervención termina cuando la liquidación queda ejecutada y documentada en Estados Unidos.",
+                "Windoce, LLC emite al comprador la factura de venta del producto y cierra la orden. Al final quedan, unidas por el número de orden, la factura de compra a nombre de Windoce, LLC, la factura de venta al comprador y el comprobante de entrega.",
               ],
             },
           ],
@@ -259,391 +311,272 @@ export const MODELO_ES: Documento = {
         {
           tipo: "aviso",
           tono: "neutro",
-          titulo: "Los dos carriles del proceso",
+          titulo: "Sobre el proveedor del piloto",
           parrafos: [
-            "Los pasos 1 a 5 son el carril comercial: pedido, compra, pago, entrega. Ocurren en horas. El paso 6 es el carril de liquidación: agrupa muchas órdenes y ocurre en días o semanas. El paso 7 no es nuestro, es el abastecimiento que el proveedor resuelve con su cliente. Confundir estos tres carriles es lo que hace que el modelo parezca un envío de dinero cuando no lo es.",
+            "El comercio con el que operamos hoy es una empresa independiente, con sus propios dueños y su propio inventario. No es una filial ni un negocio nuestro: es un proveedor que nos vende mercancía y nos factura a nombre de Windoce, LLC. Es el primero, y en el futuro habrá más.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "que-cruza-la-frontera",
+      id: "encuadre-regulatorio",
       numero: "5",
-      titulo: "Qué cruza la frontera y qué no",
-      etiqueta: "diagrama comparativo",
+      titulo: "Encuadre regulatorio",
+      etiqueta: "por qué no es money transmission",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Esta es la comparación que responde de una vez la pregunta que abre cualquier revisión de cumplimiento. En una remesa el dinero cruza la frontera. Aquí no cruza nada de lo que nosotros movemos.",
+            "La pregunta que hace cualquier banco o procesador al leer un servicio transfronterizo es si la operación constituye money transmission. Este apartado la responde de frente y con el criterio descriptivo, no con una afirmación de que exista una determinación oficial a favor de la empresa.",
+        },
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: "El criterio, y por qué la estructura no encaja en él",
+          parrafos: [
+            "Money transmission describe, en lo esencial, recibir dinero de una persona para transmitirlo o aplicarlo a favor de otra. Los dos elementos tienen que estar presentes: que el dinero recibido sea de un tercero, y que se transmita o aplique en beneficio de otro.",
+            "En esta estructura no está ninguno de los dos. El dinero que Mercatren recibe es el precio de un producto que vendió: es ingreso propio de Windoce, LLC desde el momento de la venta, no dinero de un tercero. Y el dinero que sale es el precio de una mercancía que Windoce, LLC compró para sí, con factura a su nombre: es costo de mercancía vendida, no un pago hecho a favor de otro.",
+            "Lo que ocurre entre las dos puntas es una transferencia de propiedad de bienes: el producto pasa del proveedor a Windoce, LLC y de Windoce, LLC al comprador. La ganancia es la diferencia entre dos precios de una compraventa.",
+          ],
+        },
+        {
+          tipo: "tabla",
+          encabezados: [
+            "Elemento",
+            "En una transmisión de dinero",
+            "En esta estructura",
+          ],
+          filas: [
+            [
+              "Origen del dinero recibido",
+              "Es de un tercero; el operador solo lo tiene en tránsito",
+              "Es el precio de venta de un producto propio, ingreso de Windoce, LLC",
+            ],
+            [
+              "Destino del dinero que sale",
+              "Se entrega o aplica en beneficio de otra persona",
+              "Paga una mercancía comprada por Windoce, LLC, con factura a su nombre",
+            ],
+            [
+              "Objeto del contrato",
+              "El movimiento del dinero en sí mismo",
+              "La compraventa de un bien, con transferencia de propiedad",
+            ],
+            [
+              "Qué recibe el destinatario",
+              "Dinero",
+              "Un producto físico. Nunca dinero, en ninguna forma",
+            ],
+            [
+              "Ingreso del operador",
+              "Un cargo sobre el importe movido",
+              "El margen comercial incluido en el precio de venta",
+            ],
+          ],
+          nota: "Este cuadro describe el criterio de forma general y sirve para situar la estructura. No sustituye la revisión de un abogado de servicios financieros en Estados Unidos.",
         },
         { tipo: "figuraFrontera" },
         {
-          tipo: "tabla",
-          encabezados: ["Dimensión", "Envío de remesas", "Mercatren"],
-          filas: [
-            [
-              "Qué se contrata",
-              "Transferencia de fondos",
-              "Compra de productos identificados",
-            ],
-            [
-              "Quién recibe",
-              "Una persona, en efectivo o en cuenta",
-              "Un proveedor mayorista, contra facturas",
-            ],
-            ["Dónde termina el dinero", "Venezuela", "Estados Unidos"],
-            [
-              "Conversión de divisa",
-              "Sí, es parte del servicio",
-              "Ninguna; todo el ciclo es en dólares",
-            ],
-            ["Qué recibe el beneficiario", "Dinero", "Un producto físico"],
-            [
-              "Base documental",
-              "Orden de envío",
-              "Orden de compra, factura y comprobante de aplicación",
-            ],
-            [
-              "Quién mueve la mercancía",
-              "No hay mercancía",
-              "El proveedor, por su cuenta. Mercatren no interviene",
-            ],
-            [
-              "Si la operación se anula",
-              "Se devuelve dinero",
-              "Se devuelve el precio de una compra no ejecutada",
-            ],
+          tipo: "aviso",
+          tono: "ojo",
+          titulo: "Lo que este documento no afirma",
+          parrafos: [
+            "Este apartado describe la estructura de la operación y el criterio general aplicable. No afirma que exista una determinación, opinión o autorización de ninguna autoridad a favor de Windoce, LLC, ni sustituye asesoramiento legal.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "evidencia",
+      id: "controles",
       numero: "6",
-      titulo: "Ciclo de vida de una orden y su evidencia",
-      etiqueta: "trazabilidad",
+      titulo: "Controles de cumplimiento",
+      etiqueta: "qué se verifica",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Cada orden atraviesa cuatro fases y en cada una queda un rastro documental específico. Un revisor debe poder tomar cualquier depósito del extracto bancario y reconstruir hacia atrás qué se compró, quién pagó, a qué comercio y adónde fue aplicado el dinero.",
+            "Los controles se ejecutan antes de dar una orden por buena y quedan registrados con ella. No son una declaración de intenciones: cada uno deja evidencia recuperable.",
         },
         {
-          tipo: "fases",
-          fases: [
+          tipo: "lista",
+          puntos: [
             {
-              titulo: "Fase 1 · Origen de la orden",
-              ocurre:
-                "El comercio carga el producto y el precio. Se crea la orden con número único y monto en dólares cerrado.",
-              evidencia: [
-                "Contrato marco con el comercio",
-                "Verificación del comercio y de sus dueños",
-                "Ficha del producto",
-                "Orden con folio y sello de tiempo",
-                "Contraste del comercio contra listas de sanciones",
-              ],
+              titulo: "Identidad del comprador",
+              texto:
+                "Comprar exige una cuenta con correo verificado. La orden queda unida a esa cuenta y a los datos con los que se abrió.",
             },
             {
-              titulo: "Fase 2 · Cobro y verificación",
-              ocurre:
-                "El pagador en EE. UU. liquida la orden. Mercatren identifica al pagador y valida que el monto calce con la orden.",
-              evidencia: [
-                "Comprobante del pago",
-                "Identidad del pagador",
-                "Contraste del pagador contra listas de sanciones",
-                "Registro de aceptación o de rechazo, con motivo",
-                "Términos aceptados por el pagador",
-              ],
+              titulo: "Origen del pago",
+              texto:
+                "Solo se aceptan pagos originados en bancos de Estados Unidos. Los pagos con tarjeta se procesan con un procesador registrado; los pagos por transferencia se comprueban contra el extracto antes de dar la orden por pagada.",
             },
             {
-              titulo: "Fase 3 · Conciliación",
-              ocurre:
-                "Cada depósito se cruza contra su orden. Se separa la comisión del 3 % y se agrupa el saldo por liquidar.",
-              evidencia: [
-                "Extracto bancario",
-                "Conciliación orden ↔ abono",
-                "Factura de Mercatren por la comisión del 3 %",
-                "Estado de cuenta del comercio",
-                "Libro contable del período",
-              ],
+              titulo: "Revisión humana de cada comprobante",
+              texto:
+                "Ningún pago por transferencia se da por bueno de forma automática. Una persona del equipo comprueba el importe y la fecha contra el banco antes de aprobarlo, y el rechazo obliga a escribir el motivo.",
             },
             {
-              titulo: "Fase 4 · Liquidación",
-              ocurre:
-                "Con instrucción escrita del comercio, se paga al proveedor autorizado un consolidado que cubre un lote de órdenes.",
-              evidencia: [
-                "Instrucción de pago del comercio",
-                "Facturas del proveedor",
-                "Contraste del proveedor contra listas de sanciones",
-                "Comprobante de la transferencia",
-                "Acuse de aplicación del proveedor",
-              ],
+              titulo: "Separación de funciones",
+              texto:
+                "Quien vende no aprueba sus propios cobros. El proveedor no tiene permiso para aprobar los pagos de sus propias órdenes.",
+            },
+            {
+              titulo: "Productos prohibidos",
+              texto:
+                "No se publican ni se venden armas, munición ni explosivos; medicamentos, sustancias controladas ni productos de uso restringido; material sujeto a controles de exportación; animales vivos; divisas, metales monetarios, tarjetas de regalo, criptoactivos ni instrumentos financieros; ni bienes de procedencia ilícita o que infrinjan derechos de terceros.",
+            },
+            {
+              titulo: "Destinos y personas sujetos a sanciones",
+              texto:
+                "No se acepta una orden cuya dirección de entrega o cuyo comprador corresponda a personas o destinos sujetos a sanciones de Estados Unidos.",
+            },
+            {
+              titulo: "Conservación de registros",
+              texto:
+                "Cada operación conserva sus documentos durante cinco años: orden, factura de compra, factura de venta, comprobante del pago recibido y constancia de entrega.",
+            },
+          ],
+        },
+        {
+          tipo: "aviso",
+          tono: "bien",
+          titulo: "Qué hace el sistema y qué hace una persona",
+          parrafos: [
+            "El sistema impide lo que se puede impedir por regla: comprar sin cuenta, pagar con un método no admitido o vender sin existencias. Lo que exige criterio — comprobar un pago contra el banco, revisar una dirección de entrega dudosa — lo hace una persona identificada, y su decisión queda registrada con su nombre y la fecha.",
+          ],
+        },
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    {
+      id: "trazabilidad",
+      numero: "7",
+      titulo: "Trazabilidad: qué evidencia queda por transacción",
+      etiqueta: "evidencia",
+      bloques: [
+        {
+          tipo: "parrafo",
+          texto:
+            "Cualquier operación se puede reconstruir entera partiendo de su número de orden. Esto es lo que queda guardado, y es lo que se entrega si un banco, un auditor o un procesador lo pide.",
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: "La orden",
+              texto:
+                "Número correlativo y legible, fecha y hora, cuenta del comprador, productos con su precio unitario, total y dirección de entrega designada.",
+            },
+            {
+              titulo: "El pago recibido",
+              texto:
+                "Método, fecha, importe y comprobante. En los pagos por transferencia, además, la captura aportada por el comprador y el nombre de quien la aprobó.",
+            },
+            {
+              titulo: "La factura de compra",
+              texto:
+                "Documento emitido por el proveedor a nombre de Windoce, LLC, con el detalle de la mercancía y su precio de compra, unido al número de orden.",
+            },
+            {
+              titulo: "La factura de venta",
+              texto:
+                "Documento emitido por Windoce, LLC al comprador, con el precio final de venta, unido al mismo número de orden.",
+            },
+            {
+              titulo: "La entrega",
+              texto:
+                "Constancia con fecha e identificación de quien recibió la mercancía en la dirección designada.",
+            },
+            {
+              titulo: "El rastro de decisiones",
+              texto:
+                "Quién aprobó o rechazó qué, cuándo y con qué motivo. Las aprobaciones no son anónimas.",
             },
           ],
         },
         {
           tipo: "aviso",
           tono: "acento",
-          titulo: "Regla de oro",
+          titulo: "La prueba de que la estructura es real",
           parrafos: [
-            "Ninguna orden avanza de fase sin su evidencia completa. Una orden sin pagador identificado o sin instrucción escrita del comercio no se liquida.",
-          ],
-        },
-        { tipo: "subtitulo", texto: "Cómo se reconstruye una operación" },
-        {
-          tipo: "parrafo",
-          texto:
-            "La prueba práctica de un expediente bien construido es la trazabilidad en ambos sentidos:",
-        },
-        {
-          tipo: "lista",
-          puntos: [
-            {
-              titulo: "Del depósito hacia atrás",
-              texto:
-                "un abono en el extracto lleva al comprobante de pago, de ahí al número de orden, de ahí al catálogo del comercio y al detalle de productos, y de ahí a la identidad verificada del pagador.",
-            },
-            {
-              titulo: "De la transferencia hacia atrás",
-              texto:
-                "un pago al proveedor lleva a la instrucción escrita del comercio, de ahí a las facturas concretas que abona, y de ahí al lote de órdenes cuyos cobros lo financiaron.",
-            },
-            {
-              titulo: "Del ingreso hacia la contabilidad",
-              texto:
-                "nuestra factura de comisión del 3 % es el único ingreso reconocido. El resto es saldo de terceros en tránsito, y así figura en los libros.",
-            },
-          ],
-        },
-        {
-          tipo: "aviso",
-          tono: "neutro",
-          titulo: "Punto contable que conviene fijar desde el inicio",
-          parrafos: [
-            "El ingreso de Mercatren es la comisión, no el valor bruto de las órdenes. Registrar el volumen transaccionado como ingreso propio inflaría artificialmente los estados financieros y, más importante, sugeriría que somos dueños de esos fondos. No lo somos: son saldos de nuestros clientes comerciales.",
+            "Una estructura de reventa se demuestra con documentos, no con redacción. Si por cada entrada de dinero existe una factura de compra a nombre de Windoce, LLC y una factura de venta al comprador, la operación es lo que este documento dice que es. Si esas facturas faltan, ninguna redacción la sostiene.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "por-que-zelle",
-      numero: "7",
-      titulo: "Por qué cobramos por Zelle y no con tarjeta",
-      etiqueta: "decisión de cobro",
-      bloques: [
-        {
-          tipo: "parrafo",
-          texto:
-            "Esta pregunta aparece siempre y merece una respuesta con números, no con adjetivos. La respuesta corta: con una comisión del 3 %, la tarjeta se lleva prácticamente todo el margen, y además reintroduce un riesgo de reversión que en este modelo no se puede absorber.",
-        },
-        {
-          tipo: "tabla",
-          encabezados: [
-            "Método",
-            "Costo sobre US$ 1.000",
-            "Acreditación",
-            "¿Reversible?",
-            "Veredicto",
-          ],
-          filas: [
-            ["Zelle", "US$ 0,00", "Minutos", "No", "Elegido"],
-            [
-              "ACH del banco",
-              "≈ US$ 0,50",
-              "2 a 3 días",
-              "Sí, hasta 60 días",
-              "Reserva",
-            ],
-            [
-              "ACH vía Stripe",
-              "US$ 5,00",
-              "2 a 3 días",
-              "Sí, hasta 60 días",
-              "Reserva",
-            ],
-            [
-              "Tarjeta doméstica",
-              "US$ 29,30",
-              "2 días al payout",
-              "Sí, contracargo",
-              "Descartado",
-            ],
-            ["Wire doméstico", "US$ 25 – 40", "Mismo día", "No", "Inviable"],
-            [
-              "Tarjeta extranjera",
-              "US$ 44,30",
-              "2 días al payout",
-              "Sí, contracargo",
-              "Pérdida",
-            ],
-          ],
-          nota: "Costo de cobro sobre una orden de US$ 1.000, frente a una comisión bruta de US$ 30. Tarifas de Stripe según fuentes públicas de 2026: 2,9 % + US$ 0,30 para tarjeta doméstica, con recargo de 1,5 % para tarjeta emitida fuera de EE. UU.; ACH al 0,8 % con tope de US$ 5. Wire doméstico según tarifario de la banca minorista.",
-        },
-        {
-          tipo: "subtitulo",
-          texto: "Las tres razones, en orden de importancia",
-        },
-        {
-          tipo: "lista",
-          puntos: [
-            {
-              titulo: "Primera: el margen no aguanta",
-              texto:
-                "Sobre una orden de US$ 1.000 la comisión bruta es de US$ 30. Una tarjeta doméstica cuesta US$ 29,30. Queda un margen de setenta centavos por orden, antes de cualquier otro gasto. Con tarjeta emitida fuera de Estados Unidos el costo sube a unos US$ 44,30 y la orden se procesa a pérdida. Y este efecto empeora con el ticket alto, que es exactamente el perfil de una ferretería: un pedido de tres mil dólares en materiales paga casi noventa dólares de comisión de tarjeta.",
-            },
-            {
-              titulo:
-                "Segunda: el contracargo es un riesgo que no se puede cubrir",
-              texto:
-                "En este modelo la mercancía se entrega en Venezuela. Si semanas después llega un contracargo, el producto ya no existe como garantía y no hay forma de recuperarlo. Un solo contracargo perdido sobre una orden de US$ 1.000 significa perder el importe más las tarifas de disputa, del orden de US$ 1.030. Con un margen de US$ 0,70 por orden con tarjeta, haría falta procesar más de mil cuatrocientas órdenes para reponer ese único incidente. Zelle, en cambio, no admite reversión: una vez acreditado, el pago es definitivo.",
-            },
-            {
-              titulo: "Tercera: las alternativas intermedias no resuelven",
-              texto:
-                "ACH es barato pero tarda dos o tres días y, sobre todo, admite devolución. Cuando el pago viene de una cuenta de consumidor, la ventana para reclamar una transacción como no autorizada llega a los sesenta días calendario, mucho después de que el producto se haya entregado. El wire doméstico es inmediato e irreversible, pero cuesta entre veinticinco y cuarenta dólares que paga el propio comprador, lo cual lo vuelve inviable para compras al menudeo.",
-            },
-          ],
-        },
-        { tipo: "subtitulo", texto: "Lo que hay que vigilar de Zelle" },
-        {
-          tipo: "parrafo",
-          texto:
-            "Sería deshonesto presentar a Zelle sin sus límites. Son tres y conviene tenerlos escritos:",
-        },
-        {
-          tipo: "lista",
-          puntos: [
-            {
-              titulo: "Techos por transacción y por período",
-              texto:
-                "Los bancos fijan límites propios para cuentas de empresa y no siempre los publican. Hay que negociarlos con el banco y confirmarlos por escrito antes de escalar el volumen.",
-            },
-            {
-              titulo: "Presión regulatoria en curso",
-              texto:
-                "La demanda federal contra el operador de Zelle fue desestimada de forma definitiva en marzo de 2025, pero la acción de la Fiscalía General de Nueva York sigue viva y en 2026 el tribunal rechazó desestimarla. De prosperar, podría introducir obligaciones de reembolso por transferencias inducidas. No hay cambios de política implementados a la fecha, pero es un riesgo a monitorear.",
-            },
-            {
-              titulo: "Es un riel de consumidor",
-              texto:
-                "Zelle resuelve bien la fase piloto. El destino natural al escalar son los rieles instantáneos de empresa —RTP y FedNow—, que son irrevocables, liquidan en segundos las veinticuatro horas, admiten importes de hasta diez millones de dólares por operación y tienen costo interbancario de céntimos. Conviene plantearle esta ruta al banco desde la primera conversación.",
-            },
-          ],
-        },
-      ],
-    },
-
-    {
-      id: "economia",
+      id: "crecimiento",
       numero: "8",
-      titulo: "La economía de una orden",
-      etiqueta: "márgenes",
+      titulo: "Plan de crecimiento",
+      etiqueta: "hacia dónde va",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "El ingreso es uno solo: la comisión del 3 % sobre el valor de la orden. Todo lo demás que pasa por la cuenta es saldo de terceros.",
-        },
-        {
-          tipo: "aviso",
-          tono: "neutro",
-          titulo: "Base de los números",
-          parrafos: [
-            "Las cifras de esta sección usan un ticket de referencia de US$ 1.000 y un lote de veinte órdenes por liquidación. Son supuestos ilustrativos, no datos observados. Deben sustituirse por el ticket medio y la frecuencia reales del piloto en cuanto haya tres meses de operación.",
-          ],
-        },
-        {
-          tipo: "tabla",
-          encabezados: ["Concepto", "Con Zelle", "Con tarjeta", "Comentario"],
-          filas: [
-            [
-              "Valor de la orden",
-              "US$ 1.000,00",
-              "US$ 1.000,00",
-              "No es ingreso nuestro",
-            ],
-            [
-              "Comisión bruta (3 %)",
-              "US$ 30,00",
-              "US$ 30,00",
-              "Único ingreso reconocido",
-            ],
-            ["Costo de cobro", "US$ 0,00", "− US$ 29,30", "Tarjeta doméstica"],
-            [
-              "Costo de liquidación",
-              "− US$ 1,25",
-              "− US$ 1,25",
-              "Un wire de US$ 25 repartido entre 20 órdenes",
-            ],
-            [
-              "Margen bruto por orden",
-              "US$ 28,75",
-              "− US$ 0,55",
-              "Antes de plataforma y personal",
-            ],
-            ["Margen sobre la comisión", "96 %", "negativo", ""],
-          ],
-        },
-        { tipo: "subtitulo", texto: "Qué hay que medir en el piloto" },
-        {
-          tipo: "parrafo",
-          texto:
-            "Para presentar el modelo con datos y no con proyecciones, estas son las cinco métricas que el sistema registra desde la primera orden:",
+            "El servicio está en fase inicial, con un proveedor y un catálogo. El crecimiento es de catálogo y de cobertura, y no cambia la estructura descrita en este documento: cada proveedor nuevo es un proveedor más al que se le compra mercancía con factura a nombre de Windoce, LLC.",
         },
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "Ticket medio por orden",
+              titulo: "Más proveedores, mismo contrato",
               texto:
-                "determina si el 3 % es sostenible o hay que escalonar la comisión por tramos.",
+                "Cada comercio que publica su catálogo firma el mismo acuerdo de compraventa: nos vende mercancía y nos factura. No se firman acuerdos de representación con ninguno.",
             },
             {
-              titulo: "Vueltas del ciclo por comercio y por mes",
+              titulo: "Más ciudades de entrega",
               texto:
-                "es la verdadera medida de tracción: un comercio que gira ocho veces vale más que ocho comercios que giran una vez.",
+                "La cobertura crece por ciudad, según dónde tenga presencia cada proveedor. El comprador ve antes de pagar en qué ciudad se entrega cada producto.",
             },
             {
-              titulo: "Días entre cobro y liquidación",
+              titulo: "Más categorías",
               texto:
-                "es lo que un banco mira para entender cuánto saldo de terceros se mantiene en la cuenta.",
+                "El catálogo abre departamentos a medida que llegan proveedores de cada rubro, dentro de la política de productos prohibidos.",
             },
             {
-              titulo: "Tasa de rechazo en verificación",
-              texto: "demuestra que el control existe y funciona.",
-            },
-            {
-              titulo: "Pagadores recurrentes por comercio",
+              titulo: "Pago con tarjeta como método principal",
               texto:
-                "indica si el modelo genera hábito o depende de compras aisladas.",
+                "El pago con tarjeta procesado por un procesador registrado es el método principal del servicio, por trazabilidad y por comodidad para el comprador.",
             },
+          ],
+        },
+        {
+          tipo: "aviso",
+          tono: "neutro",
+          titulo: "Lo que no está en el plan",
+          parrafos: [
+            "No está previsto ofrecer cuentas, mantener dinero de terceros, entregar dinero en ningún destino ni operar con moneda distinta del dólar estadounidense. Si algo de eso llegara a plantearse, sería un servicio distinto, con su propia estructura y su propio encuadre, y no se lanzaría sin la revisión legal correspondiente.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
       id: "resumen-final",
       numero: "9",
       titulo: "Resumen final en una página",
-      etiqueta: "repaso de cierre",
+      etiqueta: "para llevar",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Si alguien solo lee una sección de este documento, que sea esta. Es el modelo completo, sin tecnicismos.",
+            "Si de todo el documento hubiera que quedarse con una página, es esta.",
         },
         { tipo: "figuraResumen" },
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "La frase que resume todo",
+          titulo: "En una frase",
           parrafos: [
-            "Un comercio venezolano nos contrata para cobrarle a sus compradores en Estados Unidos y para pagar, con ese mismo dinero y siguiendo su instrucción escrita, las facturas que ese comercio tiene con su proveedor estadounidense. Cobramos 3 % por hacerlo. El dinero no sale del país, el beneficiario recibe un producto y no una transferencia, y cada operación queda documentada de punta a punta.",
+            "No recibimos ni administramos dinero de terceros. Cada transacción es una compraventa de mercancía entre el comprador y Windoce, LLC: compramos el producto a nombre propio, lo revendemos al comprador en Estados Unidos y lo entregamos en la dirección que él designa.",
           ],
         },
       ],
@@ -652,122 +585,123 @@ export const MODELO_ES: Documento = {
 
   figuras: {
     ciclo: {
-      titulo: "Ciclo completo de una orden",
-      eeuu: "Estados Unidos",
-      venezuela: "Venezuela",
-      pagador: {
-        rol: "D · Pagador",
-        nombre: "Familiar o allegado en EE. UU.",
-        detalle: "Compra los productos. No envía dinero.",
+      titulo: "Figura 1",
+      eeuu: "Dentro de Estados Unidos",
+      venezuela: "Dirección de entrega designada",
+      comprador: {
+        rol: "A",
+        nombre: "Comprador",
+        detalle:
+          "Persona en Estados Unidos. Compra el producto y designa dónde se entrega",
       },
       mercatren: {
-        rol: "B · Operador de la plataforma",
-        nombre: "Mercatren",
+        rol: "B",
+        nombre: "Windoce, LLC · Mercatren",
         detalle:
-          "Agente de compras y de cobro del comercio. Registra, verifica, concilia y liquida. Cobra 3 % de comisión por la gestión.",
+          "Vende el producto al comprador y compra la mercancía al proveedor, a nombre propio",
       },
       proveedor: {
-        rol: "C · Proveedor autorizado",
-        nombre: "Mayorista en EE. UU.",
-        detalle:
-          "Acreedor comercial del comercio. Recibe los fondos. Tiene sucursal propia en Venezuela.",
+        rol: "C",
+        nombre: "Proveedor",
+        detalle: "Vende la mercancía a Windoce, LLC y le factura a su nombre",
       },
       comercio: {
-        rol: "A · Cliente piloto",
-        nombre: "Comercio en Venezuela",
-        detalle:
-          "Empresa independiente. No es de Mercatren. Se abastece de la sucursal local del proveedor.",
+        rol: "C",
+        nombre: "Despacho del proveedor",
+        detalle: "Entrega el producto en la dirección de la orden",
       },
       consumidor: {
-        rol: "Consumidor final",
-        nombre: "Cliente en Venezuela",
-        detalle: "Elige el producto y lo recibe.",
+        rol: "—",
+        nombre: "Quien recibe",
+        detalle: "Recibe un producto físico. Nunca dinero",
       },
-      paga: "Paga la orden por Zelle · irrevocable · costo cero · dinero dentro de EE. UU.",
-      liquida:
-        "Liquida al proveedor · pago consolidado y trazable · dinero dentro de EE. UU.",
-      pide: "Pide y aparta el producto",
-      entrega: "Entrega el producto al confirmarse el pago",
-      enlace: "Comparte el enlace de la orden",
-      orden: "Orden registrada y pago confirmado",
+      paga: "Paga el precio publicado del producto",
+      compra: "Compra la mercancía · factura a nombre de Windoce, LLC",
+      pide: "El producto sale del inventario del proveedor",
+      entrega: "Entrega del producto y constancia con fecha",
+      orden: "Viaja la orden: qué producto y a qué dirección",
+      enlace: "Vuelve la constancia de entrega, unida al número de orden",
       fuera:
-        "Fuera del alcance de Mercatren: el proveedor abastece al comercio desde su propia sucursal local. No transportamos, no importamos, no despachamos y no financiamos ningún movimiento de mercancía.",
-      pie: "La columna izquierda es Estados Unidos y la derecha es Venezuela. Las líneas gruesas son movimientos de dinero y todas ocurren dentro de Estados Unidos.",
+        "Toda la operación comercial —la venta al comprador y la compra al proveedor— ocurre dentro de Estados Unidos, entre partes con cuentas en bancos estadounidenses.",
+      pie: "Dos compraventas encadenadas. A la izquierda el circuito comercial completo; a la derecha, únicamente el producto y su constancia de entrega.",
     },
+
     frontera: {
-      remesaTitulo: "Lo que no hacemos · envío de remesas",
-      remesaTexto:
-        "El dinero cruza la frontera y termina en manos de una persona. Eso es transmisión de fondos.",
-      remesaCajas: ["Remitente", "Operador", "Beneficiario"],
-      remesaCruza: "el dinero cruza la frontera",
-      nuestroTitulo:
-        "Lo que sí hacemos · compra de productos con liquidación doméstica",
-      nuestroTexto:
-        "El dinero entra y sale dentro de EE. UU. Nada de lo que Mercatren mueve atraviesa la frontera.",
-      nuestrasCajas: [
-        "Pagador",
-        "Mercatren",
-        "Proveedor",
-        "Sucursal del proveedor",
-        "Comercio",
-        "Consumidor",
+      noTitulo: "La figura que este modelo NO tiene",
+      noTexto:
+        "Recibir dinero de una persona para entregárselo a otra. Eso describe money transmission, y no es lo que ocurre aquí.",
+      noCajas: [
+        "Alguien entrega dinero",
+        "Un operador lo tiene en tránsito",
+        "Otra persona recibe dinero",
       ],
-      circuito: "dinero: circuito cerrado dentro de EE. UU.",
-      frontera: "EE. UU. · Venezuela",
+      noNota:
+        "Aquí el dinero es de un tercero y el destinatario recibe dinero. Ninguna de las dos cosas pasa en Mercatren.",
+      siTitulo: "La estructura real: compraventa de mercancía",
+      siTexto:
+        "Dos compraventas con factura, cerradas dentro de Estados Unidos. Lo único que cruza la frontera es el producto.",
+      siCajas: ["Comprador en EE. UU.", "Windoce, LLC", "Proveedor"],
+      cruzaCajas: ["Producto en camino", "Dirección de entrega"],
+      circuito: "Circuito comercial completo dentro de Estados Unidos",
+      frontera: "← la raya de puntos es la frontera",
       consecuencia:
-        "Ninguna transferencia sale de Estados Unidos, ningún beneficiario recibe efectivo y no hay conversión de divisas.",
+        "El dinero que entra es el precio de venta de un producto propio y el que sale es el costo de la mercancía comprada, con factura a nombre de Windoce, LLC. Del otro lado de la frontera no se mueve dinero: se entrega un producto.",
     },
+
     resumen: {
       pasos: [
         {
-          titulo: "Alguien en EE. UU. compra productos",
-          detalle: "y dice a quién se los entregan",
+          titulo: "Compra",
+          detalle:
+            "El comprador en Estados Unidos adquiere un producto y paga el precio publicado desde un banco estadounidense.",
         },
         {
-          titulo: "Mercatren cobra en Estados Unidos",
-          detalle: "verifica, acepta y registra",
+          titulo: "Adquisición",
+          detalle:
+            "Windoce, LLC compra esa mercancía al proveedor a nombre propio, con factura a su nombre.",
         },
         {
-          titulo: "Paga al proveedor en Estados Unidos",
-          detalle: "contra facturas del cliente",
+          titulo: "Entrega",
+          detalle:
+            "El proveedor entrega el producto en la dirección designada por el comprador, con constancia de la entrega.",
         },
         {
-          titulo: "El comercio entrega en Venezuela",
-          detalle: "un producto, nunca dinero",
+          titulo: "Factura",
+          detalle:
+            "Windoce, LLC emite la factura de venta al comprador y cierra la orden con toda su documentación.",
         },
       ],
-      banda: "Todo el dinero ocurre aquí, dentro de Estados Unidos",
-      sinDinero: "Aquí no hay dinero",
+      banda: "Compraventa de mercancía, con dos facturas por operación",
+      sinDinero: "En ningún punto se entrega dinero a nadie",
       afirmaciones: [
-        "Nadie en Venezuela recibe dinero en ningún momento. Recibe un producto físico.",
-        "Ninguna transferencia sale de Estados Unidos. No hay cambio de divisas.",
-        "El comercio es un cliente independiente. Nos designó por escrito como su agente de cobro.",
-        "Desde que cobramos, los fondos son del comercio. Los aplicamos donde él nos instruye por escrito.",
-        "Nuestro ingreso es solo la comisión del 3 %. El resto es saldo de terceros y así figura en la contabilidad.",
-        "Cada orden deja expediente completo: quién compró, qué compró, quién pagó y adónde fue aplicado.",
+        "El dinero recibido es ingreso propio de Windoce, LLC por la venta de un producto.",
+        "El dinero pagado al proveedor es costo de la mercancía vendida, con factura a nombre de Windoce, LLC.",
+        "La propiedad del producto pasa del proveedor a Windoce, LLC y de Windoce, LLC al comprador.",
+        "Quien recibe en la dirección designada recibe un producto físico, nunca dinero.",
+        "El precio publicado es el precio final e incluye el margen comercial.",
+        "Solo se aceptan pagos originados en bancos de Estados Unidos.",
       ],
     },
   },
 
-  preguntasTitulo: "Si el revisor solo tiene tres preguntas",
+  preguntasTitulo: "Las tres preguntas de siempre",
   preguntas: [
     {
       pregunta: "¿Sale dinero del país?",
       respuesta:
-        "No. Se recibe en una cuenta estadounidense y se paga a una empresa estadounidense. Ninguna entidad financiera venezolana participa en el circuito.",
+        "No. El comprador paga en Estados Unidos y la mercancía se paga contra factura a cuentas bancarias de Estados Unidos. Ninguna institución financiera extranjera participa en la operación.",
     },
     {
       pregunta: "¿De quién es el dinero?",
       respuesta:
-        "Del comercio vendedor, desde el instante del cobro. Mercatren lo custodia y lo aplica según instrucción escrita. Nuestro ingreso es solo la comisión.",
+        "De Windoce, LLC, desde el momento de la venta. Es el precio de un producto vendido, no dinero de un tercero bajo nuestra administración.",
     },
     {
-      pregunta: "¿Qué recibe la persona en Venezuela?",
-      respuesta:
-        "Un producto físico, entregado por el comercio. Nunca dinero, en ninguna forma.",
+      pregunta: "¿Qué recibe la persona en la dirección de entrega?",
+      respuesta: "Un producto físico. Nunca dinero, en ninguna forma.",
     },
   ],
 
   aviso:
-    "Este documento describe un modelo operativo. No constituye asesoramiento legal, contable ni fiscal. Las referencias normativas y las cifras de costos de cobro proceden de fuentes públicas consultadas el 3 de agosto de 2026 y deben verificarse antes de tomar decisiones. La versión completa, que incluye la estructura contractual, el encuadre regulatorio, los controles de cumplimiento y el plan de crecimiento, se entrega a bancos, auditores y socios bajo pedido.",
+    "Este documento describe la estructura y la operación del servicio. No constituye asesoramiento legal, contable ni fiscal, y no afirma que exista determinación alguna de una autoridad a favor de Windoce, LLC. Mercatren es un servicio operado por Windoce, LLC (Delaware, Estados Unidos).",
 };

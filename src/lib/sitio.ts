@@ -11,7 +11,7 @@ import { routing } from "@/i18n/routing";
 export const SITIO = {
   nombre: "Mercatren",
   /** La sociedad que opera el servicio. Mercatren es la marca. */
-  sociedad: "Windoce LLC",
+  sociedad: "Windoce, LLC",
   url:
     process.env.NEXT_PUBLIC_SITIO_URL?.replace(/\/$/, "") ??
     "https://mercatren.com",
