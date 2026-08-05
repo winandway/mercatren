@@ -148,10 +148,23 @@ si puede llegar; lo único que no se vale es que se entere después de pagar.
       "Caracas". Hay que escribirlas a mano — prompt ya entregado a esa
       sesión, pidiendo también horario, teléfono y **si el local atiende
       público** (si es galpón cerrado, no se ofrece ir a buscar ahí).
-- [ ] **El selector de ciudad arriba**, donde hoy dice "Entregar en Estados
-      Unidos" y es mentira. Se guarda en la cuenta y en el navegador.
-- [ ] **El aviso de retiro en la ficha y en el checkout**, con la dirección
-      del depósito y la fuerza que corresponda según la distancia.
+- [x] **El selector de ciudad arriba.** Donde decía "Entregar en Estados
+      Unidos" y era mentira. Se pregunta, no se adivina: nada de IP (un
+      celular en El Vigía puede salir con IP de Bogotá) ni de GPS (permiso que
+      la mayoría niega). Se guarda en una cookie de un año, no en la cuenta,
+      porque quien todavía no se registró también necesita saber si su compra
+      le queda cerca. **En el celular va en su propia franja bajo el
+      buscador**: escondido en `xl:` no lo veía nadie, y el celular es por
+      donde entra casi todo el mundo.
+- [x] **Fuera la bandera de Estados Unidos del selector de idioma.** Pegada a
+      las letras "ES" se leía como país, no como idioma — es lo que el dueño
+      reclamó tres veces. Y la frase "Compras en Estados Unidos" pasó a decir
+      la verdad: se paga desde allá, se retira en tu ciudad.
+- [x] **El aviso de retiro en la ficha**, debajo de quién lo vende, con el
+      tono que corresponde a la distancia: gris "pasas y lo recoges" ·
+      naranja "cerquita de ti" · ámbar con triángulo "tendrías que ir hasta
+      allá". Los tres probados en el navegador.
+- [ ] **El aviso de retiro en el checkout.** Falta ahí; en la ficha ya está.
 - [ ] **Que el pedido y el correo digan dónde retirar.** Hoy el pedido pide
       dirección de entrega como si fuéramos a llevarlo.
 

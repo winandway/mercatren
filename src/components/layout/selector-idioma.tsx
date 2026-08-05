@@ -16,8 +16,14 @@ import { cn } from "@/lib/utils";
  * necesita el buscador. Ahora se ve solo el idioma activo y el resto se abre
  * al tocarlo, que es como lo resuelven las tiendas grandes.
  *
- * La bandera siempre es la de Estados Unidos porque el sitio compra y cobra
- * alli: no cambia con el idioma, cambia el idioma en que se lee.
+ * EL BOTON NO LLEVA BANDERA, y eso costó tres reclamos del dueño: una bandera
+ * de Estados Unidos pegada a las letras "ES" se lee como PAIS, no como idioma
+ * — parecía decir que el sitio entrega en Estados Unidos, cuando la mercancía
+ * está en El Vigía y en Caracas. Aquí solo va el idioma; el país de quien
+ * compra lo dice el selector de ciudad, que sí lo sabe.
+ *
+ * La bandera se queda abajo, en la nota, donde acompaña una frase que sí
+ * habla de Estados Unidos: desde allá se paga.
  */
 export function SelectorIdioma() {
   const t = useTranslations("encabezado");
@@ -64,7 +70,6 @@ export function SelectorIdioma() {
         aria-label={t("idioma")}
         className="celda-encabezado flex items-center gap-1 text-xs font-bold"
       >
-        <BanderaEEUU className="h-4 w-4" />
         <span className="uppercase">{idiomaActual}</span>
         <ChevronDown className="h-3 w-3 opacity-70" aria-hidden />
       </button>

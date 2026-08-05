@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, MapPin } from "lucide-react";
+import { Check, ChevronDown, MapPin } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -41,7 +41,20 @@ function guardarYRecargar(slug: string) {
   window.location.reload();
 }
 
-export function SelectorCiudad({ zonaActual }: { zonaActual: string | null }) {
+export function SelectorCiudad({
+  zonaActual,
+  enLinea = false,
+}: {
+  zonaActual: string | null;
+  /**
+   * De una sola línea, para la barra del celular.
+   *
+   * En pantalla chica esto vive en su propia franja bajo el buscador y ahí
+   * dos renglones se comen media pantalla. En el encabezado grande hay sitio
+   * de sobra y se ve mejor apilado, igual que "Hola, identifícate".
+   */
+  enLinea?: boolean;
+}) {
   const t = useTranslations("entrega");
   const [abierto, setAbierto] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
@@ -74,17 +87,30 @@ export function SelectorCiudad({ zonaActual }: { zonaActual: string | null }) {
         type="button"
         onClick={() => setAbierto((v) => !v)}
         aria-expanded={abierto}
+        aria-label={t("ayuda")}
         className="flex items-center gap-1 rounded-lg px-1 py-0.5 text-left text-xs transition-colors hover:bg-white/10"
       >
-        <MapPin className="h-4 w-4 shrink-0 text-white/70" aria-hidden />
-        <span>
-          <span className="block text-white/70">
-            {elegida ? t("retirasEn") : t("dondeEstas")}
+        <MapPin className="h-4 w-4 shrink-0 text-carga-500" aria-hidden />
+        {enLinea ? (
+          <span className="min-w-0 truncate">
+            <span className="text-white/70">
+              {elegida ? t("retirasEn") : t("dondeEstas")}{" "}
+            </span>
+            <span className="font-bold">
+              {elegida ? elegida.nombre : t("eligeCiudad")}
+            </span>
           </span>
-          <span className="block text-sm font-bold">
-            {elegida ? elegida.nombre : t("eligeCiudad")}
+        ) : (
+          <span>
+            <span className="block text-white/70">
+              {elegida ? t("retirasEn") : t("dondeEstas")}
+            </span>
+            <span className="block text-sm font-bold">
+              {elegida ? elegida.nombre : t("eligeCiudad")}
+            </span>
           </span>
-        </span>
+        )}
+        <ChevronDown className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
       </button>
 
       {abierto ? (

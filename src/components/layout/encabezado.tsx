@@ -126,6 +126,17 @@ export async function Encabezado() {
         </div>
       </div>
 
+      {/* DÓNDE ESTÁ QUIEN COMPRA, EN EL CELULAR.
+          En pantalla chica no cabe arriba, y esconderlo ahí lo dejaba
+          invisible justo en el aparato por donde entra casi todo el mundo.
+          Va en su propia franja bajo el buscador, como en Amazon: una línea,
+          de lado a lado, imposible de no ver. */}
+      <div className="border-b border-white/10 bg-riel-800 text-white xl:hidden">
+        <div className="mx-auto flex max-w-[1500px] px-3 py-1 sm:px-4">
+          <SelectorCiudad zonaActual={zona?.slug ?? null} enLinea />
+        </div>
+      </div>
+
       {/* Fila de categorias */}
       <div className="bg-riel-800 text-white">
         <div className="mx-auto flex max-w-[1500px] items-center gap-1 overflow-x-auto px-3 py-1 text-sm sm:px-4">
