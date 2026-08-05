@@ -114,6 +114,48 @@ aprobada + venta acreditada).
 - [ ] Al equipo: **resumen diario** de ventas y pendientes (opcional, más
       adelante).
 
+## Zonas de entrega (pedido del 5 ago 2026) — EL SIGUIENTE GRANDE
+
+Hoy el encabezado dice "Entregar en 🇺🇸 Estados Unidos" y está escrito en el
+código. **Es mentira**: la mercancía se entrega en El Vigía y en Caracas. Y
+nada impide que alguien de Valencia compre un alicate que está en El Vigía.
+
+**El archivo de Bley NO trae ubicación.** Se revisó: id, sku, precio, stock,
+fotos… y nada de depósito ni ciudad. Ese dato hay que crearlo.
+
+**El modelo, en cuatro piezas:**
+
+1. **Zonas** — lista cerrada nuestra (El Vigía, Caracas, y las que entren),
+   igual que los departamentos. Si cada comercio escribe la suya, "Caracas" y
+   "Ccs" no se encuentran nunca.
+2. **Depósitos del comercio** — nombre, dirección y zona. Se declaran al darse
+   de alta. Bley tiene varios.
+3. **Producto → depósito** — con un solo depósito, todos caen ahí solos; con
+   varios, lo elige el comercio (o se importa si el archivo llega a traerlo).
+4. **Cliente → zona** — la elige arriba, donde hoy dice Estados Unidos. Se
+   guarda en su cuenta y en el navegador.
+
+**Lo que ve quien está fuera de zona:** el producto SE MUESTRA, atenuado y con
+"No llega a Valencia". Esconderlo le enseña una tienda vacía y le dice que
+Mercatren no sirve; mostrarlo le dice que existe y que falta un comercio en su
+ciudad. Con un interruptor "Solo lo que llega a mi zona" para cuando ya quiere
+comprar.
+
+**La barrera de verdad va en el servidor**, en `crearPedido`: si algo del
+carrito no llega a la dirección de entrega, el pedido no se crea y se dice
+cuál. Lo que solo se comprueba en el navegador no está comprobado.
+
+**Zonas y no GPS, a propósito:** las direcciones venezolanas no se
+geocodifican ("sector La Blanca, casa sin número" no le dice nada a Google
+Maps), el comercio piensa en "El Vigía" y no en coordenadas, y así no hay API
+externa que pagar ni que se caiga. El mapa sí va, pero donde sirve: en la
+ficha del producto, enseñando dónde está el depósito que lo entrega.
+
+**Lo que hace falta de tu lado:** la lista de depósitos de Bley con su
+dirección y a qué zona pertenece cada uno, y — si la tienes — a qué depósito
+va cada producto. Sin eso se puede montar todo igual y asignarlos después
+desde el panel.
+
 ## Lo que sigue
 
 - [ ] **La cola de "Otros" en el panel.** Hoy "Otros" ya recoge lo que no

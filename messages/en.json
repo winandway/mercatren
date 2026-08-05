@@ -1061,7 +1061,9 @@
       "siguiente": "Next photo",
       "volverCatalogo": "Back to catalog",
       "noEncontrado": "We couldn't find this product",
-      "noEncontradoTexto": "It may no longer be for sale."
+      "noEncontradoTexto": "It may no longer be for sale.",
+      "agregado": "Added",
+      "agregarCorto": "Add"
     },
     "paginacion": {
       "anterior": "Previous",

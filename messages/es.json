@@ -1061,7 +1061,9 @@
       "siguiente": "Foto siguiente",
       "volverCatalogo": "Volver al catálogo",
       "noEncontrado": "No encontramos este producto",
-      "noEncontradoTexto": "Puede que ya no esté a la venta."
+      "noEncontradoTexto": "Puede que ya no esté a la venta.",
+      "agregado": "Agregado",
+      "agregarCorto": "Agregar"
     },
     "paginacion": {
       "anterior": "Anterior",

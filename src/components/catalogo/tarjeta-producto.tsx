@@ -3,6 +3,7 @@
 import { ImageOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { BotonAgregarRapido } from "@/components/catalogo/boton-agregar-rapido";
 import { PrecioTienda } from "@/components/catalogo/precio-tienda";
 import { Link } from "@/i18n/navigation";
 import type { ProductoLista } from "@/lib/catalogo/consultas";
@@ -133,6 +134,28 @@ export function TarjetaProducto({
         <p className="mt-auto truncate pt-2 text-xs text-tinta-suave">
           {producto.tiendaNombre}
         </p>
+
+        {/* Agregar sin abrir el producto: en ferretería se llevan diez cosas
+            chiquitas, y abrir-agregar-volver diez veces cansa a cualquiera. */}
+        <div className="mt-2">
+          <BotonAgregarRapido
+            agotado={agotado}
+            linea={{
+              productoId: producto.id,
+              slug: producto.slug,
+              titulo,
+              precioCentavos: producto.precioCentavos,
+              moneda: producto.moneda,
+              imagenUrl: producto.imagenUrl,
+              tiendaNombre: producto.tiendaNombre,
+              tiendaSlug: producto.tiendaSlug,
+              unidad: producto.unidad,
+              maximo: producto.controlaExistencias
+                ? producto.existencias
+                : null,
+            }}
+          />
+        </div>
       </div>
     </Link>
   );
