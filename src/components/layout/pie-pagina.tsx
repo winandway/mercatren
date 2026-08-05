@@ -11,6 +11,7 @@ const SECCIONES = [
     titulo: "comprar",
     enlaces: [
       { clave: "catalogo", href: "/catalogo" },
+      { clave: "tiendas", href: "/tiendas" },
       { clave: "seguimiento", href: "/pedidos" },
     ],
   },

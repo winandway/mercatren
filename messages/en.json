@@ -32,7 +32,8 @@
     "cambiarIdioma": "Change language",
     "comprasEn": "You pay in U.S. dollars from the United States. You pick up your order in your own city.",
     "panel": "Panel",
-    "crearCuenta": "Create account"
+    "crearCuenta": "Create account",
+    "tiendas": "Stores"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., delivered where you need it",
@@ -76,7 +77,8 @@
     "cuantosHay": "{n} products",
     "verTodoDe": "See all",
     "masVariados": "More products",
-    "masVariadosTexto": "A bit of everything, different every time you visit."
+    "masVariadosTexto": "A bit of everything, different every time you visit.",
+    "verTodasLasTiendas": "See all stores"
   },
   "piePagina": {
     "derechos": "All rights reserved.",
@@ -99,7 +101,8 @@
       "comoFunciona": "How it works",
       "transparencia": "Transparency",
       "docs": "Documentation",
-      "nosotros": "About us"
+      "nosotros": "About us",
+      "tiendas": "All stores"
     },
     "lema": "Shop in the U.S., delivered where you need it.",
     "descripcion": "Mercatren is a service operated by Windoce, LLC (Delaware, United States). We sell products for our own account and deliver them to the address the buyer designates. Every transaction is documented end to end.",
@@ -1637,5 +1640,12 @@
     "sinComerciosTexto": "Here's the full nationwide catalog — every product shows its pickup city.",
     "sinComerciosCatalogo": "Browse the nationwide catalog — every product shows its pickup city.",
     "abreTuTiendaAqui": "Do you sell in {ciudad}? Open your store and be the first"
+  },
+  "tiendasDirectorio": {
+    "titulo": "Stores on Mercatren",
+    "entradilla": "Every merchant selling here, with their city and their catalog. All on equal footing: no house stores, no favorites.",
+    "buscar": "Search stores by name or city",
+    "sinResultados": "No store matches your search.",
+    "productos": "{n, plural, one {# product} other {# products}}"
   }
 }

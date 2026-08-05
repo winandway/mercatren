@@ -169,6 +169,7 @@ export async function Encabezado() {
                     { href: "/registro", texto: t("crearCuenta") },
                   ]),
               { href: "/catalogo", texto: t("catalogo") },
+              { href: "/tiendas", texto: t("tiendas") },
               { href: "/vender", texto: t("vender") },
               { href: "/como-funciona", texto: t("comoFunciona") },
               { href: "/docs", texto: t("docs") },
@@ -178,6 +179,11 @@ export async function Encabezado() {
           />
           <Link href="/catalogo" className="celda-encabezado shrink-0">
             {t("catalogo")}
+          </Link>
+          {/* EL DIRECTORIO DE TIENDAS. Sin este enlace no había ninguna forma
+              de descubrir a un vendedor sin saberse su dirección de memoria. */}
+          <Link href="/tiendas" className="celda-encabezado shrink-0">
+            {t("tiendas")}
           </Link>
           <Link href="/vender" className="celda-encabezado shrink-0">
             {t("vender")}

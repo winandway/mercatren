@@ -32,7 +32,8 @@
     "cambiarIdioma": "Cambiar idioma",
     "comprasEn": "Pagas en dólares desde Estados Unidos. La mercancía la retiras en tu ciudad.",
     "panel": "Panel",
-    "crearCuenta": "Crear cuenta"
+    "crearCuenta": "Crear cuenta",
+    "tiendas": "Tiendas"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
@@ -76,7 +77,8 @@
     "cuantosHay": "{n} productos",
     "verTodoDe": "Ver todo",
     "masVariados": "Más productos",
-    "masVariadosTexto": "De todo un poco, distinto cada vez que entras."
+    "masVariadosTexto": "De todo un poco, distinto cada vez que entras.",
+    "verTodasLasTiendas": "Ver todas las tiendas"
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",
@@ -99,7 +101,8 @@
       "comoFunciona": "Cómo funciona",
       "transparencia": "Transparencia",
       "docs": "Documentación",
-      "nosotros": "Quiénes somos"
+      "nosotros": "Quiénes somos",
+      "tiendas": "Todas las tiendas"
     },
     "lema": "Compra en Estados Unidos, entrega donde la necesites.",
     "descripcion": "Mercatren es un servicio operado por Windoce, LLC (Delaware, Estados Unidos). Vendemos productos por cuenta propia y los entregamos en la dirección que designa el comprador. Cada operación queda documentada de punta a punta.",
@@ -1637,5 +1640,12 @@
     "sinComerciosTexto": "Te mostramos el catálogo completo del país; cada producto dice en qué ciudad se retira.",
     "sinComerciosCatalogo": "Mira el catálogo de toda Venezuela; cada producto dice en qué ciudad se retira.",
     "abreTuTiendaAqui": "¿Vendes en {ciudad}? Abre tu tienda y sé el primero"
+  },
+  "tiendasDirectorio": {
+    "titulo": "Las tiendas de Mercatren",
+    "entradilla": "Todos los comercios que venden aquí, con su ciudad y su catálogo. Todos en igualdad: sin tiendas de la casa ni favoritos.",
+    "buscar": "Buscar una tienda por nombre o ciudad",
+    "sinResultados": "Ninguna tienda coincide con lo que buscas.",
+    "productos": "{n, plural, one {# producto} other {# productos}}"
   }
 }

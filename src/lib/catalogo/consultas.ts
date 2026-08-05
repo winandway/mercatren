@@ -16,6 +16,7 @@ import {
   productos,
   tiendas,
 } from "@/lib/db/schema";
+import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { DIAS_PRODUCTO_NUEVO } from "@/lib/dinero";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
@@ -73,14 +74,51 @@ function corteDeNovedad(): number {
 }
 
 function enZona(ciudades: string[]) {
-  return sql`${productos.depositoId} IN (
-    SELECT dz.id FROM ${depositos} dz
-     WHERE dz.activo = 1
-       AND dz.zona IN (${sql.join(
-         ciudades.map((c) => sql`${c}`),
-         sql`, `,
-       )})
+  const lista = sql.join(
+    ciudades.map((c) => sql`${c}`),
+    sql`, `,
+  );
+
+  /**
+   * LOS PRODUCTOS SIN DEPÓSITO HEREDAN LA CIUDAD DE SU TIENDA.
+   *
+   * Un comercio nuevo subió su arnés y su casco ANTES de que el formulario
+   * pidiera la ciudad: quedaron sin depósito y el filtro de Caracas los
+   * excluía — el dueño refrescó diez veces y nunca salieron, mientras Bley
+   * copaba la pantalla. No era favoritismo: era este hueco.
+   *
+   * La tienda guarda su ciudad como texto libre ("Caracas", "CARACAS"), así
+   * que se compara sin mayúsculas y sin acentos contra el nombre de cada
+   * ciudad del filtro. El producto CON depósito sigue mandando el depósito,
+   * que es más preciso.
+   */
+  const nombres = sql.join(
+    ciudades
+      .map((slug) => zonaPorSlug(slug)?.nombre)
+      .filter((n): n is string => Boolean(n))
+      .map((n) => sql`${normalizarCiudad(n)}`),
+    sql`, `,
+  );
+
+  return sql`(
+    ${productos.depositoId} IN (
+      SELECT dz.id FROM ${depositos} dz
+       WHERE dz.activo = 1 AND dz.zona IN (${lista})
+    )
+    OR (
+      ${productos.depositoId} IS NULL
+      AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(${tiendas.ciudad}), 'á','a'),'é','e'),'í','i'),'ó','o'),'ú','u')) IN (${nombres})
+    )
   )`;
+}
+
+/** "El Vigía " → "el vigia": para comparar la ciudad libre de la tienda. */
+function normalizarCiudad(nombre: string): string {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 /**
@@ -380,7 +418,14 @@ export async function listarComerciosDelCatalogo() {
     .from(tiendas)
     .innerJoin(productos, eq(productos.tiendaId, tiendas.id))
     .where(VISIBLE)
-    .groupBy(tiendas.slug, tiendas.nombre)
+    .groupBy(
+      tiendas.id,
+      tiendas.slug,
+      tiendas.nombre,
+      tiendas.logoClave,
+      tiendas.ciudad,
+      tiendas.creadoEn,
+    )
     .orderBy(desc(count(productos.id)));
 
   return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
@@ -437,6 +482,9 @@ export async function listarComerciosDestacados() {
       descripcionEs: tiendas.descripcionEs,
       descripcionEn: tiendas.descripcionEn,
       paisOrigen: tiendas.paisOrigen,
+      logoClave: tiendas.logoClave,
+      ciudad: tiendas.ciudad,
+      creadoEn: tiendas.creadoEn,
       cuantos: count(productos.id),
     })
     .from(tiendas)
@@ -541,14 +589,29 @@ export async function listarDepartamentosDePortada(
    * un departamento que en Caracas está vacío no puede bajar como banda
    * llena de mercancía de otra ciudad.
    */
+  // Mismo criterio que enZona, incluido el respaldo de la ciudad de la
+  // tienda para productos sin depósito. `t` es el alias de tiendas de la
+  // consulta de abajo.
   const FILTRO_ZONA = zona?.length
-    ? sql`AND p.deposito_id IN (
-        SELECT dz.id FROM depositos dz
-         WHERE dz.activo = 1
-           AND dz.zona IN (${sql.join(
-             zona.map((c) => sql`${c}`),
-             sql`, `,
-           )})
+    ? sql`AND (
+        p.deposito_id IN (
+          SELECT dz.id FROM depositos dz
+           WHERE dz.activo = 1
+             AND dz.zona IN (${sql.join(
+               zona.map((c) => sql`${c}`),
+               sql`, `,
+             )})
+        )
+        OR (
+          p.deposito_id IS NULL
+          AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(t.ciudad), 'á','a'),'é','e'),'í','i'),'ó','o'),'ú','u')) IN (${sql.join(
+            zona
+              .map((c) => zonaPorSlug(c)?.nombre)
+              .filter((n): n is string => Boolean(n))
+              .map((n) => sql`${normalizarCiudad(n)}`),
+            sql`, `,
+          )})
+        )
       )`
     : sql``;
 

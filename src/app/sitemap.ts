@@ -54,6 +54,7 @@ const FIJAS: [
 ][] = [
   ["", 1, "daily"],
   ["/catalogo", 0.9, "daily"],
+  ["/tiendas", 0.8, "daily"],
   ["/docs/modelo-de-negocio", 0.9, "monthly"],
   ["/docs", 0.8, "monthly"],
   ["/vender", 0.8, "monthly"],

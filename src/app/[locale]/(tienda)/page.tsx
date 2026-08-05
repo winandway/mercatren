@@ -257,7 +257,15 @@ export default async function PaginaInicio({
           {/* Los comercios, que es de lo que va esto */}
           {comercios.length > 0 ? (
             <section>
-              <h2 className="text-lg font-bold">{t("comercios")}</h2>
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="text-lg font-bold">{t("comercios")}</h2>
+                <Link
+                  href="/tiendas"
+                  className="shrink-0 text-sm font-semibold text-riel-700 hover:text-carga-600"
+                >
+                  {t("verTodasLasTiendas")} →
+                </Link>
+              </div>
               <p className="mt-1 text-sm text-tinta-suave">
                 {t("comerciosTexto")}
               </p>
