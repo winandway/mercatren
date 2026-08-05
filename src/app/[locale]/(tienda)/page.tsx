@@ -79,9 +79,15 @@ export default async function PaginaInicio({
    * muerto, así que se enseña el catálogo completo — pero avisando primero,
    * y con la invitación que le da sentido al bombillo apagado: aquí falta un
    * comercio, y ese comercio puede ser tuyo.
+   *
+   * EL AVISO SOLO SALE CON UN CERO DE VERDAD. Si lo que hubo fue un tropiezo
+   * de la base (`portada.fallo`), se enseña el país entero igual, pero SIN
+   * acusar a la ciudad: el dueño vio "En Caracas todavía no hay comercios"
+   * con dos comercios y 114 productos allí — era un error vestido de dato.
    */
-  const sinCobertura = Boolean(visibles && portada.parrilla.total === 0);
-  if (sinCobertura) {
+  const filtroVacio = Boolean(visibles && portada.parrilla.total === 0);
+  const sinCobertura = filtroVacio && !portada.fallo;
+  if (filtroVacio) {
     portada = await obtenerPortada(idioma, semilla);
   }
   const { parrilla, departamentos, bandas, comercios } = portada;

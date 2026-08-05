@@ -6,6 +6,7 @@ import {
   DEPARTAMENTOS,
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
+import { recordado } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
 import { condicionDeBusqueda } from "./buscar";
@@ -447,28 +448,43 @@ export async function obtenerPortada(
   semilla = 7919,
   zona?: string[],
 ) {
-  const vacia = {
-    parrilla: { productos: [], total: 0, pagina: 1, paginas: 1 },
-    departamentos: [],
-    bandas: [],
-    comercios: [],
-  };
-
-  try {
-    const [parrilla, departamentos, bandas, comercios] = await Promise.all([
-      parrillaDeProductos(semilla, 1, 24, zona),
-      // La tira de arriba enseña TODOS los departamentos del servicio, con o
-      // sin zona: es el cartel de "esto se puede vender aquí", no el filtro.
+  /**
+   * CADA CONSULTA SE CAE SOLA. Antes un tropiezo de CUALQUIERA de las cuatro
+   * vaciaba la portada entera, y la página leía ese vacío como "en tu ciudad
+   * no hay nada" y le plantaba al cliente el aviso de ciudad sin comercios —
+   * pasó con Caracas teniendo 114 productos. Un error de la base no puede
+   * disfrazarse de dato del negocio: por eso `fallo` viaja aparte y el aviso
+   * solo puede salir cuando el cero es de verdad.
+   *
+   * La tira de departamentos y los comercios destacados son iguales para todo
+   * el mundo y cambian poco: se recuerdan un minuto para no repetir esos
+   * agregados en cada visita. Lo filtrado por zona se consulta siempre.
+   */
+  const [parrilla, departamentos, bandas, comercios] = await Promise.all([
+    parrillaDeProductos(semilla, 1, 24, zona).catch((e) => {
+      console.error("[portada] la parrilla no respondio:", e);
+      return null;
+    }),
+    // La tira de arriba enseña TODOS los departamentos del servicio, con o
+    // sin zona: es el cartel de "esto se puede vender aquí", no el filtro.
+    recordado(`portada-departamentos-${idioma}`, 60_000, () =>
       listarDepartamentosDePortada(idioma),
-      bandasDeDepartamentos(idioma, 6, 21, zona),
-      listarComerciosDestacados(),
-    ]);
+    ).catch(() => []),
+    bandasDeDepartamentos(idioma, 6, 21, zona).catch(() => []),
+    recordado("portada-comercios", 60_000, listarComerciosDestacados).catch(
+      () => [],
+    ),
+  ]);
 
-    return { parrilla, departamentos, bandas, comercios };
-  } catch (e) {
-    console.error("[portada] la base no respondio; se muestra vacia:", e);
-    return vacia;
-  }
+  return {
+    parrilla: parrilla ?? { productos: [], total: 0, pagina: 1, paginas: 1 },
+    departamentos,
+    bandas,
+    comercios,
+    /** La parrilla FALLÓ (distinto de "salió vacía"): con esto la portada
+        sabe que no debe acusar a la ciudad de no tener comercios. */
+    fallo: parrilla === null,
+  };
 }
 
 /** Comercios con catalogo, para la portada y el listado de tiendas. */

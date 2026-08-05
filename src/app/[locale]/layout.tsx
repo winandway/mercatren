@@ -1,11 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Proveedores } from "@/components/proveedores";
 import { RegistroAppInstalable } from "@/components/registro-app-instalable";
+import { ESPACIOS_QUE_NO_VIAJAN } from "@/i18n/espacios";
 import { routing } from "@/i18n/routing";
 import { SITIO } from "@/lib/sitio";
 
@@ -99,6 +104,21 @@ export default async function LayoutIdioma({
   }
   setRequestLocale(locale);
 
+  /**
+   * AL NAVEGADOR VIAJA SOLO LO QUE EL NAVEGADOR USA. El paquete completo de
+   * textos pesa 65 KB por idioma y la mitad es el panel de administración:
+   * embeberlo en cada página pública era peso muerto en cada visita. Los
+   * espacios de la lista se quedan en el servidor; el layout del panel
+   * re-provee los mensajes completos para sus propias pantallas.
+   */
+  const mensajes = await getMessages();
+  const excluidos: readonly string[] = ESPACIOS_QUE_NO_VIAJAN;
+  const mensajesPublicos = Object.fromEntries(
+    Object.entries(mensajes).filter(
+      ([espacio]) => !excluidos.includes(espacio),
+    ),
+  ) as typeof mensajes;
+
   // La ficha de la organizacion para Google: Mercatren es la marca y
   // Windoce, LLC la sociedad que la opera. Una sola vez, en el layout.
   const fichaOrganizacion = {
@@ -123,7 +143,7 @@ export default async function LayoutIdioma({
             __html: JSON.stringify(fichaOrganizacion),
           }}
         />
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={mensajesPublicos}>
           <Proveedores>
             {children}
             <RegistroAppInstalable />

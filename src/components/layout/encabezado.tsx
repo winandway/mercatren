@@ -10,6 +10,7 @@ import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
+import { recordado } from "@/lib/cachecito";
 import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
 import { coberturaPorCiudad } from "@/lib/entrega/cobertura";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
@@ -24,17 +25,28 @@ export async function Encabezado() {
   const t = await getTranslations("encabezado");
   const locale = await getLocale();
 
-  // Las categorias del menu salen del catalogo real. Si la base no responde,
-  // el menu sale sin ellas: el encabezado nunca puede tumbar la pagina.
-  const categorias = await listarCategoriasConProductos().catch(() => []);
-
-  // Quien entro, para saludarlo por su nombre y para abrirle el panel si
-  // trabaja ahi. Si algo falla al leer la sesion, se sigue como visitante:
-  // el encabezado nunca puede tumbar la pagina.
-  const usuario = await obtenerUsuario().catch(() => null);
-  const zona = await zonaDelCliente();
-  // Los bombillos verdes del selector: en qué ciudades ya hay mercancía.
-  const cobertura = await coberturaPorCiudad();
+  /**
+   * TODO LO DEL ENCABEZADO SE PIDE A LA VEZ, no en fila. Antes eran cuatro
+   * esperas encadenadas — categorías, sesión, ciudad, cobertura — y como el
+   * encabezado va en TODAS las páginas, cada visita pagaba esa fila completa
+   * antes de ver un solo pixel. Ahora la espera es la de la consulta más
+   * lenta, no la suma de las cuatro.
+   *
+   * Las dos agregadas (categorías y bombillos) además se recuerdan un minuto:
+   * son iguales para todo el mundo y cambian poco. La sesión y la ciudad no
+   * se recuerdan nunca — dependen de quién pregunta.
+   *
+   * Si algo falla, se sigue sin esa pieza: el encabezado nunca puede tumbar
+   * la página.
+   */
+  const [categorias, usuario, zona, cobertura] = await Promise.all([
+    recordado("menu-categorias", 60_000, listarCategoriasConProductos).catch(
+      () => [],
+    ),
+    obtenerUsuario().catch(() => null),
+    zonaDelCliente(),
+    recordado("cobertura-ciudades", 60_000, coberturaPorCiudad),
+  ]);
   const trabajaEnElPanel =
     usuario?.rol === "soporte" ||
     usuario?.rol === "validador" ||

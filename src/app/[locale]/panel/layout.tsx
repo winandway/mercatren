@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
+import {
+  getMessages,
+  getTranslations,
+  setRequestLocale,
+} from "next-intl/server";
 
 import { MenuLateral } from "@/components/panel/menu-lateral";
 import { redirect } from "@/i18n/navigation";
@@ -72,19 +77,29 @@ export default async function LayoutPanel({
     contarRetirosPendientes().catch(() => 0),
   ]);
 
+  /**
+   * AQUÍ ADENTRO VIAJAN LOS MENSAJES COMPLETOS. El layout público recorta el
+   * espacio `panel` del paquete que va al navegador (31 KB que un visitante
+   * del catálogo no necesita); este proveedor anidado se los devuelve a las
+   * pantallas del panel, que son las únicas que los usan.
+   */
+  const mensajes = await getMessages();
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <MenuLateral
-        porValidar={pendientes.length}
-        porRetirar={porRetirar}
-        esInterno={interno}
-        nombre={usuario?.name ?? ""}
-      />
-      <div className="lg:pl-64">
-        <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
-          {children}
-        </main>
+    <NextIntlClientProvider messages={mensajes}>
+      <div className="min-h-screen bg-slate-50">
+        <MenuLateral
+          porValidar={pendientes.length}
+          porRetirar={porRetirar}
+          esInterno={interno}
+          nombre={usuario?.name ?? ""}
+        />
+        <div className="lg:pl-64">
+          <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </NextIntlClientProvider>
   );
 }
