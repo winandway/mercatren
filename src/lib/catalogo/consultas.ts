@@ -713,19 +713,26 @@ export async function parrillaDeProductos(
      * JOIN y sin eso seria ambigua.
      */
     /**
-     * LOS RECIÉN LLEGADOS VAN PRIMERO, y dentro de ellos barajados.
+     * LOS RECIÉN LLEGADOS LLEVAN VENTAJA, PERO SIGUEN BARAJÁNDOSE.
      *
-     * Lo pidió el dueño el 5 ago 2026 con un motivo muy concreto: un comercio
-     * que sube su primer producto, entra a la tienda y no lo ve, se desanima.
-     * Durante una semana su producto sale arriba; después entra al barajado
-     * general como todos.
+     * La primera versión los clavaba de primeros con un CASE 0/1, y el dueño
+     * lo notó a la primera: "le doy actualizar y se quedan en el mismo
+     * sitio, ya no se mueven". Tenía razón — un puesto fijo mata la gracia
+     * del barajado.
      *
-     * El corte se calcula aquí y no se guarda en ninguna columna: así se
-     * apaga solo, sin ningún proceso que mantener ni que pueda fallar.
+     * Ahora el producto nuevo juega la MISMA lotería que los demás, pero su
+     * número sale de un rango diez veces más chico: casi siempre cae en las
+     * primeras filas, y en una posición DISTINTA en cada visita. Un viejo
+     * con mucha suerte todavía puede colarse antes — y eso es bueno: se ve
+     * vivo, no acomodado.
+     *
+     * El corte de novedad se calcula al vuelo, sin columna ni cron: a los
+     * siete días la ventaja se apaga sola.
      */
     .orderBy(
-      sql`CASE WHEN ${productos.creadoEn} > ${desdeCuandoEsNuevo} THEN 0 ELSE 1 END`,
-      sql`((productos.rowid * ${semilla}) % 104729)`,
+      sql`CASE WHEN ${productos.creadoEn} > ${desdeCuandoEsNuevo}
+        THEN ((productos.rowid * ${semilla}) % 104729) / 10
+        ELSE ((productos.rowid * ${semilla}) % 104729) END`,
       productos.id,
     )
     .limit(porPagina)
@@ -842,12 +849,15 @@ export async function bandasDeDepartamentos(
             )`,
           ),
         )
-        /* Los recién llegados primero — el comercio que sube su producto
-           tiene que verlo al entrar, y la banda de su departamento es lo
-           primero que mira. Después, el barajado de siempre. */
+        /* Los recién llegados llevan VENTAJA en el barajado, no puesto
+           fijo: su número sale de un rango diez veces más chico, así que
+           casi siempre caen en la primera fila pero en un sitio distinto en
+           cada carga. Clavarlos de primeros se sentía congelado — el dueño
+           lo notó refrescando. */
         .orderBy(
-          sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()} THEN 0 ELSE 1 END`,
-          sql`RANDOM()`,
+          sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()}
+            THEN ABS(RANDOM()) % 100000
+            ELSE ABS(RANDOM()) % 1000000 END`,
         )
         .limit(porBanda);
 
