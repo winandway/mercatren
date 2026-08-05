@@ -341,7 +341,8 @@
       "misProductos": "Mis productos",
       "usuarios": "Cuentas",
       "validacionComercio": "En revisión",
-      "retiros": "Retiros"
+      "retiros": "Retiros",
+      "diccionario": "Diccionario"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -797,7 +798,7 @@
     },
     "miCuenta": "Mi cuenta",
     "tique": {
-      "titulo": "Comprobante de venta",
+      "titulo": "Comprobante de operación",
       "seccion": "Ventas entregadas",
       "cuantas": "{n, plural, =0 {Sin ventas} one {# venta} other {# ventas}}",
       "pagina": "Página {n} de {de}",
@@ -814,11 +815,16 @@
       "comercio": "Comercio",
       "aprobado": "Aprobado",
       "comision": "Margen de Mercatren",
-      "neto": "Neto para el comercio",
-      "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce, LLC.",
+      "neto": "Costo de la mercancía",
+      "pie": "Venta cobrada en Estados Unidos. La mercancía se compró al proveedor indicado y se entregó en la dirección designada. Mercatren es un servicio de Windoce, LLC.",
       "trayendoMas": "Trayendo más ventas…",
       "esoEsTodo": "Eso es todo: {n} ventas.",
-      "verMas": "Ver más"
+      "verMas": "Ver más",
+      "usoInterno": "Uso interno",
+      "mercancia": "Mercancía vendida",
+      "compradaA": "Comprada a",
+      "sinDetalle": "Operación del histórico: no tiene pedido asociado, así que no consta el detalle de la mercancía.",
+      "noEsFactura": "Documento interno. NO es la factura del comprador."
     },
     "mensajes": {
       "sinPermiso": "No tienes permiso para esto.",
@@ -1037,6 +1043,19 @@
       "sinPagar": "Todavía no está pagado. Cuando se apruebe el comprobante, aquí saldrán los botones para cerrarlo.",
       "copiar": "Copiar la dirección",
       "copiada": "Copiada"
+    },
+    "diccionario": {
+      "etiqueta": "Material interno",
+      "titulo": "Cómo se habla de Mercatren",
+      "entradilla": "Las palabras que no se usan, las que se usan en su lugar y por qué. Se estudia una vez y se aplica en cada llamada, cada correo y cada conversación con un banco.",
+      "porQueTitulo": "Esto no es estilo: es la figura jurídica",
+      "porQueTexto": "El sitio estaba escrito como una agencia que cobra y entrega dinero de otros. Eso es, palabra por palabra, la definición de money transmission en Estados Unidos, y es la razón por la que los bancos cierran cuentas. Se corrigió el sitio entero el 5 de agosto de 2026; esta página existe para que no lo deshagamos hablando.",
+      "cuantas": "{n} entradas. Crece con los errores reales.",
+      "noSeDice": "No se dice",
+      "seDice": "Se dice",
+      "nivelCritico": "Crítico",
+      "nivelCuidado": "Cuidado",
+      "comoCrece": "¿Se te escapó una palabra en una llamada o en un correo? Dila aquí y se agrega con su porqué. Este diccionario crece con los resbalones que pasan de verdad, no con los que uno se imagina."
     }
   },
   "catalogo": {

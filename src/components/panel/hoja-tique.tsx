@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora, fechaLarga, ZONA } from "@/lib/fechas";
+import type { LineaDeVenta } from "@/lib/zelle/lineas";
 import type { PagoVista } from "@/lib/zelle/vista";
 
 /**
@@ -13,19 +14,34 @@ import type { PagoVista } from "@/lib/zelle/vista";
  * dos: en Órdenes, como tique que se abre y se imprime, y al costado del
  * comprobante, junto a la captura del banco. Si fueran dos copias, una se
  * quedaría vieja en cuanto se toque la otra.
+ *
+ * ESTE COMPROBANTE ES INTERNO Y NO ES LA FACTURA DEL CLIENTE.
+ *
+ * Lleva el margen de Mercatren y el costo de la mercancía, que son números
+ * nuestros. La factura de venta que recibe el comprador es otro documento y
+ * NUNCA lleva esas dos líneas: el cliente paga un precio y ese precio es todo
+ * lo que le corresponde ver. El dueño lo preguntó el 5 ago 2026 —"¿este tique
+ * es para nosotros o lo ve el cliente?"— y la respuesta tiene que estar
+ * escrita en el propio papel, no en la cabeza de quien lo imprime.
+ *
+ * Por eso arriba dice USO INTERNO y abajo se repite. Un papel que sale de una
+ * impresora acaba en cualquier escritorio.
  */
 export function HojaTique({
   pago,
   comercio,
+  lineas = [],
 }: {
   pago: PagoVista;
   comercio: string | null;
+  /** Qué se vendió y de qué depósito salió. Vacío en el histórico importado. */
+  lineas?: LineaDeVenta[];
 }) {
   const t = useTranslations("panel.tique");
   const idioma = useLocale() as Idioma;
 
   // Lo que no se sabe no se inventa: la fila entera desaparece.
-  const lineas: { etiqueta: string; valor: string | null }[] = [
+  const datos: { etiqueta: string; valor: string | null }[] = [
     {
       etiqueta: t("fecha"),
       valor: pago.fechaTransaccion
@@ -64,6 +80,11 @@ export function HojaTique({
         <p className="mt-2 text-[11px] tracking-wider text-tinta-suave uppercase">
           {t("titulo")}
         </p>
+        {/* QUE SE LEA EN EL PAPEL, no solo en la pantalla. Un comprobante
+            impreso acaba en cualquier escritorio y lleva nuestro margen. */}
+        <p className="mt-1.5 inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold tracking-wider text-amber-900 uppercase">
+          {t("usoInterno")}
+        </p>
       </div>
 
       {/* El monto, que es lo que se mira primero */}
@@ -78,7 +99,7 @@ export function HojaTique({
 
       {/* Los datos */}
       <dl className="border-b border-dashed border-slate-300 py-4 text-sm">
-        {lineas
+        {datos
           .filter((l) => l.valor)
           .map((l) => (
             <div key={l.etiqueta} className="flex justify-between gap-4 py-1.5">
@@ -87,6 +108,62 @@ export function HojaTique({
             </div>
           ))}
       </dl>
+
+      {/* QUÉ MERCANCÍA SE VENDIÓ Y A QUIÉN SE LE COMPRÓ.
+          Sin esto el comprobante decía que entraron $2.48 y nada más: no
+          sustentaba ninguna compraventa, porque no identificaba la mercancía. */}
+      <div className="border-b border-dashed border-slate-300 py-4">
+        <p className="text-[11px] font-bold tracking-wider text-tinta-suave uppercase">
+          {t("mercancia")}
+        </p>
+
+        {lineas.length > 0 ? (
+          <ul className="mt-2 space-y-2.5">
+            {lineas.map((linea, i) => (
+              <li key={`${linea.titulo}-${i}`} className="text-sm">
+                <div className="flex justify-between gap-3">
+                  <span className="min-w-0">
+                    <span className="font-medium">{linea.titulo}</span>
+                    {linea.cantidad > 1 ? (
+                      <span className="text-tinta-suave">
+                        {" "}
+                        &times;{linea.cantidad}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="shrink-0 tabular-nums">
+                    {formatearPrecio(
+                      linea.subtotalCentavos,
+                      idioma,
+                      pago.moneda,
+                    )}
+                  </span>
+                </div>
+                {/* A QUIÉN SE LE COMPRÓ. Es la parte que sustenta la figura:
+                    hubo un proveedor concreto y un depósito concreto. */}
+                {linea.proveedor || linea.deposito ? (
+                  <p className="mt-0.5 text-[11px] text-tinta-suave">
+                    {linea.proveedor ? (
+                      <>
+                        {t("compradaA")} {linea.proveedor}
+                      </>
+                    ) : null}
+                    {linea.deposito ? (
+                      <>
+                        {linea.proveedor ? " · " : null}
+                        {linea.deposito}
+                      </>
+                    ) : null}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          /* El histórico importado no trae pedido: se dice, no se finge. */
+          <p className="mt-2 text-sm text-tinta-suave">{t("sinDetalle")}</p>
+        )}
+      </div>
 
       {/* El reparto del dinero */}
       <dl className="py-4 text-sm">
@@ -106,7 +183,10 @@ export function HojaTique({
 
       {/* Pie: el corte del papel */}
       <div className="border-t border-dashed border-slate-300 pt-4 text-center">
-        <p className="text-[11px] leading-relaxed text-tinta-suave">
+        <p className="text-[11px] leading-relaxed font-semibold text-tinta">
+          {t("noEsFactura")}
+        </p>
+        <p className="mt-1 text-[11px] leading-relaxed text-tinta-suave">
           {t("pie")}
         </p>
         <p className="mt-1 text-[11px] text-tinta-suave">{ZONA}</p>

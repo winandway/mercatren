@@ -1,4 +1,5 @@
 import { listarComercios, listarPagos } from "@/lib/zelle/consultas";
+import { lineasDePagos } from "@/lib/zelle/lineas";
 import { aPagoVista } from "@/lib/zelle/vista";
 
 /**
@@ -33,11 +34,13 @@ export async function GET(peticion: Request) {
     ]);
 
     const nombrePorTienda = new Map(comercios.map((c) => [c.id, c.nombre]));
+    const lineasPorPago = await lineasDePagos(ventas.pagos.map((p) => p.id));
 
     return Response.json({
       tiques: ventas.pagos.map((p) => ({
         pago: aPagoVista(p),
         comercio: p.tiendaId ? (nombrePorTienda.get(p.tiendaId) ?? null) : null,
+        lineas: lineasPorPago.get(p.id) ?? [],
       })),
       pagina: ventas.pagina,
       paginas: ventas.paginas,

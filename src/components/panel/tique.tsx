@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
 
 import { HojaTique } from "@/components/panel/hoja-tique";
+import type { LineaDeVenta } from "@/lib/zelle/lineas";
 import type { PagoVista } from "@/lib/zelle/vista";
 
 /**
@@ -22,10 +23,13 @@ export function Tique({
   pago,
   comercio,
   onCerrar,
+  lineas = [],
 }: {
   pago: PagoVista;
   comercio: string | null;
   onCerrar: () => void;
+  /** Qué mercancía se vendió, para que el comprobante la identifique. */
+  lineas?: LineaDeVenta[];
 }) {
   const t = useTranslations("panel.tique");
   const tz = useTranslations("panel.zelle");
@@ -81,7 +85,7 @@ export function Tique({
           </button>
         </div>
 
-        <HojaTique pago={pago} comercio={comercio} />
+        <HojaTique pago={pago} comercio={comercio} lineas={lineas} />
       </div>
     </div>
   );

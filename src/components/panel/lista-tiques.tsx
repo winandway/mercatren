@@ -10,9 +10,15 @@ import { useRouter } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
+import type { LineaDeVenta } from "@/lib/zelle/lineas";
 import type { PagoVista } from "@/lib/zelle/vista";
 
-type Fila = { pago: PagoVista; comercio: string | null };
+type Fila = {
+  pago: PagoVista;
+  comercio: string | null;
+  /** Qué se vendió: va al comprobante. */
+  lineas?: LineaDeVenta[];
+};
 
 /**
  * Las ventas ya cobradas y entregadas, como tiques.
@@ -229,6 +235,7 @@ export function ListaTiques({
         <Tique
           pago={filas[abierto].pago}
           comercio={filas[abierto].comercio}
+          lineas={filas[abierto].lineas ?? []}
           onCerrar={() => setAbierto(null)}
         />
       ) : null}

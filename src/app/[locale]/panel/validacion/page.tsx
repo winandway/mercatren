@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ListaPagos } from "@/components/panel/zelle/lista-pagos";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
+import { lineasDePagos } from "@/lib/zelle/lineas";
 import { aPagoVista } from "@/lib/zelle/vista";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +67,13 @@ export default async function PaginaValidacion({
           {t("vacio")}
         </p>
       ) : (
-        <ListaPagos pagos={pendientes.map(aPagoVista)} conAcciones={interno} />
+        <ListaPagos
+          pagos={pendientes.map(aPagoVista)}
+          lineasPorPago={Object.fromEntries(
+            await lineasDePagos(pendientes.map((p) => p.id)),
+          )}
+          conAcciones={interno}
+        />
       )}
     </div>
   );

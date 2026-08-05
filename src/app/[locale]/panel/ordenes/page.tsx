@@ -11,6 +11,7 @@ import {
 } from "@/lib/pedidos/consultas";
 import { cn } from "@/lib/utils";
 import { listarComercios, listarPagos } from "@/lib/zelle/consultas";
+import { lineasDePagos } from "@/lib/zelle/lineas";
 import { aPagoVista } from "@/lib/zelle/vista";
 
 export const dynamic = "force-dynamic";
@@ -85,9 +86,14 @@ export default async function PaginaOrdenes({
 
   const nombrePorTienda = new Map(comercios.map((c) => [c.id, c.nombre]));
 
+  // Qué mercancía se vendió en cada operación, en UNA sola consulta para las
+  // 24 de la tanda: una por tique serían 24 viajes a la base por pantalla.
+  const lineasPorPago = await lineasDePagos(ventas.pagos.map((p) => p.id));
+
   const tiques = ventas.pagos.map((p) => ({
     pago: aPagoVista(p),
     comercio: p.tiendaId ? (nombrePorTienda.get(p.tiendaId) ?? null) : null,
+    lineas: lineasPorPago.get(p.id) ?? [],
   }));
 
   return (

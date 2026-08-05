@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { HojaTique } from "@/components/panel/hoja-tique";
+import type { LineaDeVenta } from "@/lib/zelle/lineas";
 import { type Idioma } from "@/lib/dinero";
 import { fechaHora, soloHora } from "@/lib/fechas";
 import type { PagoVista } from "@/lib/zelle/vista";
@@ -17,10 +18,13 @@ export function VisorComprobante({
   pago,
   comercio,
   onCerrar,
+  lineas = [],
 }: {
   pago: PagoVista;
   comercio?: string | null;
   onCerrar: () => void;
+  /** Qué mercancía se vendió, para que el comprobante la identifique. */
+  lineas?: LineaDeVenta[];
 }) {
   const t = useTranslations("panel.zelle");
   const tt = useTranslations("panel.tique");
@@ -125,7 +129,7 @@ export function VisorComprobante({
             </button>
           </div>
 
-          <HojaTique pago={pago} comercio={comercio ?? null} />
+          <HojaTique pago={pago} comercio={comercio ?? null} lineas={lineas} />
 
           {/* Lo que solo importa al validar, fuera del tique. */}
           {extras.length > 0 ? (

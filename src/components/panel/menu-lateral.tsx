@@ -2,18 +2,19 @@
 
 import {
   ArrowUpRight,
+  BookOpen,
+  Languages,
   LayoutDashboard,
   Menu,
   Package,
   Receipt,
   Settings,
-  Languages,
   ShieldCheck,
-  Wallet,
   ShoppingBag,
   Store,
   UserRound,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -74,6 +75,15 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/configuracion",
         clave: "configuracion",
         Icono: Settings,
+        soloInterno: true,
+      },
+      /* CÓMO SE HABLA DE MERCATREN. Material interno: enseña las palabras que
+         describen una figura jurídica que no es la nuestra, y por qué. Es del
+         equipo, no de los proveedores. */
+      {
+        href: "/panel/diccionario",
+        clave: "diccionario",
+        Icono: BookOpen,
         soloInterno: true,
       },
     ],

@@ -17,6 +17,7 @@ import { useState } from "react";
 
 import { AccionesValidacion } from "@/components/panel/zelle/acciones-validacion";
 import { VisorComprobante } from "@/components/panel/zelle/visor-comprobante";
+import type { LineaDeVenta } from "@/lib/zelle/lineas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
@@ -53,8 +54,11 @@ const ESTILO_ESTADO = {
 export function ListaPagos({
   pagos,
   conAcciones = false,
+  lineasPorPago = {},
 }: {
   pagos: PagoVista[];
+  /** Qué se vendió en cada pago, por id. Vacío en el histórico importado. */
+  lineasPorPago?: Record<string, LineaDeVenta[]>;
   /** Muestra los botones de aprobar y rechazar (solo en la cola de validacion). */
   conAcciones?: boolean;
 }) {
@@ -84,7 +88,11 @@ export function ListaPagos({
       </ul>
 
       {abierto ? (
-        <VisorComprobante pago={abierto} onCerrar={() => setAbierto(null)} />
+        <VisorComprobante
+          pago={abierto}
+          lineas={lineasPorPago[abierto.id] ?? []}
+          onCerrar={() => setAbierto(null)}
+        />
       ) : null}
     </>
   );
