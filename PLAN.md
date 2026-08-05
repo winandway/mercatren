@@ -59,18 +59,14 @@ Decidido el 4 ago 2026 (pendiente solo la decisión del fee, abajo).
 - **Datos del receptor Zelle:** correo `pay@windoce.com`, beneficiario
   Windoce LLC. Van en las variables del panel (`ZELLE_CORREO_RECEPTOR`,
   `PAGO_BENEFICIARIO`), nunca en el repo.
-- **Pedido mínimo con tarjeta: $2.00.** En una venta de $0.48 los $0.30
-  fijos de Stripe se comen el 65%; el mínimo protege al comercio.
-
-**La decisión pendiente — quién paga el fee de Stripe:**
-
-Recomendación: **nada de recargos al cliente.** El precio de la etiqueta es
-lo que paga; el 2% de Mercatren y el fee de Stripe se descuentan del lado
-del comercio, con el desglose línea por línea en su panel (bruto − comisión
-− fee = neto). Es lo que hacen Amazon, eBay y Mercado Libre, y esquiva el
-problema legal de los recargos por tarjeta (prohibidos en varios estados,
-regulados por Visa/Mastercard, y Stripe exige avisos). El "consentimiento
-del cliente" deja de hacer falta porque no hay recargo que consentir.
+- **El fee viaja DENTRO del precio publicado (decidido y HECHO).** El
+  comercio escribe su precio y el robotito publica base + ajuste:
+  V = (base + $0.30) / 0.971, techo al centavo. Funciona en el formulario,
+  en la sincronización y con un botón en Configuración para el catálogo
+  viejo. Aplicado a los 689 productos en producción el 4 ago 2026 —
+  reversible: la base quedó en `precio_base_centavos`.
+- **Pedido mínimo: YA NO HACE FALTA.** Con el fee dentro del precio, hasta
+  una venta de $0.48 (publicada a $0.81) deja los números completos.
 
 **Los pasos, en orden:**
 
