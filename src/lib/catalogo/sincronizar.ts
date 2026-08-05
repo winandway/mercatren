@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { adivinarDepartamento } from "@/lib/catalogo/departamentos";
+import { precioConAjusteCentavos } from "@/lib/dinero";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
 import {
@@ -232,7 +233,17 @@ export async function sincronizarCatalogo(
 
     vistos.push(externoId);
 
-    const precio = aCentavos(p.price);
+    /**
+     * El archivo del comercio trae SU precio (la base). Lo publicado lleva el
+     * ajuste por procesamiento sumado aquí, igual que cuando carga un
+     * producto a mano: el robotito trabaja en todas las puertas o el catálogo
+     * queda mitad con ajuste y mitad sin él.
+     */
+    const precioBase = aCentavos(p.price);
+    const precio =
+      precioBase && precioBase > 0
+        ? precioConAjusteCentavos(precioBase)
+        : precioBase;
     let estado = ESTADOS[p.status ?? ""] ?? "borrador";
 
     // Publicado sin precio no se publica: se venderia regalado.
@@ -263,7 +274,11 @@ export async function sincronizarCatalogo(
       descripcionEs: p.description_es ?? null,
       descripcionEn: p.description_en ?? null,
       precioCentavos: precio ?? 0,
-      precioAntesCentavos: aCentavos(p.compare_at_price),
+      precioBaseCentavos: precioBase ?? 0,
+      precioAntesCentavos: (() => {
+        const antes = aCentavos(p.compare_at_price);
+        return antes && antes > 0 ? precioConAjusteCentavos(antes) : null;
+      })(),
       // Las existencias SI llevan decimales: cable por metro, cemento por kilo.
       existencias: Number(p.stock ?? 0),
       unidad: p.unit ?? null,

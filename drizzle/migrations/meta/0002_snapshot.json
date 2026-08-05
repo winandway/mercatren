@@ -1544,6 +1544,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "precio_base_centavos": {
+          "name": "precio_base_centavos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "precio_antes_centavos": {
           "name": "precio_antes_centavos",
           "type": "integer",

@@ -4,6 +4,8 @@ import {
   calcularComisionCentavos,
   calcularNetoVendedorCentavos,
   formatearPrecio,
+  precioConAjusteCentavos,
+  ajusteCentavos,
 } from "@/lib/dinero";
 
 describe("formatearPrecio", () => {
@@ -44,5 +46,35 @@ describe("comision del mercado", () => {
 
   it("con comision cero el vendedor recibe todo", () => {
     expect(calcularNetoVendedorCentavos(50000, 0)).toBe(50000);
+  });
+});
+
+describe("el ajuste por procesamiento en el precio publicado", () => {
+  it("publica el precio que deja la base completa tras el fee", () => {
+    // V = (base + 30) / 0.971, techo al centavo.
+    expect(precioConAjusteCentavos(1000)).toBe(1061); // $10 → $10.61
+    expect(precioConAjusteCentavos(10000)).toBe(10330); // $100 → $103.30
+    expect(precioConAjusteCentavos(48)).toBe(81); // $0.48 → $0.81
+  });
+
+  it("después del fee real, al comercio nunca le falta", () => {
+    for (const base of [48, 199, 1000, 4999, 25000, 3313725]) {
+      const publicado = precioConAjusteCentavos(base);
+      const fee = Math.round((publicado * 290) / 10_000) + 30;
+      // Lo que queda tras el procesador cubre la base, siempre.
+      expect(publicado - fee).toBeGreaterThanOrEqual(base);
+      // Y el colchón del redondeo es de centavos, no un sobreprecio.
+      expect(publicado - fee - base).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it("un precio en cero o negativo no se ajusta", () => {
+    expect(precioConAjusteCentavos(0)).toBe(0);
+    expect(ajusteCentavos(0)).toBe(0);
+  });
+
+  it("el ajuste que se le enseña al comercio cuadra con el publicado", () => {
+    expect(ajusteCentavos(1000)).toBe(61);
+    expect(precioConAjusteCentavos(1000)).toBe(1000 + ajusteCentavos(1000));
   });
 });

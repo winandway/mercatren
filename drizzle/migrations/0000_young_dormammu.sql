@@ -213,6 +213,7 @@ CREATE TABLE `productos` (
 	`descripcion_es` text,
 	`descripcion_en` text,
 	`precio_centavos` integer NOT NULL,
+	`precio_base_centavos` integer,
 	`precio_antes_centavos` integer,
 	`moneda` text DEFAULT 'USD' NOT NULL,
 	`existencias` real DEFAULT 0 NOT NULL,

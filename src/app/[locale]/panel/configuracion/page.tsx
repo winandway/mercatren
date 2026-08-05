@@ -7,11 +7,13 @@ import {
   Settings,
   TriangleAlert,
   Wallet,
+  Wand2,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
+import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
@@ -59,6 +61,7 @@ export default async function PaginaConfiguracion({
 
   const t = await getTranslations("panel.configuracion");
   const tf = await getTranslations("panel.fotos");
+  const ta = await getTranslations("panel.configuracion.ajuste");
   const fotosPendientes = await contarFotosPendientes();
 
   const { env } = getCloudflareContext();
@@ -190,6 +193,18 @@ export default async function PaginaConfiguracion({
             );
           })}
         </ul>
+      </section>
+
+      {/* El ajuste por procesamiento, para el catálogo de antes. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Wand2 className="h-4 w-4 text-carga-500" aria-hidden />
+          {ta("titulo")}
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">{ta("texto")}</p>
+        <div className="mt-3">
+          <AplicarAjuste />
+        </div>
       </section>
 
       {/* Las fotos que todavia dependen del servidor de origen. */}

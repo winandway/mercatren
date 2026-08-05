@@ -295,6 +295,17 @@ export const productos = sqliteTable(
     descripcionEn: text("descripcion_en"),
 
     precioCentavos: integer("precio_centavos").notNull(),
+    /**
+     * EL PRECIO DEL COMERCIO, antes del ajuste por procesamiento.
+     *
+     * `precio_centavos` es lo que se PUBLICA (base + ajuste, calculado por
+     * `precioConAjusteCentavos`). Esta columna guarda lo que el comercio
+     * escribió, que es lo único que él controla — y hace el cambio
+     * reversible al centavo: si mañana el modelo cambia, la base está aquí.
+     *
+     * NULL = producto de antes del ajuste, todavía sin migrar.
+     */
+    precioBaseCentavos: integer("precio_base_centavos"),
     /** Precio tachado, cuando el producto esta en oferta. */
     precioAntesCentavos: integer("precio_antes_centavos"),
     moneda: text("moneda").notNull().default("USD"),

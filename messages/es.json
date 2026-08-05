@@ -625,7 +625,7 @@
       "descripcionEn": "Descripción en inglés",
       "precio": "Precio en dólares",
       "precioAntes": "Precio antes (para ofertas)",
-      "precioAyuda": "Usa punto o coma. Ejemplo: 12.50",
+      "precioAyuda": "Escribe TU precio, lo que quieres recibir. El sistema le suma solo el ajuste por procesamiento y publica el total: no lo subas tú, o el cliente lo pagaría dos veces.",
       "inventario": {
         "titulo": "Inventario",
         "texto": "Cuánto tienes y cómo lo vendes."
@@ -735,6 +735,12 @@
         "titulo": "Idioma del panel",
         "texto": "Elige en qué idioma quieres ver el panel. Se recuerda para la próxima vez.",
         "ayuda": "El cambio se aplica a todo el panel, no solo a esta pantalla."
+      },
+      "ajuste": {
+        "titulo": "Ajuste por procesamiento",
+        "texto": "Pasa el catálogo cargado antes del robotito al modelo nuevo: el precio de cada comercio queda guardado como su base y se publica con el ajuste sumado. Los productos nuevos ya nacen ajustados; esto es una sola vez, y repetirlo no sube nada dos veces.",
+        "boton": "Aplicar el ajuste al catálogo",
+        "aplicando": "Aplicando…"
       }
     },
     "fotos": {
@@ -870,7 +876,8 @@
       "pedidoAjeno": "Ese pedido no es de tu comercio.",
       "pedidoNoSePuedeAvanzar": "Ese pedido ya no está en ese punto.",
       "pedidoEnviado": "Pedido marcado como enviado.",
-      "pedidoEntregado": "Pedido marcado como entregado."
+      "pedidoEntregado": "Pedido marcado como entregado.",
+      "ajusteAplicado": "Listo. Se aplicó el ajuste a {n} productos; el precio de cada comercio quedó guardado."
     },
     "usuarios": {
       "titulo": "Cuentas",

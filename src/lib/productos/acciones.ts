@@ -1,12 +1,13 @@
 "use server";
 
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, isNull, ne, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { obtenerAlcance } from "@/lib/autorizacion";
+import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { precioConAjusteCentavos } from "@/lib/dinero";
 import { mensajes } from "@/lib/mensajes";
 import { imagenesProducto, productos } from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
@@ -162,10 +163,18 @@ export async function guardarProducto(
   }
 
   const d = revisado.data;
-  const precioCentavos = aCentavos(d.precio);
-  if (precioCentavos === null || precioCentavos <= 0) {
+
+  /**
+   * EL ROBOTITO DE LOS PRECIOS. Lo que el comercio escribe es SU precio
+   * (la base); lo que se publica lleva el ajuste por procesamiento sumado
+   * automáticamente. Él no tiene que subir nada a mano — y no debe: si lo
+   * sube él y el sistema vuelve a ajustar, el cliente paga el fee dos veces.
+   */
+  const precioBaseCentavos = aCentavos(d.precio);
+  if (precioBaseCentavos === null || precioBaseCentavos <= 0) {
     return { ok: false, mensaje: t("precioMayorQueCero") };
   }
+  const precioCentavos = precioConAjusteCentavos(precioBaseCentavos);
 
   // Un producto publicado sin precio se venderia regalado.
   if (d.estado === "publicado" && precioCentavos <= 0) {
@@ -191,7 +200,13 @@ export async function guardarProducto(
     marca: d.marca?.trim() || null,
     unidad: d.unidad?.trim() || null,
     precioCentavos,
-    precioAntesCentavos: aCentavos(d.precioAntes),
+    precioBaseCentavos,
+    // El "antes" también se ajusta: comparar un tachado sin ajuste contra un
+    // precio con ajuste haría ver rebajas más chicas de lo que son.
+    precioAntesCentavos: (() => {
+      const antes = aCentavos(d.precioAntes);
+      return antes && antes > 0 ? precioConAjusteCentavos(antes) : null;
+    })(),
     existencias: Number.isFinite(existencias) ? Math.max(0, existencias) : 0,
     controlaExistencias: d.controlaExistencias === "on",
     estado: d.estado,
@@ -319,4 +334,61 @@ export async function cambiarEstadoProducto(
   revalidatePath("/[locale]/catalogo", "page");
 
   return { ok: true, mensaje: t("listo") };
+}
+
+/**
+ * EL AJUSTE, APLICADO AL CATÁLOGO QUE YA EXISTÍA.
+ *
+ * Los productos cargados antes del robotito tienen el precio del comercio
+ * publicado tal cual, sin ajuste. Esto los pasa al modelo nuevo de una vez:
+ * el precio actual pasa a ser la base (queda guardado, reversible al
+ * centavo) y se publica la base más el ajuste.
+ *
+ * ES IDEMPOTENTE: solo toca productos con `precio_base_centavos` en NULL.
+ * Pulsarlo dos veces no sube nada dos veces — la segunda no encuentra nada
+ * que hacer. Y es del equipo, no del comercio: mueve los precios de toda la
+ * plataforma.
+ */
+export async function aplicarAjusteAlCatalogo(): Promise<{
+  ok: boolean;
+  mensaje: string;
+  ajustados?: number;
+}> {
+  const t = await mensajes();
+
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: t("soloEquipo") };
+  }
+
+  const db = getDb();
+
+  const pendientes = await db
+    .select({ id: productos.id, precioCentavos: productos.precioCentavos })
+    .from(productos)
+    .where(isNull(productos.precioBaseCentavos));
+
+  let ajustados = 0;
+  for (const p of pendientes) {
+    const base = Number(p.precioCentavos);
+    await db
+      .update(productos)
+      .set({
+        precioBaseCentavos: base,
+        precioCentavos: base > 0 ? precioConAjusteCentavos(base) : base,
+        actualizadoEn: new Date(),
+      })
+      // El WHERE repite la condición: si dos personas pulsan el botón a la
+      // vez, el segundo UPDATE no encuentra la fila y no ajusta dos veces.
+      .where(and(eq(productos.id, p.id), isNull(productos.precioBaseCentavos)));
+    ajustados++;
+  }
+
+  revalidatePath("/[locale]", "layout");
+  return {
+    ok: true,
+    mensaje: t("ajusteAplicado", { n: ajustados }),
+    ajustados,
+  };
 }

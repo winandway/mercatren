@@ -625,7 +625,7 @@
       "descripcionEn": "Description in English",
       "precio": "Price in dollars",
       "precioAntes": "Compare-at price (for sales)",
-      "precioAyuda": "Use a dot or comma. Example: 12.50",
+      "precioAyuda": "Enter YOUR price — what you want to receive. The system automatically adds the processing adjustment and publishes the total. Do not raise it yourself, or the buyer would pay it twice.",
       "inventario": {
         "titulo": "Inventory",
         "texto": "How much you have and how you sell it."
@@ -735,6 +735,12 @@
         "titulo": "Panel language",
         "texto": "Choose the language you want the panel in. It's remembered next time.",
         "ayuda": "The change applies to the whole panel, not just this screen."
+      },
+      "ajuste": {
+        "titulo": "Processing adjustment",
+        "texto": "Moves the catalog loaded before the automatic adjustment to the new model: each merchant’s price is stored as their base and published with the adjustment added. New products are adjusted automatically; this runs once, and repeating it never adjusts twice.",
+        "boton": "Apply the adjustment to the catalog",
+        "aplicando": "Applying…"
       }
     },
     "fotos": {
@@ -870,7 +876,8 @@
       "pedidoAjeno": "That order does not belong to your store.",
       "pedidoNoSePuedeAvanzar": "That order is no longer at that stage.",
       "pedidoEnviado": "Order marked as shipped.",
-      "pedidoEntregado": "Order marked as delivered."
+      "pedidoEntregado": "Order marked as delivered.",
+      "ajusteAplicado": "Done. The adjustment was applied to {n} products; each merchant’s own price was preserved."
     },
     "usuarios": {
       "titulo": "Accounts",

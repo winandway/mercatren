@@ -24,6 +24,7 @@ type Producto = {
   marca: string | null;
   unidad: string | null;
   precioCentavos: number;
+  precioBaseCentavos: number | null;
   precioAntesCentavos: number | null;
   existencias: number;
   controlaExistencias: boolean;
@@ -197,13 +198,25 @@ export function FormularioProducto({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
+            {/**
+             * LA CASILLA ENSEÑA EL PRECIO DEL COMERCIO, no el publicado.
+             * Si enseñara el publicado, al guardar se tomaría como base y el
+             * ajuste se sumaría encima del ajuste: el precio subiría en
+             * cascada con cada edición.
+             */}
             <Campo
               nombre="precio"
               obligatorio
               modo="decimal"
               etiqueta={t("precio")}
               ayuda={t("precioAyuda")}
-              valor={producto ? aTexto(producto.precioCentavos) : ""}
+              valor={
+                producto
+                  ? aTexto(
+                      producto.precioBaseCentavos ?? producto.precioCentavos,
+                    )
+                  : ""
+              }
               placeholder="0.00"
             />
             <Campo
