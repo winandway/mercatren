@@ -9,13 +9,15 @@ import {
   Wallet,
   Wand2,
 } from "lucide-react";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
+import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import { auditarPrecios } from "@/lib/productos/auditoria";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +64,19 @@ export default async function PaginaConfiguracion({
   const t = await getTranslations("panel.configuracion");
   const tf = await getTranslations("panel.fotos");
   const ta = await getTranslations("panel.configuracion.ajuste");
+  const tp = await getTranslations("panel.configuracion.auditoriaPrecios");
+  const idioma = (await getLocale()) as Idioma;
+
+  // La auditoría de precios: de solo lectura, para responder "¿está todo
+  // bien?" con datos y no con la palabra de nadie.
+  const auditoria = await auditarPrecios().catch(() => ({
+    revisados: 0,
+    correctos: 0,
+    sinBase: 0,
+    aPerdida: 0,
+    totalDesalineados: 0,
+    desalineados: [],
+  }));
   const fotosPendientes = await contarFotosPendientes();
 
   const { env } = getCloudflareContext();
@@ -204,6 +219,81 @@ export default async function PaginaConfiguracion({
         <p className="mt-1 max-w-3xl text-sm text-tinta-suave">{ta("texto")}</p>
         <div className="mt-3">
           <AplicarAjuste />
+        </div>
+
+        {/* LA AUDITORÍA. Después de que un precio se inflara solo, "está todo
+            bien" no puede ser la palabra de nadie: se abre y se comprueba. */}
+        <div className="mt-6 border-t border-borde pt-5">
+          <h3 className="text-sm font-bold">{tp("titulo")}</h3>
+          <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+            {tp("texto")}
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2 text-sm">
+            <span className="rounded-lg bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-900">
+              {tp("correctos", { n: auditoria.correctos })}
+            </span>
+            {auditoria.totalDesalineados > 0 ? (
+              <span className="rounded-lg bg-amber-50 px-3 py-1.5 font-semibold text-amber-900">
+                {tp("desalineados", { n: auditoria.totalDesalineados })}
+              </span>
+            ) : null}
+            {auditoria.aPerdida > 0 ? (
+              <span className="rounded-lg bg-red-50 px-3 py-1.5 font-semibold text-red-900">
+                {tp("aPerdida", { n: auditoria.aPerdida })}
+              </span>
+            ) : null}
+          </div>
+
+          {auditoria.totalDesalineados === 0 ? (
+            <p className="mt-3 text-sm font-semibold text-emerald-800">
+              {tp("todoBien", { n: auditoria.revisados })}
+            </p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[40rem] text-sm">
+                <thead>
+                  <tr className="border-b border-borde text-left text-xs tracking-wide text-tinta-suave uppercase">
+                    <th className="py-2 pr-3 font-semibold">
+                      {tp("columnas.producto")}
+                    </th>
+                    <th className="py-2 pr-3 text-right font-semibold">
+                      {tp("columnas.base")}
+                    </th>
+                    <th className="py-2 pr-3 text-right font-semibold">
+                      {tp("columnas.publicado")}
+                    </th>
+                    <th className="py-2 text-right font-semibold">
+                      {tp("columnas.deberia")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditoria.desalineados.map((d) => (
+                    <tr key={d.id} className="border-b border-borde/60">
+                      <td className="py-2 pr-3">
+                        <span className="line-clamp-1">{d.titulo}</span>
+                        {d.aPerdida ? (
+                          <span className="mt-0.5 inline-block rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-800 uppercase">
+                            {tp("marcaPerdida")}
+                          </span>
+                        ) : null}
+                      </td>
+                      <td className="py-2 pr-3 text-right tabular-nums">
+                        {formatearPrecio(d.baseCentavos, idioma)}
+                      </td>
+                      <td className="py-2 pr-3 text-right tabular-nums">
+                        {formatearPrecio(d.publicadoCentavos, idioma)}
+                      </td>
+                      <td className="py-2 text-right font-semibold tabular-nums">
+                        {formatearPrecio(d.deberiaCentavos, idioma)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </section>
 

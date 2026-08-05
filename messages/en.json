@@ -765,6 +765,22 @@
         "texto": "Moves the catalog loaded before the automatic adjustment to the new model: each merchant’s price is stored as their base and published with the adjustment added. New products are adjusted automatically; this runs once, and repeating it never adjusts twice.",
         "boton": "Apply the adjustment to the catalog",
         "aplicando": "Applying…"
+      },
+      "auditoriaPrecios": {
+        "titulo": "Price check",
+        "texto": "Verifies product by product that the published price is exactly what the formula produces, and that after the processor and the markup the supplier still gets their full price. Read-only: check it before and after applying the adjustment.",
+        "correctos": "{n} correct",
+        "desalineados": "{n} to recalculate",
+        "aPerdida": "{n} would short the supplier",
+        "todoBien": "All {n} products in the catalog have the exact price.",
+        "marcaPerdida": "At a loss",
+        "columnas": {
+          "producto": "Product",
+          "base": "Supplier's",
+          "publicado": "Published now",
+          "deberia": "Should be"
+        },
+        "soloLosPeores": "Showing the 50 largest."
       }
     },
     "fotos": {

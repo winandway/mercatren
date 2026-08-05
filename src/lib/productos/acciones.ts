@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, isNull, ne, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";

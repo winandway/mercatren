@@ -765,6 +765,22 @@
         "texto": "Pasa el catálogo cargado antes del robotito al modelo nuevo: el precio de cada comercio queda guardado como su base y se publica con el ajuste sumado. Los productos nuevos ya nacen ajustados; esto es una sola vez, y repetirlo no sube nada dos veces.",
         "boton": "Aplicar el ajuste al catálogo",
         "aplicando": "Aplicando…"
+      },
+      "auditoriaPrecios": {
+        "titulo": "Revisión de precios",
+        "texto": "Comprueba producto por producto que el precio publicado sea exactamente el que sale de la fórmula, y que después del procesador y del margen al proveedor le quede su precio completo. Es de solo lectura: mírala antes y después de aplicar el ajuste.",
+        "correctos": "{n} correctos",
+        "desalineados": "{n} por recalcular",
+        "aPerdida": "{n} dejarían corto al proveedor",
+        "todoBien": "Los {n} productos del catálogo tienen el precio exacto.",
+        "marcaPerdida": "A pérdida",
+        "columnas": {
+          "producto": "Producto",
+          "base": "Del proveedor",
+          "publicado": "Publicado hoy",
+          "deberia": "Debería ser"
+        },
+        "soloLosPeores": "Se muestran los 50 más grandes."
       }
     },
     "fotos": {
