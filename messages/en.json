@@ -1488,5 +1488,17 @@
     "cambiada": "All set. You can sign in with your new password now.",
     "sinEnlace": "Open the link we emailed you to set a new password.",
     "algoFallo": "That did not work. Please try again in a moment."
+  },
+  "entrega": {
+    "dondeEstas": "Where are you?",
+    "eligeCiudad": "Choose your city",
+    "retirasEn": "Pick up in",
+    "ayuda": "Choose your city and we will tell you where to pick up each product.",
+    "seRetiraEn": "Pick up at",
+    "aqui": "It is in your city. Stop by and grab it.",
+    "cerca": "It is in {ciudad}, close to you. You can go get it.",
+    "lejos": "Heads up: it is in {ciudad}. You would have to travel there to pick it up.",
+    "sinDireccion": "The store has not added the exact address yet. Message them before going.",
+    "todoEsRetiro": "For now everything is picked up at the warehouse. We do not deliver yet."
   }
 }

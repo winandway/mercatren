@@ -1488,5 +1488,17 @@
     "cambiada": "Listo. Ya puedes entrar con tu contraseña nueva.",
     "sinEnlace": "Abre el enlace que te llegó por correo para poner una contraseña nueva.",
     "algoFallo": "No se pudo. Inténtalo otra vez en un momento."
+  },
+  "entrega": {
+    "dondeEstas": "¿Dónde estás?",
+    "eligeCiudad": "Elige tu ciudad",
+    "retirasEn": "Retiras en",
+    "ayuda": "Elige tu ciudad y te decimos dónde retirar cada producto.",
+    "seRetiraEn": "Se retira en",
+    "aqui": "Está en tu ciudad. Pasas y lo recoges.",
+    "cerca": "Está en {ciudad}, cerquita de ti. Puedes ir a buscarlo.",
+    "lejos": "Ojo: está en {ciudad}. Tendrías que ir hasta allá a retirarlo.",
+    "sinDireccion": "El comercio aún no cargó la dirección exacta. Escríbele antes de ir.",
+    "todoEsRetiro": "Por ahora todo se retira en el depósito. No hacemos entregas a domicilio."
   }
 }

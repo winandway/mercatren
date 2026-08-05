@@ -1,16 +1,17 @@
-import { LayoutDashboard, MapPin, UserRound } from "lucide-react";
+import { LayoutDashboard, UserRound } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
 import { MenuCuenta } from "@/components/layout/menu-cuenta";
 import { MenuTodo } from "@/components/layout/menu-todo";
-import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { ContadorCarrito } from "@/components/layout/contador-carrito";
+import { SelectorCiudad } from "@/components/layout/selector-ciudad";
 import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
+import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import type { Idioma } from "@/lib/dinero";
 
 /**
@@ -30,6 +31,7 @@ export async function Encabezado() {
   // trabaja ahi. Si algo falla al leer la sesion, se sigue como visitante:
   // el encabezado nunca puede tumbar la pagina.
   const usuario = await obtenerUsuario().catch(() => null);
+  const zona = await zonaDelCliente();
   const trabajaEnElPanel =
     usuario?.rol === "soporte" ||
     usuario?.rol === "validador" ||
@@ -48,18 +50,12 @@ export async function Encabezado() {
             <Logo className="h-7 sm:h-9" prioridad />
           </Link>
 
-          {/* "Comprar en EE. UU." es informativo, no una herramienta: se
-              queda chiquito y solo aparece cuando sobra sitio. */}
-          <span className="hidden items-center gap-1 px-1 text-left text-xs xl:flex">
-            <MapPin className="h-4 w-4 shrink-0 text-white/70" aria-hidden />
-            <span>
-              <span className="block text-white/70">{t("entregarEn")}</span>
-              <span className="flex items-center gap-1.5 text-sm font-bold">
-                <BanderaEEUU className="h-3.5 w-3.5" />
-                {t("paisPorDefecto")}
-              </span>
-            </span>
-          </span>
+          {/* DÓNDE ESTÁ QUIEN COMPRA. Antes aquí había un texto fijo que
+              decía "Estados Unidos" y no detectaba nada — le decía lo mismo a
+              alguien parado en Caracas. Ahora se pregunta y se recuerda. */}
+          <div className="hidden xl:block">
+            <SelectorCiudad zonaActual={zona?.slug ?? null} />
+          </div>
 
           {/* EL BUSCADOR ES EL PROTAGONISTA. Se come todo el espacio libre y
               en celular baja a su propia fila para salir completo. Lo demas

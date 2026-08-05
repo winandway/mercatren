@@ -4,9 +4,11 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonAgregar } from "@/components/catalogo/boton-agregar";
+import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
 import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
 import { obtenerProductoPorSlug } from "@/lib/catalogo/consultas";
+import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +57,9 @@ export default async function PaginaProducto({
   const ficha = await obtenerProductoPorSlug(slug);
 
   if (!ficha) notFound();
+
+  // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
+  const zona = await zonaDelCliente();
 
   const { producto } = ficha;
   const titulo =
@@ -117,6 +122,21 @@ export default async function PaginaProducto({
               {ficha.tiendaNombre}
             </Link>
           </p>
+
+          {/* DÓNDE SE RETIRA, justo debajo de quién lo vende. Es lo primero
+              que necesita saber quien ya se decidió: adónde voy por él. */}
+          <div className="mt-3">
+            <DondeSeRetira
+              deposito={{
+                nombre: ficha.depositoNombre,
+                zona: ficha.depositoZona,
+                queGuarda: ficha.depositoQueGuarda,
+                direccion: ficha.depositoDireccion,
+                comoLlegar: ficha.depositoComoLlegar,
+              }}
+              zonaCliente={zona?.slug ?? null}
+            />
+          </div>
 
           <div className="mt-5 border-y border-borde py-4">
             <p className="flex flex-wrap items-baseline gap-2">

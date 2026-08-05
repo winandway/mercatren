@@ -11,6 +11,7 @@ import { getDb } from "@/lib/db";
 import { condicionDeBusqueda } from "./buscar";
 import {
   categorias,
+  depositos,
   imagenesProducto,
   productos,
   tiendas,
@@ -244,10 +245,17 @@ export async function obtenerProductoPorSlug(slug: string) {
         sincronizadoEn: productos.sincronizadoEn,
         creadoEn: productos.creadoEn,
         actualizadoEn: productos.actualizadoEn,
+        depositoId: productos.depositoId,
       },
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
+      /* Dónde se retira: el dato que decide si la compra le sirve o no. */
+      depositoNombre: depositos.nombre,
+      depositoZona: depositos.zona,
+      depositoQueGuarda: depositos.queGuarda,
+      depositoDireccion: depositos.direccion,
+      depositoComoLlegar: depositos.comoLlegar,
       categoriaNombreEs: categorias.nombreEs,
       categoriaNombreEn: categorias.nombreEn,
       categoriaSlug: categorias.slug,
@@ -255,6 +263,7 @@ export async function obtenerProductoPorSlug(slug: string) {
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
+    .leftJoin(depositos, eq(depositos.id, productos.depositoId))
     .where(and(eq(productos.slug, slug), VISIBLE))
     .limit(1);
 
