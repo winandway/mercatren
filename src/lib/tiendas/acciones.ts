@@ -290,6 +290,22 @@ export async function solicitarComercio(
 
   revalidatePath("/[locale]/panel", "layout");
 
+  // Al equipo: hay una tienda esperando aprobación. Nunca es requisito.
+  try {
+    const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
+    await correoAvisoAlEquipo({
+      asunto: `Comercio nuevo por aprobar: ${d.nombre}`,
+      lineas: [
+        `${d.nombre} (${d.razonSocial}) acaba de registrarse y espera aprobación.`,
+        `Contacto: ${d.correoContacto} · ${d.telefono} · ${d.ciudad}, ${d.paisOrigen}.`,
+      ],
+      url: "https://mercatren.com/es/panel/usuarios",
+      boton: "Revisar y aprobar",
+    });
+  } catch (e) {
+    console.error("[comercio] alta creada; el aviso al equipo no salio:", e);
+  }
+
   return { ok: true, mensaje: t("comercioEnRevision") };
 }
 
@@ -316,10 +332,31 @@ export async function aprobarComercio(
     .update(tiendas)
     .set({ estado: "activa", actualizadoEn: new Date() })
     .where(and(eq(tiendas.id, tiendaId), eq(tiendas.estado, "pendiente")))
-    .returning({ id: tiendas.id });
+    .returning({
+      id: tiendas.id,
+      nombre: tiendas.nombre,
+      propietarioId: tiendas.propietarioId,
+    });
 
   if (resultado.length === 0) {
     return { ok: false, mensaje: t("tiendaNoExiste") };
+  }
+
+  // El aviso de "ya puedes vender". Si falla, la tienda queda aprobada igual.
+  try {
+    if (resultado[0].propietarioId) {
+      const [duenno] = await db
+        .select({ email: user.email, name: user.name, idioma: user.idioma })
+        .from(user)
+        .where(eq(user.id, resultado[0].propietarioId))
+        .limit(1);
+      if (duenno) {
+        const { correoComercioAprobado } = await import("@/lib/correo/correos");
+        await correoComercioAprobado(duenno, { nombre: resultado[0].nombre });
+      }
+    }
+  } catch (e) {
+    console.error("[comercio] aprobado; el aviso no salio:", e);
   }
 
   revalidatePath("/[locale]/panel", "layout");

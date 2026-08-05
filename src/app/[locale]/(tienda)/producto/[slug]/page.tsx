@@ -157,9 +157,7 @@ export default async function PaginaProducto({
                     pocas ? "font-semibold text-carga-600" : "text-precio-600"
                   }
                 >
-                  {pocas
-                    ? t("disponibles", { n: producto.existencias })
-                    : t("disponible")}
+                  {t("disponibles", { n: producto.existencias })}
                 </span>
               ) : (
                 <span className="text-precio-600">{t("disponible")}</span>

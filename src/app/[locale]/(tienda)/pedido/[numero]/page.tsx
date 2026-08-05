@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FichaDePago } from "@/components/pago/ficha-de-pago";
+import { PagoTarjeta } from "@/components/pago/pago-tarjeta";
 import { FormularioComprobante } from "@/components/pago/formulario-comprobante";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -148,8 +149,19 @@ export default async function PaginaPedido({
         </section>
       ) : null}
 
-      {/* Como pagar */}
-      {pedido.estado === "pendiente_pago" ? (
+      {/* Como pagar con TARJETA: el formulario embebido de Stripe. */}
+      {pedido.estado === "pendiente_pago" && pedido.metodoPago === "stripe" ? (
+        <section className="mt-6 rounded-xl border border-borde bg-white p-5">
+          <h2 className="text-lg font-bold">{t("tarjeta.titulo")}</h2>
+          <p className="mt-1 mb-4 text-sm text-tinta-suave">
+            {t("tarjeta.texto")}
+          </p>
+          <PagoTarjeta numero={pedido.numero} />
+        </section>
+      ) : null}
+
+      {/* Como pagar por Zelle */}
+      {pedido.estado === "pendiente_pago" && pedido.metodoPago !== "stripe" ? (
         <>
           <section className="mt-6">
             <h2 className="text-lg font-bold">{t("comoPagar")}</h2>

@@ -877,7 +877,9 @@
       "pedidoNoSePuedeAvanzar": "That order is no longer at that stage.",
       "pedidoEnviado": "Order marked as shipped.",
       "pedidoEntregado": "Order marked as delivered.",
-      "ajusteAplicado": "Done. The adjustment was applied to {n} products; each merchant’s own price was preserved."
+      "ajusteAplicado": "Done. The adjustment was applied to {n} products; each merchant’s own price was preserved.",
+      "metodoNoDisponible": "That payment method is not available yet.",
+      "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1118,7 +1120,10 @@
       "tarjetaTexto": "5% fee.",
       "billetera": "My wallet balance",
       "billeteraTexto": "No extra cost.",
-      "proximamente": "Coming soon"
+      "proximamente": "Coming soon",
+      "stripe": "Credit or debit card",
+      "stripeTexto": "Instant, secure payment. Your order starts right away.",
+      "zelleDesde": "From $200"
     },
     "resumen": "Order summary",
     "confirmar": "Place order",
@@ -1181,6 +1186,16 @@
       "quitar": "Remove",
       "demasiadoGrande": "That image is over 8 MB. Try a smaller screenshot.",
       "noEsImagen": "That's not an image. Upload the screenshot of your payment."
+    },
+    "tarjeta": {
+      "titulo": "Pay by card",
+      "texto": "Credit or debit. Payment is instant and your order starts right away.",
+      "sinConfigurar": "Card payments are being activated. Check back soon, or pay with Zelle if your purchase is $200 or more.",
+      "noSePudo": "We could not process the payment. Check your card details and try again.",
+      "preparando": "Preparing secure payment…",
+      "pagar": "Pay now",
+      "pagando": "Processing…",
+      "seguridad": "Payment processed by Stripe. Your card details never touch Mercatren."
     }
   },
   "datosPago": {
@@ -1351,6 +1366,14 @@
         "You can now coordinate delivery with your customer."
       ],
       "boton": "View my wallet"
+    },
+    "comercioAprobado": {
+      "asunto": "{tienda} is now live on Mercatren",
+      "previo": "Your store has been approved.",
+      "titulo": "Your store is open!",
+      "parrafo1": "We reviewed the details for {tienda} and everything checks out: your store is now active and your published products are available for purchase.",
+      "parrafo2": "Head to your dashboard to add products, track your sales, and check your wallet.",
+      "boton": "Go to my dashboard"
     }
   },
   "misPedidos": {

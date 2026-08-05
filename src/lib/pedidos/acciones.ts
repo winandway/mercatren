@@ -14,7 +14,7 @@ import {
   productos,
   tiendas,
 } from "@/lib/db/schema";
-import { calcularComisionCentavos } from "@/lib/dinero";
+import { calcularComisionCentavos, ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
 
 /**
@@ -65,11 +65,14 @@ export async function crearPedido(
 
   const { entrega, metodoPago, lineas } = revisado.data;
 
-  if (metodoPago !== "zelle") {
-    return {
-      ok: false,
-      mensaje: t("soloZellePorAhora"),
-    };
+  /**
+   * LAS REGLAS POR MÉTODO (4 ago 2026): la tarjeta es la protagonista y
+   * sirve para cualquier monto; Zelle queda para compras desde $200 (esa se
+   * valida más abajo, contra el total REAL calculado de la base). La
+   * billetera todavía no paga.
+   */
+  if (metodoPago === "billetera") {
+    return { ok: false, mensaje: t("metodoNoDisponible") };
   }
 
   const db = getDb();
@@ -145,6 +148,11 @@ export async function crearPedido(
         producto.comisionPuntosBase,
       ),
     });
+  }
+
+  // Zelle es para montos grandes: por debajo de $200 el pago va con tarjeta.
+  if (metodoPago === "zelle" && subtotal < ZELLE_MINIMO_CENTAVOS) {
+    return { ok: false, mensaje: t("zelleDesde200") };
   }
 
   if (subtotal <= 0) {

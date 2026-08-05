@@ -135,12 +135,27 @@ export async function subirComprobante(
   revalidatePath("/[locale]/pedido/[numero]", "page");
   revalidatePath("/[locale]/panel", "layout");
 
-  // Aviso al cliente: su comprobante entro a revision.
-  const { correoComprobanteRecibido } = await import("@/lib/correo/correos");
-  await correoComprobanteRecibido(
-    { email: usuario.email, name: usuario.name, idioma: usuario.idioma },
-    { numero: pedido.numero, totalCentavos: pedido.totalCentavos },
-  );
+  // Aviso al cliente: su comprobante entro a revision. Y al equipo: hay un
+  // pago esperando validación — no puede depender de que alguien entre a
+  // mirar. Ninguno de los dos es requisito.
+  try {
+    const { correoComprobanteRecibido, correoAvisoAlEquipo } =
+      await import("@/lib/correo/correos");
+    await correoComprobanteRecibido(
+      { email: usuario.email, name: usuario.name, idioma: usuario.idioma },
+      { numero: pedido.numero, totalCentavos: pedido.totalCentavos },
+    );
+    await correoAvisoAlEquipo({
+      asunto: `Comprobante por validar · ${pedido.numero}`,
+      lineas: [
+        `Entró un comprobante del pedido ${pedido.numero} y espera validación contra el banco.`,
+      ],
+      url: "https://mercatren.com/es/panel/validacion",
+      boton: "Ir a la cola de validación",
+    });
+  } catch (e) {
+    console.error("[comprobante] guardado; algun aviso no salio:", e);
+  }
 
   return {
     ok: true,

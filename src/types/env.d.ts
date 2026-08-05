@@ -17,6 +17,10 @@ interface CloudflareEnv {
 
   /** Stripe Connect: cobros del cliente y pago dividido al vendedor. */
   STRIPE_SECRET_KEY: string;
+  /** La clave publicable: va al navegador, no es secreta. */
+  STRIPE_CLAVE_PUBLICA?: string;
+  /** Para verificar que los avisos de pago vienen de Stripe de verdad. */
+  STRIPE_WEBHOOK_SECRET?: string;
   STRIPE_WEBHOOK_SECRET: string;
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
 

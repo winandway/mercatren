@@ -70,20 +70,46 @@ Decidido el 4 ago 2026 (pendiente solo la decisión del fee, abajo).
 
 **Los pasos, en orden:**
 
-- [ ] **1. Comisión por método.** Hoy `comision_puntos_base` es una sola
-      (300). Pasa a dos: Zelle 300, tarjeta 200. La cuenta vive en
-      `src/lib/dinero.ts` y sus pruebas se amplían.
-- [ ] **2. Reglas del checkout.** Zelle solo si el total ≥ $200 (con el
-      motivo visible cuando no llega); pedido mínimo $2 con tarjeta;
-      interruptores por método en Configuración.
-- [ ] **3. Pantalla de cobro con Stripe.** Payment Element embebido, webhook
-      en `/datos/stripe` (nunca `/api/`), acreditación a la billetera del
-      comercio con el neto ya descontado, y el desglose en la ficha de la
-      venta. Necesita `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` en el
-      panel (las carga el dueño).
-- [ ] **4. Transparencia con el comercio.** En /vender/comisiones y en el
-      panel: la tabla de comisiones por método, y en cada venta el desglose
-      exacto de a dónde fue cada centavo.
+- [x] **1. Comisión por método.** Tarjeta 2% (`COMISION_TARJETA_PB`), Zelle
+      3% (el de la tienda). En `src/lib/dinero.ts`.
+- [x] **2. Reglas del checkout.** Tarjeta primera y preseleccionada; Zelle
+      deshabilitada bajo $200 con "Desde $200" a la vista y revalidada en el
+      servidor. (Interruptores por método: pendiente.)
+- [x] **3. Pantalla de cobro con Stripe.** Payment Element embebido en la
+      página del pedido, webhook firmado en `/datos/stripe`, acreditación
+      idempotente a la billetera (multi-comercio, neto tras 2%), stock
+      descontado y correos al cliente y al comercio. Sin claves se apaga solo
+      y lo dice. **Falta únicamente que el dueño cargue las 3 variables**
+      (`STRIPE_SECRET_KEY`, `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`).
+- [ ] **4. Transparencia con el comercio.** La tabla de comisiones por método
+      en /vender/comisiones y el desglose por venta en el panel.
+
+## Stock (pedido del 4 ago 2026)
+
+- [x] **Con stock en cero no se puede agregar al carrito** — ya estaba: la
+      ficha marca agotado y el carrito acota al máximo disponible.
+- [x] **El cliente ve cuántas unidades quedan** — antes solo se avisaba con 5
+      o menos; ahora la ficha enseña siempre "Quedan N".
+- [x] **El stock viene de la tienda original** — la sincronización ya trae
+      `stock` del archivo del comercio y el pago confirmado lo descuenta.
+- [ ] **Sincronización automática programada.** Hoy el comercio sincroniza a
+      mano desde su panel; falta el robotito que lo haga solo cada noche
+      (cron), para que el stock de Bley nunca se quede atrás.
+
+## Correos — el estudio (multitienda: equipo, vendedor, cliente)
+
+Existen 9 y quedan huecos claros. Los hechos hoy: comercio aprobado ("ya
+puedes vender"), aviso al equipo de comercio nuevo, aviso al equipo de
+comprobante por validar, y los de la venta con tarjeta (reusan compra
+aprobada + venta acreditada).
+
+- [ ] Al cliente: **tu pedido fue enviado / entregado** (al avanzar el
+      pedido desde el panel).
+- [ ] Al equipo: **retiro solicitado**; al comercio: **retiro pagado** (con
+      referencia) y **retiro rechazado** (con motivo).
+- [ ] Al comercio: **producto quedado sin stock** (se agotó algo publicado).
+- [ ] Al equipo: **resumen diario** de ventas y pendientes (opcional, más
+      adelante).
 
 ## Lo que sigue
 

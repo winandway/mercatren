@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { SITIO } from "@/lib/sitio";
 
+import { CORREO_CONTACTO } from "./direcciones";
 import { enviarCorreo } from "./enviar";
 import { armarHtml, armarTexto, type PiezasCorreo } from "./plantilla";
 
@@ -238,5 +239,59 @@ export async function correoVentaAcreditada(
     },
     motivo,
     contacto,
+  });
+}
+
+/** 8. Al comercio, cuando el equipo aprueba su tienda: ya puede vender. */
+export async function correoComercioAprobado(
+  d: Destinatario,
+  tienda: { nombre: string },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+
+  return enviar(d, {
+    asunto: t("comercioAprobado.asunto", { tienda: tienda.nombre }),
+    previo: t("comercioAprobado.previo"),
+    saludo,
+    titulo: t("comercioAprobado.titulo"),
+    parrafos: [
+      t("comercioAprobado.parrafo1", { tienda: tienda.nombre }),
+      t("comercioAprobado.parrafo2"),
+    ],
+    boton: { texto: t("comercioAprobado.boton"), url: urlDe(idioma, "/panel") },
+    motivo,
+    contacto,
+  });
+}
+
+/**
+ * 9. AL EQUIPO DE MERCATREN, cuando algo espera su acción.
+ *
+ * Un comercio nuevo por aprobar o un comprobante por validar no pueden
+ * depender de que alguien entre al panel a mirar: se avisan al buzón real
+ * (mercatren@windoce.com). Va en español fijo — es interno del equipo.
+ */
+export async function correoAvisoAlEquipo(aviso: {
+  asunto: string;
+  lineas: string[];
+  url: string;
+  boton: string;
+}) {
+  const piezas: PiezasCorreo = {
+    asunto: aviso.asunto,
+    previo: aviso.lineas[0] ?? aviso.asunto,
+    saludo: "Hola, equipo:",
+    titulo: aviso.asunto,
+    parrafos: aviso.lineas,
+    boton: { texto: aviso.boton, url: aviso.url },
+    motivo: "Aviso interno del sistema de Mercatren.",
+    contacto: "",
+  };
+
+  return enviarCorreo({
+    a: CORREO_CONTACTO,
+    asunto: piezas.asunto,
+    html: armarHtml(piezas),
+    texto: armarTexto(piezas),
   });
 }

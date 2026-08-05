@@ -19,7 +19,6 @@ export function getStripe() {
   return new Stripe(env.STRIPE_SECRET_KEY, {
     // El adaptador de Cloudflare necesita el cliente basado en fetch.
     httpClient: Stripe.createFetchHttpClient(),
-    apiVersion: "2026-06-30.preview" as Stripe.LatestApiVersion,
     appInfo: {
       name: "Mercatren",
       url: "https://mercatren.com",
@@ -33,3 +32,13 @@ export {
   calcularComisionCentavos,
   calcularNetoVendedorCentavos,
 } from "@/lib/dinero";
+
+/**
+ * ¿Está Stripe configurado? Sin la clave, la tarjeta no se ofrece y las
+ * pantallas lo dicen — el patrón de todo el proyecto: apagarse solo, nunca
+ * inventar.
+ */
+export function stripeConfigurado() {
+  const { env } = getCloudflareContext();
+  return Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_CLAVE_PUBLICA);
+}

@@ -90,3 +90,13 @@ export function ajusteCentavos(baseCentavos: number): number {
   if (baseCentavos <= 0) return 0;
   return precioConAjusteCentavos(baseCentavos) - baseCentavos;
 }
+
+/**
+ * LA COMISIÓN POR MÉTODO (decisión del 4 ago 2026).
+ *
+ * La tarjeta es el método protagonista y lleva la comisión más baja: 2%.
+ * Zelle queda para montos grandes — desde $200 — y mantiene su 3% de siempre
+ * (ese vive en `tiendas.comisionPuntosBase`).
+ */
+export const COMISION_TARJETA_PB = 200;
+export const ZELLE_MINIMO_CENTAVOS = 20_000;

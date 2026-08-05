@@ -877,7 +877,9 @@
       "pedidoNoSePuedeAvanzar": "Ese pedido ya no está en ese punto.",
       "pedidoEnviado": "Pedido marcado como enviado.",
       "pedidoEntregado": "Pedido marcado como entregado.",
-      "ajusteAplicado": "Listo. Se aplicó el ajuste a {n} productos; el precio de cada comercio quedó guardado."
+      "ajusteAplicado": "Listo. Se aplicó el ajuste a {n} productos; el precio de cada comercio quedó guardado.",
+      "metodoNoDisponible": "Esa forma de pago todavía no está disponible.",
+      "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1118,7 +1120,10 @@
       "tarjetaTexto": "Comisión 5%.",
       "billetera": "Saldo en mi billetera",
       "billeteraTexto": "Sin costo extra.",
-      "proximamente": "Próximamente"
+      "proximamente": "Próximamente",
+      "stripe": "Tarjeta de crédito o débito",
+      "stripeTexto": "Pago inmediato y seguro. Tu pedido arranca al instante.",
+      "zelleDesde": "Desde $200"
     },
     "resumen": "Resumen del pedido",
     "confirmar": "Confirmar pedido",
@@ -1181,6 +1186,16 @@
       "quitar": "Quitar",
       "demasiadoGrande": "Esa imagen pesa más de 8 MB. Prueba con una captura más liviana.",
       "noEsImagen": "Eso no es una imagen. Sube la captura de tu pago."
+    },
+    "tarjeta": {
+      "titulo": "Paga con tarjeta",
+      "texto": "Crédito o débito. El pago es inmediato y tu pedido arranca al momento.",
+      "sinConfigurar": "El pago con tarjeta se está terminando de activar. Vuelve en un rato o paga por Zelle si tu compra es de $200 o más.",
+      "noSePudo": "No se pudo procesar el pago. Revisa los datos de tu tarjeta e inténtalo otra vez.",
+      "preparando": "Preparando el pago seguro…",
+      "pagar": "Pagar ahora",
+      "pagando": "Procesando…",
+      "seguridad": "Pago procesado por Stripe. Los datos de tu tarjeta nunca pasan por Mercatren."
     }
   },
   "datosPago": {
@@ -1351,6 +1366,14 @@
         "Ya puedes coordinar la entrega del pedido con tu cliente."
       ],
       "boton": "Ver mi billetera"
+    },
+    "comercioAprobado": {
+      "asunto": "{tienda} ya puede vender en Mercatren",
+      "previo": "Tu tienda quedó aprobada.",
+      "titulo": "¡Tu tienda está abierta!",
+      "parrafo1": "Revisamos los datos de {tienda} y todo quedó en orden: tu tienda ya está activa y tus productos publicados se pueden comprar.",
+      "parrafo2": "Entra a tu panel para cargar productos, revisar tus ventas y ver tu billetera.",
+      "boton": "Ir a mi panel"
     }
   },
   "misPedidos": {

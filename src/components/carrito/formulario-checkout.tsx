@@ -9,10 +9,19 @@ import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { crearPedido } from "@/lib/pedidos/acciones";
 import { cn } from "@/lib/utils";
+import { ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
 
+/**
+ * La tarjeta va PRIMERA y preseleccionada: es el método protagonista
+ * (decisión del 4 ago 2026). Zelle queda para compras desde $200 — por
+ * debajo se enseña deshabilitada con el motivo, no escondida: una opción
+ * que desaparece sin explicación parece un error.
+ *
+ * El valor "stripe" es el interno; el cliente lee "tarjeta".
+ */
 const METODOS = [
+  { valor: "stripe", disponible: true },
   { valor: "zelle", disponible: true },
-  { valor: "tarjeta", disponible: false },
   { valor: "billetera", disponible: false },
 ] as const;
 
@@ -31,7 +40,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   const { lineas, vaciar } = useCarrito();
   const [pendiente, iniciarTransicion] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [metodo, setMetodo] = useState<string>("zelle");
+  const [metodo, setMetodo] = useState<string>("stripe");
 
   const enElNavegador = useSyncExternalStore(
     () => () => {},
@@ -83,7 +92,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           referencia: texto("referencia") || undefined,
           notas: texto("notas") || undefined,
         },
-        metodoPago: metodo as "zelle",
+        metodoPago: metodo as "zelle" | "stripe",
         lineas: lineas.map((l) => ({
           productoId: l.productoId,
           cantidad: l.cantidad,
@@ -163,42 +172,53 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           <h2 className="text-lg font-bold">{t("pago.titulo")}</h2>
 
           <ul className="mt-4 space-y-2">
-            {METODOS.map((m) => (
-              <li key={m.valor}>
-                <label
-                  className={cn(
-                    "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
-                    metodo === m.valor
-                      ? "border-carga-500 bg-carga-500/5"
-                      : "border-borde hover:border-riel-700",
-                    !m.disponible && "cursor-not-allowed opacity-60",
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="metodo"
-                    value={m.valor}
-                    checked={metodo === m.valor}
-                    disabled={!m.disponible}
-                    onChange={() => setMetodo(m.valor)}
-                    className="mt-1 accent-carga-500"
-                  />
-                  <span className="min-w-0">
-                    <span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-                      {t(`pago.${m.valor}`)}
-                      {!m.disponible ? (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-tinta-suave">
-                          {t("pago.proximamente")}
-                        </span>
-                      ) : null}
+            {METODOS.map((m) => {
+              /* Zelle es para montos grandes: bajo $200 se deshabilita con el
+                 motivo a la vista. El servidor lo vuelve a comprobar. */
+              const zelleCorto =
+                m.valor === "zelle" && total < ZELLE_MINIMO_CENTAVOS;
+              const disponible = m.disponible && !zelleCorto;
+              return (
+                <li key={m.valor}>
+                  <label
+                    className={cn(
+                      "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
+                      metodo === m.valor
+                        ? "border-carga-500 bg-carga-500/5"
+                        : "border-borde hover:border-riel-700",
+                      !disponible && "cursor-not-allowed opacity-60",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="metodo"
+                      value={m.valor}
+                      checked={metodo === m.valor}
+                      disabled={!disponible}
+                      onChange={() => setMetodo(m.valor)}
+                      className="mt-1 accent-carga-500"
+                    />
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+                        {t(`pago.${m.valor}`)}
+                        {!m.disponible ? (
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-tinta-suave">
+                            {t("pago.proximamente")}
+                          </span>
+                        ) : zelleCorto ? (
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-tinta-suave">
+                            {t("pago.zelleDesde")}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="block text-xs text-tinta-suave">
+                        {t(`pago.${m.valor}Texto`)}
+                      </span>
                     </span>
-                    <span className="block text-xs text-tinta-suave">
-                      {t(`pago.${m.valor}Texto`)}
-                    </span>
-                  </span>
-                </label>
-              </li>
-            ))}
+                  </label>
+                </li>
+              );
+            })}
           </ul>
         </section>
       </div>
