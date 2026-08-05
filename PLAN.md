@@ -182,6 +182,10 @@ si puede llegar; lo único que no se vale es que se entere después de pagar.
       Valencia? Abre tu tienda y sé el primero". Siempre hay salida a "Ver
       toda Venezuela" sin perder la ciudad elegida.
 - [ ] **El aviso de retiro en el checkout.** Falta ahí; en la ficha ya está.
+- [ ] **El formulario de producto del vendedor no pide la ciudad.** Un
+      producto creado a mano queda sin depósito y por eso no sale cuando un
+      cliente filtra por ciudad (los importados sí traen el suyo). Falta que
+      el formulario pida el depósito/ciudad y no deje publicar sin él.
 - [ ] **Que el pedido y el correo digan dónde retirar.** Hoy el pedido pide
       dirección de entrega como si fuéramos a llevarlo.
 
