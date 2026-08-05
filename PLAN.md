@@ -79,8 +79,11 @@ Decidido el 4 ago 2026 (pendiente solo la decisión del fee, abajo).
       página del pedido, webhook firmado en `/datos/stripe`, acreditación
       idempotente a la billetera (multi-comercio, neto tras 2%), stock
       descontado y correos al cliente y al comercio. Sin claves se apaga solo
-      y lo dice. **Falta únicamente que el dueño cargue las 3 variables**
-      (`STRIPE_SECRET_KEY`, `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`).
+      y lo dice. **Las 3 claves quedaron cargadas el 4 ago 2026** y el
+      webhook está en vivo: comprobado que rechaza una firma falsa (se le
+      mandó un "pago aprobado" de $9,999.99 inventado y lo tiró). Falta la
+      única prueba que no se puede hacer desde fuera: **una compra real con
+      tarjeta**.
 - [ ] **4. Transparencia con el comercio.** La tabla de comisiones por método
       en /vender/comisiones y el desglose por venta en el panel.
 

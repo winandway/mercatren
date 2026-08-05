@@ -49,6 +49,14 @@ de golpe. **No tienes que hacer nada.**
 
 ---
 
+## ~~Claves de Stripe~~ — RESUELTO (4 ago 2026)
+
+Las tres variables (`STRIPE_SECRET_KEY`, `STRIPE_CLAVE_PUBLICA`,
+`STRIPE_WEBHOOK_SECRET`) están cargadas y el webhook responde. Falta
+solamente hacer una compra real con tarjeta para verlo de punta a punta.
+
+---
+
 ## 4. Revisión legal de términos y privacidad
 
 **Qué falta:** que un abogado lea lo que está publicado en `/terminos` y
