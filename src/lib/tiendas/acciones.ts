@@ -292,18 +292,10 @@ export async function solicitarComercio(
 
   // Al equipo: hay una tienda esperando aprobación. Nunca es requisito.
   try {
-    const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
-    await correoAvisoAlEquipo({
-      asunto: `Comercio nuevo por aprobar: ${d.nombre}`,
-      lineas: [
-        `${d.nombre} (${d.razonSocial}) acaba de registrarse y espera aprobación.`,
-        `Contacto: ${d.correoContacto} · ${d.telefono} · ${d.ciudad}, ${d.paisOrigen}.`,
-      ],
-      url: "https://mercatren.com/es/panel/usuarios",
-      boton: "Revisar y aprobar",
-    });
+    const { correoAvisoComercioNuevo } = await import("@/lib/correo/correos");
+    await correoAvisoComercioNuevo(d);
   } catch (e) {
-    console.error("[comercio] alta creada; el aviso al equipo no salio:", e);
+    console.error("[comercio] alta creada; aviso interno fallido:", e);
   }
 
   return { ok: true, mensaje: t("comercioEnRevision") };
@@ -356,7 +348,7 @@ export async function aprobarComercio(
       }
     }
   } catch (e) {
-    console.error("[comercio] aprobado; el aviso no salio:", e);
+    console.error("[comercio] aprobado; aviso fallido:", e);
   }
 
   revalidatePath("/[locale]/panel", "layout");

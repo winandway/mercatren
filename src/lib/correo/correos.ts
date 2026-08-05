@@ -295,3 +295,35 @@ export async function correoAvisoAlEquipo(aviso: {
     texto: armarTexto(piezas),
   });
 }
+
+/** 9a. Al equipo: un comercio nuevo espera aprobación. */
+export async function correoAvisoComercioNuevo(d: {
+  nombre: string;
+  razonSocial: string;
+  correoContacto: string;
+  telefono: string;
+  ciudad: string;
+  paisOrigen: string;
+}) {
+  return correoAvisoAlEquipo({
+    asunto: `Comercio nuevo por aprobar: ${d.nombre}`,
+    lineas: [
+      `${d.nombre} (${d.razonSocial}) acaba de registrarse y espera aprobación.`,
+      `Contacto: ${d.correoContacto} · ${d.telefono} · ${d.ciudad}, ${d.paisOrigen}.`,
+    ],
+    url: "https://mercatren.com/es/panel/usuarios",
+    boton: "Revisar y aprobar",
+  });
+}
+
+/** 9b. Al equipo: un comprobante entró a la cola de validación. */
+export async function correoAvisoComprobante(numero: string) {
+  return correoAvisoAlEquipo({
+    asunto: `Comprobante por validar · ${numero}`,
+    lineas: [
+      `Entró un comprobante del pedido ${numero} y espera validación contra el banco.`,
+    ],
+    url: "https://mercatren.com/es/panel/validacion",
+    boton: "Ir a la cola de validación",
+  });
+}
