@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+import en from "../messages/en.json";
+import { SITIO } from "../src/lib/sitio";
+
+/**
+ * NADA DE TEXTOS ESCRITOS A MANO EN LAS PRUEBAS.
+ *
+ * El nombre de la sociedad y el titular en inglés salen de su fuente real
+ * (`src/lib/sitio.ts` y `messages/en.json`). Cuando el abogado mandó escribir
+ * "Windoce, LLC" con coma, esta prueba —que buscaba "Windoce LLC"— tumbó la
+ * publicación entera. Leyéndolo de la fuente, un cambio de copy no puede
+ * volver a dejar el sitio sin publicar.
+ */
+
 /**
  * La direccion raiz no tiene idioma: el sitio mira el idioma del navegador y
  * manda al visitante a /es o a /en. Por eso cada grupo fija el idioma del
@@ -38,14 +51,14 @@ test.describe("Visitante con el navegador en espanol", () => {
 
     await expect(page).toHaveURL(/\/en$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      /Shop in the U\.S\./i,
+      en.inicio.tituloHero,
     );
   });
 
-  test("el pie de pagina lleva el credito de Windoce LLC", async ({ page }) => {
+  test("el pie de pagina lleva el credito de la sociedad", async ({ page }) => {
     await page.goto("/es");
 
-    const credito = page.getByRole("link", { name: "Windoce LLC" });
+    const credito = page.getByRole("link", { name: SITIO.sociedad });
     await expect(credito).toBeVisible();
     await expect(credito).toHaveAttribute("href", "https://windoce.com");
     await expect(credito).toHaveAttribute("target", "_blank");
@@ -60,7 +73,7 @@ test.describe("Visitante con el navegador en ingles", () => {
 
     await expect(page).toHaveURL(/\/en$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      /Shop in the U\.S\./i,
+      en.inicio.tituloHero,
     );
   });
 
