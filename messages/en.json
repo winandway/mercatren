@@ -723,8 +723,6 @@
       "subtitulo": "How the service is set up and what's left to connect. Only the Mercatren team sees this.",
       "operacion": {
         "titulo": "The operation",
-        "comision": "Markup per sale",
-        "comisionValor": "3% of the order value",
         "moneda": "Currency",
         "monedaValor": "US dollars, throughout the cycle",
         "cobro": "Collection method",
@@ -781,6 +779,19 @@
           "deberia": "Should be"
         },
         "soloLosPeores": "Showing the 50 largest."
+      },
+      "calculadora": {
+        "titulo": "Price calculator",
+        "texto": "Enter the supplier's price and see where every cent of the published price comes from. The numbers come from the same constants the catalog uses: if the rate or the markup changes, this screen changes with it.",
+        "etiqueta": "Supplier's price",
+        "base": "Supplier's price",
+        "procesador": "Card processor ({pct}% + {fijo})",
+        "margen": "Mercatren markup ({pct}%)",
+        "publicado": "Published price",
+        "alProveedor": "Supplier receives",
+        "ojoTitulo": "Why you can't just add the percentages",
+        "ojoTexto": "Adding forward would give {sumado}, but then the processor takes its cut of THAT number and the supplier is left with only {queda} — short by {falta}. That's why the math runs backwards and the correct price is {correcto}.",
+        "escribeUnMonto": "Enter an amount greater than zero."
       }
     },
     "fotos": {
@@ -1122,7 +1133,8 @@
       "noEncontradoTexto": "It may no longer be for sale.",
       "agregado": "Added",
       "agregarCorto": "Add",
-      "cantidad": "Quantity"
+      "cantidad": "Quantity",
+      "nuevo": "New"
     },
     "paginacion": {
       "anterior": "Previous",

@@ -7,7 +7,7 @@ import { BotonAgregarRapido } from "@/components/catalogo/boton-agregar-rapido";
 import { PrecioTienda } from "@/components/catalogo/precio-tienda";
 import { Link } from "@/i18n/navigation";
 import type { ProductoLista } from "@/lib/catalogo/consultas";
-import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import { formatearPrecio, type Idioma, esProductoNuevo } from "@/lib/dinero";
 import { cn } from "@/lib/utils";
 
 /** Cuando quedan pocas unidades se avisa, para que el cliente no se quede sin. */
@@ -85,6 +85,17 @@ export function TarjetaProducto({
         {descuento ? (
           <span className="absolute top-1.5 left-1.5 rounded-md bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
             -{descuento}%
+          </span>
+        ) : null}
+
+        {/* EL SELLO DE NUEVO, durante una semana.
+            Se calcula con la fecha de creación en cada dibujo, así que se
+            apaga solo. Nada de una columna que haya que apagar cada noche:
+            si el robotito falla, quedan productos "nuevos" de hace un mes y
+            nadie se entera. Va a la derecha para no chocar con el descuento. */}
+        {esProductoNuevo(producto.creadoEn) ? (
+          <span className="absolute top-1.5 right-1.5 rounded-md bg-emerald-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
+            {t("nuevo")}
           </span>
         ) : null}
 

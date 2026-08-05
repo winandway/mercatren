@@ -16,6 +16,7 @@ import {
   productos,
   tiendas,
 } from "@/lib/db/schema";
+import { DIAS_PRODUCTO_NUEVO } from "@/lib/dinero";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
 /**
@@ -57,6 +58,20 @@ export type FiltrosCatalogo = {
  * su estado + los pueblos vecinos, ver ciudadesVisiblesDesde); aquí solo se
  * traduce a SQL.
  */
+/**
+ * EL CORTE DE LA NOVEDAD, EN SEGUNDOS.
+ *
+ * Va en segundos y no como Date a propósito: la columna se declara
+ * `integer(mode: "timestamp")`, que guarda segundos, y D1 rechaza cualquier
+ * objeto como parámetro con un `D1_TYPE_ERROR` que tumba la consulta entera.
+ * Pasó el 5 ago 2026 al ordenar por novedad: el catálogo devolvía 500.
+ */
+function corteDeNovedad(): number {
+  return Math.floor(
+    (Date.now() - DIAS_PRODUCTO_NUEVO * 24 * 60 * 60 * 1000) / 1000,
+  );
+}
+
 function enZona(ciudades: string[]) {
   return sql`${productos.depositoId} IN (
     SELECT dz.id FROM ${depositos} dz
@@ -95,6 +110,8 @@ export type ProductoLista = {
   unidad: string | null;
   marca: string | null;
   destacado: boolean;
+  /** Para el sello de "nuevo", que se calcula y no se guarda. */
+  creadoEn: Date | null;
   tiendaNombre: string;
   tiendaSlug: string;
   imagenUrl: string | null;
@@ -163,8 +180,10 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
       ? asc(productos.precioCentavos)
       : filtros.orden === "precio_desc"
         ? desc(productos.precioCentavos)
-        : // Buscando, lo primero es lo que mejor calza; sin buscar, lo destacado.
-          (ordenPorRelevancia ?? desc(productos.destacado));
+        : // Buscando, lo primero es lo que mejor calza; sin buscar, lo recién
+          // llegado y después lo destacado. Ver la nota de parrillaDeProductos.
+          (ordenPorRelevancia ??
+          sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()} THEN 0 ELSE 1 END`);
 
   const [total] = await db
     .select({ n: count() })
@@ -187,6 +206,7 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
       unidad: productos.unidad,
       marca: productos.marca,
       destacado: productos.destacado,
+      creadoEn: productos.creadoEn,
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       fotoUrl: PRIMERA_FOTO.url,
@@ -214,6 +234,7 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
     unidad: f.unidad,
     marca: f.marca,
     destacado: f.destacado,
+    creadoEn: f.creadoEn,
     tiendaNombre: f.tiendaNombre,
     tiendaSlug: f.tiendaSlug,
     imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
@@ -594,6 +615,8 @@ export async function parrillaDeProductos(
     ? and(VISIBLE, gt(productos.precioCentavos, 0), enZona(zona))
     : and(VISIBLE, gt(productos.precioCentavos, 0));
 
+  const desdeCuandoEsNuevo = corteDeNovedad();
+
   const filas = await db
     .select({
       id: productos.id,
@@ -608,6 +631,7 @@ export async function parrillaDeProductos(
       unidad: productos.unidad,
       marca: productos.marca,
       destacado: productos.destacado,
+      creadoEn: productos.creadoEn,
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       fotoUrl: PRIMERA_FOTO.url,
@@ -625,7 +649,22 @@ export async function parrillaDeProductos(
      * va escrita a mano. Se cualifica con el nombre de la tabla porque hay un
      * JOIN y sin eso seria ambigua.
      */
-    .orderBy(sql`((productos.rowid * ${semilla}) % 104729)`, productos.id)
+    /**
+     * LOS RECIÉN LLEGADOS VAN PRIMERO, y dentro de ellos barajados.
+     *
+     * Lo pidió el dueño el 5 ago 2026 con un motivo muy concreto: un comercio
+     * que sube su primer producto, entra a la tienda y no lo ve, se desanima.
+     * Durante una semana su producto sale arriba; después entra al barajado
+     * general como todos.
+     *
+     * El corte se calcula aquí y no se guarda en ninguna columna: así se
+     * apaga solo, sin ningún proceso que mantener ni que pueda fallar.
+     */
+    .orderBy(
+      sql`CASE WHEN ${productos.creadoEn} > ${desdeCuandoEsNuevo} THEN 0 ELSE 1 END`,
+      sql`((productos.rowid * ${semilla}) % 104729)`,
+      productos.id,
+    )
     .limit(porPagina)
     .offset((pagina - 1) * porPagina);
 
@@ -651,6 +690,7 @@ export async function parrillaDeProductos(
       unidad: f.unidad,
       marca: f.marca,
       destacado: f.destacado,
+      creadoEn: f.creadoEn,
       tiendaNombre: f.tiendaNombre,
       tiendaSlug: f.tiendaSlug,
       imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
@@ -715,6 +755,7 @@ export async function bandasDeDepartamentos(
           unidad: productos.unidad,
           marca: productos.marca,
           destacado: productos.destacado,
+          creadoEn: productos.creadoEn,
           tiendaNombre: tiendas.nombre,
           tiendaSlug: tiendas.slug,
           fotoUrl: PRIMERA_FOTO.url,
@@ -759,6 +800,7 @@ export async function bandasDeDepartamentos(
           unidad: f.unidad,
           marca: f.marca,
           destacado: f.destacado,
+          creadoEn: f.creadoEn,
           tiendaNombre: f.tiendaNombre,
           tiendaSlug: f.tiendaSlug,
           imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),

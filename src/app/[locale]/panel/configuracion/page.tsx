@@ -1,5 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import {
+  Calculator,
   Check,
   ImageIcon,
   Languages,
@@ -14,6 +15,7 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
+import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -65,6 +67,7 @@ export default async function PaginaConfiguracion({
   const tf = await getTranslations("panel.fotos");
   const ta = await getTranslations("panel.configuracion.ajuste");
   const tp = await getTranslations("panel.configuracion.auditoriaPrecios");
+  const tc = await getTranslations("panel.configuracion.calculadora");
   const idioma = (await getLocale()) as Idioma;
 
   // La auditoría de precios: de solo lectura, para responder "¿está todo
@@ -112,7 +115,10 @@ export default async function PaginaConfiguracion({
         <h2 className="font-bold">{t("operacion.titulo")}</h2>
         <dl className="mt-4 divide-y divide-borde text-sm">
           {[
-            ["comision", "comisionValor"],
+            /* El "3 % sobre el valor del pedido" que había aquí era un texto
+               suelto del modelo viejo: no salía de ningún cálculo y hacía
+               creer que ese era todo nuestro ingreso. Lo reemplaza la
+               calculadora de abajo, que desglosa de verdad. */
             ["moneda", "monedaValor"],
             ["cobro", "cobroValor"],
             ["retencion", "retencionValor"],
@@ -208,6 +214,19 @@ export default async function PaginaConfiguracion({
             );
           })}
         </ul>
+      </section>
+
+      {/* LA CALCULADORA DEL PRECIO. Sustituye al "3 %" suelto que estaba
+          arriba: aquí se ve de dónde sale cada centavo. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Calculator className="h-4 w-4 text-carga-500" aria-hidden />
+          {tc("titulo")}
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">{tc("texto")}</p>
+        <div className="mt-4">
+          <CalculadoraPrecio />
+        </div>
       </section>
 
       {/* El ajuste por procesamiento, para el catálogo de antes. */}

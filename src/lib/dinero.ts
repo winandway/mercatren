@@ -131,3 +131,27 @@ export function ajusteCentavos(baseCentavos: number): number {
  */
 export const COMISION_TARJETA_PB = 200;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
+
+/**
+ * CUÁNTO TIEMPO UN PRODUCTO ES "NUEVO": una semana.
+ *
+ * Lo pidió el dueño el 5 ago 2026, y con un motivo concreto: un comercio que
+ * sube su primer producto, entra a la tienda y no lo ve por ningún lado, se
+ * desanima. El sello dice "recién llegó" y además lo empuja al principio.
+ *
+ * SE CALCULA, NO SE GUARDA. La tentación es poner una columna `es_nuevo` y un
+ * robotito que la apague cada noche — y eso es exactamente lo que no hay que
+ * hacer: si el robotito falla una noche, quedan productos "nuevos" de hace un
+ * mes, y nadie se entera hasta que un cliente lo nota. Comparando la fecha de
+ * creación con la de hoy, el sello se apaga solo, siempre, sin nada que
+ * mantener y sin nada que se pueda romper.
+ */
+export const DIAS_PRODUCTO_NUEVO = 7;
+
+/** Si un producto creado en esa fecha todavía lleva el sello de nuevo. */
+export function esProductoNuevo(creadoEn: Date | number | null): boolean {
+  if (!creadoEn) return false;
+  const fecha = creadoEn instanceof Date ? creadoEn.getTime() : creadoEn;
+  if (!Number.isFinite(fecha)) return false;
+  return Date.now() - fecha < DIAS_PRODUCTO_NUEVO * 24 * 60 * 60 * 1000;
+}

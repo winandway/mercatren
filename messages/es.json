@@ -723,8 +723,6 @@
       "subtitulo": "Cómo está montado el servicio y qué falta por conectar. Solo lo ve el equipo de Mercatren.",
       "operacion": {
         "titulo": "La operación",
-        "comision": "Margen por venta",
-        "comisionValor": "3 % sobre el valor del pedido",
         "moneda": "Moneda",
         "monedaValor": "Dólares de Estados Unidos, en todo el ciclo",
         "cobro": "Forma de cobro",
@@ -781,6 +779,19 @@
           "deberia": "Debería ser"
         },
         "soloLosPeores": "Se muestran los 50 más grandes."
+      },
+      "calculadora": {
+        "titulo": "Calculadora del precio",
+        "texto": "Escribe el precio del proveedor y mira de dónde sale cada centavo del precio publicado. Los números salen de las mismas constantes que usa el catálogo: si cambia la tarifa o el margen, esta pantalla cambia sola.",
+        "etiqueta": "Precio del proveedor",
+        "base": "Precio del proveedor",
+        "procesador": "Procesador de tarjeta ({pct} % + {fijo})",
+        "margen": "Margen de Mercatren ({pct} %)",
+        "publicado": "Precio publicado",
+        "alProveedor": "Al proveedor le quedan",
+        "ojoTitulo": "Por qué no se suman los porcentajes",
+        "ojoTexto": "Sumando hacia adelante daría {sumado}, pero entonces el procesador cobra su parte sobre ESE número y al proveedor solo le quedan {queda}: faltan {falta}. Por eso la cuenta va hacia atrás y el precio correcto es {correcto}.",
+        "escribeUnMonto": "Escribe un monto mayor que cero."
       }
     },
     "fotos": {
@@ -1122,7 +1133,8 @@
       "noEncontradoTexto": "Puede que ya no esté a la venta.",
       "agregado": "Agregado",
       "agregarCorto": "Agregar",
-      "cantidad": "Cantidad"
+      "cantidad": "Cantidad",
+      "nuevo": "Nuevo"
     },
     "paginacion": {
       "anterior": "Anterior",
