@@ -412,17 +412,29 @@ CREATE TABLE IF NOT EXISTS `items_variante` (
 	FOREIGN KEY (`item_pedido_id`) REFERENCES `items_pedido`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`variante_id`) REFERENCES `variantes_producto`(`id`) ON UPDATE no action ON DELETE no action
 );
+-- ── Tablas (0006_true_gorgon.sql) ──
+CREATE TABLE IF NOT EXISTS `aceptaciones` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`documento` text NOT NULL,
+	`version` text NOT NULL,
+	`contexto` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_aceptaciones_usuario` ON `aceptaciones` (`user_id`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785958806, 1785958806)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785963269, 1785963269)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785958806)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785963269)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
