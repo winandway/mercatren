@@ -114,47 +114,62 @@ aprobada + venta acreditada).
 - [ ] Al equipo: **resumen diario** de ventas y pendientes (opcional, más
       adelante).
 
-## Zonas de entrega (pedido del 5 ago 2026) — EL SIGUIENTE GRANDE
+## Retiro en depósito — TODO SE BUSCA, NADA SE LLEVA
 
-Hoy el encabezado dice "Entregar en 🇺🇸 Estados Unidos" y está escrito en el
-código. **Es mentira**: la mercancía se entrega en El Vigía y en Caracas. Y
-nada impide que alguien de Valencia compre un alicate que está en El Vigía.
+Corregido el 5 ago 2026 por el dueño, y cambia el modelo entero: **Mercatren
+no lleva nada a domicilio.** Esto es ferretería — láminas de zinc, tubos de
+seis metros, cabilla — y mover eso pide un camión que no tenemos. **El precio
+publicado es el precio de retirarlo en el depósito donde está.**
 
-**El archivo de Bley NO trae ubicación.** Se revisó: id, sku, precio, stock,
-fotos… y nada de depósito ni ciudad. Ese dato hay que crearlo.
+Eso simplifica todo: **ninguna zona bloquea una venta.** El que compra decide
+si puede llegar; lo único que no se vale es que se entere después de pagar.
 
-**El modelo, en cuatro piezas:**
+### Hecho
 
-1. **Zonas** — lista cerrada nuestra (El Vigía, Caracas, y las que entren),
-   igual que los departamentos. Si cada comercio escribe la suya, "Caracas" y
-   "Ccs" no se encuentran nunca.
-2. **Depósitos del comercio** — nombre, dirección y zona. Se declaran al darse
-   de alta. Bley tiene varios.
-3. **Producto → depósito** — con un solo depósito, todos caen ahí solos; con
-   varios, lo elige el comercio (o se importa si el archivo llega a traerlo).
-4. **Cliente → zona** — la elige arriba, donde hoy dice Estados Unidos. Se
-   guarda en su cuenta y en el navegador.
+- [x] **Zonas** (`src/lib/entrega/zonas.ts`): lista cerrada nuestra, con las
+      ciudades vecinas de El Vigía que el dueño nombró — Caños Zancudo,
+      Tucaní, El Chivo, Los Naranjos, Cuatro Esquinas, La Tendida, Mérida,
+      Santa Aurora, El Zulia. Nada de GPS: las direcciones venezolanas no se
+      geocodifican y el comercio piensa en "El Vigía", no en coordenadas.
+- [x] **Tres distancias, no dos:** `aqui` (tu ciudad) · `cerca` (pueblo
+      vecino, un rato en carro) · `lejos` (horas). No es lo mismo media hora
+      que siete, y esa diferencia decide la compra.
+- [x] **Tabla `depositos`** y `productos.deposito_id`.
+- [x] **Importador** (`npm run ubicaciones:importar`) que lee el export del
+      Control Box y une por `externo_id`. Corrido: 737 del archivo, 6
+      ubicaciones, los 689 nuestros ubicados, cero sin ciudad.
+- [x] **Caracas conserva su ciudad** aunque no tenga depósitos creados: sus
+      135 caen en un depósito con el nombre de su bodega. Sin eso se habrían
+      quedado sin zona y el sistema no sabría que están en Caracas.
 
-**Lo que ve quien está fuera de zona:** el producto SE MUESTRA, atenuado y con
-"No llega a Valencia". Esconderlo le enseña una tienda vacía y le dice que
-Mercatren no sirve; mostrarlo le dice que existe y que falta un comercio en su
-ciudad. Con un interruptor "Solo lo que llega a mi zona" para cuando ya quiere
-comprar.
+### Falta
 
-**La barrera de verdad va en el servidor**, en `crearPedido`: si algo del
-carrito no llega a la dirección de entrega, el pedido no se crea y se dice
-cuál. Lo que solo se comprueba en el navegador no está comprobado.
+- [ ] **Las direcciones.** El sistema de Bley solo guarda "Merida el vigia" y
+      "Caracas". Hay que escribirlas a mano — prompt ya entregado a esa
+      sesión, pidiendo también horario, teléfono y **si el local atiende
+      público** (si es galpón cerrado, no se ofrece ir a buscar ahí).
+- [ ] **El selector de ciudad arriba**, donde hoy dice "Entregar en Estados
+      Unidos" y es mentira. Se guarda en la cuenta y en el navegador.
+- [ ] **El aviso de retiro en la ficha y en el checkout**, con la dirección
+      del depósito y la fuerza que corresponda según la distancia.
+- [ ] **Que el pedido y el correo digan dónde retirar.** Hoy el pedido pide
+      dirección de entrega como si fuéramos a llevarlo.
 
-**Zonas y no GPS, a propósito:** las direcciones venezolanas no se
-geocodifican ("sector La Blanca, casa sin número" no le dice nada a Google
-Maps), el comercio piensa en "El Vigía" y no en coordenadas, y así no hay API
-externa que pagar ni que se caiga. El mapa sí va, pero donde sirve: en la
-ficha del producto, enseñando dónde está el depósito que lo entrega.
+### EN RESERVA — el reparto a domicilio (NO se promete)
 
-**Lo que hace falta de tu lado:** la lista de depósitos de Bley con su
-dirección y a qué zona pertenece cada uno, y — si la tienes — a qué depósito
-va cada producto. Sin eso se puede montar todo igual y asignarlos después
-desde el panel.
+Va a existir, pero **no se anuncia en ninguna pantalla hasta que el
+transporte exista de verdad**. Prometer una entrega que no se puede cumplir
+cuesta más caro que no ofrecerla.
+
+Cuando llegue:
+
+- Con **mototaxis o apps de delivery**, no con flota propia.
+- **Solo para cosas chicas**: una cinta métrica, un rollo de teflón. Una
+  lámina de zinc no la lleva una moto.
+- Entonces el producto necesita un campo de "se puede repartir" (por peso o
+  por tamaño) y las zonas ganan un cuarto estado: `reparto`.
+- El costo del envío entra en `crearPedido` y en el total, que hoy van en
+  cero a propósito.
 
 ## Lo que sigue
 
