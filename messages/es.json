@@ -1063,12 +1063,17 @@
       "noEncontrado": "No encontramos este producto",
       "noEncontradoTexto": "Puede que ya no esté a la venta.",
       "agregado": "Agregado",
-      "agregarCorto": "Agregar"
+      "agregarCorto": "Agregar",
+      "cantidad": "Cantidad"
     },
     "paginacion": {
       "anterior": "Anterior",
       "siguiente": "Siguiente",
       "posicion": "Página {pagina} de {paginas}"
+    },
+    "cantidad": {
+      "masDeNueve": "10+",
+      "maximo": "Máx. {n}"
     }
   },
   "carrito": {

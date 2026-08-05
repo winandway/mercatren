@@ -4,6 +4,7 @@ import { Check, ShoppingCart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import { SelectorCantidad } from "@/components/catalogo/selector-cantidad";
 import { useCarrito, type LineaCarrito } from "@/lib/carrito/store";
 import { cn } from "@/lib/utils";
 
@@ -31,28 +32,16 @@ export function BotonAgregar({
     );
   }
 
-  // Las existencias pueden venir fraccionadas (13.5 kg). Para el selector se
-  // baja al entero: por ahora se compran unidades enteras.
-  const maximo = Math.max(1, Math.floor(linea.maximo ?? 99));
-
   return (
     <div className="flex flex-wrap gap-2">
-      <label className="inline-flex items-center">
-        <span className="sr-only">{t("agregar")}</span>
-        <select
-          value={cantidad}
-          onChange={(e) => setCantidad(Number(e.target.value))}
-          className="h-11 rounded-lg border border-borde bg-white px-3 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
-        >
-          {Array.from({ length: Math.min(10, maximo) }, (_, i) => i + 1).map(
-            (n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ),
-          )}
-        </select>
-      </label>
+      {/* 1–9 y "10+": el que quiere cien, la escribe. El tope real lo ponen
+          las existencias, no el desplegable. */}
+      <SelectorCantidad
+        valor={cantidad}
+        maximo={linea.maximo}
+        onCambiar={setCantidad}
+        etiqueta={t("cantidad")}
+      />
 
       <button
         type="button"

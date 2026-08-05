@@ -1063,12 +1063,17 @@
       "noEncontrado": "We couldn't find this product",
       "noEncontradoTexto": "It may no longer be for sale.",
       "agregado": "Added",
-      "agregarCorto": "Add"
+      "agregarCorto": "Add",
+      "cantidad": "Quantity"
     },
     "paginacion": {
       "anterior": "Previous",
       "siguiente": "Next",
       "posicion": "Page {pagina} of {paginas}"
+    },
+    "cantidad": {
+      "masDeNueve": "10+",
+      "maximo": "Max {n}"
     }
   },
   "carrito": {

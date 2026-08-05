@@ -4,6 +4,7 @@ import { ImageOff, MoreVertical, ShoppingCart, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
 
+import { SelectorCantidad } from "@/components/catalogo/selector-cantidad";
 import { Link } from "@/i18n/navigation";
 import { contarUnidades, sumarCarrito, useCarrito } from "@/lib/carrito/store";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -152,33 +153,18 @@ export function ListaCarrito() {
                 </p>
 
                 <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <label className="inline-flex items-center gap-1.5 text-xs">
+                  <span className="inline-flex items-center gap-1.5 text-xs">
                     <span className="text-tinta-suave">{t("cantidad")}</span>
-                    <select
-                      value={linea.cantidad}
-                      onChange={(e) =>
-                        cambiarCantidad(
-                          linea.productoId,
-                          Number(e.target.value),
-                        )
-                      }
-                      className="rounded-lg border border-borde bg-white px-2 py-1 text-xs outline-none focus:border-carga-500"
-                    >
-                      {Array.from(
-                        {
-                          length: Math.max(
-                            1,
-                            Math.floor(Math.min(20, linea.maximo ?? 20)),
-                          ),
-                        },
-                        (_, i) => i + 1,
-                      ).map((n) => (
-                        <option key={n} value={n}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                    {/* La misma pieza de la ficha: 1–9 y "10+" para escribir
+                        la cantidad. El tope es la existencia real. */}
+                    <SelectorCantidad
+                      valor={linea.cantidad}
+                      maximo={linea.maximo}
+                      onCambiar={(n) => cambiarCantidad(linea.productoId, n)}
+                      etiqueta={t("cantidad")}
+                      compacto
+                    />
+                  </span>
 
                   <button
                     type="button"
