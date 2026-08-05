@@ -373,17 +373,56 @@ CREATE TABLE IF NOT EXISTS `depositos` (
 CREATE INDEX IF NOT EXISTS `idx_depositos_tienda` ON `depositos` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_depositos_zona` ON `depositos` (`zona`);
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_depositos_tienda_nombre` ON `depositos` (`tienda_id`,`nombre`);
+-- ── Tablas (0004_curly_raza.sql) ──
+CREATE TABLE IF NOT EXISTS `medidas_producto` (
+	`producto_id` text PRIMARY KEY NOT NULL,
+	`peso_gramos` integer,
+	`largo_mm` integer,
+	`ancho_mm` integer,
+	`alto_mm` integer,
+	`material_es` text,
+	`material_en` text,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE TABLE IF NOT EXISTS `variantes_producto` (
+	`id` text PRIMARY KEY NOT NULL,
+	`producto_id` text NOT NULL,
+	`talla` text,
+	`color` text,
+	`color_hex` text,
+	`sku` text,
+	`precio_base_centavos` integer DEFAULT 0 NOT NULL,
+	`precio_centavos` integer DEFAULT 0 NOT NULL,
+	`existencias` real DEFAULT 0 NOT NULL,
+	`orden` integer DEFAULT 0 NOT NULL,
+	`activo` integer DEFAULT true NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_variantes_producto` ON `variantes_producto` (`producto_id`);
+CREATE UNIQUE INDEX IF NOT EXISTS `uq_variante_combinacion` ON `variantes_producto` (`producto_id`,`talla`,`color`);
+-- ── Tablas (0005_silly_anita_blake.sql) ──
+CREATE TABLE IF NOT EXISTS `items_variante` (
+	`item_pedido_id` text PRIMARY KEY NOT NULL,
+	`variante_id` text NOT NULL,
+	FOREIGN KEY (`item_pedido_id`) REFERENCES `items_pedido`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`variante_id`) REFERENCES `variantes_producto`(`id`) ON UPDATE no action ON DELETE no action
+);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785905081, 1785905081)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785958806, 1785958806)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785905081)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785958806)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
