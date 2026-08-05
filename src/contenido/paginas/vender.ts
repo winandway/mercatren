@@ -10,7 +10,7 @@ import type { PaginaContenido } from "./tipos";
 export const VENDER_ES: PaginaContenido = {
   titulo: "Vende en Mercatren",
   entradilla:
-    "Tus clientes ya tienen quien les pague desde Estados Unidos. Nosotros ponemos la tienda, el cobro y el comprobante. Tú pones el producto y la entrega.",
+    "Te compramos la mercancía y la revendemos a compradores en Estados Unidos. Tú pones el producto, tu precio y la entrega; nosotros ponemos el catálogo, la venta y la factura.",
   secciones: [
     {
       id: "para-quien",
@@ -39,7 +39,7 @@ export const VENDER_ES: PaginaContenido = {
             puntos: [
               "Vendes como particular, sin empresa registrada.",
               "Buscas recibir dinero sin entregar un producto.",
-              "Tu ticket es de pocos dólares: la comisión no cubre el costo de verificar.",
+              "Tu ticket es de pocos dólares: el margen no cubre el costo de gestionar cada operación.",
               "Vendes productos prohibidos o de origen que no puedas documentar.",
             ],
           },
@@ -54,9 +54,9 @@ export const VENDER_ES: PaginaContenido = {
           tipo: "lista",
           puntos: [
             {
-              titulo: "Cobras en Estados Unidos, en dólares",
+              titulo: "Se te paga en Estados Unidos, en dólares",
               texto:
-                "sin cambio de divisas y sin que el dinero salga del país. Nosotros cobramos por cuenta tuya.",
+                "sin cambio de divisas. Te compramos la mercancía y te la pagamos contra tu factura, a una cuenta bancaria de Estados Unidos.",
             },
             {
               titulo: "Cada venta con su comprobante",
@@ -74,9 +74,9 @@ export const VENDER_ES: PaginaContenido = {
                 "si ya lo tienes en otro sistema, lo importamos y después se mantiene sincronizado. No cargas todo otra vez a mano.",
             },
             {
-              titulo: "Tu saldo, a la vista",
+              titulo: "Tus ventas, a la vista",
               texto:
-                "cada venta verificada se acredita a tu billetera al instante, con su historial de movimientos.",
+                "cada venta verificada aparece al instante en tu panel, con lo que se te compró y lo que queda por pagarte.",
             },
           ],
         },
@@ -94,7 +94,7 @@ export const VENDER_ES: PaginaContenido = {
               etiqueta: "Alta",
               titulo: "Nos escribes y verificamos tu empresa",
               parrafos: [
-                "Revisamos tu registro mercantil, la identidad de tus dueños y tu proveedor. Firmamos el mandato que nos designa como tu agente de cobro. Es el paso más lento y es a propósito: es lo que hace que un banco tome esto en serio.",
+                "Revisamos tu registro mercantil y la identidad de tus dueños. Firmamos el acuerdo de compraventa: tú nos vendes la mercancía y nos facturas. Es el paso más lento y es a propósito: es lo que hace que un banco tome esto en serio.",
               ],
             },
             {
@@ -118,7 +118,7 @@ export const VENDER_ES: PaginaContenido = {
               etiqueta: "Verificación",
               titulo: "Nosotros comprobamos el pago",
               parrafos: [
-                "Una persona lo verifica contra el banco. Cuando queda aprobado, te llega el aviso y el neto entra a tu billetera.",
+                "Una persona lo verifica contra el banco. Cuando queda aprobado, te llega el aviso y esa mercancía pasa a la lista de lo que se te compró.",
               ],
             },
             {
@@ -143,7 +143,7 @@ export const VENDER_ES: PaginaContenido = {
           filas: [
             ["El producto y su precio", "Sí", "No"],
             ["La tienda en línea y el catálogo", "No", "Sí"],
-            ["Cobrar en Estados Unidos", "No", "Sí"],
+            ["Que te paguen en Estados Unidos", "No", "Sí"],
             ["Verificar cada pago", "No", "Sí"],
             ["El comprobante de cada operación", "No", "Sí"],
             ["La entrega al cliente", "Sí", "No"],
@@ -185,7 +185,7 @@ export const VENDER_ES: PaginaContenido = {
 export const VENDER_EN: PaginaContenido = {
   titulo: "Sell on Mercatren",
   entradilla:
-    "Your customers already have someone who can pay from the United States. We provide the store, the collection, and the paper trail. You provide the product and the delivery.",
+    "We buy your merchandise and resell it to buyers in the United States. You provide the product, your price, and the delivery; we provide the catalog, the sale, and the invoice.",
   secciones: [
     {
       id: "para-quien",
@@ -214,7 +214,7 @@ export const VENDER_EN: PaginaContenido = {
             puntos: [
               "You sell as an individual, with no registered company.",
               "You're looking to receive money without delivering a product.",
-              "Your ticket is a few dollars: the fee won't cover the cost of verifying.",
+              "Your ticket is a few dollars: the markup will not cover the cost of handling each transaction.",
               "You sell prohibited goods or goods you can't document the origin of.",
             ],
           },
@@ -249,9 +249,9 @@ export const VENDER_EN: PaginaContenido = {
                 "if it's already in another system, we import it and keep it synced. You don't re-enter everything by hand.",
             },
             {
-              titulo: "Your balance, in plain sight",
+              titulo: "Your sales, in plain sight",
               texto:
-                "every verified sale is credited to your wallet instantly, with its transaction history.",
+                "every verified sale appears in your panel instantly, with what we bought from you and what is still owed to you.",
             },
           ],
         },
@@ -269,7 +269,7 @@ export const VENDER_EN: PaginaContenido = {
               etiqueta: "Onboarding",
               titulo: "You write to us and we verify your company",
               parrafos: [
-                "We review your business registration, your owners' identity, and your supplier. We sign the mandate appointing us as your collection agent. It's the slowest step and that's deliberate: it's what makes a bank take this seriously.",
+                "We review your business registration and your owners' identity. We sign the sale-of-goods agreement: you sell us the merchandise and invoice us. It's the slowest step and that's deliberate: it's what makes a bank take this seriously.",
               ],
             },
             {
@@ -293,7 +293,7 @@ export const VENDER_EN: PaginaContenido = {
               etiqueta: "Verification",
               titulo: "We verify the payment",
               parrafos: [
-                "A person checks it against the bank. Once approved, you get the notice and the net amount lands in your wallet.",
+                "A person checks it against the bank. Once approved, you get the notice and that merchandise moves onto the list of what we bought from you.",
               ],
             },
             {
@@ -352,72 +352,86 @@ export const VENDER_EN: PaginaContenido = {
   },
 };
 
-/** Pagina de comisiones: un solo numero, explicado sin letra chica. */
+/**
+ * Como se forma el precio.
+ *
+ * REESTRUCTURACION LEGAL (agosto de 2026). Antes esta pagina se llamaba
+ * "Comisiones" y presentaba un 3 % retenido sobre el dinero cobrado. Eso
+ * describe una agencia de cobro. Lo que ocurre de verdad es una compraventa:
+ * el comercio nos vende la mercancia a su precio y Windoce, LLC la revende a
+ * un precio final propio. Nuestro ingreso es la diferencia entre los dos.
+ */
 export const COMISIONES_ES: PaginaContenido = {
-  titulo: "Comisiones",
+  titulo: "Cómo se forma el precio",
   entradilla:
-    "Un solo cobro, sobre el valor del pedido, y nada más. Sin cuota mensual, sin costo de alta y sin letra chica.",
+    "Tú pones el precio al que nos vendes. Nosotros ponemos el precio al que revendemos. La diferencia es nuestro margen, y está dentro del precio publicado.",
   secciones: [
     {
-      id: "cuanto",
-      titulo: "Cuánto cobramos",
+      id: "dos-precios",
+      titulo: "Hay dos precios, y cada uno lo pone quien corresponde",
       bloques: [
-        {
-          tipo: "cifras",
-          items: [
-            {
-              valor: "3 %",
-              texto: "sobre el valor del pedido, pagando por Zelle",
-            },
-            { valor: "US$ 0", texto: "de cuota mensual" },
-            { valor: "US$ 0", texto: "por dar de alta tu tienda" },
-            { valor: "US$ 0", texto: "por publicar productos" },
-          ],
-        },
         {
           tipo: "parrafo",
           texto:
-            "La comisión sale del valor del pedido: si tu cliente paga US$ 1.000, a tu billetera entran US$ 970 y US$ 30 son nuestros. No se le cobra nada aparte al comprador.",
+            "Cuando alguien compra en Mercatren, ocurren dos compraventas seguidas: Windoce, LLC te compra la mercancía a ti, y se la vende al comprador. Por eso hay dos precios.",
+        },
+        {
+          tipo: "tabla",
+          encabezados: ["El precio", "Quién lo pone", "Qué es"],
+          filas: [
+            [
+              "Precio de compra",
+              "Tú, el proveedor",
+              "Lo que Windoce, LLC te paga por la mercancía. Es el importe de tu factura y es el que cobras.",
+            ],
+            [
+              "Precio publicado",
+              "Windoce, LLC",
+              "Lo que paga el comprador. Es el precio final: incluye nuestro margen comercial y no lleva cargos aparte.",
+            ],
+          ],
+          nota: "El margen es la diferencia entre los dos. No es un porcentaje que se te retenga de un cobro: es la ganancia de revender un producto propio.",
+        },
+        {
+          tipo: "aviso",
+          tono: "bien",
+          titulo: "Lo que cobras no depende de la forma de pago",
+          parrafos: [
+            "El comprador puede pagar con tarjeta o por transferencia; a ti se te paga siempre el precio de tu factura. El costo de cobrar por una vía u otra corre por nuestra cuenta y ya está considerado en el precio que publicamos.",
+          ],
         },
       ],
     },
     {
-      id: "por-que-distinto",
-      titulo: "Por qué cada forma de pago cuesta distinto",
+      id: "cobrar",
+      titulo: "Cómo y cuándo cobras",
       bloques: [
         {
-          tipo: "parrafo",
-          texto:
-            "La diferencia no es un capricho: es lo que cuesta cobrar por cada vía y el riesgo que trae cada una.",
-        },
-        {
-          tipo: "tabla",
-          encabezados: ["Forma de pago", "Comisión", "Por qué"],
-          filas: [
-            [
-              "Zelle",
-              "3 %",
-              "No cuesta nada cobrar, acredita en minutos y no admite reversión.",
-            ],
-            [
-              "Tarjeta",
-              "5 %",
-              "El procesador se lleva cerca del 3 % y la operación queda expuesta a contracargos durante meses, con el producto ya entregado.",
-            ],
-            [
-              "Saldo de la billetera",
-              "Sin costo",
-              "El dinero ya está dentro del sistema: no hay que cobrarlo otra vez.",
-            ],
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: "Contra factura",
+              texto:
+                "cada compra que te hacemos lleva tu factura a nombre de Windoce, LLC. Sin esa factura la operación no se cierra.",
+            },
+            {
+              titulo: "A una cuenta bancaria de Estados Unidos",
+              texto:
+                "el importe de la mercancía comprada se paga a la cuenta que nos indiques, según lo acordado por escrito contigo.",
+            },
+            {
+              titulo: "Sin cuota mensual ni costo de alta",
+              texto:
+                "publicar tu catálogo, sincronizarlo y mantener tu ficha no tiene costo.",
+            },
           ],
-          nota: "El pago con tarjeta y con saldo están en construcción. Hoy el cobro es por Zelle y transferencia desde bancos de Estados Unidos.",
         },
         {
-          tipo: "aviso",
-          tono: "neutro",
-          titulo: "Sobre el ticket bajo",
-          parrafos: [
-            "El 3 % funciona bien con pedidos grandes. En pedidos muy chicos, la comisión no alcanza a cubrir lo que cuesta verificar el pago a mano, así que en esos casos lo conversamos antes de darte de alta.",
+          tipo: "cifras",
+          items: [
+            { valor: "US$ 0", texto: "de cuota mensual" },
+            { valor: "US$ 0", texto: "por publicar tu catálogo" },
+            { valor: "US$ 0", texto: "por sincronizar tus productos" },
           ],
         },
       ],
@@ -431,12 +445,17 @@ export const COMISIONES_ES: PaginaContenido = {
           puntos: [
             {
               texto:
-                "Tu tienda dentro del sitio, con tu catálogo y tus precios.",
+                "Tu catálogo publicado dentro del sitio, con tus productos y tus fotos.",
             },
-            { texto: "El cobro en Estados Unidos por cuenta tuya." },
-            { texto: "La verificación de cada pago contra el banco." },
+            {
+              texto:
+                "La venta al comprador en Estados Unidos, a nuestro nombre.",
+            },
+            {
+              texto:
+                "La verificación de que cada pago viene de un banco estadounidense.",
+            },
             { texto: "El expediente documentado de cada operación." },
-            { texto: "Tu billetera con el historial de movimientos." },
             { texto: "La importación y sincronización de tu catálogo." },
           ],
         },
@@ -446,67 +465,76 @@ export const COMISIONES_ES: PaginaContenido = {
 };
 
 export const COMISIONES_EN: PaginaContenido = {
-  titulo: "Fees",
+  titulo: "How the price is formed",
   entradilla:
-    "One charge, on the order value, and nothing else. No monthly fee, no setup cost, no fine print.",
+    "You set the price you sell to us at. We set the price we resell at. The difference is our markup, and it sits inside the published price.",
   secciones: [
     {
-      id: "cuanto",
-      titulo: "What we charge",
+      id: "dos-precios",
+      titulo: "There are two prices, each set by the right party",
       bloques: [
-        {
-          tipo: "cifras",
-          items: [
-            { valor: "3%", texto: "on the order value, paying by Zelle" },
-            { valor: "US$0", texto: "monthly fee" },
-            { valor: "US$0", texto: "to open your store" },
-            { valor: "US$0", texto: "to list products" },
-          ],
-        },
         {
           tipo: "parrafo",
           texto:
-            "The fee comes out of the order value: if your customer pays US$1,000, US$970 lands in your wallet and US$30 is ours. Nothing extra is charged to the buyer.",
+            "When someone buys on Mercatren, two sales happen back to back: Windoce, LLC buys the merchandise from you, and sells it to the buyer. That is why there are two prices.",
+        },
+        {
+          tipo: "tabla",
+          encabezados: ["The price", "Who sets it", "What it is"],
+          filas: [
+            [
+              "Purchase price",
+              "You, the supplier",
+              "What Windoce, LLC pays you for the merchandise. It is the amount on your invoice and what you get paid.",
+            ],
+            [
+              "Published price",
+              "Windoce, LLC",
+              "What the buyer pays. It is the final price: it includes our commercial markup and carries no separate charges.",
+            ],
+          ],
+          nota: "The markup is the difference between the two. It is not a percentage withheld from something collected for you: it is the profit on reselling our own product.",
+        },
+        {
+          tipo: "aviso",
+          tono: "bien",
+          titulo: "What you get paid does not depend on the payment method",
+          parrafos: [
+            "The buyer may pay by card or by bank transfer; you are always paid the amount on your invoice. The cost of accepting one method or another is ours, and it is already accounted for in the price we publish.",
+          ],
         },
       ],
     },
     {
-      id: "por-que-distinto",
-      titulo: "Why each payment method costs differently",
+      id: "cobrar",
+      titulo: "How and when you get paid",
       bloques: [
         {
-          tipo: "parrafo",
-          texto:
-            "The difference isn't arbitrary: it's what it costs to collect each way, and the risk each one carries.",
-        },
-        {
-          tipo: "tabla",
-          encabezados: ["Payment method", "Fee", "Why"],
-          filas: [
-            [
-              "Zelle",
-              "3%",
-              "Costs nothing to collect, clears in minutes, and can't be reversed.",
-            ],
-            [
-              "Card",
-              "5%",
-              "The processor takes close to 3%, and the transaction stays exposed to chargebacks for months, with the product already delivered.",
-            ],
-            [
-              "Wallet balance",
-              "No cost",
-              "The money is already inside the system: there's nothing to collect again.",
-            ],
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: "Against an invoice",
+              texto:
+                "every purchase we make from you carries your invoice issued to Windoce, LLC. Without that invoice the transaction does not close.",
+            },
+            {
+              titulo: "To a US bank account",
+              texto:
+                "the amount for merchandise purchased is paid to the account you designate, as agreed with you in writing.",
+            },
+            {
+              titulo: "No monthly charge, no setup cost",
+              texto:
+                "publishing your catalog, syncing it, and maintaining your storefront cost nothing.",
+            },
           ],
-          nota: "Card and wallet payment are under construction. Today collection is by Zelle and transfer from US banks.",
         },
         {
-          tipo: "aviso",
-          tono: "neutro",
-          titulo: "About low tickets",
-          parrafos: [
-            "3% works well on large orders. On very small orders, the fee doesn't cover what it costs to verify the payment by hand, so in those cases we talk it through before onboarding you.",
+          tipo: "cifras",
+          items: [
+            { valor: "US$ 0", texto: "per month" },
+            { valor: "US$ 0", texto: "to publish your catalog" },
+            { valor: "US$ 0", texto: "to sync your products" },
           ],
         },
       ],
@@ -520,13 +548,12 @@ export const COMISIONES_EN: PaginaContenido = {
           puntos: [
             {
               texto:
-                "Your store inside the site, with your catalog and prices.",
+                "Your catalog published inside the site, with your products and your photos.",
             },
-            { texto: "Collection in the United States on your behalf." },
-            { texto: "Verification of every payment against the bank." },
-            { texto: "The documented file for each transaction." },
-            { texto: "Your wallet with its transaction history." },
-            { texto: "Importing and syncing your catalog." },
+            { texto: "The sale to the US buyer, made in our name." },
+            { texto: "Verification that every payment comes from a US bank." },
+            { texto: "The documented file for every transaction." },
+            { texto: "Catalog import and synchronization." },
           ],
         },
       ],

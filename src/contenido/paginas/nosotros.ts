@@ -19,12 +19,12 @@ export const NOSOTROS_ES: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Mercatren es un servicio operado por Windoce LLC, una sociedad registrada en Estados Unidos. Somos un equipo pequeño que construye software para comercio transfronterizo.",
+            "Mercatren es un servicio operado por Windoce, LLC, una sociedad registrada en Estados Unidos. Somos un equipo pequeño que construye software para comercio transfronterizo.",
         },
         {
           tipo: "parrafo",
           texto:
-            "No somos un banco, no somos una casa de cambio y no somos una empresa de remesas. Somos una plataforma de comercio electrónico que además hace de agente de cobro para los comercios que venden en ella.",
+            "No somos un banco ni una casa de cambio, y no movemos dinero de nadie. Somos una tienda en línea: compramos mercancía a nuestros proveedores y la revendemos a compradores en Estados Unidos.",
         },
         {
           tipo: "cifras",
@@ -36,7 +36,8 @@ export const NOSOTROS_ES: PaginaContenido = {
             },
             {
               valor: "3 %",
-              texto: "la comisión sobre cada pedido; es todo nuestro ingreso",
+              texto:
+                "el margen comercial incluido en el precio publicado; es todo nuestro ingreso",
             },
             {
               valor: "5 años",
@@ -110,7 +111,7 @@ export const NOSOTROS_ES: PaginaContenido = {
             {
               titulo: "El dinero de los comercios no es nuestro",
               texto:
-                "nuestro ingreso es la comisión; el resto es saldo de nuestros clientes y así figura en la contabilidad.",
+                "nuestro ingreso es la venta del producto, y el costo de esa mercancía es el gasto que la respalda. Así figura en la contabilidad, con su factura de compra y su factura de venta.",
             },
             {
               titulo: "Lo privado es privado",
@@ -153,7 +154,7 @@ export const NOSOTROS_ES: PaginaContenido = {
     },
   ],
   cierre:
-    "Mercatren es una marca de Windoce LLC, sociedad registrada en Estados Unidos. El servicio está en fase piloto con su primer comercio en operación.",
+    "Mercatren es una marca de Windoce, LLC, sociedad registrada en Estados Unidos. El servicio está en fase piloto con su primer comercio en operación.",
 };
 
 export const NOSOTROS_EN: PaginaContenido = {
@@ -168,12 +169,12 @@ export const NOSOTROS_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Mercatren is a service operated by Windoce LLC, a company registered in the United States. We're a small team building software for cross-border commerce.",
+            "Mercatren is a service operated by Windoce, LLC, a company registered in the United States. We're a small team building software for cross-border commerce.",
         },
         {
           tipo: "parrafo",
           texto:
-            "We are not a bank, not a currency exchange, and not a remittance company. We are an ecommerce platform that also acts as collection agent for the merchants who sell on it.",
+            "We are not a bank or a currency exchange, and we do not move anyone's money. We are an online store: we buy merchandise from our suppliers and resell it to buyers in the United States.",
         },
         {
           tipo: "cifras",
@@ -185,7 +186,8 @@ export const NOSOTROS_EN: PaginaContenido = {
             },
             {
               valor: "3%",
-              texto: "the fee on each order; it's our entire revenue",
+              texto:
+                "the commercial markup inside the published price; it is our entire revenue",
             },
             {
               valor: "5 years",
@@ -259,12 +261,12 @@ export const NOSOTROS_EN: PaginaContenido = {
             {
               titulo: "Merchant money isn't ours",
               texto:
-                "our revenue is the fee; the rest is our clients' balance, and that's how the books show it.",
+                "our revenue is the sale of the product, and the cost of that merchandise is the expense behind it. That is how the books show it, with its purchase invoice and its sales invoice.",
             },
             {
               titulo: "Private stays private",
               texto:
-                "amounts, receipts, and payer details never appear on public pages.",
+                "amounts, payment records, and buyer details never appear on public pages.",
             },
           ],
         },
@@ -285,7 +287,7 @@ export const NOSOTROS_EN: PaginaContenido = {
             {
               titulo: "The full business model",
               texto:
-                "the flow of funds step by step, what crosses the border and what doesn't, and the economics of each order. It's in the documentation section.",
+                "the contractual structure step by step, what crosses the border and what doesn't, and the regulatory framing. It's in the documentation section.",
             },
             {
               titulo: "Our limits",
@@ -301,5 +303,5 @@ export const NOSOTROS_EN: PaginaContenido = {
     },
   ],
   cierre:
-    "Mercatren is a brand of Windoce LLC, a company registered in the United States. The service is in pilot phase with its first merchant in operation.",
+    "Mercatren is a brand of Windoce, LLC, a company registered in the United States. The service is in pilot phase with its first merchant in operation.",
 };

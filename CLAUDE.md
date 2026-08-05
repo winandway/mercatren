@@ -2,13 +2,51 @@
 
 # Mercatren.com
 
-Servicio de comercio electrónico transfronterizo de **Windoce LLC** (Estados
-Unidos). Funciona como agente de compras y agente de ventas a la vez: el cliente
-compra productos de Estados Unidos y los recibe en su país, y cualquier vendedor
-puede abrir su tienda dentro del sitio y llegar a nuevos mercados.
+Tienda en línea operada por **Windoce, LLC** (Delaware, Estados Unidos).
 
-Es un **mercado multi-tienda**: muchos vendedores, cada uno con su tienda, y una
-comisión para Mercatren en cada venta.
+## LA FIGURA JURÍDICA (regla de cabecera, agosto 2026)
+
+**Windoce, LLC compra y revende mercancía por cuenta propia.** No es un agente,
+no cobra por cuenta de nadie y no administra dinero de terceros.
+
+1. Un comprador en Estados Unidos compra un producto del catálogo.
+2. Paga a Windoce, LLC el precio publicado, desde un banco estadounidense.
+3. Windoce, LLC compra ese producto al proveedor **a nombre propio**, con
+   factura emitida a Windoce, LLC.
+4. El proveedor despacha a la **dirección designada por el comprador**.
+5. Windoce, LLC emite factura de venta al comprador.
+
+El dinero que entra es **ingreso propio**; el que sale es **costo de mercancía
+vendida**. El ingreso de Mercatren es un **margen comercial dentro del precio
+publicado**, no una comisión sobre dinero ajeno.
+
+**Por qué importa:** la redacción anterior ("cobramos y liquidamos ese pago",
+"el dinero es del comercio desde el cobro", "comisión del 3%") describe palabra
+por palabra la definición de **money transmission** en Estados Unidos, que exige
+licencias estatales y registro FinCEN, y es la razón por la que procesadores y
+bancos cierran cuentas. El abogado y el contable lo corrigieron el 5 ago 2026.
+
+### Vocabulario PROHIBIDO en todo el sitio, en los dos idiomas
+
+cobrar por cuenta de · liquidar/liquidación · custodia · retener fondos · saldo
+· fondos · billetera/wallet · remesa/remittance · comisión sobre el pago ·
+transferencia de dinero · intermediario financiero · agente de cobro · mandato ·
+actuamos en nombre de · el pagador · el beneficiario · instrucción de pago.
+
+En su lugar: **vendemos y facturamos · el precio de venta · margen comercial
+incluido en el precio · compramos la mercancía al proveedor · el comprador · la
+dirección de entrega designada · orden de compra · ingresos por ventas.**
+
+Se admiten SOLO como negación explícita, y así están escritas en los términos:
+"Windoce, LLC no actúa como agente, fiduciario ni depositario de ninguna de las
+partes."
+
+**El nombre legal lleva coma: `Windoce, LLC`.** Es parte del nombre registrado
+en Delaware; omitirla ya causó el rechazo de un expediente estatal.
+
+**Pendiente:** los identificadores internos del código y las tablas de la base
+todavía se llaman `billetera`, `saldo` y `comision`. Es deuda técnica conocida,
+no texto de cara al público; renombrarlas es una migración aparte.
 
 ---
 
@@ -108,7 +146,7 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
    panel, cada campo que ve el público lleva dos casillas (español e inglés).
 4. **El inglés tiene que ser de nativo**, neutro y profesional de EE.UU. Nunca
    traducción literal del español.
-5. **Nuestras cuentas se llaman "Soporte".** Cualquier cuenta de Windoce LLC
+5. **Nuestras cuentas se llaman "Soporte".** Cualquier cuenta de Windoce, LLC
    dentro del sistema lleva la palabra Soporte en el nombre visible. El rol
    correspondiente es `soporte`.
    **Y se crean SIEMPRE con un correo que existe y recibe de verdad**
@@ -118,7 +156,7 @@ el script `build` son dos pasos. No volver a meter `withSerwistInit` en
    de una demostración.
 6. **El botón de borrar nunca va a la vista**: siempre dentro del menú de tres
    puntos, y con confirmación aparte.
-7. **El pie de página lleva el crédito de Windoce LLC** con enlace a
+7. **El pie de página lleva el crédito de Windoce, LLC** con enlace a
    windoce.com en pestaña nueva. No se quita.
 8. **Nada de datos de prueba ni datos reales de nadie** en placeholders, valores
    por defecto o semillas. Los placeholders describen el campo, no dan ejemplos

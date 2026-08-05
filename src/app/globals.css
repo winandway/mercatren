@@ -101,4 +101,31 @@
   @page {
     margin: 12mm;
   }
+
+  /**
+   * DOCUMENTOS: solo el documento.
+   *
+   * El PDF del modelo de negocio se imprime desde esta misma página
+   * (`npm run docs:pdf`), y ese archivo lo abre un banco o un área de
+   * cumplimiento. El encabezado con el buscador y el carrito, el pie con los
+   * enlaces de la tienda y el botón de descargar el propio PDF no pintan nada
+   * ahí: se esconden y queda el documento solo.
+   *
+   * Se marca con `data-documento` en la página, no con una clase de estilo,
+   * porque esto no es una decisión visual: es qué cosa es esta página.
+   */
+  body:has([data-documento]) [data-solo-pantalla] {
+    display: none !important;
+  }
+
+  /* Una sección no se parte a la mitad si cabe entera en la hoja siguiente. */
+  [data-documento] section,
+  [data-documento] figure,
+  [data-documento] table {
+    break-inside: avoid;
+  }
+
+  [data-documento] h2 {
+    break-after: avoid;
+  }
 }

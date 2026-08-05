@@ -23,7 +23,7 @@ import {
 /* Login y cuentas (Better Auth)                                              */
 /* -------------------------------------------------------------------------- */
 
-/** Roles posibles de una cuenta. "soporte" es la cuenta interna de Windoce LLC. */
+/** Roles posibles de una cuenta. "soporte" es la cuenta interna de Windoce, LLC. */
 export const ROLES = ["cliente", "vendedor", "validador", "soporte"] as const;
 export type Rol = (typeof ROLES)[number];
 

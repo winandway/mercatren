@@ -125,8 +125,12 @@ export default async function PaginaModeloDeNegocio({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(datosEstructurados) }}
       />
 
-      {/* Portada del documento. */}
-      <header className="bg-riel-900 text-white">
+      {/* Portada del documento.
+
+          `data-documento` marca esta pagina como documento imprimible: el
+          CSS de impresion esconde el encabezado y el pie del sitio, que en un
+          PDF que lee un banco no pintan nada. Ver globals.css. */}
+      <header className="bg-riel-900 text-white" data-documento>
         <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
           <nav className="flex items-center gap-1.5 text-xs text-white/60">
             <Link href="/docs" className="hover:text-white">
@@ -156,6 +160,7 @@ export default async function PaginaModeloDeNegocio({
 
             <a
               href={PDF_MODELO}
+              data-solo-pantalla
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-carga-500 px-5 py-2.5 text-sm font-semibold text-riel-950 transition-colors hover:bg-carga-600"
             >
               <Download className="h-4 w-4" aria-hidden />
@@ -275,6 +280,7 @@ export default async function PaginaModeloDeNegocio({
               </p>
               <a
                 href={PDF_MODELO}
+                data-solo-pantalla
                 className="boton-principal mt-4 gap-2"
                 data-descarga="modelo-de-negocio"
               >

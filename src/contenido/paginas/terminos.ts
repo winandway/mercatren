@@ -3,6 +3,15 @@ import type { PaginaContenido } from "./tipos";
 /**
  * Terminos y condiciones del servicio.
  *
+ * REESTRUCTURACION LEGAL (agosto de 2026). La version anterior describia a
+ * Mercatren como una plataforma que recaudaba para el comercio y que no era
+ * dueña de la mercancia. Eso describe una agencia, y contradice la
+ * estructura real. Ahora el contrato dice lo que de verdad ocurre: Windoce,
+ * LLC compra la mercancia a nombre propio y la revende al comprador.
+ *
+ * La clausula central es la seccion 2. Si el resto del sitio dice reventa y
+ * el contrato dice agencia, la contradiccion anula el trabajo entero.
+ *
  * Describen COMO FUNCIONA la operacion, en el mismo lenguaje llano del resto
  * del sitio. No afirman la calificacion regulatoria del servicio: eso lo
  * decide el abogado del proyecto, no esta pagina.
@@ -25,7 +34,7 @@ export const TERMINOS_ES: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Mercatren es un servicio de comercio electrónico transfronterizo operado por Windoce LLC, una sociedad registrada en Estados Unidos. Cuando en este documento decimos «nosotros», nos referimos a Windoce LLC operando bajo la marca Mercatren.",
+            "Mercatren es un servicio de comercio electrónico transfronterizo operado por Windoce, LLC, una sociedad registrada en Estados Unidos. Cuando en este documento decimos «nosotros», nos referimos a Windoce, LLC operando bajo la marca Mercatren.",
         },
         {
           tipo: "parrafo",
@@ -42,7 +51,17 @@ export const TERMINOS_ES: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Operamos una plataforma donde comercios independientes publican sus productos, y donde compradores ubicados en Estados Unidos pagan esos productos para que se entreguen a un destinatario en el país del comercio. Cobramos una comisión por esa gestión.",
+            "Windoce, LLC vende productos por cuenta propia. Cuando compras en mercatren.com, compras un producto a Windoce, LLC y designas la dirección donde debe entregarse. Windoce, LLC adquiere esa mercancía al proveedor a nombre propio y te la revende.",
+        },
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: "La cláusula central de este contrato",
+          parrafos: [
+            "Windoce, LLC actúa como principal en las dos puntas de la operación: compra la mercancía para sí y la revende al comprador. La propiedad de la mercancía pasa del proveedor a Windoce, LLC, y de Windoce, LLC al comprador.",
+            "El precio publicado es el precio final de venta e incluye nuestro margen comercial. No se agregan cargos posteriores por el producto.",
+            "Windoce, LLC no actúa como agente, fiduciario ni depositario de ninguna de las partes, y no recibe ni administra dinero de terceros. El importe que pagas es el precio de un producto vendido, no dinero destinado a otra persona.",
+          ],
         },
         {
           tipo: "dosColumnas",
@@ -50,9 +69,10 @@ export const TERMINOS_ES: PaginaContenido = {
             titulo: "Lo que sí hacemos",
             tono: "bien",
             puntos: [
-              "Operamos la plataforma y el catálogo.",
-              "Cobramos en Estados Unidos por cuenta del comercio vendedor.",
-              "Verificamos cada pago antes de aceptarlo.",
+              "Vendemos productos por cuenta propia y emitimos la factura de venta.",
+              "Compramos la mercancía al proveedor con factura a nombre de Windoce, LLC.",
+              "Fijamos y publicamos el precio final de venta.",
+              "Verificamos que cada pago provenga de un banco de Estados Unidos.",
               "Documentamos cada operación de punta a punta.",
             ],
           },
@@ -60,20 +80,20 @@ export const TERMINOS_ES: PaginaContenido = {
             titulo: "Lo que no hacemos",
             tono: "ojo",
             puntos: [
-              "No enviamos remesas ni dinero entre particulares.",
-              "No hacemos cambio de divisas.",
-              "No somos dueños de la mercancía ni la vendemos.",
-              "No transportamos, importamos ni despachamos mercancía.",
-              "No captamos depósitos ni pagamos rendimientos.",
+              "No somos una entidad financiera y no ofrecemos cuentas.",
+              "No recibimos ni administramos dinero de terceros.",
+              "No entregamos dinero a nadie: entregamos productos.",
+              "No actuamos como representantes de ninguna de las partes.",
+              "No hacemos cambio de divisas: operamos solo en dólares estadounidenses.",
             ],
           },
         },
         {
           tipo: "aviso",
-          tono: "acento",
-          titulo: "El comercio es quien vende",
+          tono: "bien",
+          titulo: "Qué recibe quien está en la dirección de entrega",
           parrafos: [
-            "Cada producto lo publica, lo fija de precio y lo entrega un comercio independiente. Mercatren no es el vendedor: somos la plataforma donde ocurre la venta y el agente de cobro designado por ese comercio.",
+            "Un producto físico, y nada más. La persona que recibe la mercancía en la dirección designada no es parte de este contrato y no recibe dinero en ninguna forma. Es la misma figura que cuando alguien compra un regalo en línea y lo hace enviar a otra dirección.",
           ],
         },
       ],
@@ -123,7 +143,7 @@ export const TERMINOS_ES: PaginaContenido = {
               etiqueta: "Tú",
               titulo: "Eliges los productos y confirmas el pedido",
               parrafos: [
-                "Al confirmar, el sistema vuelve a leer de nuestra base el precio, la disponibilidad y la comisión de cada producto. El total del pedido es el que sale de esa lectura, no el que estuviera guardado en tu navegador.",
+                "Al confirmar, el sistema vuelve a leer de nuestra base el precio y la disponibilidad de cada producto. El total del pedido es el que sale de esa lectura, no el que estuviera guardado en tu navegador.",
               ],
             },
             {
@@ -144,10 +164,18 @@ export const TERMINOS_ES: PaginaContenido = {
             },
             {
               numero: "4",
-              etiqueta: "El comercio",
-              titulo: "Entrega el producto",
+              etiqueta: "Nosotros",
+              titulo: "Compramos la mercancía al proveedor",
               parrafos: [
-                "Confirmado el pago, el comercio entrega al destinatario que indicaste. Los tiempos y la forma de entrega los define cada comercio.",
+                "Con tu compra cerrada, Windoce, LLC adquiere al proveedor la mercancía que te vendió, con factura emitida a nombre de Windoce, LLC.",
+              ],
+            },
+            {
+              numero: "5",
+              etiqueta: "El proveedor",
+              titulo: "Entrega el producto en la dirección designada",
+              parrafos: [
+                "El proveedor entrega la mercancía en la dirección que indicaste, y queda constancia de la entrega. Recibes la factura de venta a tu nombre y tu pedido se cierra.",
               ],
             },
           ],
@@ -157,25 +185,25 @@ export const TERMINOS_ES: PaginaContenido = {
     {
       id: "precios",
       numero: "5",
-      titulo: "Precios, comisión e impuestos",
+      titulo: "Precios e impuestos",
       bloques: [
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "Los precios los fija el comercio",
+              titulo: "El precio publicado es el precio final",
               texto:
-                "y están en dólares de Estados Unidos. Pueden cambiar en cualquier momento; el que vale es el del momento en que confirmas el pedido.",
+                "está en dólares de Estados Unidos e incluye nuestro margen comercial. No se te cobra nada aparte por el producto. Los precios pueden cambiar en cualquier momento; el que vale es el del momento en que confirmas el pedido.",
             },
             {
-              titulo: "Nuestra comisión",
+              titulo: "El precio lo fija y lo publica Windoce, LLC",
               texto:
-                "se calcula sobre el valor del pedido y es nuestro único ingreso. Está incluida en el total que ves; no se te cobra aparte.",
+                "el proveedor nos vende la mercancía a su precio; el precio al que te la vendemos a ti lo fijamos y lo publicamos nosotros, y es el que ves en el catálogo.",
             },
             {
               titulo: "El envío y los impuestos",
               texto:
-                "se acuerdan con el comercio. Cuando apliquen, se mostrarán en el pedido antes de que pagues.",
+                "cuando apliquen, se mostrarán en el pedido antes de que pagues. Hoy la mercancía se retira en el depósito indicado en cada producto.",
             },
             {
               titulo: "Errores evidentes de precio",
@@ -215,7 +243,7 @@ export const TERMINOS_ES: PaginaContenido = {
             {
               titulo: "Un pago por pedido",
               texto:
-                "no dividimos un pedido entre varios pagadores ni un pago entre varios pedidos.",
+                "no dividimos un pedido entre varios compradores ni un pago entre varios pedidos.",
             },
           ],
         },
@@ -241,15 +269,23 @@ export const TERMINOS_ES: PaginaContenido = {
     {
       id: "entregas",
       numero: "8",
-      titulo: "Entregas, cancelaciones y devoluciones",
+      titulo: "Entregas, cancelaciones, devoluciones y disputas",
       bloques: [
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: "Nos respondes a nosotros, y nosotros te respondemos a ti",
+          parrafos: [
+            "Como vendedor de la mercancía, Windoce, LLC responde ante ti por el producto que compraste. No tienes que reclamarle al proveedor ni negociar con él: tu contrato es con nosotros.",
+          ],
+        },
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "La entrega la hace el comercio",
+              titulo: "La entrega",
               texto:
-                "en su propio país, al destinatario que indicaste. Los plazos los define el comercio y se informan en el pedido.",
+                "se hace en la dirección que designaste. Los plazos y la forma de entrega se informan en el pedido, y queda constancia con la fecha y la identificación de quien recibe.",
             },
             {
               titulo: "Antes de que el pago se apruebe",
@@ -258,16 +294,22 @@ export const TERMINOS_ES: PaginaContenido = {
             {
               titulo: "Si el pago ya se aprobó",
               texto:
-                "la cancelación depende de si el comercio ya despachó. Escríbenos y lo gestionamos con él.",
+                "la cancelación depende de si la mercancía ya salió a entrega. Escríbenos y te confirmamos el estado de tu pedido.",
             },
             {
               titulo: "Si el producto llega dañado, incompleto o distinto",
               texto:
-                "escríbenos dentro de los 7 días siguientes a la entrega, con fotos. Lo resolvemos con el comercio: reposición, cambio o devolución del importe.",
+                "escríbenos dentro de los 7 días siguientes a la entrega, con fotos. Repondremos el producto, lo cambiaremos o te devolveremos el importe pagado, a tu elección entre las opciones disponibles.",
             },
             {
-              titulo: "Si el comercio no entrega",
-              texto: "y no hay solución con él, te devolvemos lo pagado.",
+              titulo: "Si el producto no se entrega",
+              texto:
+                "te devolvemos el importe pagado íntegro. Esa responsabilidad es nuestra y no depende de lo que ocurra con el proveedor.",
+            },
+            {
+              titulo: "Disputas",
+              texto:
+                "escríbenos primero a mercatren@windoce.com: la mayoría se resuelve en el mismo día. Si el reclamo no se resuelve, se dirime conforme a la ley aplicable indicada en la sección de cierre de estos términos, y conservamos toda la documentación de la operación durante cinco años para sustentarlo.",
             },
           ],
         },
@@ -284,35 +326,40 @@ export const TERMINOS_ES: PaginaContenido = {
     {
       id: "comercios",
       numero: "9",
-      titulo: "Si abres una tienda",
+      titulo: "Si publicas tu catálogo como proveedor",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Los comercios que venden en Mercatren son empresas independientes. Al abrir una tienda aceptas además lo siguiente:",
+            "Los comercios que publican su catálogo en Mercatren son empresas independientes que nos venden mercancía. Al publicar tu catálogo aceptas además lo siguiente:",
         },
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "Nos designas como tu agente de cobro",
+              titulo: "Nos vendes la mercancía y nos facturas",
               texto:
-                "para recibir en Estados Unidos los pagos de tus compradores, por cuenta tuya.",
+                "cuando se produce una venta, Windoce, LLC te compra esa mercancía y tú emites factura a nombre de Windoce, LLC. No nos designas como tu representante para nada, y no vendemos nada por cuenta tuya.",
+            },
+            {
+              titulo: "Tú pones tu precio; nosotros ponemos el nuestro",
+              texto:
+                "el precio al que nos vendes lo fijas tú. El precio al que Windoce, LLC revende al comprador lo fijamos y lo publicamos nosotros, e incluye nuestro margen comercial.",
             },
             {
               titulo: "Respondes por lo que publicas",
               texto:
-                "los productos, sus precios, sus descripciones y su legalidad son tu responsabilidad. No se publican productos prohibidos, falsificados ni de origen dudoso.",
+                "los productos, sus descripciones y su legalidad son tu responsabilidad. No se publican productos prohibidos, falsificados ni de origen dudoso.",
             },
             {
-              titulo: "Entregas lo que vendes",
+              titulo: "Despachas a la dirección de la orden",
               texto:
                 "en el plazo que anuncias, y registras la entrega en el sistema.",
             },
             {
-              titulo: "Tu saldo es tuyo",
+              titulo: "Se te paga la mercancía contra factura",
               texto:
-                "los cobros verificados se acreditan a tu billetera, menos nuestra comisión, y se liquidan según lo que acordemos por escrito contigo.",
+                "el importe de la mercancía comprada se paga a una cuenta bancaria de Estados Unidos, contra tu factura, según lo acordado por escrito contigo. Es el pago de una compra, no la entrega de dinero de un tercero.",
             },
             {
               titulo: "Verificación previa",
@@ -345,7 +392,7 @@ export const TERMINOS_ES: PaginaContenido = {
             },
             {
               texto:
-                "Pagar con cuentas o medios que no sean tuyos, o con fondos de origen ilícito.",
+                "Pagar con cuentas o medios que no sean tuyos, o con dinero de origen ilícito.",
             },
             {
               texto:
@@ -369,7 +416,7 @@ export const TERMINOS_ES: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Respondemos por el servicio que prestamos: operar la plataforma, cobrar correctamente, verificar los pagos y aplicar el dinero donde corresponde. Nuestra responsabilidad frente a un pedido no supera el importe de ese pedido.",
+            "Respondemos por lo que vendemos: que el producto sea el que compraste y que se entregue en la dirección que designaste. Nuestra responsabilidad frente a un pedido no supera el importe de ese pedido.",
         },
         {
           tipo: "parrafo",
@@ -406,7 +453,7 @@ export const TERMINOS_ES: PaginaContenido = {
             {
               titulo: "Ley aplicable",
               texto:
-                "estos términos se rigen por las leyes de los Estados Unidos de América y del estado donde está registrada Windoce LLC.",
+                "estos términos se rigen por las leyes de los Estados Unidos de América y del estado donde está registrada Windoce, LLC.",
             },
             {
               titulo: "Escríbenos",
@@ -419,7 +466,7 @@ export const TERMINOS_ES: PaginaContenido = {
     },
   ],
   cierre:
-    "Mercatren es una marca de Windoce LLC, sociedad registrada en Estados Unidos. Este documento describe las condiciones del servicio; no constituye asesoramiento legal, contable ni fiscal.",
+    "Mercatren es una marca de Windoce, LLC, sociedad registrada en Estados Unidos. Este documento describe las condiciones del servicio; no constituye asesoramiento legal, contable ni fiscal.",
 };
 
 export const TERMINOS_EN: PaginaContenido = {
@@ -437,7 +484,7 @@ export const TERMINOS_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Mercatren is a cross-border ecommerce service operated by Windoce LLC, a company registered in the United States. Where these terms say “we,” that means Windoce LLC operating under the Mercatren brand.",
+            "Mercatren is a cross-border ecommerce service operated by Windoce, LLC, a company registered in the United States. Where these terms say “we,” that means Windoce, LLC operating under the Mercatren brand.",
         },
         {
           tipo: "parrafo",
@@ -454,7 +501,17 @@ export const TERMINOS_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "We operate a platform where independent merchants list their products, and where buyers located in the United States pay for those products so they can be delivered to a recipient in the merchant's country. We charge a fee for handling that.",
+            "Windoce, LLC sells products for its own account. When you buy on mercatren.com, you buy a product from Windoce, LLC and designate the address where it must be delivered. Windoce, LLC acquires that merchandise from the supplier in its own name and resells it to you.",
+        },
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: "The central clause of this contract",
+          parrafos: [
+            "Windoce, LLC acts as principal on both ends of the transaction: it buys the merchandise for itself and resells it to the buyer. Title to the merchandise passes from the supplier to Windoce, LLC, and from Windoce, LLC to the buyer.",
+            "The published price is the final sale price and includes our commercial markup. No additional charges are added for the product.",
+            "Windoce, LLC does not act as an agent, fiduciary, or custodian for any party, and does not receive or administer money belonging to third parties. What you pay is the price of a product sold, not money destined for another person.",
+          ],
         },
         {
           tipo: "dosColumnas",
@@ -462,9 +519,10 @@ export const TERMINOS_EN: PaginaContenido = {
             titulo: "What we do",
             tono: "bien",
             puntos: [
-              "Operate the platform and the catalog.",
-              "Collect payment in the United States on the selling merchant's behalf.",
-              "Verify every payment before accepting it.",
+              "Sell products for our own account and issue the sales invoice.",
+              "Buy the merchandise from the supplier, invoiced to Windoce, LLC.",
+              "Set and publish the final sale price.",
+              "Verify that every payment originates from a US bank.",
               "Document every transaction end to end.",
             ],
           },
@@ -472,20 +530,20 @@ export const TERMINOS_EN: PaginaContenido = {
             titulo: "What we don't do",
             tono: "ojo",
             puntos: [
-              "We do not send remittances or money between individuals.",
-              "We do not exchange currency.",
-              "We do not own the goods and we do not sell them.",
-              "We do not ship, import, or clear customs.",
-              "We do not take deposits and we do not pay interest.",
+              "We are not a financial institution and we do not offer accounts.",
+              "We do not receive or administer money belonging to third parties.",
+              "We do not deliver money to anyone: we deliver products.",
+              "We do not act as a representative of any party.",
+              "We do not exchange currency: we operate only in US dollars.",
             ],
           },
         },
         {
           tipo: "aviso",
-          tono: "acento",
-          titulo: "The merchant is the seller",
+          tono: "bien",
+          titulo: "What the person at the delivery address receives",
           parrafos: [
-            "Every product is listed, priced, and delivered by an independent merchant. Mercatren is not the seller: we are the platform where the sale happens and the collection agent appointed by that merchant.",
+            "A physical product, and nothing else. The person who receives the merchandise at the designated address is not a party to this contract and receives no money in any form. It is the same arrangement as when someone buys a gift online and has it shipped to a different address.",
           ],
         },
       ],
@@ -535,7 +593,7 @@ export const TERMINOS_EN: PaginaContenido = {
               etiqueta: "You",
               titulo: "Choose your products and confirm the order",
               parrafos: [
-                "On confirmation, the system re-reads each product's price, availability, and fee from our database. The order total comes from that reading, not from whatever was stored in your browser.",
+                "On confirmation, the system re-reads each product's price and availability from our database. The order total comes from that reading, not from whatever was stored in your browser.",
               ],
             },
             {
@@ -556,10 +614,18 @@ export const TERMINOS_EN: PaginaContenido = {
             },
             {
               numero: "4",
-              etiqueta: "The merchant",
-              titulo: "Delivers the product",
+              etiqueta: "Us",
+              titulo: "We buy the merchandise from the supplier",
               parrafos: [
-                "Once payment is confirmed, the merchant delivers to the recipient you named. Delivery times and methods are set by each merchant.",
+                "With your purchase closed, Windoce, LLC acquires from the supplier the merchandise it sold you, with an invoice issued to Windoce, LLC.",
+              ],
+            },
+            {
+              numero: "5",
+              etiqueta: "The supplier",
+              titulo: "Delivers the product to the designated address",
+              parrafos: [
+                "The supplier delivers the merchandise to the address you designated, and the delivery is recorded. You receive the sales invoice in your name and your order is closed.",
               ],
             },
           ],
@@ -569,25 +635,25 @@ export const TERMINOS_EN: PaginaContenido = {
     {
       id: "precios",
       numero: "5",
-      titulo: "Prices, fees, and taxes",
+      titulo: "Prices and taxes",
       bloques: [
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "Prices are set by the merchant",
+              titulo: "The published price is the final price",
               texto:
-                "and are in US dollars. They can change at any time; the price that applies is the one at the moment you confirm the order.",
+                "it is in US dollars and includes our commercial markup. Nothing extra is charged for the product. Prices can change at any time; the price that applies is the one at the moment you confirm the order.",
             },
             {
-              titulo: "Our fee",
+              titulo: "The price is set and published by Windoce, LLC",
               texto:
-                "is calculated on the order value and is our only revenue. It is included in the total you see; it is not charged separately.",
+                "the supplier sells us the merchandise at its price; the price at which we resell it to you is set and published by us, and it is the one you see in the catalog.",
             },
             {
               titulo: "Shipping and taxes",
               texto:
-                "are agreed with the merchant. Where they apply, they are shown on the order before you pay.",
+                "where they apply, they are shown on the order before you pay. Today the merchandise is picked up at the warehouse listed on each product.",
             },
             {
               titulo: "Obvious pricing errors",
@@ -608,7 +674,7 @@ export const TERMINOS_EN: PaginaContenido = {
           tono: "acento",
           titulo: "We only accept payments from US banks",
           parrafos: [
-            "The entire flow of funds happens inside the United States. We do not accept international transfers, SWIFT, cash, or cryptocurrency.",
+            "The entire commercial transaction happens inside the United States. We do not accept international transfers, SWIFT, cash, or cryptocurrency.",
           ],
         },
         {
@@ -627,7 +693,7 @@ export const TERMINOS_EN: PaginaContenido = {
             {
               titulo: "One payment per order",
               texto:
-                "we do not split an order across several payers, or a payment across several orders.",
+                "we do not split an order across several buyers, or a payment across several orders.",
             },
           ],
         },
@@ -641,7 +707,7 @@ export const TERMINOS_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "Nothing is accepted automatically. Before approving a payment we verify the payer's identity, screen their name against sanctions lists, confirm the amount matches, and check for structuring patterns.",
+            "Nothing is accepted automatically. Before approving a payment we verify the buyer's identity, screen their name against sanctions lists, confirm the amount matches, and check for structuring patterns.",
         },
         {
           tipo: "parrafo",
@@ -653,15 +719,23 @@ export const TERMINOS_EN: PaginaContenido = {
     {
       id: "entregas",
       numero: "8",
-      titulo: "Delivery, cancellations, and returns",
+      titulo: "Delivery, cancellations, returns, and disputes",
       bloques: [
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: "You answer to us, and we answer to you",
+          parrafos: [
+            "As the seller of the merchandise, Windoce, LLC is answerable to you for the product you bought. You do not have to claim against the supplier or negotiate with them: your contract is with us.",
+          ],
+        },
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "The merchant handles delivery",
+              titulo: "Delivery",
               texto:
-                "in its own country, to the recipient you named. Timeframes are set by the merchant and shown on the order.",
+                "takes place at the address you designated. Timeframes and delivery method are shown on the order, and the delivery is recorded with its date and the identity of the person receiving it.",
             },
             {
               titulo: "Before your payment is approved",
@@ -670,18 +744,23 @@ export const TERMINOS_EN: PaginaContenido = {
             {
               titulo: "Once payment is approved",
               texto:
-                "cancellation depends on whether the merchant has already dispatched. Write to us and we'll work it out with them.",
+                "cancellation depends on whether the merchandise has already gone out for delivery. Write to us and we'll confirm the status of your order.",
             },
             {
               titulo:
                 "If the product arrives damaged, incomplete, or different",
               texto:
-                "write to us within 7 days of delivery, with photos. We resolve it with the merchant: replacement, exchange, or refund.",
+                "write to us within 7 days of delivery, with photos. We will replace the product, exchange it, or refund what you paid, at your choice among the options available.",
             },
             {
-              titulo: "If the merchant does not deliver",
+              titulo: "If the product is not delivered",
               texto:
-                "and there is no resolution with them, we refund what you paid.",
+                "we refund what you paid in full. That responsibility is ours and does not depend on what happens with the supplier.",
+            },
+            {
+              titulo: "Disputes",
+              texto:
+                "write to mercatren@windoce.com first: most are resolved the same day. If a claim is not resolved, it is resolved under the governing law stated in the closing section of these terms, and we keep all documentation of the transaction for five years to support it.",
             },
           ],
         },
@@ -698,35 +777,40 @@ export const TERMINOS_EN: PaginaContenido = {
     {
       id: "comercios",
       numero: "9",
-      titulo: "If you open a store",
+      titulo: "If you publish your catalog as a supplier",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Merchants selling on Mercatren are independent companies. Opening a store means you also accept the following:",
+            "Merchants that publish their catalog on Mercatren are independent companies that sell us merchandise. Publishing your catalog means you also accept the following:",
         },
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "You appoint us as your collection agent",
+              titulo: "You sell us the merchandise and invoice us",
               texto:
-                "to receive your buyers' payments in the United States, on your behalf.",
+                "when a sale occurs, Windoce, LLC buys that merchandise from you and you issue an invoice to Windoce, LLC. You do not appoint us as your representative for anything, and we do not sell anything for your account.",
+            },
+            {
+              titulo: "You set your price; we set ours",
+              texto:
+                "the price you sell to us at is yours to set. The price at which Windoce, LLC resells to the buyer is set and published by us, and it includes our commercial markup.",
             },
             {
               titulo: "You are responsible for what you list",
               texto:
-                "products, prices, descriptions, and their legality are your responsibility. No prohibited, counterfeit, or questionably sourced goods.",
+                "products, descriptions, and their legality are your responsibility. No prohibited, counterfeit, or questionably sourced goods.",
             },
             {
-              titulo: "You deliver what you sell",
+              titulo: "You ship to the address on the order",
               texto:
                 "within the timeframe you advertise, and you record the delivery in the system.",
             },
             {
-              titulo: "Your balance is yours",
+              titulo: "You are paid for the merchandise against your invoice",
               texto:
-                "verified collections are credited to your wallet, less our fee, and settled as agreed with you in writing.",
+                "the amount for merchandise purchased is paid to a US bank account, against your invoice, as agreed with you in writing. It is payment for a purchase, not the handing over of a third party's money.",
             },
             {
               titulo: "Prior verification",
@@ -755,7 +839,7 @@ export const TERMINOS_EN: PaginaContenido = {
             },
             {
               texto:
-                "Pay with accounts or instruments that are not yours, or with funds of illicit origin.",
+                "Pay with accounts or instruments that are not yours, or with money of illicit origin.",
             },
             {
               texto:
@@ -779,7 +863,7 @@ export const TERMINOS_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "We are responsible for the service we provide: operating the platform, collecting correctly, verifying payments, and applying funds where they belong. Our liability for any order does not exceed the amount of that order.",
+            "We are responsible for what we sell: that the product is the one you bought and that it is delivered to the address you designated. Our liability for any order does not exceed the amount of that order.",
         },
         {
           tipo: "parrafo",
@@ -816,7 +900,7 @@ export const TERMINOS_EN: PaginaContenido = {
             {
               titulo: "Governing law",
               texto:
-                "these terms are governed by the laws of the United States of America and of the state where Windoce LLC is registered.",
+                "these terms are governed by the laws of the United States of America and of the state where Windoce, LLC is registered.",
             },
             {
               titulo: "Write to us",
@@ -829,5 +913,5 @@ export const TERMINOS_EN: PaginaContenido = {
     },
   ],
   cierre:
-    "Mercatren is a brand of Windoce LLC, a company registered in the United States. This document describes the conditions of the service; it is not legal, accounting, or tax advice.",
+    "Mercatren is a brand of Windoce, LLC, a company registered in the United States. This document describes the conditions of the service; it is not legal, accounting, or tax advice.",
 };

@@ -3,31 +3,44 @@ import type { Documento } from "./tipos";
 /**
  * The public business-model document, in English.
  *
+ * V3 — LEGAL RESTRUCTURING (August 2026). Mirrors modelo.es.ts section by
+ * section; if one changes, the other changes in the same commit.
+ *
  * Written as a native US business document, not translated word for word from
  * the Spanish. A compliance officer at a US bank is part of the audience.
+ *
+ * FORBIDDEN vocabulary here and across the site: collect on behalf of, settle,
+ * settlement, custody, hold funds, balance, funds, wallet, fee on the payment,
+ * agent, mandate, payer, beneficiary, payment instruction, remittance.
  */
 export const MODELO_EN: Documento = {
-  titulo: "Cross-border ecommerce with domestic settlement",
+  titulo: "Cross-border ecommerce with US-based purchase and resale",
   subtitulo:
-    "How the cycle works, where every dollar enters and leaves, what evidence each step produces, and why this is not a remittance.",
+    "What Mercatren sells and to whom, how every transaction is documented, why the structure is a sale of goods, and what evidence each step leaves behind.",
   resumen:
-    "Mercatren is an international purchasing service acting on behalf of others: a merchant outside the United States lists its products, a buyer in the United States pays for them, and we collect and settle that payment inside the United States. We charge a 3% fee.",
-  version: "V2",
-  actualizado: "August 3, 2026",
+    "Mercatren is an online store operated by Windoce, LLC. A buyer in the United States purchases a product from the catalog and designates the address where it must be delivered. Windoce, LLC buys that merchandise from the supplier in its own name and resells it to the buyer. The published price is the final sale price and includes our commercial markup.",
+  version: "V3",
+  actualizado: "August 5, 2026",
 
   entradilla: [
-    "Mercatren is an international purchasing service acting on behalf of others. A merchant in Venezuela lists its products on our platform; a buyer in the United States purchases those products and names who receives them; we collect that payment inside the United States and apply it, following the merchant's written instruction, to pay the merchant's wholesale supplier, also in the United States. We charge 3% for handling it.",
+    "Mercatren is an online store operated by Windoce, LLC, a company registered in Delaware, United States. A buyer in the United States selects a product from the catalog, pays the published price from a US bank, and designates the address where it must be delivered. Windoce, LLC buys that merchandise from the supplier in its own name, with an invoice issued to Windoce, LLC, and resells it to the buyer, with a sales invoice issued in the buyer's name.",
+    "We do not receive or administer money belonging to third parties. Every transaction is a sale of goods between the buyer and Windoce, LLC. What comes in is revenue from the sale of our own product; what goes out is the cost of goods sold. The product is physically delivered to the designated address: at no point is money delivered to anyone.",
   ],
 
   cifras: [
     {
-      valor: "US$0",
-      texto: "leaves the United States at any point in the cycle",
+      valor: "2",
+      texto:
+        "invoices per transaction: the purchase from the supplier and the sale to the buyer",
     },
-    { valor: "3%", texto: "fee on order value; this is our entire revenue" },
     {
-      valor: "1",
-      texto: "active merchant client today; the model is in pilot",
+      valor: "100%",
+      texto: "of accepted payments originate from US banks",
+    },
+    {
+      valor: "0",
+      texto:
+        "user accounts, stored balances, or third-party money under our administration",
     },
     { valor: "5 years", texto: "of record retention per transaction" },
   ],
@@ -36,38 +49,39 @@ export const MODELO_EN: Documento = {
     {
       titulo: "One",
       texto:
-        "This is not a one-way transfer from A to B. It is a closed loop that feeds itself: today's payment replenishes the inventory that produces tomorrow's sale.",
+        "The structure is a sale of goods. Windoce, LLC buys the merchandise as principal and resells it as principal. Title to the product passes from the supplier to Windoce, LLC and from Windoce, LLC to the buyer.",
     },
     {
       titulo: "Two",
       texto:
-        "The entire flow of funds takes place inside the United States, and nothing Mercatren moves crosses the border. The merchant's restocking is handled by its supplier through the supplier's own local branch, with no involvement from us.",
+        "What comes in is our own revenue from selling a product, not money belonging to a third party. What goes out is the cost of goods sold, not a payment made for anyone else's account.",
     },
     {
       titulo: "Three",
       texto:
-        "The merchant is not ours. It is an independent client that hires us as its purchasing and collection agent, the same way it would hire a customs broker or a freight forwarder.",
+        "The buyer of record is the person in the United States. The person at the delivery address receives a physical product — exactly as when someone buys a gift online and has it shipped to a different address.",
     },
   ],
 
   indiceTitulo: "How to read this document",
 
   secciones: [
+    /* ---------------------------------------------------------------- */
     {
-      id: "que-es",
+      id: "resumen-ejecutivo",
       numero: "1",
-      titulo: "What Mercatren is, and what it should not be confused with",
+      titulo: "Executive summary: what Mercatren sells and to whom",
       etiqueta: "positioning",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "The shortest way to put it: we are a cross-border purchasing agent with our own platform. The model resembles a personal shopper or a customs broker, but it operates as ecommerce and at software scale.",
+            "Mercatren sells physical products to buyers residing in the United States. It operates as an online store with a catalog, cart, checkout, and invoice, and it is a service of Windoce, LLC (Delaware, United States).",
         },
         {
           tipo: "parrafo",
           texto:
-            "There is a specific gap this model fills. A Venezuelan merchant has customers whose purchasing power sits in the United States, and suppliers it must pay in the United States. Today it solves both ends separately and by hand: the customer looks for a way to get the payment across, and the merchant looks for a way to gather dollars for its supplier. Mercatren connects both ends into a single documented transaction and turns it into a purchase.",
+            "What sets the service apart is where delivery happens. Many buyers in the United States want to purchase a product and have it delivered to an address in another country: building materials for a family project, spare parts, appliances. Mercatren publishes catalogs from suppliers with a presence in those destinations, sells the product to the US buyer, and has it delivered to the address the buyer designates.",
         },
         {
           tipo: "dosColumnas",
@@ -75,110 +89,161 @@ export const MODELO_EN: Documento = {
             titulo: "What we are",
             tono: "bien",
             puntos: [
-              "The operator of an ecommerce platform.",
-              "A collection agent appointed by the selling merchant.",
-              "An administrative manager of international purchases.",
-              "A provider of software and documentary reconciliation.",
+              "An online store that sells merchandise for its own account.",
+              "The buyer of that merchandise from the supplier, invoiced to Windoce, LLC.",
+              "The seller to the US buyer, with a sales invoice in the buyer's name.",
+              "Responsible for the published price, which is the final sale price.",
             ],
           },
           derecha: {
             titulo: "What we are not",
             tono: "ojo",
             puntos: [
-              "We do not send remittances or money between individuals.",
-              "We do not exchange currency and we do not handle bolívares.",
-              "We do not buy goods for resale: we own no inventory.",
-              "We do not take deposits and we do not pay interest.",
-              "We do not ship, import, clear customs, or finance any movement of goods.",
+              "We are not a financial institution and we do not offer accounts.",
+              "We do not hold or administer money belonging to third parties.",
+              "We do not deliver money to anyone: we deliver products.",
+              "We do not act as a representative of any party.",
+              "We do not exchange currency and we operate only in US dollars.",
             ],
           },
         },
         {
           tipo: "aviso",
-          tono: "neutro",
-          titulo: "About the pilot merchant",
+          tono: "acento",
+          titulo: "The sentence that sums up the structure",
           parrafos: [
-            "The hardware store we work with today is an independent Venezuelan company, with its own owners, its own inventory, and its own commercial relationship with its supplier. It is not a subsidiary, not an affiliate, and not a business of ours. We do not set its prices, we do not own what it sells, and we take no part in its deliveries. It is our first merchant client, and there will be more.",
+            "Mercatren buys the merchandise in its own name and resells it to the buyer in the United States. The published price is the final sale price and includes our commercial markup.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "quien-es-quien",
+      id: "estructura-contractual",
       numero: "2",
-      titulo: "Who is who in the transaction",
-      etiqueta: "participants",
+      titulo: "Contractual structure",
+      etiqueta: "who contracts with whom",
       bloques: [
         {
+          tipo: "parrafo",
+          texto:
+            "Every transaction is two consecutive contracts of sale, not an engagement to act for someone else. Windoce, LLC is a party to both, and in both it acts as principal: it buys for itself and sells what is its own.",
+        },
+        {
           tipo: "tabla",
-          encabezados: ["Party", "Who they are", "What they do and do not do"],
+          encabezados: ["Party", "Who they are", "What they contract for"],
           filas: [
             [
-              "A · Client",
-              "Merchant in Venezuela. Independent company",
-              "Our merchant client. Lists and manages its own catalog on the platform, sets its prices, serves the consumer, and delivers physically inside Venezuela. Maintains its own line of credit with its wholesale supplier. Appoints us in writing as its collection agent.",
+              "A · Buyer",
+              "Person in the United States",
+              "Buys a product from Windoce, LLC and pays the published price from a US bank. Designates the delivery address and is responsible for its accuracy. Receives a sales invoice in their name.",
             ],
             [
-              "B · Us",
-              "Mercatren, a service operated by Windoce LLC. Registered in the United States",
-              "Operates the platform, verifies and accepts orders, receives payments in the United States, reconciles each deposit against its order, issues the documentation, charges its 3% fee, and executes settlement to the authorized supplier following client A's written instruction. Owns no goods and bears no commercial risk on the sale.",
+              "B · Windoce, LLC",
+              "Company registered in Delaware, United States. Operates the Mercatren brand",
+              "Buys the merchandise from the supplier in its own name and resells it to the buyer. Sets and publishes the final sale price. Issues the sales invoice and retains the purchase invoice. Bears the commercial risk of the transaction.",
             ],
             [
               "C · Supplier",
-              "Wholesaler in the United States. US company",
-              "A's supplier and trade creditor. Sells goods to A and extends credit. Receives payments from us that are applied to specific, pre-existing invoices between itself and A. In this case it has its own branch in Venezuela, and restocking A is an internal matter of its own in which Mercatren takes no part.",
+              "Merchant that publishes its catalog on Mercatren",
+              "Sells the merchandise to Windoce, LLC and invoices Windoce, LLC for it. Ships the product to the address designated in the order. Is paid for the merchandise sold against its invoice.",
             ],
             [
-              "D · Payer",
-              "Buyer in the United States. US resident",
-              "Buys the products and names who receives them in Venezuela, typically a family member. Legally a buyer of goods, not a sender of funds: they pay a purchase price against an identified order, they do not transfer money to a person.",
+              "— · Delivery address",
+              "Address designated by the buyer",
+              "Not a party to the contract. It is the place where the product must be delivered. Whoever receives it signs for merchandise; they receive no money in any form.",
             ],
-            [
-              "— · Recipient",
-              "End consumer in Venezuela",
-              "Chooses the product at the counter or in the catalog and receives it. Never receives money and takes no part in the payment.",
-            ],
+          ],
+        },
+        {
+          tipo: "subtitulo",
+          texto: "The document trail of a transaction",
+        },
+        {
+          tipo: "fases",
+          fases: [
+            {
+              titulo: "1. Purchase order",
+              ocurre:
+                "The buyer confirms the order and pays the published price.",
+              evidencia: [
+                "Order with sequential number, products, unit price, and total",
+                "Delivery address designated by the buyer",
+                "Buyer identification and confirmation that payment originates from a US bank",
+              ],
+            },
+            {
+              titulo: "2. Supplier invoice to Windoce, LLC",
+              ocurre:
+                "Windoce, LLC buys the merchandise from the supplier in its own name.",
+              evidencia: [
+                "Invoice issued by the supplier to Windoce, LLC",
+                "Description of the merchandise and purchase price",
+                "Reference to the order that originates it",
+              ],
+            },
+            {
+              titulo: "3. Sales invoice to the buyer",
+              ocurre: "Windoce, LLC resells the merchandise to the US buyer.",
+              evidencia: [
+                "Sales invoice issued by Windoce, LLC in the buyer's name",
+                "Final sale price, the same one that was published",
+                "Linked to the order and to the purchase invoice",
+              ],
+            },
+            {
+              titulo: "4. Proof of delivery",
+              ocurre:
+                "The product is delivered to the address designated by the buyer.",
+              evidencia: [
+                "Dated delivery confirmation",
+                "Identification of the person receiving the merchandise",
+                "Order closed in the system",
+              ],
+            },
           ],
         },
         {
           tipo: "aviso",
-          tono: "acento",
-          titulo: "The distinction the whole model rests on",
+          tono: "bien",
+          titulo: "Why both invoices have to exist",
           parrafos: [
-            "A remittance has a sender who hands over money and a beneficiary who receives it. Neither exists here: there is a buyer who pays a price and a recipient who receives a product. No one in Venezuela receives funds at any point in the cycle.",
+            "Without the purchase invoice issued to Windoce, LLC, the resale structure does not hold up in an audit: there would be money coming in with no purchase behind it. With both invoices, every transaction reads as what it is — merchandise bought and resold — and the commercial markup appears as the difference between two prices, not as a percentage withheld from someone else's money.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
       id: "el-ciclo",
       numero: "3",
-      titulo: "The full cycle, on one map",
+      titulo: "The full transaction, mapped",
       etiqueta: "main diagram",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "This is the central diagram of the document. Read it as a circuit that turns, not as a chain that ends: step 7 feeds step 1 of the next cycle.",
+            "This is the central diagram of the document. On the left, inside the United States, the entire commercial transaction takes place: the sale to the buyer and the purchase from the supplier. On the right, the only thing that moves is the product.",
         },
         { tipo: "figuraCiclo" },
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "Why it is a cycle and not a transfer",
+          titulo: "Both ends are sales of goods",
           parrafos: [
-            "The payment in step 4 does not end at step 6. With its account current, the merchant keeps its line of credit and can keep selling, and that sale creates the next order. Every turn of the cycle increases its commercial capacity. That is why the metric that matters is not how many payments we process, but how many times the cycle turns per merchant per month.",
+            "The buyer is not handing over money for it to reach someone: they are paying the price of a product they bought. Windoce, LLC is not applying that money to a third party's account: it is using its own resources to buy the merchandise it has already sold. These are two linked sales, and each one is documented with its invoice.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "los-siete-movimientos",
+      id: "los-movimientos",
       numero: "4",
-      titulo: "The seven movements, one by one",
+      titulo: "The transaction, step by step",
       etiqueta: "process",
       bloques: [
         {
@@ -186,64 +251,50 @@ export const MODELO_EN: Documento = {
           pasos: [
             {
               numero: "1",
-              etiqueta: "End consumer → Merchant · inside Venezuela",
-              titulo: "The consumer picks the product and reserves it",
+              etiqueta: "Buyer · United States",
+              titulo: "The buyer selects the product and confirms the order",
               parrafos: [
-                "A customer walks up to the counter or browses the merchant's online catalog and asks for one or more products. The merchant quotes in dollars and sets the goods aside. Mercatren has not yet been involved.",
+                "The buyer opens the Mercatren catalog, selects one or more products, and confirms the order. The system re-reads each product's price and availability from the database at that moment: the price charged is the published price, not whatever the browser had stored.",
               ],
             },
             {
               numero: "2",
-              etiqueta: "Merchant → Mercatren · information",
-              titulo: "The merchant records the order on the platform",
+              etiqueta: "Buyer → Windoce, LLC · United States",
+              titulo: "Pays the published price from a US bank",
               parrafos: [
-                "The merchant enters the order with products, quantities, and a fixed dollar amount. The system issues a unique, time-stamped order number and a payment link tied exclusively to that order.",
-                "No money moves here. All that is created is the record that will later have to match the deposit received, dollar for dollar.",
+                "The buyer pays the final sale price. Only payments originating from US banks are accepted, and that check runs before the order is treated as valid. That amount is Windoce, LLC's own revenue from the moment of the sale.",
               ],
             },
             {
               numero: "3",
-              etiqueta: "Consumer → Payer in the US · information",
-              titulo: "The link reaches whoever is going to pay",
+              etiqueta: "Buyer · within the order",
+              titulo: "Designates the delivery address",
               parrafos: [
-                "The consumer shares the link with their family member or friend in the United States, who is the one making the purchase. The link shows what is being bought, from which merchant, for how much, and who will receive it.",
-                "This transparency is deliberate: the payer is not sending money to a person, they are buying identified goods from an identified merchant.",
+                "The buyer provides the address where the product must be delivered and is responsible for its accuracy. That address is a field on the order, the same as in any online purchase shipped to someone other than the person paying.",
               ],
             },
             {
               numero: "4",
-              etiqueta: "Payer → Mercatren · funds, inside the US",
-              titulo: "The payer settles the order and we verify and accept it",
+              etiqueta: "Windoce, LLC → Supplier",
+              titulo: "Windoce, LLC buys the merchandise in its own name",
               parrafos: [
-                "Payment is received by Zelle into Mercatren's US bank account. Section 7 explains why Zelle and not cards.",
-                "This is the control point of the model. Nothing is accepted automatically: we verify the payer's identity, screen their name against sanctions lists, confirm the amount received matches the order exactly, and check for structuring patterns. Only then does the order move to accepted. If something does not add up, it is rejected and refunded, and the reason is recorded.",
+                "With the sale closed, Windoce, LLC buys the merchandise sold from the supplier. The supplier issues an invoice to Windoce, LLC. That purchase is the cost of goods sold, and it is paid against the invoice to US bank accounts.",
               ],
             },
             {
               numero: "5",
-              etiqueta: "Mercatren → Merchant → Consumer",
-              titulo: "Once payment is confirmed, the merchant delivers",
+              etiqueta: "Supplier → Designated address",
+              titulo: "The supplier ships the product",
               parrafos: [
-                "The platform notifies the merchant that the order is paid and accepted. The merchant hands the product to the consumer in Venezuela and records the delivery in the system.",
-                "The sequence is worth emphasizing: delivery happens here, not at the end. Steps 6 and 7 run afterward and on a separate track. Confusing those tracks is what makes the model look like a money transfer when it is not.",
+                "The supplier delivers the merchandise to the address designated in the order. The delivery is recorded with a date and the identity of the person receiving it. What is delivered is a physical product: at no point is money delivered.",
               ],
             },
             {
               numero: "6",
-              etiqueta: "Mercatren → Wholesale supplier · funds, inside the US",
-              titulo: "Consolidated settlement to the authorized supplier",
+              etiqueta: "Windoce, LLC → Buyer",
+              titulo: "The sales invoice is issued and the order is closed",
               parrafos: [
-                "Collections accumulate in the merchant's balance. When the merchant instructs us in writing, identifying the specific invoices it wants paid, we execute a consolidated transfer to its supplier in the United States.",
-                "Consolidating is not a matter of taste: it lowers transfer costs, produces clean reconciliation between batches of orders and payments, and avoids the pattern of hundreds of micropayments that any bank compliance team views with suspicion. Each transfer is applied to pre-existing commercial invoices between the supplier and the merchant.",
-              ],
-            },
-            {
-              numero: "7",
-              etiqueta: "Supplier → Merchant · outside Mercatren's scope",
-              titulo: "Credit stays current and inventory is replenished",
-              parrafos: [
-                "With its account current, the merchant keeps its line of credit and keeps restocking. In this case the supplier has its own branch in Venezuela, so supply is an internal matter between the supplier and its client.",
-                "Mercatren does not ship, import, clear customs, finance transport, or control that movement. Our involvement ends once settlement is executed and documented in the United States.",
+                "Windoce, LLC issues the buyer the sales invoice for the product and closes the order. What remains, tied together by the order number, is the purchase invoice issued to Windoce, LLC, the sales invoice to the buyer, and the proof of delivery.",
               ],
             },
           ],
@@ -251,382 +302,272 @@ export const MODELO_EN: Documento = {
         {
           tipo: "aviso",
           tono: "neutro",
-          titulo: "The two tracks of the process",
+          titulo: "About the pilot supplier",
           parrafos: [
-            "Steps 1 through 5 are the commercial track: order, purchase, payment, delivery. They happen within hours. Step 6 is the settlement track: it groups many orders and happens over days or weeks. Step 7 is not ours; it is the restocking the supplier handles with its client. Confusing these three tracks is what makes the model look like a money transfer when it is not.",
+            "The merchant we work with today is an independent company with its own owners and its own inventory. It is not a subsidiary or a business of ours: it is a supplier that sells us merchandise and invoices Windoce, LLC for it. It is the first, and there will be more.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "que-cruza-la-frontera",
+      id: "encuadre-regulatorio",
       numero: "5",
-      titulo: "What crosses the border and what does not",
-      etiqueta: "comparison",
+      titulo: "Regulatory framing",
+      etiqueta: "why this is not money transmission",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "This is the comparison that settles, once and for all, the question that opens any compliance review. In a remittance, money crosses the border. Here, nothing we move crosses it.",
+            "The question any bank or processor asks when reading about a cross-border service is whether the activity constitutes money transmission. This section answers it directly and descriptively, without claiming that any official determination exists in the company's favor.",
+        },
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: "The test, and why this structure does not meet it",
+          parrafos: [
+            "Money transmission describes, in essence, receiving money from one person in order to transmit it or apply it for the benefit of another. Both elements have to be present: the money received must belong to a third party, and it must be transmitted or applied for someone else's benefit.",
+            "Neither element is present here. The money Mercatren receives is the price of a product it sold: it is Windoce, LLC's own revenue from the moment of the sale, not money belonging to a third party. And the money that goes out is the price of merchandise Windoce, LLC bought for itself, invoiced in its own name: it is the cost of goods sold, not a payment made for another party's benefit.",
+            "What happens between the two ends is a transfer of title to goods: the product passes from the supplier to Windoce, LLC and from Windoce, LLC to the buyer. The earnings are the difference between two prices in a sale of goods.",
+          ],
+        },
+        {
+          tipo: "tabla",
+          encabezados: [
+            "Element",
+            "In money transmission",
+            "In this structure",
+          ],
+          filas: [
+            [
+              "Source of the money received",
+              "It belongs to a third party; the operator merely holds it in transit",
+              "It is the sale price of our own product — revenue of Windoce, LLC",
+            ],
+            [
+              "Destination of the money paid out",
+              "Delivered or applied for another person's benefit",
+              "Pays for merchandise bought by Windoce, LLC, invoiced in its name",
+            ],
+            [
+              "Object of the contract",
+              "The movement of the money itself",
+              "The sale of goods, with transfer of title",
+            ],
+            [
+              "What the recipient gets",
+              "Money",
+              "A physical product. Never money, in any form",
+            ],
+            [
+              "The operator's earnings",
+              "A charge on the amount moved",
+              "The commercial markup included in the sale price",
+            ],
+          ],
+          nota: "This table describes the general test and is meant to situate the structure. It does not substitute for review by a US financial services attorney.",
         },
         { tipo: "figuraFrontera" },
         {
-          tipo: "tabla",
-          encabezados: ["Dimension", "Remittance", "Mercatren"],
-          filas: [
-            [
-              "What is contracted",
-              "A transfer of funds",
-              "A purchase of identified products",
-            ],
-            [
-              "Who receives",
-              "A person, in cash or into an account",
-              "A wholesale supplier, against invoices",
-            ],
-            ["Where the money ends up", "Venezuela", "The United States"],
-            [
-              "Currency conversion",
-              "Yes, it is part of the service",
-              "None; the entire cycle is in dollars",
-            ],
-            ["What the recipient gets", "Money", "A physical product"],
-            [
-              "Documentary basis",
-              "A transfer order",
-              "Purchase order, invoice, and proof of application",
-            ],
-            [
-              "Who moves the goods",
-              "There are no goods",
-              "The supplier, on its own. Mercatren takes no part",
-            ],
-            [
-              "If the transaction is voided",
-              "Money is returned",
-              "The price of an unfulfilled purchase is refunded",
-            ],
+          tipo: "aviso",
+          tono: "ojo",
+          titulo: "What this document does not claim",
+          parrafos: [
+            "This section describes the structure of the transaction and the general applicable test. It does not claim that any determination, opinion, or authorization from any authority exists in favor of Windoce, LLC, and it does not substitute for legal advice.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "evidencia",
+      id: "controles",
       numero: "6",
-      titulo: "The life of an order and the evidence it leaves",
-      etiqueta: "traceability",
+      titulo: "Compliance controls",
+      etiqueta: "what gets verified",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "Every order goes through four phases, and each one leaves a specific documentary trail. A reviewer should be able to take any deposit from the bank statement and reconstruct backward what was bought, who paid, from which merchant, and where the money was applied.",
+            "Controls run before an order is treated as valid, and they are recorded with it. They are not a statement of intent: each one leaves evidence that can be retrieved.",
         },
         {
-          tipo: "fases",
-          fases: [
+          tipo: "lista",
+          puntos: [
             {
-              titulo: "Phase 1 · Order origin",
-              ocurre:
-                "The merchant enters the product and the price. The order is created with a unique number and a fixed dollar amount.",
-              evidencia: [
-                "Master agreement with the merchant",
-                "Verification of the merchant and its owners",
-                "Product record",
-                "Order with reference number and time stamp",
-                "Sanctions screening of the merchant",
-              ],
+              titulo: "Buyer identity",
+              texto:
+                "Buying requires an account with a verified email address. The order is tied to that account and to the details it was opened with.",
             },
             {
-              titulo: "Phase 2 · Collection and verification",
-              ocurre:
-                "The payer in the US settles the order. Mercatren identifies the payer and validates that the amount matches the order.",
-              evidencia: [
-                "Proof of payment",
-                "Payer identity",
-                "Sanctions screening of the payer",
-                "Record of acceptance or rejection, with reason",
-                "Terms accepted by the payer",
-              ],
+              titulo: "Source of payment",
+              texto:
+                "Only payments originating from US banks are accepted. Card payments run through a registered processor; bank transfers are checked against the statement before an order is treated as paid.",
             },
             {
-              titulo: "Phase 3 · Reconciliation",
-              ocurre:
-                "Each deposit is matched to its order. The 3% fee is separated and the balance pending settlement is grouped.",
-              evidencia: [
-                "Bank statement",
-                "Order-to-deposit reconciliation",
-                "Mercatren invoice for the 3% fee",
-                "Merchant account statement",
-                "Accounting ledger for the period",
-              ],
+              titulo: "Human review of every payment record",
+              texto:
+                "No bank transfer is accepted automatically. A member of the team checks the amount and date against the bank before approving it, and rejecting one requires a written reason.",
             },
             {
-              titulo: "Phase 4 · Settlement",
-              ocurre:
-                "On the merchant's written instruction, a consolidated payment covering a batch of orders is made to the authorized supplier.",
-              evidencia: [
-                "Payment instruction from the merchant",
-                "Supplier invoices",
-                "Sanctions screening of the supplier",
-                "Proof of transfer",
-                "Supplier acknowledgment of application",
-              ],
+              titulo: "Separation of duties",
+              texto:
+                "Whoever sells does not approve their own incoming payments. A supplier has no permission to approve payments on its own orders.",
+            },
+            {
+              titulo: "Prohibited products",
+              texto:
+                "We do not list or sell weapons, ammunition, or explosives; medicines, controlled substances, or restricted-use products; items subject to export controls; live animals; currency, monetary metals, gift cards, crypto assets, or financial instruments; or goods of unlawful origin or that infringe third-party rights.",
+            },
+            {
+              titulo: "Sanctioned destinations and persons",
+              texto:
+                "An order is not accepted if its delivery address or its buyer corresponds to persons or destinations subject to US sanctions.",
+            },
+            {
+              titulo: "Record retention",
+              texto:
+                "Every transaction keeps its documents for five years: the order, the purchase invoice, the sales invoice, the record of the payment received, and the proof of delivery.",
+            },
+          ],
+        },
+        {
+          tipo: "aviso",
+          tono: "bien",
+          titulo: "What the system does and what a person does",
+          parrafos: [
+            "The system blocks what can be blocked by rule: buying without an account, paying by an unsupported method, or selling without stock. Anything requiring judgment — verifying a payment against the bank, reviewing a questionable delivery address — is done by an identified person, and that decision is recorded with their name and the date.",
+          ],
+        },
+      ],
+    },
+
+    /* ---------------------------------------------------------------- */
+    {
+      id: "trazabilidad",
+      numero: "7",
+      titulo: "Traceability: what evidence each transaction leaves",
+      etiqueta: "evidence",
+      bloques: [
+        {
+          tipo: "parrafo",
+          texto:
+            "Any transaction can be reconstructed in full starting from its order number. This is what is kept, and this is what we hand over if a bank, an auditor, or a processor asks for it.",
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: "The order",
+              texto:
+                "Sequential, readable number; date and time; buyer's account; products with unit prices; total; and the delivery address designated by the buyer.",
+            },
+            {
+              titulo: "The payment received",
+              texto:
+                "Method, date, amount, and record. For bank transfers, also the screenshot provided by the buyer and the name of the person who approved it.",
+            },
+            {
+              titulo: "The purchase invoice",
+              texto:
+                "Document issued by the supplier to Windoce, LLC, with the description of the merchandise and its purchase price, tied to the order number.",
+            },
+            {
+              titulo: "The sales invoice",
+              texto:
+                "Document issued by Windoce, LLC to the buyer, with the final sale price, tied to the same order number.",
+            },
+            {
+              titulo: "The delivery",
+              texto:
+                "Dated confirmation identifying the person who received the merchandise at the designated address.",
+            },
+            {
+              titulo: "The decision trail",
+              texto:
+                "Who approved or rejected what, when, and for what reason. Approvals are never anonymous.",
             },
           ],
         },
         {
           tipo: "aviso",
           tono: "acento",
-          titulo: "The rule that is never bent",
+          titulo: "The proof that the structure is real",
           parrafos: [
-            "No order advances to the next phase without its complete evidence. An order with an unidentified payer, or without written instruction from the merchant, is not settled.",
-          ],
-        },
-        { tipo: "subtitulo", texto: "How a transaction is reconstructed" },
-        {
-          tipo: "parrafo",
-          texto:
-            "The practical test of a well-built file is traceability in both directions:",
-        },
-        {
-          tipo: "lista",
-          puntos: [
-            {
-              titulo: "From the deposit backward",
-              texto:
-                "a credit on the statement leads to the proof of payment, from there to the order number, from there to the merchant's catalog and the product detail, and from there to the payer's verified identity.",
-            },
-            {
-              titulo: "From the transfer backward",
-              texto:
-                "a payment to the supplier leads to the merchant's written instruction, from there to the specific invoices it settles, and from there to the batch of orders whose collections funded it.",
-            },
-            {
-              titulo: "From revenue to the books",
-              texto:
-                "our 3% fee invoice is the only revenue recognized. Everything else is third-party funds in transit, and that is how it appears in the books.",
-            },
-          ],
-        },
-        {
-          tipo: "aviso",
-          tono: "neutro",
-          titulo: "An accounting point worth settling from day one",
-          parrafos: [
-            "Mercatren's revenue is the fee, not the gross value of the orders. Recording transaction volume as our own revenue would artificially inflate the financial statements and, more importantly, would suggest that we own those funds. We do not: they are our merchant clients' balances.",
+            "A resale structure is proven with documents, not with wording. If every incoming payment has a purchase invoice issued to Windoce, LLC and a sales invoice issued to the buyer behind it, the transaction is what this document says it is. If those invoices are missing, no wording will hold it up.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
-      id: "por-que-zelle",
-      numero: "7",
-      titulo: "Why we collect by Zelle and not by card",
-      etiqueta: "collection method",
-      bloques: [
-        {
-          tipo: "parrafo",
-          texto:
-            "This question always comes up and deserves an answer in numbers, not adjectives. The short version: on a 3% fee, card processing takes practically the entire margin, and it reintroduces a reversal risk this model cannot absorb.",
-        },
-        {
-          tipo: "tabla",
-          encabezados: [
-            "Method",
-            "Cost on US$1,000",
-            "Availability",
-            "Reversible?",
-            "Verdict",
-          ],
-          filas: [
-            ["Zelle", "US$0.00", "Minutes", "No", "Chosen"],
-            [
-              "Bank ACH",
-              "≈ US$0.50",
-              "2 to 3 days",
-              "Yes, up to 60 days",
-              "Backup",
-            ],
-            [
-              "ACH via Stripe",
-              "US$5.00",
-              "2 to 3 days",
-              "Yes, up to 60 days",
-              "Backup",
-            ],
-            [
-              "Domestic card",
-              "US$29.30",
-              "2 days to payout",
-              "Yes, chargeback",
-              "Ruled out",
-            ],
-            ["Domestic wire", "US$25 – 40", "Same day", "No", "Not viable"],
-            [
-              "Foreign card",
-              "US$44.30",
-              "2 days to payout",
-              "Yes, chargeback",
-              "Loss-making",
-            ],
-          ],
-          nota: "Cost of collecting a US$1,000 order against a gross fee of US$30. Stripe pricing per public 2026 sources: 2.9% + US$0.30 for domestic cards, plus 1.5% for cards issued outside the US; ACH at 0.8% capped at US$5. Domestic wire per retail banking schedules.",
-        },
-        { tipo: "subtitulo", texto: "The three reasons, in order of weight" },
-        {
-          tipo: "lista",
-          puntos: [
-            {
-              titulo: "First: the margin cannot take it",
-              texto:
-                "On a US$1,000 order the gross fee is US$30. A domestic card costs US$29.30. That leaves seventy cents per order, before any other expense. With a card issued outside the United States the cost rises to about US$44.30 and the order is processed at a loss. The effect gets worse as ticket size rises, which is exactly the profile of a hardware store: a US$3,000 materials order pays nearly ninety dollars in card fees.",
-            },
-            {
-              titulo: "Second: chargebacks are a risk that cannot be covered",
-              texto:
-                "In this model the goods are delivered in Venezuela. If a chargeback arrives weeks later, the product no longer exists as collateral and there is no way to recover it. A single lost chargeback on a US$1,000 order means losing the amount plus dispute fees, on the order of US$1,030. At a margin of US$0.70 per card order, it would take more than fourteen hundred orders to make up that one incident. Zelle, by contrast, allows no reversal: once credited, the payment is final.",
-            },
-            {
-              titulo: "Third: the middle options do not solve it",
-              texto:
-                "ACH is cheap but takes two to three days and, above all, can be returned. When payment comes from a consumer account, the window to claim a transaction as unauthorized runs to sixty calendar days, long after the product has been delivered. A domestic wire is immediate and irreversible, but it costs the buyer twenty-five to forty dollars, which makes it unworkable for retail purchases.",
-            },
-          ],
-        },
-        { tipo: "subtitulo", texto: "What has to be watched about Zelle" },
-        {
-          tipo: "parrafo",
-          texto:
-            "It would be dishonest to present Zelle without its limits. There are three, and they are worth stating:",
-        },
-        {
-          tipo: "lista",
-          puntos: [
-            {
-              titulo: "Per-transaction and per-period caps",
-              texto:
-                "Banks set their own limits for business accounts and do not always publish them. They have to be negotiated with the bank and confirmed in writing before volume scales.",
-            },
-            {
-              titulo: "Ongoing regulatory pressure",
-              texto:
-                "The federal suit against Zelle's operator was dismissed with prejudice in March 2025, but the New York Attorney General's action remains alive and in 2026 the court declined to dismiss it. If it succeeds, it could introduce reimbursement obligations for induced transfers. No policy changes have been implemented to date, but it is a risk to monitor.",
-            },
-            {
-              titulo: "It is a consumer rail",
-              texto:
-                "Zelle works well for the pilot phase. The natural destination at scale is the instant business rails — RTP and FedNow — which are irrevocable, settle in seconds around the clock, support amounts up to ten million dollars per transaction, and carry interbank costs of pennies. This path is worth raising with the bank from the first conversation.",
-            },
-          ],
-        },
-      ],
-    },
-
-    {
-      id: "economia",
+      id: "crecimiento",
       numero: "8",
-      titulo: "The economics of one order",
-      etiqueta: "margins",
+      titulo: "Growth plan",
+      etiqueta: "where this is going",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "There is a single source of revenue: the 3% fee on order value. Everything else that passes through the account is third-party funds.",
-        },
-        {
-          tipo: "aviso",
-          tono: "neutro",
-          titulo: "Basis for these numbers",
-          parrafos: [
-            "The figures in this section use a reference ticket of US$1,000 and a batch of twenty orders per settlement. These are illustrative assumptions, not observed data. They should be replaced with the pilot's actual average ticket and frequency once there are three months of operation.",
-          ],
-        },
-        {
-          tipo: "tabla",
-          encabezados: ["Item", "With Zelle", "With card", "Note"],
-          filas: [
-            ["Order value", "US$1,000.00", "US$1,000.00", "Not our revenue"],
-            [
-              "Gross fee (3%)",
-              "US$30.00",
-              "US$30.00",
-              "The only revenue recognized",
-            ],
-            ["Cost of collection", "US$0.00", "− US$29.30", "Domestic card"],
-            [
-              "Cost of settlement",
-              "− US$1.25",
-              "− US$1.25",
-              "A US$25 wire split across 20 orders",
-            ],
-            [
-              "Gross margin per order",
-              "US$28.75",
-              "− US$0.55",
-              "Before platform and staff",
-            ],
-            ["Margin on the fee", "96%", "negative", ""],
-          ],
-        },
-        { tipo: "subtitulo", texto: "What the pilot has to measure" },
-        {
-          tipo: "parrafo",
-          texto:
-            "To present the model with data rather than projections, these are the five metrics the system records from the first order:",
+            "The service is in its early stage, with one supplier and one catalog. Growth means more catalog and more coverage, and it does not change the structure described in this document: every new supplier is simply one more supplier we buy merchandise from, invoiced to Windoce, LLC.",
         },
         {
           tipo: "lista",
           puntos: [
             {
-              titulo: "Average ticket per order",
+              titulo: "More suppliers, same contract",
               texto:
-                "determines whether 3% is sustainable or whether the fee has to be tiered.",
+                "Every merchant that publishes a catalog signs the same sale-of-goods agreement: they sell us merchandise and invoice us for it. We sign no representation agreements with any of them.",
             },
             {
-              titulo: "Cycle turns per merchant per month",
+              titulo: "More delivery cities",
               texto:
-                "the real measure of traction: one merchant turning eight times is worth more than eight merchants turning once.",
+                "Coverage grows city by city, based on where each supplier has a presence. The buyer sees which city a product is delivered in before paying.",
             },
             {
-              titulo: "Days between collection and settlement",
+              titulo: "More categories",
               texto:
-                "what a bank looks at to understand how much third-party balance is held in the account.",
+                "The catalog opens departments as suppliers in each line of business come on board, within the prohibited-products policy.",
             },
             {
-              titulo: "Rejection rate at verification",
-              texto: "demonstrates that the control exists and works.",
-            },
-            {
-              titulo: "Repeat payers per merchant",
+              titulo: "Card payments as the primary method",
               texto:
-                "indicates whether the model builds habit or depends on one-off purchases.",
+                "Card payments through a registered processor are the primary method for the service, for traceability and for the buyer's convenience.",
             },
+          ],
+        },
+        {
+          tipo: "aviso",
+          tono: "neutro",
+          titulo: "What is not in the plan",
+          parrafos: [
+            "There are no plans to offer accounts, hold money belonging to third parties, deliver money at any destination, or operate in any currency other than the US dollar. If any of that were ever considered, it would be a different service with its own structure and its own framing, and it would not launch without the corresponding legal review.",
           ],
         },
       ],
     },
 
+    /* ---------------------------------------------------------------- */
     {
       id: "resumen-final",
       numero: "9",
-      titulo: "The whole model on one page",
-      etiqueta: "closing recap",
+      titulo: "One-page summary",
+      etiqueta: "the takeaway",
       bloques: [
         {
           tipo: "parrafo",
           texto:
-            "If someone reads only one section of this document, this is the one. It is the complete model, without the jargon.",
+            "If you only keep one page from this entire document, keep this one.",
         },
         { tipo: "figuraResumen" },
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "The one sentence that covers it",
+          titulo: "In one sentence",
           parrafos: [
-            "A Venezuelan merchant hires us to collect from its buyers in the United States and to pay, with that same money and following its written instruction, the invoices that merchant owes its US supplier. We charge 3% to do it. The money never leaves the country, the recipient gets a product rather than a transfer, and every transaction is documented end to end.",
+            "We do not receive or administer money belonging to third parties. Every transaction is a sale of goods between the buyer and Windoce, LLC: we buy the product in our own name, resell it to the buyer in the United States, and have it delivered to the address they designate.",
           ],
         },
       ],
@@ -635,121 +576,125 @@ export const MODELO_EN: Documento = {
 
   figuras: {
     ciclo: {
-      titulo: "The full cycle of one order",
-      eeuu: "United States",
-      venezuela: "Venezuela",
-      pagador: {
-        rol: "D · Payer",
-        nombre: "Family member in the US",
-        detalle: "Buys the products. Sends no money.",
+      titulo: "Figure 1",
+      eeuu: "Inside the United States",
+      venezuela: "Designated delivery address",
+      comprador: {
+        rol: "A",
+        nombre: "Buyer",
+        detalle:
+          "Person in the United States. Buys the product and designates where it is delivered",
       },
       mercatren: {
-        rol: "B · Platform operator",
-        nombre: "Mercatren",
+        rol: "B",
+        nombre: "Windoce, LLC · Mercatren",
         detalle:
-          "The merchant's purchasing and collection agent. Records, verifies, reconciles, and settles. Charges a 3% fee.",
+          "Sells the product to the buyer and buys the merchandise from the supplier, in its own name",
       },
       proveedor: {
-        rol: "C · Authorized supplier",
-        nombre: "Wholesaler in the US",
+        rol: "C",
+        nombre: "Supplier",
         detalle:
-          "The merchant's trade creditor. Receives the funds. Has its own branch in Venezuela.",
+          "Sells the merchandise to Windoce, LLC and invoices it in its name",
       },
       comercio: {
-        rol: "A · Pilot client",
-        nombre: "Merchant in Venezuela",
-        detalle:
-          "Independent company. Not owned by Mercatren. Restocks from the supplier's local branch.",
+        rol: "C",
+        nombre: "Supplier's dispatch",
+        detalle: "Delivers the product to the address on the order",
       },
       consumidor: {
-        rol: "End consumer",
-        nombre: "Customer in Venezuela",
-        detalle: "Chooses the product and receives it.",
+        rol: "—",
+        nombre: "Recipient",
+        detalle: "Receives a physical product. Never money",
       },
-      paga: "Pays the order by Zelle · irrevocable · zero cost · funds inside the US",
-      liquida:
-        "Settles to the supplier · consolidated and traceable · funds inside the US",
-      pide: "Requests and reserves the product",
-      entrega: "Delivers the product once payment is confirmed",
-      enlace: "Shares the order link",
-      orden: "Order recorded and payment confirmed",
+      paga: "Pays the published price of the product",
+      compra: "Buys the merchandise · invoiced to Windoce, LLC",
+      pide: "The product leaves the supplier's inventory",
+      entrega: "Product delivered, with dated confirmation",
+      orden: "The order travels: which product, to which address",
+      enlace: "Proof of delivery comes back, tied to the order number",
       fuera:
-        "Outside Mercatren's scope: the supplier restocks the merchant through its own local branch. We do not ship, import, clear customs, or finance any movement of goods.",
-      pie: "The left column is the United States and the right is Venezuela. Thick lines are movements of money, and all of them happen inside the United States.",
+        "The entire commercial transaction — the sale to the buyer and the purchase from the supplier — takes place inside the United States, between parties with accounts at US banks.",
+      pie: "Two linked sales of goods. On the left, the complete commercial circuit; on the right, only the product and its proof of delivery.",
     },
+
     frontera: {
-      remesaTitulo: "What we do not do · remittances",
-      remesaTexto:
-        "Money crosses the border and ends up in a person's hands. That is money transmission.",
-      remesaCajas: ["Sender", "Operator", "Beneficiary"],
-      remesaCruza: "money crosses the border",
-      nuestroTitulo: "What we do · product purchases with domestic settlement",
-      nuestroTexto:
-        "Money enters and leaves inside the US. Nothing Mercatren moves crosses the border.",
-      nuestrasCajas: [
-        "Payer",
-        "Mercatren",
-        "Supplier",
-        "Supplier's branch",
-        "Merchant",
-        "Consumer",
+      noTitulo: "The shape this model does NOT have",
+      noTexto:
+        "Receiving money from one person in order to hand it to another. That describes money transmission, and it is not what happens here.",
+      noCajas: [
+        "Someone hands over money",
+        "An operator holds it in transit",
+        "Another person receives money",
       ],
-      circuito: "funds: closed circuit inside the US",
-      frontera: "US · Venezuela",
+      noNota:
+        "There, the money belongs to a third party and the recipient receives money. Neither of those happens at Mercatren.",
+      siTitulo: "The actual structure: a sale of goods",
+      siTexto:
+        "Two invoiced sales, closed inside the United States. The only thing that crosses the border is the product.",
+      siCajas: ["Buyer in the US", "Windoce, LLC", "Supplier"],
+      cruzaCajas: ["Product in transit", "Delivery address"],
+      circuito:
+        "The complete commercial circuit stays inside the United States",
+      frontera: "← the dashed line is the border",
       consecuencia:
-        "No transfer leaves the United States, no beneficiary receives cash, and there is no currency conversion.",
+        "What comes in is the sale price of our own product and what goes out is the cost of the merchandise purchased, invoiced to Windoce, LLC. On the other side of the border no money moves: a product is delivered.",
     },
+
     resumen: {
       pasos: [
         {
-          titulo: "Someone in the US buys products",
-          detalle: "and names who receives them",
+          titulo: "Purchase",
+          detalle:
+            "The buyer in the United States purchases a product and pays the published price from a US bank.",
         },
         {
-          titulo: "Mercatren collects in the United States",
-          detalle: "verifies, accepts, and records",
+          titulo: "Acquisition",
+          detalle:
+            "Windoce, LLC buys that merchandise from the supplier in its own name, invoiced to Windoce, LLC.",
         },
         {
-          titulo: "Pays the supplier in the United States",
-          detalle: "against the client's invoices",
+          titulo: "Delivery",
+          detalle:
+            "The supplier delivers the product to the address designated by the buyer, with proof of delivery.",
         },
         {
-          titulo: "The merchant delivers in Venezuela",
-          detalle: "a product, never money",
+          titulo: "Invoice",
+          detalle:
+            "Windoce, LLC issues the sales invoice to the buyer and closes the order with its full documentation.",
         },
       ],
-      banda: "All the money happens here, inside the United States",
-      sinDinero: "No money here",
+      banda: "A sale of goods, with two invoices per transaction",
+      sinDinero: "At no point is money delivered to anyone",
       afirmaciones: [
-        "No one in Venezuela receives money at any point. They receive a physical product.",
-        "No transfer leaves the United States. There is no currency conversion.",
-        "The merchant is an independent client. It appointed us in writing as its collection agent.",
-        "From the moment we collect, the funds belong to the merchant. We apply them where it instructs us in writing.",
-        "Our revenue is only the 3% fee. The rest is third-party funds, and that is how the books show it.",
-        "Every order leaves a complete file: who bought, what they bought, who paid, and where it was applied.",
+        "The money received is Windoce, LLC's own revenue from selling a product.",
+        "The money paid to the supplier is the cost of goods sold, invoiced to Windoce, LLC.",
+        "Title to the product passes from the supplier to Windoce, LLC and from Windoce, LLC to the buyer.",
+        "Whoever receives at the designated address receives a physical product, never money.",
+        "The published price is the final price and includes the commercial markup.",
+        "Only payments originating from US banks are accepted.",
       ],
     },
   },
 
-  preguntasTitulo: "If the reviewer has only three questions",
+  preguntasTitulo: "The three questions we always get",
   preguntas: [
     {
       pregunta: "Does money leave the country?",
       respuesta:
-        "No. It is received into a US account and paid to a US company. No Venezuelan financial institution takes part in the circuit.",
+        "No. The buyer pays in the United States, and the merchandise is paid for against an invoice to US bank accounts. No foreign financial institution takes part in the transaction.",
     },
     {
       pregunta: "Whose money is it?",
       respuesta:
-        "The selling merchant's, from the moment of collection. Mercatren holds it and applies it on written instruction. Our revenue is only the fee.",
+        "It belongs to Windoce, LLC from the moment of the sale. It is the price of a product sold, not third-party money under our administration.",
     },
     {
-      pregunta: "What does the person in Venezuela receive?",
-      respuesta:
-        "A physical product, delivered by the merchant. Never money, in any form.",
+      pregunta: "What does the person at the delivery address receive?",
+      respuesta: "A physical product. Never money, in any form.",
     },
   ],
 
   aviso:
-    "This document describes an operating model. It is not legal, accounting, or tax advice. Regulatory references and collection-cost figures come from public sources consulted on August 3, 2026 and should be verified before any decision is made. The complete version, covering contractual structure, regulatory framing, compliance controls, and the growth plan, is provided to banks, auditors, and partners on request.",
+    "This document describes the structure and operation of the service. It does not constitute legal, accounting, or tax advice, and it does not claim that any determination by any authority exists in favor of Windoce, LLC. Mercatren is a service operated by Windoce, LLC (Delaware, United States).",
 };

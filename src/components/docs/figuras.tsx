@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowRight } from "lucide-react";
+import { Fragment } from "react";
 
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import type { TextosFiguras } from "@/contenido/docs/tipos";
@@ -107,10 +108,10 @@ function TituloPais({
 }
 
 /**
- * Figura 1. El ciclo completo.
+ * Figura 1. La compraventa, de punta a punta.
  *
- * Dos columnas: a la izquierda Estados Unidos, donde ocurre todo el dinero, y
- * a la derecha Venezuela, donde solo se mueve mercancia. En el telefono las
+ * Dos columnas: a la izquierda Estados Unidos, donde ocurre toda la operacion
+ * comercial, y a la derecha la entrega del producto. En el telefono las
  * columnas se apilan y cada caja lleva escrito su pais.
  */
 export function FiguraCiclo({ t }: { t: TextosFiguras["ciclo"] }) {
@@ -121,10 +122,10 @@ export function FiguraCiclo({ t }: { t: TextosFiguras["ciclo"] }) {
         <div className="md:pr-6">
           <TituloPais texto={t.eeuu} bandera className="mb-3" />
 
-          <Caja {...t.pagador} />
+          <Caja {...t.comprador} />
           <Dinero texto={t.paga} />
           <Caja {...t.mercatren} tono="oscuro" />
-          <Dinero texto={t.liquida} />
+          <Dinero texto={t.compra} />
           <Caja {...t.proveedor} />
         </div>
 
@@ -200,37 +201,39 @@ function Flecha({ tono = "gris" }: { tono?: "gris" | "rojo" | "naranja" }) {
 }
 
 /**
- * Figura 2. Que cruza la frontera y que no.
+ * Figura 2. La figura que el modelo NO tiene, y la que sí.
  *
- * Arriba una remesa, donde el dinero cruza; abajo lo nuestro, donde no. Es la
- * comparacion que responde la primera pregunta de cualquier revision.
+ * Arriba, en rojo, recibir dinero de una persona para entregárselo a otra.
+ * Abajo, lo real: una compraventa de mercancía con dos facturas, cerrada
+ * dentro de Estados Unidos, de la que solo el producto cruza la frontera. Es
+ * la comparación que responde la primera pregunta de cualquier revisión.
+ *
+ * Las tiras se dibujan recorriendo la lista, no desarmándola en variables: el
+ * contenido decide cuántas cajas hay, y agregar o quitar una no obliga a
+ * tocar este archivo.
  */
 export function FiguraFrontera({ t }: { t: TextosFiguras["frontera"] }) {
-  const [remitente, operador, beneficiario] = t.remesaCajas;
-  const [pagador, mercatren, proveedor, sucursal, comercio, consumidor] =
-    t.nuestrasCajas;
-
   return (
     <figure className="my-8 space-y-4">
       {/* Lo que NO hacemos. */}
       <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 sm:p-5">
         <p className="text-[11px] font-bold tracking-[0.08em] text-red-700 uppercase">
-          {t.remesaTitulo}
+          {t.noTitulo}
         </p>
-        <p className="mt-1 text-xs text-tinta-suave">{t.remesaTexto}</p>
+        <p className="mt-1 text-xs text-tinta-suave">{t.noTexto}</p>
 
         <div className="mt-4 overflow-x-auto">
           <div className="flex min-w-max items-center gap-2">
-            <Ficha texto={remitente} />
-            <Flecha tono="rojo" />
-            <Ficha texto={operador} />
-            <span className="mx-1 self-stretch border-l border-dashed border-red-300" />
-            <Flecha tono="rojo" />
-            <Ficha texto={beneficiario} />
+            {t.noCajas.map((caja, i) => (
+              <Fragment key={caja}>
+                {i > 0 ? <Flecha tono="rojo" /> : null}
+                <Ficha texto={caja} />
+              </Fragment>
+            ))}
           </div>
         </div>
         <p className="mt-2 text-[11px] font-semibold text-red-700">
-          ↑ {t.remesaCruza}
+          ↑ {t.noNota}
         </p>
       </div>
 
@@ -238,24 +241,31 @@ export function FiguraFrontera({ t }: { t: TextosFiguras["frontera"] }) {
       <div className="rounded-xl border border-borde bg-slate-50/60 p-4 sm:p-5">
         <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.08em] text-riel-900 uppercase">
           <BanderaEEUU className="h-3.5 w-3.5" />
-          {t.nuestroTitulo}
+          {t.siTitulo}
         </p>
-        <p className="mt-1 text-xs text-tinta-suave">{t.nuestroTexto}</p>
+        <p className="mt-1 text-xs text-tinta-suave">{t.siTexto}</p>
 
         <div className="mt-4 overflow-x-auto">
           <div className="flex min-w-max items-center gap-2">
-            <Ficha texto={pagador} />
-            <Flecha tono="naranja" />
-            <Ficha texto={mercatren} tono="oscuro" />
-            <Flecha tono="naranja" />
-            <Ficha texto={proveedor} />
+            {t.siCajas.map((caja, i) => (
+              <Fragment key={caja}>
+                {i > 0 ? <Flecha tono="naranja" /> : null}
+                {/* La segunda caja es Mercatren: va oscura, como en la otra
+                    figura, para que se reconozca de un vistazo. */}
+                <Ficha texto={caja} tono={i === 1 ? "oscuro" : "claro"} />
+              </Fragment>
+            ))}
+
+            {/* La raya de puntos ES la frontera. A su derecha solo hay
+                mercancía: lo comercial ya quedó cerrado a la izquierda. */}
             <span className="mx-1 self-stretch border-l border-dashed border-borde" />
-            <Flecha />
-            <Ficha texto={sucursal} tono="apagado" />
-            <Flecha />
-            <Ficha texto={comercio} />
-            <Flecha />
-            <Ficha texto={consumidor} />
+
+            {t.cruzaCajas.map((caja) => (
+              <Fragment key={caja}>
+                <Flecha />
+                <Ficha texto={caja} tono="apagado" />
+              </Fragment>
+            ))}
           </div>
         </div>
 

@@ -75,7 +75,7 @@ export const AYUDA_ES: PaginaContenido = {
             {
               titulo: "¿Aceptan tarjeta?",
               texto:
-                "Todavía no. Hoy solo Zelle y transferencia desde bancos de Estados Unidos. El pago con tarjeta y con saldo está en camino.",
+                "Sí. El pago con tarjeta es el método principal, y también se acepta transferencia desde bancos de Estados Unidos a partir de 200 dólares.",
             },
             {
               titulo: "Mi pago no fue aprobado, ¿qué hago?",
@@ -176,7 +176,7 @@ export const AYUDA_ES: PaginaContenido = {
             {
               titulo: "¿Cuándo recibo mi dinero?",
               texto:
-                "El neto de cada venta verificada se acredita a tu billetera en el momento de aprobar el pago. La liquidación se hace según lo que acordemos por escrito contigo.",
+                "Al aprobarse el pago, Windoce, LLC te compra esa mercancía y tú emites tu factura. El importe se te paga contra esa factura, a una cuenta bancaria de Estados Unidos, según lo acordado por escrito contigo.",
             },
           ],
         },
@@ -262,12 +262,12 @@ export const AYUDA_EN: PaginaContenido = {
             {
               titulo: "Can someone else pay for me?",
               texto:
-                "Yes, that's the norm: a family member in the United States. What matters is that the payer's name matches what you tell us, so we can verify it.",
+                "Yes. What matters is that the name on the paying account matches the account that placed the order, so we can verify it.",
             },
             {
               titulo: "Do you take cards?",
               texto:
-                "Not yet. Today it's Zelle and transfers from US banks only. Card and wallet payment are on the way.",
+                "Yes. Card is the primary payment method, and bank transfers from US banks are also accepted from $200 up.",
             },
             {
               titulo: "My payment wasn't approved. What now?",
@@ -358,7 +358,7 @@ export const AYUDA_EN: PaginaContenido = {
             {
               titulo: "What does Mercatren charge?",
               texto:
-                "3% on the value of each order collected. No monthly fee, no setup cost.",
+                "Nothing. You set the price you sell to us at; the price we resell at is ours to set and includes our markup. No monthly charge, no setup cost.",
             },
             {
               titulo: "Do I have to enter my products by hand?",
@@ -368,7 +368,7 @@ export const AYUDA_EN: PaginaContenido = {
             {
               titulo: "When do I get my money?",
               texto:
-                "The net amount of each verified sale is credited to your wallet the moment the payment is approved. Settlement follows what we agree with you in writing.",
+                "When the payment is approved, Windoce, LLC buys that merchandise from you and you issue your invoice. You are paid against that invoice, to a US bank account, as agreed with you in writing.",
             },
           ],
         },

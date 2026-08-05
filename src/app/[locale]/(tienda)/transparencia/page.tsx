@@ -40,6 +40,7 @@ export default async function PaginaTransparencia({
   const limites = t.raw("limites.puntos") as string[];
   const controles = t.raw("controles.puntos") as string[];
   const registros = t.raw("registros.puntos") as string[];
+  const prohibidos = t.raw("prohibidos.puntos") as string[];
 
   return (
     <>
@@ -63,6 +64,14 @@ export default async function PaginaTransparencia({
           <p className="text-tinta-suave">{t("quienes.texto")}</p>
         </Bloque>
 
+        {/* LA LÍNEA QUE UN BANCO BUSCA PRIMERO. Va arriba del todo y en un
+            recuadro: quien abre esta página desde un área de cumplimiento
+            necesita descartar la figura financiera antes de seguir leyendo. */}
+        <section className="rounded-xl border border-carga-500/40 bg-carga-500/5 p-5 sm:p-6">
+          <h2 className="text-lg font-bold">{t("noSomos.titulo")}</h2>
+          <p className="mt-2 text-tinta-suave">{t("noSomos.texto")}</p>
+        </section>
+
         <Bloque Icono={Route} titulo={t("flujo.titulo")}>
           <p className="text-tinta-suave">{t("flujo.texto")}</p>
           <ol className="mt-4 space-y-3">
@@ -81,12 +90,21 @@ export default async function PaginaTransparencia({
           <Lista puntos={limites} tono="rojo" />
         </Bloque>
 
+        <Bloque Icono={ListChecks} titulo={t("prohibidos.titulo")}>
+          <p className="text-tinta-suave">{t("prohibidos.texto")}</p>
+          <Lista puntos={prohibidos} tono="rojo" />
+        </Bloque>
+
         <Bloque Icono={ListChecks} titulo={t("controles.titulo")}>
           <Lista puntos={controles} tono="verde" />
         </Bloque>
 
         <Bloque Icono={FileText} titulo={t("registros.titulo")}>
           <Lista puntos={registros} tono="neutro" />
+        </Bloque>
+
+        <Bloque Icono={FileText} titulo={t("retencion.titulo")}>
+          <p className="text-tinta-suave">{t("retencion.texto")}</p>
         </Bloque>
 
         <Bloque Icono={FileText} titulo={t("comisiones.titulo")}>

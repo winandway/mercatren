@@ -1,7 +1,7 @@
 {
   "marca": {
     "nombre": "Mercatren",
-    "lema": "Tu agente de compras y ventas entre países"
+    "lema": "Compra en Estados Unidos, entrega donde la necesites"
   },
   "encabezado": {
     "buscarPlaceholder": "Buscar productos, tiendas y marcas",
@@ -35,8 +35,8 @@
     "crearCuenta": "Crear cuenta"
   },
   "inicio": {
-    "tituloHero": "Compra en Estados Unidos, recibe donde estés",
-    "subtituloHero": "Mercatren compra por ti y vende por ti. Un solo lugar para traer productos de Estados Unidos y para que los vendedores lleguen a nuevos países.",
+    "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
+    "subtituloHero": "Elige tu producto, paga el precio publicado y dinos dónde entregarlo. El precio que ves es el precio final.",
     "verCatalogo": "Ver catálogo",
     "abrirTienda": "Abrir mi tienda",
     "comoFunciona": "Cómo funciona",
@@ -91,7 +91,7 @@
       "catalogo": "Catálogo",
       "seguimiento": "Seguir mi pedido",
       "abrirTienda": "Abrir una tienda",
-      "comisiones": "Comisiones",
+      "comisiones": "Cómo se forma el precio",
       "centroAyuda": "Centro de ayuda",
       "contacto": "Contacto",
       "terminos": "Términos y condiciones",
@@ -101,8 +101,8 @@
       "docs": "Documentación",
       "nosotros": "Quiénes somos"
     },
-    "lema": "Compra en Estados Unidos, recibe donde estés.",
-    "descripcion": "Mercatren conecta a comercios de todo el mundo con quien paga desde Estados Unidos. Cada operación queda documentada de punta a punta.",
+    "lema": "Compra en Estados Unidos, entrega donde la necesites.",
+    "descripcion": "Mercatren es un servicio operado por Windoce, LLC (Delaware, Estados Unidos). Vendemos productos por cuenta propia y los entregamos en la dirección que designa el comprador. Cada operación queda documentada de punta a punta.",
     "contactoTitulo": "¿Necesitas ayuda?",
     "contactoTexto": "Escríbenos y contesta una persona.",
     "soloEEUU": "Cobros únicamente desde bancos de Estados Unidos",
@@ -121,73 +121,75 @@
   },
   "comoFunciona": {
     "titulo": "Cómo funciona Mercatren",
-    "entradilla": "Un comercio fuera de Estados Unidos vende. Su cliente, o el familiar que lo apoya, paga desde Estados Unidos. Mercatren registra la orden, verifica el pago y le paga a los proveedores del comercio aquí. El producto se entrega en el país del comercio.",
+    "entradilla": "Compras un producto, pagas el precio publicado desde un banco de Estados Unidos y designas dónde se entrega. Nosotros compramos esa mercancía al proveedor a nombre propio y te la vendemos, con su factura.",
     "queEs": {
       "titulo": "Qué es el servicio",
-      "texto": "Mercatren es un servicio de comercio electrónico transfronterizo operado por Windoce LLC (Estados Unidos). Funciona como agente de compras y agente de ventas a la vez: le damos al comercio una tienda en línea para vender, y a quien paga desde Estados Unidos una forma ordenada y con comprobante de pagar esa orden.",
+      "texto": "Mercatren es una tienda en línea operada por Windoce, LLC (Delaware, Estados Unidos). Vendemos productos por cuenta propia: compramos la mercancía al proveedor a nombre nuestro y te la revendemos. El precio que ves publicado es el precio final e incluye nuestro margen comercial.",
       "puntos": [
-        "El comercio publica sus productos y recibe pedidos.",
-        "Quien paga lo hace en Estados Unidos, en dólares, a una cuenta de Windoce LLC.",
-        "Cada pago se revisa contra el banco antes de darlo por bueno.",
-        "Mercatren cobra una comisión por el servicio y le abona a los proveedores del comercio en Estados Unidos.",
-        "El comercio entrega el producto en su país."
+        "El comprador está en Estados Unidos y paga desde un banco estadounidense.",
+        "El precio publicado es el precio final: no se agregan cargos después.",
+        "Windoce, LLC compra la mercancía al proveedor, con factura a su nombre.",
+        "El producto se entrega en la dirección que designa el comprador.",
+        "Cada operación deja factura de compra, factura de venta y constancia de entrega."
       ]
     },
     "pasos": {
-      "titulo": "Paso a paso",
+      "titulo": "Para el comprador",
       "lista": [
         {
-          "titulo": "Se arma la orden",
-          "texto": "El cliente elige lo que necesita en la tienda del comercio. Queda registrada con todos sus datos: qué, cuánto, para quién y a dónde se entrega."
+          "titulo": "Elige el producto en el catálogo",
+          "texto": "Al confirmar, el sistema vuelve a leer de la base el precio y la disponibilidad. El total es el que sale de esa lectura."
         },
         {
-          "titulo": "Se paga desde Estados Unidos",
-          "texto": "Quien paga —muchas veces un familiar que vive aquí— cubre la orden y sube el comprobante. No manda dinero a una persona: paga a Windoce LLC por el servicio."
+          "titulo": "Paga el precio publicado desde un banco de Estados Unidos",
+          "texto": "Con tarjeta o por transferencia. Solo se aceptan pagos originados en bancos estadounidenses."
         },
         {
-          "titulo": "Se verifica el pago",
-          "texto": "Una persona de nuestro equipo comprueba que el pago esté de verdad en el banco. Si algo no cuadra, se rechaza y se explica por qué. Nada se acredita solo."
+          "titulo": "Indica la dirección de entrega",
+          "texto": "Tú designas dónde debe entregarse el producto y respondes por que la dirección sea correcta."
         },
         {
-          "titulo": "Se abona y se entrega",
-          "texto": "El monto queda acreditado al comercio, Mercatren abona a sus proveedores en Estados Unidos, y el comercio entrega el producto en su país."
-        }
-      ]
-    },
-    "queNoEs": {
-      "titulo": "Qué NO es Mercatren",
-      "puntos": [
-        "No es una remesa. El dinero no se le envía a una persona en otro país.",
-        "No hacemos cambio de divisas. Todo se cobra y se paga en dólares.",
-        "No movemos dinero entre particulares. El pago entra a Windoce LLC por un servicio y sale hacia proveedores comerciales.",
-        "No somos un banco ni damos crédito."
-      ]
-    },
-    "pagos": {
-      "titulo": "Formas de pago y por qué cuestan distinto",
-      "texto": "El costo de cada forma de pago no lo ponemos por gusto: depende de lo que cuesta cobrar por ese medio y del riesgo que trae. Lo decimos claro y de frente.",
-      "metodos": [
-        {
-          "nombre": "Zelle",
-          "costo": "3%",
-          "texto": "Es el más usado por nuestros clientes y el más barato. La transferencia es directa entre bancos de Estados Unidos, no se puede revertir por capricho y el costo de procesarla es bajo. Por eso se puede cobrar 3%."
-        },
-        {
-          "nombre": "Tarjeta de crédito o débito",
-          "costo": "5%",
-          "texto": "Cuesta más porque la pasarela se lleva su parte y porque una compra con tarjeta se puede desconocer meses después. En órdenes grandes —de mil o dos mil dólares— esa diferencia pesa, y por eso la mayoría prefiere Zelle."
-        },
-        {
-          "nombre": "Saldo en la billetera",
-          "costo": "Sin costo extra",
-          "texto": "Si ya tienes saldo acreditado en Mercatren, usarlo no cuesta nada: el pago ya fue verificado antes."
+          "titulo": "Recibe la factura y el seguimiento del pedido",
+          "texto": "Te llega la factura de venta a tu nombre y puedes seguir el pedido hasta que se entrega."
         }
       ]
     },
     "paraComercios": {
-      "titulo": "Si tienes un comercio fuera de Estados Unidos",
-      "texto": "Abres tu tienda, publicas tus productos y nosotros nos encargamos del cobro en Estados Unidos y de la verificación de cada pago. Entras con tu cuenta y ves solo lo tuyo: tus pedidos, tus pagos y tu saldo.",
-      "boton": "Abrir mi tienda"
+      "titulo": "Para el comercio que publica su catálogo",
+      "texto": "Tú publicas tu catálogo y tus precios. Cuando hay una venta, Mercatren te compra la mercancía y tú despachas a la dirección designada. Se te paga la mercancía comprada contra tu factura, a una cuenta bancaria de Estados Unidos.",
+      "puntos": [
+        "Publicas tu catálogo y el precio al que nos vendes.",
+        "Cuando hay una venta, Mercatren te compra esa mercancía.",
+        "Despachas el producto a la dirección designada en la orden.",
+        "Se te paga la mercancía comprada contra factura."
+      ],
+      "boton": "Publicar mi catálogo"
+    },
+    "queNoEs": {
+      "titulo": "Qué NO es Mercatren",
+      "puntos": [
+        "No es una entidad financiera: no ofrecemos cuentas ni guardamos dinero de nadie.",
+        "No entregamos dinero a ninguna persona: entregamos productos.",
+        "No hacemos cambio de divisas: se compra y se vende en dólares estadounidenses.",
+        "No actuamos como representantes de ninguna de las partes.",
+        "No somos un banco ni damos crédito."
+      ]
+    },
+    "pagos": {
+      "titulo": "Formas de pago",
+      "texto": "Solo se aceptan pagos originados en bancos de Estados Unidos. El precio publicado es el mismo cualquiera sea el método: elegir uno u otro no cambia lo que pagas.",
+      "metodos": [
+        {
+          "nombre": "Tarjeta de crédito o débito",
+          "costo": "Método principal",
+          "texto": "Se procesa con un procesador de pagos registrado. Es el método principal del servicio, por comodidad y porque deja el mejor rastro documental de la operación."
+        },
+        {
+          "nombre": "Transferencia bancaria",
+          "costo": "Desde $200",
+          "texto": "Disponible para compras desde 200 dólares. Una persona de nuestro equipo comprueba el pago contra el banco antes de dar la orden por buena."
+        }
+      ]
     },
     "verTransparencia": "Información para bancos y socios"
   },
@@ -196,56 +198,77 @@
     "entradilla": "Esta página describe nuestra operación para bancos, procesadores de pago, socios y cualquiera que necesite entender exactamente qué hacemos y qué no.",
     "quienes": {
       "titulo": "Quiénes somos",
-      "texto": "Mercatren es un servicio operado por Windoce LLC, constituida en Estados Unidos. Damos servicio de comercio electrónico transfronterizo a comercios establecidos fuera de Estados Unidos cuyos compradores, o quienes pagan por ellos, se encuentran en Estados Unidos.",
+      "texto": "Mercatren es un servicio operado por Windoce, LLC (Delaware, Estados Unidos). Vendemos productos por cuenta propia a compradores residentes en Estados Unidos: compramos la mercancía al proveedor a nombre de Windoce, LLC y la revendemos al comprador, que designa la dirección donde debe entregarse.",
       "lanzamiento": "Startup en lanzamiento 2026."
     },
+    "noSomos": {
+      "titulo": "Lo primero, para que no haya duda",
+      "texto": "Mercatren no es una entidad financiera, no ofrece cuentas, no mantiene saldos de usuarios y no realiza transferencias de dinero. Cada transacción es una compraventa de mercancía entre el comprador y Windoce, LLC."
+    },
     "flujo": {
-      "titulo": "Por dónde pasa el dinero",
+      "titulo": "Cómo se documenta cada operación",
       "texto": "Un solo camino, siempre el mismo, y siempre documentado:",
       "pasos": [
-        "El pagador, ubicado en Estados Unidos, paga en dólares a una cuenta de Windoce LLC en un banco de Estados Unidos.",
-        "Windoce LLC registra la orden a la que corresponde ese pago, con su monto, su fecha y su comprobante.",
-        "Un validador de nuestro equipo confirma el ingreso contra el estado de cuenta del banco. Solo entonces la operación se da por buena.",
-        "Windoce LLC retiene su comisión por el servicio.",
-        "Windoce LLC realiza pagos consolidados a proveedores en Estados Unidos, abonando a facturas comerciales existentes del comercio.",
-        "El comercio entrega el producto o servicio a su cliente en su propio país."
+        "El comprador, ubicado en Estados Unidos, compra un producto y paga el precio publicado a Windoce, LLC desde un banco de Estados Unidos.",
+        "Windoce, LLC registra la orden con su número, su monto, su fecha, sus productos y la dirección de entrega designada por el comprador.",
+        "Una persona de nuestro equipo comprueba que el pago provenga de un banco estadounidense y que el importe calce. Solo entonces la orden se da por buena.",
+        "Windoce, LLC compra al proveedor la mercancía vendida, a nombre propio, y el proveedor emite factura a nombre de Windoce, LLC.",
+        "El proveedor entrega el producto en la dirección designada y queda constancia de la entrega.",
+        "Windoce, LLC emite al comprador la factura de venta y cierra la orden."
       ]
     },
     "limites": {
       "titulo": "Lo que la operación no incluye",
       "puntos": [
-        "No se envía dinero a personas naturales en el exterior.",
-        "No se realiza cambio de divisas: se cobra y se paga en dólares.",
-        "No se transfieren fondos entre cuentas de particulares.",
-        "No se custodian fondos de terceros para uso libre: el saldo acreditado corresponde a órdenes de un comercio identificado.",
+        "No se entrega dinero a ninguna persona, en ningún destino: se entregan productos.",
+        "No se ofrecen cuentas ni se mantienen saldos de usuarios.",
+        "No se recibe ni se administra dinero de terceros.",
+        "No se realiza cambio de divisas: se opera únicamente en dólares estadounidenses.",
         "No se ofrece crédito ni servicios bancarios."
       ]
     },
-    "controles": {
-      "titulo": "Cómo verificamos cada pago",
+    "prohibidos": {
+      "titulo": "Productos que no se venden",
+      "texto": "No se publican ni se venden, sin excepción:",
       "puntos": [
-        "Cada pago entra con su comprobante, que queda archivado y consultable.",
-        "Una persona del equipo confirma el ingreso contra el banco antes de acreditarlo. No hay acreditación automática.",
+        "Armas, munición y explosivos.",
+        "Medicamentos, sustancias controladas y productos de uso restringido.",
+        "Material sujeto a controles de exportación.",
+        "Animales vivos.",
+        "Divisas, metales monetarios, tarjetas de regalo, criptoactivos e instrumentos financieros.",
+        "Bienes de procedencia ilícita o que infrinjan derechos de terceros.",
+        "Cualquier orden cuyo comprador o cuya dirección de entrega corresponda a personas o destinos sujetos a sanciones de Estados Unidos."
+      ]
+    },
+    "controles": {
+      "titulo": "Cómo verificamos cada operación",
+      "puntos": [
+        "Comprar exige una cuenta con correo verificado; la orden queda unida a esa cuenta.",
+        "Solo se aceptan pagos originados en bancos de Estados Unidos.",
+        "Ningún pago por transferencia se acredita solo: una persona lo comprueba contra el banco antes de aprobarlo.",
         "Los pagos rechazados quedan registrados con el motivo del rechazo.",
-        "Cada comercio queda identificado y sus operaciones quedan separadas de las de los demás.",
-        "Los retiros se registran, pero nunca se contabilizan como ingreso: los números de ventas no se pueden inflar."
+        "Quien vende no aprueba sus propios cobros: un proveedor no puede aprobar los pagos de sus propias órdenes."
       ]
     },
     "registros": {
       "titulo": "Qué queda registrado de cada operación",
       "puntos": [
-        "Monto, comisión y neto, en dólares.",
-        "Fecha del pago, fecha en que se subió el comprobante y fecha en que se verificó.",
-        "Número de confirmación de la transferencia.",
-        "Cuenta que recibió el pago y banco de origen cuando el comprobante lo muestra.",
-        "Comercio al que corresponde la operación.",
-        "Quién verificó el pago y cuándo."
+        "Número de orden, fecha, productos, precio unitario y total, en dólares.",
+        "Cuenta del comprador y dirección de entrega designada.",
+        "Método, fecha e importe del pago recibido, con su comprobante.",
+        "Factura de compra emitida por el proveedor a nombre de Windoce, LLC.",
+        "Factura de venta emitida por Windoce, LLC al comprador.",
+        "Constancia de entrega, y quién aprobó cada paso y cuándo."
       ]
     },
     "comisiones": {
-      "titulo": "Comisiones y por qué difieren",
-      "texto": "La comisión cubre el servicio, la verificación de cada pago y el costo de cobrar por ese medio. Es distinta según la forma de pago porque el costo y el riesgo también lo son.",
-      "nota": "La comisión aplicada a cada operación queda registrada y es visible tanto para el comercio como para nosotros."
+      "titulo": "Cómo se forma el precio",
+      "texto": "El proveedor nos vende la mercancía a su precio. El precio al que Windoce, LLC la revende al comprador lo fijamos y lo publicamos nosotros, e incluye nuestro margen comercial. El precio publicado es el precio final: no se agregan cargos después.",
+      "nota": "Nuestro ingreso es la diferencia entre el precio de compra y el precio de venta de un producto propio, no un cargo aplicado sobre dinero ajeno."
+    },
+    "retencion": {
+      "titulo": "Conservación de registros",
+      "texto": "Cada operación conserva sus documentos durante cinco años: orden, comprobante del pago recibido, factura de compra, factura de venta y constancia de entrega."
     },
     "contacto": {
       "titulo": "¿Necesitas más detalle?",
@@ -309,7 +332,7 @@
       "resumen": "Resumen",
       "pagosZelle": "Pagos Zelle",
       "validacion": "Por validar",
-      "billetera": "Billetera",
+      "billetera": "Por pagar al proveedor",
       "ordenes": "Órdenes",
       "tiendas": "Comercios",
       "clientes": "Compradores",
@@ -327,35 +350,35 @@
       "tuComercio": "Tu comercio"
     },
     "billetera": {
-      "titulo": "Billetera",
+      "titulo": "Por pagar al proveedor",
       "subtitulo": "Lo que el comercio tiene a su favor y lo que ya se llevó.",
-      "saldo": "Saldo disponible",
-      "saldoAyuda": "Neto tras comisiones y retiros. Ese dinero está en la cuenta del banco, a favor del comercio, esperando a que lo pida.",
+      "saldo": "Pendiente de pago",
+      "saldoAyuda": "Mercancía comprada al proveedor y todavía no pagada. Ese dinero está en la cuenta del banco, esperando la factura del proveedor.",
       "acreditado": "Acreditado en total",
       "yaRetirado": "Ya retirado",
       "cuantosRetiros": "{n, plural, =0 {Sin retiros} one {# retiro} other {# retiros}}",
       "esteMes": "Este mes",
       "mes": {
         "bruto": "Bruto cobrado",
-        "comision": "Comisión de Mercatren",
+        "comision": "Margen de Mercatren",
         "retirado": "Retirado",
         "rechazado": "Rechazado"
       },
       "comision": {
-        "titulo": "La caja de Mercatren (comisión del 3%)",
-        "texto": "Billetera aparte de la del comercio. Un retiro suyo no la toca, y un retiro de aquí no toca la de él.",
+        "titulo": "El margen de Mercatren",
+        "texto": "Cuenta aparte de la del proveedor. Un pago a él no la toca, y un movimiento de aquí no toca lo suyo.",
         "disponible": "Disponible para retirar",
         "ganado": "Ganado histórico",
         "retirado": "Ya retirado",
         "cuantosRetiros": "{n, plural, =0 {Sin retiros} one {# retiro} other {# retiros}}",
         "verRetiros": "Ver los retiros"
       },
-      "sinBilletera": "Todavía no hay ningún comercio con billetera.",
+      "sinBilletera": "Todavía no hay ningún proveedor con cuenta abierta.",
       "movimientos": "Movimientos",
       "sinMovimientos": "Todavía no hay movimientos. Cada pago que se apruebe aparecerá aquí.",
-      "avisoHistorico": "El saldo no está escrito a mano: sale de restarle a todo lo acreditado lo que el comercio ya retiró. Cada pago que se apruebe lo sube solo.",
-      "proveedor": "Servicio de billetera",
-      "pendienteConexion": "El saldo se sincronizará con {proveedor} cuando se conecte el servicio. Por ahora se lleva aquí.",
+      "avisoHistorico": "El pendiente no está escrito a mano: sale de restarle a toda la mercancía comprada lo que ya se le pagó. Cada operación aprobada lo sube sola.",
+      "proveedor": "Servicio de pagos",
+      "pendienteConexion": "El pendiente se sincronizará con {proveedor} cuando se conecte el servicio. Por ahora se lleva aquí.",
       "tipos": {
         "entrada": "Pago acreditado",
         "retiro": "Retiro del comercio",
@@ -368,20 +391,20 @@
         "fecha": "Fecha",
         "concepto": "Concepto",
         "monto": "Monto",
-        "saldo": "Saldo después"
+        "saldo": "Pendiente después"
       },
       "datosHasta": "Los datos llegan hasta el {fecha}. Lo posterior todavía no se ha traído del sistema anterior."
     },
     "comercios": {
       "titulo": "Comercios",
-      "subtitulo": "Cada comercio entra con su cuenta y solo ve sus pagos y su saldo.",
+      "subtitulo": "Cada proveedor entra con su cuenta y solo ve sus operaciones y lo que se le compró.",
       "columnas": {
         "nombre": "Comercio",
         "pais": "País",
-        "comision": "Comisión",
+        "comision": "Margen",
         "pagos": "Pagos aprobados",
         "ingresos": "Ingresos",
-        "saldo": "Saldo",
+        "saldo": "Pendiente",
         "estado": "Estado"
       },
       "estados": {
@@ -410,10 +433,10 @@
       "tarjetas": {
         "ingresos": "Ingresos aprobados",
         "ingresosPie": "{n, plural, one {# pago aprobado} other {# pagos aprobados}}",
-        "comision": "Comisión de Mercatren",
+        "comision": "Margen de Mercatren",
         "comisionPie": "3% sobre lo aprobado",
         "neto": "Neto a comercios",
-        "netoPie": "Después de comisión",
+        "netoPie": "Costo de la mercancía",
         "sellers": "Comercios activos",
         "sellersPie": "Con pagos registrados",
         "pendientes": "Esperando validación",
@@ -434,7 +457,7 @@
         "periodo": "Período",
         "pagos": "Pagos",
         "monto": "Ingresos",
-        "comision": "Comisión",
+        "comision": "Margen",
         "neto": "Neto",
         "total": "Total",
         "soloEntradas": "Solo entradas aprobadas. Los retiros quedan fuera.",
@@ -486,7 +509,7 @@
         "cuentaTerminada": "Cuenta …{ultimos4}",
         "recibio": "Recibió",
         "sinCuentaReceptora": "Cuenta receptora sin registrar",
-        "comision": "Comisión",
+        "comision": "Margen",
         "neto": "Neto",
         "recibo": "Comprobante",
         "sinRecibo": "Sin comprobante",
@@ -517,7 +540,7 @@
         "vacio": "No hay pagos esperando revisión.",
         "aprobar": "Aprobar y acreditar",
         "rechazar": "Rechazar",
-        "aviso": "Al aprobar, el neto se le acredita al comercio en su billetera. Revisa primero que el pago esté de verdad en el banco.",
+        "aviso": "Al aprobar se registra la compra de la mercancía al proveedor. Revisa primero que el pago esté de verdad en el banco.",
         "motivoTitulo": "¿Por qué se rechaza?",
         "motivoPlaceholder": "Motivo del rechazo",
         "confirmarRechazo": "Confirmar rechazo",
@@ -525,7 +548,7 @@
         "trabajando": "Un momento…",
         "acreditado": "Se le acreditó {monto} al comercio.",
         "tituloComercio": "Tus pagos en revisión",
-        "subtituloComercio": "Pagos que recibiste y que Mercatren está comprobando contra el banco. En cuanto se confirmen, el neto entra a tu billetera.",
+        "subtituloComercio": "Ventas de tu mercancía que Mercatren está comprobando contra el banco. En cuanto se confirmen, esa compra pasa a lo que se te debe pagar.",
         "avisoComercio": "La comprobación la hace el equipo de Mercatren contra el banco, no el comercio. Es lo que le da valor a la verificación: nadie aprueba sus propios cobros."
       }
     },
@@ -699,7 +722,7 @@
       "subtitulo": "Cómo está montado el servicio y qué falta por conectar. Solo lo ve el equipo de Mercatren.",
       "operacion": {
         "titulo": "La operación",
-        "comision": "Comisión por venta",
+        "comision": "Margen por venta",
         "comisionValor": "3 % sobre el valor del pedido",
         "moneda": "Moneda",
         "monedaValor": "Dólares de Estados Unidos, en todo el ciclo",
@@ -790,9 +813,9 @@
       "recibio": "Recibió",
       "comercio": "Comercio",
       "aprobado": "Aprobado",
-      "comision": "Comisión de Mercatren",
+      "comision": "Margen de Mercatren",
       "neto": "Neto para el comercio",
-      "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce LLC.",
+      "pie": "Pago cobrado en Estados Unidos y entregado por el comercio. Mercatren es un servicio de Windoce, LLC.",
       "trayendoMas": "Trayendo más ventas…",
       "esoEsTodo": "Eso es todo: {n} ventas.",
       "verMas": "Ver más"
@@ -806,7 +829,7 @@
       "pagoYaRevisado": "Ese pago ya fue revisado.",
       "soloEntradas": "Solo se acreditan las entradas. Un retiro no suma.",
       "pagoSinComercio": "El pago no tiene comercio asignado; no se sabe a quién acreditarle.",
-      "sinBilletera": "Ese comercio todavía no tiene billetera abierta.",
+      "sinBilletera": "Ese proveedor todavía no tiene cuenta abierta.",
       "pagoAprobado": "Pago aprobado y acreditado al comercio.",
       "pagoRechazado": "Pago rechazado.",
       "motivoObligatorio": "Escribe el motivo del rechazo: el comercio necesita saber por qué.",
@@ -867,7 +890,7 @@
       "faltaCuenta": "Escribe el número de cuenta.",
       "faltaRuta": "Escribe el número de ruta del banco.",
       "faltaMotivo": "Escribe por qué no se puede hacer el retiro.",
-      "retiroPedido": "Listo. Tu retiro quedó pedido y el monto se apartó de tu saldo.",
+      "retiroPedido": "Listo. Tu solicitud de pago quedó registrada y el monto se apartó del pendiente.",
       "retiroPagado": "Retiro marcado como pagado.",
       "retiroRechazado": "Retiro rechazado. El monto vuelve a estar disponible.",
       "retiroCancelado": "Retiro cancelado. El monto vuelve a estar disponible.",
@@ -893,7 +916,7 @@
       "ventas": "Ventas aprobadas",
       "bruto": "Bruto cobrado",
       "neto": "Neto del comercio",
-      "verBilletera": "Ver su billetera",
+      "verBilletera": "Ver lo que se le debe",
       "verTienda": "Ver su tienda",
       "roles": {
         "soporte": "Soporte",
@@ -921,7 +944,7 @@
         "paisEmpresa": "País",
         "sitioWeb": "Sitio web",
         "horario": "Horario",
-        "comision": "Comisión",
+        "comision": "Margen",
         "estado": "Estado"
       },
       "estados": {
@@ -949,7 +972,7 @@
       "subtituloEquipo": "Lo que los comercios han pedido sacar. Haz la transferencia en el banco y márcala aquí.",
       "disponible": "Disponible para retirar",
       "enTramite": "Pedido, esperando transferencia",
-      "saldoTotal": "Saldo total",
+      "saldoTotal": "Pendiente total",
       "pedir": "Retirar mi dinero",
       "cuanto": "¿Cuánto quieres retirar?",
       "cuantoAyuda": "Puedes pedir hasta {monto}.",
@@ -1122,10 +1145,10 @@
     "pago": {
       "titulo": "¿Cómo vas a pagar?",
       "zelle": "Zelle",
-      "zelleTexto": "Transfieres desde tu banco de Estados Unidos y subes la captura. Comisión 3%.",
+      "zelleTexto": "Transfieres desde tu banco de Estados Unidos y subes la captura. Disponible desde $200.",
       "tarjeta": "Tarjeta de crédito o débito",
-      "tarjetaTexto": "Comisión 5%.",
-      "billetera": "Saldo en mi billetera",
+      "tarjetaTexto": "El método principal. El precio publicado es el mismo.",
+      "billetera": "Nota de crédito a mi favor",
       "billeteraTexto": "Sin costo extra.",
       "proximamente": "Próximamente",
       "stripe": "Tarjeta de crédito o débito",
@@ -1224,7 +1247,7 @@
     "transferencia": {
       "titulo": "Transferencia bancaria",
       "subtitulo": "ACH o wire, dentro de Estados Unidos",
-      "beneficiario": "Beneficiario",
+      "beneficiario": "A nombre de",
       "banco": "Banco",
       "cuenta": "Número de cuenta",
       "rutaAch": "Ruta ACH",
@@ -1261,31 +1284,31 @@
   },
   "docs": {
     "titulo": "Documentación",
-    "entradilla": "Los documentos públicos de Mercatren: cómo funciona el modelo, por dónde va el dinero y qué evidencia queda de cada operación. Abiertos, sin registro y sin necesidad de entrar con una cuenta.",
+    "entradilla": "Los documentos públicos de Mercatren: qué vendemos y a quién, cómo se documenta cada operación y qué evidencia queda. Abiertos, sin registro y sin necesidad de entrar con una cuenta.",
     "indice": "En esta página",
     "volver": "Documentación",
     "version": "Versión",
     "actualizado": "Actualizado",
     "leer": "Leer el documento",
     "descargar": "Descargar el PDF completo",
-    "descargarNota": "20 páginas. Incluye la estructura contractual, el encuadre regulatorio, los controles de cumplimiento y el plan de crecimiento.",
+    "descargarNota": "El documento completo en PDF, con la misma estructura y el mismo contenido que la página.",
     "imprimir": "Imprimir esta página",
     "paraBancos": "Para bancos y cumplimiento",
-    "paraBancosTexto": "Si estás revisando esta operación desde un banco, una auditoría o un área de cumplimiento, el PDF completo incluye los apartados que no se publican en esta página.",
+    "paraBancosTexto": "Si estás revisando esta operación desde un banco, una auditoría o un área de cumplimiento, el documento incluye la estructura contractual, el encuadre regulatorio, los controles de cumplimiento y la trazabilidad de cada operación.",
     "documentos": {
       "modelo": {
-        "nombre": "Modelo de negocio y flujo de fondos",
-        "resumen": "El documento operativo completo: el ciclo de una orden, quién es quién, qué cruza la frontera y qué no, por qué se cobra por Zelle y la economía de cada operación.",
+        "nombre": "Modelo de negocio y estructura contractual",
+        "resumen": "El documento completo: qué vende Mercatren y a quién, la estructura de compraventa con sus dos facturas, el encuadre regulatorio, los controles de cumplimiento y la trazabilidad.",
         "etiqueta": "Documento principal"
       },
       "comoFunciona": {
         "nombre": "Cómo funciona Mercatren",
-        "resumen": "La versión corta para quien va a comprar o a vender: los pasos, los tiempos y las formas de pago.",
+        "resumen": "La versión corta para quien va a comprar o a publicar su catálogo: los pasos, los tiempos y las formas de pago.",
         "etiqueta": "Guía rápida"
       },
       "transparencia": {
         "nombre": "Transparencia",
-        "resumen": "Quiénes somos, qué límites tiene el servicio, qué controles aplicamos y cuánto tiempo guardamos los registros.",
+        "resumen": "Quiénes somos, qué límites tiene el servicio, qué productos no se venden, qué controles aplicamos y cuánto tiempo guardamos los registros.",
         "etiqueta": "Política"
       }
     }
@@ -1365,21 +1388,21 @@
       "boton": "Ir a mi pedido"
     },
     "ventaAcreditada": {
-      "asunto": "Venta acreditada: {monto} a tu billetera",
-      "previo": "El pago fue verificado y el neto ya está en tu saldo.",
+      "asunto": "Compra registrada: {monto} de mercancía tuya",
+      "previo": "El pago fue verificado y ya te compramos la mercancía.",
       "titulo": "Te acreditamos una venta",
       "parrafos": [
-        "Verificamos un pago de un cliente tuyo y el neto (monto menos la comisión) ya está acreditado en tu billetera de Mercatren.",
+        "Verificamos el pago de una venta de tu mercancía. Windoce, LLC te compró ese producto: el importe de la compra queda registrado a tu favor y se te paga contra tu factura.",
         "Ya puedes coordinar la entrega del pedido con tu cliente."
       ],
-      "boton": "Ver mi billetera"
+      "boton": "Ver lo que se me debe"
     },
     "comercioAprobado": {
       "asunto": "{tienda} ya puede vender en Mercatren",
       "previo": "Tu tienda quedó aprobada.",
       "titulo": "¡Tu tienda está abierta!",
       "parrafo1": "Revisamos los datos de {tienda} y todo quedó en orden: tu tienda ya está activa y tus productos publicados se pueden comprar.",
-      "parrafo2": "Entra a tu panel para cargar productos, revisar tus ventas y ver tu billetera.",
+      "parrafo2": "Entra a tu panel para cargar productos, revisar tus ventas y ver lo que se te debe pagar.",
       "boton": "Ir a mi panel"
     }
   },
@@ -1419,7 +1442,7 @@
       },
       "panel": {
         "titulo": "Panel de administración",
-        "texto": "Tu comercio: pagos, billetera y validación."
+        "texto": "Tu operación: ventas, pagos y validación."
       }
     },
     "nombre": "Nombre",
@@ -1438,7 +1461,7 @@
   },
   "comercio": {
     "titulo": "Registra tu comercio",
-    "entradilla": "Cuéntanos de tu empresa. Con esto abrimos tu tienda y tu billetera.",
+    "entradilla": "Cuéntanos de tu empresa. Con esto publicamos tu catálogo y abrimos tu cuenta.",
     "porQueLosDatos": "Pedimos estos datos porque cada venta se cobra en Estados Unidos a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda.",
     "opcional": "opcional",
     "enviar": "Registrar mi comercio",

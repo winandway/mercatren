@@ -100,7 +100,7 @@ export default async function LayoutIdioma({
   setRequestLocale(locale);
 
   // La ficha de la organizacion para Google: Mercatren es la marca y
-  // Windoce LLC la sociedad que la opera. Una sola vez, en el layout.
+  // Windoce, LLC la sociedad que la opera. Una sola vez, en el layout.
   const fichaOrganizacion = {
     "@context": "https://schema.org",
     "@type": "Organization",
