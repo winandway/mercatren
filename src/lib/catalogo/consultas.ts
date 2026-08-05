@@ -205,7 +205,46 @@ export async function obtenerProductoPorSlug(slug: string) {
 
   const [fila] = await db
     .select({
-      producto: productos,
+      /**
+       * LAS COLUMNAS SE NOMBRAN UNA POR UNA, nunca `productos` a secas.
+       *
+       * Pedir la tabla entera hace que Drizzle liste TODAS las columnas del
+       * esquema, incluidas las recien agregadas. Y en YaDominios Cloud
+       * `schema.sql` solo trae CREATE TABLE IF NOT EXISTS: una base que ya
+       * existe NO recibe columnas nuevas. Resultado: el codigo pide una
+       * columna que en produccion no esta y la pantalla revienta con 500.
+       *
+       * Paso de verdad el 5 ago 2026 con `precio_base_centavos` y
+       * `deposito_id`: en local perfecto, en produccion ninguna ficha de
+       * producto abria. Nombrando las columnas, agregar una al esquema no
+       * puede volver a tumbar nada.
+       */
+      producto: {
+        id: productos.id,
+        tiendaId: productos.tiendaId,
+        categoriaId: productos.categoriaId,
+        slug: productos.slug,
+        sku: productos.sku,
+        marca: productos.marca,
+        tituloEs: productos.tituloEs,
+        tituloEn: productos.tituloEn,
+        descripcionEs: productos.descripcionEs,
+        descripcionEn: productos.descripcionEn,
+        precioCentavos: productos.precioCentavos,
+        precioAntesCentavos: productos.precioAntesCentavos,
+        moneda: productos.moneda,
+        existencias: productos.existencias,
+        controlaExistencias: productos.controlaExistencias,
+        unidad: productos.unidad,
+        pesoGramos: productos.pesoGramos,
+        estado: productos.estado,
+        destacado: productos.destacado,
+        fuenteId: productos.fuenteId,
+        externoId: productos.externoId,
+        sincronizadoEn: productos.sincronizadoEn,
+        creadoEn: productos.creadoEn,
+        actualizadoEn: productos.actualizadoEn,
+      },
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,

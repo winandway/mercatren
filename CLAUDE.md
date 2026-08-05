@@ -226,6 +226,15 @@ ficha nunca tenga huecos.
   en el servidor, no en el navegador) y la anterior se borra **después** de
   guardar la nueva.
 
+**NUNCA pedir una tabla entera en una consulta** (`producto: productos` o
+`.select()` sin columnas). Drizzle lista TODAS las columnas del esquema,
+incluidas las que se acaban de agregar — y como `schema.sql` solo trae
+`CREATE TABLE IF NOT EXISTS`, una base que ya existe no las recibe. El código
+pide una columna que en producción no está y la pantalla revienta con 500.
+**Pasó el 5 ago 2026** con `deposito_id`: en local todo perfecto, en
+producción ninguna ficha de producto abría. Se arregla nombrando las
+columnas, y así agregar una al esquema no puede tumbar nada.
+
 **Columnas nuevas en `tiendas`:** `razon_social`, `identificacion_fiscal`,
 `correo_contacto`, `telefono`, `direccion`, `ciudad`, `sitio_web`, `horario`.
 Se aplicaron a producción con `ALTER TABLE` vía `npm run db:cargar`, y a la

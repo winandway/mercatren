@@ -134,7 +134,34 @@ export async function obtenerMiProducto(id: string) {
   const alcance = await obtenerAlcance();
 
   const [producto] = await db
-    .select()
+    /* Columnas nombradas, no `.select()`: ver la explicacion en
+       src/lib/catalogo/consultas.ts. */
+    .select({
+      id: productos.id,
+      tiendaId: productos.tiendaId,
+      categoriaId: productos.categoriaId,
+      slug: productos.slug,
+      sku: productos.sku,
+      marca: productos.marca,
+      tituloEs: productos.tituloEs,
+      tituloEn: productos.tituloEn,
+      descripcionEs: productos.descripcionEs,
+      descripcionEn: productos.descripcionEn,
+      precioCentavos: productos.precioCentavos,
+      precioAntesCentavos: productos.precioAntesCentavos,
+      moneda: productos.moneda,
+      existencias: productos.existencias,
+      controlaExistencias: productos.controlaExistencias,
+      unidad: productos.unidad,
+      pesoGramos: productos.pesoGramos,
+      estado: productos.estado,
+      destacado: productos.destacado,
+      fuenteId: productos.fuenteId,
+      externoId: productos.externoId,
+      sincronizadoEn: productos.sincronizadoEn,
+      creadoEn: productos.creadoEn,
+      actualizadoEn: productos.actualizadoEn,
+    })
     .from(productos)
     .where(eq(productos.id, id))
     .limit(1);

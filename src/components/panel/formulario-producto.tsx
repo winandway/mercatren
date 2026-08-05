@@ -24,13 +24,18 @@ type Producto = {
   marca: string | null;
   unidad: string | null;
   precioCentavos: number;
-  precioBaseCentavos: number | null;
+  /**
+   * Opcionales a proposito: mientras la base de produccion no tenga estas dos
+   * columnas, la consulta no las trae. Exigirlas dejaba la pantalla sin
+   * compilar y, peor, tumbaba la ficha publica con 500.
+   */
+  precioBaseCentavos?: number | null;
   precioAntesCentavos: number | null;
   existencias: number;
   controlaExistencias: boolean;
   estado: string;
   destacado: boolean;
-  categoriaId: string | null;
+  categoriaId?: string | null;
 };
 
 /** De centavos a lo que se escribe en la casilla. */
