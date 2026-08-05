@@ -54,35 +54,66 @@ export const PROCESADOR_PORCENTAJE_PB = 290;
 export const PROCESADOR_FIJO_CENTAVOS = 30;
 
 /**
- * EL PRECIO QUE SE PUBLICA: el del comercio más el ajuste por procesamiento.
+ * EL PRECIO QUE SE PUBLICA: el del proveedor, más lo que hay que cubrir.
  *
- * Decisión del 4 ago 2026. El fee de la tarjeta no se le recarga al cliente
- * en el checkout (se ve feo y los recargos por tarjeta están penados en
- * varios estados): va INCORPORADO en el precio de la etiqueta. El comercio
- * escribe SU precio y el sistema publica el precio con el ajuste; el cliente
- * ve un solo número y paga exactamente ese.
+ * El precio publicado tiene que aguantar DOS cosas y aún dejarle al proveedor
+ * su precio completo:
  *
- * LA CUENTA ES HACIA ATRÁS, no hacia adelante. No es "precio + 2.9%": es
- * encontrar el publicado V tal que, después de que el procesador cobre su
- * 2.9% de V y sus 30 centavos, quede el precio del comercio completo:
+ *   1. Lo que se lleva el procesador de tarjeta: 2.9% + $0.30 (tarifa
+ *      estándar de Stripe en Estados Unidos, comprobada el 5 ago 2026).
+ *   2. El margen de Mercatren: 2% del precio de venta, que es como se calcula
+ *      en la venta (ver COMISION_TARJETA_PB y el webhook de Stripe). Si la
+ *      fórmula no lo incluyera, el margen saldría del bolsillo del proveedor.
  *
- *   V − 2.9%·V − $0.30 = base   →   V = (base + $0.30) / 0.971
+ * LA CUENTA ES HACIA ATRÁS, no hacia adelante. No es "precio + 4.9%": es
+ * encontrar el publicado V tal que, después de quitarle todo, quede el precio
+ * del proveedor completo:
  *
- * Sumar el 2.9% hacia adelante deja corto: en $100, publicar $103.20 hace
- * que el procesador cobre sobre 103.20 y falten centavos. Siempre faltan.
+ *   V − 2.9%·V − $0.30 − 2%·V = base
+ *   V · (1 − 0.029 − 0.02) = base + 0.30
+ *   V = (base + $0.30) / 0.951
+ *
+ * Sumar los porcentajes hacia adelante deja corto: en $100, publicar $104.90
+ * hace que el procesador cobre sobre 104.90 y falten centavos. Siempre faltan.
  *
  * Se redondea HACIA ARRIBA al centavo: el centavo de diferencia queda de
  * colchón a favor, nunca en contra.
  *
- * Todo entero: (base + 30) * 1000 / 971, techo. Sin coma flotante, que
+ * Todo entero: (base + 30) * 10000 / 9510, techo. Sin coma flotante, que
  * pierde centavos (932.76 * 100 = 93275.99999999999).
+ *
+ * OJO — EL AJUSTE SE APLICA UNA SOLA VEZ, SOBRE LA BASE. Aplicarlo sobre un
+ * precio que ya lo tiene infla el precio en cada guardado: 500 → 525 → 552…
+ * Pasó de verdad el 5 ago 2026 (un producto llegó a 595 partiendo de 500)
+ * porque el formulario no recibía la base y caía en el precio publicado.
+ * Por eso existe `baseDesdePublicado`: para volver atrás sin adivinar.
  */
 export function precioConAjusteCentavos(baseCentavos: number): number {
   if (baseCentavos <= 0) return 0;
   return Math.ceil(
     ((baseCentavos + PROCESADOR_FIJO_CENTAVOS) * 10_000) /
-      (10_000 - PROCESADOR_PORCENTAJE_PB),
+      (10_000 - PROCESADOR_PORCENTAJE_PB - COMISION_TARJETA_PB),
   );
+}
+
+/**
+ * EL CAMINO DE VUELTA: del precio publicado al precio del proveedor.
+ *
+ * Hace falta para rellenar el formulario cuando no se guardó la base —los
+ * productos viejos y los que llegaron por sincronización— sin tener que
+ * adivinar. Es la fórmula al revés, redondeada hacia abajo para que al
+ * volver a aplicar el ajuste se llegue al MISMO publicado y el precio deje
+ * de moverse. Está comprobado en las pruebas: ida y vuelta es estable.
+ */
+export function baseDesdePublicado(publicadoCentavos: number): number {
+  if (publicadoCentavos <= 0) return 0;
+  const base =
+    Math.floor(
+      (publicadoCentavos *
+        (10_000 - PROCESADOR_PORCENTAJE_PB - COMISION_TARJETA_PB)) /
+        10_000,
+    ) - PROCESADOR_FIJO_CENTAVOS;
+  return Math.max(0, base);
 }
 
 /** El ajuste solo, para enseñárselo al comercio: "tu precio + $0.61". */

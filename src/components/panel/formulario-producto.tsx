@@ -9,6 +9,7 @@ import {
   DEPARTAMENTOS,
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
+import { baseDesdePublicado } from "@/lib/dinero";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
 
@@ -218,7 +219,8 @@ export function FormularioProducto({
               valor={
                 producto
                   ? aTexto(
-                      producto.precioBaseCentavos ?? producto.precioCentavos,
+                      producto.precioBaseCentavos ??
+                        baseDesdePublicado(producto.precioCentavos),
                     )
                   : ""
               }
@@ -228,7 +230,11 @@ export function FormularioProducto({
               nombre="precioAntes"
               modo="decimal"
               etiqueta={t("precioAntes")}
-              valor={producto ? aTexto(producto.precioAntesCentavos) : ""}
+              valor={
+                producto?.precioAntesCentavos
+                  ? aTexto(baseDesdePublicado(producto.precioAntesCentavos))
+                  : ""
+              }
               placeholder="0.00"
             />
           </div>

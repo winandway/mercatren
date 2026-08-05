@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { precioConAjusteCentavos } from "@/lib/dinero";
+import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
 import { mensajes } from "@/lib/mensajes";
 import { imagenesProducto, productos } from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
@@ -364,24 +364,49 @@ export async function aplicarAjusteAlCatalogo(): Promise<{
 
   const db = getDb();
 
-  const pendientes = await db
-    .select({ id: productos.id, precioCentavos: productos.precioCentavos })
-    .from(productos)
-    .where(isNull(productos.precioBaseCentavos));
+  /**
+   * RECALCULA EL PRECIO PUBLICADO DE TODO EL CATÁLOGO, DESDE LA BASE.
+   *
+   * Sirve para dos cosas a la vez:
+   *
+   *   1. Rellenar la base de los productos que no la tienen (los viejos):
+   *      se obtiene invirtiendo el ajuste, no adivinando.
+   *   2. Volver a publicar con la fórmula vigente. El 5 ago 2026 la fórmula
+   *      pasó a incluir también el margen del 2%, así que todo el catálogo
+   *      tenía que recalcularse.
+   *
+   * Es IDEMPOTENTE: correrlo dos veces da el mismo resultado, porque siempre
+   * parte de la base del proveedor y nunca del precio ya publicado. Ese fue
+   * justamente el error que infló los precios.
+   */
+  const todos = await db
+    .select({
+      id: productos.id,
+      precioCentavos: productos.precioCentavos,
+      precioBaseCentavos: productos.precioBaseCentavos,
+    })
+    .from(productos);
 
   let ajustados = 0;
-  for (const p of pendientes) {
-    const base = Number(p.precioCentavos);
+  for (const p of todos) {
+    const base =
+      p.precioBaseCentavos ?? baseDesdePublicado(Number(p.precioCentavos));
+    const publicado = base > 0 ? precioConAjusteCentavos(base) : 0;
+
+    // Solo se escribe lo que de verdad cambia: así el contador dice cuántos
+    // se movieron y no "689" cada vez que se pulsa.
+    if (base === p.precioBaseCentavos && publicado === p.precioCentavos) {
+      continue;
+    }
+
     await db
       .update(productos)
       .set({
         precioBaseCentavos: base,
-        precioCentavos: base > 0 ? precioConAjusteCentavos(base) : base,
+        precioCentavos: publicado,
         actualizadoEn: new Date(),
       })
-      // El WHERE repite la condición: si dos personas pulsan el botón a la
-      // vez, el segundo UPDATE no encuentra la fila y no ajusta dos veces.
-      .where(and(eq(productos.id, p.id), isNull(productos.precioBaseCentavos)));
+      .where(eq(productos.id, p.id));
     ajustados++;
   }
 

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ajusteCentavos,
+  baseDesdePublicado,
   calcularComisionCentavos,
   calcularNetoVendedorCentavos,
+  COMISION_TARJETA_PB,
   formatearPrecio,
   precioConAjusteCentavos,
-  ajusteCentavos,
 } from "@/lib/dinero";
 
 describe("formatearPrecio", () => {
@@ -50,21 +52,22 @@ describe("comision del mercado", () => {
 });
 
 describe("el ajuste por procesamiento en el precio publicado", () => {
-  it("publica el precio que deja la base completa tras el fee", () => {
-    // V = (base + 30) / 0.971, techo al centavo.
-    expect(precioConAjusteCentavos(1000)).toBe(1061); // $10 → $10.61
-    expect(precioConAjusteCentavos(10000)).toBe(10330); // $100 → $103.30
-    expect(precioConAjusteCentavos(48)).toBe(81); // $0.48 → $0.81
+  it("publica el precio que deja la base completa tras el procesador y el margen", () => {
+    // V = (base + 30) / 0.951 — 2.9% del procesador + 2% de margen.
+    expect(precioConAjusteCentavos(1000)).toBe(1084); // $10 → $10.84
+    expect(precioConAjusteCentavos(10000)).toBe(10547); // $100 → $105.47
+    expect(precioConAjusteCentavos(48)).toBe(83); // $0.48 → $0.83
   });
 
-  it("después del fee real, al comercio nunca le falta", () => {
+  it("después del procesador y del margen, al proveedor nunca le falta", () => {
     for (const base of [48, 199, 1000, 4999, 25000, 3313725]) {
       const publicado = precioConAjusteCentavos(base);
-      const fee = Math.round((publicado * 290) / 10_000) + 30;
-      // Lo que queda tras el procesador cubre la base, siempre.
-      expect(publicado - fee).toBeGreaterThanOrEqual(base);
+      const procesador = Math.round((publicado * 290) / 10_000) + 30;
+      const margen = calcularComisionCentavos(publicado, COMISION_TARJETA_PB);
+      // Lo que queda tras el procesador y el margen cubre la base, siempre.
+      expect(publicado - procesador - margen).toBeGreaterThanOrEqual(base);
       // Y el colchón del redondeo es de centavos, no un sobreprecio.
-      expect(publicado - fee - base).toBeLessThanOrEqual(2);
+      expect(publicado - procesador - margen - base).toBeLessThanOrEqual(2);
     }
   });
 
@@ -74,7 +77,53 @@ describe("el ajuste por procesamiento en el precio publicado", () => {
   });
 
   it("el ajuste que se le enseña al comercio cuadra con el publicado", () => {
-    expect(ajusteCentavos(1000)).toBe(61);
+    expect(ajusteCentavos(1000)).toBe(84);
     expect(precioConAjusteCentavos(1000)).toBe(1000 + ajusteCentavos(1000));
+  });
+});
+
+/**
+ * EL PRECIO NO PUEDE SUBIR SOLO.
+ *
+ * El 5 ago 2026 un comercio subió un producto a $500 y el precio se fue
+ * solo a $515.25, luego a $595. La causa: el formulario no recibía el precio
+ * base, caía en el precio ya publicado y el ajuste se aplicaba encima del
+ * ajuste en cada guardado.
+ *
+ * Estas pruebas fijan la propiedad que faltaba: guardar N veces tiene que dar
+ * exactamente lo mismo que guardar una.
+ */
+describe("el ajuste no se acumula", () => {
+  it("guardar diez veces deja el mismo precio que guardar una", () => {
+    const base = 50_000; // $500
+    const primera = precioConAjusteCentavos(base);
+
+    let publicado = primera;
+    for (let i = 0; i < 10; i++) {
+      // Cada guardado: el formulario enseña la base y el servidor reajusta.
+      publicado = precioConAjusteCentavos(baseDesdePublicado(publicado));
+    }
+
+    expect(publicado).toBe(primera);
+  });
+
+  it("la vuelta atrás es estable en todo el rango de precios", () => {
+    for (const base of [1, 50, 99, 100, 999, 1_000, 42_489, 50_000, 123_456]) {
+      const publicado = precioConAjusteCentavos(base);
+      const otraVez = precioConAjusteCentavos(baseDesdePublicado(publicado));
+      expect(otraVez).toBe(publicado);
+    }
+  });
+
+  it("el publicado cubre el procesador y el margen, y el proveedor cobra completo", () => {
+    const base = 50_000;
+    const publicado = precioConAjusteCentavos(base);
+
+    // Lo que se lleva Stripe (2.9% + $0.30) y nuestro margen (2%).
+    const stripe = Math.round((publicado * 290) / 10_000) + 30;
+    const margen = calcularComisionCentavos(publicado, COMISION_TARJETA_PB);
+
+    // Al proveedor le tiene que quedar su precio completo, nunca menos.
+    expect(publicado - stripe - margen).toBeGreaterThanOrEqual(base);
   });
 });

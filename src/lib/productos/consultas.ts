@@ -148,6 +148,17 @@ export async function obtenerMiProducto(id: string) {
       descripcionEs: productos.descripcionEs,
       descripcionEn: productos.descripcionEn,
       precioCentavos: productos.precioCentavos,
+      /**
+       * EL PRECIO DEL COMERCIO, SIN EL AJUSTE. Es el que se le enseña en el
+       * formulario, y faltaba aquí.
+       *
+       * Sin esta columna el formulario caía en su respaldo y mostraba el
+       * precio PUBLICADO. Al guardar, el ajuste se aplicaba encima del precio
+       * que ya lo tenía, y cada vez que el comercio abría y guardaba su
+       * producto el precio subía solo: 500 → 515.25 → 531 → 547… Un comercio
+       * lo reportó el 5 ago 2026 con un producto que llegó a 595.
+       */
+      precioBaseCentavos: productos.precioBaseCentavos,
       precioAntesCentavos: productos.precioAntesCentavos,
       moneda: productos.moneda,
       existencias: productos.existencias,
