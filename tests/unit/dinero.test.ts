@@ -127,3 +127,30 @@ describe("el ajuste no se acumula", () => {
     expect(publicado - stripe - margen).toBeGreaterThanOrEqual(base);
   });
 });
+
+/**
+ * EL PRECIO DE UNA VARIANTE LLEVA EL MISMO AJUSTE QUE EL DEL PADRE.
+ *
+ * Una talla especial suele costar más, y si su precio se publicara tal cual
+ * lo escribe el proveedor, esa talla se vendería sin cubrir el procesador ni
+ * el margen: la única que da pérdida, y sin que nadie lo note.
+ */
+describe("el precio de las variantes", () => {
+  it("cada talla cubre el procesador y el margen por separado", () => {
+    // La misma camisa: S más barata, XXL más cara.
+    for (const base of [1_200, 1_500, 1_800]) {
+      const publicado = precioConAjusteCentavos(base);
+      const procesador = Math.round((publicado * 290) / 10_000) + 30;
+      const margen = calcularComisionCentavos(publicado, COMISION_TARJETA_PB);
+
+      expect(publicado - procesador - margen).toBeGreaterThanOrEqual(base);
+    }
+  });
+
+  it("guardar las variantes dos veces no infla sus precios", () => {
+    const base = 1_800;
+    const primera = precioConAjusteCentavos(base);
+    const segunda = precioConAjusteCentavos(baseDesdePublicado(primera));
+    expect(segunda).toBe(primera);
+  });
+});

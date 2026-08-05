@@ -935,7 +935,9 @@
       "pedidoEntregado": "Pedido marcado como entregado.",
       "ajusteAplicado": "Listo. Se aplicó el ajuste a {n} productos; el precio de cada comercio quedó guardado.",
       "metodoNoDisponible": "Esa forma de pago todavía no está disponible.",
-      "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta."
+      "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta.",
+      "variantesGuardadas": "Tallas y colores guardados.",
+      "medidasGuardadas": "Medidas guardadas."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1083,6 +1085,38 @@
       "nivelCritico": "Crítico",
       "nivelCuidado": "Cuidado",
       "comoCrece": "¿Se te escapó una palabra en una llamada o en un correo? Dila aquí y se agrega con su porqué. Este diccionario crece con los resbalones que pasan de verdad, no con los que uno se imagina."
+    },
+    "variantes": {
+      "titulo": "Tallas y colores",
+      "texto": "Si tu producto viene en varias tallas o colores, cárgalos aquí. Cada combinación se vende aparte, con su propio precio y su propio stock: talla M azul y talla M roja son dos cosas distintas en tu depósito.",
+      "sinVariantes": "Este producto no tiene tallas ni colores. Si los tiene, agrega una fila.",
+      "agregar": "Agregar talla o color",
+      "guardar": "Guardar tallas y colores",
+      "quitar": "Quitar esta fila",
+      "ayudaPrecio": "Escribe TU precio, el que quieres cobrar. El sistema le suma lo del procesador y el margen al publicarlo; tú cobras completo.",
+      "col": {
+        "talla": "Talla",
+        "color": "Color",
+        "muestra": "Muestra",
+        "precio": "Tu precio",
+        "stock": "Stock",
+        "sku": "Código"
+      },
+      "ph": {
+        "talla": "M",
+        "color": "Azul"
+      }
+    },
+    "medidas": {
+      "titulo": "Peso y medidas",
+      "texto": "Para que quien compra sepa si le entra en el carro antes de manejar hasta el depósito. Deja vacío lo que no aplique.",
+      "peso": "Peso (kg)",
+      "largo": "Largo (cm)",
+      "ancho": "Ancho (cm)",
+      "alto": "Alto (cm)",
+      "materialEs": "Material (español)",
+      "materialEn": "Material (inglés)",
+      "guardar": "Guardar medidas"
     }
   },
   "catalogo": {
@@ -1134,7 +1168,16 @@
       "agregado": "Agregado",
       "agregarCorto": "Agregar",
       "cantidad": "Cantidad",
-      "nuevo": "Nuevo"
+      "nuevo": "Nuevo",
+      "talla": "Talla",
+      "color": "Color",
+      "combinacionNoDisponible": "Esa combinación no está disponible. Prueba con otra talla o color.",
+      "fichaTecnica": "Ficha técnica",
+      "peso": "Peso",
+      "largo": "Largo",
+      "ancho": "Ancho",
+      "alto": "Alto",
+      "material": "Material"
     },
     "paginacion": {
       "anterior": "Anterior",

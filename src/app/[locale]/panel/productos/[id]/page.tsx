@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FormularioProducto } from "@/components/panel/formulario-producto";
+import { VariantesYMedidas } from "@/components/panel/variantes-producto";
+import { medidasDe, variantesDe } from "@/lib/productos/variantes";
 import { Link } from "@/i18n/navigation";
 import { obtenerMiProducto } from "@/lib/productos/consultas";
 
@@ -26,6 +28,13 @@ export default async function PaginaEditarProducto({
   const datos = await obtenerMiProducto(id);
   if (!datos) notFound();
 
+  // Las variantes y las medidas viven en sus propias tablas: un producto sin
+  // ellas se edita igual que siempre.
+  const [variantes, medidas] = await Promise.all([
+    variantesDe(datos.producto.id),
+    medidasDe(datos.producto.id),
+  ]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -42,6 +51,15 @@ export default async function PaginaEditarProducto({
       </div>
 
       <FormularioProducto producto={datos.producto} imagenes={datos.imagenes} />
+
+      {/* TALLAS, COLORES Y MEDIDAS. Van fuera del formulario principal y se
+          guardan por su cuenta: son opcionales, y obligar a rellenarlas para
+          poder guardar el título de un tubo de PVC sería absurdo. */}
+      <VariantesYMedidas
+        productoId={datos.producto.id}
+        variantes={variantes}
+        medidas={medidas}
+      />
     </div>
   );
 }

@@ -4,6 +4,13 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonAgregar } from "@/components/catalogo/boton-agregar";
+import { SelectorVariante } from "@/components/catalogo/selector-variante";
+import {
+  coloresDe,
+  medidasDe,
+  tallasDe,
+  variantesDe,
+} from "@/lib/productos/variantes";
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
 import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
@@ -61,6 +68,15 @@ export default async function PaginaProducto({
   // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
   const zona = await zonaDelCliente();
 
+  /* Las tallas, los colores y las medidas. Un producto sin variantes trae la
+     lista vacía y la ficha se ve exactamente como se ha visto hasta hoy. */
+  const [variantes, medidas] = await Promise.all([
+    variantesDe(ficha.producto.id),
+    medidasDe(ficha.producto.id),
+  ]);
+  const tallas = tallasDe(variantes);
+  const colores = coloresDe(variantes);
+
   const { producto } = ficha;
   const titulo =
     idioma === "en"
@@ -82,6 +98,31 @@ export default async function PaginaProducto({
     producto.precioAntesCentavos > producto.precioCentavos
       ? producto.precioAntesCentavos - producto.precioCentavos
       : null;
+
+  /* Solo las medidas que el comercio cargó. En gramos y milímetros se
+     guardan; en kilos y centímetros se leen. */
+  const medidasVisibles = [
+    medidas?.pesoGramos
+      ? { etiqueta: t("peso"), valor: `${medidas.pesoGramos / 1000} kg` }
+      : null,
+    medidas?.largoMm
+      ? { etiqueta: t("largo"), valor: `${medidas.largoMm / 10} cm` }
+      : null,
+    medidas?.anchoMm
+      ? { etiqueta: t("ancho"), valor: `${medidas.anchoMm / 10} cm` }
+      : null,
+    medidas?.altoMm
+      ? { etiqueta: t("alto"), valor: `${medidas.altoMm / 10} cm` }
+      : null,
+    (idioma === "en" ? medidas?.materialEn : medidas?.materialEs)
+      ? {
+          etiqueta: t("material"),
+          valor: (idioma === "en"
+            ? (medidas?.materialEn ?? medidas?.materialEs)
+            : medidas?.materialEs) as string,
+        }
+      : null,
+  ].filter(Boolean) as { etiqueta: string; valor: string }[];
 
   const datos = [
     { etiqueta: t("marca"), valor: producto.marca },
@@ -186,24 +227,67 @@ export default async function PaginaProducto({
           </div>
 
           <div className="mt-5">
-            <BotonAgregar
-              agotado={agotado}
-              linea={{
-                productoId: producto.id,
-                slug: producto.slug,
-                titulo,
-                precioCentavos: producto.precioCentavos,
-                moneda: producto.moneda,
-                imagenUrl: ficha.imagenes[0]?.url ?? null,
-                tiendaNombre: ficha.tiendaNombre,
-                tiendaSlug: ficha.tiendaSlug,
-                unidad: producto.unidad,
-                maximo: producto.controlaExistencias
-                  ? producto.existencias
-                  : null,
-              }}
-            />
+            {/* CON VARIANTES SE ELIGE PRIMERO, sin ellas se compra directo.
+                Un producto con tallas y colores no se puede agregar "en
+                general": el comercio quedaría adivinando cuál despachar. */}
+            {variantes.length > 0 ? (
+              <SelectorVariante
+                variantes={variantes}
+                idioma={idioma}
+                hayTallas={tallas.map((valor) => ({ valor }))}
+                hayColores={colores}
+                linea={{
+                  productoId: producto.id,
+                  slug: producto.slug,
+                  titulo,
+                  moneda: producto.moneda,
+                  imagenUrl: ficha.imagenes[0]?.url ?? null,
+                  tiendaNombre: ficha.tiendaNombre,
+                  tiendaSlug: ficha.tiendaSlug,
+                  unidad: producto.unidad,
+                }}
+              />
+            ) : (
+              <BotonAgregar
+                agotado={agotado}
+                linea={{
+                  productoId: producto.id,
+                  slug: producto.slug,
+                  titulo,
+                  precioCentavos: producto.precioCentavos,
+                  moneda: producto.moneda,
+                  imagenUrl: ficha.imagenes[0]?.url ?? null,
+                  tiendaNombre: ficha.tiendaNombre,
+                  tiendaSlug: ficha.tiendaSlug,
+                  unidad: producto.unidad,
+                  maximo: producto.controlaExistencias
+                    ? producto.existencias
+                    : null,
+                }}
+              />
+            )}
           </div>
+
+          {/* LA FICHA TÉCNICA: peso y medidas.
+              Solo sale lo que el comercio cargó — una tabla con "Peso: —" en
+              todas las filas es peor que no tener tabla. Se guarda en gramos y
+              milímetros enteros y aquí se convierte a kilos y centímetros, que
+              es como piensa quien compra. */}
+          {medidasVisibles.length > 0 ? (
+            <dl className="mt-6 rounded-xl border border-borde bg-slate-50/60 p-4 text-sm">
+              <p className="mb-2 text-xs font-bold tracking-wide text-tinta-suave uppercase">
+                {t("fichaTecnica")}
+              </p>
+              {medidasVisibles.map((m) => (
+                <div key={m.etiqueta} className="flex gap-2 py-1">
+                  <dt className="w-32 shrink-0 text-tinta-suave">
+                    {m.etiqueta}
+                  </dt>
+                  <dd className="font-medium">{m.valor}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
 
           {datos.length > 0 ? (
             <dl className="mt-6 space-y-2 text-sm">

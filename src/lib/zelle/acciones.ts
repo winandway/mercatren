@@ -11,12 +11,14 @@ import { mensajes } from "@/lib/mensajes";
 import {
   billeteras,
   itemsPedido,
+  itemsVariante,
   movimientosBilletera,
   pagosZelle,
   pedidos,
   productos,
   tiendas,
   user,
+  variantesProducto,
 } from "@/lib/db/schema";
 
 /**
@@ -138,8 +140,13 @@ export async function aprobarPago(id: string): Promise<Resultado> {
         .select({
           productoId: itemsPedido.productoId,
           cantidad: itemsPedido.cantidad,
+          /* Qué variante se vendió, si el producto tenía tallas o colores.
+             Sin esto el stock se le descontaría al padre y la talla vendida
+             seguiría figurando disponible. */
+          varianteId: itemsVariante.varianteId,
         })
         .from(itemsPedido)
+        .leftJoin(itemsVariante, eq(itemsVariante.itemPedidoId, itemsPedido.id))
         .where(eq(itemsPedido.pedidoId, pago.pedidoId))
     : [];
 
@@ -208,8 +215,22 @@ export async function aprobarPago(id: string): Promise<Resultado> {
           // MAX(0, ...) porque un inventario en negativo no existe: si dos
           // pedidos se aprueban casi a la vez, se queda en cero y el comercio
           // lo ve, en vez de arrastrar un numero imposible.
+          /* Con variante, el stock que baja es el SUYO: si se le descontara
+             al padre, la talla vendida seguiría figurando disponible y se
+             vendería tres veces la única camisa M azul que había. */
           ...renglones
-            .filter((r) => r.productoId)
+            .filter((r) => r.varianteId)
+            .map((r) =>
+              db
+                .update(variantesProducto)
+                .set({
+                  existencias: sql`MAX(0, ${variantesProducto.existencias} - ${r.cantidad})`,
+                  actualizadoEn: ahora,
+                })
+                .where(eq(variantesProducto.id, r.varianteId!)),
+            ),
+          ...renglones
+            .filter((r) => r.productoId && !r.varianteId)
             .map((r) =>
               db
                 .update(productos)

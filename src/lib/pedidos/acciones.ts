@@ -9,10 +9,12 @@ import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
 import {
   itemsPedido,
+  itemsVariante,
   pagosZelle,
   pedidos,
   productos,
   tiendas,
+  variantesProducto,
 } from "@/lib/db/schema";
 import { calcularComisionCentavos, ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
@@ -77,6 +79,44 @@ export async function crearPedido(
 
   const db = getDb();
 
+  /**
+   * EL CARRITO GUARDA "producto:variante" EN UN SOLO CAMPO.
+   *
+   * Es lo que hace que dos tallas del mismo producto sean dos líneas
+   * distintas y no se sumen en una. Aquí se separan otra vez: el producto se
+   * busca en `productos` y la variante en `variantes_producto`, y el precio y
+   * el stock que mandan son los de la VARIANTE.
+   *
+   * Como todo lo que viene del navegador, se vuelve a leer de la base: quien
+   * manipule su carrito para ponerse una talla a un dólar no consigue nada.
+   */
+  const partido = lineas.map((l) => {
+    const [productoId, varianteId] = l.productoId.split(":");
+    return { ...l, productoId: productoId!, varianteId: varianteId ?? null };
+  });
+
+  const idsVariantes = partido
+    .map((l) => l.varianteId)
+    .filter((v): v is string => Boolean(v));
+
+  const variantesPedidas =
+    idsVariantes.length > 0
+      ? await db
+          .select({
+            id: variantesProducto.id,
+            productoId: variantesProducto.productoId,
+            talla: variantesProducto.talla,
+            color: variantesProducto.color,
+            precioCentavos: variantesProducto.precioCentavos,
+            existencias: variantesProducto.existencias,
+            activo: variantesProducto.activo,
+          })
+          .from(variantesProducto)
+          .where(inArray(variantesProducto.id, idsVariantes))
+      : [];
+
+  const porVariante = new Map(variantesPedidas.map((v) => [v.id, v]));
+
   // Se leen de la base los productos pedidos, con su precio y su comercio.
   const encontrados = await db
     .select({
@@ -96,16 +136,17 @@ export async function crearPedido(
     .where(
       inArray(
         productos.id,
-        lineas.map((l) => l.productoId),
+        partido.map((l) => l.productoId),
       ),
     );
 
   const porId = new Map(encontrados.map((p) => [p.id, p]));
 
   const items: (typeof itemsPedido.$inferInsert)[] = [];
+  const enlacesVariante: (typeof itemsVariante.$inferInsert)[] = [];
   let subtotal = 0;
 
-  for (const linea of lineas) {
+  for (const linea of partido) {
     const producto = porId.get(linea.productoId);
 
     if (!producto) {
@@ -120,18 +161,47 @@ export async function crearPedido(
         mensaje: t("productoFueraDeVenta", { producto: producto.tituloEs }),
       };
     }
-    if (producto.controlaExistencias && producto.existencias < linea.cantidad) {
+    /* LA VARIANTE MANDA sobre el padre: su precio y su stock son los que
+       valen. Si el carrito trae una variante que ya no existe o que el
+       comercio desactivó, el pedido no se crea — vender una talla que no está
+       es peor que perder la venta. */
+    const variante = linea.varianteId
+      ? (porVariante.get(linea.varianteId) ?? null)
+      : null;
+
+    if (linea.varianteId && (!variante || !variante.activo)) {
+      return { ok: false, mensaje: t("productoFueraDelCatalogo") };
+    }
+    if (variante && variante.productoId !== producto.id) {
+      // Una variante de otro producto: el carrito viene manipulado.
+      return { ok: false, mensaje: t("productoFueraDelCatalogo") };
+    }
+
+    const precioUnitario = variante
+      ? variante.precioCentavos
+      : producto.precioCentavos;
+    const disponibles = variante ? variante.existencias : producto.existencias;
+    const controla = variante ? true : producto.controlaExistencias;
+
+    // El título lleva la talla y el color: el comercio despacha por él.
+    const tituloLinea = variante
+      ? [producto.tituloEs, variante.color, variante.talla]
+          .filter(Boolean)
+          .join(" · ")
+      : producto.tituloEs;
+
+    if (controla && disponibles < linea.cantidad) {
       return {
         ok: false,
         mensaje: t("sinSuficiente", {
-          producto: producto.tituloEs,
-          quedan: producto.existencias,
+          producto: tituloLinea,
+          quedan: disponibles,
         }),
       };
     }
 
     // El precio sale de la base, NO del carrito.
-    const subtotalLinea = producto.precioCentavos * linea.cantidad;
+    const subtotalLinea = precioUnitario * linea.cantidad;
     subtotal += subtotalLinea;
 
     items.push({
@@ -139,8 +209,8 @@ export async function crearPedido(
       pedidoId: "",
       productoId: producto.id,
       tiendaId: producto.tiendaId,
-      titulo: producto.tituloEs,
-      precioUnitarioCentavos: producto.precioCentavos,
+      titulo: tituloLinea,
+      precioUnitarioCentavos: precioUnitario,
       cantidad: linea.cantidad,
       subtotalCentavos: subtotalLinea,
       comisionCentavos: calcularComisionCentavos(
@@ -148,6 +218,16 @@ export async function crearPedido(
         producto.comisionPuntosBase,
       ),
     });
+
+    /* Qué variante se vendió en esta línea. Sin este enlace, al confirmarse
+       el pago el stock se le descontaría al producto padre y la talla vendida
+       seguiría figurando disponible. */
+    if (variante) {
+      enlacesVariante.push({
+        itemPedidoId: items[items.length - 1]!.id,
+        varianteId: variante.id,
+      });
+    }
   }
 
   // Zelle es para montos grandes: por debajo de $200 el pago va con tarjeta.
@@ -193,6 +273,9 @@ export async function crearPedido(
     ...items.map((item) =>
       db.insert(itemsPedido).values({ ...item, pedidoId }),
     ),
+    ...(enlacesVariante.length > 0
+      ? [db.insert(itemsVariante).values(enlacesVariante)]
+      : []),
   ]);
 
   // Gracias por su compra + el paso que falta (pagar por Zelle). El correo

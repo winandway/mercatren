@@ -7,12 +7,14 @@ import { getDb } from "@/lib/db";
 import {
   billeteras,
   itemsPedido,
+  itemsVariante,
   movimientosBilletera,
   pagos,
   pedidos,
   productos,
   tiendas,
   user,
+  variantesProducto,
 } from "@/lib/db/schema";
 import { COMISION_TARJETA_PB, calcularComisionCentavos } from "@/lib/dinero";
 import { getStripe } from "@/lib/stripe";
@@ -127,12 +129,28 @@ async function acreditarPagoConTarjeta(
       tiendaId: itemsPedido.tiendaId,
       cantidad: itemsPedido.cantidad,
       subtotalCentavos: itemsPedido.subtotalCentavos,
+      /* Qué variante se vendió, si el producto tenía tallas o colores. Sin
+         esto el stock se le descontaría al padre y la talla vendida seguiría
+         figurando disponible. */
+      varianteId: itemsVariante.varianteId,
     })
     .from(itemsPedido)
+    .leftJoin(itemsVariante, eq(itemsVariante.itemPedidoId, itemsPedido.id))
     .where(eq(itemsPedido.pedidoId, pedidoId));
 
   // El stock baja al confirmarse el pago, igual que al aprobar un Zelle.
   for (const r of renglones) {
+    // Con variante, el stock que baja es el SUYO, no el del padre.
+    if (r.varianteId) {
+      await db
+        .update(variantesProducto)
+        .set({
+          existencias: sql`MAX(0, ${variantesProducto.existencias} - ${r.cantidad})`,
+          actualizadoEn: ahora,
+        })
+        .where(eq(variantesProducto.id, r.varianteId));
+      continue;
+    }
     if (!r.productoId) continue;
     await db
       .update(productos)

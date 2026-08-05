@@ -29,6 +29,20 @@
       "when": 1785905054710,
       "tag": "0003_loose_virginia_dare",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1785958315068,
+      "tag": "0004_curly_raza",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785958804447,
+      "tag": "0005_silly_anita_blake",
+      "breakpoints": true
     }
   ]
 }

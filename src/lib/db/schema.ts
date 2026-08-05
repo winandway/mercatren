@@ -932,3 +932,129 @@ export const configuracion = sqliteTable("configuracion", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * LAS VARIANTES DE UN PRODUCTO: talla, color, o las dos.
+ *
+ * El modelo es el de Amazon, y por algo es el suyo: un producto PADRE que
+ * agrupa y no se vende, y variantes HIJAS que sí se venden, cada una con su
+ * propio precio y su propio stock. Una camisa talla M en azul y la misma en
+ * rojo son dos cosas distintas en el depósito: si comparten el stock, se
+ * vende una que no existe.
+ *
+ * POR QUÉ UNA TABLA NUEVA Y NO COLUMNAS EN `productos`. `schema.sql` corre en
+ * cada publicación y solo hace `CREATE TABLE IF NOT EXISTS`, así que una
+ * tabla nueva se crea sola en producción. Una columna nueva necesitaría un
+ * ALTER a mano con el token, y entre que se publica el código y se aplica el
+ * ALTER el sitio devuelve 500 en cada ficha. Pasó el 5 ago 2026 con
+ * `deposito_id` y no se repite.
+ *
+ * UN PRODUCTO SIN VARIANTES SIGUE FUNCIONANDO IGUAL. Los 689 del catálogo de
+ * hoy no tienen ninguna fila aquí, y se venden como siempre: la variante es
+ * opcional, no obligatoria. Un tubo de PVC no tiene talla.
+ *
+ * EL PRECIO DE LA VARIANTE LLEVA EL MISMO AJUSTE que el del padre: se guarda
+ * lo que el proveedor cobra (`precioBaseCentavos`) y lo que se publica
+ * (`precioCentavos`). Si no, una talla especial más cara se vendería sin
+ * cubrir el procesador.
+ */
+export const variantesProducto = sqliteTable(
+  "variantes_producto",
+  {
+    id: text("id").primaryKey(),
+    productoId: text("producto_id")
+      .notNull()
+      .references(() => productos.id, { onDelete: "cascade" }),
+
+    /** Lo que diferencia esta variante. Al menos una de las dos va llena. */
+    talla: text("talla"),
+    color: text("color"),
+    /** El color en hexadecimal, para pintar la muestra. Opcional. */
+    colorHex: text("color_hex"),
+
+    sku: text("sku"),
+
+    /** Dinero en centavos enteros, igual que en `productos`. */
+    precioBaseCentavos: integer("precio_base_centavos").notNull().default(0),
+    precioCentavos: integer("precio_centavos").notNull().default(0),
+
+    /** Su propio stock: no se comparte con el padre ni con las hermanas. */
+    existencias: real("existencias").notNull().default(0),
+
+    /** Para ordenarlas a mano: S, M, L no se ordenan solas alfabéticamente. */
+    orden: integer("orden").notNull().default(0),
+    activo: integer("activo", { mode: "boolean" }).notNull().default(true),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_variantes_producto").on(t.productoId),
+    /* La misma combinación no puede existir dos veces en un producto: si no,
+       el selector enseñaría "Azul · M" repetido y nadie sabría cuál compró. */
+    uniqueIndex("uq_variante_combinacion").on(t.productoId, t.talla, t.color),
+  ],
+);
+
+/**
+ * LAS MEDIDAS FÍSICAS: peso y dimensiones.
+ *
+ * NO SON VARIANTES, y confundirlas es el error clásico. Una talla se elige y
+ * cambia lo que se compra; un peso no se elige, se consulta. Por eso van
+ * aparte: aquí no hay stock ni precio, es ficha técnica.
+ *
+ * Sirven para tres cosas concretas: que el cliente sepa si le entra en el
+ * carro antes de manejar hasta el depósito, que el día que exista el reparto
+ * se pueda calcular el flete, y que el comercio compare contra el catálogo
+ * del fabricante.
+ *
+ * Es 1 a 1 con el producto y va en tabla aparte por lo mismo que las
+ * variantes: una tabla nueva se crea sola al publicar; una columna nueva no.
+ *
+ * TODO EN MILÍMETROS Y GRAMOS, enteros. Ni centímetros ni kilos con coma: la
+ * coma flotante pierde precisión y aquí se suman medidas. Lo que se enseña en
+ * pantalla se convierte al mostrar.
+ */
+export const medidasProducto = sqliteTable("medidas_producto", {
+  productoId: text("producto_id")
+    .primaryKey()
+    .references(() => productos.id, { onDelete: "cascade" }),
+
+  pesoGramos: integer("peso_gramos"),
+  largoMm: integer("largo_mm"),
+  anchoMm: integer("ancho_mm"),
+  altoMm: integer("alto_mm"),
+
+  /** "Acero galvanizado", "Algodón 100%". Texto libre del comercio. */
+  materialEs: text("material_es"),
+  materialEn: text("material_en"),
+
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+/**
+ * QUÉ VARIANTE SE VENDIÓ EN CADA LÍNEA DEL PEDIDO.
+ *
+ * Sin esto, al confirmarse el pago el stock se le descontaría al producto
+ * padre y la talla vendida seguiría figurando disponible: se vendería tres
+ * veces la única camisa M azul que había.
+ *
+ * Va en tabla aparte y no como columna de `items_pedido` por la misma razón
+ * que las variantes: `schema.sql` crea tablas nuevas solas en cada
+ * publicación, pero una columna nueva necesita un ALTER a mano y entre medias
+ * el sitio se cae. Es 1 a 1 con la línea del pedido.
+ */
+export const itemsVariante = sqliteTable("items_variante", {
+  itemPedidoId: text("item_pedido_id")
+    .primaryKey()
+    .references(() => itemsPedido.id, { onDelete: "cascade" }),
+  varianteId: text("variante_id")
+    .notNull()
+    .references(() => variantesProducto.id),
+});

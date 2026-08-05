@@ -935,7 +935,9 @@
       "pedidoEntregado": "Order marked as delivered.",
       "ajusteAplicado": "Done. The adjustment was applied to {n} products; each merchant’s own price was preserved.",
       "metodoNoDisponible": "That payment method is not available yet.",
-      "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card."
+      "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card.",
+      "variantesGuardadas": "Sizes and colors saved.",
+      "medidasGuardadas": "Dimensions saved."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1083,6 +1085,38 @@
       "nivelCritico": "Critical",
       "nivelCuidado": "Careful",
       "comoCrece": "Did a word slip out on a call or in an email? Say it here and it gets added with its reasoning. This dictionary grows from slips that actually happen, not the ones we imagine."
+    },
+    "variantes": {
+      "titulo": "Sizes and colors",
+      "texto": "If your product comes in several sizes or colors, add them here. Each combination sells separately, with its own price and its own stock: size M in blue and size M in red are two different things in your warehouse.",
+      "sinVariantes": "This product has no sizes or colors. If it does, add a row.",
+      "agregar": "Add size or color",
+      "guardar": "Save sizes and colors",
+      "quitar": "Remove this row",
+      "ayudaPrecio": "Enter YOUR price — what you want to receive. The system adds the processor's cut and the markup when publishing; you get paid in full.",
+      "col": {
+        "talla": "Size",
+        "color": "Color",
+        "muestra": "Swatch",
+        "precio": "Your price",
+        "stock": "Stock",
+        "sku": "Code"
+      },
+      "ph": {
+        "talla": "M",
+        "color": "Blue"
+      }
+    },
+    "medidas": {
+      "titulo": "Weight and dimensions",
+      "texto": "So buyers know whether it fits in their car before driving to the warehouse. Leave blank whatever doesn't apply.",
+      "peso": "Weight (kg)",
+      "largo": "Length (cm)",
+      "ancho": "Width (cm)",
+      "alto": "Height (cm)",
+      "materialEs": "Material (Spanish)",
+      "materialEn": "Material (English)",
+      "guardar": "Save dimensions"
     }
   },
   "catalogo": {
@@ -1134,7 +1168,16 @@
       "agregado": "Added",
       "agregarCorto": "Add",
       "cantidad": "Quantity",
-      "nuevo": "New"
+      "nuevo": "New",
+      "talla": "Size",
+      "color": "Color",
+      "combinacionNoDisponible": "That combination isn't available. Try another size or color.",
+      "fichaTecnica": "Specifications",
+      "peso": "Weight",
+      "largo": "Length",
+      "ancho": "Width",
+      "alto": "Height",
+      "material": "Material"
     },
     "paginacion": {
       "anterior": "Previous",

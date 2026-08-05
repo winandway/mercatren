@@ -9,7 +9,12 @@ import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
 import { mensajes } from "@/lib/mensajes";
-import { imagenesProducto, productos } from "@/lib/db/schema";
+import {
+  imagenesProducto,
+  medidasProducto,
+  productos,
+  variantesProducto,
+} from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
 
 /**
@@ -416,4 +421,174 @@ export async function aplicarAjusteAlCatalogo(): Promise<{
     mensaje: t("ajusteAplicado", { n: ajustados }),
     ajustados,
   };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Variantes y medidas                                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Que el producto exista y sea de quien lo está tocando.
+ *
+ * Se repite en las tres acciones de abajo y por eso vive aparte: una sola
+ * comprobación mal copiada es la puerta por la que un comercio edita el
+ * catálogo de otro.
+ */
+async function productoPropio(id: string) {
+  const alcance = await obtenerAlcance();
+  const db = getDb();
+
+  const [producto] = await db
+    .select({ tiendaId: productos.tiendaId })
+    .from(productos)
+    .where(eq(productos.id, id))
+    .limit(1);
+
+  if (!producto) return { ok: false as const, motivo: "noExiste" as const };
+  if (alcance.tipo === "tienda" && producto.tiendaId !== alcance.tiendaId) {
+    return { ok: false as const, motivo: "ajeno" as const };
+  }
+  return { ok: true as const, db };
+}
+
+/** Lee un número del formulario; vacío o inválido devuelve null. */
+function numeroOpcional(valor: FormDataEntryValue | null): number | null {
+  const texto = String(valor ?? "").trim();
+  if (!texto) return null;
+  const n = Number(texto.replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/**
+ * GUARDA LAS VARIANTES DE UN PRODUCTO, todas de una.
+ *
+ * Llegan del formulario como filas paralelas (talla[], color[], precio[],
+ * stock[]) y se reemplazan enteras: es más simple y más seguro que ir
+ * comparando cuál cambió, y el comercio ve exactamente lo que dejó escrito.
+ *
+ * EL PRECIO DE CADA VARIANTE LLEVA EL AJUSTE, igual que el del padre: se
+ * guarda lo que el proveedor cobra y lo que se publica. Si no, una talla
+ * especial más cara se vendería sin cubrir el procesador — y como el ajuste
+ * se aplica SIEMPRE sobre la base, guardar dos veces no lo infla (fue el
+ * fallo del 5 ago 2026).
+ *
+ * Una fila sin talla NI color se descarta: no es una variante de nada.
+ */
+export async function guardarVariantes(
+  formulario: FormData,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+  const productoId = String(formulario.get("productoId") ?? "").trim();
+  if (!productoId) return { ok: false, mensaje: t("productoNoExiste") };
+
+  const permiso = await productoPropio(productoId);
+  if (!permiso.ok) {
+    return {
+      ok: false,
+      mensaje: t(
+        permiso.motivo === "ajeno" ? "productoAjeno" : "productoNoExiste",
+      ),
+    };
+  }
+  const { db } = permiso;
+
+  const tallas = formulario.getAll("varianteTalla");
+  const colores = formulario.getAll("varianteColor");
+  const hexes = formulario.getAll("varianteColorHex");
+  const precios = formulario.getAll("variantePrecio");
+  const stocks = formulario.getAll("varianteStock");
+  const skus = formulario.getAll("varianteSku");
+
+  const filas: (typeof variantesProducto.$inferInsert)[] = [];
+  const vistas = new Set<string>();
+
+  for (let i = 0; i < tallas.length; i++) {
+    const talla = String(tallas[i] ?? "").trim() || null;
+    const color = String(colores[i] ?? "").trim() || null;
+
+    // Sin talla ni color no es una variante: es una fila que quedó vacía.
+    if (!talla && !color) continue;
+
+    // La misma combinación dos veces dejaría al cliente sin saber cuál pidió.
+    const clave = `${talla ?? ""}|${color ?? ""}`;
+    if (vistas.has(clave)) continue;
+    vistas.add(clave);
+
+    const base = Math.round((numeroOpcional(precios[i]) ?? 0) * 100);
+    filas.push({
+      id: nanoid(),
+      productoId,
+      talla,
+      color,
+      colorHex: String(hexes[i] ?? "").trim() || null,
+      sku: String(skus[i] ?? "").trim() || null,
+      precioBaseCentavos: base,
+      precioCentavos: base > 0 ? precioConAjusteCentavos(base) : 0,
+      existencias: numeroOpcional(stocks[i]) ?? 0,
+      orden: i,
+      activo: true,
+      creadoEn: new Date(),
+      actualizadoEn: new Date(),
+    });
+  }
+
+  await db
+    .delete(variantesProducto)
+    .where(eq(variantesProducto.productoId, productoId));
+  if (filas.length > 0) await db.insert(variantesProducto).values(filas);
+
+  revalidatePath("/[locale]", "layout");
+  return { ok: true, mensaje: t("variantesGuardadas") };
+}
+
+/**
+ * GUARDA LAS MEDIDAS: peso y dimensiones.
+ *
+ * El comercio las escribe en las unidades que usa —kilos y centímetros—, y
+ * aquí se pasan a gramos y milímetros ENTEROS. Guardar 1.5 kg como decimal
+ * arrastra el error de la coma flotante en cuanto se suman dos productos;
+ * guardar 1500 gramos no.
+ */
+export async function guardarMedidas(
+  formulario: FormData,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+  const productoId = String(formulario.get("productoId") ?? "").trim();
+  if (!productoId) return { ok: false, mensaje: t("productoNoExiste") };
+
+  const permiso = await productoPropio(productoId);
+  if (!permiso.ok) {
+    return {
+      ok: false,
+      mensaje: t(
+        permiso.motivo === "ajeno" ? "productoAjeno" : "productoNoExiste",
+      ),
+    };
+  }
+  const { db } = permiso;
+
+  const kg = numeroOpcional(formulario.get("pesoKg"));
+  const cm = (campo: string) => {
+    const v = numeroOpcional(formulario.get(campo));
+    return v === null ? null : Math.round(v * 10);
+  };
+
+  const valores = {
+    productoId,
+    pesoGramos: kg === null ? null : Math.round(kg * 1000),
+    largoMm: cm("largoCm"),
+    anchoMm: cm("anchoCm"),
+    altoMm: cm("altoCm"),
+    materialEs: String(formulario.get("materialEs") ?? "").trim() || null,
+    materialEn: String(formulario.get("materialEn") ?? "").trim() || null,
+    actualizadoEn: new Date(),
+  };
+
+  await db.insert(medidasProducto).values(valores).onConflictDoUpdate({
+    target: medidasProducto.productoId,
+    set: valores,
+  });
+
+  revalidatePath("/[locale]", "layout");
+  return { ok: true, mensaje: t("medidasGuardadas") };
 }
