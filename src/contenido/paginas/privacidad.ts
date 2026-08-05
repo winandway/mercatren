@@ -14,7 +14,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
   titulo: "Privacidad",
   entradilla:
     "Qué datos recogemos, para qué los usamos, con quién se comparten y cuánto tiempo los guardamos. En palabras normales.",
-  vigencia: "Vigente desde el 3 de agosto de 2026",
+  vigencia: "Versión 1 · Vigente desde el 5 de agosto de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -313,7 +313,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
   titulo: "Privacy",
   entradilla:
     "What data we collect, what we use it for, who we share it with, and how long we keep it. In plain language.",
-  vigencia: "Effective August 3, 2026",
+  vigencia: "Version 1 · Effective August 5, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {

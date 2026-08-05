@@ -1058,3 +1058,37 @@ export const itemsVariante = sqliteTable("items_variante", {
     .notNull()
     .references(() => variantesProducto.id),
 });
+
+/**
+ * QUIÉN ACEPTÓ LOS TÉRMINOS, CUÁNDO Y QUÉ VERSIÓN.
+ *
+ * Un contrato con clic vale igual que uno en papel SOLO si se puede probar
+ * quién vio qué texto y lo aceptó. Sin este registro, la reestructuración
+ * legal entera queda sin firma: nadie está obligado por unos términos que no
+ * consta que aceptó.
+ *
+ * Se guarda la VERSIÓN, no el texto: si los términos cambian a V2, aquí queda
+ * probado que esta persona aceptó la V1, y qué decía la V1 lo dice el
+ * historial del repositorio, que es inmutable.
+ *
+ * Tabla nueva a propósito (se crea sola al publicar, sin ALTER).
+ */
+export const aceptaciones = sqliteTable(
+  "aceptaciones",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** Qué aceptó: "terminos" hoy; mañana "contrato-proveedor". */
+    documento: text("documento").notNull(),
+    /** La versión exacta que tenía delante. */
+    version: text("version").notNull(),
+    /** Dónde lo aceptó: "registro" o "alta-comercio". */
+    contexto: text("contexto").notNull(),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_aceptaciones_usuario").on(t.userId)],
+);

@@ -43,6 +43,13 @@
       "when": 1785958804447,
       "tag": "0005_silly_anita_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1785963267240,
+      "tag": "0006_true_gorgon",
+      "breakpoints": true
     }
   ]
 }

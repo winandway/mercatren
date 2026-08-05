@@ -6,7 +6,12 @@ import { obtenerAlcance } from "@/lib/autorizacion";
 import { condicionDeBusqueda } from "@/lib/catalogo/buscar";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { getDb } from "@/lib/db";
-import { imagenesProducto, productos, tiendas } from "@/lib/db/schema";
+import {
+  depositos,
+  imagenesProducto,
+  productos,
+  tiendas,
+} from "@/lib/db/schema";
 
 /**
  * El catalogo visto desde el panel del comercio.
@@ -70,6 +75,7 @@ export async function listarMisProductos(filtros: FiltrosMisProductos = {}) {
     .select({
       id: productos.id,
       slug: productos.slug,
+      depositoId: productos.depositoId,
       tituloEs: productos.tituloEs,
       sku: productos.sku,
       precioCentavos: productos.precioCentavos,
@@ -148,6 +154,7 @@ export async function obtenerMiProducto(id: string) {
       descripcionEs: productos.descripcionEs,
       descripcionEn: productos.descripcionEn,
       precioCentavos: productos.precioCentavos,
+      depositoId: productos.depositoId,
       /**
        * EL PRECIO DEL COMERCIO, SIN EL AJUSTE. Es el que se le enseña en el
        * formulario, y faltaba aquí.
@@ -190,8 +197,19 @@ export async function obtenerMiProducto(id: string) {
     .where(eq(imagenesProducto.productoId, id))
     .orderBy(asc(imagenesProducto.orden));
 
+  // La ciudad del depósito, para que el selector salga con la suya marcada.
+  let depositoZona: string | null = null;
+  if (producto.depositoId) {
+    const [dep] = await db
+      .select({ zona: depositos.zona })
+      .from(depositos)
+      .where(eq(depositos.id, producto.depositoId))
+      .limit(1);
+    depositoZona = dep?.zona ?? null;
+  }
+
   return {
-    producto,
+    producto: { ...producto, depositoZona },
     imagenes: fotos.map((f) => ({
       id: f.id,
       url: direccionImagen(f),

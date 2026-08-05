@@ -9,6 +9,7 @@ import { CampoClave } from "@/components/cuenta/campo-clave";
 import { Escudo } from "@/components/cuenta/escudo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { registrarAceptacion } from "@/lib/legal-acciones";
 
 /**
  * Alta de cuenta para quien va a comprar.
@@ -31,6 +32,7 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
   const [pase, setPase] = useState<string | null>(null);
+  const [acepta, setAcepta] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +46,14 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
     // correo tres veces y el problema era la clave. Pasó de verdad.
     if (clave.length < 10) {
       setError(t("errorClaveCorta"));
+      return;
+    }
+
+    /* SIN ACEPTAR LOS TÉRMINOS NO HAY CUENTA. La casilla arranca sin marcar
+       —una premarcada no prueba nada— y el navegador ya la exige con
+       `required`; esto es el cinturón por si el HTML se manipula. */
+    if (!acepta) {
+      setError(t("errorAceptaTerminos"));
       return;
     }
 
@@ -79,6 +89,11 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
       );
       return;
     }
+
+    /* LA ACEPTACIÓN QUEDA GRABADA con quién, cuándo y qué versión. Va
+       después del alta porque necesita la sesión recién creada; si la
+       grabación fallara, el error queda en el servidor y la cuenta sigue. */
+    await registrarAceptacion("registro");
 
     // Carga completa, por lo mismo que en la pantalla de entrar: acaba de
     // cambiar quien eres y el servidor tiene que armar la pagina otra vez.
@@ -132,6 +147,41 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
         autoComplete="new-password"
         minimo={10}
       />
+
+      {/* LA FIRMA DEL CONTRATO. Casilla sin premarcar, con el texto a un
+          clic en esa misma pantalla: es lo que hace que la aceptación valga
+          como firma. */}
+      <label className="flex items-start gap-2.5 text-sm">
+        <input
+          type="checkbox"
+          required
+          checked={acepta}
+          onChange={(e) => setAcepta(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-carga-500"
+        />
+        <span className="text-tinta-suave">
+          {t.rich("aceptoTerminos", {
+            terminos: (texto) => (
+              <Link
+                href="/terminos"
+                target="_blank"
+                className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+              >
+                {texto}
+              </Link>
+            ),
+            privacidad: (texto) => (
+              <Link
+                href="/privacidad"
+                target="_blank"
+                className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+              >
+                {texto}
+              </Link>
+            ),
+          })}
+        </span>
+      </label>
 
       <Escudo claveSitio={claveEscudo} idioma={idioma} onPase={setPase} />
 

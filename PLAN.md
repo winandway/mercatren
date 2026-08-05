@@ -1,35 +1,21 @@
-# Plan: tallas, colores y medidas
+# Plan: cerrar los bloqueantes del lanzamiento
 
-Modelo de Amazon: un producto padre que agrupa, y variantes vendibles que se
-diferencian por talla y/o color, cada una con su propio precio y su stock.
-Aparte, las medidas físicas (peso, largo, ancho, alto), que NO son variantes:
-son ficha técnica.
+Lo que faltaba de la auditoría, hecho de corrido. Los correos que faltan y el
+checklist de verificación al aprobar comercios van en la tanda siguiente.
 
-**Decisión de diseño que evita romper producción:** todo va en TABLAS NUEVAS,
-no en columnas nuevas de `productos`. `schema.sql` corre en cada publicación y
-solo hace `CREATE TABLE IF NOT EXISTS`, así que una tabla nueva se crea sola;
-una columna nueva necesitaría un `ALTER` a mano con el token, y entre la
-publicación y el ALTER el sitio se cae con 500. Ya pasó el 5 ago 2026 con
-`deposito_id`.
-
-- [x] 1. Esquema: tablas `variantes_producto` y `medidas_producto`, con su
-      migración versionada en `drizzle/migrations/`.
-- [x] 2. Regenerar `schema.sql` y aplicar las tablas a la base local.
-- [x] 3. Consultas del catálogo: traer las variantes y las medidas en la ficha
-      del producto y en la del panel.
-- [x] 4. Acciones del servidor: guardar, editar y borrar variantes; guardar
-      las medidas. Con el ajuste de precio aplicado a cada variante.
-- [x] 5. Formulario del vendedor: bloque de variantes (talla, color, precio,
-      stock) y bloque de medidas.
-- [x] 6. Ficha del producto: selector de talla y color, con el precio y el
-      stock de la variante elegida.
-- [x] 7. Ficha técnica en el producto: peso y medidas, solo lo que esté
-      cargado.
-- [x] 8. Carrito: que la variante elegida viaje con su identidad, su precio y
-      su tope de stock.
-- [x] 9. `crearPedido`: validar la variante contra la base y descontar SU
-      stock, no el del padre.
-- [x] 10. Textos en español e inglés.
-- [x] 11. Tipos, lint y pruebas en verde, con prueba nueva del precio de la
-      variante.
-- [x] 12. Verificar en el navegador con captura y publicar.
+- [x] 1. Los productos nuevos salen primero TAMBIÉN en las bandas de la
+      portada (hoy solo en la parrilla y el catálogo), y el sello "Nuevo"
+      aguanta fechas que llegan como texto en las tandas del scroll.
+- [x] 2. Versionado legal desde cero: lo anterior era un demo. Términos y
+      privacidad quedan como PRIMERA versión real, vigente 5 de agosto de
+      2026; el documento del modelo pasa de "V3" a "V1"; el generador del PDF
+      se actualiza y el PDF se regenera.
+- [x] 3. Aceptación de términos con registro: tabla nueva `aceptaciones`
+      (quién, cuándo, qué versión), casilla obligatoria sin premarcar en el
+      registro de compradores y en el alta de comercio.
+- [x] 4. El checkout deja de pedir dirección de entrega: pide QUIÉN RETIRA
+      (nombre y teléfono) y muestra en qué ciudad se retira lo comprado.
+- [x] 5. El formulario de producto pide el depósito/ciudad; si la tienda no
+      tiene depósitos, elegir la ciudad le crea uno. Sin esto, el producto de
+      un comercio nuevo no sale en los filtros por ciudad.
+- [x] 6. Tipos, lint, pruebas, verificación en el navegador y publicar.

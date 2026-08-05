@@ -3,7 +3,12 @@ import type { Documento } from "./tipos";
 /**
  * The public business-model document, in English.
  *
- * V3 — LEGAL RESTRUCTURING (August 2026). Mirrors modelo.es.ts section by
+ * V1 — THE FIRST REAL VERSION (Aug 5, 2026). What was published before was a
+ * demo written without professional review and does NOT count in the history:
+ * versioning starts here, with the text reviewed by the lawyer and the
+ * accountant.
+ *
+ * LEGAL RESTRUCTURING (August 2026). Mirrors modelo.es.ts section by
  * section; if one changes, the other changes in the same commit.
  *
  * Written as a native US business document, not translated word for word from
@@ -19,7 +24,7 @@ export const MODELO_EN: Documento = {
     "What Mercatren sells and to whom, how every transaction is documented, why the structure is a sale of goods, and what evidence each step leaves behind.",
   resumen:
     "Mercatren is an online store operated by Windoce, LLC. A buyer in the United States purchases a product from the catalog and designates the address where it must be delivered. Windoce, LLC buys that merchandise from the supplier in its own name and resells it to the buyer. The published price is the final sale price and includes our commercial markup.",
-  version: "V3",
+  version: "V1",
   actualizado: "August 5, 2026",
 
   entradilla: [

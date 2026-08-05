@@ -43,11 +43,11 @@ async function main() {
   const version = await pagina
     .locator("body")
     .innerText()
-    .then((t) => (t.includes("V3") ? "V3" : "desconocida"));
-  if (version !== "V3") {
+    .then((t) => (t.includes("V1") ? "V1" : "desconocida"));
+  if (version !== "V1") {
     await navegador.close();
     throw new Error(
-      "La página servida no es la V3 del documento. Se detiene para no " +
+      "La página servida no es la V1 del documento. Se detiene para no " +
         "generar un PDF con el modelo anterior.",
     );
   }

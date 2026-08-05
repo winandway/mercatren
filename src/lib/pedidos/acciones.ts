@@ -257,14 +257,16 @@ export async function crearPedido(
       totalCentavos: subtotal,
       moneda: encontrados[0]?.moneda ?? "USD",
       metodoPago,
+      /* Es retiro en depósito: se guarda quién retira y su ciudad. Los
+         campos de dirección quedan por compatibilidad con pedidos viejos. */
       direccionEntrega: {
         nombre: entrega.nombre,
-        pais: entrega.pais,
+        pais: entrega.pais ?? "Venezuela",
         ciudad: entrega.ciudad,
-        direccion: entrega.direccion,
+        direccion: entrega.direccion ?? "",
         referencia: entrega.referencia ?? null,
       },
-      paisDestino: entrega.pais,
+      paisDestino: entrega.pais ?? "Venezuela",
       telefonoContacto: entrega.telefono,
       notasCliente: entrega.notas ?? null,
       creadoEn: ahora,

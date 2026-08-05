@@ -148,10 +148,23 @@ export const ZELLE_MINIMO_CENTAVOS = 20_000;
  */
 export const DIAS_PRODUCTO_NUEVO = 7;
 
-/** Si un producto creado en esa fecha todavía lleva el sello de nuevo. */
-export function esProductoNuevo(creadoEn: Date | number | null): boolean {
+/**
+ * Si un producto creado en esa fecha todavía lleva el sello de nuevo.
+ *
+ * Acepta Date, número o TEXTO: las tandas del scroll llegan por JSON y ahí
+ * una fecha viaja como "2026-08-05T...". Sin esto, el sello aparecía en la
+ * primera pantalla y desaparecía en las siguientes tandas del mismo listado.
+ */
+export function esProductoNuevo(
+  creadoEn: Date | number | string | null,
+): boolean {
   if (!creadoEn) return false;
-  const fecha = creadoEn instanceof Date ? creadoEn.getTime() : creadoEn;
+  const fecha =
+    creadoEn instanceof Date
+      ? creadoEn.getTime()
+      : typeof creadoEn === "string"
+        ? Date.parse(creadoEn)
+        : creadoEn;
   if (!Number.isFinite(fecha)) return false;
   return Date.now() - fecha < DIAS_PRODUCTO_NUEVO * 24 * 60 * 60 * 1000;
 }

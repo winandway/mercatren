@@ -3,7 +3,13 @@ import type { Documento } from "./tipos";
 /**
  * El modelo de negocio de Mercatren, en publico.
  *
- * V3 — REESTRUCTURACION LEGAL (agosto de 2026). La version anterior describia
+ * V1 — LA PRIMERA VERSION REAL (5 ago 2026). Lo publicado antes era un demo
+ * escrito sin revision profesional y NO cuenta en el historial: el versionado
+ * arranca aqui, con el texto revisado por el abogado y el contable. Si el
+ * abogado actualiza una clausula, sube a V2 con su fecha, y de ahi en
+ * adelante se lleva historial.
+ *
+ * REESTRUCTURACION LEGAL (agosto de 2026). La version anterior describia
  * a Mercatren como un agente que cobraba y liquidaba dinero por cuenta de
  * terceros. Esa redaccion coincide, palabra por palabra, con la definicion
  * regulatoria de money transmission en Estados Unidos, y era la causa por la
@@ -26,7 +32,7 @@ export const MODELO_ES: Documento = {
     "Qué vende Mercatren y a quién, cómo se documenta cada operación, por qué la estructura es una compraventa de mercancía y qué evidencia queda en cada paso.",
   resumen:
     "Mercatren es una tienda en línea operada por Windoce, LLC. El comprador en Estados Unidos adquiere un producto del catálogo y designa la dirección donde debe entregarse. Windoce, LLC compra esa mercancía al proveedor a nombre propio y la revende al comprador. El precio publicado es el precio final e incluye nuestro margen comercial.",
-  version: "V3",
+  version: "V1",
   actualizado: "5 de agosto de 2026",
 
   entradilla: [

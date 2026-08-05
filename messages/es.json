@@ -318,7 +318,9 @@
     "errorClaveCorta": "La contraseña necesita al menos 10 caracteres. La tuya es más corta.",
     "errorClaveLarga": "La contraseña es demasiado larga. Usa 128 caracteres o menos.",
     "errorCorreoOcupado": "Ese correo ya tiene una cuenta. Puedes iniciar sesión o recuperar tu contraseña.",
-    "errorCorreoInvalido": "Ese correo no parece válido. Revísalo."
+    "errorCorreoInvalido": "Ese correo no parece válido. Revísalo.",
+    "aceptoTerminos": "He leído y acepto los <terminos>términos y condiciones</terminos> y la <privacidad>política de privacidad</privacidad>.",
+    "errorAceptaTerminos": "Para crear la cuenta tienes que aceptar los términos y condiciones."
   },
   "panel": {
     "titulo": "Administración",
@@ -683,7 +685,10 @@
       "estadoAgotado": "Agotado",
       "departamento": "Departamento",
       "sinDepartamento": "Sin departamento",
-      "departamentoAyuda": "Elige dónde va tu producto. Sin esto se vende igual, pero no sale cuando la gente navega la portada."
+      "departamentoAyuda": "Elige dónde va tu producto. Sin esto se vende igual, pero no sale cuando la gente navega la portada.",
+      "ciudadProducto": "¿En qué ciudad está esta mercancía?",
+      "sinCiudad": "Elige la ciudad del depósito",
+      "ciudadProductoAyuda": "Es donde el cliente va a retirarla. Sin ciudad, el producto no sale cuando alguien filtra por la suya."
     },
     "ordenes": {
       "titulo": "Órdenes",
@@ -937,7 +942,8 @@
       "metodoNoDisponible": "Esa forma de pago todavía no está disponible.",
       "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta.",
       "variantesGuardadas": "Tallas y colores guardados.",
-      "medidasGuardadas": "Medidas guardadas."
+      "medidasGuardadas": "Medidas guardadas.",
+      "aceptaTerminosComercio": "Para abrir tu tienda tienes que aceptar los términos y condiciones."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1215,22 +1221,23 @@
     "necesitaCuenta": "Entra con tu cuenta para terminar la compra.",
     "entrar": "Entrar",
     "entrega": {
-      "titulo": "¿A dónde va el pedido?",
-      "nombre": "Nombre de quien recibe",
+      "titulo": "¿Quién retira el pedido?",
+      "nombre": "Nombre de quien retira",
       "nombrePlaceholder": "Nombre y apellido",
       "telefono": "Teléfono de contacto",
       "telefonoPlaceholder": "Número de celular",
       "pais": "País",
       "paisPlaceholder": "País de entrega",
-      "ciudad": "Ciudad",
-      "ciudadPlaceholder": "Ciudad",
+      "ciudad": "¿En qué ciudad estás?",
+      "ciudadPlaceholder": "Tu ciudad",
       "direccion": "Dirección",
       "direccionPlaceholder": "Calle, número, sector",
       "referencia": "Punto de referencia",
       "referenciaPlaceholder": "Algo que ayude a encontrar el lugar",
       "notas": "Notas para el comercio",
       "notasPlaceholder": "Algo que el comercio deba saber",
-      "opcional": "Opcional"
+      "opcional": "Opcional",
+      "aviso": "Todo se retira en el depósito que indica cada producto. Te avisamos cuándo está listo para buscar."
     },
     "pago": {
       "titulo": "¿Cómo vas a pagar?",
@@ -1582,7 +1589,8 @@
       "correoContacto": "correo@ejemplo.com",
       "sitioWeb": "https://",
       "descripcionEs": "En una o dos líneas"
-    }
+    },
+    "aceptoTerminosComercio": "He leído y acepto los <terminos>términos y condiciones</terminos>, incluida la sección para quien publica su catálogo como proveedor: le vendo la mercancía a Windoce, LLC y le facturo cada venta."
   },
   "clave": {
     "titulo": "¿Olvidaste tu contraseña?",

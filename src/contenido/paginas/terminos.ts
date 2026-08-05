@@ -23,7 +23,7 @@ export const TERMINOS_ES: PaginaContenido = {
   titulo: "Términos y condiciones",
   entradilla:
     "Las reglas del servicio de Mercatren: qué hacemos, qué no hacemos, cómo se paga, cómo se entrega y qué puedes esperar de nosotros.",
-  vigencia: "Vigentes desde el 3 de agosto de 2026",
+  vigencia: "Versión 1 · Vigentes desde el 5 de agosto de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -473,7 +473,7 @@ export const TERMINOS_EN: PaginaContenido = {
   titulo: "Terms and conditions",
   entradilla:
     "The rules of the Mercatren service: what we do, what we don't do, how payment works, how delivery works, and what you can expect from us.",
-  vigencia: "Effective August 3, 2026",
+  vigencia: "Version 1 · Effective August 5, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {

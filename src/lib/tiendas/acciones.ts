@@ -11,8 +11,9 @@ import {
   obtenerUsuario,
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { VERSION_TERMINOS } from "@/lib/legal";
 import { mensajes } from "@/lib/mensajes";
-import { billeteras, tiendas, user } from "@/lib/db/schema";
+import { aceptaciones, billeteras, tiendas, user } from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
 
 /**
@@ -234,6 +235,21 @@ export async function solicitarComercio(
     .limit(1);
 
   if (suya) return { ok: false, mensaje: t("yaTienesComercio") };
+
+  /* LA FIRMA, EXIGIDA EN EL SERVIDOR. La casilla del navegador se puede
+     manipular; esta comprobación no. Y la aceptación queda grabada con
+     quién, cuándo y qué versión — es lo que convierte el clic en firma. */
+  if (String(datos.get("aceptaTerminos") ?? "") !== "on") {
+    return { ok: false, mensaje: t("aceptaTerminosComercio") };
+  }
+  await db.insert(aceptaciones).values({
+    id: nanoid(),
+    userId: usuario.id,
+    documento: "terminos",
+    version: VERSION_TERMINOS,
+    contexto: "alta-comercio",
+    creadoEn: new Date(),
+  });
 
   const revisado = esquemaComercio(t).safeParse(
     Object.fromEntries(datos) as Record<string, string>,

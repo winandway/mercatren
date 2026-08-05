@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useEffect, useRef } from "react";
 
 import { solicitarComercio } from "@/lib/tiendas/acciones";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 /**
@@ -158,6 +159,31 @@ export function FormularioComercio() {
           className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
         />
       </div>
+
+      {/* LA FIRMA DEL ACUERDO. Sin premarcar, con el texto a un clic, y el
+          servidor la vuelve a exigir: la casilla del navegador se puede
+          manipular; la comprobación del servidor no. */}
+      <label className="flex items-start gap-2.5 text-sm">
+        <input
+          type="checkbox"
+          name="aceptaTerminos"
+          required
+          className="mt-0.5 h-4 w-4 shrink-0 accent-carga-500"
+        />
+        <span className="text-tinta-suave">
+          {t.rich("aceptoTerminosComercio", {
+            terminos: (texto) => (
+              <Link
+                href="/terminos"
+                target="_blank"
+                className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+              >
+                {texto}
+              </Link>
+            ),
+          })}
+        </span>
+      </label>
 
       {estado && !estado.ok ? (
         <p

@@ -110,8 +110,8 @@ export type ProductoLista = {
   unidad: string | null;
   marca: string | null;
   destacado: boolean;
-  /** Para el sello de "nuevo", que se calcula y no se guarda. */
-  creadoEn: Date | null;
+  /** Para el sello de "nuevo". Texto cuando viaja por JSON. */
+  creadoEn: Date | string | null;
   tiendaNombre: string;
   tiendaSlug: string;
   imagenUrl: string | null;
@@ -779,8 +779,13 @@ export async function bandasDeDepartamentos(
             )`,
           ),
         )
-        // Barajado: la banda enseña una muestra, no siempre los mismos 21.
-        .orderBy(sql`RANDOM()`)
+        /* Los recién llegados primero — el comercio que sube su producto
+           tiene que verlo al entrar, y la banda de su departamento es lo
+           primero que mira. Después, el barajado de siempre. */
+        .orderBy(
+          sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()} THEN 0 ELSE 1 END`,
+          sql`RANDOM()`,
+        )
         .limit(porBanda);
 
       return {

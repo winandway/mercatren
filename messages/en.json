@@ -318,7 +318,9 @@
     "errorClaveCorta": "Your password needs at least 10 characters. Yours is shorter.",
     "errorClaveLarga": "That password is too long. Use 128 characters or fewer.",
     "errorCorreoOcupado": "That email already has an account. You can sign in or reset your password.",
-    "errorCorreoInvalido": "That email does not look valid. Check it."
+    "errorCorreoInvalido": "That email does not look valid. Check it.",
+    "aceptoTerminos": "I have read and accept the <terminos>terms and conditions</terminos> and the <privacidad>privacy policy</privacidad>.",
+    "errorAceptaTerminos": "To create an account you need to accept the terms and conditions."
   },
   "panel": {
     "titulo": "Admin",
@@ -683,7 +685,10 @@
       "estadoAgotado": "Out of stock",
       "departamento": "Department",
       "sinDepartamento": "No department",
-      "departamentoAyuda": "Choose where your product belongs. Without it the product still sells, but it will not show up when people browse the homepage."
+      "departamentoAyuda": "Choose where your product belongs. Without it the product still sells, but it will not show up when people browse the homepage.",
+      "ciudadProducto": "What city is this merchandise in?",
+      "sinCiudad": "Choose the warehouse city",
+      "ciudadProductoAyuda": "It's where the buyer picks it up. Without a city, the product won't appear when someone filters by theirs."
     },
     "ordenes": {
       "titulo": "Orders",
@@ -937,7 +942,8 @@
       "metodoNoDisponible": "That payment method is not available yet.",
       "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card.",
       "variantesGuardadas": "Sizes and colors saved.",
-      "medidasGuardadas": "Dimensions saved."
+      "medidasGuardadas": "Dimensions saved.",
+      "aceptaTerminosComercio": "To open your store you need to accept the terms and conditions."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1215,22 +1221,23 @@
     "necesitaCuenta": "Sign in to complete your purchase.",
     "entrar": "Sign in",
     "entrega": {
-      "titulo": "Where is it going?",
-      "nombre": "Who receives it",
+      "titulo": "Who will pick up the order?",
+      "nombre": "Name of the person picking up",
       "nombrePlaceholder": "First and last name",
       "telefono": "Contact phone",
       "telefonoPlaceholder": "Mobile number",
       "pais": "Country",
       "paisPlaceholder": "Delivery country",
-      "ciudad": "City",
-      "ciudadPlaceholder": "City",
+      "ciudad": "What city are you in?",
+      "ciudadPlaceholder": "Your city",
       "direccion": "Address",
       "direccionPlaceholder": "Street, number, area",
       "referencia": "Landmark",
       "referenciaPlaceholder": "Anything that helps find the place",
       "notas": "Notes for the merchant",
       "notasPlaceholder": "Anything the merchant should know",
-      "opcional": "Optional"
+      "opcional": "Optional",
+      "aviso": "Everything is picked up at the warehouse listed on each product. We'll let you know when it's ready."
     },
     "pago": {
       "titulo": "How are you paying?",
@@ -1582,7 +1589,8 @@
       "correoContacto": "email@example.com",
       "sitioWeb": "https://",
       "descripcionEs": "In a line or two"
-    }
+    },
+    "aceptoTerminosComercio": "I have read and accept the <terminos>terms and conditions</terminos>, including the section for suppliers publishing a catalog: I sell the merchandise to Windoce, LLC and invoice each sale."
   },
   "clave": {
     "titulo": "Forgot your password?",

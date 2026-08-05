@@ -7,20 +7,24 @@ import { z } from "zod";
  * que llega del navegador puede venir de cualquier parte.
  */
 
+/**
+ * TODO SE RETIRA EN EL DEPÓSITO: aquí no se pide dirección de entrega.
+ *
+ * Antes este esquema exigía país, calle y referencia, como si repartiéramos —
+ * y cada ficha del sitio dice lo contrario. Lo que hace falta para un retiro
+ * es saber QUIÉN va a buscarlo, un teléfono para avisarle y su ciudad. Los
+ * campos viejos quedan opcionales para no romper pedidos ya guardados.
+ */
 export const esquemaEntrega = z.object({
   nombre: z
     .string()
     .trim()
-    .min(3, "Escribe el nombre de quien recibe.")
+    .min(3, "Escribe el nombre de quien retira.")
     .max(120),
   telefono: z.string().trim().min(7, "Escribe un número de contacto.").max(30),
-  pais: z.string().trim().min(2, "Elige el país.").max(60),
   ciudad: z.string().trim().min(2, "Escribe la ciudad.").max(80),
-  direccion: z
-    .string()
-    .trim()
-    .min(8, "Escribe la dirección completa.")
-    .max(300),
+  pais: z.string().trim().max(60).optional(),
+  direccion: z.string().trim().max(300).optional(),
   referencia: z.string().trim().max(200).optional(),
   notas: z.string().trim().max(500).optional(),
 });

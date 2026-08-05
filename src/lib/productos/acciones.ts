@@ -8,8 +8,10 @@ import { z } from "zod";
 import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
+import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { mensajes } from "@/lib/mensajes";
 import {
+  depositos,
   imagenesProducto,
   medidasProducto,
   productos,
@@ -193,9 +195,45 @@ export async function guardarProducto(
     ? Number(d.existencias.replace(",", "."))
     : 0;
 
+  /**
+   * LA CIUDAD DE LA MERCANCÍA → SU DEPÓSITO. Sin depósito el producto no
+   * sale cuando un cliente filtra por ciudad, que es la portada entera. Si
+   * la tienda no tiene un depósito en esa ciudad, se le crea uno: pedirle al
+   * comercio que primero "cree un depósito" en otra pantalla es una vuelta
+   * que nadie va a dar.
+   */
+  const ciudadDeposito = String(formulario.get("ciudadDeposito") ?? "").trim();
+  let depositoId: string | null = null;
+  if (ciudadDeposito && zonaPorSlug(ciudadDeposito)) {
+    const [existenteDep] = await db
+      .select({ id: depositos.id })
+      .from(depositos)
+      .where(
+        and(
+          eq(depositos.tiendaId, tiendaId!),
+          eq(depositos.zona, ciudadDeposito),
+        ),
+      )
+      .limit(1);
+    if (existenteDep) {
+      depositoId = existenteDep.id;
+    } else {
+      depositoId = nanoid();
+      await db.insert(depositos).values({
+        id: depositoId,
+        tiendaId: tiendaId!,
+        nombre: "Depósito principal",
+        zona: ciudadDeposito,
+        activo: true,
+        creadoEn: new Date(),
+      });
+    }
+  }
+
   const ahora = new Date();
   const campos = {
     tiendaId,
+    depositoId,
     tituloEs: d.tituloEs,
     tituloEn: d.tituloEn?.trim() || null,
     descripcionEs: d.descripcionEs?.trim() || null,

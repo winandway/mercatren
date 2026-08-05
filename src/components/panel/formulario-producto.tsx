@@ -10,6 +10,7 @@ import {
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
 import { baseDesdePublicado } from "@/lib/dinero";
+import { ESTADOS } from "@/lib/entrega/zonas";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,8 @@ type Producto = {
   estado: string;
   destacado: boolean;
   categoriaId?: string | null;
+  /** La ciudad del depósito donde está, para el selector. */
+  depositoZona?: string | null;
 };
 
 /** De centavos a lo que se escribe en la casilla. */
@@ -424,6 +427,33 @@ export function FormularioProducto({
           </select>
           <span className="mt-1 block text-xs text-tinta-suave">
             {t("departamentoAyuda")}
+          </span>
+        </label>
+
+        {/* ¿EN QUÉ CIUDAD ESTÁ ESTA MERCANCÍA? Sin esto el producto no sale
+            cuando un cliente filtra por su ciudad, y el filtro es la portada
+            entera. Si la tienda no tiene depósitos, elegir la ciudad le crea
+            uno ("Depósito principal") en el servidor. */}
+        <label className="mt-4 block max-w-md">
+          <span className="text-sm font-semibold">{t("ciudadProducto")}</span>
+          <select
+            name="ciudadDeposito"
+            defaultValue={producto?.depositoZona ?? ""}
+            className="mt-1 w-full rounded-lg border border-borde bg-white px-3 py-2.5 text-sm outline-none focus:border-carga-500"
+          >
+            <option value="">{t("sinCiudad")}</option>
+            {ESTADOS.map((estado) => (
+              <optgroup key={estado.slug} label={estado.nombre}>
+                {estado.ciudades.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <span className="mt-1 block text-xs text-tinta-suave">
+            {t("ciudadProductoAyuda")}
           </span>
         </label>
 

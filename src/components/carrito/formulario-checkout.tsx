@@ -115,6 +115,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
       <div className="space-y-6">
         <section className="rounded-xl border border-borde p-5">
           <h2 className="text-lg font-bold">{t("entrega.titulo")}</h2>
+          <p className="mt-1 rounded-lg bg-carga-500/5 px-3 py-2 text-sm text-tinta-suave ring-1 ring-carga-500/30">
+            {t("entrega.aviso")}
+          </p>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Campo
@@ -130,33 +133,17 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
               requerido
               tipo="tel"
             />
-            <Campo
-              nombre="pais"
-              etiqueta={t("entrega.pais")}
-              marcador={t("entrega.paisPlaceholder")}
-              requerido
-            />
+            {/* NADA DE DIRECCIÓN DE ENTREGA. Todo se retira en el depósito
+                del producto y el sitio entero lo dice; pedir aquí calle y
+                número contradecía cada ficha y hacía creer que llevábamos.
+                Se pide en qué ciudad está quien retira, para confirmar que
+                sabe a dónde tiene que ir. */}
             <Campo
               nombre="ciudad"
               etiqueta={t("entrega.ciudad")}
               marcador={t("entrega.ciudadPlaceholder")}
               requerido
             />
-            <div className="sm:col-span-2">
-              <Campo
-                nombre="direccion"
-                etiqueta={t("entrega.direccion")}
-                marcador={t("entrega.direccionPlaceholder")}
-                requerido
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Campo
-                nombre="referencia"
-                etiqueta={`${t("entrega.referencia")} · ${t("entrega.opcional")}`}
-                marcador={t("entrega.referenciaPlaceholder")}
-              />
-            </div>
             <div className="sm:col-span-2">
               <Campo
                 nombre="notas"
