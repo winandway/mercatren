@@ -26,7 +26,8 @@
     "cuenta:crear": "node scripts/crear-cuenta.ts",
     "productos:importar": "node scripts/importar-productos.ts",
     "db:schema-cloud": "node scripts/generar-schema-cloud.ts",
-    "db:cargar": "node scripts/cargar-sql-produccion.ts"
+    "db:cargar": "node scripts/cargar-sql-produccion.ts",
+    "ubicaciones:importar": "node scripts/importar-ubicaciones.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [

@@ -306,6 +306,11 @@ export const productos = sqliteTable(
      * NULL = producto de antes del ajuste, todavía sin migrar.
      */
     precioBaseCentavos: integer("precio_base_centavos"),
+    /**
+     * En que deposito esta. NULL = todavia sin ubicar; se muestra igual, pero
+     * sin poder decirle al cliente donde ir a buscarlo.
+     */
+    depositoId: text("deposito_id"),
     /** Precio tachado, cuando el producto esta en oferta. */
     precioAntesCentavos: integer("precio_antes_centavos"),
     moneda: text("moneda").notNull().default("USD"),
@@ -713,6 +718,55 @@ export const retiros = sqliteTable(
     index("idx_retiros_tienda").on(t.tiendaId),
     index("idx_retiros_estado").on(t.estado),
     index("idx_retiros_fecha").on(t.creadoEn),
+  ],
+);
+
+/* -------------------------------------------------------------------------- */
+/* Depositos: donde esta fisicamente la mercancia                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Un deposito del comercio.
+ *
+ * Bley tiene cuatro en El Vigia (DEPOSITO FERRETERIA, FERRETERIA, DEPOSITO
+ * CENTRO, DEPOSITO ZONA) y la bodega de Caracas sin subdividir. Cada producto
+ * vive en uno, y de ahi sale la respuesta a la unica pregunta que le importa
+ * al cliente que ya decidio comprar: donde lo busco.
+ *
+ * LA ZONA MANDA, NO LA DIRECCION. La zona (`el-vigia`, `caracas`) es la que
+ * decide si algo le llega a alguien; la direccion es para que sepa a que
+ * puerta tocar. Por eso la zona es obligatoria y la direccion no: el sistema
+ * de Bley solo guarda "Merida el vigia", asi que las direcciones de verdad
+ * hay que escribirlas a mano y llegan despues.
+ */
+export const depositos = sqliteTable(
+  "depositos",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    /** Como lo llama el comercio: "DEPOSITO CENTRO". */
+    nombre: text("nombre").notNull(),
+    /** Que guarda: "HIERRO, CABILLA, LAMINAS". Ayuda mas que la direccion. */
+    queGuarda: text("que_guarda"),
+    /** Slug de `src/lib/entrega/zonas.ts`. Lo que decide a quien le llega. */
+    zona: text("zona").notNull(),
+    /** La direccion para ir a buscarlo. Se escribe a mano; puede faltar. */
+    direccion: text("direccion"),
+    /** Referencia visual: "al lado de la plaza". Opcional. */
+    comoLlegar: text("como_llegar"),
+    /** El nombre que tiene en el sistema del comercio, para sincronizar. */
+    externoNombre: text("externo_nombre"),
+    activo: integer("activo", { mode: "boolean" }).notNull().default(true),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_depositos_tienda").on(t.tiendaId),
+    index("idx_depositos_zona").on(t.zona),
+    uniqueIndex("idx_depositos_tienda_nombre").on(t.tiendaId, t.nombre),
   ],
 );
 

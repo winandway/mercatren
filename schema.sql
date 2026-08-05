@@ -222,6 +222,7 @@ CREATE TABLE IF NOT EXISTS `productos` (
 	`descripcion_en` text,
 	`precio_centavos` integer NOT NULL,
 	`precio_base_centavos` integer,
+	`deposito_id` text,
 	`precio_antes_centavos` integer,
 	`moneda` text DEFAULT 'USD' NOT NULL,
 	`existencias` real DEFAULT 0 NOT NULL,
@@ -354,17 +355,35 @@ CREATE TABLE IF NOT EXISTS `retiros` (
 CREATE INDEX IF NOT EXISTS `idx_retiros_tienda` ON `retiros` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_retiros_estado` ON `retiros` (`estado`);
 CREATE INDEX IF NOT EXISTS `idx_retiros_fecha` ON `retiros` (`creado_en`);
+-- ── Tablas (0003_loose_virginia_dare.sql) ──
+CREATE TABLE IF NOT EXISTS `depositos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`nombre` text NOT NULL,
+	`que_guarda` text,
+	`zona` text NOT NULL,
+	`direccion` text,
+	`como_llegar` text,
+	`externo_nombre` text,
+	`activo` integer DEFAULT true NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_depositos_tienda` ON `depositos` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_depositos_zona` ON `depositos` (`zona`);
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_depositos_tienda_nombre` ON `depositos` (`tienda_id`,`nombre`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785891710, 1785891710)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Bley Ferretería', 'activa', 300, 'VE', NULL, NULL, 1785905081, 1785905081)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785891710)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785905081)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
