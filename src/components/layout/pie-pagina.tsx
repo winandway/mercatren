@@ -26,6 +26,12 @@ const SECCIONES = [
     titulo: "ayuda",
     enlaces: [
       { clave: "centroAyuda", href: "/ayuda" },
+      /* ENTREGA Y DEVOLUCIONES VAN EN EL PIE A PROPÓSITO. Son las dos
+         preguntas que se hace cualquiera antes de pagarle a una tienda que
+         no conoce — y Google Merchant Center las exige alcanzables desde
+         cualquier página del sitio, o no aprueba la cuenta. */
+      { clave: "entrega", href: "/entrega" },
+      { clave: "devoluciones", href: "/devoluciones" },
       // El contacto abre el buzon REAL (mercatren@windoce.com). Nunca poner
       // aqui un correo @mercatren.com sin SMTP: no recibe y el mensaje se
       // pierde. noreply@mercatren.com es solo para ENVIAR avisos del sistema.

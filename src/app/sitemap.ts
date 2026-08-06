@@ -70,6 +70,10 @@ const FIJAS: [
   ["/transparencia", 0.7, "monthly"],
   ["/vender/comisiones", 0.6, "monthly"],
   ["/ayuda", 0.6, "monthly"],
+  /* Entrega y devoluciones: Google Merchant Center las exige publicadas y
+     encontrables. Si no están en el mapa, no las encuentra por aquí. */
+  ["/entrega", 0.6, "monthly"],
+  ["/devoluciones", 0.6, "monthly"],
   ["/terminos", 0.4, "yearly"],
   ["/privacidad", 0.4, "yearly"],
 ];
