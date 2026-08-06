@@ -97,10 +97,18 @@ type DatosPedido = {
   totalCentavos: number;
 };
 
-/** 3. Pedido creado: gracias por su compra + el paso que falta. */
+/**
+ * 3. Pedido creado: gracias por su compra + el paso que falta + dónde se
+ * retira.
+ *
+ * Los puntos de retiro son opcionales: si el comercio todavía no cargó su
+ * depósito, el correo sale igual sin esa fila. Un aviso sin dirección sigue
+ * sirviendo; uno que no sale porque faltaba un dato, no.
+ */
 export async function correoGraciasCompra(
   d: Destinatario,
   pedido: DatosPedido,
+  puntos: string[] = [],
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
 
@@ -116,6 +124,13 @@ export async function correoGraciasCompra(
         etiqueta: t("comun.total"),
         valor: formatearPrecio(pedido.totalCentavos, idioma),
       },
+      ...puntos.map((p, i) => ({
+        etiqueta:
+          puntos.length > 1
+            ? `${t("pedidoListo.dondeRetirar")} ${i + 1}`
+            : t("pedidoListo.dondeRetirar"),
+        valor: p,
+      })),
     ],
     resaltado: { texto: t("graciasCompra.siguiente"), tono: "neutro" },
     boton: {
@@ -325,5 +340,208 @@ export async function correoAvisoComprobante(numero: string) {
     ],
     url: "https://mercatren.com/es/panel/validacion",
     boton: "Ir a la cola de validación",
+  });
+}
+
+/* ========================================================================== *
+ *  LOS COBROS DEL COMERCIO
+ *
+ *  El dinero que sale del banco lo mueve una persona, no el sistema. Por eso
+ *  hay tres avisos y no uno: al equipo cuando entra una solicitud (si nadie
+ *  mira el panel, nadie transfiere), y al comercio cuando se hizo o cuando no
+ *  se pudo. Un comercio esperando una transferencia sin noticias termina
+ *  llamando por teléfono, que es exactamente lo que estos correos evitan.
+ * ========================================================================== */
+
+/** 10. Al equipo: un comercio pidió cobrar lo suyo. */
+export async function correoAvisoRetiroSolicitado(d: {
+  comercio: string;
+  montoCentavos: number;
+  forma: string;
+}) {
+  const t = await getTranslations({ locale: "es", namespace: "correos" });
+  const monto = formatearPrecio(d.montoCentavos, "es");
+
+  return correoAvisoAlEquipo({
+    asunto: t("retiroSolicitado.asunto", { monto, comercio: d.comercio }),
+    lineas: [
+      t("retiroSolicitado.lineaMonto", { monto, comercio: d.comercio }),
+      t("retiroSolicitado.lineaForma", { forma: d.forma }),
+    ],
+    url: "https://mercatren.com/es/panel/retiros",
+    boton: t("retiroSolicitado.boton"),
+  });
+}
+
+/** 11. Al comercio: la transferencia ya salió del banco. */
+export async function correoRetiroPagado(
+  d: Destinatario,
+  retiro: { montoCentavos: number; referencia?: string | null },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const monto = formatearPrecio(retiro.montoCentavos, idioma);
+
+  return enviar(d, {
+    asunto: t("retiroPagado.asunto", { monto }),
+    previo: t("retiroPagado.previo"),
+    saludo,
+    titulo: t("retiroPagado.titulo"),
+    parrafos: t.raw("retiroPagado.parrafos") as string[],
+    datos: [
+      { etiqueta: t("comun.monto"), valor: monto },
+      // La referencia del banco es lo que permite rastrear la transferencia
+      // si no aparece. Si el equipo no la anotó, no se inventa una fila.
+      ...(retiro.referencia
+        ? [{ etiqueta: t("comun.referencia"), valor: retiro.referencia }]
+        : []),
+    ],
+    resaltado: { texto: t("retiroPagado.aviso"), tono: "neutro" },
+    boton: {
+      texto: t("retiroPagado.boton"),
+      url: urlDe(idioma, "/panel/billetera"),
+    },
+    motivo,
+    contacto,
+  });
+}
+
+/** 12. Al comercio: no se pudo transferir, con el motivo. */
+export async function correoRetiroRechazado(
+  d: Destinatario,
+  retiro: { montoCentavos: number },
+  motivoRechazo: string,
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const monto = formatearPrecio(retiro.montoCentavos, idioma);
+
+  return enviar(d, {
+    asunto: t("retiroRechazado.asunto", { monto }),
+    previo: t("retiroRechazado.previo"),
+    saludo,
+    titulo: t("retiroRechazado.titulo"),
+    parrafos: t.raw("retiroRechazado.parrafos") as string[],
+    resaltado: {
+      texto: t("retiroRechazado.motivo", { motivo: motivoRechazo }),
+      tono: "ojo",
+    },
+    boton: {
+      texto: t("retiroRechazado.boton"),
+      url: urlDe(idioma, "/panel/retiros"),
+    },
+    parrafosFinales: t.raw("retiroRechazado.despues") as string[],
+    motivo,
+    contacto,
+  });
+}
+
+/* ========================================================================== *
+ *  EL PEDIDO DESPUÉS DEL PAGO
+ *
+ *  Mercatren no envía: se retira. El correo que más importa de todos es el
+ *  que dice DÓNDE ir a buscar la mercancía — sin él, la persona que pagó
+ *  desde Estados Unidos tiene que entrar al sitio a averiguarlo, o llamar al
+ *  comercio.
+ * ========================================================================== */
+
+/** 13. Al cliente: su pedido está listo para retirar, y dónde. */
+export async function correoPedidoListo(
+  d: Destinatario,
+  pedido: DatosPedido,
+  puntos: string[],
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+
+  return enviar(d, {
+    asunto: t("pedidoListo.asunto", { numero: pedido.numero }),
+    previo: t("pedidoListo.previo"),
+    saludo,
+    titulo: t("pedidoListo.titulo"),
+    parrafos: [
+      ...(t.raw("pedidoListo.parrafos") as string[]),
+      // Un pedido que sale de dos depósitos son dos viajes. Decirlo antes de
+      // la lista evita que la persona lea solo el primero y se vaya.
+      ...(puntos.length > 1 ? [t("pedidoListo.variosPuntos")] : []),
+    ],
+    datos: [
+      { etiqueta: t("comun.pedido"), valor: pedido.numero },
+      ...(puntos.length > 0
+        ? puntos.map((p, i) => ({
+            etiqueta:
+              puntos.length > 1
+                ? `${t("pedidoListo.dondeRetirar")} ${i + 1}`
+                : t("pedidoListo.dondeRetirar"),
+            valor: p,
+          }))
+        : // Sin depósito cargado no se inventa una dirección: se dice que el
+          // comercio la dará. Mandar a alguien a un sitio equivocado es peor
+          // que no mandarlo.
+          [
+            {
+              etiqueta: t("pedidoListo.dondeRetirar"),
+              valor: t("pedidoListo.sinDireccion"),
+            },
+          ]),
+    ],
+    resaltado: { texto: t("pedidoListo.llevaCedula"), tono: "neutro" },
+    boton: {
+      texto: t("pedidoListo.boton"),
+      url: urlDe(idioma, `/pedido/${pedido.numero}`),
+    },
+    motivo,
+    contacto,
+  });
+}
+
+/** 14. Al cliente: constancia de que se entregó. */
+export async function correoPedidoEntregado(
+  d: Destinatario,
+  pedido: DatosPedido,
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+
+  return enviar(d, {
+    asunto: t("pedidoEntregado.asunto", { numero: pedido.numero }),
+    previo: t("pedidoEntregado.previo"),
+    saludo,
+    titulo: t("pedidoEntregado.titulo"),
+    parrafos: t.raw("pedidoEntregado.parrafos") as string[],
+    datos: [
+      { etiqueta: t("comun.pedido"), valor: pedido.numero },
+      {
+        etiqueta: t("comun.total"),
+        valor: formatearPrecio(pedido.totalCentavos, idioma),
+      },
+    ],
+    resaltado: { texto: t("pedidoEntregado.aviso"), tono: "bien" },
+    boton: {
+      texto: t("pedidoEntregado.boton"),
+      url: urlDe(idioma, `/pedido/${pedido.numero}`),
+    },
+    motivo,
+    contacto,
+  });
+}
+
+/** 15. Al comercio: una venta le dejó un producto en cero. */
+export async function correoProductoAgotado(
+  d: Destinatario,
+  producto: { titulo: string },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+
+  return enviar(d, {
+    asunto: t("productoAgotado.asunto", { producto: producto.titulo }),
+    previo: t("productoAgotado.previo"),
+    saludo,
+    titulo: t("productoAgotado.titulo"),
+    parrafos: t.raw("productoAgotado.parrafos") as string[],
+    datos: [{ etiqueta: t("comun.producto"), valor: producto.titulo }],
+    resaltado: { texto: t("productoAgotado.queHacer"), tono: "ojo" },
+    boton: {
+      texto: t("productoAgotado.boton"),
+      url: urlDe(idioma, "/panel/productos"),
+    },
+    motivo,
+    contacto,
   });
 }

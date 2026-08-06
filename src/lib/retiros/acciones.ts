@@ -169,6 +169,27 @@ export async function pedirRetiro(
   });
 
   revalidatePath("/[locale]/panel", "layout");
+
+  /**
+   * EL EQUIPO SE ENTERA SIN ENTRAR AL PANEL. Aquí no hay nada automático: la
+   * transferencia la hace una persona en el banco. Si nadie mira la cola,
+   * nadie transfiere, y el comercio se queda esperando un dinero que ya es
+   * suyo. El aviso nunca deshace la solicitud: si el correo falla, el cobro
+   * queda pedido igual.
+   */
+  try {
+    const { correoAvisoRetiroSolicitado } =
+      await import("@/lib/correo/correos");
+    const { nombreDeTienda } = await import("@/lib/correo/contactos");
+    await correoAvisoRetiroSolicitado({
+      comercio: await nombreDeTienda(tiendaId),
+      montoCentavos,
+      forma: d.forma,
+    });
+  } catch (e) {
+    console.error("[retiro] pedido; aviso al equipo fallido:", e);
+  }
+
   return { ok: true, mensaje: t("retiroPedido") };
 }
 
@@ -241,6 +262,26 @@ export async function marcarRetiroPagado(
   }
 
   revalidatePath("/[locale]/panel", "layout");
+
+  /**
+   * "Ya salió del banco", al comercio y en su idioma. Sin este aviso, la
+   * única forma de enterarse es mirar la cuenta o entrar al panel a
+   * adivinar; con ACH tardando uno o dos días, eso son dos días de dudas.
+   */
+  try {
+    const { correoRetiroPagado } = await import("@/lib/correo/correos");
+    const { duennoDeTienda } = await import("@/lib/correo/contactos");
+    const duenno = await duennoDeTienda(retiro.tiendaId);
+    if (duenno) {
+      await correoRetiroPagado(duenno, {
+        montoCentavos: retiro.montoCentavos,
+        referencia: referencia?.trim() || null,
+      });
+    }
+  } catch (e) {
+    console.error("[retiro] pagado; aviso al comercio fallido:", e);
+  }
+
   return { ok: true, mensaje: t("retiroPagado") };
 }
 
@@ -278,13 +319,38 @@ export async function rechazarRetiro(
       resueltoEn: new Date(),
     })
     .where(and(eq(retiros.id, id), eq(retiros.estado, "solicitado")))
-    .returning({ id: retiros.id });
+    .returning({
+      id: retiros.id,
+      tiendaId: retiros.tiendaId,
+      montoCentavos: retiros.montoCentavos,
+    });
 
   if (marcado.length === 0) {
     return { ok: false, mensaje: t("retiroYaResuelto") };
   }
 
   revalidatePath("/[locale]/panel", "layout");
+
+  /**
+   * El motivo viaja en el correo, no solo en la pantalla. Un cobro que vuelve
+   * sin explicación deja al comercio llamando por teléfono a preguntar qué
+   * pasó — y esa llamada la contesta una persona del equipo.
+   */
+  try {
+    const { correoRetiroRechazado } = await import("@/lib/correo/correos");
+    const { duennoDeTienda } = await import("@/lib/correo/contactos");
+    const duenno = await duennoDeTienda(marcado[0].tiendaId);
+    if (duenno) {
+      await correoRetiroRechazado(
+        duenno,
+        { montoCentavos: marcado[0].montoCentavos },
+        limpio,
+      );
+    }
+  } catch (e) {
+    console.error("[retiro] rechazado; aviso al comercio fallido:", e);
+  }
+
   return { ok: true, mensaje: t("retiroRechazado") };
 }
 

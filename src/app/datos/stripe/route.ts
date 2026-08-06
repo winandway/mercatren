@@ -239,6 +239,11 @@ async function acreditarPagoConTarjeta(
         });
       }
     }
+
+    // Lo mismo que al aprobar un Zelle: si la venta dejó algo en cero, el
+    // comercio se entera hoy y no cuando note que dejó de vender.
+    const { avisarAgotados } = await import("@/lib/productos/agotados");
+    await avisarAgotados(renglones);
   } catch (e) {
     console.error("[stripe] pago acreditado; el aviso no salio:", e);
   }

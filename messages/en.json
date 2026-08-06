@@ -1422,7 +1422,10 @@
       "pedido": "Order",
       "total": "Total",
       "comercio": "Merchant",
-      "monto": "Amount"
+      "monto": "Amount",
+      "referencia": "Reference",
+      "producto": "Product",
+      "forma": "Method"
     },
     "bienvenida": {
       "asunto": "Your Mercatren account is ready",
@@ -1504,6 +1507,71 @@
       "parrafo1": "We reviewed the details for {tienda} and everything checks out: your store is now active and your published products are available for purchase.",
       "parrafo2": "Head to your dashboard to add products, track your sales, and see what you're owed.",
       "boton": "Go to my dashboard"
+    },
+    "retiroSolicitado": {
+      "asunto": "Payout requested: {monto} · {comercio}",
+      "lineaMonto": "{comercio} requested a payout of {monto}.",
+      "lineaForma": "Method: {forma}.",
+      "boton": "Go to the payout queue"
+    },
+    "retiroPagado": {
+      "asunto": "We sent your {monto} transfer",
+      "previo": "The transfer left the bank.",
+      "titulo": "Transfer sent",
+      "parrafos": [
+        "Someone on our team sent the transfer from the bank. How soon it lands depends on your bank: ACH usually takes one to two business days, and a wire typically arrives the same day."
+      ],
+      "aviso": "If it hasn't shown up in three business days, email us with the reference number and we'll trace it.",
+      "referencia": "Reference: {referencia}",
+      "boton": "View my history"
+    },
+    "retiroRechazado": {
+      "asunto": "We couldn't send your {monto} transfer",
+      "previo": "The amount is available again.",
+      "titulo": "Your payout couldn't be sent",
+      "parrafos": [
+        "We reviewed your payout request and weren't able to complete the transfer. Here's why:"
+      ],
+      "motivo": "Reason: {motivo}",
+      "despues": [
+        "The amount is available again, so you can request it once you've fixed what's needed.",
+        "If you think this is a mistake, email us and we'll sort it out with you."
+      ],
+      "boton": "Request the payout again"
+    },
+    "pedidoListo": {
+      "asunto": "Order {numero} is ready for pickup",
+      "previo": "You can come get it.",
+      "titulo": "Your order is ready!",
+      "parrafos": [
+        "The seller has your order ready. Stop by to pick it up whenever works for you."
+      ],
+      "dondeRetirar": "Where to pick it up",
+      "variosPuntos": "Your order ships from more than one location. Here's each one and what you'll pick up there:",
+      "llevaCedula": "Bring a photo ID and your order number. If someone else is picking it up for you, have them bring their own ID and this number.",
+      "sinDireccion": "The seller will give you the exact address when you arrange the pickup.",
+      "boton": "View my order"
+    },
+    "pedidoEntregado": {
+      "asunto": "Delivery receipt for order {numero}",
+      "previo": "The pickup is on record.",
+      "titulo": "Order picked up",
+      "parrafos": [
+        "The seller recorded your order as picked up. That closes it out, and the receipt is saved to your account.",
+        "Keep this email — it's your proof that the merchandise was handed over."
+      ],
+      "aviso": "Something missing or not what you ordered? Email us within 48 hours and we'll make it right.",
+      "boton": "See the details"
+    },
+    "productoAgotado": {
+      "asunto": "Out of stock: {producto}",
+      "previo": "It can't be bought until you restock.",
+      "titulo": "One of your products hit zero",
+      "parrafos": [
+        "That last sale cleared out this product. Shoppers can't buy it until you add more."
+      ],
+      "queHacer": "If you already have more at the warehouse, update the quantity from your dashboard. If you're not restocking it, switch it to draft so it doesn't take up space in your store.",
+      "boton": "Update my stock"
     }
   },
   "misPedidos": {

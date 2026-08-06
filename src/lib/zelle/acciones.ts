@@ -264,6 +264,11 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     });
   }
 
+  // Y si esa venta dejó algo en cero, que el comercio lo sepa hoy y no
+  // cuando note que dejó de vender.
+  const { avisarAgotados } = await import("@/lib/productos/agotados");
+  await avisarAgotados(renglones);
+
   return { ok: true, mensaje: t("pagoAprobado") };
 }
 

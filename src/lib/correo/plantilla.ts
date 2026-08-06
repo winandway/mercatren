@@ -63,15 +63,40 @@ export function armarHtml(p: PiezasCorreo): string {
     )
     .join("");
 
+  /**
+   * LAS FILAS DE DATOS. Un monto cabe en una línea; una dirección de retiro,
+   * no — lleva el comercio, el depósito, la calle y qué se recoge ahí.
+   *
+   * Por eso hay dos formas de fila. La corta va a la derecha en negrita, como
+   * siempre. La LARGA (la que trae saltos de línea) ocupa las dos columnas,
+   * alineada a la izquierda y respetando sus renglones: apretada contra el
+   * borde derecho se leía como un solo párrafo pegado, y ahí la persona
+   * pierde justo el dato que fue a buscar — la calle.
+   *
+   * `white-space:pre-line` no basta en todos los clientes de correo, así que
+   * los saltos se convierten en `<br>` de verdad, después de escapar.
+   */
   const datos = p.datos?.length
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:6px 0 18px;border:1px solid ${BORDE};border-radius:8px;border-collapse:separate;overflow:hidden;">
         ${p.datos
-          .map(
-            (d, i) => `<tr>
-          <td style="padding:10px 14px;font-size:13px;color:${TINTA_SUAVE};background:#fafbfb;${i ? `border-top:1px solid ${BORDE};` : ""}white-space:nowrap;">${escapar(d.etiqueta)}</td>
-          <td style="padding:10px 14px;font-size:14px;font-weight:bold;color:${TINTA};background:#fafbfb;${i ? `border-top:1px solid ${BORDE};` : ""}text-align:right;">${escapar(d.valor)}</td>
-        </tr>`,
-          )
+          .map((d, i) => {
+            const arriba = i ? `border-top:1px solid ${BORDE};` : "";
+            const valor = escapar(d.valor).replaceAll("\n", "<br>");
+
+            if (d.valor.includes("\n")) {
+              return `<tr>
+          <td colspan="2" style="padding:10px 14px;background:#fafbfb;${arriba}">
+            <div style="font-size:13px;color:${TINTA_SUAVE};margin-bottom:3px;">${escapar(d.etiqueta)}</div>
+            <div style="font-size:14px;font-weight:bold;color:${TINTA};line-height:1.5;">${valor}</div>
+          </td>
+        </tr>`;
+            }
+
+            return `<tr>
+          <td style="padding:10px 14px;font-size:13px;color:${TINTA_SUAVE};background:#fafbfb;${arriba}white-space:nowrap;">${escapar(d.etiqueta)}</td>
+          <td style="padding:10px 14px;font-size:14px;font-weight:bold;color:${TINTA};background:#fafbfb;${arriba}text-align:right;">${valor}</td>
+        </tr>`;
+          })
           .join("")}
       </table>`
     : "";

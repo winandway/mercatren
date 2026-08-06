@@ -1422,7 +1422,10 @@
       "pedido": "Pedido",
       "total": "Total",
       "comercio": "Comercio",
-      "monto": "Monto"
+      "monto": "Monto",
+      "referencia": "Referencia",
+      "producto": "Producto",
+      "forma": "Forma"
     },
     "bienvenida": {
       "asunto": "Tu cuenta en Mercatren quedó lista",
@@ -1504,6 +1507,71 @@
       "parrafo1": "Revisamos los datos de {tienda} y todo quedó en orden: tu tienda ya está activa y tus productos publicados se pueden comprar.",
       "parrafo2": "Entra a tu panel para cargar productos, revisar tus ventas y ver lo que se te debe pagar.",
       "boton": "Ir a mi panel"
+    },
+    "retiroSolicitado": {
+      "asunto": "Cobro solicitado: {monto} · {comercio}",
+      "lineaMonto": "{comercio} solicitó el cobro de {monto} a su favor.",
+      "lineaForma": "Forma: {forma}.",
+      "boton": "Ir a la cola de cobros"
+    },
+    "retiroPagado": {
+      "asunto": "Ya te transferimos {monto}",
+      "previo": "La transferencia salió del banco.",
+      "titulo": "Transferencia hecha",
+      "parrafos": [
+        "Una persona del equipo hizo la transferencia desde el banco. Según tu banco, puede tardar en reflejarse: ACH suele llegar en uno o dos días hábiles y wire el mismo día."
+      ],
+      "aviso": "Si en tres días hábiles no lo ves en tu cuenta, escríbenos con el número de referencia y lo rastreamos.",
+      "referencia": "Referencia: {referencia}",
+      "boton": "Ver mi historial"
+    },
+    "retiroRechazado": {
+      "asunto": "No pudimos hacer tu transferencia de {monto}",
+      "previo": "El importe volvió a estar disponible.",
+      "titulo": "Tu cobro no se pudo hacer",
+      "parrafos": [
+        "Revisamos tu solicitud de cobro y no pudimos completar la transferencia. Este es el motivo:"
+      ],
+      "motivo": "Motivo: {motivo}",
+      "despues": [
+        "El importe volvió a estar disponible: puedes pedirlo de nuevo corrigiendo lo que haga falta.",
+        "Si crees que es un error, escríbenos y lo resolvemos contigo."
+      ],
+      "boton": "Pedir el cobro otra vez"
+    },
+    "pedidoListo": {
+      "asunto": "Tu pedido {numero} está listo para retirar",
+      "previo": "Ya puedes ir a buscarlo.",
+      "titulo": "¡Tu pedido está listo!",
+      "parrafos": [
+        "El comercio ya preparó tu pedido y puedes pasar a retirarlo cuando te quede bien."
+      ],
+      "dondeRetirar": "Dónde retirarlo",
+      "variosPuntos": "Tu pedido sale de más de un lugar. Aquí está cada uno con lo que se retira ahí:",
+      "llevaCedula": "Lleva tu documento de identidad y el número de pedido. Si va otra persona por ti, dile que lleve el suyo y este número.",
+      "sinDireccion": "El comercio te dará la dirección exacta al coordinar la entrega contigo.",
+      "boton": "Ver mi pedido"
+    },
+    "pedidoEntregado": {
+      "asunto": "Constancia de entrega del pedido {numero}",
+      "previo": "Quedó registrado que se entregó.",
+      "titulo": "Pedido entregado",
+      "parrafos": [
+        "El comercio registró la entrega de tu pedido. Con esto queda cerrado y la constancia guardada en tu cuenta.",
+        "Guarda este correo: es tu comprobante de que la mercancía se entregó."
+      ],
+      "aviso": "¿Algo no llegó bien o no es lo que pediste? Escríbenos dentro de las próximas 48 horas y lo resolvemos.",
+      "boton": "Ver el detalle"
+    },
+    "productoAgotado": {
+      "asunto": "Se agotó: {producto}",
+      "previo": "Ya no se puede comprar hasta que lo repongas.",
+      "titulo": "Un producto tuyo llegó a cero",
+      "parrafos": [
+        "Con la última venta, este producto quedó sin existencias. Deja de poder comprarse hasta que cargues más."
+      ],
+      "queHacer": "Si ya tienes más en el depósito, actualiza la cantidad desde tu panel. Si no vas a reponerlo, pásalo a borrador para que no ocupe sitio en tu tienda.",
+      "boton": "Actualizar mis existencias"
     }
   },
   "misPedidos": {
