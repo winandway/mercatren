@@ -126,8 +126,20 @@ const COLUMNAS = [
  */
 const PILOTO = {
   id: "tienda-bley-ferreteria",
+  /**
+   * EL SLUG NO CAMBIA NUNCA, aunque el comercio cambie de nombre. Es la
+   * direccion publica de su tienda: esta en el mapa del sitio que ya recibio
+   * Google, en los enlaces que la gente comparte y en cualquier captura que
+   * circule. Cambiarlo por estetica rompe todo eso a cambio de nada.
+   */
   slug: "bley-ferreteria",
-  nombre: "Bley Ferretería",
+  /**
+   * Solo para el ALTA. El nombre visible se lo cambia el comercio desde su
+   * panel cuando quiere; este script no manda sobre eso (ver el ON CONFLICT
+   * de abajo). El 5 ago 2026 el dueno corrigio el que estaba mal puesto:
+   * decia "Bley Ferreteria" y la empresa se llama asi.
+   */
+  nombre: "Ferremateriales Bley C.A",
   paisOrigen: "VE",
   /** 3% — es la comision que aparece cobrada en todo el historico. */
   comisionPuntosBase: 300,
@@ -147,7 +159,21 @@ function sqlDelComercio(ahora: number) {
     // pagina de la tienda, y ahi no se cuelan datos internos ni enlaces del
     // sistema anterior. La escribe el propio comercio desde su panel.
     `VALUES (${texto(PILOTO.id)}, ${texto(PILOTO.slug)}, ${texto(PILOTO.nombre)}, 'activa', ${PILOTO.comisionPuntosBase}, ${texto(PILOTO.paisOrigen)}, NULL, NULL, ${ahora}, ${ahora})`,
-    "ON CONFLICT(id) DO UPDATE SET nombre = excluded.nombre, estado = excluded.estado;",
+    /**
+     * EL NOMBRE ES DEL COMERCIO, NO DE ESTE SCRIPT.
+     *
+     * Antes esto decia `DO UPDATE SET nombre = excluded.nombre`: volver a
+     * correr el importador le devolvia al comercio el nombre escrito aqui,
+     * borrando el que el mismo hubiera puesto en su panel. Es una bomba de
+     * tiempo silenciosa — el comercio corrige su nombre, pasan semanas, y un
+     * dia alguien reimporta el historico y su tienda vuelve a llamarse mal
+     * sin que nadie entienda por que.
+     *
+     * Se mantiene solo `estado`, que si es una decision de Mercatren: el
+     * historico pertenece a un comercio que tiene que estar activo para que
+     * sus pagos se puedan ver.
+     */
+    "ON CONFLICT(id) DO UPDATE SET estado = excluded.estado;",
     "",
     `INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)`,
     `VALUES (${texto(`billetera-${PILOTO.slug}`)}, ${texto(PILOTO.id)}, 0, 'USD', 'tokiia', 'activa', ${ahora})`,

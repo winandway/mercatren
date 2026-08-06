@@ -24,7 +24,7 @@ pon la tuya. Al guardarla se cierran las demás sesiones automáticamente.
 
 ## 2. Las cuentas del comercio piloto y del validador
 
-**Qué falta:** que Bley Ferretería tenga su cuenta para ver sus pagos y su
+**Qué falta:** que Ferremateriales Bley C.A tenga su cuenta para ver sus pagos y su
 billetera, y que exista al menos un validador.
 
 **Por qué no puedo:** crear una cuenta exige poner una contraseña, y las

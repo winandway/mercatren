@@ -236,7 +236,7 @@ Para crear cuentas (con el servidor levantado):
 CLAVE='tu-contraseña-larga' npm run cuenta:crear -- "Soporte Windoce" soporte@windoce.com
 
 # un comercio, vinculado a su tienda
-CLAVE='…' npm run cuenta:crear -- --rol=vendedor --tienda=tienda-bley-ferreteria "Bley Ferretería" correo@delcomercio.com
+CLAVE='…' npm run cuenta:crear -- --rol=vendedor --tienda=tienda-bley-ferreteria "Ferremateriales Bley C.A" correo@delcomercio.com
 ```
 
 El nombre visible de una cuenta nuestra **debe** contener la palabra "Soporte";
@@ -282,8 +282,19 @@ sola; hay que aplicar el ALTER a mano, una vez, con el token.
 
 ## El comercio piloto
 
-`Bley Ferretería` (id `tienda-bley-ferreteria`) viene del MVP anterior. Lo crea
-el propio importador con los datos del archivo, junto con su billetera.
+`Ferremateriales Bley C.A` (id `tienda-bley-ferreteria`) viene del MVP
+anterior. Lo crea el propio importador con los datos del archivo, junto con su
+billetera.
+
+**Su slug es `bley-ferreteria` y NO se cambia**, aunque el nombre visible ya no
+lo diga: es la dirección pública de su tienda, está en el mapa del sitio que ya
+recibió Google y en los enlaces que circulan. El nombre visible se corrigió el
+5 ago 2026 (decía "Bley Ferretería"); el slug se quedó como estaba a propósito.
+
+**El nombre de un comercio lo manda el COMERCIO, no un script.** El importador
+del histórico lo escribía en cada corrida (`ON CONFLICT DO UPDATE SET nombre`),
+así que reimportar le devolvía el nombre viejo semanas después, sin que nadie
+entendiera por qué. Ya no: el script solo lo pone al dar de alta la tienda.
 
 **El saldo de su billetera NO se escribe a mano: se calcula.**
 
@@ -347,7 +358,7 @@ proveedor y hay que sincronizar (`billeteras.proveedorBilleteraId` y
 2. **Una sola tabla para todo:** `pagos_zelle`. El histórico importado va con
    `origen = 'import'` y los pagos nuevos con `origen = 'live'`.
 3. **El histórico está congelado.** Son operaciones ya procesadas de la cuenta
-   de prueba en vivo (Bley Ferretería): 743 movimientos, **666 entradas
+   de prueba en vivo (Ferremateriales Bley C.A): 743 movimientos, **666 entradas
    aprobadas por $337,261.22**, más 5 rechazadas y 2 pendientes.
 4. **Las capturas no se migraron.** Cada registro guarda la dirección pública de
    su imagen en el almacenamiento original y se muestra desde ahí.

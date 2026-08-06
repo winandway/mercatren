@@ -37,11 +37,20 @@ const RAIZ = process.cwd();
 const MIGRACIONES = path.join(RAIZ, "drizzle", "migrations");
 const SALIDA = path.join(RAIZ, "schema.sql");
 
-/** El piloto, igual que en scripts/importar-zelle.ts. */
+/**
+ * El piloto, igual que en scripts/importar-zelle.ts.
+ *
+ * Esto solo se usa para el ALTA (el INSERT lleva `ON CONFLICT DO NOTHING`):
+ * en una base que ya tiene la tienda, ni el nombre ni nada mas se toca. Tiene
+ * que seguir siendo asi — este archivo se ejecuta en CADA publicacion, y un
+ * `DO UPDATE` aqui le devolveria al comercio el nombre viejo cada vez que
+ * subimos un cambio al sitio.
+ */
 const PILOTO = {
   id: "tienda-bley-ferreteria",
+  /** No cambia aunque cambie el nombre: es la direccion publica de su tienda. */
   slug: "bley-ferreteria",
-  nombre: "Bley Ferretería",
+  nombre: "Ferremateriales Bley C.A",
   paisOrigen: "VE",
   comisionPuntosBase: 300,
 };
