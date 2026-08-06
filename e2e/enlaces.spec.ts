@@ -45,6 +45,23 @@ function seSalta(ruta: string) {
 }
 
 test.describe("ningun enlace roto", () => {
+  /**
+   * ESTA PRUEBA NECESITA MÁS TIEMPO QUE LAS DEMÁS, y no por lenta: por lo que
+   * hace. Recorre TODOS los enlaces internos de una página y pide cada uno, y
+   * el servidor de desarrollo COMPILA cada ruta la primera vez que se la
+   * piden. Con veinte enlaces, la primera corrida son veinte compilaciones.
+   *
+   * Con el límite normal de 30 segundos, agregar dos páginas al pie bastó
+   * para tumbar la publicación del 5 ago 2026 — el sitio estaba perfecto y
+   * las páginas respondían; lo que faltó fue tiempo. Y ese fallo no se ve:
+   * el commit parece subido y el sitio se queda días sin recibir nada, que es
+   * exactamente lo que ya pasó cuatro veces seguidas en agosto.
+   *
+   * Tres minutos alcanzan de sobra y siguen siendo un tope real: si de verdad
+   * se cuelga, la prueba falla igual.
+   */
+  test.setTimeout(180_000);
+
   for (const partida of PUNTOS_DE_PARTIDA) {
     test(`los enlaces de ${partida} responden`, async ({ page, baseURL }) => {
       await page.goto(partida);
