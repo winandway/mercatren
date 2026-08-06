@@ -7,9 +7,11 @@ import { useState } from "react";
 
 import { CampoClave } from "@/components/cuenta/campo-clave";
 import { Escudo } from "@/components/cuenta/escudo";
+import { Campo } from "@/components/ui/campo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { registrarAceptacion } from "@/lib/legal-acciones";
+import { medirClave } from "@/lib/validacion/fortaleza";
 
 /**
  * Alta de cuenta para quien va a comprar.
@@ -24,6 +26,7 @@ import { registrarAceptacion } from "@/lib/legal-acciones";
  */
 export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
   const t = useTranslations("entrar");
+  const tClave = useTranslations("formularios.clave");
   const idioma = useLocale();
   const parametros = useSearchParams();
   const destino = parametros.get("destino") ?? "/";
@@ -46,6 +49,24 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
     // correo tres veces y el problema era la clave. Pasó de verdad.
     if (clave.length < 10) {
       setError(t("errorClaveCorta"));
+      return;
+    }
+
+    /**
+     * LAS INDEFENDIBLES NO PASAN, por muy larga que sea la clave.
+     *
+     * El medidor ya lo dice en pantalla mientras se escribe; esto es el
+     * cinturón. Solo corta lo que no tiene defensa posible —`password123`,
+     * `12345678901`, o una que lleve dentro su propio correo—, no las
+     * simplemente flojas: exigir una clave perfecta espanta clientes, pero
+     * dejar pasar la más probada del mundo es regalar la cuenta.
+     *
+     * Esta cuenta puede terminar viendo el dinero de un comercio.
+     */
+    const fuerza = medirClave(clave, [correo, nombre]);
+    if (!fuerza.aceptable) {
+      const motivo = fuerza.consejos[0] ?? "muyCorta";
+      setError(tClave.has(motivo) ? tClave(motivo) : t("errorClaveCorta"));
       return;
     }
 
@@ -100,43 +121,30 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
     window.location.assign(`/${idioma}${destino === "/" ? "" : destino}`);
   }
 
-  const clases =
-    "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30";
-
   return (
     <form onSubmit={enviar} className="mt-8 space-y-4">
-      <div>
-        <label htmlFor="nombre" className="block text-sm font-medium">
-          {t("nombre")}
-        </label>
-        <input
-          id="nombre"
-          type="text"
-          required
-          maxLength={80}
-          autoComplete="name"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder={t("nombrePlaceholder")}
-          className={clases}
-        />
-      </div>
+      {/* Nombre y correo pasan por las reglas compartidas: el nombre no admite
+          números y el correo se guarda en minúsculas, sea como sea que lo
+          escriba la persona. */}
+      <Campo
+        tipo="nombrePersona"
+        nombre="nombre"
+        etiqueta={t("nombre")}
+        marcador={t("nombrePlaceholder")}
+        valor={nombre}
+        onChange={setNombre}
+        requerido
+      />
 
-      <div>
-        <label htmlFor="correo" className="block text-sm font-medium">
-          {t("correo")}
-        </label>
-        <input
-          id="correo"
-          type="email"
-          required
-          autoComplete="email"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          placeholder={t("correoPlaceholder")}
-          className={clases}
-        />
-      </div>
+      <Campo
+        tipo="correo"
+        nombre="correo"
+        etiqueta={t("correo")}
+        marcador={t("correoPlaceholder")}
+        valor={correo}
+        onChange={setCorreo}
+        requerido
+      />
 
       <CampoClave
         nombre="clave"
@@ -146,6 +154,9 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
         onChange={setClave}
         autoComplete="new-password"
         minimo={10}
+        /* Con esto el medidor rechaza una contraseña que lleve dentro su propio
+           correo o su nombre, que es de las primeras que prueba quien la conoce. */
+        contexto={[correo, nombre]}
       />
 
       {/* LA FIRMA DEL CONTRATO. Casilla sin premarcar, con el texto a un

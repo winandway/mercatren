@@ -1727,5 +1727,39 @@
     "buscar": "Buscar una tienda por nombre o ciudad",
     "sinResultados": "Ninguna tienda coincide con lo que buscas.",
     "productos": "{n, plural, one {# producto} other {# productos}}"
+  },
+  "formularios": {
+    "clave": {
+      "seguridad": "Seguridad de la contraseña",
+      "nivel0": "No sirve",
+      "nivel1": "Débil",
+      "nivel2": "Aceptable",
+      "nivel3": "Fuerte",
+      "nivel4": "Muy fuerte",
+      "escribeUna": "Escribe una contraseña.",
+      "demasiadoComun": "Esta es de las contraseñas más usadas del mundo. Es la primera que prueban.",
+      "todoIgual": "Es la misma letra repetida. Se adivina al instante.",
+      "esUnaSecuencia": "Es una tirada seguida del teclado. Se adivina al instante.",
+      "llevaTusDatos": "Lleva dentro tu correo o tu nombre. Quien te conoce la prueba de primero.",
+      "muyCorta": "Necesita ocho caracteres como mínimo.",
+      "hazlaMasLarga": "Hazla más larga: el largo protege más que los símbolos raros.",
+      "mezclaTipos": "Mezcla mayúsculas, minúsculas, números o signos.",
+      "vaMuyBien": "Muy bien. Esta contraseña es sólida.",
+      "consejoFrase": "Truco: una frase que solo tú entiendas es más segura y más fácil de recordar que «P@ssw0rd!»."
+    },
+    "errores": {
+      "telefonoCaracteres": "Un teléfono solo lleva números y los signos + ( ) -",
+      "telefonoLargo": "Revisa el número: debe tener entre 7 y 15 dígitos.",
+      "nombreCorto": "Escribe el nombre completo.",
+      "nombreCaracteres": "Un nombre no lleva números ni símbolos.",
+      "ciudadCorta": "Escribe el nombre de la ciudad.",
+      "correoInvalido": "Revisa el correo: parece que falta algo.",
+      "identificacionInvalida": "Solo letras, números y guiones. Por ejemplo: J-12345678-9",
+      "soloNumeros": "Aquí van solo números.",
+      "alfanumerico": "Solo letras y números, sin espacios.",
+      "sitioWebInvalido": "Revisa la dirección del sitio web.",
+      "textoLargo": "Te pasaste del largo permitido.",
+      "invalido": "Revisa este dato."
+    }
   }
 }

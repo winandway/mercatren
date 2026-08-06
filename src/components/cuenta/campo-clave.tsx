@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 
+import { MedidorClave } from "@/components/cuenta/medidor-clave";
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,6 +31,7 @@ export function CampoClave({
   autoComplete = "current-password",
   minimo,
   obligatorio = true,
+  contexto = [],
 }: {
   nombre: string;
   etiqueta: string;
@@ -39,6 +41,11 @@ export function CampoClave({
   autoComplete?: "current-password" | "new-password";
   minimo?: number;
   obligatorio?: boolean;
+  /**
+   * El correo y el nombre de la persona. Una contraseña que los lleva dentro
+   * es de las primeras que prueba quien la conoce, y el medidor la rechaza.
+   */
+  contexto?: string[];
 }) {
   const t = useTranslations("entrar");
   const [visible, setVisible] = useState(false);
@@ -84,6 +91,23 @@ export function CampoClave({
       </div>
 
       {ayuda ? <p className="mt-1 text-xs text-tinta-suave">{ayuda}</p> : null}
+
+      {/**
+       * EL MEDIDOR SALE SOLO DONDE SE CREA UNA CONTRASEÑA, no donde se escribe
+       * la de siempre.
+       *
+       * Va atado a `autoComplete` a propósito, en vez de a una opción aparte
+       * que haya que acordarse de encender: registro, cambiar clave y recuperar
+       * clave ya usan `new-password`, así que las tres lo tienen desde hoy y
+       * cualquier pantalla nueva lo hereda sin que nadie tenga que pensarlo.
+       *
+       * En la de iniciar sesión no aparece, y es correcto: ahí la contraseña ya
+       * existe y calificarla no sirve de nada — solo delataría en pantalla qué
+       * tan floja es la clave de quien está entrando.
+       */}
+      {autoComplete === "new-password" ? (
+        <MedidorClave clave={valor} contexto={contexto} />
+      ) : null}
     </div>
   );
 }
