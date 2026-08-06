@@ -48,6 +48,40 @@ function precio(centavos: number, moneda: string): string {
   return `${(centavos / 100).toFixed(2)} ${moneda}`;
 }
 
+/** El tope de Google para el atributo `id`. */
+const LARGO_MAXIMO_ID = 50;
+
+/**
+ * EL IDENTIFICADOR DE CADA PRODUCTO PARA GOOGLE, como máximo 50 caracteres.
+ *
+ * Se usa el slug porque es legible y estable, pero una ferretería tiene
+ * nombres como "lamina-de-zinc-canal-maracucho-color-azul-medida-3-60-x-8-30"
+ * — 69 caracteres. Google los rechazó: "Value too long in attribute: id",
+ * 17 productos fuera en la primera lectura (6 ago 2026).
+ *
+ * CORTAR A SECAS NO SIRVE: dos productos de la misma familia comparten los
+ * primeros 50 caracteres y quedarían con el mismo identificador. Google
+ * trataría uno como duplicado del otro y solo publicaría uno.
+ *
+ * Por eso al recorte se le pega una firma corta del slug COMPLETO. Dos
+ * nombres parecidos dan firmas distintas, y el mismo nombre da siempre la
+ * misma firma — que es lo que importa: si el identificador cambiara entre una
+ * lectura y otra, Google borraría el producto viejo y crearía uno nuevo,
+ * perdiendo el historial que ya tenía.
+ */
+function identificador(slug: string): string {
+  if (slug.length <= LARGO_MAXIMO_ID) return slug;
+
+  // Firma estable del slug completo, en base 36 para que ocupe poco.
+  let firma = 5381;
+  for (let i = 0; i < slug.length; i++) {
+    firma = ((firma << 5) + firma + slug.charCodeAt(i)) | 0;
+  }
+  const sufijo = Math.abs(firma).toString(36);
+
+  return `${slug.slice(0, LARGO_MAXIMO_ID - sufijo.length - 1)}-${sufijo}`;
+}
+
 /**
  * Google corta los títulos a 150 caracteres. Cortarlo aquí, en un espacio,
  * se lee mucho mejor que dejar que Google lo parta a la mitad de una palabra.
@@ -137,7 +171,7 @@ export async function GET() {
 
       return [
         "<item>",
-        `<g:id>${escapar(p.slug)}</g:id>`,
+        `<g:id>${escapar(identificador(p.slug))}</g:id>`,
         `<g:title>${escapar(recortar(p.titulo, 150))}</g:title>`,
         `<g:description>${escapar(descripcion)}</g:description>`,
         `<g:link>${escapar(url)}</g:link>`,
