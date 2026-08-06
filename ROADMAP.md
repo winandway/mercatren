@@ -153,12 +153,24 @@ por WhatsApp, no por el sistema.
   no pasa nada visible: ni "estamos procesando tu cuenta", ni qué sigue, ni
   cuánto tarda. Pantalla de bienvenida con los pasos y en qué punto está.
 
-- ⬜ **D5. Pago por partes (apartado).** El caso de MEGAYES: su cliente compra
-  $2.000 y quiere abonar $500 hoy, $1.200 en quince días y el resto al final.
-  **El plan completo está escrito en `PLAN-PAGO-POR-PARTES.md`**, incluida la
-  razón por la que no podemos dar crédito de verdad y qué sí podemos hacer.
-  Antes de programar nada hacen falta tres decisiones tuyas y el visto bueno
-  del abogado.
+- ⬜ **D5. Ventas a crédito del comercio a su cliente.** El caso de MEGAYES.
+  **El documento completo, a color y listo para que lo apruebe el comercio,
+  está en `docs/mercatren-ventas-a-credito.pdf`** (se regenera con
+  `npm run docs:pdf-credito`).
+
+  La figura, en una línea: **el crédito lo da el comercio y el riesgo es suyo**;
+  Mercatren pone el software y, en cada abono, **compra la mercancía
+  correspondiente** — así Windoce, LLC nunca financia nada y sigue comprando y
+  revendiendo, que es su figura.
+
+  El comercio activa el cupo desde el menú de tres puntos de su cliente, con
+  tope y plazo. Antes de programar hacen falta cinco decisiones suyas y la
+  revisión del abogado.
+
+  _Ojo: el primer borrador de esto (6 ago, mañana) planteaba un **apartado** —
+  pagar antes de recibir. Se descartó al aclararse el negocio: MEGAYES entrega
+  la mercancía primero, y eso cambia la figura entera. Aquel documento se
+  eliminó para no dejar dos planes que se contradicen._
 
 - ⬜ **D6. Revisión automática del comercio (KYB).** Comprobar con IA que quien
   se registra es un comercio de verdad: que la identificación fiscal tenga el
