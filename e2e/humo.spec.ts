@@ -96,6 +96,30 @@ test.describe("el sitio está de pie", () => {
   }) => {
     /* Responder 200 con un archivo vacío sería igual de malo que no responder:
        Google lo leería sin quejarse y borraría todos los productos. */
+
+    /**
+     * PRIMERO SE MIRA SI HAY CATÁLOGO QUE PUBLICAR.
+     *
+     * En la máquina que compila, la base nace vacía a propósito: los datos
+     * reales no viven en el repositorio. Ahí el catálogo de Google sale vacío
+     * porque **no hay ni un producto**, no porque algo se haya roto.
+     *
+     * Sin esta comprobación, esta prueba tumbó la publicación del 6 ago 2026 —
+     * y con ella se quedó sin subir el arreglo urgente de un comercio que
+     * llevaba una tarde sin poder trabajar. La prueba tenía razón en lo que
+     * miraba y estaba equivocada en dónde lo miraba.
+     *
+     * Es justo el fallo contra el que avisa el CLAUDE.md: una prueba que se
+     * pone roja por algo que no es un fallo del sitio deja de publicar sin que
+     * nadie lo note.
+     */
+    const catalogo = await page.request.get(`${baseURL}/datos/catalogo`);
+    const datos = (await catalogo.json()) as { productos?: unknown[] };
+    test.skip(
+      !datos.productos?.length,
+      "la base de esta máquina no tiene productos: no hay catálogo que publicar",
+    );
+
     const respuesta = await page.request.get(`${baseURL}/datos/google`);
     const xml = await respuesta.text();
 
