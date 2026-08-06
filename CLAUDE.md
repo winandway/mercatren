@@ -566,6 +566,65 @@ con el motivo (`rechazarPago`).
 no está configurada, se registra el aviso perdido y la operación sigue. Un pago
 aprobado jamás se deshace porque el aviso no salió.
 
+## Los formularios: una sola regla por tipo de dato
+
+Todo lo que se escribe en una casilla del sitio pasa por
+**`src/lib/validacion/campos.ts`**. Cada tipo de dato se define UNA vez y de esa
+definición salen **las dos barreras**:
+
+1. **El navegador** — el teclado correcto en el celular, el tope de largo, y el
+   filtro que va quitando lo que no corresponde mientras se escribe (un nombre
+   no admite números, un teléfono no admite letras).
+2. **El servidor** — el esquema de `zod` que se comprueba antes de tocar la base.
+
+**Las dos las arma la misma función (`sellar`), a propósito.** Escritas por
+separado se desincronizan: al escribir este archivo, `alfanumerico` cortaba en
+40 caracteres en pantalla y el servidor aceptaba 9000. Lo encontró su prueba.
+
+**Lo del navegador es COMODIDAD, no seguridad.** Cualquiera lo salta abriendo la
+consola. La barrera de verdad es la del servidor.
+
+Las casillas se ponen con `<Campo tipo="telefono" …>`
+(`src/components/ui/campo.tsx`), que saca solo los atributos, el filtro y el
+aviso. **El aviso sale al SALIR de la casilla**, no en cada tecla: poner
+"correo inválido" cuando alguien escribió la primera letra es regañarlo por no
+haber terminado.
+
+Tipos disponibles: `telefono` · `nombrePersona` · `razonSocial` · `ciudad` ·
+`correo` · `identificacionFiscal` · `soloNumeros` · `alfanumerico` ·
+`sitioWeb` · `direccion` · `textoCorto` · `textoLargo`.
+
+**Aceptan lo que la gente escribe de verdad.** Rechazar un dato bueno es el
+error más caro: `+58 412-1234567`, `+1 (305) 555-0142`, `O'Brien`,
+`García-López`, `Ferremateriales Bley C.A`, `3M de Venezuela S.A.`. Una regla
+de un solo país dejaría fuera a media clientela.
+
+Los avisos viajan como **clave de traducción**, no como frase — el mismo
+esquema corre en el navegador, donde no se sabe el idioma. En el servidor se
+convierten con `avisoDeCampo()` (`src/lib/mensajes.ts`).
+
+## La fortaleza de la contraseña
+
+`src/lib/validacion/fortaleza.ts` mide de 0 a 4 y **la misma función corre en el
+navegador y en el servidor**, así que lo que se ve en pantalla es exactamente lo
+que se va a aplicar al guardar.
+
+**El largo pesa más que los símbolos**, que es lo contrario de lo que pide casi
+todo formulario y lo que hoy recomiendan NIST y el NCSC: `mi perro come tres
+veces al dia` es más fuerte que `P@ss1!x`.
+
+**No pasan** las más usadas del mundo, una tirada de teclado, la misma letra
+repetida, ni **una que lleve dentro su propio correo o nombre** — la primera que
+prueba quien conoce a la persona. Ojo con esa: se compara **por trozos**, no
+contra el dato entero; la primera versión buscaba el correo completo y
+`carlos2024!` con correo `carlos@…` pasaba limpio.
+
+La barra sale sola donde se **crea** una contraseña, porque va atada a
+`autoComplete="new-password"`: registro, cambiar clave y recuperar clave la
+tienen, y cualquier pantalla nueva la hereda. En iniciar sesión no aparece, y
+está bien — ahí la clave ya existe y calificarla solo delataría en pantalla qué
+tan floja es.
+
 ## El login: escudo anti-fuerza bruta
 
 `/entrar` y `/registro` llevan Cloudflare Turnstile. Sin él, cualquiera puede
@@ -580,6 +639,18 @@ comercios.
 - **Se apaga solo si no está configurado** (`TURNSTILE_CLAVE_SITIO` y
   `TURNSTILE_SECRETO`): sin claves, la entrada funciona como siempre. Y si
   Cloudflare no responde, deja pasar — detrás siguen la contraseña y el rol.
+- **El guion se carga a mano, NO con `<Script>` de Next.** La primera versión
+  usaba `<Script onReady>`, que en una navegación de cliente no vuelve a
+  dispararse: entrando directo a `/entrar` funcionaba, y llegando desde otra
+  página del sitio el recuadro no se dibujaba nunca. Con el escudo exigido del
+  lado del servidor, eso es **la entrada cerrada para todos los clientes**.
+  Estuvo así meses sin verse, porque nunca había corrido con claves cargadas.
+  `tests/unit/escudo.test.tsx` cubre justo ese caso.
+- **Con claves válidas no se ve ningún recuadro.** Turnstile resuelve de forma
+  invisible y solo emite el pase; el reto solo aparece cuando algo huele raro.
+  Que no se vea nada **es** el comportamiento correcto, no un fallo.
+- Para probarlo en local están las claves de prueba públicas de Cloudflare
+  (siempre dan el pase por bueno), en `.dev.vars`, que no se sube.
 
 ## Los datos bancarios NO van en el código (REGLA CRÍTICA)
 

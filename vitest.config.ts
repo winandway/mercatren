@@ -42,10 +42,12 @@ export default defineConfig({
        * parte y no serviría de nada. Está anotado como deuda.
        */
       thresholds: {
-        statements: 85,
-        branches: 74,
-        functions: 84,
-        lines: 88,
+        // Subido el 6 ago 2026 al entregar los formularios sólidos: la
+        // cobertura pasó de 85.86 a 90.78. El suelo sube con ella.
+        statements: 90,
+        branches: 80,
+        functions: 90,
+        lines: 92,
       },
     },
   },

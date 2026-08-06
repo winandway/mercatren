@@ -63,7 +63,10 @@ describe("el escudo", () => {
     /* Este es el caso que rompía: se llega a /entrar desde otra página, el
        guion ya está en el documento de antes, su evento `load` ya pasó y no
        vuelve. Sin el reloj de respaldo, el recuadro no aparecería nunca. */
-    const dibujar = vi.fn(() => "cf-widget-1");
+    const dibujar = vi.fn(
+      (_caja: HTMLElement, _opciones: { sitekey: string; language: string }) =>
+        "cf-widget-1",
+    );
     (window as { turnstile?: unknown }).turnstile = {
       render: dibujar,
       reset: vi.fn(),
@@ -80,12 +83,9 @@ describe("el escudo", () => {
     await waitFor(() => expect(dibujar).toHaveBeenCalled());
 
     // Y se le pasa la clave y el idioma que le dieron.
-    const opciones = dibujar.mock.calls[0]?.[1] as {
-      sitekey: string;
-      language: string;
-    };
-    expect(opciones.sitekey).toBe("1x00000000000000000000AA");
-    expect(opciones.language).toBe("es");
+    const opciones = dibujar.mock.calls[0]?.[1];
+    expect(opciones?.sitekey).toBe("1x00000000000000000000AA");
+    expect(opciones?.language).toBe("es");
   });
 
   it("avisa del pase cuando Cloudflare lo suelta", async () => {
