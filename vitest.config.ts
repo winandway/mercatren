@@ -23,6 +23,30 @@ export default defineConfig({
         "**/*.config.*",
         "**/*.d.ts",
       ],
+
+      /**
+       * EL SUELO DE LA COBERTURA. De aquí solo se sube.
+       *
+       * Estos números son EXACTAMENTE los que tenía el proyecto el 6 ago 2026,
+       * el día que se instaló el blindaje. No son una meta inventada: son la
+       * foto de lo que ya estaba probado. Si un cambio deja menos código
+       * cubierto que hoy, la compilación se pone roja.
+       *
+       * **PROHIBIDO bajarlos para que pase un cambio.** Si esto se pone rojo,
+       * lo que falta es la prueba del código nuevo, no el umbral. Subirlos
+       * cuando la cobertura suba de verdad sí es correcto y bienvenido.
+       *
+       * OJO CON LO QUE MIDE: se cuentan los archivos que las pruebas tocan, no
+       * el proyecto entero. Un archivo nuevo sin ninguna prueba no baja este
+       * número, porque ni se mide. Medir todo dejaría el suelo en la décima
+       * parte y no serviría de nada. Está anotado como deuda.
+       */
+      thresholds: {
+        statements: 85,
+        branches: 74,
+        functions: 84,
+        lines: 88,
+      },
     },
   },
 });

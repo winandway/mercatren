@@ -1,0 +1,50 @@
+# QUIÉN VIGILA QUE LAS LIBRERÍAS NO SE QUEDEN VIEJAS
+#
+# Una librería vieja es la puerta de entrada más común a un sitio. GitHub revisa
+# cada semana si salió una versión que arregla algún fallo de seguridad y abre
+# la propuesta de cambio solo, con el detalle de qué arregla.
+#
+# Las propuestas NO se fusionan solas: pasan por la compilación completa
+# (.github/workflows/verify.yml) igual que cualquier otro cambio.
+#
+# Escrito el 6 ago 2026 con el blindaje.
+
+version: 2
+updates:
+  # Las librerías del proyecto.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      # Todo lo de desarrollo junto, en una sola propuesta: son las que menos
+      # riesgo tienen y así no llegan cinco por separado cada lunes.
+      herramientas:
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+    ignore:
+      # Next, React y el adaptador de Cloudflare se suben a mano y a propósito.
+      # Un salto de versión mayor ahí puede tumbar la publicación, y eso se
+      # decide mirando, no fusionando una propuesta automática.
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@opennextjs/cloudflare"
+        update-types: ["version-update:semver-major"]
+
+  # Las acciones de GitHub que usa la compilación. También envejecen.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore"
