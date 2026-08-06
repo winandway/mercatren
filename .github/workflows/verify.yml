@@ -27,7 +27,7 @@ jobs:
   verificar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # La historia completa: el buscador de secretos revisa todos los
           # commits, no solo el último. Una clave que entró hace meses sigue
