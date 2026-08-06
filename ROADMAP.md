@@ -136,6 +136,15 @@ C.A`. De paso se desactivó el importador, que se lo reescribía en cada
   su precio, si hay existencias, marca y categoría; migas de pan; ficha de
   tienda; canónicas y hreflang; descripción de respaldo. Todo el JSON-LD va
   escapado.
+- ✅ **Blindaje de seguridad y pruebas** _(6 ago 2026)_ — el proyecto pasó de
+  **6 de 20** protecciones a **18 de 20**. Lo que hay ahora: el sitio se avisa
+  solo si una página se cae (prueba de humo sobre 18 direcciones), ninguna
+  prueba puede gastar dinero de verdad ni escribirle a una persona real,
+  ninguna clave puede entrar al repositorio (revisado commit por commit: cero
+  filtraciones en 190 commits), el navegador de cada visitante recibe seis
+  instrucciones de seguridad, y nada se puede subir sin pasar la revisión
+  completa. **No se tocó ni una línea del producto.** Detalle y las 2 que
+  faltan: sección «El blindaje» del `CLAUDE.md`.
 
 ---
 

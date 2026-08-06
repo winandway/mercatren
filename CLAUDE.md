@@ -619,6 +619,82 @@ persona lo comprueba contra el banco.
 flujo del bucket, y arma las cabeceras a mano. Copiar los metadatos de R2 o
 pasar su flujo tal cual falla en el servidor de desarrollo.
 
+## El blindaje (6 ago 2026)
+
+El proyecto tiene un arnés automático que atrapa los errores antes de que
+lleguen a un cliente. Se instaló **encima** de lo que ya funcionaba: no se tocó
+ni una línea de lógica del producto, y lo viejo que no pasa se anotó como deuda
+en vez de "arreglarse" a lo bruto.
+
+**Un solo comando lo corre todo:**
+
+```bash
+npm run verify
+```
+
+= tipos + revisión de código + pruebas con cobertura + auditoría de
+dependencias + búsqueda de secretos + compilación. Corre solo en cada `git
+push` (hook de husky) y en GitHub (`.github/workflows/verify.yml`).
+
+Las piezas, y por qué cada una:
+
+| Pieza                                       | Qué protege                                                                        |
+| ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `e2e/humo.spec.ts`                          | 18 direcciones tienen que responder 200, y el catálogo de Google no puede ir vacío |
+| `tests/msw/servidor.ts`                     | Ninguna prueba le pega a Stripe, al correo ni al servidor de un comercio           |
+| Umbral en `vitest.config.ts`                | La cobertura no puede bajar de donde estaba el 6 ago 2026                          |
+| `scripts/auditoria.ts`                      | Los fallos de dependencias conocidos están escritos; uno nuevo rompe el build      |
+| `.gitleaks.toml` + hooks                    | Ninguna clave entra al repositorio, que es público                                 |
+| `src/env.ts` + `tests/unit/entorno.test.ts` | Ninguna variable de entorno se usa sin declararla y documentarla                   |
+| Cabeceras en `next.config.ts`               | CSP, HSTS, nosniff, frame-options, referrer y permissions                          |
+| `eslint-plugin-security`                    | Avisa de patrones peligrosos nuevos (en modo aviso, no error)                      |
+
+**Tres cosas que NO se pueden hacer**, y que son justo las tentaciones cuando
+algo se pone rojo:
+
+1. **Bajar el umbral de cobertura.** Si se pone rojo, lo que falta es la prueba
+   del código nuevo.
+2. **Agregar algo a `CONOCIDOS` de `scripts/auditoria.ts` sin mirarlo.** Se
+   agrega cuando se puede escribir por qué no alcanza al sitio publicado.
+3. **Saltarse un hook con `--no-verify`.** Si está rojo, se arregla el cambio;
+   no se apaga el semáforo.
+
+**La CSP está escrita para ESTE proyecto, no copiada de un ejemplo.** Lleva
+`unsafe-inline` y `unsafe-eval` en `script-src` porque Next mete guiones en
+línea para arrancar la página —quitarlos deja el sitio en blanco— y `img-src`
+acepta cualquier `https` porque las fotos de los productos importados se sirven
+desde el servidor de cada comercio, y cada comercio nuevo trae un dominio que
+hoy no se conoce. Se comprobó en el navegador con la CSP puesta y quitada: el
+sitio se ve igual y no hay ni un aviso en la consola.
+
+### Lo que quedó pendiente a propósito (deuda escrita)
+
+Ninguna de estas se hizo porque **hacerlas exige tocar el código del producto**,
+y eso estaba prohibido en este trabajo. Están aquí para cuando se decida
+abrirlas, cada una en su propio trabajo y con sus pruebas:
+
+- **`zod` en 7 de las 12 acciones de servidor.** Validan: productos, tiendas,
+  retiros, pedidos y ubicaciones. **No validan:** `correo/acciones.ts`,
+  `retiros/monto.ts`, `pedidos/comprobante.ts`, `legal-acciones.ts`,
+  `zelle/acciones.ts`, `catalogo/traer-fotos.ts`, `stripe/acciones.ts`. Todas
+  exigen sesión y rol, así que no están abiertas a cualquiera, pero un dato mal
+  formado llega hasta la base.
+- **Límite de intentos (rate limit)** en entrar, registro y recuperar clave.
+  Hoy la protección es Turnstile, que frena robots pero no a alguien decidido.
+- **`noUncheckedIndexedAccess` en TypeScript.** Se probó: rompe en 16 sitios (8
+  del producto, 8 de pruebas). Encenderlo obliga a reescribir esos 16.
+- **Nonce por petición en la CSP**, para poder quitar `unsafe-inline`.
+- **La cobertura mide los archivos que las pruebas tocan, no el proyecto
+  entero.** Un archivo nuevo sin pruebas no baja el número, porque ni se mide.
+- **`e2e/comprobante.spec.ts` falla en local** (`ERR_ABORTED` al navegar justo
+  después del login). **Es preexistente**: se comprobó corriéndola en `main`
+  sin nada del blindaje y falla igual. En GitHub se salta sola, porque ahí la
+  base no tiene el pedido de prueba.
+- **2 avisos de seguridad en el lint**, los dos falsos positivos comprobados:
+  la expresión regular de `precio-tienda.tsx` se aplica a lo que genera
+  `Intl.NumberFormat` (nadie de fuera lo controla) y la de `middleware.ts` se
+  arma con nuestra propia lista de idiomas.
+
 ## Comandos
 
 **Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan
@@ -643,6 +719,9 @@ npm run build           # genera el service worker y compila
 npm run sw              # solo regenera public/sw.js
 npm run test:run        # pruebas de unidad
 npm run e2e             # pruebas de punta a punta
+npm run verify          # TODO junto: tipos, lint, pruebas, auditoría, secretos, build
+npm run auditoria       # dependencias: falla solo si aparece un fallo nuevo
+npm run secretos        # busca claves en toda la historia del repositorio
 npm run typecheck       # revisar tipos
 npm run lint            # revisar código
 npm run db:generar      # generar SQL de migración (NO la aplica)

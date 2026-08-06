@@ -1,0 +1,50 @@
+# EL BUSCADOR DE SECRETOS
+#
+# Ninguna clave, token ni contraseña puede entrar al repositorio. Este es
+# público: lo que entre, entró para siempre — borrarlo después no sirve, porque
+# queda en la historia y cualquiera puede sacarlo.
+#
+# Se corre en tres momentos: antes de cada commit (solo lo que se va a guardar),
+# en cada push y en la compilación de GitHub.
+#
+# Escrito el 6 ago 2026 con el blindaje. El escaneo de ese día sobre los 190
+# commits de la historia dio CERO secretos de verdad.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Lo que no es un secreto, aunque lo parezca"
+
+paths = [
+  # Lo que compila la máquina. Next y webpack meten identificadores
+  # hexadecimales largos y cadenas en base64 dentro del paquete, y el buscador
+  # los confunde con claves. Son 1277 avisos falsos que taparían uno de verdad.
+  # Estos archivos no son código fuente: se generan en cada publicación.
+  '''^_worker\.js''',
+  '''^\.dist-worker/''',
+  '''^\.open-next/''',
+  '''^\.next/''',
+  '''^\.wrangler/''',
+  '''^out-deploy/''',
+  '''^public/sw\.js$''',
+  '''^coverage/''',
+  '''node_modules/''',
+  '''package-lock\.json$''',
+
+  # El archivo de secretos de la computadora de cada quien. Está en
+  # .gitignore desde el primer día; nunca se sube. Aquí se lista para que el
+  # buscador no lo marque en cada corrida local.
+  '''^\.dev\.vars$''',
+
+  # Los archivos fuente reales (histórico de pagos, catálogos). Tampoco se
+  # suben —ver datos/LEEME.md—, pero viven en la carpeta mientras se trabaja.
+  '''^datos/''',
+  '''^\.local/''',
+]
+
+regexes = [
+  # El ejemplo de variables de entorno: son los NOMBRES, sin valores. Esa es
+  # justo su razón de ser.
+  '''(?i)(pon-aqui|tu-clave|ejemplo|placeholder|cambiar|xxxx)''',
+]

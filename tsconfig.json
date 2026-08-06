@@ -5,6 +5,22 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    /**
+     * Un método que dice sobrescribir a otro tiene que declararlo. Sin esto,
+     * renombrar el de arriba deja al de abajo colgado en silencio.
+     */
+    "noImplicitOverride": true,
+    /**
+     * `noUncheckedIndexedAccess` NO está activada, y es a propósito.
+     *
+     * Blindaje del 6 ago 2026: al encenderla saltaron 16 errores en código
+     * que lleva meses funcionando (8 del producto y 8 de las pruebas). La
+     * regla del blindaje es clara: si una pieza rompe lo que ya existe, se
+     * quita la pieza — nunca se toca el producto para que el blindaje pase.
+     *
+     * Queda anotada como deuda. Cuando se limpien esos 16 accesos por índice,
+     * se enciende. Los sitios están en el informe del blindaje.
+     */
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

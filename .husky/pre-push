@@ -1,0 +1,13 @@
+# LA ÚLTIMA PUERTA ANTES DE QUE EL CÓDIGO SALGA DE ESTA COMPUTADORA.
+#
+# Corre la verificación completa: tipos, revisión de código, pruebas con su
+# cobertura, compilación, auditoría de dependencias y búsqueda de secretos.
+#
+# POR QUÉ AQUÍ Y NO SOLO EN GITHUB: una publicación rota no siempre se ve. En
+# agosto de 2026 se cayeron cuatro seguidas por unas pruebas que buscaban textos
+# de la pantalla que habían cambiado. Cada commit parecía subido y el sitio
+# estuvo días sin recibir nada. Descubrirlo aquí cuesta tres minutos;
+# descubrirlo allá costó días.
+#
+# Si esto se pone rojo, se arregla el cambio. NO se salta con --no-verify.
+npm run verify

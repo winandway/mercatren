@@ -1,1 +1,27 @@
+# Formato y revisión de lo que se va a guardar.
 npx lint-staged
+
+# NINGÚN SECRETO ENTRA AL REPOSITORIO.
+#
+# Este repositorio es público. Una clave que entre, entró para siempre: borrarla
+# en el commit siguiente no sirve de nada, porque queda en la historia y
+# cualquiera puede sacarla. Por eso se mira ANTES de guardar, no después.
+#
+# Solo revisa lo que se va a commitear, así que tarda menos de un segundo.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --staged --no-banner --redact || {
+    echo ""
+    echo "  SE DETUVO EL COMMIT: hay algo que parece una clave o una contraseña."
+    echo ""
+    echo "  Si es un secreto de verdad: sácalo del archivo y ponlo en .dev.vars"
+    echo "  (local) o en el panel de YaDominios Cloud (producción)."
+    echo ""
+    echo "  Si es una falsa alarma: se anota en .gitleaks.toml explicando por qué."
+    echo ""
+    exit 1
+  }
+else
+  echo "  Aviso: gitleaks no está instalado, no se revisaron los secretos."
+  echo "  Se instala con:  brew install gitleaks"
+  echo "  (En la compilación de GitHub se revisa igual, así que nada se escapa.)"
+fi

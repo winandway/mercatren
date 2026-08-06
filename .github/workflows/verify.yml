@@ -1,0 +1,80 @@
+name: verificacion-completa
+
+# LA COMPUERTA. Corre en cada subida y en cada propuesta de cambio.
+#
+# VA APARTE DEL FLUJO QUE PUBLICA, A PROPÓSITO. `build.yml` es el que deja el
+# sitio en vivo, y meterle pasos nuevos es arriesgar que deje de publicar — algo
+# que ya pasó cuatro veces seguidas en agosto de 2026 y costó días de sitio
+# parado. El blindaje se pone ENCIMA, nunca en el camino de la publicación.
+#
+# Aquí se revisa lo que build.yml no mira: la cobertura contra su umbral, la
+# auditoría de dependencias y la búsqueda de secretos en toda la historia.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # La historia completa: el buscador de secretos revisa todos los
+          # commits, no solo el último. Una clave que entró hace meses sigue
+          # ahí para cualquiera que sepa mirar.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # El mismo npm que en la computadora de trabajo, para que "funciona en mi
+      # máquina" y "funciona aquí" quieran decir lo mismo.
+      - name: Usar el mismo npm que en local
+        run: npm install -g npm@11
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Revisar los tipos
+        run: npm run typecheck
+
+      - name: Revisar el código
+        run: npm run lint
+
+      - name: Pruebas con su cobertura
+        # Si la cobertura baja del suelo fijado en vitest.config.ts, esto se
+        # pone rojo. El suelo NO se baja para que pase un cambio: lo que falta
+        # es la prueba del código nuevo.
+        run: npm run test:cobertura
+
+      - name: Auditoría de dependencias
+        # Pasa con los fallos ya revisados y anotados en scripts/auditoria.ts.
+        # Se pone roja si aparece uno nuevo o si uno conocido empeora.
+        run: npm run auditoria
+
+      - name: Instalar el buscador de secretos
+        run: |
+          VERSION=8.30.1
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Buscar secretos en toda la historia
+        # Ninguna clave, token ni contraseña puede estar en el repositorio.
+        # Este es público: lo que entre, entró para siempre.
+        run: npm run secretos
+
+      - name: Compilar
+        run: npm run build
