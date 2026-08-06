@@ -118,6 +118,24 @@ No frenan la apertura: el sitio funciona sin ellas.
 
 ---
 
+## Además, hecho sobre la marcha
+
+Trabajos que no estaban en la lista y salieron de peticiones directas. No
+cambian el marcador de arriba, que sigue contando los 19 del lanzamiento.
+
+- ✅ **Velocidad de la portada** _(5 ago 2026)_ — se acabó la pantalla en
+  blanco al entrar: consultas en paralelo, textos del panel fuera del paquete
+  público y esqueleto de carga.
+- ✅ **Nombre del comercio piloto** _(5 ago 2026)_ — es `Ferremateriales Bley
+C.A`. De paso se desactivó el importador, que se lo reescribía en cada
+  corrida. **Falta cambiarlo en la base real desde Panel → Mi tienda.**
+- ✅ **SEO del catálogo** _(5 ago 2026)_ — las 622 fichas ya le dicen a Google
+  su precio, si hay existencias, marca y categoría; migas de pan; ficha de
+  tienda; canónicas y hreflang; descripción de respaldo. Todo el JSON-LD va
+  escapado.
+
+---
+
 ## Lo que ya está listo y probado
 
 Para que no se pierda de vista lo que ya no hay que volver a tocar:

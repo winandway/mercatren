@@ -15,5 +15,5 @@ mismo, que es la diferencia entre aparecer y que hagan clic.
       ni en inglés.
 - [x] 6. Descripción de respaldo cuando el comercio no escribió ninguna: hoy
       esas fichas van a Google sin descripción.
-- [ ] 7. Comprobar el mapa y los datos estructurados, publicar y entregar el
+- [x] 7. Comprobar el mapa y los datos estructurados, publicar y entregar el
       link para Google Search Console.
