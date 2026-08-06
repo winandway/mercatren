@@ -429,6 +429,12 @@ los datos de quienes pagaron **nunca** salen a estas páginas.
 
 ### SEO (posicionarse como los creadores del modelo)
 
+**Todo el detalle vive en `SEO.md`**, en la raíz: etiquetas, datos
+estructurados, mapa del sitio, robots, Merchant Center, mediciones y lo
+pendiente. Se actualiza en el mismo trabajo que toque cualquiera de esas
+cosas. Cuando el dueño pida "escanea" o "¿ya está posicionando?", los pasos
+exactos están en la primera sección de ese archivo.
+
 - La dirección canónica del sitio y la sociedad viven en **`src/lib/sitio.ts`**
   (`SITIO.url`, `SITIO.nombre` = marca Mercatren, `SITIO.sociedad` = Windoce
   LLC). No duplicar esa constante en otro lado.
