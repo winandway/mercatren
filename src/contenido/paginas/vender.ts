@@ -397,7 +397,7 @@ export const COMISIONES_ES: PaginaContenido = {
           tono: "bien",
           titulo: "Lo que cobras no depende de la forma de pago",
           parrafos: [
-            "El comprador puede pagar con tarjeta o por transferencia; a ti se te paga siempre el precio de tu factura. El costo de cobrar por una vía u otra corre por nuestra cuenta y ya está considerado en el precio que publicamos.",
+            "El comprador puede pagar con tarjeta o por Zelle; a ti se te paga siempre el precio de tu factura. El costo de cobrar por una vía u otra corre por nuestra cuenta y ya está considerado en el precio que publicamos.",
           ],
         },
       ],
@@ -500,7 +500,7 @@ export const COMISIONES_EN: PaginaContenido = {
           tono: "bien",
           titulo: "What you get paid does not depend on the payment method",
           parrafos: [
-            "The buyer may pay by card or by bank transfer; you are always paid the amount on your invoice. The cost of accepting one method or another is ours, and it is already accounted for in the price we publish.",
+            "The buyer may pay by card or by Zelle; you are always paid the amount on your invoice. The cost of accepting one method or another is ours, and it is already accounted for in the price we publish.",
           ],
         },
       ],

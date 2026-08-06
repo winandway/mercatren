@@ -56,8 +56,8 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
           tono: "neutro",
           titulo: "Cuánto tarda el dinero en volver",
           parrafos: [
-            "El importe vuelve por la misma vía por la que pagaste. Con tarjeta, tu banco suele reflejarlo entre 5 y 10 días hábiles. Con transferencia, lo devolvemos a la misma cuenta desde la que salió el pago, dentro de los 5 días hábiles siguientes a la cancelación.",
-            "No devolvemos a una cuenta distinta de la que pagó. Es la única forma de estar seguros de que el dinero vuelve a quien lo puso.",
+            "El importe vuelve por la misma vía por la que pagaste. Con tarjeta, tu banco suele reflejarlo entre 5 y 10 días hábiles. Si pagaste por Zelle, lo devolvemos al mismo correo de Zelle desde el que salió el pago, dentro de los 5 días hábiles siguientes a la cancelación.",
+            "No devolvemos a un correo de Zelle ni a una tarjeta distintos de los que pagaron. Es la única forma de estar seguros de que el dinero vuelve a quien lo puso.",
           ],
         },
       ],
@@ -243,8 +243,8 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
           tono: "neutro",
           titulo: "How long the refund takes",
           parrafos: [
-            "Refunds go back the same way you paid. On a card, most banks post it within 5 to 10 business days. For a bank transfer, we send it back to the same account the payment came from, within 5 business days of the cancellation.",
-            "We don't refund to a different account than the one that paid. It's the only way to be certain the money goes back to the person who put it up.",
+            "Refunds go back the same way you paid. On a card, most banks post it within 5 to 10 business days. If you paid through Zelle, we send it back to the same Zelle address the payment came from, within 5 business days of the cancellation.",
+            "We don't refund to a different Zelle address or card than the one that paid. It's the only way to be certain the money goes back to the person who put it up.",
           ],
         },
       ],

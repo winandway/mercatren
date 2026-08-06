@@ -151,7 +151,7 @@ export const TERMINOS_ES: PaginaContenido = {
               etiqueta: "Tú",
               titulo: "Pagas y subes el comprobante",
               parrafos: [
-                "En la página de tu pedido aparecen los datos exactos de pago y el monto. Haces la transferencia y subes la captura.",
+                "En la página de tu pedido aparece el correo de Zelle que recibe y el monto exacto. Haces el envío y subes la captura.",
               ],
             },
             {
@@ -601,7 +601,7 @@ export const TERMINOS_EN: PaginaContenido = {
               etiqueta: "You",
               titulo: "Pay and upload the receipt",
               parrafos: [
-                "Your order page shows the exact payment details and the amount. You make the transfer and upload the screenshot.",
+                "Your order page shows the Zelle address that receives the payment and the exact amount. You send it and upload the screenshot.",
               ],
             },
             {

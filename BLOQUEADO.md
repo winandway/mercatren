@@ -94,15 +94,18 @@ cargadas en el panel de YaDominios Cloud. Hoy **faltan todas**; se ve en
 archivo. El repositorio es público y esos datos permiten intentar un cobro no
 autorizado.
 
-**Qué tienes que hacer:** cargar en el panel del sitio:
+**Qué tienes que hacer:** cargar en el panel de YaDominios Cloud
+(`yapanel.yadominios.com/panel/cloud` → tarjeta del sitio → Variables de
+entorno) SOLO estas tres:
 
-- `PAGO_BENEFICIARIO`
-- `PAGO_BANCO`
-- `PAGO_CUENTA`
-- `PAGO_RUTA_ACH`
-- `PAGO_RUTA_WIRE`
 - `ZELLE_CORREO_RECEPTOR`
+- `ZELLE_NOMBRE_RECEPTOR`
 - `PAGO_SOPORTE_TELEFONO`
+
+**Las de transferencia bancaria NO se cargan.** Mercatren solo recibe por
+Zelle (decisión del negocio, 6 ago 2026). `PAGO_CUENTA`, `PAGO_RUTA_ACH` y
+`PAGO_RUTA_WIRE` se quedan vacías: si se cargan, la pantalla del pedido
+empieza a ofrecer transferencia y nadie está validando un ACH.
 
 Los valores los tienes en tu archivo local `.dev.vars`. Mientras falten, la
 página del pedido avisa que el equipo aún no los configuró; **nunca inventa

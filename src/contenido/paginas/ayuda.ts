@@ -55,7 +55,7 @@ export const AYUDA_ES: PaginaContenido = {
             {
               titulo: "¿Cómo pago?",
               texto:
-                "Al confirmar el pedido, la página te muestra los datos exactos y el monto. Haces la transferencia desde tu banco y subes la captura ahí mismo.",
+                "Al confirmar el pedido, la página te muestra el correo exacto de Zelle y el monto. Haces el envío por Zelle desde tu banco y subes la captura ahí mismo.",
             },
             {
               titulo: "¿Por qué tengo que subir una captura?",
@@ -75,7 +75,7 @@ export const AYUDA_ES: PaginaContenido = {
             {
               titulo: "¿Aceptan tarjeta?",
               texto:
-                "Sí. El pago con tarjeta es el método principal, y también se acepta transferencia desde bancos de Estados Unidos a partir de 200 dólares.",
+                "Sí. El pago con tarjeta es el método principal, y también se acepta Zelle desde bancos de Estados Unidos a partir de 200 dólares. No aceptamos transferencias ACH ni wire.",
             },
             {
               titulo: "Mi pago no fue aprobado, ¿qué hago?",
@@ -247,7 +247,7 @@ export const AYUDA_EN: PaginaContenido = {
             {
               titulo: "How do I pay?",
               texto:
-                "Once you confirm the order, the page shows the exact details and amount. You transfer from your bank and upload the screenshot right there.",
+                "Once you confirm the order, the page shows the exact Zelle address and the amount. You send it through Zelle from your bank and upload the screenshot right there.",
             },
             {
               titulo: "Why do I have to upload a screenshot?",
@@ -267,7 +267,7 @@ export const AYUDA_EN: PaginaContenido = {
             {
               titulo: "Do you take cards?",
               texto:
-                "Yes. Card is the primary payment method, and bank transfers from US banks are also accepted from $200 up.",
+                "Yes. Card is the primary payment method, and we also accept Zelle from U.S. banks on orders of $200 and up. We don\u0027t accept ACH or wire transfers.",
             },
             {
               titulo: "My payment wasn't approved. What now?",

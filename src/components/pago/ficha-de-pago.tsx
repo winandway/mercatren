@@ -42,6 +42,21 @@ export function FichaDePago({
   const t = useTranslations("datosPago");
 
   const hayZelle = Boolean(datos.zelleCorreo);
+
+  /**
+   * LA TRANSFERENCIA BANCARIA ESTÁ APAGADA A PROPÓSITO (6 ago 2026).
+   *
+   * Mercatren **solo recibe por Zelle**. No se aceptan ACH ni wire, y por eso
+   * `PAGO_CUENTA`, `PAGO_RUTA_ACH` y `PAGO_RUTA_WIRE` NO se cargan en
+   * producción: sin ellas, este bloque no se dibuja y el cliente solo ve
+   * Zelle.
+   *
+   * OJO SI ALGUIEN LAS CARGA. Este código sigue funcionando y enseñaría los
+   * datos de la cuenta, pero nadie está esperando ni validando un ACH: el
+   * flujo de aprobación va contra la captura de Zelle. Un cliente que
+   * transfiera por ahí manda dinero a un sitio que nadie mira. Cargarlas es
+   * una decisión de negocio, no un paso de configuración que falte.
+   */
   const hayTransferencia = Boolean(datos.cuenta && datos.rutaAch);
 
   if (!hayZelle && !hayTransferencia) {

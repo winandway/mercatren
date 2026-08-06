@@ -32,13 +32,16 @@ escoger el siguiente.
 Cosas que yo no puedo hacer: contraseñas, datos bancarios, decisiones de
 negocio y firmas.
 
-- ⬜ **A1. Cargar los datos bancarios en producción.** `PAGO_BENEFICIARIO`,
-  `PAGO_BANCO`, `PAGO_CUENTA`, `PAGO_RUTA_ACH`, `PAGO_RUTA_WIRE`,
-  `ZELLE_CORREO_RECEPTOR`, `PAGO_SOPORTE_TELEFONO`, en el panel de YaDominios
-  Cloud. Los valores están en tu `.dev.vars`.
+- ⬜ **A1. Cargar los datos de cobro en producción.** Solo tres, en el panel
+  de YaDominios Cloud: `ZELLE_CORREO_RECEPTOR`, `ZELLE_NOMBRE_RECEPTOR` y
+  `PAGO_SOPORTE_TELEFONO`. Los valores están en tu `.dev.vars`.
+  **Las de transferencia bancaria NO van** (6 ago 2026): Mercatren solo
+  recibe por Zelle, y cargarlas haría que la pantalla del pedido ofreciera
+  un ACH que nadie valida.
   **Bloqueante:** sin esto, la pantalla del pedido avisa que faltan los datos
-  y nadie puede pagar. Yo no los escribo: el repositorio es público y una
-  cuenta con su ruta ACH permite intentar un cobro no autorizado.
+  y nadie puede pagar. Los escribes tú porque el repositorio es público y
+  cualquier dato de cobro escrito en el código queda visible para siempre en
+  el historial, aunque después se borre.
 
 - ⬜ **A2. Activar el escudo del login.** `TURNSTILE_CLAVE_SITIO` y
   `TURNSTILE_SECRETO` en el mismo panel. Comprobado el 5 ago 2026: **hoy no
