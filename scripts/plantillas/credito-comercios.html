@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ventas a crédito en Mercatren</title>
+    <style>
+      /* ───────────────────────────────────────────────────────────────
+         Documento comercial de Mercatren. Se imprime con
+         `npm run docs:pdf-credito` y sale un PDF a color, listo para
+         mandarle al comercio.
+
+         Los colores son los de la marca: azul riel #10263A y naranja
+         carga #FF6B1A. Nada de degradados ni sombras: en papel se ven
+         sucios y en pantalla envejecen mal.
+         ─────────────────────────────────────────────────────────────── */
+
+      @page {
+        size: A4;
+        margin: 14mm 0;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #1c2b36;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .hoja { padding: 0 18mm; }
+      /* Nada de saltos forzados: dejaban páginas medio vacías y el documento
+         se veía descuidado. Solo se protege que una caja, una tabla o un paso
+         no se parta por la mitad entre dos hojas. */
+      .junto { page-break-inside: avoid; }
+      h2 { page-break-after: avoid; }
+      table, .pantalla, .aviso, .paso, .rejilla { page-break-inside: avoid; }
+
+      /* ── Portada ─────────────────────────────────────────────────── */
+      .portada {
+        background: #10263A;
+        color: #fff;
+        padding: 34mm 18mm 26mm;
+        margin: -14mm 0 10mm;
+      }
+      .portada .marca {
+        font-size: 11pt; letter-spacing: .18em; text-transform: uppercase;
+        color: #FF6B1A; font-weight: 600;
+      }
+      .portada h1 {
+        font-size: 30pt; line-height: 1.12; margin: 7mm 0 5mm; font-weight: 700;
+      }
+      .portada .bajada { font-size: 12.5pt; color: #c8d4de; max-width: 135mm; }
+      .portada .pie {
+        margin-top: 14mm; padding-top: 5mm; border-top: 1px solid #2c4155;
+        font-size: 9pt; color: #93a6b6; display: flex; justify-content: space-between;
+      }
+
+      /* ── Tipografía ──────────────────────────────────────────────── */
+      h2 {
+        font-size: 16pt; color: #10263A; margin: 11mm 0 4mm;
+        padding-bottom: 2.5mm; border-bottom: 2px solid #FF6B1A;
+      }
+      h2:first-child { margin-top: 0; }
+      h3 { font-size: 12pt; color: #10263A; margin: 7mm 0 2.5mm; }
+      p { margin-bottom: 3mm; }
+      strong { color: #10263A; font-weight: 600; }
+      ul, ol { margin: 0 0 3mm 5mm; }
+      li { margin-bottom: 1.8mm; }
+
+      /* ── Avisos ──────────────────────────────────────────────────── */
+      .aviso {
+        border-left: 4px solid #FF6B1A; background: #FFF6F0;
+        padding: 4mm 5mm; margin: 5mm 0; border-radius: 0 3px 3px 0;
+      }
+      .aviso.grave { border-left-color: #C0392B; background: #FDF0EE; }
+      .aviso.bien { border-left-color: #1D9E75; background: #ECF8F3; }
+      .aviso .titulo {
+        font-weight: 700; color: #10263A; font-size: 10pt;
+        text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1.5mm;
+      }
+
+      /* ── Tablas ──────────────────────────────────────────────────── */
+      table { width: 100%; border-collapse: collapse; margin: 4mm 0; font-size: 9.5pt; }
+      th {
+        background: #10263A; color: #fff; text-align: left;
+        padding: 2.5mm 3mm; font-weight: 600; font-size: 9pt;
+      }
+      td { padding: 2.5mm 3mm; border-bottom: 1px solid #e3e9ee; vertical-align: top; }
+      tr:nth-child(even) td { background: #f7f9fb; }
+      td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+      /* ── Pasos numerados ─────────────────────────────────────────── */
+      .pasos { counter-reset: paso; margin: 5mm 0; }
+      .paso {
+        counter-increment: paso; position: relative;
+        padding: 0 0 4mm 13mm; border-left: 2px solid #e3e9ee; margin-left: 4mm;
+      }
+      .paso:last-child { border-left-color: transparent; padding-bottom: 0; }
+      .paso::before {
+        content: counter(paso); position: absolute; left: -4.5mm; top: -1mm;
+        width: 9mm; height: 9mm; border-radius: 50%;
+        background: #FF6B1A; color: #fff; font-weight: 700; font-size: 10pt;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .paso h4 { font-size: 11pt; color: #10263A; margin-bottom: 1mm; }
+      .paso p { font-size: 10pt; margin-bottom: 0; }
+
+      /* ── Tarjetas ────────────────────────────────────────────────── */
+      .rejilla { display: flex; gap: 4mm; margin: 4mm 0; }
+      .tarjeta {
+        flex: 1; border: 1px solid #dde5eb; border-radius: 4px; padding: 4mm;
+        background: #fff;
+      }
+      .tarjeta .quien {
+        font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em;
+        color: #FF6B1A; font-weight: 700; margin-bottom: 2mm;
+      }
+      .tarjeta ul { margin: 0 0 0 4mm; font-size: 9.5pt; }
+
+      /* ── Pantalla simulada ───────────────────────────────────────── */
+      .pantalla {
+        border: 1px solid #dde5eb; border-radius: 5px; overflow: hidden;
+        margin: 4mm 0; background: #fff;
+      }
+      .pantalla .barra {
+        background: #10263A; color: #fff; padding: 2.5mm 4mm; font-size: 9pt;
+        font-weight: 600; display: flex; justify-content: space-between;
+      }
+      .pantalla .cuerpo { padding: 4mm; }
+      .fila-cliente {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 2.5mm 0; border-bottom: 1px solid #eef2f6; font-size: 9.5pt;
+      }
+      .fila-cliente:last-child { border-bottom: none; }
+      .etiqueta {
+        display: inline-block; padding: .8mm 2.5mm; border-radius: 3px;
+        font-size: 8pt; font-weight: 600;
+      }
+      .etiqueta.credito { background: #E1F5EE; color: #0F6E56; }
+      .etiqueta.sin { background: #eef2f6; color: #6b7c8a; }
+      .puntos { color: #97a7b4; letter-spacing: 1px; font-weight: 700; }
+
+      /* ── Barra de avance ─────────────────────────────────────────── */
+      .avance { background: #eef2f6; border-radius: 3px; height: 5mm; overflow: hidden; margin: 2mm 0; }
+      .avance > span { display: block; height: 100%; background: #1D9E75; }
+
+      .pie-doc {
+        margin-top: 10mm; padding-top: 4mm; border-top: 1px solid #dde5eb;
+        font-size: 8.5pt; color: #6b7c8a; text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ══════════════════════ PORTADA ══════════════════════ -->
+    <div class="portada">
+      <div class="marca">Mercatren · Windoce, LLC</div>
+      <h1>Ventas a crédito<br />para tu comercio</h1>
+      <p class="bajada">
+        Cómo darle cupo de compra a tus clientes de confianza, controlar sus
+        abonos y cobrar cada pago, sin salir de Mercatren.
+      </p>
+      <div class="pie">
+        <span>Propuesta de desarrollo · Agosto 2026</span>
+        <span>Documento para revisión y aprobación del comercio</span>
+      </div>
+    </div>
+
+    <div class="hoja">
+      <h2>De qué se trata</h2>
+      <p>
+        Hoy vendes a crédito: conoces a tu cliente, le fías la mercancía y él te
+        paga en partes. Eso funciona porque <strong>tú sabes a quién le
+        estás fiando</strong>. Lo que no tienes es el control: cuánto lleva
+        abonado cada uno, cuánto falta, quién se atrasó.
+      </p>
+      <p>
+        Lo que te proponemos es <strong>llevar ese mismo negocio a Mercatren</strong>,
+        sin cambiar quién decide ni quién arriesga. Tú sigues eligiendo a quién le
+        das crédito y por cuánto. Lo que pone Mercatren es el software: el cupo,
+        el pedido, los abonos, el estado de cada cuenta y el dinero entrando a la
+        tuya.
+      </p>
+
+      <div class="aviso grave junto">
+        <div class="titulo">Lo primero, porque es lo que más importa</div>
+        <p style="margin-bottom:2mm">
+          <strong>El crédito es tuyo y el riesgo es tuyo.</strong> Tú decides a
+          quién le das cupo, de cuánto y a cuántos días. Tú entregas la mercancía
+          bajo el acuerdo que tengas con esa persona.
+        </p>
+        <p style="margin-bottom:0">
+          <strong>Mercatren no presta dinero ni sale de garante.</strong> Si tu
+          cliente no te paga, esa cuenta es entre tú y él — igual que hoy. Lo que
+          Mercatren hace es darte la herramienta para controlarlo y cobrar cada
+          abono, no asumir la deuda.
+        </p>
+      </div>
+
+      <h2>Cómo entra el dinero: compramos lo que se va pagando</h2>
+      <p>
+        Esta es la pieza que hace que todo encaje, y conviene entenderla bien
+        porque es distinta a como funciona un crédito de banco.
+      </p>
+      <p>
+        <strong>Cada abono de tu cliente es una compra completa y cerrada.</strong>
+        Cuando tu cliente abona $300, Mercatren te compra $300 de mercancía de tu
+        inventario y te los paga a tu cuenta. Operación terminada. Al siguiente
+        abono, otra compra. Y así hasta completar.
+      </p>
+
+      <!-- Diagrama del flujo del dinero -->
+      <svg viewBox="0 0 640 168" style="width:100%;height:auto;margin:5mm 0">
+        <rect x="4" y="34" width="132" height="60" rx="5" fill="#EEF3F7" stroke="#c7d4de"/>
+        <text x="70" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#10263A">Tu cliente</text>
+        <text x="70" y="74" text-anchor="middle" font-size="10" fill="#5b6f7f">abona $300</text>
+
+        <path d="M140 64 L192 64" stroke="#FF6B1A" stroke-width="2.5" marker-end="url(#f)"/>
+        <defs>
+          <marker id="f" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+            <path d="M0 0 L9 4.5 L0 9 z" fill="#FF6B1A"/>
+          </marker>
+        </defs>
+
+        <rect x="198" y="20" width="150" height="88" rx="5" fill="#10263A"/>
+        <text x="273" y="46" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Mercatren</text>
+        <text x="273" y="64" text-anchor="middle" font-size="9.5" fill="#c8d4de">registra el abono</text>
+        <text x="273" y="79" text-anchor="middle" font-size="9.5" fill="#c8d4de">y te compra $300</text>
+        <text x="273" y="94" text-anchor="middle" font-size="9.5" fill="#c8d4de">de mercancía</text>
+
+        <path d="M352 64 L404 64" stroke="#FF6B1A" stroke-width="2.5" marker-end="url(#f)"/>
+
+        <rect x="410" y="34" width="132" height="60" rx="5" fill="#E1F5EE" stroke="#5DCAA5"/>
+        <text x="476" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="#0F6E56">Tu cuenta</text>
+        <text x="476" y="74" text-anchor="middle" font-size="10" fill="#0F6E56">recibe $300</text>
+
+        <text x="273" y="136" text-anchor="middle" font-size="9.5" fill="#6b7c8a">
+          Cada abono es una compra-venta cerrada. Nadie presta nada.
+        </text>
+        <text x="273" y="152" text-anchor="middle" font-size="9.5" fill="#6b7c8a">
+          La entrega de la mercancía la hiciste tú, bajo tu acuerdo con tu cliente.
+        </text>
+      </svg>
+
+      <div class="aviso bien junto">
+        <div class="titulo">Por qué se hace así</div>
+        <p style="margin-bottom:0">
+          Windoce, LLC compra y revende mercancía. No presta dinero, y no puede
+          hacerlo: prestar en Estados Unidos exige licencias de prestamista que
+          no tenemos. Comprando lo que ya está pagado, cada operación queda
+          limpia y documentada — y tu negocio de fiarle a tu cliente sigue
+          siendo tuyo, como siempre lo fue.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ CÓMO FUNCIONA ══════════════════════ -->
+    <div class="hoja">
+      <h2>Cómo funciona, paso a paso</h2>
+
+      <div class="pasos">
+        <div class="paso junto">
+          <h4>Tú acuerdas el crédito con tu cliente, por fuera</h4>
+          <p>
+            Como siempre: lo llamas, le pides los documentos que tú consideres y
+            decides si le fías y hasta cuánto. Mercatren no participa en esa
+            conversación ni te pide nada.
+          </p>
+        </div>
+
+        <div class="paso junto">
+          <h4>Le activas el crédito desde tu panel</h4>
+          <p>
+            En tu lista de clientes, en el menú de tres puntos, eliges
+            <strong>Activar crédito</strong>. Pones el tope (por ejemplo $2.000)
+            y a cuántos días. Queda registrado quién lo activó y cuándo.
+          </p>
+        </div>
+
+        <div class="paso junto">
+          <h4>Tu cliente compra con su cupo</h4>
+          <p>
+            Arma su pedido normal, con todos los productos que quiera. Al pagar
+            le aparece <strong>una opción más: pagar con su cupo</strong>. Solo
+            la ve él; ningún otro comprador de tu tienda sabe que das crédito.
+          </p>
+        </div>
+
+        <div class="paso junto">
+          <h4>Le entregas la mercancía</h4>
+          <p>
+            Igual que hoy, bajo tu acuerdo con él. Esta parte es tuya: Mercatren
+            registra que el pedido salió, pero la entrega y su condición las
+            manejas tú.
+          </p>
+        </div>
+
+        <div class="paso junto">
+          <h4>Tu cliente abona cuando puede</h4>
+          <p>
+            Entra a Mercatren, ve exactamente cuánto debe, y abona lo que quiera:
+            $500 hoy, $1.200 en quince días, el resto al final. Cada abono sube
+            su comprobante como cualquier pago.
+          </p>
+        </div>
+
+        <div class="paso junto">
+          <h4>El dinero entra a tu cuenta y el cupo se libera</h4>
+          <p>
+            Validado el abono, Mercatren te compra esa parte y te la paga. El
+            cupo de tu cliente se libera por ese monto, así que puede volver a
+            comprar sin esperar a saldar todo.
+          </p>
+        </div>
+      </div>
+
+      <h2>Quién decide qué</h2>
+      <div class="rejilla junto">
+        <div class="tarjeta">
+          <div class="quien">Lo decides tú</div>
+          <ul>
+            <li>A quién le das crédito</li>
+            <li>De cuánto es el cupo</li>
+            <li>A cuántos días</li>
+            <li>Qué documentos le pides</li>
+            <li>Cuándo entregas la mercancía</li>
+            <li>Cuándo cortarle el cupo</li>
+          </ul>
+        </div>
+        <div class="tarjeta">
+          <div class="quien">Lo pone Mercatren</div>
+          <ul>
+            <li>El control del cupo</li>
+            <li>El pedido y su registro</li>
+            <li>El cobro de cada abono</li>
+            <li>El estado de cada cuenta</li>
+            <li>Los avisos por correo</li>
+            <li>El dinero a tu cuenta</li>
+          </ul>
+        </div>
+        <div class="tarjeta">
+          <div class="quien">Nadie asume por ti</div>
+          <ul>
+            <li>El riesgo de que no te paguen</li>
+            <li>La cobranza judicial</li>
+            <li>Garantías o avales</li>
+            <li>Seguros de crédito</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ EL EJEMPLO ══════════════════════ -->
+    <div class="hoja">
+      <h2>Un ejemplo con números</h2>
+      <p>
+        Le das <strong>$2.000 de cupo a 30 días</strong> a un cliente tuyo. Él
+        compra repuestos por $2.000 y se los lleva.
+      </p>
+
+      <table class="junto">
+        <thead>
+          <tr>
+            <th style="width:18%">Cuándo</th>
+            <th style="width:22%">Qué hace tu cliente</th>
+            <th class="num" style="width:16%">Entra a tu cuenta</th>
+            <th class="num" style="width:14%">Le queda por pagar</th>
+            <th style="width:30%">Su cupo disponible</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Día 1</td>
+            <td>Compra y se lleva la mercancía</td>
+            <td class="num">—</td>
+            <td class="num">$2.000</td>
+            <td>$0 de $2.000</td>
+          </tr>
+          <tr>
+            <td>Día 1</td>
+            <td>Abona $500</td>
+            <td class="num">$500</td>
+            <td class="num">$1.500</td>
+            <td>$500 de $2.000</td>
+          </tr>
+          <tr>
+            <td>Día 15</td>
+            <td>Abona $1.200</td>
+            <td class="num">$1.200</td>
+            <td class="num">$300</td>
+            <td>$1.700 de $2.000</td>
+          </tr>
+          <tr>
+            <td>Día 27</td>
+            <td>Abona $300</td>
+            <td class="num">$300</td>
+            <td class="num">$0</td>
+            <td>$2.000 de $2.000</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        Al terminar, tú recibiste los $2.000 completos en tres partes, y tu
+        cliente tiene su cupo entero otra vez para volver a comprar. Todo el
+        movimiento queda escrito: quién, cuánto, qué día y con qué comprobante.
+      </p>
+
+      <h2>Lo que ves tú</h2>
+      <div class="pantalla junto">
+        <div class="barra">
+          <span>Mis clientes con crédito</span>
+          <span>Mercatren · Panel del comercio</span>
+        </div>
+        <div class="cuerpo">
+          <div class="fila-cliente">
+            <div>
+              <strong>Supermoto San Cristóbal</strong><br />
+              <span style="color:#6b7c8a;font-size:9pt">Cupo $2.000 · 30 días</span>
+            </div>
+            <div style="text-align:right">
+              <span class="etiqueta credito">Al día</span><br />
+              <span style="font-size:9pt;color:#6b7c8a">Debe $300 · abonó $1.700</span>
+            </div>
+            <span class="puntos">⋮</span>
+          </div>
+          <div class="fila-cliente">
+            <div>
+              <strong>Repuestos El Trébol</strong><br />
+              <span style="color:#6b7c8a;font-size:9pt">Cupo $800 · 15 días</span>
+            </div>
+            <div style="text-align:right">
+              <span class="etiqueta credito">Al día</span><br />
+              <span style="font-size:9pt;color:#6b7c8a">Debe $0 · cupo libre</span>
+            </div>
+            <span class="puntos">⋮</span>
+          </div>
+          <div class="fila-cliente">
+            <div>
+              <strong>Motos y Más</strong><br />
+              <span style="color:#6b7c8a;font-size:9pt">Sin crédito</span>
+            </div>
+            <div style="text-align:right">
+              <span class="etiqueta sin">Compra de contado</span>
+            </div>
+            <span class="puntos">⋮</span>
+          </div>
+        </div>
+      </div>
+
+      <p style="font-size:9.5pt;color:#5b6f7f">
+        El crédito se activa desde el menú de tres puntos (⋮), nunca desde un
+        botón suelto: es una decisión seria y no puede activarse por un clic mal
+        dado. Y cada activación queda firmada con tu cuenta y la fecha.
+      </p>
+
+      <h2>Lo que ve tu cliente</h2>
+      <div class="pantalla junto">
+        <div class="barra">
+          <span>Mi cuenta con MEGAYES</span>
+          <span>Mercatren</span>
+        </div>
+        <div class="cuerpo">
+          <p style="font-size:10pt;margin-bottom:1mm">
+            <strong>Abonado $1.700 de $2.000</strong>
+          </p>
+          <div class="avance"><span style="width:85%"></span></div>
+          <p style="font-size:9.5pt;color:#6b7c8a;margin-bottom:3mm">
+            Te faltan $300 · vence el 27 de agosto
+          </p>
+          <table style="margin:0">
+            <tbody>
+              <tr><td>1 ago · Abono con Zelle</td><td class="num">$500</td></tr>
+              <tr><td>15 ago · Abono con Zelle</td><td class="num">$1.200</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ DECISIONES ══════════════════════ -->
+    <div class="hoja">
+      <h2>Lo que necesitamos que decidas</h2>
+      <p>
+        Son decisiones tuyas, no técnicas, y de ellas depende cómo se construye.
+        Sin ellas no arrancamos.
+      </p>
+
+      <table class="junto">
+        <thead>
+          <tr>
+            <th style="width:32%">Decisión</th>
+            <th style="width:36%">Qué hay que definir</th>
+            <th style="width:32%">Lo que sugerimos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Vencimiento</strong></td>
+            <td>Qué pasa cuando se cumple el plazo y no terminó de pagar</td>
+            <td>Se le congela el cupo y te avisamos. Cobrar es tuyo.</td>
+          </tr>
+          <tr>
+            <td><strong>Avisos</strong></td>
+            <td>Cuándo se le recuerda al cliente que debe</td>
+            <td>A los 7 días de vencer, a los 3 y el mismo día.</td>
+          </tr>
+          <tr>
+            <td><strong>Abono mínimo</strong></td>
+            <td>Si puede abonar cualquier monto o hay un piso</td>
+            <td>Sin mínimo. Que abone lo que pueda.</td>
+          </tr>
+          <tr>
+            <td><strong>Comisión</strong></td>
+            <td>Si el cargo va sobre cada abono o sobre el total al comprar</td>
+            <td>Sobre cada abono, con el método que use.</td>
+          </tr>
+          <tr>
+            <td><strong>Inventario</strong></td>
+            <td>Si el stock se descuenta al entregar o al terminar de pagar</td>
+            <td>Al entregar: la mercancía ya salió de tu depósito.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Qué hace falta antes de construir</h2>
+      <div class="aviso junto">
+        <div class="titulo">Revisión legal</div>
+        <p style="margin-bottom:0">
+          Este documento describe cómo queremos que funcione, y el modelo está
+          pensado para encajar con la figura de Windoce, LLC — comprar y revender
+          mercancía, nunca prestar. Antes de escribir la primera línea de código,
+          <strong>el abogado del proyecto tiene que revisar dos cosas</strong>: la
+          redacción del acuerdo entre tú y tu cliente, y el texto que aparece en
+          Mercatren cuando se activa un cupo. Que quede claro por escrito, y para
+          las dos partes, que el crédito lo das tú.
+        </p>
+      </div>
+
+      <h3>Orden de construcción</h3>
+      <ol>
+        <li>El cupo por cliente y su activación desde el menú de tres puntos</li>
+        <li>La opción de pagar con cupo en el momento de la compra</li>
+        <li>La cuenta de cada cliente: abonado, pendiente y vencimiento</li>
+        <li>Los abonos contra el pedido, con su comprobante</li>
+        <li>Tu pantalla de clientes con crédito</li>
+        <li>Los avisos por correo de vencimiento</li>
+      </ol>
+
+      <div class="aviso bien junto">
+        <div class="titulo">Lo que ya está hecho</div>
+        <p style="margin-bottom:0">
+          Buena parte del camino está andado: los pedidos, los pagos con
+          comprobante, la validación contra el banco y el dinero entrando a tu
+          cuenta ya funcionan hoy en Mercatren. Lo que se agrega es el cupo, los
+          abonos contra un mismo pedido y las pantallas de control.
+        </p>
+      </div>
+
+      <div class="pie-doc">
+        Documento preparado por Windoce, LLC para revisión del comercio ·
+        Agosto 2026<br />
+        Sujeto a revisión legal. No constituye una oferta vinculante ni un
+        acuerdo de financiamiento.<br />
+        © 2026 mercatren.com | All rights reserved. Developed by Windoce LLC
+      </div>
+    </div>
+  </body>
+</html>

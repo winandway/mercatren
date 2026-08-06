@@ -31,7 +31,8 @@
     "db:schema-cloud": "node scripts/generar-schema-cloud.ts",
     "db:cargar": "node scripts/cargar-sql-produccion.ts",
     "ubicaciones:importar": "node scripts/importar-ubicaciones.ts",
-    "docs:pdf": "tsx scripts/pdf-modelo.ts"
+    "docs:pdf": "tsx scripts/pdf-modelo.ts",
+    "docs:pdf-credito": "tsx scripts/pdf-credito.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [
