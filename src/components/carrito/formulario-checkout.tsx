@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useSyncExternalStore, useTransition } from "react";
 
+import { Campo } from "@/components/ui/campo";
 import { Link, useRouter } from "@/i18n/navigation";
 import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -89,8 +90,10 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           pais: texto("pais"),
           ciudad: texto("ciudad"),
           direccion: texto("direccion"),
-          referencia: texto("referencia") || undefined,
-          notas: texto("notas") || undefined,
+          /* Vacío se manda vacío, no `undefined`: el esquema del servidor ya
+             trata la casilla en blanco como una respuesta válida. */
+          referencia: texto("referencia"),
+          notas: texto("notas"),
         },
         metodoPago: metodo as "zelle" | "stripe",
         lineas: lineas.map((l) => ({
@@ -121,17 +124,18 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <Campo
+              tipo="nombrePersona"
               nombre="nombre"
               etiqueta={t("entrega.nombre")}
               marcador={t("entrega.nombrePlaceholder")}
               requerido
             />
             <Campo
+              tipo="telefono"
               nombre="telefono"
               etiqueta={t("entrega.telefono")}
               marcador={t("entrega.telefonoPlaceholder")}
               requerido
-              tipo="tel"
             />
             {/* NADA DE DIRECCIÓN DE ENTREGA. Todo se retira en el depósito
                 del producto y el sitio entero lo dice; pedir aquí calle y
@@ -139,6 +143,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                 Se pide en qué ciudad está quien retira, para confirmar que
                 sabe a dónde tiene que ir. */}
             <Campo
+              tipo="ciudad"
               nombre="ciudad"
               etiqueta={t("entrega.ciudad")}
               marcador={t("entrega.ciudadPlaceholder")}
@@ -146,6 +151,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
             />
             <div className="sm:col-span-2">
               <Campo
+                tipo="textoCorto"
                 nombre="notas"
                 etiqueta={`${t("entrega.notas")} · ${t("entrega.opcional")}`}
                 marcador={t("entrega.notasPlaceholder")}
@@ -256,46 +262,5 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
         </button>
       </aside>
     </form>
-  );
-}
-
-function Campo({
-  nombre,
-  etiqueta,
-  marcador,
-  requerido = false,
-  tipo = "text",
-  area = false,
-}: {
-  nombre: string;
-  etiqueta: string;
-  marcador: string;
-  requerido?: boolean;
-  tipo?: string;
-  area?: boolean;
-}) {
-  const estilo =
-    "mt-1 w-full rounded-lg border border-borde px-3 py-2 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30";
-
-  return (
-    <label className="block">
-      <span className="text-xs font-medium">{etiqueta}</span>
-      {area ? (
-        <textarea
-          name={nombre}
-          rows={2}
-          placeholder={marcador}
-          className={estilo}
-        />
-      ) : (
-        <input
-          name={nombre}
-          type={tipo}
-          required={requerido}
-          placeholder={marcador}
-          className={estilo}
-        />
-      )}
-    </label>
   );
 }

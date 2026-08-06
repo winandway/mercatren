@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { obtenerAlcance, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { mensajes } from "@/lib/mensajes";
+import { avisoDeCampo, mensajes } from "@/lib/mensajes";
 import {
   itemsPedido,
   itemsVariante,
@@ -59,9 +59,12 @@ export async function crearPedido(
 
   const revisado = esquemaPedido.safeParse(entrada);
   if (!revisado.success) {
+    /* El esquema devuelve una CLAVE de traducción, no una frase: el mismo
+       esquema corre en el navegador, donde no se sabe el idioma. Aquí se
+       convierte al de quien está comprando. */
     return {
       ok: false,
-      mensaje: revisado.error.issues[0]?.message ?? t("faltanDatosPedido"),
+      mensaje: await avisoDeCampo(revisado.error.issues[0]?.message),
     };
   }
 

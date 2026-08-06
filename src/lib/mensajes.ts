@@ -23,3 +23,20 @@ import { getTranslations } from "next-intl/server";
 export function mensajes() {
   return getTranslations("panel.mensajes");
 }
+
+/**
+ * Traduce el aviso de una casilla mal llenada.
+ *
+ * Las reglas de `src/lib/validacion/campos.ts` no devuelven una frase, sino una
+ * clave (`telefonoCaracteres`, `nombreCaracteres`). Tiene que ser así: el mismo
+ * esquema corre en el navegador y en el servidor, y en el navegador no hay
+ * forma de saber en qué idioma está mirando la persona.
+ *
+ * Aquí esa clave se convierte en la frase del idioma correcto. Si la clave no
+ * está traducida se devuelve el aviso genérico, nunca la clave en crudo: leer
+ * "telefonoCaracteres" en pantalla no le dice nada a nadie.
+ */
+export async function avisoDeCampo(clave: string | undefined): Promise<string> {
+  const t = await getTranslations("formularios.errores");
+  return clave && t.has(clave) ? t(clave) : t("invalido");
+}
