@@ -632,7 +632,7 @@ export const retirosFee = sqliteTable(
 /* Retiros del comercio                                                       */
 /* -------------------------------------------------------------------------- */
 
-export const FORMAS_RETIRO = ["comercio", "ach", "wire"] as const;
+export const FORMAS_RETIRO = ["comercio", "zelle", "ach", "wire"] as const;
 
 export const ESTADOS_RETIRO = [
   "solicitado",
@@ -686,6 +686,10 @@ export const retiros = sqliteTable(
      *
      * - `comercio`: a la billetera de otro comercio de Mercatren. No sale del
      *   sistema, así que es inmediato y no cuesta nada.
+     * - `zelle`: a su correo o teléfono de Zelle. Es la vía rápida, pero SOLO
+     *   hasta `ZELLE_RETIRO_MAXIMO_CENTAVOS` — los bancos vigilan Zelle con
+     *   un umbral más bajo que ACH y una cuenta que paga proveedores por ahí
+     *   todos los días termina restringida (ver `src/lib/dinero.ts`).
      * - `ach`: transferencia normal a su cuenta de Estados Unidos.
      * - `wire`: transferencia bancaria, para montos grandes o con prisa.
      */

@@ -4,7 +4,12 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { retiros, tiendas, type ESTADOS_RETIRO } from "@/lib/db/schema";
+import {
+  retiros,
+  tiendas,
+  type ESTADOS_RETIRO,
+  type FORMAS_RETIRO,
+} from "@/lib/db/schema";
 
 /**
  * Los retiros que se pueden ver desde esta sesión.
@@ -20,6 +25,8 @@ export type Destino = {
   cuenta?: string;
   ruta?: string;
   comercio?: string;
+  /** Cuando la forma es `zelle`: el correo o el teléfono que recibe. */
+  zelle?: string;
 };
 
 export type RetiroEnLista = {
@@ -29,7 +36,7 @@ export type RetiroEnLista = {
   montoCentavos: number;
   moneda: string;
   estado: (typeof ESTADOS_RETIRO)[number];
-  forma: "comercio" | "ach" | "wire";
+  forma: (typeof FORMAS_RETIRO)[number];
   destino: Destino | null;
   destinoTienda: string | null;
   notaComercio: string | null;

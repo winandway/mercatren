@@ -948,7 +948,9 @@
       "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta.",
       "variantesGuardadas": "Tallas y colores guardados.",
       "medidasGuardadas": "Medidas guardadas.",
-      "aceptaTerminosComercio": "Para abrir tu tienda tienes que aceptar los términos y condiciones."
+      "aceptaTerminosComercio": "Para abrir tu tienda tienes que aceptar los términos y condiciones.",
+      "faltaZelleDestino": "Escribe el correo o el teléfono que tienes registrado en Zelle.",
+      "zelleTopeSuperado": "Por Zelle enviamos hasta {tope}. Para más, elige ACH: llega en uno o dos días hábiles."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1030,7 +1032,9 @@
         "ach": "Transferencia ACH",
         "achAyuda": "A tu cuenta de Estados Unidos. Llega en 1 a 3 días hábiles.",
         "wire": "Transferencia bancaria (wire)",
-        "wireAyuda": "El mismo día, para montos grandes. El banco puede cobrar una cuota."
+        "wireAyuda": "El mismo día, para montos grandes. El banco puede cobrar una cuota.",
+        "zelle": "Zelle",
+        "zelleAyuda": "Lo más rápido, hasta $500. Llega el mismo día."
       },
       "aQuienComercio": "¿A qué comercio?",
       "eligeComercio": "Elige un comercio",
@@ -1064,7 +1068,13 @@
       "cancelarMio": "Cancelar mi retiro",
       "seguroCancelar": "¿Seguro que quieres cancelar este retiro?",
       "masOpciones": "Más opciones",
-      "pedirPorElComercio": "Registrar un retiro del comercio"
+      "pedirPorElComercio": "Registrar un retiro del comercio",
+      "zelleDestino": "Tu correo o teléfono de Zelle",
+      "zelleDestinoPlaceholder": "correo@ejemplo.com",
+      "zelleDestinoAyuda": "El mismo que tienes registrado en tu banco para Zelle. Si está mal escrito, el dinero se va a otra persona y no se puede devolver.",
+      "zelleTope": "Por Zelle se puede enviar hasta {tope}",
+      "zelleTopePorQue": "Es el límite que nos pone el banco para pagos seguidos a empresas. Por encima de ese monto usamos ACH, que llega en uno o dos días hábiles.",
+      "zelleUsarAch": "Cambiar a ACH"
     },
     "pedido": {
       "volver": "Volver a Órdenes",

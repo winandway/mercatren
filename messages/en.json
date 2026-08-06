@@ -948,7 +948,9 @@
       "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card.",
       "variantesGuardadas": "Sizes and colors saved.",
       "medidasGuardadas": "Dimensions saved.",
-      "aceptaTerminosComercio": "To open your store you need to accept the terms and conditions."
+      "aceptaTerminosComercio": "To open your store you need to accept the terms and conditions.",
+      "faltaZelleDestino": "Enter the email or phone number you have enrolled with Zelle.",
+      "zelleTopeSuperado": "Zelle payouts go up to {tope}. For more than that, choose ACH — it lands in one to two business days."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1030,7 +1032,9 @@
         "ach": "ACH transfer",
         "achAyuda": "To your U.S. bank account. Arrives in 1 to 3 business days.",
         "wire": "Wire transfer",
-        "wireAyuda": "Same day, for larger amounts. Your bank may apply a charge."
+        "wireAyuda": "Same day, for larger amounts. Your bank may apply a charge.",
+        "zelle": "Zelle",
+        "zelleAyuda": "Fastest option, up to $500. Arrives the same day."
       },
       "aQuienComercio": "Which merchant?",
       "eligeComercio": "Choose a merchant",
@@ -1064,7 +1068,13 @@
       "cancelarMio": "Cancel my withdrawal",
       "seguroCancelar": "Are you sure you want to cancel this withdrawal?",
       "masOpciones": "More options",
-      "pedirPorElComercio": "Record a merchant withdrawal"
+      "pedirPorElComercio": "Record a merchant withdrawal",
+      "zelleDestino": "Your Zelle email or phone number",
+      "zelleDestinoPlaceholder": "name@example.com",
+      "zelleDestinoAyuda": "The same one you have enrolled with your bank for Zelle. If it's typed wrong, the money goes to someone else and can't be recovered.",
+      "zelleTope": "Zelle payouts go up to {tope}",
+      "zelleTopePorQue": "That's the limit our bank sets for repeated payments to businesses. Above it we use ACH, which lands in one to two business days.",
+      "zelleUsarAch": "Switch to ACH"
     },
     "pedido": {
       "volver": "Back to Orders",

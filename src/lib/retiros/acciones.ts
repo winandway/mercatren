@@ -11,6 +11,7 @@ import {
   obtenerUsuario,
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { formatearPrecio, ZELLE_RETIRO_MAXIMO_CENTAVOS } from "@/lib/dinero";
 import { aCentavos } from "@/lib/retiros/monto";
 import { billeteras, retiros, tiendas } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
@@ -42,9 +43,11 @@ function esquema(t: Textos) {
         .trim()
         .min(1, t("faltaMonto"))
         .transform((v) => v.replace(/[^0-9.]/g, "")),
-      forma: z.enum(["comercio", "ach", "wire"]),
+      forma: z.enum(["comercio", "zelle", "ach", "wire"]),
       // Solo cuando la forma es `comercio`.
       destinoTiendaId: z.string().trim().optional(),
+      // Solo cuando es Zelle: el correo o el teléfono que recibe.
+      zelleDestino: z.string().trim().max(120).optional(),
       // Solo cuando es ACH o wire.
       titular: z.string().trim().max(120).optional(),
       banco: z.string().trim().max(120).optional(),
@@ -58,6 +61,20 @@ function esquema(t: Textos) {
 
       if (d.forma === "comercio") {
         if (!d.destinoTiendaId) fallo(t("faltaComercioDestino"));
+        return;
+      }
+
+      if (d.forma === "zelle") {
+        /**
+         * Un correo o un teléfono, no las dos cosas ni ninguna. Se acepta lo
+         * que el comercio tenga registrado en su banco para Zelle; el equipo
+         * lo copia tal cual al hacer el envío, así que aquí solo se
+         * comprueba que exista y tenga forma de una cosa o la otra.
+         */
+        const destino = d.zelleDestino ?? "";
+        const esCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destino);
+        const esTelefono = destino.replace(/\D/g, "").length >= 10;
+        if (!esCorreo && !esTelefono) fallo(t("faltaZelleDestino"));
         return;
       }
 
@@ -120,6 +137,26 @@ export async function pedirRetiro(
     return { ok: false, mensaje: t("montoMayorAlDisponible") };
   }
 
+  /**
+   * EL TOPE DE ZELLE SE COMPRUEBA AQUÍ, EN EL SERVIDOR.
+   *
+   * El formulario también lo avisa, pero eso es comodidad: cualquiera puede
+   * mandar la petición sin pasar por la pantalla. Esta es la comprobación
+   * que de verdad protege la cuenta del banco — y esa cuenta es de donde
+   * cobran TODOS los comercios, así que no es un detalle suyo, es de todos.
+   *
+   * Por encima del tope no se rechaza a secas: se le dice que use ACH, que
+   * es la vía correcta para ese monto.
+   */
+  if (d.forma === "zelle" && montoCentavos > ZELLE_RETIRO_MAXIMO_CENTAVOS) {
+    return {
+      ok: false,
+      mensaje: t("zelleTopeSuperado", {
+        tope: formatearPrecio(ZELLE_RETIRO_MAXIMO_CENTAVOS, "es"),
+      }),
+    };
+  }
+
   // El comercio destino tiene que existir, estar activo y no ser el mismo.
   let destinoTiendaId: string | null = null;
   if (d.forma === "comercio") {
@@ -159,12 +196,14 @@ export async function pedirRetiro(
     destino:
       d.forma === "comercio"
         ? null
-        : {
-            titular: d.titular,
-            banco: d.banco,
-            cuenta: d.cuenta,
-            ruta: d.ruta,
-          },
+        : d.forma === "zelle"
+          ? { zelle: d.zelleDestino }
+          : {
+              titular: d.titular,
+              banco: d.banco,
+              cuenta: d.cuenta,
+              ruta: d.ruta,
+            },
     notaComercio: d.nota || null,
   });
 

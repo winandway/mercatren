@@ -1,4 +1,4 @@
-import { Building2, Landmark, Store } from "lucide-react";
+import { Building2, Landmark, Store, Zap } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AccionesRetiro } from "@/components/panel/retiros/acciones-retiro";
@@ -28,7 +28,12 @@ export const dynamic = "force-dynamic";
  * mismo y a que el segundo intento fallara sin que se entienda por qué.
  */
 
-const ICONO = { comercio: Store, ach: Landmark, wire: Building2 } as const;
+const ICONO = {
+  comercio: Store,
+  zelle: Zap,
+  ach: Landmark,
+  wire: Building2,
+} as const;
 
 const TONO: Record<string, string> = {
   solicitado: "bg-carga-500/15 text-carga-700",

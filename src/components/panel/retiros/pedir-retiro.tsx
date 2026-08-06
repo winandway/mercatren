@@ -1,18 +1,23 @@
 "use client";
 
-import { Building2, Landmark, Loader2, Store, Wallet } from "lucide-react";
+import { Building2, Landmark, Loader2, Store, Wallet, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useRef, useState } from "react";
 
+import { ZELLE_RETIRO_MAXIMO_CENTAVOS } from "@/lib/dinero";
 import { pedirRetiro } from "@/lib/retiros/acciones";
 import { cn } from "@/lib/utils";
 
 /**
  * El comercio pide su dinero.
  *
- * TRES FORMAS, y cada una pide datos distintos:
+ * CUATRO FORMAS, y cada una pide datos distintos:
  *
  *   - a otro comercio de Mercatren: solo hay que decir a cuál,
+ *   - Zelle: su correo o su teléfono, y nada más. Es la vía rápida, pero
+ *     tiene TOPE (ver `ZELLE_RETIRO_MAXIMO_CENTAVOS`): por encima, el banco
+ *     de Windoce, LLC empieza a mirar con lupa, y de esa cuenta cobran todos
+ *     los comercios.
  *   - ACH y wire: hacen falta titular, banco, cuenta y ruta, porque alguien
  *     del equipo va a ir al banco con eso en la mano.
  *
@@ -26,6 +31,7 @@ import { cn } from "@/lib/utils";
 
 const FORMAS = [
   { valor: "comercio", Icono: Store },
+  { valor: "zelle", Icono: Zap },
   { valor: "ach", Icono: Landmark },
   { valor: "wire", Icono: Building2 },
 ] as const;
@@ -46,7 +52,12 @@ export function PedirRetiro({
 }) {
   const t = useTranslations("panel.retiros");
   const [abierto, setAbierto] = useState(false);
-  const [forma, setForma] = useState<"comercio" | "ach" | "wire">("ach");
+  const [forma, setForma] = useState<"comercio" | "zelle" | "ach" | "wire">(
+    "ach",
+  );
+  /* Lo escrito en el monto, para poder avisar del tope de Zelle mientras
+     escribe en vez de dejarlo enviar y que le rebote. */
+  const [montoEscrito, setMontoEscrito] = useState("");
   const [estado, accion, enviando] = useActionState(pedirRetiro, null);
   const monto = useRef<HTMLInputElement>(null);
 
@@ -74,7 +85,23 @@ export function PedirRetiro({
     );
   }
 
-  const esInterno = forma !== "comercio";
+  /* Los datos de banco solo aplican a ACH y wire. Zelle pide su correo y
+     el traspaso entre comercios no pide nada. */
+  const esInterno = forma === "ach" || forma === "wire";
+
+  /**
+   * ¿SE PASÓ DEL TOPE DE ZELLE?
+   *
+   * Se avisa mientras escribe, no al enviar. El servidor lo rechaza igual
+   * —esa es la comprobación que vale—, pero enterarse después de llenar todo
+   * el formulario es la clase de cosa que hace abandonar a la gente.
+   */
+  const centavosEscritos = Math.round(
+    (Number(montoEscrito.replace(/[^0-9.]/g, "")) || 0) * 100,
+  );
+  const pasaElTopeDeZelle =
+    forma === "zelle" && centavosEscritos > ZELLE_RETIRO_MAXIMO_CENTAVOS;
+  const topeZelleTexto = `$${(ZELLE_RETIRO_MAXIMO_CENTAVOS / 100).toLocaleString("en-US")}`;
 
   return (
     <form
@@ -107,6 +134,7 @@ export function PedirRetiro({
               required
               autoComplete="off"
               placeholder="0.00"
+              onChange={(e) => setMontoEscrito(e.target.value)}
               // 16px como mínimo: por debajo, el iPhone hace zoom al tocar.
               className="w-full rounded-lg border border-slate-300 py-3 pr-3 pl-7 text-base tabular-nums outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
             />
@@ -173,7 +201,45 @@ export function PedirRetiro({
         </div>
       </fieldset>
 
+      {/* EL TOPE DE ZELLE, dicho mientras escribe. Y con la salida puesta:
+          un aviso que solo dice "no puedes" deja a la persona atascada. */}
+      {pasaElTopeDeZelle ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-semibold">
+            {t("zelleTope", { tope: topeZelleTexto })}
+          </p>
+          <p className="mt-0.5">{t("zelleTopePorQue")}</p>
+          <button
+            type="button"
+            onClick={() => setForma("ach")}
+            className="mt-1.5 font-semibold underline underline-offset-2 hover:text-carga-600"
+          >
+            {t("zelleUsarAch")}
+          </button>
+        </div>
+      ) : null}
+
       {/* A dónde */}
+      {forma === "zelle" ? (
+        <div>
+          <label htmlFor="zelleDestino" className="block text-sm font-medium">
+            {t("zelleDestino")}
+          </label>
+          <input
+            id="zelleDestino"
+            name="zelleDestino"
+            type="text"
+            required
+            autoComplete="off"
+            placeholder={t("zelleDestinoPlaceholder")}
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
+          />
+          <p className="mt-1 text-xs text-tinta-suave">
+            {t("zelleDestinoAyuda")}
+          </p>
+        </div>
+      ) : null}
+
       {forma === "comercio" ? (
         <div>
           <label

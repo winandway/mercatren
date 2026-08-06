@@ -133,6 +133,40 @@ export const COMISION_TARJETA_PB = 200;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
 /**
+ * HASTA CUÁNTO SE LE PUEDE PAGAR A UN COMERCIO POR ZELLE: $500.
+ *
+ * No es un capricho ni una desconfianza al comercio. Es lo que protege la
+ * cuenta del banco de Windoce, LLC, que es de donde sale TODO el dinero de
+ * TODOS los comercios. Si esa cuenta se restringe, no cobra nadie.
+ *
+ * LO QUE ENCONTRAMOS AL INVESTIGARLO (6 ago 2026):
+ *
+ * - Los bancos vigilan Zelle con un umbral MÁS BAJO que ACH. Un pago que
+ *   como ACH no levanta ninguna alerta, por Zelle y al mismo destinatario a
+ *   veces sí dispara una restricción — y la reacción automática del banco es
+ *   mucho más rápida.
+ * - Zelle está pensado para pagar a gente que conoces, no para pagarle a
+ *   proveedores todos los días. Ese patrón —muchos envíos, recurrentes, a
+ *   distintas empresas— es justo el que marcan las revisiones de
+ *   cumplimiento.
+ * - El límite diario del banco es UNO SOLO y se comparte entre todos. Los
+ *   límites de negocio van de $5,000 al día (Chase, U.S. Bank) a $15,000
+ *   (Bank of America, Wells Fargo). Con un tope de $500 caben diez pagos en
+ *   un día sin acercarse al borde; con uno de $3,000, el tercer comercio del
+ *   día se queda sin cobrar.
+ * - Zelle NO SE DEVUELVE. Un dedo de más en el monto o un correo mal escrito
+ *   son dinero perdido, y a $500 el error duele mucho menos.
+ *
+ * Por encima de esto va ACH sí o sí, que es la vía que los bancos esperan
+ * para pagos de empresa y que además deja mejor rastro para la contabilidad.
+ *
+ * SI SE SUBE, que sea con los límites del banco delante y sabiendo que se
+ * está gastando margen de seguridad. Nunca por encima de $1,000 sin haberlo
+ * hablado con el banco.
+ */
+export const ZELLE_RETIRO_MAXIMO_CENTAVOS = 50_000;
+
+/**
  * CUÁNTO TIEMPO UN PRODUCTO ES "NUEVO": una semana.
  *
  * Lo pidió el dueño el 5 ago 2026, y con un motivo concreto: un comercio que

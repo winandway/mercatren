@@ -1,16 +1,24 @@
-# Plan: dejar la cuenta de Google Merchant Center lista para abrir
+# Plan: el comercio puede cobrar por Zelle, hasta un tope
 
-Google no aprueba una tienda sin política de devoluciones ni sin decir cómo
-entrega. Son los dos requisitos que faltan; el resto del sitio ya cumple.
+Hoy solo hay tres formas de cobrar: a otro comercio, ACH y wire. Falta Zelle,
+que es la vía rápida para montos chicos. Pero Zelle NO puede ser la vía para
+todo: los bancos vigilan Zelle con un umbral mucho más bajo que ACH, y una
+cuenta que paga proveedores por Zelle todos los días termina restringida.
 
-- [x] 1. Página de devoluciones bilingüe: qué se puede devolver, en cuánto
-      tiempo, cómo se pide y cuándo se devuelve el dinero.
-- [x] 2. Página de entrega y envío bilingüe: hoy se retira en el depósito;
-      el envío existe y lo decide cada comercio, con su costo aparte.
-- [x] 3. Las dos páginas enlazadas desde el pie, el centro de ayuda y la
-      ficha del pedido: Google exige que se encuentren desde el sitio.
-- [x] 4. Al mapa del sitio, con sus dos idiomas.
-- [x] 5. Extender el vigilante de vocabulario prohibido a TODAS las páginas
-      públicas, no solo a los correos.
-- [x] 6. Tipos, lint, pruebas, verificación en el navegador y publicar.
-- [ ] 7. Entregar el paquete de datos exactos para llenar Merchant Center.
+Por eso el tope no es un capricho: es lo que protege la cuenta del banco.
+
+- [x] 1. `ZELLE_RETIRO_MAXIMO_CENTAVOS` en `src/lib/dinero.ts`, con el
+      porqué del número escrito al lado.
+- [x] 2. `zelle` como forma de retiro (la columna es texto: no toca la base).
+- [x] 3. El servidor RECHAZA un retiro por Zelle que pase del tope. Esta es
+      la que manda: el navegador se puede saltar.
+- [x] 4. El formulario pide correo o teléfono de Zelle, no cuenta ni ruta, y
+      avisa del tope ANTES de que escriba el monto.
+- [x] 5. Si el monto pasa del tope, el formulario lo dice y ofrece ACH en vez
+      de dejarlo intentar y fallar.
+- [x] 6. La cola del equipo y el correo de "ya te transferimos" muestran Zelle
+      como forma, con su destino.
+- [x] 7. Textos bilingües.
+- [x] 8. Pruebas del tope: justo debajo pasa, justo encima no, y las otras
+      formas no quedan limitadas.
+- [x] 9. Tipos, lint, pruebas, navegador y publicar.
