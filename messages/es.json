@@ -950,7 +950,8 @@
       "medidasGuardadas": "Medidas guardadas.",
       "aceptaTerminosComercio": "Para abrir tu tienda tienes que aceptar los términos y condiciones.",
       "faltaZelleDestino": "Escribe el correo o el teléfono que tienes registrado en Zelle.",
-      "zelleTopeSuperado": "Por Zelle enviamos hasta {tope}. Para más, elige ACH: llega en uno o dos días hábiles."
+      "zelleTopeSuperado": "Por Zelle enviamos hasta {tope}. Para más, elige ACH: llega en uno o dos días hábiles.",
+      "cuentaSinComercio": "Tu cuenta todavía no tiene una tienda asignada, así que no podemos guardar el producto. Da de alta tu comercio en «Vender en Mercatren» y vuelve a intentarlo; si ya lo hiciste, escríbenos y lo revisamos."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1761,5 +1762,19 @@
       "textoLargo": "Te pasaste del largo permitido.",
       "invalido": "Revisa este dato."
     }
+  },
+  "errores": {
+    "titulo": "Algo se atascó de nuestro lado",
+    "texto": "No es culpa tuya y no perdiste nada de lo que ya habías guardado. Vuelve a intentarlo; si sigue pasando, escríbenos y lo resolvemos.",
+    "reintentar": "Volver a intentar",
+    "inicio": "Ir al inicio",
+    "escribenos": "Escríbenos",
+    "codigo": "Si nos escribes, pásanos este código:",
+    "panelTitulo": "No pudimos abrir esta parte del panel",
+    "panelTexto": "Puede ser que tu cuenta todavía esté en revisión o que algo falle de nuestro lado. Tu información guardada está a salvo.",
+    "sinComercioTitulo": "Tu cuenta todavía no tiene tienda",
+    "sinComercioTexto": "Para vender en Mercatren hace falta dar de alta tu comercio. Toma dos minutos y puedes empezar a cargar tus productos enseguida.",
+    "darDeAlta": "Dar de alta mi comercio",
+    "noSePudoGuardar": "No pudimos guardar ahora mismo. Lo que escribiste sigue aquí: vuelve a darle a guardar en un momento."
   }
 }

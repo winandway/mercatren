@@ -127,7 +127,10 @@ export async function sincronizarCatalogo(
 ): Promise<ResultadoSincronizacion> {
   const t = await mensajes();
 
-  const alcance = await obtenerAlcance();
+  /* Si la cuenta no tiene comercio, se avisa: dejar que la excepción suba
+     borraría el formulario del comercio con todo lo que llevara escrito. */
+  const alcance = await obtenerAlcance().catch(() => null);
+  if (!alcance) return { ok: false, mensaje: t("cuentaSinComercio") };
   const db = getDb();
 
   const [fuente] = await db
@@ -393,7 +396,10 @@ export async function guardarFuente(
 ): Promise<{ ok: boolean; mensaje: string }> {
   const t = await mensajes();
 
-  const alcance = await obtenerAlcance();
+  /* Si la cuenta no tiene comercio, se avisa: dejar que la excepción suba
+     borraría el formulario del comercio con todo lo que llevara escrito. */
+  const alcance = await obtenerAlcance().catch(() => null);
+  if (!alcance) return { ok: false, mensaje: t("cuentaSinComercio") };
   const db = getDb();
 
   const id = String(formulario.get("id") ?? "");

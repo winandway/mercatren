@@ -950,7 +950,8 @@
       "medidasGuardadas": "Dimensions saved.",
       "aceptaTerminosComercio": "To open your store you need to accept the terms and conditions.",
       "faltaZelleDestino": "Enter the email or phone number you have enrolled with Zelle.",
-      "zelleTopeSuperado": "Zelle payouts go up to {tope}. For more than that, choose ACH — it lands in one to two business days."
+      "zelleTopeSuperado": "Zelle payouts go up to {tope}. For more than that, choose ACH — it lands in one to two business days.",
+      "cuentaSinComercio": "Your account doesn't have a store yet, so we can't save this product. Register your business under \"Sell on Mercatren\" and try again — if you already did, reach out and we'll take a look."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1761,5 +1762,19 @@
       "textoLargo": "That's longer than allowed.",
       "invalido": "Check this field."
     }
+  },
+  "errores": {
+    "titulo": "Something broke on our end",
+    "texto": "This isn't on you, and nothing you'd already saved was lost. Give it another try — if it keeps happening, reach out and we'll sort it.",
+    "reintentar": "Try again",
+    "inicio": "Go to homepage",
+    "escribenos": "Contact us",
+    "codigo": "If you reach out, send us this code:",
+    "panelTitulo": "We couldn't open this part of your dashboard",
+    "panelTexto": "Your account may still be under review, or something may have failed on our end. Anything you already saved is safe.",
+    "sinComercioTitulo": "Your account doesn't have a store yet",
+    "sinComercioTexto": "To sell on Mercatren you'll need to register your business. It takes two minutes, and you can start adding products right away.",
+    "darDeAlta": "Register my business",
+    "noSePudoGuardar": "We couldn't save just now. Everything you typed is still here — try saving again in a moment."
   }
 }

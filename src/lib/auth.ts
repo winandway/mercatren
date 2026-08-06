@@ -110,11 +110,31 @@ export const getAuth = cache(async () => {
           // La bienvenida sale al crear la cuenta. Si el correo falla, la
           // cuenta se crea igual: avisar nunca es requisito.
           after: async (cuenta) => {
-            const { correoBienvenida } = await import("@/lib/correo/correos");
+            const { correoBienvenida, correoAvisoCuentaNueva } =
+              await import("@/lib/correo/correos");
+
+            // A la persona: su bienvenida.
             await correoBienvenida({
               email: cuenta.email,
               name: cuenta.name,
               idioma: (cuenta as { idioma?: string }).idioma,
+            });
+
+            /**
+             * Y AL EQUIPO: que alguien acaba de entrar.
+             *
+             * Sin esto no nos enterábamos de nada. Una cuenta nueva podía pasar
+             * días intentando usar el sistema —y chocándose con fallos— sin que
+             * nadie del equipo supiera siquiera que existía. Pasó: un comercio
+             * estuvo una tarde entera sin poder cargar sus productos y lo
+             * supimos porque escribió por WhatsApp.
+             *
+             * Va aparte del aviso de comercio nuevo: ese solo salta cuando dan
+             * de alta la tienda, y hasta ese momento la persona es invisible.
+             */
+            await correoAvisoCuentaNueva({
+              email: cuenta.email,
+              name: cuenta.name,
             });
           },
         },

@@ -119,6 +119,7 @@ export function FormularioProducto({
   tiendaId?: string;
 }) {
   const t = useTranslations("panel.producto");
+  const tPanel = useTranslations("errores");
   const idioma = useLocale();
   const router = useRouter();
 
@@ -133,8 +134,20 @@ export function FormularioProducto({
   const esNuevo = !producto;
 
   async function quitarGuardada(id: string) {
+    const antes = fotos;
     setFotos((f) => f.filter((x) => x.id !== id));
-    await borrarFoto(id);
+
+    try {
+      await borrarFoto(id);
+    } catch (fallo) {
+      /* Si el servidor no pudo, la foto vuelve a la lista: dejarla quitada en
+         pantalla haría creer que se borró, y al recargar reaparecería. Y sin
+         este `try`, la excepción se llevaba por delante el formulario entero
+         con todo lo escrito. */
+      console.error("[producto] no se pudo quitar la foto:", fallo);
+      setFotos(antes);
+      setAviso({ ok: false, texto: tPanel("noSePudoGuardar") });
+    }
   }
 
   return (
@@ -147,7 +160,34 @@ export function FormularioProducto({
         // renderizar y se perderian.
         for (const foto of nuevas) datos.append("fotos", foto);
 
-        const r = await guardarProducto(datos);
+        /**
+         * NADA DE LO QUE PASE AQUÍ PUEDE BORRAR EL FORMULARIO.
+         *
+         * Sin este `try`, cualquier excepción del servidor sube hasta React,
+         * React desmonta el formulario para pintar la pantalla de error, y
+         * **todo lo que la persona llevaba escrito desaparece**. Y sí lanza:
+         * `obtenerAlcance()` corta con una excepción cuando la cuenta todavía
+         * no tiene comercio asignado.
+         *
+         * Eso es exactamente lo que le pasó a MEGAYES una tarde entera:
+         * cargaba el producto, se caía, y tenía que empezar de cero. Cargar un
+         * producto con su descripción y sus fotos son diez minutos de trabajo;
+         * perderlos tres veces seguidas es perder a un comercio.
+         *
+         * Ahora el fallo se muestra como un aviso arriba y **lo escrito se
+         * queda donde está**, listo para reintentar.
+         */
+        let r: Awaited<ReturnType<typeof guardarProducto>>;
+        try {
+          r = await guardarProducto(datos);
+        } catch (fallo) {
+          console.error("[producto] no se pudo guardar:", fallo);
+          setGuardando(false);
+          setAviso({ ok: false, texto: tPanel("noSePudoGuardar") });
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
+
         setGuardando(false);
 
         if (!r.ok) {

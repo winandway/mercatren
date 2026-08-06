@@ -129,7 +129,26 @@ export async function guardarProducto(
 ): Promise<ResultadoProducto> {
   const t = await mensajes();
 
-  const alcance = await obtenerAlcance();
+  /**
+   * SI NO PUEDE GUARDAR, SE LE DICE. NO SE REVIENTA.
+   *
+   * `obtenerAlcance()` corta con una excepción cuando la cuenta no tiene
+   * comercio asignado. Dejar que esa excepción suba hacía que React desmontara
+   * el formulario entero y **la persona perdiera todo lo que llevaba escrito**,
+   * sin enterarse siquiera de cuál era el problema.
+   *
+   * Le pasó a un comercio de verdad durante una tarde entera: cargaba el
+   * producto, se caía, empezaba de cero. Ahora recibe una frase que explica qué
+   * falta y su trabajo se queda en pantalla.
+   */
+  let alcance;
+  try {
+    alcance = await obtenerAlcance();
+  } catch (fallo) {
+    console.error("[producto] sin alcance para guardar:", fallo);
+    return { ok: false, mensaje: t("cuentaSinComercio") };
+  }
+
   const db = getDb();
   const id = String(formulario.get("id") ?? "").trim() || null;
 
@@ -315,7 +334,15 @@ export async function borrarFoto(
 ): Promise<{ ok: boolean; mensaje: string }> {
   const t = await mensajes();
 
-  const alcance = await obtenerAlcance();
+  /* Igual que en guardarProducto: si no tiene alcance se le dice, no se
+     revienta la pantalla. Ver la explicación larga allí arriba. */
+  let alcance;
+  try {
+    alcance = await obtenerAlcance();
+  } catch (fallo) {
+    console.error("[producto] sin alcance:", fallo);
+    return { ok: false, mensaje: t("cuentaSinComercio") };
+  }
   const db = getDb();
 
   const [fila] = await db
@@ -351,7 +378,15 @@ export async function cambiarEstadoProducto(
 ): Promise<{ ok: boolean; mensaje: string }> {
   const t = await mensajes();
 
-  const alcance = await obtenerAlcance();
+  /* Igual que en guardarProducto: si no tiene alcance se le dice, no se
+     revienta la pantalla. Ver la explicación larga allí arriba. */
+  let alcance;
+  try {
+    alcance = await obtenerAlcance();
+  } catch (fallo) {
+    console.error("[producto] sin alcance:", fallo);
+    return { ok: false, mensaje: t("cuentaSinComercio") };
+  }
   const db = getDb();
 
   const [producto] = await db
@@ -473,7 +508,16 @@ export async function aplicarAjusteAlCatalogo(): Promise<{
  * catálogo de otro.
  */
 async function productoPropio(id: string) {
-  const alcance = await obtenerAlcance();
+  /* Igual que en guardarProducto: si no tiene alcance se avisa, no se revienta
+     la pantalla. Ver la explicación larga allí arriba. Habla el mismo idioma
+     que el resto de esta función: un motivo, no una frase. */
+  let alcance;
+  try {
+    alcance = await obtenerAlcance();
+  } catch (fallo) {
+    console.error("[producto] sin alcance:", fallo);
+    return { ok: false as const, motivo: "sinComercio" as const };
+  }
   const db = getDb();
 
   const [producto] = await db
@@ -524,7 +568,11 @@ export async function guardarVariantes(
     return {
       ok: false,
       mensaje: t(
-        permiso.motivo === "ajeno" ? "productoAjeno" : "productoNoExiste",
+        permiso.motivo === "ajeno"
+          ? "productoAjeno"
+          : permiso.motivo === "sinComercio"
+            ? "cuentaSinComercio"
+            : "productoNoExiste",
       ),
     };
   }
@@ -599,7 +647,11 @@ export async function guardarMedidas(
     return {
       ok: false,
       mensaje: t(
-        permiso.motivo === "ajeno" ? "productoAjeno" : "productoNoExiste",
+        permiso.motivo === "ajeno"
+          ? "productoAjeno"
+          : permiso.motivo === "sinComercio"
+            ? "cuentaSinComercio"
+            : "productoNoExiste",
       ),
     };
   }

@@ -74,6 +74,16 @@ const PERMITIDO = [
   /require\(/,
   /className/,
   /@\/lib|@\/components|@\/i18n/,
+  /**
+   * Los registros del servidor. No los lee un cliente: los lee quien va a
+   * buscar por qué falló algo, y para eso conviene que digan lo mismo que el
+   * resto del código de este proyecto.
+   *
+   * Traducirlos no aportaría nada y, peor, quitaría la razón de existir de esta
+   * prueba: si un `console.error` cuenta como texto de pantalla, la lista se
+   * llena de avisos falsos y un día alguien la apaga entera.
+   */
+  /console\.(error|warn|log|info)\(/,
 ];
 
 describe("el panel habla los dos idiomas", () => {

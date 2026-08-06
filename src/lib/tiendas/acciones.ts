@@ -73,7 +73,10 @@ export async function guardarMiTienda(
 ): Promise<ResultadoTienda> {
   const t = await mensajes();
 
-  const alcance = await obtenerAlcance();
+  /* Si la cuenta no tiene comercio, se avisa: dejar que la excepción suba
+     borraría el formulario de la tienda con todo lo que llevara escrito. */
+  const alcance = await obtenerAlcance().catch(() => null);
+  if (!alcance) return { ok: false, mensaje: t("cuentaSinComercio") };
 
   // El equipo de Mercatren puede editar la tienda que este viendo; un
   // comercio, solo la suya.

@@ -331,6 +331,33 @@ export async function correoAvisoComercioNuevo(d: {
   });
 }
 
+/**
+ * 9a-bis. Al equipo: alguien acaba de crear una cuenta.
+ *
+ * Va aparte del aviso de comercio nuevo, y hace falta: ese solo salta cuando
+ * dan de alta la tienda. Entre que una persona se registra y da de alta su
+ * comercio pueden pasar días, y en todo ese tiempo era invisible para nosotros
+ * — aunque estuviera dentro del panel chocándose con fallos.
+ *
+ * Pasó de verdad: un comercio estuvo una tarde entera sin poder cargar
+ * productos y nos enteramos porque escribió por WhatsApp.
+ */
+export async function correoAvisoCuentaNueva(d: {
+  email: string;
+  name: string;
+}) {
+  return correoAvisoAlEquipo({
+    asunto: `Cuenta nueva: ${d.name}`,
+    lineas: [
+      `${d.name} acaba de crear una cuenta en Mercatren.`,
+      `Correo: ${d.email}`,
+      "Todavía no ha dado de alta ningún comercio. Si es un vendedor, hasta que no lo haga no puede cargar productos.",
+    ],
+    url: "https://mercatren.com/es/panel/usuarios",
+    boton: "Ver los usuarios",
+  });
+}
+
 /** 9b. Al equipo: un comprobante entró a la cola de validación. */
 export async function correoAvisoComprobante(numero: string) {
   return correoAvisoAlEquipo({
