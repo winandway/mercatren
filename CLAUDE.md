@@ -768,6 +768,34 @@ abrirlas, cada una en su propio trabajo y con sus pruebas:
   `Intl.NumberFormat` (nadie de fuera lo controla) y la de `middleware.ts` se
   arma con nuestra propia lista de idiomas.
 
+## OJO: los push a main NO están disparando la publicación (6 ago 2026)
+
+Comprobado hoy con tres commits seguidos: el push llega a GitHub —`git
+ls-remote` lo confirma— pero **el flujo `build-para-yadominios-cloud` no
+arranca solo**. Los últimos runs automáticos son de la mañana; después, solo
+corren los que se disparan a mano.
+
+**Mientras esto siga así, después de cada push hay que disparar la publicación:**
+
+```bash
+gh workflow run build-para-yadominios-cloud --ref main
+```
+
+Y comprobar que terminó en verde antes de decir que algo está publicado:
+
+```bash
+gh run list --limit 2 --workflow=build.yml
+```
+
+**Por qué importa tanto:** un push que parece subido y no publica nada es
+exactamente el fallo que ya dejó el sitio días sin recibir cambios en agosto,
+sin que nada se pusiera en rojo. Si se reporta "ya está arriba" sin mirar el
+run, se reporta algo falso.
+
+Falta averiguar la causa (¿permisos del repositorio, límite de la cuenta,
+alguna configuración de Actions?). No se investigó hoy porque había un comercio
+parado y la prioridad era publicarle el arreglo.
+
 ## Comandos
 
 **Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan
