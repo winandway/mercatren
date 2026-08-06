@@ -18,10 +18,10 @@ escoger el siguiente.
 
 | Bloque                        | Hechas | Faltan |
 | ----------------------------- | -----: | -----: |
-| A · Depende de ti             |      0 |      9 |
-| B · Depende de mí (programar) |      1 |      4 |
-| C · Después del lanzamiento   |      0 |      5 |
-| **TOTAL**                     |  **1** | **18** |
+| A · Depende de ti             |      0 |     10 |
+| B · Depende de mí (programar) |      2 |      7 |
+| C · Después del lanzamiento   |      0 |      6 |
+| **TOTAL**                     |  **2** | **23** |
 
 **Para abrir al público hacen falta, como mínimo: A1, A2 y A4.**
 
@@ -120,6 +120,52 @@ No frenan la apertura: el sitio funciona sin ellas.
   cara al público.
 
 ---
+
+---
+
+## BLOQUE D — Lo que pidió el negocio el 6 ago 2026
+
+Salió de una tarde en que **MEGAYES** (repuestos de moto, Venezuela) no pudo
+cargar ni un producto: cada intento se caía y perdía lo escrito. Lo supimos
+por WhatsApp, no por el sistema.
+
+- ✅ **D1. Que un fallo no borre el trabajo de un comercio.** _(6 ago 2026)_
+  Ya está en producción. Ninguna caída vuelve a llegar como pantalla en blanco
+  en inglés: se explica en su idioma, se le dice que lo guardado está a salvo, y
+  si el problema es que le falta dar de alta su tienda, el botón está ahí mismo.
+  Lo escrito en el formulario ya no se pierde pase lo que pase.
+
+- ✅ **D2. Enterarnos de quién se registra.** _(6 ago 2026)_ Llega un correo al
+  equipo en cuanto alguien crea una cuenta, con su nombre, su correo y si ya dio
+  de alta comercio. Antes, entre el registro y el alta de la tienda la persona
+  era **invisible** para nosotros: podía pasar días chocándose con fallos sin
+  que nadie lo supiera.
+
+- ⬜ **D3. Aprobación temporal: que pueda trabajar mientras lo revisamos.**
+  Hoy un comercio que se registra queda `pendiente` y no puede hacer nada útil.
+  La idea es al revés: **que cargue sus productos desde el primer minuto**, con
+  un aviso claro de que está en revisión y que su tienda no sale al público
+  hasta que se apruebe. Así no pierde su tiempo esperándonos, y nosotros
+  seguimos controlando qué sale a la calle. Incluye el correo de "tu cuenta
+  está en revisión, mientras tanto puedes ir cargando tu catálogo".
+
+- ⬜ **D4. Que el registro se sienta acompañado.** Hoy el cliente se registra y
+  no pasa nada visible: ni "estamos procesando tu cuenta", ni qué sigue, ni
+  cuánto tarda. Pantalla de bienvenida con los pasos y en qué punto está.
+
+- ⬜ **D5. Pago por partes (apartado).** El caso de MEGAYES: su cliente compra
+  $2.000 y quiere abonar $500 hoy, $1.200 en quince días y el resto al final.
+  **El plan completo está escrito en `PLAN-PAGO-POR-PARTES.md`**, incluida la
+  razón por la que no podemos dar crédito de verdad y qué sí podemos hacer.
+  Antes de programar nada hacen falta tres decisiones tuyas y el visto bueno
+  del abogado.
+
+- ⬜ **D6. Revisión automática del comercio (KYB).** Comprobar con IA que quien
+  se registra es un comercio de verdad: que la identificación fiscal tenga el
+  formato de su país, que el sitio web exista y hable de lo mismo, que la
+  dirección sea un local y no un descampado, que el catálogo cuadre con el
+  rubro declarado. **No para aprobar solo, sino para llegar a la revisión con
+  el trabajo medio hecho** y una lista de lo que huele raro. Va después de D3.
 
 ## Además, hecho sobre la marcha
 
