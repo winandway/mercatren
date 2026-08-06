@@ -16,7 +16,14 @@ import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
 import { obtenerProductoPorSlug } from "@/lib/catalogo/consultas";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
+import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import {
+  comoJsonLd,
+  fichaDeProducto,
+  migasDePan,
+} from "@/lib/seo/datos-estructurados";
+import { rutaCanonica, SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
 
@@ -40,13 +47,43 @@ export async function generateMetadata({
       ? ficha.producto.descripcionEn
       : ficha.producto.descripcionEs) ?? undefined;
 
+  /**
+   * NINGUNA FICHA VA A GOOGLE SIN DESCRIPCIÓN.
+   *
+   * El catálogo importado viene casi todo sin descripción — el comercio no la
+   * escribió en su sistema —, y una página sin `description` la resume Google
+   * como quiere, normalmente con el primer texto que encuentre. Cuando falta,
+   * se arma una honesta con lo que sí sabemos: qué es, de quién y dónde se
+   * retira. No es relleno: es exactamente lo que el comprador necesita saber.
+   */
+  const resumen =
+    descripcion ??
+    [
+      titulo,
+      ficha.tiendaNombre,
+      ficha.depositoZona
+        ? (zonaPorSlug(ficha.depositoZona)?.nombre ?? null)
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+
   return {
     title: titulo,
-    description: descripcion,
+    description: resumen,
+    alternates: rutaCanonica(`/producto/${slug}`, locale),
     openGraph: {
+      type: "website",
       title: titulo,
-      description: descripcion,
-      images: ficha.imagenes[0] ? [ficha.imagenes[0].url] : undefined,
+      description: resumen,
+      url: `${SITIO.url}/${locale}/producto/${slug}`,
+      images: ficha.imagenes[0]
+        ? [
+            ficha.imagenes[0].url.startsWith("http")
+              ? ficha.imagenes[0].url
+              : `${SITIO.url}${ficha.imagenes[0].url}`,
+          ]
+        : undefined,
     },
   };
 }
@@ -61,6 +98,7 @@ export default async function PaginaProducto({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("catalogo.producto");
+  const tCatalogo = await getTranslations("catalogo");
   const ficha = await obtenerProductoPorSlug(slug);
 
   if (!ficha) notFound();
@@ -136,8 +174,71 @@ export default async function PaginaProducto({
     },
   ].filter((d) => d.valor);
 
+  /**
+   * LO QUE GOOGLE LEE DE ESTA FICHA.
+   *
+   * Sin esto, el resultado de búsqueda es un enlace azul y nada más. Con
+   * esto sale con el precio y "en stock" dentro del propio resultado — que es
+   * lo que hace que alguien entre. Todo sale de lo mismo que se ve abajo en
+   * pantalla: si un dato no está en la página, tampoco va aquí.
+   */
+  const categoriaNombre =
+    idioma === "en"
+      ? (ficha.categoriaNombreEn ?? ficha.categoriaNombreEs)
+      : ficha.categoriaNombreEs;
+
+  const paraGoogle = fichaDeProducto(
+    {
+      slug: producto.slug,
+      titulo,
+      descripcion,
+      precioCentavos: producto.precioCentavos,
+      moneda: producto.moneda,
+      existencias: producto.existencias,
+      controlaExistencias: producto.controlaExistencias,
+      sku: producto.sku,
+      marca: producto.marca,
+      categoria: categoriaNombre,
+      /* ABSOLUTAS, SIEMPRE. Las fotos de nuestro bucket se sirven por
+         `/media/...`, y Google descarta una imagen con ruta relativa: no
+         sabe desde dónde colgarla. Las que vienen del servidor del comercio
+         ya son absolutas y se dejan como están. */
+      imagenes: ficha.imagenes.map((i) =>
+        i.url.startsWith("http") ? i.url : `${SITIO.url}${i.url}`,
+      ),
+    },
+    locale,
+  );
+
+  const migas = migasDePan(
+    [
+      { nombre: SITIO.nombre, ruta: "" },
+      /* El nombre del catálogo, no el texto del botón de volver: la miga
+         sale escrita en el resultado de Google y "Volver al catálogo" ahí
+         se lee como un error. */
+      { nombre: tCatalogo("titulo"), ruta: "/catalogo" },
+      ...(categoriaNombre && ficha.categoriaSlug
+        ? [
+            {
+              nombre: categoriaNombre,
+              ruta: `/catalogo?categoria=${ficha.categoriaSlug}`,
+            },
+          ]
+        : []),
+      { nombre: titulo, ruta: `/producto/${producto.slug}` },
+    ],
+    locale,
+  );
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <script
+        type="application/ld+json"
+        // `comoJsonLd` escapa el JSON: el título lo escribe el comercio, y un
+        // `</script>` ahí dentro cerraría este bloque antes de tiempo.
+        dangerouslySetInnerHTML={{ __html: comoJsonLd([paraGoogle, migas]) }}
+      />
+
       <Link
         href="/catalogo"
         className="text-sm font-medium text-tinta-suave hover:text-riel-900"

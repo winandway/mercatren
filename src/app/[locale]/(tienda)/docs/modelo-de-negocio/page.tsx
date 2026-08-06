@@ -9,6 +9,7 @@ import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { SITIO, rutaCanonica, PDF_MODELO } from "@/lib/sitio";
+import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -122,7 +123,7 @@ export default async function PaginaModeloDeNegocio({
       <script
         type="application/ld+json"
         // El contenido lo generamos nosotros aqui mismo; no viene de fuera.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(datosEstructurados) }}
+        dangerouslySetInnerHTML={{ __html: comoJsonLd(datosEstructurados) }}
       />
 
       {/* Portada del documento.

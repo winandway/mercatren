@@ -9,6 +9,8 @@ import { obtenerTiendaPorSlug } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 import { RUTA_MEDIA } from "@/lib/rutas";
+import { comoJsonLd, fichaDeTienda } from "@/lib/seo/datos-estructurados";
+import { rutaCanonica, SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +28,23 @@ export async function generateMetadata({
       ? datos.tienda.descripcionEn
       : datos.tienda.descripcionEs) ?? undefined;
 
-  return { title: datos.tienda.nombre, description: descripcion };
+  /* Sin descripción propia, se dice lo que sí sabemos: quién es y dónde
+     está. Una ficha sin descripción la resume Google como quiere. */
+  const resumen =
+    descripcion ??
+    [datos.tienda.nombre, datos.tienda.ciudad].filter(Boolean).join(" · ");
+
+  return {
+    title: datos.tienda.nombre,
+    description: resumen,
+    alternates: rutaCanonica(`/tienda/${slug}`, locale),
+    openGraph: {
+      type: "website",
+      title: datos.tienda.nombre,
+      description: resumen,
+      url: `${SITIO.url}/${locale}/tienda/${slug}`,
+    },
+  };
 }
 
 /**
@@ -98,8 +116,29 @@ export default async function PaginaTienda({
       ? (tienda.descripcionEn ?? tienda.descripcionEs)
       : tienda.descripcionEs;
 
+  /* La ficha del comercio para Google: sale como una tienda de verdad, con
+     su ciudad, y no como una página cualquiera del sitio. */
+  const paraGoogle = fichaDeTienda(
+    {
+      slug: tienda.slug,
+      nombre: tienda.nombre,
+      descripcion,
+      ciudad: tienda.ciudad,
+      telefono: tienda.telefono,
+      sitioWeb: tienda.sitioWeb,
+      logoUrl: logoUrl ? `${SITIO.url}${logoUrl}` : null,
+    },
+    locale,
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Escapado: el nombre y la descripción los escribe el comercio.
+        dangerouslySetInnerHTML={{ __html: comoJsonLd(paraGoogle) }}
+      />
+
       {/* Portada del comercio. Si subio una, se usa; si no, el color de la
           marca en vez de dejar un hueco gris. */}
       <div className="relative h-32 overflow-hidden bg-gradient-to-r from-riel-900 via-riel-800 to-riel-700 sm:h-44">

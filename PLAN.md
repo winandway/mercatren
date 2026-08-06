@@ -1,25 +1,19 @@
-# Plan: B1 — los correos que faltan
+# Plan: actualización del SEO
 
-Cerrar los avisos que hoy no salen. Un pedido que se paga y nunca vuelve a
-escribir deja al cliente entrando al sitio a ver si pasó algo, y a un comercio
-esperando una transferencia sin saber si se hizo.
+Lo que Google ve hoy del catálogo es una lista de páginas sin decirle qué son.
+Con datos estructurados pasa a mostrar el precio y "en stock" en el resultado
+mismo, que es la diferencia entre aparecer y que hagan clic.
 
-- [x] 1. Averiguar dónde se retira un pedido: helper que, dado un pedido, saca
-      los depósitos de la mercancía comprada (ciudad, nombre, dirección).
-- [x] 2. Textos nuevos en `messages/es.json` y `messages/en.json`: retiro
-      solicitado (al equipo), retiro pagado, retiro rechazado, pedido listo
-      para retirar, pedido entregado, producto agotado. Inglés de nativo.
-- [x] 3. Las funciones de envío en `src/lib/correo/correos.ts`, una por
-      momento del negocio, siguiendo el patrón de las 9 que ya existen.
-- [x] 4. Disparar los tres de retiros desde `src/lib/retiros/acciones.ts`
-      (pedirRetiro → equipo; marcarRetiroPagado y rechazarRetiro → comercio).
-- [x] 5. Disparar los dos del pedido desde `avanzarPedido`, con el lugar de
-      retiro dentro del correo de "listo para retirar".
-- [x] 6. El correo de "gracias por tu compra" dice **dónde se retira** cada
-      cosa, no solo el total.
-- [x] 7. Aviso al comercio cuando una venta deja un producto en cero, para que
-      reponga o lo despublique.
-- [x] 8. Prueba de unidad: todo correo nuevo tiene sus dos idiomas y ninguno
-      usa vocabulario prohibido por la figura jurídica.
-- [x] 9. Tipos, lint, pruebas, compilación y publicar.
-- [x] 10. Actualizar `ROADMAP.md`: B1 en ✅ y el marcador al día.
+- [x] 1. Datos estructurados `Product` + `Offer` en la ficha de producto:
+      precio, moneda, disponibilidad, marca, vendedor, fotos y condición.
+- [x] 2. Migas de pan (`BreadcrumbList`) en producto: Google enseña la ruta en
+      vez de la dirección cruda.
+- [x] 3. `Store` en la página de cada comercio, con su ciudad y su catálogo.
+- [x] 4. Direcciones canónicas y hreflang en producto y tienda: hoy /es y /en
+      compiten entre sí como si fueran páginas distintas.
+- [x] 5. `x-default` en el mapa del sitio, para quien no busca ni en español
+      ni en inglés.
+- [x] 6. Descripción de respaldo cuando el comercio no escribió ninguna: hoy
+      esas fichas van a Google sin descripción.
+- [ ] 7. Comprobar el mapa y los datos estructurados, publicar y entregar el
+      link para Google Search Console.

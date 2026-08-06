@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 import { Proveedores } from "@/components/proveedores";
 import { RegistroAppInstalable } from "@/components/registro-app-instalable";
 import { ESPACIOS_QUE_NO_VIAJAN } from "@/i18n/espacios";
+import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 import { routing } from "@/i18n/routing";
 import { SITIO } from "@/lib/sitio";
 
@@ -138,10 +139,9 @@ export default async function LayoutIdioma({
       <body className="flex min-h-full flex-col">
         <script
           type="application/ld+json"
-          // Contenido nuestro, generado aqui mismo; no entra nada de fuera.
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(fichaOrganizacion),
-          }}
+          // Todo el JSON-LD del sitio pasa por `comoJsonLd`, que lo escapa
+          // para que ningún texto pueda cerrar esta etiqueta antes de tiempo.
+          dangerouslySetInnerHTML={{ __html: comoJsonLd(fichaOrganizacion) }}
         />
         <NextIntlClientProvider messages={mensajesPublicos}>
           <Proveedores>

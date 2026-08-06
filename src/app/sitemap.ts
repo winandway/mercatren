@@ -30,6 +30,13 @@ function entrada(
   for (const idioma of routing.locales) {
     languages[idioma] = `${SITIO.url}/${idioma}${ruta}`;
   }
+  /**
+   * `x-default` es la versión para quien no busca ni en español ni en inglés.
+   * Sin ella, Google elige por su cuenta cuál enseñar a esa gente — y suele
+   * elegir mal. Es el mismo criterio que ya usa `rutaCanonica()` en las
+   * páginas; aquí faltaba, así que el mapa y las páginas se contradecían.
+   */
+  languages["x-default"] = `${SITIO.url}/${routing.defaultLocale}${ruta}`;
 
   return {
     url: `${SITIO.url}/${routing.defaultLocale}${ruta}`,

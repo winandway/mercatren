@@ -4,6 +4,7 @@ import { Bloques } from "@/components/docs/bloques";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import type { PaginaContenido } from "@/contenido/paginas/tipos";
 import { Link } from "@/i18n/navigation";
+import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 
 /**
  * El molde de todas las paginas de texto del sitio: terminos, privacidad,
@@ -41,7 +42,7 @@ export function PaginaDeContenido({ pagina }: { pagina: PaginaContenido }) {
           type="application/ld+json"
           // Contenido nuestro, armado aqui mismo desde el archivo de contenido.
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: comoJsonLd({
               "@context": "https://schema.org",
               "@type": "FAQPage",
               mainEntity: preguntas,
