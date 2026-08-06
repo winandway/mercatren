@@ -673,12 +673,14 @@ Ninguna de estas se hizo porque **hacerlas exige tocar el código del producto**
 y eso estaba prohibido en este trabajo. Están aquí para cuando se decida
 abrirlas, cada una en su propio trabajo y con sus pruebas:
 
-- **`zod` en 7 de las 12 acciones de servidor.** Validan: productos, tiendas,
-  retiros, pedidos y ubicaciones. **No validan:** `correo/acciones.ts`,
-  `retiros/monto.ts`, `pedidos/comprobante.ts`, `legal-acciones.ts`,
-  `zelle/acciones.ts`, `catalogo/traer-fotos.ts`, `stripe/acciones.ts`. Todas
-  exigen sesión y rol, así que no están abiertas a cualquiera, pero un dato mal
-  formado llega hasta la base.
+- **`zod` en solo 3 de los 12 archivos con acciones de servidor.** Validan
+  productos, tiendas y retiros. **No validan:** `correo/acciones.ts`,
+  `retiros/monto.ts`, `pedidos/comprobante.ts`, `pedidos/acciones.ts`,
+  `legal-acciones.ts`, `zelle/acciones.ts`, `catalogo/traer-fotos.ts`,
+  `catalogo/sincronizar.ts`, `stripe/acciones.ts`. Todas exigen sesión y rol,
+  así que no están abiertas a cualquiera, pero un dato mal formado llega hasta
+  la base. **Es la deuda más grande que dejó el blindaje**, y se cierra archivo
+  por archivo, cada uno con su prueba.
 - **Límite de intentos (rate limit)** en entrar, registro y recuperar clave.
   Hoy la protección es Turnstile, que frena robots pero no a alguien decidido.
 - **`noUncheckedIndexedAccess` en TypeScript.** Se probó: rompe en 16 sitios (8
