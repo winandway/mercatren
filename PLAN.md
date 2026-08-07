@@ -24,10 +24,21 @@
 
 | Fase                                  | Estado |
 | ------------------------------------- | ------ |
-| 1 · Las dos facturas de cada venta    | ⬜     |
+| 1 · Las dos facturas de cada venta    | 🔨     |
 | 2 · El cierre del período             | ⬜     |
 | 3 · El impuesto a la venta, preparado | ⬜     |
 | 4 · Dejar de llamarlo «billetera»     | ⬜     |
+
+**Fase 1, al detalle** _(7 ago 2026)_ — el motor está hecho y subido; faltan
+las pantallas:
+
+| Parte                                              | Estado |
+| -------------------------------------------------- | ------ |
+| Tablas y numeración correlativa atómica            | ✅     |
+| Emitir al confirmarse el pago (tarjeta y Zelle)    | ✅     |
+| Que el comprador vea y descargue su factura        | ⬜     |
+| Que el comercio adjunte su factura contra la orden | ⬜     |
+| Que el panel enseñe las órdenes sin factura        | ⬜     |
 
 **Con las cuatro cerradas**, el prompt del equipo pasa de _"faltan estas cosas"_
 a _"el sistema hace esto"_, que es justo lo que pidió el dueño.
