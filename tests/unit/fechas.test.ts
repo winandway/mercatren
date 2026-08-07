@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { fechaCorta, fechaHora, fechaLarga } from "@/lib/fechas";
+import {
+  fechaCorta,
+  fechaHora,
+  fechaLarga,
+  soloHora,
+  titularPeriodo,
+} from "@/lib/fechas";
 
 /**
  * LAS FECHAS NO PUEDEN CORRERSE UN DÍA.
@@ -86,5 +92,56 @@ describe("lo que no es una fecha no revienta la pantalla", () => {
     expect(fechaCorta(null)).toBeNull();
     expect(fechaCorta(undefined)).toBeNull();
     expect(fechaCorta("no soy una fecha")).toBeNull();
+  });
+
+  it("ninguna de las formas de mostrar una fecha revienta con basura", () => {
+    for (const formato of [fechaCorta, fechaLarga, fechaHora, soloHora]) {
+      expect(formato(null)).toBeNull();
+      expect(formato("cualquier cosa")).toBeNull();
+    }
+  });
+});
+
+describe("solo la hora", () => {
+  it("muestra la hora del este, que es la de la operación", () => {
+    // 16:30 UTC son las 12:30 en Nueva York.
+    expect(soloHora("2026-08-07T16:30:15.000Z")).toContain("12:30");
+  });
+});
+
+/**
+ * LOS TÍTULOS DE LOS PERÍODOS DEL PANEL.
+ *
+ * Los arma SQLite al agrupar, y llegan como texto: "2026-07", "2026-07-15",
+ * "2026-S28". Cada forma se muestra distinta, y lo que NO reconoce se enseña
+ * tal cual — un título feo es mejor que una pantalla en blanco.
+ */
+describe("el título de un período del panel", () => {
+  it("un mes se escribe con su nombre y en mayúscula", () => {
+    // En español el formato lleva "de" en medio; en inglés no.
+    expect(titularPeriodo("2026-07")).toBe("Julio de 2026");
+    expect(titularPeriodo("2026-07", "en")).toBe("July 2026");
+  });
+
+  it("un día se escribe corto, y sin correrse", () => {
+    /* El mismo cuidado que arriba: el 1 de julio no puede salir "30 jun". */
+    const texto = titularPeriodo("2026-07-01");
+    expect(texto).toContain("1");
+    expect(texto).toContain("jul");
+    expect(texto).not.toContain("jun");
+  });
+
+  it("una semana se escribe en palabras, en los dos idiomas", () => {
+    expect(titularPeriodo("2026-S28")).toBe("Semana 28 de 2026");
+    expect(titularPeriodo("2026-S28", "en")).toBe("Week 28, 2026");
+  });
+
+  it("la semana de un solo dígito no sale con el cero delante", () => {
+    expect(titularPeriodo("2026-S07")).toBe("Semana 7 de 2026");
+  });
+
+  it("lo que no reconoce se muestra tal cual, sin romper nada", () => {
+    expect(titularPeriodo("otra-cosa")).toBe("otra-cosa");
+    expect(titularPeriodo("")).toBe("");
   });
 });
