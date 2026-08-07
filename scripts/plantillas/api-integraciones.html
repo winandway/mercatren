@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>API de Mercatren para sistemas de comercios</title>
+    <style>
+      @page { size: A4; margin: 14mm 0; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #1c2b36; font-size: 10.5pt; line-height: 1.55;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .hoja { padding: 0 18mm; }
+      .junto { page-break-inside: avoid; }
+      h2 { page-break-after: avoid; }
+      table, .pantalla, .aviso, .paso, .rejilla, .fase { page-break-inside: avoid; }
+
+      .portada { background: #10263A; color: #fff; padding: 32mm 18mm 24mm; margin: -14mm 0 10mm; }
+      .portada .marca { font-size: 11pt; letter-spacing: .18em; text-transform: uppercase; color: #FF6B1A; font-weight: 600; }
+      .portada h1 { font-size: 28pt; line-height: 1.12; margin: 7mm 0 5mm; font-weight: 700; }
+      .portada .bajada { font-size: 12.5pt; color: #c8d4de; max-width: 138mm; }
+      .portada .pie { margin-top: 12mm; padding-top: 5mm; border-top: 1px solid #2c4155; font-size: 9pt; color: #93a6b6; display: flex; justify-content: space-between; }
+
+      h2 { font-size: 16pt; color: #10263A; margin: 11mm 0 4mm; padding-bottom: 2.5mm; border-bottom: 2px solid #FF6B1A; }
+      h2:first-child { margin-top: 0; }
+      h3 { font-size: 12pt; color: #10263A; margin: 7mm 0 2.5mm; }
+      p { margin-bottom: 3mm; }
+      strong { color: #10263A; font-weight: 600; }
+      ul, ol { margin: 0 0 3mm 5mm; }
+      li { margin-bottom: 1.8mm; }
+
+      .aviso { border-left: 4px solid #FF6B1A; background: #FFF6F0; padding: 4mm 5mm; margin: 5mm 0; border-radius: 0 3px 3px 0; }
+      .aviso.grave { border-left-color: #C0392B; background: #FDF0EE; }
+      .aviso.bien { border-left-color: #1D9E75; background: #ECF8F3; }
+      .aviso .titulo { font-weight: 700; color: #10263A; font-size: 10pt; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1.5mm; }
+
+      table { width: 100%; border-collapse: collapse; margin: 4mm 0; font-size: 9.5pt; }
+      th { background: #10263A; color: #fff; text-align: left; padding: 2.5mm 3mm; font-weight: 600; font-size: 9pt; }
+      td { padding: 2.5mm 3mm; border-bottom: 1px solid #e3e9ee; vertical-align: top; }
+      tr:nth-child(even) td { background: #f7f9fb; }
+
+      .fase { border: 1px solid #dde5eb; border-radius: 5px; margin: 4mm 0; overflow: hidden; }
+      .fase .cab { background: #10263A; color: #fff; padding: 3mm 4mm; display: flex; justify-content: space-between; align-items: center; }
+      .fase .cab .n { font-size: 9pt; letter-spacing: .1em; text-transform: uppercase; color: #FF6B1A; font-weight: 700; }
+      .fase .cab .t { font-size: 12pt; font-weight: 700; }
+      .fase .cuerpo { padding: 4mm; }
+      .fase .meta { display: flex; gap: 5mm; margin-top: 3mm; padding-top: 3mm; border-top: 1px solid #eef2f6; font-size: 9pt; color: #5b6f7f; }
+
+      .pasos { counter-reset: paso; margin: 5mm 0; }
+      .paso { counter-increment: paso; position: relative; padding: 0 0 4mm 13mm; border-left: 2px solid #e3e9ee; margin-left: 4mm; }
+      .paso:last-child { border-left-color: transparent; padding-bottom: 0; }
+      .paso::before { content: counter(paso); position: absolute; left: -4.5mm; top: -1mm; width: 9mm; height: 9mm; border-radius: 50%; background: #FF6B1A; color: #fff; font-weight: 700; font-size: 10pt; display: flex; align-items: center; justify-content: center; }
+      .paso h4 { font-size: 11pt; color: #10263A; margin-bottom: 1mm; }
+      .paso p { font-size: 10pt; margin-bottom: 0; }
+
+      .rejilla { display: flex; gap: 4mm; margin: 4mm 0; }
+      .tarjeta { flex: 1; border: 1px solid #dde5eb; border-radius: 4px; padding: 4mm; background: #fff; }
+      .tarjeta .quien { font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em; color: #FF6B1A; font-weight: 700; margin-bottom: 2mm; }
+      .tarjeta ul { margin: 0 0 0 4mm; font-size: 9.5pt; }
+
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 9pt; background: #eef2f6; padding: .5mm 1.5mm; border-radius: 2px; }
+      .pie-doc { margin-top: 10mm; padding-top: 4mm; border-top: 1px solid #dde5eb; font-size: 8.5pt; color: #6b7c8a; text-align: center; }
+    </style>
+  </head>
+
+  <body>
+    <div class="portada">
+      <div class="marca">Mercatren · Plan de desarrollo</div>
+      <h1>Conectar el sistema<br />del comercio con Mercatren</h1>
+      <p class="bajada">
+        Una API para que los sistemas que ya desarrollamos puedan cobrar por
+        Mercatren: el comercio factura en su local y su cliente paga con
+        tarjeta o Zelle desde Estados Unidos.
+      </p>
+      <div class="pie">
+        <span>Documento de trabajo · Agosto 2026</span>
+        <span>Para decisión antes de programar</span>
+      </div>
+    </div>
+
+    <div class="hoja">
+      <h2>El problema que resuelve</h2>
+      <p>
+        Una ferretería en Venezuela vende en su mostrador y a través de
+        vendedores. Cobra en efectivo, pago móvil, transferencia o divisas —
+        pero el efectivo escasea y las divisas no siempre están donde está el
+        cliente.
+      </p>
+      <p>
+        Muchos de esos clientes <strong>tienen a alguien en Estados Unidos</strong>
+        que puede pagarles: un hijo, un socio, un familiar. Hoy esa persona tiene
+        que buscar cómo mandar el dinero. Con esta conexión, el comercio le
+        entrega un <strong>enlace de pago</strong>, y quien esté en Estados
+        Unidos paga con su tarjeta o por Zelle en dos minutos.
+      </p>
+
+      <div class="aviso bien junto">
+        <div class="titulo">Lo que gana cada uno</div>
+        <p style="margin-bottom:0">
+          <strong>El comercio</strong> cobra en dólares sin montar nada en
+          Estados Unidos, y sigue trabajando en el sistema que ya conoce.
+          <strong>Su cliente</strong> resuelve el pago sin buscar efectivo.
+          <strong>Mercatren</strong> gana su margen en cada operación y suma
+          catálogo sin salir a buscarlo.
+        </p>
+      </div>
+
+      <h2>Cómo trabajan hoy estos comercios</h2>
+      <p>
+        Antes de conectar nada hay que respetar cómo trabajan. Son dos flujos
+        distintos y la API tiene que servir a los dos sin obligarlos a cambiar
+        su forma de vender.
+      </p>
+
+      <div class="rejilla junto">
+        <div class="tarjeta">
+          <div class="quien">Venta al detal · mostrador</div>
+          <ul>
+            <li>El cliente llega y el vendedor arma la venta.</li>
+            <li>Si es nuevo, lo registra ahí mismo.</li>
+            <li>Pasa a caja: la cajera cobra e imprime. Solo la caja imprime.</li>
+            <li>La factura recibe un código de 5 letras.</li>
+            <li>Ese código se escanea en el galpón al entregar y se quema.</li>
+            <li>Ahí baja el inventario.</li>
+            <li>Siempre de contado.</li>
+          </ul>
+        </div>
+        <div class="tarjeta">
+          <div class="quien">Venta al mayor · vendedor</div>
+          <ul>
+            <li>El vendedor trabaja desde su celular.</li>
+            <li>Arma el pedido y escoge el cliente.</li>
+            <li>Decide contado o crédito, con los días que él fije hasta su tope.</li>
+            <li>El pedido cae a caja ya marcado.</li>
+            <li>De contado: la cajera cobra.</li>
+            <li>A crédito: pasa a despacho sin cobrar.</li>
+            <li>El cliente paga después, en abonos.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Lo que gana el vendedor (no lo tocamos, pero hay que conocerlo)</h3>
+      <table class="junto">
+        <thead>
+          <tr>
+            <th style="width:26%">Concepto</th>
+            <th style="width:20%">Rango de hoy</th>
+            <th style="width:54%">Cómo funciona</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Su comisión</strong></td>
+            <td>0,5% a 6%</td>
+            <td>La fija el dueño por categoría (PVC, hierro, ferretería). Es interna: no aparece en la factura del cliente.</td>
+          </tr>
+          <tr>
+            <td><strong>Descuento que puede dar</strong></td>
+            <td>5% a 40%</td>
+            <td>Tope por vendedor. Esto sí lo ve el cliente en su factura.</td>
+          </tr>
+          <tr>
+            <td><strong>Cuándo cobra</strong></td>
+            <td>Día 10</td>
+            <td>Su comisión se libera cuando el cliente termina de pagar la factura completa. Corte a fin de mes.</td>
+          </tr>
+          <tr>
+            <td><strong>Si el cliente se atrasa</strong></td>
+            <td>30 días</td>
+            <td>La comisión sigue retenida y el sistema le bloquea el crédito a ese cliente. De contado sigue comprando.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="aviso junto">
+        <div class="titulo">Esto se queda como está</div>
+        <p style="margin-bottom:0">
+          Las comisiones del vendedor, los descuentos, la retención hasta el
+          pago completo y el bloqueo a los 30 días <strong>viven en el sistema
+          del comercio y no se tocan</strong>. Mercatren no las calcula ni las
+          administra: solo recibe el monto a cobrar y devuelve el pago
+          confirmado.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══════════ LA CONEXIÓN ══════════ -->
+    <div class="hoja">
+      <h2>Qué es exactamente lo que se construye</h2>
+      <p>
+        Una <strong>puerta de entrada</strong> a Mercatren para sistemas
+        externos. El sistema del comercio le pide a Mercatren un cobro, y
+        Mercatren le devuelve un enlace. Nada más — y eso es a propósito: cuanto
+        más chica sea la puerta, menos cosas pueden romperse.
+      </p>
+
+      <div class="pasos">
+        <div class="paso junto">
+          <h4>El comercio arma su factura como siempre</h4>
+          <p>
+            En su punto de venta, con sus precios, sus descuentos y sus
+            comisiones. Mercatren no interviene en nada de eso.
+          </p>
+        </div>
+        <div class="paso junto">
+          <h4>Elige cobrar por Mercatren</h4>
+          <p>
+            Aparece como una forma de pago más, junto a efectivo y pago móvil.
+            Solo la ven los comercios que tengan la conexión activada.
+          </p>
+        </div>
+        <div class="paso junto">
+          <h4>Su sistema le pide el cobro a Mercatren</h4>
+          <p>
+            Manda el monto, el detalle de lo que se vende y su número de
+            factura. Mercatren responde con un enlace de pago y un código QR.
+          </p>
+        </div>
+        <div class="paso junto">
+          <h4>El cliente paga desde donde esté</h4>
+          <p>
+            Abre el enlace en su celular, o se lo manda a quien le va a pagar
+            desde Estados Unidos. Elige tarjeta o Zelle. El QR sirve para
+            mostrarlo en pantalla en el mostrador.
+          </p>
+        </div>
+        <div class="paso junto">
+          <h4>Mercatren le avisa al sistema del comercio</h4>
+          <p>
+            En cuanto el pago queda confirmado, Mercatren le avisa
+            automáticamente. La factura se marca como pagada en su sistema, sin
+            que nadie tenga que revisar nada a mano.
+          </p>
+        </div>
+        <div class="paso junto">
+          <h4>El comercio recibe su dinero</h4>
+          <p>
+            Igual que hoy: entra a su cuenta de Mercatren y lo retira cuando
+            quiera, con las mismas reglas de siempre.
+          </p>
+        </div>
+      </div>
+
+      <h2>Dónde encaja la figura de Mercatren</h2>
+      <p>
+        Esto no cambia nada de lo que ya está aprobado. Cada cobro por la API es
+        exactamente la misma operación que ya hacemos:
+      </p>
+      <ul>
+        <li>El comprador paga a Mercatren LLC el precio de la operación.</li>
+        <li>Mercatren LLC le compra esa mercancía al comercio, a nombre propio.</li>
+        <li>Se la revende al comprador, con su factura.</li>
+        <li>El comercio entrega la mercancía en su local, como siempre.</li>
+      </ul>
+      <p>
+        Y en las ventas a crédito, se aplica <strong>exactamente el modelo que
+        ya aprobó el abogado</strong>: el crédito lo da el comercio, el riesgo es
+        suyo, y Mercatren le compra la mercancía correspondiente a medida que el
+        cliente abona. <strong>Ese plan no se toca</strong> — lo único que cambia
+        es que ahora los abonos también pueden entrar desde el sistema del
+        comercio, en vez de solo desde mercatren.com.
+      </p>
+    </div>
+
+    <!-- ══════════ LAS FASES ══════════ -->
+    <div class="hoja">
+      <h2>El plan, por fases</h2>
+      <p>
+        Cada fase se entrega funcionando y da valor por sí sola. Si hay que
+        parar entre una y otra, lo entregado sigue sirviendo.
+      </p>
+
+      <div class="fase">
+        <div class="cab">
+          <span class="n">Fase 1</span>
+          <span class="t">Enlace de cobro</span>
+        </div>
+        <div class="cuerpo">
+          <p style="margin-bottom:2mm">
+            El comercio pide un cobro y recibe un enlace. El cliente paga con
+            tarjeta o Zelle. Al confirmarse, el sistema del comercio se entera
+            solo.
+          </p>
+          <p style="margin-bottom:0"><strong>Incluye:</strong> la clave de acceso
+          por comercio, la orden de cobro, la pantalla de pago, el aviso de
+          vuelta y la protección contra cobros duplicados.</p>
+          <div class="meta">
+            <span><strong>Para quién:</strong> venta al detal y de contado</span>
+            <span><strong>Es la base:</strong> sin esto no hay nada más</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase">
+        <div class="cab">
+          <span class="n">Fase 2</span>
+          <span class="t">Abonos a crédito desde el sistema del comercio</span>
+        </div>
+        <div class="cuerpo">
+          <p style="margin-bottom:2mm">
+            El vendedor mayorista entrega a crédito. Cuando el cliente va a
+            abonar, el sistema del comercio pide un enlace por el monto del
+            abono, y ese abono se descuenta de la deuda en los dos lados.
+          </p>
+          <p style="margin-bottom:0"><strong>Incluye:</strong> enlazar la factura
+          del comercio con la cuenta a crédito de Mercatren, abonos parciales y
+          el aviso de cada abono confirmado.</p>
+          <div class="meta">
+            <span><strong>Para quién:</strong> venta al mayor a crédito</span>
+            <span><strong>Depende de:</strong> Fase 1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase">
+        <div class="cab">
+          <span class="n">Fase 3</span>
+          <span class="t">El catálogo entra solo</span>
+        </div>
+        <div class="cuerpo">
+          <p style="margin-bottom:2mm">
+            Los productos del sistema del comercio aparecen en Mercatren sin que
+            nadie los cargue a mano, y el inventario se mantiene al día en los
+            dos lados.
+          </p>
+          <p style="margin-bottom:0"><strong>Incluye:</strong> alta y
+          actualización de productos, existencias y precios. Buena parte ya
+          existe: hoy un comercio ya sincroniza su catálogo desde su propio
+          sistema.</p>
+          <div class="meta">
+            <span><strong>Para quién:</strong> comercios que además quieren vender en línea</span>
+            <span><strong>Se apoya en:</strong> lo ya construido</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fase">
+        <div class="cab">
+          <span class="n">Fase 4</span>
+          <span class="t">Cuadre y reportes</span>
+        </div>
+        <div class="cuerpo">
+          <p style="margin-bottom:2mm">
+            Que el comercio pueda cruzar, sin llamar a nadie, qué facturas suyas
+            se cobraron por Mercatren, cuánto entró y qué le queda por retirar.
+          </p>
+          <p style="margin-bottom:0"><strong>Incluye:</strong> consulta de
+          movimientos por rango de fechas y el estado de cada cobro. Es lo que
+          evita las llamadas de "no me cuadra el mes".</p>
+          <div class="meta">
+            <span><strong>Para quién:</strong> la administración del comercio</span>
+            <span><strong>Depende de:</strong> Fase 1 y 2</span>
+          </div>
+        </div>
+      </div>
+
+      <h2>Lo que hay que resolver bien desde el principio</h2>
+      <p>
+        No son detalles técnicos: son las cosas que, si se hacen mal, cuestan
+        dinero o confianza.
+      </p>
+
+      <table class="junto">
+        <thead>
+          <tr>
+            <th style="width:30%">Asunto</th>
+            <th style="width:70%">Por qué importa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Una clave por comercio</strong></td>
+            <td>Cada sistema conectado tiene la suya, y se puede revocar sin tocar a los demás. Si una se filtra, se apaga esa y nadie más se entera.</td>
+          </tr>
+          <tr>
+            <td><strong>No cobrar dos veces</strong></td>
+            <td>Si el sistema del comercio reintenta por un corte de internet, tiene que llegar el mismo cobro, no dos. Se resuelve con un número de referencia propio de cada factura.</td>
+          </tr>
+          <tr>
+            <td><strong>El aviso de vuelta firmado</strong></td>
+            <td>Cuando Mercatren avisa que un pago se confirmó, el sistema del comercio tiene que poder comprobar que ese aviso viene de nosotros y no de un tercero. Si no, cualquiera podría marcar facturas como pagadas.</td>
+          </tr>
+          <tr>
+            <td><strong>Reintentos del aviso</strong></td>
+            <td>Si el sistema del comercio está caído cuando se paga, el aviso se reintenta hasta que entre. Un pago cobrado que allá figura como impago es una discusión con un cliente.</td>
+          </tr>
+          <tr>
+            <td><strong>Qué pasa si no pagan</strong></td>
+            <td>Un enlace de cobro tiene que vencer. Un enlace vivo para siempre es una factura que nadie sabe si está pendiente o abandonada.</td>
+          </tr>
+          <tr>
+            <td><strong>Ambiente de pruebas</strong></td>
+            <td>El desarrollador del otro lado tiene que poder probar sin mover dinero de verdad.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══════════ DECISIONES ══════════ -->
+    <div class="hoja">
+      <h2>Lo que necesitamos decidir antes de programar</h2>
+      <table class="junto">
+        <thead>
+          <tr>
+            <th style="width:32%">Decisión</th>
+            <th style="width:36%">Qué hay que definir</th>
+            <th style="width:32%">Lo que sugerimos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Con quién se empieza</strong></td>
+            <td>Qué comercio es el primero en conectarse</td>
+            <td>Uno solo, y que esté cerca. La primera conexión enseña todo lo que falta.</td>
+          </tr>
+          <tr>
+            <td><strong>La comisión</strong></td>
+            <td>Si un cobro por la API cuesta lo mismo que uno del sitio</td>
+            <td>Lo mismo: 2% por Zelle, 2% + lo de la tarjeta con tarjeta. Sin letra chica.</td>
+          </tr>
+          <tr>
+            <td><strong>Vencimiento del enlace</strong></td>
+            <td>Cuánto dura un enlace de cobro sin usar</td>
+            <td>48 horas para contado; para abonos a crédito, hasta la fecha de vencimiento.</td>
+          </tr>
+          <tr>
+            <td><strong>Quién ve el detalle</strong></td>
+            <td>Si el enlace muestra los productos o solo el monto</td>
+            <td>El detalle. Quien paga desde Estados Unidos quiere saber qué está pagando.</td>
+          </tr>
+          <tr>
+            <td><strong>Moneda</strong></td>
+            <td>Qué pasa si el comercio factura en bolívares</td>
+            <td>El cobro por Mercatren siempre en dólares. La conversión la hace el comercio antes de pedir el cobro.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="aviso grave junto">
+        <div class="titulo">Lo que NO se toca</div>
+        <p style="margin-bottom:0">
+          Nada de lo que ya funciona en mercatren.com se modifica: ni el
+          catálogo, ni el carrito, ni los pagos, ni la validación de
+          comprobantes, ni los retiros, ni el módulo de crédito que aprobó el
+          abogado. Esto se <strong>agrega al lado</strong>, como una entrada
+          nueva al mismo sistema. Si la conexión fallara, el sitio sigue
+          funcionando igual.
+        </p>
+      </div>
+
+      <h2>Orden sugerido de trabajo</h2>
+      <ol>
+        <li>Definir las cinco decisiones de arriba</li>
+        <li>Elegir el comercio piloto y hablar con quien mantiene su sistema</li>
+        <li>Construir la Fase 1 completa, con su ambiente de pruebas</li>
+        <li>Conectar el sistema del comercio piloto y cobrar de verdad una factura</li>
+        <li>Corregir lo que aparezca — siempre aparece algo</li>
+        <li>Recién ahí, Fase 2</li>
+      </ol>
+
+      <div class="aviso bien junto">
+        <div class="titulo">Por qué empezar por el enlace de cobro</div>
+        <p style="margin-bottom:0">
+          Es lo más chico que resuelve el problema completo: el comercio cobra
+          en dólares y su cliente paga desde donde esté. Todo lo demás —
+          catálogo, abonos, reportes — es mejora sobre eso. Si por lo que sea
+          hubiera que parar después de la Fase 1, el comercio ya estaría
+          cobrando.
+        </p>
+      </div>
+
+      <div class="pie-doc">
+        Documento de trabajo preparado por Windoce LLC · Agosto 2026<br />
+        Sujeto a las decisiones pendientes listadas arriba.<br />
+        © 2026 mercatren.com | All rights reserved. Developed by Windoce LLC
+      </div>
+    </div>
+  </body>
+</html>

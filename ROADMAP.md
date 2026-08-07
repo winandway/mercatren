@@ -181,6 +181,17 @@ por WhatsApp, no por el sistema.
   Son 239 menciones: términos, privacidad, documentación, correos y el PDF del
   modelo — ese PDF lo revisó el abogado, así que pasa por él.
 
+- ⬜ **D8. API para conectar los sistemas que ya desarrollamos.** Que una
+  ferretería facture en su local y su cliente pague por Mercatren con tarjeta o
+  Zelle — clave para Venezuela, donde quien paga suele estar en Estados Unidos.
+  **El plan completo, en PDF y por fases, está en
+  `docs/mercatren-api-integraciones.pdf`** (`npm run docs:pdf-api`).
+  Cuatro fases: enlace de cobro · abonos a crédito desde su sistema · catálogo
+  automático · cuadre y reportes. **No toca nada de lo ya construido**: se
+  agrega al lado.
+  Antes de programar hacen falta cinco decisiones (con quién se empieza, la
+  comisión, el vencimiento del enlace, qué detalle se muestra y la moneda).
+
 - ⬜ **D6. Revisión automática del comercio (KYB).** Comprobar con IA que quien
   se registra es un comercio de verdad: que la identificación fiscal tenga el
   formato de su país, que el sitio web exista y hable de lo mismo, que la
