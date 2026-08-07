@@ -8,6 +8,8 @@ import {
   COMISION_TARJETA_PB,
   formatearPrecio,
   precioConAjusteCentavos,
+  ahorroPorZelleCentavos,
+  precioZelleCentavos,
 } from "@/lib/dinero";
 
 describe("formatearPrecio", () => {
@@ -152,5 +154,64 @@ describe("el precio de las variantes", () => {
     const primera = precioConAjusteCentavos(base);
     const segunda = precioConAjusteCentavos(baseDesdePublicado(primera));
     expect(segunda).toBe(primera);
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   EL PRECIO POR ZELLE — corrección urgente del 6 ago 2026
+   ══════════════════════════════════════════════════════════════════════════ */
+
+describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
+  it("por Zelle SOLO se cobra el 2%, sin el fee de la tarjeta", () => {
+    /* $100 de base: al comercio le tienen que quedar sus $100 completos y a
+       Mercatren su 2%. Nada de procesador, porque Zelle es gratis. */
+    const publicado = precioZelleCentavos(10_000);
+    expect(publicado).toBe(10_205); // $102.05
+
+    // Al comercio le queda su precio íntegro después del 2%.
+    const seLlevaMercatren = Math.round((publicado * 200) / 10_000);
+    expect(publicado - seLlevaMercatren).toBeGreaterThanOrEqual(10_000);
+  });
+
+  it("SIEMPRE es más barato que con tarjeta", () => {
+    for (const base of [1_000, 5_000, 20_000, 200_000, 1_000_000]) {
+      expect(
+        precioZelleCentavos(base),
+        `con base ${base} Zelle no salió más barato`,
+      ).toBeLessThan(precioConAjusteCentavos(base));
+    }
+  });
+
+  it("el ahorro es exactamente lo que cobraba el procesador de más", () => {
+    /* Los números que motivaron la corrección: en una compra de $2.000 el
+       cliente pagaba $62,55 de más por un servicio que no se usó. */
+    expect(ahorroPorZelleCentavos(200_000)).toBe(6_255);
+    expect(ahorroPorZelleCentavos(10_000)).toBe(342);
+  });
+
+  it("nunca deja al comercio cobrando de menos", () => {
+    /* La comprobación que de verdad importa: pase lo que pase con el redondeo,
+       al comercio le tiene que quedar su precio COMPLETO. Un centavo de menos,
+       multiplicado por miles de ventas, es dinero que alguien reclama. */
+    for (let base = 100; base <= 500_000; base += 997) {
+      const publicado = precioZelleCentavos(base);
+      const comision = Math.round((publicado * 200) / 10_000);
+      expect(
+        publicado - comision,
+        `con base ${base} al comercio le faltaría dinero`,
+      ).toBeGreaterThanOrEqual(base);
+    }
+  });
+
+  it("un precio de cero o negativo no inventa dinero", () => {
+    expect(precioZelleCentavos(0)).toBe(0);
+    expect(precioZelleCentavos(-500)).toBe(0);
+    expect(ahorroPorZelleCentavos(0)).toBe(0);
+  });
+
+  it("devuelve centavos enteros, nunca decimales", () => {
+    for (const base of [333, 1_001, 7_777, 99_999]) {
+      expect(Number.isInteger(precioZelleCentavos(base))).toBe(true);
+    }
   });
 });

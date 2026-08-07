@@ -116,6 +116,45 @@ export function baseDesdePublicado(publicadoCentavos: number): number {
   return Math.max(0, base);
 }
 
+/**
+ * EL PRECIO CUANDO SE PAGA POR ZELLE: solo el 2%, sin el fee de la tarjeta.
+ *
+ * POR QUÉ EXISTE ESTA FUNCIÓN (6 ago 2026, corrección urgente).
+ *
+ * El precio publicado lleva incorporado el 2.9% + $0.30 del procesador de
+ * tarjeta. Eso está bien cuando se paga con tarjeta — es lo que Stripe se
+ * lleva. Pero **por Zelle no interviene ningún procesador: la transferencia es
+ * gratis.** Cobrar ese porcentaje en un pago por Zelle es cobrarle al cliente
+ * el costo de un servicio que no se usó.
+ *
+ * En una compra de $2.000 eran **$62,55 de más**. En una de $100, $3,42.
+ *
+ * La cuenta es la misma de siempre, pero sin los dos términos del procesador:
+ *
+ *   V − 2%·V = base   →   V = base / 0.98
+ *
+ * Hacia atrás y con enteros, igual que la otra: el redondeo hacia arriba deja
+ * el centavo de colchón a favor, nunca en contra.
+ */
+export function precioZelleCentavos(baseCentavos: number): number {
+  if (baseCentavos <= 0) return 0;
+  return Math.ceil((baseCentavos * 10_000) / (10_000 - COMISION_ZELLE_PB));
+}
+
+/**
+ * Lo que se le ahorra el cliente pagando por Zelle en vez de con tarjeta.
+ *
+ * Se le enseña en el checkout: es un beneficio real y verlo es lo que hace que
+ * elija el método que además nos sale más barato a nosotros.
+ */
+export function ahorroPorZelleCentavos(baseCentavos: number): number {
+  if (baseCentavos <= 0) return 0;
+  return Math.max(
+    0,
+    precioConAjusteCentavos(baseCentavos) - precioZelleCentavos(baseCentavos),
+  );
+}
+
 /** El ajuste solo, para enseñárselo al comercio: "tu precio + $0.61". */
 export function ajusteCentavos(baseCentavos: number): number {
   if (baseCentavos <= 0) return 0;
@@ -123,13 +162,22 @@ export function ajusteCentavos(baseCentavos: number): number {
 }
 
 /**
- * LA COMISIÓN POR MÉTODO (decisión del 4 ago 2026).
+ * LA COMISIÓN POR MÉTODO.
  *
- * La tarjeta es el método protagonista y lleva la comisión más baja: 2%.
- * Zelle queda para montos grandes — desde $200 — y mantiene su 3% de siempre
- * (ese vive en `tiendas.comisionPuntosBase`).
+ * **Las dos son 2%.** Lo que cambia entre un método y otro no es lo que se
+ * lleva Mercatren: es lo que se lleva el procesador.
+ *
+ *   · Tarjeta — 2% de Mercatren + 2.9% + $0.30 que cobra Stripe.
+ *   · Zelle   — 2% de Mercatren y nada más. La transferencia es gratis, así
+ *               que no hay ningún costo de procesamiento que cubrir.
+ *
+ * CORREGIDO EL 6 AGO 2026. Antes el precio publicado llevaba SIEMPRE el fee de
+ * la tarjeta, se pagara como se pagara, y quien pagaba por Zelle cubría el
+ * costo de un procesador que no se había usado: $62,55 de más en una compra de
+ * $2.000. Lo levantó el dueño.
  */
 export const COMISION_TARJETA_PB = 200;
+export const COMISION_ZELLE_PB = 200;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
 /**

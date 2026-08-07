@@ -16,7 +16,12 @@ import {
   tiendas,
   variantesProducto,
 } from "@/lib/db/schema";
-import { calcularComisionCentavos, ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
+import {
+  baseDesdePublicado,
+  calcularComisionCentavos,
+  precioZelleCentavos,
+  ZELLE_MINIMO_CENTAVOS,
+} from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
 
 /**
@@ -126,6 +131,7 @@ export async function crearPedido(
       id: productos.id,
       tituloEs: productos.tituloEs,
       precioCentavos: productos.precioCentavos,
+      precioBaseCentavos: productos.precioBaseCentavos,
       moneda: productos.moneda,
       existencias: productos.existencias,
       controlaExistencias: productos.controlaExistencias,
@@ -180,9 +186,33 @@ export async function crearPedido(
       return { ok: false, mensaje: t("productoFueraDelCatalogo") };
     }
 
-    const precioUnitario = variante
+    /**
+     * EL PRECIO DEPENDE DE CÓMO SE PAGUE.
+     *
+     * El precio publicado lleva dentro el 2.9% + $0.30 del procesador de
+     * tarjeta. **Por Zelle no interviene ningún procesador: la transferencia
+     * es gratis**, así que ahí solo se cobra el 2% de Mercatren y el cliente
+     * paga menos.
+     *
+     * Antes se cobraba el precio de tarjeta se pagara como se pagara, y quien
+     * pagaba por Zelle cubría el costo de un servicio que no se usó: $62,55 de
+     * más en una compra de $2.000. Corregido el 6 ago 2026.
+     *
+     * La base sale de `precioBaseCentavos` si el producto la tiene; si no
+     * —productos viejos y los que llegaron por sincronización— se deduce del
+     * publicado, que es justo para lo que existe `baseDesdePublicado`.
+     */
+    const publicado = variante
       ? variante.precioCentavos
       : producto.precioCentavos;
+
+    const base =
+      !variante && producto.precioBaseCentavos
+        ? producto.precioBaseCentavos
+        : baseDesdePublicado(publicado);
+
+    const precioUnitario =
+      metodoPago === "zelle" ? precioZelleCentavos(base) : publicado;
     const disponibles = variante ? variante.existencias : producto.existencias;
     const controla = variante ? true : producto.controlaExistencias;
 
