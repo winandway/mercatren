@@ -48,6 +48,29 @@ por palabra la definición de **money transmission** en Estados Unidos, que exig
 licencias estatales y registro FinCEN, y es la razón por la que procesadores y
 bancos cierran cuentas. El abogado y el contable lo corrigieron el 5 ago 2026.
 
+### LA NEGACIÓN VA EN LO LEGAL, NUNCA EN LO COMERCIAL (6 ago 2026)
+
+Lo pidió el dueño y tiene razón. Son dos registros distintos y mezclarlos hace
+daño:
+
+- **Términos, privacidad, formularios de cumplimiento, el PDF para bancos** →
+  ahí la negación explícita ES precisión, no defensa. Un abogado o un oficial
+  de riesgo busca esa frase exacta, y en un contrato lo que no se dice no está.
+  Se queda como está.
+
+- **Google, la portada, la ficha de negocio, cualquier texto que lea un
+  comprador** → ahí la negación es un error. Nadie llega preguntándose si
+  administramos dinero ajeno; responder a una pregunta que nadie hizo planta
+  la sospecha uno mismo. Amazon no dice lo que no es: dice lo que es.
+
+Se escribe **qué gana cada uno**: el comprador tiene precio cerrado y un
+comercio con nombre detrás; el comercio tiene una vitrina en Estados Unidos
+sin montar operación allá. El mecanismo de compra y reventa se cuenta como
+ventaja (factura en cada paso), no como descargo.
+
+Palabras del dueño: _"no tenemos que sentir culpabilidad, al contrario,
+sentirnos orgullosos de lo que estamos haciendo"_.
+
 ### Vocabulario PROHIBIDO en todo el sitio, en los dos idiomas
 
 cobrar por cuenta de · liquidar/liquidación · custodia · retener fondos · saldo
