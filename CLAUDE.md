@@ -919,33 +919,35 @@ abrirlas, cada una en su propio trabajo y con sus pruebas:
   `Intl.NumberFormat` (nadie de fuera lo controla) y la de `middleware.ts` se
   arma con nuestra propia lista de idiomas.
 
-## OJO: los push a main NO están disparando la publicación (6 ago 2026)
+## Publicar: el push basta, pero hay que MIRAR el run (corregido 7 ago 2026)
 
-Comprobado hoy con tres commits seguidos: el push llega a GitHub —`git
-ls-remote` lo confirma— pero **el flujo `build-para-yadominios-cloud` no
-arranca solo**. Los últimos runs automáticos son de la mañana; después, solo
-corren los que se disparan a mano.
+**Los push a main sí disparan la publicación.** El 6 de agosto se anotó aquí lo
+contrario, y era una lectura equivocada: se estaba mirando `gh run list` sin
+filtrar y los runs por push no aparecían donde se los buscaba. Comprobado el 7
+de agosto con cuatro commits seguidos, los cuatro publicados solos.
 
-**Mientras esto siga así, después de cada push hay que disparar la publicación:**
+**NO dispares el flujo a mano después de un push.** El disparo manual y el del
+push caen en el mismo grupo de concurrencia, y el segundo **cancela al
+primero**: el 7 de agosto el manual salió `cancelled` a los 3 segundos. Si te
+quedas mirando ese run, parece que la publicación falló cuando en realidad la
+buena estaba corriendo al lado.
+
+**Lo que sí hay que hacer siempre: comprobar que terminó en verde antes de
+decir que algo está publicado.**
 
 ```bash
-gh workflow run build-para-yadominios-cloud --ref main
+gh run list --limit 3 --workflow=build.yml
 ```
 
-Y comprobar que terminó en verde antes de decir que algo está publicado:
+**Y después, mirar el sitio de verdad — con la caché saltada.** El run en verde
+solo dice que se compiló y se subió; el borde sigue sirviendo la página vieja
+un rato. El 7 de agosto tardó **unos 4 minutos** en propagar, y durante esos
+minutos el sitio devolvía 200 con el texto anterior. Comprobarlo sin
+cache-buster es exactamente cómo se reporta "ya está arriba" cuando no lo está:
 
 ```bash
-gh run list --limit 2 --workflow=build.yml
+curl -s -H 'Cache-Control: no-cache' "https://mercatren.com/es/nosotros?v=$RANDOM" | grep "lo que cambiaste"
 ```
-
-**Por qué importa tanto:** un push que parece subido y no publica nada es
-exactamente el fallo que ya dejó el sitio días sin recibir cambios en agosto,
-sin que nada se pusiera en rojo. Si se reporta "ya está arriba" sin mirar el
-run, se reporta algo falso.
-
-Falta averiguar la causa (¿permisos del repositorio, límite de la cuenta,
-alguna configuración de Actions?). No se investigó hoy porque había un comercio
-parado y la prioridad era publicarle el arreglo.
 
 ## Comandos
 
