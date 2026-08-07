@@ -11,8 +11,37 @@ export const ZONA = "America/New_York";
 
 type Entrada = Date | number | string | null | undefined;
 
+/**
+ * UNA FECHA SUELTA ("2026-08-07") SE ANCLA AL MEDIODÍA, no a medianoche.
+ *
+ * `new Date("2026-08-07")` es medianoche **UTC**, y al mostrarla en la zona
+ * del este —que va cuatro o cinco horas atrás— cae el día ANTERIOR. Por eso un
+ * artículo fechado el 7 de agosto salía publicado "el 6 ago 2026".
+ *
+ * Se descubrió el 7 ago 2026 al publicar una nota del blog. Afectaba a todas:
+ * cada artículo del sitio mostraba un día menos del que tiene escrito.
+ *
+ * Anclando al mediodía quedan doce horas de colchón para cada lado, así que
+ * ninguna zona horaria del mundo puede correr el día. Es el mismo truco que ya
+ * usaba `etiquetaDeClave` más abajo; lo que faltaba era aplicarlo aquí, que es
+ * por donde pasan TODAS las fechas.
+ *
+ * Solo aplica a fechas sin hora. Un instante completo ("2026-08-07T14:30:00Z")
+ * lleva su hora de verdad y se respeta tal cual.
+ */
+const SOLO_FECHA = /^(\d{4})-(\d{2})-(\d{2})$/;
+
 function aFecha(valor: Entrada): Date | null {
   if (valor === null || valor === undefined) return null;
+
+  if (typeof valor === "string") {
+    const suelta = valor.match(SOLO_FECHA);
+    if (suelta) {
+      const [, a, m, d] = suelta;
+      return new Date(Date.UTC(+a!, +m! - 1, +d!, 12));
+    }
+  }
+
   const f = valor instanceof Date ? valor : new Date(valor);
   return Number.isNaN(f.getTime()) ? null : f;
 }

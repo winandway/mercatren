@@ -94,6 +94,14 @@ const PROHIBIDAS = [
   "we pay the invoice",
   "for handling it",
   "the merchant's money",
+
+  /* Y esta, del 7 ago 2026: el centro de ayuda contestaba "¿cuánto cobra
+     Mercatren?" con "3 % sobre el valor de cada pedido cobrado". El inglés ya
+     estaba corregido y el español se quedó atrás meses, diciendo justo lo que
+     el abogado desarmó: un porcentaje retenido sobre un cobro. */
+  "sobre el valor de cada pedido",
+  "% de comisión",
+  "% commission on",
 ];
 
 /**

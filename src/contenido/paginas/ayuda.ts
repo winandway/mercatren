@@ -166,7 +166,7 @@ export const AYUDA_ES: PaginaContenido = {
             {
               titulo: "¿Cuánto cobra Mercatren?",
               texto:
-                "3 % sobre el valor de cada pedido cobrado. No hay cuota mensual ni costo de alta.",
+                "Nada. Tú pones el precio al que nos vendes y ese es el que cobras completo. El precio al que revendemos lo ponemos nosotros e incluye nuestro margen. No hay cuota mensual ni costo de alta.",
             },
             {
               titulo: "¿Tengo que cargar mis productos a mano?",

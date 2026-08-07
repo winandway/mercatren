@@ -12,6 +12,54 @@ import type { Articulo } from "./tipos";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "pagar-por-zelle-te-sale-mas-barato",
+    tipo: "novedad",
+    titulo: "You can now see how much you save paying with Zelle",
+    resumen:
+      "Your order total depends on how you pay, and checkout now shows you the difference before you confirm.",
+    fecha: "2026-08-07",
+    temas: ["news", "pricing", "zelle", "buyers"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Catalog prices have the card processing fee built in. That's right when you pay by card, because the cost is real. But Zelle has no processor: the transfer costs nothing.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Starting today, checkout calculates your total based on how you choose to pay, and tells you what you save by choosing Zelle. It used to show the card total no matter what, and the order came out cheaper after you confirmed. That's fixed.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["Total by card", "Total by Zelle", "You save"],
+        filas: [
+          ["$105.47", "$103.10", "$2.37"],
+          ["$526.08", "$515.47", "$10.61"],
+          ["$2,103.37", "$2,061.86", "$41.51"],
+        ],
+        nota: "Zelle is available on orders of $200 and up. Below that, card is the way.",
+      },
+      {
+        tipo: "subtitulo",
+        texto: "And for merchants, what you get paid doesn't change",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "You get your invoice price in full, however the buyer pays. What it costs us to collect one way or the other is on us, and it's already accounted for in the price we publish.",
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "We corrected a mismatch",
+        texto:
+          "Between August 5 and 7, sales collected through Zelle had one percentage point too much deducted from the merchant. It's fixed and the numbers line up again. If you have a sale from those days you'd like reviewed, get in touch.",
+      },
+    ],
+    enlaces: [{ texto: "How the price is built", href: "/vender/comisiones" }],
+  },
+  {
     slug: "ya-puedes-vender-a-credito",
     tipo: "novedad",
     titulo: "You can now offer credit to customers you trust",

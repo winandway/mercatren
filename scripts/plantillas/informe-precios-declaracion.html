@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Informe · Precios, declaración y lo que falta</title>
+    <style>
+      /* ───────────────────────────────────────────────────────────────────
+         TERCER DOCUMENTO PARA LA MISMA PERSONA. TIENE QUE VERSE DISTINTO
+         A LOS OTROS DOS.
+
+           · Ventas a crédito  → vertical, azul marino + naranja, todo sans.
+           · Plan de la API    → HORIZONTAL, verde, dibujos grandes.
+           · Este              → vertical, VINO + ARENA, títulos en SERIF,
+                                 con un lomo de color a la izquierda.
+
+         Y cambia también el REGISTRO, no solo el color. Los otros dos son
+         propuestas para convencer a un comercio. Este es un INFORME para
+         estudiar y para pasarle al contador: numerado, con estados, sin
+         dibujos y con una hoja final que se puede reenviar tal cual.
+         ─────────────────────────────────────────────────────────────────── */
+
+      @page { size: A4 portrait; margin: 0; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #2b2320;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* El lomo de la izquierda es la firma visual de este documento. */
+      .hoja {
+        width: 210mm; height: 297mm;
+        padding: 20mm 18mm 18mm 30mm;
+        page-break-after: always;
+        position: relative;
+        background: #fff;
+      }
+      .hoja:last-child { page-break-after: auto; }
+      .hoja::before {
+        content: "";
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 9mm; background: #6E2639;
+      }
+      .lomo {
+        position: absolute; left: 0; top: 0;
+        width: 9mm; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .lomo span {
+        transform: rotate(180deg); writing-mode: vertical-rl;
+        color: #E9CBD3; font-size: 7.5pt; letter-spacing: .22em;
+        text-transform: uppercase; font-weight: 600;
+      }
+
+      .folio {
+        position: absolute; bottom: 12mm; right: 18mm;
+        font-size: 8.5pt; color: #A3968F;
+      }
+      .folio b { color: #6E2639; }
+
+      h1, h2, h3, .serif {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 700;
+      }
+      h1 { font-size: 27pt; line-height: 1.15; color: #6E2639; }
+      h2 {
+        font-size: 17pt; color: #6E2639; line-height: 1.2;
+        padding-bottom: 3mm; border-bottom: 2px solid #6E2639;
+        margin-bottom: 5mm;
+      }
+      h2 .sec {
+        font-size: 10pt; color: #B08B95; letter-spacing: .12em;
+        display: block; text-transform: uppercase; margin-bottom: 1mm;
+        font-family: -apple-system, sans-serif; font-weight: 700;
+      }
+      h3 { font-size: 12pt; color: #2b2320; margin: 5mm 0 2mm; }
+      p { margin-bottom: 3mm; }
+      strong { color: #6E2639; }
+      .apagado { color: #6E635E; }
+
+      /* ── Portada ──────────────────────────────────────────────────── */
+      .portada { background: #FAF6F0; }
+      .portada::before { background: #6E2639; width: 9mm; }
+      .sello {
+        display: inline-block; border: 1.5px solid #6E2639; color: #6E2639;
+        font-size: 8.5pt; font-weight: 700; letter-spacing: .18em;
+        text-transform: uppercase; padding: 2mm 5mm; border-radius: 1mm;
+      }
+      .portada .resumen {
+        margin-top: 12mm; background: #fff; border-left: 4px solid #6E2639;
+        padding: 6mm 7mm; border-radius: 0 2mm 2mm 0;
+      }
+      .portada .resumen .et {
+        font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase;
+        color: #9A4257; font-weight: 700; margin-bottom: 2mm;
+      }
+      .portada .indice { margin-top: auto; }
+      .portada .indice li {
+        list-style: none; display: flex; gap: 4mm;
+        padding: 2.2mm 0; border-bottom: 1px solid #E4D9CD;
+        font-size: 10pt;
+      }
+      .portada .indice li b { color: #6E2639; width: 8mm; }
+      .portada .pie {
+        margin-top: 9mm; font-size: 9pt; color: #6E635E;
+        display: flex; justify-content: space-between;
+      }
+
+      /* ── Tablas ───────────────────────────────────────────────────── */
+      table { width: 100%; border-collapse: collapse; margin: 4mm 0; }
+      th {
+        background: #6E2639; color: #fff; font-size: 9pt; text-align: left;
+        padding: 2.8mm 3mm; font-weight: 600;
+      }
+      td {
+        padding: 2.8mm 3mm; border-bottom: 1px solid #E4D9CD;
+        font-size: 9.5pt; vertical-align: top;
+      }
+      tr:nth-child(even) td { background: #FBF8F4; }
+      td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+      .chip {
+        display: inline-block; font-size: 8pt; font-weight: 700;
+        padding: .8mm 2.4mm; border-radius: 1.2mm; white-space: nowrap;
+      }
+      .si  { background: #E3F1E9; color: #2E7D57; }
+      .ojo { background: #FCF0DC; color: #8A5B10; }
+      .no  { background: #FBE4E1; color: #A03A2E; }
+
+      /* ── Avisos ───────────────────────────────────────────────────── */
+      .aviso {
+        border: 1.5px solid #E4D9CD; border-left: 5px solid #6E2639;
+        background: #FBF8F4; padding: 5mm 6mm; border-radius: 0 2mm 2mm 0;
+        margin: 5mm 0;
+      }
+      .aviso .tit {
+        font-family: Georgia, serif; font-weight: 700; font-size: 11.5pt;
+        color: #6E2639; margin-bottom: 2mm;
+      }
+      .aviso.alerta { border-left-color: #A03A2E; background: #FDF3F1; }
+      .aviso.alerta .tit { color: #A03A2E; }
+
+      ul.puntos { margin: 2mm 0 3mm 5mm; }
+      ul.puntos li { margin-bottom: 1.8mm; font-size: 10pt; }
+
+      .cita {
+        font-family: Georgia, serif; font-style: italic;
+        color: #6E635E; font-size: 10pt;
+        border-left: 3px solid #E4D9CD; padding-left: 4mm; margin: 3mm 0;
+      }
+
+      .dos { display: flex; gap: 6mm; }
+      .dos > div { flex: 1; }
+
+      .ficha {
+        border: 1.5px solid #E4D9CD; border-radius: 2mm;
+        padding: 5mm; background: #fff;
+      }
+      .ficha .n {
+        font-family: Georgia, serif; font-size: 20pt; color: #6E2639;
+        line-height: 1;
+      }
+      .ficha .t { font-size: 9pt; color: #6E635E; margin-top: 1.5mm; }
+
+      .pregunta {
+        border-top: 1px solid #E4D9CD; padding: 4mm 0;
+      }
+      .pregunta:first-of-type { border-top: none; }
+      .pregunta .q {
+        font-family: Georgia, serif; font-size: 12pt; font-weight: 700;
+        color: #6E2639; margin-bottom: 1.5mm;
+      }
+      .pregunta .por { font-size: 9.5pt; color: #6E635E; }
+    </style>
+  </head>
+
+  <body>
+    <!-- ═══════════════ 1 · PORTADA ═══════════════ -->
+    <section class="hoja portada" style="display:flex; flex-direction:column">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+
+      <span class="sello">Informe interno · No circular</span>
+
+      <h1 style="margin-top:10mm">
+        Los precios,<br />lo que se declara<br />y lo que falta
+      </h1>
+
+      <p class="apagado" style="margin-top:5mm; font-size:12pt; max-width:140mm">
+        Qué se cambió el 7 de agosto de 2026, qué se encontró roto al hacerlo,
+        y qué queda pendiente antes de que esto crezca.
+      </p>
+
+      <div class="resumen">
+        <div class="et">En una frase</div>
+        <p style="margin:0; font-size:11pt">
+          Se corrigió el precio por Zelle a <strong>3 %</strong> y, al hacerlo,
+          apareció que <strong>al comercio se le estaba descontando un punto de
+          más en cada venta por esa vía</strong>. Eso ya está arreglado y
+          publicado. La forma de declarar es correcta y no hay que cambiarla —
+          lo que falta es emitir las facturas y resolver el impuesto a la venta.
+        </p>
+      </div>
+
+      <ul class="indice" style="margin-top:14mm">
+        <li><b>1</b><span>La decisión: 2 % con tarjeta, 3 % por Zelle</span></li>
+        <li><b>2</b><span>Lo que estaba mal, y ya está corregido</span></li>
+        <li><b>3</b><span>¿Declaramos como se debe? La comparación</span></li>
+        <li><b>4</b><span>Lo que falta, y quién lo decide</span></li>
+        <li><b>5</b><span>Mercatren LLC: en qué punto está</span></li>
+        <li><b>6</b><span>Hoja para el contador</span></li>
+      </ul>
+
+      <div class="pie">
+        <span>Preparado el 7 de agosto de 2026</span>
+        <span>Mercatren · Windoce, LLC</span>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 2 · LA DECISIÓN ═══════════════ -->
+    <section class="hoja">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+      <h2><span class="sec">Sección uno</span>La decisión: 2 % con tarjeta, 3 % por Zelle</h2>
+
+      <p>
+        Hasta el 6 de agosto las dos vías cobraban 2 %. La corrección del 7 de
+        agosto separa una de la otra, y el motivo no es el porcentaje en sí
+        sino <strong>qué hay detrás de cada cobro</strong>.
+      </p>
+
+      <table>
+        <tr>
+          <th style="width:26%">Forma de pago</th>
+          <th style="width:16%">Nuestro margen</th>
+          <th style="width:22%">Procesador</th>
+          <th>Qué trabajo lleva</th>
+        </tr>
+        <tr>
+          <td><strong>Tarjeta</strong></td>
+          <td class="num">2 %</td>
+          <td>2.9 % + $0.30</td>
+          <td>Ninguno. El dinero entra solo y el pedido se marca pagado sin que nadie lo toque.</td>
+        </tr>
+        <tr>
+          <td><strong>Zelle</strong></td>
+          <td class="num">3 %</td>
+          <td>Ninguno</td>
+          <td>Una persona del equipo comprueba cada comprobante contra el banco antes de acreditarlo. Ese punto de diferencia es ese trabajo.</td>
+        </tr>
+      </table>
+
+      <h3>Y aun así, por Zelle el comprador paga menos</h3>
+      <p>
+        Es lo que hace que la vía barata para nosotros sea también la barata
+        para él. El 2.9 % + $0.30 del procesador pesa más que el punto de
+        diferencia del margen:
+      </p>
+
+      <table>
+        <tr>
+          <th>Precio del comercio</th>
+          <th>Publicado con tarjeta</th>
+          <th>Publicado por Zelle</th>
+          <th>El comprador se ahorra</th>
+        </tr>
+        <tr>
+          <td class="num">$100.00</td><td class="num">$105.47</td>
+          <td class="num">$103.10</td><td class="num">$2.37</td>
+        </tr>
+        <tr>
+          <td class="num">$500.00</td><td class="num">$526.08</td>
+          <td class="num">$515.47</td><td class="num">$10.61</td>
+        </tr>
+        <tr>
+          <td class="num">$2,000.00</td><td class="num">$2,103.37</td>
+          <td class="num">$2,061.86</td><td class="num">$41.51</td>
+        </tr>
+      </table>
+      <p class="apagado" style="font-size:9pt">
+        El comercio cobra su precio completo en las dos columnas. Lo que cambia
+        es el precio final, no lo que él recibe.
+      </p>
+
+      <div class="aviso">
+        <div class="tit">La regla que hay que respetar de aquí en adelante</div>
+        <p style="margin:0">
+          El porcentaje que <strong>se le cobra al comprador</strong> dentro del
+          precio y el que <strong>se le descuenta al comercio</strong> al
+          acreditarle tienen que ser el mismo número. Si un día se cambia uno,
+          se cambia el otro. Estuvieron distintos dos días y nadie lo vio,
+          porque la diferencia no aparece en ninguna pantalla: solo se nota
+          sumando muchas ventas.
+        </p>
+      </div>
+
+      <div class="folio">Sección 1 · <b>2</b></div>
+    </section>
+
+    <!-- ═══════════════ 3 · LO QUE ESTABA MAL ═══════════════ -->
+    <section class="hoja">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+      <h2><span class="sec">Sección dos</span>Lo que estaba mal, y ya está corregido</h2>
+
+      <p>
+        Al tocar el precio salieron cinco cosas. Las cinco están arregladas y
+        publicadas en mercatren.com, comprobadas en el sitio en vivo.
+      </p>
+
+      <table>
+        <tr>
+          <th style="width:14%">Gravedad</th>
+          <th>Qué pasaba</th>
+        </tr>
+        <tr>
+          <td><span class="chip no">Dinero</span></td>
+          <td>
+            <strong>Por Zelle el precio cubría 2 %, pero al comercio se le
+            descontaba 3 %.</strong> Ese punto salía de su bolsillo en cada
+            venta, desde el 5 de agosto. No aparecía en ninguna pantalla.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="chip no">Legal</span></td>
+          <td>
+            <strong>La página «Quiénes somos» seguía describiendo el modelo
+            viejo</strong>, en español y en inglés, con las palabras exactas que
+            el abogado desarmó el 5 de agosto. Es la página que abre un banco
+            cuando quiere saber quiénes somos.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="chip ojo">Escudo</span></td>
+          <td>
+            El control automático que vigila ese vocabulario
+            <strong>no lo detectaba</strong>, y una de las frases se salvaba
+            <em>porque negaba</em>. Se le agregaron las formas que faltaban.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="chip ojo">Confianza</span></td>
+          <td>
+            <strong>El checkout mostraba el total de tarjeta aunque eligieras
+            Zelle</strong>, y el pedido salía más barato después de confirmar.
+            Aunque la sorpresa fuera a favor, un total que cambia se lee como un
+            error del sitio.
+          </td>
+        </tr>
+        <tr>
+          <td><span class="chip ojo">Contable</span></td>
+          <td>
+            Los cobros con tarjeta <strong>no llevaban el desglose</strong> de
+            qué parte es ingreso y qué parte es costo, ni un nombre reconocible
+            en el estado de cuenta del comprador.
+          </td>
+        </tr>
+      </table>
+
+      <h3>Lo que se hizo para que no vuelvan</h3>
+      <ul class="puntos">
+        <li>
+          El número de la comisión <strong>ya no se escribe en dos sitios</strong>:
+          la base de datos lo toma del mismo lugar que el precio, y hay un
+          control que rompe la compilación si alguien vuelve a teclearlo a mano.
+        </li>
+        <li>
+          El vigilante de vocabulario ahora incluye las frases que se le
+          escaparon, y una lista aparte de palabras que
+          <strong>no se salvan ni negándolas</strong> en páginas comerciales.
+        </li>
+        <li>
+          Cada cobro de Stripe lleva pegado su desglose: ingreso bruto, costo de
+          la mercancía y margen. Y el comprador ve <strong>MERCATREN</strong> en
+          su estado de cuenta.
+        </li>
+      </ul>
+
+      <div class="folio">Sección 2 · <b>3</b></div>
+    </section>
+
+    <!-- ═══════════════ 4 · LA COMPARACIÓN ═══════════════ -->
+    <section class="hoja">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+      <h2><span class="sec">Sección tres</span>¿Declaramos como se debe?</h2>
+
+      <p>
+        Se contrastó punto por punto el criterio contable habitual para este
+        tipo de tienda con lo que el sistema hace hoy de verdad.
+      </p>
+
+      <table>
+        <tr>
+          <th>El criterio</th>
+          <th style="width:13%">¿Igual?</th>
+          <th style="width:38%">Cómo estamos</th>
+        </tr>
+        <tr>
+          <td>Declarar los <strong>$103 completos</strong> como ingreso bruto</td>
+          <td><span class="chip si">Sí</span></td>
+          <td>Es el modelo que dejó el abogado. Quien vende es la sociedad.</td>
+        </tr>
+        <tr>
+          <td>Ser el responsable de la operación ante el banco y el procesador</td>
+          <td><span class="chip si">Sí</span></td>
+          <td>El cobro entra a nombre nuestro, no del comercio.</td>
+        </tr>
+        <tr>
+          <td>Los <strong>$100 al comercio</strong> como costo de mercancía deducible</td>
+          <td><span class="chip ojo">Casi</span></td>
+          <td>
+            En el fondo sí, pero no es inmediato: se le acredita y sale cuando
+            él lo pide. Contablemente el costo nace con la venta.
+          </td>
+        </tr>
+        <tr>
+          <td>Pagar impuesto <strong>solo sobre los $3</strong></td>
+          <td><span class="chip si">Sí</span></td>
+          <td>Esa resta la hace la declaración de la sociedad, no el procesador.</td>
+        </tr>
+        <tr>
+          <td>No declarar solo los $3, porque el descuadre dispara la auditoría</td>
+          <td><span class="chip si">Sí</span></td>
+          <td>Es exactamente el motivo por el que se declara el bruto.</td>
+        </tr>
+        <tr>
+          <td>Usar <strong>pago dividido</strong> del procesador para separarlo solo</td>
+          <td><span class="chip no">No</span></td>
+          <td><strong>Y no se debe hacer.</strong> Ver abajo.</td>
+        </tr>
+      </table>
+
+      <div class="aviso alerta">
+        <div class="tit">El pago dividido nos rompería el modelo entero</div>
+        <p>
+          Suena a comodidad: que el procesador reparta solo el dinero y nos deje
+          nuestra parte. Pero con eso se le está diciendo al fisco que
+          <strong>el dinero es del comercio y nosotros cobramos una comisión por
+          moverlo</strong>. El reporte del bruto le saldría al comercio y a
+          nosotros solo el de la comisión.
+        </p>
+        <p style="margin:0">
+          Esa es, palabra por palabra, la figura de intermediario que se desarmó
+          el 5 de agosto y por la que los bancos cierran cuentas. Aquí se compra
+          y se revende: el cobro entero es nuestro y lo que se le paga al
+          comercio es un costo aparte.
+        </p>
+      </div>
+
+      <div class="cita">
+        Y algo que conviene tener claro: el procesador nunca separa nada para el
+        fisco. Siempre reporta el total que entró. La separación la hace el
+        contador restando el costo de la mercancía.
+      </div>
+
+      <div class="folio">Sección 3 · <b>4</b></div>
+    </section>
+
+    <!-- ═══════════════ 5 · LO QUE FALTA ═══════════════ -->
+    <section class="hoja">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+      <h2><span class="sec">Sección cuatro</span>Lo que falta, y quién lo decide</h2>
+
+      <table>
+        <tr>
+          <th>Qué falta</th>
+          <th style="width:36%">Por qué importa</th>
+          <th style="width:18%">Quién decide</th>
+        </tr>
+        <tr>
+          <td><strong>El sistema no emite ninguna factura</strong> — ni la de compra al proveedor ni la de venta al comprador</td>
+          <td>Es el corazón del modelo y el sitio ya lo promete. Hoy solo hay un comprobante interno que dice en el propio papel que no es la factura.</td>
+          <td>Desarrollo</td>
+        </tr>
+        <tr>
+          <td><strong>Los pagos por Zelle no pasan por el procesador</strong></td>
+          <td>Entran directo al banco, así que ningún reporte del procesador los cubre. La contabilidad tiene que recogerlos aparte o falta la mayor parte del ingreso.</td>
+          <td>El contador</td>
+        </tr>
+        <tr>
+          <td><strong>Impuesto a la venta</strong> (sales tax): hoy va en cero fijo</td>
+          <td>Vender mercancía a compradores en Estados Unidos puede generar obligación según el estado. No es una decisión técnica.</td>
+          <td>El contador</td>
+        </tr>
+        <tr>
+          <td><strong>No hay reporte de cierre</strong> que sume bruto, costo y margen de un período</td>
+          <td>El desglose ya viaja en cada cobro, pero alguien tiene que sumarlo a fin de año.</td>
+          <td>Desarrollo</td>
+        </tr>
+        <tr>
+          <td>En el código y la base todavía se llama <strong>«billetera» y «saldo»</strong></td>
+          <td>Esas palabras describen custodia de dinero ajeno. Lo que de verdad es: una cuenta por pagar al proveedor.</td>
+          <td>Desarrollo</td>
+        </tr>
+        <tr>
+          <td><strong>Términos y condiciones</strong> sin revisión legal</td>
+          <td>Ya estaba anotado desde antes. Siguen a nombre de Windoce, LLC.</td>
+          <td>El abogado</td>
+        </tr>
+      </table>
+
+      <div class="aviso">
+        <div class="tit">Si hubiera que elegir uno solo, es la factura</div>
+        <p style="margin:0">
+          Todo el modelo se sostiene sobre «dos facturas por venta»: la de
+          compra al proveedor y la de venta al comprador. El sitio lo dice, los
+          términos lo dicen y el documento que revisó el abogado lo dice. Que el
+          sistema todavía no las genere es la distancia más grande que hay hoy
+          entre lo que se promete y lo que se hace.
+        </p>
+      </div>
+
+      <div class="folio">Sección 4 · <b>5</b></div>
+    </section>
+
+    <!-- ═══════════════ 6 · MERCATREN LLC ═══════════════ -->
+    <section class="hoja">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+      <h2><span class="sec">Sección cinco</span>Mercatren LLC: en qué punto está</h2>
+
+      <div class="dos" style="margin-bottom:5mm">
+        <div class="ficha">
+          <div class="n">En revisión</div>
+          <div class="t">Estado del expediente al 7 de agosto de 2026. Presentado, no aprobado.</div>
+        </div>
+        <div class="ficha">
+          <div class="n">2 estados</div>
+          <div class="t">Windoce, LLC está en Delaware. El expediente nuevo es de otro estado.</div>
+        </div>
+      </div>
+
+      <p>
+        El expediente presentado es el formulario de constitución de una
+        sociedad de responsabilidad limitada doméstica, y figura
+        <strong>«pendiente de revisión»</strong>. Está pagado y radicado, pero
+        todavía no hay certificado.
+      </p>
+
+      <h3>Dos cosas que hay que atender cuando llegue</h3>
+      <ul class="puntos">
+        <li>
+          <strong>Van a quedar en estados distintos.</strong> De ahí cuelgan el
+          domicilio fiscal, el agente registrado y lo que dicen los términos.
+          Hay que confirmarlo con el certificado en la mano antes de tocar una
+          línea del sitio.
+        </li>
+        <li>
+          <strong>La compuerta sigue en pie</strong>, tal como se decidió: el
+          sitio no cambia de nombre hasta que el banco, el procesador de pagos y
+          la ficha de comercio de Google estén a nombre de Mercatren LLC.
+        </li>
+      </ul>
+
+      <div class="aviso alerta">
+        <div class="tit">Por qué no se adelanta el cambio de nombre</div>
+        <p style="margin:0">
+          Si el sitio dice un nombre y el cargo aparece con otro en el estado de
+          cuenta del comprador, eso son reclamos y contracargos. Cada uno cuesta
+          la venta, la comisión y una multa del procesador. Es más barato
+          esperar el certificado que corregirlo después.
+        </p>
+      </div>
+
+      <p class="apagado" style="font-size:9.5pt">
+        Mientras tanto, todo el texto publicado sigue diciendo Windoce, LLC y
+        está bien así. Son más de doscientas menciones entre los términos, la
+        privacidad, la documentación pública, los correos y el documento que
+        revisó el abogado — y ese documento pasa por él antes de tocarse.
+      </p>
+
+      <div class="folio">Sección 5 · <b>6</b></div>
+    </section>
+
+    <!-- ═══════════════ 7 · PARA EL CONTADOR ═══════════════ -->
+    <section class="hoja" style="background:#FAF6F0">
+      <div class="lomo"><span>Mercatren · Informe interno</span></div>
+      <h2><span class="sec">Sección seis</span>Hoja para el contador</h2>
+
+      <p class="apagado" style="margin-bottom:5mm">
+        Esta hoja se puede reenviar tal cual. Son las cuatro preguntas que hoy
+        no puede contestar el equipo técnico.
+      </p>
+
+      <div style="background:#fff; border:1.5px solid #E4D9CD; border-radius:2mm; padding:6mm 7mm">
+        <div class="pregunta">
+          <div class="q">1. Los cobros que no pasan por el procesador</div>
+          <div class="por">
+            La mayor parte del volumen entra por transferencia bancaria directa,
+            no por la pasarela de tarjetas. Ningún reporte del procesador los
+            cubre. ¿Cómo los recogemos para que el ingreso declarado cuadre con
+            lo que entró al banco?
+          </div>
+        </div>
+
+        <div class="pregunta">
+          <div class="q">2. El impuesto a la venta</div>
+          <div class="por">
+            Vendemos mercancía por cuenta propia a compradores en Estados
+            Unidos. Hoy el sistema no cobra sales tax en ningún pedido.
+            ¿Corresponde? ¿Desde qué estado y a partir de qué volumen?
+          </div>
+        </div>
+
+        <div class="pregunta">
+          <div class="q">3. Cuándo nace el costo de la mercancía</div>
+          <div class="por">
+            La venta al comprador y el pago al proveedor no ocurren el mismo
+            día: se le acredita y sale cuando lo pide. ¿El costo se reconoce con
+            la venta o con el pago? De eso depende cómo cierra cada período.
+          </div>
+        </div>
+
+        <div class="pregunta">
+          <div class="q">4. La factura de compra</div>
+          <div class="por">
+            El modelo se sostiene sobre dos facturas por operación: la de compra
+            al proveedor y la de venta al comprador. ¿Qué tiene que llevar cada
+            una, como mínimo, para que la figura de reventa se sostenga en una
+            revisión?
+          </div>
+        </div>
+      </div>
+
+      <div class="aviso" style="background:#fff">
+        <div class="tit">El dato que hace falta para responderlas</div>
+        <p style="margin:0">
+          Cada cobro con tarjeta ya lleva pegado su desglose:
+          <strong>ingreso bruto</strong>, <strong>costo de la mercancía</strong>
+          y <strong>margen</strong>. No cambia un centavo de lo que se cobra ni
+          de lo que el procesador reporta — es el papel de trabajo, pegado a la
+          operación que describe.
+        </p>
+      </div>
+
+      <div class="folio">Sección 6 · <b>7</b></div>
+    </section>
+  </body>
+</html>

@@ -12,6 +12,54 @@ import type { Articulo } from "./tipos";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "pagar-por-zelle-te-sale-mas-barato",
+    tipo: "novedad",
+    titulo: "Ahora ves cuánto te ahorras pagando por Zelle",
+    resumen:
+      "El total del pedido cambia según cómo pagues, y el checkout ya te enseña la diferencia antes de que confirmes.",
+    fecha: "2026-08-07",
+    temas: ["novedades", "precios", "zelle", "compradores"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Los precios del catálogo llevan incorporado lo que cobra el procesador de tarjetas. Es correcto cuando pagas con tarjeta, porque ese costo existe de verdad. Pero por Zelle no hay procesador: la transferencia no cuesta nada.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Desde hoy el checkout calcula el total según la forma de pago que elijas, y te dice cuánto te ahorras si eliges Zelle. Antes te mostraba siempre el total de tarjeta y el pedido salía más barato después de confirmar; eso ya no pasa.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["Total con tarjeta", "Total por Zelle", "Te ahorras"],
+        filas: [
+          ["$105.47", "$103.10", "$2.37"],
+          ["$526.08", "$515.47", "$10.61"],
+          ["$2,103.37", "$2,061.86", "$41.51"],
+        ],
+        nota: "Zelle está disponible en compras desde $200. Por debajo de eso, la tarjeta es la vía.",
+      },
+      {
+        tipo: "subtitulo",
+        texto: "Y para los comercios, lo que cobras no cambia",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Tú cobras el precio de tu factura, completo, se pague como se pague. El costo de cobrar por una vía o por otra corre por nuestra cuenta y ya está considerado en el precio que publicamos.",
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Corregimos un desajuste",
+        texto:
+          "Entre el 5 y el 7 de agosto, en las ventas cobradas por Zelle se descontaba un punto porcentual de más al comercio. Ya está corregido y las cuentas vuelven a cuadrar. Si tienes una venta de esos días y quieres revisarla, escríbenos.",
+      },
+    ],
+    enlaces: [{ texto: "Cómo se forma el precio", href: "/vender/comisiones" }],
+  },
+  {
     slug: "ya-puedes-vender-a-credito",
     tipo: "novedad",
     titulo: "Ya puedes darle crédito a tus clientes de confianza",
