@@ -1096,3 +1096,131 @@ export const aceptaciones = sqliteTable(
   },
   (t) => [index("idx_aceptaciones_usuario").on(t.userId)],
 );
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VENTAS A CRÉDITO DEL COMERCIO A SU CLIENTE
+   ══════════════════════════════════════════════════════════════════════════
+
+   Aprobado por el abogado del proyecto en agosto de 2026. El documento que se
+   aprobó está en `docs/mercatren-ventas-a-credito.pdf`.
+
+   LA FIGURA, QUE ES LO QUE MANDA SOBRE TODO EL DISEÑO:
+
+   **El crédito lo da EL COMERCIO y el riesgo es suyo.** Él decide a quién, de
+   cuánto y a cuántos días; él entrega la mercancía bajo su propio acuerdo con
+   su cliente. Windoce, LLC no presta dinero ni sale de garante — no puede:
+   prestar en Estados Unidos exige licencias de prestamista.
+
+   Lo que hace Mercatren es, en cada abono, **comprarle al comercio la parte de
+   mercancía correspondiente y pagársela**. Cada abono es una compra-venta
+   cerrada, y por eso Windoce, LLC nunca financia nada: sigue comprando y
+   revendiendo, que es su figura de siempre.
+
+   POR QUÉ SON TABLAS NUEVAS Y NO COLUMNAS EN `pedidos`:
+
+   `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que una tabla nueva
+   llega sola a producción en la siguiente publicación. Una columna nueva en una
+   tabla que YA existe, no — hay que aplicar el ALTER a mano, y si a alguien se
+   le olvida, la pantalla revienta con 500 en producción. Ya pasó el 5 ago 2026
+   con `deposito_id`. Con tablas aparte, ese riesgo no existe.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+export const ESTADOS_CREDITO = ["activo", "suspendido"] as const;
+
+/**
+ * El cupo que un comercio le da a UNO de sus clientes.
+ *
+ * No es saldo ni dinero: es un TOPE. "Hasta aquí puedes comprarme sin pagar de
+ * contado". Lo que se va debiendo se calcula de los pedidos, no se guarda aquí
+ * — un número de deuda guardado a mano se desincroniza el día que algo falla a
+ * la mitad, y entonces nadie sabe cuál es el bueno.
+ */
+export const creditosCliente = sqliteTable(
+  "creditos_cliente",
+  {
+    id: text("id").primaryKey(),
+    /** Qué comercio da el crédito. */
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    /** A qué cliente suyo. */
+    clienteId: text("cliente_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** El tope, en centavos enteros. Nunca decimales. */
+    topeCentavos: integer("tope_centavos").notNull().default(0),
+    /** Cuántos días tiene para pagar cada compra. */
+    diasPlazo: integer("dias_plazo").notNull().default(30),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_CREDITO)[number]>()
+      .notNull()
+      .default("activo"),
+    /**
+     * QUIÉN LO ACTIVÓ Y CUÁNDO.
+     *
+     * Dar cupo es una decisión de dinero: tiene que quedar firmada. Si mañana
+     * hay una discusión sobre cuánto se le autorizó a alguien, esto es la
+     * respuesta.
+     */
+    activadoPorId: text("activado_por_id").references(() => user.id),
+    /** Nota privada del comercio: qué documentos pidió, qué acordaron. */
+    notaInterna: text("nota_interna"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /* UN SOLO CUPO POR PAREJA comercio-cliente. Sin esto, dos activaciones
+       seguidas dejarían dos cupos y nadie sabría cuál manda. */
+    uniqueIndex("idx_credito_tienda_cliente").on(t.tiendaId, t.clienteId),
+    index("idx_credito_tienda").on(t.tiendaId),
+    index("idx_credito_cliente").on(t.clienteId),
+  ],
+);
+
+export const ESTADOS_PEDIDO_CREDITO = ["abierto", "pagado", "vencido"] as const;
+
+/**
+ * Marca un pedido como comprado a crédito, y le pone fecha de vencimiento.
+ *
+ * Va uno a uno con el pedido. Lo abonado NO se guarda aquí: se suma de los
+ * pagos confirmados de ese pedido. Guardar un total que también se puede
+ * calcular es tener dos verdades, y el día que no coincidan hay que adivinar
+ * cuál vale.
+ */
+export const pedidosCredito = sqliteTable(
+  "pedidos_credito",
+  {
+    pedidoId: text("pedido_id")
+      .primaryKey()
+      .references(() => pedidos.id, { onDelete: "cascade" }),
+    creditoId: text("credito_id")
+      .notNull()
+      .references(() => creditosCliente.id, { onDelete: "cascade" }),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    clienteId: text("cliente_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** El total que quedó a deber al comprar. Se congela: es el acuerdo. */
+    totalCentavos: integer("total_centavos").notNull(),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_PEDIDO_CREDITO)[number]>()
+      .notNull()
+      .default("abierto"),
+    venceEn: integer("vence_en", { mode: "timestamp" }).notNull(),
+    saldadoEn: integer("saldado_en", { mode: "timestamp" }),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_pedcredito_tienda").on(t.tiendaId),
+    index("idx_pedcredito_cliente").on(t.clienteId),
+    index("idx_pedcredito_estado").on(t.estado),
+  ],
+);

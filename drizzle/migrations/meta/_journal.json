@@ -50,6 +50,13 @@
       "when": 1785963267240,
       "tag": "0006_true_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1786059706419,
+      "tag": "0007_cynical_exodus",
+      "breakpoints": true
     }
   ]
 }

@@ -424,17 +424,56 @@ CREATE TABLE IF NOT EXISTS `aceptaciones` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_aceptaciones_usuario` ON `aceptaciones` (`user_id`);
+-- ── Tablas (0007_cynical_exodus.sql) ──
+CREATE TABLE IF NOT EXISTS `creditos_cliente` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`tope_centavos` integer DEFAULT 0 NOT NULL,
+	`dias_plazo` integer DEFAULT 30 NOT NULL,
+	`estado` text DEFAULT 'activo' NOT NULL,
+	`activado_por_id` text,
+	`nota_interna` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`activado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_credito_tienda_cliente` ON `creditos_cliente` (`tienda_id`,`cliente_id`);
+CREATE INDEX IF NOT EXISTS `idx_credito_tienda` ON `creditos_cliente` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_credito_cliente` ON `creditos_cliente` (`cliente_id`);
+CREATE TABLE IF NOT EXISTS `pedidos_credito` (
+	`pedido_id` text PRIMARY KEY NOT NULL,
+	`credito_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`total_centavos` integer NOT NULL,
+	`estado` text DEFAULT 'abierto' NOT NULL,
+	`vence_en` integer NOT NULL,
+	`saldado_en` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`credito_id`) REFERENCES `creditos_cliente`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_pedcredito_tienda` ON `pedidos_credito` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_pedcredito_cliente` ON `pedidos_credito` (`cliente_id`);
+CREATE INDEX IF NOT EXISTS `idx_pedcredito_estado` ON `pedidos_credito` (`estado`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1785982770, 1785982770)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786059788, 1786059788)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1785982770)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786059788)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──

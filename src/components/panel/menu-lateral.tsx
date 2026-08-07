@@ -2,6 +2,7 @@
 
 import {
   ArrowUpRight,
+  CreditCard,
   BookOpen,
   Languages,
   LayoutDashboard,
@@ -59,6 +60,9 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       },
       // Cada comercio ve SUS clientes; el equipo, todos.
       { href: "/panel/clientes", clave: "clientes", Icono: Users },
+      /* A quién le fía y cuánto le deben. El crédito lo da el comercio con su
+         propio riesgo; aquí solo lleva la cuenta. */
+      { href: "/panel/creditos", clave: "creditos", Icono: CreditCard },
       // Las CUENTAS del sistema, que no es lo mismo que los compradores.
       {
         href: "/panel/usuarios",
