@@ -176,42 +176,48 @@
         marca como pagada sola.
       </p>
 
-      <!-- El dibujo del flujo, grande y sin una palabra técnica -->
-      <svg viewBox="0 0 900 200" style="width:100%; max-width:235mm; margin-top:4mm">
+      <!-- El dibujo del flujo. LO IMPORTANTE ES QUE SE VEA QUE ES SOLO:
+           si parece que el comercio tiene que mandar el enlace a mano, lo lee
+           como trabajo extra y se le quitan las ganas. -->
+      <svg viewBox="0 0 940 215" style="width:100%; max-width:242mm; margin-top:3mm">
         <defs>
           <marker id="p" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
             <path d="M0 0 L10 5 L0 10 z" fill="#1D9E75" />
           </marker>
         </defs>
 
-        <rect x="2" y="45" width="180" height="95" rx="12" fill="#fff" stroke="#9FE1CB" stroke-width="2"/>
-        <text x="92" y="80" text-anchor="middle" font-size="17" font-weight="700" fill="#0F6E56">Tu local</text>
-        <text x="92" y="103" text-anchor="middle" font-size="13" fill="#4e6b63">haces la factura</text>
-        <text x="92" y="121" text-anchor="middle" font-size="13" fill="#4e6b63">como siempre</text>
+        <rect x="2" y="42" width="176" height="98" rx="12" fill="#fff" stroke="#9FE1CB" stroke-width="2"/>
+        <text x="90" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="#0F6E56">Tu empleado</text>
+        <text x="90" y="94" text-anchor="middle" font-size="12.5" fill="#4e6b63">hace la factura</text>
+        <text x="90" y="112" text-anchor="middle" font-size="12.5" fill="#4e6b63">como todos los días</text>
 
-        <path d="M188 92 L246 92" stroke="#1D9E75" stroke-width="3" marker-end="url(#p)"/>
+        <path d="M184 91 L236 91" stroke="#1D9E75" stroke-width="3" marker-end="url(#p)"/>
 
-        <rect x="254" y="45" width="180" height="95" rx="12" fill="#0F6E56"/>
-        <text x="344" y="80" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Un enlace</text>
-        <text x="344" y="103" text-anchor="middle" font-size="13" fill="#C9E8DD">se lo pasas a</text>
-        <text x="344" y="121" text-anchor="middle" font-size="13" fill="#C9E8DD">quien va a pagar</text>
+        <rect x="244" y="42" width="176" height="98" rx="12" fill="#fff" stroke="#1D9E75" stroke-width="2.5"/>
+        <text x="332" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="#0F6E56">Toca un botón</text>
+        <text x="332" y="94" text-anchor="middle" font-size="12.5" fill="#4e6b63">«Cobrar por</text>
+        <text x="332" y="112" text-anchor="middle" font-size="12.5" fill="#4e6b63">Mercatren»</text>
 
-        <path d="M440 92 L498 92" stroke="#1D9E75" stroke-width="3" marker-end="url(#p)"/>
+        <path d="M426 91 L478 91" stroke="#1D9E75" stroke-width="3" marker-end="url(#p)"/>
 
-        <rect x="506" y="45" width="180" height="95" rx="12" fill="#fff" stroke="#9FE1CB" stroke-width="2"/>
-        <text x="596" y="80" text-anchor="middle" font-size="17" font-weight="700" fill="#0F6E56">Paga</text>
-        <text x="596" y="103" text-anchor="middle" font-size="13" fill="#4e6b63">con tarjeta</text>
-        <text x="596" y="121" text-anchor="middle" font-size="13" fill="#4e6b63">o por Zelle</text>
+        <rect x="486" y="42" width="196" height="98" rx="12" fill="#0F6E56"/>
+        <text x="584" y="70" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">El sistema hace</text>
+        <text x="584" y="90" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">todo lo demás</text>
+        <text x="584" y="112" text-anchor="middle" font-size="12" fill="#9FE1CB">abre la cuenta y manda el correo</text>
+        <text x="584" y="128" text-anchor="middle" font-size="12" fill="#9FE1CB">con el enlace de pago</text>
 
-        <path d="M692 92 L750 92" stroke="#1D9E75" stroke-width="3" marker-end="url(#p)"/>
+        <path d="M688 91 L740 91" stroke="#1D9E75" stroke-width="3" marker-end="url(#p)"/>
 
-        <rect x="758" y="45" width="140" height="95" rx="12" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2.5"/>
-        <text x="828" y="80" text-anchor="middle" font-size="17" font-weight="700" fill="#0F6E56">Cobrado</text>
-        <text x="828" y="103" text-anchor="middle" font-size="13" fill="#0F6E56">y tu sistema</text>
-        <text x="828" y="121" text-anchor="middle" font-size="13" fill="#0F6E56">se entera solo</text>
+        <rect x="748" y="42" width="190" height="98" rx="12" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2.5"/>
+        <text x="843" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="#0F6E56">Le llega y paga</text>
+        <text x="843" y="94" text-anchor="middle" font-size="12.5" fill="#0F6E56">con tarjeta o Zelle,</text>
+        <text x="843" y="112" text-anchor="middle" font-size="12.5" fill="#0F6E56">desde donde esté</text>
 
-        <text x="450" y="185" text-anchor="middle" font-size="13" fill="#6E9A8D">
-          Tu forma de vender no cambia. Solo se suma una forma más de cobrar.
+        <text x="470" y="180" text-anchor="middle" font-size="14" font-weight="600" fill="#0F6E56">
+          Tu gente no tiene que llamar a nadie ni mandar nada por su cuenta.
+        </text>
+        <text x="470" y="200" text-anchor="middle" font-size="13" fill="#6E9A8D">
+          El correo con el enlace sale solo, en el mismo momento en que se hace la factura.
         </text>
       </svg>
 
@@ -245,12 +251,12 @@
         <div class="caja">
           <h3><span class="glifo">✅</span> Lo que pasaría con esto</h3>
           <ul>
-            <li>Haces la factura en tu sistema, igual que siempre.</li>
-            <li>Eliges cobrar por Mercatren.</li>
-            <li>Te sale un enlace y un código para mostrar en pantalla.</li>
-            <li>Se lo mandas por WhatsApp a quien va a pagar.</li>
-            <li>Esa persona abre el enlace y paga con su tarjeta o por Zelle.</li>
-            <li>Listo. Tu factura queda pagada y el dinero entra a tu cuenta de Mercatren.</li>
+            <li>Tu empleado hace la factura, igual que todos los días.</li>
+            <li>Toca el botón «Cobrar por Mercatren».</li>
+            <li>El sistema le abre la cuenta al cliente, si no la tenía.</li>
+            <li><strong>El correo con el enlace sale solo</strong>, en ese mismo momento.</li>
+            <li>Quien va a pagar lo abre y paga con tarjeta o por Zelle.</li>
+            <li>Tu factura queda pagada y el dinero entra a tu cuenta de Mercatren.</li>
           </ul>
         </div>
       </div>
@@ -258,9 +264,9 @@
       <div class="nota verde">
         <div class="tit">Lo que ganas</div>
         <p>
-          Cobras en dólares sin abrir nada en Estados Unidos, sin cambiar tu
-          sistema y sin pedirle a nadie que aprenda algo nuevo. Tu cliente
-          resuelve el pago desde el celular, en dos minutos.
+          Cobras en dólares sin abrir nada en Estados Unidos y <strong>sin que tu
+          gente haga un paso de más</strong>: no llaman a nadie, no mandan nada,
+          no persiguen a nadie. Aprietan un botón y el sistema se encarga.
         </p>
       </div>
 
@@ -277,32 +283,32 @@
         <div class="parada">
           <div class="riel"></div>
           <div class="bolita">1</div>
-          <h4>Haces la factura</h4>
-          <p>En tu punto de venta, con tus precios y tus descuentos de siempre. Nada cambia.</p>
+          <h4>Tu empleado hace la factura</h4>
+          <p>Igual que todos los días, con sus precios y sus descuentos. No aprende nada nuevo.</p>
         </div>
         <div class="parada">
           <div class="riel"></div>
           <div class="bolita">2</div>
-          <h4>Eliges cobrar por Mercatren</h4>
-          <p>Aparece como una forma de pago más, al lado de efectivo y pago móvil.</p>
+          <h4>Toca un botón nuevo</h4>
+          <p>«Cobrar por Mercatren», al lado de efectivo y pago móvil. Eso es todo lo que cambia.</p>
         </div>
         <div class="parada">
           <div class="riel"></div>
           <div class="bolita">3</div>
-          <h4>Sale el enlace</h4>
-          <p>Con el monto y el detalle de lo que se lleva. También un código para mostrar en pantalla.</p>
+          <h4>La cuenta se abre sola</h4>
+          <p>Si el cliente no tenía cuenta en Mercatren, se le crea en ese momento con los datos de tu factura.</p>
         </div>
         <div class="parada">
           <div class="riel"></div>
           <div class="bolita">4</div>
-          <h4>Lo mandas por WhatsApp</h4>
-          <p>A tu cliente, o directamente a quien le va a pagar desde Estados Unidos.</p>
+          <h4>El correo sale solo</h4>
+          <p>Con el enlace de pago y el detalle. Nadie tiene que mandarlo, ni llamar, ni recordárselo a nadie.</p>
         </div>
         <div class="parada">
           <div class="riel"></div>
           <div class="bolita">5</div>
-          <h4>Pagan</h4>
-          <p>Con tarjeta o por Zelle. Ven exactamente qué están pagando antes de dar el sí.</p>
+          <h4>El cliente paga</h4>
+          <p>Abre el correo y paga con tarjeta o Zelle, desde su casa o desde Estados Unidos.</p>
         </div>
         <div class="parada">
           <div class="bolita">6</div>
@@ -321,11 +327,11 @@
           </p>
         </div>
         <div class="caja suave">
-          <h3><span class="glifo">🧾</span> Lo que ve quien paga</h3>
+          <h3><span class="glifo">📩</span> Le llega por correo</h3>
           <p style="font-size:10.5pt; margin:0">
-            El nombre de tu comercio, qué se está comprando y cuánto es. Nada
-            de pagar a ciegas: quien está en Estados Unidos quiere saber para
-            qué es la plata antes de soltarla.
+            Con el nombre de tu comercio, qué se compró y cuánto es. Si quien
+            paga es otra persona —un hijo en Estados Unidos, un socio— tu
+            cliente le reenvía ese mismo correo y listo.
           </p>
         </div>
       </div>
@@ -334,9 +340,61 @@
       <span class="numero-lamina">3</span>
     </section>
 
+    <!-- ══════════════════ NUEVA · EL BOTÓN EN LAS DOS VENTAS ══════════════════ -->
+    <section class="lamina centrada">
+      <h2><span class="num">3</span>Lo único nuevo: un botón</h2>
+      <p class="bajada">
+        Ni una pantalla nueva, ni un programa aparte, ni un paso de más. Solo
+        una forma de cobro más en el sitio donde tu gente ya trabaja.
+      </p>
+
+      <div class="fila">
+        <div class="caja">
+          <h3><span class="glifo">🏪</span> En la venta al mostrador</h3>
+          <p style="font-size:10pt; color:#4e6b63; margin-bottom:3mm">
+            El cliente está parado al frente y no consigue cómo pagar.
+          </p>
+          <ul>
+            <li>La cajera arma la venta como siempre.</li>
+            <li>A la hora de cobrar, además de efectivo y pago móvil, ve <strong>«Cobrar por Mercatren»</strong>.</li>
+            <li>Lo toca y sigue atendiendo al que viene atrás.</li>
+            <li><strong>El correo con el enlace ya salió</strong>, al cliente o a quien él indique.</li>
+            <li>Cuando entra el pago, la factura se marca pagada y el galpón puede entregar.</li>
+          </ul>
+        </div>
+
+        <div class="caja">
+          <h3><span class="glifo">📱</span> En la venta al mayor</h3>
+          <p style="font-size:10pt; color:#4e6b63; margin-bottom:3mm">
+            El vendedor está en la calle, con su celular.
+          </p>
+          <ul>
+            <li>Arma el pedido y escoge al cliente, igual que hoy.</li>
+            <li>Marca si es de contado o a crédito, con sus días.</li>
+            <li>Toca <strong>«Cobrar por Mercatren»</strong> y sigue con el próximo cliente.</li>
+            <li><strong>El correo sale solo</strong> con el enlace por el monto que toque: el total, o el abono si es a crédito.</li>
+            <li>Él no llama a nadie ni persigue a nadie: cuando el cliente paga, lo ve en su pantalla.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nota verde">
+        <div class="tit">Que quede claro, porque es lo que más se malentiende</div>
+        <p>
+          <strong>Nadie de tu equipo tiene que mandar el enlace, ni buscar el
+          teléfono de nadie, ni avisar que lo mandó.</strong> Todo eso lo hace el
+          sistema en el mismo segundo. Tu gente aprieta un botón y sigue
+          trabajando exactamente como hoy.
+        </p>
+      </div>
+
+      <span class="marca-lamina">Cobra por Mercatren desde tu sistema</span>
+      <span class="numero-lamina">4</span>
+    </section>
+
     <!-- ══════════════════ 4 · LO QUE NO CAMBIA ══════════════════ -->
     <section class="lamina centrada">
-      <h2><span class="num">3</span>Todo lo tuyo se queda como está</h2>
+      <h2><span class="num">4</span>Todo lo tuyo se queda como está</h2>
       <p class="bajada">
         Esto se suma a tu sistema. No lo reemplaza, no lo modifica y no le quita
         nada.
@@ -387,12 +445,12 @@
       </div>
 
       <span class="marca-lamina">Cobra por Mercatren desde tu sistema</span>
-      <span class="numero-lamina">4</span>
+      <span class="numero-lamina">5</span>
     </section>
 
     <!-- ══════════════════ 5 · POR ETAPAS ══════════════════ -->
     <section class="lamina centrada">
-      <h2><span class="num">4</span>Se hace por etapas</h2>
+      <h2><span class="num">5</span>Se hace por etapas</h2>
       <p class="bajada">
         Cada etapa se entrega funcionando. Si hubiera que parar entre una y
         otra, lo entregado te sigue sirviendo igual.
@@ -464,12 +522,12 @@
       </div>
 
       <span class="marca-lamina">Cobra por Mercatren desde tu sistema</span>
-      <span class="numero-lamina">5</span>
+      <span class="numero-lamina">6</span>
     </section>
 
     <!-- ══════════════════ 6 · LO QUE FALTA DECIDIR ══════════════════ -->
     <section class="lamina">
-      <h2><span class="num">5</span>Lo que necesitamos que nos digas</h2>
+      <h2><span class="num">6</span>Lo que necesitamos que nos digas</h2>
       <p class="bajada">
         Cinco cosas. No son técnicas: son decisiones tuyas, y de ellas depende
         cómo se construye.
@@ -515,7 +573,7 @@
         Documento de trabajo · Agosto 2026 · Sujeto a las decisiones de arriba<br />
         © 2026 mercatren.com | All rights reserved. Developed by Windoce LLC
       </div>
-      <span class="numero-lamina">6</span>
+      <span class="numero-lamina">7</span>
     </section>
   </body>
 </html>
