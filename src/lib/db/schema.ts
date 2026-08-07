@@ -1237,3 +1237,185 @@ export const pedidosCredito = sqliteTable(
     index("idx_pedcredito_estado").on(t.estado),
   ],
 );
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FACTURACIÓN — las dos facturas de cada venta (7 ago 2026)
+
+   El modelo se sostiene sobre esto: en cada operación hay una factura de
+   COMPRA (el proveedor nos vende) y una de VENTA (nosotros le vendemos al
+   comprador). El sitio lo dice, los términos lo dicen y el documento que
+   revisó el abogado lo dice. Hasta hoy el sistema no emitía ninguna.
+
+   TABLAS NUEVAS, NO COLUMNAS. `schema.sql` solo trae CREATE TABLE IF NOT
+   EXISTS, así que una base que ya existe no recibe columnas nuevas y la
+   pantalla revienta con 500 (pasó el 5 ago con `deposito_id`).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * EL CONTADOR DE CADA SERIE DE DOCUMENTOS.
+ *
+ * POR QUÉ UNA TABLA Y NO `COUNT(*) + 1`, que es como se numeran los pedidos:
+ *
+ * Un correlativo de facturas **no puede saltar ni repetir**. Es lo primero que
+ * mira una revisión. `COUNT(*) + 1` falla en las dos cosas: si dos ventas se
+ * confirman en el mismo instante, las dos cuentan lo mismo y piden el mismo
+ * número; y si alguna vez se borra una fila, el siguiente número repite uno ya
+ * emitido.
+ *
+ * Aquí el número se pide con un `UPDATE ... SET ultimo = ultimo + 1 RETURNING`,
+ * que en SQLite es una sola operación atómica: dos peticiones a la vez reciben
+ * números distintos, siempre, sin bloqueos ni reintentos.
+ *
+ * En los pedidos se dejó `COUNT(*)` como estaba a propósito: un hueco en la
+ * numeración de pedidos no le importa a nadie, y cambiarlo tocaría código que
+ * hoy funciona.
+ */
+export const seriesDocumento = sqliteTable("series_documento", {
+  /** `factura_venta` · `orden_compra`. */
+  id: text("id").primaryKey(),
+  prefijo: text("prefijo").notNull(),
+  /** El último número YA emitido. El siguiente es este + 1. */
+  ultimo: integer("ultimo").notNull().default(0),
+});
+
+export const TIPOS_FACTURA = ["venta"] as const;
+
+/**
+ * LA FACTURA DE VENTA: Windoce, LLC al comprador.
+ *
+ * SE EMITE CUANDO EL PAGO QUEDA CONFIRMADO, no al crear el pedido. Un pedido
+ * sin pagar no es una venta y no puede tener factura.
+ *
+ * LOS DATOS DE LAS PARTES SE COPIAN, no se apuntan. Si mañana la sociedad
+ * cambia de nombre o el comprador de dirección, la factura vieja tiene que
+ * seguir diciendo lo que decía el día que se emitió. Por eso `emisor_*` y
+ * `receptor_*` son texto congelado y no una referencia.
+ *
+ * UNA VEZ EMITIDA NO SE TOCA. Si hay que corregir, se emite una nota de
+ * crédito; jamás se edita el documento ni se reusa su número.
+ */
+export const facturas = sqliteTable(
+  "facturas",
+  {
+    id: text("id").primaryKey(),
+    /** Correlativo sin huecos: MT-F-000001. */
+    numero: text("numero").notNull().unique(),
+    tipo: text("tipo")
+      .$type<(typeof TIPOS_FACTURA)[number]>()
+      .notNull()
+      .default("venta"),
+    pedidoId: text("pedido_id")
+      .notNull()
+      .references(() => pedidos.id),
+    clienteId: text("cliente_id")
+      .notNull()
+      .references(() => user.id),
+
+    /* Quién emite, congelado. */
+    emisorNombre: text("emisor_nombre").notNull(),
+    emisorIdentificacion: text("emisor_identificacion"),
+    emisorDireccion: text("emisor_direccion"),
+
+    /* Quién recibe, congelado. */
+    receptorNombre: text("receptor_nombre").notNull(),
+    receptorCorreo: text("receptor_correo"),
+    receptorDireccion: text("receptor_direccion"),
+
+    subtotalCentavos: integer("subtotal_centavos").notNull(),
+    impuestosCentavos: integer("impuestos_centavos").notNull().default(0),
+    totalCentavos: integer("total_centavos").notNull(),
+    moneda: text("moneda").notNull().default("USD"),
+    /** El idioma de la cuenta del comprador el día que se emitió. */
+    idioma: text("idioma").notNull().default("es"),
+
+    emitidaEn: integer("emitida_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /* Un pedido tiene UNA factura de venta. Es la barrera que hace que emitir
+       dos veces —porque Stripe reintentó el aviso— no cree dos documentos. */
+    uniqueIndex("idx_facturas_pedido").on(t.pedidoId),
+    index("idx_facturas_cliente").on(t.clienteId),
+    index("idx_facturas_emitida").on(t.emitidaEn),
+  ],
+);
+
+/** Los renglones de la factura, copiados del pedido y congelados con él. */
+export const lineasFactura = sqliteTable(
+  "lineas_factura",
+  {
+    id: text("id").primaryKey(),
+    facturaId: text("factura_id")
+      .notNull()
+      .references(() => facturas.id, { onDelete: "cascade" }),
+    descripcion: text("descripcion").notNull(),
+    cantidad: real("cantidad").notNull().default(1),
+    precioUnitarioCentavos: integer("precio_unitario_centavos").notNull(),
+    subtotalCentavos: integer("subtotal_centavos").notNull(),
+  },
+  (t) => [index("idx_lineas_factura").on(t.facturaId)],
+);
+
+export const ESTADOS_ORDEN_COMPRA = ["emitida", "facturada"] as const;
+
+/**
+ * LA ORDEN DE COMPRA: Windoce, LLC al comercio.
+ *
+ * OJO CON LA DIFERENCIA, que es la que hace que esto sea correcto: **la
+ * factura de compra la emite el COMERCIO, no nosotros.** No se puede fabricar
+ * un documento a nombre de otro. Lo que sí podemos —y es lo que hoy le falta
+ * al comercio para poder facturarnos— es emitirle la orden de compra con todo
+ * lo que necesita, y guardar su factura contra ella.
+ *
+ * Un pedido con productos de tres comercios genera TRES órdenes, una por cada
+ * uno: cada comercio nos vende lo suyo y nos factura lo suyo.
+ *
+ * EL MONTO ES LO QUE SE LE PAGA AL COMERCIO — el subtotal menos el margen de
+ * Mercatren, que es exactamente lo que se le acredita. Si aquí figurara el
+ * precio publicado, la orden diría que le compramos por más de lo que le
+ * pagamos, y eso no cuadra con nada.
+ *
+ * Los renglones NO se copian: salen de `items_pedido`, que ya guarda el título
+ * y el precio congelados al momento de comprar. Copiarlos otra vez sería tener
+ * dos verdades.
+ */
+export const ordenesCompra = sqliteTable(
+  "ordenes_compra",
+  {
+    id: text("id").primaryKey(),
+    /** Correlativo sin huecos: MT-OC-000001. */
+    numero: text("numero").notNull().unique(),
+    pedidoId: text("pedido_id")
+      .notNull()
+      .references(() => pedidos.id),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id),
+
+    /** Lo que se le paga al comercio: subtotal − margen de Mercatren. */
+    subtotalCentavos: integer("subtotal_centavos").notNull(),
+    moneda: text("moneda").notNull().default("USD"),
+
+    estado: text("estado")
+      .$type<(typeof ESTADOS_ORDEN_COMPRA)[number]>()
+      .notNull()
+      .default("emitida"),
+
+    /* La factura que sube el comercio contra esta orden. */
+    facturaProveedorNumero: text("factura_proveedor_numero"),
+    facturaProveedorClave: text("factura_proveedor_clave"),
+    facturadaEn: integer("facturada_en", { mode: "timestamp" }),
+
+    emitidaEn: integer("emitida_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /* Un comercio tiene UNA orden por pedido. Misma barrera que arriba: si el
+       aviso de pago llega dos veces, la segunda no crea nada. */
+    uniqueIndex("idx_oc_pedido_tienda").on(t.pedidoId, t.tiendaId),
+    index("idx_oc_tienda").on(t.tiendaId),
+    index("idx_oc_estado").on(t.estado),
+  ],
+);

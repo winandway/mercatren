@@ -74,6 +74,14 @@ export const esquemaEntorno = z.object({
   ZELLE_CORREO_RECEPTOR: z.string().email().optional(),
   ZELLE_NOMBRE_RECEPTOR: z.string().optional(),
 
+  /* QUIÉN EMITE LAS FACTURAS. Son datos de registro público, no secretos —
+     van en el entorno para que el día que la sociedad pase a Mercatren LLC se
+     cambien sin tocar código, y para no tener el domicilio fiscal escrito en
+     un repositorio público. Si faltan, la factura sale con el nombre de la
+     sociedad y sin esos renglones; nunca inventa una dirección. */
+  EMISOR_IDENTIFICACION: z.string().optional(),
+  EMISOR_DIRECCION: z.string().optional(),
+
   // Los correos del sistema.
   CLOUDFLARE_EMAIL_TOKEN: z.string().optional(),
   CORREO_REMITENTE: z.string().optional(),

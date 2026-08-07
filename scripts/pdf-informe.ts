@@ -12,9 +12,11 @@ import { chromium } from "playwright";
  * comercio, este es un informe para estudiar y para reenviarle una hoja al
  * contador.
  *
- * Por eso vuelve al VERTICAL (el de la API es horizontal) pero cambia todo lo
- * demás: vino en vez de azul o verde, títulos en serif en vez de sans, un lomo
- * de color a la izquierda, y cero dibujos.
+ * Se distingue por lo demás: vino en vez de azul o verde, títulos en serif en
+ * vez de sans, un lomo de color a la izquierda, y cero dibujos.
+ *
+ * HORIZONTAL, como todos los PDF desde el 7 ago 2026. Estos documentos se leen
+ * en pantalla, no impresos: en vertical hay que hacer zoom y subir y bajar.
  *
  *   npm run docs:pdf-informe
  */
@@ -33,6 +35,8 @@ async function main() {
   await pagina.pdf({
     path: DESTINO,
     format: "A4",
+    // Horizontal: se lee en pantalla, no impreso en papel.
+    landscape: true,
     // Sin esto Chromium imprime en blanco y negro, como una impresora vieja.
     printBackground: true,
     margin: { top: "0", right: "0", bottom: "0", left: "0" },

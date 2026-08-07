@@ -45,6 +45,15 @@ interface CloudflareEnv {
   ZELLE_NOMBRE_RECEPTOR?: string;
 
   /**
+   * Quien emite las facturas de venta. Datos de registro publico, no secretos:
+   * van en el entorno para poder cambiarlos el dia que la sociedad pase a
+   * Mercatren LLC sin tocar codigo, y para no tener el domicilio fiscal
+   * escrito en un repositorio publico.
+   */
+  EMISOR_IDENTIFICACION?: string;
+  EMISOR_DIRECCION?: string;
+
+  /**
    * Envio de correos del sistema, con el servicio propio de Mercatren
    * (Cloudflare Email Sending). El remitente debe ser @mercatren.com: el
    * dominio entero esta autorizado y firmado.

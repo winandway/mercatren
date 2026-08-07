@@ -204,6 +204,17 @@ async function acreditarPagoConTarjeta(
     ]);
   }
 
+  /* LAS DOS FACTURAS. Va aquí, después de acreditar, porque una venta solo
+     existe cuando el pago está confirmado. Y en su propio try: si emitir
+     falla, el pago queda acreditado igual — un documento se puede volver a
+     emitir, un cobro no se puede volver a cobrar. */
+  try {
+    const { emitirDocumentosDeVenta } = await import("@/lib/facturas/emitir");
+    await emitirDocumentosDeVenta(pedidoId);
+  } catch (e) {
+    console.error("[stripe] pago acreditado; la factura no salio:", e);
+  }
+
   // Los avisos, al final y sin que puedan tumbar nada.
   try {
     const [cliente] = await db

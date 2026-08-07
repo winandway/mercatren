@@ -246,6 +246,19 @@ export async function aprobarPago(id: string): Promise<Resultado> {
 
   revalidatePath("/[locale]/panel", "layout");
 
+  /* LAS DOS FACTURAS. Aquí es donde una venta por Zelle pasa a ser una venta:
+     el validador comprobó el pago contra el banco. Va en su propio try — si
+     emitir falla, el pago sigue acreditado. Un documento se vuelve a emitir;
+     un cobro aprobado no se deshace. */
+  if (pago.pedidoId) {
+    try {
+      const { emitirDocumentosDeVenta } = await import("@/lib/facturas/emitir");
+      await emitirDocumentosDeVenta(pago.pedidoId);
+    } catch (e) {
+      console.error("[zelle] pago aprobado; la factura no salio:", e);
+    }
+  }
+
   // Los avisos salen despues de acreditar y nunca lo deshacen: al cliente,
   // que su compra fue aprobada; al comercio, que el neto entro a su saldo.
   const { correoCompraAprobada, correoVentaAcreditada } =

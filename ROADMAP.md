@@ -3,6 +3,11 @@
 Todo lo que falta para abrir al público, en un solo lugar. **Este documento no
 se borra ni se reescribe: se va marcando.**
 
+> **Ojo — hay un plan aparte, y ahora mismo manda ese.** `PLAN.md` recoge lo
+> que salió del informe del 7 ago 2026 (facturas, cierre del período, impuesto
+> a la venta y el renombre de «billetera»). Es lo que hay que cerrar antes de
+> actualizar al equipo, y va primero. Este mapa sigue valiendo para el resto.
+
 - ✅ = hecho y verificado en el sitio publicado
 - ⬜ = pendiente
 - 🔒 = bloqueado esperando algo (dice esperando qué)

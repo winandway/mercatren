@@ -828,6 +828,39 @@ checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
 Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
 le deben.
 
+## Las dos facturas de cada venta (7 ago 2026 · Fase 1 de `PLAN.md`)
+
+El modelo se sostiene sobre esto y hasta hoy el sistema no emitía nada. Ahora,
+**cuando un pago queda confirmado** —por Stripe o al aprobar un comprobante de
+Zelle— se emiten solos:
+
+- **La factura de venta** (`facturas` + `lineas_factura`), de Windoce, LLC al
+  comprador. La emitimos nosotros.
+- **Una orden de compra por comercio** (`ordenes_compra`). **La factura de
+  compra la emite el COMERCIO, no nosotros** — no se fabrica un documento a
+  nombre de otro. Lo que hacemos es darle la orden con todo lo que necesita
+  para facturarnos, y guardar su factura contra ella.
+
+**El monto de la orden es lo que se le PAGA al comercio** (subtotal − margen),
+no el precio publicado. Si figurara el publicado, diría que le compramos por
+más de lo que le pagamos.
+
+**El correlativo NO sale de `COUNT(*)`.** Los pedidos sí lo usan y está bien
+ahí; una factura no puede saltar ni repetir. El número se toma con
+`UPDATE series_documento SET ultimo = ultimo + 1 ... RETURNING`, que en SQLite
+es una sola operación atómica — dos confirmaciones a la vez reciben números
+distintos. Comprobado contra la base local, no solo en pruebas.
+
+**Los datos de las partes se copian, no se apuntan.** Si mañana la sociedad
+cambia de nombre, la factura vieja tiene que seguir diciendo lo que decía.
+
+**Emitir nunca tumba un pago:** va en su propio `try`, después de acreditar. Un
+documento se vuelve a emitir; un cobro no se vuelve a cobrar.
+
+Quién emite sale de `EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION` (variables de
+entorno, no código: el día que la sociedad pase a Mercatren LLC se cambian sin
+tocar nada). Si faltan, sale el nombre solo — **nunca inventa una dirección**.
+
 ## El blog y la documentación
 
 `/blog` (novedades) y `/docs/<slug>` (documentación) salen del **mismo motor**:
