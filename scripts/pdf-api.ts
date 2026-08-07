@@ -26,6 +26,10 @@ async function main() {
   await pagina.pdf({
     path: DESTINO,
     format: "A4",
+    /* HORIZONTAL, y es lo primero que se nota. Al comercio ya le mandamos el
+       documento de ventas a crédito en vertical; si este llega con la misma
+       cara, el ojo lo reconoce y el cerebro lo saltea — "esto ya lo vi". */
+    landscape: true,
     // Sin esto Chromium imprime en blanco y negro, como una impresora vieja.
     printBackground: true,
     margin: { top: "0", right: "0", bottom: "0", left: "0" },
