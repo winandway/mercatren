@@ -1,5 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileText } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -10,6 +10,7 @@ import { FormularioComprobante } from "@/components/pago/formulario-comprobante"
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
+import { tieneFactura } from "@/lib/facturas/consultas";
 import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
 
 export const dynamic = "force-dynamic";
@@ -42,11 +43,13 @@ export default async function PaginaPedido({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("pedido");
+  const tf = await getTranslations("factura");
   const datos = await obtenerPedidoPropio(numero);
 
   if (!datos) notFound();
 
   const { pedido, renglones, pago } = datos;
+  const hayFactura = await tieneFactura(pedido.id);
   const direccion = pedido.direccionEntrega as {
     nombre?: string;
     pais?: string;
@@ -93,6 +96,19 @@ export default async function PaginaPedido({
       <p className="mt-1 text-xs text-tinta-suave">
         {fechaHora(pedido.creadoEn, idioma)}
       </p>
+
+      {/* La factura existe solo cuando el pago está confirmado. Se pregunta en
+          vez de suponerlo por el estado: si algún día la emisión falla, el
+          enlace no puede llevar a un 404. */}
+      {hayFactura ? (
+        <Link
+          href={`/factura/${pedido.numero}`}
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium underline"
+        >
+          <FileText className="h-4 w-4" aria-hidden />
+          {tf("verFactura")}
+        </Link>
+      ) : null}
 
       {/* Que se compro */}
       <section className="mt-6 rounded-xl border border-borde">

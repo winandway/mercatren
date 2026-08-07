@@ -17,7 +17,20 @@ import { and, eq } from "drizzle-orm";
  *    reenviado por error no puede terminar mostrando el banco de alguien.
  */
 
-const PRIVADOS = "comprobantes/";
+/**
+ * Los prefijos que NO son públicos, y quién puede ver cada uno.
+ *
+ *  - `comprobantes/` — la captura del banco de una persona. Solo quien hizo
+ *    ese pedido y el equipo.
+ *  - `facturas-compra/` — la factura que nos manda un comercio. Solo ESE
+ *    comercio y el equipo. Lleva sus datos fiscales y sus precios de compra:
+ *    que la vea un competidor es exactamente lo que no puede pasar.
+ */
+const PRIVADOS = ["comprobantes/", "facturas-compra/"] as const;
+
+function esPrivado(ruta: string) {
+  return PRIVADOS.some((prefijo) => ruta.startsWith(prefijo));
+}
 
 export async function GET(
   _peticion: Request,
@@ -30,7 +43,7 @@ export async function GET(
     return new Response("No encontrado", { status: 404 });
   }
 
-  if (ruta.startsWith(PRIVADOS) && !(await puedeVerComprobante(ruta))) {
+  if (esPrivado(ruta) && !(await puedeVerlo(ruta))) {
     // Se responde "no existe" en vez de "no puedes": asi no se confirma
     // siquiera que el archivo esta ahi.
     return new Response("No encontrado", { status: 404 });
@@ -47,7 +60,7 @@ export async function GET(
     "content-type":
       archivo.httpMetadata?.contentType ?? "application/octet-stream",
     etag: archivo.httpEtag,
-    "cache-control": ruta.startsWith(PRIVADOS)
+    "cache-control": esPrivado(ruta)
       ? "private, max-age=0, must-revalidate"
       : "public, max-age=31536000, immutable",
   });
@@ -59,12 +72,15 @@ export async function GET(
 }
 
 /**
- * Solo el dueno del pedido y el equipo de Mercatren.
+ * Quien puede ver un archivo privado.
  *
- * La ruta de un comprobante es `comprobantes/<id del pedido>/<archivo>`, asi
- * que basta con mirar de quien es ese pedido: una sola consulta, sin cruces.
+ * Cada prefijo lleva el id de su dueno en la propia ruta, asi que basta una
+ * consulta por archivo, sin cruces:
+ *
+ *   comprobantes/<id del pedido>/<archivo>      → el dueno de ese pedido
+ *   facturas-compra/<id de la tienda>/<archivo> → esa tienda
  */
-async function puedeVerComprobante(ruta: string) {
+async function puedeVerlo(ruta: string) {
   // TODO LO DE AQUI FALLA HACIA "NO". Si algo revienta —la sesion no se puede
   // leer, la base no responde— la respuesta es que no, y arriba se contesta
   // 404. Un error tecnico jamas puede terminar en un 500 sobre la ruta de los
@@ -76,14 +92,24 @@ async function puedeVerComprobante(ruta: string) {
 
     if (await esEquipoInterno()) return true;
 
-    const pedidoId = ruta.split("/")[1];
-    if (!pedidoId) return false;
+    const duenno = ruta.split("/")[1];
+    if (!duenno) return false;
 
     const db = getDb();
+
+    /* La factura de compra: solo el comercio que la subió. Se comprueba
+       contra el alcance de la sesión, no contra la ruta — así un vendedor no
+       puede leer la de otro cambiando el enlace a mano. */
+    if (ruta.startsWith("facturas-compra/")) {
+      const { obtenerAlcance } = await import("@/lib/autorizacion");
+      const alcance = await obtenerAlcance();
+      return alcance.tipo === "tienda" && alcance.tiendaId === duenno;
+    }
+
     const [suyo] = await db
       .select({ id: pedidos.id })
       .from(pedidos)
-      .where(and(eq(pedidos.id, pedidoId), eq(pedidos.clienteId, usuario.id)))
+      .where(and(eq(pedidos.id, duenno), eq(pedidos.clienteId, usuario.id)))
       .limit(1);
 
     return Boolean(suyo);

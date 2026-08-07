@@ -352,7 +352,8 @@
       "validacionComercio": "Under review",
       "retiros": "Withdrawals",
       "diccionario": "Dictionary",
-      "creditos": "Credit"
+      "creditos": "Credit",
+      "ordenesCompra": "Purchase orders"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1191,6 +1192,33 @@
       "cancelar": "Cancel",
       "avisoLegal": "By setting a limit you confirm the credit agreement is between your business and your customer. Mercatren tracks it and collects the payments, but does not lend money or guarantee payment.",
       "sinClientes": "You don't have customers to give credit to yet. They show up here after their first purchase."
+    },
+    "ordenesCompra": {
+      "titulo": "Purchase orders",
+      "entradilla": "Every sale we pay you generates a purchase order. Upload your invoice against it and the pair is complete.",
+      "vacio": "No purchase orders yet.",
+      "pendientes": "{n, plural, =0 {All invoiced} one {# waiting for your invoice} other {# waiting for your invoice}}",
+      "columna": {
+        "orden": "Order",
+        "pedido": "Sale",
+        "comercio": "Merchant",
+        "monto": "We pay you",
+        "fecha": "Issued",
+        "estado": "Status"
+      },
+      "estado": {
+        "emitida": "Invoice needed",
+        "facturada": "Invoiced"
+      },
+      "adjuntar": "Upload my invoice",
+      "numeroFactura": "Your invoice number",
+      "archivo": "File (PDF or photo)",
+      "enviar": "Save",
+      "enviando": "Saving…",
+      "verArchivo": "View invoice",
+      "soloPendientes": "Only the ones missing",
+      "todas": "All",
+      "porQue": "Without your invoice there's a purchase with nothing backing it in the books. It's the document that closes the transaction."
     }
   },
   "catalogo": {
@@ -1840,5 +1868,22 @@
     "publicado": "Published {fecha}",
     "documentacion": "Documentation",
     "novedad": "News"
+  },
+  "factura": {
+    "titulo": "Invoice {numero}",
+    "volver": "Back to my order",
+    "descargar": "Download",
+    "documento": "Sales invoice",
+    "para": "Billed to",
+    "pedido": "Order",
+    "concepto": "Description",
+    "cantidad": "Qty",
+    "unitario": "Price",
+    "importe": "Amount",
+    "subtotal": "Subtotal",
+    "impuestos": "Tax",
+    "total": "Total",
+    "pie": "{sociedad} sells this merchandise on its own account. Keep this document: it is the record of your purchase.",
+    "verFactura": "View my invoice"
   }
 }

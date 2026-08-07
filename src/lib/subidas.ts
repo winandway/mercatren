@@ -71,6 +71,54 @@ export async function subirImagen(
   return { ok: true, clave };
 }
 
+/**
+ * LOS DOCUMENTOS: como las imágenes, pero además admiten PDF.
+ *
+ * Existe aparte de `subirImagen` a propósito. La factura que nos manda un
+ * comercio casi siempre es un PDF, y a veces la foto del papel; pero el logo
+ * de una tienda **nunca** puede ser un PDF. Si se ampliara la lista de
+ * `subirImagen` para que sirviera aquí, mañana alguien sube un PDF de logo y
+ * la tienda se ve rota.
+ *
+ * El tope sube a 10 MB: un escaneo de varias páginas pesa más que una foto de
+ * producto.
+ */
+export const TIPOS_DOCUMENTO = [...TIPOS_IMAGEN, "application/pdf"] as const;
+
+export const TAMANO_MAXIMO_DOCUMENTO = 10 * 1024 * 1024;
+
+export async function subirDocumento(
+  archivo: unknown,
+  carpeta: string,
+): Promise<ResultadoSubida> {
+  if (!(archivo instanceof File) || archivo.size === 0) {
+    return { ok: false, mensaje: "Elige un archivo." };
+  }
+  if (
+    !TIPOS_DOCUMENTO.includes(archivo.type as (typeof TIPOS_DOCUMENTO)[number])
+  ) {
+    return {
+      ok: false,
+      mensaje: "El archivo tiene que ser un PDF o una imagen.",
+    };
+  }
+  if (archivo.size > TAMANO_MAXIMO_DOCUMENTO) {
+    return { ok: false, mensaje: "El archivo pesa demasiado. Máximo 10 MB." };
+  }
+
+  const limpia = carpeta.replace(/[^a-z0-9/-]/gi, "").replace(/^\/+|\/+$/g, "");
+  const extension =
+    archivo.type === "application/pdf" ? "pdf" : extensionDe(archivo.type);
+  const clave = `${limpia}/${nanoid()}.${extension}`;
+
+  const { env } = getCloudflareContext();
+  await env.BUCKET.put(clave, await archivo.arrayBuffer(), {
+    httpMetadata: { contentType: archivo.type },
+  });
+
+  return { ok: true, clave };
+}
+
 /** Borra una imagen del almacenamiento. Se usa al reemplazar logo o portada. */
 export async function borrarImagen(clave: string | null | undefined) {
   if (!clave) return;

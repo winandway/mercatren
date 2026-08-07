@@ -36,9 +36,20 @@ las pantallas:
 | -------------------------------------------------- | ------ |
 | Tablas y numeración correlativa atómica            | ✅     |
 | Emitir al confirmarse el pago (tarjeta y Zelle)    | ✅     |
-| Que el comprador vea y descargue su factura        | ⬜     |
-| Que el comercio adjunte su factura contra la orden | ⬜     |
-| Que el panel enseñe las órdenes sin factura        | ⬜     |
+| Que el comprador vea y descargue su factura        | ✅     |
+| Que el panel enseñe las órdenes sin factura        | ✅     |
+| Que el comercio adjunte su factura contra la orden | 🔨     |
+
+**Lo comprobado de verdad el 7 ago 2026**, con un pedido de prueba aprobado
+desde el panel y borrado después: se emitieron `MT-F-000001` y `MT-OC-000001`,
+esta última por **$312.15 sobre una venta de $321.80** — el neto del comercio,
+no el precio publicado, que era justo lo que había que verificar. La factura se
+ve y se descarga, y el panel enseña «1 esperando tu factura».
+
+**Lo único sin captura es el formulario de subida del lado del comercio**: la
+pantalla se vio desde la cuenta del equipo, donde ese formulario no aparece a
+propósito (el equipo no sube la factura de un comercio; la emite él). Falta
+verlo con una sesión de vendedor.
 
 **Con las cuatro cerradas**, el prompt del equipo pasa de _"faltan estas cosas"_
 a _"el sistema hace esto"_, que es justo lo que pidió el dueño.

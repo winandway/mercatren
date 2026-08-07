@@ -352,7 +352,8 @@
       "validacionComercio": "En revisión",
       "retiros": "Retiros",
       "diccionario": "Diccionario",
-      "creditos": "Créditos"
+      "creditos": "Créditos",
+      "ordenesCompra": "Órdenes de compra"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1191,6 +1192,33 @@
       "cancelar": "Cancelar",
       "avisoLegal": "Al activar un cupo confirmas que el acuerdo de crédito es entre tu comercio y tu cliente. Mercatren lleva el control y te cobra los abonos, pero no presta dinero ni responde por el pago.",
       "sinClientes": "Todavía no tienes clientes a los que darles crédito. Aparecen aquí después de su primera compra."
+    },
+    "ordenesCompra": {
+      "titulo": "Órdenes de compra",
+      "entradilla": "Cada venta que se te paga genera una orden de compra. Súbenos tu factura contra ella y el par queda completo.",
+      "vacio": "Todavía no hay órdenes de compra.",
+      "pendientes": "{n, plural, =0 {Todas facturadas} one {# esperando tu factura} other {# esperando tu factura}}",
+      "columna": {
+        "orden": "Orden",
+        "pedido": "Pedido",
+        "comercio": "Comercio",
+        "monto": "Te pagamos",
+        "fecha": "Emitida",
+        "estado": "Estado"
+      },
+      "estado": {
+        "emitida": "Falta tu factura",
+        "facturada": "Facturada"
+      },
+      "adjuntar": "Subir mi factura",
+      "numeroFactura": "Número de tu factura",
+      "archivo": "Archivo (PDF o foto)",
+      "enviar": "Guardar",
+      "enviando": "Guardando…",
+      "verArchivo": "Ver la factura",
+      "soloPendientes": "Solo las que faltan",
+      "todas": "Todas",
+      "porQue": "Sin tu factura queda una compra sin respaldo en la contabilidad. Es el documento que cierra la operación."
     }
   },
   "catalogo": {
@@ -1840,5 +1868,22 @@
     "publicado": "Publicado el {fecha}",
     "documentacion": "Documentación",
     "novedad": "Novedad"
+  },
+  "factura": {
+    "titulo": "Factura {numero}",
+    "volver": "Volver a mi pedido",
+    "descargar": "Descargar",
+    "documento": "Factura de venta",
+    "para": "Facturado a",
+    "pedido": "Pedido",
+    "concepto": "Concepto",
+    "cantidad": "Cant.",
+    "unitario": "Precio",
+    "importe": "Importe",
+    "subtotal": "Subtotal",
+    "impuestos": "Impuestos",
+    "total": "Total",
+    "pie": "{sociedad} vende esta mercancía por cuenta propia. Conserva este documento: es el comprobante de tu compra.",
+    "verFactura": "Ver mi factura"
   }
 }

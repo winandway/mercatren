@@ -76,6 +76,23 @@
  * en papel se ven como manchas grises.
  */
 @media print {
+  /**
+   * La factura del comprador: se imprime el documento, no la página.
+   *
+   * "Descargar" en esa pantalla es el diálogo de impresión del navegador, con
+   * su opción de guardar como PDF. Lo que se guarda tiene que ser la factura
+   * sola — con el menú de la tienda y el pie de página encima, el archivo que
+   * el comprador reenvía a su contador parece una captura de pantalla.
+   */
+  body:has(.hoja-factura) header,
+  body:has(.hoja-factura) footer {
+    display: none !important;
+  }
+
+  body:has(.hoja-factura) {
+    background: #fff;
+  }
+
   body:has(.hoja-tique) > *:not(:has(.hoja-tique)) {
     display: none !important;
   }

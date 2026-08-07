@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  FileText,
   ArrowUpRight,
   CreditCard,
   BookOpen,
@@ -43,6 +44,13 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       { href: "/panel/billetera", clave: "billetera", Icono: Wallet },
       // Sacar el dinero de la billetera: el comercio pide, el equipo paga.
       { href: "/panel/retiros", clave: "retiros", Icono: ArrowUpRight },
+      /* La otra mitad de cada venta: el comercio nos factura la mercancía que
+         le compramos. Sin ese documento queda una compra sin respaldo. */
+      {
+        href: "/panel/ordenes-compra",
+        clave: "ordenesCompra",
+        Icono: FileText,
+      },
     ],
   },
   {
