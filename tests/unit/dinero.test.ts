@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +9,7 @@ import {
   calcularComisionCentavos,
   calcularNetoVendedorCentavos,
   COMISION_TARJETA_PB,
+  COMISION_ZELLE_PB,
   formatearPrecio,
   precioConAjusteCentavos,
   ahorroPorZelleCentavos,
@@ -162,15 +166,51 @@ describe("el precio de las variantes", () => {
    ══════════════════════════════════════════════════════════════════════════ */
 
 describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
-  it("por Zelle SOLO se cobra el 2%, sin el fee de la tarjeta", () => {
+  it("por Zelle se cobra el 3%, sin el fee de la tarjeta", () => {
     /* $100 de base: al comercio le tienen que quedar sus $100 completos y a
-       Mercatren su 2%. Nada de procesador, porque Zelle es gratis. */
+       Mercatren su 3%. Nada de procesador, porque Zelle es gratis. */
     const publicado = precioZelleCentavos(10_000);
-    expect(publicado).toBe(10_205); // $102.05
+    expect(publicado).toBe(10_310); // $103.10
 
-    // Al comercio le queda su precio íntegro después del 2%.
-    const seLlevaMercatren = Math.round((publicado * 200) / 10_000);
+    // Al comercio le queda su precio íntegro después del 3%.
+    const seLlevaMercatren = Math.round(
+      (publicado * COMISION_ZELLE_PB) / 10_000,
+    );
     expect(publicado - seLlevaMercatren).toBeGreaterThanOrEqual(10_000);
+  });
+
+  it("el esquema NO puede escribir la comisión a mano: la importa", () => {
+    /* LA PRUEBA QUE FALTABA, y que habría atrapado el fallo del 6 ago 2026.
+       El precio publicado cubre `COMISION_ZELLE_PB`; al acreditar, al comercio
+       se le descuenta `tiendas.comision_puntos_base`. Mientras una decía 2% y
+       la otra 3%, el punto que faltaba salía del comercio en cada venta, sin
+       que apareciera en ningún lado.
+
+       SE REVISA EL TEXTO DEL ESQUEMA, no su valor en memoria, por dos motivos.
+       Uno: lo que hay que impedir es justamente que alguien vuelva a teclear
+       un número ahí, y eso solo se ve en el código. Dos: importar el esquema
+       arrastra sus 1.200 líneas de declaraciones a la medición de cobertura y
+       la hunde diez puntos, sin haber probado nada más. */
+    const esquema = readFileSync(
+      join(import.meta.dirname, "..", "..", "src", "lib", "db", "schema.ts"),
+      "utf8",
+    );
+
+    const linea = esquema
+      .split("\n")
+      .find((l) => l.includes('integer("comision_puntos_base")'));
+
+    expect(linea, "no está la columna comision_puntos_base").toBeDefined();
+
+    /* El `.default(...)` puede quedar en la línea siguiente si Prettier parte
+       la cadena, así que se mira el trozo que va desde la columna. */
+    const desde = esquema.slice(esquema.indexOf(linea!));
+    const default_ = desde.slice(0, 200).match(/\.default\(([^)]+)\)/)?.[1];
+
+    expect(
+      default_,
+      `el esquema pone "${default_}" a mano en vez de importar COMISION_ZELLE_PB`,
+    ).toBe("COMISION_ZELLE_PB");
   });
 
   it("SIEMPRE es más barato que con tarjeta", () => {
@@ -183,10 +223,11 @@ describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
   });
 
   it("el ahorro es exactamente lo que cobraba el procesador de más", () => {
-    /* Los números que motivaron la corrección: en una compra de $2.000 el
-       cliente pagaba $62,55 de más por un servicio que no se usó. */
-    expect(ahorroPorZelleCentavos(200_000)).toBe(6_255);
-    expect(ahorroPorZelleCentavos(10_000)).toBe(342);
+    /* Lo que se ahorra quien paga por Zelle: el 2.9% + $0.30 del procesador,
+       menos el punto de diferencia del margen. En una compra de $2.000 son
+       $41,51; en una de $100, $2,37. */
+    expect(ahorroPorZelleCentavos(200_000)).toBe(4_151);
+    expect(ahorroPorZelleCentavos(10_000)).toBe(237);
   });
 
   it("nunca deja al comercio cobrando de menos", () => {
@@ -195,7 +236,7 @@ describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
        multiplicado por miles de ventas, es dinero que alguien reclama. */
     for (let base = 100; base <= 500_000; base += 997) {
       const publicado = precioZelleCentavos(base);
-      const comision = Math.round((publicado * 200) / 10_000);
+      const comision = Math.round((publicado * COMISION_ZELLE_PB) / 10_000);
       expect(
         publicado - comision,
         `con base ${base} al comercio le faltaría dinero`,

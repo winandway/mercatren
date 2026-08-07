@@ -1318,7 +1318,8 @@
       "proximamente": "Coming soon",
       "stripe": "Credit or debit card",
       "stripeTexto": "Instant, secure payment. Your order starts right away.",
-      "zelleDesde": "From $200"
+      "zelleDesde": "From $200",
+      "ahorroZelle": "You save {monto} paying with Zelle — no card processing fee."
     },
     "resumen": "Order summary",
     "confirmar": "Place order",

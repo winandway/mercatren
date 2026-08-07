@@ -10,6 +10,13 @@ Tienda en línea operada por **Windoce, LLC** (Delaware, Estados Unidos).
 tienda: comprar, vender y facturar. `Windoce LLC` se queda solo como el
 estudio que desarrolla el software — el crédito del pie de página.
 
+El expediente se presentó el 7 ago 2026 (formulario CSCL/CD-700, Articles of
+Organization de una LLC doméstica) y está **en revisión**, no aprobado todavía.
+Ojo con esto: **es un estado distinto del de Windoce, LLC, que es de
+Delaware.** Antes de tocar una línea del sitio hay que tener el certificado en
+la mano y confirmar cuál es el estado de registro, porque de ahí cuelgan el
+domicilio fiscal, el agente registrado y lo que dicen los términos.
+
 **NO SE CAMBIA EL SITIO TODAVÍA.** Decisión del dueño: primero tienen que estar
 a nombre de Mercatren LLC el banco, Stripe y Merchant Center. El motivo es
 concreto: si el sitio dice Mercatren LLC pero el cobro le aparece al comprador
@@ -48,6 +55,51 @@ por palabra la definición de **money transmission** en Estados Unidos, que exig
 licencias estatales y registro FinCEN, y es la razón por la que procesadores y
 bancos cierran cuentas. El abogado y el contable lo corrigieron el 5 ago 2026.
 
+### EL PRECIO Y LO QUE SE DECLARA (7 ago 2026)
+
+**2 % con tarjeta · 3 % por Zelle.** Lo decidió el dueño el 7 ago 2026,
+corrigiendo lo que se había hecho el día anterior (que dejó Zelle en 2 %).
+
+| Método  | Margen de Mercatren | Procesador   | Precio publicado            |
+| ------- | ------------------- | ------------ | --------------------------- |
+| Tarjeta | 2 %                 | 2.9 % + 0.30 | `V = (base + 0.30) / 0.951` |
+| Zelle   | 3 %                 | ninguno      | `V = base / 0.97`           |
+
+**Y por Zelle el cliente igual paga menos**, porque el fee del procesador pesa
+más que el punto de diferencia: en $100, $103.10 contra $105.47. El checkout
+enseña el ahorro cuando elige Zelle.
+
+**Las dos constantes tienen que cuadrar entre sí.** `COMISION_ZELLE_PB` (lo que
+el precio le COBRA al comprador) y `tiendas.comision_puntos_base` (lo que se le
+DESCUENTA al comercio al acreditar) son el mismo número, y por eso el esquema
+importa la constante en vez de escribir 300. Del 5 al 7 de agosto estuvieron
+desincronizadas —2 % contra 3 %— y ese punto salía del bolsillo del comercio en
+cada venta, sin aparecer en ninguna pantalla.
+
+**Lo que se declara: el BRUTO, y el margen sale de la resta.** Stripe reporta
+al IRS todo lo que entró (1099-K del bruto), y así tiene que ser: Windoce, LLC
+es quien vende, los $103 de una venta de $103 son ingreso propio. La separación
+la hace la declaración de la sociedad:
+
+```
+Ingreso bruto (103) − Costo de mercancía vendida (100) = Margen (3)
+```
+
+Declarar solo el margen es el error caro: Stripe reporta una cosa, la
+declaración diría otra, y esa diferencia dispara la auditoría. Por eso cada
+cobro lleva su desglose en la metadata (`ingreso_bruto_centavos`,
+`costo_mercancia_centavos`, `margen_bruto_centavos`): no cambia un centavo de
+lo que se cobra ni de lo que Stripe reporta, es el papel de trabajo del
+contador pegado a la operación.
+
+**NO SE USA STRIPE CONNECT NI PAGO DIVIDIDO, a propósito.** Un cobro dividido
+(`transfer_data` + `application_fee_amount`) le diría a Stripe que el dinero es
+del comercio y que nos quedamos una comisión: el 1099-K del bruto le saldría AL
+COMERCIO y a nosotros solo el de la comisión. Esa es exactamente la figura de
+intermediario que el abogado desarmó el 5 ago 2026. Aquí se compra y se
+revende: el cobro entero es nuestro y el pago al comercio es un costo aparte.
+Si alguien "arregla" esto poniendo Connect, deshace la reestructuración entera.
+
 ### LA NEGACIÓN VA EN LO LEGAL, NUNCA EN LO COMERCIAL (6 ago 2026)
 
 Lo pidió el dueño y tiene razón. Son dos registros distintos y mezclarlos hace
@@ -81,6 +133,12 @@ actuamos en nombre de · el pagador · el beneficiario · instrucción de pago.
 En su lugar: **vendemos y facturamos · el precio de venta · margen comercial
 incluido en el precio · compramos la mercancía al proveedor · el comprador · la
 dirección de entrega designada · orden de compra · ingresos por ventas.**
+
+**Hay palabras que no se salvan ni negándolas** (`NI_NEGANDO` en
+`tests/unit/vocabulario-publico.test.ts`): "dinero de los comercios", "dinero
+ajeno", "dinero de terceros" y sus equivalentes en inglés. En una página
+comercial no van ni para decir que no; en los términos y la privacidad sí, y
+por eso esos dos archivos están exentos.
 
 Se admiten SOLO como negación explícita, y así están escritas en los términos:
 "Windoce, LLC no actúa como agente, fiduciario ni depositario de ninguna de las
@@ -134,7 +192,7 @@ Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.
 | Aplicación instalable | Serwist (`src/sw.ts`, `src/app/manifest.ts`)                  |
 | Base de datos         | SQLite de YaDominios Cloud (`env.DB`) con Drizzle ORM         |
 | Cuentas               | Better Auth con adaptador de Drizzle                          |
-| Cobros                | Stripe Connect (pago dividido vendedor / comisión)            |
+| Cobros                | Stripe (cobro propio, sin pago dividido — ver más abajo)      |
 | Bilingüe              | next-intl (`/es` y `/en`)                                     |
 | Datos en el navegador | TanStack Query + Zustand                                      |
 | Pruebas               | Vitest + Testing Library (unidad), Playwright (punta a punta) |

@@ -6,7 +6,8 @@ import { nanoid } from "nanoid";
 
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { pagos, pedidos } from "@/lib/db/schema";
+import { itemsPedido, pagos, pedidos } from "@/lib/db/schema";
+import { COMISION_TARJETA_PB, calcularComisionCentavos } from "@/lib/dinero";
 import { getStripe, stripeConfigurado } from "@/lib/stripe";
 
 /**
@@ -95,13 +96,26 @@ export async function crearIntentoDePago(
     }
   }
 
+  const desglose = await desglosarPedido(pedido.id);
+
   const intento = await stripe.paymentIntents.create({
     amount: pedido.totalCentavos,
     currency: "usd",
     automatic_payment_methods: { enabled: true },
-    // El webhook lee esto para saber qué pedido acreditar.
-    metadata: { pedidoId: pedido.id, numero: pedido.numero },
+    metadata: {
+      // El webhook lee estos dos para saber qué pedido acreditar.
+      pedidoId: pedido.id,
+      numero: pedido.numero,
+      // Y estos tres son para la contabilidad. Ver el comentario de abajo.
+      ingreso_bruto_centavos: String(pedido.totalCentavos),
+      costo_mercancia_centavos: String(desglose.costoMercanciaCentavos),
+      margen_bruto_centavos: String(desglose.margenBrutoCentavos),
+    },
     description: `Mercatren · ${pedido.numero}`,
+    /* Lo que el comprador ve en su estado de cuenta. Sin esto lee el nombre
+       de la sociedad y no reconoce el cargo, y un cargo que no se reconoce se
+       reclama: cada contracargo cuesta la venta, la comisión y $15 de multa. */
+    statement_descriptor_suffix: "MERCATREN",
   });
 
   if (!intento.client_secret) return { ok: false };
@@ -119,5 +133,79 @@ export async function crearIntentoDePago(
     ok: true,
     clientSecret: intento.client_secret,
     clavePublica: env.STRIPE_CLAVE_PUBLICA!,
+  };
+}
+
+/**
+ * EL DESGLOSE CONTABLE DE UN PEDIDO: qué parte del cobro es ingreso propio y
+ * qué parte es costo de la mercancía.
+ *
+ * ═══ POR QUÉ ESTO VA EN CADA COBRO (7 ago 2026) ═══
+ *
+ * Stripe le reporta al IRS el **bruto** de todo lo que entró por la cuenta —
+ * el formulario 1099-K trae el total, nunca el margen. Eso es correcto y es lo
+ * que tiene que pasar: Windoce, LLC es quien vende, así que los $103 completos
+ * de una venta de $103 son ingreso propio.
+ *
+ * La separación entre lo que es ingreso y lo que es costo NO la hace Stripe:
+ * la hace la declaración de la sociedad, restando el costo de la mercancía
+ * vendida del ingreso bruto. Sobre esa resta se pagan impuestos.
+ *
+ *   Ingreso bruto ($103) − Costo de mercancía ($100) = Margen ($3)
+ *
+ * Declarar solo el margen sería el error caro: Stripe reporta el bruto, la
+ * declaración diría otra cosa, y esa diferencia es exactamente lo que dispara
+ * una auditoría por descuadre.
+ *
+ * LO QUE HACE ESTA FUNCIÓN es dejar la resta ya escrita **dentro de cada cobro
+ * de Stripe**, para que al conciliar el 1099-K no haya que reconstruirla a
+ * mano pedido por pedido: cada cargo trae su bruto, su costo y su margen.
+ *
+ * NO CAMBIA UN CENTAVO de lo que se cobra ni de lo que Stripe reporta. Es el
+ * papel de trabajo del contador, adjunto a la operación que describe.
+ *
+ * OJO — NO SE USA STRIPE CONNECT NI PAGO DIVIDIDO, y es a propósito. Un cobro
+ * dividido (`transfer_data` + `application_fee_amount`) le diría a Stripe que
+ * el dinero es del comercio y que nosotros nos quedamos una comisión: el
+ * 1099-K del bruto le saldría AL COMERCIO y a nosotros solo el de la comisión.
+ * Esa es la figura de intermediario que el abogado desarmó el 5 ago 2026.
+ * Aquí se compra y se revende, así que el cobro entero es nuestro y el pago al
+ * comercio es un costo aparte.
+ */
+async function desglosarPedido(pedidoId: string): Promise<{
+  costoMercanciaCentavos: number;
+  margenBrutoCentavos: number;
+}> {
+  const renglones = await getDb()
+    .select({
+      tiendaId: itemsPedido.tiendaId,
+      subtotalCentavos: itemsPedido.subtotalCentavos,
+    })
+    .from(itemsPedido)
+    .where(eq(itemsPedido.pedidoId, pedidoId));
+
+  /* El margen se calcula POR COMERCIO y no sobre el total, igual que al
+     acreditar en el webhook. Sobre el total daría un centavo distinto por el
+     redondeo, y entonces el papel de trabajo no cuadraría con lo que de
+     verdad se le pagó a cada comercio. */
+  const porTienda = new Map<string, number>();
+  for (const r of renglones) {
+    if (!r.tiendaId) continue;
+    porTienda.set(
+      r.tiendaId,
+      (porTienda.get(r.tiendaId) ?? 0) + Number(r.subtotalCentavos),
+    );
+  }
+
+  let margenBrutoCentavos = 0;
+  let brutoMercanciaCentavos = 0;
+  for (const bruto of porTienda.values()) {
+    brutoMercanciaCentavos += bruto;
+    margenBrutoCentavos += calcularComisionCentavos(bruto, COMISION_TARJETA_PB);
+  }
+
+  return {
+    costoMercanciaCentavos: brutoMercanciaCentavos - margenBrutoCentavos,
+    margenBrutoCentavos,
   };
 }

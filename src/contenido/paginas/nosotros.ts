@@ -24,7 +24,7 @@ export const NOSOTROS_ES: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "No somos un banco ni una casa de cambio, y no movemos dinero de nadie. Somos una tienda en línea: compramos mercancía a nuestros proveedores y la revendemos a compradores en Estados Unidos.",
+            "Somos una tienda en línea. Compramos la mercancía a nuestros proveedores, la revendemos a compradores en Estados Unidos y emitimos factura en cada paso. Cada operación queda documentada de punta a punta.",
         },
         {
           tipo: "cifras",
@@ -32,12 +32,12 @@ export const NOSOTROS_ES: PaginaContenido = {
             {
               valor: "EE. UU.",
               texto:
-                "donde está registrada la sociedad y donde ocurre el cobro",
+                "donde está registrada la sociedad y donde ocurre la venta",
             },
             {
-              valor: "3 %",
+              valor: "2 % – 3 %",
               texto:
-                "el margen comercial incluido en el precio publicado; es todo nuestro ingreso",
+                "el margen comercial incluido en el precio publicado según la forma de pago; es todo nuestro ingreso",
             },
             {
               valor: "5 años",
@@ -63,21 +63,21 @@ export const NOSOTROS_ES: PaginaContenido = {
         {
           tipo: "dosColumnas",
           izquierda: {
-            titulo: "Por el lado del cliente",
+            titulo: "Por el lado del comprador",
             tono: "ojo",
             puntos: [
-              "Sus clientes tienen familia en Estados Unidos con capacidad de pago.",
-              "Esa familia quiere pagarle al comercio, no mandar dinero suelto.",
-              "No había una forma con comprobante de hacerlo.",
+              "Tiene familia en su país de origen y quiere resolverle algo concreto.",
+              "Quiere comprar un producto de una tienda que conoce, con precio cerrado.",
+              "Y quiere pagarlo desde su banco de Estados Unidos, con su factura.",
             ],
           },
           derecha: {
-            titulo: "Por el lado del proveedor",
+            titulo: "Por el lado del comercio",
             tono: "ojo",
             puntos: [
-              "El comercio le compra mercancía a un mayorista en Estados Unidos.",
-              "Tiene que juntar dólares allá para pagarle.",
-              "Cada quien lo resolvía como podía.",
+              "Quiere venderle a compradores en Estados Unidos.",
+              "Montar allá una empresa, una cuenta y una tienda es lento y caro.",
+              "Su catálogo ya existe; lo que le falta es la vitrina.",
             ],
           },
         },
@@ -86,7 +86,8 @@ export const NOSOTROS_ES: PaginaContenido = {
           tono: "bien",
           titulo: "Lo que hace Mercatren",
           parrafos: [
-            "Unimos las dos puntas en una sola operación documentada: el familiar compra productos identificados, nosotros cobramos ese pago en Estados Unidos, y con ese mismo dinero —siguiendo la instrucción escrita del comercio— pagamos las facturas que ese comercio tiene con su proveedor estadounidense. El comercio entrega el producto en su país. Cobramos 3 % por la gestión.",
+            "Unimos las dos puntas en una sola operación documentada. El comprador elige productos identificados del catálogo y nos paga el precio publicado desde su banco en Estados Unidos. Con ese ingreso le compramos esa misma mercancía al proveedor, a nombre propio y con factura a nuestro nombre. El proveedor la entrega en la dirección designada por el comprador, y nosotros le emitimos su factura de venta.",
+            "Nuestro ingreso es el margen comercial que ya viene incluido en el precio publicado: 2 % cuando se paga con tarjeta y 3 % cuando se paga por Zelle. El comprador ve un precio cerrado, y el comercio tiene una vitrina en Estados Unidos sin montar operación allá.",
           ],
         },
       ],
@@ -101,7 +102,7 @@ export const NOSOTROS_ES: PaginaContenido = {
             {
               titulo: "Cada operación deja expediente",
               texto:
-                "quién compró, qué compró, quién pagó y adónde fue aplicado el dinero. Se puede reconstruir en los dos sentidos.",
+                "quién compró, qué compró, quién pagó y qué mercancía salió. Se puede reconstruir en los dos sentidos.",
             },
             {
               titulo: "Ningún pago se acepta solo",
@@ -109,9 +110,9 @@ export const NOSOTROS_ES: PaginaContenido = {
                 "una persona del equipo verifica cada comprobante contra el banco antes de aprobarlo.",
             },
             {
-              titulo: "El dinero de los comercios no es nuestro",
+              titulo: "Cada venta tiene sus dos facturas",
               texto:
-                "nuestro ingreso es la venta del producto, y el costo de esa mercancía es el gasto que la respalda. Así figura en la contabilidad, con su factura de compra y su factura de venta.",
+                "la de compra al proveedor y la de venta al comprador. Nuestro ingreso es el precio de venta; la mercancía es el costo que lo respalda. Así figura en la contabilidad y así se declara.",
             },
             {
               titulo: "Lo privado es privado",
@@ -174,7 +175,7 @@ export const NOSOTROS_EN: PaginaContenido = {
         {
           tipo: "parrafo",
           texto:
-            "We are not a bank or a currency exchange, and we do not move anyone's money. We are an online store: we buy merchandise from our suppliers and resell it to buyers in the United States.",
+            "We are an online store. We buy merchandise from our suppliers, resell it to buyers in the United States, and issue an invoice at every step. Every transaction is documented end to end.",
         },
         {
           tipo: "cifras",
@@ -182,12 +183,12 @@ export const NOSOTROS_EN: PaginaContenido = {
             {
               valor: "USA",
               texto:
-                "where the company is registered and where collection happens",
+                "where the company is registered and where the sale happens",
             },
             {
-              valor: "3%",
+              valor: "2%–3%",
               texto:
-                "the commercial markup inside the published price; it is our entire revenue",
+                "the commercial markup built into the published price, depending on payment method; it is our entire revenue",
             },
             {
               valor: "5 years",
@@ -213,21 +214,21 @@ export const NOSOTROS_EN: PaginaContenido = {
         {
           tipo: "dosColumnas",
           izquierda: {
-            titulo: "On the customer side",
+            titulo: "On the buyer's side",
             tono: "ojo",
             puntos: [
-              "Their customers have family in the US with money to spend.",
-              "That family wants to pay the merchant, not send loose cash.",
-              "There was no documented way to do it.",
+              "They have family back home and something specific they want to solve.",
+              "They want to buy from a store they know, at a price that's locked in.",
+              "And to pay for it from their US bank, with an invoice to show for it.",
             ],
           },
           derecha: {
-            titulo: "On the supplier side",
+            titulo: "On the merchant's side",
             tono: "ojo",
             puntos: [
-              "The merchant buys goods from a US wholesaler.",
-              "It has to gather dollars there to pay them.",
-              "Everyone improvised their own solution.",
+              "They want to sell to buyers in the United States.",
+              "Standing up a company, a bank account and a storefront there is slow and expensive.",
+              "Their catalog already exists — what's missing is the storefront.",
             ],
           },
         },
@@ -236,7 +237,8 @@ export const NOSOTROS_EN: PaginaContenido = {
           tono: "bien",
           titulo: "What Mercatren does",
           parrafos: [
-            "We join both ends into a single documented transaction: the family member buys identified products, we collect that payment in the United States, and with that same money — following the merchant's written instruction — we pay the invoices that merchant owes its US supplier. The merchant delivers the product in its own country. We charge 3% for handling it.",
+            "We join both ends into a single documented transaction. The buyer picks identified products from the catalog and pays us the published price from their US bank. With that revenue we buy those same goods from the supplier, in our own name and with the invoice made out to us. The supplier delivers to the address the buyer designated, and we issue the buyer a sales invoice.",
+            "Our revenue is the commercial markup already built into the published price: 2% on card payments and 3% on Zelle. The buyer gets a price that's locked in, and the merchant gets a storefront in the United States without setting up operations there.",
           ],
         },
       ],
@@ -251,7 +253,7 @@ export const NOSOTROS_EN: PaginaContenido = {
             {
               titulo: "Every transaction leaves a file",
               texto:
-                "who bought, what they bought, who paid, and where the money was applied. It can be reconstructed in both directions.",
+                "who bought, what they bought, who paid, and what merchandise shipped. It can be reconstructed in both directions.",
             },
             {
               titulo: "No payment is accepted automatically",
@@ -259,9 +261,9 @@ export const NOSOTROS_EN: PaginaContenido = {
                 "a member of our team verifies every receipt against the bank before approving it.",
             },
             {
-              titulo: "Merchant money isn't ours",
+              titulo: "Every sale has both invoices",
               texto:
-                "our revenue is the sale of the product, and the cost of that merchandise is the expense behind it. That is how the books show it, with its purchase invoice and its sales invoice.",
+                "the purchase invoice from the supplier and the sales invoice to the buyer. Our revenue is the sale price; the merchandise is the cost behind it. That is how the books show it and how it is filed.",
             },
             {
               titulo: "Private stays private",

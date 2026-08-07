@@ -1318,7 +1318,8 @@
       "proximamente": "Próximamente",
       "stripe": "Tarjeta de crédito o débito",
       "stripeTexto": "Pago inmediato y seguro. Tu pedido arranca al instante.",
-      "zelleDesde": "Desde $200"
+      "zelleDesde": "Desde $200",
+      "ahorroZelle": "Ahorras {monto} pagando por Zelle: no hay costo de procesador de tarjeta."
     },
     "resumen": "Resumen del pedido",
     "confirmar": "Confirmar pedido",

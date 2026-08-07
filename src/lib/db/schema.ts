@@ -19,6 +19,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
+import { COMISION_ZELLE_PB } from "@/lib/dinero";
+
 /* -------------------------------------------------------------------------- */
 /* Login y cuentas (Better Auth)                                              */
 /* -------------------------------------------------------------------------- */
@@ -163,8 +165,19 @@ export const tiendas = sqliteTable(
       .$type<(typeof ESTADOS_TIENDA)[number]>()
       .notNull()
       .default("borrador"),
-    /** Comision de Mercatren sobre cada venta, en puntos base (300 = 3%). */
-    comisionPuntosBase: integer("comision_puntos_base").notNull().default(300),
+    /**
+     * Comision de Mercatren sobre cada venta, en puntos base (300 = 3%).
+     *
+     * SALE DE `dinero.ts` A PROPOSITO, no es un 300 escrito aqui. Este numero
+     * es lo que se le DESCUENTA al comercio al acreditarle; el precio que se
+     * le COBRA al comprador lo calcula `precioZelleCentavos` con la misma
+     * constante. Escritos por separado se desincronizan, y eso ya pasó: del 5
+     * al 7 de agosto de 2026 el precio cubria el 2% y aqui se descontaba el
+     * 3%, asi que el punto que faltaba salia del comercio en cada venta.
+     */
+    comisionPuntosBase: integer("comision_puntos_base")
+      .notNull()
+      .default(COMISION_ZELLE_PB),
     /** Cuenta conectada de Stripe del vendedor, para el pago dividido. */
     stripeCuentaId: text("stripe_cuenta_id"),
     paisOrigen: text("pais_origen").notNull().default("US"),

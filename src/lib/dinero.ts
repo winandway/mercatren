@@ -117,7 +117,7 @@ export function baseDesdePublicado(publicadoCentavos: number): number {
 }
 
 /**
- * EL PRECIO CUANDO SE PAGA POR ZELLE: solo el 2%, sin el fee de la tarjeta.
+ * EL PRECIO CUANDO SE PAGA POR ZELLE: el 3%, sin el fee de la tarjeta.
  *
  * POR QUÉ EXISTE ESTA FUNCIÓN (6 ago 2026, corrección urgente).
  *
@@ -127,14 +127,17 @@ export function baseDesdePublicado(publicadoCentavos: number): number {
  * gratis.** Cobrar ese porcentaje en un pago por Zelle es cobrarle al cliente
  * el costo de un servicio que no se usó.
  *
- * En una compra de $2.000 eran **$62,55 de más**. En una de $100, $3,42.
- *
  * La cuenta es la misma de siempre, pero sin los dos términos del procesador:
  *
- *   V − 2%·V = base   →   V = base / 0.98
+ *   V − 3%·V = base   →   V = base / 0.97
  *
  * Hacia atrás y con enteros, igual que la otra: el redondeo hacia arriba deja
  * el centavo de colchón a favor, nunca en contra.
+ *
+ * SIGUE SIENDO MÁS BARATO PARA EL CLIENTE, aunque el porcentaje sea mayor. En
+ * una compra de $100 el precio con tarjeta es $105.47 y por Zelle $103.10; en
+ * una de $2.000, $2,103.37 contra $2,061.86. La diferencia no la hace el
+ * margen de Mercatren sino el 2.9% + $0.30 que aquí no existe.
  */
 export function precioZelleCentavos(baseCentavos: number): number {
   if (baseCentavos <= 0) return 0;
@@ -162,22 +165,29 @@ export function ajusteCentavos(baseCentavos: number): number {
 }
 
 /**
- * LA COMISIÓN POR MÉTODO.
+ * LA COMISIÓN POR MÉTODO — 2% con tarjeta, 3% por Zelle.
  *
- * **Las dos son 2%.** Lo que cambia entre un método y otro no es lo que se
- * lleva Mercatren: es lo que se lleva el procesador.
+ *   · Tarjeta — 2% de Mercatren + 2.9% + $0.30 que cobra Stripe. El cobro es
+ *               automático: el dinero entra solo y el pedido se marca pagado
+ *               sin que nadie lo toque.
+ *   · Zelle   — 3% de Mercatren y nada más. No hay procesador, pero sí hay
+ *               una persona del equipo comprobando cada comprobante contra el
+ *               banco antes de acreditarlo. Ese trabajo es el que cubre el
+ *               punto de diferencia.
  *
- *   · Tarjeta — 2% de Mercatren + 2.9% + $0.30 que cobra Stripe.
- *   · Zelle   — 2% de Mercatren y nada más. La transferencia es gratis, así
- *               que no hay ningún costo de procesamiento que cubrir.
+ * **Y aun así el cliente paga menos por Zelle**, porque el 2.9% + $0.30 del
+ * procesador pesa más que ese punto. Ver `precioZelleCentavos`.
  *
- * CORREGIDO EL 6 AGO 2026. Antes el precio publicado llevaba SIEMPRE el fee de
- * la tarjeta, se pagara como se pagara, y quien pagaba por Zelle cubría el
- * costo de un procesador que no se había usado: $62,55 de más en una compra de
- * $2.000. Lo levantó el dueño.
+ * POR QUÉ ESTAS DOS CONSTANTES TIENEN QUE CUADRAR CON `tiendas.comision_puntos_base`
+ * (que hoy vale 300). El precio publicado es lo que se le COBRA al comprador;
+ * la comisión de la tienda es lo que se le DESCUENTA al comercio al acreditar.
+ * Si el precio cubre el 2% y al comercio se le descuenta el 3%, el punto que
+ * falta sale del bolsillo del comercio, en silencio y en cada venta. Pasó: del
+ * 5 al 7 de agosto de 2026 esta constante estuvo en 200 mientras la de la
+ * tienda estaba en 300. Si algún día se cambia una, se cambia la otra.
  */
 export const COMISION_TARJETA_PB = 200;
-export const COMISION_ZELLE_PB = 200;
+export const COMISION_ZELLE_PB = 300;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
 /**

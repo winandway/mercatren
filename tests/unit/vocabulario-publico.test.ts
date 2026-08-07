@@ -58,6 +58,42 @@ const PROHIBIDAS = [
   "collect on behalf of",
   "hold funds",
   "remittance",
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     LAS QUE SE ESCAPARON, agregadas el 7 ago 2026.
+
+     La lista de arriba daba verde mientras `/nosotros` —la página que abre un
+     banco cuando quiere saber quiénes somos— seguía describiendo el modelo
+     viejo palabra por palabra: "nosotros cobramos ese pago en Estados Unidos,
+     y con ese mismo dinero —siguiendo la instrucción escrita del comercio—
+     pagamos las facturas que ese comercio tiene con su proveedor".
+
+     Ninguna de esas frases estaba prohibida, y las cuatro juntas son la
+     definición de money transmission. Se corrigió el texto y se agregan aquí
+     las formas exactas, que es lo único que impide que vuelvan.
+
+     Lo que enseña el fallo: no basta prohibir el sustantivo ("remesa"). Hay
+     que prohibir el VERBO en primera persona — lo que el sitio dice que
+     Mercatren HACE con el dinero.
+     ───────────────────────────────────────────────────────────────────────── */
+  "cobramos ese pago",
+  "cobramos el pago",
+  "cobramos por la gestión",
+  "por la gestión",
+  "con ese mismo dinero",
+  "instrucción escrita",
+  "pagamos las facturas",
+  "pagamos la factura",
+  "por cuenta del comercio",
+  "dinero del comercio",
+  "collect that payment",
+  "collect the payment",
+  "with that same money",
+  "written instruction",
+  "we pay the invoices",
+  "we pay the invoice",
+  "for handling it",
+  "the merchant's money",
 ];
 
 /**
@@ -70,6 +106,42 @@ const PROHIBIDAS = [
  *   somos. Lo revisó el abogado.
  */
 const EXENTOS = ["diccionario.ts", "modelo.es.ts", "modelo.en.ts"];
+
+/**
+ * LAS QUE NO SE SALVAN NEGÁNDOLAS.
+ *
+ * La regla del dueño (6 ago 2026): la negación explícita es precisión en los
+ * términos y en el PDF para bancos, y es un error en todo lo que lee un
+ * comprador. Nadie llega a `/nosotros` preguntándose si administramos dinero
+ * ajeno; responder a una pregunta que nadie hizo planta la sospecha uno mismo.
+ *
+ * De dónde salió: `/nosotros` tenía un punto titulado "El dinero de los
+ * comercios no es nuestro". El guardián lo dejó pasar **porque negaba** — la
+ * salida de emergencia de abajo se lo tragó entero. Pero esa frase presupone
+ * que hay dinero de otro en juego, que es exactamente lo que el modelo no
+ * tiene: aquí se compra mercancía y se revende, y el cobro es ingreso propio.
+ *
+ * Aquí la negación no salva: estas palabras no van en una página comercial ni
+ * para decir que no. En los textos legales sí, y por eso están exentos.
+ */
+const NI_NEGANDO = [
+  "dinero de los comercios",
+  "dinero ajeno",
+  "dinero de terceros",
+  "aplicado el dinero",
+  "merchant money",
+  "merchant's money",
+  "third-party money",
+  "money was applied",
+];
+
+/**
+ * Dónde la negación SÍ es lo correcto: los textos legales.
+ *
+ * Un abogado o un oficial de riesgo busca la frase exacta, y en un contrato lo
+ * que no se dice no está. Estas páginas no las lee un comprador.
+ */
+const LEGALES = ["terminos.ts", "privacidad.ts"];
 
 /** Una frase que NIEGA no es una que afirma. */
 const NIEGA =
@@ -105,6 +177,29 @@ describe("el vocabulario de las páginas públicas", () => {
         const bajo = limpia.toLowerCase();
         for (const palabra of PROHIBIDAS) {
           if (bajo.includes(palabra) && !NIEGA.test(limpia)) {
+            const corto = ruta.split("/").slice(-2).join("/");
+            encontradas.push(`${corto}: "${palabra}" → ${limpia.slice(0, 90)}`);
+          }
+        }
+      }
+    }
+
+    expect(encontradas, encontradas.join("\n")).toEqual([]);
+  });
+
+  it("las páginas comerciales no hablan de dinero ajeno, ni para negarlo", () => {
+    const encontradas: string[] = [];
+
+    for (const ruta of fuentes) {
+      if (LEGALES.some((legal) => ruta.endsWith(legal))) continue;
+
+      for (const linea of readFileSync(ruta, "utf8").split("\n")) {
+        const limpia = linea.trim();
+        if (limpia.startsWith("*") || limpia.startsWith("//")) continue;
+
+        const bajo = limpia.toLowerCase();
+        for (const palabra of NI_NEGANDO) {
+          if (bajo.includes(palabra)) {
             const corto = ruta.split("/").slice(-2).join("/");
             encontradas.push(`${corto}: "${palabra}" → ${limpia.slice(0, 90)}`);
           }

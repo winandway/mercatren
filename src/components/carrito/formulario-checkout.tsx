@@ -7,7 +7,12 @@ import { useState, useSyncExternalStore, useTransition } from "react";
 import { Campo } from "@/components/ui/campo";
 import { Link, useRouter } from "@/i18n/navigation";
 import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
-import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import {
+  baseDesdePublicado,
+  formatearPrecio,
+  precioZelleCentavos,
+  type Idioma,
+} from "@/lib/dinero";
 import { crearPedido } from "@/lib/pedidos/acciones";
 import { cn } from "@/lib/utils";
 import { ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
@@ -74,6 +79,35 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   }
 
   const total = sumarCarrito(lineas);
+
+  /**
+   * EL TOTAL DEL MÉTODO QUE ELIGIÓ, no siempre el de tarjeta.
+   *
+   * Los precios del catálogo llevan incorporado el 2.9% + $0.30 del procesador
+   * de tarjeta. Por Zelle ese procesador no existe, así que `crearPedido`
+   * rearma el pedido más barato en el servidor — y hasta hoy el resumen seguía
+   * enseñando el de tarjeta. El cliente elegía Zelle viendo un número y le
+   * llegaba otro más bajo.
+   *
+   * Aunque la sorpresa fuera a favor, está mal por dos motivos: un total que
+   * cambia después de confirmar se lee como un error del sitio, y esconde
+   * justo lo que hace que la gente elija Zelle, que es el método que además
+   * nos deja mejor margen.
+   *
+   * ES DE REFERENCIA, igual que el resto del resumen (ver el comentario de
+   * arriba): aquí solo está el precio publicado, así que la base se deduce con
+   * `baseDesdePublicado`. El número que manda es el que arma el servidor
+   * leyendo la base de datos, y puede diferir en algún centavo.
+   */
+  const totalZelle = lineas.reduce(
+    (suma, l) =>
+      suma +
+      precioZelleCentavos(baseDesdePublicado(l.precioCentavos)) * l.cantidad,
+    0,
+  );
+  const esZelle = metodo === "zelle";
+  const totalAMostrar = esZelle ? totalZelle : total;
+  const ahorroZelle = Math.max(0, total - totalZelle);
 
   function enviar(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -234,8 +268,18 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
 
         <p className="mt-3 flex justify-between border-t border-borde pt-3 text-base font-bold">
           <span>{tc("total")}</span>
-          <span className="tabular-nums">{formatearPrecio(total, idioma)}</span>
+          <span className="tabular-nums">
+            {formatearPrecio(totalAMostrar, idioma)}
+          </span>
         </p>
+
+        {esZelle && ahorroZelle > 0 ? (
+          <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
+            {t("pago.ahorroZelle", {
+              monto: formatearPrecio(ahorroZelle, idioma),
+            })}
+          </p>
+        ) : null}
 
         {error ? (
           <p
