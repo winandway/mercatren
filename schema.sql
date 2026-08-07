@@ -463,17 +463,80 @@ CREATE TABLE IF NOT EXISTS `pedidos_credito` (
 CREATE INDEX IF NOT EXISTS `idx_pedcredito_tienda` ON `pedidos_credito` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_pedcredito_cliente` ON `pedidos_credito` (`cliente_id`);
 CREATE INDEX IF NOT EXISTS `idx_pedcredito_estado` ON `pedidos_credito` (`estado`);
+-- ── Tablas (0008_massive_crusher_hogan.sql) ──
+CREATE TABLE IF NOT EXISTS `facturas` (
+	`id` text PRIMARY KEY NOT NULL,
+	`numero` text NOT NULL,
+	`tipo` text DEFAULT 'venta' NOT NULL,
+	`pedido_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`emisor_nombre` text NOT NULL,
+	`emisor_identificacion` text,
+	`emisor_direccion` text,
+	`receptor_nombre` text NOT NULL,
+	`receptor_correo` text,
+	`receptor_direccion` text,
+	`subtotal_centavos` integer NOT NULL,
+	`impuestos_centavos` integer DEFAULT 0 NOT NULL,
+	`total_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`idioma` text DEFAULT 'es' NOT NULL,
+	`emitida_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `facturas_numero_unique` ON `facturas` (`numero`);
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_facturas_pedido` ON `facturas` (`pedido_id`);
+CREATE INDEX IF NOT EXISTS `idx_facturas_cliente` ON `facturas` (`cliente_id`);
+CREATE INDEX IF NOT EXISTS `idx_facturas_emitida` ON `facturas` (`emitida_en`);
+CREATE TABLE IF NOT EXISTS `lineas_factura` (
+	`id` text PRIMARY KEY NOT NULL,
+	`factura_id` text NOT NULL,
+	`descripcion` text NOT NULL,
+	`cantidad` real DEFAULT 1 NOT NULL,
+	`precio_unitario_centavos` integer NOT NULL,
+	`subtotal_centavos` integer NOT NULL,
+	FOREIGN KEY (`factura_id`) REFERENCES `facturas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_lineas_factura` ON `lineas_factura` (`factura_id`);
+CREATE TABLE IF NOT EXISTS `ordenes_compra` (
+	`id` text PRIMARY KEY NOT NULL,
+	`numero` text NOT NULL,
+	`pedido_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
+	`subtotal_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`estado` text DEFAULT 'emitida' NOT NULL,
+	`factura_proveedor_numero` text,
+	`factura_proveedor_clave` text,
+	`facturada_en` integer,
+	`emitida_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `ordenes_compra_numero_unique` ON `ordenes_compra` (`numero`);
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_oc_pedido_tienda` ON `ordenes_compra` (`pedido_id`,`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_oc_tienda` ON `ordenes_compra` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_oc_estado` ON `ordenes_compra` (`estado`);
+CREATE TABLE IF NOT EXISTS `series_documento` (
+	`id` text PRIMARY KEY NOT NULL,
+	`prefijo` text NOT NULL,
+	`ultimo` integer DEFAULT 0 NOT NULL
+);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786059788, 1786059788)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786143048, 1786143048)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786059788)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786143048)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
