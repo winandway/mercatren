@@ -185,6 +185,7 @@ export async function Encabezado() {
               { href: "/vender", texto: t("vender") },
               { href: "/como-funciona", texto: t("comoFunciona") },
               { href: "/docs", texto: t("docs") },
+              { href: "/blog", texto: t("blog") },
               { href: "/ayuda", texto: t("ayuda") },
               { href: "/pedidos", texto: t("pedidos") },
             ]}

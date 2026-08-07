@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 
 import { routing } from "@/i18n/routing";
 import { getDbAsync, schema } from "@/lib/db";
+import { articulosDe, rutaDeArticulo } from "@/contenido/articulos";
 import { SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +65,7 @@ const FIJAS: [
   ["/tiendas", 0.8, "daily"],
   ["/docs/modelo-de-negocio", 0.9, "monthly"],
   ["/docs", 0.8, "monthly"],
+  ["/blog", 0.8, "weekly"],
   ["/vender", 0.8, "monthly"],
   ["/como-funciona", 0.7, "monthly"],
   ["/nosotros", 0.7, "monthly"],
@@ -82,6 +84,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paginas = FIJAS.map(([ruta, prioridad, frecuencia]) =>
     entrada(ruta, prioridad, frecuencia),
   );
+
+  /* Cada artículo del blog y de la documentación es una página propia y entra
+     sola al mapa. Es todo el sentido de tenerlos como páginas separadas: cada
+     cosa que se publica suma para Google. Se leen del español, que es donde
+     están todos; `entrada()` ya escribe las dos versiones de idioma. */
+  for (const articulo of articulosDe("es")) {
+    paginas.push(entrada(rutaDeArticulo(articulo), 0.7, "monthly"));
+  }
 
   // El catalogo se suma si la base responde. Si no responde, el mapa sale
   // igual con las paginas fijas: mas vale un mapa corto que ninguno.

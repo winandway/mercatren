@@ -33,7 +33,8 @@
     "comprasEn": "You pay in U.S. dollars from the United States. You pick up your order in your own city.",
     "panel": "Panel",
     "crearCuenta": "Create account",
-    "tiendas": "Stores"
+    "tiendas": "Stores",
+    "blog": "Blog"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., delivered where you need it",
@@ -104,7 +105,8 @@
       "nosotros": "About us",
       "tiendas": "All stores",
       "entrega": "Pickup and delivery",
-      "devoluciones": "Returns"
+      "devoluciones": "Returns",
+      "blog": "Blog"
     },
     "lema": "Shop in the U.S., delivered where you need it.",
     "descripcion": "Mercatren is a service operated by Windoce, LLC (Delaware, United States). We sell products for our own account and deliver them to the address the buyer designates. Every transaction is documented end to end.",
@@ -1826,5 +1828,16 @@
     "sinComercioTexto": "To sell on Mercatren you'll need to register your business. It takes two minutes, and you can start adding products right away.",
     "darDeAlta": "Register my business",
     "noSePudoGuardar": "We couldn't save just now. Everything you typed is still here — try saving again in a moment."
+  },
+  "blog": {
+    "titulo": "Blog",
+    "entradilla": "What we're shipping at Mercatren: news, changes, and how each piece works.",
+    "leer": "Read",
+    "vacio": "No posts yet.",
+    "volver": "Back to the blog",
+    "verTambien": "See also",
+    "publicado": "Published {fecha}",
+    "documentacion": "Documentation",
+    "novedad": "News"
   }
 }

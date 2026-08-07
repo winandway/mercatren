@@ -690,6 +690,54 @@ persona lo comprueba contra el banco.
 flujo del bucket, y arma las cabeceras a mano. Copiar los metadatos de R2 o
 pasar su flujo tal cual falla en el servidor de desarrollo.
 
+## Ventas a crédito del comercio a su cliente (6 ago 2026)
+
+Aprobado por el abogado. El documento que se aprobó está en
+`docs/mercatren-ventas-a-credito.pdf` (se regenera con
+`npm run docs:pdf-credito`).
+
+**LA FIGURA MANDA SOBRE TODO EL DISEÑO: el crédito lo da EL COMERCIO y el
+riesgo es suyo.** Él decide a quién, cuánto y a cuántos días, y entrega la
+mercancía bajo su propio acuerdo. Windoce, LLC no presta ni sale de garante —
+no puede: prestar en EE.UU. exige licencias de prestamista. Lo que hace
+Mercatren es, en cada abono, **comprarle la mercancía correspondiente**. Cada
+abono es una compra-venta cerrada.
+
+Por eso el aviso legal va **dentro del formulario y a la vista**, no escondido
+en unos términos.
+
+- `src/lib/credito/cupo.ts` — las cuentas, puras y con 26 pruebas. Una de ellas
+  verifica los números EXACTOS del ejemplo del PDF: si se pone roja, el sistema
+  dejó de hacer lo que se le prometió por escrito a un comercio.
+- **Lo debido se CALCULA de los abonos aprobados, nunca se guarda.** Guardar un
+  total además de los movimientos es tener dos verdades.
+- **Cada abono libera cupo**: con $2.000 de tope y $1.700 abonados puede volver
+  a comprar $1.700. Es lo que hace que el comercio venda más.
+- Un comprobante sin validar **no cuenta** como abono: si contara, cualquiera
+  liberaría su cupo subiendo una foto.
+- Quitar un crédito va en el menú de tres puntos y solo si no deben nada; si
+  deben, se suspende — el registro se queda porque el dinero se queda.
+- **Tablas nuevas, no columnas** (`creditos_cliente`, `pedidos_credito`): así
+  llegan solas a producción con `schema.sql`.
+
+**Lo que falta del módulo** (siguiente fase): pagar con el cupo desde el
+checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
+Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
+le deben.
+
+## El blog y la documentación
+
+`/blog` (novedades) y `/docs/<slug>` (documentación) salen del **mismo motor**:
+`src/contenido/articulos/`. Un artículo se escribe en `es.ts` **y** en `en.ts`
+con el mismo `slug`, y entra solo al mapa del sitio con su dato estructurado
+`Article`.
+
+Cada artículo es una página propia a propósito: **cada cosa que se publica suma
+para Google**; escribirlo todo dentro de una página larga no suma nada.
+
+**Al publicar algo nuevo:** una nota en el blog contando qué cambió, y si hace
+falta explicar cómo funciona, su página de documentación enlazada desde la nota.
+
 ## El blindaje (6 ago 2026)
 
 El proyecto tiene un arnés automático que atrapa los errores antes de que
