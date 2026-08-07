@@ -172,6 +172,15 @@ por WhatsApp, no por el sistema.
   la mercancía primero, y eso cambia la figura entera. Aquel documento se
   eliminó para no dejar dos planes que se contradicen._
 
+- 🔒 **D7. Cambiar la sociedad a Mercatren LLC en todo el sitio.** Ya está
+  registrada `Mercatren LLC` (sin coma) y es la que va a operar la tienda;
+  Windoce LLC se queda como desarrolladora en el pie.
+  **Esperando:** que el banco, Stripe y Merchant Center estén a nombre de
+  Mercatren LLC. Si el sitio cambia antes, al comprador le aparece un nombre
+  distinto en su estado de cuenta y eso genera reclamos.
+  Son 239 menciones: términos, privacidad, documentación, correos y el PDF del
+  modelo — ese PDF lo revisó el abogado, así que pasa por él.
+
 - ⬜ **D6. Revisión automática del comercio (KYB).** Comprobar con IA que quien
   se registra es un comercio de verdad: que la identificación fiscal tenga el
   formato de su país, que el sitio web exista y hable de lo mismo, que la

@@ -4,7 +4,29 @@
 
 Tienda en línea operada por **Windoce, LLC** (Delaware, Estados Unidos).
 
+## LA SOCIEDAD CAMBIÓ DE NOMBRE — PERO EL SITIO TODAVÍA NO (6 ago 2026)
+
+**Ya está registrada `Mercatren LLC`** (sin coma), y es la que va a operar la
+tienda: comprar, vender y facturar. `Windoce LLC` se queda solo como el
+estudio que desarrolla el software — el crédito del pie de página.
+
+**NO SE CAMBIA EL SITIO TODAVÍA.** Decisión del dueño: primero tienen que estar
+a nombre de Mercatren LLC el banco, Stripe y Merchant Center. El motivo es
+concreto: si el sitio dice Mercatren LLC pero el cobro le aparece al comprador
+como Windoce en su estado de cuenta, eso genera reclamos y contracargos.
+
+Mientras tanto, **todo el texto publicado sigue diciendo `Windoce, LLC` y está
+bien así**. Son 239 menciones repartidas entre los términos, la privacidad, la
+documentación pública, los correos y el PDF del modelo — y ese PDF lo revisó el
+abogado, así que el cambio pasa por él antes de tocarse.
+
+Cuando llegue el momento: `SITIO.sociedad` en `src/lib/sitio.ts` es el punto de
+partida, pero no alcanza — hay texto escrito a mano en `src/contenido/`.
+
 ## LA FIGURA JURÍDICA (regla de cabecera, agosto 2026)
+
+> El nombre que aparece abajo es el que está publicado hoy. Cuando se haga el
+> cambio, se sustituye por `Mercatren LLC` en todo este bloque.
 
 **Windoce, LLC compra y revende mercancía por cuenta propia.** No es un agente,
 no cobra por cuenta de nadie y no administra dinero de terceros.
