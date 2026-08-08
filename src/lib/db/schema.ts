@@ -1505,3 +1505,48 @@ export const aparienciaTienda = sqliteTable("apariencia_tienda", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * LAS PLATAFORMAS SOCIAS (hoy: QRbott).
+ *
+ * Tabla NUEVA, no columnas en `tiendas`: asi llega sola a produccion con
+ * `schema.sql`, que solo trae `CREATE TABLE IF NOT EXISTS` y no aplica ALTERs.
+ *
+ * Una fila por tienda vinculada. El token se guarda HASHEADO, nunca en claro:
+ * ese token deja escribir en el catalogo de un comercio, y una copia de la base
+ * en las manos equivocadas no puede ser tambien la llave.
+ */
+export const sociosTienda = sqliteTable("socios_tienda", {
+  id: text("id").primaryKey(),
+
+  tiendaId: text("tienda_id")
+    .notNull()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+
+  /** Que plataforma es. Hoy solo `qrbott`, pero manana habra otra. */
+  plataforma: text("plataforma").notNull(),
+
+  /** El identificador de la tienda EN EL SOCIO (allá, el uuid del bot). */
+  externoId: text("externo_id").notNull(),
+
+  /** SHA-256 del token. El token en claro se enseña una sola vez, al vincular. */
+  tokenHash: text("token_hash").notNull(),
+
+  /**
+   * El corte de la ultima lectura, tal como lo mando el socio.
+   *
+   * Se guarda el suyo y NO el nuestro a proposito: dos servidores nunca estan
+   * exactamente en hora, y unos segundos de diferencia se comen los cambios de
+   * esa ventana sin que nadie lo note.
+   */
+  cursor: text("cursor"),
+
+  ultimoResultado: text("ultimo_resultado"),
+
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

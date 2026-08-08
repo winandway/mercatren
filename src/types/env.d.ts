@@ -68,6 +68,13 @@ interface CloudflareEnv {
    */
   TURNSTILE_CLAVE_SITIO?: string;
   TURNSTILE_SECRETO?: string;
+
+  /**
+   * La llave de las plataformas socias (QRbott). Solo sirve para VINCULAR una
+   * tienda, y es la credencial mas peligrosa del sistema: quien la tenga puede
+   * pedir el token de cualquier comercio. Si falta, esa puerta se cierra.
+   */
+  SOCIO_LLAVE?: string;
 }
 
 declare namespace NodeJS {

@@ -78,6 +78,13 @@
       "when": 1786153268880,
       "tag": "0010_handy_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1786231541386,
+      "tag": "0011_quiet_the_anarchist",
+      "breakpoints": true
     }
   ]
 }

@@ -91,6 +91,20 @@ export const esquemaEntorno = z.object({
      es peor que no tener escudo. */
   TURNSTILE_CLAVE_SITIO: z.string().optional(),
   TURNSTILE_SECRETO: z.string().optional(),
+
+  /**
+   * LA LLAVE DE LAS PLATAFORMAS SOCIAS (hoy QRbott).
+   *
+   * Solo sirve para VINCULAR una tienda, y es la credencial más peligrosa del
+   * sistema: quien la tenga puede pedir el token de cualquier comercio. Va
+   * larga a propósito.
+   *
+   * Si no está cargada, `/datos/socios/vincular` responde que no está
+   * disponible en vez de dejar entrar. Es la única puerta del proyecto que se
+   * cierra al faltarle su variable: las demás siguen funcionando a medias,
+   * pero una que abre catálogos ajenos no puede quedar abierta por descuido.
+   */
+  SOCIO_LLAVE: z.string().min(32).optional(),
 });
 
 export type Entorno = z.infer<typeof esquemaEntorno>;
