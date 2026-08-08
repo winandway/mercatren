@@ -1550,3 +1550,41 @@ export const sociosTienda = sqliteTable("socios_tienda", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * TODOS LOS IDENTIFICADORES QUE APUNTAN A UN PRODUCTO.
+ *
+ * Cuando el socio manda una linea por sucursal, el mismo tubo llega con DOS
+ * identificadores y aqui se guarda como UN producto. En `productos.externo_id`
+ * cabe uno solo, asi que el otro se perdia — y con el, dos cosas:
+ *
+ *  1. Una baja que llegara por el identificador "perdido" no encontraba nada y
+ *     el producto se quedaba publicado para siempre.
+ *  2. Una baja por el identificador canonico despublicaba el producto ENTERO,
+ *     aunque la otra sucursal siguiera teniendolo. Al reves de lo correcto.
+ *
+ * Comprobado el 8 ago 2026 probando contra el servidor: la baja de la linea de
+ * El Vigia no hacia absolutamente nada.
+ *
+ * Con esta tabla, una baja borra SU alias y el producto solo se despublica
+ * cuando ya no le queda ninguno: es decir, cuando de verdad desaparecio de
+ * todas las sucursales.
+ */
+export const sociosAlias = sqliteTable(
+  "socios_alias",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    /** Un identificador del socio. Varios pueden apuntar al mismo producto. */
+    externoId: text("externo_id").notNull(),
+    productoId: text("producto_id")
+      .notNull()
+      .references(() => productos.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    uniqueIndex("socios_alias_tienda_externo").on(t.tiendaId, t.externoId),
+    index("socios_alias_producto").on(t.productoId),
+  ],
+);
