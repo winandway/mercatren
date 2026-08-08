@@ -95,6 +95,8 @@ export async function correoRestablecerClave(d: Destinatario, url: string) {
 type DatosPedido = {
   numero: string;
   totalCentavos: number;
+  /** Lo que se cobró de envío. Cero o ausente = se retira en el local. */
+  envioCentavos?: number;
 };
 
 /**
@@ -120,6 +122,16 @@ export async function correoGraciasCompra(
     parrafos: t.raw("graciasCompra.parrafos") as string[],
     datos: [
       { etiqueta: t("comun.pedido"), valor: pedido.numero },
+      /* EL ENVÍO, EN SU PROPIO RENGLÓN. Sin esto el correo enseña un total
+         más alto que la suma de los productos y nadie sabe por qué. */
+      ...(pedido.envioCentavos && pedido.envioCentavos > 0
+        ? [
+            {
+              etiqueta: t("comun.envio"),
+              valor: formatearPrecio(pedido.envioCentavos, idioma),
+            },
+          ]
+        : []),
       {
         etiqueta: t("comun.total"),
         valor: formatearPrecio(pedido.totalCentavos, idioma),
@@ -132,7 +144,16 @@ export async function correoGraciasCompra(
         valor: p,
       })),
     ],
-    resaltado: { texto: t("graciasCompra.siguiente"), tono: "neutro" },
+    /* QUÉ PASA DESPUÉS, según cómo lo vaya a recibir. Antes decía siempre
+       "haz el pago por Zelle y sube la captura"; a quien pidió envío le
+       faltaba lo que más pregunta, que es quién se lo lleva y cuándo. */
+    resaltado: {
+      texto:
+        pedido.envioCentavos && pedido.envioCentavos > 0
+          ? t("graciasCompra.siguienteEnvio")
+          : t("graciasCompra.siguiente"),
+      tono: "neutro",
+    },
     boton: {
       texto: t("graciasCompra.boton"),
       url: urlDe(idioma, `/pedido/${pedido.numero}`),
@@ -186,6 +207,16 @@ export async function correoCompraAprobada(
     parrafos: t.raw("compraAprobada.parrafos") as string[],
     datos: [
       { etiqueta: t("comun.pedido"), valor: pedido.numero },
+      /* EL ENVÍO, EN SU PROPIO RENGLÓN. Sin esto el correo enseña un total
+         más alto que la suma de los productos y nadie sabe por qué. */
+      ...(pedido.envioCentavos && pedido.envioCentavos > 0
+        ? [
+            {
+              etiqueta: t("comun.envio"),
+              valor: formatearPrecio(pedido.envioCentavos, idioma),
+            },
+          ]
+        : []),
       {
         etiqueta: t("comun.total"),
         valor: formatearPrecio(pedido.totalCentavos, idioma),
@@ -534,6 +565,16 @@ export async function correoPedidoEntregado(
     parrafos: t.raw("pedidoEntregado.parrafos") as string[],
     datos: [
       { etiqueta: t("comun.pedido"), valor: pedido.numero },
+      /* EL ENVÍO, EN SU PROPIO RENGLÓN. Sin esto el correo enseña un total
+         más alto que la suma de los productos y nadie sabe por qué. */
+      ...(pedido.envioCentavos && pedido.envioCentavos > 0
+        ? [
+            {
+              etiqueta: t("comun.envio"),
+              valor: formatearPrecio(pedido.envioCentavos, idioma),
+            },
+          ]
+        : []),
       {
         etiqueta: t("comun.total"),
         valor: formatearPrecio(pedido.totalCentavos, idioma),

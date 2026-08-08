@@ -1576,7 +1576,8 @@
       "monto": "Amount",
       "referencia": "Reference",
       "producto": "Product",
-      "forma": "Method"
+      "forma": "Method",
+      "envio": "Shipping"
     },
     "bienvenida": {
       "asunto": "Your Mercatren account is ready",
@@ -1606,7 +1607,8 @@
         "Your order is confirmed and the merchandise is reserved in your name."
       ],
       "siguiente": "Next step: send the Zelle payment and upload the screenshot on your order page. The exact details are there.",
-      "boton": "View my order and pay"
+      "boton": "View my order and pay",
+      "siguienteEnvio": "Next step: make the payment and upload the receipt on your order page. Once it clears, the merchant will reach out to arrange delivery."
     },
     "comprobanteRecibido": {
       "asunto": "We received your receipt for order {numero}",
@@ -1956,6 +1958,10 @@
     "opcionEnvio": "Ship it to me",
     "opcionEnvioTexto": "The merchant's shipping cost is added",
     "lineaEnvio": "Shipping",
-    "sinEnvioDisponible": "This merchant doesn't offer shipping yet. Pickup at their location."
+    "sinEnvioDisponible": "This merchant doesn't offer shipping yet. Pickup at their location.",
+    "avisoRetiro": "You'll pick it up at the merchant's location. We'll let you know when it's ready.",
+    "avisoEnvio": "The merchant ships it to you. Shipping is added to the total and they'll reach out to arrange delivery.",
+    "enPedidoRetiro": "You pick it up at the merchant's location",
+    "enPedidoEnvio": "The merchant ships it to you"
   }
 }

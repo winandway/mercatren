@@ -1576,7 +1576,8 @@
       "monto": "Monto",
       "referencia": "Referencia",
       "producto": "Producto",
-      "forma": "Forma"
+      "forma": "Forma",
+      "envio": "Envío"
     },
     "bienvenida": {
       "asunto": "Tu cuenta en Mercatren quedó lista",
@@ -1606,7 +1607,8 @@
         "Tu pedido quedó registrado y la mercancía está reservada a tu nombre."
       ],
       "siguiente": "Siguiente paso: haz el pago por Zelle y sube la captura en la página de tu pedido. Los datos exactos están ahí.",
-      "boton": "Ver mi pedido y pagar"
+      "boton": "Ver mi pedido y pagar",
+      "siguienteEnvio": "Siguiente paso: haz el pago y sube la captura en la página de tu pedido. Cuando quede confirmado, el comercio te escribe para coordinar la entrega."
     },
     "comprobanteRecibido": {
       "asunto": "Recibimos tu comprobante del pedido {numero}",
@@ -1956,6 +1958,10 @@
     "opcionEnvio": "Que me lo envíen",
     "opcionEnvioTexto": "Se suma el costo de envío del comercio",
     "lineaEnvio": "Envío",
-    "sinEnvioDisponible": "Este comercio todavía no ofrece envío. Se retira en su local."
+    "sinEnvioDisponible": "Este comercio todavía no ofrece envío. Se retira en su local.",
+    "avisoRetiro": "Vas a buscarlo en el local del comercio. Te avisamos cuándo está listo.",
+    "avisoEnvio": "El comercio te lo despacha. Se suma el costo de envío al total y él te escribe para coordinar la entrega.",
+    "enPedidoRetiro": "Lo retiras en el local del comercio",
+    "enPedidoEnvio": "El comercio te lo despacha"
   }
 }

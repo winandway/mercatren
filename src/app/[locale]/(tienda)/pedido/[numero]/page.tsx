@@ -1,5 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { CheckCircle2, FileText } from "lucide-react";
+import { CheckCircle2, FileText, Store, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -43,6 +43,7 @@ export default async function PaginaPedido({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("pedido");
+  const te = await getTranslations("envio");
   const tf = await getTranslations("factura");
   const datos = await obtenerPedidoPropio(numero);
 
@@ -131,6 +132,20 @@ export default async function PaginaPedido({
             </li>
           ))}
         </ul>
+        {/* EL ENVÍO, EN SU PROPIO RENGLÓN (8 ago 2026).
+
+            Sin esto el comprador veía un total más alto que la suma de los
+            productos y no sabía por qué. Un cobro que no se explica es un
+            reclamo. Solo se dibuja si de verdad hubo envío. */}
+        {pedido.envioCentavos > 0 ? (
+          <p className="flex justify-between border-t border-borde px-4 py-2 text-sm">
+            <span className="text-tinta-suave">{te("lineaEnvio")}</span>
+            <span className="tabular-nums">
+              {formatearPrecio(pedido.envioCentavos, idioma, pedido.moneda)}
+            </span>
+          </p>
+        ) : null}
+
         <p className="flex justify-between border-t border-borde px-4 py-3 text-base font-bold">
           <span>{t("total")}</span>
           <span className="tabular-nums">
@@ -138,6 +153,28 @@ export default async function PaginaPedido({
           </span>
         </p>
       </section>
+
+      {/* CÓMO LO VA A RECIBIR. Es lo que más pregunta quien acaba de pagar, y
+          hasta hoy no se lo decía ninguna pantalla. */}
+      <p className="mt-4 flex items-start gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm">
+        {pedido.envioCentavos > 0 ? (
+          <>
+            <Truck
+              className="mt-0.5 h-4 w-4 shrink-0 text-tinta-suave"
+              aria-hidden
+            />
+            <span>{te("enPedidoEnvio")}</span>
+          </>
+        ) : (
+          <>
+            <Store
+              className="mt-0.5 h-4 w-4 shrink-0 text-tinta-suave"
+              aria-hidden
+            />
+            <span>{te("enPedidoRetiro")}</span>
+          </>
+        )}
+      </p>
 
       {/* A donde va */}
       {direccion ? (

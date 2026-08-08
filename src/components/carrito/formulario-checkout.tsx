@@ -227,8 +227,15 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
               ))}
             </div>
           ) : null}
+          {/* EL AVISO YA NO ES FIJO. Decía "todo se retira en el depósito"
+              aunque el comercio despachara, así que el comprador leía lo
+              contrario de lo que iba a pasar justo antes de pagar. */}
           <p className="mt-1 rounded-lg bg-carga-500/5 px-3 py-2 text-sm text-tinta-suave ring-1 ring-carga-500/30">
-            {t("entrega.aviso")}
+            {envio.despachan
+              ? forma === "envio"
+                ? te("avisoEnvio")
+                : te("avisoRetiro")
+              : t("entrega.aviso")}
           </p>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">

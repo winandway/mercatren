@@ -12,6 +12,7 @@ import {
   variantesDe,
 } from "@/lib/productos/variantes";
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
+import { politicaDeEnvio } from "@/lib/envios/consultas";
 import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
 import { obtenerProductoPorSlug } from "@/lib/catalogo/consultas";
@@ -102,6 +103,12 @@ export default async function PaginaProducto({
   const ficha = await obtenerProductoPorSlug(slug);
 
   if (!ficha) notFound();
+
+  /* Cómo despacha el comercio de ESTE producto. Antes la ficha decía a todo el
+     mundo "no hacemos entregas a domicilio", y desde que los comercios pueden
+     enviar eso era mentira: al que sí despacha le estábamos quitando la venta
+     en su propia ficha. */
+  const envioDelComercio = await politicaDeEnvio(ficha.tiendaId);
 
   // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
   const zona = await zonaDelCliente();
@@ -277,6 +284,7 @@ export default async function PaginaProducto({
                 comoLlegar: ficha.depositoComoLlegar,
               }}
               zonaCliente={zona?.slug ?? null}
+              envio={envioDelComercio}
             />
           </div>
 

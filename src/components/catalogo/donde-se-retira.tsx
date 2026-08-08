@@ -1,15 +1,22 @@
 import { MapPin, TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { porcentajeVisible, type ModoEnvio } from "@/lib/envios/politica";
 import { distanciaDeRetiro, zonaPorSlug } from "@/lib/entrega/zonas";
 import { cn } from "@/lib/utils";
 
 /**
  * DÓNDE SE RETIRA ESTO, justo debajo de quién lo vende.
  *
- * Mercatren no lleva nada a domicilio: esto es ferretería y mover una lámina
- * de zinc pide un camión. El precio publicado es el precio de retirarlo en el
- * depósito, y eso hay que decirlo ANTES de pagar, no en el correo de después.
+ * EL TEXTO DE ABAJO YA NO ES FIJO (8 ago 2026). Decía "por ahora todo se
+ * retira en el depósito, no hacemos entregas a domicilio" para todos los
+ * productos, y desde que los comercios pueden despachar **eso es mentira**:
+ * a un comercio que envía a toda Venezuela le estábamos diciendo a su
+ * comprador que no lo hace, y quitándole la venta en la propia ficha.
+ *
+ * Ahora sale la política de ESE comercio. Y sigue diciéndose ANTES de pagar,
+ * que es lo que importaba: nadie se entera de cómo lo recibe en el correo de
+ * después.
  *
  * EL TONO CAMBIA CON LA DISTANCIA, y esa es toda la gracia. No es lo mismo
  * "pasas y lo recoges" que "tendrías que manejar siete horas". Un aviso
@@ -21,6 +28,7 @@ import { cn } from "@/lib/utils";
 export async function DondeSeRetira({
   deposito,
   zonaCliente,
+  envio,
 }: {
   deposito: {
     nombre: string | null;
@@ -30,12 +38,15 @@ export async function DondeSeRetira({
     comoLlegar: string | null;
   };
   zonaCliente: string | null;
+  /** Cómo despacha el comercio de ESTE producto. */
+  envio: { modo: ModoEnvio; porcentajePuntosBase: number };
 }) {
   // Sin depósito no se inventa nada: mejor callar que mandar a alguien a una
   // dirección que no sabemos.
   if (!deposito.zona) return null;
 
   const t = await getTranslations("entrega");
+  const te = await getTranslations("envio");
   const zona = zonaPorSlug(deposito.zona);
   if (!zona) return null;
 
@@ -97,7 +108,17 @@ export async function DondeSeRetira({
       )}
 
       <p className="mt-1.5 pl-6 text-xs text-tinta-suave">
-        {t("todoEsRetiro")}
+        {envio.modo === "porcentaje"
+          ? te("conCosto", {
+              pct: porcentajeVisible(envio.porcentajePuntosBase),
+            })
+          : te(
+              envio.modo === "incluido"
+                ? "incluido"
+                : envio.modo === "solo_retiro"
+                  ? "soloRetiro"
+                  : "sinDefinir",
+            )}
       </p>
     </div>
   );

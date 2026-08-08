@@ -359,7 +359,9 @@ export async function crearPedido(
     await import("@/lib/pedidos/retiro");
   await correoGraciasCompra(
     { email: usuario.email, name: usuario.name, idioma: usuario.idioma },
-    { numero, totalCentavos: subtotal },
+    /* EL TOTAL, NO EL SUBTOTAL. Mandaba el subtotal, y desde que hay envío eso
+       le enseña al comprador MENOS de lo que va a pagar. */
+    { numero, totalCentavos: total, envioCentavos },
     lineasDeRetiro(await puntosDeRetiro(pedidoId)),
   );
 

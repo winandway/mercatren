@@ -1168,3 +1168,27 @@ el subtotal de lo suyo.
 
 **El retiro SIEMPRE está disponible**, aunque el comercio despache: quitarlo
 sería cobrarle un flete que no pidió.
+
+### Dónde se ve el envío (todo, no solo la ficha del comercio)
+
+Cuando un comercio dice cómo despacha, eso tiene que cambiar en **las cinco
+pantallas por las que pasa un comprador**. Si cambia en una sola, el sitio se
+contradice a sí mismo:
+
+| Dónde               | Qué dice                                              |
+| ------------------- | ----------------------------------------------------- |
+| Ficha del comercio  | La política, con su cobertura y su plazo              |
+| Ficha del producto  | La misma línea, debajo de dónde se retira             |
+| Checkout            | La elección retiro/envío, el costo y qué va a pasar   |
+| Página del pedido   | El renglón de envío y cómo lo va a recibir            |
+| Correo de la compra | El renglón de envío y el paso siguiente según el caso |
+
+**Lo que había antes era una promesa fija y falsa.** La ficha del producto
+decía a todo el mundo «por ahora todo se retira en el depósito, no hacemos
+entregas a domicilio», y el checkout «todo se retira en el depósito». Desde que
+los comercios pueden despachar, eso le estaba quitando la venta en su propia
+ficha a quien sí envía.
+
+**Y el correo mandaba el SUBTOTAL, no el total.** Sin envío daba igual; con
+envío le enseñaba al comprador menos de lo que iba a pagar. Corregido el 8 ago
+2026 en el mismo trabajo.
