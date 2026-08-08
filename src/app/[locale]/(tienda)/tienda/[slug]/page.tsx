@@ -103,7 +103,16 @@ export default async function PaginaTienda({
   /* El enlace de WhatsApp se arma del teléfono que el comercio ya cargó. Si no
      lo cargó, no se dibuja el botón: mejor sin botón que un botón roto. */
   const soloDigitos = (tienda.telefono ?? "").replace(/[^0-9]/g, "");
-  const whatsapp = soloDigitos ? `https://wa.me/${soloDigitos}` : null;
+
+  /* EL MENSAJE VA ESCRITO DE ANTEMANO.
+     Al comercio le entra un WhatsApp de un número que no conoce. Si llega
+     vacío, no sabe quién es ni de qué le hablan y muchas veces ni contesta.
+     Con el mensaje puesto sabe de entrada que viene de su tienda en Mercatren
+     — y el comprador no tiene que pensar qué escribir, que es justo donde se
+     abandona una conversación antes de empezarla. */
+  const whatsapp = soloDigitos
+    ? `https://wa.me/${soloDigitos}?text=${encodeURIComponent(t("mensajeWhatsapp"))}`
+    : null;
 
   /* El color de este comercio: el que eligió, o uno derivado de su nombre si
      nunca eligió. Nunca queda sin fondo. */
@@ -346,13 +355,19 @@ export default async function PaginaTienda({
               href={whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              /* EL VERDE DE WHATSAPP Y SU LOGO DE VERDAD. Un bocadillo genérico
-                 en un botón oscuro no le dice a nadie que se abre WhatsApp; el
-                 logo se reconoce sin leer, que es lo que hace falta donde todo
-                 el mundo escribe por ahí. */
-              className="mb-3 inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
+              /* EL BOTÓN VA EN EL AZUL DE LA CASA, NO EN VERDE (8 ago 2026).
+
+                 Se probó con el verde entero de WhatsApp y quedaba enorme: una
+                 mancha verde que se comía la ficha y sacaba la página del
+                 estilo del sitio. Un botón de contacto es una acción más, no la
+                 protagonista.
+
+                 Lo que sí se queda es el LOGO, y en su verde: a ese tamaño el
+                 color es lo que hace que se reconozca de un vistazo, sin leer.
+                 Sobre el azul oscuro resalta y no compite con nada. */
+              className="mb-3 inline-flex items-center gap-1.5 rounded-lg bg-riel-900 px-3 py-1.5 text-[13px] font-semibold text-white transition-colors hover:bg-riel-800"
             >
-              <IconoWhatsapp className="h-[18px] w-[18px]" />
+              <IconoWhatsapp className="h-4 w-4 text-[#25D366]" />
               {t("escribir")}
             </a>
           ) : null}

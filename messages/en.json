@@ -1530,7 +1530,8 @@
     "escribir": "Message on WhatsApp",
     "verificada": "Verified business",
     "dondeSeRetira": "Pickup location",
-    "masDelComercio": "More about this merchant"
+    "masDelComercio": "More about this merchant",
+    "mensajeWhatsapp": "Hi, I'm interested in the products you have on Mercatren.com"
   },
   "docs": {
     "titulo": "Documentation",

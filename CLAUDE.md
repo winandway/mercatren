@@ -1070,10 +1070,19 @@ son verdes, así que se leían como una sola cosa. Arriba a la derecha tampoco
 sirve: con un logo ancho, esa esquina se corre hacia el botón otra vez. A la
 izquierda queda lejos mida lo que mida el logo.
 
-**El botón de contacto lleva el logo REAL de WhatsApp y su verde**
-(`src/components/ui/icono-whatsapp.tsx`; lucide no trae logos de marcas). Un
-bocadillo genérico en un botón oscuro no le dice a nadie que se abre WhatsApp,
-y ahí es por donde escribe todo el mundo.
+**El botón de contacto lleva el logo REAL de WhatsApp**
+(`src/components/ui/icono-whatsapp.tsx`; lucide no trae logos de marcas), pero
+**el botón va en el azul de la casa, no en verde**. Se probó con el verde
+entero de WhatsApp y quedaba enorme: una mancha verde que se comía la ficha y
+sacaba la página del estilo del sitio. El contacto es una acción más, no la
+protagonista. Lo que sí conserva su verde es el logo: a ese tamaño el color es
+lo que hace que se reconozca sin leer.
+
+**El enlace lleva el mensaje escrito de antemano** («Hola, estoy interesado en
+tus productos publicados en Mercatren.com», bilingüe). Al comercio le entra un
+WhatsApp de un número que no conoce: si llega vacío no sabe quién es ni de qué
+le hablan, y muchas veces ni contesta. Y el comprador no tiene que pensar qué
+escribir, que es justo donde se abandona una conversación antes de empezarla.
 
 ### Cada tienda tiene su color
 
