@@ -3,10 +3,16 @@
 Todo lo que falta para abrir al público, en un solo lugar. **Este documento no
 se borra ni se reescribe: se va marcando.**
 
-> **Ojo — hay un plan aparte, y ahora mismo manda ese.** `PLAN.md` recoge lo
-> que salió del informe del 7 ago 2026 (facturas, cierre del período, impuesto
-> a la venta y el renombre de «billetera»). Es lo que hay que cerrar antes de
-> actualizar al equipo, y va primero. Este mapa sigue valiendo para el resto.
+> **Ojo — hay dos planes aparte, y mandan ellos.**
+>
+> - `PLAN.md` — lo que salió del informe del 7 ago 2026: facturas, cierre del
+>   período, impuesto a la venta y el renombre de «billetera».
+> - `PLAN-VITRINA.md` — lo que pidió Ferremateriales Bley el 8 ago 2026:
+>   conectar su sistema de verdad (hoy **no está sincronizado**) y enseñar
+>   cuánto se ha vendido de cada producto. Incluye por qué las estrellas
+>   inventadas no se hacen y qué se hace en su lugar.
+>
+> Este mapa sigue valiendo para el resto.
 
 - ✅ = hecho y verificado en el sitio publicado
 - ⬜ = pendiente
