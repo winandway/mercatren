@@ -9,9 +9,14 @@
  * productos distintos.
  *
  * Sin agrupar, el comprador ve el mismo producto repetido con dos cantidades
- * distintas y no entiende por qué. **Eso ya está pasando**: de los 689
- * productos cargados a mano, solo 638 son códigos distintos — hoy hay 51
- * fichas duplicadas publicadas.
+ * distintas y no entiende por qué. **Eso ya está pasando, sin sucursales de por
+ * medio**: de los 689 productos cargados a mano, solo 621 son códigos
+ * distintos. Son 68 fichas duplicadas publicadas ahora mismo.
+ *
+ * De esas 68, diecisiete son el mismo código escrito con otras mayúsculas
+ * —`TUBO-9` y `Tubo-9`—, y por eso se agrupa normalizando. Lo que NO se toca
+ * son los ceros: `LAMINA-5` y `LAMINA-05` son códigos distintos y se quedan
+ * separados.
  *
  * ══ Y HAY UNA RAZÓN MÁS FUERTE QUE LA ESTÉTICA ══
  *
