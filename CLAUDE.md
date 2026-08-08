@@ -1085,6 +1085,25 @@ uno claro**.
 Los enlaces del banner van en blanco subrayado, no en naranja: el naranja se
 ensucia sobre el vino y el tierra.
 
+### En el celular, la ficha es OTRA (8 ago 2026)
+
+En un teléfono, el banner con los datos fiscales más las tarjetas de envío y
+horario **se comían la pantalla entera**: el comprador entraba y no veía ni un
+producto sin hacer scroll. En una tienda de seiscientos artículos, mucha gente
+no llega nunca. La ficha se veía seria y no vendía nada.
+
+Por debajo de `lg`, la ficha enseña **nombre, ciudad, logo, contacto, la franja
+de confianza, dos líneas de presentación y los PRODUCTOS**. Todo lo demás —los
+datos fiscales, el envío, el horario y dónde se retira— entra plegado en
+«Más de este comercio», a un toque.
+
+Es un `<details>` del navegador, a propósito: abre y cierra sin una línea de
+JavaScript, Google lee su contenido aunque esté cerrado, y funciona con lector
+de pantalla. Un panel con estado de React costaría más y daría menos.
+
+La presentación va con `line-clamp-2` en móvil: un comercio que escriba tres
+párrafos empujaría los productos fuera de la pantalla otra vez.
+
 ### Los envíos: cuatro estados, no un sí/no
 
 Tabla `envios_tienda` (nueva, no columnas: así llega sola en la publicación).

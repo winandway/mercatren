@@ -1,7 +1,9 @@
 import {
   BadgeCheck,
   CalendarDays,
+  ChevronDown,
   Clock,
+  Info,
   MapPin,
   MessageCircle,
   Package,
@@ -230,7 +232,7 @@ export default async function PaginaTienda({
           <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px] opacity-20" />
         )}
 
-        <div className="relative mx-auto flex max-w-[1500px] flex-wrap gap-x-10 gap-y-6 px-4 pt-7 pb-14 sm:pt-9 sm:pb-16">
+        <div className="relative mx-auto flex max-w-[1500px] flex-wrap gap-x-10 gap-y-6 px-4 pt-5 pb-12 sm:pt-9 sm:pb-16">
           <div className="min-w-[240px] flex-[1.3]">
             <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
               {tienda.nombre}
@@ -248,7 +250,7 @@ export default async function PaginaTienda({
               ve bien sobre el azul pero se ensucia sobre el vino y el tierra, y
               ahora el fondo lo elige cada comercio. */}
           {datosEmpresa.length > 0 ? (
-            <dl className="grid min-w-[230px] flex-1 grid-cols-1 gap-x-6 gap-y-2.5 border-l-2 border-white/15 pl-4 sm:grid-cols-2">
+            <dl className="hidden min-w-[230px] flex-1 grid-cols-2 gap-x-6 gap-y-2.5 border-l-2 border-white/15 pl-4 lg:grid">
               {datosEmpresa.map((dato) => (
                 <div
                   key={dato.etiqueta}
@@ -348,14 +350,120 @@ export default async function PaginaTienda({
         {/* En texto normal, no dentro de una caja: es lo único escrito con las
             palabras del comercio y en una tarjeta gris se lee como un dato
             más y se salta. */}
-        <p className="mt-5 max-w-3xl text-base leading-relaxed">
+        <p className="mt-5 line-clamp-2 max-w-3xl text-base leading-relaxed lg:line-clamp-none">
           {descripcion || t("sinDescripcion")}
         </p>
 
         {/* Cómo se recibe. La línea de envío aparece SIEMPRE, incluso cuando
             el comercio no lo ha definido — así ve el hueco en su propia ficha
             y entra a completarlo. */}
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {/* ══ EN EL CELULAR, TODO ESTO VA PLEGADO ══ (8 ago 2026)
+
+            El problema: en un teléfono, el banner con los datos fiscales más
+            las tarjetas de envío y horario se comían la pantalla ENTERA. El
+            comprador entraba y no veía ni un producto sin hacer scroll — y en
+            una tienda con seiscientos artículos, mucha gente no llega nunca al
+            final. La ficha se veía "seria" y no vendía nada.
+
+            Ahora en móvil se ve: nombre, ciudad, logo, contacto, la franja de
+            confianza, dos líneas de presentación y **los productos**. Lo demás
+            entra aquí, a un toque, para quien quiera saber más.
+
+            Es un `<details>` del propio navegador, a propósito: abre y cierra
+            sin una línea de JavaScript, el buscador lee su contenido aunque
+            esté cerrado, y funciona igual con lector de pantalla. Un panel
+            hecho a mano con estado de React costaría más y daría menos. */}
+        <details className="group mt-5 rounded-xl border border-borde bg-slate-50 lg:hidden">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5">
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <Info className="h-4 w-4 text-tinta-suave" aria-hidden />
+              {t("masDelComercio")}
+            </span>
+            <ChevronDown
+              className="h-5 w-5 shrink-0 text-tinta-suave transition-transform group-open:rotate-180"
+              aria-hidden
+            />
+          </summary>
+
+          <div className="space-y-4 border-t border-borde px-4 py-4">
+            <div>
+              <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
+                <Truck className="h-4 w-4" aria-hidden />
+                {te("titulo")}
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {envio.modo === "porcentaje"
+                  ? te("conCosto", {
+                      pct: porcentajeVisible(envio.porcentajePuntosBase),
+                    })
+                  : te(
+                      envio.modo === "incluido"
+                        ? "incluido"
+                        : envio.modo === "solo_retiro"
+                          ? "soloRetiro"
+                          : "sinDefinir",
+                    )}
+              </p>
+              {cobertura ? (
+                <p className="text-xs text-tinta-suave">{cobertura}</p>
+              ) : null}
+              {plazo ? (
+                <p className="text-xs text-tinta-suave">
+                  {te("plazo", { plazo })}
+                </p>
+              ) : null}
+            </div>
+
+            {tienda.horario ? (
+              <div>
+                <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
+                  <Clock className="h-4 w-4" aria-hidden />
+                  {t("horario")}
+                </p>
+                <p className="mt-1 text-sm font-medium">{tienda.horario}</p>
+              </div>
+            ) : null}
+
+            {tienda.direccion ? (
+              <div>
+                <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
+                  <Store className="h-4 w-4" aria-hidden />
+                  {t("dondeSeRetira")}
+                </p>
+                <p className="mt-1 text-sm font-medium">{tienda.direccion}</p>
+              </div>
+            ) : null}
+
+            {datosEmpresa.length > 0 ? (
+              <dl className="space-y-2.5 border-t border-borde pt-4">
+                {datosEmpresa.map((dato) => (
+                  <div key={dato.etiqueta}>
+                    <dt className="text-[11px] tracking-wide text-tinta-suave uppercase">
+                      {dato.etiqueta}
+                    </dt>
+                    <dd className="mt-0.5 text-sm break-words">
+                      {dato.enlace ? (
+                        <a
+                          href={dato.enlace}
+                          className="text-carga-600 underline underline-offset-2"
+                          {...(dato.enlace.startsWith("http")
+                            ? { target: "_blank", rel: "noopener noreferrer" }
+                            : {})}
+                        >
+                          {dato.valor}
+                        </a>
+                      ) : (
+                        dato.valor
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+          </div>
+        </details>
+
+        <div className="mt-5 hidden gap-3 lg:grid lg:grid-cols-3">
           <div className="rounded-xl bg-slate-50 px-4 py-3">
             <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
               <Truck className="h-4 w-4" aria-hidden />

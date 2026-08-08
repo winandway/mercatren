@@ -109,7 +109,7 @@ export default async function PaginaInicio({
        */}
       <section className="relative isolate overflow-hidden bg-riel-900 text-white">
         <video
-          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-45"
+          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-80"
           src="/video/portada.mp4"
           poster="/video/portada.jpg"
           autoPlay
@@ -119,9 +119,16 @@ export default async function PaginaInicio({
           preload="metadata"
           aria-hidden
         />
+        {/* LA CAPA DE COLOR, ACLARADA (8 ago 2026).
+
+            Estaba tan cargada que las cajas del video pasaban desapercibidas y
+            el hueco se leía como un fondo azul plano. Ahora el velo se
+            concentra a la IZQUIERDA, que es donde va el texto y donde hace
+            falta para leerlo, y se abre hacia la derecha para que se vea lo
+            que pasa por la cinta. */}
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-gradient-to-r from-riel-900 via-riel-900/85 to-riel-900/40"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-riel-900 via-riel-900/70 to-riel-900/10"
         />
 
         <div className="mx-auto max-w-[1500px] px-4 py-8 sm:py-12">

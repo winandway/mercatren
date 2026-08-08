@@ -219,6 +219,15 @@ export async function Encabezado() {
           >
             {t("ayuda")}
           </Link>
+          {/* EL BLOG, en la barra y no solo escondido en el menú "Todo". Cada
+              nota que se publica suma para Google, y una sección que nadie ve
+              no la lee nadie. */}
+          <Link
+            href="/blog"
+            className="celda-encabezado hidden shrink-0 lg:block"
+          >
+            {t("blog")}
+          </Link>
         </div>
       </div>
     </header>

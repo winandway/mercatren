@@ -1527,7 +1527,8 @@
     "verificado": "Merchant verified by Mercatren",
     "escribir": "Message the merchant",
     "verificada": "Verified business",
-    "dondeSeRetira": "Pickup location"
+    "dondeSeRetira": "Pickup location",
+    "masDelComercio": "More about this merchant"
   },
   "docs": {
     "titulo": "Documentation",
