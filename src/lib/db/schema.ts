@@ -1419,3 +1419,62 @@ export const ordenesCompra = sqliteTable(
     index("idx_oc_estado").on(t.estado),
   ],
 );
+
+/**
+ * LA POLÍTICA DE ENVÍO DE CADA COMERCIO (7 ago 2026).
+ *
+ * TABLA APARTE, NO COLUMNAS EN `tiendas`. `schema.sql` solo trae
+ * `CREATE TABLE IF NOT EXISTS`, así que una base que ya existe NO recibe
+ * columnas nuevas: habría que aplicar un ALTER a mano con el token. Una tabla
+ * nueva llega sola en la siguiente publicación.
+ *
+ * NO HAY UN BOOLEANO «hace envíos», y es la decisión importante de este
+ * diseño: hacen falta CUATRO estados, porque «todavía no lo dijo» no es lo
+ * mismo que «no envía». Si a un comercio que sí despacha le enseñáramos «solo
+ * retiro en el local» por no haber llenado el formulario, le estaríamos
+ * mintiendo a su comprador y quitándole ventas. El porqué de cada estado está
+ * en `src/lib/envios/politica.ts`, que es donde vive la lógica.
+ *
+ * Un comercio sin fila aquí se comporta como `sin_definir`, que es justo lo
+ * que hay que enseñar: «aún no especificado por el vendedor».
+ */
+export const enviosTienda = sqliteTable("envios_tienda", {
+  tiendaId: text("tienda_id")
+    .primaryKey()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+
+  modo: text("modo")
+    .$type<(typeof MODOS_ENVIO_DB)[number]>()
+    .notNull()
+    .default("sin_definir"),
+
+  /** Cuánto cobra por despachar, en puntos base: 400 = 4 %. */
+  porcentajePuntosBase: integer("porcentaje_puntos_base").notNull().default(0),
+
+  /** Hasta dónde llega, en sus palabras. Bilingüe como todo lo del público. */
+  coberturaEs: text("cobertura_es"),
+  coberturaEn: text("cobertura_en"),
+
+  /** Cuánto suele tardar, en sus palabras: "2 a 4 días hábiles". */
+  plazoEs: text("plazo_es"),
+  plazoEn: text("plazo_en"),
+
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+/**
+ * Los modos, repetidos aquí a propósito.
+ *
+ * El esquema NO importa de `envios/politica.ts` porque ese archivo es puro y
+ * corre también en el navegador; traerlo aquí metería el esquema entero en el
+ * paquete del cliente. Una prueba comprueba que las dos listas coinciden, que
+ * es lo que de verdad hace falta.
+ */
+export const MODOS_ENVIO_DB = [
+  "sin_definir",
+  "solo_retiro",
+  "porcentaje",
+  "incluido",
+] as const;

@@ -73,7 +73,7 @@ export async function crearPedido(
     };
   }
 
-  const { entrega, metodoPago, lineas } = revisado.data;
+  const { entrega, metodoPago, formaEntrega, lineas } = revisado.data;
 
   /**
    * LAS REGLAS POR MÉTODO (4 ago 2026): la tarjeta es la protagonista y
@@ -272,12 +272,43 @@ export async function crearPedido(
     return { ok: false, mensaje: t("pedidoSinMonto") };
   }
 
+  /* EL ENVÍO SE CALCULA AQUÍ, CON LA POLÍTICA DE LA BASE — nunca con lo que
+     diga el navegador. Que el carrito pida "envío" no basta: si el comercio no
+     despacha, no se cobra flete, y si despacha, el porcentaje es el suyo, no
+     uno mandado desde fuera. Es la misma regla del precio.
+
+     Se calcula POR COMERCIO: un carrito con tres tiendas puede llevar tres
+     fletes distintos, y cada uno sobre el subtotal de lo suyo. */
+  let envioCentavos = 0;
+
+  if (formaEntrega === "envio") {
+    const { politicasDeEnvio } = await import("@/lib/envios/consultas");
+    const { costoEnvioCentavos } = await import("@/lib/envios/politica");
+
+    const subtotalPorTienda = new Map<string, number>();
+    for (const item of items) {
+      subtotalPorTienda.set(
+        item.tiendaId,
+        (subtotalPorTienda.get(item.tiendaId) ?? 0) + item.subtotalCentavos,
+      );
+    }
+
+    const politicas = await politicasDeEnvio([...subtotalPorTienda.keys()]);
+
+    for (const [tiendaId, sub] of subtotalPorTienda) {
+      const politica = politicas.get(tiendaId);
+      if (politica) envioCentavos += costoEnvioCentavos(politica, sub);
+    }
+  }
+
+  const total = subtotal + envioCentavos;
+
   const pedidoId = nanoid();
   const numero = await siguienteNumero(db);
   const ahora = new Date();
 
-  // El envio y los impuestos quedan en cero por ahora: se acuerdan con el
-  // comercio. Cuando se definan, entran aqui y en el total.
+  // Los impuestos siguen en cero: están pendientes del contador (fase 3 de
+  // PLAN.md). El envío ya no: sale de la política de cada comercio.
   await db.batch([
     db.insert(pedidos).values({
       id: pedidoId,
@@ -285,9 +316,9 @@ export async function crearPedido(
       clienteId: usuario.id,
       estado: "pendiente_pago",
       subtotalCentavos: subtotal,
-      envioCentavos: 0,
+      envioCentavos,
       impuestosCentavos: 0,
-      totalCentavos: subtotal,
+      totalCentavos: total,
       moneda: encontrados[0]?.moneda ?? "USD",
       metodoPago,
       /* Es retiro en depósito: se guarda quién retira y su ciudad. Los

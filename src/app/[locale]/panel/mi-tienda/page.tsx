@@ -3,6 +3,7 @@ import { ExternalLink, RefreshCw } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FormularioMiTienda } from "@/components/panel/formulario-mi-tienda";
+import { FormularioEnvio } from "@/components/panel/envios/formulario-envio";
 import { SincronizarCatalogo } from "@/components/panel/sincronizar-catalogo";
 import { Link } from "@/i18n/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
@@ -10,6 +11,7 @@ import { getDb } from "@/lib/db";
 import { fuentesCatalogo, tiendas } from "@/lib/db/schema";
 import type { Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
+import { politicaDeEnvio } from "@/lib/envios/consultas";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +64,10 @@ export default async function PaginaMiTienda({
       </div>
     );
   }
+
+  // Como despacha. Un comercio sin fila devuelve "sin definir", que no es lo
+  // mismo que "no envia": es que todavia no lo dijo.
+  const envio = await politicaDeEnvio(tienda.id);
 
   // La fuente de catalogo del comercio, si tiene una.
   const [fuente] = await db
@@ -132,6 +138,11 @@ export default async function PaginaMiTienda({
           horario: tienda.horario,
         }}
       />
+
+      {/* Cómo despacha. Va después de la ficha porque lo primero es quién es
+          el comercio; pero antes de nada en la página pública, porque es lo
+          que el comprador necesita para decidir. */}
+      <FormularioEnvio tiendaId={tienda.id} inicial={envio} />
     </div>
   );
 }

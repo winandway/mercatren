@@ -2,7 +2,12 @@
 
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState, useSyncExternalStore, useTransition } from "react";
+import {
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 
 import { Campo } from "@/components/ui/campo";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -13,6 +18,7 @@ import {
   precioZelleCentavos,
   type Idioma,
 } from "@/lib/dinero";
+import { opcionesDeEntrega } from "@/lib/envios/acciones";
 import { crearPedido } from "@/lib/pedidos/acciones";
 import { cn } from "@/lib/utils";
 import { ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
@@ -40,6 +46,7 @@ const METODOS = [
 export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   const t = useTranslations("checkout");
   const tc = useTranslations("carrito");
+  const te = useTranslations("envio");
   const idioma = useLocale() as Idioma;
   const router = useRouter();
 
@@ -47,6 +54,33 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   const [pendiente, iniciarTransicion] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [metodo, setMetodo] = useState<string>("stripe");
+  const [forma, setForma] = useState<"retiro" | "envio">("retiro");
+  /* Si alguno de los comercios del carrito despacha, y cuánto costaría. Lo
+     calcula el SERVIDOR con las políticas de la base: el número que se enseña
+     aquí tiene que ser el mismo que se va a cobrar. */
+  const [envio, setEnvio] = useState({ despachan: false, costoCentavos: 0 });
+
+  /* Se pregunta al montar y cada vez que cambia el carrito. Si falla, se queda
+     en "no despachan": mejor no ofrecer un envío que ofrecerlo y no cumplirlo. */
+  const claveCarrito = lineas
+    .map((l) => `${l.productoId}:${l.cantidad}`)
+    .join("|");
+
+  useEffect(() => {
+    let vivo = true;
+    if (lineas.length === 0) return;
+    opcionesDeEntrega(
+      lineas.map((l) => ({ productoId: l.productoId, cantidad: l.cantidad })),
+    )
+      .then((r) => {
+        if (vivo) setEnvio(r);
+      })
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claveCarrito]);
 
   const enElNavegador = useSyncExternalStore(
     () => () => {},
@@ -106,7 +140,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
     0,
   );
   const esZelle = metodo === "zelle";
-  const totalAMostrar = esZelle ? totalZelle : total;
+  /* El envío solo se cobra si lo eligió Y hay quien despache. */
+  const costoEnvio = forma === "envio" ? envio.costoCentavos : 0;
+  const totalAMostrar = (esZelle ? totalZelle : total) + costoEnvio;
   const ahorroZelle = Math.max(0, total - totalZelle);
 
   function enviar(evento: React.FormEvent<HTMLFormElement>) {
@@ -130,6 +166,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           notas: texto("notas"),
         },
         metodoPago: metodo as "zelle" | "stripe",
+        formaEntrega: forma,
         lineas: lineas.map((l) => ({
           productoId: l.productoId,
           cantidad: l.cantidad,
@@ -152,6 +189,44 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
       <div className="space-y-6">
         <section className="rounded-xl border border-borde p-5">
           <h2 className="text-lg font-bold">{t("entrega.titulo")}</h2>
+
+          {/* CÓMO QUIERE RECIBIRLO. Solo se pregunta si algún comercio del
+              carrito despacha: ofrecer un envío que nadie puede hacer es peor
+              que no ofrecerlo. El retiro siempre está y viene marcado. */}
+          {envio.despachan ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {(["retiro", "envio"] as const).map((opcion) => (
+                <label
+                  key={opcion}
+                  className={cn(
+                    "flex cursor-pointer gap-2.5 rounded-xl border p-3",
+                    forma === opcion
+                      ? "border-riel-900 bg-riel-900/5"
+                      : "border-borde hover:bg-neutral-50",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="formaEntrega"
+                    value={opcion}
+                    checked={forma === opcion}
+                    onChange={() => setForma(opcion)}
+                    className="mt-0.5"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">
+                      {te(opcion === "retiro" ? "opcionRetiro" : "opcionEnvio")}
+                    </span>
+                    <span className="block text-xs text-tinta-suave">
+                      {opcion === "retiro"
+                        ? te("opcionRetiroTexto")
+                        : formatearPrecio(envio.costoCentavos, idioma)}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          ) : null}
           <p className="mt-1 rounded-lg bg-carga-500/5 px-3 py-2 text-sm text-tinta-suave ring-1 ring-carga-500/30">
             {t("entrega.aviso")}
           </p>
@@ -265,6 +340,15 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
             </li>
           ))}
         </ul>
+
+        {costoEnvio > 0 ? (
+          <p className="mt-2 flex justify-between text-xs text-tinta-suave">
+            <span>{te("lineaEnvio")}</span>
+            <span className="tabular-nums">
+              {formatearPrecio(costoEnvio, idioma)}
+            </span>
+          </p>
+        ) : null}
 
         <p className="mt-3 flex justify-between border-t border-borde pt-3 text-base font-bold">
           <span>{tc("total")}</span>

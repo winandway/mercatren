@@ -1219,6 +1219,39 @@
       "soloPendientes": "Only the ones missing",
       "todas": "All",
       "porQue": "Without your invoice there's a purchase with nothing backing it in the books. It's the document that closes the transaction."
+    },
+    "envio": {
+      "titulo": "Shipping",
+      "entradilla": "Tell us whether you ship and what it costs. This appears on your store, and buyers see it before they decide.",
+      "modo": {
+        "sin_definir": {
+          "titulo": "I haven't decided yet",
+          "texto": "Your store shows «not specified yet». Worth sorting out."
+        },
+        "solo_retiro": {
+          "titulo": "Pickup at my location only",
+          "texto": "The buyer comes to you."
+        },
+        "porcentaje": {
+          "titulo": "I ship and charge for it",
+          "texto": "You charge a percentage of the product price."
+        },
+        "incluido": {
+          "titulo": "I ship and it's included",
+          "texto": "No extra charge: it's already in your price."
+        }
+      },
+      "porcentaje": "What do you charge to ship?",
+      "porcentajeAyuda": "A percentage of the product price. At 4%, a $100 product carries $4 of shipping.",
+      "cobertura": "How far do you deliver?",
+      "coberturaMarcador": "All of Venezuela",
+      "coberturaEn": "How far do you deliver? (English)",
+      "plazo": "How long does it take?",
+      "plazoMarcador": "2 to 4 business days",
+      "plazoEn": "How long does it take? (English)",
+      "guardar": "Save",
+      "guardando": "Saving…",
+      "guardado": "Saved. It's live on your store."
     }
   },
   "catalogo": {
@@ -1474,7 +1507,10 @@
     "direccion": "Address",
     "sitioWeb": "Website",
     "horario": "Hours",
-    "verificado": "Merchant verified by Mercatren"
+    "verificado": "Merchant verified by Mercatren",
+    "escribir": "Message the merchant",
+    "verificada": "Verified business",
+    "dondeSeRetira": "Pickup location"
   },
   "docs": {
     "titulo": "Documentation",
@@ -1885,5 +1921,20 @@
     "total": "Total",
     "pie": "{sociedad} sells this merchandise on its own account. Keep this document: it is the record of your purchase.",
     "verFactura": "View my invoice"
+  },
+  "envio": {
+    "titulo": "Shipping",
+    "sinDefinir": "Nationwide shipping · not specified yet by the seller",
+    "soloRetiro": "Pickup at the merchant's location",
+    "incluido": "Shipping included in the price",
+    "conCosto": "Ships for {pct}% of the product price",
+    "plazo": "Delivered in {plazo}",
+    "elige": "How do you want to receive it?",
+    "opcionRetiro": "I'll pick it up",
+    "opcionRetiroTexto": "No shipping cost",
+    "opcionEnvio": "Ship it to me",
+    "opcionEnvioTexto": "The merchant's shipping cost is added",
+    "lineaEnvio": "Shipping",
+    "sinEnvioDisponible": "This merchant doesn't offer shipping yet. Pickup at their location."
   }
 }

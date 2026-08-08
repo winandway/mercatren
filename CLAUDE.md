@@ -1037,3 +1037,50 @@ panel de YaDominios Cloud. La lista está en `.env.example`.
 **Logo:** los archivos oficiales están en `public/logo_mercatren/`. Las
 variantes `-oscuro` son las que van **sobre fondo azul**. Colores de marca:
 azul `#10263A` y naranja `#FF6B1A`.
+
+## El perfil del comercio y los envíos (7 ago 2026)
+
+**La ficha pública se rehízo** (`/tienda/[slug]`): el nombre va **grande dentro
+de la portada azul**, el logo montado en el borde, y al lado el botón de
+escribir por WhatsApp — armado del teléfono que el comercio ya cargó; si no lo
+tiene, no se dibuja. Debajo, la franja de confianza (verificada · productos ·
+desde cuándo), la descripción en texto normal, y las tarjetas de envío, horario
+y dónde se retira.
+
+**Los datos de la empresa bajaron al final**, después de los productos. El RIF y
+el domicilio los busca quien ya decidió comprar; quien llega de Google quiere
+ver qué venden.
+
+**No se enseña cuántas ventas lleva un comercio.** Decisión del dueño: con "0
+ventas" espanta más de lo que ayuda. Va cuando el número acompañe.
+
+### Los envíos: cuatro estados, no un sí/no
+
+Tabla `envios_tienda` (nueva, no columnas: así llega sola en la publicación).
+La lógica pura está en `src/lib/envios/politica.ts`, con pruebas.
+
+| Modo          | Qué significa                            |
+| ------------- | ---------------------------------------- |
+| `sin_definir` | Todavía no lo dijo. **NO es «no envía»** |
+| `solo_retiro` | Se busca en su local                     |
+| `porcentaje`  | Despacha y cobra un % sobre el precio    |
+| `incluido`    | Despacha y no cobra aparte               |
+
+**Por qué cuatro y no un booleano:** si a un comercio que sí despacha le
+enseñáramos «solo retiro» por no haber llenado el formulario, le estaríamos
+mintiendo a su comprador y quitándole ventas. `sin_definir` sale en su ficha
+como **«Envío a toda Venezuela · aún no especificado por el vendedor»**, que
+además es el empujón para que entre a completarlo.
+
+**El porcentaje va en puntos base** (400 = 4 %), como toda comisión del
+proyecto, y **está topado al 50 %**: un dedo de más convierte un 4 % en un 40 %
+y el comprador lo ve como un cobro absurdo. Se acota en el servidor, no solo en
+el formulario.
+
+**El costo lo calcula el SERVIDOR con la política de la base**, nunca con lo que
+mande el navegador — misma regla que el precio. Y se calcula **por comercio**:
+un carrito con tres tiendas puede llevar tres fletes distintos, cada uno sobre
+el subtotal de lo suyo.
+
+**El retiro SIEMPRE está disponible**, aunque el comercio despache: quitarlo
+sería cobrarle un flete que no pidió.

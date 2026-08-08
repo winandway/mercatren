@@ -52,6 +52,11 @@ export const esquemaLinea = z.object({
 export const esquemaPedido = z.object({
   entrega: esquemaEntrega,
   metodoPago: z.enum(["zelle", "stripe", "billetera"]),
+  /* CÓMO QUIERE RECIBIRLO. Por omisión, retiro — que es como funcionó el
+     sitio hasta el 7 ago 2026 y sigue siendo lo que pasa si el comercio no
+     despacha. Que el navegador pida "envio" no basta: el servidor comprueba
+     contra la política del comercio antes de cobrar un flete. */
+  formaEntrega: z.enum(["retiro", "envio"]).default("retiro"),
   lineas: z.array(esquemaLinea).min(1, "El carrito está vacío."),
 });
 

@@ -1219,6 +1219,39 @@
       "soloPendientes": "Solo las que faltan",
       "todas": "Todas",
       "porQue": "Sin tu factura queda una compra sin respaldo en la contabilidad. Es el documento que cierra la operación."
+    },
+    "envio": {
+      "titulo": "Envíos",
+      "entradilla": "Dinos si despachas y a cuánto. Esto sale en tu tienda y el comprador lo ve antes de decidir.",
+      "modo": {
+        "sin_definir": {
+          "titulo": "Todavía no lo defino",
+          "texto": "En tu tienda aparece «aún no especificado». Conviene resolverlo."
+        },
+        "solo_retiro": {
+          "titulo": "Solo retiro en mi local",
+          "texto": "El comprador va a buscarlo donde estás."
+        },
+        "porcentaje": {
+          "titulo": "Despacho y cobro el envío",
+          "texto": "Cobras un porcentaje sobre el precio del producto."
+        },
+        "incluido": {
+          "titulo": "Despacho y el envío va incluido",
+          "texto": "No cobras aparte: ya está en tu precio."
+        }
+      },
+      "porcentaje": "¿Cuánto cobras por enviar?",
+      "porcentajeAyuda": "En porcentaje sobre el precio del producto. Si cobras 4 %, un producto de $100 lleva $4 de envío.",
+      "cobertura": "¿Hasta dónde llegas?",
+      "coberturaMarcador": "Toda Venezuela",
+      "coberturaEn": "¿Hasta dónde llegas? (inglés)",
+      "plazo": "¿Cuánto tardas?",
+      "plazoMarcador": "2 a 4 días hábiles",
+      "plazoEn": "¿Cuánto tardas? (inglés)",
+      "guardar": "Guardar",
+      "guardando": "Guardando…",
+      "guardado": "Guardado. Ya se ve en tu tienda."
     }
   },
   "catalogo": {
@@ -1474,7 +1507,10 @@
     "direccion": "Dirección",
     "sitioWeb": "Sitio web",
     "horario": "Horario",
-    "verificado": "Comercio verificado por Mercatren"
+    "verificado": "Comercio verificado por Mercatren",
+    "escribir": "Escribir al comercio",
+    "verificada": "Empresa verificada",
+    "dondeSeRetira": "Dónde se retira"
   },
   "docs": {
     "titulo": "Documentación",
@@ -1885,5 +1921,20 @@
     "total": "Total",
     "pie": "{sociedad} vende esta mercancía por cuenta propia. Conserva este documento: es el comprobante de tu compra.",
     "verFactura": "Ver mi factura"
+  },
+  "envio": {
+    "titulo": "Envíos",
+    "sinDefinir": "Envío a toda Venezuela · aún no especificado por el vendedor",
+    "soloRetiro": "Se retira en el local del comercio",
+    "incluido": "Envío incluido en el precio",
+    "conCosto": "Despacha con un costo de envío de {pct} % sobre el producto",
+    "plazo": "Entrega en {plazo}",
+    "elige": "¿Cómo lo quieres recibir?",
+    "opcionRetiro": "Lo busco en su local",
+    "opcionRetiroTexto": "Sin costo de envío",
+    "opcionEnvio": "Que me lo envíen",
+    "opcionEnvioTexto": "Se suma el costo de envío del comercio",
+    "lineaEnvio": "Envío",
+    "sinEnvioDisponible": "Este comercio todavía no ofrece envío. Se retira en su local."
   }
 }
