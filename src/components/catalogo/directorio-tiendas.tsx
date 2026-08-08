@@ -81,7 +81,9 @@ export function DirectorioTiendas({
                   <img
                     src={tienda.logoUrl}
                     alt=""
-                    className="h-14 w-14 shrink-0 rounded-xl object-cover ring-1 ring-borde"
+                    /* `contain` y no `cover`: la mayoría de los logos son horizontales
+                       y recortarlos al centro se come media marca. */
+                    className="h-14 w-14 shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-borde"
                   />
                 ) : (
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-riel-900 text-carga-400">

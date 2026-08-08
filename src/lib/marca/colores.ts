@@ -41,6 +41,10 @@ export type ColorBanner = {
 
 export const COLORES_BANNER: ColorBanner[] = [
   { id: "azul", hex: "#10263A" },
+  /* Azul rey, agregado el 8 ago 2026: el azul de marca de muchas ferreterías
+     es vivo, y el azul marino de arriba les quedaba apagado. Sigue siendo lo
+     bastante oscuro para el texto blanco — la prueba de luminancia lo mide. */
+  { id: "azul_rey", hex: "#1B2C9E" },
   { id: "grafito", hex: "#1C1C1E" },
   { id: "vino", hex: "#5B1F2E" },
   { id: "bosque", hex: "#12352A" },
@@ -69,11 +73,30 @@ function numeroDeTexto(texto: string): number {
   for (let i = 0; i < texto.length; i++) {
     n = ((n << 5) + n + texto.charCodeAt(i)) >>> 0;
   }
-  return n;
+
+  /* LA MEZCLA FINAL, y hace falta de verdad. Sin ella, djb2 devuelve números
+     casi consecutivos para nombres casi iguales — "Comercio 1", "Comercio 2",
+     "Comercio 3"— y al repartirlos entre nueve colores se agrupaban en dos.
+     Lo encontró su propia prueba de reparto al pasar de ocho colores a nueve.
+
+     Estos tres pasos revuelven los bits para que un carácter de diferencia
+     cambie el resultado entero. */
+  n ^= n >>> 15;
+  n = Math.imul(n, 2246822507);
+  n ^= n >>> 13;
+  n = Math.imul(n, 3266489909);
+  n ^= n >>> 16;
+  return n >>> 0;
 }
 
 /**
  * El color que le toca a un comercio que nunca eligió.
+ *
+ * OJO AL TOCAR `numeroDeTexto`: cambiar la mezcla le cambia el color a TODAS
+ * las tiendas que no eligieron el suyo. Es aceptable hoy, con dos comercios y
+ * la función recién estrenada; con cincuenta ya no, porque a cada uno se le
+ * cambia la cara de su tienda sin avisarle. A partir de ahí, si hay que
+ * tocarla, primero se guarda a cada comercio el color que tiene puesto.
  *
  * Sale del nombre, así que es estable: mientras no se cambie el nombre, la
  * tienda conserva su color. Si lo cambia, cambia el color — y está bien, es

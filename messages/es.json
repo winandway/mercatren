@@ -1267,8 +1267,10 @@
         "indigo": "Índigo",
         "petroleo": "Petróleo",
         "tierra": "Tierra",
-        "ciruela": "Ciruela"
-      }
+        "ciruela": "Ciruela",
+        "azul_rey": "Azul rey"
+      },
+      "desdeLogo": "Usar el color de mi logo"
     }
   },
   "catalogo": {

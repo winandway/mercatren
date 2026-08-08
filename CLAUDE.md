@@ -1071,9 +1071,25 @@ al lado del logo se lo comía el botón de contacto.
 `apariencia_tienda` (tabla nueva) guarda el color elegido; la paleta y la
 lógica están en `src/lib/marca/colores.ts`.
 
-**Dos capas.** El comercio que nunca configura nada recibe un color **derivado
-de su propio nombre** —siempre el mismo— así que veinte tiendas nuevas ya se ven
-distintas entre sí desde el primer día. Y si quiere, elige otro en su panel.
+**EL COLOR SALE DEL LOGO** (`src/lib/marca/color-de-imagen.ts`). Se calcula en
+el NAVEGADOR, sobre un lienzo, la primera vez que el comercio abre su panel —
+no hace falta procesar imágenes en el servidor. Si nunca eligió color, se le
+guarda ese. Si ya eligió, no se le toca nada.
+
+**Se vota por tono, no se promedia.** El logo de Bley tiene un arco azul y
+letras rojas: promediando los píxeles saldría MORADO, un color que no está en
+el logo y que no se parece a nada de la paleta. Cada píxel vota por su franja
+de 30° y gana la que más peso junta; se promedia solo dentro de esa. Se
+descartan el blanco del fondo, el negro del contorno y los grises — el píxel
+más repetido de casi cualquier logo es el blanco, y no dice nada de la marca.
+
+**Si no hay logo**, el color se deriva del NOMBRE. Es el respaldo, no lo
+principal: derivar del nombre es arbitrario y ya falló — a una ferretería de
+logo azul y rojo le tocó marrón, y su dueño quería azul. De ahí salió todo
+esto (8 ago 2026).
+
+Y si quiere, el comercio elige otro en su panel, o pide «usar el color de mi
+logo» cuando cambie de logo.
 
 **LA PALETA ES CERRADA Y TODOS SON OSCUROS, y no es capricho.** Todo el banner
 va en texto blanco: el nombre, la identificación fiscal, el correo. Con un

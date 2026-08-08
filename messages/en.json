@@ -1267,8 +1267,10 @@
         "indigo": "Indigo",
         "petroleo": "Teal",
         "tierra": "Earth",
-        "ciruela": "Plum"
-      }
+        "ciruela": "Plum",
+        "azul_rey": "Azul rey"
+      },
+      "desdeLogo": "Use my logo's color"
     }
   },
   "catalogo": {

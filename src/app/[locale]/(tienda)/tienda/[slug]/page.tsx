@@ -289,13 +289,25 @@ export default async function PaginaTienda({
               contacto. Por eso el envoltorio es `relative` y el sello
               `absolute`: así no ocupa sitio y nada se le pone encima. */}
           <div className="relative -mt-11 shrink-0 sm:-mt-12">
-            <span className="flex h-22 w-22 items-center justify-center overflow-hidden rounded-2xl bg-white text-riel-800 shadow-lg ring-4 ring-white">
+            {/* EL RECUADRO DEL LOGO NO ES CUADRADO (8 ago 2026).
+
+                Estaba pensado para un isologotipo: un cuadrado con la imagen
+                recortada al centro. Pero **la mayoría de los comercios de
+                Venezuela tienen logos horizontales** —el nombre largo con un
+                dibujo al lado, hechos por ellos mismos y a los que les tienen
+                cariño— y ese recorte se les comía media marca.
+
+                Ahora la altura manda y el ancho se adapta hasta un tope, con
+                `object-contain`: **nunca se recorta nada**. Un logo cuadrado
+                sigue viéndose cuadrado; uno alargado se ve entero. El fondo
+                blanco hace de lienzo para los dos. */}
+            <span className="flex h-22 min-w-22 items-center justify-center overflow-hidden rounded-2xl bg-white px-2 text-riel-800 shadow-lg ring-4 ring-white">
               {logoUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={logoUrl}
                   alt={tienda.nombre}
-                  className="h-full w-full object-cover"
+                  className="h-full w-auto max-w-[240px] object-contain"
                 />
               ) : (
                 <Store className="h-9 w-9" aria-hidden />

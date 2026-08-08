@@ -151,6 +151,7 @@ export default async function PaginaMiTienda({
       <SelectorColor
         tiendaId={tienda.id}
         nombre={tienda.nombre}
+        logoUrl={enBucket(tienda.logoClave)}
         inicial={color}
       />
     </div>
