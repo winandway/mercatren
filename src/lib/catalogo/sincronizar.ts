@@ -1,10 +1,15 @@
 "use server";
 
-import { and, eq, notInArray, sql } from "drizzle-orm";
+import { and, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
+import {
+  agruparPorCodigo,
+  type ArchivoDeOrigen,
+  type ProductoDeOrigen,
+} from "@/lib/catalogo/agrupar";
 import { adivinarDepartamento } from "@/lib/catalogo/departamentos";
 import { precioConAjusteCentavos } from "@/lib/dinero";
 import { getDb } from "@/lib/db";
@@ -38,36 +43,6 @@ import {
  * depender de ese servidor, volver a apuntar alli seria deshacer el trabajo.
  */
 
-type ProductoDeOrigen = {
-  id?: string;
-  sku?: string | null;
-  slug?: string | null;
-  title_es?: string | null;
-  title_en?: string | null;
-  description_es?: string | null;
-  description_en?: string | null;
-  category_id?: string | null;
-  brand?: string | null;
-  price?: number | null;
-  compare_at_price?: number | null;
-  stock?: number | null;
-  unit?: string | null;
-  weight_grams?: number | null;
-  status?: string | null;
-  featured?: boolean | null;
-  images?: { url?: string | null; alt?: string | null; position?: number }[];
-};
-
-type ArchivoDeOrigen = {
-  categories?: {
-    id?: string;
-    slug?: string;
-    name_es?: string;
-    name_en?: string | null;
-  }[];
-  products?: ProductoDeOrigen[];
-};
-
 export type ResultadoSincronizacion = {
   ok: boolean;
   mensaje: string;
@@ -75,6 +50,8 @@ export type ResultadoSincronizacion = {
   actualizados?: number;
   aBorrador?: number;
   sinPrecio?: number;
+  /** Líneas que se fundieron por venir del mismo código en otro galpón. */
+  fusionadas?: number;
 };
 
 /** Dolares a centavos enteros. El dinero nunca lleva decimales. */
@@ -225,16 +202,62 @@ export async function sincronizarCatalogo(
       });
   }
 
+  /**
+   * UN CÓDIGO = UN PRODUCTO, aunque venga en varias líneas.
+   *
+   * Los sistemas que manejan más de un galpón mandan una línea por sucursal:
+   * el mismo tubo dos veces, con las existencias de cada uno. Sin agrupar, el
+   * comprador ve el producto repetido con dos cantidades distintas. El porqué
+   * completo está en `agrupar.ts`.
+   */
+  const { grupos, fusionadas, repetidasEnUnGalpon, preciosDiscrepantes } =
+    agruparPorCodigo(lista);
+
+  /**
+   * TODO LO QUE HAY QUE SABER DE LA BASE, EN DOS CONSULTAS.
+   *
+   * Antes se preguntaba producto por producto: con 757 líneas eran más de dos
+   * mil consultas seguidas y la sincronización no alcanzaba a terminar.
+   */
+  const existentes = new Map<string, string>(); // identificador de origen → id
+  for (const fila of await db
+    .select({ id: productos.id, externoId: productos.externoId })
+    .from(productos)
+    .where(eq(productos.tiendaId, tiendaId))) {
+    if (fila.externoId) existentes.set(fila.externoId, fila.id);
+  }
+
+  // Los que ya tienen su foto en NUESTRO almacenamiento: a esos no se les toca.
+  const conFotoPropia = new Set(
+    (
+      await db
+        .selectDistinct({ productoId: imagenesProducto.productoId })
+        .from(imagenesProducto)
+        .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
+        .where(
+          and(
+            eq(productos.tiendaId, tiendaId),
+            sql`${imagenesProducto.clave} IS NOT NULL`,
+          ),
+        )
+    ).map((f) => f.productoId),
+  );
+
   let creados = 0;
   let actualizados = 0;
   let sinPrecio = 0;
-  const vistos: string[] = [];
 
-  for (const p of lista) {
-    const externoId = p.id ?? p.sku;
-    if (!externoId || !p.title_es?.trim()) continue;
+  for (const grupo of grupos) {
+    const p: ProductoDeOrigen = grupo.principal;
+    if (!p.title_es?.trim()) continue;
 
-    vistos.push(externoId);
+    /* EL IDENTIFICADOR CON EL QUE SE GUARDA. Se prefiere uno que Mercatren ya
+       tenga: así el producto conserva su dirección web —que Google ya
+       indexó— y las fotos que ya se trajeron. Si ninguno existe todavía, se
+       usa el primero por orden alfabético, que no cambia nunca. */
+    const externoId =
+      grupo.ids.find((id) => existentes.has(id)) ?? grupo.ids[0];
+    if (!externoId) continue;
 
     /**
      * El archivo del comercio trae SU precio (la base). Lo publicado lleva el
@@ -255,16 +278,7 @@ export async function sincronizarCatalogo(
       sinPrecio++;
     }
 
-    const [existente] = await db
-      .select({ id: productos.id })
-      .from(productos)
-      .where(
-        and(
-          eq(productos.tiendaId, tiendaId),
-          eq(productos.externoId, externoId),
-        ),
-      )
-      .limit(1);
+    const existente = existentes.get(externoId);
 
     const campos = {
       categoriaId: p.category_id
@@ -282,8 +296,10 @@ export async function sincronizarCatalogo(
         const antes = aCentavos(p.compare_at_price);
         return antes && antes > 0 ? precioConAjusteCentavos(antes) : null;
       })(),
-      // Las existencias SI llevan decimales: cable por metro, cemento por kilo.
-      existencias: Number(p.stock ?? 0),
+      /* Las existencias SI llevan decimales: cable por metro, cemento por
+         kilo. Y son la SUMA de los galpones, no las de una línea: así, mover
+         mercancía de una sucursal a otra no se cuenta como venta. */
+      existencias: grupo.existencias,
       unidad: p.unit ?? null,
       pesoGramos: p.weight_grams ?? null,
       estado,
@@ -296,11 +312,8 @@ export async function sincronizarCatalogo(
     let productoId: string;
 
     if (existente) {
-      productoId = existente.id;
-      await db
-        .update(productos)
-        .set(campos)
-        .where(eq(productos.id, existente.id));
+      productoId = existente;
+      await db.update(productos).set(campos).where(eq(productos.id, existente));
       actualizados++;
     } else {
       productoId = nanoid();
@@ -319,61 +332,68 @@ export async function sincronizarCatalogo(
     // Las fotos: solo se tocan las que siguen viniendo del origen. Las que ya
     // trajimos a nuestro almacenamiento (tienen `clave`) se dejan en paz.
     const fotos = (p.images ?? []).filter((f) => f.url);
-    if (fotos.length > 0) {
-      const [yaNuestras] = await db
-        .select({ n: sql<number>`COUNT(*)` })
-        .from(imagenesProducto)
-        .where(
-          and(
-            eq(imagenesProducto.productoId, productoId),
-            sql`${imagenesProducto.clave} IS NOT NULL`,
-          ),
-        );
+    if (fotos.length > 0 && !conFotoPropia.has(productoId)) {
+      await db
+        .delete(imagenesProducto)
+        .where(eq(imagenesProducto.productoId, productoId));
 
-      if (Number(yaNuestras?.n ?? 0) === 0) {
-        await db
-          .delete(imagenesProducto)
-          .where(eq(imagenesProducto.productoId, productoId));
-
-        for (const [i, f] of fotos.entries()) {
-          await db.insert(imagenesProducto).values({
-            id: nanoid(),
-            productoId,
-            url: f.url!,
-            textoAltEs: f.alt ?? null,
-            orden: f.position ?? i,
-          });
-        }
+      for (const [i, f] of fotos.entries()) {
+        await db.insert(imagenesProducto).values({
+          id: nanoid(),
+          productoId,
+          url: f.url!,
+          textoAltEs: f.alt ?? null,
+          orden: f.position ?? i,
+        });
       }
     }
   }
 
-  // Lo que el comercio quito de su tienda pasa a borrador, NO se borra:
-  // puede tener pedidos viejos colgando.
-  let aBorrador = 0;
-  if (vistos.length > 0) {
-    const quitados = await db
-      .update(productos)
-      .set({ estado: "borrador", actualizadoEn: ahora })
-      .where(
-        and(
-          eq(productos.fuenteId, fuenteId),
-          notInArray(productos.externoId, vistos),
-          sql`${productos.estado} != 'borrador'`,
+  /**
+   * LO QUE YA NO VIENE PASA A BORRADOR, NO SE BORRA: puede tener pedidos
+   * viejos colgando.
+   *
+   * Se reconoce por la FECHA, no por una lista de identificadores. Antes se
+   * mandaban todos los identificadores vistos dentro de una sola consulta, y
+   * con 757 la base la rechaza: tiene un tope de cuántos valores acepta de
+   * golpe. Por la fecha, la consulta pesa igual con diez productos que con
+   * diez mil.
+   *
+   * Esto barre también las fichas duplicadas que quedaron absorbidas por su
+   * código: como no se tocaron en el bucle, su fecha quedó vieja. Su mercancía
+   * no se pierde — ya está sumada en la ficha que se queda.
+   */
+  const quitados = await db
+    .update(productos)
+    .set({ estado: "borrador", actualizadoEn: ahora })
+    .where(
+      and(
+        eq(productos.fuenteId, fuenteId),
+        or(
+          isNull(productos.sincronizadoEn),
+          lt(productos.sincronizadoEn, ahora),
         ),
-      )
-      .returning({ id: productos.id });
-    aBorrador = quitados.length;
-  }
+        sql`${productos.estado} != 'borrador'`,
+      ),
+    )
+    .returning({ id: productos.id });
+  const aBorrador = quitados.length;
 
-  const resumen = `${creados} nuevos, ${actualizados} actualizados${aBorrador ? `, ${aBorrador} retirados` : ""}${sinPrecio ? `, ${sinPrecio} sin precio` : ""}`;
+  /* El resumen que queda guardado va telegráfico, en el mismo formato que ya
+     tenía: son cuentas, no frases. Lo que el panel debe poder traducir son los
+     NÚMEROS, y por eso van sueltos en el objeto que devuelve esta función.
+     (Deuda conocida: `ultimoResultado` se guarda ya redactado, así que se lee
+     en español aunque el panel esté en inglés. Se cierra el día que se guarde
+     estructurado.) */
+  const resumen = `${creados} nuevos, ${actualizados} actualizados${aBorrador ? `, ${aBorrador} retirados` : ""}${sinPrecio ? `, ${sinPrecio} sin precio` : ""}${fusionadas ? `, ${fusionadas} fundidas` : ""}${repetidasEnUnGalpon ? `, ${repetidasEnUnGalpon} repetidas` : ""}${preciosDiscrepantes ? `, ${preciosDiscrepantes} precios distintos` : ""}`;
 
   await db
     .update(fuentesCatalogo)
     .set({
       ultimaSincronizacion: ahora,
       ultimoResultado: resumen,
-      productosSincronizados: lista.length,
+      // Los PRODUCTOS, no las líneas del archivo: 757 líneas son 690 productos.
+      productosSincronizados: grupos.length,
     })
     .where(eq(fuentesCatalogo.id, fuenteId));
 
@@ -387,6 +407,7 @@ export async function sincronizarCatalogo(
     actualizados,
     aBorrador,
     sinPrecio,
+    fusionadas,
   };
 }
 
