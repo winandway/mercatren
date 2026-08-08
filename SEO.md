@@ -118,6 +118,61 @@ propio catálogo que Merchant Center va a leer.
 Lo privado (panel, comprobantes, checkout, recuperar contraseña) está cerrado
 para los tres. `tests/unit/robots.test.ts` falla si alguien separa las listas.
 
+#### De `/media` solo se cierra lo privado, NUNCA la carpeta entera
+
+**Y con nombrar a Googlebot no alcanzó.** El 8 de agosto Merchant Center
+seguía rechazando **634 productos, el 99,8 % del catálogo**, con el mismo
+mensaje. El motivo estaba en este mismo archivo: se cerraba `/media/` entero,
+y el catálogo manda las fotos como `https://mercatren.com/media/productos/…`.
+
+Le dábamos a Google la dirección de la foto y en el mismo archivo le
+prohibíamos abrirla. Peor: la prueba **exigía** que `/media/` estuviera
+cerrado, así que el error estaba clavado por escrito y en verde.
+
+Ahora solo se cierran los prefijos privados, y la lista sale de un solo sitio
+(`src/lib/media/privados.ts`) que usan a la vez el robots.txt y la ruta que
+sirve los archivos. Agregar un prefijo privado nuevo lo cierra en los dos
+lados; abrir las fotos no puede volver a abrir un comprobante.
+
+**El robots.txt es un aviso, no una cerradura.** Lo que protege de verdad los
+comprobantes es `src/app/media/[...clave]/route.ts`, que exige sesión y
+responde 404 a quien no corresponde. Cerrar de más en el robots no daba ni una
+pizca de seguridad extra — y costó el catálogo entero fuera de Google Shopping.
+
+### Los avisos de Search Console: cuáles son normales y cuál no
+
+Search Console manda correos de _"Nuevos motivos que impiden la indexación"_.
+**Tres de los cuatro que salieron el 7 ago 2026 son el comportamiento correcto
+del sitio**, y perseguirlos es perder el tiempo:
+
+| Motivo                                            | ¿Hay que hacer algo?                                                                                     |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Página alternativa con etiqueta canónica adecuada | **No.** Es el hreflang funcionando: Google entendió que `/es` y `/en` son la misma página en dos idiomas |
+| Excluida por una etiqueta "noindex"               | **No.** Es el panel, el carrito, el checkout y recuperar contraseña. Están cerrados a propósito          |
+| Página con redirección                            | **No.** Es `/` mandando a `/es`, y las direcciones sin idioma                                            |
+| **Duplicada: Google eligió otra canónica**        | **SÍ.** Ver abajo                                                                                        |
+
+**La única de verdad es la cuarta, y tiene dos causas:**
+
+1. **Fichas duplicadas en el catálogo.** De los 689 productos cargados, solo
+   621 son códigos distintos: hay **68 fichas repetidas publicadas**, con el
+   mismo título, la misma descripción y la misma foto en dos direcciones.
+   Google las ve como copias y se queda con una. Ya está resuelto en el código
+   (`src/lib/catalogo/agrupar.ts`), pero **solo se aplica cuando corra la
+   primera sincronización**: las duplicadas pasarán a borrador y saldrán del
+   mapa del sitio.
+
+2. **Las fichas en inglés muestran el texto en español.** Cuando un producto
+   importado no trae `titulo_en`, `/en/producto/x` enseña exactamente lo mismo
+   que `/es/producto/x`. Para Google son dos direcciones con el mismo
+   contenido, y pliega una sobre la otra.
+
+   **Esto NO se arregla inventando traducciones** (regla del proyecto, y en
+   EE.UU. un catálogo mal traducido se nota). Se arregla cuando los comercios
+   carguen el inglés de verdad. Mientras tanto el `hreflang` está bien puesto,
+   que es lo que Google pide: plegar dos páginas idénticas es su
+   comportamiento normal, no una penalización.
+
 ### Los datos estructurados (`src/lib/seo/datos-estructurados.ts`)
 
 - **`Product` + `Offer`** en cada ficha: precio en dólares (no en centavos),

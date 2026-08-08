@@ -3,6 +3,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { esEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { pedidos } from "@/lib/db/schema";
+import { MEDIA_PRIVADOS } from "@/lib/media/privados";
 import { and, eq } from "drizzle-orm";
 
 /**
@@ -18,18 +19,14 @@ import { and, eq } from "drizzle-orm";
  */
 
 /**
- * Los prefijos que NO son públicos, y quién puede ver cada uno.
+ * Los prefijos que NO son públicos.
  *
- *  - `comprobantes/` — la captura del banco de una persona. Solo quien hizo
- *    ese pedido y el equipo.
- *  - `facturas-compra/` — la factura que nos manda un comercio. Solo ESE
- *    comercio y el equipo. Lleva sus datos fiscales y sus precios de compra:
- *    que la vea un competidor es exactamente lo que no puede pasar.
+ * La lista vive en `@/lib/media/privados` porque el robots.txt tiene que decir
+ * exactamente lo mismo: ahí se explica por qué (cerrar `/media/` entero dejó
+ * el 99,8 % del catálogo fuera de Google Shopping).
  */
-const PRIVADOS = ["comprobantes/", "facturas-compra/"] as const;
-
 function esPrivado(ruta: string) {
-  return PRIVADOS.some((prefijo) => ruta.startsWith(prefijo));
+  return MEDIA_PRIVADOS.some((prefijo) => ruta.startsWith(prefijo));
 }
 
 export async function GET(

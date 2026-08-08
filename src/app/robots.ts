@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { MEDIA_PRIVADOS_URL } from "@/lib/media/privados";
 import { SITIO } from "@/lib/sitio";
 
 /**
@@ -26,6 +27,20 @@ import { SITIO } from "@/lib/sitio";
  *
  * `Googlebot-Image` es igual de necesario: si no puede leer las fotos, el
  * producto sale sin imagen — y sin imagen tampoco lo publica.
+ *
+ * Y NO ALCANZÓ CON NOMBRARLOS (8 ago 2026)
+ *
+ * Nombrarlos se hizo el 6 de agosto y el error siguió igual: 634 productos,
+ * el 99,8 % del catálogo, con "Unable to do quality & policy checks". El
+ * motivo estaba dos líneas más abajo: aquí se cerraba `/media/` ENTERO, y el
+ * catálogo manda las fotos como `https://mercatren.com/media/productos/...`.
+ *
+ * Le dábamos a Google la dirección de la foto y en el mismo archivo le
+ * prohibíamos abrirla. Ahora solo se cierra lo que de verdad es privado — los
+ * comprobantes y las facturas de compra— y las fotos quedan abiertas.
+ *
+ * Cerrar de más no es "más seguro": aquí costó el catálogo entero fuera de
+ * Google Shopping, sin que nada se viera roto en el sitio.
  *
  * LAS TRES LISTAS TIENEN QUE DECIR LO MISMO. Si un día se cierra una ruta
  * nueva y solo se agrega al comodín, el robot de Merchant Center entraría
@@ -58,7 +73,11 @@ const CERRADO = [
   "/nueva-clave",
   "/es/nueva-clave",
   "/en/nueva-clave",
-  "/media/",
+  /* De `/media` solo se cierra lo privado, NUNCA la carpeta entera: por ahí
+     salen también las fotos de los productos, que Google TIENE que poder
+     abrir. La lista sale del mismo sitio que usa la ruta que sirve los
+     archivos, para que no puedan volver a decir cosas distintas. */
+  ...MEDIA_PRIVADOS_URL,
   "/docs/mercatren-modelo-de-negocio.pdf",
 ];
 

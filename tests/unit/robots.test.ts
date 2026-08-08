@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import robots from "@/app/robots";
+import { MEDIA_PRIVADOS, MEDIA_PRIVADOS_URL } from "@/lib/media/privados";
 
 /**
  * LAS REGLAS PARA LOS BUSCADORES.
@@ -46,10 +47,50 @@ describe("las reglas para los buscadores", () => {
        de quienes pagaron. Nadie entra, se llame como se llame. */
     for (const agente of ["*", "Googlebot", "Googlebot-Image"]) {
       const cerrado = cerradas(agente);
-      for (const ruta of ["/panel/", "/media/", "/checkout", "/nueva-clave"]) {
+      for (const ruta of [
+        "/panel/",
+        "/checkout",
+        "/nueva-clave",
+        ...MEDIA_PRIVADOS_URL,
+      ]) {
         expect(cerrado, `${agente} deja abierto ${ruta}`).toContain(ruta);
       }
     }
+  });
+
+  /**
+   * LA PRUEBA QUE FALTABA, Y QUE ANTES DECÍA JUSTO LO CONTRARIO.
+   *
+   * Hasta el 8 ago 2026 aquí se exigía que `/media/` estuviera cerrado para
+   * los tres. Sonaba prudente y costó carísimo: el catálogo manda las fotos
+   * como `/media/productos/...`, así que le dábamos a Google la dirección de
+   * la foto y le prohibíamos abrirla. Merchant Center rechazó 634 productos,
+   * el 99,8 %, y el error estaba clavado por escrito en esta misma prueba.
+   */
+  it("las FOTOS de los productos les quedan abiertas: sin eso no hay catálogo", () => {
+    for (const agente of ["*", "Googlebot", "Googlebot-Image"]) {
+      const cerrado = cerradas(agente);
+      expect(
+        cerrado,
+        `${agente} tiene cerrada la carpeta entera de /media: las fotos de los productos salen de ahí`,
+      ).not.toContain("/media/");
+
+      for (const ruta of cerrado) {
+        expect(
+          ruta.startsWith("/media/") && !MEDIA_PRIVADOS_URL.includes(ruta),
+          `${agente} cierra ${ruta}, que no está en la lista de lo privado`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("lo que cierra el robots es exactamente lo que la ruta /media protege", () => {
+    /* Si mañana se agrega un prefijo privado nuevo y solo se pone en un lado,
+       o queda un documento indexable o se cierra una foto sin querer. */
+    for (const prefijo of MEDIA_PRIVADOS) {
+      expect(MEDIA_PRIVADOS_URL).toContain(`/media/${prefijo}`);
+    }
+    expect(MEDIA_PRIVADOS_URL).toHaveLength(MEDIA_PRIVADOS.length);
   });
 
   it("el catálogo de Merchant Center le queda abierto a Googlebot", () => {
