@@ -104,11 +104,15 @@ export default async function PaginaTienda({
      lo cargó, no se dibuja el botón: mejor sin botón que un botón roto. */
   const soloDigitos = (tienda.telefono ?? "").replace(/[^0-9]/g, "");
 
-  /* EL MENSAJE VA ESCRITO DE ANTEMANO.
+  /* EL MENSAJE VA ESCRITO DE ANTEMANO, Y DICE DE DÓNDE VIENE.
+
      Al comercio le entra un WhatsApp de un número que no conoce. Si llega
-     vacío, no sabe quién es ni de qué le hablan y muchas veces ni contesta.
-     Con el mensaje puesto sabe de entrada que viene de su tienda en Mercatren
-     — y el comprador no tiene que pensar qué escribir, que es justo donde se
+     vacío no sabe quién es ni de qué le hablan, y muchas veces ni contesta.
+     Por eso el mensaje empieza diciendo **de dónde le escriben** —"te escribo
+     desde Mercatren.com"— antes que ninguna otra cosa: es el dato que hace que
+     conteste.
+
+     Y el comprador no tiene que pensar qué escribir, que es justo donde se
      abandona una conversación antes de empezarla. */
   const whatsapp = soloDigitos
     ? `https://wa.me/${soloDigitos}?text=${encodeURIComponent(t("mensajeWhatsapp"))}`
