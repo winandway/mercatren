@@ -5,7 +5,6 @@ import {
   Clock,
   Info,
   MapPin,
-  MessageCircle,
   Package,
   Store,
   Truck,
@@ -15,6 +14,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
 import { Link } from "@/i18n/navigation";
 import { obtenerTiendaPorSlug } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
@@ -283,7 +283,8 @@ export default async function PaginaTienda({
 
       <div className="mx-auto max-w-[1500px] px-4">
         {/* El logo pisa el borde de la portada: medio arriba, medio abajo. */}
-        <header className="flex flex-wrap items-end gap-4">
+        {/* `gap-6`: con menos, el botón quedaba rozando el logo y el sello. */}
+        <header className="flex flex-wrap items-end gap-6">
           {/* El logo pisa el borde de la portada, y el sello va MONTADO en su
               esquina — colocado en el flujo, al lado, se lo comía el botón de
               contacto. Por eso el envoltorio es `relative` y el sello
@@ -314,11 +315,22 @@ export default async function PaginaTienda({
               )}
             </span>
 
-            {/* Abajo a la derecha y no arriba: arriba choca con el borde de la
-                portada y se pierde sobre el color; abajo cae sobre fondo blanco
-                y se lee siempre. Como en las redes sociales. */}
+            {/* EL SELLO SUBE A LA ESQUINA DE ARRIBA (8 ago 2026).
+
+                Estaba abajo a la derecha, que es donde lo ponen las redes
+                sociales — pero ahí quedaba **pegado al botón de WhatsApp**, y
+                los dos son verdes. Dos círculos verdes juntos se leen como una
+                sola cosa y ninguno se entiende.
+
+                Va arriba a la IZQUIERDA, que además es lo único que aguanta
+                los logos anchos: con la esquina derecha, un logo alargado
+                empuja el sello hacia el botón otra vez y volvemos al problema.
+                A la izquierda queda lejos siempre, mida lo que mida el logo.
+
+                El aro blanco lo despega del color de la portada, que además
+                cambia por comercio. */}
             <span
-              className="absolute -right-1.5 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full bg-precio-600 ring-3 ring-white"
+              className="absolute -top-1.5 -left-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-precio-600 ring-3 ring-white"
               title={t("verificada")}
             >
               <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
@@ -334,9 +346,13 @@ export default async function PaginaTienda({
               href={whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="mb-3 inline-flex items-center gap-2 rounded-lg bg-riel-900 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              /* EL VERDE DE WHATSAPP Y SU LOGO DE VERDAD. Un bocadillo genérico
+                 en un botón oscuro no le dice a nadie que se abre WhatsApp; el
+                 logo se reconoce sin leer, que es lo que hace falta donde todo
+                 el mundo escribe por ahí. */
+              className="mb-3 inline-flex items-center gap-2 rounded-lg bg-[#25D366] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
             >
-              <MessageCircle className="h-4 w-4" aria-hidden />
+              <IconoWhatsapp className="h-[18px] w-[18px]" />
               {t("escribir")}
             </a>
           ) : null}

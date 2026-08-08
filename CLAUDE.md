@@ -1062,9 +1062,18 @@ verdad detrás ANTES de bajar. La razón social no sube (ya es el nombre grande)
 ni el teléfono (ya es el botón de WhatsApp), y **la tarjeta del final se
 eliminó**: repetirlo cargaba la página sin agregar nada.
 
-**El sello de verificado va MONTADO en la esquina del logo**, como en las redes
-sociales, con el envoltorio `relative` y el sello `absolute`. Puesto en el flujo
-al lado del logo se lo comía el botón de contacto.
+**El sello de verificado va MONTADO en la esquina de ARRIBA A LA IZQUIERDA del
+logo**, con el envoltorio `relative` y el sello `absolute`. Las dos posiciones
+que se probaron antes fallaron: en el flujo, al lado, se lo comía el botón de
+contacto; abajo a la derecha quedaba pegado al botón de WhatsApp — y los dos
+son verdes, así que se leían como una sola cosa. Arriba a la derecha tampoco
+sirve: con un logo ancho, esa esquina se corre hacia el botón otra vez. A la
+izquierda queda lejos mida lo que mida el logo.
+
+**El botón de contacto lleva el logo REAL de WhatsApp y su verde**
+(`src/components/ui/icono-whatsapp.tsx`; lucide no trae logos de marcas). Un
+bocadillo genérico en un botón oscuro no le dice a nadie que se abre WhatsApp,
+y ahí es por donde escribe todo el mundo.
 
 ### Cada tienda tiene su color
 
