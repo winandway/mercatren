@@ -1252,6 +1252,23 @@
       "guardar": "Save",
       "guardando": "Saving…",
       "guardado": "Saved. It's live on your store."
+    },
+    "colorBanner": {
+      "titulo": "Your store's color",
+      "entradilla": "This is how your storefront header looks. Tap a color and it saves itself.",
+      "ejemplo": "Your business details go here",
+      "automatico": "We picked this color from your name. Tap another if you'd rather.",
+      "guardadoSolo": "Saved. This is how your store looks now.",
+      "colores": {
+        "azul": "Blue",
+        "grafito": "Graphite",
+        "vino": "Wine",
+        "bosque": "Forest",
+        "indigo": "Indigo",
+        "petroleo": "Teal",
+        "tierra": "Earth",
+        "ciruela": "Plum"
+      }
     }
   },
   "catalogo": {

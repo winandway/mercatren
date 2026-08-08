@@ -1252,6 +1252,23 @@
       "guardar": "Guardar",
       "guardando": "Guardando…",
       "guardado": "Guardado. Ya se ve en tu tienda."
+    },
+    "colorBanner": {
+      "titulo": "El color de tu tienda",
+      "entradilla": "Así se ve la portada de tu tienda. Toca un color y se guarda solo.",
+      "ejemplo": "Aquí van tus datos de empresa",
+      "automatico": "Te asignamos este color a partir de tu nombre. Toca otro si prefieres.",
+      "guardadoSolo": "Guardado. Ya se ve así en tu tienda.",
+      "colores": {
+        "azul": "Azul",
+        "grafito": "Grafito",
+        "vino": "Vino",
+        "bosque": "Bosque",
+        "indigo": "Índigo",
+        "petroleo": "Petróleo",
+        "tierra": "Tierra",
+        "ciruela": "Ciruela"
+      }
     }
   },
   "catalogo": {

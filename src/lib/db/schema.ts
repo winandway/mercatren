@@ -1478,3 +1478,30 @@ export const MODOS_ENVIO_DB = [
   "porcentaje",
   "incluido",
 ] as const;
+
+/**
+ * CÓMO SE VE LA TIENDA DE UN COMERCIO (7 ago 2026).
+ *
+ * Tabla aparte y no una columna en `tiendas`, por lo de siempre: `schema.sql`
+ * solo trae `CREATE TABLE IF NOT EXISTS`, así que una base que ya existe no
+ * recibe columnas nuevas y habría que aplicar un ALTER a mano con el token.
+ *
+ * Hoy guarda una sola cosa, el color del banner. Se hizo tabla igual porque lo
+ * que viene después —tipografía, una portada por temporada, el orden de las
+ * secciones— cae aquí sin volver a tocar la base.
+ *
+ * Un comercio SIN fila no se queda sin color: se le deriva del nombre. El
+ * porqué está en `src/lib/marca/colores.ts`.
+ */
+export const aparienciaTienda = sqliteTable("apariencia_tienda", {
+  tiendaId: text("tienda_id")
+    .primaryKey()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+
+  /** El id de un color de la paleta: `azul`, `vino`, `bosque`… */
+  colorBanner: text("color_banner"),
+
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

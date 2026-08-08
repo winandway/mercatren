@@ -1054,6 +1054,37 @@ ver qué venden.
 **No se enseña cuántas ventas lleva un comercio.** Decisión del dueño: con "0
 ventas" espanta más de lo que ayuda. Va cuando el número acompañe.
 
+**Los datos fiscales van DENTRO del banner, a la derecha** (identificación
+fiscal, correo, dirección, sitio web), separados por una línea fina y no por
+una caja — una caja dentro del banner se ve como un parche pegado. Suben ahí
+porque quien llega sin conocer la tienda necesita ver que hay una empresa de
+verdad detrás ANTES de bajar. La razón social no sube (ya es el nombre grande)
+ni el teléfono (ya es el botón de WhatsApp), y **la tarjeta del final se
+eliminó**: repetirlo cargaba la página sin agregar nada.
+
+**El sello de verificado va MONTADO en la esquina del logo**, como en las redes
+sociales, con el envoltorio `relative` y el sello `absolute`. Puesto en el flujo
+al lado del logo se lo comía el botón de contacto.
+
+### Cada tienda tiene su color
+
+`apariencia_tienda` (tabla nueva) guarda el color elegido; la paleta y la
+lógica están en `src/lib/marca/colores.ts`.
+
+**Dos capas.** El comercio que nunca configura nada recibe un color **derivado
+de su propio nombre** —siempre el mismo— así que veinte tiendas nuevas ya se ven
+distintas entre sí desde el primer día. Y si quiere, elige otro en su panel.
+
+**LA PALETA ES CERRADA Y TODOS SON OSCUROS, y no es capricho.** Todo el banner
+va en texto blanco: el nombre, la identificación fiscal, el correo. Con un
+selector libre de colores, tarde o temprano un comercio elige amarillo porque es
+el de su marca, su ficha queda ilegible, y no va a saber por qué no le compran.
+Hay una prueba que mide la luminancia de cada color y **falla si alguien agrega
+uno claro**.
+
+Los enlaces del banner van en blanco subrayado, no en naranja: el naranja se
+ensucia sobre el vino y el tierra.
+
 ### Los envíos: cuatro estados, no un sí/no
 
 Tabla `envios_tienda` (nueva, no columnas: así llega sola en la publicación).

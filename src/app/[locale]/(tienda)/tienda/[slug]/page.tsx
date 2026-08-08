@@ -18,6 +18,8 @@ import { obtenerTiendaPorSlug } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
 import { porcentajeVisible } from "@/lib/envios/politica";
+import { colorGuardado } from "@/lib/marca/acciones";
+import { colorDeBanner } from "@/lib/marca/colores";
 import { fechaCorta } from "@/lib/fechas";
 import { RUTA_MEDIA } from "@/lib/rutas";
 import { comoJsonLd, fichaDeTienda } from "@/lib/seo/datos-estructurados";
@@ -88,6 +90,7 @@ export default async function PaginaTienda({
   /* Cómo despacha. Un comercio sin fila devuelve "sin definir", que NO es lo
      mismo que "no envía": es que todavía no lo dijo, y así se enseña. */
   const envio = await politicaDeEnvio(tienda.id);
+  const colorElegido = await colorGuardado(tienda.id);
   const cobertura =
     idioma === "en"
       ? (envio.coberturaEn ?? envio.coberturaEs)
@@ -100,44 +103,76 @@ export default async function PaginaTienda({
   const soloDigitos = (tienda.telefono ?? "").replace(/[^0-9]/g, "");
   const whatsapp = soloDigitos ? `https://wa.me/${soloDigitos}` : null;
 
+  /* El color de este comercio: el que eligió, o uno derivado de su nombre si
+     nunca eligió. Nunca queda sin fondo. */
+  const color = colorDeBanner(colorElegido, tienda.nombre);
+
+  /* "VE" no le dice nada a nadie, y ahora va en grande debajo del nombre.
+     `Intl.DisplayNames` lo traduce al idioma de quien mira sin que tengamos que
+     mantener una lista de países. Si el código no existe, se deja como está:
+     mejor "VE" que una pantalla rota. */
+  let pais = tienda.paisOrigen;
+  try {
+    pais =
+      new Intl.DisplayNames([idioma], { type: "region" }).of(
+        tienda.paisOrigen,
+      ) ?? tienda.paisOrigen;
+  } catch {
+    /* Un código inventado en la base no puede tumbar la ficha. */
+  }
+
   const logoUrl = tienda.logoClave ? `${RUTA_MEDIA}/${tienda.logoClave}` : null;
   const portadaUrl = tienda.portadaClave
     ? `${RUTA_MEDIA}/${tienda.portadaClave}`
     : null;
 
-  // Solo lo que el comercio lleno de verdad.
-  const fichaEmpresa = [
-    { etiqueta: t("razonSocial"), valor: tienda.razonSocial },
+  /* LOS DATOS QUE VAN EN EL BANNER (7 ago 2026).
+
+     Suben aquí desde el final de la página, y es un cambio de fondo: quien
+     llega sin conocer la tienda necesita ver que hay una empresa de verdad
+     detrás ANTES de bajar, no después de los productos.
+
+     Solo cuatro, a propósito: la razón social NO sube porque ya es el nombre
+     grande, y el teléfono tampoco porque ya es el botón de WhatsApp.
+
+     Se dibuja SOLO lo que el comercio llenó: un renglón que diga
+     "Sitio web: —" da menos confianza que no tenerlo. */
+  const datosEmpresa = [
     {
       etiqueta: t("identificacionFiscal"),
       valor: tienda.identificacionFiscal,
+      enlace: null as string | null,
+      ancho: false,
     },
     {
       etiqueta: t("correo"),
       valor: tienda.correoContacto,
       enlace: tienda.correoContacto ? `mailto:${tienda.correoContacto}` : null,
-    },
-    {
-      etiqueta: t("telefono"),
-      valor: tienda.telefono,
-      enlace: tienda.telefono
-        ? `tel:${tienda.telefono.replace(/\s/g, "")}`
-        : null,
+      ancho: false,
     },
     {
       etiqueta: t("direccion"),
       valor: [tienda.direccion, tienda.ciudad].filter(Boolean).join(", "),
+      enlace: null as string | null,
+      ancho: true,
     },
     {
       etiqueta: t("sitioWeb"),
       valor: tienda.sitioWeb,
       enlace: tienda.sitioWeb,
+      ancho: true,
     },
-    { etiqueta: t("horario"), valor: tienda.horario },
   ].filter(
-    (d): d is { etiqueta: string; valor: string; enlace?: string | null } =>
-      Boolean(d.valor),
+    (
+      d,
+    ): d is {
+      etiqueta: string;
+      valor: string;
+      enlace: string | null;
+      ancho: boolean;
+    } => Boolean(d.valor),
   );
+
   const descripcion =
     idioma === "en"
       ? (tienda.descripcionEn ?? tienda.descripcionEs)
@@ -166,13 +201,16 @@ export default async function PaginaTienda({
         dangerouslySetInnerHTML={{ __html: comoJsonLd(paraGoogle) }}
       />
 
-      {/* LA PORTADA, CON EL NOMBRE DENTRO (7 ago 2026).
+      {/* LA PORTADA.
 
-          Antes el nombre iba debajo, en negrita, sobre fondo blanco: era el
-          título de la página y competía con el logo. Ahora manda arriba, en
-          grande y sobre el azul, y abajo queda el logo montado en el borde —
-          cada uno con su sitio. */}
-      <div className="relative overflow-hidden bg-riel-900">
+          El nombre va DENTRO, en grande, y a la derecha los datos fiscales.
+          El color sale del comercio: el que eligió, o uno derivado de su
+          nombre. Así veinte tiendas no se ven todas iguales; el porqué de que
+          la paleta sea cerrada está en `marca/colores.ts`. */}
+      <div
+        className="relative overflow-hidden"
+        style={{ backgroundColor: color.hex }}
+      >
         {portadaUrl ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -181,39 +219,98 @@ export default async function PaginaTienda({
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
-            {/* Sin esta capa, el nombre se pierde sobre una foto clara. */}
-            <div className="absolute inset-0 bg-riel-900/70" />
+            {/* Sin esta capa el nombre se pierde sobre una foto clara. Lleva
+                el color del comercio, no un negro genérico. */}
+            <div
+              className="absolute inset-0 opacity-80"
+              style={{ backgroundColor: color.hex }}
+            />
           </>
         ) : (
           <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px] opacity-20" />
         )}
 
-        <div className="relative mx-auto max-w-[1500px] px-4 pt-8 pb-14 sm:pt-10 sm:pb-16">
-          <h1 className="max-w-3xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
-            {tienda.nombre}
-          </h1>
-          <p className="mt-2 flex items-center gap-1.5 text-sm text-white/70">
-            <MapPin className="h-4 w-4" aria-hidden />
-            {[tienda.ciudad, tienda.paisOrigen].filter(Boolean).join(", ")}
-          </p>
+        <div className="relative mx-auto flex max-w-[1500px] flex-wrap gap-x-10 gap-y-6 px-4 pt-7 pb-14 sm:pt-9 sm:pb-16">
+          <div className="min-w-[240px] flex-[1.3]">
+            <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
+              {tienda.nombre}
+            </h1>
+            <p className="mt-2 flex items-center gap-1.5 text-xs tracking-wide text-white/65 uppercase">
+              <MapPin className="h-4 w-4" aria-hidden />
+              {[tienda.ciudad, pais].filter(Boolean).join(", ")}
+            </p>
+          </div>
+
+          {/* Separados por una línea fina y no por una caja: una caja dentro
+              del banner se ve como un parche pegado encima.
+
+              Los enlaces van en BLANCO subrayado, no en naranja: el naranja se
+              ve bien sobre el azul pero se ensucia sobre el vino y el tierra, y
+              ahora el fondo lo elige cada comercio. */}
+          {datosEmpresa.length > 0 ? (
+            <dl className="grid min-w-[230px] flex-1 grid-cols-1 gap-x-6 gap-y-2.5 border-l-2 border-white/15 pl-4 sm:grid-cols-2">
+              {datosEmpresa.map((dato) => (
+                <div
+                  key={dato.etiqueta}
+                  className={dato.ancho ? "sm:col-span-2" : ""}
+                >
+                  <dt className="text-[10.5px] tracking-wider text-white/55 uppercase">
+                    {dato.etiqueta}
+                  </dt>
+                  <dd className="mt-0.5 text-[12.5px] break-words text-white">
+                    {dato.enlace ? (
+                      <a
+                        href={dato.enlace}
+                        className="underline decoration-white/40 underline-offset-2 hover:decoration-white"
+                        {...(dato.enlace.startsWith("http")
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                      >
+                        {dato.valor}
+                      </a>
+                    ) : (
+                      dato.valor
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
         </div>
       </div>
 
       <div className="mx-auto max-w-[1500px] px-4">
         {/* El logo pisa el borde de la portada: medio arriba, medio abajo. */}
         <header className="flex flex-wrap items-end gap-4">
-          <span className="relative -mt-11 flex h-22 w-22 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white text-riel-800 shadow-lg ring-4 ring-white sm:-mt-12">
-            {logoUrl ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={logoUrl}
-                alt={tienda.nombre}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <Store className="h-9 w-9" aria-hidden />
-            )}
-          </span>
+          {/* El logo pisa el borde de la portada, y el sello va MONTADO en su
+              esquina — colocado en el flujo, al lado, se lo comía el botón de
+              contacto. Por eso el envoltorio es `relative` y el sello
+              `absolute`: así no ocupa sitio y nada se le pone encima. */}
+          <div className="relative -mt-11 shrink-0 sm:-mt-12">
+            <span className="flex h-22 w-22 items-center justify-center overflow-hidden rounded-2xl bg-white text-riel-800 shadow-lg ring-4 ring-white">
+              {logoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={logoUrl}
+                  alt={tienda.nombre}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Store className="h-9 w-9" aria-hidden />
+              )}
+            </span>
+
+            {/* Abajo a la derecha y no arriba: arriba choca con el borde de la
+                portada y se pierde sobre el color; abajo cae sobre fondo blanco
+                y se lee siempre. Como en las redes sociales. */}
+            <span
+              className="absolute -right-1.5 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full bg-precio-600 ring-3 ring-white"
+              title={t("verificada")}
+            >
+              <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
+              <span className="sr-only">{t("verificada")}</span>
+            </span>
+          </div>
 
           {/* El contacto va JUNTO al logo, no al final: quien entra y quiere
               preguntar algo lo hace en los primeros segundos, no después de
@@ -336,44 +433,6 @@ export default async function PaginaTienda({
             </p>
           ) : null}
         </section>
-
-        {/* LOS DATOS DE LA EMPRESA VAN AL FINAL (7 ago 2026). Antes iban
-            arriba, antes de los productos, y eso es al revés: el RIF y el
-            domicilio fiscal los busca quien ya decidió comprar o quien está
-            verificando quién es. El que llega de Google quiere ver qué venden.
-
-            Solo se dibuja lo que el comercio llenó: una ficha con huecos da
-            menos confianza que una ficha corta. */}
-        {fichaEmpresa.length > 0 ? (
-          <section className="mt-6 rounded-xl border border-borde bg-slate-50/60 p-4 sm:p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold">
-              <BadgeCheck className="h-4 w-4 text-precio-600" aria-hidden />
-              {t("datosEmpresa")}
-            </h2>
-            <dl className="mt-3 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
-              {fichaEmpresa.map((dato) => (
-                <div key={dato.etiqueta} className="flex flex-wrap gap-x-2">
-                  <dt className="text-tinta-suave">{dato.etiqueta}:</dt>
-                  <dd className="font-medium break-all">
-                    {dato.enlace ? (
-                      <a
-                        href={dato.enlace}
-                        className="text-carga-600 hover:underline"
-                        {...(dato.enlace.startsWith("http")
-                          ? { target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
-                      >
-                        {dato.valor}
-                      </a>
-                    ) : (
-                      dato.valor
-                    )}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-        ) : null}
       </div>
     </>
   );
