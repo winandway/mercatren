@@ -75,9 +75,16 @@ información, no un fracaso que haya que maquillar.
 
 ## Mediciones
 
-| Fecha      | Productos en el archivo | Mapa del sitio | Aprobados en Shopping | Indexadas en Google |
-| ---------- | ----------------------: | -------------: | --------------------: | ------------------: |
-| 6 ago 2026 |                     625 |            642 |       0 (en revisión) |           por medir |
+| Fecha      | Productos en el archivo | Mapa del sitio |            Aprobados en Shopping | Indexadas en Google |
+| ---------- | ----------------------: | -------------: | -------------------------------: | ------------------: |
+| 6 ago 2026 |                     625 |            642 |                  0 (en revisión) |           por medir |
+| 8 ago 2026 |                     640 |            662 | 0 — 634 rechazados por el robots |           por medir |
+
+**El 8 de agosto se corrigió la causa** (ver «De `/media` solo se cierra lo
+privado»). La medición de arriba es de ANTES de que Google volviera a entrar:
+el panel de Merchant Center enseña la última revisión que hizo, no el estado
+del sitio. La próxima fila se anota cuando Google relea, entre 24 y 72 horas
+después de pedirle la nueva lectura del robots.txt.
 
 ---
 
