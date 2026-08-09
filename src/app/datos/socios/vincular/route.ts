@@ -152,6 +152,11 @@ export async function GET() {
       "campos_en_error",
       // `null` vale lo mismo que no mandar la clave, en todo lo opcional.
       "null_en_opcionales",
+      /* Enganchar una tienda que ya tiene productos responde 409
+         `confirmacion_requerida` y no emite token hasta que llegue
+         `confirmar: true`. Se anuncia aquí porque el otro lado necesita saber
+         si puede contar con esa proteccion o si todavia no propago. */
+      "confirmar_si_ya_vende",
     ],
     rutas: {
       vincular: "POST /datos/socios/vincular — con la llave de socio",
