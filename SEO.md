@@ -129,7 +129,11 @@ Se arma solo con las páginas fijas + las tiendas activas + los productos
 publicados, cada uno con sus dos idiomas y `x-default`. **Página pública
 nueva = agregarla a la lista `FIJAS`**, o Google no la encuentra por aquí.
 
-### Las reglas para buscadores (`src/app/robots.ts`)
+### Las reglas para buscadores (`src/lib/seo/robots.ts`)
+
+El texto se compone ahí y lo sirve `src/app/robots.txt/route.ts`. **Ya no lo
+genera Next**: su formato no admite la línea `Content-Signal` (ver «Que nos
+encuentren las IA», más abajo).
 
 Tres bloques: `*`, `Googlebot` y `Googlebot-Image`.
 
