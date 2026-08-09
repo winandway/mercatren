@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { MetadataRoute } from "next";
 
 import { routing } from "@/i18n/routing";
@@ -98,10 +98,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const db = await getDbAsync();
 
+    /**
+     * Solo las tiendas QUE YA TIENEN ALGO QUE ENSEÑAR.
+     *
+     * Antes iban todas las activas, y eso mandaba a Google a fichas vacías: el
+     * 9 ago 2026 había dos comercios recién creados, sin un solo producto, y
+     * los dos estaban en el mapa. Google entra, no encuentra nada que indexar,
+     * y esa visita cuenta en su contra — es de donde salen las «rastreada:
+     * actualmente sin indexar».
+     *
+     * OJO, QUE PARECE UNA CONTRADICCIÓN Y NO LO ES: el directorio de
+     * `/tiendas` **sí las enseña**, aunque estén vacías. Son dos públicos
+     * distintos. Al directorio entra el comerciante a mirar cómo quedó la suya
+     * —y no encontrarla se lee como que el sistema no funciona—; el mapa es
+     * para Google, y una página sin contenido solo le gasta la visita.
+     *
+     * En cuanto el comercio publique su primer producto entra sola en el
+     * siguiente mapa. No hay nada que activar a mano.
+     */
     const tiendas = await db
-      .select({ slug: schema.tiendas.slug })
+      .selectDistinct({ slug: schema.tiendas.slug })
       .from(schema.tiendas)
-      .where(eq(schema.tiendas.estado, "activa"));
+      .innerJoin(
+        schema.productos,
+        eq(schema.productos.tiendaId, schema.tiendas.id),
+      )
+      .where(
+        and(
+          eq(schema.tiendas.estado, "activa"),
+          eq(schema.productos.estado, "publicado"),
+        ),
+      );
 
     const productos = await db
       .select({ slug: schema.productos.slug })

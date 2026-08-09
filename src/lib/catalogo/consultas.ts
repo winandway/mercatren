@@ -490,7 +490,34 @@ export async function obtenerPortada(
   };
 }
 
-/** Comercios con catalogo, para la portada y el listado de tiendas. */
+/**
+ * TODOS los comercios activos, para la portada y el listado de tiendas.
+ *
+ * ══ SALEN TAMBIÉN LOS QUE NO TIENEN NI UN PRODUCTO (9 ago 2026) ══
+ *
+ * Antes esto llevaba un `innerJoin` contra productos, y un join así se come
+ * silenciosamente a toda tienda con el catálogo vacío. Sonaba razonable —para
+ * qué enseñarle a un comprador una tienda sin nada— y en la práctica hacía
+ * daño:
+ *
+ * **El comerciante entra a `/tiendas` a ver la suya.** Va a mirar cómo quedó,
+ * si el logo se ve, si los datos salieron bien, si el botón de contacto está.
+ * Y no la encontraba. Pasó con MEGAYES, que llevaba tres días sin aparecer, y
+ * con la tienda que se creó hoy. Desde fuera se lee como que el sistema no
+ * funciona, y quien acaba de abrir su tienda es justo el que menos margen
+ * tiene para dudar.
+ *
+ * Al comprador no le cuesta nada: **la tarjeta dice cuántos productos hay**
+ * antes de entrar. Nadie pierde el clic — y una tienda vacía con nombre y
+ * ciudad reales es, de hecho, una señal de que el sitio tiene comercios
+ * llegando.
+ *
+ * Se ordena por catálogo, así que las vacías quedan al final solas.
+ *
+ * OJO: el mapa del sitio SÍ las deja fuera hasta que publiquen algo, y no es
+ * una contradicción — esa lista es para Google, y mandarlo a una página sin
+ * contenido cuenta en contra. Son dos públicos distintos.
+ */
 export async function listarComerciosDestacados() {
   const db = getDb();
 
@@ -507,8 +534,26 @@ export async function listarComerciosDestacados() {
       cuantos: count(productos.id),
     })
     .from(tiendas)
-    .innerJoin(productos, eq(productos.tiendaId, tiendas.id))
-    .where(VISIBLE)
+    /**
+     * `leftJoin`, no `innerJoin`: con el inner, una tienda sin productos
+     * desaparece de la lista sin que nadie se entere.
+     *
+     * Y LA CONDICIÓN DEL PRODUCTO VA AQUÍ, EN EL ENGANCHE, NO EN EL `where`.
+     * Esto cuesta media hora de no entender nada: en una tienda vacía el
+     * estado del producto es NULO, así que un `where` que exija
+     * `estado = 'publicado'` la descarta igual — y el `leftJoin` vuelve a
+     * comportarse como un `innerJoin`, en silencio y con el código pareciendo
+     * correcto. Pasó justo así al arreglar esto.
+     */
+    .leftJoin(
+      productos,
+      and(
+        eq(productos.tiendaId, tiendas.id),
+        eq(productos.estado, "publicado"),
+      ),
+    )
+    // En el filtro se queda SOLO lo que es de la tienda.
+    .where(eq(tiendas.estado, "activa"))
     .groupBy(tiendas.id, tiendas.slug, tiendas.nombre)
     .orderBy(desc(count(productos.id)));
 
