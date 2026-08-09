@@ -1,34 +1,33 @@
 import { describe, expect, it } from "vitest";
 
-import robots from "@/app/robots";
 import { MEDIA_PRIVADOS, MEDIA_PRIVADOS_URL } from "@/lib/media/privados";
+import { reglasRobots, robotsTxt, SENAL_DE_CONTENIDO } from "@/lib/seo/robots";
 
 /**
  * LAS REGLAS PARA LOS BUSCADORES.
  *
- * Dos cosas que ya costaron caro y que aquí quedan vigiladas:
+ * Tres cosas que ya costaron caro y que aquí quedan vigiladas:
  *
  * 1. **Googlebot y Googlebot-Image tienen que estar NOMBRADOS.** Con solo el
  *    comodín, Merchant Center rechazó 622 de 625 productos con "Unable to do
- *    quality & policy checks on product pages" (6 ago 2026). No se conforma
- *    con `*`: entra a cada ficha a comprobar precio y existencias, y para eso
- *    exige ver su nombre.
+ *    quality & policy checks on product pages" (6 ago 2026).
  *
  * 2. **Las tres listas tienen que cerrar lo mismo.** Si alguien agrega una
  *    ruta privada solo al comodín, el robot de Google entraría donde no debe
  *    — y ahí hay dinero de comercios y datos de quienes pagaron.
+ *
+ * 3. **`/media/` entero NO se cierra.** Cerrarlo dejó 634 productos, el
+ *    99,8 % del catálogo, fuera de Google Shopping (8 ago 2026).
  */
 
-const reglas = robots().rules;
-const lista = Array.isArray(reglas) ? reglas : [reglas];
+const lista = reglasRobots();
 
 function regla(agente: string) {
-  return lista.find((r) => r.userAgent === agente);
+  return lista.find((r) => r.agente === agente);
 }
 
 function cerradas(agente: string): string[] {
-  const d = regla(agente)?.disallow;
-  return Array.isArray(d) ? d : d ? [d] : [];
+  return regla(agente)?.cerrado ?? [];
 }
 
 describe("las reglas para los buscadores", () => {
@@ -59,7 +58,7 @@ describe("las reglas para los buscadores", () => {
   });
 
   /**
-   * LA PRUEBA QUE FALTABA, Y QUE ANTES DECÍA JUSTO LO CONTRARIO.
+   * LA PRUEBA QUE ANTES DECÍA JUSTO LO CONTRARIO.
    *
    * Hasta el 8 ago 2026 aquí se exigía que `/media/` estuviera cerrado para
    * los tres. Sonaba prudente y costó carísimo: el catálogo manda las fotos
@@ -99,8 +98,61 @@ describe("las reglas para los buscadores", () => {
     expect(cerradas("Googlebot")).not.toContain("/datos/");
     expect(cerradas("*"), "para los demás sí se cierra").toContain("/datos/");
   });
+});
 
-  it("el mapa del sitio va declarado", () => {
-    expect(robots().sitemap).toContain("/sitemap.xml");
+/**
+ * LA SEÑAL PARA LAS IA (9 ago 2026).
+ *
+ * Es una declaración de preferencia, no un candado. Lo que se vigila aquí no
+ * es que bloquee —no bloquea nada— sino que diga lo que el negocio decidió.
+ */
+describe("qué pueden hacer las IA con el catálogo", () => {
+  const texto = robotsTxt();
+
+  it("deja que un asistente CITE nuestros productos", () => {
+    /* `ai-input=yes` es lo que permite que ChatGPT o Claude nombren un
+       producto nuestro cuando alguien pregunta dónde comprar algo. Cerrarlo
+       sería desaparecer del sitio donde la gente empezó a buscar. */
+    expect(SENAL_DE_CONTENIDO).toContain("ai-input=yes");
+  });
+
+  it("y que salgamos en los buscadores, que es a lo que venimos", () => {
+    expect(SENAL_DE_CONTENIDO).toContain("search=yes");
+  });
+
+  it("pero NO que entrenen modelos con el catálogo", () => {
+    // Es lo único que se niega, y por un motivo: no devuelve nada a cambio.
+    expect(SENAL_DE_CONTENIDO).toContain("ai-train=no");
+  });
+
+  it("la señal va en los TRES grupos, no suelta arriba del archivo", () => {
+    /* Así está definida: dentro del grupo del agente al que le aplica. Suelta
+       arriba, un robot que solo lee su propio grupo no la vería. */
+    const señales = texto.match(/^Content-Signal:/gm) ?? [];
+    expect(señales).toHaveLength(reglasRobots().length);
+  });
+});
+
+describe("el archivo que sale", () => {
+  const texto = robotsTxt();
+
+  it("declara el mapa del sitio", () => {
+    expect(texto).toContain("/sitemap.xml");
+  });
+
+  it("apunta a llms.txt, que es por donde entra un agente", () => {
+    expect(texto).toContain("/llms.txt");
+  });
+
+  it("cada grupo abre con su User-agent", () => {
+    for (const { agente } of reglasRobots()) {
+      expect(texto).toContain(`User-agent: ${agente}`);
+    }
+  });
+
+  it("no se cuela una línea vacía como Disallow", () => {
+    /* Un `Disallow:` sin ruta significa «no bloquees nada», que es lo
+       contrario de lo que parece. Si una ruta llegara vacía, se colaría. */
+    expect(texto).not.toMatch(/^Disallow:\s*$/m);
   });
 });

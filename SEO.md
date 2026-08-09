@@ -167,6 +167,64 @@ comprobantes es `src/app/media/[...clave]/route.ts`, que exige sesión y
 responde 404 a quien no corresponde. Cerrar de más en el robots no daba ni una
 pizca de seguridad extra — y costó el catálogo entero fuera de Google Shopping.
 
+### Que nos encuentren las IA, no solo Google (9 ago 2026)
+
+Cada vez más gente empieza a buscar preguntándole a un asistente, no
+escribiendo en Google. Cuando alguien pregunta _«dónde compro cable THW
+calibre 12»_, ChatGPT o Claude salen a leer sitios — y leen muy mal el HTML de
+una tienda: menús, banners, botones y guiones.
+
+Lo montado hasta ahora:
+
+| Qué                  | Dónde                       | Para qué                                                       |
+| -------------------- | --------------------------- | -------------------------------------------------------------- |
+| **`llms.txt`**       | `src/app/llms.txt/route.ts` | Le explica al asistente qué es el sitio y dónde está cada cosa |
+| **`Content-Signal`** | `src/lib/seo/robots.ts`     | Declara qué puede hacer una IA con el catálogo                 |
+
+**El `robots.txt` ya no lo genera Next.** Su formato solo admite `User-agent`,
+`Allow`, `Disallow` y `Sitemap`, y no deja meter `Content-Signal`. Ahora el
+texto se compone en `src/lib/seo/robots.ts` y lo sirve
+`src/app/robots.txt/route.ts`. **Todas las protecciones de antes siguen ahí y
+siguen vigiladas por `tests/unit/robots.test.ts`.**
+
+#### Qué dice la señal, y por qué
+
+```
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+```
+
+- **`search=yes`** — que salgamos en buscadores. Es a lo que venimos.
+- **`ai-input=yes`** — que un asistente pueda **citar un producto nuestro** al
+  responderle a alguien. Eso es tráfico y compradores. Cerrarlo sería
+  desaparecer del sitio donde la gente empezó a buscar.
+- **`ai-train=no`** — entrenar un modelo con el catálogo no nos devuelve nada.
+  Es lo único que se niega, y se niega por eso.
+
+La diferencia entre los dos últimos se confunde fácil y es la que importa: uno
+es **que te citen hoy**, el otro es **que te copien para siempre**.
+
+Ojo: es una **declaración de preferencia, no un candado**. Quien la respeta la
+respeta; técnicamente no impide nada.
+
+#### Lo que NO se hizo, y por qué (para no repetir la discusión)
+
+La herramienta de Cloudflare (`isitagentready.com`) dio 29/100 y sugirió diez
+cosas. Cuatro **no se hacen**, y no es pereza:
+
+| Sugerencia                                                                 | Por qué no                                                                                                                                  |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/.well-known/openid-configuration`, `oauth-protected-resource`, `auth.md` | **No hay API pública con OAuth.** Publicarlo es anunciar puertas que no existen: un agente las prueba, falla, y nos marca como poco fiables |
+| DNS-AID                                                                    | Es un **borrador** de IETF, ni siquiera norma. Exige DNSSEC. Adopción casi nula                                                             |
+
+Y tres son proyectos aparte, no casillas: servidor MCP, índice de habilidades
+y WebMCP. Valen, pero exigen construir un servidor.
+
+**El número no es la meta.** Subir a 100 publicando metadatos falsos deja el
+sitio peor que en 29.
+
+**Lo que sigue pendiente y sí vale:** responder en Markdown cuando el agente
+manda `Accept: text/markdown`. Es la que más mueve la aguja de las que quedan.
+
 ### Los avisos de Search Console: cuáles son normales y cuál no
 
 Search Console manda correos de _"Nuevos motivos que impiden la indexación"_.
