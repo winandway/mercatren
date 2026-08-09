@@ -79,6 +79,27 @@ información, no un fracaso que haya que maquillar.
 | ---------- | ----------------------: | -------------: | -------------------------------: | ------------------: |
 | 6 ago 2026 |                     625 |            642 |                  0 (en revisión) |           por medir |
 | 8 ago 2026 |                     640 |            662 | 0 — 634 rechazados por el robots |           por medir |
+| 9 ago 2026 |                     643 |            665 |        por medir (ver más abajo) |           por medir |
+
+**Medición del 9 ago 2026, un día después de corregir el robots.txt.**
+Comprobado desde fuera, con el agente de Googlebot:
+
+| Qué                                                  | Resultado                                                |
+| ---------------------------------------------------- | -------------------------------------------------------- |
+| Ficha de producto, tienda y catálogo, para Googlebot | **200** las tres, en menos de 1,7 s                      |
+| Fotos del catálogo                                   | Todas desde `mercatren.com`, y una real responde **200** |
+| `robots.txt` bloquea `/media/`                       | **No** — solo los prefijos privados                      |
+| Datos estructurados en la ficha                      | `Product`, `Offer`, `BreadcrumbList`, `Organization`     |
+| `site:mercatren.com` desde la terminal               | 0 — **Google bloquea esa consulta**, no significa nada   |
+
+Search Console reportó ese día: 421 «descubierta sin indexar», 53 «alternativa
+con canónica», 28 «rastreada sin indexar», 3 noindex, 1 redirección y **1
+duplicada** (era el único motivo real y bajó a uno).
+
+**Los 421 no son un error.** Son direcciones que Google conoce y todavía no ha
+ido a mirar. Se le mandaron 665 de un sitio de semanas: entra de a poco y
+acelera cuando gana confianza. No hay nada que apurar — pedir indexación una
+por una no funciona.
 
 **El 8 de agosto se corrigió la causa** (ver «De `/media` solo se cierra lo
 privado»). La medición de arriba es de ANTES de que Google volviera a entrar:
