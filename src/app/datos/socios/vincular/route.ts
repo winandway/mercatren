@@ -78,6 +78,22 @@ const entrada = z.object({
     .max(40)
     .nullish()
     .transform((v) => v || "qrbott"),
+  /**
+   * ENSAYO: comprueba todo y NO escribe nada.
+   *
+   * Nació de un problema real (9 ago 2026): cada intento de la otra sesión
+   * dejaba una tienda de prueba en la base de producción. Iban dos, y cada una
+   * hay que ir a borrarla a mano con el token.
+   *
+   * Con `probar: true` se valida el cuerpo, se mira si el slug existe y se
+   * dice qué pasaría — pero no se crea la tienda ni se emite token. Así se
+   * puede comprobar una integración las veces que haga falta sin dejar basura
+   * en producción.
+   */
+  probar: z
+    .boolean()
+    .nullish()
+    .transform((v) => v ?? false),
 });
 
 function json(cuerpo: unknown, status = 200) {
@@ -135,6 +151,51 @@ export async function POST(peticion: Request) {
       ),
     )
     .limit(1);
+
+  /**
+   * ENSAYO: se responde qué pasaría y NO se escribe nada.
+   *
+   * Va aquí, después de comprobar la llave y el cuerpo pero ANTES del primer
+   * insert. Así el ensayo comprueba de verdad lo mismo que la llamada buena
+   * —la llave, cada campo, si el slug existe— sin dejar una tienda de prueba
+   * en producción.
+   */
+  if (cuerpo.probar) {
+    const [existente] = cuerpo.slug_existente
+      ? await db
+          .select({ id: tiendas.id, nombre: tiendas.nombre })
+          .from(tiendas)
+          .where(eq(tiendas.slug, cuerpo.slug_existente))
+          .limit(1)
+      : [];
+
+    const [cuantos] = existente
+      ? await db
+          .select({ n: sql<number>`COUNT(*)` })
+          .from(productos)
+          .where(eq(productos.tiendaId, existente.id))
+      : [];
+
+    return json({
+      ensayo: true,
+      cuerpo_valido: true,
+      llave_valida: true,
+      slug_pedido: cuerpo.slug_existente ?? null,
+      slug_existe: cuerpo.slug_existente ? Boolean(existente) : null,
+      nombre_de_esa_tienda: existente?.nombre ?? null,
+      productos_aqui: existente ? Number(cuantos?.n ?? 0) : null,
+      ya_vinculada: Boolean(yaVinculada),
+      que_pasaria: yaVinculada
+        ? "se le entrega un token nuevo a la tienda que ya estaba vinculada"
+        : cuerpo.slug_existente
+          ? existente
+            ? "se engancharia esa tienda"
+            : "ERROR: ese slug no existe, no se engancharia nada"
+          : "se crearia una tienda NUEVA en borrador",
+      // Nada se escribió: se puede repetir las veces que haga falta.
+      se_escribio: false,
+    });
+  }
 
   let tiendaId: string;
   let slug: string;
