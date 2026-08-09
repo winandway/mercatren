@@ -94,10 +94,73 @@ const entrada = z.object({
     .boolean()
     .nullish()
     .transform((v) => v ?? false),
+  /**
+   * CONFIRMACIÓN OBLIGATORIA para enganchar una tienda QUE YA TIENE PRODUCTOS.
+   *
+   * De dónde salió (9 ago 2026): la otra sesión apuntó lo que creía un ensayo
+   * al slug real del piloto y se llevó un token vivo de Inversiones
+   * Multiservicios — una tienda con 21 productos que ya están vendiendo. Se
+   * dieron cuenta ellos y pidieron rotarlo.
+   *
+   * Enganchar una tienda vacía es inofensivo. Enganchar una que ya vende es
+   * entregarle su catálogo a un sistema externo: si el otro lado manda un
+   * `completo: true` con dos productos, le retira los otros 19.
+   *
+   * Por eso ahora hay que decirlo dos veces. `productos_aqui` avisa; esto
+   * obliga a haberlo leído.
+   */
+  confirmar: z
+    .boolean()
+    .nullish()
+    .transform((v) => v ?? false),
 });
 
 function json(cuerpo: unknown, status = 200) {
   return Response.json(cuerpo, { status });
+}
+
+/**
+ * QUÉ VERSIÓN ESTÁ VIVA. Sin llave, sin escribir nada.
+ *
+ * ══ POR QUÉ EXISTE (9 ago 2026) ══
+ *
+ * Tres veces seguidas la otra sesión probó un arreglo mientras la publicación
+ * estaba a medio subir, concluyó —con razón, según lo que veía— que el arreglo
+ * «no está en producción», y se paró a esperar. Entre el push y el borde pasan
+ * unos nueve minutos, y en esa ventana el sitio responde con la versión vieja
+ * sin decir que lo es.
+ *
+ * El problema no era de ellos: era que no había forma de preguntar. Y yo
+ * tampoco podía comprobarlo, porque la llave se revisa antes que el cuerpo y
+ * sin llave nunca llego a la validación.
+ *
+ * Ahora se pregunta y ya. Si `capacidades` no trae lo que se espera, es que
+ * todavía no propagó: se espera un minuto y se vuelve a preguntar. Nadie tiene
+ * que deducirlo de un 400.
+ *
+ * Va abierto a propósito: no dice nada que no esté ya en
+ * `docs/integracion-qrbott.md`, que es público.
+ */
+export async function GET() {
+  return json({
+    servicio: "socios",
+    version: 1,
+    capacidades: [
+      // Se puede ensayar sin escribir: `"probar": true` en el cuerpo.
+      "ensayo",
+      // El 400 nombra el campo que falló, en vez de un "peticion_invalida" seco.
+      "campos_en_error",
+      // `null` vale lo mismo que no mandar la clave, en todo lo opcional.
+      "null_en_opcionales",
+    ],
+    rutas: {
+      vincular: "POST /datos/socios/vincular — con la llave de socio",
+      productos: "POST /datos/socios/productos — con el token de la tienda",
+      cambios: "GET /datos/socios/cambios — con el token de la tienda",
+    },
+    contrato:
+      "https://github.com/winandway/mercatren/blob/main/docs/integracion-qrbott.md",
+  });
 }
 
 export async function POST(peticion: Request) {
@@ -233,6 +296,37 @@ export async function POST(peticion: Request) {
       .where(eq(sociosTienda.tiendaId, t.id))
       .limit(1);
     if (ocupada) return json({ error: "tienda_ya_vinculada" }, 409);
+
+    /**
+     * SI LA TIENDA YA VENDE, HAY QUE DECIRLO DOS VECES.
+     *
+     * Enganchar una tienda vacía es inofensivo. Enganchar una que ya tiene
+     * catálogo es entregárselo a un sistema externo, que a partir de ahí puede
+     * cambiarle precios y retirarle productos.
+     *
+     * Pasó de verdad: apuntaron lo que creían un ensayo al slug del piloto y
+     * se llevaron un token vivo de una tienda con 21 productos vendiendo.
+     */
+    const [cuantos] = await db
+      .select({ n: sql<number>`COUNT(*)` })
+      .from(productos)
+      .where(eq(productos.tiendaId, t.id));
+    const yaTiene = Number(cuantos?.n ?? 0);
+
+    if (yaTiene > 0 && !cuerpo.confirmar) {
+      return json(
+        {
+          error: "confirmacion_requerida",
+          slug: t.slug,
+          productos_aqui: yaTiene,
+          mensaje:
+            `Esa tienda ya tiene ${yaTiene} productos publicados en Mercatren. ` +
+            "Enseñale ese numero a la persona y vuelve a llamar con confirmar: true. " +
+            'Para ver que pasaria sin tocar nada, usa "probar": true.',
+        },
+        409,
+      );
+    }
 
     tiendaId = t.id;
     slug = t.slug;
