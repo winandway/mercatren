@@ -1588,3 +1588,45 @@ export const sociosAlias = sqliteTable(
     index("socios_alias_producto").on(t.productoId),
   ],
 );
+
+/**
+ * SI UN COMERCIO ESTA COMPROBADO O TODAVIA SE LE ESTA MIRANDO.
+ *
+ * Tabla NUEVA, no una columna en `tiendas`: asi llega sola a produccion con
+ * `schema.sql`, que solo trae `CREATE TABLE IF NOT EXISTS` y no aplica ALTERs.
+ *
+ * Y ES UN DATO APARTE DEL ESTADO DE LA TIENDA, a proposito. Son dos preguntas
+ * distintas: `tiendas.estado` dice si el publico la ve; esto dice si nosotros
+ * comprobamos que existe de verdad. Una tienda nueva esta ACTIVA y EN
+ * OBSERVACION a la vez, y esa es la situacion normal — vende desde el primer
+ * minuto mientras la revisamos por detras.
+ *
+ * El porque completo, y lo que enciende (el sello verde de la ficha publica),
+ * esta en `src/lib/verificacion/estado.ts`.
+ *
+ * EL COMERCIANTE NO VE NADA DE ESTO. Ni el estado ni las notas.
+ */
+export const verificacionTienda = sqliteTable("verificacion_tienda", {
+  tiendaId: text("tienda_id")
+    .primaryKey()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+
+  /** `en_observacion` (el de entrada) · `verificada` · `rechazada`. */
+  estado: text("estado").notNull().default("en_observacion"),
+
+  /**
+   * Lo que encontro quien reviso: si la tienda fisica existe, si los datos de
+   * la empresa cuadran, si el logo es suyo. Es la constancia que los terminos
+   * prometen y que hasta hoy no se guardaba en ninguna parte.
+   */
+  notas: text("notas"),
+
+  revisadoPor: text("revisado_por").references(() => user.id, {
+    onDelete: "set null",
+  }),
+  revisadoEn: integer("revisado_en", { mode: "timestamp" }),
+
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

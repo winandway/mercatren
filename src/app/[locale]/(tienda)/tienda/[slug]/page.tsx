@@ -26,6 +26,8 @@ import { fechaCorta } from "@/lib/fechas";
 import { RUTA_MEDIA } from "@/lib/rutas";
 import { comoJsonLd, fichaDeTienda } from "@/lib/seo/datos-estructurados";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
+import { verificacionDe } from "@/lib/verificacion/consultas";
+import { luceElSello } from "@/lib/verificacion/estado";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +95,12 @@ export default async function PaginaTienda({
      mismo que "no envía": es que todavía no lo dijo, y así se enseña. */
   const envio = await politicaDeEnvio(tienda.id);
   const colorElegido = await colorGuardado(tienda.id);
+
+  /* EL SELLO VERDE SOLO LO LLEVA QUIEN LO GANÓ.
+     Antes se dibujaba siempre, a toda tienda. Con el registro abierto —donde
+     cualquiera abre tienda y vende desde el primer minuto— eso significaba
+     regalarle nuestro respaldo al primero que viniera a estafar. */
+  const conSello = luceElSello(await verificacionDe(tienda.id));
   const cobertura =
     idioma === "en"
       ? (envio.coberturaEn ?? envio.coberturaEs)
@@ -342,13 +350,15 @@ export default async function PaginaTienda({
 
                 El aro blanco lo despega del color de la portada, que además
                 cambia por comercio. */}
-            <span
-              className="absolute -top-1.5 -left-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-precio-600 ring-3 ring-white"
-              title={t("verificada")}
-            >
-              <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
-              <span className="sr-only">{t("verificada")}</span>
-            </span>
+            {conSello && (
+              <span
+                className="absolute -top-1.5 -left-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-precio-600 ring-3 ring-white"
+                title={t("verificada")}
+              >
+                <BadgeCheck className="h-4 w-4 text-white" aria-hidden />
+                <span className="sr-only">{t("verificada")}</span>
+              </span>
+            )}
           </div>
 
           {/* El contacto va JUNTO al logo, no al final: quien entra y quiere
@@ -380,10 +390,12 @@ export default async function PaginaTienda({
         {/* La franja de confianza: es lo que necesita quien llega de Google y
             no conoce a este comercio. */}
         <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 rounded-xl bg-slate-50 px-4 py-3 text-xs text-tinta-suave">
-          <span className="inline-flex items-center gap-1.5">
-            <BadgeCheck className="h-4 w-4 text-precio-600" aria-hidden />
-            {t("verificada")}
-          </span>
+          {conSello && (
+            <span className="inline-flex items-center gap-1.5">
+              <BadgeCheck className="h-4 w-4 text-precio-600" aria-hidden />
+              {t("verificada")}
+            </span>
+          )}
           <span className="inline-flex items-center gap-1.5">
             <Package className="h-4 w-4" aria-hidden />
             {tc("resultados", { n: total })}
