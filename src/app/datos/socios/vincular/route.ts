@@ -95,19 +95,22 @@ const entrada = z.object({
     .nullish()
     .transform((v) => v ?? false),
   /**
-   * CONFIRMACIÓN OBLIGATORIA para enganchar una tienda QUE YA TIENE PRODUCTOS.
+   * Confirmación de que se sabe que esa tienda ya vende. **Hoy no es
+   * obligatoria**, y esa marcha atrás tiene su historia.
    *
-   * De dónde salió (9 ago 2026): la otra sesión apuntó lo que creía un ensayo
-   * al slug real del piloto y se llevó un token vivo de Inversiones
-   * Multiservicios — una tienda con 21 productos que ya están vendiendo. Se
-   * dieron cuenta ellos y pidieron rotarlo.
+   * Durante unas horas del 9 ago 2026 sí lo fue: sin ella, enganchar una tienda
+   * con productos respondía 409. Se puso porque la otra sesión apuntó lo que
+   * creía un ensayo al slug del piloto y se llevó un token vivo de una tienda
+   * con 21 productos vendiendo.
    *
-   * Enganchar una tienda vacía es inofensivo. Enganchar una que ya vende es
-   * entregarle su catálogo a un sistema externo: si el otro lado manda un
-   * `completo: true` con dos productos, le retira los otros 19.
+   * Y hubo que quitarla el mismo día: el botón de QRbott lleva meses desplegado
+   * sin conocer este campo, y su proveedor está en el tope de funciones y no
+   * puede publicar la versión que lo manda. Resultado: el comerciante no podía
+   * conectar su tienda. Una protección contra un error que ya no puede ocurrir
+   * —el ensayo lo evita— dejando el producto inservible.
    *
-   * Por eso ahora hay que decirlo dos veces. `productos_aqui` avisa; esto
-   * obliga a haberlo leído.
+   * Se sigue aceptando para los clientes que la mandan, y el día que todos lo
+   * hagan puede volver a ser obligatoria.
    */
   confirmar: z
     .boolean()
@@ -152,11 +155,11 @@ export async function GET() {
       "campos_en_error",
       // `null` vale lo mismo que no mandar la clave, en todo lo opcional.
       "null_en_opcionales",
-      /* Enganchar una tienda que ya tiene productos responde 409
-         `confirmacion_requerida` y no emite token hasta que llegue
-         `confirmar: true`. Se anuncia aquí porque el otro lado necesita saber
-         si puede contar con esa proteccion o si todavia no propago. */
-      "confirmar_si_ya_vende",
+      /* Al enganchar una tienda que ya vende, la respuesta trae
+         `aviso_ya_vende` con cuántos productos tenía. Es un AVISO para que la
+         pantalla lo enseñe, no una barrera: bloquear rompió un cliente ya
+         desplegado que no manda `confirmar`. La protección real es el ensayo. */
+      "aviso_si_ya_vende",
     ],
     rutas: {
       vincular: "POST /datos/socios/vincular — con la llave de socio",
@@ -268,6 +271,8 @@ export async function POST(peticion: Request) {
   let tiendaId: string;
   let slug: string;
   let creada = false;
+  /** Cuántos productos ya tenía la tienda que se engancha. Aviso, no barrera. */
+  let avisoYaVende: number | null = null;
 
   if (yaVinculada) {
     const [t] = await db
@@ -318,20 +323,27 @@ export async function POST(peticion: Request) {
       .where(eq(productos.tiendaId, t.id));
     const yaTiene = Number(cuantos?.n ?? 0);
 
-    if (yaTiene > 0 && !cuerpo.confirmar) {
-      return json(
-        {
-          error: "confirmacion_requerida",
-          slug: t.slug,
-          productos_aqui: yaTiene,
-          mensaje:
-            `Esa tienda ya tiene ${yaTiene} productos publicados en Mercatren. ` +
-            "Enseñale ese numero a la persona y vuelve a llamar con confirmar: true. " +
-            'Para ver que pasaria sin tocar nada, usa "probar": true.',
-        },
-        409,
-      );
-    }
+    /**
+     * ══ POR QUÉ ESTO AVISA EN VEZ DE BLOQUEAR (9 ago 2026, mismo día) ══
+     *
+     * La primera versión respondía 409 y no emitía token sin `confirmar: true`.
+     * Duró unas horas y hubo que dar marcha atrás: **rompió un botón que ya
+     * estaba funcionando.** El cliente de QRbott lleva meses desplegado, no
+     * conoce ese campo, y su proveedor está en el tope de funciones y no puede
+     * publicar la versión que sí lo manda.
+     *
+     * O sea: una protección contra un error que ya no puede ocurrir dejó al
+     * comerciante sin poder conectar su tienda. El remedio salió peor.
+     *
+     * El accidente que la motivó —llevarse un token del piloto sin querer— lo
+     * evita ya el ENSAYO (`probar: true`), que existe desde hoy y no escribe
+     * nada. Esa es la protección de verdad; esto es el aviso.
+     *
+     * Se sigue aceptando `confirmar` y se sigue devolviendo `aviso_ya_vende`
+     * para que la pantalla lo enseñe. El día que todos los clientes manden el
+     * campo, esto puede volver a bloquear.
+     */
+    avisoYaVende = yaTiene > 0 ? yaTiene : null;
 
     tiendaId = t.id;
     slug = t.slug;
@@ -378,6 +390,9 @@ export async function POST(peticion: Request) {
     /* Se enseña ANTES de confirmar: si aquí hay 21 y allá 1, quien aprieta el
        botón tiene que verlo ahora, no después de mover algo. */
     productos_aqui: Number(cuenta?.n ?? 0),
+    /* Si se enganchó una tienda que ya vendía, va el número para que la
+       pantalla lo enseñe. Es un aviso: no impide nada. */
+    aviso_ya_vende: avisoYaVende,
     // El token en claro se ve UNA sola vez: de aquí en adelante solo su hash.
     token,
   });
