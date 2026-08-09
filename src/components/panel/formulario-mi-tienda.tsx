@@ -4,6 +4,8 @@ import { ImagePlus, Loader2, Save, Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
+import { comprimirImagen } from "@/lib/imagenes/comprimir";
+import { LADO_MAXIMO_LOGO, LADO_MAXIMO_PRODUCTO } from "@/lib/imagenes/medidas";
 import { guardarMiTienda } from "@/lib/tiendas/acciones";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +89,7 @@ function ElegirImagen({
   vacio,
   cambiar,
   redonda,
+  ladoMaximo,
 }: {
   nombre: string;
   etiqueta: string;
@@ -95,6 +98,15 @@ function ElegirImagen({
   vacio: string;
   cambiar: string;
   redonda?: boolean;
+  /**
+   * A cuantos pixeles se encoge el lado largo.
+   *
+   * Va por parametro porque este mismo componente sirve para el LOGO y para la
+   * PORTADA, y no aguantan la misma medida: el logo se dibuja chiquito y con
+   * 512 sobra, pero la portada es una franja ancha que cruza la pantalla — a
+   * 512 se veria borrosa y el comercio pensaria que le arruinamos la imagen.
+   */
+  ladoMaximo: number;
 }) {
   const [vista, setVista] = useState<string | null>(actual);
   const entrada = useRef<HTMLInputElement>(null);
@@ -135,11 +147,39 @@ function ElegirImagen({
         ref={entrada}
         type="file"
         name={nombre}
-        accept="image/jpeg,image/png,image/webp,image/avif"
+        /* `image/*` y no una lista cerrada: la lista dejaba el carrete del
+           iPhone en gris, porque su formato por defecto es HEIC. */
+        accept="image/*"
         className="hidden"
-        onChange={(e) => {
-          const archivo = e.target.files?.[0];
-          if (archivo) setVista(URL.createObjectURL(archivo));
+        onChange={async (e) => {
+          const campo = e.currentTarget;
+          const archivo = campo.files?.[0];
+          if (!archivo) return;
+
+          // La vista previa sale al instante, con el original: la persona ve
+          // su logo mientras se prepara por detrás.
+          setVista(URL.createObjectURL(archivo));
+
+          /**
+           * SE ENCOGE ANTES DE SUBIRLO.
+           *
+           * Este campo viaja con el formulario, así que no basta con guardar
+           * el archivo comprimido en un estado: hay que **reemplazarlo dentro
+           * del propio campo**, y eso solo se puede con un `DataTransfer`.
+           *
+           * Si algo falla se queda el original, que es lo que había antes:
+           * subir lento es mucho mejor que no poder subir.
+           */
+          try {
+            const r = await comprimirImagen(archivo, ladoMaximo);
+            if (!r.seComprimio) return;
+
+            const bolsa = new DataTransfer();
+            bolsa.items.add(r.archivo);
+            campo.files = bolsa.files;
+          } catch (fallo) {
+            console.error("[logo] no se pudo comprimir:", fallo);
+          }
         }}
       />
 
@@ -208,6 +248,7 @@ export function FormularioMiTienda({ tienda }: { tienda: Tienda }) {
           <ElegirImagen
             nombre="logo"
             redonda
+            ladoMaximo={LADO_MAXIMO_LOGO}
             etiqueta={t("marca.logo")}
             ayuda={t("marca.logoAyuda")}
             actual={tienda.logoUrl}
@@ -216,6 +257,7 @@ export function FormularioMiTienda({ tienda }: { tienda: Tienda }) {
           />
           <ElegirImagen
             nombre="portada"
+            ladoMaximo={LADO_MAXIMO_PRODUCTO}
             etiqueta={t("marca.portada")}
             ayuda={t("marca.portadaAyuda")}
             actual={tienda.portadaUrl}

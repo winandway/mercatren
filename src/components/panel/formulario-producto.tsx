@@ -11,6 +11,7 @@ import {
 } from "@/lib/catalogo/departamentos";
 import { baseDesdePublicado } from "@/lib/dinero";
 import { ESTADOS } from "@/lib/entrega/zonas";
+import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
 
@@ -128,6 +129,8 @@ export function FormularioProducto({
     null,
   );
   const [nuevas, setNuevas] = useState<File[]>([]);
+  /** Cuantas se estan encogiendo ahora mismo, para avisarlo en pantalla. */
+  const [preparando, setPreparando] = useState(0);
   const [fotos, setFotos] = useState<Foto[]>(imagenes ?? []);
   const entradaFotos = useRef<HTMLInputElement>(null);
 
@@ -369,16 +372,44 @@ export function FormularioProducto({
           </button>
         </div>
 
+        {preparando > 0 && (
+          <p className="mt-3 text-sm text-tinta-suave" aria-live="polite">
+            {t("preparandoFotos", { n: preparando })}
+          </p>
+        )}
+
         <input
           ref={entradaFotos}
           type="file"
           multiple
-          accept="image/jpeg,image/png,image/webp,image/avif"
+          /* `image/*` y no una lista cerrada: la lista dejaba fuera el HEIC del
+             iPhone, y el carrete le salía en gris al comerciante sin decirle
+             por qué. Lo que no se pueda leer se avisa después, con palabras. */
+          accept="image/*"
           className="sr-only"
-          onChange={(e) => {
-            const elegidas = Array.from(e.target.files ?? []);
-            setNuevas((n) => [...n, ...elegidas].slice(0, 8));
+          onChange={async (e) => {
+            const elegidas = Array.from(e.target.files ?? []).slice(0, 8);
             e.target.value = "";
+            if (!elegidas.length) return;
+
+            /* SE ENCOGEN ANTES DE SUBIRLAS. Una foto de celular son 3–8 MB, y
+               con la conexión de Venezuela eso es un minuto por foto y un
+               corte a medias. Comprimida viaja en unos 200 KB. */
+            setPreparando(elegidas.length);
+            try {
+              const listas = await Promise.all(
+                elegidas.map((f) =>
+                  comprimirImagen(f)
+                    .then((r) => r.archivo)
+                    // Si no se pudo, va la original: subir lento es mucho
+                    // mejor que no poder subir.
+                    .catch(() => f),
+                ),
+              );
+              setNuevas((n) => [...n, ...listas].slice(0, 8));
+            } finally {
+              setPreparando(0);
+            }
           }}
         />
       </section>

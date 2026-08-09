@@ -697,7 +697,8 @@
       "departamentoAyuda": "Elige dónde va tu producto. Sin esto se vende igual, pero no sale cuando la gente navega la portada.",
       "ciudadProducto": "¿En qué ciudad está esta mercancía?",
       "sinCiudad": "Elige la ciudad del depósito",
-      "ciudadProductoAyuda": "Es donde el cliente va a retirarla. Sin ciudad, el producto no sale cuando alguien filtra por la suya."
+      "ciudadProductoAyuda": "Es donde el cliente va a retirarla. Sin ciudad, el producto no sale cuando alguien filtra por la suya.",
+      "preparandoFotos": "Preparando {n} foto(s) para que suban rápido…"
     },
     "ordenes": {
       "titulo": "Órdenes",

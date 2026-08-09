@@ -697,7 +697,8 @@
       "departamentoAyuda": "Choose where your product belongs. Without it the product still sells, but it will not show up when people browse the homepage.",
       "ciudadProducto": "What city is this merchandise in?",
       "sinCiudad": "Choose the warehouse city",
-      "ciudadProductoAyuda": "It's where the buyer picks it up. Without a city, the product won't appear when someone filters by theirs."
+      "ciudadProductoAyuda": "It's where the buyer picks it up. Without a city, the product won't appear when someone filters by theirs.",
+      "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…"
     },
     "ordenes": {
       "titulo": "Orders",

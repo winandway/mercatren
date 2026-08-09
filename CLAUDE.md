@@ -367,6 +367,24 @@ ficha nunca tenga huecos.
   en el servidor, no en el navegador) y la anterior se borra **después** de
   guardar la nueva.
 
+**Toda foto se encoge EN EL NAVEGADOR antes de subirla**
+(`src/lib/imagenes/comprimir.ts`). No es un lujo: los comercios no podían subir
+sus fotos. Una foto sale del teléfono con 3–8 MB, y con la conexión de
+Venezuela eso es un minuto por foto y un corte a mitad de camino — quien tiene
+treinta productos abandona en el tercero. Se redibuja a 1600 px (512 el logo) y
+sale en WebP de unos 200 KB. Medido en el navegador: 948 KB → 133 KB.
+
+Tres cosas de ahí que no se tocan:
+
+1. **`accept="image/*"`, nunca una lista cerrada.** La lista dejaba fuera el
+   HEIC, que es el formato **por defecto del iPhone**: al comerciante se le veía
+   el carrete en gris y no podía subir ni una foto suya.
+2. **Si comprimir falla, se sube el original.** Un navegador viejo, un formato
+   que no se puede dibujar. Subir lento es mucho mejor que no poder subir.
+3. **El comprobante de pago NO se comprime.** Ahí un validador tiene que leer el
+   monto y la referencia del banco; comprimir texto es justo donde se pierde
+   legibilidad, y eso es dinero.
+
 **NUNCA pedir una tabla entera en una consulta** (`producto: productos` o
 `.select()` sin columnas). Drizzle lista TODAS las columnas del esquema,
 incluidas las que se acaban de agregar — y como `schema.sql` solo trae

@@ -15,15 +15,42 @@ import { nanoid } from "nanoid";
  * puede saltarselo.
  */
 
+/**
+ * LOS FORMATOS QUE SE ACEPTAN.
+ *
+ * ══ EL HEIC ES OBLIGATORIO Y FALTABA (9 ago 2026) ══
+ *
+ * Es el formato **por defecto del iPhone**. Sin él en esta lista, un
+ * comerciante con iPhone no podía subir ni una sola foto: elegía la del
+ * carrete y el sistema se la rechazaba sin explicar por qué. Fue una de las
+ * quejas que destapó todo esto.
+ *
+ * Casi siempre lo que llega aquí ya viene convertido a WebP por
+ * `src/lib/imagenes/comprimir.ts`, que redibuja la foto en el navegador. Pero
+ * cuando esa conversión no puede —un navegador viejo, un HEIC ajeno abierto en
+ * Android— se sube el original, y entonces esta lista es lo único que decide si
+ * la persona puede trabajar o no.
+ */
 export const TIPOS_IMAGEN = [
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/avif",
+  // El del iPhone. `heif` es la variante que declaran algunos Android.
+  "image/heic",
+  "image/heif",
 ] as const;
 
-/** 5 MB. Una foto de producto decente pesa mucho menos. */
-export const TAMANO_MAXIMO = 5 * 1024 * 1024;
+/**
+ * 12 MB.
+ *
+ * Antes eran 5, y una foto de un celular moderno los pasa sola — así que el
+ * tope rechazaba fotos normales de gente que hacía todo bien. Ahora el
+ * navegador comprime antes de subir y lo que llega son unos 200 KB; este
+ * número solo entra en juego cuando la compresión no pudo, y ahí conviene que
+ * sea holgado en vez de un muro.
+ */
+export const TAMANO_MAXIMO = 12 * 1024 * 1024;
 
 export type ResultadoSubida =
   { ok: true; clave: string } | { ok: false; mensaje: string };
@@ -33,6 +60,7 @@ function extensionDe(tipo: string) {
   if (tipo === "image/png") return "png";
   if (tipo === "image/webp") return "webp";
   if (tipo === "image/avif") return "avif";
+  if (tipo === "image/heic" || tipo === "image/heif") return "heic";
   return "jpg";
 }
 
@@ -53,11 +81,15 @@ export async function subirImagen(
   if (!TIPOS_IMAGEN.includes(archivo.type as (typeof TIPOS_IMAGEN)[number])) {
     return {
       ok: false,
-      mensaje: "El archivo tiene que ser una imagen (JPG, PNG, WEBP o AVIF).",
+      mensaje:
+        "Ese archivo no es una imagen que podamos leer. Prueba con una foto (JPG, PNG, WEBP, AVIF o HEIC).",
     };
   }
   if (archivo.size > TAMANO_MAXIMO) {
-    return { ok: false, mensaje: "La imagen pesa demasiado. Máximo 5 MB." };
+    return {
+      ok: false,
+      mensaje: "La imagen pesa demasiado. El maximo son 12 MB.",
+    };
   }
 
   const limpia = carpeta.replace(/[^a-z0-9/-]/gi, "").replace(/^\/+|\/+$/g, "");
