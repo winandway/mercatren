@@ -6,6 +6,33 @@
 > **Este archivo manda.** Si el código y este documento no coinciden, se
 > corrigen los dos en el mismo trabajo.
 
+## ✅ ENTREGADA Y FUNCIONANDO (9 ago 2026)
+
+El piloto —Inversiones Multiservicios— está conectado, sus 21 productos
+viajaron a QRbott, el comerciante los aprobó en la bandeja y **ya están
+publicados en su tienda**. Comprobado por el dueño en las pantallas reales.
+
+**No queda nada pendiente de esta integración.** Si alguien lee este archivo
+buscando el siguiente paso: no hay. Lo que sigue está en `ROADMAP.md`.
+
+### Una lección que costó medio día, y no es técnica
+
+Durante horas se dijo «falta un toque» cuando ya no faltaba. El motivo: se
+leía `socios_tienda.ultimo_resultado`, se veía **«0 entregados»**, y se
+concluía que nunca se había entregado nada.
+
+Esa columna guarda **solo la última lectura**. Un «0 entregados» después de una
+entrega buena es el comportamiento correcto —el socio preguntó «¿qué cambió?»
+y no había cambiado nada—, no una señal de fallo.
+
+**Cómo se comprueba de verdad si hubo una primera entrega:** mirar si los
+productos tienen `externo_id`. Ese identificador **solo lo asigna
+`/datos/socios/cambios` al entregarlos por primera vez**. Si lo tienen, la
+entrega ocurrió.
+
+Y la lección de fondo: cuando el dueño dice que lo ve funcionando en pantalla,
+eso pesa más que un dato de la base leído a medias.
+
 ## Qué es esto
 
 `qrbott.com` arma tiendas con POS; `mercatren.com` es la vitrina en Estados
