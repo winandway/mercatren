@@ -159,18 +159,40 @@ export async function GET(peticion: Request) {
     fotosPorProducto.set(f.productoId, lista);
   }
 
-  const listos = filas
-    /* Sin identificador de origen no hay con qué emparejarlo del otro lado.
-       Los productos cargados a mano aquí todavía no lo tienen: se les asigna
-       cuando se manden por primera vez, no en una lectura. */
-    .filter((f) => f.externoId)
-    .map((f) => {
-      const producto: ProductoDeMercatren = {
-        ...f,
-        imagenes: fotosPorProducto.get(f.id) ?? [],
-      };
-      return productoParaElSocio(producto);
-    });
+  /**
+   * A LO QUE NACIÓ AQUÍ SE LE PONE IDENTIFICADOR ANTES DE MANDARLO.
+   *
+   * Un producto que el comercio cargó a mano en el panel de Mercatren no tiene
+   * `externo_id`: nadie de fuera lo puso. Y sin identificador el socio no tiene
+   * con qué reconocerlo, así que la primera versión de esta ruta simplemente
+   * los saltaba.
+   *
+   * **Eso dejaba vacío justo el caso que motivó toda la integración.** El
+   * piloto tiene 21 productos aquí y 1 allá; si esos 21 se cargaron a mano, la
+   * bandeja del otro lado recibía CERO y parecía que la conexión no servía —
+   * sin un solo error, con la respuesta en 200.
+   *
+   * Ahora se le asigna uno y se GUARDA. Tiene que persistir: si se inventara
+   * uno distinto en cada lectura, el socio crearía el producto de nuevo cada
+   * vez y el catálogo se llenaría de copias.
+   */
+  const sinIdentificador = filas.filter((f) => !f.externoId);
+  for (const f of sinIdentificador) {
+    const nuevo = crypto.randomUUID();
+    await db
+      .update(productos)
+      .set({ externoId: nuevo })
+      .where(eq(productos.id, f.id));
+    f.externoId = nuevo;
+  }
+
+  const listos = filas.map((f) => {
+    const producto: ProductoDeMercatren = {
+      ...f,
+      imagenes: fotosPorProducto.get(f.id) ?? [],
+    };
+    return productoParaElSocio(producto);
+  });
 
   await db
     .update(sociosTienda)
