@@ -43,13 +43,41 @@ import {
  * porque alguien olvidó cargar una variable.
  */
 
+/**
+ * LO QUE SE ACEPTA, Y POR QUÉ ADMITE `null`.
+ *
+ * La primera versión pedía que `slug_existente` viniera o **no viniera**, y
+ * rechazaba con 400 un `slug_existente: null`. Eso está mal: un sistema que
+ * arma el JSON desde su base escribe `null` para lo que no tiene — es lo
+ * normal, no un error de quien llama.
+ *
+ * Costó una tarde de la otra sesión (8 ago 2026): el error decía solo
+ * «peticion_invalida», sin nombrar el campo, así que tuvieron que adivinar
+ * probando cinco cuerpos distintos hasta dar con la línea. Por eso ahora todo
+ * lo opcional admite `null` **y** el 400 dice qué campo falló.
+ */
 const entrada = z.object({
   /** El identificador de la tienda EN EL SOCIO. Allá, el uuid del bot. */
   externo_id: z.string().trim().min(1),
   nombre: z.string().trim().min(1).max(120),
-  /** La tienda que YA existe aquí. Sin esto se crea una nueva. */
-  slug_existente: z.string().trim().min(1).max(120).optional(),
-  plataforma: z.string().trim().min(1).max(40).default("qrbott"),
+  /**
+   * La tienda que YA existe aquí. Sin esto se crea una nueva.
+   *
+   * Se admite ausente, `null` y cadena vacía: las tres significan lo mismo —
+   * «este comerciante no tiene tienda previa en Mercatren».
+   */
+  slug_existente: z
+    .string()
+    .trim()
+    .max(120)
+    .nullish()
+    .transform((v) => v || undefined),
+  plataforma: z
+    .string()
+    .trim()
+    .max(40)
+    .nullish()
+    .transform((v) => v || "qrbott"),
 });
 
 function json(cuerpo: unknown, status = 200) {
@@ -75,12 +103,22 @@ export async function POST(peticion: Request) {
     return json({ error: "no_autorizado" }, 401);
   }
 
-  let cuerpo: z.infer<typeof entrada>;
-  try {
-    cuerpo = entrada.parse(await peticion.json());
-  } catch {
-    return json({ error: "peticion_invalida" }, 400);
+  /* El 400 dice QUÉ campo falló. Un "peticion_invalida" a secas obliga a quien
+     integra a adivinar probando cuerpos distintos, y eso ya costó una tarde. */
+  const analisis = entrada.safeParse(await peticion.json().catch(() => null));
+  if (!analisis.success) {
+    return json(
+      {
+        error: "peticion_invalida",
+        campos: analisis.error.issues.map((i) => ({
+          campo: i.path.join(".") || "(cuerpo)",
+          problema: i.message,
+        })),
+      },
+      400,
+    );
   }
+  const cuerpo = analisis.data;
 
   const db = getDb();
 

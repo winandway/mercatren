@@ -287,3 +287,75 @@ describe("dólares y centavos", () => {
     expect(aDolares(null)).toBeNull();
   });
 });
+
+/**
+ * LO QUE COSTÓ UNA TARDE (8 ago 2026).
+ *
+ * El contrato rechazaba con 400 un `slug_existente: null`, y exigía que la
+ * clave simplemente no viniera. Eso esta mal: un sistema que arma el JSON desde
+ * su base escribe `null` para lo que no tiene — es lo normal, no un error de
+ * quien llama.
+ *
+ * Peor: el 400 decia solo «peticion_invalida», sin nombrar el campo, asi que la
+ * otra sesion tuvo que adivinar mandando cinco cuerpos distintos hasta dar con
+ * la linea. Ahora todo lo opcional admite `null` y ausente por igual.
+ */
+describe("un `null` no es un error: es «no tengo ese dato»", () => {
+  const base = {
+    version: 1 as const,
+    hasta: "2026-08-08T12:15:00.000Z",
+    tienda: { externo_id: "t1" },
+  };
+
+  it("acepta las listas en null y las deja vacías", () => {
+    const envio = envioDelSocio.parse({
+      ...base,
+      products: null,
+      deletions: null,
+    });
+    expect(envio.products).toEqual([]);
+    expect(envio.deletions).toEqual([]);
+  });
+
+  it("acepta `completo: null` y lo trata como false", () => {
+    /* Y false es lo seguro: con la duda no se retira nada. */
+    expect(envioDelSocio.parse({ ...base, completo: null }).completo).toBe(
+      false,
+    );
+  });
+
+  it("acepta todos los campos opcionales de un producto en null", () => {
+    const envio = envioDelSocio.parse({
+      ...base,
+      products: [
+        {
+          id: "p1",
+          title_es: "Tornillo",
+          sku: null,
+          slug: null,
+          title_en: null,
+          description_es: null,
+          description_en: null,
+          category_id: null,
+          brand: null,
+          price: null,
+          compare_at_price: null,
+          stock: null,
+          sale_type: null,
+          unit: null,
+          weight_grams: null,
+          status: null,
+          featured: null,
+          sucursal: null,
+          images: null,
+        },
+      ],
+    });
+    expect(envio.products).toHaveLength(1);
+    expect(envio.products[0]!.title_es).toBe("Tornillo");
+  });
+
+  it("y `desde: null` es la primera lectura, no un fallo", () => {
+    expect(envioDelSocio.parse({ ...base, desde: null }).desde).toBeNull();
+  });
+});

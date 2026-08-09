@@ -100,7 +100,10 @@ export const envioDelSocio = z.object({
    * Por defecto `false`: si un día el socio deja de mandar este campo, lo
    * seguro es no retirar. Al revés se le borra el catálogo a un cliente.
    */
-  completo: z.boolean().default(false),
+  completo: z
+    .boolean()
+    .nullish()
+    .transform((v) => v ?? false),
   desde: z.string().datetime().nullish(),
   /** El corte que Mercatren debe usar como `desde` la próxima vez. */
   hasta: z.string().datetime(),
@@ -118,7 +121,10 @@ export const envioDelSocio = z.object({
       }),
     )
     .nullish(),
-  products: z.array(productoDelSocio).default([]),
+  products: z
+    .array(productoDelSocio)
+    .nullish()
+    .transform((v) => v ?? []),
   /**
    * Las bajas van EXPLÍCITAS porque el socio borra de verdad: un delta por
    * fecha no las vería nunca y el producto quedaría publicado para siempre.
@@ -130,7 +136,8 @@ export const envioDelSocio = z.object({
         deleted_at: z.string().datetime().nullish(),
       }),
     )
-    .default([]),
+    .nullish()
+    .transform((v) => v ?? []),
 });
 
 export type ProductoDelSocio = z.infer<typeof productoDelSocio>;
