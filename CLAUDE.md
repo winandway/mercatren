@@ -57,24 +57,34 @@ bancos cierran cuentas. El abogado y el contable lo corrigieron el 5 ago 2026.
 
 ### EL PRECIO Y LO QUE SE DECLARA (7 ago 2026)
 
-**2 % con tarjeta · 3 % por Zelle.** Lo decidió el dueño el 7 ago 2026,
-corrigiendo lo que se había hecho el día anterior (que dejó Zelle en 2 %).
+**3 % en los dos métodos** (10 ago 2026). Antes la tarjeta iba al 2 %; se
+igualó al 3 % después de comparar con el mercado — Amazon cobra 15 % en la
+mayoría de categorías y Mercado Libre entre 11,8 % y 20 %. La meta declarada es
+llegar a 8–10 % en menos de un año, subiendo por tramos y avisando antes.
 
 | Método  | Margen de Mercatren | Procesador   | Precio publicado            |
 | ------- | ------------------- | ------------ | --------------------------- |
-| Tarjeta | 2 %                 | 2.9 % + 0.30 | `V = (base + 0.30) / 0.951` |
+| Tarjeta | 3 %                 | 2.9 % + 0.30 | `V = (base + 0.30) / 0.941` |
 | Zelle   | 3 %                 | ninguno      | `V = base / 0.97`           |
 
-**Y por Zelle el cliente igual paga menos**, porque el fee del procesador pesa
-más que el punto de diferencia: en $100, $103.10 contra $105.47. El checkout
-enseña el ahorro cuando elige Zelle.
+**Por Zelle el comprador paga menos**, y ahora la razón es limpia: el margen es
+el mismo, la diferencia entera la hace el procesador que ahí no interviene. En
+$100, $103.10 contra $106.59. El checkout enseña el ahorro.
 
-**Las dos constantes tienen que cuadrar entre sí.** `COMISION_ZELLE_PB` (lo que
-el precio le COBRA al comprador) y `tiendas.comision_puntos_base` (lo que se le
-DESCUENTA al comercio al acreditar) son el mismo número, y por eso el esquema
-importa la constante en vez de escribir 300. Del 5 al 7 de agosto estuvieron
-desincronizadas —2 % contra 3 %— y ese punto salía del bolsillo del comercio en
-cada venta, sin aparecer en ninguna pantalla.
+**AL CAMBIAR EL MARGEN SE RECALCULAN LOS PRECIOS PUBLICADOS, Y PRIMERO.** El
+precio guardado lleva el margen dentro; si sube la constante y los precios se
+quedan como estaban, la diferencia sale del bolsillo del comercio en cada
+venta. El orden es: `node scripts/recalcular-precios.ts` → `npm run db:cargar`
+→ recién ahí desplegar. Así, durante la publicación, el error cuesta de nuestro
+lado. El plan completo está en `PLAN-COMISION.md`.
+
+**Las tres constantes tienen que cuadrar entre sí.** `COMISION_TARJETA_PB`,
+`COMISION_ZELLE_PB` (lo que el precio le COBRA al comprador) y
+`tiendas.comision_puntos_base` (lo que se le DESCUENTA al comercio al
+acreditar) valen 300 las tres, y por eso el esquema importa la constante en vez
+de escribir 300. Del 5 al 7 de agosto estuvieron desincronizadas —2 % contra
+3 %— y ese punto salía del bolsillo del comercio en cada venta, sin aparecer en
+ninguna pantalla.
 
 **Lo que se declara: el BRUTO, y el margen sale de la resta.** Stripe reporta
 al IRS todo lo que entró (1099-K del bruto), y así tiene que ser: Windoce, LLC
@@ -532,7 +542,8 @@ Páginas abiertas, sin necesidad de cuenta:
 - **`/como-funciona`** — para clientes, pagadores y comercios. Qué es el
   servicio, el paso a paso, **qué NO es** (no es remesa, no hay cambio de
   divisas, no se mueve dinero entre particulares) y por qué cada forma de pago
-  cuesta distinto: Zelle 3%, tarjeta 5%, saldo sin costo.
+  cuesta distinto: el margen de Mercatren es 3% en los dos, pero la tarjeta
+  además lleva el 2.9% + $0.30 del procesador y Zelle no.
 - **`/transparencia`** — pensada para **bancos, procesadores de pago y socios**.
   Por dónde pasa el dinero paso a paso, qué no incluye la operación, cómo se
   verifica cada pago y qué queda registrado.

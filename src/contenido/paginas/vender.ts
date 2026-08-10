@@ -437,6 +437,63 @@ export const COMISIONES_ES: PaginaContenido = {
       ],
     },
     {
+      id: "comparacion",
+      titulo: "Lo que cobra cada plataforma",
+      bloques: [
+        {
+          tipo: "parrafo",
+          texto:
+            "Vender en línea siempre tiene un costo. Estas son las tarifas públicas de las plataformas donde podrías estar vendiendo hoy, para que compares con la nuestra sin tener que buscarlas una por una.",
+        },
+        {
+          tipo: "tabla",
+          encabezados: ["Plataforma", "Comisión por venta", "Además"],
+          filas: [
+            [
+              "Mercatren",
+              "3 %",
+              "Sin cuota mensual, sin costo por publicar y sin cargo por listar cada producto.",
+            ],
+            [
+              "Etsy",
+              "6,5 %",
+              "Más 3 % + US$ 0,25 de procesamiento y US$ 0,20 por cada artículo publicado.",
+            ],
+            [
+              "Amazon",
+              "15 % en la mayoría de categorías",
+              "8 % en electrónica y computación; el rango completo va de 5 % a 45 %, con un mínimo de US$ 0,30 por unidad.",
+            ],
+            [
+              "eBay",
+              "13,6 %",
+              "Más US$ 0,40 por pedido (US$ 0,30 si el pedido no pasa de US$ 10).",
+            ],
+            [
+              "Mercado Libre (México)",
+              "11,5 % – 20 %",
+              "Según la categoría y el tipo de publicación.",
+            ],
+            [
+              "Mercado Libre (Argentina)",
+              "11,8 % – 17,1 %",
+              "Clásica desde 11,8 %; premium hasta 17,14 %. Más IVA y costo fijo en ventas chicas.",
+            ],
+          ],
+          nota: "Tarifas públicas consultadas en agosto de 2026. Cada plataforma puede cambiarlas cuando quiera; las de Amazon llevan sin moverse desde enero de 2024.",
+        },
+        {
+          tipo: "aviso",
+          tono: "ojo",
+          titulo: "El 3 % de hoy no va a ser el de siempre",
+          parrafos: [
+            "Arrancamos en 3 % porque estamos empezando y queremos que te salga a cuenta probarnos. A medida que la plataforma crezca, ese porcentaje va a ir subiendo por tramos hasta acercarse al del mercado.",
+            "Lo decimos desde ahora para que no sea una sorpresa: cada subida se avisa con antelación, y nunca se aplica a ventas que ya se hicieron ni a pedidos que ya estén en curso. Lo que acordamos para una venta es lo que vale para esa venta.",
+          ],
+        },
+      ],
+    },
+    {
       id: "que-incluye",
       titulo: "Qué incluye",
       bloques: [
@@ -535,6 +592,63 @@ export const COMISIONES_EN: PaginaContenido = {
             { valor: "US$ 0", texto: "per month" },
             { valor: "US$ 0", texto: "to publish your catalog" },
             { valor: "US$ 0", texto: "to sync your products" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "comparacion",
+      titulo: "What each platform charges",
+      bloques: [
+        {
+          tipo: "parrafo",
+          texto:
+            "Selling online always costs something. These are the published rates of the platforms you could be selling on today, so you can compare with ours without having to look them up one by one.",
+        },
+        {
+          tipo: "tabla",
+          encabezados: ["Platform", "Fee per sale", "On top of that"],
+          filas: [
+            [
+              "Mercatren",
+              "3%",
+              "No monthly fee, no cost to publish, and no per-item listing charge.",
+            ],
+            [
+              "Etsy",
+              "6.5%",
+              "Plus 3% + US$0.25 payment processing and US$0.20 per item listed.",
+            ],
+            [
+              "Amazon",
+              "15% in most categories",
+              "8% in electronics and computers; the full range runs 5% to 45%, with a US$0.30 per-unit minimum.",
+            ],
+            [
+              "eBay",
+              "13.6%",
+              "Plus US$0.40 per order (US$0.30 on orders of US$10 or less).",
+            ],
+            [
+              "Mercado Libre (Mexico)",
+              "11.5% – 20%",
+              "Depending on the category and listing type.",
+            ],
+            [
+              "Mercado Libre (Argentina)",
+              "11.8% – 17.1%",
+              "Classic from 11.8%; premium up to 17.14%. Plus VAT and a flat fee on small orders.",
+            ],
+          ],
+          nota: "Published rates checked in August 2026. Any platform can change them at will; Amazon's haven't moved since January 2024.",
+        },
+        {
+          tipo: "aviso",
+          tono: "ojo",
+          titulo: "Today's 3% won't be 3% forever",
+          parrafos: [
+            "We start at 3% because we're new and we want trying us to be worth your while. As the platform grows, that percentage will rise in steps until it gets closer to the rest of the market.",
+            "We're saying it now so it never comes as a surprise: every increase is announced in advance, and it never applies to sales already made or orders already in progress. What we agreed for a sale is what holds for that sale.",
           ],
         },
       ],

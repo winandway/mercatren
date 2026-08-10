@@ -362,6 +362,11 @@ export const TERMINOS_ES: PaginaContenido = {
                 "el importe de la mercancía comprada se paga a una cuenta bancaria de Estados Unidos, contra tu factura, según lo acordado por escrito contigo. Es el pago de una compra, no la entrega de dinero de un tercero.",
             },
             {
+              titulo: "El margen puede cambiar, y se avisa antes",
+              texto:
+                "hoy nuestro margen comercial es del 3 % del precio publicado. Puede subir con el tiempo, y de hecho está previsto que lo haga a medida que la plataforma crezca. Cualquier cambio se te comunica por escrito con antelación y **nunca se aplica hacia atrás**: no afecta a ventas ya cerradas ni a pedidos en curso. Si un cambio no te sirve, puedes dejar de publicar cuando quieras y se te paga todo lo que se te deba.",
+            },
+            {
               titulo: "Verificación previa",
               texto:
                 "antes de activarte comprobamos tu registro mercantil, la identidad de tus dueños y tu contraste contra listas de sanciones.",
@@ -811,6 +816,11 @@ export const TERMINOS_EN: PaginaContenido = {
               titulo: "You are paid for the merchandise against your invoice",
               texto:
                 "the amount for merchandise purchased is paid to a US bank account, against your invoice, as agreed with you in writing. It is payment for a purchase, not the handing over of a third party's money.",
+            },
+            {
+              titulo: "The markup can change, and you'll know first",
+              texto:
+                "our commercial markup is currently 3% of the published price. It may rise over time, and it is in fact expected to as the platform grows. Any change is communicated to you in writing ahead of time and **never applies retroactively**: it does not affect sales already closed or orders in progress. If a change doesn't work for you, you can stop publishing whenever you want and everything owed to you is paid out.",
             },
             {
               titulo: "Prior verification",

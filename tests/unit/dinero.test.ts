@@ -59,9 +59,9 @@ describe("comision del mercado", () => {
 
 describe("el ajuste por procesamiento en el precio publicado", () => {
   it("publica el precio que deja la base completa tras el procesador y el margen", () => {
-    // V = (base + 30) / 0.951 — 2.9% del procesador + 2% de margen.
-    expect(precioConAjusteCentavos(1000)).toBe(1084); // $10 → $10.84
-    expect(precioConAjusteCentavos(10000)).toBe(10547); // $100 → $105.47
+    // V = (base + 30) / 0.941 — 2.9% del procesador + 3% de margen.
+    expect(precioConAjusteCentavos(1000)).toBe(1095); // $10 → $10.95
+    expect(precioConAjusteCentavos(10000)).toBe(10659); // $100 → $106.59
     expect(precioConAjusteCentavos(48)).toBe(83); // $0.48 → $0.83
   });
 
@@ -83,7 +83,7 @@ describe("el ajuste por procesamiento en el precio publicado", () => {
   });
 
   it("el ajuste que se le enseña al comercio cuadra con el publicado", () => {
-    expect(ajusteCentavos(1000)).toBe(84);
+    expect(ajusteCentavos(1000)).toBe(95);
     expect(precioConAjusteCentavos(1000)).toBe(1000 + ajusteCentavos(1000));
   });
 });
@@ -223,11 +223,13 @@ describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
   });
 
   it("el ahorro es exactamente lo que cobraba el procesador de más", () => {
-    /* Lo que se ahorra quien paga por Zelle: el 2.9% + $0.30 del procesador,
-       menos el punto de diferencia del margen. En una compra de $2.000 son
-       $41,51; en una de $100, $2,37. */
-    expect(ahorroPorZelleCentavos(200_000)).toBe(4_151);
-    expect(ahorroPorZelleCentavos(10_000)).toBe(237);
+    /* Lo que se ahorra quien paga por Zelle es AHORA el 2.9% + $0.30 del
+       procesador, entero: desde el 10 ago 2026 el margen de Mercatren es el
+       mismo 3% en los dos métodos, así que la diferencia no la hace nuestra
+       comisión sino el procesador que por Zelle no interviene.
+       En una compra de $2.000 son $63,86; en una de $100, $3,49. */
+    expect(ahorroPorZelleCentavos(200_000)).toBe(6_386);
+    expect(ahorroPorZelleCentavos(10_000)).toBe(349);
   });
 
   it("nunca deja al comercio cobrando de menos", () => {

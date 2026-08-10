@@ -35,7 +35,7 @@ export const NOSOTROS_ES: PaginaContenido = {
                 "donde está registrada la sociedad y donde ocurre la venta",
             },
             {
-              valor: "2 % – 3 %",
+              valor: "3 %",
               texto:
                 "el margen comercial incluido en el precio publicado según la forma de pago; es todo nuestro ingreso",
             },
@@ -87,7 +87,7 @@ export const NOSOTROS_ES: PaginaContenido = {
           titulo: "Lo que hace Mercatren",
           parrafos: [
             "Unimos las dos puntas en una sola operación documentada. El comprador elige productos identificados del catálogo y nos paga el precio publicado desde su banco en Estados Unidos. Con ese ingreso le compramos esa misma mercancía al proveedor, a nombre propio y con factura a nuestro nombre. El proveedor la entrega en la dirección designada por el comprador, y nosotros le emitimos su factura de venta.",
-            "Nuestro ingreso es el margen comercial que ya viene incluido en el precio publicado: 2 % cuando se paga con tarjeta y 3 % cuando se paga por Zelle. El comprador ve un precio cerrado, y el comercio tiene una vitrina en Estados Unidos sin montar operación allá.",
+            "Nuestro ingreso es el margen comercial que ya viene incluido en el precio publicado: un 3 %, igual con tarjeta que por Zelle. El comprador ve un precio cerrado, y el comercio tiene una vitrina en Estados Unidos sin montar operación allá.",
           ],
         },
       ],
@@ -186,7 +186,7 @@ export const NOSOTROS_EN: PaginaContenido = {
                 "where the company is registered and where the sale happens",
             },
             {
-              valor: "2%–3%",
+              valor: "3%",
               texto:
                 "the commercial markup built into the published price, depending on payment method; it is our entire revenue",
             },
@@ -238,7 +238,7 @@ export const NOSOTROS_EN: PaginaContenido = {
           titulo: "What Mercatren does",
           parrafos: [
             "We join both ends into a single documented transaction. The buyer picks identified products from the catalog and pays us the published price from their US bank. With that revenue we buy those same goods from the supplier, in our own name and with the invoice made out to us. The supplier delivers to the address the buyer designated, and we issue the buyer a sales invoice.",
-            "Our revenue is the commercial markup already built into the published price: 2% on card payments and 3% on Zelle. The buyer gets a price that's locked in, and the merchant gets a storefront in the United States without setting up operations there.",
+            "Our revenue is the commercial markup already built into the published price: 3%, whether the buyer pays by card or through Zelle. The buyer gets a price that's locked in, and the merchant gets a storefront in the United States without setting up operations there.",
           ],
         },
       ],

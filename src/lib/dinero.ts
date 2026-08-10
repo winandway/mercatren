@@ -61,7 +61,7 @@ export const PROCESADOR_FIJO_CENTAVOS = 30;
  *
  *   1. Lo que se lleva el procesador de tarjeta: 2.9% + $0.30 (tarifa
  *      estándar de Stripe en Estados Unidos, comprobada el 5 ago 2026).
- *   2. El margen de Mercatren: 2% del precio de venta, que es como se calcula
+ *   2. El margen de Mercatren: 3% del precio de venta, que es como se calcula
  *      en la venta (ver COMISION_TARJETA_PB y el webhook de Stripe). Si la
  *      fórmula no lo incluyera, el margen saldría del bolsillo del proveedor.
  *
@@ -69,17 +69,17 @@ export const PROCESADOR_FIJO_CENTAVOS = 30;
  * encontrar el publicado V tal que, después de quitarle todo, quede el precio
  * del proveedor completo:
  *
- *   V − 2.9%·V − $0.30 − 2%·V = base
- *   V · (1 − 0.029 − 0.02) = base + 0.30
- *   V = (base + $0.30) / 0.951
+ *   V − 2.9%·V − $0.30 − 3%·V = base
+ *   V · (1 − 0.029 − 0.03) = base + 0.30
+ *   V = (base + $0.30) / 0.941
  *
- * Sumar los porcentajes hacia adelante deja corto: en $100, publicar $104.90
- * hace que el procesador cobre sobre 104.90 y falten centavos. Siempre faltan.
+ * Sumar los porcentajes hacia adelante deja corto: en $100, publicar $105.90
+ * hace que el procesador cobre sobre 105.90 y falten centavos. Siempre faltan.
  *
  * Se redondea HACIA ARRIBA al centavo: el centavo de diferencia queda de
  * colchón a favor, nunca en contra.
  *
- * Todo entero: (base + 30) * 10000 / 9510, techo. Sin coma flotante, que
+ * Todo entero: (base + 30) * 10000 / 9410, techo. Sin coma flotante, que
  * pierde centavos (932.76 * 100 = 93275.99999999999).
  *
  * OJO — EL AJUSTE SE APLICA UNA SOLA VEZ, SOBRE LA BASE. Aplicarlo sobre un
@@ -134,10 +134,10 @@ export function baseDesdePublicado(publicadoCentavos: number): number {
  * Hacia atrás y con enteros, igual que la otra: el redondeo hacia arriba deja
  * el centavo de colchón a favor, nunca en contra.
  *
- * SIGUE SIENDO MÁS BARATO PARA EL CLIENTE, aunque el porcentaje sea mayor. En
- * una compra de $100 el precio con tarjeta es $105.47 y por Zelle $103.10; en
- * una de $2.000, $2,103.37 contra $2,061.86. La diferencia no la hace el
- * margen de Mercatren sino el 2.9% + $0.30 que aquí no existe.
+ * ES MÁS BARATO PARA EL CLIENTE, con el mismo margen para nosotros. En una
+ * compra de $100 el precio con tarjeta es $106.59 y por Zelle $103.10; en una
+ * de $2.000, $2,126.46 contra $2,061.86. La diferencia entera la hace el
+ * 2.9% + $0.30 del procesador, que aquí no existe.
  */
 export function precioZelleCentavos(baseCentavos: number): number {
   if (baseCentavos <= 0) return 0;
@@ -165,28 +165,51 @@ export function ajusteCentavos(baseCentavos: number): number {
 }
 
 /**
- * LA COMISIÓN POR MÉTODO — 2% con tarjeta, 3% por Zelle.
+ * LA COMISIÓN DE MERCATREN — 3%, con tarjeta y por Zelle.
  *
- *   · Tarjeta — 2% de Mercatren + 2.9% + $0.30 que cobra Stripe. El cobro es
- *               automático: el dinero entra solo y el pedido se marca pagado
- *               sin que nadie lo toque.
+ *   · Tarjeta — 3% de Mercatren + 2.9% + $0.30 que cobra Stripe. Son DOS
+ *               costos distintos y al comercio se le enseñan por separado:
+ *               uno es de un tercero y el otro es nuestro.
  *   · Zelle   — 3% de Mercatren y nada más. No hay procesador, pero sí hay
- *               una persona del equipo comprobando cada comprobante contra el
- *               banco antes de acreditarlo. Ese trabajo es el que cubre el
- *               punto de diferencia.
+ *               una persona comprobando cada comprobante contra el banco.
  *
- * **Y aun así el cliente paga menos por Zelle**, porque el 2.9% + $0.30 del
- * procesador pesa más que ese punto. Ver `precioZelleCentavos`.
+ * **Y el comprador paga menos por Zelle**, porque ahí no interviene el 2.9% +
+ * $0.30 del procesador. Ver `precioZelleCentavos`.
  *
  * POR QUÉ ESTAS DOS CONSTANTES TIENEN QUE CUADRAR CON `tiendas.comision_puntos_base`
- * (que hoy vale 300). El precio publicado es lo que se le COBRA al comprador;
- * la comisión de la tienda es lo que se le DESCUENTA al comercio al acreditar.
- * Si el precio cubre el 2% y al comercio se le descuenta el 3%, el punto que
- * falta sale del bolsillo del comercio, en silencio y en cada venta. Pasó: del
- * 5 al 7 de agosto de 2026 esta constante estuvo en 200 mientras la de la
- * tienda estaba en 300. Si algún día se cambia una, se cambia la otra.
+ * (que vale 300). El precio publicado es lo que se le COBRA al comprador; la
+ * comisión de la tienda es lo que se le DESCUENTA al comercio al acreditar. Si
+ * el precio cubre un porcentaje y al comercio se le descuenta otro, la
+ * diferencia sale de su bolsillo, en silencio y en cada venta. Pasó del 5 al 7
+ * de agosto de 2026. **Si se cambia una, se cambian las tres** — y se
+ * recalculan los precios publicados antes de desplegar.
  */
-export const COMISION_TARJETA_PB = 200;
+/**
+ * ══ EL 3 % ES EL MISMO EN LOS DOS MÉTODOS (10 ago 2026) ══
+ *
+ * Hasta hoy la tarjeta iba al 2 % y Zelle al 3 %. Se igualaron en 3 % después
+ * de mirar lo que cobra el mercado: Amazon el 15 % en la mayoría de categorías
+ * (8 % en electrónica, con un rango de 5 % a 45 %), y Mercado Libre entre
+ * 11,8 % y 20 % según país y tipo de publicación. Aun en 3 %, Mercatren cobra
+ * cinco veces menos que Amazon.
+ *
+ * **Y por Zelle el comprador SIGUE pagando menos**, ahora con una explicación
+ * más limpia: el margen es el mismo, pero por Zelle no hay procesador. En una
+ * compra de $100 son $103.10 contra $106.59.
+ *
+ * ══ CAMBIAR ESTO SIN RECALCULAR LOS PRECIOS LE CUESTA AL COMERCIO ══
+ *
+ * El precio publicado se calcula hacia atrás con este número dentro
+ * (`precioConAjusteCentavos`). Si la constante sube y los precios guardados se
+ * quedan como estaban, se cobra el precio viejo y se descuenta el margen
+ * nuevo: **la diferencia sale del bolsillo del comercio, en silencio y en cada
+ * venta**. Pasó del 5 al 7 de agosto de 2026.
+ *
+ * Al subir al 3 % se recalcularon los 714 productos publicados ANTES de
+ * desplegar el cambio, para que si algo salía mal el error costara de nuestro
+ * lado y no del suyo. El plan entero está en `PLAN-COMISION.md`.
+ */
+export const COMISION_TARJETA_PB = 300;
 export const COMISION_ZELLE_PB = 300;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
@@ -204,10 +227,14 @@ export const ZELLE_MINIMO_CENTAVOS = 20_000;
  * de compra salió por $30.91 y a la billetera entraron $31.23. Treinta y dos
  * centavos de diferencia en el documento que respalda la reventa.
  *
- * **El número correcto es el del método**, y en la tarjeta es el 2%, porque
- * el precio que pagó el comprador se calculó con ese 2% dentro
- * (`precioConAjusteCentavos`). Descontarle 3% a una venta cuyo precio cubría
- * 2% es cobrarle al comercio un punto que nadie le cobró al comprador.
+ * **El número correcto es siempre el del método**: el que se usó para calcular
+ * el precio que pagó el comprador (`precioConAjusteCentavos`). Descontarle al
+ * comercio un porcentaje distinto del que cubría el precio es cobrarle algo
+ * que nadie le cobró al comprador.
+ *
+ * Hoy los dos métodos van al 3 %, así que los números coinciden — pero la
+ * función se queda: el día que vuelvan a separarse, o que se le acuerde otra
+ * tarifa a un comercio, esto es lo que impide que la diferencia se la coma él.
  *
  * ══ POR QUÉ ZELLE USA LA TARIFA DE LA TIENDA Y LA TARJETA NO ══
  *
