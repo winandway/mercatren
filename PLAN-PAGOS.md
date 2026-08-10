@@ -72,4 +72,4 @@ la persona.
 - [x] Comprobar en el navegador y con capturas
 - [x] Documentar en `CLAUDE.md`
 - [ ] Publicar y comprobar que la publicación quedó en verde
-- [ ] Escribir el tutorial de cómo probar todo esto
+- [x] Escribir el tutorial de cómo probar todo esto
