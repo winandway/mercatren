@@ -846,6 +846,44 @@ checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
 Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
 le deben.
 
+## Zelle blindado contra la captura falsa (10 ago 2026 · Fase 1 del plan de pagos)
+
+**Zelle no manda un cobro: manda una FOTO.** Y una foto se guarda, se reenvía y
+se vuelve a subir en otro pedido. Casi ninguna tienda en línea acepta Zelle por
+esto; aquí se acepta porque es lo que usan los venezolanos, así que el control
+tiene que ser nuestro.
+
+Hasta hoy el validador aprobaba a ojo: la pantalla no le decía ni una cosa. Y ya
+se había colado — en el histórico está el código `kfrcrk9wp` usado dos veces por
+$100, uno aprobado y otro rechazado. Lo atajó una persona con buena memoria.
+
+- `src/lib/zelle/alertas.ts` — puro, 18 pruebas. Decide qué es sospechoso.
+  `src/lib/zelle/sospechas.ts` trae los hechos de la base.
+- **El candado va en el SERVIDOR** (`aprobarPago`), no solo en la pantalla: un
+  aviso dibujado se lo salta cualquiera y del otro lado hay dinero del comercio.
+- **Solo bloquea lo ya APROBADO.** Un código visto en un pago rechazado no
+  bloquea: rechazar y volver a intentar con la transferencia corregida es lo
+  normal, y cerrarle la puerta a quien pagó de verdad cuesta más caro que el
+  fraude que evitaría. Por eso NO hay índice único en `codigo_confirmacion` —
+  además rompería con ese par legítimo del histórico.
+- **La huella de la imagen** (`huellas_comprobante`, SHA-256) reconoce el mismo
+  archivo aunque le cambien el nombre. No detecta una captura reeditada y no
+  pretende: atrapa el caso común y perezoso.
+- **Tabla nueva, no columna**: `schema.sql` solo trae `CREATE TABLE IF NOT
+EXISTS`, así que una columna no llegaría sola a producción.
+- El monto que no cuadra, la falta de código y los rechazos previos del
+  comprador **avisan pero no bloquean**: pueden tener explicación, y si todo se
+  pintara de rojo el rojo dejaría de significar algo.
+- Las señales son **solo para el equipo**. Al comercio no le toca juzgar el
+  comprobante de su propio cobro.
+- **Al comprador se le dice cuánto tarda**, en el checkout y al subir la
+  captura: un pago por Zelle lo confirma una persona, normalmente el mismo día
+  hábil. Quien no lo sabe se queda esperando que su pedido arranque solo.
+
+De paso se quitó una trampa documentada del proyecto: `aprobarPago` pedía la
+tabla entera con `.select()`. Una columna nueva en el esquema habría dejado de
+funcionar **la aprobación de pagos** en producción.
+
 ## Cómo se pagó cada venta, y una sola cifra para el comercio (10 ago 2026)
 
 La primera venta real con tarjeta destapó tres cosas. Las tres eran de dinero.

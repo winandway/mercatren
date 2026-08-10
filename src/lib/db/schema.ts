@@ -913,6 +913,40 @@ export const pagosZelle = sqliteTable(
   ],
 );
 
+/**
+ * La huella de cada captura de pago subida.
+ *
+ * ══ PARA QUE LA MISMA IMAGEN NO SE COBRE DOS VECES ══
+ *
+ * Zelle no manda un cobro: manda una FOTO. Y una foto se guarda, se reenvia y
+ * se vuelve a subir en otro pedido. Guardando el SHA-256 del archivo, el
+ * mismo archivo se reconoce aunque le cambien el nombre.
+ *
+ * No detecta una captura reeditada —cambiarle un pixel da otra huella— y no
+ * pretende: atrapa el caso comun y perezoso. Lo demas lo mira la persona, con
+ * las otras senales de `src/lib/zelle/alertas.ts`.
+ *
+ * ══ POR QUE ES UNA TABLA Y NO UNA COLUMNA EN `pagos_zelle` ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, asi que una columna
+ * nueva NO llega sola a una base que ya existe: habria que aplicar el ALTER a
+ * mano. Una tabla nueva se crea sola en la siguiente publicacion.
+ */
+export const huellasComprobante = sqliteTable(
+  "huellas_comprobante",
+  {
+    pagoId: text("pago_id")
+      .primaryKey()
+      .references(() => pagosZelle.id, { onDelete: "cascade" }),
+    /** SHA-256 del archivo, en hexadecimal. */
+    huella: text("huella").notNull(),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_huellas_comprobante").on(t.huella)],
+);
+
 /* -------------------------------------------------------------------------- */
 /* Tipos listos para usar en el resto de la aplicacion                        */
 /* -------------------------------------------------------------------------- */

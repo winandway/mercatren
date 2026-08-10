@@ -16,6 +16,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { AccionesValidacion } from "@/components/panel/zelle/acciones-validacion";
+import { AlertasDelComprobante } from "@/components/panel/zelle/alertas-comprobante";
+import type { Alerta } from "@/lib/zelle/alertas";
 import { VisorComprobante } from "@/components/panel/zelle/visor-comprobante";
 import type { LineaDeVenta } from "@/lib/zelle/lineas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -55,10 +57,13 @@ export function ListaPagos({
   pagos,
   conAcciones = false,
   lineasPorPago = {},
+  alertasPorPago = {},
 }: {
   pagos: PagoVista[];
   /** Qué se vendió en cada pago, por id. Vacío en el histórico importado. */
   lineasPorPago?: Record<string, LineaDeVenta[]>;
+  /** Lo que hay que mirar dos veces antes de aprobar, por id de pago. */
+  alertasPorPago?: Record<string, Alerta[]>;
   /** Muestra los botones de aprobar y rechazar (solo en la cola de validacion). */
   conAcciones?: boolean;
 }) {
@@ -81,6 +86,7 @@ export function ListaPagos({
             <TarjetaPago
               pago={pago}
               conAcciones={conAcciones}
+              alertas={alertasPorPago[pago.id] ?? []}
               onVerRecibo={() => setAbierto(pago)}
             />
           </li>
@@ -101,10 +107,12 @@ export function ListaPagos({
 function TarjetaPago({
   pago,
   conAcciones,
+  alertas = [],
   onVerRecibo,
 }: {
   pago: PagoVista;
   conAcciones?: boolean;
+  alertas?: Alerta[];
   onVerRecibo: () => void;
 }) {
   const t = useTranslations("panel.zelle");
@@ -277,6 +285,10 @@ function TarjetaPago({
           {pago.origen === "import" ? t("pago.importado") : t("pago.enVivo")}
         </span>
       </div>
+
+      {/* Las señales van ARRIBA de los botones, no debajo: debajo se leen
+          después de haber decidido, que es tarde. */}
+      <AlertasDelComprobante alertas={alertas} />
 
       {conAcciones && pago.estado === "pendiente" ? (
         <AccionesValidacion pagoId={pago.id} />

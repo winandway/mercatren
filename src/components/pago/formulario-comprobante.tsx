@@ -237,7 +237,22 @@ export function FormularioComprobante({ numero }: { numero: string }) {
             placeholder={t("codigoPlaceholder")}
             className="mt-1 w-full rounded-lg border border-borde px-3 py-2.5 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
           />
+          {/* Sigue siendo opcional —hay bancos que no lo enseñan y exigirlo
+              dejaría fuera a quien pagó de verdad— pero se le dice para qué
+              sirve. Con el código, verificar es inmediato; sin él, alguien
+              tiene que buscar la transferencia a mano. */}
+          <span className="mt-1 block text-xs text-tinta-suave">
+            {t("porQueElCodigo")}
+          </span>
         </label>
+
+        {/* CUÁNTO TARDA, dicho antes de enviar y no después.
+            Un pago por Zelle es una FOTO, no un cobro: lo confirma una persona
+            contra el banco. Quien no lo sabe se queda esperando que su pedido
+            arranque solo y escribe preguntando qué pasó. */}
+        <p className="rounded-lg bg-slate-50 px-3 py-2.5 text-xs text-tinta-suave">
+          {t("cuantoTarda")}
+        </p>
       </div>
 
       {error ? (

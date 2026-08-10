@@ -8,6 +8,8 @@ import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
+import { bloqueaLaAprobacion } from "@/lib/zelle/alertas";
+import { alertasDelPago } from "@/lib/zelle/sospechas";
 import {
   billeteras,
   itemsPedido,
@@ -87,8 +89,25 @@ export async function aprobarPago(id: string): Promise<Resultado> {
   const db = getDb();
   const usuario = await obtenerUsuario();
 
+  /**
+   * SE NOMBRAN LAS COLUMNAS, NUNCA `.select()` A SECAS.
+   *
+   * Drizzle lista TODAS las del esquema, incluidas las que se acaban de
+   * agregar — y como `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, una
+   * base que ya existe no las recibe. La consulta pediría una columna que en
+   * producción no está y **aprobar pagos dejaría de funcionar**. Pasó el 5 ago
+   * 2026 con las fichas de producto; aquí el precio sería peor.
+   */
   const [pago] = await db
-    .select()
+    .select({
+      id: pagosZelle.id,
+      estado: pagosZelle.estado,
+      tipo: pagosZelle.tipo,
+      tiendaId: pagosZelle.tiendaId,
+      pedidoId: pagosZelle.pedidoId,
+      netoCentavos: pagosZelle.netoCentavos,
+      codigoConfirmacion: pagosZelle.codigoConfirmacion,
+    })
     .from(pagosZelle)
     .where(eq(pagosZelle.id, id))
     .limit(1);
@@ -110,8 +129,32 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     };
   }
 
+  /**
+   * EL CANDADO CONTRA LA CAPTURA REPETIDA.
+   *
+   * Zelle no manda un cobro: manda una FOTO. Si el código de confirmación o la
+   * imagen ya se aprobaron en otro pago, ese dinero ya se contó una vez, y
+   * aprobarlo de nuevo es acreditarle al comercio plata que nadie transfirió.
+   *
+   * Va AQUÍ, en el servidor, y no solo como aviso en la pantalla: un aviso
+   * dibujado se lo salta cualquiera, y del otro lado hay dinero de un comercio.
+   *
+   * Solo bloquea lo ya APROBADO. Un código visto en un pago rechazado no
+   * bloquea: rechazar y volver a intentar con la transferencia corregida es lo
+   * normal, y cerrarle la puerta a quien pagó de verdad cuesta más caro que el
+   * fraude que evitaría.
+   */
+  const impedimento = bloqueaLaAprobacion(await alertasDelPago(db, pago.id));
+  if (impedimento) {
+    return {
+      ok: false,
+      mensaje: t(`alertas.${impedimento.clave}`, impedimento.datos ?? {}),
+    };
+  }
+
+  // Mismo motivo que arriba: solo las columnas que se usan.
   const [billetera] = await db
-    .select()
+    .select({ id: billeteras.id, saldoCentavos: billeteras.saldoCentavos })
     .from(billeteras)
     .where(eq(billeteras.tiendaId, pago.tiendaId))
     .limit(1);

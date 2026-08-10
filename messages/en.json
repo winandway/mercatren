@@ -562,6 +562,16 @@
         "tituloComercio": "Your payments under review",
         "subtituloComercio": "Sales of your merchandise that Mercatren is checking against the bank. Once confirmed, that purchase moves into what is owed to you.",
         "avisoComercio": "The Mercatren team checks these against the bank — not the store. That's what makes the verification worth anything: nobody approves their own payments."
+      },
+      "alertas": {
+        "codigoYaAprobado": "This confirmation code was already approved on {pago}.",
+        "codigoVisto": "This code was already used on {pago}, without being approved.",
+        "capturaYaAprobada": "This exact screenshot was already approved on {pago}.",
+        "capturaVista": "This exact screenshot was already uploaded on {pago}, without being approved.",
+        "montoNoCuadra": "The receipt says {delComprobante} and the order is for {delPedido}.",
+        "sinCodigo": "No confirmation code: there's nothing to look up at the bank.",
+        "pagadorConRechazos": "This buyer has had {veces} receipts rejected before.",
+        "noSePuedeAprobar": "The same payment can't be credited twice."
       }
     },
     "miTienda": {
@@ -970,7 +980,11 @@
       "creditoConDeudaPendiente": "Can't remove it — there are still unpaid orders. Suspend it instead: they won't be able to buy, but the balance stays visible.",
       "clienteNoExiste": "That customer doesn't exist.",
       "sinCupoSuficiente": "Their credit limit doesn't cover this purchase.",
-      "creditoSuspendidoCompra": "Their credit is suspended."
+      "creditoSuspendidoCompra": "Their credit is suspended.",
+      "alertas": {
+        "codigoYaAprobado": "That confirmation code was already approved on {pago}. The same payment can't be credited twice.",
+        "capturaYaAprobada": "That exact screenshot was already approved on {pago}. The same payment can't be credited twice."
+      }
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1441,14 +1455,14 @@
     "pago": {
       "titulo": "How are you paying?",
       "zelle": "Zelle",
-      "zelleTexto": "Transfer from your US bank and upload the screenshot. Available from $200.",
+      "zelleTexto": "You transfer from your U.S. bank and upload the screenshot. A person verifies it against the bank before your order starts — usually the same business day. Available from $200.",
       "tarjeta": "Credit or debit card",
       "tarjetaTexto": "The primary method. The published price is the same.",
       "billetera": "Credit note in my favor",
       "billeteraTexto": "No extra cost.",
       "proximamente": "Coming soon",
       "stripe": "Credit or debit card",
-      "stripeTexto": "Instant, secure payment. Your order starts right away.",
+      "stripeTexto": "Instant and secure. Your order starts right away, with nothing to verify.",
       "zelleDesde": "From $200",
       "ahorroZelle": "You save {monto} paying with Zelle — no card processing fee."
     },
@@ -1500,7 +1514,7 @@
       "sinArchivo": "No image chosen",
       "estado": {
         "pendiente": "Receipt under review",
-        "pendienteTexto": "We got your screenshot. We're verifying it against the bank.",
+        "pendienteTexto": "We received your screenshot. A person is checking it against the bank; this is usually done the same business day. We'll email you as soon as it's confirmed.",
         "aprobado": "Payment verified",
         "aprobadoTexto": "Your payment is confirmed. The merchant is preparing your order.",
         "rechazado": "Receipt rejected",
@@ -1512,7 +1526,9 @@
       "cambiar": "Change image",
       "quitar": "Remove",
       "demasiadoGrande": "That image is over 8 MB. Try a smaller screenshot.",
-      "noEsImagen": "That's not an image. Upload the screenshot of your payment."
+      "noEsImagen": "That's not an image. Upload the screenshot of your payment.",
+      "cuantoTarda": "A Zelle payment isn't confirmed automatically — a person checks it against the bank. Usually the same business day.",
+      "porQueElCodigo": "With the confirmation number your payment is found at the bank right away. Without it, it has to be looked up by hand and takes longer."
     },
     "tarjeta": {
       "titulo": "Pay by card",

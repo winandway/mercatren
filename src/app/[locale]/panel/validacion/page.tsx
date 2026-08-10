@@ -2,8 +2,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ListaPagos } from "@/components/panel/zelle/lista-pagos";
 import { esEquipoInterno } from "@/lib/autorizacion";
+import { getDb } from "@/lib/db";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
 import { lineasDePagos } from "@/lib/zelle/lineas";
+import { alertasDeVarios } from "@/lib/zelle/sospechas";
 import { aPagoVista } from "@/lib/zelle/vista";
 
 export const dynamic = "force-dynamic";
@@ -72,6 +74,18 @@ export default async function PaginaValidacion({
           lineasPorPago={Object.fromEntries(
             await lineasDePagos(pendientes.map((p) => p.id)),
           )}
+          /* Lo que hay que mirar dos veces. Solo para el equipo: al comercio no
+             le toca juzgar el comprobante de su propio cobro. */
+          alertasPorPago={
+            interno
+              ? Object.fromEntries(
+                  await alertasDeVarios(
+                    getDb(),
+                    pendientes.map((p) => p.id),
+                  ),
+                )
+              : {}
+          }
           conAcciones={interno}
         />
       )}

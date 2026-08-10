@@ -562,6 +562,16 @@
         "tituloComercio": "Tus pagos en revisión",
         "subtituloComercio": "Ventas de tu mercancía que Mercatren está comprobando contra el banco. En cuanto se confirmen, esa compra pasa a lo que se te debe pagar.",
         "avisoComercio": "La comprobación la hace el equipo de Mercatren contra el banco, no el comercio. Es lo que le da valor a la verificación: nadie aprueba sus propios cobros."
+      },
+      "alertas": {
+        "codigoYaAprobado": "Este código de confirmación ya se aprobó en {pago}.",
+        "codigoVisto": "Este código ya se había usado en {pago}, sin aprobar.",
+        "capturaYaAprobada": "Esta misma captura ya se aprobó en {pago}.",
+        "capturaVista": "Esta misma captura ya se había subido en {pago}, sin aprobar.",
+        "montoNoCuadra": "El comprobante dice {delComprobante} y el pedido es de {delPedido}.",
+        "sinCodigo": "Sin código de confirmación: no se puede buscar en el banco.",
+        "pagadorConRechazos": "A este comprador ya se le rechazaron {veces} comprobantes.",
+        "noSePuedeAprobar": "No se puede acreditar dos veces el mismo pago."
       }
     },
     "miTienda": {
@@ -970,7 +980,11 @@
       "creditoConDeudaPendiente": "No se puede quitar: todavía tiene pedidos sin pagar. Suspéndelo y quedará sin poder comprar, pero su deuda se sigue viendo.",
       "clienteNoExiste": "Ese cliente no existe.",
       "sinCupoSuficiente": "No le alcanza el cupo para esta compra.",
-      "creditoSuspendidoCompra": "Su crédito está suspendido."
+      "creditoSuspendidoCompra": "Su crédito está suspendido.",
+      "alertas": {
+        "codigoYaAprobado": "Ese código de confirmación ya se aprobó en {pago}. No se puede acreditar dos veces el mismo pago.",
+        "capturaYaAprobada": "Esa misma captura ya se aprobó en {pago}. No se puede acreditar dos veces el mismo pago."
+      }
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1441,14 +1455,14 @@
     "pago": {
       "titulo": "¿Cómo vas a pagar?",
       "zelle": "Zelle",
-      "zelleTexto": "Transfieres desde tu banco de Estados Unidos y subes la captura. Disponible desde $200.",
+      "zelleTexto": "Transfieres desde tu banco de Estados Unidos y subes la captura. Una persona la verifica contra el banco antes de que tu pedido arranque: normalmente el mismo día hábil. Disponible desde $200.",
       "tarjeta": "Tarjeta de crédito o débito",
       "tarjetaTexto": "El método principal. El precio publicado es el mismo.",
       "billetera": "Nota de crédito a mi favor",
       "billeteraTexto": "Sin costo extra.",
       "proximamente": "Próximamente",
       "stripe": "Tarjeta de crédito o débito",
-      "stripeTexto": "Pago inmediato y seguro. Tu pedido arranca al instante.",
+      "stripeTexto": "Pago inmediato y seguro. Tu pedido arranca al instante, sin esperar verificación.",
       "zelleDesde": "Desde $200",
       "ahorroZelle": "Ahorras {monto} pagando por Zelle: no hay costo de procesador de tarjeta."
     },
@@ -1500,7 +1514,7 @@
       "sinArchivo": "Ninguna imagen elegida",
       "estado": {
         "pendiente": "Comprobante en revisión",
-        "pendienteTexto": "Ya recibimos tu captura. La estamos verificando contra el banco.",
+        "pendienteTexto": "Ya recibimos tu captura. Una persona la está comprobando contra el banco; normalmente queda listo el mismo día hábil. Te avisamos por correo apenas se confirme.",
         "aprobado": "Pago verificado",
         "aprobadoTexto": "Tu pago quedó confirmado. El comercio prepara tu pedido.",
         "rechazado": "Comprobante rechazado",
@@ -1512,7 +1526,9 @@
       "cambiar": "Cambiar imagen",
       "quitar": "Quitar",
       "demasiadoGrande": "Esa imagen pesa más de 8 MB. Prueba con una captura más liviana.",
-      "noEsImagen": "Eso no es una imagen. Sube la captura de tu pago."
+      "noEsImagen": "Eso no es una imagen. Sube la captura de tu pago.",
+      "cuantoTarda": "Un pago por Zelle no se confirma solo: una persona lo comprueba contra el banco. Normalmente el mismo día hábil.",
+      "porQueElCodigo": "Con el número de confirmación tu pago se encuentra en el banco enseguida. Sin él hay que buscarlo a mano y tarda más."
     },
     "tarjeta": {
       "titulo": "Paga con tarjeta",

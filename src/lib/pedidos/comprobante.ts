@@ -7,8 +7,14 @@ import { revalidatePath } from "next/cache";
 
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { itemsPedido, pagosZelle, pedidos } from "@/lib/db/schema";
+import {
+  huellasComprobante,
+  itemsPedido,
+  pagosZelle,
+  pedidos,
+} from "@/lib/db/schema";
 import { RUTA_MEDIA } from "@/lib/rutas";
+import { huellaDelArchivo } from "@/lib/zelle/alertas";
 
 /**
  * El cliente sube la captura de su pago.
@@ -104,14 +110,21 @@ export async function subirComprobante(
   const claveArchivo = `comprobantes/${pedido.id}/${nanoid()}.${extension}`;
 
   const { env } = getCloudflareContext();
-  await env.BUCKET.put(claveArchivo, await archivo.arrayBuffer(), {
+  const contenido = await archivo.arrayBuffer();
+  await env.BUCKET.put(claveArchivo, contenido, {
     httpMetadata: { contentType: archivo.type },
   });
 
+  /* La huella del archivo, para reconocer la MISMA captura si se vuelve a
+     subir en otro pedido. Se calcula antes de insertar para poder guardarla
+     junto con el pago. */
+  const huella = await huellaDelArchivo(contenido);
+
   const ahora = new Date();
+  const pagoId = nanoid();
 
   await db.insert(pagosZelle).values({
-    id: nanoid(),
+    id: pagoId,
     origen: "live",
     tipo: "entrada",
     estado: "pendiente",
@@ -131,6 +144,15 @@ export async function subirComprobante(
     tiendaId,
     creadoEn: ahora,
   });
+
+  /* La huella va en su propio insert y en su propio try: si esto fallara, el
+     comprobante ya está subido y el pago ya entró a la cola. Perder una señal
+     de fraude es malo; perder el pago de un cliente es peor. */
+  try {
+    await db.insert(huellasComprobante).values({ pagoId, huella });
+  } catch (fallo) {
+    console.error("[comprobante] no se pudo guardar la huella:", fallo);
+  }
 
   revalidatePath("/[locale]/pedido/[numero]", "page");
   revalidatePath("/[locale]/panel", "layout");
