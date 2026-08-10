@@ -611,17 +611,46 @@ CREATE TABLE IF NOT EXISTS `huellas_comprobante` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_huellas_comprobante` ON `huellas_comprobante` (`huella`);
+-- ── Tablas (0016_early_hex.sql) ──
+CREATE TABLE IF NOT EXISTS `disputas` (
+	`id` text PRIMARY KEY NOT NULL,
+	`intento_id` text,
+	`pedido_id` text,
+	`estado` text DEFAULT 'abierta' NOT NULL,
+	`monto_centavos` integer DEFAULT 0 NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`motivo` text,
+	`responde_hasta` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_disputas_pedido` ON `disputas` (`pedido_id`);
+CREATE INDEX IF NOT EXISTS `idx_disputas_estado` ON `disputas` (`estado`);
+CREATE TABLE IF NOT EXISTS `hitos_pedido` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`hito` text NOT NULL,
+	`hecho_por_id` text,
+	`hecho_por_nombre` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_hitos_pedido` ON `hitos_pedido` (`pedido_id`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786389308, 1786389308)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786398439, 1786398439)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786389308)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786398439)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
