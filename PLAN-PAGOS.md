@@ -71,5 +71,5 @@ la persona.
 - [x] `npm run verify` completo en verde
 - [x] Comprobar en el navegador y con capturas
 - [x] Documentar en `CLAUDE.md`
-- [ ] Publicar y comprobar que la publicación quedó en verde
+- [x] Publicar y comprobar que la publicación quedó en verde
 - [x] Escribir el tutorial de cómo probar todo esto
