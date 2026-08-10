@@ -1,11 +1,14 @@
 import "server-only";
 
-import { and, desc, eq, gte, or, sql } from "drizzle-orm";
+import { and, desc, eq, exists, gte, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import {
   billeteras,
+  itemsPedido,
+  pagos,
+  pedidos as tablaPedidos,
   pagosZelle,
   retiros,
   retirosFee,
@@ -48,6 +51,21 @@ const RETIRO_APROBADO = and(
 function inicioDelMes(): Date {
   const hoy = new Date();
   return new Date(Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), 1));
+}
+
+/**
+ * Un `MAX()` sobre una columna de tiempo llega en segundos, no como fecha:
+ * Drizzle solo la convierte cuando se pide la columna tal cual.
+ */
+function fechaEnMilisegundos(valor: number | null): number | null {
+  return valor ? Number(valor) * 1000 : null;
+}
+
+/** La más reciente de dos fechas, aguantando que falte cualquiera de las dos. */
+function ultimaFecha(a: number | null, b: number | null): number | null {
+  if (a === null) return b;
+  if (b === null) return a;
+  return Math.max(a, b);
 }
 
 /**
@@ -120,6 +138,49 @@ export type PosicionBilletera = {
   ultimoMovimiento: number | null;
 };
 
+/**
+ * LAS VENTAS COBRADAS CON TARJETA, que también son dinero del comercio.
+ *
+ * ══ EL FALLO QUE ARREGLA (10 ago 2026) ══
+ *
+ * La billetera calculaba el saldo leyendo SOLO `pagos_zelle` y `retiros`. Una
+ * venta cobrada con tarjeta se acreditaba bien en la base, pero la pantalla la
+ * ignoraba: el comercio entraba a su billetera y veía **$0.00 y cero
+ * movimientos** teniendo dinero suyo esperando.
+ *
+ * Pasó con la primera venta real con tarjeta (Inversiones Multiservicios,
+ * MT-000002). Un comercio al que no le aparece lo que vendió da por hecho que
+ * no le pagamos, y con razón.
+ *
+ * ══ POR QUÉ SE CALCULA Y NO SE LEE DE `movimientos_billetera` ══
+ *
+ * Por lo mismo que el resto de esta pantalla: un número guardado se
+ * desactualiza y nadie se entera. Y hay una razón de más — la aprobación de un
+ * Zelle TAMBIÉN escribe en `movimientos_billetera`, así que sumar esa tabla
+ * contaría los pagos de Zelle dos veces. `pagos` y `pagos_zelle` son tablas
+ * distintas y sin solape: por ahí no se puede contar nada dos veces.
+ *
+ * ══ POR QUÉ `exists` Y NO UN JOIN ══
+ *
+ * Con un `innerJoin` contra `pagos`, un pedido con dos filas de cobro
+ * confirmadas duplicaría cada renglón y el comercio vería el doble de lo que
+ * vendió. `exists` pregunta si está cobrado sin multiplicar nada.
+ */
+function cobradoConTarjeta(db: ReturnType<typeof getDb>) {
+  return exists(
+    db
+      .select({ hay: sql`1` })
+      .from(pagos)
+      .where(
+        and(
+          eq(pagos.pedidoId, itemsPedido.pedidoId),
+          eq(pagos.metodo, "stripe"),
+          eq(pagos.estado, "confirmado"),
+        ),
+      ),
+  );
+}
+
 export async function obtenerPosicion(
   comercio?: string,
 ): Promise<PosicionBilletera | null> {
@@ -168,6 +229,34 @@ export async function obtenerPosicion(
     .from(pagosZelle)
     .where(and(eq(pagosZelle.tiendaId, tiendaId), enElMes));
 
+  /* Lo cobrado con tarjeta, que hasta el 10 ago 2026 esta pantalla no veía.
+     El neto sale de la comisión GUARDADA en el renglón, la misma que usa la
+     orden de compra: así los dos documentos dicen el mismo número. */
+  const [tarjeta] = await db
+    .select({
+      bruto: sql<number>`COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0)`,
+      comision: sql<number>`COALESCE(SUM(${itemsPedido.comisionCentavos}), 0)`,
+      ultimo: sql<number | null>`MAX(${tablaPedidos.actualizadoEn})`,
+    })
+    .from(itemsPedido)
+    .innerJoin(tablaPedidos, eq(tablaPedidos.id, itemsPedido.pedidoId))
+    .where(and(eq(itemsPedido.tiendaId, tiendaId), cobradoConTarjeta(db)));
+
+  const [tarjetaDelMes] = await db
+    .select({
+      bruto: sql<number>`COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0)`,
+      comision: sql<number>`COALESCE(SUM(${itemsPedido.comisionCentavos}), 0)`,
+    })
+    .from(itemsPedido)
+    .innerJoin(tablaPedidos, eq(tablaPedidos.id, itemsPedido.pedidoId))
+    .where(
+      and(
+        eq(itemsPedido.tiendaId, tiendaId),
+        gte(tablaPedidos.actualizadoEn, desde),
+        cobradoConTarjeta(db),
+      ),
+    );
+
   const [billetera] = await db
     .select({ moneda: billeteras.moneda, proveedor: billeteras.proveedor })
     .from(billeteras)
@@ -193,7 +282,10 @@ export async function obtenerPosicion(
     .from(retiros)
     .where(eq(retiros.tiendaId, tiendaId));
 
-  const neto = Number(datos?.netoHistorico ?? 0);
+  const netoTarjeta =
+    Number(tarjeta?.bruto ?? 0) - Number(tarjeta?.comision ?? 0);
+
+  const neto = Number(datos?.netoHistorico ?? 0) + netoTarjeta;
   const retirado = Number(datos?.retirado ?? 0) + Number(pedidos?.pagado ?? 0);
   const enTramite = Number(pedidos?.enTramite ?? 0);
   const saldo = neto - retirado;
@@ -212,13 +304,19 @@ export async function obtenerPosicion(
     retiradoCentavos: retirado,
     retiros: Number(datos?.retiros ?? 0) + Number(pedidos?.veces ?? 0),
     mes: {
-      brutoCentavos: Number(mes?.bruto ?? 0),
-      comisionCentavos: Number(mes?.comision ?? 0),
+      brutoCentavos:
+        Number(mes?.bruto ?? 0) + Number(tarjetaDelMes?.bruto ?? 0),
+      comisionCentavos:
+        Number(mes?.comision ?? 0) + Number(tarjetaDelMes?.comision ?? 0),
       retiradoCentavos: Number(mes?.retirado ?? 0),
       rechazadoCentavos: Number(mes?.rechazado ?? 0),
     },
-    comisionGanadaCentavos: Number(datos?.comisionGanada ?? 0),
-    ultimoMovimiento: datos?.ultimo ? Number(datos.ultimo) * 1000 : null,
+    comisionGanadaCentavos:
+      Number(datos?.comisionGanada ?? 0) + Number(tarjeta?.comision ?? 0),
+    ultimoMovimiento: ultimaFecha(
+      datos?.ultimo ? Number(datos.ultimo) * 1000 : null,
+      fechaEnMilisegundos(tarjeta?.ultimo ?? null),
+    ),
   };
 }
 
@@ -247,7 +345,7 @@ export async function listarMovimientosReales(
 
   const db = getDb();
 
-  const [filas, salidas] = await Promise.all([
+  const [filas, salidas, conTarjeta] = await Promise.all([
     db
       .select({
         id: pagosZelle.id,
@@ -287,12 +385,37 @@ export async function listarMovimientosReales(
       )
       .orderBy(desc(retiros.resueltoEn))
       .limit(limite),
+
+    /* Las ventas cobradas con tarjeta: una fila por pedido, igual que la orden
+       de compra. Agrupar por pedido y no por renglón es lo correcto — el
+       comercio piensa en ventas, no en líneas de una venta. */
+    db
+      .select({
+        id: tablaPedidos.id,
+        numero: tablaPedidos.numero,
+        fecha: tablaPedidos.actualizadoEn,
+        bruto: sql<number>`COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0)`,
+        comision: sql<number>`COALESCE(SUM(${itemsPedido.comisionCentavos}), 0)`,
+      })
+      .from(itemsPedido)
+      .innerJoin(tablaPedidos, eq(tablaPedidos.id, itemsPedido.pedidoId))
+      .where(
+        and(eq(itemsPedido.tiendaId, posicion.tiendaId), cobradoConTarjeta(db)),
+      )
+      .groupBy(tablaPedidos.id)
+      .orderBy(desc(tablaPedidos.actualizadoEn))
+      .limit(limite),
   ]);
 
   const movimientos: MovimientoBilletera[] = [
     ...filas.map((f) => ({
       id: f.id,
-      fecha: f.fecha ? Number(f.fecha) * 1000 : null,
+      /* `fechaTransaccion` está declarada como timestamp, así que Drizzle la
+         devuelve como Date —ya en milisegundos—. Multiplicarla por mil daba el
+         año 58548, que es lo que llevaba enseñando esta columna: además de
+         verse absurdo, mandaba esos movimientos al principio de la lista y
+         empujaba fuera de la pantalla a los de verdad. */
+      fecha: f.fecha instanceof Date ? f.fecha.getTime() : null,
       tipo: f.tipo,
       concepto: f.nota ?? f.codigo ?? f.banco,
       montoCentavos: f.tipo === "retiro" ? -Number(f.monto) : Number(f.neto),
@@ -305,6 +428,16 @@ export async function listarMovimientosReales(
       tipo: "retiro" as const,
       concepto: s.referencia ?? s.forma,
       montoCentavos: -Number(s.monto),
+      saldoResultanteCentavos: 0,
+    })),
+    ...conTarjeta.map((v) => ({
+      id: v.id,
+      fecha: v.fecha instanceof Date ? v.fecha.getTime() : null,
+      tipo: "entrada" as const,
+      /* El número del pedido, no un identificador de Stripe: es lo que el
+         comercio tiene delante en su pantalla de órdenes. */
+      concepto: v.numero,
+      montoCentavos: Number(v.bruto) - Number(v.comision),
       saldoResultanteCentavos: 0,
     })),
   ]

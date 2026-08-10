@@ -1,6 +1,7 @@
 import { FileCheck2, FileWarning } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { SelloMetodoPago } from "@/components/panel/como-se-pago";
 import { AdjuntarFactura } from "@/components/panel/facturas/adjuntar-factura";
 import { Link } from "@/i18n/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
@@ -10,10 +11,18 @@ import {
   listarOrdenesCompra,
 } from "@/lib/facturas/consultas";
 import { fechaCorta } from "@/lib/fechas";
+import type { MetodoPago } from "@/lib/pagos/rastro";
 import { RUTA_MEDIA } from "@/lib/rutas";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+/** Ante un método desconocido, null: mejor no decir nada que decir de más. */
+function metodoValido(valor: string | null): MetodoPago | null {
+  return valor === "stripe" || valor === "zelle" || valor === "billetera"
+    ? valor
+    : null;
+}
 
 /**
  * LAS ÓRDENES DE COMPRA, vistas desde las dos puntas.
@@ -47,6 +56,7 @@ export default async function PaginaOrdenesCompra({
 
   const idioma = locale as Idioma;
   const t = await getTranslations("panel.ordenesCompra");
+  const tc = await getTranslations("panel.comoSePago");
   const { comercio, pendientes } = await searchParams;
 
   const alcance = await obtenerAlcance();
@@ -133,6 +143,7 @@ export default async function PaginaOrdenesCompra({
                 <th className="px-4 py-3 font-semibold">
                   {t("columna.pedido")}
                 </th>
+                <th className="px-4 py-3 font-semibold">{tc("columna")}</th>
                 {esEquipo ? (
                   <th className="px-4 py-3 font-semibold">
                     {t("columna.comercio")}
@@ -153,8 +164,27 @@ export default async function PaginaOrdenesCompra({
               {ordenes.map((o) => (
                 <tr key={o.id} className="border-t border-borde align-top">
                   <td className="px-4 py-3 font-medium">{o.numero}</td>
-                  <td className="px-4 py-3 text-tinta-suave">
-                    {o.pedidoNumero}
+                  <td className="px-4 py-3">
+                    {/* El número del pedido lleva a su ficha. Antes era texto
+                        muerto: para ver qué se vendió había que buscarlo a
+                        mano en Órdenes. */}
+                    <Link
+                      href={`/panel/ordenes/${o.pedidoNumero}`}
+                      className="text-tinta-suave underline-offset-2 hover:text-tinta hover:underline"
+                    >
+                      {o.pedidoNumero}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3">
+                    <SelloMetodoPago
+                      rastro={{
+                        /* La orden de compra solo existe cuando el pago ya se
+                           confirmó: por eso el estado es siempre «cobrado». */
+                        metodo: metodoValido(o.metodoPago),
+                        estado: "confirmado",
+                        referencia: null,
+                      }}
+                    />
                   </td>
                   {esEquipo ? (
                     <td className="px-4 py-3 text-tinta-suave">

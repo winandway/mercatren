@@ -16,7 +16,6 @@ import {
   user,
   variantesProducto,
 } from "@/lib/db/schema";
-import { COMISION_TARJETA_PB, calcularComisionCentavos } from "@/lib/dinero";
 import { getStripe } from "@/lib/stripe";
 
 /**
@@ -129,6 +128,8 @@ async function acreditarPagoConTarjeta(
       tiendaId: itemsPedido.tiendaId,
       cantidad: itemsPedido.cantidad,
       subtotalCentavos: itemsPedido.subtotalCentavos,
+      /* La comisión GUARDADA, no una recalculada aquí. Ver más abajo. */
+      comisionCentavos: itemsPedido.comisionCentavos,
       /* Qué variante se vendió, si el producto tenía tallas o colores. Sin
          esto el stock se le descontaría al padre y la talla vendida seguiría
          figurando disponible. */
@@ -161,21 +162,31 @@ async function acreditarPagoConTarjeta(
       .where(eq(productos.id, r.productoId));
   }
 
-  // Lo de cada comercio, junto.
-  const porTienda = new Map<string, number>();
+  /**
+   * Lo de cada comercio, junto.
+   *
+   * ══ LA COMISIÓN SALE DEL RENGLÓN, NO SE VUELVE A CALCULAR AQUÍ ══
+   *
+   * Antes este bloque la recalculaba con `COMISION_TARJETA_PB`, mientras la
+   * orden de compra usaba la que se había guardado al crear el pedido. Cuando
+   * las dos no coincidían —y no coincidían, porque al crear el pedido se
+   * guardaba la tarifa de Zelle— el mismo pedido acababa con dos números
+   * distintos para lo que se le paga al comercio.
+   *
+   * Ahora hay UNA sola cifra, la de `items_pedido.comision_centavos`, y todos
+   * la leen: la orden de compra, la billetera y este acreditado. Que cuadren
+   * deja de depender de que dos sitios hagan la misma cuenta.
+   */
+  const porTienda = new Map<string, { bruto: number; comision: number }>();
   for (const r of renglones) {
     if (!r.tiendaId) continue;
-    porTienda.set(
-      r.tiendaId,
-      (porTienda.get(r.tiendaId) ?? 0) + Number(r.subtotalCentavos),
-    );
+    const acumulado = porTienda.get(r.tiendaId) ?? { bruto: 0, comision: 0 };
+    acumulado.bruto += Number(r.subtotalCentavos);
+    acumulado.comision += Number(r.comisionCentavos ?? 0);
+    porTienda.set(r.tiendaId, acumulado);
   }
 
-  for (const [tiendaId, brutoCentavos] of porTienda) {
-    const comision = calcularComisionCentavos(
-      brutoCentavos,
-      COMISION_TARJETA_PB,
-    );
+  for (const [tiendaId, { bruto: brutoCentavos, comision }] of porTienda) {
     const neto = brutoCentavos - comision;
 
     const [billetera] = await db
@@ -233,7 +244,7 @@ async function acreditarPagoConTarjeta(
       });
     }
 
-    for (const [tiendaId, brutoCentavos] of porTienda) {
+    for (const [tiendaId, { bruto, comision }] of porTienda) {
       const [duenno] = await db
         .select({ email: user.email, name: user.name, idioma: user.idioma })
         .from(tiendas)
@@ -243,9 +254,10 @@ async function acreditarPagoConTarjeta(
 
       if (duenno) {
         await correoVentaAcreditada(duenno, {
-          montoCentavos:
-            brutoCentavos -
-            calcularComisionCentavos(brutoCentavos, COMISION_TARJETA_PB),
+          /* El MISMO neto que se acreditó arriba. Si el correo hiciera su
+             propia cuenta, el comercio leería una cifra en el correo y otra
+             distinta en su billetera — y la que se creería es la del correo. */
+          montoCentavos: bruto - comision,
           referencia: pedido.numero,
         });
       }

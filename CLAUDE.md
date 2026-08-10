@@ -846,6 +846,68 @@ checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
 Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
 le deben.
 
+## Cómo se pagó cada venta, y una sola cifra para el comercio (10 ago 2026)
+
+La primera venta real con tarjeta destapó tres cosas. Las tres eran de dinero.
+
+**1. El método de pago no se veía en ninguna pantalla.** Estaba guardado desde
+el primer pedido, pero para saber si una venta entró por tarjeta o por Zelle
+había que abrir «Pagos Zelle» y, si no estaba ahí, deducir que fue con tarjeta.
+Ahora sale en Órdenes, en la ficha del pedido y en Órdenes de compra, con su
+referencia (`pi_…` de Stripe o el código del banco) y el número de pedido de la
+orden de compra convertido en enlace a su ficha.
+
+La traducción vive en `src/lib/pagos/rastro.ts`, pura y con 25 pruebas, porque
+los dos métodos guardan su rastro en tablas distintas y con estados que se
+llaman distinto (`confirmado` contra `aprobado`). Traducir eso en cada pantalla
+termina en dos pantallas que dicen cosas diferentes del mismo pedido.
+
+Dos reglas de ahí que no se tocan:
+
+- **Sin cobro confirmado no se enseña la referencia de la tarjeta.** El `pi_…`
+  existe desde que se abre el intento, mucho antes de que el dinero entre;
+  enseñarlo en un pedido sin pagar es despachar mercancía que nadie pagó. En
+  Zelle es al revés: la referencia sirve aunque esté en revisión, porque es lo
+  que el validador busca en el banco.
+- **El estado del pedido manda cuando no aparece el cobro.** El histórico llegó
+  sin enlazar a su pedido, y la lista enseñaba «Entregado» y «sin pagar» en la
+  misma línea. Pero **no tapa un cobro rechazado**: ahí la contradicción es de
+  verdad y es justo lo que hay que revisar.
+
+**2. La venta con tarjeta no le sumaba al comercio.** La billetera calculaba el
+saldo leyendo solo `pagos_zelle` y `retiros`. El comercio veía **$0.00 y cero
+movimientos** teniendo su dinero esperando. Ahora `obtenerPosicion` y
+`listarMovimientosReales` suman también lo cobrado con tarjeta.
+
+Se calcula desde `pagos` + `items_pedido`, **no desde `movimientos_billetera`**:
+la aprobación de un Zelle también escribe ahí, así que sumar esa tabla contaría
+los pagos de Zelle dos veces. Y va con `exists`, no con un `innerJoin`: un
+pedido con dos filas de cobro duplicaría cada renglón y el comercio vería el
+doble de lo que vendió.
+
+**3. El mismo pedido tenía DOS cifras de lo que se le paga al comercio.** Al
+crear el pedido se guardaba siempre la tarifa de la tienda (3 %, la de Zelle)
+sin mirar cómo se iba a pagar, y el webhook de Stripe acreditaba con el 2 %. En
+la MT-000002 la orden de compra salió por $30.91 y a la billetera entraron
+$31.23. **El número correcto es el del método** —en tarjeta el 2 %, porque el
+precio que pagó el comprador se calculó con ese 2 % dentro— y lo decide
+`puntosBaseDelMetodo()` en `src/lib/dinero.ts`.
+
+Ahora hay UNA sola cifra, `items_pedido.comision_centavos`, y todos la leen: la
+orden de compra, la billetera, el acreditado y el correo que le avisa al
+comercio. **Que cuadren dejó de depender de que cuatro sitios hagan la misma
+cuenta.**
+
+**Deuda pendiente:** la MT-000002 quedó con el 3 % guardado. Su orden de compra
+dice $30.91 cuando debería decir $31.23. Corregirla es tocar un documento
+contable ya emitido, y esa decisión es del dueño.
+
+De paso se arregló un fallo viejo de la billetera: `fechaTransaccion` está
+declarada como timestamp, así que Drizzle la devuelve como `Date`, y el código
+la multiplicaba por mil. Los movimientos salían fechados **en el año 58548**, y
+además se iban al principio de la lista y empujaban fuera de la pantalla a los
+movimientos de verdad.
+
 ## Las dos facturas de cada venta (7 ago 2026 · Fase 1 de `PLAN.md`)
 
 El modelo se sostiene sobre esto y hasta hoy el sistema no emitía nada. Ahora,

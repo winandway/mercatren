@@ -128,6 +128,8 @@ export type OrdenCompraVista = {
   facturaProveedorClave: string | null;
   emitidaEn: Date;
   facturadaEn: Date | null;
+  /** Con qué se cobró la venta que originó esta orden. */
+  metodoPago: string | null;
 };
 
 /**
@@ -166,6 +168,10 @@ export async function listarOrdenesCompra(
       facturaProveedorClave: ordenesCompra.facturaProveedorClave,
       emitidaEn: ordenesCompra.emitidaEn,
       facturadaEn: ordenesCompra.facturadaEn,
+      /* Con qué se cobró esa venta. Sin esto, la orden de compra dice cuánto
+         se le paga al comercio pero no de dónde salió el dinero, y no hay
+         forma de ir a buscar el cobro cuando algo no cuadra. */
+      metodoPago: pedidos.metodoPago,
     })
     .from(ordenesCompra)
     .innerJoin(pedidos, eq(pedidos.id, ordenesCompra.pedidoId))

@@ -20,6 +20,7 @@ import {
   baseDesdePublicado,
   calcularComisionCentavos,
   precioZelleCentavos,
+  puntosBaseDelMetodo,
   ZELLE_MINIMO_CENTAVOS,
 } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
@@ -246,9 +247,13 @@ export async function crearPedido(
       precioUnitarioCentavos: precioUnitario,
       cantidad: linea.cantidad,
       subtotalCentavos: subtotalLinea,
+      /* La comisión se guarda con la tarifa DEL MÉTODO, no con la de la
+         tienda a secas: con tarjeta es el 2%, que es el que ya viene dentro
+         del precio que pagó el comprador. Guardarla aquí es lo que hace que
+         la orden de compra y la billetera digan el mismo número. */
       comisionCentavos: calcularComisionCentavos(
         subtotalLinea,
-        producto.comisionPuntosBase,
+        puntosBaseDelMetodo(metodoPago, producto.comisionPuntosBase),
       ),
     });
 

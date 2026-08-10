@@ -1293,6 +1293,30 @@
       "guardar": "Guardar",
       "cancelar": "Cancelar",
       "noSePudo": "No se pudo guardar. Vuelve a intentarlo."
+    },
+    "comoSePago": {
+      "titulo": "Cómo se pagó",
+      "etiquetaMetodo": "Forma de pago",
+      "etiquetaEstado": "Estado del cobro",
+      "etiquetaReferencia": "Referencia del cobro",
+      "dondeTarjeta": "Con esta referencia se encuentra el cobro en Stripe.",
+      "dondeZelle": "Con este dato se busca la transferencia en el banco.",
+      "aunSinCobrar": "Todavía no se ha cobrado, así que aún no hay referencia.",
+      "sinReferencia": "Este cobro no dejó una referencia que se pueda buscar.",
+      "metodo": {
+        "stripe": "Tarjeta",
+        "zelle": "Zelle",
+        "billetera": "Saldo",
+        "sinRegistrar": "Sin registrar"
+      },
+      "estado": {
+        "sin_pago": "sin pagar",
+        "en_revision": "en revisión",
+        "confirmado": "cobrado",
+        "rechazado": "no aprobado",
+        "reembolsado": "reembolsado"
+      },
+      "columna": "Pagado con"
     }
   },
   "catalogo": {

@@ -191,6 +191,40 @@ export const COMISION_ZELLE_PB = 300;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
 /**
+ * QUÉ PORCENTAJE SE LE DESCUENTA AL COMERCIO, SEGÚN CÓMO SE PAGÓ.
+ *
+ * ══ EL FALLO QUE ARREGLA (10 ago 2026) ══
+ *
+ * Al crear el pedido, la comisión de cada renglón se guardaba SIEMPRE con la
+ * tarifa de la tienda (300 = 3%, la de Zelle), sin mirar cómo se iba a pagar.
+ * Pero el webhook de Stripe acreditaba con el 2%. El mismo pedido terminaba
+ * con dos números: la orden de compra decía una cosa y la billetera otra.
+ *
+ * Pasó de verdad con la primera venta real con tarjeta, la MT-000002: la orden
+ * de compra salió por $30.91 y a la billetera entraron $31.23. Treinta y dos
+ * centavos de diferencia en el documento que respalda la reventa.
+ *
+ * **El número correcto es el del método**, y en la tarjeta es el 2%, porque
+ * el precio que pagó el comprador se calculó con ese 2% dentro
+ * (`precioConAjusteCentavos`). Descontarle 3% a una venta cuyo precio cubría
+ * 2% es cobrarle al comercio un punto que nadie le cobró al comprador.
+ *
+ * ══ POR QUÉ ZELLE USA LA TARIFA DE LA TIENDA Y LA TARJETA NO ══
+ *
+ * No es una asimetría por descuido. La tarifa de la tienda existe para poder
+ * acordar una comisión distinta con un comercio, y en Zelle el precio se
+ * calcula con esa misma tarifa. En la tarjeta no se puede: el precio publicado
+ * sale de una constante, así que si aquí se usara otra cifra, el descuento
+ * dejaría de cuadrar con el precio y la diferencia saldría del comercio.
+ */
+export function puntosBaseDelMetodo(
+  metodoPago: string,
+  puntosBaseDeLaTienda: number,
+): number {
+  return metodoPago === "zelle" ? puntosBaseDeLaTienda : COMISION_TARJETA_PB;
+}
+
+/**
  * HASTA CUÁNTO SE LE PUEDE PAGAR A UN COMERCIO POR ZELLE: $500.
  *
  * No es un capricho ni una desconfianza al comercio. Es lo que protege la

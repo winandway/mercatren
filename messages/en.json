@@ -1293,6 +1293,30 @@
       "guardar": "Save",
       "cancelar": "Cancel",
       "noSePudo": "Couldn't save. Please try again."
+    },
+    "comoSePago": {
+      "titulo": "How it was paid",
+      "etiquetaMetodo": "Payment method",
+      "etiquetaEstado": "Payment status",
+      "etiquetaReferencia": "Payment reference",
+      "dondeTarjeta": "Use this reference to find the charge in Stripe.",
+      "dondeZelle": "Use this to find the transfer at the bank.",
+      "aunSinCobrar": "This hasn't been paid yet, so there's no reference.",
+      "sinReferencia": "This payment didn't leave a reference you can look up.",
+      "metodo": {
+        "stripe": "Card",
+        "zelle": "Zelle",
+        "billetera": "Balance",
+        "sinRegistrar": "Not recorded"
+      },
+      "estado": {
+        "sin_pago": "unpaid",
+        "en_revision": "under review",
+        "confirmado": "paid",
+        "rechazado": "declined",
+        "reembolsado": "refunded"
+      },
+      "columna": "Paid with"
     }
   },
   "catalogo": {

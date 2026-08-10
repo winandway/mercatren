@@ -1,6 +1,7 @@
 import { Clock, ShoppingBag, TriangleAlert } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { SelloMetodoPago } from "@/components/panel/como-se-pago";
 import { ListaTiques } from "@/components/panel/lista-tiques";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -215,6 +216,9 @@ export default async function PaginaOrdenes({
                         >
                           {tp(`estado.${p.estado}`)}
                         </span>
+                        {/* Cómo entró el dinero, de un vistazo y sin abrir la
+                            ficha: es la primera pregunta ante una venta. */}
+                        <SelloMetodoPago rastro={p.rastro} />
                       </p>
                       <p className="mt-1 truncate text-sm">{p.clienteNombre}</p>
                       <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-tinta-suave">

@@ -7,11 +7,13 @@ import { getDb } from "@/lib/db";
 import {
   ESTADOS_PEDIDO,
   itemsPedido,
+  pagos,
   pagosZelle,
   pedidos,
   tiendas,
   user,
 } from "@/lib/db/schema";
+import { rastroDelPago, type Rastro } from "@/lib/pagos/rastro";
 
 /**
  * Los pedidos vistos desde el panel.
@@ -99,6 +101,13 @@ export async function listarPedidosDelPanel(filtros: FiltrosPedidos = {}) {
       estadoPago: sql<
         string | null
       >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      /* CÓMO SE PAGÓ. Hasta el 10 ago 2026 el dato estaba guardado y ninguna
+         pantalla lo enseñaba: para saber si una venta entró por tarjeta o por
+         Zelle había que ir a «Pagos Zelle» y deducirlo por descarte. */
+      metodoPago: pedidos.metodoPago,
+      estadoTarjeta: sql<
+        string | null
+      >`(SELECT ${pagos.estado} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
     })
     .from(pedidos)
     .innerJoin(user, eq(user.id, pedidos.clienteId))
@@ -114,6 +123,12 @@ export async function listarPedidosDelPanel(filtros: FiltrosPedidos = {}) {
       ...f,
       montoCentavos: Number(f.montoCentavos),
       articulos: Number(f.articulos),
+      rastro: rastroDelPago({
+        metodo: f.metodoPago,
+        estadoTarjeta: f.estadoTarjeta,
+        estadoZelle: f.estadoPago,
+        estadoPedido: f.estado,
+      }),
     })),
     total,
     pagina,
@@ -221,6 +236,8 @@ export type PedidoDelPanel = {
     subtotalCentavos: number;
     tiendaId: string | null;
   }[];
+  /** Cómo se pagó y con qué se identifica ese cobro. */
+  rastro: Rastro;
   /** true cuando los renglones que se ven son solo los de este comercio. */
   soloDeEsteComercio: boolean;
 };
@@ -245,6 +262,29 @@ export async function obtenerPedidoDelPanel(
       notasCliente: pedidos.notasCliente,
       clienteNombre: user.name,
       clienteCorreo: user.email,
+      metodoPago: pedidos.metodoPago,
+      /* El cobro con tarjeta y el comprobante de Zelle, cada uno en su tabla.
+         Se traen los dos y `rastroDelPago` decide cuál manda según el método
+         elegido: traducir estados en cada pantalla acaba en dos pantallas que
+         dicen cosas distintas del mismo pedido. */
+      estadoTarjeta: sql<
+        string | null
+      >`(SELECT ${pagos.estado} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
+      referenciaTarjeta: sql<
+        string | null
+      >`(SELECT ${pagos.referenciaExterna} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
+      estadoZelle: sql<
+        string | null
+      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      codigoZelle: sql<
+        string | null
+      >`(SELECT ${pagosZelle.codigoConfirmacion} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      bancoZelle: sql<
+        string | null
+      >`(SELECT ${pagosZelle.bancoOrigen} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      ultimosCuatroZelle: sql<
+        string | null
+      >`(SELECT ${pagosZelle.cuentaUltimos4} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
     })
     .from(pedidos)
     .innerJoin(user, eq(user.id, pedidos.clienteId))
@@ -301,6 +341,16 @@ export async function obtenerPedidoDelPanel(
       cantidad: Number(r.cantidad),
       subtotalCentavos: Number(r.subtotalCentavos),
     })),
+    rastro: rastroDelPago({
+      metodo: pedido.metodoPago,
+      estadoTarjeta: pedido.estadoTarjeta,
+      referenciaTarjeta: pedido.referenciaTarjeta,
+      estadoZelle: pedido.estadoZelle,
+      codigoZelle: pedido.codigoZelle,
+      bancoZelle: pedido.bancoZelle,
+      ultimosCuatroZelle: pedido.ultimosCuatroZelle,
+      estadoPedido: pedido.estado,
+    }),
     soloDeEsteComercio: Boolean(tiendaId),
   };
 }

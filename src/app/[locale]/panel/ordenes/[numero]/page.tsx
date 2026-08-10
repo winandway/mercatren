@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { CerrarPedido } from "@/components/panel/cerrar-pedido";
+import { ComoSePago } from "@/components/panel/como-se-pago";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -169,6 +170,10 @@ export default async function PaginaPedidoDelPanel({
           </div>
         ) : null}
       </section>
+
+      {/* CÓMO SE PAGÓ. Va antes de la mercancía a propósito: si el cobro no
+          entró, lo demás no se despacha. */}
+      <ComoSePago rastro={pedido.rastro} />
 
       {/* QUÉ LLEVA. */}
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
