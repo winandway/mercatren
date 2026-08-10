@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FormularioProducto } from "@/components/panel/formulario-producto";
+import { PreguntasDelProducto } from "@/components/panel/preguntas-producto";
+import { preguntasDelPanel } from "@/lib/preguntas/panel";
 import { VariantesYMedidas } from "@/components/panel/variantes-producto";
 import { medidasDe, variantesDe } from "@/lib/productos/variantes";
 import { Link } from "@/i18n/navigation";
@@ -51,6 +53,16 @@ export default async function PaginaEditarProducto({
       </div>
 
       <FormularioProducto producto={datos.producto} imagenes={datos.imagenes} />
+
+      {/* Va DESPUES del formulario y aparte: son dos cosas distintas y se
+          guardan por separado. Meterlas en el mismo envio obligaria a guardar
+          el producto entero para corregir una coma de una respuesta. */}
+      <div className="mt-6">
+        <PreguntasDelProducto
+          productoId={datos.producto.id}
+          preguntas={await preguntasDelPanel(datos.producto.id)}
+        />
+      </div>
 
       {/* TALLAS, COLORES Y MEDIDAS. Van fuera del formulario principal y se
           guardan por su cuenta: son opcionales, y obligar a rellenarlas para

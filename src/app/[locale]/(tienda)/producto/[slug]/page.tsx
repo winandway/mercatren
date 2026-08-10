@@ -12,6 +12,8 @@ import {
   variantesDe,
 } from "@/lib/productos/variantes";
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
+import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
+import { preguntasDe } from "@/lib/preguntas/consultas";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
 import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
@@ -109,6 +111,9 @@ export default async function PaginaProducto({
      enviar eso era mentira: al que sí despacha le estábamos quitando la venta
      en su propia ficha. */
   const envioDelComercio = await politicaDeEnvio(ficha.tiendaId);
+  /* Las preguntas de la ficha. Si fallan salen vacias y el bloque desaparece:
+     un problema de base no puede tumbar la pagina donde se vende. */
+  const preguntas = await preguntasDe(ficha.producto.id, locale);
 
   // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
   const zona = await zonaDelCliente();
@@ -419,6 +424,10 @@ export default async function PaginaProducto({
           {descripcion || t("sinDescripcion")}
         </p>
       </section>
+
+      {/* Va DESPUES de la descripcion: quien todavia duda ya la leyo, y es ahi
+          donde aparece la pregunta que decide la compra. */}
+      <PreguntasProducto preguntas={preguntas} />
     </div>
   );
 }

@@ -140,13 +140,34 @@ comercio hasta que el número acompañe.
   mismo las preguntas frecuentes de su producto: «¿este cable es de cobre puro?»
   «¿el galón rinde para cuántos metros?». Eso **no es una reseña**: es
   información del producto, y es legítima venga de donde venga.
-- **Es oro para Google.** El dato estructurado `FAQPage` es el mismo que ya
-  usamos en `/docs/modelo-de-negocio`, es perfectamente legal con contenido
-  propio, y hace que la ficha ocupe más espacio en los resultados.
-- **Responde la objeción antes de que mate la venta.** Es literalmente para lo
-  que sirve.
-- Después, el comprador puede preguntar y el comercio responder. Cada respuesta
-  es contenido nuevo que Google indexa.
+
+#### Una corrección: el «resultado enriquecido» de FAQ ya no existe
+
+El primer borrador de este plan decía que el dato `FAQPage` haría que la ficha
+ocupara más espacio en Google. **Eso ya no es cierto y conviene no repetirlo.**
+
+Google restringió esa función en **septiembre de 2023** a sitios de gobierno y
+salud, y en **junio de 2026** la retiró del todo. Poner `FAQPage` en una ficha
+de producto hoy **no dibuja nada** en los resultados. El dato sigue siendo
+válido y no molesta, pero no hay que esperar nada de él.
+
+**La función se hace igual, y por tres razones que sí se sostienen:**
+
+1. **Es la cura de nuestro problema medido de SEO.** Search Console reporta 28
+   páginas «rastreada: actualmente sin indexar» — eso es Google diciendo «entré
+   y no me pareció suficiente». Las fichas del catálogo importado tienen dos
+   líneas de descripción y nada más. Cinco preguntas respondidas convierten una
+   ficha flaca en una página con sustancia, **y en las palabras que la gente
+   escribe de verdad al buscar** («¿sirve para 220?», «¿cuántos metros trae?»).
+2. **Lo leen los asistentes de IA.** Acabamos de abrir `llms.txt` y declarar
+   `ai-input=yes` para que ChatGPT y Claude puedan citar nuestros productos. Un
+   bloque de preguntas y respuestas es exactamente lo que un asistente cita
+   cuando alguien pregunta si un producto sirve para algo.
+3. **Responde la objeción antes de que mate la venta.** Es literalmente para lo
+   que sirve, y no depende de ningún buscador.
+
+Después, el comprador puede preguntar y el comercio responder. Cada respuesta es
+contenido nuevo en la ficha.
 
 ### FASE 3 · Reseñas de verdad, con la mecánica de Amazon
 

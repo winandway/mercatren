@@ -953,6 +953,8 @@
       "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card.",
       "variantesGuardadas": "Sizes and colors saved.",
       "medidasGuardadas": "Dimensions saved.",
+      "preguntaGuardada": "Question saved.",
+      "preguntaQuitada": "Question removed.",
       "aceptaTerminosComercio": "To open your store you need to accept the terms and conditions.",
       "faltaZelleDestino": "Enter the email or phone number you have enrolled with Zelle.",
       "zelleTopeSuperado": "Zelle payouts go up to {tope}. For more than that, choose ACH — it lands in one to two business days.",
@@ -1272,6 +1274,25 @@
         "azul_rey": "Azul rey"
       },
       "desdeLogo": "Use my logo's color"
+    },
+    "preguntas": {
+      "titulo": "Frequently asked questions",
+      "bajada": "The questions you get most on WhatsApp, answered here. Shoppers who have doubts rarely ask — they just leave. Answering up front sells more.",
+      "agregar": "Add a question",
+      "masOpciones": "More options",
+      "quitar": "Remove this question",
+      "confirmarQuitar": "Remove this question from the listing?",
+      "laPregunta": "The question",
+      "ejemploPregunta": "Does it work with 220V?",
+      "laRespuesta": "The answer",
+      "ejemploRespuesta": "Yes, it's 12-gauge THW and handles 220V without any issue.",
+      "enIngles": "In English (optional)",
+      "ejemploPreguntaEn": "Does it work with 220V?",
+      "orden": "Order",
+      "ordenAyuda": "0 shows first. Put the most asked at the top.",
+      "guardar": "Save",
+      "cancelar": "Cancel",
+      "noSePudo": "Couldn't save. Please try again."
     }
   },
   "catalogo": {
@@ -1332,7 +1353,12 @@
       "largo": "Length",
       "ancho": "Width",
       "alto": "Height",
-      "material": "Material"
+      "material": "Material",
+      "preguntas": {
+        "titulo": "Questions about this product",
+        "bajada": "What buyers ask most about this item.",
+        "respondeElComercio": "Answered by the store"
+      }
     },
     "paginacion": {
       "anterior": "Previous",

@@ -879,6 +879,36 @@ Quién emite sale de `EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION` (variables de
 entorno, no código: el día que la sociedad pase a Mercatren LLC se cambian sin
 tocar nada). Si faltan, sale el nombre solo — **nunca inventa una dirección**.
 
+## Las preguntas de cada producto (10 ago 2026 · Fase 2 de `PLAN-CONFIANZA.md`)
+
+El comercio escribe en su panel las preguntas que ya le hacen por WhatsApp
+(«¿sirve para 220?», «¿cuántos metros trae?») y salen respondidas en la ficha.
+
+**Esto NO es una reseña, y la diferencia no es de matiz.** Una pregunta escrita
+por el vendedor es **información del producto**; nadie finge ser un cliente
+contento y en pantalla se lee quién responde. Una estrella inventada es una
+persona falsa diciendo que quedó satisfecha — eso es lo que se descartó en
+`PLAN-CONFIANZA.md`, con la ley delante.
+
+- `src/lib/preguntas/reglas.ts` — puro, 16 pruebas. **Una pregunta sin respuesta
+  NO sale al público**: enseñar «¿sirve para 220?» sin nada debajo le planta la
+  duda al siguiente comprador y no se la resuelve. Es peor que no tener nada.
+- **A igual orden desempata el id.** Sin eso, dos preguntas con el mismo número
+  se intercambian entre una carga y otra y la ficha «baila» sin motivo.
+- La ficha usa un `<details>` del navegador, como «Más de este comercio»: abre
+  sin una línea de JavaScript, **Google lee el contenido aunque esté cerrado** y
+  funciona con lector de pantalla. La primera va abierta, o nadie toca ninguna.
+- Sin traducción al inglés se muestra el español, como en todo el catálogo. **No
+  se inventan traducciones.**
+- Los avisos de las acciones salen por `mensajes()`, no escritos en el código:
+  el panel se ve en los dos idiomas.
+
+**No se espera nada del dato `FAQPage`.** Google retiró ese resultado
+enriquecido en junio de 2026. Esto se hizo por las 28 páginas «rastreada:
+actualmente sin indexar» de Search Console —fichas de dos líneas que Google no
+considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
+responde la objeción antes de que mate la venta.
+
 ## El blog y la documentación
 
 `/blog` (novedades) y `/docs/<slug>` (documentación) salen del **mismo motor**:

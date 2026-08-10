@@ -953,6 +953,8 @@
       "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta.",
       "variantesGuardadas": "Tallas y colores guardados.",
       "medidasGuardadas": "Medidas guardadas.",
+      "preguntaGuardada": "Pregunta guardada.",
+      "preguntaQuitada": "Pregunta quitada.",
       "aceptaTerminosComercio": "Para abrir tu tienda tienes que aceptar los términos y condiciones.",
       "faltaZelleDestino": "Escribe el correo o el teléfono que tienes registrado en Zelle.",
       "zelleTopeSuperado": "Por Zelle enviamos hasta {tope}. Para más, elige ACH: llega en uno o dos días hábiles.",
@@ -1272,6 +1274,25 @@
         "azul_rey": "Azul rey"
       },
       "desdeLogo": "Usar el color de mi logo"
+    },
+    "preguntas": {
+      "titulo": "Preguntas frecuentes",
+      "bajada": "Lo que más te preguntan por WhatsApp, escrito aquí. Quien duda casi nunca pregunta: se va a otra tienda. Responder antes vende más.",
+      "agregar": "Agregar una pregunta",
+      "masOpciones": "Más opciones",
+      "quitar": "Quitar esta pregunta",
+      "confirmarQuitar": "¿Quitar esta pregunta de la ficha?",
+      "laPregunta": "La pregunta",
+      "ejemploPregunta": "¿Sirve para 220?",
+      "laRespuesta": "La respuesta",
+      "ejemploRespuesta": "Sí, es THW calibre 12 y aguanta 220 sin problema.",
+      "enIngles": "En inglés (opcional)",
+      "ejemploPreguntaEn": "Does it work with 220V?",
+      "orden": "Orden",
+      "ordenAyuda": "El 0 sale primero. Pon arriba lo que más te preguntan.",
+      "guardar": "Guardar",
+      "cancelar": "Cancelar",
+      "noSePudo": "No se pudo guardar. Vuelve a intentarlo."
     }
   },
   "catalogo": {
@@ -1332,7 +1353,12 @@
       "largo": "Largo",
       "ancho": "Ancho",
       "alto": "Alto",
-      "material": "Material"
+      "material": "Material",
+      "preguntas": {
+        "titulo": "Preguntas sobre este producto",
+        "bajada": "Lo que más preguntan quienes compran aquí.",
+        "respondeElComercio": "Respondido por el comercio"
+      }
     },
     "paginacion": {
       "anterior": "Anterior",

@@ -1630,3 +1630,71 @@ export const verificacionTienda = sqliteTable("verificacion_tienda", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * PREGUNTAS Y RESPUESTAS DE UN PRODUCTO.
+ *
+ * Tabla NUEVA, no columnas: asi llega sola a produccion con `schema.sql`.
+ *
+ * ══ PARA QUE SIRVE, Y NO ES LO QUE PARECE ══
+ *
+ * No es un chat ni un buzon de soporte. Es CONTENIDO DE LA FICHA, escrito en
+ * las palabras que la gente usa de verdad al buscar: "¿sirve para 220?",
+ * "¿cuantos metros trae?", "¿el galon para cuantos metros rinde?".
+ *
+ * Resuelve tres cosas a la vez:
+ *
+ *  1. Las fichas del catalogo importado tienen dos lineas de descripcion y
+ *     nada mas. Search Console reporta 28 paginas "rastreada: actualmente sin
+ *     indexar" — Google entrando y no encontrando sustancia. Cinco preguntas
+ *     respondidas cambian eso.
+ *  2. Los asistentes de IA citan justo este tipo de bloque cuando alguien
+ *     pregunta si un producto sirve para algo.
+ *  3. Responde la objecion antes de que mate la venta.
+ *
+ * OJO: el resultado enriquecido de FAQ en Google ya NO existe (lo retiraron en
+ * junio 2026). El valor esta en el contenido, no en el adorno del buscador.
+ *
+ * ══ EL COMERCIO PUEDE ESCRIBIR LAS SUYAS ══
+ *
+ * Y no es hacer trampa: una pregunta frecuente escrita por el vendedor es
+ * INFORMACION DEL PRODUCTO, no una resena. La diferencia con una estrella
+ * inventada es que aqui nadie finge ser un cliente satisfecho.
+ */
+export const preguntasProducto = sqliteTable(
+  "preguntas_producto",
+  {
+    id: text("id").primaryKey(),
+    productoId: text("producto_id")
+      .notNull()
+      .references(() => productos.id, { onDelete: "cascade" }),
+    /** Se guarda tambien la tienda para que el comercio liste las suyas sin join. */
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+
+    preguntaEs: text("pregunta_es").notNull(),
+    preguntaEn: text("pregunta_en"),
+    /** NULL = preguntada y todavia sin responder. No sale al publico asi. */
+    respuestaEs: text("respuesta_es"),
+    respuestaEn: text("respuesta_en"),
+
+    /** `comercio` (la escribio el vendedor) o `comprador` (la pregunto alguien). */
+    autor: text("autor").notNull().default("comercio"),
+    /** Quien pregunto, si fue un comprador. */
+    usuarioId: text("usuario_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+
+    /** El comercio decide el orden: lo primero que preguntan va arriba. */
+    orden: integer("orden").notNull().default(0),
+    /** `publicada` u `oculta`. Ocultar no borra: puede volver. */
+    estado: text("estado").notNull().default("publicada"),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    respondidoEn: integer("respondido_en", { mode: "timestamp" }),
+  },
+  (t) => [index("preguntas_producto_producto").on(t.productoId)],
+);
