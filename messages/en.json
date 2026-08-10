@@ -984,6 +984,12 @@
       "alertas": {
         "codigoYaAprobado": "That confirmation code was already approved on {pago}. The same payment can't be credited twice.",
         "capturaYaAprobada": "That exact screenshot was already approved on {pago}. The same payment can't be credited twice."
+      },
+      "conciliacion": {
+        "acreditado": "The charge had gone through at Stripe. It's credited now and the order has started.",
+        "sin_cambios": "Stripe hasn't confirmed the charge yet. Try again in a little while.",
+        "no_aplica": "This order has no pending card charge to check.",
+        "no_se_pudo": "Stripe couldn't be reached right now. Try again."
       }
     },
     "usuarios": {
@@ -1126,7 +1132,9 @@
       "yaCerrado": "This order is already closed.",
       "sinPagar": "Not paid yet. Once the receipt is approved, the buttons to close it will appear here.",
       "copiar": "Copy the address",
-      "copiada": "Copied"
+      "copiada": "Copied",
+      "comprobarCobro": "Check the charge",
+      "noSePudoComprobar": "Couldn't check. Try again."
     },
     "diccionario": {
       "etiqueta": "Internal material",
@@ -1235,7 +1243,9 @@
       "verArchivo": "View invoice",
       "soloPendientes": "Only the ones missing",
       "todas": "All",
-      "porQue": "Without your invoice there's a purchase with nothing backing it in the books. It's the document that closes the transaction."
+      "porQue": "Without your invoice there's a purchase with nothing backing it in the books. It's the document that closes the transaction.",
+      "loQueSeCompro": "What was purchased",
+      "montoEsLoQueSePaga": "Amounts are what the merchant gets paid: the sale price minus Mercatren's margin."
     },
     "envio": {
       "titulo": "Shipping",
@@ -1331,6 +1341,39 @@
         "reembolsado": "refunded"
       },
       "columna": "Paid with"
+    },
+    "disputa": {
+      "titulo": "Chargeback: the buyer disputed this charge",
+      "monto": "Amount disputed",
+      "estado": "Status",
+      "plazo": "Time to respond",
+      "plazoDias": "{dias} days",
+      "plazoDesconocido": "Stripe gave no deadline",
+      "plazoCerrado": "Already closed",
+      "motivo": "Bank's reason",
+      "queHacer": "That money has already left the account. The sale was NOT reversed automatically: decide what to do and send Stripe your evidence before the deadline.",
+      "estados": {
+        "abierta": "Open",
+        "ganada": "Won",
+        "perdida": "Lost",
+        "retirada": "Withdrawn"
+      }
+    },
+    "documentos": {
+      "titulo": "This sale's paperwork",
+      "bajada": "Every sale has two: the one we issue to the buyer and the one the merchant issues to us. With both, the purchase and the resale are backed up.",
+      "deVenta": "Sales invoice",
+      "deVentaQuien": "The one we issue to the buyer",
+      "deCompra": "Purchase order to {comercio}",
+      "facturada": "Invoiced",
+      "faltaFactura": "Invoice missing",
+      "sinEmitir": "Issued once the payment clears",
+      "verArchivo": "View the file"
+    },
+    "hitos": {
+      "titulo": "What happened along the way",
+      "por": "by {quien}",
+      "porElSistema": "automatic"
     }
   },
   "catalogo": {

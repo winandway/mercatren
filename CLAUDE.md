@@ -846,6 +846,51 @@ checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
 Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
 le deben.
 
+## Los cuatro huecos que quedaban en los cobros (10 ago 2026 · Fases 2–5)
+
+El plan entero está en `PLAN-PAGOS.md`. Lo que hay que saber al tocar esto:
+
+**1. Un cobro con tarjeta ya no se puede perder.** Todo dependía de que llegara
+el aviso de Stripe; si no llegaba, el comprador pagaba y el pedido se quedaba
+en «esperando el pago» **sin que nadie se enterara**. Ahora, cuando el comprador
+abre su pedido, se le pregunta a Stripe (`src/lib/stripe/conciliar.ts`) y se
+acredita ahí mismo. El equipo tiene además el botón «Comprobar el cobro».
+
+- **No hace falta un cron**: el momento en que esto importa es justo cuando la
+  persona está mirando la pantalla.
+- La acreditación se sacó a `src/lib/stripe/acreditar.ts` para que el webhook y
+  el respaldo hagan **exactamente lo mismo**. Duplicarla habría sido lo peor:
+  son cien líneas que descuentan stock y acreditan billeteras, y dos copias se
+  separan al primer arreglo que alguien haga en una sola.
+- **Solo `succeeded` cuenta como cobrado** (`estado-intento.ts`, 10 pruebas).
+  `processing` y `requires_capture` se parecen y no lo son.
+
+**2. Los contracargos ya no pasan en silencio.** Una tarjeta se revierte hasta
+120 días después; hasta hoy el dinero salía de la cuenta y solo se veía en el
+extracto. Ahora el webhook escucha `charge.dispute.*`, lo guarda en `disputas`,
+avisa al equipo por correo y sale **en rojo arriba de la ficha del pedido**.
+
+**No revierte nada, y es deliberado.** Quién asume ese dinero es decisión de
+negocio —puede tocarle a Mercatren, puede negociarse, la disputa se puede
+ganar—. Un sistema que revierte solo le quitaría a un comercio dinero que a lo
+mejor recupera en dos semanas. Por eso el aviso dice las dos cosas: «el dinero
+ya salió» **y** «la venta NO se deshizo sola».
+
+**3. Las dos facturas de una venta, juntas.** El modelo se sostiene sobre el par
+—la nuestra al comprador y la del comercio a nosotros— y estaban en pantallas
+distintas sin enlace. Ahora la ficha del pedido las enseña juntas
+(`src/lib/facturas/par.ts`), y la orden de compra tiene su propia ficha con lo
+que se le compró. Del pedido a la orden y de la orden al pedido.
+
+**4. La entrega deja constancia de QUIÉN.** `hitos_pedido` guarda cada paso con
+su autor y su fecha. Con un contracargo de por medio, «Entregado» a secas no
+defiende a nadie; «marcado como entregado por Fulano el 12 de agosto» sí. Lo
+que hace el sistema solo sale **sin autor**: ponerle un nombre sería atribuirle
+a una persona algo que no hizo.
+
+`disputas` y `hitos_pedido` son **tablas nuevas, no columnas**: así llegan solas
+a producción con `schema.sql`.
+
 ## Zelle blindado contra la captura falsa (10 ago 2026 · Fase 1 del plan de pagos)
 
 **Zelle no manda un cobro: manda una FOTO.** Y una foto se guarda, se reenvía y

@@ -984,6 +984,12 @@
       "alertas": {
         "codigoYaAprobado": "Ese código de confirmación ya se aprobó en {pago}. No se puede acreditar dos veces el mismo pago.",
         "capturaYaAprobada": "Esa misma captura ya se aprobó en {pago}. No se puede acreditar dos veces el mismo pago."
+      },
+      "conciliacion": {
+        "acreditado": "El cobro estaba hecho en Stripe. Ya quedó acreditado y el pedido arrancó.",
+        "sin_cambios": "Stripe todavía no da el cobro por confirmado. Vuelve a intentarlo en un rato.",
+        "no_aplica": "Este pedido no tiene un cobro con tarjeta pendiente de comprobar.",
+        "no_se_pudo": "No se pudo consultar a Stripe ahora mismo. Inténtalo de nuevo."
       }
     },
     "usuarios": {
@@ -1126,7 +1132,9 @@
       "yaCerrado": "Este pedido ya está cerrado.",
       "sinPagar": "Todavía no está pagado. Cuando se apruebe el comprobante, aquí saldrán los botones para cerrarlo.",
       "copiar": "Copiar la dirección",
-      "copiada": "Copiada"
+      "copiada": "Copiada",
+      "comprobarCobro": "Comprobar el cobro",
+      "noSePudoComprobar": "No se pudo comprobar. Vuelve a intentarlo."
     },
     "diccionario": {
       "etiqueta": "Material interno",
@@ -1235,7 +1243,9 @@
       "verArchivo": "Ver la factura",
       "soloPendientes": "Solo las que faltan",
       "todas": "Todas",
-      "porQue": "Sin tu factura queda una compra sin respaldo en la contabilidad. Es el documento que cierra la operación."
+      "porQue": "Sin tu factura queda una compra sin respaldo en la contabilidad. Es el documento que cierra la operación.",
+      "loQueSeCompro": "Qué se le compró",
+      "montoEsLoQueSePaga": "Los montos son lo que se le paga al comercio: el precio de venta menos el margen de Mercatren."
     },
     "envio": {
       "titulo": "Envíos",
@@ -1331,6 +1341,39 @@
         "reembolsado": "reembolsado"
       },
       "columna": "Pagado con"
+    },
+    "disputa": {
+      "titulo": "Contracargo: el comprador desconoció el cargo",
+      "monto": "Monto reclamado",
+      "estado": "Estado",
+      "plazo": "Para responder",
+      "plazoDias": "{dias} días",
+      "plazoDesconocido": "Stripe no dio fecha",
+      "plazoCerrado": "Ya cerrado",
+      "motivo": "Motivo del banco",
+      "queHacer": "Ese dinero ya salió de la cuenta. La venta NO se deshizo sola: hay que decidir qué se hace y mandarle las pruebas a Stripe antes de que venza el plazo.",
+      "estados": {
+        "abierta": "Abierta",
+        "ganada": "Ganada",
+        "perdida": "Perdida",
+        "retirada": "Retirada"
+      }
+    },
+    "documentos": {
+      "titulo": "Los documentos de esta venta",
+      "bajada": "Cada venta lleva dos: la que le damos al comprador y la que nos da el comercio. Con las dos, la compra y la reventa quedan respaldadas.",
+      "deVenta": "Factura de venta",
+      "deVentaQuien": "La que le emitimos al comprador",
+      "deCompra": "Orden de compra a {comercio}",
+      "facturada": "Facturada",
+      "faltaFactura": "Falta su factura",
+      "sinEmitir": "Se emite al confirmarse el pago",
+      "verArchivo": "Ver el archivo"
+    },
+    "hitos": {
+      "titulo": "Qué le fue pasando",
+      "por": "por {quien}",
+      "porElSistema": "automático"
     }
   },
   "catalogo": {

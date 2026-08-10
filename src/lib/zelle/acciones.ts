@@ -8,6 +8,7 @@ import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
+import { anotarHito } from "@/lib/pedidos/hitos";
 import { bloqueaLaAprobacion } from "@/lib/zelle/alertas";
 import { alertasDelPago } from "@/lib/zelle/sospechas";
 import {
@@ -286,6 +287,15 @@ export async function aprobarPago(id: string): Promise<Resultado> {
         ]
       : []),
   ]);
+
+  if (pago.pedidoId) {
+    await anotarHito(db, {
+      pedidoId: pago.pedidoId,
+      hito: "pagado",
+      hechoPorId: usuario?.id ?? null,
+      hechoPorNombre: usuario?.name ?? null,
+    });
+  }
 
   revalidatePath("/[locale]/panel", "layout");
 

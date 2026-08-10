@@ -1,11 +1,21 @@
+import { eq } from "drizzle-orm";
 import { ArrowLeft, MapPin, Phone, User } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { CerrarPedido } from "@/components/panel/cerrar-pedido";
 import { ComoSePago } from "@/components/panel/como-se-pago";
+import { ComprobarCobro } from "@/components/panel/comprobar-cobro";
+import { AvisoDisputa } from "@/components/panel/aviso-disputa";
+import { DocumentosDeLaVenta } from "@/components/panel/documentos-venta";
+import { LineaDeTiempo } from "@/components/panel/linea-de-tiempo";
 import { Link } from "@/i18n/navigation";
+import { esEquipoInterno } from "@/lib/autorizacion";
+import { getDb } from "@/lib/db";
+import { disputas } from "@/lib/db/schema";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import { parDeFacturas } from "@/lib/facturas/par";
+import { hitosDe } from "@/lib/pedidos/hitos";
 import { fechaCorta } from "@/lib/fechas";
 import { obtenerPedidoDelPanel } from "@/lib/pedidos/consultas";
 import { cn } from "@/lib/utils";
@@ -58,6 +68,32 @@ export default async function PaginaPedidoDelPanel({
   // Un comercio que no vendió nada en este pedido recibe 404, no un "no
   // puedes": así ni siquiera se le confirma que el pedido existe.
   if (!pedido) notFound();
+
+  const esEquipo = await esEquipoInterno();
+  const db = getDb();
+
+  /* Todo lo de apoyo, junto: el papeleo y el historial solo los ve el equipo;
+     una disputa la ve también el comercio, porque le afecta directamente al
+     dinero que ya tiene acreditado. */
+  const [documentos, hitos, disputa] = await Promise.all([
+    esEquipo
+      ? parDeFacturas(pedido.id)
+      : Promise.resolve({ venta: null, ordenes: [] }),
+    esEquipo ? hitosDe(db, pedido.id) : Promise.resolve([]),
+    db
+      .select({
+        id: disputas.id,
+        estado: disputas.estado,
+        montoCentavos: disputas.montoCentavos,
+        moneda: disputas.moneda,
+        motivo: disputas.motivo,
+        respondeHasta: disputas.respondeHasta,
+      })
+      .from(disputas)
+      .where(eq(disputas.pedidoId, pedido.id))
+      .limit(1)
+      .catch(() => []),
+  ]);
 
   const t = await getTranslations("panel.pedido");
   const tp = await getTranslations("pedido");
@@ -171,9 +207,23 @@ export default async function PaginaPedidoDelPanel({
         ) : null}
       </section>
 
+      {/* UN CONTRACARGO VA ANTES QUE TODO: si el dinero se fue, despachar
+          este pedido es regalarlo. */}
+      {disputa[0] ? (
+        <AvisoDisputa disputa={disputa[0]} idioma={idioma} ahora={new Date()} />
+      ) : null}
+
       {/* CÓMO SE PAGÓ. Va antes de la mercancía a propósito: si el cobro no
           entró, lo demás no se despacha. */}
       <ComoSePago rastro={pedido.rastro} />
+
+      {/* EL PAPELEO Y EL HISTORIAL, solo para el equipo. */}
+      <DocumentosDeLaVenta
+        par={documentos}
+        numeroPedido={pedido.numero}
+        idioma={idioma}
+      />
+      <LineaDeTiempo hitos={hitos} idioma={idioma} />
 
       {/* QUÉ LLEVA. */}
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -214,7 +264,14 @@ export default async function PaginaPedidoDelPanel({
       {/* CERRARLO. */}
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         {sinPagar ? (
-          <p className="text-sm text-tinta-suave">{t("sinPagar")}</p>
+          <div className="space-y-3">
+            <p className="text-sm text-tinta-suave">{t("sinPagar")}</p>
+            {/* Solo si hay algo que comprobar: en un pedido de Zelle este
+                botón no haría nada y solo generaría dudas. */}
+            {pedido.rastro.metodo === "stripe" && esEquipo ? (
+              <ComprobarCobro numero={pedido.numero} />
+            ) : null}
+          </div>
         ) : cerrado ? (
           <p className="text-sm text-tinta-suave">{t("yaCerrado")}</p>
         ) : (

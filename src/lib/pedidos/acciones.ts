@@ -24,6 +24,7 @@ import {
   ZELLE_MINIMO_CENTAVOS,
 } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
+import { anotarHito } from "@/lib/pedidos/hitos";
 
 /**
  * Cierre de la compra.
@@ -520,6 +521,17 @@ export async function avanzarPedido(
   if (movido.length === 0) {
     return { ok: false, mensaje: t("pedidoNoSePuedeAvanzar") };
   }
+
+  /* QUIÉN LO MOVIÓ, no solo cuándo. Con un contracargo de por medio,
+     «entregado» a secas no defiende a nadie; «marcado como entregado por
+     Fulano el 12 de agosto» sí. */
+  const quien = await obtenerUsuario().catch(() => null);
+  await anotarHito(db, {
+    pedidoId: pedido.id,
+    hito: nuevoEstado,
+    hechoPorId: quien?.id ?? null,
+    hechoPorNombre: quien?.name ?? null,
+  });
 
   revalidatePath("/[locale]/panel", "layout");
 

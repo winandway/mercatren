@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
 import { tieneFactura } from "@/lib/facturas/consultas";
+import { conciliarPedido } from "@/lib/stripe/conciliar";
 import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,19 @@ export default async function PaginaPedido({
   const t = await getTranslations("pedido");
   const te = await getTranslations("envio");
   const tf = await getTranslations("factura");
+  /**
+   * EL RESPALDO DEL COBRO CON TARJETA.
+   *
+   * Antes de dibujar nada: si este pedido es de tarjeta y sigue sin pagar, se
+   * le pregunta a Stripe. Si el dinero ya entró y el aviso no llegó, se
+   * acredita aquí mismo y el comprador ve su pedido pagado en vez de un
+   * «esperando el pago» que no se iba a mover nunca.
+   *
+   * Va ANTES de leer el pedido, para que lo que se lea ya esté al día. Nunca
+   * falla hacia afuera: si Stripe no responde, la página se dibuja igual.
+   */
+  await conciliarPedido(numero);
+
   const datos = await obtenerPedidoPropio(numero);
 
   if (!datos) notFound();

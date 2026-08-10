@@ -163,7 +163,14 @@ export default async function PaginaOrdenesCompra({
             <tbody>
               {ordenes.map((o) => (
                 <tr key={o.id} className="border-t border-borde align-top">
-                  <td className="px-4 py-3 font-medium">{o.numero}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <Link
+                      href={`/panel/ordenes-compra/${o.id}`}
+                      className="underline-offset-2 hover:underline"
+                    >
+                      {o.numero}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3">
                     {/* El número del pedido lleva a su ficha. Antes era texto
                         muerto: para ver qué se vendió había que buscarlo a

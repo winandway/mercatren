@@ -947,6 +947,92 @@ export const huellasComprobante = sqliteTable(
   (t) => [index("idx_huellas_comprobante").on(t.huella)],
 );
 
+/**
+ * LOS CONTRACARGOS: cuando el comprador desconoce el cargo en su tarjeta.
+ *
+ * ══ POR QUE HAY QUE GUARDARLOS ══
+ *
+ * Una tarjeta se puede revertir hasta 120 dias despues del cobro. Hasta hoy el
+ * sistema no escuchaba ese aviso de Stripe: el dinero salia de la cuenta, el
+ * comercio ya estaba acreditado y la mercancia ya estaba entregada, y **nadie
+ * se enteraba** hasta mirar el extracto del banco.
+ *
+ * ══ LO QUE ESTA TABLA NO HACE, A PROPOSITO ══
+ *
+ * No revierte nada. Recuperar ese dinero del comercio es una decision de
+ * negocio —puede tocarle a Mercatren, puede negociarse, puede ganarse la
+ * disputa— y el sistema no la toma solo. Lo que hace es que se sepa el mismo
+ * dia, con todo lo que hace falta para responderle a Stripe.
+ */
+export const ESTADOS_DISPUTA = [
+  "abierta",
+  "ganada",
+  "perdida",
+  "retirada",
+] as const;
+
+export const disputas = sqliteTable(
+  "disputas",
+  {
+    /** El id de la disputa en Stripe (`dp_...`). Es unico alla y aqui. */
+    id: text("id").primaryKey(),
+    /** El cobro disputado (`pi_...`), que es como se enlaza con `pagos`. */
+    intentoId: text("intento_id"),
+    pedidoId: text("pedido_id").references(() => pedidos.id),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_DISPUTA)[number]>()
+      .notNull()
+      .default("abierta"),
+    montoCentavos: integer("monto_centavos").notNull().default(0),
+    moneda: text("moneda").notNull().default("USD"),
+    /** El motivo que da la red de la tarjeta (`fraudulent`, `product_not_received`...). */
+    motivo: text("motivo"),
+    /** Hasta cuando hay para mandar pruebas. Pasada esa fecha se pierde sola. */
+    respondeHasta: integer("responde_hasta", { mode: "timestamp" }),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_disputas_pedido").on(t.pedidoId),
+    index("idx_disputas_estado").on(t.estado),
+  ],
+);
+
+/**
+ * LO QUE LE FUE PASANDO A UN PEDIDO, Y QUIEN LO HIZO.
+ *
+ * `pedidos.estado` dice donde esta hoy y `actualizado_en` cuando se movio por
+ * ultima vez, pero no queda constancia de QUIEN lo movio ni de por donde paso.
+ * Cuando un comprador reclama que nunca recibio su compra, «entregado» a secas
+ * no defiende a nadie; «marcado como entregado por Fulano el 12 de agosto» si.
+ *
+ * Tabla nueva y no columnas: `schema.sql` solo trae `CREATE TABLE IF NOT
+ * EXISTS`, asi que una columna no llegaria sola a produccion.
+ */
+export const hitosPedido = sqliteTable(
+  "hitos_pedido",
+  {
+    id: text("id").primaryKey(),
+    pedidoId: text("pedido_id")
+      .notNull()
+      .references(() => pedidos.id, { onDelete: "cascade" }),
+    /** El estado al que paso: `pagado`, `enviado`, `entregado`... */
+    hito: text("hito").notNull(),
+    /** Quien lo hizo. Null cuando lo hizo el sistema (un cobro confirmado). */
+    hechoPorId: text("hecho_por_id").references(() => user.id),
+    /** Como se llamaba entonces: si esa cuenta se borra, el registro aguanta. */
+    hechoPorNombre: text("hecho_por_nombre"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_hitos_pedido").on(t.pedidoId)],
+);
+
 /* -------------------------------------------------------------------------- */
 /* Tipos listos para usar en el resto de la aplicacion                        */
 /* -------------------------------------------------------------------------- */
