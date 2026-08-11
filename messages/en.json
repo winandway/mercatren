@@ -1896,6 +1896,19 @@
       ],
       "queHacer": "If you already have more at the warehouse, update the quantity from your dashboard. If you're not restocking it, switch it to draft so it doesn't take up space in your store.",
       "boton": "Update my stock"
+    },
+    "enlaceDeCobro": {
+      "asunto": "{comercio} sent you a payment link",
+      "previo": "Pay {monto} from wherever you are, by card or Zelle.",
+      "titulo": "Your purchase at {comercio}",
+      "parrafos": [
+        "Your purchase is ready. All that's left is the payment, and you can do it from wherever you are — by card or through Zelle from a U.S. bank.",
+        "If someone else is paying, just forward them this email: the link works the same for whoever opens it.",
+        "The link expires in 48 hours. If it lapses, ask the merchant for another and a new one arrives instantly."
+      ],
+      "comercio": "Merchant",
+      "referencia": "Your invoice",
+      "boton": "Pay now"
     }
   },
   "misPedidos": {
@@ -2134,5 +2147,23 @@
     "avisoEnvio": "The merchant ships it to you. Shipping is added to the total and they'll reach out to arrange delivery.",
     "enPedidoRetiro": "You pick it up at the merchant's location",
     "enPedidoEnvio": "The merchant ships it to you"
+  },
+  "cobro": {
+    "titulo": "Pay for your purchase",
+    "referencia": "Invoice",
+    "concepto": "For",
+    "pagar": "Pay {monto}",
+    "pagando": "Processing…",
+    "preparando": "Getting the payment ready…",
+    "seguridad": "Payment is processed by Stripe. Your card never touches Mercatren.",
+    "noSePudo": "That card couldn't be processed. Try another one.",
+    "noSePudoAbrir": "This payment can no longer be made. Ask the merchant to send you a new one.",
+    "sinConfigurar": "Card payments aren't available right now.",
+    "yaPagado": "This was already paid on {fecha}. Nothing else to do.",
+    "vencido": "This link has expired.",
+    "vencidoQueHacer": "Ask the merchant for another one — a new link arrives instantly and you don't lose the purchase.",
+    "cancelado": "The merchant cancelled this payment.",
+    "vence": "The link expires on {fecha}.",
+    "quienCobra": "Mercatren collects this payment on behalf of {comercio}."
   }
 }

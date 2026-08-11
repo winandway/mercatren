@@ -1896,6 +1896,19 @@
       ],
       "queHacer": "Si ya tienes más en el depósito, actualiza la cantidad desde tu panel. Si no vas a reponerlo, pásalo a borrador para que no ocupe sitio en tu tienda.",
       "boton": "Actualizar mis existencias"
+    },
+    "enlaceDeCobro": {
+      "asunto": "{comercio} te manda un enlace para pagar",
+      "previo": "Paga {monto} desde donde estés, con tarjeta o por Zelle.",
+      "titulo": "Tu compra en {comercio}",
+      "parrafos": [
+        "Tu compra ya está lista. Solo falta el pago, y lo puedes hacer desde donde estés — con tarjeta o por Zelle, desde un banco de Estados Unidos.",
+        "Si quien va a pagar es otra persona, reenvíale este correo: el enlace funciona igual para quien lo abra.",
+        "El enlace vence en 48 horas. Si se te pasa, pídele otro al comercio y te llega uno nuevo al instante."
+      ],
+      "comercio": "Comercio",
+      "referencia": "Tu factura",
+      "boton": "Pagar ahora"
     }
   },
   "misPedidos": {
@@ -2134,5 +2147,23 @@
     "avisoEnvio": "El comercio te lo despacha. Se suma el costo de envío al total y él te escribe para coordinar la entrega.",
     "enPedidoRetiro": "Lo retiras en el local del comercio",
     "enPedidoEnvio": "El comercio te lo despacha"
+  },
+  "cobro": {
+    "titulo": "Paga tu compra",
+    "referencia": "Factura",
+    "concepto": "Concepto",
+    "pagar": "Pagar {monto}",
+    "pagando": "Procesando…",
+    "preparando": "Preparando el pago…",
+    "seguridad": "El pago lo procesa Stripe. Tu tarjeta no pasa por Mercatren.",
+    "noSePudo": "No se pudo procesar la tarjeta. Prueba con otra.",
+    "noSePudoAbrir": "Este cobro ya no se puede pagar. Pídele al comercio que te mande uno nuevo.",
+    "sinConfigurar": "El pago con tarjeta no está disponible en este momento.",
+    "yaPagado": "Este cobro ya se pagó el {fecha}. No hay nada más que hacer.",
+    "vencido": "Este enlace venció.",
+    "vencidoQueHacer": "Pídele al comercio que te mande otro: le llega uno nuevo al instante y no pierdes la compra.",
+    "cancelado": "El comercio canceló este cobro.",
+    "vence": "El enlace vence el {fecha}.",
+    "quienCobra": "Mercatren cobra este pago por cuenta de {comercio}."
   }
 }

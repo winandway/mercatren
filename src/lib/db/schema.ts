@@ -1033,6 +1033,75 @@ export const hitosPedido = sqliteTable(
   (t) => [index("idx_hitos_pedido").on(t.pedidoId)],
 );
 
+/**
+ * COBROS PEDIDOS DESDE EL SISTEMA DE UN COMERCIO.
+ *
+ * La cajera de una ferreteria hace su factura como todos los dias, toca
+ * «Cobrar por Mercatren», y el correo con el enlace de pago sale solo. Quien
+ * paga —el cliente o su familiar en Estados Unidos— abre y paga con tarjeta o
+ * por Zelle desde donde este.
+ *
+ * ══ POR QUE UNA TABLA APARTE Y NO UN PEDIDO NORMAL ══
+ *
+ * Un pedido de Mercatren tiene renglones de catalogo, existencias que
+ * descontar y una direccion de entrega. Aqui no hay nada de eso: la venta ya
+ * ocurrio en el local del comercio, la mercancia ya esta en el mostrador y lo
+ * unico que falta es el dinero. Meterlo en `pedidos` obligaria a inventar
+ * productos que no existen en nuestro catalogo.
+ *
+ * Lo que SI comparte es el cobro: cuando se paga, se crea el pago y se le
+ * acredita al comercio igual que cualquier otra venta.
+ */
+export const ESTADOS_COBRO = [
+  "abierto",
+  "pagado",
+  "vencido",
+  "cancelado",
+] as const;
+
+export const cobrosSolicitados = sqliteTable(
+  "cobros_solicitados",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    /**
+     * El secreto que viaja en el correo. NO es el id: ese aparece en el
+     * sistema del comercio y en sus pantallas, y quien lo viera podria abrir
+     * el cobro de otro.
+     */
+    enlace: text("enlace").notNull().unique(),
+    /** El numero de factura del comercio. Es su lado del rastro. */
+    referencia: text("referencia").notNull(),
+    montoCentavos: integer("monto_centavos").notNull(),
+    moneda: text("moneda").notNull().default("USD"),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_COBRO)[number]>()
+      .notNull()
+      .default("abierto"),
+    /** A quien se le cobra. La cuenta se abre sola si no la tenia. */
+    clienteId: text("cliente_id").references(() => user.id),
+    contactoCorreo: text("contacto_correo").notNull(),
+    contactoNombre: text("contacto_nombre"),
+    /** Lo que el comercio quiera que vea quien paga. */
+    concepto: text("concepto"),
+    /** Cuando deja de poder pagarse. Se compara con el reloj, no se marca. */
+    venceEn: integer("vence_en", { mode: "timestamp" }),
+    /** El cobro real, cuando se paga. Enlaza con el resto del sistema. */
+    pagoId: text("pago_id"),
+    pagadoEn: integer("pagado_en", { mode: "timestamp" }),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_cobros_tienda").on(t.tiendaId),
+    index("idx_cobros_estado").on(t.estado),
+    index("idx_cobros_referencia").on(t.referencia),
+  ],
+);
+
 /* -------------------------------------------------------------------------- */
 /* Tipos listos para usar en el resto de la aplicacion                        */
 /* -------------------------------------------------------------------------- */

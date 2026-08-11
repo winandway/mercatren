@@ -59,6 +59,15 @@ export async function POST(peticion: Request) {
     if (pedidoId) {
       await acreditarPagoConTarjeta(pedidoId, intento.id, intento.amount);
     }
+
+    /* Los cobros que pide un comercio desde SU sistema traen `cobroId` en vez
+       de `pedidoId`: no hay renglones de catálogo que descontar porque la
+       venta ya ocurrió en su mostrador. Se acreditan igual. */
+    const cobroId = intento.metadata?.cobroId;
+    if (cobroId) {
+      const { acreditarCobro } = await import("@/lib/cobros/acciones");
+      await acreditarCobro(cobroId, intento.id);
+    }
   }
 
   if (evento.type === "payment_intent.payment_failed") {

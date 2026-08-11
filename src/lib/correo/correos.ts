@@ -192,6 +192,48 @@ export async function correoComprobanteRecibido(
   });
 }
 
+/**
+ * 4b. EL ENLACE DE COBRO que pide un comercio desde su propio sistema.
+ *
+ * Este correo es el corazón de la integración: la cajera toca un botón y esto
+ * sale solo, en ese mismo segundo. Quien lo recibe puede no ser el cliente
+ * —muchas veces es su hijo o su socio en Estados Unidos, a quien le
+ * reenviaron el correo—, así que **tiene que explicarse solo**: de qué
+ * comercio es, qué se está pagando y cuánto.
+ */
+export async function correoEnlaceDeCobro(
+  d: Destinatario,
+  cobro: {
+    comercio: string;
+    referencia: string;
+    montoCentavos: number;
+    url: string;
+  },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+
+  return enviar(d, {
+    asunto: t("enlaceDeCobro.asunto", { comercio: cobro.comercio }),
+    previo: t("enlaceDeCobro.previo", {
+      monto: formatearPrecio(cobro.montoCentavos, idioma),
+    }),
+    saludo,
+    titulo: t("enlaceDeCobro.titulo", { comercio: cobro.comercio }),
+    parrafos: t.raw("enlaceDeCobro.parrafos") as string[],
+    datos: [
+      { etiqueta: t("enlaceDeCobro.comercio"), valor: cobro.comercio },
+      { etiqueta: t("enlaceDeCobro.referencia"), valor: cobro.referencia },
+      {
+        etiqueta: t("comun.monto"),
+        valor: formatearPrecio(cobro.montoCentavos, idioma),
+      },
+    ],
+    boton: { texto: t("enlaceDeCobro.boton"), url: cobro.url },
+    motivo,
+    contacto,
+  });
+}
+
 /** 5. El validador aprobo: su compra fue aprobada. */
 export async function correoCompraAprobada(
   d: Destinatario,

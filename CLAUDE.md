@@ -857,6 +857,61 @@ checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
 Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
 le deben.
 
+## Borrón y cuenta nueva del histórico (10 ago 2026)
+
+Bley traía **$24,283.75 figurando a su favor** y 3 comprobantes esperando
+validación. Nada de eso era deuda viva: todo venía de su tienda anterior y **ya
+se había liquidado allá** antes de mudarse a Mercatren. El importador trajo el
+histórico para tener el rastro, no para volver a pagarlo.
+
+**No se borró un solo registro.** El saldo se CALCULA (entradas − retiros), así
+que se cerró como se cierra de verdad: los 3 pendientes pasaron a aprobados
+—fueron pagos reales que sí se recibieron—, su pedido a entregado, y se registró
+**un retiro de cierre de $24,990.86** (`cierre-bley-2026-08-10`) con la nota de
+que se liquidó en el sistema previo.
+
+Resultado: Bley en **$0.00**, cola de validación vacía, y el histórico entero —
+669 entradas, 5 rechazos, 71 retiros. El día que alguien pregunte por un pago de
+julio, ahí está.
+
+**Borrar las entradas habría sido fabricar un pasado que no ocurrió.**
+
+La única venta viva de Mercatren es la MT-000002 de Inversiones Multiservicios:
+$31.87 con tarjeta, **$30.91 disponibles**. Y los 32 centavos que quedaban
+pendientes de decidir se resolvieron solos al pasar al 3 %: su comisión guardada
+(96) es exactamente la que toca ahora.
+
+## Cobrar por Mercatren desde el sistema del comercio (10 ago 2026)
+
+Primera etapa de `mercatren-api-integraciones.pdf`. La cajera de la ferretería
+hace su factura como todos los días, toca un botón, y **el correo con el enlace
+de pago sale solo**. Quien paga —muchas veces el hijo o el socio en Estados
+Unidos, a quien le reenviaron el correo— abre y paga con tarjeta o por Zelle.
+
+- `src/lib/cobros/reglas.ts` — puro, 20 pruebas. El enlace vive 48 horas y **el
+  vencimiento se calcula, no se guarda**: un estado `vencido` guardado depende
+  de que algo lo escriba a tiempo, y si eso falla alguien paga una venta que el
+  comercio ya dio por perdida.
+- **El enlace NO es el identificador del cobro.** Ese aparece en el sistema del
+  comercio y en sus pantallas; el enlace es un secreto aparte de 24 bytes que
+  solo viaja en ese correo.
+- **La cuenta del cliente se abre sola.** Pedirle registrarse antes de pagar es
+  justo el paso donde se pierde la venta que esto existe para salvar.
+- **Tabla nueva** (`cobros_solicitados`), no un pedido: aquí no hay renglones de
+  catálogo ni existencias que descontar — la venta ya ocurrió en el mostrador.
+- `GET /datos/socios/cobro?referencia=…` es lo que deja al comercio marcar su
+  factura pagada sola.
+
+**En el repo de Bley** (`/Users/windocellc/ferremateriales-bley`):
+`functions/cobrar/mercatren.ts` guarda el token —**nunca en el navegador**, que
+`VITE_` termina dentro del sitio publicado—, `src/lib/cobrarPorMercatren.ts` lo
+llama, y `src/components/CobrarPorMercatren.tsx` es el botón.
+
+**No se tocó `metodo_pago`, a propósito.** Ese enum alimenta el cierre de caja:
+meter ahí un cobro que va en camino descuadraría el cierre del día con dinero
+que nadie recibió. Cómo se contabiliza esa venta cuando el pago llega es una
+decisión del comercio, no del código.
+
 ## Sacar el dinero desde cualquier país (10 ago 2026)
 
 Un comercio de Colombia entró a pedir su dinero, eligió «wire», y **no encontró
