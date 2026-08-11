@@ -9,6 +9,7 @@ import { ComprobarCobro } from "@/components/panel/comprobar-cobro";
 import { AvisoDisputa } from "@/components/panel/aviso-disputa";
 import { DocumentosDeLaVenta } from "@/components/panel/documentos-venta";
 import { LineaDeTiempo } from "@/components/panel/linea-de-tiempo";
+import { PasosDeLaVenta } from "@/components/panel/pasos-de-la-venta";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -79,7 +80,9 @@ export default async function PaginaPedidoDelPanel({
     esEquipo
       ? parDeFacturas(pedido.id)
       : Promise.resolve({ venta: null, ordenes: [] }),
-    esEquipo ? hitosDe(db, pedido.id) : Promise.resolve([]),
+    /* Los hitos los ve TAMBIÉN el comercio: son los pasos de su propia venta.
+       Esconderlos era lo que le obligaba a preguntarnos en qué iba. */
+    hitosDe(db, pedido.id),
     db
       .select({
         id: disputas.id,
@@ -212,6 +215,18 @@ export default async function PaginaPedidoDelPanel({
       {disputa[0] ? (
         <AvisoDisputa disputa={disputa[0]} idioma={idioma} ahora={new Date()} />
       ) : null}
+
+      {/* LOS PASOS, EN HORIZONTAL. De un vistazo: por dónde pasó, quién lo
+          movió y qué falta — incluido si el dinero ya es del comercio. */}
+      <PasosDeLaVenta
+        estado={pedido.estado}
+        creadoEn={pedido.creadoEn}
+        hitos={hitos}
+        /* Con el cobro confirmado, el neto ya está acreditado: es la misma
+           operación que descuenta el stock y suma a la billetera. */
+        enBilletera={pedido.rastro.estado === "confirmado"}
+        idioma={idioma}
+      />
 
       {/* CÓMO SE PAGÓ. Va antes de la mercancía a propósito: si el cobro no
           entró, lo demás no se despacha. */}

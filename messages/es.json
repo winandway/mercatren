@@ -727,7 +727,15 @@
       "pagoPendiente": "Falta el pago",
       "pagoEnRevision": "Comprobante en revisión",
       "pagoRechazado": "Pago rechazado",
-      "todos": "Todas"
+      "todos": "Todas",
+      "rangos": {
+        "hoy": "Hoy",
+        "7d": "7 días",
+        "30d": "30 días",
+        "mes": "Este mes",
+        "todo": "Todo"
+      },
+      "queEsElArchivo": "Operaciones traídas del sistema anterior, ya cobradas y entregadas allá. Se guardan como rastro; no son trabajo pendiente."
     },
     "clientes": {
       "titulo": "Compradores",
@@ -1435,6 +1443,18 @@
       "mercatren": "Comisión de Mercatren (3 %)",
       "tuyo": "Tu dinero",
       "porQueZelle": "El costo de procesamiento solo se aplica a lo cobrado con tarjeta. Por Zelle no interviene ningún procesador."
+    },
+    "pasos": {
+      "comprada": "Comprada",
+      "pagado": "Pagada",
+      "enviado": "Enviada",
+      "entregado": "Entregada",
+      "por": "por {quien}",
+      "aunNo": "aún no",
+      "enBilletera": "En la billetera",
+      "disponible": "disponible para retirar",
+      "dondeSeRetira": "El comercio saca este dinero desde su billetera, junto con el de sus otras ventas.",
+      "verBilletera": "Ver la billetera"
     }
   },
   "catalogo": {

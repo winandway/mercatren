@@ -727,7 +727,15 @@
       "pagoPendiente": "Payment pending",
       "pagoEnRevision": "Receipt under review",
       "pagoRechazado": "Payment declined",
-      "todos": "All"
+      "todos": "All",
+      "rangos": {
+        "hoy": "Today",
+        "7d": "7 days",
+        "30d": "30 days",
+        "mes": "This month",
+        "todo": "All"
+      },
+      "queEsElArchivo": "Operations brought over from the previous system, already collected and delivered there. Kept as a record; not pending work."
     },
     "clientes": {
       "titulo": "Buyers",
@@ -1435,6 +1443,18 @@
       "mercatren": "Mercatren's fee (3%)",
       "tuyo": "Your money",
       "porQueZelle": "Processing costs apply only to what was charged by card. Zelle involves no processor at all."
+    },
+    "pasos": {
+      "comprada": "Ordered",
+      "pagado": "Paid",
+      "enviado": "Shipped",
+      "entregado": "Delivered",
+      "por": "by {quien}",
+      "aunNo": "not yet",
+      "enBilletera": "In the wallet",
+      "disponible": "available to withdraw",
+      "dondeSeRetira": "The merchant withdraws this money from their wallet, together with their other sales.",
+      "verBilletera": "Open the wallet"
     }
   },
   "catalogo": {
