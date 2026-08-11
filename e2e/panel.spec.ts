@@ -12,7 +12,7 @@ test.describe("Panel sin sesion", () => {
 
   const RUTAS = [
     "/es/panel",
-    "/es/panel/pagos-zelle",
+    "/es/panel/cobros",
     "/es/panel/validacion",
     "/es/panel/clientes",
   ];
@@ -33,7 +33,7 @@ test.describe("Panel sin sesion", () => {
   test("no se filtra ningun dato de los pagos en la respuesta", async ({
     request,
   }) => {
-    const respuesta = await request.get("/es/panel/pagos-zelle", {
+    const respuesta = await request.get("/es/panel/cobros", {
       maxRedirects: 0,
     });
 

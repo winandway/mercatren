@@ -335,13 +335,9 @@
     "abrirMenu": "Open menu",
     "cerrarMenu": "Close menu",
     "menu": {
-      "operacion": "Operations",
-      "catalogo": "Catalog",
-      "sistema": "System",
       "resumen": "Overview",
-      "pagosZelle": "Zelle Payments",
       "validacion": "To review",
-      "billetera": "Owed to supplier",
+      "billetera": "Owed to merchants",
       "ordenes": "Orders",
       "tiendas": "Merchants",
       "clientes": "Buyers",
@@ -353,7 +349,13 @@
       "retiros": "Withdrawals",
       "diccionario": "Dictionary",
       "creditos": "Credit",
-      "ordenesCompra": "Purchase orders"
+      "ordenesCompra": "Purchase orders",
+      "ventas": "Sales",
+      "dinero": "Money",
+      "miNegocio": "My business",
+      "equipo": "Mercatren team",
+      "cobros": "Payments in",
+      "billeteraComercio": "My money"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -362,7 +364,7 @@
       "tuComercio": "Your store"
     },
     "billetera": {
-      "titulo": "Owed to supplier",
+      "titulo": "Owed to merchants",
       "subtitulo": "What the store has available and what it has already withdrawn.",
       "saldo": "Outstanding",
       "saldoAyuda": "Merchandise purchased from the supplier and not yet paid for. That money sits in the bank account, waiting for the supplier's invoice.",
@@ -405,7 +407,11 @@
         "monto": "Amount",
         "saldo": "Outstanding after"
       },
-      "datosHasta": "Data runs through {fecha}. Anything after that hasn't been imported from the previous system yet."
+      "datosHasta": "Data runs through {fecha}. Anything after that hasn't been imported from the previous system yet.",
+      "tituloComercio": "My money",
+      "subtituloComercio": "What you have sold and not withdrawn yet, and what we have already transferred to you.",
+      "saldoComercio": "Available to withdraw",
+      "saldoAyudaComercio": "It is yours and it is sitting in the bank account waiting for you to ask for it. Every confirmed sale adds to it on its own."
     },
     "comercios": {
       "titulo": "Merchants",
@@ -1455,6 +1461,58 @@
       "disponible": "available to withdraw",
       "dondeSeRetira": "The merchant withdraws this money from their wallet, together with their other sales.",
       "verBilletera": "Open the wallet"
+    },
+    "cobros": {
+      "titulo": "Payments in",
+      "subtitulo": "Every dollar that comes in, no matter how it was paid: card, Zelle and payment links.",
+      "pestanas": {
+        "tarjeta": "Card",
+        "zelle": "Zelle",
+        "enlaces": "Payment links"
+      },
+      "todos": "All",
+      "estado": {
+        "confirmado": "collected",
+        "pendiente": "in progress",
+        "rechazado": "declined",
+        "reembolsado": "refunded"
+      },
+      "sinCobros": "No card payments here yet.",
+      "sinPedido": "no order",
+      "sinCliente": "No name",
+      "conContracargo": "chargeback",
+      "tarjetas": {
+        "cobrado": "Collected by card",
+        "cobradoPie": "{n} confirmed payments",
+        "enCurso": "In progress",
+        "enCursoPie": "Started, not confirmed yet",
+        "noEntraron": "Didn't go through",
+        "noEntraronPie": "Declined or refunded",
+        "contracargos": "Chargebacks",
+        "contracargosPie": "{monto} disputed"
+      },
+      "disputas": {
+        "titulo": "Open chargebacks ({n})",
+        "queEs": "The cardholder asked their bank for the money back. That money has already left the account, but the sale was not reversed automatically: who absorbs it is decided separately.",
+        "estado": {
+          "abierta": "open",
+          "ganada": "won",
+          "perdida": "lost",
+          "retirada": "withdrawn"
+        }
+      },
+      "enlaces": {
+        "queEs": "Payments the merchant requested from their own system: they send the link to their customer, who pays by card.",
+        "ninguno": "No payment links requested yet.",
+        "estado": {
+          "abierto": "awaiting payment",
+          "pagado": "paid",
+          "vencido": "expired",
+          "cancelado": "canceled"
+        },
+        "venceEl": "expires {fecha}",
+        "pagadoEl": "paid {fecha}"
+      }
     }
   },
   "catalogo": {

@@ -112,7 +112,7 @@ export default async function PaginaResumen({
           </p>
         ) : null}
         <Link
-          href="/panel/pagos-zelle"
+          href="/panel/cobros"
           className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-riel-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-riel-800"
         >
           {t("resumen.verPagos")}

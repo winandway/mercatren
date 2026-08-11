@@ -335,13 +335,9 @@
     "abrirMenu": "Abrir menú",
     "cerrarMenu": "Cerrar menú",
     "menu": {
-      "operacion": "Operación",
-      "catalogo": "Catálogo",
-      "sistema": "Sistema",
       "resumen": "Resumen",
-      "pagosZelle": "Pagos Zelle",
       "validacion": "Por validar",
-      "billetera": "Por pagar al proveedor",
+      "billetera": "Por pagar a los comercios",
       "ordenes": "Órdenes",
       "tiendas": "Comercios",
       "clientes": "Compradores",
@@ -353,7 +349,13 @@
       "retiros": "Retiros",
       "diccionario": "Diccionario",
       "creditos": "Créditos",
-      "ordenesCompra": "Órdenes de compra"
+      "ordenesCompra": "Órdenes de compra",
+      "ventas": "Ventas",
+      "dinero": "Dinero",
+      "miNegocio": "Mi negocio",
+      "equipo": "Equipo Mercatren",
+      "cobros": "Cobros",
+      "billeteraComercio": "Mi dinero"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -362,7 +364,7 @@
       "tuComercio": "Tu comercio"
     },
     "billetera": {
-      "titulo": "Por pagar al proveedor",
+      "titulo": "Por pagar a los comercios",
       "subtitulo": "Lo que el comercio tiene a su favor y lo que ya se llevó.",
       "saldo": "Pendiente de pago",
       "saldoAyuda": "Mercancía comprada al proveedor y todavía no pagada. Ese dinero está en la cuenta del banco, esperando la factura del proveedor.",
@@ -405,7 +407,11 @@
         "monto": "Monto",
         "saldo": "Pendiente después"
       },
-      "datosHasta": "Los datos llegan hasta el {fecha}. Lo posterior todavía no se ha traído del sistema anterior."
+      "datosHasta": "Los datos llegan hasta el {fecha}. Lo posterior todavía no se ha traído del sistema anterior.",
+      "tituloComercio": "Mi dinero",
+      "subtituloComercio": "Lo que has vendido y todavía no has sacado, y lo que ya te transferimos.",
+      "saldoComercio": "Disponible para retirar",
+      "saldoAyudaComercio": "Es tuyo y está en la cuenta del banco esperando a que lo pidas. Se suma solo con cada venta que se confirma."
     },
     "comercios": {
       "titulo": "Comercios",
@@ -1455,6 +1461,58 @@
       "disponible": "disponible para retirar",
       "dondeSeRetira": "El comercio saca este dinero desde su billetera, junto con el de sus otras ventas.",
       "verBilletera": "Ver la billetera"
+    },
+    "cobros": {
+      "titulo": "Cobros",
+      "subtitulo": "Todo el dinero que entra, sin importar con qué se pagó: tarjeta, Zelle y los enlaces de cobro.",
+      "pestanas": {
+        "tarjeta": "Tarjeta",
+        "zelle": "Zelle",
+        "enlaces": "Enlaces de cobro"
+      },
+      "todos": "Todos",
+      "estado": {
+        "confirmado": "cobrado",
+        "pendiente": "en curso",
+        "rechazado": "no entró",
+        "reembolsado": "devuelto"
+      },
+      "sinCobros": "Todavía no hay cobros con tarjeta aquí.",
+      "sinPedido": "sin pedido",
+      "sinCliente": "Sin nombre",
+      "conContracargo": "con contracargo",
+      "tarjetas": {
+        "cobrado": "Cobrado con tarjeta",
+        "cobradoPie": "{n} cobros confirmados",
+        "enCurso": "En curso",
+        "enCursoPie": "Empezados y sin confirmar todavía",
+        "noEntraron": "No entraron",
+        "noEntraronPie": "Rechazados o devueltos",
+        "contracargos": "Contracargos",
+        "contracargosPie": "{monto} en disputa"
+      },
+      "disputas": {
+        "titulo": "Contracargos abiertos ({n})",
+        "queEs": "El titular de la tarjeta le pidió a su banco que le devolviera el dinero. Ese dinero YA salió de la cuenta, pero la venta no se deshizo sola: quién lo asume se decide aparte.",
+        "estado": {
+          "abierta": "abierta",
+          "ganada": "ganada",
+          "perdida": "perdida",
+          "retirada": "retirada"
+        }
+      },
+      "enlaces": {
+        "queEs": "Cobros que el comercio pidió desde su propio sistema: le manda el enlace a su cliente y este paga con tarjeta.",
+        "ninguno": "Todavía no se ha pedido ningún cobro por enlace.",
+        "estado": {
+          "abierto": "esperando el pago",
+          "pagado": "pagado",
+          "vencido": "vencido",
+          "cancelado": "cancelado"
+        },
+        "venceEl": "vence el {fecha}",
+        "pagadoEl": "pagado el {fecha}"
+      }
     }
   },
   "catalogo": {

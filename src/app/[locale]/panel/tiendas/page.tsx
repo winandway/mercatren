@@ -104,7 +104,7 @@ export default async function PaginaComercios({
 
                 <div className="mt-auto flex gap-2 pt-4">
                   <Link
-                    href={`/panel/pagos-zelle?comercio=${c.id}`}
+                    href={`/panel/cobros/zelle?comercio=${c.id}`}
                     className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-riel-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-riel-800"
                   >
                     {t("verPagos")}

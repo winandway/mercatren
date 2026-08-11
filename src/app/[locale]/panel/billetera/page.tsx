@@ -75,10 +75,17 @@ export default async function PaginaBilletera({
 
   return (
     <div className="space-y-6">
+      {/* LA MISMA PANTALLA CUENTA DOS COSAS DISTINTAS. Para el equipo esto es
+          lo que HAY QUE PAGARLE a los comercios; para el comercio es SU dinero
+          esperando a que lo pida. Con un solo texto, uno de los dos lee algo
+          que no habla de él — y era el caso: decía «por pagar al proveedor»
+          también cuando lo abría el proveedor. */}
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">{t("titulo")}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {t(interno ? "titulo" : "tituloComercio")}
+        </h1>
         <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
-          {t("subtitulo")}
+          {t(interno ? "subtitulo" : "subtituloComercio")}
         </p>
       </header>
 
@@ -88,12 +95,14 @@ export default async function PaginaBilletera({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-xs tracking-wide text-white/70 uppercase">
-                {t("saldo")}
+                {t(interno ? "saldo" : "saldoComercio")}
               </p>
               <p className="mt-1 text-4xl font-bold tracking-tight tabular-nums sm:text-5xl">
                 {dinero(posicion.saldoCentavos)}
               </p>
-              <p className="mt-2 text-sm text-white/70">{t("saldoAyuda")}</p>
+              <p className="mt-2 text-sm text-white/70">
+                {t(interno ? "saldoAyuda" : "saldoAyudaComercio")}
+              </p>
               <p className="mt-3 truncate text-sm font-semibold">
                 {posicion.nombreTienda}
               </p>

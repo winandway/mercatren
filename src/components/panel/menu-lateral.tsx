@@ -34,13 +34,38 @@ type Entrada = {
   soloInterno?: boolean;
 };
 
+/**
+ * EL MENÚ SE ORDENA POR TRABAJO, NO POR MECANISMO.
+ *
+ * ══ CÓMO ESTABA Y POR QUÉ NO SERVÍA ══
+ *
+ * «Operación» juntaba un método de cobro (Pagos Zelle) con el dinero
+ * (billetera, retiros) y con el papeleo (órdenes de compra). Y **Órdenes —las
+ * ventas, el corazón del negocio— estaba metida dentro de «Catálogo»**, entre
+ * los productos y los comercios. El dueño lo dijo entero: «está muy mal
+ * organizado».
+ *
+ * El nombre de un grupo tiene que contestar «¿qué vengo a hacer?». Se viene a
+ * mirar las VENTAS, a mover el DINERO, a cuidar MI NEGOCIO. No se viene a
+ * «operación».
+ */
 const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
   {
-    titulo: "operacion",
+    titulo: "ventas",
     entradas: [
       { href: "/panel", clave: "resumen", Icono: LayoutDashboard },
-      { href: "/panel/pagos-zelle", clave: "pagosZelle", Icono: Receipt },
+      // Lo que se vendió. Antes vivía enterrada dentro de «Catálogo».
+      { href: "/panel/ordenes", clave: "ordenes", Icono: ShoppingBag },
+      /* TODO el dinero que entra, en un solo sitio: tarjeta, Zelle y los
+         enlaces de cobro. Antes solo había Zelle, y la tarjeta —el método de
+         la primera venta real— no aparecía en ninguna pantalla. */
+      { href: "/panel/cobros", clave: "cobros", Icono: Receipt },
       { href: "/panel/validacion", clave: "validacion", Icono: ShieldCheck },
+    ],
+  },
+  {
+    titulo: "dinero",
+    entradas: [
       { href: "/panel/billetera", clave: "billetera", Icono: Wallet },
       // Sacar el dinero de la billetera: el comercio pide, el equipo paga.
       { href: "/panel/retiros", clave: "retiros", Icono: ArrowUpRight },
@@ -54,23 +79,27 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
     ],
   },
   {
-    titulo: "catalogo",
+    titulo: "miNegocio",
     entradas: [
       // Su propia tienda: la marca, la ficha y los datos de la empresa.
       { href: "/panel/mi-tienda", clave: "miTienda", Icono: Store },
       { href: "/panel/productos", clave: "misProductos", Icono: Package },
-      { href: "/panel/ordenes", clave: "ordenes", Icono: ShoppingBag },
+      // Cada comercio ve SUS clientes; el equipo, todos.
+      { href: "/panel/clientes", clave: "clientes", Icono: Users },
+      /* A quién le fía y cuánto le deben. El crédito lo da el comercio con su
+         propio riesgo; aquí solo lleva la cuenta. */
+      { href: "/panel/creditos", clave: "creditos", Icono: CreditCard },
+    ],
+  },
+  {
+    titulo: "equipo",
+    entradas: [
       {
         href: "/panel/tiendas",
         clave: "tiendas",
         Icono: Store,
         soloInterno: true,
       },
-      // Cada comercio ve SUS clientes; el equipo, todos.
-      { href: "/panel/clientes", clave: "clientes", Icono: Users },
-      /* A quién le fía y cuánto le deben. El crédito lo da el comercio con su
-         propio riesgo; aquí solo lleva la cuenta. */
-      { href: "/panel/creditos", clave: "creditos", Icono: CreditCard },
       // Las CUENTAS del sistema, que no es lo mismo que los compradores.
       {
         href: "/panel/usuarios",
@@ -78,11 +107,6 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         Icono: UserRound,
         soloInterno: true,
       },
-    ],
-  },
-  {
-    titulo: "sistema",
-    entradas: [
       {
         href: "/panel/configuracion",
         clave: "configuracion",
@@ -156,16 +180,23 @@ export function MenuLateral({
               </h2>
               <ul className="space-y-0.5">
                 {entradas.map(({ href, clave, Icono }) => {
-                  /* La cola de validación se llama distinto para el comercio:
-                     él no valida nada, solo ve en qué va lo suyo. */
-                  const etiqueta =
-                    clave === "validacion" && !esInterno
+                  /* Dos entradas se llaman distinto según quién mire, porque
+                     son cosas distintas: el comercio no valida nada —solo ve
+                     en qué va lo suyo— y la billetera, que para el equipo es
+                     lo que hay POR PAGAR, para él es SU dinero. */
+                  const etiqueta = !esInterno
+                    ? clave === "validacion"
                       ? "validacionComercio"
-                      : clave;
+                      : clave === "billetera"
+                        ? "billeteraComercio"
+                        : clave
+                    : clave;
+                  /* Coincidencia por tramo completo, no por prefijo de texto:
+                     con `startsWith` a secas, «/panel/ordenes-compra» dejaba
+                     encendida también a «/panel/ordenes» y el menú marcaba dos
+                     secciones a la vez. */
                   const activo =
-                    href === "/panel"
-                      ? pathname === "/panel"
-                      : pathname.startsWith(href);
+                    pathname === href || pathname.startsWith(`${href}/`);
                   const insignia =
                     clave === "validacion"
                       ? porValidar
