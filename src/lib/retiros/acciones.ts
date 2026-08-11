@@ -11,10 +11,15 @@ import {
   obtenerUsuario,
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { formatearPrecio, ZELLE_RETIRO_MAXIMO_CENTAVOS } from "@/lib/dinero";
+import {
+  limpiarCuenta,
+  paisBancario,
+  revisarCuenta,
+} from "@/lib/retiros/paises";
 import { aCentavos } from "@/lib/retiros/monto";
 import { billeteras, retiros, tiendas } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
+import { comercioObservado } from "@/lib/soporte/ver-como";
 import { obtenerPosicion } from "@/lib/zelle/billetera";
 
 /**
@@ -43,16 +48,22 @@ function esquema(t: Textos) {
         .trim()
         .min(1, t("faltaMonto"))
         .transform((v) => v.replace(/[^0-9.]/g, "")),
-      forma: z.enum(["comercio", "zelle", "ach", "wire"]),
+      /**
+       * ZELLE YA NO ES UNA FORMA DE RETIRO, y no fue un recorte de alcance.
+       *
+       * El dinero de los comercios sale de la cuenta de Mercury, y **Mercury
+       * no hace Zelle**: solo ACH dentro de Estados Unidos y wire para
+       * afuera. Mientras estuvo en la lista, un comercio podía pedirlo y
+       * quien iba al banco no lo podía ejecutar — una promesa que el sistema
+       * no puede cumplir es peor que no ofrecerla.
+       */
+      forma: z.enum(["comercio", "ach", "wire"]),
       // Solo cuando la forma es `comercio`.
       destinoTiendaId: z.string().trim().optional(),
-      // Solo cuando es Zelle: el correo o el teléfono que recibe.
-      zelleDestino: z.string().trim().max(120).optional(),
-      // Solo cuando es ACH o wire.
-      titular: z.string().trim().max(120).optional(),
-      banco: z.string().trim().max(120).optional(),
-      cuenta: z.string().trim().max(40).optional(),
-      ruta: z.string().trim().max(20).optional(),
+      /** El país de la cuenta. Decide qué datos se piden y cómo se manda. */
+      pais: z.string().trim().max(2).optional(),
+      /** Los campos bancarios, que cambian según el país. */
+      cuentaJson: z.string().trim().max(2000).optional(),
       nota: z.string().trim().max(300).optional(),
     })
     .superRefine((d, ctx) => {
@@ -64,26 +75,29 @@ function esquema(t: Textos) {
         return;
       }
 
-      if (d.forma === "zelle") {
-        /**
-         * Un correo o un teléfono, no las dos cosas ni ninguna. Se acepta lo
-         * que el comercio tenga registrado en su banco para Zelle; el equipo
-         * lo copia tal cual al hacer el envío, así que aquí solo se
-         * comprueba que exista y tenga forma de una cosa o la otra.
-         */
-        const destino = d.zelleDestino ?? "";
-        const esCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destino);
-        const esTelefono = destino.replace(/\D/g, "").length >= 10;
-        if (!esCorreo && !esTelefono) fallo(t("faltaZelleDestino"));
+      /**
+       * LOS DATOS SE COMPRUEBAN CONTRA LAS REGLAS DEL PAÍS.
+       *
+       * Un wire internacional a una cuenta mal escrita no rebota al día
+       * siguiente: se queda dando vueltas entre bancos, cuesta la comisión de
+       * vuelta y puede tardar semanas. Comprobar que una CLABE tiene 18
+       * dígitos es gratis; que el comercio se quede sin su dinero, no.
+       */
+      const pais = d.pais ?? "";
+      if (!paisBancario(pais)) {
+        fallo(t("faltaPais"));
         return;
       }
 
-      // Sin estos cuatro no hay transferencia posible: quien va al banco se
-      // quedaría mirando la pantalla sin saber a dónde mandar el dinero.
-      if (!d.titular) fallo(t("faltaTitular"));
-      if (!d.banco) fallo(t("faltaBanco"));
-      if (!d.cuenta) fallo(t("faltaCuenta"));
-      if (!d.ruta) fallo(t("faltaRuta"));
+      let valores: Record<string, string> = {};
+      try {
+        valores = JSON.parse(d.cuentaJson || "{}") as Record<string, string>;
+      } catch {
+        fallo(t("revisaCampos"));
+        return;
+      }
+
+      if (revisarCuenta(pais, valores).length > 0) fallo(t("revisaCampos"));
     });
 }
 
@@ -99,6 +113,18 @@ export async function pedirRetiro(
   datos: FormData,
 ): Promise<Resultado> {
   const t = await mensajes();
+
+  /**
+   * MIRANDO NO SE PIDE DINERO.
+   *
+   * Soporte puede ver el panel con los ojos de un comercio para poder
+   * responderle, pero ese modo es **solo para ver**. Sin este candado, el
+   * alcance prestado dejaría pedir un retiro en nombre de otro sin que nadie
+   * se enterara, que es exactamente lo que se quería evitar.
+   */
+  if (await comercioObservado()) {
+    return { ok: false, mensaje: t("soloMirando") };
+  }
 
   const alcance = await obtenerAlcance().catch(() => null);
   if (!alcance) return { ok: false, mensaje: t("soloComercio") };
@@ -137,26 +163,6 @@ export async function pedirRetiro(
     return { ok: false, mensaje: t("montoMayorAlDisponible") };
   }
 
-  /**
-   * EL TOPE DE ZELLE SE COMPRUEBA AQUÍ, EN EL SERVIDOR.
-   *
-   * El formulario también lo avisa, pero eso es comodidad: cualquiera puede
-   * mandar la petición sin pasar por la pantalla. Esta es la comprobación
-   * que de verdad protege la cuenta del banco — y esa cuenta es de donde
-   * cobran TODOS los comercios, así que no es un detalle suyo, es de todos.
-   *
-   * Por encima del tope no se rechaza a secas: se le dice que use ACH, que
-   * es la vía correcta para ese monto.
-   */
-  if (d.forma === "zelle" && montoCentavos > ZELLE_RETIRO_MAXIMO_CENTAVOS) {
-    return {
-      ok: false,
-      mensaje: t("zelleTopeSuperado", {
-        tope: formatearPrecio(ZELLE_RETIRO_MAXIMO_CENTAVOS, "es"),
-      }),
-    };
-  }
-
   // El comercio destino tiene que existir, estar activo y no ser el mismo.
   let destinoTiendaId: string | null = null;
   if (d.forma === "comercio") {
@@ -193,17 +199,17 @@ export async function pedirRetiro(
     destinoTiendaId,
     // Se guarda tal como está hoy: si mañana cambia de banco, este retiro
     // tiene que seguir diciendo a dónde se mandó de verdad.
+    /* Se guarda LIMPIO —sin espacios, los códigos en mayúsculas— porque es
+       lo que alguien va a copiar y pegar en Mercury. Un IBAN con un espacio
+       de más pegado en el formulario del banco es una transferencia
+       rechazada. Y con el país adentro, para saber por qué vía salió. */
     destino:
       d.forma === "comercio"
         ? null
-        : d.forma === "zelle"
-          ? { zelle: d.zelleDestino }
-          : {
-              titular: d.titular,
-              banco: d.banco,
-              cuenta: d.cuenta,
-              ruta: d.ruta,
-            },
+        : {
+            pais: d.pais,
+            ...limpiarCuenta(d.pais!, JSON.parse(d.cuentaJson || "{}")),
+          },
     notaComercio: d.nota || null,
   });
 

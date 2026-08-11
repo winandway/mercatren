@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import {
@@ -7,13 +8,17 @@ import {
 } from "next-intl/server";
 
 import { MenuLateral } from "@/components/panel/menu-lateral";
+import { FranjaVerComo } from "@/components/panel/ver-como";
 import { redirect } from "@/i18n/navigation";
 import {
   esEquipoInterno,
   tienePermisoDePanel,
   obtenerUsuario,
 } from "@/lib/autorizacion";
+import { getDb } from "@/lib/db";
+import { tiendas } from "@/lib/db/schema";
 import { contarRetirosPendientes } from "@/lib/retiros/consultas";
+import { comercioObservado } from "@/lib/soporte/ver-como";
 import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
 
@@ -85,9 +90,25 @@ export default async function LayoutPanel({
    */
   const mensajes = await getMessages();
 
+  /* Si Soporte está mirando el panel de un comercio, se trae su nombre para
+     la franja. Sin nombre no se dibuja: una franja que dice «estás viendo el
+     panel de» y se corta ahí asusta más de lo que avisa. */
+  const observado = await comercioObservado();
+  const [comercioMirado] = observado
+    ? await getDb()
+        .select({ nombre: tiendas.nombre })
+        .from(tiendas)
+        .where(eq(tiendas.id, observado))
+        .limit(1)
+        .catch(() => [])
+    : [];
+
   return (
     <NextIntlClientProvider messages={mensajes}>
       <div className="min-h-screen bg-slate-50">
+        {comercioMirado ? (
+          <FranjaVerComo nombre={comercioMirado.nombre} />
+        ) : null}
         <MenuLateral
           porValidar={pendientes.length}
           porRetirar={porRetirar}

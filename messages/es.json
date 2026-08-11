@@ -932,7 +932,7 @@
       "faltaTelefono": "Escribe un teléfono de contacto.",
       "faltaDireccion": "Escribe la dirección de la empresa.",
       "faltaCiudad": "Escribe la ciudad.",
-      "faltaPais": "Escribe el país.",
+      "faltaPais": "Elige el país de la cuenta.",
       "yaTienesComercio": "Ya tienes un comercio registrado con esta cuenta.",
       "comercioEnRevision": "Listo. Tu comercio quedó registrado y el equipo de Mercatren lo va a revisar.",
       "comercioAprobado": "Comercio aprobado. Ya puede vender.",
@@ -990,7 +990,9 @@
         "sin_cambios": "Stripe todavía no da el cobro por confirmado. Vuelve a intentarlo en un rato.",
         "no_aplica": "Este pedido no tiene un cobro con tarjeta pendiente de comprobar.",
         "no_se_pudo": "No se pudo consultar a Stripe ahora mismo. Inténtalo de nuevo."
-      }
+      },
+      "revisaCampos": "Revisa los datos de la cuenta: hay campos vacíos o mal escritos.",
+      "soloMirando": "Estás viendo el panel de un comercio. Para pedir un retiro, sal de ese modo primero."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1072,9 +1074,7 @@
         "ach": "Transferencia ACH",
         "achAyuda": "A tu cuenta de Estados Unidos. Llega en 1 a 3 días hábiles.",
         "wire": "Transferencia bancaria (wire)",
-        "wireAyuda": "El mismo día, para montos grandes. El banco puede cobrar una cuota.",
-        "zelle": "Zelle",
-        "zelleAyuda": "Lo más rápido, hasta $500. Llega el mismo día."
+        "wireAyuda": "El mismo día, para montos grandes. El banco puede cobrar una cuota."
       },
       "aQuienComercio": "¿A qué comercio?",
       "eligeComercio": "Elige un comercio",
@@ -1114,7 +1114,52 @@
       "zelleDestinoAyuda": "El mismo que tienes registrado en tu banco para Zelle. Si está mal escrito, el dinero se va a otra persona y no se puede devolver.",
       "zelleTope": "Por Zelle se puede enviar hasta {tope}",
       "zelleTopePorQue": "Es el límite que nos pone el banco para pagos seguidos a empresas. Por encima de ese monto usamos ACH, que llega en uno o dos días hábiles.",
-      "zelleUsarAch": "Cambiar a ACH"
+      "zelleUsarAch": "Cambiar a ACH",
+      "paises": {
+        "US": "Estados Unidos",
+        "CO": "Colombia",
+        "VE": "Venezuela",
+        "MX": "México",
+        "BR": "Brasil",
+        "AR": "Argentina",
+        "CL": "Chile",
+        "PE": "Perú",
+        "EC": "Ecuador",
+        "PA": "Panamá",
+        "ES": "España",
+        "RO": "Rumanía"
+      },
+      "campos": {
+        "titular": "Nombre del titular de la cuenta",
+        "banco": "Banco",
+        "cuenta": "Número de cuenta",
+        "tipoCuenta": "Tipo de cuenta",
+        "tipoCuentaAyuda": "Ahorros o corriente, como aparece en tu banco.",
+        "documento": "Documento del titular",
+        "documentoAyuda": "Cédula, RIF, CPF o NIT. El banco lo compara con el nombre antes de acreditar.",
+        "ruta": "Número de ruta (routing)",
+        "rutaAyuda": "Nueve dígitos. Está en tu cheque o en la app de tu banco.",
+        "clabe": "CLABE",
+        "clabeAyuda": "Dieciocho dígitos. Es lo único que hace falta para recibir en México.",
+        "iban": "IBAN",
+        "ibanAyuda": "Puedes pegarlo con espacios, como te lo da el banco.",
+        "swift": "Código SWIFT / BIC",
+        "swiftAyuda": "De 8 u 11 caracteres. Sin él la transferencia internacional no sale.",
+        "cbu": "CBU",
+        "cbuAyuda": "Veintidós dígitos. También sirve el CVU si cobras por billetera.",
+        "agencia": "Agencia",
+        "cci": "CCI (código interbancario)",
+        "cciAyuda": "Veinte dígitos. Es el que hace falta para recibir del exterior.",
+        "cuentaVeAyuda": "Veinte dígitos, sin espacios ni guiones.",
+        "pix": "Clave Pix",
+        "pixAyuda": "Opcional. Si la pones, agiliza la acreditación."
+      },
+      "pais": "¿En qué país está tu cuenta?",
+      "paisAyuda": "Elige el país y te pedimos exactamente los datos que ese banco necesita.",
+      "revisaCampos": "Revisa los datos de la cuenta: hay campos vacíos o mal escritos.",
+      "viaAch": "Llega por transferencia ACH, en 1 a 3 días hábiles.",
+      "viaWire": "Llega por transferencia internacional (wire). El banco intermediario puede cobrar una cuota.",
+      "opcional": "opcional"
     },
     "pedido": {
       "volver": "Volver a Órdenes",
@@ -1374,6 +1419,22 @@
       "titulo": "Qué le fue pasando",
       "por": "por {quien}",
       "porElSistema": "automático"
+    },
+    "verComo": {
+      "estasViendo": "Estás viendo el panel de {comercio}",
+      "soloVer": "solo mirar, no puedes tocar su dinero",
+      "salir": "Salir de este modo",
+      "entrar": "Ver su panel",
+      "entrarAyuda": "Ver el panel tal como lo ve {comercio}"
+    },
+    "desglose": {
+      "titulo": "De dónde sale tu dinero",
+      "bajada": "Lo que pagaron tus compradores, y qué se descontó antes de llegar a ti.",
+      "bruto": "Lo que pagaron tus compradores",
+      "procesador": "Procesamiento de tarjeta (Stripe)",
+      "mercatren": "Comisión de Mercatren (3 %)",
+      "tuyo": "Tu dinero",
+      "porQueZelle": "El costo de procesamiento solo se aplica a lo cobrado con tarjeta. Por Zelle no interviene ningún procesador."
     }
   },
   "catalogo": {

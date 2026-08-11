@@ -129,6 +129,14 @@ export type PosicionBilletera = {
   /** Lo que Mercatren se ha ganado con este comercio. */
   comisionGanadaCentavos: number;
   /**
+   * Lo cobrado por cada vía, en bruto. Hace falta para poder enseñarle al
+   * comercio **cuánto se llevó el procesador y cuánto Mercatren, por
+   * separado**: por Zelle no interviene ningún procesador, así que sin saber
+   * qué parte entró por dónde el desglose sería un invento.
+   */
+  brutoTarjetaCentavos: number;
+  brutoZelleCentavos: number;
+  /**
    * Hasta qué día llegan los datos que tenemos.
    *
    * Hace falta a la vista: el histórico se trajo de una exportación con fecha,
@@ -282,6 +290,16 @@ export async function obtenerPosicion(
     .from(retiros)
     .where(eq(retiros.tiendaId, tiendaId));
 
+  /* Lo cobrado por Zelle en bruto, para el desglose de arriba. El neto ya se
+     calcula aparte; aquí hace falta el bruto, que es sobre lo que se aplican
+     los porcentajes. */
+  const [brutoZelle] = await db
+    .select({
+      total: sql<number>`COALESCE(SUM(CASE WHEN ${ENTRADA_APROBADA} THEN ${pagosZelle.montoCentavos} ELSE 0 END), 0)`,
+    })
+    .from(pagosZelle)
+    .where(eq(pagosZelle.tiendaId, tiendaId));
+
   const netoTarjeta =
     Number(tarjeta?.bruto ?? 0) - Number(tarjeta?.comision ?? 0);
 
@@ -313,6 +331,8 @@ export async function obtenerPosicion(
     },
     comisionGanadaCentavos:
       Number(datos?.comisionGanada ?? 0) + Number(tarjeta?.comision ?? 0),
+    brutoTarjetaCentavos: Number(tarjeta?.bruto ?? 0),
+    brutoZelleCentavos: Number(brutoZelle?.total ?? 0),
     ultimoMovimiento: ultimaFecha(
       datos?.ultimo ? Number(datos.ultimo) * 1000 : null,
       fechaEnMilisegundos(tarjeta?.ultimo ?? null),

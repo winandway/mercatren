@@ -932,7 +932,7 @@
       "faltaTelefono": "Enter a contact phone number.",
       "faltaDireccion": "Enter the company address.",
       "faltaCiudad": "Enter the city.",
-      "faltaPais": "Enter the country.",
+      "faltaPais": "Choose the account's country.",
       "yaTienesComercio": "This account already has a store registered.",
       "comercioEnRevision": "Done. Your store is registered and the Mercatren team will review it.",
       "comercioAprobado": "Store approved. They can start selling.",
@@ -990,7 +990,9 @@
         "sin_cambios": "Stripe hasn't confirmed the charge yet. Try again in a little while.",
         "no_aplica": "This order has no pending card charge to check.",
         "no_se_pudo": "Stripe couldn't be reached right now. Try again."
-      }
+      },
+      "revisaCampos": "Check the account details: some fields are empty or malformed.",
+      "soloMirando": "You're viewing a merchant's panel. Leave that mode first to request a withdrawal."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1072,9 +1074,7 @@
         "ach": "ACH transfer",
         "achAyuda": "To your U.S. bank account. Arrives in 1 to 3 business days.",
         "wire": "Wire transfer",
-        "wireAyuda": "Same day, for larger amounts. Your bank may apply a charge.",
-        "zelle": "Zelle",
-        "zelleAyuda": "Fastest option, up to $500. Arrives the same day."
+        "wireAyuda": "Same day, for larger amounts. Your bank may apply a charge."
       },
       "aQuienComercio": "Which merchant?",
       "eligeComercio": "Choose a merchant",
@@ -1114,7 +1114,52 @@
       "zelleDestinoAyuda": "The same one you have enrolled with your bank for Zelle. If it's typed wrong, the money goes to someone else and can't be recovered.",
       "zelleTope": "Zelle payouts go up to {tope}",
       "zelleTopePorQue": "That's the limit our bank sets for repeated payments to businesses. Above it we use ACH, which lands in one to two business days.",
-      "zelleUsarAch": "Switch to ACH"
+      "zelleUsarAch": "Switch to ACH",
+      "paises": {
+        "US": "United States",
+        "CO": "Colombia",
+        "VE": "Venezuela",
+        "MX": "Mexico",
+        "BR": "Brazil",
+        "AR": "Argentina",
+        "CL": "Chile",
+        "PE": "Peru",
+        "EC": "Ecuador",
+        "PA": "Panama",
+        "ES": "Spain",
+        "RO": "Romania"
+      },
+      "campos": {
+        "titular": "Account holder's name",
+        "banco": "Bank",
+        "cuenta": "Account number",
+        "tipoCuenta": "Account type",
+        "tipoCuentaAyuda": "Savings or checking, as your bank shows it.",
+        "documento": "Holder's ID number",
+        "documentoAyuda": "National ID, tax ID, CPF or NIT. The bank matches it against the name before crediting.",
+        "ruta": "Routing number",
+        "rutaAyuda": "Nine digits. It's on your check or in your bank's app.",
+        "clabe": "CLABE",
+        "clabeAyuda": "Eighteen digits. It's all that's needed to receive money in Mexico.",
+        "iban": "IBAN",
+        "ibanAyuda": "You can paste it with spaces, exactly as your bank gives it to you.",
+        "swift": "SWIFT / BIC code",
+        "swiftAyuda": "8 or 11 characters. Without it an international transfer can't go out.",
+        "cbu": "CBU",
+        "cbuAyuda": "Twenty-two digits. A CVU also works if you get paid to a wallet.",
+        "agencia": "Branch",
+        "cci": "CCI (interbank code)",
+        "cciAyuda": "Twenty digits. It's the one needed to receive from abroad.",
+        "cuentaVeAyuda": "Twenty digits, no spaces or dashes.",
+        "pix": "Pix key",
+        "pixAyuda": "Optional. Adding it speeds up crediting."
+      },
+      "pais": "What country is your account in?",
+      "paisAyuda": "Pick the country and we'll ask for exactly what that bank needs.",
+      "revisaCampos": "Check the account details: some fields are empty or malformed.",
+      "viaAch": "Sent by ACH transfer, arriving in 1 to 3 business days.",
+      "viaWire": "Sent by international wire. The intermediary bank may charge a fee.",
+      "opcional": "optional"
     },
     "pedido": {
       "volver": "Back to Orders",
@@ -1374,6 +1419,22 @@
       "titulo": "What happened along the way",
       "por": "by {quien}",
       "porElSistema": "automatic"
+    },
+    "verComo": {
+      "estasViendo": "You're viewing {comercio}'s panel",
+      "soloVer": "view only — you can't touch their money",
+      "salir": "Leave this mode",
+      "entrar": "View their panel",
+      "entrarAyuda": "See the panel exactly as {comercio} sees it"
+    },
+    "desglose": {
+      "titulo": "Where your money comes from",
+      "bajada": "What your buyers paid, and what was taken out before it reached you.",
+      "bruto": "What your buyers paid",
+      "procesador": "Card processing (Stripe)",
+      "mercatren": "Mercatren's fee (3%)",
+      "tuyo": "Your money",
+      "porQueZelle": "Processing costs apply only to what was charged by card. Zelle involves no processor at all."
     }
   },
   "catalogo": {

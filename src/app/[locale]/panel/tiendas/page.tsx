@@ -1,7 +1,9 @@
 import { ArrowRight, Wallet } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { BotonVerComo } from "@/components/panel/ver-como";
 import { Link } from "@/i18n/navigation";
+import { obtenerUsuario } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { listarComercios } from "@/lib/zelle/consultas";
 
@@ -29,6 +31,9 @@ export default async function PaginaComercios({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.comercios");
+  /* Solo `soporte`, nunca `validador`: uno atiende comercios y el otro revisa
+     comprobantes. El servidor lo vuelve a comprobar en la acción. */
+  const esSoporte = (await obtenerUsuario())?.rol === "soporte";
   const comercios = await listarComercios();
 
   return (
@@ -88,6 +93,14 @@ export default async function PaginaComercios({
                     </dd>
                   </div>
                 </dl>
+
+                {/* «Ver su panel»: para responderle cuando manda una captura
+                    preguntando dónde se hace algo. Solo para Soporte. */}
+                {esSoporte ? (
+                  <div className="mt-4">
+                    <BotonVerComo tiendaId={c.id} nombre={c.nombre} />
+                  </div>
+                ) : null}
 
                 <div className="mt-auto flex gap-2 pt-4">
                   <Link

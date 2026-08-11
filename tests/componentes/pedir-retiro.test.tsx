@@ -6,26 +6,27 @@ import { describe, expect, it, vi } from "vitest";
 import es from "../../messages/es.json";
 
 /**
- * EL FORMULARIO DE COBRO DEL COMERCIO, con Zelle y su tope.
+ * EL FORMULARIO DE COBRO DEL COMERCIO, con su país.
  *
- * Se prueba el comportamiento real —elegir Zelle, escribir un monto, ver el
- * aviso— y no solo que el texto exista en algún archivo. El tope es lo que
- * protege la cuenta del banco de Windoce, LLC, de donde cobran todos los
- * comercios: si el aviso deja de salir, la gente intenta montos que el
- * servidor va a rechazar y abandona a mitad de camino.
+ * ══ LO QUE MOTIVÓ ESTAS PRUEBAS (10 ago 2026) ══
  *
- * La acción del servidor se sustituye: aquí se prueba la pantalla, no la
- * base de datos. El rechazo de verdad vive en `pedirRetiro` y tiene su
- * propia prueba en `tests/unit/retiro-zelle.test.ts`.
+ * El formulario se escribió cuando el único destino era Estados Unidos:
+ * titular, banco, cuenta y **número de ruta**. Un comercio de Colombia entró,
+ * eligió «wire», y no encontró dónde poner su Bancolombia. Se quedó bloqueado
+ * una tarde entera mientras del otro lado nadie sabía qué contestarle.
+ *
+ * Se prueba el comportamiento real —elegir el país, ver cambiar las casillas—
+ * y no solo que un texto exista en un archivo.
+ *
+ * La acción del servidor se sustituye: aquí se prueba la pantalla. La
+ * validación de verdad vive en `pedirRetiro` y se apoya en las reglas puras de
+ * `src/lib/retiros/paises.ts`, que tienen sus propias pruebas.
  */
 vi.mock("@/lib/retiros/acciones", () => ({
   pedirRetiro: vi.fn(async () => ({ ok: false, mensaje: "" })),
 }));
 
 const { PedirRetiro } = await import("@/components/panel/retiros/pedir-retiro");
-
-/** El aviso de verdad, no el texto de ayuda de la opción Zelle. */
-const AVISO_DEL_TOPE = /Por Zelle se puede enviar hasta/i;
 
 function montar() {
   return render(
@@ -47,64 +48,127 @@ async function abrirFormulario() {
   return usuario;
 }
 
+/** Las casillas del país se dibujan con su id, no con `name`. */
+const casilla = (id: string) => document.getElementById(id);
+
 describe("pedir el cobro", () => {
-  it("ofrece las cuatro formas, incluida Zelle", async () => {
+  it("ofrece tres formas, y Zelle NO es una de ellas", async () => {
+    /* Mercury no hace Zelle: solo ACH dentro de Estados Unidos y wire para
+       afuera. Mientras estuvo en la lista, un comercio podía pedirlo y quien
+       iba al banco no lo podía ejecutar. */
     await abrirFormulario();
 
-    for (const forma of ["comercio", "zelle", "ach", "wire"]) {
+    for (const forma of ["comercio", "ach", "wire"]) {
       expect(
         document.querySelector(`input[name="forma"][value="${forma}"]`),
         `falta la forma ${forma}`,
       ).not.toBeNull();
     }
-  });
 
-  it("al elegir Zelle pide el correo, no la cuenta ni la ruta", async () => {
-    const usuario = await abrirFormulario();
-    await usuario.click(
-      document.querySelector('input[value="zelle"]') as HTMLElement,
-    );
-
-    expect(document.querySelector('input[name="zelleDestino"]')).not.toBeNull();
-    // Pedirle la ruta ACH a quien cobra por Zelle no tiene sentido.
-    expect(document.querySelector('input[name="ruta"]')).toBeNull();
-    expect(document.querySelector('input[name="cuenta"]')).toBeNull();
-  });
-
-  it("avisa del tope mientras escribe, no al enviar", async () => {
-    const usuario = await abrirFormulario();
-    await usuario.click(
-      document.querySelector('input[value="zelle"]') as HTMLElement,
-    );
-
-    const monto = screen.getByPlaceholderText("0.00");
-    await usuario.type(monto, "600");
-
-    // El texto del AVISO, no el de ayuda de la opción — que también dice
-    // "hasta $500" y haría pasar la prueba sin que el aviso exista.
-    expect(screen.getByText(AVISO_DEL_TOPE)).toBeInTheDocument();
-    // Y ofrece la salida, en vez de dejar a la persona atascada.
     expect(
-      screen.getByRole("button", { name: /cambiar a ach/i }),
-    ).toBeInTheDocument();
+      document.querySelector('input[name="forma"][value="zelle"]'),
+    ).toBeNull();
+  });
+});
+
+describe("el país decide qué se pregunta", () => {
+  it("arranca en Estados Unidos y pide el número de ruta", async () => {
+    await abrirFormulario();
+
+    expect(casilla("ruta")).not.toBeNull();
+    // Allá no hace falta el documento del titular.
+    expect(casilla("documento")).toBeNull();
   });
 
-  it("justo en el tope no avisa nada", async () => {
+  it("al elegir Colombia desaparece la ruta y aparece lo que sí pide", async () => {
+    /* Esta es LA prueba: es exactamente lo que el comercio no pudo hacer. */
     const usuario = await abrirFormulario();
-    await usuario.click(
-      document.querySelector('input[value="zelle"]') as HTMLElement,
+
+    await usuario.selectOptions(screen.getByLabelText(/país/i), "CO");
+
+    expect(casilla("tipoCuenta")).not.toBeNull();
+    expect(casilla("documento")).not.toBeNull();
+    expect(casilla("swift")).not.toBeNull();
+    expect(casilla("ruta")).toBeNull();
+  });
+
+  it("México pide CLABE", async () => {
+    const usuario = await abrirFormulario();
+    await usuario.selectOptions(screen.getByLabelText(/país/i), "MX");
+
+    expect(casilla("clabe")).not.toBeNull();
+    expect(casilla("ruta")).toBeNull();
+  });
+
+  it("España y Rumanía piden IBAN", async () => {
+    const usuario = await abrirFormulario();
+
+    for (const codigo of ["ES", "RO"]) {
+      await usuario.selectOptions(screen.getByLabelText(/país/i), codigo);
+      expect(casilla("iban"), `falta el IBAN en ${codigo}`).not.toBeNull();
+    }
+  });
+
+  it("los doce países están en la lista", async () => {
+    await abrirFormulario();
+
+    const opciones = Array.from(
+      (screen.getByLabelText(/país/i) as unknown as HTMLSelectElement).options,
+    ).map((o) => o.value);
+
+    expect(opciones).toHaveLength(12);
+    for (const c of ["US", "CO", "VE", "MX", "BR", "AR", "ES", "RO"]) {
+      expect(opciones).toContain(c);
+    }
+  });
+
+  it("cambiar de país borra lo escrito", async () => {
+    /* Arrastrar una CLABE al formulario de Colombia solo confunde a quien
+       después va al banco con esos datos en la mano. */
+    const usuario = await abrirFormulario();
+
+    await usuario.selectOptions(screen.getByLabelText(/país/i), "MX");
+    await usuario.type(casilla("clabe") as HTMLElement, "012345678901234567");
+    expect((casilla("clabe") as HTMLInputElement).value).toBe(
+      "012345678901234567",
     );
 
-    await usuario.type(screen.getByPlaceholderText("0.00"), "500");
+    await usuario.selectOptions(screen.getByLabelText(/país/i), "CO");
+    await usuario.selectOptions(screen.getByLabelText(/país/i), "MX");
 
-    expect(screen.queryByText(AVISO_DEL_TOPE)).not.toBeInTheDocument();
+    expect((casilla("clabe") as HTMLInputElement).value).toBe("");
   });
 
-  it("el tope NO limita las otras formas de cobrar", async () => {
+  it("dice por qué vía va a salir el dinero", async () => {
+    /* Se busca la frase exacta del aviso del país, no un "wire" suelto: la
+       opción de la forma de pago también dice "wire" y haría pasar la prueba
+       sin que el aviso exista. */
     const usuario = await abrirFormulario();
-    // ACH viene elegido de fábrica; un monto grande no debe avisar nada.
-    await usuario.type(screen.getByPlaceholderText("0.00"), "5000");
 
-    expect(screen.queryByText(AVISO_DEL_TOPE)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(es.panel.retiros.viaAch),
+      "falta el aviso de que Estados Unidos va por ACH",
+    ).toBeInTheDocument();
+
+    await usuario.selectOptions(screen.getByLabelText(/país/i), "CO");
+
+    expect(
+      screen.getByText(es.panel.retiros.viaWire),
+      "falta el aviso de que Colombia va por wire",
+    ).toBeInTheDocument();
+    expect(screen.queryByText(es.panel.retiros.viaAch)).not.toBeInTheDocument();
+  });
+});
+
+describe("el traspaso entre comercios no pide banco", () => {
+  it("al elegirlo desaparecen las casillas bancarias", async () => {
+    const usuario = await abrirFormulario();
+
+    await usuario.click(
+      document.querySelector('input[value="comercio"]') as HTMLElement,
+    );
+
+    expect(casilla("ruta")).toBeNull();
+    expect(screen.queryByLabelText(/país/i)).not.toBeInTheDocument();
   });
 });

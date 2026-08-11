@@ -8,6 +8,7 @@ import { comercioEfectivo, type Alcance } from "@/lib/alcance";
 import { getAuth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { tiendas, type Rol } from "@/lib/db/schema";
+import { comercioObservado } from "@/lib/soporte/ver-como";
 
 export { comercioEfectivo, type Alcance };
 
@@ -68,6 +69,20 @@ export const obtenerAlcance = cache(async (): Promise<Alcance> => {
   }
 
   if (ROLES_INTERNOS.includes(rol)) {
+    /**
+     * «VER COMO ESTE COMERCIO»: Soporte mira el panel con los ojos de un
+     * comercio, para poder responderle cuando manda una captura preguntando
+     * dónde se hace algo.
+     *
+     * Solo `soporte`, nunca `validador`: uno atiende comercios y el otro
+     * revisa comprobantes. Y **solo para VER** — las acciones que mueven
+     * dinero comprueban el rol real de la sesión, no este alcance prestado.
+     */
+    if (rol === "soporte") {
+      const observado = await comercioObservado();
+      if (observado) return { tipo: "tienda", rol, tiendaId: observado };
+    }
+
     return { tipo: "todos", rol };
   }
 
@@ -87,6 +102,18 @@ export const obtenerAlcance = cache(async (): Promise<Alcance> => {
 
   return { tipo: "tienda", rol, tiendaId: tienda.id };
 });
+
+/**
+ * El alcance REAL de la sesión, sin «ver como».
+ *
+ * Lo usan las acciones que mueven dinero: mirar el panel de un comercio es una
+ * cosa, y pedir un retiro en su nombre es otra. Si `obtenerAlcance` fuera lo
+ * único que existe, cualquier acción heredaría el disfraz.
+ */
+export async function esSoporteDeVerdad() {
+  const usuario = await obtenerUsuario();
+  return usuario?.rol === "soporte";
+}
 
 /** Corta si quien pregunta no es del equipo de Mercatren. */
 export async function exigirEquipoInterno() {

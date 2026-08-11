@@ -857,6 +857,66 @@ checkout, la pantalla del cliente con su avance, y los avisos de vencimiento.
 Hoy el comercio ya puede dar, cambiar, suspender y quitar cupos, y ver lo que
 le deben.
 
+## Sacar el dinero desde cualquier país (10 ago 2026)
+
+Un comercio de Colombia entró a pedir su dinero, eligió «wire», y **no encontró
+dónde poner su Bancolombia**: el formulario solo tenía titular, banco, cuenta y
+**número de ruta**, que existe únicamente en Estados Unidos. La pantalla hasta
+le decía que solo se transfiere a bancos de allá. Se quedó bloqueado una tarde
+entera mientras del otro lado nadie sabía qué contestarle.
+
+**El país va primero y decide todo lo demás.** `src/lib/retiros/paises.ts`
+declara los doce países con los campos de cada uno, y el formulario dibuja solo
+esos: CLABE en México, IBAN en España y Rumanía, tipo de cuenta y documento en
+Colombia, CBU en Argentina, agencia y CPF en Brasil (con el Pix opcional).
+
+- **Un formulario con todos los campos NO habría servido**, porque quien lo
+  llena no sabe cuáles le tocan. Un mexicano no tiene número de ruta y un
+  estadounidense no tiene CLABE; enseñar los dos y dejar que adivine es como se
+  manda una transferencia a una cuenta mal escrita.
+- **Se valida en serio** (21 pruebas): una CLABE son 18 dígitos, un CBU 22, un
+  routing 9. Un wire mal dirigido no rebota al día siguiente — se queda dando
+  vueltas entre bancos y puede tardar semanas.
+- **Los espacios y guiones NO son un error.** Un IBAN se copia en grupos de
+  cuatro. Rechazar un dato bueno es el error más caro: el comercio ya vendió y
+  no puede cobrar. Se limpian al guardar, porque lo guardado es lo que alguien
+  copia y pega en Mercury.
+- **Al cambiar de país se borra lo escrito**: arrastrar una CLABE al formulario
+  de Colombia solo confunde a quien después va al banco.
+
+**ZELLE DEJÓ DE SER UNA FORMA DE RETIRO, y no fue un recorte.** El dinero sale
+de la cuenta de Mercury, y **Mercury no hace Zelle**: solo ACH dentro de
+Estados Unidos y wire para afuera. Mientras estuvo en la lista, un comercio
+podía pedirlo y quien iba al banco no lo podía ejecutar.
+
+**El desglose de los dos fees** (`src/lib/retiros/desglose.ts`, 12 pruebas) sale
+arriba del formulario: lo que pagaron los compradores, lo que se llevó Stripe,
+lo que se llevó Mercatren y lo que le queda. **Son dos costos de dos dueños
+distintos** — juntarlos en un renglón que diga «comisiones» hace que el comercio
+nos atribuya los dos. Los tres renglones suman el bruto exacto, siempre: un
+centavo que no cuadra en una pantalla de dinero rompe la confianza en todo.
+
+## Ver el panel como lo ve un comercio (10 ago 2026)
+
+Un comercio manda una captura y pregunta «¿aquí es donde cargo lo de Colombia?»,
+y quien atiende **no sabe qué está mirando**: el panel del equipo enseña otras
+secciones y otros botones. Se le termina respondiendo a suposición a alguien que
+está esperando su dinero.
+
+En **Comercios**, Soporte pulsa «Ver su panel» y navega el panel entero con el
+alcance de ese comercio. Tres candados:
+
+1. **Solo el rol `soporte`**, comprobado en el servidor y no solo en el botón.
+2. **Solo mirar.** `pedirRetiro` se niega mientras el modo está puesto: el
+   alcance prestado no puede mover dinero de nadie.
+3. **Una franja amarilla permanente arriba**, que no se puede cerrar. Lo
+   peligroso no es entrar, es **olvidar que estás dentro**: quien mira una
+   billetera con $24.283 creyendo que es la suya decide sobre datos que no son.
+
+Va en una cookie y no en `?comercio=` porque tiene que sobrevivir a la
+navegación — la gracia es recorrer el panel entero, y un parámetro se pierde en
+el primer enlace que no lo arrastre.
+
 ## Los cuatro huecos que quedaban en los cobros (10 ago 2026 · Fases 2–5)
 
 El plan entero está en `PLAN-PAGOS.md`. Lo que hay que saber al tocar esto:

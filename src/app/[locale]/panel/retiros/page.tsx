@@ -2,6 +2,7 @@ import { Building2, Landmark, Store, Zap } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AccionesRetiro } from "@/components/panel/retiros/acciones-retiro";
+import { DesgloseDelCobro } from "@/components/panel/desglose-cobro";
 import { PedirRetiro } from "@/components/panel/retiros/pedir-retiro";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -104,6 +105,17 @@ export default async function PaginaRetiros({
               </dd>
             </div>
           </dl>
+
+          {/* DE DÓNDE SALE CADA DÓLAR, justo antes de pedirlo. La pregunta
+              nace mirando el saldo, así que la respuesta va aquí y no en una
+              página de ayuda que nadie abre. */}
+          <div className="mb-5">
+            <DesgloseDelCobro
+              brutoTarjetaCentavos={posicion.brutoTarjetaCentavos}
+              brutoZelleCentavos={posicion.brutoZelleCentavos}
+              idioma={idioma}
+            />
+          </div>
 
           <PedirRetiro
             disponibleCentavos={posicion.disponibleCentavos}
