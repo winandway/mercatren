@@ -355,7 +355,8 @@
       "miNegocio": "My business",
       "equipo": "Mercatren team",
       "cobros": "Payments in",
-      "billeteraComercio": "My money"
+      "billeteraComercio": "My money",
+      "ordenesCompraComercio": "My invoices to Mercatren"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -376,7 +377,11 @@
         "bruto": "Gross collected",
         "comision": "Mercatren markup",
         "retirado": "Withdrawn",
-        "rechazado": "Rejected"
+        "rechazado": "Rejected",
+        "mePagaron": "You were paid",
+        "comisionMia": "Mercatren fee",
+        "meQuedo": "You kept",
+        "saque": "You withdrew"
       },
       "comision": {
         "titulo": "Mercatren's markup",
@@ -399,19 +404,24 @@
         "recarga": "Payment credited",
         "compra": "Purchase",
         "reembolso": "Refund",
-        "ajuste": "Adjustment"
+        "ajuste": "Adjustment",
+        "retiroComercio": "Your withdrawal"
       },
       "columnas": {
         "fecha": "Date",
         "concepto": "Description",
         "monto": "Amount",
-        "saldo": "Outstanding after"
+        "saldo": "Outstanding after",
+        "saldoComercio": "Your balance after"
       },
       "datosHasta": "Data runs through {fecha}. Anything after that hasn't been imported from the previous system yet.",
       "tituloComercio": "My money",
       "subtituloComercio": "What you have sold and not withdrawn yet, and what we have already transferred to you.",
       "saldoComercio": "Available to withdraw",
-      "saldoAyudaComercio": "It is yours and it is sitting in the bank account waiting for you to ask for it. Every confirmed sale adds to it on its own."
+      "saldoAyudaComercio": "It is yours and it is sitting in the bank account waiting for you to ask for it. Every confirmed sale adds to it on its own.",
+      "acreditadoComercio": "Credited to you in total",
+      "yaRetiradoComercio": "Already withdrawn",
+      "avisoHistoricoComercio": "Your balance is not typed in by hand: it is everything credited to you minus everything you have withdrawn. Every confirmed sale adds to it on its own."
     },
     "comercios": {
       "titulo": "Merchants",
@@ -450,10 +460,19 @@
         "validar": "Receipts to review",
         "entregar": "Paid orders not delivered",
         "retiros": "Withdrawals to transfer",
-        "contracargos": "Open chargebacks"
+        "contracargos": "Open chargebacks",
+        "misComprobantes": "My payments under review",
+        "misEntregas": "Paid sales I need to ship",
+        "misRetiros": "My withdrawals in progress"
       },
       "archivo": "Archive from the previous system",
-      "archivoTexto": "{n} transactions for {monto}, already settled before starting here. Kept for reference; they do not count as today's sales."
+      "archivoTexto": "{n} transactions for {monto}, already settled before starting here. Kept for reference; they do not count as today's sales.",
+      "comision": "Mercatren fee",
+      "comisionPie": "Deducted from you this month",
+      "disponible": "Available to withdraw",
+      "disponiblePie": "Yours, waiting for you to ask",
+      "archivoTextoComercio": "{n} of your transactions for {monto}, from your previous store. They were settled there; kept here so your record stays complete.",
+      "subtituloComercio": "How your store is doing: what you sold, what you have coming, and what's left to do."
     },
     "enConstruccion": {
       "titulo": "Section being prepared",
@@ -480,7 +499,15 @@
         "bancos": "Originating banks",
         "bancosPie": "Detected on the receipts",
         "retiros": "Withdrawals",
-        "retirosPie": "Never counted"
+        "retirosPie": "Never counted",
+        "ingresosComercio": "What you were paid",
+        "ingresosPieComercio": "{n} confirmed payments",
+        "comisionComercio": "Mercatren fee",
+        "netoComercio": "What you kept",
+        "netoPieComercio": "After the fee",
+        "rechazadosPieComercio": "Never reached your wallet",
+        "comisionPieComercio": "3% of what you were paid",
+        "pendientesPieComercio": "{monto} waiting for us to review"
       },
       "noContabiliza": "Not counted",
       "cierre": {
@@ -496,7 +523,10 @@
         "total": "Total",
         "soloEntradas": "Approved inflows only. Withdrawals are left out.",
         "verTodo": "Show every period",
-        "verMenos": "Show less"
+        "verMenos": "Show less",
+        "montoComercio": "You were paid",
+        "comisionComercio": "Fee",
+        "netoComercio": "You kept"
       },
       "buscador": {
         "etiqueta": "Search payment",
@@ -1189,7 +1219,9 @@
       "revisaCampos": "Check the account details: some fields are empty or malformed.",
       "viaAch": "Sent by ACH transfer, arriving in 1 to 3 business days.",
       "viaWire": "Sent by international wire. The intermediary bank may charge a fee.",
-      "opcional": "optional"
+      "opcional": "optional",
+      "delSistemaAnterior": "Withdrawal from the previous system",
+      "sinFechaEnArchivo": "no date in the archive"
     },
     "pedido": {
       "volver": "Back to Orders",

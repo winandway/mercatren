@@ -95,16 +95,21 @@ export function Controles({
           {t("filtros.titulo")}
         </span>
 
-        <Selector
-          etiqueta={t("filtros.cuentaReceptora")}
-          valor={parametros.get("cuenta") ?? ""}
-          alCambiar={(v) => aplicar({ cuenta: v })}
-          opciones={cuentasReceptoras.map((c) => ({
-            valor: c.valor,
-            texto: `${c.valor} (${c.cantidad})`,
-          }))}
-          textoTodos={t("filtros.todas")}
-        />
+        {/* Sin opciones no se dibuja: un filtro vacío ocupa sitio y no filtra
+            nada. Al comercio no se le pasan, porque las cuentas que reciben
+            son NUESTRAS y filtrarlas es trabajo de conciliación del equipo. */}
+        {cuentasReceptoras.length > 0 ? (
+          <Selector
+            etiqueta={t("filtros.cuentaReceptora")}
+            valor={parametros.get("cuenta") ?? ""}
+            alCambiar={(v) => aplicar({ cuenta: v })}
+            opciones={cuentasReceptoras.map((c) => ({
+              valor: c.valor,
+              texto: `${c.valor} (${c.cantidad})`,
+            }))}
+            textoTodos={t("filtros.todas")}
+          />
+        ) : null}
 
         <Selector
           etiqueta={t("filtros.banco")}

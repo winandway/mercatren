@@ -70,7 +70,7 @@ export default async function PaginaCobrosTarjeta({
     }),
     /* Los contracargos los ve también el comercio: le afectan directamente al
        dinero que ya tiene acreditado. */
-    listarDisputas(),
+    listarDisputas(filtros.comercio),
   ]);
 
   return (

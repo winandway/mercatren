@@ -1,4 +1,4 @@
-import { Building2, Landmark, Store, Zap } from "lucide-react";
+import { Archive, Building2, Landmark, Store, Zap } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AccionesRetiro } from "@/components/panel/retiros/acciones-retiro";
@@ -35,6 +35,10 @@ const ICONO = {
   ach: Landmark,
   wire: Building2,
 } as const;
+
+/* Los del sistema anterior no guardaron por qué vía salieron, y no se inventa
+   una: llevan el icono de archivo, que dice lo que son. */
+const ICONO_HISTORICO = Archive;
 
 const TONO: Record<string, string> = {
   solicitado: "bg-carga-500/15 text-carga-700",
@@ -135,7 +139,7 @@ export default async function PaginaRetiros({
         ) : (
           <ul className="divide-y divide-slate-100">
             {enOrden.map((r) => {
-              const Icono = ICONO[r.forma];
+              const Icono = r.forma ? ICONO[r.forma] : ICONO_HISTORICO;
               const cuatro = ultimosCuatro(r.destino?.cuenta);
 
               return (
@@ -163,13 +167,20 @@ export default async function PaginaRetiros({
                     </p>
 
                     <p className="mt-0.5 text-sm text-tinta-suave">
-                      {t(`formas.${r.forma}`)}
+                      {r.forma
+                        ? t(`formas.${r.forma}`)
+                        : t("delSistemaAnterior")}
                       {r.destinoTienda ? ` · ${r.destinoTienda}` : ""}
                       {cuatro ? ` · ${t("aCuenta", { cuatro })}` : ""}
                     </p>
 
                     <p className="mt-0.5 text-xs text-tinta-suave">
-                      {fechaCorta(r.creadoEn, idioma)}
+                      {/* Sin fecha se dice que falta, no se pone una: un
+                          «31 dic 1969» hace dudar de todo lo demás, y la de
+                          importación mentiría diciendo que fue ese día. */}
+                      {r.creadoEn > 0
+                        ? fechaCorta(r.creadoEn, idioma)
+                        : t("sinFechaEnArchivo")}
                       {interno ? ` · ${r.nombreTienda}` : ""}
                       {r.referencia ? ` · ${r.referencia}` : ""}
                     </p>

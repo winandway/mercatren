@@ -5,6 +5,7 @@ import {
   PiggyBank,
   Store,
   TrendingUp,
+  Wallet,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -13,6 +14,7 @@ import { TarjetaMetrica } from "@/components/panel/tarjeta-metrica";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
+import { esEquipoInterno } from "@/lib/autorizacion";
 import { resumenDeHoy } from "@/lib/panel/hoy";
 import { primerosPasos } from "@/lib/tiendas/consultas";
 import { cn } from "@/lib/utils";
@@ -31,7 +33,12 @@ export default async function PaginaResumen({
 
   const t = await getTranslations("panel");
   const tz = await getTranslations("panel.zelle");
-  const [resumen, hoy] = await Promise.all([obtenerResumen(), resumenDeHoy()]);
+  const [resumen, hoy, interno] = await Promise.all([
+    obtenerResumen(),
+    resumenDeHoy(),
+    esEquipoInterno(),
+  ]);
+  const esComercio = !interno;
 
   /**
    * Un comercio recién dado de alta entra a un panel con todo en cero y sin
@@ -66,7 +73,7 @@ export default async function PaginaResumen({
           {t("resumen.titulo")}
         </h1>
         <p className="mt-1 text-sm text-tinta-suave">
-          {t("resumen.subtitulo")}
+          {t(esComercio ? "resumen.subtituloComercio" : "resumen.subtitulo")}
         </p>
       </header>
 
@@ -92,18 +99,42 @@ export default async function PaginaResumen({
           valor={formatearPrecio(hoy.mesCentavos, idioma, hoy.moneda)}
           pie={t("resumen.mesPie", { n: hoy.mesCantidad })}
         />
+        {/* LO QUE COBRA MERCATREN. Al comercio se le dice tal cual —es lo que
+            se le descontó, y esconderlo es lo que hace desconfiar—, pero desde
+            su lado: para él no es «nuestro margen», es su comisión. */}
         <TarjetaMetrica
           Icono={PiggyBank}
-          titulo={t("resumen.margen")}
+          titulo={t(esComercio ? "resumen.comision" : "resumen.margen")}
           valor={formatearPrecio(hoy.mesMargenCentavos, idioma, hoy.moneda)}
-          pie={t("resumen.margenPie")}
+          pie={t(esComercio ? "resumen.comisionPie" : "resumen.margenPie")}
         />
-        <TarjetaMetrica
-          Icono={Store}
-          titulo={tz("tarjetas.sellers")}
-          valor={String(resumen.sellers)}
-          pie={tz("tarjetas.sellersPie")}
-        />
+
+        {/**
+         * LA CUARTA TARJETA NO ES LA MISMA PARA LOS DOS.
+         *
+         * Al equipo le sirve saber cuántos comercios hay operando. A un
+         * comercio, «Comercios activos: 1» no le dice nada — y en cambio lo
+         * que sí quiere saber al entrar es cuánto tiene para sacar.
+         */}
+        {esComercio ? (
+          <TarjetaMetrica
+            Icono={Wallet}
+            titulo={t("resumen.disponible")}
+            valor={formatearPrecio(
+              hoy.disponibleCentavos ?? 0,
+              idioma,
+              hoy.moneda,
+            )}
+            pie={t("resumen.disponiblePie")}
+          />
+        ) : (
+          <TarjetaMetrica
+            Icono={Store}
+            titulo={tz("tarjetas.sellers")}
+            valor={String(resumen.sellers)}
+            pie={tz("tarjetas.sellersPie")}
+          />
+        )}
       </section>
 
       {/* LO QUE ESPERA A UNA PERSONA. Es la lista de tareas del día, y cada
@@ -115,19 +146,19 @@ export default async function PaginaResumen({
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {[
             {
-              clave: "validar",
+              clave: esComercio ? "misComprobantes" : "validar",
               n: hoy.porValidar,
               href: "/panel/validacion",
               alerta: true,
             },
             {
-              clave: "entregar",
+              clave: esComercio ? "misEntregas" : "entregar",
               n: hoy.porEntregar,
               href: "/panel/ordenes?estado=pagado",
               alerta: false,
             },
             {
-              clave: "retiros",
+              clave: esComercio ? "misRetiros" : "retiros",
               n: hoy.retirosPendientes,
               href: "/panel/retiros",
               alerta: true,
@@ -179,13 +210,18 @@ export default async function PaginaResumen({
         <section className="rounded-xl border border-borde bg-white p-5">
           <h2 className="text-sm font-bold">{t("resumen.archivo")}</h2>
           <p className="mt-1 max-w-2xl text-sm text-tinta-suave">
-            {t("resumen.archivoTexto", {
-              n: resumen.entradas.aprobados,
-              monto: formatearPrecio(
-                resumen.entradas.montoAprobadoCentavos,
-                idioma,
-              ),
-            })}
+            {t(
+              esComercio
+                ? "resumen.archivoTextoComercio"
+                : "resumen.archivoTexto",
+              {
+                n: resumen.entradas.aprobados,
+                monto: formatearPrecio(
+                  resumen.entradas.montoAprobadoCentavos,
+                  idioma,
+                ),
+              },
+            )}
           </p>
           {resumen.primerPago && resumen.ultimoPago ? (
             <p className="mt-1 text-xs text-tinta-suave">

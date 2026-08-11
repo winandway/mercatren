@@ -5,6 +5,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import {
+  pagosZelle,
   retiros,
   tiendas,
   type ESTADOS_RETIRO,
@@ -36,7 +37,8 @@ export type RetiroEnLista = {
   montoCentavos: number;
   moneda: string;
   estado: (typeof ESTADOS_RETIRO)[number];
-  forma: (typeof FORMAS_RETIRO)[number];
+  /** Null en los retiros del sistema anterior: de esos no se guardó la vía. */
+  forma: (typeof FORMAS_RETIRO)[number] | null;
   destino: Destino | null;
   destinoTienda: string | null;
   notaComercio: string | null;
@@ -44,6 +46,14 @@ export type RetiroEnLista = {
   referencia: string | null;
   creadoEn: number;
   resueltoEn: number | null;
+  /**
+   * VIENE DEL SISTEMA ANTERIOR.
+   *
+   * Se enseña, pero no se toca: no tiene botones ni se puede cancelar. Es un
+   * hecho ya ocurrido y pagado, traído para que la lista de retiros del
+   * comercio esté completa.
+   */
+  historico: boolean;
 };
 
 /**
@@ -63,6 +73,80 @@ export function ultimosCuatro(cuenta: string | undefined) {
   if (!cuenta) return null;
   const solo = cuenta.replace(/\D/g, "");
   return solo.length >= 4 ? solo.slice(-4) : null;
+}
+
+/**
+ * LOS RETIROS DEL SISTEMA ANTERIOR TAMBIÉN SON RETIROS.
+ *
+ * ══ LA CONTRADICCIÓN QUE HABÍA ══
+ *
+ * Los 70 retiros del histórico viven en `pagos_zelle` con `tipo = 'retiro'`,
+ * y esta pantalla solo leía la tabla `retiros`. Resultado: la billetera del
+ * comercio le RESTABA $302.859,50 en retiros y la pantalla de Retiros le decía
+ * «todavía no has pedido ningún retiro».
+ *
+ * Dos pantallas diciendo cosas distintas del mismo dinero es exactamente como
+ * un comercio deja de creerle al sistema. Aquí se juntan las dos fuentes.
+ *
+ * Vienen marcados y sin acciones: son hechos ya pagados, no una cola.
+ */
+async function retirosDelHistorico(
+  tiendaId: string,
+  limite: number,
+): Promise<RetiroEnLista[]> {
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      id: pagosZelle.id,
+      monto: pagosZelle.montoCentavos,
+      moneda: pagosZelle.moneda,
+      fecha: pagosZelle.fechaTransaccion,
+      nota: pagosZelle.notas,
+      codigo: pagosZelle.codigoConfirmacion,
+      nombreTienda: tiendas.nombre,
+    })
+    .from(pagosZelle)
+    .innerJoin(tiendas, eq(tiendas.id, pagosZelle.tiendaId))
+    .where(
+      and(
+        eq(pagosZelle.tiendaId, tiendaId),
+        eq(pagosZelle.tipo, "retiro"),
+        eq(pagosZelle.estado, "aprobado"),
+      ),
+    )
+    .orderBy(desc(pagosZelle.fechaTransaccion))
+    .limit(limite)
+    .catch(() => []);
+
+  return filas.map((f) => ({
+    id: f.id,
+    tiendaId,
+    nombreTienda: f.nombreTienda,
+    montoCentavos: Number(f.monto),
+    moneda: f.moneda,
+    /* Ya se pagaron: por eso el saldo los descuenta. */
+    estado: "pagado" as const,
+    /* No se guardó por qué vía salió, y no se inventa una. */
+    forma: null,
+    destino: null,
+    destinoTienda: null,
+    notaComercio: f.nota,
+    motivoRechazo: null,
+    referencia: f.codigo,
+    /**
+     * SIN FECHA SE QUEDA EN 0 Y LA PANTALLA NO DIBUJA NINGUNA.
+     *
+     * El archivo del sistema anterior trajo los 70 retiros SIN fecha de
+     * transacción. Se probó poner la fecha de importación como respaldo y es
+     * peor: los 70 salían con el mismo día, diciéndole al comercio que sacó
+     * todo su dinero en una sola tarde. Un dato que falta se dice; no se
+     * rellena con el que había a mano.
+     */
+    creadoEn: enMilisegundos(f.fecha) ?? 0,
+    resueltoEn: enMilisegundos(f.fecha),
+    historico: true,
+  }));
 }
 
 export async function listarRetiros(opciones?: {
@@ -118,7 +202,7 @@ export async function listarRetiros(opciones?: {
     for (const t of otras) nombres.set(t.id, t.nombre);
   }
 
-  return filas.map((f) => ({
+  const propios: RetiroEnLista[] = filas.map((f) => ({
     id: f.id,
     tiendaId: f.tiendaId,
     nombreTienda: f.nombreTienda,
@@ -135,7 +219,25 @@ export async function listarRetiros(opciones?: {
     referencia: f.referencia,
     creadoEn: enMilisegundos(f.creadoEn) ?? 0,
     resueltoEn: enMilisegundos(f.resueltoEn),
+    historico: false,
   }));
+
+  /**
+   * El histórico se suma SOLO cuando se está mirando un comercio concreto y no
+   * se está filtrando por estado.
+   *
+   * Filtrando —la cola de «solicitado» que trabaja el equipo— no pinta nada:
+   * son retiros ya pagados y llenarían de ruido una lista de pendientes.
+   */
+  if (alcance.tipo !== "tienda" || opciones?.estados?.length) return propios;
+
+  const viejos = await retirosDelHistorico(
+    alcance.tiendaId,
+    opciones?.limite ?? 100,
+  );
+  if (viejos.length === 0) return propios;
+
+  return [...propios, ...viejos].sort((a, b) => b.creadoEn - a.creadoEn);
 }
 
 /** Cuántos hay esperando a que alguien los pague. Para el aviso del menú. */

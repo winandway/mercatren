@@ -15,6 +15,7 @@ import { CierreVentas } from "@/components/panel/zelle/cierre-ventas";
 import { Controles } from "@/components/panel/zelle/controles";
 import { ListaPagos } from "@/components/panel/zelle/lista-pagos";
 import { Paginacion } from "@/components/panel/zelle/paginacion";
+import { esEquipoInterno } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 import {
@@ -50,6 +51,11 @@ export default async function PaginaPagosZelle({
 
   const filtros = await searchParams;
   const t = await getTranslations("panel.zelle");
+  /* La misma pantalla la miran dos personas distintas. Al equipo le importa
+     cuántos comercios y cuántos bancos hay; al comercio, cuánto le pagaron y
+     cuánto le quedó. Con un solo texto, uno de los dos lee algo que no habla
+     de él. */
+  const interno = await esEquipoInterno();
 
   const [resumen, opciones, cierreDia, cierreSemana, cierreMes, listado] =
     await Promise.all([
@@ -89,49 +95,72 @@ export default async function PaginaPagosZelle({
         <TarjetaMetrica
           tono="principal"
           Icono={TrendingUp}
-          titulo={t("tarjetas.ingresos")}
+          titulo={t(
+            interno ? "tarjetas.ingresos" : "tarjetas.ingresosComercio",
+          )}
           valor={formatearPrecio(entradas.montoAprobadoCentavos, idioma)}
-          pie={t("tarjetas.ingresosPie", { n: entradas.aprobados })}
+          pie={t(
+            interno ? "tarjetas.ingresosPie" : "tarjetas.ingresosPieComercio",
+            { n: entradas.aprobados },
+          )}
         />
         <TarjetaMetrica
           Icono={PiggyBank}
-          titulo={t("tarjetas.comision")}
+          titulo={t(
+            interno ? "tarjetas.comision" : "tarjetas.comisionComercio",
+          )}
           valor={formatearPrecio(entradas.comisionCentavos, idioma)}
-          pie={t("tarjetas.comisionPie")}
+          pie={t(
+            interno ? "tarjetas.comisionPie" : "tarjetas.comisionPieComercio",
+          )}
         />
         <TarjetaMetrica
           Icono={Wallet}
-          titulo={t("tarjetas.neto")}
+          titulo={t(interno ? "tarjetas.neto" : "tarjetas.netoComercio")}
           valor={formatearPrecio(entradas.netoCentavos, idioma)}
-          pie={t("tarjetas.netoPie")}
+          pie={t(interno ? "tarjetas.netoPie" : "tarjetas.netoPieComercio")}
         />
-        <TarjetaMetrica
-          Icono={Store}
-          titulo={t("tarjetas.sellers")}
-          valor={String(resumen.sellers)}
-          pie={t("tarjetas.sellersPie")}
-        />
+        {/* «Comercios activos: 1» no le dice nada a un comercio. */}
+        {interno ? (
+          <TarjetaMetrica
+            Icono={Store}
+            titulo={t("tarjetas.sellers")}
+            valor={String(resumen.sellers)}
+            pie={t("tarjetas.sellersPie")}
+          />
+        ) : null}
         <TarjetaMetrica
           tono={entradas.pendientes > 0 ? "alerta" : "neutro"}
           Icono={Clock}
           titulo={t("tarjetas.pendientes")}
           valor={String(entradas.pendientes)}
-          pie={t("tarjetas.pendientesPie", {
-            monto: formatearPrecio(entradas.montoPendienteCentavos, idioma),
-          })}
+          pie={t(
+            interno
+              ? "tarjetas.pendientesPie"
+              : "tarjetas.pendientesPieComercio",
+            {
+              monto: formatearPrecio(entradas.montoPendienteCentavos, idioma),
+            },
+          )}
         />
         <TarjetaMetrica
           Icono={Ban}
           titulo={t("tarjetas.rechazados")}
           valor={String(entradas.rechazados)}
-          pie={t("tarjetas.rechazadosPie")}
+          pie={t(
+            interno
+              ? "tarjetas.rechazadosPie"
+              : "tarjetas.rechazadosPieComercio",
+          )}
         />
-        <TarjetaMetrica
-          Icono={Landmark}
-          titulo={t("tarjetas.bancos")}
-          valor={String(resumen.bancos)}
-          pie={t("tarjetas.bancosPie")}
-        />
+        {interno ? (
+          <TarjetaMetrica
+            Icono={Landmark}
+            titulo={t("tarjetas.bancos")}
+            valor={String(resumen.bancos)}
+            pie={t("tarjetas.bancosPie")}
+          />
+        ) : null}
         <TarjetaMetrica
           tono="apagado"
           Icono={Building2}
@@ -144,10 +173,13 @@ export default async function PaginaPagosZelle({
 
       <CierreVentas
         cierres={{ dia: cierreDia, semana: cierreSemana, mes: cierreMes }}
+        interno={interno}
       />
 
+      {/* La cuenta que recibió es NUESTRA, no suya: filtrar por ella es
+          trabajo de conciliación del equipo. */}
       <Controles
-        cuentasReceptoras={opciones.cuentasReceptoras}
+        cuentasReceptoras={interno ? opciones.cuentasReceptoras : []}
         bancos={opciones.bancos}
       />
 

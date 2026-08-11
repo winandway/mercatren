@@ -212,15 +212,26 @@ export async function resumenDeTarjeta(
     .from(pagos)
     .where(sql`${pagos.metodo} = 'stripe' ${alcance}`);
 
-  /* Las disputas se cuentan aparte y SIN filtrar por comercio cuando quien
-     mira es el equipo: un contracargo es lo primero que hay que ver. */
+  /**
+   * LAS DISPUTAS TAMBIÉN PASAN POR EL ALCANCE.
+   *
+   * Un contracargo es de una venta concreta, y esa venta es de un comercio.
+   * Sin el filtro, a un comercio le saldrían los contracargos de otro —con su
+   * monto— en su propia pantalla. La primera versión de esta consulta los
+   * contaba todos: quedaba «tienes 1 contracargo» sobre una venta que no era
+   * suya.
+   */
+  const soloSuyas = tiendaId
+    ? sql`AND EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${disputas.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    : sql``;
+
   const [d] = await db
     .select({
       n: sql<number>`COUNT(*)`,
       monto: sql<number>`COALESCE(SUM(${disputas.montoCentavos}), 0)`,
     })
     .from(disputas)
-    .where(eq(disputas.estado, "abierta"))
+    .where(sql`${disputas.estado} = 'abierta' ${soloSuyas}`)
     .catch(() => [{ n: 0, monto: 0 }]);
 
   return {
@@ -252,8 +263,17 @@ export type DisputaVista = {
  * había que sospechar primero. Un contracargo es dinero que YA salió de la
  * cuenta: tiene que verse sin buscarlo.
  */
-export async function listarDisputas(): Promise<DisputaVista[]> {
+export async function listarDisputas(
+  comercio?: string,
+): Promise<DisputaVista[]> {
   const db = getDb();
+  const tiendaId = await tiendaDelAlcance(comercio);
+
+  /* El mismo candado que en el resumen: un comercio ve los contracargos de
+     SUS ventas y de ninguna otra. */
+  const soloSuyas = tiendaId
+    ? sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${disputas.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    : undefined;
 
   return db
     .select({
@@ -268,6 +288,7 @@ export async function listarDisputas(): Promise<DisputaVista[]> {
     })
     .from(disputas)
     .leftJoin(pedidos, eq(pedidos.id, disputas.pedidoId))
+    .where(soloSuyas)
     .orderBy(desc(disputas.creadoEn))
     .limit(50)
     .catch(() => []);

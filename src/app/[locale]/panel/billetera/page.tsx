@@ -58,20 +58,47 @@ export default async function PaginaBilletera({
   const dinero = (centavos: number) =>
     formatearPrecio(centavos, idioma, moneda);
 
-  const delMes = [
-    { clave: "bruto", valor: posicion.mes.brutoCentavos, tono: "" },
-    {
-      clave: "comision",
-      valor: posicion.mes.comisionCentavos,
-      tono: "text-precio-600",
-    },
-    {
-      clave: "retirado",
-      valor: posicion.mes.retiradoCentavos,
-      tono: "text-red-700",
-    },
-    { clave: "rechazado", valor: posicion.mes.rechazadoCentavos, tono: "" },
-  ];
+  /**
+   * EL MES, CONTADO DESDE CADA LADO.
+   *
+   * Al equipo le sirve bruto → margen → retirado. Al comercio le falta
+   * justo el número que va a buscar: **lo que le quedó a él**. Enseñarle el
+   * bruto y la comisión y dejar que reste es hacerle sacar la cuenta a mano
+   * cada vez, que es como aparece la duda de si el descuento está bien.
+   */
+  const delMes = interno
+    ? [
+        { clave: "bruto", valor: posicion.mes.brutoCentavos, tono: "" },
+        {
+          clave: "comision",
+          valor: posicion.mes.comisionCentavos,
+          tono: "text-precio-600",
+        },
+        {
+          clave: "retirado",
+          valor: posicion.mes.retiradoCentavos,
+          tono: "text-red-700",
+        },
+        { clave: "rechazado", valor: posicion.mes.rechazadoCentavos, tono: "" },
+      ]
+    : [
+        { clave: "mePagaron", valor: posicion.mes.brutoCentavos, tono: "" },
+        {
+          clave: "comisionMia",
+          valor: posicion.mes.comisionCentavos,
+          tono: "text-red-700",
+        },
+        {
+          clave: "meQuedo",
+          valor: posicion.mes.brutoCentavos - posicion.mes.comisionCentavos,
+          tono: "text-precio-600",
+        },
+        {
+          clave: "saque",
+          valor: posicion.mes.retiradoCentavos,
+          tono: "",
+        },
+      ];
 
   return (
     <div className="space-y-6">
@@ -138,7 +165,7 @@ export default async function PaginaBilletera({
           <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
               <ArrowDownLeft className="h-3.5 w-3.5" aria-hidden />
-              {t("acreditado")}
+              {t(interno ? "acreditado" : "acreditadoComercio")}
             </p>
             <p className="mt-1 text-xl font-bold tabular-nums">
               {dinero(posicion.netoHistoricoCentavos)}
@@ -148,7 +175,7 @@ export default async function PaginaBilletera({
           <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
-              {t("yaRetirado")}
+              {t(interno ? "yaRetirado" : "yaRetiradoComercio")}
             </p>
             <p className="mt-1 text-xl font-bold tabular-nums">
               {dinero(posicion.retiradoCentavos)}
@@ -254,7 +281,7 @@ export default async function PaginaBilletera({
       ) : null}
 
       <p className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-tinta-suave">
-        {t("avisoHistorico")}
+        {t(interno ? "avisoHistorico" : "avisoHistoricoComercio")}
       </p>
 
       {/* El historial. */}
@@ -282,7 +309,7 @@ export default async function PaginaBilletera({
                     {t("columnas.monto")}
                   </th>
                   <th className="px-4 py-2 text-right font-medium">
-                    {t("columnas.saldo")}
+                    {t(interno ? "columnas.saldo" : "columnas.saldoComercio")}
                   </th>
                 </tr>
               </thead>
@@ -294,7 +321,13 @@ export default async function PaginaBilletera({
                     </td>
                     <td className="px-4 py-2.5">
                       <span className="font-medium">
-                        {t(`tipos.${m.tipo}`)}
+                        {/* «Retiro del comercio» lo dice quien mira desde
+                            fuera; para él es SU retiro. */}
+                        {t(
+                          !interno && m.tipo === "retiro"
+                            ? "tipos.retiroComercio"
+                            : `tipos.${m.tipo}`,
+                        )}
                       </span>
                       {m.concepto ? (
                         <span className="block truncate text-xs text-tinta-suave">

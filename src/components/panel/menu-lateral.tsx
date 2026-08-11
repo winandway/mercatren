@@ -184,12 +184,16 @@ export function MenuLateral({
                      son cosas distintas: el comercio no valida nada —solo ve
                      en qué va lo suyo— y la billetera, que para el equipo es
                      lo que hay POR PAGAR, para él es SU dinero. */
+                  const PARA_EL_COMERCIO: Record<string, string> = {
+                    validacion: "validacionComercio",
+                    billetera: "billeteraComercio",
+                    /* No es «una orden de compra» abstracta: es donde nos
+                       factura lo que le compramos. Así sabe qué va a hacer
+                       ahí sin tener que entrar a averiguarlo. */
+                    ordenesCompra: "ordenesCompraComercio",
+                  };
                   const etiqueta = !esInterno
-                    ? clave === "validacion"
-                      ? "validacionComercio"
-                      : clave === "billetera"
-                        ? "billeteraComercio"
-                        : clave
+                    ? (PARA_EL_COMERCIO[clave] ?? clave)
                     : clave;
                   /* Coincidencia por tramo completo, no por prefijo de texto:
                      con `startsWith` a secas, «/panel/ordenes-compra» dejaba

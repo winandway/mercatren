@@ -4,6 +4,7 @@ import { and, eq, gte, sql, type SQL } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { obtenerPosicion } from "@/lib/zelle/billetera";
 import {
   disputas,
   itemsPedido,
@@ -45,6 +46,11 @@ export type ResumenDeHoy = {
   retirosPendientes: number;
   contracargos: number;
   moneda: string;
+  /**
+   * Lo que el comercio tiene a su favor ahora mismo. Null para el equipo: no
+   * es «un» saldo, son los de todos los comercios y se miran en la billetera.
+   */
+  disponibleCentavos: number | null;
 };
 
 /** Los estados en los que un pedido ya se cobró pero todavía no llegó. */
@@ -143,10 +149,21 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     )
     .catch(() => [{ n: 0 }]);
 
+  /* Su saldo, para que la pregunta «¿cuánto tengo?» se conteste en la primera
+     pantalla y no obligue a entrar a la billetera. */
+  const posicion = tiendaId ? await obtenerPosicion().catch(() => null) : null;
+
+  /* Los contracargos también pasan por el alcance: un contracargo pertenece a
+     una venta, y esa venta es de un comercio. Sin el filtro, a uno le saldría
+     el contracargo de otro en su propia pantalla de entrada. */
+  const disputasSuyas = tiendaId
+    ? sql`AND EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${disputas.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    : sql``;
+
   const [enDisputa] = await db
     .select({ n: sql<number>`COUNT(*)` })
     .from(disputas)
-    .where(eq(disputas.estado, "abierta"))
+    .where(sql`${disputas.estado} = 'abierta' ${disputasSuyas}`)
     .catch(() => [{ n: 0 }]);
 
   return {
@@ -161,5 +178,6 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     contracargos: Number(enDisputa?.n ?? 0),
     /* Todo se cobra en dólares: es la moneda del cobro, no la del comercio. */
     moneda: "USD",
+    disponibleCentavos: posicion ? posicion.disponibleCentavos : null,
   };
 }

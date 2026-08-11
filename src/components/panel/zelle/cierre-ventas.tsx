@@ -22,8 +22,12 @@ const VISIBLES = 6;
  */
 export function CierreVentas({
   cierres,
+  interno = true,
 }: {
   cierres: Record<Periodo, FilaCierre[]>;
+  /** El equipo lee «ingresos / margen / neto»; el comercio, «te pagaron / la
+      comisión / te quedó». Es la misma tabla contada desde cada lado. */
+  interno?: boolean;
 }) {
   const t = useTranslations("panel.zelle.cierre");
   const idioma = useLocale() as Idioma;
@@ -87,11 +91,15 @@ export function CierreVentas({
             <tr className="text-left text-xs text-tinta-suave">
               <th className="px-4 py-2 font-medium">{t("periodo")}</th>
               <th className="px-4 py-2 text-right font-medium">{t("pagos")}</th>
-              <th className="px-4 py-2 text-right font-medium">{t("monto")}</th>
               <th className="px-4 py-2 text-right font-medium">
-                {t("comision")}
+                {t(interno ? "monto" : "montoComercio")}
               </th>
-              <th className="px-4 py-2 text-right font-medium">{t("neto")}</th>
+              <th className="px-4 py-2 text-right font-medium">
+                {t(interno ? "comision" : "comisionComercio")}
+              </th>
+              <th className="px-4 py-2 text-right font-medium">
+                {t(interno ? "neto" : "netoComercio")}
+              </th>
             </tr>
           </thead>
           <tbody>

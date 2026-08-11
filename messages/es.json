@@ -355,7 +355,8 @@
       "miNegocio": "Mi negocio",
       "equipo": "Equipo Mercatren",
       "cobros": "Cobros",
-      "billeteraComercio": "Mi dinero"
+      "billeteraComercio": "Mi dinero",
+      "ordenesCompraComercio": "Mis facturas a Mercatren"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -376,7 +377,11 @@
         "bruto": "Bruto cobrado",
         "comision": "Margen de Mercatren",
         "retirado": "Retirado",
-        "rechazado": "Rechazado"
+        "rechazado": "Rechazado",
+        "mePagaron": "Te pagaron",
+        "comisionMia": "Comisión de Mercatren",
+        "meQuedo": "Te quedó",
+        "saque": "Lo que sacaste"
       },
       "comision": {
         "titulo": "El margen de Mercatren",
@@ -399,19 +404,24 @@
         "recarga": "Pago acreditado",
         "compra": "Compra",
         "reembolso": "Reembolso",
-        "ajuste": "Ajuste"
+        "ajuste": "Ajuste",
+        "retiroComercio": "Retiro tuyo"
       },
       "columnas": {
         "fecha": "Fecha",
         "concepto": "Concepto",
         "monto": "Monto",
-        "saldo": "Pendiente después"
+        "saldo": "Pendiente después",
+        "saldoComercio": "Tu saldo después"
       },
       "datosHasta": "Los datos llegan hasta el {fecha}. Lo posterior todavía no se ha traído del sistema anterior.",
       "tituloComercio": "Mi dinero",
       "subtituloComercio": "Lo que has vendido y todavía no has sacado, y lo que ya te transferimos.",
       "saldoComercio": "Disponible para retirar",
-      "saldoAyudaComercio": "Es tuyo y está en la cuenta del banco esperando a que lo pidas. Se suma solo con cada venta que se confirma."
+      "saldoAyudaComercio": "Es tuyo y está en la cuenta del banco esperando a que lo pidas. Se suma solo con cada venta que se confirma.",
+      "acreditadoComercio": "Te hemos acreditado en total",
+      "yaRetiradoComercio": "Ya lo sacaste",
+      "avisoHistoricoComercio": "Tu saldo no está escrito a mano: sale de sumar todo lo que te acreditamos y restarle lo que ya sacaste. Cada venta que se confirma lo sube sola."
     },
     "comercios": {
       "titulo": "Comercios",
@@ -450,10 +460,19 @@
         "validar": "Comprobantes por revisar",
         "entregar": "Pedidos pagados sin entregar",
         "retiros": "Retiros por transferir",
-        "contracargos": "Contracargos abiertos"
+        "contracargos": "Contracargos abiertos",
+        "misComprobantes": "Mis cobros en revisión",
+        "misEntregas": "Ventas pagadas que debo despachar",
+        "misRetiros": "Mis retiros en trámite"
       },
       "archivo": "Archivo del sistema anterior",
-      "archivoTexto": "{n} operaciones por {monto}, ya liquidadas antes de arrancar aquí. Se guardan para consulta y no cuentan como ventas de hoy."
+      "archivoTexto": "{n} operaciones por {monto}, ya liquidadas antes de arrancar aquí. Se guardan para consulta y no cuentan como ventas de hoy.",
+      "comision": "Comisión de Mercatren",
+      "comisionPie": "Lo que se te descontó este mes",
+      "disponible": "Disponible para retirar",
+      "disponiblePie": "Tuyo, esperando a que lo pidas",
+      "archivoTextoComercio": "{n} operaciones tuyas por {monto}, de tu tienda anterior. Ya se liquidaron allá; se guardan aquí para que tengas el registro completo.",
+      "subtituloComercio": "Cómo va tu tienda: lo que vendiste, lo que tienes por cobrar y lo que te falta por hacer."
     },
     "enConstruccion": {
       "titulo": "Sección en preparación",
@@ -480,7 +499,15 @@
         "bancos": "Bancos de origen",
         "bancosPie": "Detectados en los comprobantes",
         "retiros": "Retiros",
-        "retirosPie": "No se contabilizan"
+        "retirosPie": "No se contabilizan",
+        "ingresosComercio": "Lo que te pagaron",
+        "ingresosPieComercio": "{n} pagos confirmados",
+        "comisionComercio": "Comisión de Mercatren",
+        "netoComercio": "Lo que te quedó",
+        "netoPieComercio": "Después de la comisión",
+        "rechazadosPieComercio": "No llegaron a tu billetera",
+        "comisionPieComercio": "3 % sobre lo que te pagaron",
+        "pendientesPieComercio": "{monto} esperando a que lo revisemos"
       },
       "noContabiliza": "No se contabiliza",
       "cierre": {
@@ -496,7 +523,10 @@
         "total": "Total",
         "soloEntradas": "Solo entradas aprobadas. Los retiros quedan fuera.",
         "verTodo": "Ver todos los períodos",
-        "verMenos": "Ver menos"
+        "verMenos": "Ver menos",
+        "montoComercio": "Te pagaron",
+        "comisionComercio": "Comisión",
+        "netoComercio": "Te quedó"
       },
       "buscador": {
         "etiqueta": "Buscar pago",
@@ -1189,7 +1219,9 @@
       "revisaCampos": "Revisa los datos de la cuenta: hay campos vacíos o mal escritos.",
       "viaAch": "Llega por transferencia ACH, en 1 a 3 días hábiles.",
       "viaWire": "Llega por transferencia internacional (wire). El banco intermediario puede cobrar una cuota.",
-      "opcional": "opcional"
+      "opcional": "opcional",
+      "delSistemaAnterior": "Retiro del sistema anterior",
+      "sinFechaEnArchivo": "sin fecha en el archivo"
     },
     "pedido": {
       "volver": "Volver a Órdenes",
