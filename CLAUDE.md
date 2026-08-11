@@ -356,9 +356,19 @@ El nombre visible de una cuenta nuestra **debe** contener la palabra "Soporte";
 el script no deja guardar otra cosa. El rol no se puede mandar desde el
 formulario de registro: se asigna aparte, a propósito.
 
-Secciones: Resumen · **Pagos Zelle** · Por validar · Billetera · Órdenes ·
-Comercios · Clientes · Configuración. Las tres últimas son solo del equipo, y
-Órdenes y Clientes todavía no tienen datos.
+El menú va en cuatro grupos, ordenados por **trabajo** y no por mecanismo (ver
+«El panel se reordenó por TRABAJO», más abajo):
+
+| Grupo          | Qué lleva                                          |
+| -------------- | -------------------------------------------------- |
+| **Ventas**     | Resumen · Órdenes · **Cobros** · Por validar       |
+| **Dinero**     | Billetera · Retiros · Órdenes de compra            |
+| **Mi negocio** | Mi tienda · Mis productos · Compradores · Créditos |
+| **Equipo**     | Comercios · Cuentas · Configuración · Diccionario  |
+
+El grupo **Equipo** es solo del equipo interno. Dos entradas cambian de nombre
+según quién mire —«Por validar»/«En revisión» y «Por pagar a los comercios»/«Mi
+dinero»— porque para cada uno son cosas distintas.
 
 ## El comercio se administra solo
 
@@ -1054,6 +1064,69 @@ EXISTS`, así que una columna no llegaría sola a producción.
 De paso se quitó una trampa documentada del proyecto: `aprobarPago` pedía la
 tabla entera con `.select()`. Una columna nueva en el esquema habría dejado de
 funcionar **la aprobación de pagos** en producción.
+
+## El panel se reordenó por TRABAJO, no por mecanismo (11 ago 2026)
+
+El dueño lo dijo entero: _«está muy mal organizado»_. Tenía razón, y la causa
+era concreta.
+
+**1. La venta del día estaba enterrada.** Órdenes dibujaba PRIMERO los 669
+tiques del histórico importado —con carga infinita— y los pedidos de verdad
+quedaban debajo. La venta estaba en la página, pero donde nadie llega. Ahora
+mandan los pedidos, con filtro por fecha (`src/lib/pedidos/rangos.ts`, puro,
+14 pruebas) y el archivo plegado al final.
+
+De ahí, dos reglas que no se tocan: **«hoy» arranca en la medianoche**, no hace
+24 horas —quien pregunta por lo de hoy quiere el día natural— y **lo que no
+tiene fecha NO se esconde**: el histórico tiene huecos y el dinero existió
+igual.
+
+**2. La tarjeta no tenía pantalla.** Había una sección entera para Zelle y
+ninguna para el método con el que entró la primera venta real. Ahora
+`/panel/cobros` es una sola sección con tres pestañas —tarjeta, Zelle y los
+enlaces de cobro— y **los contracargos salen arriba, en rojo**: un contracargo
+es dinero que ya salió de la cuenta, no puede estar escondido dentro de la
+ficha de un pedido que hay que sospechar primero para abrirlo. La dirección
+vieja `/panel/pagos-zelle` redirige.
+
+**3. El menú nombraba mecanismos.** «Operación» juntaba un método de cobro con
+el dinero y con el papeleo, y **Órdenes vivía dentro de «Catálogo»**. Quedan
+cuatro grupos que contestan «¿qué vengo a hacer?»: **Ventas · Dinero · Mi
+negocio · Equipo**.
+
+**4. La billetera le hablaba a una sola persona.** Decía «por pagar al
+proveedor» también cuando la abría el proveedor. Para el equipo es lo que hay
+que pagar; para el comercio es SU dinero esperando. Ahora cada uno lee lo suyo,
+igual que ya pasaba con la cola de validación.
+
+**Los pasos de la venta, en horizontal** (`pasos-de-la-venta.tsx`): comprada →
+pagada → enviada → entregada → **en la billetera**, con quién movió cada uno.
+
+**Dice «en la billetera» y no «retirado», a propósito.** Un retiro no es un
+hecho de un pedido: el comercio pide un monto contra su saldo, que junta muchas
+ventas. Marcar una venta concreta como «retirada» obligaría a repartir cada
+retiro entre las ventas que lo componen — una atribución que el sistema no
+guarda y que nadie firmó. Lo que sí es cierto de ese pedido es que su dinero
+quedó acreditado; el retiro se mira donde ocurre, y va el enlace.
+
+**Descargar en Excel** (`src/lib/exportar/`, 23 pruebas) en Órdenes y en
+Cobros. Tres trampas del CSV, resueltas de una vez: el **BOM** (sin él, Excel
+en Windows rompe los acentos y el contador sospecha de los datos, no del
+archivo), el **dinero en dólares con dos decimales** (una columna en centavos
+se suma mal a la primera) y la **inyección de fórmulas** — lo que empieza por
+`=` o `@` se marca como texto, porque nombres y conceptos los escriben personas
+de fuera y la hoja los ejecutaría al abrirla.
+
+**Un negativo sí pasa como número**, y esa distinción la encontró su propia
+prueba: marcarlo como texto dejaba los retiros y los reembolsos sin sumar, con
+el total mal y sin un solo aviso.
+
+**El alcance no baja por ser un archivo.** Un vendedor que pida el comercio de
+otro se lleva el suyo igual, y si se llega al tope de filas se avisa: uno
+recortado en silencio hace sumar una parte creyendo que es el total.
+
+De paso, el menú marcaba dos secciones a la vez: `/panel/ordenes-compra`
+empieza igual que `/panel/ordenes` y la coincidencia era por prefijo de texto.
 
 ## Cómo se pagó cada venta, y una sola cifra para el comercio (10 ago 2026)
 
