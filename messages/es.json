@@ -1513,6 +1513,9 @@
         "venceEl": "vence el {fecha}",
         "pagadoEl": "pagado el {fecha}"
       }
+    },
+    "exportar": {
+      "boton": "Descargar en Excel"
     }
   },
   "catalogo": {

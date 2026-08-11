@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { Exportar } from "@/components/panel/exportar";
 import { TarjetaMetrica } from "@/components/panel/tarjeta-metrica";
 import { Link } from "@/i18n/navigation";
 import {
@@ -146,29 +147,33 @@ export default async function PaginaCobrosTarjeta({
         />
       </section>
 
-      {/* Filtro por estado del cobro. */}
-      <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-        {[undefined, ...ESTADOS].map((clave) => {
-          const activa = (clave ?? undefined) === filtros.estado;
-          const destino = new URLSearchParams();
-          if (clave) destino.set("estado", clave);
-          if (filtros.comercio) destino.set("comercio", filtros.comercio);
+      {/* Filtro por estado del cobro, y el archivo para conciliar. */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+          {[undefined, ...ESTADOS].map((clave) => {
+            const activa = (clave ?? undefined) === filtros.estado;
+            const destino = new URLSearchParams();
+            if (clave) destino.set("estado", clave);
+            if (filtros.comercio) destino.set("comercio", filtros.comercio);
 
-          return (
-            <Link
-              key={clave ?? "todos"}
-              href={`/panel/cobros${destino.size ? `?${destino}` : ""}`}
-              className={cn(
-                "shrink-0 rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
-                activa
-                  ? "text-carga-700 bg-carga-500/15"
-                  : "text-tinta-suave hover:bg-slate-100",
-              )}
-            >
-              {clave ? t(`estado.${clave}`) : t("todos")}
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={clave ?? "todos"}
+                href={`/panel/cobros${destino.size ? `?${destino}` : ""}`}
+                className={cn(
+                  "shrink-0 rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
+                  activa
+                    ? "text-carga-700 bg-carga-500/15"
+                    : "text-tinta-suave hover:bg-slate-100",
+                )}
+              >
+                {clave ? t(`estado.${clave}`) : t("todos")}
+              </Link>
+            );
+          })}
+        </div>
+
+        <Exportar que="cobros" comercio={filtros.comercio} />
       </div>
 
       {listado.cobros.length === 0 ? (

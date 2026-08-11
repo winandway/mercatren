@@ -2,6 +2,7 @@ import { Clock, ShoppingBag, TriangleAlert } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { SelloMetodoPago } from "@/components/panel/como-se-pago";
+import { Exportar } from "@/components/panel/exportar";
 import { ListaTiques } from "@/components/panel/lista-tiques";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -114,11 +115,16 @@ export default async function PaginaOrdenes({
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">{t("titulo")}</h1>
-        <p className="mt-1 text-sm text-tinta-suave">
-          {datos.soloDeEsteComercio ? t("subtitulo") : t("subtituloEquipo")}
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{t("titulo")}</h1>
+          <p className="mt-1 text-sm text-tinta-suave">
+            {datos.soloDeEsteComercio ? t("subtitulo") : t("subtituloEquipo")}
+          </p>
+        </div>
+        {/* Cuadrar cifras se hace en una hoja de cálculo, no leyendo la
+            pantalla de a 25 filas. */}
+        <Exportar que="ventas" comercio={filtros.comercio} />
       </header>
 
       {/* Pestanas por estado. */}
