@@ -437,7 +437,23 @@
     "resumen": {
       "titulo": "Resumen",
       "subtitulo": "Estado general de la operación.",
-      "verPagos": "Ver los pagos"
+      "verPagos": "Ver los pagos",
+      "hoy": "Vendido hoy",
+      "hoyPie": "{n, plural, =0 {Sin ventas todavía} one {# venta} other {# ventas}}",
+      "mes": "Vendido este mes",
+      "mesPie": "{n, plural, =0 {Sin ventas este mes} one {# venta} other {# ventas}}",
+      "margen": "Margen de Mercatren",
+      "margenPie": "Este mes, con las dos formas de pago",
+      "porHacer": "Lo que está esperando",
+      "verOrdenes": "Ver las órdenes",
+      "tareas": {
+        "validar": "Comprobantes por revisar",
+        "entregar": "Pedidos pagados sin entregar",
+        "retiros": "Retiros por transferir",
+        "contracargos": "Contracargos abiertos"
+      },
+      "archivo": "Archivo del sistema anterior",
+      "archivoTexto": "{n} operaciones por {monto}, ya liquidadas antes de arrancar aquí. Se guardan para consulta y no cuentan como ventas de hoy."
     },
     "enConstruccion": {
       "titulo": "Sección en preparación",

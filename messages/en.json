@@ -437,7 +437,23 @@
     "resumen": {
       "titulo": "Overview",
       "subtitulo": "How the operation is doing.",
-      "verPagos": "View payments"
+      "verPagos": "View payments",
+      "hoy": "Sold today",
+      "hoyPie": "{n, plural, =0 {No sales yet} one {# sale} other {# sales}}",
+      "mes": "Sold this month",
+      "mesPie": "{n, plural, =0 {No sales this month} one {# sale} other {# sales}}",
+      "margen": "Mercatren margin",
+      "margenPie": "This month, both payment methods",
+      "porHacer": "Waiting on you",
+      "verOrdenes": "View orders",
+      "tareas": {
+        "validar": "Receipts to review",
+        "entregar": "Paid orders not delivered",
+        "retiros": "Withdrawals to transfer",
+        "contracargos": "Open chargebacks"
+      },
+      "archivo": "Archive from the previous system",
+      "archivoTexto": "{n} transactions for {monto}, already settled before starting here. Kept for reference; they do not count as today's sales."
     },
     "enConstruccion": {
       "titulo": "Section being prepared",
