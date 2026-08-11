@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { tiendas } from "@/lib/db/schema";
 import { SITIO } from "@/lib/sitio";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * `llms.txt` — la puerta de entrada para los asistentes de IA.
@@ -59,7 +60,7 @@ export async function GET() {
 > Tienda en línea que vende en Estados Unidos productos de comercios de
 > América Latina. El comprador paga en dólares desde un banco estadounidense,
 > a precio cerrado, y el producto se entrega en la dirección que él indique.
-> Operada por Windoce, LLC.
+> Operada por ${SOCIEDAD.nombre}.
 
 Mercatren compra la mercancía al comercio y la revende por cuenta propia: emite
 factura de venta al comprador y recibe factura de compra del comercio. El

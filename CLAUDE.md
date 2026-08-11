@@ -10,10 +10,10 @@ Tienda en línea operada por **Windoce, LLC** (Delaware, Estados Unidos).
 tienda: comprar, vender y facturar. `Windoce LLC` se queda solo como el
 estudio que desarrolla el software — el crédito del pie de página.
 
-El expediente se presentó el 7 ago 2026 (formulario CSCL/CD-700, Articles of
-Organization de una LLC doméstica) y está **en revisión**, no aprobado todavía.
-Ojo con esto: **es un estado distinto del de Windoce, LLC, que es de
-Delaware.** Antes de tocar una línea del sitio hay que tener el certificado en
+**Aprobada el 11 ago 2026, en MICHIGAN** (el formulario CSCL/CD-700 es el de ese
+estado). Windoce, LLC es de **Delaware**: son dos estados distintos, y de ahí
+cuelgan el domicilio fiscal, el agente registrado y lo que dicen los términos.
+Falta el EIN, la cuenta de banco y la de Stripe. Antes de tocar una línea del sitio hay que tener el certificado en
 la mano y confirmar cuál es el estado de registro, porque de ahí cuelgan el
 domicilio fiscal, el agente registrado y lo que dicen los términos.
 
@@ -27,8 +27,37 @@ bien así**. Son 239 menciones repartidas entre los términos, la privacidad, la
 documentación pública, los correos y el PDF del modelo — y ese PDF lo revisó el
 abogado, así que el cambio pasa por él antes de tocarse.
 
-Cuando llegue el momento: `SITIO.sociedad` en `src/lib/sitio.ts` es el punto de
-partida, pero no alcanza — hay texto escrito a mano en `src/contenido/`.
+**El sitio ya está listo para la mudanza (11 ago 2026).** El nombre estaba
+escrito a mano en **240 sitios repartidos por 26 archivos**; ahora sale entero de
+**`src/lib/sociedad.ts`**. Comprobado cambiándolo de verdad: de 181 menciones del
+documento del modelo, 179 pasaron solas a «Mercatren LLC» y a «Michigan». Las 2
+que no son el crédito del desarrollador del pie, que **no debe cambiar**.
+
+- Los textos de idioma son JSON y no pueden importar: llevan **`«SOCIEDAD»` y
+  `«ESTADO»`**, que se sustituyen al cargar en `src/i18n/request.ts`. Se usan
+  comillas angulares y no `{sociedad}` a propósito: next-intl lee las llaves como
+  variables ICU y un texto con una variable que nadie pasa **revienta la pantalla
+  entera**.
+- **`DESARROLLADOR` es otra constante, y es deliberado.** Windoce, LLC seguirá
+  siendo quien programa el sitio aunque la tienda pase a otra sociedad. Hoy las
+  dos dicen lo mismo y por eso es fácil confundirlas; el día del traspaso dejarán
+  de decirlo.
+- `tests/unit/sociedad.test.ts` **falla si alguien vuelve a escribir el nombre a
+  mano** en `src/` o `messages/`. Sin ese candado, la próxima página lo trae otra
+  vez y en dos meses estamos igual.
+- **Lo que NO se mueve desde ahí:** el PDF del modelo (lo revisó el abogado), las
+  facturas ya emitidas (copian los datos del emisor dentro, así que las viejas
+  seguirán diciendo Windoce para siempre — que es lo correcto) y los comentarios
+  del código.
+
+**EL ORDEN DEL TRASPASO NO ES NEGOCIABLE, Y EL SITIO VA DE ÚLTIMO:** EIN → banco a
+nombre de la sociedad nueva → Stripe **verificado y activo** → el correo de Zelle
+a la cuenta nueva → **recién entonces** `sociedad.ts` y un push. Si el sitio dice
+un nombre y el cobro le aparece al comprador con otro en su estado de cuenta, eso
+es un contracargo.
+
+**El corte es un hecho, no una fecha:** el primer dólar que Stripe liquide en la
+cuenta de la sociedad nueva. Ni un hueco ni un solapamiento.
 
 ## LA FIGURA JURÍDICA (regla de cabecera, agosto 2026)
 

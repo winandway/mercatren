@@ -1,4 +1,5 @@
 import type { Articulo } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * The English articles.
@@ -128,8 +129,7 @@ export const ARTICULOS_EN: Articulo[] = [
         tipo: "aviso",
         tono: "ojo",
         titulo: "The merchant extends the credit, not Mercatren",
-        texto:
-          "The merchant decides who, how much, and for how long, and hands over the goods under their own agreement with the customer. Windoce, LLC does not lend money or act as guarantor: if a customer doesn't pay, that's between them and their supplier.",
+        texto: `The merchant decides who, how much, and for how long, and hands over the goods under their own agreement with the customer. ${SOCIEDAD.nombre} does not lend money or act as guarantor: if a customer doesn't pay, that's between them and their supplier.`,
       },
       { tipo: "subtitulo", texto: "How the money flows" },
       {
@@ -139,8 +139,7 @@ export const ARTICULOS_EN: Articulo[] = [
       },
       {
         tipo: "parrafo",
-        texto:
-          "That's why Windoce, LLC never finances anything: it keeps buying and reselling goods, which is what it has always done. Lending money in the United States requires state lender licenses, and this model doesn't need them because it doesn't lend.",
+        texto: `That's why ${SOCIEDAD.nombre} never finances anything: it keeps buying and reselling goods, which is what it has always done. Lending money in the United States requires state lender licenses, and this model doesn't need them because it doesn't lend.`,
       },
       { tipo: "subtitulo", texto: "Step by step" },
       {

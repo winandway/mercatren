@@ -109,7 +109,7 @@
       "blog": "Blog"
     },
     "lema": "Shop in the U.S., delivered where you need it.",
-    "descripcion": "Mercatren is a service operated by Windoce, LLC (Delaware, United States). We sell products for our own account and deliver them to the address the buyer designates. Every transaction is documented end to end.",
+    "descripcion": "Mercatren is a service operated by «SOCIEDAD» («ESTADO», United States). We sell products for our own account and deliver them to the address the buyer designates. Every transaction is documented end to end.",
     "contactoTitulo": "Need help?",
     "contactoTexto": "Write to us and a person answers.",
     "soloEEUU": "Payments accepted only from US banks",
@@ -131,11 +131,11 @@
     "entradilla": "You buy a product, pay the published price from a US bank, and designate where it should be delivered. We buy that merchandise from the supplier in our own name and sell it to you, with an invoice.",
     "queEs": {
       "titulo": "What the service is",
-      "texto": "Mercatren is an online store operated by Windoce, LLC (Delaware, United States). We sell products for our own account: we buy the merchandise from the supplier in our name and resell it to you. The price you see published is the final price and includes our commercial markup.",
+      "texto": "Mercatren is an online store operated by «SOCIEDAD» («ESTADO», United States). We sell products for our own account: we buy the merchandise from the supplier in our name and resell it to you. The price you see published is the final price and includes our commercial markup.",
       "puntos": [
         "The buyer is in the United States and pays from a US bank.",
         "The published price is the final price: nothing is added afterward.",
-        "Windoce, LLC buys the merchandise from the supplier, invoiced in its name.",
+        "«SOCIEDAD» buys the merchandise from the supplier, invoiced in its name.",
         "The product is delivered to the address the buyer designates.",
         "Every transaction leaves a purchase invoice, a sales invoice, and proof of delivery."
       ]
@@ -205,23 +205,23 @@
     "entradilla": "This page describes our operation for banks, payment processors, partners, and anyone who needs to understand exactly what we do and what we do not.",
     "quienes": {
       "titulo": "Who we are",
-      "texto": "Mercatren is a service operated by Windoce, LLC (Delaware, United States). We sell products for our own account to buyers residing in the United States: we buy the merchandise from the supplier in the name of Windoce, LLC and resell it to the buyer, who designates the address where it must be delivered.",
+      "texto": "Mercatren is a service operated by «SOCIEDAD» («ESTADO», United States). We sell products for our own account to buyers residing in the United States: we buy the merchandise from the supplier in the name of «SOCIEDAD» and resell it to the buyer, who designates the address where it must be delivered.",
       "lanzamiento": "Startup launching in 2026."
     },
     "noSomos": {
       "titulo": "First, so there is no doubt",
-      "texto": "Mercatren is not a financial institution, does not offer accounts, does not maintain user balances, and does not carry out money transfers. Every transaction is a sale of goods between the buyer and Windoce, LLC."
+      "texto": "Mercatren is not a financial institution, does not offer accounts, does not maintain user balances, and does not carry out money transfers. Every transaction is a sale of goods between the buyer and «SOCIEDAD»."
     },
     "flujo": {
       "titulo": "How every transaction is documented",
       "texto": "One path, always the same, and always documented:",
       "pasos": [
-        "The buyer, located in the United States, purchases a product and pays the published price to Windoce, LLC from a US bank.",
-        "Windoce, LLC records the order with its number, amount, date, products, and the delivery address designated by the buyer.",
+        "The buyer, located in the United States, purchases a product and pays the published price to «SOCIEDAD» from a US bank.",
+        "«SOCIEDAD» records the order with its number, amount, date, products, and the delivery address designated by the buyer.",
         "A member of our team verifies that the payment originates from a US bank and that the amount matches. Only then is the order treated as valid.",
-        "Windoce, LLC buys the merchandise sold from the supplier, in its own name, and the supplier issues an invoice to Windoce, LLC.",
+        "«SOCIEDAD» buys the merchandise sold from the supplier, in its own name, and the supplier issues an invoice to «SOCIEDAD».",
         "The supplier delivers the product to the designated address and the delivery is recorded.",
-        "Windoce, LLC issues the sales invoice to the buyer and closes the order."
+        "«SOCIEDAD» issues the sales invoice to the buyer and closes the order."
       ]
     },
     "limites": {
@@ -263,14 +263,14 @@
         "Order number, date, products, unit price, and total, in US dollars.",
         "Buyer's account and the designated delivery address.",
         "Method, date, and amount of the payment received, with its record.",
-        "Purchase invoice issued by the supplier to Windoce, LLC.",
-        "Sales invoice issued by Windoce, LLC to the buyer.",
+        "Purchase invoice issued by the supplier to «SOCIEDAD».",
+        "Sales invoice issued by «SOCIEDAD» to the buyer.",
         "Proof of delivery, and who approved each step and when."
       ]
     },
     "comisiones": {
       "titulo": "How the price is formed",
-      "texto": "The supplier sells us the merchandise at its price. The price at which Windoce, LLC resells it to the buyer is set and published by us, and it includes our commercial markup. The published price is the final price: nothing is added afterward.",
+      "texto": "The supplier sells us the merchandise at its price. The price at which «SOCIEDAD» resells it to the buyer is set and published by us, and it includes our commercial markup. The published price is the final price: nothing is added afterward.",
       "nota": "Our earnings are the difference between the purchase price and the sale price of our own product, not a charge applied to someone else's money."
     },
     "retencion": {
@@ -928,7 +928,7 @@
       "aprobado": "Approved",
       "comision": "Mercatren markup",
       "neto": "Cost of merchandise",
-      "pie": "Sale collected in the United States. The merchandise was purchased from the supplier shown and delivered to the designated address. Mercatren is a service of Windoce, LLC.",
+      "pie": "Sale collected in the United States. The merchandise was purchased from the supplier shown and delivered to the designated address. Mercatren is a service of «SOCIEDAD».",
       "trayendoMas": "Loading more sales…",
       "esoEsTodo": "That's everything: {n} sales.",
       "verMas": "Show more",
@@ -1948,7 +1948,7 @@
       "previo": "The payment was verified and we have purchased the merchandise from you.",
       "titulo": "A sale was credited to you",
       "parrafos": [
-        "We verified payment on a sale of your merchandise. Windoce, LLC purchased that product from you: the purchase amount is recorded in your favor and is paid against your invoice.",
+        "We verified payment on a sale of your merchandise. «SOCIEDAD» purchased that product from you: the purchase amount is recorded in your favor and is paid against your invoice.",
         "You can now coordinate delivery with your customer."
       ],
       "boton": "See what I'm owed"
@@ -2127,7 +2127,7 @@
       "sitioWeb": "https://",
       "descripcionEs": "In a line or two"
     },
-    "aceptoTerminosComercio": "I have read and accept the <terminos>terms and conditions</terminos>, including the section for suppliers publishing a catalog: I sell the merchandise to Windoce, LLC and invoice each sale."
+    "aceptoTerminosComercio": "I have read and accept the <terminos>terms and conditions</terminos>, including the section for suppliers publishing a catalog: I sell the merchandise to «SOCIEDAD» and invoice each sale."
   },
   "clave": {
     "titulo": "Forgot your password?",

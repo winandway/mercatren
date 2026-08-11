@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * Quienes somos.
@@ -18,8 +19,7 @@ export const NOSOTROS_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Mercatren es un servicio operado por Windoce, LLC, una sociedad registrada en Estados Unidos. Somos un equipo pequeño que construye software para comercio transfronterizo.",
+          texto: `Mercatren es un servicio operado por ${SOCIEDAD.nombre}, una sociedad registrada en Estados Unidos. Somos un equipo pequeño que construye software para comercio transfronterizo.`,
         },
         {
           tipo: "parrafo",
@@ -154,8 +154,7 @@ export const NOSOTROS_ES: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Mercatren es una marca de Windoce, LLC, sociedad registrada en Estados Unidos. El servicio está en fase piloto con su primer comercio en operación.",
+  cierre: `Mercatren es una marca de ${SOCIEDAD.nombre}, sociedad registrada en Estados Unidos. El servicio está en fase piloto con su primer comercio en operación.`,
 };
 
 export const NOSOTROS_EN: PaginaContenido = {
@@ -169,8 +168,7 @@ export const NOSOTROS_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Mercatren is a service operated by Windoce, LLC, a company registered in the United States. We're a small team building software for cross-border commerce.",
+          texto: `Mercatren is a service operated by ${SOCIEDAD.nombre}, a company registered in the United States. We're a small team building software for cross-border commerce.`,
         },
         {
           tipo: "parrafo",
@@ -304,6 +302,5 @@ export const NOSOTROS_EN: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Mercatren is a brand of Windoce, LLC, a company registered in the United States. The service is in pilot phase with its first merchant in operation.",
+  cierre: `Mercatren is a brand of ${SOCIEDAD.nombre}, a company registered in the United States. The service is in pilot phase with its first merchant in operation.`,
 };

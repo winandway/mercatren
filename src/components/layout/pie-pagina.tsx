@@ -5,6 +5,7 @@ import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
+import { DESARROLLADOR, SOCIEDAD } from "@/lib/sociedad";
 
 const SECCIONES = [
   {
@@ -142,8 +143,8 @@ export async function PiePagina() {
         {/* Quien opera el servicio. Un banco o un socio lo busca aqui. */}
         <p className="mt-10 border-t border-white/10 pt-6 text-xs text-white/50">
           {t("operadoPor")}{" "}
-          <span className="font-semibold text-white/70">Windoce, LLC</span>,
-          Estados Unidos.
+          <span className="font-semibold text-white/70">{SOCIEDAD.nombre}</span>
+          , {SOCIEDAD.pais}.
         </p>
       </div>
 
@@ -152,12 +153,12 @@ export async function PiePagina() {
         <div className="mx-auto max-w-[1500px] px-4 py-5 text-center text-xs text-white/60">
           © {anio} mercatren.com | {t("derechos")} {t("desarrolladoPor")}{" "}
           <a
-            href="https://windoce.com"
+            href={DESARROLLADOR.sitio}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-white/80 transition-colors hover:text-carga-400"
           >
-            Windoce, LLC
+            {DESARROLLADOR.nombre}
           </a>
         </div>
       </div>

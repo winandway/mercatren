@@ -1,4 +1,5 @@
 import { CORREO_CONTACTO } from "./direcciones";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * La plantilla visual de todos los correos del sistema.
@@ -146,7 +147,7 @@ export function armarHtml(p: PiezasCorreo): string {
         <tr><td style="background:#ffffff;border-top:1px solid ${BORDE};border-radius:0 0 12px 12px;padding:20px 32px;font-family:Arial,Helvetica,sans-serif;">
           <p style="margin:0 0 6px;font-size:12px;line-height:1.6;color:${TINTA_SUAVE};">${escapar(p.contacto)} <a href="mailto:${CORREO_CONTACTO}" style="color:${AZUL};font-weight:bold;">${CORREO_CONTACTO}</a></p>
           <p style="margin:0;font-size:12px;line-height:1.6;color:${TINTA_SUAVE};">${escapar(p.motivo)}</p>
-          <p style="margin:10px 0 0;font-size:11px;color:#94a3ad;">Mercatren · Windoce, LLC</p>
+          <p style="margin:10px 0 0;font-size:11px;color:#94a3ad;">Mercatren · ${SOCIEDAD.nombre}</p>
         </td></tr>
 
       </table>
@@ -171,7 +172,7 @@ export function armarTexto(p: PiezasCorreo): string {
     "",
     `${p.contacto} ${CORREO_CONTACTO}`,
     p.motivo,
-    "Mercatren · Windoce, LLC",
+    `Mercatren · ${SOCIEDAD.nombre}`,
   ];
   return lineas.join("\n");
 }

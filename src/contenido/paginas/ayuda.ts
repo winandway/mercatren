@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * Centro de ayuda: las preguntas que de verdad llegan.
@@ -175,8 +176,7 @@ export const AYUDA_ES: PaginaContenido = {
             },
             {
               titulo: "¿Cuándo recibo mi dinero?",
-              texto:
-                "Al aprobarse el pago, Windoce, LLC te compra esa mercancía y tú emites tu factura. El importe se te paga contra esa factura, a una cuenta bancaria de Estados Unidos, según lo acordado por escrito contigo.",
+              texto: `Al aprobarse el pago, ${SOCIEDAD.nombre} te compra esa mercancía y tú emites tu factura. El importe se te paga contra esa factura, a una cuenta bancaria de Estados Unidos, según lo acordado por escrito contigo.`,
             },
           ],
         },
@@ -367,8 +367,7 @@ export const AYUDA_EN: PaginaContenido = {
             },
             {
               titulo: "When do I get my money?",
-              texto:
-                "When the payment is approved, Windoce, LLC buys that merchandise from you and you issue your invoice. You are paid against that invoice, to a US bank account, as agreed with you in writing.",
+              texto: `When the payment is approved, ${SOCIEDAD.nombre} buys that merchandise from you and you issue your invoice. You are paid against that invoice, to a US bank account, as agreed with you in writing.`,
             },
           ],
         },

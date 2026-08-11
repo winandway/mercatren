@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * Politica de privacidad.
@@ -24,8 +25,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Windoce, LLC, sociedad registrada en Estados Unidos, operando bajo la marca Mercatren. Para cualquier asunto de privacidad puedes escribirnos a mercatren@windoce.com.",
+          texto: `${SOCIEDAD.nombre}, sociedad registrada en Estados Unidos, operando bajo la marca Mercatren. Para cualquier asunto de privacidad puedes escribirnos a mercatren@windoce.com.`,
         },
       ],
     },
@@ -305,8 +305,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Mercatren es una marca de Windoce, LLC, sociedad registrada en Estados Unidos.",
+  cierre: `Mercatren es una marca de ${SOCIEDAD.nombre}, sociedad registrada en Estados Unidos.`,
 };
 
 export const PRIVACIDAD_EN: PaginaContenido = {
@@ -323,8 +322,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Windoce, LLC, a company registered in the United States, operating under the Mercatren brand. For any privacy matter, write to us at mercatren@windoce.com.",
+          texto: `${SOCIEDAD.nombre}, a company registered in the United States, operating under the Mercatren brand. For any privacy matter, write to us at mercatren@windoce.com.`,
         },
       ],
     },
@@ -604,6 +602,5 @@ export const PRIVACIDAD_EN: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Mercatren is a brand of Windoce, LLC, a company registered in the United States.",
+  cierre: `Mercatren is a brand of ${SOCIEDAD.nombre}, a company registered in the United States.`,
 };

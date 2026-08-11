@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * Terminos y condiciones del servicio.
@@ -33,8 +34,7 @@ export const TERMINOS_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Mercatren es un servicio de comercio electrónico transfronterizo operado por Windoce, LLC, una sociedad registrada en Estados Unidos. Cuando en este documento decimos «nosotros», nos referimos a Windoce, LLC operando bajo la marca Mercatren.",
+          texto: `Mercatren es un servicio de comercio electrónico transfronterizo operado por ${SOCIEDAD.nombre}, una sociedad registrada en Estados Unidos. Cuando en este documento decimos «nosotros», nos referimos a ${SOCIEDAD.nombre} operando bajo la marca Mercatren.`,
         },
         {
           tipo: "parrafo",
@@ -50,17 +50,16 @@ export const TERMINOS_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Windoce, LLC vende productos por cuenta propia. Cuando compras en mercatren.com, compras un producto a Windoce, LLC y designas la dirección donde debe entregarse. Windoce, LLC adquiere esa mercancía al proveedor a nombre propio y te la revende.",
+          texto: `${SOCIEDAD.nombre} vende productos por cuenta propia. Cuando compras en mercatren.com, compras un producto a ${SOCIEDAD.nombre} y designas la dirección donde debe entregarse. ${SOCIEDAD.nombre} adquiere esa mercancía al proveedor a nombre propio y te la revende.`,
         },
         {
           tipo: "aviso",
           tono: "acento",
           titulo: "La cláusula central de este contrato",
           parrafos: [
-            "Windoce, LLC actúa como principal en las dos puntas de la operación: compra la mercancía para sí y la revende al comprador. La propiedad de la mercancía pasa del proveedor a Windoce, LLC, y de Windoce, LLC al comprador.",
+            `${SOCIEDAD.nombre} actúa como principal en las dos puntas de la operación: compra la mercancía para sí y la revende al comprador. La propiedad de la mercancía pasa del proveedor a ${SOCIEDAD.nombre}, y de ${SOCIEDAD.nombre} al comprador.`,
             "El precio publicado es el precio final de venta e incluye nuestro margen comercial. No se agregan cargos posteriores por el producto.",
-            "Windoce, LLC no actúa como agente, fiduciario ni depositario de ninguna de las partes, y no recibe ni administra dinero de terceros. El importe que pagas es el precio de un producto vendido, no dinero destinado a otra persona.",
+            `${SOCIEDAD.nombre} no actúa como agente, fiduciario ni depositario de ninguna de las partes, y no recibe ni administra dinero de terceros. El importe que pagas es el precio de un producto vendido, no dinero destinado a otra persona.`,
           ],
         },
         {
@@ -70,7 +69,7 @@ export const TERMINOS_ES: PaginaContenido = {
             tono: "bien",
             puntos: [
               "Vendemos productos por cuenta propia y emitimos la factura de venta.",
-              "Compramos la mercancía al proveedor con factura a nombre de Windoce, LLC.",
+              `Compramos la mercancía al proveedor con factura a nombre de ${SOCIEDAD.nombre}.`,
               "Fijamos y publicamos el precio final de venta.",
               "Verificamos que cada pago provenga de un banco de Estados Unidos.",
               "Documentamos cada operación de punta a punta.",
@@ -167,7 +166,7 @@ export const TERMINOS_ES: PaginaContenido = {
               etiqueta: "Nosotros",
               titulo: "Compramos la mercancía al proveedor",
               parrafos: [
-                "Con tu compra cerrada, Windoce, LLC adquiere al proveedor la mercancía que te vendió, con factura emitida a nombre de Windoce, LLC.",
+                `Con tu compra cerrada, ${SOCIEDAD.nombre} adquiere al proveedor la mercancía que te vendió, con factura emitida a nombre de ${SOCIEDAD.nombre}.`,
               ],
             },
             {
@@ -196,7 +195,7 @@ export const TERMINOS_ES: PaginaContenido = {
                 "está en dólares de Estados Unidos e incluye nuestro margen comercial. No se te cobra nada aparte por el producto. Los precios pueden cambiar en cualquier momento; el que vale es el del momento en que confirmas el pedido.",
             },
             {
-              titulo: "El precio lo fija y lo publica Windoce, LLC",
+              titulo: `El precio lo fija y lo publica ${SOCIEDAD.nombre}`,
               texto:
                 "el proveedor nos vende la mercancía a su precio; el precio al que te la vendemos a ti lo fijamos y lo publicamos nosotros, y es el que ves en el catálogo.",
             },
@@ -276,7 +275,7 @@ export const TERMINOS_ES: PaginaContenido = {
           tono: "acento",
           titulo: "Nos respondes a nosotros, y nosotros te respondemos a ti",
           parrafos: [
-            "Como vendedor de la mercancía, Windoce, LLC responde ante ti por el producto que compraste. No tienes que reclamarle al proveedor ni negociar con él: tu contrato es con nosotros.",
+            `Como vendedor de la mercancía, ${SOCIEDAD.nombre} responde ante ti por el producto que compraste. No tienes que reclamarle al proveedor ni negociar con él: tu contrato es con nosotros.`,
           ],
         },
         {
@@ -338,13 +337,11 @@ export const TERMINOS_ES: PaginaContenido = {
           puntos: [
             {
               titulo: "Nos vendes la mercancía y nos facturas",
-              texto:
-                "cuando se produce una venta, Windoce, LLC te compra esa mercancía y tú emites factura a nombre de Windoce, LLC. No nos designas como tu representante para nada, y no vendemos nada por cuenta tuya.",
+              texto: `cuando se produce una venta, ${SOCIEDAD.nombre} te compra esa mercancía y tú emites factura a nombre de ${SOCIEDAD.nombre}. No nos designas como tu representante para nada, y no vendemos nada por cuenta tuya.`,
             },
             {
               titulo: "Tú pones tu precio; nosotros ponemos el nuestro",
-              texto:
-                "el precio al que nos vendes lo fijas tú. El precio al que Windoce, LLC revende al comprador lo fijamos y lo publicamos nosotros, e incluye nuestro margen comercial.",
+              texto: `el precio al que nos vendes lo fijas tú. El precio al que ${SOCIEDAD.nombre} revende al comprador lo fijamos y lo publicamos nosotros, e incluye nuestro margen comercial.`,
             },
             {
               titulo: "Respondes por lo que publicas",
@@ -457,8 +454,7 @@ export const TERMINOS_ES: PaginaContenido = {
             },
             {
               titulo: "Ley aplicable",
-              texto:
-                "estos términos se rigen por las leyes de los Estados Unidos de América y del estado donde está registrada Windoce, LLC.",
+              texto: `estos términos se rigen por las leyes de los Estados Unidos de América y del estado donde está registrada ${SOCIEDAD.nombre}.`,
             },
             {
               titulo: "Escríbenos",
@@ -470,8 +466,7 @@ export const TERMINOS_ES: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Mercatren es una marca de Windoce, LLC, sociedad registrada en Estados Unidos. Este documento describe las condiciones del servicio; no constituye asesoramiento legal, contable ni fiscal.",
+  cierre: `Mercatren es una marca de ${SOCIEDAD.nombre}, sociedad registrada en Estados Unidos. Este documento describe las condiciones del servicio; no constituye asesoramiento legal, contable ni fiscal.`,
 };
 
 export const TERMINOS_EN: PaginaContenido = {
@@ -488,8 +483,7 @@ export const TERMINOS_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Mercatren is a cross-border ecommerce service operated by Windoce, LLC, a company registered in the United States. Where these terms say “we,” that means Windoce, LLC operating under the Mercatren brand.",
+          texto: `Mercatren is a cross-border ecommerce service operated by ${SOCIEDAD.nombre}, a company registered in the United States. Where these terms say “we,” that means ${SOCIEDAD.nombre} operating under the Mercatren brand.`,
         },
         {
           tipo: "parrafo",
@@ -505,17 +499,16 @@ export const TERMINOS_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Windoce, LLC sells products for its own account. When you buy on mercatren.com, you buy a product from Windoce, LLC and designate the address where it must be delivered. Windoce, LLC acquires that merchandise from the supplier in its own name and resells it to you.",
+          texto: `${SOCIEDAD.nombre} sells products for its own account. When you buy on mercatren.com, you buy a product from ${SOCIEDAD.nombre} and designate the address where it must be delivered. ${SOCIEDAD.nombre} acquires that merchandise from the supplier in its own name and resells it to you.`,
         },
         {
           tipo: "aviso",
           tono: "acento",
           titulo: "The central clause of this contract",
           parrafos: [
-            "Windoce, LLC acts as principal on both ends of the transaction: it buys the merchandise for itself and resells it to the buyer. Title to the merchandise passes from the supplier to Windoce, LLC, and from Windoce, LLC to the buyer.",
+            `${SOCIEDAD.nombre} acts as principal on both ends of the transaction: it buys the merchandise for itself and resells it to the buyer. Title to the merchandise passes from the supplier to ${SOCIEDAD.nombre}, and from ${SOCIEDAD.nombre} to the buyer.`,
             "The published price is the final sale price and includes our commercial markup. No additional charges are added for the product.",
-            "Windoce, LLC does not act as an agent, fiduciary, or custodian for any party, and does not receive or administer money belonging to third parties. What you pay is the price of a product sold, not money destined for another person.",
+            `${SOCIEDAD.nombre} does not act as an agent, fiduciary, or custodian for any party, and does not receive or administer money belonging to third parties. What you pay is the price of a product sold, not money destined for another person.`,
           ],
         },
         {
@@ -525,7 +518,7 @@ export const TERMINOS_EN: PaginaContenido = {
             tono: "bien",
             puntos: [
               "Sell products for our own account and issue the sales invoice.",
-              "Buy the merchandise from the supplier, invoiced to Windoce, LLC.",
+              `Buy the merchandise from the supplier, invoiced to ${SOCIEDAD.nombre}.`,
               "Set and publish the final sale price.",
               "Verify that every payment originates from a US bank.",
               "Document every transaction end to end.",
@@ -622,7 +615,7 @@ export const TERMINOS_EN: PaginaContenido = {
               etiqueta: "Us",
               titulo: "We buy the merchandise from the supplier",
               parrafos: [
-                "With your purchase closed, Windoce, LLC acquires from the supplier the merchandise it sold you, with an invoice issued to Windoce, LLC.",
+                `With your purchase closed, ${SOCIEDAD.nombre} acquires from the supplier the merchandise it sold you, with an invoice issued to ${SOCIEDAD.nombre}.`,
               ],
             },
             {
@@ -651,7 +644,7 @@ export const TERMINOS_EN: PaginaContenido = {
                 "it is in US dollars and includes our commercial markup. Nothing extra is charged for the product. Prices can change at any time; the price that applies is the one at the moment you confirm the order.",
             },
             {
-              titulo: "The price is set and published by Windoce, LLC",
+              titulo: `The price is set and published by ${SOCIEDAD.nombre}`,
               texto:
                 "the supplier sells us the merchandise at its price; the price at which we resell it to you is set and published by us, and it is the one you see in the catalog.",
             },
@@ -731,7 +724,7 @@ export const TERMINOS_EN: PaginaContenido = {
           tono: "acento",
           titulo: "You answer to us, and we answer to you",
           parrafos: [
-            "As the seller of the merchandise, Windoce, LLC is answerable to you for the product you bought. You do not have to claim against the supplier or negotiate with them: your contract is with us.",
+            `As the seller of the merchandise, ${SOCIEDAD.nombre} is answerable to you for the product you bought. You do not have to claim against the supplier or negotiate with them: your contract is with us.`,
           ],
         },
         {
@@ -794,13 +787,11 @@ export const TERMINOS_EN: PaginaContenido = {
           puntos: [
             {
               titulo: "You sell us the merchandise and invoice us",
-              texto:
-                "when a sale occurs, Windoce, LLC buys that merchandise from you and you issue an invoice to Windoce, LLC. You do not appoint us as your representative for anything, and we do not sell anything for your account.",
+              texto: `when a sale occurs, ${SOCIEDAD.nombre} buys that merchandise from you and you issue an invoice to ${SOCIEDAD.nombre}. You do not appoint us as your representative for anything, and we do not sell anything for your account.`,
             },
             {
               titulo: "You set your price; we set ours",
-              texto:
-                "the price you sell to us at is yours to set. The price at which Windoce, LLC resells to the buyer is set and published by us, and it includes our commercial markup.",
+              texto: `the price you sell to us at is yours to set. The price at which ${SOCIEDAD.nombre} resells to the buyer is set and published by us, and it includes our commercial markup.`,
             },
             {
               titulo: "You are responsible for what you list",
@@ -909,8 +900,7 @@ export const TERMINOS_EN: PaginaContenido = {
             },
             {
               titulo: "Governing law",
-              texto:
-                "these terms are governed by the laws of the United States of America and of the state where Windoce, LLC is registered.",
+              texto: `these terms are governed by the laws of the United States of America and of the state where ${SOCIEDAD.nombre} is registered.`,
             },
             {
               titulo: "Write to us",
@@ -922,6 +912,5 @@ export const TERMINOS_EN: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Mercatren is a brand of Windoce, LLC, a company registered in the United States. This document describes the conditions of the service; it is not legal, accounting, or tax advice.",
+  cierre: `Mercatren is a brand of ${SOCIEDAD.nombre}, a company registered in the United States. This document describes the conditions of the service; it is not legal, accounting, or tax advice.`,
 };

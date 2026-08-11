@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * "Vender en Mercatren": la pagina que abre el comercio que esta evaluando
@@ -372,8 +373,7 @@ export const COMISIONES_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Cuando alguien compra en Mercatren, ocurren dos compraventas seguidas: Windoce, LLC te compra la mercancía a ti, y se la vende al comprador. Por eso hay dos precios.",
+          texto: `Cuando alguien compra en Mercatren, ocurren dos compraventas seguidas: ${SOCIEDAD.nombre} te compra la mercancía a ti, y se la vende al comprador. Por eso hay dos precios.`,
         },
         {
           tipo: "tabla",
@@ -382,11 +382,11 @@ export const COMISIONES_ES: PaginaContenido = {
             [
               "Precio de compra",
               "Tú, el proveedor",
-              "Lo que Windoce, LLC te paga por la mercancía. Es el importe de tu factura y es el que cobras.",
+              `Lo que ${SOCIEDAD.nombre} te paga por la mercancía. Es el importe de tu factura y es el que cobras.`,
             ],
             [
               "Precio publicado",
-              "Windoce, LLC",
+              `${SOCIEDAD.nombre}`,
               "Lo que paga el comprador. Es el precio final: incluye nuestro margen comercial y no lleva cargos aparte.",
             ],
           ],
@@ -411,8 +411,7 @@ export const COMISIONES_ES: PaginaContenido = {
           puntos: [
             {
               titulo: "Contra factura",
-              texto:
-                "cada compra que te hacemos lleva tu factura a nombre de Windoce, LLC. Sin esa factura la operación no se cierra.",
+              texto: `cada compra que te hacemos lleva tu factura a nombre de ${SOCIEDAD.nombre}. Sin esa factura la operación no se cierra.`,
             },
             {
               titulo: "A una cuenta bancaria de Estados Unidos",
@@ -532,8 +531,7 @@ export const COMISIONES_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "When someone buys on Mercatren, two sales happen back to back: Windoce, LLC buys the merchandise from you, and sells it to the buyer. That is why there are two prices.",
+          texto: `When someone buys on Mercatren, two sales happen back to back: ${SOCIEDAD.nombre} buys the merchandise from you, and sells it to the buyer. That is why there are two prices.`,
         },
         {
           tipo: "tabla",
@@ -542,11 +540,11 @@ export const COMISIONES_EN: PaginaContenido = {
             [
               "Purchase price",
               "You, the supplier",
-              "What Windoce, LLC pays you for the merchandise. It is the amount on your invoice and what you get paid.",
+              `What ${SOCIEDAD.nombre} pays you for the merchandise. It is the amount on your invoice and what you get paid.`,
             ],
             [
               "Published price",
-              "Windoce, LLC",
+              `${SOCIEDAD.nombre}`,
               "What the buyer pays. It is the final price: it includes our commercial markup and carries no separate charges.",
             ],
           ],
@@ -571,8 +569,7 @@ export const COMISIONES_EN: PaginaContenido = {
           puntos: [
             {
               titulo: "Against an invoice",
-              texto:
-                "every purchase we make from you carries your invoice issued to Windoce, LLC. Without that invoice the transaction does not close.",
+              texto: `every purchase we make from you carries your invoice issued to ${SOCIEDAD.nombre}. Without that invoice the transaction does not close.`,
             },
             {
               titulo: "To a US bank account",

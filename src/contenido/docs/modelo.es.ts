@@ -1,4 +1,5 @@
 import type { Documento } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * El modelo de negocio de Mercatren, en publico.
@@ -30,14 +31,13 @@ export const MODELO_ES: Documento = {
     "Comercio electrónico transfronterizo con compra y reventa en Estados Unidos",
   subtitulo:
     "Qué vende Mercatren y a quién, cómo se documenta cada operación, por qué la estructura es una compraventa de mercancía y qué evidencia queda en cada paso.",
-  resumen:
-    "Mercatren es una tienda en línea operada por Windoce, LLC. El comprador en Estados Unidos adquiere un producto del catálogo y designa la dirección donde debe entregarse. Windoce, LLC compra esa mercancía al proveedor a nombre propio y la revende al comprador. El precio publicado es el precio final e incluye nuestro margen comercial.",
+  resumen: `Mercatren es una tienda en línea operada por ${SOCIEDAD.nombre}. El comprador en Estados Unidos adquiere un producto del catálogo y designa la dirección donde debe entregarse. ${SOCIEDAD.nombre} compra esa mercancía al proveedor a nombre propio y la revende al comprador. El precio publicado es el precio final e incluye nuestro margen comercial.`,
   version: "V1",
   actualizado: "5 de agosto de 2026",
 
   entradilla: [
-    "Mercatren es una tienda en línea operada por Windoce, LLC, sociedad registrada en Delaware, Estados Unidos. Un comprador en Estados Unidos elige un producto del catálogo, paga el precio publicado desde un banco estadounidense y designa la dirección donde debe entregarse. Windoce, LLC compra esa mercancía al proveedor a nombre propio, con factura emitida a su nombre, y la revende al comprador, con factura de venta a nombre de este.",
-    "No recibimos ni administramos dinero de terceros. Cada transacción es una compraventa de mercancía entre el comprador y Windoce, LLC. El ingreso de la operación es el precio de venta de un producto propio; el egreso es el costo de la mercancía vendida. El producto se entrega físicamente en la dirección designada: en ningún caso se entrega dinero.",
+    `Mercatren es una tienda en línea operada por ${SOCIEDAD.nombre}, sociedad registrada en ${SOCIEDAD.estado}, Estados Unidos. Un comprador en Estados Unidos elige un producto del catálogo, paga el precio publicado desde un banco estadounidense y designa la dirección donde debe entregarse. ${SOCIEDAD.nombre} compra esa mercancía al proveedor a nombre propio, con factura emitida a su nombre, y la revende al comprador, con factura de venta a nombre de este.`,
+    `No recibimos ni administramos dinero de terceros. Cada transacción es una compraventa de mercancía entre el comprador y ${SOCIEDAD.nombre}. El ingreso de la operación es el precio de venta de un producto propio; el egreso es el costo de la mercancía vendida. El producto se entrega físicamente en la dirección designada: en ningún caso se entrega dinero.`,
   ],
 
   cifras: [
@@ -61,8 +61,7 @@ export const MODELO_ES: Documento = {
   ideasClave: [
     {
       titulo: "Uno",
-      texto:
-        "La estructura es una compraventa. Windoce, LLC compra la mercancía como principal y la revende como principal. La propiedad del producto pasa del proveedor a Windoce, LLC y de Windoce, LLC al comprador.",
+      texto: `La estructura es una compraventa. ${SOCIEDAD.nombre} compra la mercancía como principal y la revende como principal. La propiedad del producto pasa del proveedor a ${SOCIEDAD.nombre} y de ${SOCIEDAD.nombre} al comprador.`,
     },
     {
       titulo: "Dos",
@@ -88,8 +87,7 @@ export const MODELO_ES: Documento = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Mercatren vende productos físicos a compradores residentes en Estados Unidos. Opera como una tienda en línea con catálogo, carrito, pago y factura, y es un servicio de Windoce, LLC (Delaware, Estados Unidos).",
+          texto: `Mercatren vende productos físicos a compradores residentes en Estados Unidos. Opera como una tienda en línea con catálogo, carrito, pago y factura, y es un servicio de ${SOCIEDAD.nombre} (${SOCIEDAD.estado}, Estados Unidos).`,
         },
         {
           tipo: "parrafo",
@@ -103,7 +101,7 @@ export const MODELO_ES: Documento = {
             tono: "bien",
             puntos: [
               "Una tienda en línea que vende mercancía por cuenta propia.",
-              "Comprador de esa mercancía frente al proveedor, con factura a nombre de Windoce, LLC.",
+              `Comprador de esa mercancía frente al proveedor, con factura a nombre de ${SOCIEDAD.nombre}.`,
               "Vendedor frente al comprador estadounidense, con factura de venta a su nombre.",
               "Responsables del precio publicado, que es el precio final de venta.",
             ],
@@ -140,8 +138,7 @@ export const MODELO_ES: Documento = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Cada operación son dos contratos de compraventa consecutivos, no un encargo. Windoce, LLC es parte de los dos, y en los dos actúa como principal: compra para sí y vende lo suyo.",
+          texto: `Cada operación son dos contratos de compraventa consecutivos, no un encargo. ${SOCIEDAD.nombre} es parte de los dos, y en los dos actúa como principal: compra para sí y vende lo suyo.`,
         },
         {
           tipo: "tabla",
@@ -150,17 +147,17 @@ export const MODELO_ES: Documento = {
             [
               "A · Comprador",
               "Persona en Estados Unidos",
-              "Compra un producto a Windoce, LLC y paga el precio publicado desde un banco estadounidense. Designa la dirección de entrega y responde por su exactitud. Recibe factura de venta a su nombre.",
+              `Compra un producto a ${SOCIEDAD.nombre} y paga el precio publicado desde un banco estadounidense. Designa la dirección de entrega y responde por su exactitud. Recibe factura de venta a su nombre.`,
             ],
             [
-              "B · Windoce, LLC",
+              `B · ${SOCIEDAD.nombre}`,
               "Sociedad registrada en Delaware, Estados Unidos. Opera la marca Mercatren",
               "Compra la mercancía al proveedor a nombre propio y la revende al comprador. Fija y publica el precio final de venta. Emite la factura de venta y conserva la factura de compra. Asume el riesgo comercial de la operación.",
             ],
             [
               "C · Proveedor",
               "Comercio que publica su catálogo en Mercatren",
-              "Vende la mercancía a Windoce, LLC y le emite factura a su nombre. Despacha el producto a la dirección designada en la orden. Cobra el precio de la mercancía vendida contra su factura.",
+              `Vende la mercancía a ${SOCIEDAD.nombre} y le emite factura a su nombre. Despacha el producto a la dirección designada en la orden. Cobra el precio de la mercancía vendida contra su factura.`,
             ],
             [
               "— · Dirección de entrega",
@@ -187,21 +184,19 @@ export const MODELO_ES: Documento = {
               ],
             },
             {
-              titulo: "2. Factura del proveedor a Windoce, LLC",
-              ocurre:
-                "Windoce, LLC compra la mercancía al proveedor a nombre propio.",
+              titulo: `2. Factura del proveedor a ${SOCIEDAD.nombre}`,
+              ocurre: `${SOCIEDAD.nombre} compra la mercancía al proveedor a nombre propio.`,
               evidencia: [
-                "Factura emitida por el proveedor a nombre de Windoce, LLC",
+                `Factura emitida por el proveedor a nombre de ${SOCIEDAD.nombre}`,
                 "Detalle de la mercancía y precio de compra",
                 "Referencia a la orden que la origina",
               ],
             },
             {
               titulo: "3. Factura de venta al comprador",
-              ocurre:
-                "Windoce, LLC revende la mercancía al comprador estadounidense.",
+              ocurre: `${SOCIEDAD.nombre} revende la mercancía al comprador estadounidense.`,
               evidencia: [
-                "Factura de venta emitida por Windoce, LLC a nombre del comprador",
+                `Factura de venta emitida por ${SOCIEDAD.nombre} a nombre del comprador`,
                 "Precio final de venta, el mismo que estaba publicado",
                 "Vinculación con la orden y con la factura de compra",
               ],
@@ -223,7 +218,7 @@ export const MODELO_ES: Documento = {
           tono: "bien",
           titulo: "Por qué importa que las dos facturas existan",
           parrafos: [
-            "Sin la factura de compra a nombre de Windoce, LLC, la figura de reventa no se sostiene ante una auditoría: quedaría una entrada de dinero sin una compra que la respalde. Con las dos facturas, cada operación se lee como lo que es — una mercancía comprada y revendida — y el margen comercial aparece como diferencia entre dos precios, no como un porcentaje retenido sobre dinero ajeno.",
+            `Sin la factura de compra a nombre de ${SOCIEDAD.nombre}, la figura de reventa no se sostiene ante una auditoría: quedaría una entrada de dinero sin una compra que la respalde. Con las dos facturas, cada operación se lee como lo que es — una mercancía comprada y revendida — y el margen comercial aparece como diferencia entre dos precios, no como un porcentaje retenido sobre dinero ajeno.`,
           ],
         },
       ],
@@ -247,7 +242,7 @@ export const MODELO_ES: Documento = {
           tono: "bien",
           titulo: "Las dos puntas son compraventas",
           parrafos: [
-            "El comprador no entrega dinero para que llegue a alguien: paga el precio de un producto que compró. Windoce, LLC no aplica ese dinero a la cuenta de un tercero: compra con recursos propios la mercancía que ya vendió. Son dos compraventas encadenadas, y cada una queda documentada con su factura.",
+            `El comprador no entrega dinero para que llegue a alguien: paga el precio de un producto que compró. ${SOCIEDAD.nombre} no aplica ese dinero a la cuenta de un tercero: compra con recursos propios la mercancía que ya vendió. Son dos compraventas encadenadas, y cada una queda documentada con su factura.`,
           ],
         },
       ],
@@ -273,11 +268,11 @@ export const MODELO_ES: Documento = {
             },
             {
               numero: "2",
-              etiqueta: "Comprador → Windoce, LLC · Estados Unidos",
+              etiqueta: `Comprador → ${SOCIEDAD.nombre} · Estados Unidos`,
               titulo:
                 "Paga el precio publicado desde un banco de Estados Unidos",
               parrafos: [
-                "El comprador paga el precio final de venta. Solo se aceptan pagos originados en bancos de Estados Unidos, y esa comprobación se hace antes de dar la orden por buena. Ese importe es ingreso propio de Windoce, LLC desde el momento de la venta.",
+                `El comprador paga el precio final de venta. Solo se aceptan pagos originados en bancos de Estados Unidos, y esa comprobación se hace antes de dar la orden por buena. Ese importe es ingreso propio de ${SOCIEDAD.nombre} desde el momento de la venta.`,
               ],
             },
             {
@@ -290,10 +285,10 @@ export const MODELO_ES: Documento = {
             },
             {
               numero: "4",
-              etiqueta: "Windoce, LLC → Proveedor",
-              titulo: "Windoce, LLC compra la mercancía a nombre propio",
+              etiqueta: `${SOCIEDAD.nombre} → Proveedor`,
+              titulo: `${SOCIEDAD.nombre} compra la mercancía a nombre propio`,
               parrafos: [
-                "Con la venta cerrada, Windoce, LLC compra al proveedor la mercancía vendida. El proveedor emite factura a nombre de Windoce, LLC. Esa compra es costo de la mercancía vendida, y se paga contra factura a cuentas bancarias de Estados Unidos.",
+                `Con la venta cerrada, ${SOCIEDAD.nombre} compra al proveedor la mercancía vendida. El proveedor emite factura a nombre de ${SOCIEDAD.nombre}. Esa compra es costo de la mercancía vendida, y se paga contra factura a cuentas bancarias de Estados Unidos.`,
               ],
             },
             {
@@ -306,10 +301,10 @@ export const MODELO_ES: Documento = {
             },
             {
               numero: "6",
-              etiqueta: "Windoce, LLC → Comprador",
+              etiqueta: `${SOCIEDAD.nombre} → Comprador`,
               titulo: "Se emite la factura de venta y se cierra la orden",
               parrafos: [
-                "Windoce, LLC emite al comprador la factura de venta del producto y cierra la orden. Al final quedan, unidas por el número de orden, la factura de compra a nombre de Windoce, LLC, la factura de venta al comprador y el comprobante de entrega.",
+                `${SOCIEDAD.nombre} emite al comprador la factura de venta del producto y cierra la orden. Al final quedan, unidas por el número de orden, la factura de compra a nombre de ${SOCIEDAD.nombre}, la factura de venta al comprador y el comprobante de entrega.`,
               ],
             },
           ],
@@ -319,7 +314,7 @@ export const MODELO_ES: Documento = {
           tono: "neutro",
           titulo: "Sobre el proveedor del piloto",
           parrafos: [
-            "El comercio con el que operamos hoy es una empresa independiente, con sus propios dueños y su propio inventario. No es una filial ni un negocio nuestro: es un proveedor que nos vende mercancía y nos factura a nombre de Windoce, LLC. Es el primero, y en el futuro habrá más.",
+            `El comercio con el que operamos hoy es una empresa independiente, con sus propios dueños y su propio inventario. No es una filial ni un negocio nuestro: es un proveedor que nos vende mercancía y nos factura a nombre de ${SOCIEDAD.nombre}. Es el primero, y en el futuro habrá más.`,
           ],
         },
       ],
@@ -343,8 +338,8 @@ export const MODELO_ES: Documento = {
           titulo: "El criterio, y por qué la estructura no encaja en él",
           parrafos: [
             "Money transmission describe, en lo esencial, recibir dinero de una persona para transmitirlo o aplicarlo a favor de otra. Los dos elementos tienen que estar presentes: que el dinero recibido sea de un tercero, y que se transmita o aplique en beneficio de otro.",
-            "En esta estructura no está ninguno de los dos. El dinero que Mercatren recibe es el precio de un producto que vendió: es ingreso propio de Windoce, LLC desde el momento de la venta, no dinero de un tercero. Y el dinero que sale es el precio de una mercancía que Windoce, LLC compró para sí, con factura a su nombre: es costo de mercancía vendida, no un pago hecho a favor de otro.",
-            "Lo que ocurre entre las dos puntas es una transferencia de propiedad de bienes: el producto pasa del proveedor a Windoce, LLC y de Windoce, LLC al comprador. La ganancia es la diferencia entre dos precios de una compraventa.",
+            `En esta estructura no está ninguno de los dos. El dinero que Mercatren recibe es el precio de un producto que vendió: es ingreso propio de ${SOCIEDAD.nombre} desde el momento de la venta, no dinero de un tercero. Y el dinero que sale es el precio de una mercancía que ${SOCIEDAD.nombre} compró para sí, con factura a su nombre: es costo de mercancía vendida, no un pago hecho a favor de otro.`,
+            `Lo que ocurre entre las dos puntas es una transferencia de propiedad de bienes: el producto pasa del proveedor a ${SOCIEDAD.nombre} y de ${SOCIEDAD.nombre} al comprador. La ganancia es la diferencia entre dos precios de una compraventa.`,
           ],
         },
         {
@@ -358,12 +353,12 @@ export const MODELO_ES: Documento = {
             [
               "Origen del dinero recibido",
               "Es de un tercero; el operador solo lo tiene en tránsito",
-              "Es el precio de venta de un producto propio, ingreso de Windoce, LLC",
+              `Es el precio de venta de un producto propio, ingreso de ${SOCIEDAD.nombre}`,
             ],
             [
               "Destino del dinero que sale",
               "Se entrega o aplica en beneficio de otra persona",
-              "Paga una mercancía comprada por Windoce, LLC, con factura a su nombre",
+              `Paga una mercancía comprada por ${SOCIEDAD.nombre}, con factura a su nombre`,
             ],
             [
               "Objeto del contrato",
@@ -389,7 +384,7 @@ export const MODELO_ES: Documento = {
           tono: "ojo",
           titulo: "Lo que este documento no afirma",
           parrafos: [
-            "Este apartado describe la estructura de la operación y el criterio general aplicable. No afirma que exista una determinación, opinión o autorización de ninguna autoridad a favor de Windoce, LLC, ni sustituye asesoramiento legal.",
+            `Este apartado describe la estructura de la operación y el criterio general aplicable. No afirma que exista una determinación, opinión o autorización de ninguna autoridad a favor de ${SOCIEDAD.nombre}, ni sustituye asesoramiento legal.`,
           ],
         },
       ],
@@ -485,13 +480,11 @@ export const MODELO_ES: Documento = {
             },
             {
               titulo: "La factura de compra",
-              texto:
-                "Documento emitido por el proveedor a nombre de Windoce, LLC, con el detalle de la mercancía y su precio de compra, unido al número de orden.",
+              texto: `Documento emitido por el proveedor a nombre de ${SOCIEDAD.nombre}, con el detalle de la mercancía y su precio de compra, unido al número de orden.`,
             },
             {
               titulo: "La factura de venta",
-              texto:
-                "Documento emitido por Windoce, LLC al comprador, con el precio final de venta, unido al mismo número de orden.",
+              texto: `Documento emitido por ${SOCIEDAD.nombre} al comprador, con el precio final de venta, unido al mismo número de orden.`,
             },
             {
               titulo: "La entrega",
@@ -510,7 +503,7 @@ export const MODELO_ES: Documento = {
           tono: "acento",
           titulo: "La prueba de que la estructura es real",
           parrafos: [
-            "Una estructura de reventa se demuestra con documentos, no con redacción. Si por cada entrada de dinero existe una factura de compra a nombre de Windoce, LLC y una factura de venta al comprador, la operación es lo que este documento dice que es. Si esas facturas faltan, ninguna redacción la sostiene.",
+            `Una estructura de reventa se demuestra con documentos, no con redacción. Si por cada entrada de dinero existe una factura de compra a nombre de ${SOCIEDAD.nombre} y una factura de venta al comprador, la operación es lo que este documento dice que es. Si esas facturas faltan, ninguna redacción la sostiene.`,
           ],
         },
       ],
@@ -525,8 +518,7 @@ export const MODELO_ES: Documento = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "El servicio está en fase inicial, con un proveedor y un catálogo. El crecimiento es de catálogo y de cobertura, y no cambia la estructura descrita en este documento: cada proveedor nuevo es un proveedor más al que se le compra mercancía con factura a nombre de Windoce, LLC.",
+          texto: `El servicio está en fase inicial, con un proveedor y un catálogo. El crecimiento es de catálogo y de cobertura, y no cambia la estructura descrita en este documento: cada proveedor nuevo es un proveedor más al que se le compra mercancía con factura a nombre de ${SOCIEDAD.nombre}.`,
         },
         {
           tipo: "lista",
@@ -582,7 +574,7 @@ export const MODELO_ES: Documento = {
           tono: "bien",
           titulo: "En una frase",
           parrafos: [
-            "No recibimos ni administramos dinero de terceros. Cada transacción es una compraventa de mercancía entre el comprador y Windoce, LLC: compramos el producto a nombre propio, lo revendemos al comprador en Estados Unidos y lo entregamos en la dirección que él designa.",
+            `No recibimos ni administramos dinero de terceros. Cada transacción es una compraventa de mercancía entre el comprador y ${SOCIEDAD.nombre}: compramos el producto a nombre propio, lo revendemos al comprador en Estados Unidos y lo entregamos en la dirección que él designa.`,
           ],
         },
       ],
@@ -602,14 +594,14 @@ export const MODELO_ES: Documento = {
       },
       mercatren: {
         rol: "B",
-        nombre: "Windoce, LLC · Mercatren",
+        nombre: `${SOCIEDAD.nombre} · Mercatren`,
         detalle:
           "Vende el producto al comprador y compra la mercancía al proveedor, a nombre propio",
       },
       proveedor: {
         rol: "C",
         nombre: "Proveedor",
-        detalle: "Vende la mercancía a Windoce, LLC y le factura a su nombre",
+        detalle: `Vende la mercancía a ${SOCIEDAD.nombre} y le factura a su nombre`,
       },
       comercio: {
         rol: "C",
@@ -622,7 +614,7 @@ export const MODELO_ES: Documento = {
         detalle: "Recibe un producto físico. Nunca dinero",
       },
       paga: "Paga el precio publicado del producto",
-      compra: "Compra la mercancía · factura a nombre de Windoce, LLC",
+      compra: `Compra la mercancía · factura a nombre de ${SOCIEDAD.nombre}`,
       pide: "El producto sale del inventario del proveedor",
       entrega: "Entrega del producto y constancia con fecha",
       orden: "Viaja la orden: qué producto y a qué dirección",
@@ -646,12 +638,11 @@ export const MODELO_ES: Documento = {
       siTitulo: "La estructura real: compraventa de mercancía",
       siTexto:
         "Dos compraventas con factura, cerradas dentro de Estados Unidos. Lo único que cruza la frontera es el producto.",
-      siCajas: ["Comprador en EE. UU.", "Windoce, LLC", "Proveedor"],
+      siCajas: ["Comprador en EE. UU.", `${SOCIEDAD.nombre}`, "Proveedor"],
       cruzaCajas: ["Producto en camino", "Dirección de entrega"],
       circuito: "Circuito comercial completo dentro de Estados Unidos",
       frontera: "← la raya de puntos es la frontera",
-      consecuencia:
-        "El dinero que entra es el precio de venta de un producto propio y el que sale es el costo de la mercancía comprada, con factura a nombre de Windoce, LLC. Del otro lado de la frontera no se mueve dinero: se entrega un producto.",
+      consecuencia: `El dinero que entra es el precio de venta de un producto propio y el que sale es el costo de la mercancía comprada, con factura a nombre de ${SOCIEDAD.nombre}. Del otro lado de la frontera no se mueve dinero: se entrega un producto.`,
     },
 
     resumen: {
@@ -663,8 +654,7 @@ export const MODELO_ES: Documento = {
         },
         {
           titulo: "Adquisición",
-          detalle:
-            "Windoce, LLC compra esa mercancía al proveedor a nombre propio, con factura a su nombre.",
+          detalle: `${SOCIEDAD.nombre} compra esa mercancía al proveedor a nombre propio, con factura a su nombre.`,
         },
         {
           titulo: "Entrega",
@@ -673,16 +663,15 @@ export const MODELO_ES: Documento = {
         },
         {
           titulo: "Factura",
-          detalle:
-            "Windoce, LLC emite la factura de venta al comprador y cierra la orden con toda su documentación.",
+          detalle: `${SOCIEDAD.nombre} emite la factura de venta al comprador y cierra la orden con toda su documentación.`,
         },
       ],
       banda: "Compraventa de mercancía, con dos facturas por operación",
       sinDinero: "En ningún punto se entrega dinero a nadie",
       afirmaciones: [
-        "El dinero recibido es ingreso propio de Windoce, LLC por la venta de un producto.",
-        "El dinero pagado al proveedor es costo de la mercancía vendida, con factura a nombre de Windoce, LLC.",
-        "La propiedad del producto pasa del proveedor a Windoce, LLC y de Windoce, LLC al comprador.",
+        `El dinero recibido es ingreso propio de ${SOCIEDAD.nombre} por la venta de un producto.`,
+        `El dinero pagado al proveedor es costo de la mercancía vendida, con factura a nombre de ${SOCIEDAD.nombre}.`,
+        `La propiedad del producto pasa del proveedor a ${SOCIEDAD.nombre} y de ${SOCIEDAD.nombre} al comprador.`,
         "Quien recibe en la dirección designada recibe un producto físico, nunca dinero.",
         "El precio publicado es el precio final e incluye el margen comercial.",
         "Solo se aceptan pagos originados en bancos de Estados Unidos.",
@@ -699,8 +688,7 @@ export const MODELO_ES: Documento = {
     },
     {
       pregunta: "¿De quién es el dinero?",
-      respuesta:
-        "De Windoce, LLC, desde el momento de la venta. Es el precio de un producto vendido, no dinero de un tercero bajo nuestra administración.",
+      respuesta: `De ${SOCIEDAD.nombre}, desde el momento de la venta. Es el precio de un producto vendido, no dinero de un tercero bajo nuestra administración.`,
     },
     {
       pregunta: "¿Qué recibe la persona en la dirección de entrega?",
@@ -708,6 +696,5 @@ export const MODELO_ES: Documento = {
     },
   ],
 
-  aviso:
-    "Este documento describe la estructura y la operación del servicio. No constituye asesoramiento legal, contable ni fiscal, y no afirma que exista determinación alguna de una autoridad a favor de Windoce, LLC. Mercatren es un servicio operado por Windoce, LLC (Delaware, Estados Unidos).",
+  aviso: `Este documento describe la estructura y la operación del servicio. No constituye asesoramiento legal, contable ni fiscal, y no afirma que exista determinación alguna de una autoridad a favor de ${SOCIEDAD.nombre}. Mercatren es un servicio operado por ${SOCIEDAD.nombre} (${SOCIEDAD.estado}, Estados Unidos).`,
 };

@@ -1,4 +1,5 @@
 import type { Articulo } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * Los artículos en español.
@@ -128,8 +129,7 @@ export const ARTICULOS_ES: Articulo[] = [
         tipo: "aviso",
         tono: "ojo",
         titulo: "El crédito lo da el comercio, no Mercatren",
-        texto:
-          "El comercio decide a quién, cuánto y a cuántos días, y entrega la mercancía bajo su propio acuerdo con su cliente. Windoce, LLC no presta dinero ni sale de garante: si un cliente no paga, esa cuenta es entre él y su proveedor.",
+        texto: `El comercio decide a quién, cuánto y a cuántos días, y entrega la mercancía bajo su propio acuerdo con su cliente. ${SOCIEDAD.nombre} no presta dinero ni sale de garante: si un cliente no paga, esa cuenta es entre él y su proveedor.`,
       },
       { tipo: "subtitulo", texto: "Cómo entra el dinero" },
       {
@@ -139,8 +139,7 @@ export const ARTICULOS_ES: Articulo[] = [
       },
       {
         tipo: "parrafo",
-        texto:
-          "Por eso Windoce, LLC nunca financia nada: sigue comprando y revendiendo mercancía, que es su figura de siempre. Prestar dinero en Estados Unidos exige licencias estatales de prestamista, y este modelo no las necesita porque no presta.",
+        texto: `Por eso ${SOCIEDAD.nombre} nunca financia nada: sigue comprando y revendiendo mercancía, que es su figura de siempre. Prestar dinero en Estados Unidos exige licencias estatales de prestamista, y este modelo no las necesita porque no presta.`,
       },
       { tipo: "subtitulo", texto: "Paso a paso" },
       {

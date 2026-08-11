@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * POLÍTICA DE DEVOLUCIONES.
@@ -205,8 +206,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "Esta política forma parte de los términos y condiciones de Mercatren, un servicio de Windoce, LLC. Windoce, LLC es quien te vende y te factura, así que tu reclamo lo atendemos nosotros y no tienes que discutirlo con el comercio.",
+  cierre: `Esta política forma parte de los términos y condiciones de Mercatren, un servicio de ${SOCIEDAD.nombre}. ${SOCIEDAD.nombre} es quien te vende y te factura, así que tu reclamo lo atendemos nosotros y no tienes que discutirlo con el comercio.`,
   accion: {
     titulo: "¿Tienes un problema con un pedido?",
     texto:
@@ -392,8 +392,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
       ],
     },
   ],
-  cierre:
-    "This policy is part of the terms and conditions of Mercatren, a service of Windoce, LLC. Windoce, LLC is who sells to you and invoices you, so we handle your claim directly — you don't have to take it up with the seller.",
+  cierre: `This policy is part of the terms and conditions of Mercatren, a service of ${SOCIEDAD.nombre}. ${SOCIEDAD.nombre} is who sells to you and invoices you, so we handle your claim directly — you don't have to take it up with the seller.`,
   accion: {
     titulo: "Having a problem with an order?",
     texto: "Email us your order number. A person on our team will answer.",

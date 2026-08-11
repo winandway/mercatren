@@ -1,4 +1,5 @@
 import type { Documento } from "./tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * The public business-model document, in English.
@@ -22,14 +23,13 @@ export const MODELO_EN: Documento = {
   titulo: "Cross-border ecommerce with US-based purchase and resale",
   subtitulo:
     "What Mercatren sells and to whom, how every transaction is documented, why the structure is a sale of goods, and what evidence each step leaves behind.",
-  resumen:
-    "Mercatren is an online store operated by Windoce, LLC. A buyer in the United States purchases a product from the catalog and designates the address where it must be delivered. Windoce, LLC buys that merchandise from the supplier in its own name and resells it to the buyer. The published price is the final sale price and includes our commercial markup.",
+  resumen: `Mercatren is an online store operated by ${SOCIEDAD.nombre}. A buyer in the United States purchases a product from the catalog and designates the address where it must be delivered. ${SOCIEDAD.nombre} buys that merchandise from the supplier in its own name and resells it to the buyer. The published price is the final sale price and includes our commercial markup.`,
   version: "V1",
   actualizado: "August 5, 2026",
 
   entradilla: [
-    "Mercatren is an online store operated by Windoce, LLC, a company registered in Delaware, United States. A buyer in the United States selects a product from the catalog, pays the published price from a US bank, and designates the address where it must be delivered. Windoce, LLC buys that merchandise from the supplier in its own name, with an invoice issued to Windoce, LLC, and resells it to the buyer, with a sales invoice issued in the buyer's name.",
-    "We do not receive or administer money belonging to third parties. Every transaction is a sale of goods between the buyer and Windoce, LLC. What comes in is revenue from the sale of our own product; what goes out is the cost of goods sold. The product is physically delivered to the designated address: at no point is money delivered to anyone.",
+    `Mercatren is an online store operated by ${SOCIEDAD.nombre}, a company registered in ${SOCIEDAD.estado}, United States. A buyer in the United States selects a product from the catalog, pays the published price from a US bank, and designates the address where it must be delivered. ${SOCIEDAD.nombre} buys that merchandise from the supplier in its own name, with an invoice issued to ${SOCIEDAD.nombre}, and resells it to the buyer, with a sales invoice issued in the buyer's name.`,
+    `We do not receive or administer money belonging to third parties. Every transaction is a sale of goods between the buyer and ${SOCIEDAD.nombre}. What comes in is revenue from the sale of our own product; what goes out is the cost of goods sold. The product is physically delivered to the designated address: at no point is money delivered to anyone.`,
   ],
 
   cifras: [
@@ -53,8 +53,7 @@ export const MODELO_EN: Documento = {
   ideasClave: [
     {
       titulo: "One",
-      texto:
-        "The structure is a sale of goods. Windoce, LLC buys the merchandise as principal and resells it as principal. Title to the product passes from the supplier to Windoce, LLC and from Windoce, LLC to the buyer.",
+      texto: `The structure is a sale of goods. ${SOCIEDAD.nombre} buys the merchandise as principal and resells it as principal. Title to the product passes from the supplier to ${SOCIEDAD.nombre} and from ${SOCIEDAD.nombre} to the buyer.`,
     },
     {
       titulo: "Two",
@@ -80,8 +79,7 @@ export const MODELO_EN: Documento = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Mercatren sells physical products to buyers residing in the United States. It operates as an online store with a catalog, cart, checkout, and invoice, and it is a service of Windoce, LLC (Delaware, United States).",
+          texto: `Mercatren sells physical products to buyers residing in the United States. It operates as an online store with a catalog, cart, checkout, and invoice, and it is a service of ${SOCIEDAD.nombre} (${SOCIEDAD.estado}, United States).`,
         },
         {
           tipo: "parrafo",
@@ -95,7 +93,7 @@ export const MODELO_EN: Documento = {
             tono: "bien",
             puntos: [
               "An online store that sells merchandise for its own account.",
-              "The buyer of that merchandise from the supplier, invoiced to Windoce, LLC.",
+              `The buyer of that merchandise from the supplier, invoiced to ${SOCIEDAD.nombre}.`,
               "The seller to the US buyer, with a sales invoice in the buyer's name.",
               "Responsible for the published price, which is the final sale price.",
             ],
@@ -132,8 +130,7 @@ export const MODELO_EN: Documento = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Every transaction is two consecutive contracts of sale, not an engagement to act for someone else. Windoce, LLC is a party to both, and in both it acts as principal: it buys for itself and sells what is its own.",
+          texto: `Every transaction is two consecutive contracts of sale, not an engagement to act for someone else. ${SOCIEDAD.nombre} is a party to both, and in both it acts as principal: it buys for itself and sells what is its own.`,
         },
         {
           tipo: "tabla",
@@ -142,17 +139,17 @@ export const MODELO_EN: Documento = {
             [
               "A · Buyer",
               "Person in the United States",
-              "Buys a product from Windoce, LLC and pays the published price from a US bank. Designates the delivery address and is responsible for its accuracy. Receives a sales invoice in their name.",
+              `Buys a product from ${SOCIEDAD.nombre} and pays the published price from a US bank. Designates the delivery address and is responsible for its accuracy. Receives a sales invoice in their name.`,
             ],
             [
-              "B · Windoce, LLC",
+              `B · ${SOCIEDAD.nombre}`,
               "Company registered in Delaware, United States. Operates the Mercatren brand",
               "Buys the merchandise from the supplier in its own name and resells it to the buyer. Sets and publishes the final sale price. Issues the sales invoice and retains the purchase invoice. Bears the commercial risk of the transaction.",
             ],
             [
               "C · Supplier",
               "Merchant that publishes its catalog on Mercatren",
-              "Sells the merchandise to Windoce, LLC and invoices Windoce, LLC for it. Ships the product to the address designated in the order. Is paid for the merchandise sold against its invoice.",
+              `Sells the merchandise to ${SOCIEDAD.nombre} and invoices ${SOCIEDAD.nombre} for it. Ships the product to the address designated in the order. Is paid for the merchandise sold against its invoice.`,
             ],
             [
               "— · Delivery address",
@@ -179,20 +176,19 @@ export const MODELO_EN: Documento = {
               ],
             },
             {
-              titulo: "2. Supplier invoice to Windoce, LLC",
-              ocurre:
-                "Windoce, LLC buys the merchandise from the supplier in its own name.",
+              titulo: `2. Supplier invoice to ${SOCIEDAD.nombre}`,
+              ocurre: `${SOCIEDAD.nombre} buys the merchandise from the supplier in its own name.`,
               evidencia: [
-                "Invoice issued by the supplier to Windoce, LLC",
+                `Invoice issued by the supplier to ${SOCIEDAD.nombre}`,
                 "Description of the merchandise and purchase price",
                 "Reference to the order that originates it",
               ],
             },
             {
               titulo: "3. Sales invoice to the buyer",
-              ocurre: "Windoce, LLC resells the merchandise to the US buyer.",
+              ocurre: `${SOCIEDAD.nombre} resells the merchandise to the US buyer.`,
               evidencia: [
-                "Sales invoice issued by Windoce, LLC in the buyer's name",
+                `Sales invoice issued by ${SOCIEDAD.nombre} in the buyer's name`,
                 "Final sale price, the same one that was published",
                 "Linked to the order and to the purchase invoice",
               ],
@@ -214,7 +210,7 @@ export const MODELO_EN: Documento = {
           tono: "bien",
           titulo: "Why both invoices have to exist",
           parrafos: [
-            "Without the purchase invoice issued to Windoce, LLC, the resale structure does not hold up in an audit: there would be money coming in with no purchase behind it. With both invoices, every transaction reads as what it is — merchandise bought and resold — and the commercial markup appears as the difference between two prices, not as a percentage withheld from someone else's money.",
+            `Without the purchase invoice issued to ${SOCIEDAD.nombre}, the resale structure does not hold up in an audit: there would be money coming in with no purchase behind it. With both invoices, every transaction reads as what it is — merchandise bought and resold — and the commercial markup appears as the difference between two prices, not as a percentage withheld from someone else's money.`,
           ],
         },
       ],
@@ -238,7 +234,7 @@ export const MODELO_EN: Documento = {
           tono: "bien",
           titulo: "Both ends are sales of goods",
           parrafos: [
-            "The buyer is not handing over money for it to reach someone: they are paying the price of a product they bought. Windoce, LLC is not applying that money to a third party's account: it is using its own resources to buy the merchandise it has already sold. These are two linked sales, and each one is documented with its invoice.",
+            `The buyer is not handing over money for it to reach someone: they are paying the price of a product they bought. ${SOCIEDAD.nombre} is not applying that money to a third party's account: it is using its own resources to buy the merchandise it has already sold. These are two linked sales, and each one is documented with its invoice.`,
           ],
         },
       ],
@@ -264,10 +260,10 @@ export const MODELO_EN: Documento = {
             },
             {
               numero: "2",
-              etiqueta: "Buyer → Windoce, LLC · United States",
+              etiqueta: `Buyer → ${SOCIEDAD.nombre} · United States`,
               titulo: "Pays the published price from a US bank",
               parrafos: [
-                "The buyer pays the final sale price. Only payments originating from US banks are accepted, and that check runs before the order is treated as valid. That amount is Windoce, LLC's own revenue from the moment of the sale.",
+                `The buyer pays the final sale price. Only payments originating from US banks are accepted, and that check runs before the order is treated as valid. That amount is ${SOCIEDAD.nombre}'s own revenue from the moment of the sale.`,
               ],
             },
             {
@@ -280,10 +276,10 @@ export const MODELO_EN: Documento = {
             },
             {
               numero: "4",
-              etiqueta: "Windoce, LLC → Supplier",
-              titulo: "Windoce, LLC buys the merchandise in its own name",
+              etiqueta: `${SOCIEDAD.nombre} → Supplier`,
+              titulo: `${SOCIEDAD.nombre} buys the merchandise in its own name`,
               parrafos: [
-                "With the sale closed, Windoce, LLC buys the merchandise sold from the supplier. The supplier issues an invoice to Windoce, LLC. That purchase is the cost of goods sold, and it is paid against the invoice to US bank accounts.",
+                `With the sale closed, ${SOCIEDAD.nombre} buys the merchandise sold from the supplier. The supplier issues an invoice to ${SOCIEDAD.nombre}. That purchase is the cost of goods sold, and it is paid against the invoice to US bank accounts.`,
               ],
             },
             {
@@ -296,10 +292,10 @@ export const MODELO_EN: Documento = {
             },
             {
               numero: "6",
-              etiqueta: "Windoce, LLC → Buyer",
+              etiqueta: `${SOCIEDAD.nombre} → Buyer`,
               titulo: "The sales invoice is issued and the order is closed",
               parrafos: [
-                "Windoce, LLC issues the buyer the sales invoice for the product and closes the order. What remains, tied together by the order number, is the purchase invoice issued to Windoce, LLC, the sales invoice to the buyer, and the proof of delivery.",
+                `${SOCIEDAD.nombre} issues the buyer the sales invoice for the product and closes the order. What remains, tied together by the order number, is the purchase invoice issued to ${SOCIEDAD.nombre}, the sales invoice to the buyer, and the proof of delivery.`,
               ],
             },
           ],
@@ -309,7 +305,7 @@ export const MODELO_EN: Documento = {
           tono: "neutro",
           titulo: "About the pilot supplier",
           parrafos: [
-            "The merchant we work with today is an independent company with its own owners and its own inventory. It is not a subsidiary or a business of ours: it is a supplier that sells us merchandise and invoices Windoce, LLC for it. It is the first, and there will be more.",
+            `The merchant we work with today is an independent company with its own owners and its own inventory. It is not a subsidiary or a business of ours: it is a supplier that sells us merchandise and invoices ${SOCIEDAD.nombre} for it. It is the first, and there will be more.`,
           ],
         },
       ],
@@ -333,8 +329,8 @@ export const MODELO_EN: Documento = {
           titulo: "The test, and why this structure does not meet it",
           parrafos: [
             "Money transmission describes, in essence, receiving money from one person in order to transmit it or apply it for the benefit of another. Both elements have to be present: the money received must belong to a third party, and it must be transmitted or applied for someone else's benefit.",
-            "Neither element is present here. The money Mercatren receives is the price of a product it sold: it is Windoce, LLC's own revenue from the moment of the sale, not money belonging to a third party. And the money that goes out is the price of merchandise Windoce, LLC bought for itself, invoiced in its own name: it is the cost of goods sold, not a payment made for another party's benefit.",
-            "What happens between the two ends is a transfer of title to goods: the product passes from the supplier to Windoce, LLC and from Windoce, LLC to the buyer. The earnings are the difference between two prices in a sale of goods.",
+            `Neither element is present here. The money Mercatren receives is the price of a product it sold: it is ${SOCIEDAD.nombre}'s own revenue from the moment of the sale, not money belonging to a third party. And the money that goes out is the price of merchandise ${SOCIEDAD.nombre} bought for itself, invoiced in its own name: it is the cost of goods sold, not a payment made for another party's benefit.`,
+            `What happens between the two ends is a transfer of title to goods: the product passes from the supplier to ${SOCIEDAD.nombre} and from ${SOCIEDAD.nombre} to the buyer. The earnings are the difference between two prices in a sale of goods.`,
           ],
         },
         {
@@ -348,12 +344,12 @@ export const MODELO_EN: Documento = {
             [
               "Source of the money received",
               "It belongs to a third party; the operator merely holds it in transit",
-              "It is the sale price of our own product — revenue of Windoce, LLC",
+              `It is the sale price of our own product — revenue of ${SOCIEDAD.nombre}`,
             ],
             [
               "Destination of the money paid out",
               "Delivered or applied for another person's benefit",
-              "Pays for merchandise bought by Windoce, LLC, invoiced in its name",
+              `Pays for merchandise bought by ${SOCIEDAD.nombre}, invoiced in its name`,
             ],
             [
               "Object of the contract",
@@ -379,7 +375,7 @@ export const MODELO_EN: Documento = {
           tono: "ojo",
           titulo: "What this document does not claim",
           parrafos: [
-            "This section describes the structure of the transaction and the general applicable test. It does not claim that any determination, opinion, or authorization from any authority exists in favor of Windoce, LLC, and it does not substitute for legal advice.",
+            `This section describes the structure of the transaction and the general applicable test. It does not claim that any determination, opinion, or authorization from any authority exists in favor of ${SOCIEDAD.nombre}, and it does not substitute for legal advice.`,
           ],
         },
       ],
@@ -475,13 +471,11 @@ export const MODELO_EN: Documento = {
             },
             {
               titulo: "The purchase invoice",
-              texto:
-                "Document issued by the supplier to Windoce, LLC, with the description of the merchandise and its purchase price, tied to the order number.",
+              texto: `Document issued by the supplier to ${SOCIEDAD.nombre}, with the description of the merchandise and its purchase price, tied to the order number.`,
             },
             {
               titulo: "The sales invoice",
-              texto:
-                "Document issued by Windoce, LLC to the buyer, with the final sale price, tied to the same order number.",
+              texto: `Document issued by ${SOCIEDAD.nombre} to the buyer, with the final sale price, tied to the same order number.`,
             },
             {
               titulo: "The delivery",
@@ -500,7 +494,7 @@ export const MODELO_EN: Documento = {
           tono: "acento",
           titulo: "The proof that the structure is real",
           parrafos: [
-            "A resale structure is proven with documents, not with wording. If every incoming payment has a purchase invoice issued to Windoce, LLC and a sales invoice issued to the buyer behind it, the transaction is what this document says it is. If those invoices are missing, no wording will hold it up.",
+            `A resale structure is proven with documents, not with wording. If every incoming payment has a purchase invoice issued to ${SOCIEDAD.nombre} and a sales invoice issued to the buyer behind it, the transaction is what this document says it is. If those invoices are missing, no wording will hold it up.`,
           ],
         },
       ],
@@ -515,8 +509,7 @@ export const MODELO_EN: Documento = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "The service is in its early stage, with one supplier and one catalog. Growth means more catalog and more coverage, and it does not change the structure described in this document: every new supplier is simply one more supplier we buy merchandise from, invoiced to Windoce, LLC.",
+          texto: `The service is in its early stage, with one supplier and one catalog. Growth means more catalog and more coverage, and it does not change the structure described in this document: every new supplier is simply one more supplier we buy merchandise from, invoiced to ${SOCIEDAD.nombre}.`,
         },
         {
           tipo: "lista",
@@ -572,7 +565,7 @@ export const MODELO_EN: Documento = {
           tono: "bien",
           titulo: "In one sentence",
           parrafos: [
-            "We do not receive or administer money belonging to third parties. Every transaction is a sale of goods between the buyer and Windoce, LLC: we buy the product in our own name, resell it to the buyer in the United States, and have it delivered to the address they designate.",
+            `We do not receive or administer money belonging to third parties. Every transaction is a sale of goods between the buyer and ${SOCIEDAD.nombre}: we buy the product in our own name, resell it to the buyer in the United States, and have it delivered to the address they designate.`,
           ],
         },
       ],
@@ -592,15 +585,14 @@ export const MODELO_EN: Documento = {
       },
       mercatren: {
         rol: "B",
-        nombre: "Windoce, LLC · Mercatren",
+        nombre: `${SOCIEDAD.nombre} · Mercatren`,
         detalle:
           "Sells the product to the buyer and buys the merchandise from the supplier, in its own name",
       },
       proveedor: {
         rol: "C",
         nombre: "Supplier",
-        detalle:
-          "Sells the merchandise to Windoce, LLC and invoices it in its name",
+        detalle: `Sells the merchandise to ${SOCIEDAD.nombre} and invoices it in its name`,
       },
       comercio: {
         rol: "C",
@@ -613,7 +605,7 @@ export const MODELO_EN: Documento = {
         detalle: "Receives a physical product. Never money",
       },
       paga: "Pays the published price of the product",
-      compra: "Buys the merchandise · invoiced to Windoce, LLC",
+      compra: `Buys the merchandise · invoiced to ${SOCIEDAD.nombre}`,
       pide: "The product leaves the supplier's inventory",
       entrega: "Product delivered, with dated confirmation",
       orden: "The order travels: which product, to which address",
@@ -637,13 +629,12 @@ export const MODELO_EN: Documento = {
       siTitulo: "The actual structure: a sale of goods",
       siTexto:
         "Two invoiced sales, closed inside the United States. The only thing that crosses the border is the product.",
-      siCajas: ["Buyer in the US", "Windoce, LLC", "Supplier"],
+      siCajas: ["Buyer in the US", `${SOCIEDAD.nombre}`, "Supplier"],
       cruzaCajas: ["Product in transit", "Delivery address"],
       circuito:
         "The complete commercial circuit stays inside the United States",
       frontera: "← the dashed line is the border",
-      consecuencia:
-        "What comes in is the sale price of our own product and what goes out is the cost of the merchandise purchased, invoiced to Windoce, LLC. On the other side of the border no money moves: a product is delivered.",
+      consecuencia: `What comes in is the sale price of our own product and what goes out is the cost of the merchandise purchased, invoiced to ${SOCIEDAD.nombre}. On the other side of the border no money moves: a product is delivered.`,
     },
 
     resumen: {
@@ -655,8 +646,7 @@ export const MODELO_EN: Documento = {
         },
         {
           titulo: "Acquisition",
-          detalle:
-            "Windoce, LLC buys that merchandise from the supplier in its own name, invoiced to Windoce, LLC.",
+          detalle: `${SOCIEDAD.nombre} buys that merchandise from the supplier in its own name, invoiced to ${SOCIEDAD.nombre}.`,
         },
         {
           titulo: "Delivery",
@@ -665,16 +655,15 @@ export const MODELO_EN: Documento = {
         },
         {
           titulo: "Invoice",
-          detalle:
-            "Windoce, LLC issues the sales invoice to the buyer and closes the order with its full documentation.",
+          detalle: `${SOCIEDAD.nombre} issues the sales invoice to the buyer and closes the order with its full documentation.`,
         },
       ],
       banda: "A sale of goods, with two invoices per transaction",
       sinDinero: "At no point is money delivered to anyone",
       afirmaciones: [
-        "The money received is Windoce, LLC's own revenue from selling a product.",
-        "The money paid to the supplier is the cost of goods sold, invoiced to Windoce, LLC.",
-        "Title to the product passes from the supplier to Windoce, LLC and from Windoce, LLC to the buyer.",
+        `The money received is ${SOCIEDAD.nombre}'s own revenue from selling a product.`,
+        `The money paid to the supplier is the cost of goods sold, invoiced to ${SOCIEDAD.nombre}.`,
+        `Title to the product passes from the supplier to ${SOCIEDAD.nombre} and from ${SOCIEDAD.nombre} to the buyer.`,
         "Whoever receives at the designated address receives a physical product, never money.",
         "The published price is the final price and includes the commercial markup.",
         "Only payments originating from US banks are accepted.",
@@ -691,8 +680,7 @@ export const MODELO_EN: Documento = {
     },
     {
       pregunta: "Whose money is it?",
-      respuesta:
-        "It belongs to Windoce, LLC from the moment of the sale. It is the price of a product sold, not third-party money under our administration.",
+      respuesta: `It belongs to ${SOCIEDAD.nombre} from the moment of the sale. It is the price of a product sold, not third-party money under our administration.`,
     },
     {
       pregunta: "What does the person at the delivery address receive?",
@@ -700,6 +688,5 @@ export const MODELO_EN: Documento = {
     },
   ],
 
-  aviso:
-    "This document describes the structure and operation of the service. It does not constitute legal, accounting, or tax advice, and it does not claim that any determination by any authority exists in favor of Windoce, LLC. Mercatren is a service operated by Windoce, LLC (Delaware, United States).",
+  aviso: `This document describes the structure and operation of the service. It does not constitute legal, accounting, or tax advice, and it does not claim that any determination by any authority exists in favor of ${SOCIEDAD.nombre}. Mercatren is a service operated by ${SOCIEDAD.nombre} (${SOCIEDAD.estado}, United States).`,
 };
