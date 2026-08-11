@@ -333,8 +333,13 @@ se usa el suyo aunque en la dirección venga pedido otro.
 | ----------- | ---------------------------------------------------------- |
 | `soporte`   | Toda la operación, todos los comercios, y la configuración |
 | `validador` | Toda la operación y la cola de validación                  |
-| `vendedor`  | Solo su propio comercio: sus pagos y su billetera          |
+| `vendedor`  | Solo su propio comercio: sus ventas, sus cobros, su dinero |
 | `cliente`   | No entra al panel                                          |
+
+**Y no solo ve menos: lee otra cosa.** Las mismas pantallas cambian de texto
+según el rol (ver «El mismo panel, leído por el comercio»). Al agregar una
+pantalla o una tarjeta con dinero, la pregunta obligatoria es _«¿cómo se lee
+esto desde la silla del comercio?»_.
 
 ## Panel de administración
 
@@ -1127,6 +1132,44 @@ recortado en silencio hace sumar una parte creyendo que es el total.
 
 De paso, el menú marcaba dos secciones a la vez: `/panel/ordenes-compra`
 empieza igual que `/panel/ordenes` y la coincidencia era por prefijo de texto.
+
+## El mismo panel, leído por el comercio (11 ago 2026)
+
+**No hay dos paneles: hay uno que sabe quién está mirando.** Cada pantalla
+resuelve `esEquipoInterno()` y elige el texto; duplicar pantallas habría
+garantizado que una de las dos se quedara atrás al primer arreglo.
+
+Lo que el comercio leía y no hablaba de él: «Neto a comercios · Costo de la
+mercancía» por lo que le quedó, «Comercios activos: 1», el filtro por **nuestra**
+cuenta receptora, «Retiro del comercio» cuando el que mira es el comercio, y un
+resumen cuyo número grande era el histórico ya liquidado. Ahora: **te pagaron ·
+comisión de Mercatren · te quedó · disponible para retirar**, y en el menú
+«Órdenes de compra» pasa a «Mis facturas a Mercatren».
+
+**La comisión SÍ se le enseña, entera y con su nombre.** Es lo que se le
+descontó; esconderla es lo que hace desconfiar. Lo que cambia es el punto de
+vista: para él no es «nuestro margen», es su comisión.
+
+**LA CONTRADICCIÓN DE DINERO QUE HABÍA.** La billetera le restaba $302.859,50
+en retiros y `/panel/retiros` le decía «todavía no has pedido ningún retiro».
+Los 70 del sistema anterior viven en `pagos_zelle` con `tipo = 'retiro'` y esa
+pantalla solo leía la tabla `retiros`. Dos pantallas diciendo cosas distintas
+del mismo dinero es como un comercio deja de creerle al sistema.
+
+Ahora se juntan, marcados (`historico: true`) y **sin acciones**: son hechos ya
+pagados, no una cola. El histórico se suma solo cuando se mira un comercio
+concreto y **no** se filtra por estado — en la cola de «solicitado» que trabaja
+el equipo llenarían de ruido una lista de pendientes.
+
+**Los 70 llegaron SIN fecha, y así se dice** («sin fecha en el archivo»). Se
+probó rellenarla con la de importación y es peor: los 70 salían el mismo día,
+contándole al comercio que sacó todo su dinero en una sola tarde. **Un dato que
+falta se dice; no se rellena con el que había a mano.**
+
+**Y un candado que faltaba:** `listarDisputas()` y el conteo de contracargos
+salieron sin alcance en su primera versión, así que un comercio habría visto
+los contracargos de otro —con su monto— en su propia pantalla. Toda consulta
+nueva que devuelva dinero pasa por el alcance, incluidas las de apoyo.
 
 ## Cómo se pagó cada venta, y una sola cifra para el comercio (10 ago 2026)
 
