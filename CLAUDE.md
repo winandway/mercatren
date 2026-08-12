@@ -2,36 +2,49 @@
 
 # Mercatren.com
 
-Tienda en línea operada por **Windoce, LLC** (Delaware, Estados Unidos).
+Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
-## LA SOCIEDAD CAMBIÓ DE NOMBRE — PERO EL SITIO TODAVÍA NO (6 ago 2026)
+## LA SOCIEDAD YA ES MERCATREN LLC (12 ago 2026)
 
-**Ya está registrada `Mercatren LLC`** (sin coma), y es la que va a operar la
-tienda: comprar, vender y facturar. `Windoce LLC` se queda solo como el
-estudio que desarrolla el software — el crédito del pie de página.
+**`Mercatren LLC` opera la tienda: compra, vende y factura.** `Windoce, LLC` se
+queda solo como el estudio que desarrolla el software — el crédito del pie de
+página, que **no debe cambiar nunca**.
 
-**Aprobada el 11 ago 2026, en MICHIGAN** (el formulario CSCL/CD-700 es el de ese
-estado). Windoce, LLC es de **Delaware**: son dos estados distintos, y de ahí
-cuelgan el domicilio fiscal, el agente registrado y lo que dicen los términos.
-Falta el EIN, la cuenta de banco y la de Stripe. Antes de tocar una línea del sitio hay que tener el certificado en
-la mano y confirmar cuál es el estado de registro, porque de ahí cuelgan el
-domicilio fiscal, el agente registrado y lo que dicen los términos.
+**MERCATREN LLC · Michigan · miembro único.** Domicilio registrado y fiscal:
+30080 Montmorency Drive, Novi, MI 48377. EIN asignado el 11 ago 2026 (carta
+CP 575 del IRS). El nombre legal va **SIN coma** — así está en LARA y en el
+IRS, y así tiene que escribirse en todas partes. Windoce, LLC, la anterior, de
+Delaware, sí la llevaba: no es un descuido, son dos nombres distintos.
 
-**NO SE CAMBIA EL SITIO TODAVÍA.** Decisión del dueño: primero tienen que estar
-a nombre de Mercatren LLC el banco, Stripe y Merchant Center. El motivo es
-concreto: si el sitio dice Mercatren LLC pero el cobro le aparece al comprador
-como Windoce en su estado de cuenta, eso genera reclamos y contracargos.
+Banco en **Mercury** (Checking ••9805) y **Stripe activa**, las dos a nombre de
+Mercatren LLC. Falta la cuenta de Zelle.
 
-Mientras tanto, **todo el texto publicado sigue diciendo `Windoce, LLC` y está
-bien así**. Son 239 menciones repartidas entre los términos, la privacidad, la
-documentación pública, los correos y el PDF del modelo — y ese PDF lo revisó el
-abogado, así que el cambio pasa por él antes de tocarse.
+**EL ORDEN QUE SE SIGUIÓ, Y NO ERA NEGOCIABLE:** EIN → banco → Stripe
+verificada y activa → **y recién entonces el sitio**. El sitio fue lo último a
+propósito: si dice un nombre y el cobro le aparece al comprador con otro en su
+estado de cuenta, eso genera reclamos y contracargos.
 
-**El sitio ya está listo para la mudanza (11 ago 2026).** El nombre estaba
+**LO QUE QUEDA POR CAMBIAR FUERA DEL CÓDIGO** (variables de entorno del panel
+de YaDominios Cloud, no código): las claves de Stripe (`STRIPE_SECRET_KEY`,
+`STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`), el correo receptor de Zelle
+(`ZELLE_CORREO_RECEPTOR` → `zelle@mercatren.com`), los datos bancarios de
+Mercury (`PAGO_CUENTA`, `PAGO_RUTA_ACH`, `PAGO_RUTA_WIRE`) y el emisor de las
+facturas (`EMISOR_IDENTIFICACION`, `EMISOR_DIRECCION`).
+
+**El corte contable es un hecho, no una fecha:** el primer dólar que Stripe
+liquide en la cuenta de Mercatren LLC. Las facturas anteriores seguirán
+diciendo Windoce, LLC para siempre, porque copian los datos del emisor dentro
+del documento — y eso es lo correcto.
+
+**El PDF del modelo NO se regeneró.** Lo revisó el abogado y el cambio pasa por
+él.
+
+**Cómo se hizo el cambio (preparado el 11 ago 2026).** El nombre estaba
 escrito a mano en **240 sitios repartidos por 26 archivos**; ahora sale entero de
 **`src/lib/sociedad.ts`**. Comprobado cambiándolo de verdad: de 181 menciones del
 documento del modelo, 179 pasaron solas a «Mercatren LLC» y a «Michigan». Las 2
-que no son el crédito del desarrollador del pie, que **no debe cambiar**.
+que no son el crédito del desarrollador del pie. **El cambio real, al día
+siguiente, fueron dos líneas y un push de tres minutos.**
 
 - Los textos de idioma son JSON y no pueden importar: llevan **`«SOCIEDAD»` y
   `«ESTADO»`**, que se sustituyen al cargar en `src/i18n/request.ts`. Se usan
@@ -61,18 +74,18 @@ cuenta de la sociedad nueva. Ni un hueco ni un solapamiento.
 
 ## LA FIGURA JURÍDICA (regla de cabecera, agosto 2026)
 
-> El nombre que aparece abajo es el que está publicado hoy. Cuando se haga el
-> cambio, se sustituye por `Mercatren LLC` en todo este bloque.
+> Cambio hecho el 12 ago 2026: donde antes decía Windoce, LLC ahora dice
+> Mercatren LLC. El modelo no cambió ni una coma — solo quién lo opera.
 
-**Windoce, LLC compra y revende mercancía por cuenta propia.** No es un agente,
+**Mercatren LLC compra y revende mercancía por cuenta propia.** No es un agente,
 no cobra por cuenta de nadie y no administra dinero de terceros.
 
 1. Un comprador en Estados Unidos compra un producto del catálogo.
-2. Paga a Windoce, LLC el precio publicado, desde un banco estadounidense.
-3. Windoce, LLC compra ese producto al proveedor **a nombre propio**, con
-   factura emitida a Windoce, LLC.
+2. Paga a Mercatren LLC el precio publicado, desde un banco estadounidense.
+3. Mercatren LLC compra ese producto al proveedor **a nombre propio**, con
+   factura emitida a Mercatren LLC.
 4. El proveedor despacha a la **dirección designada por el comprador**.
-5. Windoce, LLC emite factura de venta al comprador.
+5. Mercatren LLC emite factura de venta al comprador.
 
 El dinero que entra es **ingreso propio**; el que sale es **costo de mercancía
 vendida**. El ingreso de Mercatren es un **margen comercial dentro del precio
