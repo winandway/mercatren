@@ -1,10 +1,19 @@
 "use client";
 
-import { Building2, Check, Copy, Mail, Phone, Zap } from "lucide-react";
+import {
+  Building2,
+  Check,
+  Copy,
+  Mail,
+  Phone,
+  TriangleAlert,
+  Zap,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
+import { conceptoDelPago } from "@/lib/pedidos/concepto";
 import { cn } from "@/lib/utils";
 
 export type DatosDePago = {
@@ -80,6 +89,20 @@ export function FichaDePago({
         </div>
         <p className="mt-2 text-xs text-white/70">{t("monto.aviso")}</p>
       </div>
+
+      {/**
+       * EL CONCEPTO, TAN GRANDE COMO EL MONTO Y ANTES DE LOS DATOS DEL BANCO.
+       *
+       * Antes esto era una línea gris de once píxeles al final de la pantalla,
+       * debajo de todo. Nadie la leía, y sin ese dato una transferencia de
+       * Zelle llega como dinero suelto de una persona que muchas veces no es la
+       * que compró: quien valida solo puede adivinar de qué venta es.
+       *
+       * Va ARRIBA, antes del correo al que hay que enviar, porque el orden en
+       * que se lee es el orden en que se llena el formulario del banco. Puesto
+       * abajo se lee cuando el pago ya salió.
+       */}
+      <Concepto numeroPedido={numeroPedido} />
 
       <div className="grid gap-4 md:grid-cols-2">
         {hayZelle ? (
@@ -170,10 +193,6 @@ export function FichaDePago({
         </p>
       </div>
 
-      <p className="text-xs text-tinta-suave">
-        {t("ponerReferencia", { numero: numeroPedido })}
-      </p>
-
       {datos.soporteTelefono || datos.soporteCorreo ? (
         <section className="rounded-lg border border-borde px-4 py-3">
           <h3 className="text-xs font-semibold">{t("soporte.titulo")}</h3>
@@ -200,6 +219,47 @@ export function FichaDePago({
         </section>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * LO QUE HAY QUE ESCRIBIR EN LA NOTA DEL PAGO.
+ *
+ * Se enseña con el mismo peso que el monto —tipografía grande, su propio botón
+ * de copiar— porque es igual de importante: un monto correcto sin concepto es
+ * un pago que nadie sabe de quién es.
+ *
+ * El aviso va en rojo y dice la consecuencia, no una recomendación. «Ponlo si
+ * tu banco lo permite» se lee como opcional; «sin esto no sabemos qué compra
+ * estás pagando» se lee como lo que es.
+ */
+function Concepto({ numeroPedido }: { numeroPedido: string }) {
+  const t = useTranslations("datosPago.concepto");
+  const concepto = conceptoDelPago(numeroPedido);
+
+  /* Sin número no se dibuja nada: enseñar un concepto a medias es peor que no
+     enseñar ninguno, porque se copia igual. */
+  if (!concepto) return null;
+
+  return (
+    <section className="rounded-xl border-2 border-red-300 bg-red-50 p-4">
+      <h3 className="flex items-center gap-2 font-bold text-red-900">
+        <TriangleAlert className="h-4 w-4 shrink-0" aria-hidden />
+        {t("titulo")}
+      </h3>
+
+      <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-white px-4 py-3 ring-1 ring-red-200">
+        <span className="min-w-0 font-mono text-2xl font-bold break-all text-riel-950 sm:text-3xl">
+          {concepto}
+        </span>
+        <span className="ml-auto">
+          <BotonCopiar valor={concepto} />
+        </span>
+      </div>
+
+      <p className="mt-2 text-sm text-red-900">{t("ayuda")}</p>
+      <p className="mt-1 text-sm font-semibold text-red-900">{t("aviso")}</p>
+    </section>
   );
 }
 

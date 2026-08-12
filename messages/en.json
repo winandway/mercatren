@@ -1796,7 +1796,6 @@
     "copiado": "Copied",
     "soloEstadosUnidos": "We only accept payments from U.S. banks.",
     "soloEstadosUnidosDetalle": "We do not receive international transfers or payments in another currency.",
-    "ponerReferencia": "Add order number {numero} in the note or reference if your bank allows it. It helps us verify faster.",
     "sinConfigurar": "The Mercatren team hasn't loaded the account details yet. Get in touch and we'll send them to you.",
     "zelle": {
       "titulo": "Zelle",
@@ -1823,6 +1822,12 @@
       "titulo": "Questions about the payment?",
       "telefono": "Phone",
       "correo": "Email"
+    },
+    "concepto": {
+      "titulo": "Write this in the payment memo",
+      "ayuda": "Copy it exactly as shown into your bank's note, memo or description field.",
+      "aviso": "Without it we CANNOT tell which purchase you are paying for, and verification gets very slow. This is the most important step.",
+      "recordatorio": "Already paid? Double-check that you wrote this exact text in the memo."
     }
   },
   "tiendaPublica": {

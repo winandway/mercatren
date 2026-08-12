@@ -1796,7 +1796,6 @@
     "copiado": "Copiado",
     "soloEstadosUnidos": "Solo se aceptan pagos desde bancos de Estados Unidos.",
     "soloEstadosUnidosDetalle": "No recibimos transferencias internacionales ni pagos en otra moneda.",
-    "ponerReferencia": "Pon el número de pedido {numero} en la nota o referencia, si tu banco lo permite. Así lo verificamos más rápido.",
     "sinConfigurar": "El equipo de Mercatren todavía no cargó los datos de la cuenta. Escríbenos y te los pasamos.",
     "zelle": {
       "titulo": "Zelle",
@@ -1823,6 +1822,12 @@
       "titulo": "¿Dudas con el pago?",
       "telefono": "Teléfono",
       "correo": "Correo"
+    },
+    "concepto": {
+      "titulo": "Escribe esto en la nota del pago",
+      "ayuda": "Cópialo tal cual en el campo de nota, concepto o «memo» de tu banco.",
+      "aviso": "Sin este dato NO podemos saber qué compra estás pagando, y verificarlo se vuelve muy lento. Es el paso más importante.",
+      "recordatorio": "¿Ya pagaste? Comprueba que escribiste este mismo texto en la nota."
     }
   },
   "tiendaPublica": {

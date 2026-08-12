@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 
+import { conceptoDelPago } from "@/lib/pedidos/concepto";
 import { subirComprobante } from "@/lib/pedidos/comprobante";
 import { cn } from "@/lib/utils";
 
@@ -118,6 +119,16 @@ export function FormularioComprobante({ numero }: { numero: string }) {
     >
       <h3 className="text-lg font-bold">{t("titulo")}</h3>
       <p className="mt-1 text-sm text-tinta-suave">{t("texto")}</p>
+
+      {/**
+       * EL ÚLTIMO MOMENTO EN QUE SE PUEDE CORREGIR.
+       *
+       * Quien llega aquí ya pagó, así que el concepto de su transferencia ya
+       * está escrito. Pero si se le olvidó, todavía puede avisarlo al subir la
+       * captura — y de este lado se ahorra la ronda de mensajes para averiguar
+       * de qué venta era ese dinero.
+       */}
+      <RecordatorioDelConcepto numero={numero} />
 
       <div className="mt-4 space-y-4">
         <div>
@@ -279,5 +290,25 @@ export function FormularioComprobante({ numero }: { numero: string }) {
         )}
       </button>
     </form>
+  );
+}
+
+/**
+ * «¿Ya pagaste? Comprueba que escribiste esto en la nota.»
+ *
+ * Discreto y no en rojo, al revés que en la pantalla de pagar: aquí el pago ya
+ * salió y asustar a quien lo hizo bien no arregla nada. Lo que se busca es que
+ * quien se le olvidó lo diga ahora, no dentro de dos días por WhatsApp.
+ */
+function RecordatorioDelConcepto({ numero }: { numero: string }) {
+  const t = useTranslations("datosPago.concepto");
+  const concepto = conceptoDelPago(numero);
+  if (!concepto) return null;
+
+  return (
+    <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+      {t("recordatorio")}{" "}
+      <span className="font-mono font-bold">{concepto}</span>
+    </p>
   );
 }
