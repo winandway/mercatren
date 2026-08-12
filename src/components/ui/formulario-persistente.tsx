@@ -112,11 +112,21 @@ export function FormularioPersistente({
   /**
    * RESTITUIR AL ABRIR.
    *
-   * Va en el callback del `ref` y no en un efecto, a propósito: aquí el nodo
-   * del formulario existe garantizado y esto corre UNA vez al montarse, que es
-   * exactamente cuando hay que repintar las casillas. En un efecto habría que
-   * avisar del rescate con un `setState` dentro del propio efecto — encadena un
-   * render de más y el lint lo rechaza con razón.
+   * ══ VA EN UN EFECTO, Y ESO NO ES UN DETALLE ══
+   *
+   * La primera versión lo hacía en el callback del `ref`. En el servidor de
+   * desarrollo funcionaba y **en la compilación de producción no restituía
+   * nada**: ahí la página no se dibuja de cero, se HIDRATA sobre el HTML que
+   * mandó el servidor, y en ese momento React todavía está montando el árbol.
+   * Lo que se escriba en las casillas entonces lo pisa el propio React al
+   * terminar.
+   *
+   * Un efecto corre cuando el montaje ya acabó y el formulario está quieto, que
+   * es justo cuando se puede tocar. Se descubrió probándolo contra una
+   * compilación de producción de verdad; en `npm run dev` el fallo no aparece.
+   *
+   * El aviso de «lo recuperamos» se enciende en un microtask, fuera del cuerpo
+   * del efecto: primero quedan las casillas puestas, después se avisa.
    */
   const yaSeIntento = useRef<string | null>(null);
 
@@ -189,10 +199,15 @@ export function FormularioPersistente({
         }
       }
 
-      if (algoCambio) setRecuperado(true);
+      if (algoCambio) queueMicrotask(() => setRecuperado(true));
     },
     [llave],
   );
+
+  useEffect(() => {
+    const form = formulario.current;
+    if (form) restituir(form);
+  }, [restituir]);
 
   /* ── Guardar según se escribe ───────────────────────────────────────── */
   useEffect(() => {
@@ -233,11 +248,10 @@ export function FormularioPersistente({
   const ponerRef = useCallback(
     (nodo: HTMLFormElement | null) => {
       formulario.current = nodo;
-      if (nodo) restituir(nodo);
       if (typeof refDeFuera === "function") refDeFuera(nodo);
       else if (refDeFuera) refDeFuera.current = nodo;
     },
-    [refDeFuera, restituir],
+    [refDeFuera],
   );
 
   return (
