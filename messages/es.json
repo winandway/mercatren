@@ -877,6 +877,12 @@
         "ojoTitulo": "Por qué no se suman los porcentajes",
         "ojoTexto": "Sumando hacia adelante daría {sumado}, pero entonces el procesador cobra su parte sobre ESE número y al proveedor solo le quedan {queda}: faltan {falta}. Por eso la cuenta va hacia atrás y el precio correcto es {correcto}.",
         "escribeUnMonto": "Escribe un monto mayor que cero."
+      },
+      "mercury": {
+        "titulo": "El banco (Mercury)",
+        "texto": "Comprueba que la llave del banco sirve antes de que haga falta de verdad. Solo consulta las cuentas: no mueve ni un centavo.",
+        "boton": "Probar la conexión con el banco",
+        "probando": "Probando…"
       }
     },
     "fotos": {
@@ -1052,7 +1058,13 @@
         "no_se_pudo": "No se pudo consultar a Stripe ahora mismo. Inténtalo de nuevo."
       },
       "revisaCampos": "Revisa los datos de la cuenta: hay campos vacíos o mal escritos.",
-      "soloMirando": "Estás viendo el panel de un comercio. Para pedir un retiro, sal de ese modo primero."
+      "soloMirando": "Estás viendo el panel de un comercio. Para pedir un retiro, sal de ese modo primero.",
+      "mercury": {
+        "sinToken": "Todavía no hay llave del banco cargada. Va como MERCURY_TOKEN en el panel de la plataforma.",
+        "tokenRechazado": "El banco rechazó la llave. Casi siempre es que se copió a medias o le sobra un espacio.",
+        "falloConEstado": "El banco respondió con un error ({estado}).",
+        "conectado": "{n, plural, =0 {Conectado, pero no devolvió ninguna cuenta} one {Conectado. # cuenta} other {Conectado. # cuentas}}"
+      }
     },
     "usuarios": {
       "titulo": "Cuentas",

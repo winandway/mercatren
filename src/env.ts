@@ -105,6 +105,18 @@ export const esquemaEntorno = z.object({
    * pero una que abre catálogos ajenos no puede quedar abierta por descuido.
    */
   SOCIO_LLAVE: z.string().min(32).optional(),
+
+  /**
+   * El token de la API de Mercury, para preparar los retiros a los comercios.
+   *
+   * Es un token **Custom** con cuatro permisos y sin `Send Money`: puede PEDIR
+   * un pago con aprobación, no ejecutarlo. Si se filtra, quien lo tenga no
+   * saca dinero — solo deja solicitudes que alguien rechaza de un clic.
+   *
+   * Opcional a propósito: sin él el panel sigue funcionando entero y los
+   * retiros se hacen a mano como hasta ahora.
+   */
+  MERCURY_TOKEN: z.string().optional(),
 });
 
 export type Entorno = z.infer<typeof esquemaEntorno>;

@@ -877,6 +877,12 @@
         "ojoTitulo": "Why you can't just add the percentages",
         "ojoTexto": "Adding forward would give {sumado}, but then the processor takes its cut of THAT number and the supplier is left with only {queda} — short by {falta}. That's why the math runs backwards and the correct price is {correcto}.",
         "escribeUnMonto": "Enter an amount greater than zero."
+      },
+      "mercury": {
+        "titulo": "The bank (Mercury)",
+        "texto": "Check that the bank key works before you actually need it. It only reads the accounts — it doesn't move a cent.",
+        "boton": "Test the bank connection",
+        "probando": "Testing…"
       }
     },
     "fotos": {
@@ -1052,7 +1058,13 @@
         "no_se_pudo": "Stripe couldn't be reached right now. Try again."
       },
       "revisaCampos": "Check the account details: some fields are empty or malformed.",
-      "soloMirando": "You're viewing a merchant's panel. Leave that mode first to request a withdrawal."
+      "soloMirando": "You're viewing a merchant's panel. Leave that mode first to request a withdrawal.",
+      "mercury": {
+        "sinToken": "No bank key loaded yet. It goes in as MERCURY_TOKEN in the platform panel.",
+        "tokenRechazado": "The bank rejected the key. It's almost always a partial copy or a stray space.",
+        "falloConEstado": "The bank replied with an error ({estado}).",
+        "conectado": "{n, plural, =0 {Connected, but it returned no accounts} one {Connected. # account} other {Connected. # accounts}}"
+      }
     },
     "usuarios": {
       "titulo": "Accounts",

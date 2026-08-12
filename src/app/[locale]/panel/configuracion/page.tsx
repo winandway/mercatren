@@ -3,6 +3,7 @@ import {
   Calculator,
   Check,
   ImageIcon,
+  Landmark,
   Languages,
   Mail,
   Settings,
@@ -14,6 +15,7 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
+import { ProbarMercury } from "@/components/panel/probar-mercury";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
 import { TraerFotos } from "@/components/panel/traer-fotos";
@@ -163,6 +165,20 @@ export default async function PaginaConfiguracion({
           </p>
           <ProbarCorreo />
         </div>
+      </section>
+
+      {/* EL BANCO. Se comprueba con un botón por la misma razón que el correo:
+          vive fuera del navegador, y la alternativa a probarlo aquí es que la
+          primera llamada de verdad sea el retiro de un comercio. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Landmark className="h-4 w-4 text-carga-500" aria-hidden />
+          {t("mercury.titulo")}
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+          {t("mercury.texto")}
+        </p>
+        <ProbarMercury />
       </section>
 
       {/* Las variables de cobro: solo si estan, nunca su valor. */}

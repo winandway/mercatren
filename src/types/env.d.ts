@@ -75,6 +75,15 @@ interface CloudflareEnv {
    * pedir el token de cualquier comercio. Si falta, esa puerta se cierra.
    */
   SOCIO_LLAVE?: string;
+
+  /**
+   * El token de la API de Mercury, para preparar los retiros a los comercios.
+   *
+   * Token **Custom** con cuatro permisos y SIN `Send Money`: puede pedir un
+   * pago con aprobacion, no ejecutarlo. Si se filtra, quien lo tenga no saca
+   * dinero — solo deja solicitudes que alguien rechaza de un clic.
+   */
+  MERCURY_TOKEN?: string;
 }
 
 declare namespace NodeJS {

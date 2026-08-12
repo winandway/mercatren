@@ -40,8 +40,16 @@ importa hasta cerrarlo.
 2. **Webhook de Stripe** apuntando a `https://mercatren.com/datos/stripe/aviso`,
    con los cinco eventos: `payment_intent.succeeded`,
    `payment_intent.payment_failed` y los tres `charge.dispute.*`.
-3. **Zelle de Chase** enrolado con `zelle@mercatren.com`, y
-   `ZELLE_CORREO_RECEPTOR` actualizado.
+3. **Zelle de Chase.** La cuenta está aprobada y con fondo, pero **el Zelle
+   todavía no se ha dado de alta en el banco**. Cuando se haga, hay que
+   cambiar **las dos variables a la vez**:
+   - `ZELLE_CORREO_RECEPTOR` → `zelle@mercatren.com`
+   - `ZELLE_NOMBRE_RECEPTOR` → `Mercatren LLC` (hoy dice `Windoce LLC`)
+
+   Es el nombre que ve el comprador al ir a pagar. Si se cambia el nombre
+   antes que el correo, se le enseña un nombre nuevo con la cuenta vieja y no
+   paga.
+
 4. **Datos de Mercury** para los retiros: `PAGO_CUENTA`, `PAGO_RUTA_ACH`,
    `PAGO_RUTA_WIRE`.
 5. **Emisor de las facturas**: `EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION`.
@@ -96,6 +104,13 @@ Nada de esto da ingresos. Todo evita perderlos.
    no es aprobar: es dejar de copiar a mano el banco, la cuenta y la ruta, que
    es donde se manda plata a la cuenta equivocada. Solo ACH domésticos al
    principio.
+
+   Hecho el 12 ago 2026: la regla de aprobación en Mercury (todos los pagos,
+   desde $0, con separación de funciones), el cliente de la API con un token
+   **sin `Send Money`**, y el botón «Probar la conexión con el banco» en
+   Configuración. **Falta** el alta del destinatario en Mercury (a mano, una
+   vez por comercio) y enganchar el botón de retiro del comercio.
+
 4. **Rotar `SOCIO_LLAVE`.** Se pegó en un chat. Sigue viva.
 5. **Límite de intentos** en entrar, registro y recuperar clave. Hoy solo hay
    Turnstile, que frena robots pero no a alguien decidido.
