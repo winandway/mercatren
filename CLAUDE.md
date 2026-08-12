@@ -205,6 +205,16 @@ no texto de cara al público; renombrarlas es una migración aparte.
 
 ---
 
+## LO QUE FALTA SE MIRA EN `ROADMAP.md`
+
+Cuando el dueño pregunte «¿qué tenemos pendiente?», se contesta desde ahí y por
+bloques, en orden. La regla de cabecera de esa lista: **primero lo formal y lo
+legal, después lo que crece.** Un negocio que factura mal o cobra a nombre
+equivocado no se arregla creciendo — se arregla parando.
+
+Al terminar algo, se marca en el mismo trabajo. Una lista desactualizada miente
+igual que un panel que dice «En vivo» con el sitio caído.
+
 ## Perímetro del proyecto (REGLA CRÍTICA)
 
 Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.

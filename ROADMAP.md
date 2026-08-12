@@ -1,251 +1,146 @@
-# Mapa de lanzamiento de Mercatren
+# Roadmap de Mercatren
 
-Todo lo que falta para abrir al público, en un solo lugar. **Este documento no
-se borra ni se reescribe: se va marcando.**
-
-> **Ojo — hay dos planes aparte, y mandan ellos.**
+> **Qué es esto.** La lista de lo que falta, ordenada por lo que desbloquea a lo
+> demás — no por lo que apetece hacer. Cuando el dueño pregunte «¿qué tenemos
+> pendiente?», se contesta desde aquí.
 >
-> - `PLAN.md` — lo que salió del informe del 7 ago 2026: facturas, cierre del
->   período, impuesto a la venta y el renombre de «billetera».
-> - `PLAN-VITRINA.md` — lo que pidió Ferremateriales Bley el 8 ago 2026:
->   conectar su sistema de verdad (hoy **no está sincronizado**) y enseñar
->   cuánto se ha vendido de cada producto. Incluye por qué las estrellas
->   inventadas no se hacen y qué se hace en su lugar.
+> **La regla que manda sobre todas:** primero lo formal y lo legal, después lo
+> que crece. Un negocio que factura mal o cobra a nombre equivocado no se
+> arregla creciendo — se arregla parando.
 >
-> Este mapa sigue valiendo para el resto.
-
-- ✅ = hecho y verificado en el sitio publicado
-- ⬜ = pendiente
-- 🔒 = bloqueado esperando algo (dice esperando qué)
-
-**Regla de trabajo (pedida el 5 ago 2026):** al terminar cada trabajo, se
-actualiza este archivo y se cierra el reporte con la lista de lo hecho en ✅ y
-**el número exacto de lo que falta**, con los nombres escritos para poder
-escoger el siguiente.
+> Última revisión: 12 de agosto de 2026.
 
 ---
 
-## Marcador
+## Dónde estamos hoy
 
-| Bloque                        | Hechas | Faltan |
-| ----------------------------- | -----: | -----: |
-| A · Depende de ti             |      0 |     10 |
-| B · Depende de mí (programar) |      2 |      7 |
-| C · Después del lanzamiento   |      0 |      6 |
-| **TOTAL**                     |  **2** | **23** |
+| Pieza                            | Estado                            |
+| -------------------------------- | --------------------------------- |
+| Mercatren LLC (Michigan) + EIN   | ✅ 11 ago 2026                    |
+| Banco Mercury                    | ✅ Checking ••9805                |
+| Stripe                           | ✅ activa                         |
+| Banco Chase (para Zelle)         | ✅ aprobada, con fondo inicial    |
+| Correos @mercatren.com           | ✅ buzón real en Google Workspace |
+| El sitio dice Mercatren LLC      | ✅ publicado y comprobado         |
+| Candado de aprobación en Mercury | ✅ todos los pagos, desde $0      |
 
-**Para abrir al público hacen falta, como mínimo: A1, A2 y A4.**
-
----
-
-## BLOQUE A — Depende de ti
-
-Cosas que yo no puedo hacer: contraseñas, datos bancarios, decisiones de
-negocio y firmas.
-
-- ⬜ **A1. Cargar los datos de cobro en producción.** Solo tres, en el panel
-  de YaDominios Cloud: `ZELLE_CORREO_RECEPTOR`, `ZELLE_NOMBRE_RECEPTOR` y
-  `PAGO_SOPORTE_TELEFONO`. Los valores están en tu `.dev.vars`.
-  **Las de transferencia bancaria NO van** (6 ago 2026): Mercatren solo
-  recibe por Zelle, y cargarlas haría que la pantalla del pedido ofreciera
-  un ACH que nadie valida.
-  **Bloqueante:** sin esto, la pantalla del pedido avisa que faltan los datos
-  y nadie puede pagar. Los escribes tú porque el repositorio es público y
-  cualquier dato de cobro escrito en el código queda visible para siempre en
-  el historial, aunque después se borre.
-
-- ⬜ **A2. Activar el escudo del login.** `TURNSTILE_CLAVE_SITIO` y
-  `TURNSTILE_SECRETO` en el mismo panel. Comprobado el 5 ago 2026: **hoy no
-  está activo en producción.**
-  **Bloqueante:** sin él, cualquiera puede probar miles de contraseñas por
-  minuto contra las cuentas que ven el dinero de los comercios.
-
-- ⬜ **A3. Cambiar la contraseña temporal del superadmin.**
-  `mercatren@windoce.com` sigue con la que pasó por chat. Panel → Cuenta →
-  Cambiar contraseña.
-
-- ⬜ **A4. Una compra real de punta a punta.** Con tarjeta (Stripe ya está
-  cargado; falta verlo cobrar de verdad) y con Zelle subiendo la captura.
-  _Nota: el pago por Zelle ya lo probaste._
-
-- ⬜ **A5. Pulsar "Traer las fotos".** Panel → Configuración → Fotos del
-  catálogo. Son 689 fotos que hoy se sirven desde el servidor de Bley: si esa
-  tienda se apaga, el catálogo se queda sin imágenes.
-
-- ⬜ **A6. Visto bueno final del abogado** a los términos y privacidad V1
-  publicados, **y su cláusula de autofacturación** (sin ella no puedo arrancar
-  B4).
-
-- ⬜ **A7. Las cuentas del equipo.** Que el validador y Bley se registren en
-  `/registro` y me pases los correos para asignarles el rol. Hoy el único que
-  valida pagos eres tú.
-
-- ⬜ **A8. Las direcciones de los depósitos de Bley.** Para que el pedido le
-  diga al cliente a dónde ir a retirar.
-
-- ⬜ **A9. Decisión: cómo se define el precio de compra al comercio.**
-  ¿Por producto (él lo declara) o un porcentaje del precio publicado? Con tu
-  respuesta arranco B4.
+**Lo que esto significa:** la sociedad existe y puede operar. Lo que todavía no
+ocurre es que el dinero entre a su nombre.
 
 ---
 
-## BLOQUE B — Depende de mí
+## BLOQUE 1 — Cerrar el traspaso (bloquea todo lo demás)
 
-- ✅ **B1. Los correos que faltan.** _(5 ago 2026)_ Seis avisos nuevos: cobro
-  solicitado (al equipo), transferencia hecha, transferencia no hecha con su
-  motivo, pedido listo para retirar **con la dirección adentro**, constancia de
-  entrega y producto agotado. El correo de la compra ahora también dice dónde
-  se retira cada cosa, desde el primer minuto. Con prueba que vigila los dos
-  idiomas y el vocabulario prohibido por la figura jurídica.
+Mientras esto no esté, **un cobro con tarjeta sigue entrando en la cuenta de
+Windoce, LLC** y le aparece así al comprador. Nada de lo que viene después
+importa hasta cerrarlo.
 
-- ⬜ **B2. El ciclo del pedido después del pago.** Que el comercio marque
-  "listo para retirar" y "entregado" desde su panel, con su aviso al cliente.
+1. **Claves de Stripe** al panel de YaDominios: `STRIPE_SECRET_KEY`,
+   `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`.
+2. **Webhook de Stripe** apuntando a `https://mercatren.com/datos/stripe/aviso`,
+   con los cinco eventos: `payment_intent.succeeded`,
+   `payment_intent.payment_failed` y los tres `charge.dispute.*`.
+3. **Zelle de Chase** enrolado con `zelle@mercatren.com`, y
+   `ZELLE_CORREO_RECEPTOR` actualizado.
+4. **Datos de Mercury** para los retiros: `PAGO_CUENTA`, `PAGO_RUTA_ACH`,
+   `PAGO_RUTA_WIRE`.
+5. **Emisor de las facturas**: `EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION`.
+6. **Una venta de prueba de punta a punta**, de verdad y con dinero real: pagar
+   con tarjeta, ver que entra en Mercury, que se emite el par de facturas, y
+   que el neto aparece en la billetera del comercio.
 
-- ⬜ **B3. Verificación al aprobar comercios.** Los términos prometen que
-  verificamos identidad y registro mercantil; hoy aprobar es un solo botón sin
-  checklist ni constancia.
-
-- 🔒 **B4. Facturación automática.** Orden de compra, factura de compra por
-  autofacturación, factura de venta y el margen por operación.
-  **Esperando A6 y A9.**
-
-- ⬜ **B5. La cola de "Otros".** Pagos de pedidos con varios comercios que
-  quedan sin comercio asignado; hoy no tienen pantalla propia.
-
----
-
-## BLOQUE C — Después del lanzamiento
-
-No frenan la apertura: el sitio funciona sin ellas.
-
-- ⬜ **C1. Conectar la billetera con el WaaS de tokiia.** El saldo espejo ya
-  funciona y cuadra con el sistema anterior.
-- ⬜ **C2. Sincronización nocturna automática del catálogo.** Hoy el comercio
-  la dispara a mano desde su panel y funciona.
-- ⬜ **C3. Pagar con saldo a favor** (nota de crédito) y los interruptores de
-  encender/apagar Zelle por comercio.
-- ⬜ **C4. Envío e impuestos.** Hoy van en cero a propósito, se acuerdan con
-  el comercio.
-- ⬜ **C5. Renombrar los identificadores internos** (`billetera`, `saldo`,
-  `comision`) por el vocabulario correcto. Deuda técnica conocida; no se ve de
-  cara al público.
+**El corte contable es un hecho, no una fecha:** el primer dólar que Stripe
+liquide en la cuenta de Mercatren LLC. Ni un hueco ni un solapamiento.
 
 ---
 
----
+## BLOQUE 2 — Lo formal y lo legal (en paralelo, depende de terceros)
 
-## BLOQUE D — Lo que pidió el negocio el 6 ago 2026
+Se arranca YA porque el abogado y el contador tienen sus tiempos, no los
+nuestros. No bloquea al bloque 1, pero sí a cualquier crecimiento serio.
 
-Salió de una tarde en que **MEGAYES** (repuestos de moto, Venezuela) no pudo
-cargar ni un producto: cada intento se caía y perdía lo escrito. Lo supimos
-por WhatsApp, no por el sistema.
-
-- ✅ **D1. Que un fallo no borre el trabajo de un comercio.** _(6 ago 2026)_
-  Ya está en producción. Ninguna caída vuelve a llegar como pantalla en blanco
-  en inglés: se explica en su idioma, se le dice que lo guardado está a salvo, y
-  si el problema es que le falta dar de alta su tienda, el botón está ahí mismo.
-  Lo escrito en el formulario ya no se pierde pase lo que pase.
-
-- ✅ **D2. Enterarnos de quién se registra.** _(6 ago 2026)_ Llega un correo al
-  equipo en cuanto alguien crea una cuenta, con su nombre, su correo y si ya dio
-  de alta comercio. Antes, entre el registro y el alta de la tienda la persona
-  era **invisible** para nosotros: podía pasar días chocándose con fallos sin
-  que nadie lo supiera.
-
-- ⬜ **D3. Aprobación temporal: que pueda trabajar mientras lo revisamos.**
-  Hoy un comercio que se registra queda `pendiente` y no puede hacer nada útil.
-  La idea es al revés: **que cargue sus productos desde el primer minuto**, con
-  un aviso claro de que está en revisión y que su tienda no sale al público
-  hasta que se apruebe. Así no pierde su tiempo esperándonos, y nosotros
-  seguimos controlando qué sale a la calle. Incluye el correo de "tu cuenta
-  está en revisión, mientras tanto puedes ir cargando tu catálogo".
-
-- ⬜ **D4. Que el registro se sienta acompañado.** Hoy el cliente se registra y
-  no pasa nada visible: ni "estamos procesando tu cuenta", ni qué sigue, ni
-  cuánto tarda. Pantalla de bienvenida con los pasos y en qué punto está.
-
-- ⬜ **D5. Ventas a crédito del comercio a su cliente.** El caso de MEGAYES.
-  **El documento completo, a color y listo para que lo apruebe el comercio,
-  está en `docs/mercatren-ventas-a-credito.pdf`** (se regenera con
-  `npm run docs:pdf-credito`).
-
-  La figura, en una línea: **el crédito lo da el comercio y el riesgo es suyo**;
-  Mercatren pone el software y, en cada abono, **compra la mercancía
-  correspondiente** — así Windoce, LLC nunca financia nada y sigue comprando y
-  revendiendo, que es su figura.
-
-  El comercio activa el cupo desde el menú de tres puntos de su cliente, con
-  tope y plazo. Antes de programar hacen falta cinco decisiones suyas y la
-  revisión del abogado.
-
-  _Ojo: el primer borrador de esto (6 ago, mañana) planteaba un **apartado** —
-  pagar antes de recibir. Se descartó al aclararse el negocio: MEGAYES entrega
-  la mercancía primero, y eso cambia la figura entera. Aquel documento se
-  eliminó para no dejar dos planes que se contradicen._
-
-- 🔒 **D7. Cambiar la sociedad a Mercatren LLC en todo el sitio.** Ya está
-  registrada `Mercatren LLC` (sin coma) y es la que va a operar la tienda;
-  Windoce LLC se queda como desarrolladora en el pie.
-  **Esperando:** que el banco, Stripe y Merchant Center estén a nombre de
-  Mercatren LLC. Si el sitio cambia antes, al comprador le aparece un nombre
-  distinto en su estado de cuenta y eso genera reclamos.
-  Son 239 menciones: términos, privacidad, documentación, correos y el PDF del
-  modelo — ese PDF lo revisó el abogado, así que pasa por él.
-
-- ⬜ **D8. API para conectar los sistemas que ya desarrollamos.** Que una
-  ferretería facture en su local y su cliente pague por Mercatren con tarjeta o
-  Zelle — clave para Venezuela, donde quien paga suele estar en Estados Unidos.
-  **El plan completo, en PDF y por fases, está en
-  `docs/mercatren-api-integraciones.pdf`** (`npm run docs:pdf-api`).
-  Cuatro fases: enlace de cobro · abonos a crédito desde su sistema · catálogo
-  automático · cuadre y reportes. **No toca nada de lo ya construido**: se
-  agrega al lado.
-  Antes de programar hacen falta cinco decisiones (con quién se empieza, la
-  comisión, el vencimiento del enlace, qué detalle se muestra y la moneda).
-
-- ⬜ **D6. Revisión automática del comercio (KYB).** Comprobar con IA que quien
-  se registra es un comercio de verdad: que la identificación fiscal tenga el
-  formato de su país, que el sitio web exista y hable de lo mismo, que la
-  dirección sea un local y no un descampado, que el catálogo cuadre con el
-  rubro declarado. **No para aprobar solo, sino para llegar a la revisión con
-  el trabajo medio hecho** y una lista de lo que huele raro. Va después de D3.
-
-## Además, hecho sobre la marcha
-
-Trabajos que no estaban en la lista y salieron de peticiones directas. No
-cambian el marcador de arriba, que sigue contando los 19 del lanzamiento.
-
-- ✅ **Velocidad de la portada** _(5 ago 2026)_ — se acabó la pantalla en
-  blanco al entrar: consultas en paralelo, textos del panel fuera del paquete
-  público y esqueleto de carga.
-- ✅ **Nombre del comercio piloto** _(5 ago 2026)_ — es `Ferremateriales Bley
-C.A`. De paso se desactivó el importador, que se lo reescribía en cada
-  corrida. **Falta cambiarlo en la base real desde Panel → Mi tienda.**
-- ✅ **SEO del catálogo** _(5 ago 2026)_ — las 622 fichas ya le dicen a Google
-  su precio, si hay existencias, marca y categoría; migas de pan; ficha de
-  tienda; canónicas y hreflang; descripción de respaldo. Todo el JSON-LD va
-  escapado.
-- ✅ **Blindaje de seguridad y pruebas** _(6 ago 2026)_ — el proyecto pasó de
-  **6 de 20** protecciones a **18 de 20**. Lo que hay ahora: el sitio se avisa
-  solo si una página se cae (prueba de humo sobre 18 direcciones), ninguna
-  prueba puede gastar dinero de verdad ni escribirle a una persona real,
-  ninguna clave puede entrar al repositorio (revisado commit por commit: cero
-  filtraciones en 190 commits), el navegador de cada visitante recibe seis
-  instrucciones de seguridad, y nada se puede subir sin pasar la revisión
-  completa. **No se tocó ni una línea del producto.** Detalle y las 2 que
-  faltan: sección «El blindaje» del `CLAUDE.md`.
+1. **El puente Windoce → Mercatren, por escrito.** Durante meses la operación
+   de Mercatren corrió a través de Windoce, LLC. Hoy no hay ningún papel que
+   explique por qué. Un acuerdo corto entre las dos sociedades con la fecha de
+   traspaso convierte «esto se ve raro» en «esto está documentado». **Es del
+   abogado.**
+2. **Cómo se declara la LLC de un solo miembro.** Por defecto es _disregarded
+   entity_ y todo pasa a la declaración personal. Eso cambia cómo se reporta el
+   1099-K, y el modelo entero se apoya en `bruto − costo de mercancía =
+margen`. **Es del contador, y es la pregunta de esta semana, no de marzo.**
+3. **Términos y privacidad revisados por el abogado.** Siguen pendientes desde
+   que se escribieron.
+4. **Regenerar el PDF del modelo de negocio** con Mercatren LLC. Lo revisó el
+   abogado, así que el cambio pasa por él.
+5. **El flujo de facturación por escrito**, de la venta a los libros, para
+   llevarlo a QuickBooks Online.
+6. **La dirección publicada es una casa.** Sale en las facturas y en los
+   términos. Cuando haya dirección comercial se cambia — después es reeditar
+   documentos ya emitidos.
 
 ---
 
-## Lo que ya está listo y probado
+## BLOQUE 3 — Que el dinero no se pierda
 
-Para que no se pierda de vista lo que ya no hay que volver a tocar:
+Nada de esto da ingresos. Todo evita perderlos.
 
-catálogo con tallas, colores y medidas · filtro por ciudad con mapa de
-cobertura (24 estados, 481 ciudades) · directorio de tiendas con buscador ·
-barajado con ventaja para lo nuevo y sello que se apaga solo a los 7 días ·
-precios con la fórmula completa (2% + Stripe) y calculadora en el panel ·
-carrito y compra · comprobante de pago con cola de validación · retiros ·
-billetera del comercio · términos y privacidad V1 con aceptación registrada ·
-documentación pública y PDF del modelo · SEO con mapa del sitio enviado ·
-aplicación instalable · velocidad de la portada.
+1. **Prueba de entrega en el pedido.** Un cobro con tarjeta se revierte hasta
+   **120 días** después. Hoy se guarda quién marcó «entregado» y cuándo, pero
+   no hay dónde poner guía, foto o firma — y eso es lo único que gana una
+   disputa. Tabla nueva, no columna.
+2. **Devoluciones desde el panel.** Existe el estado `reembolsado` pero no la
+   forma de hacer una. El primer cliente que la pida se atiende a mano en
+   Stripe.
+3. **Retiros con la API de Mercury, tramo 1.** El comercio pide → Mercatren
+   revisa → sale a Mercury como solicitud → un admin aprueba. Lo que resuelve
+   no es aprobar: es dejar de copiar a mano el banco, la cuenta y la ruta, que
+   es donde se manda plata a la cuenta equivocada. Solo ACH domésticos al
+   principio.
+4. **Rotar `SOCIO_LLAVE`.** Se pegó en un chat. Sigue viva.
+5. **Límite de intentos** en entrar, registro y recuperar clave. Hoy solo hay
+   Turnstile, que frena robots pero no a alguien decidido.
+
+---
+
+## BLOQUE 4 — Crecer
+
+Solo cuando el bloque 1 esté cerrado. Meter volumen con la facturación a
+medias multiplica el problema, no los ingresos.
+
+1. **Ferremateriales Bley.** Están los tres archivos escritos pero sin
+   commitear, y el botón sin enganchar a ninguna pantalla. Falta emitir su
+   token, cargarlo en su Cloudflare, publicar y decidir con ellos cómo se
+   contabiliza esa venta en el cierre de caja. **No se les escribe hasta que el
+   bloque 1 esté cerrado** — decisión del dueño, y es la correcta: Bley vende
+   bastante y empeoraría el desorden de facturación.
+2. **Una página de «cómo trabajar con Mercatren»**, abierta y sin login, para
+   mandarle el enlace a cada comercio nuevo en vez de explicarlo otra vez.
+3. **Avisar al comprador del concepto del Zelle**: hoy no se le pide nada, y el
+   número de factura en el concepto es lo que convierte una transferencia
+   suelta en el pago de una venta.
+4. **Aviso al equipo cuando entra una venta.** Hoy solo se enteran el comprador
+   y el comercio.
+
+---
+
+## BLOQUE 5 — Deuda técnica escrita
+
+Está anotada en `CLAUDE.md` con su porqué. Se cierra archivo por archivo, cada
+uno con su prueba.
+
+1. **`zod` en los 9 archivos de acciones que no lo tienen.** Es la deuda más
+   grande que dejó el blindaje.
+2. **Nonce por petición en la CSP**, para poder quitar `unsafe-inline`.
+3. **`noUncheckedIndexedAccess`**: rompe en 16 sitios.
+4. **Buscador global en el panel**: hoy hay que saber en qué sección mirar.
+
+---
+
+## Cómo se usa esta lista
+
+- Se contesta **por bloques, en orden**. Un pendiente del bloque 3 no adelanta
+  a uno del 1, por mucho que apetezca.
+- El bloque 2 corre **en paralelo** desde el primer día: depende de terceros.
+- Cuando algo se termina, se marca aquí en el mismo trabajo. Una lista
+  desactualizada miente igual que un panel que dice «En vivo» con el sitio
+  caído.
