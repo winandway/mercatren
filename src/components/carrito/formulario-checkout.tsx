@@ -184,6 +184,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
 
       // El pedido ya vive en el servidor: el carrito del navegador sobra.
       vaciar();
+      /* El pedido ya existe con estos datos dentro: el borrador cumplió su
+         trabajo y estorbaría en la próxima compra. */
+      olvidarBorrador("checkout");
       router.push(`/pedido/${resultado.numero}`);
     });
   }

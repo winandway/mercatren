@@ -273,6 +273,8 @@ function BloqueMedidas({
     setAviso(null);
     datos.set("productoId", productoId);
     const r = await guardarMedidas(datos);
+    /* Guardado de verdad: recién ahora se tira el borrador. */
+    if (r.ok) olvidarBorrador(`medidas:${productoId}`);
     setAviso(r.mensaje);
     setGuardando(false);
   }

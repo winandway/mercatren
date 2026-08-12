@@ -120,6 +120,10 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
        grabación fallara, el error queda en el servidor y la cuenta sigue. */
     await registrarAceptacion("registro");
 
+    /* La cuenta ya existe. ANTES de la carga completa: si no, la pantalla
+       vuelve y le repinta encima un nombre y un correo ya usados. */
+    olvidarBorrador("registro-cuenta");
+
     // Carga completa, por lo mismo que en la pantalla de entrar: acaba de
     // cambiar quien eres y el servidor tiene que armar la pagina otra vez.
     window.location.assign(`/${idioma}${destino === "/" ? "" : destino}`);
