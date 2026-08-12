@@ -143,7 +143,7 @@ export const MODELO_EN: Documento = {
             ],
             [
               `B · ${SOCIEDAD.nombre}`,
-              "Company registered in Delaware, United States. Operates the Mercatren brand",
+              `Company registered in ${SOCIEDAD.estado}, ${SOCIEDAD.paisEn}. Operates the Mercatren brand`,
               "Buys the merchandise from the supplier in its own name and resells it to the buyer. Sets and publishes the final sale price. Issues the sales invoice and retains the purchase invoice. Bears the commercial risk of the transaction.",
             ],
             [

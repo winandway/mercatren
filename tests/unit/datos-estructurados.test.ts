@@ -9,6 +9,7 @@ import {
   fichaDeTienda,
   migasDePan,
 } from "@/lib/seo/datos-estructurados";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 const RAIZ = join(import.meta.dirname, "..", "..", "src");
 
@@ -61,11 +62,17 @@ describe("lo que Google lee de cada ficha", () => {
     );
   });
 
-  it("quien vende es Windoce, LLC, no el comercio", () => {
-    // La figura jurídica del negocio: nosotros compramos y revendemos. Poner
-    // al comercio aquí diría lo contrario de lo que dicen los términos.
+  it("quien vende es la sociedad, no el comercio", () => {
+    /* La figura jurídica del negocio: nosotros compramos y revendemos. Poner
+       al comercio aquí diría lo contrario de lo que dicen los términos.
+
+       Se compara contra SOCIEDAD y no contra un nombre escrito a mano: el 12
+       de agosto de 2026 la sociedad pasó de Windoce, LLC a Mercatren LLC, y
+       esta prueba se puso roja por decir el nombre viejo en vez de por haber
+       encontrado un fallo. Lo que hay que comprobar es que vendemos NOSOTROS,
+       no cómo nos llamamos hoy. */
     const ficha = fichaDeProducto(PRODUCTO, "es");
-    expect(ficha.offers.seller.legalName).toBe("Windoce, LLC");
+    expect(ficha.offers.seller.legalName).toBe(SOCIEDAD.nombre);
   });
 
   it("no inventa campos que no tenemos", () => {

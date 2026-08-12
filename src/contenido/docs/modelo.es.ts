@@ -151,7 +151,7 @@ export const MODELO_ES: Documento = {
             ],
             [
               `B · ${SOCIEDAD.nombre}`,
-              "Sociedad registrada en Delaware, Estados Unidos. Opera la marca Mercatren",
+              `Sociedad registrada en ${SOCIEDAD.estado}, ${SOCIEDAD.pais}. Opera la marca Mercatren`,
               "Compra la mercancía al proveedor a nombre propio y la revende al comprador. Fija y publica el precio final de venta. Emite la factura de venta y conserva la factura de compra. Asume el riesgo comercial de la operación.",
             ],
             [

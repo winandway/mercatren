@@ -86,8 +86,16 @@ describe("el nombre de la sociedad no se escribe a mano", () => {
     expect(DESARROLLADOR.sitio).toBe("https://windoce.com");
   });
 
-  it("el nombre legal lleva su coma", () => {
-    // Omitirla ya causó el rechazo de un expediente estatal.
-    expect(SOCIEDAD.nombre).toContain(", LLC");
+  it("el nombre legal se escribe EXACTAMENTE como está registrado", () => {
+    /* «Mercatren LLC», SIN coma: así aparece en los Articles of Organization
+       de Michigan y en la carta CP 575 del IRS.
+
+       La coma no es un detalle de estilo. La sociedad anterior —Windoce, LLC,
+       de Delaware— sí la llevaba, y omitirla allí causó el rechazo de un
+       expediente estatal. Aquí es al revés: ponerla sobra. El nombre se copia
+       del papel, letra por letra, y un banco que compara contra los registros
+       del IRS rechaza por menos que eso. */
+    expect(SOCIEDAD.nombre).toBe("Mercatren LLC");
+    expect(SOCIEDAD.estado).toBe("Michigan");
   });
 });
