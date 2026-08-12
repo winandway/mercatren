@@ -4,6 +4,10 @@ import { Building2, Landmark, Loader2, Store, Wallet } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useRef, useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { pedirRetiro } from "@/lib/retiros/acciones";
 import { PAISES_BANCARIOS, paisBancario } from "@/lib/retiros/paises";
 import { cn } from "@/lib/utils";
@@ -69,7 +73,12 @@ export function PedirRetiro({
   // de arriba salgan con el monto ya apartado. Cerrar el formulario a mano
   // aquí sobra: la recarga se lleva por delante todo lo que había en pantalla.
   useEffect(() => {
-    if (estado?.ok) window.location.reload();
+    if (estado?.ok) {
+      /* ANTES de recargar: si no, la página vuelve y le repinta encima los
+         datos bancarios de un retiro que ya pidió. */
+      olvidarBorrador("pedir-retiro");
+      window.location.reload();
+    }
   }, [estado?.ok]);
 
   if (disponibleCentavos <= 0) return null;
@@ -97,7 +106,8 @@ export function PedirRetiro({
   const campos = paisBancario(pais)?.campos ?? [];
 
   return (
-    <form
+    <FormularioPersistente
+      llave="pedir-retiro"
       action={accion}
       className="space-y-5 rounded-xl border border-carga-500/30 bg-white p-5 shadow-sm"
     >
@@ -346,6 +356,6 @@ export function PedirRetiro({
       </div>
 
       <p className="text-xs text-tinta-suave">{t("avisoManual")}</p>
-    </form>
+    </FormularioPersistente>
   );
 }

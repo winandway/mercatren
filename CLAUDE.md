@@ -765,6 +765,58 @@ con el motivo (`rechazarPago`).
 no está configurada, se registra el aviso perdido y la operación sigue. Un pago
 aprobado jamás se deshace porque el aviso no salió.
 
+## Lo escrito NO se pierde: borrador en todos los formularios (12 ago 2026)
+
+Un comercio real —MEGAYES, que vende motos— pasó días sin poder cargar su
+catálogo. Lo peor no era el fallo: era que **cada intento le vaciaba el
+formulario** y tenía que escribirlo todo otra vez. Palabras del dueño: _«la
+persistencia. Que se encuentra llenando unos datos tan largos y da un error y
+los tiene que volver a poner de nuevo otra vez, eso es una mierda»_.
+
+Ya se había blindado el formulario con un `try` para que una excepción del
+servidor no lo desmontara, y **seguía pasando**. La causa es que la pérdida no
+siempre viene del servidor: en un teléfono, abrir el carrete deja el navegador
+en segundo plano y si el sistema anda justo de memoria **mata la pestaña**; al
+volver, la página se recarga sola y las casillas salen vacías. Contra eso no
+sirve ningún `try` — la página ya no existe. Lo único que sirve es que lo
+escrito **viva fuera de la página**.
+
+`src/lib/formularios/borrador.ts` (16 pruebas) +
+`src/components/ui/formulario-persistente.tsx` (9 pruebas). Se adopta cambiando
+`<form>` por `<FormularioPersistente llave="...">` y llamando a
+`olvidarBorrador(llave)` en la rama de éxito. **Ya está puesto en los nueve
+formularios largos**: producto, mi tienda, alta de comercio, checkout, pedir
+retiro, medidas, envíos, preguntas y registro de cuenta.
+
+Cuatro reglas que no se tocan:
+
+1. **Las contraseñas y los datos de tarjeta NUNCA se guardan**, y se descartan
+   por el TIPO de la casilla y su `autocomplete`, no por su nombre: los nombres
+   cambian de un formulario a otro y basta uno mal escrito para dejar una
+   contraseña en claro en el disco de una computadora prestada.
+2. **Los archivos tampoco.** El almacén del navegador ronda los 5 MB para todo
+   el sitio; una sola foto lo llenaría y haría fallar el guardado del texto, que
+   es justo lo que esto viene a salvar.
+3. **Cada formulario lleva su llave, y las de un producto llevan su id.** Con
+   una sola llave, el borrador de una moto se colaría en el formulario de la
+   siguiente.
+4. **Se borra al guardar bien, nunca al enviar.** Borrarlo al enviar sería
+   borrarlo justo cuando el servidor lo rechazó, que es cuando más falta hace.
+
+Se **avisa** de que se recuperó y se deja «Empezar de nuevo»: restituir en
+silencio hace creer que el sistema se inventó unos datos.
+
+**Y dos arreglos que salieron del mismo caso:**
+
+- **Las fotos se comprimen de UNA EN UNA, nunca con `Promise.all`.** Ocho fotos
+  decodificándose a la vez son más de 100 MB en memoria — en una computadora no
+  se nota, en un teléfono el sistema mata la pestaña. Eso era, literalmente, el
+  «se me borran los datos».
+- **El error dice el motivo**, no «no pudimos guardar». Con el mensaje genérico,
+  un comercio a 900 km solo puede decir «no me deja» y de este lado hay que
+  adivinar entre la red, el peso de las fotos, un permiso y la base. Se
+  perdieron días así.
+
 ## Los formularios: una sola regla por tipo de dato
 
 Todo lo que se escribe en una casilla del sitio pasa por

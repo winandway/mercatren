@@ -5,6 +5,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { CampoClave } from "@/components/cuenta/campo-clave";
 import { Escudo } from "@/components/cuenta/escudo";
 import { Campo } from "@/components/ui/campo";
@@ -122,7 +126,11 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
   }
 
   return (
-    <form onSubmit={enviar} className="mt-8 space-y-4">
+    <FormularioPersistente
+      llave="registro-cuenta"
+      onSubmit={enviar}
+      className="mt-8 space-y-4"
+    >
       {/* Nombre y correo pasan por las reglas compartidas: el nombre no admite
           números y el correo se guarda en minúsculas, sea como sea que lo
           escriba la persona. */}
@@ -222,6 +230,6 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
           {t("volverEntrar")}
         </Link>
       </p>
-    </form>
+    </FormularioPersistente>
   );
 }

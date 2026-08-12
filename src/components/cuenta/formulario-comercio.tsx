@@ -4,6 +4,10 @@ import { Loader2, Store } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useEffect, useRef } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { solicitarComercio } from "@/lib/tiendas/acciones";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -94,6 +98,7 @@ export function FormularioComercio() {
   // Enviado y aceptado: el borrador ya no sirve y no debe quedar rondando.
   useEffect(() => {
     if (estado?.ok) {
+      olvidarBorrador("registro-comercio");
       try {
         localStorage.removeItem(BORRADOR);
       } catch {
@@ -112,7 +117,8 @@ export function FormularioComercio() {
   }
 
   return (
-    <form
+    <FormularioPersistente
+      llave="registro-comercio"
       ref={formulario}
       action={accion}
       onInput={guardar}
@@ -210,6 +216,6 @@ export function FormularioComercio() {
       <p className="text-center text-xs text-tinta-suave">
         {t("seGuardaSolo")}
       </p>
-    </form>
+    </FormularioPersistente>
   );
 }

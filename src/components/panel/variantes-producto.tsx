@@ -4,6 +4,10 @@ import { Loader2, Plus, Ruler, Save, Shapes, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { guardarMedidas, guardarVariantes } from "@/lib/productos/acciones";
 import type { MedidasVista, VarianteVista } from "@/lib/productos/variantes";
 
@@ -281,7 +285,11 @@ function BloqueMedidas({
       </h2>
       <p className="mt-1 max-w-2xl text-sm text-tinta-suave">{t("texto")}</p>
 
-      <form action={guardar} className="mt-4">
+      <FormularioPersistente
+        llave={`medidas:${productoId}`}
+        action={guardar}
+        className="mt-4"
+      >
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {(
             [
@@ -340,7 +348,7 @@ function BloqueMedidas({
             <span className="text-precio-700 text-sm font-medium">{aviso}</span>
           ) : null}
         </div>
-      </form>
+      </FormularioPersistente>
     </section>
   );
 }

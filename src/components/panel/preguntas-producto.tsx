@@ -4,6 +4,10 @@ import { HelpCircle, Loader2, MoreVertical, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { useRouter } from "@/i18n/navigation";
 import { borrarPregunta, guardarPregunta } from "@/lib/preguntas/acciones";
 import { cn } from "@/lib/utils";
@@ -177,7 +181,8 @@ function Formulario({
     "mt-1 w-full rounded-lg border border-borde px-3 py-2 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30";
 
   return (
-    <form
+    <FormularioPersistente
+      llave={`preguntas:${productoId}:${pregunta?.id ?? "nueva"}`}
       action={async (datos) => {
         setGuardando(true);
         setError(null);
@@ -200,6 +205,7 @@ function Formulario({
           setError(r.mensaje);
           return;
         }
+        olvidarBorrador(`preguntas:${productoId}:${pregunta?.id ?? "nueva"}`);
         alTerminar();
       }}
       className="space-y-3"
@@ -298,6 +304,6 @@ function Formulario({
           {t("cancelar")}
         </button>
       </div>
-    </form>
+    </FormularioPersistente>
   );
 }

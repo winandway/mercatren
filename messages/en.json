@@ -2197,38 +2197,8 @@
     "productos": "{n, plural, one {# product} other {# products}}"
   },
   "formularios": {
-    "clave": {
-      "seguridad": "Password strength",
-      "nivel0": "Not usable",
-      "nivel1": "Weak",
-      "nivel2": "Okay",
-      "nivel3": "Strong",
-      "nivel4": "Very strong",
-      "escribeUna": "Enter a password.",
-      "demasiadoComun": "This is one of the most common passwords in the world. It's the first one attackers try.",
-      "todoIgual": "That's the same character over and over. It's guessed instantly.",
-      "esUnaSecuencia": "That's a straight run across the keyboard. It's guessed instantly.",
-      "llevaTusDatos": "It contains your email or your name. Anyone who knows you tries that first.",
-      "muyCorta": "Use at least eight characters.",
-      "hazlaMasLarga": "Make it longer — length protects you far more than special characters.",
-      "mezclaTipos": "Mix in uppercase, lowercase, numbers, or symbols.",
-      "vaMuyBien": "Nice. This password is solid.",
-      "consejoFrase": "Tip: a phrase only you would think of is both safer and easier to remember than “P@ssw0rd!”"
-    },
-    "errores": {
-      "telefonoCaracteres": "A phone number only takes digits and the signs + ( ) -",
-      "telefonoLargo": "Check the number — it should have 7 to 15 digits.",
-      "nombreCorto": "Enter the full name.",
-      "nombreCaracteres": "A name doesn't contain numbers or symbols.",
-      "ciudadCorta": "Enter the city name.",
-      "correoInvalido": "Check the email address — something looks missing.",
-      "identificacionInvalida": "Letters, numbers, and dashes only. For example: 12-3456789",
-      "soloNumeros": "Numbers only here.",
-      "alfanumerico": "Letters and numbers only, no spaces.",
-      "sitioWebInvalido": "Check the website address.",
-      "textoLargo": "That's longer than allowed.",
-      "invalido": "Check this field."
-    }
+    "borradorRecuperado": "We restored what you were writing.",
+    "descartarBorrador": "Start over"
   },
   "errores": {
     "titulo": "Something broke on our end",
@@ -2242,7 +2212,8 @@
     "sinComercioTitulo": "Your account doesn't have a store yet",
     "sinComercioTexto": "To sell on Mercatren you'll need to register your business. It takes two minutes, and you can start adding products right away.",
     "darDeAlta": "Register my business",
-    "noSePudoGuardar": "We couldn't save just now. Everything you typed is still here — try saving again in a moment."
+    "noSePudoGuardar": "We couldn't save just now. Everything you typed is still here — try saving again in a moment.",
+    "noSePudoGuardarPorque": "We couldn't save: {motivo}. Everything you typed is still here."
   },
   "blog": {
     "titulo": "Blog",

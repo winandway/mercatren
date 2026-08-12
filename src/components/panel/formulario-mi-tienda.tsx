@@ -4,6 +4,10 @@ import { ImagePlus, Loader2, Save, Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { LADO_MAXIMO_LOGO, LADO_MAXIMO_PRODUCTO } from "@/lib/imagenes/medidas";
 import { guardarMiTienda } from "@/lib/tiendas/acciones";
@@ -212,11 +216,14 @@ export function FormularioMiTienda({ tienda }: { tienda: Tienda }) {
   );
 
   return (
-    <form
+    <FormularioPersistente
+      llave="mi-tienda"
       action={async (datos) => {
         setGuardando(true);
         setAviso(null);
         const r = await guardarMiTienda(datos);
+        /* Guardado de verdad: recién ahora se tira el borrador. */
+        if (r.ok) olvidarBorrador("mi-tienda");
         setAviso({ ok: r.ok, texto: r.mensaje });
         setGuardando(false);
         if (r.ok) window.scrollTo({ top: 0, behavior: "smooth" });
@@ -378,6 +385,6 @@ export function FormularioMiTienda({ tienda }: { tienda: Tienda }) {
           {guardando ? t("guardando") : t("guardar")}
         </button>
       </div>
-    </form>
+    </FormularioPersistente>
   );
 }

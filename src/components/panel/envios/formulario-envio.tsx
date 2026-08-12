@@ -2,8 +2,12 @@
 
 import { Loader2, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { Campo } from "@/components/ui/campo";
 import { guardarPoliticaDeEnvio } from "@/lib/envios/acciones";
 import {
@@ -64,6 +68,12 @@ export function FormularioEnvio({
     null,
   );
 
+  /* Guardado de verdad: recién ahora se tira el borrador. Uno que sobrevive al
+     guardado reaparece la próxima vez con datos viejos encima de los buenos. */
+  useEffect(() => {
+    if (estado?.ok) olvidarBorrador(`envios:${tiendaId}`);
+  }, [estado?.ok, tiendaId]);
+
   const despacha = modo === "porcentaje" || modo === "incluido";
 
   return (
@@ -74,7 +84,11 @@ export function FormularioEnvio({
       </h2>
       <p className="mt-1 mb-4 text-sm text-tinta-suave">{t("entradilla")}</p>
 
-      <form action={accion} className="space-y-4">
+      <FormularioPersistente
+        llave={`envios:${tiendaId}`}
+        action={accion}
+        className="space-y-4"
+      >
         <input type="hidden" name="tiendaId" value={tiendaId} />
         <input type="hidden" name="modo" value={modo} />
 
@@ -178,7 +192,7 @@ export function FormularioEnvio({
             t("guardar")
           )}
         </button>
-      </form>
+      </FormularioPersistente>
     </section>
   );
 }

@@ -4,6 +4,10 @@ import { ImagePlus, Loader2, Save, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { useRouter } from "@/i18n/navigation";
 import {
   DEPARTAMENTOS,
@@ -137,6 +141,16 @@ export function FormularioProducto({
 
   const esNuevo = !producto;
 
+  /**
+   * LA LLAVE DEL BORRADOR.
+   *
+   * Va por producto: el borrador de una moto no puede colarse en el formulario
+   * de la siguiente. Los productos nuevos comparten la llave `nuevo`, que es lo
+   * correcto — quien estaba cargando uno y perdió la pestaña vuelve a ese
+   * mismo, no a otro.
+   */
+  const llave = `producto:${producto?.id ?? "nuevo"}`;
+
   async function quitarGuardada(id: string) {
     const antes = fotos;
     setFotos((f) => f.filter((x) => x.id !== id));
@@ -155,7 +169,8 @@ export function FormularioProducto({
   }
 
   return (
-    <form
+    <FormularioPersistente
+      llave={llave}
       action={async (datos) => {
         setGuardando(true);
         setAviso(null);
@@ -209,9 +224,27 @@ export function FormularioProducto({
         try {
           r = await guardarProducto(datos);
         } catch (fallo) {
+          /**
+           * SE DICE EL MOTIVO, NO «no pudimos guardar».
+           *
+           * Con el mensaje genérico, un comercio que falla a 900 km de aquí
+           * solo puede decir «no me deja», y del otro lado hay que adivinar
+           * entre la red, el tamaño de las fotos, un permiso y la base. Se
+           * perdieron días así con un comercio real.
+           *
+           * Lo que llega aquí es la excepción del marco (red cortada, envío
+           * rechazado por tamaño): no trae datos de nadie, así que enseñarla
+           * es seguro y es lo único que permite arreglarlo a la primera.
+           */
           console.error("[producto] no se pudo guardar:", fallo);
+          const motivo = fallo instanceof Error ? fallo.message : String(fallo);
           setGuardando(false);
-          setAviso({ ok: false, texto: tPanel("noSePudoGuardar") });
+          setAviso({
+            ok: false,
+            texto: motivo
+              ? tPanel("noSePudoGuardarPorque", { motivo })
+              : tPanel("noSePudoGuardar"),
+          });
           window.scrollTo({ top: 0, behavior: "smooth" });
           return;
         }
@@ -224,6 +257,9 @@ export function FormularioProducto({
           return;
         }
 
+        /* Guardado de verdad: recién ahora se tira el borrador. Borrarlo al
+           enviar sería borrarlo justo cuando el servidor lo rechazó. */
+        olvidarBorrador(llave);
         setNuevas([]);
         if (esNuevo) router.replace(`/panel/productos/${r.id}`);
         else {
@@ -420,17 +456,36 @@ export function FormularioProducto({
             /* SE ENCOGEN ANTES DE SUBIRLAS. Una foto de celular son 3–8 MB, y
                con la conexión de Venezuela eso es un minuto por foto y un
                corte a medias. Comprimida viaja en unos 200 KB. */
+            /**
+             * UNA POR UNA, NUNCA TODAS A LA VEZ.
+             *
+             * Antes iban con `Promise.all`: ocho fotos decodificándose y
+             * dibujándose **al mismo tiempo**. Una foto de 2050×1184 ocupa unos
+             * 10 MB descomprimida, más el lienzo de destino; por ocho son más de
+             * 100 MB de golpe en la memoria del navegador.
+             *
+             * En una computadora no se nota. En un teléfono, el sistema **mata
+             * la pestaña** para recuperar memoria — y al volver, la página se
+             * recarga sola y el formulario sale vacío. Eso es exactamente lo que
+             * describía el comercio: «los datos se me borran otra vez».
+             *
+             * De una en una, en cualquier momento hay una sola foto en memoria.
+             * Tarda un poco más y se ve el avance; el otro camino no terminaba.
+             */
             setPreparando(elegidas.length);
             try {
-              const listas = await Promise.all(
-                elegidas.map((f) =>
-                  comprimirImagen(f)
-                    .then((r) => r.archivo)
-                    // Si no se pudo, va la original: subir lento es mucho
-                    // mejor que no poder subir.
-                    .catch(() => f),
-                ),
-              );
+              const listas: File[] = [];
+              for (const original of elegidas) {
+                try {
+                  const { archivo } = await comprimirImagen(original);
+                  listas.push(archivo);
+                } catch {
+                  // Si no se pudo, va la original: subir lento es mucho
+                  // mejor que no poder subir.
+                  listas.push(original);
+                }
+                setPreparando((quedan) => quedan - 1);
+              }
               setNuevas((n) => [...n, ...listas].slice(0, 8));
             } finally {
               setPreparando(0);
@@ -600,6 +655,6 @@ export function FormularioProducto({
           {guardando ? t("guardando") : t("guardar")}
         </button>
       </div>
-    </form>
+    </FormularioPersistente>
   );
 }

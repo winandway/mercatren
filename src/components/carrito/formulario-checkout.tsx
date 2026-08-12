@@ -9,6 +9,10 @@ import {
   useTransition,
 } from "react";
 
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 import { Campo } from "@/components/ui/campo";
 import { Link, useRouter } from "@/i18n/navigation";
 import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
@@ -185,7 +189,11 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   }
 
   return (
-    <form onSubmit={enviar} className="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <FormularioPersistente
+      llave="checkout"
+      onSubmit={enviar}
+      className="grid gap-6 lg:grid-cols-[1fr_320px]"
+    >
       <div className="space-y-6">
         <section className="rounded-xl border border-borde p-5">
           <h2 className="text-lg font-bold">{t("entrega.titulo")}</h2>
@@ -396,6 +404,6 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           )}
         </button>
       </aside>
-    </form>
+    </FormularioPersistente>
   );
 }
