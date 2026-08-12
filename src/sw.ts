@@ -61,14 +61,48 @@ const serwist = new Serwist({
 });
 
 /**
- * Limpieza de lo que quedo guardado con las reglas viejas.
+ * AL PUBLICAR UNA VERSION NUEVA, EL CODIGO VIEJO SE TIRA.
  *
- * Quien ya visito el sitio tiene en su navegador paginas y sesiones guardadas
- * por la version anterior de este archivo. Sin esto seguiria arrastrando el
- * problema aunque el codigo ya este corregido: el trabajador nuevo se instala,
- * pero los cajones viejos siguen ahi. Se corre una sola vez, al activarse.
+ * ══ EL PROBLEMA QUE RESUELVE (12 ago 2026) ══
+ *
+ * Un comercio pasó días reportando el mismo fallo **después** de que estuviera
+ * arreglado y publicado. Del lado de aquí todo salía verde; del suyo, nada
+ * cambiaba. Palabras del dueño: *«usted dice que ha arreglado algo cuando no lo
+ * ha arreglado»*.
+ *
+ * La causa es esta pieza. Mercatren se instala como aplicación, y una vez
+ * instalada el teléfono **sirve el sitio desde su propia despensa**, no de la
+ * red. Un despliegue nuevo llega al servidor y al teléfono no le llega nada: se
+ * queda ejecutando el programa del día que lo instaló, mes tras mes.
+ *
+ * Antes solo se vaciaban cuatro cajones con nombre propio, los de un problema
+ * de agosto. Los que guardan el PROGRAMA —los guiones y los estilos— no se
+ * tocaban nunca.
+ *
+ * ══ POR QUE SE TIRAN LOS GUIONES Y NO LAS FOTOS ══
+ *
+ * Los guiones y los estilos SON el programa: si están viejos, el arreglo no
+ * existe para esa persona. Las fotos y las tipografías no cambian el
+ * comportamiento de nada y volver a bajarlas en cada publicación es castigar a
+ * quien tiene mala conexión — que es justo nuestra clientela. Por eso se
+ * quedan.
+ *
+ * Esto corre en `activate`, o sea cuando el trabajador NUEVO toma el mando.
+ * Junto con `skipWaiting` y `clientsClaim` que ya estaban puestos, el resultado
+ * es que **abrir la aplicación una vez basta** para pasar a la versión nueva.
  */
-const CAJONES_A_TIRAR = ["pages", "pages-rsc", "pages-rsc-prefetch", "others"];
+const CAJONES_A_TIRAR = [
+  /* Del problema de las sesiones guardadas (agosto 2026). */
+  "pages",
+  "pages-rsc",
+  "pages-rsc-prefetch",
+  "others",
+  /* El programa. Estos son los que dejaban a un teléfono con la versión
+     vieja para siempre. */
+  "next-static-js-assets",
+  "static-js-assets",
+  "static-style-assets",
+];
 
 self.addEventListener("activate", (evento) => {
   evento.waitUntil(
