@@ -1,13 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 import en from "../messages/en.json";
-import { SITIO } from "../src/lib/sitio";
+import { DESARROLLADOR, SOCIEDAD } from "../src/lib/sociedad";
 
 /**
  * NADA DE TEXTOS ESCRITOS A MANO EN LAS PRUEBAS.
  *
  * El nombre de la sociedad y el titular en inglés salen de su fuente real
- * (`src/lib/sitio.ts` y `messages/en.json`). Cuando el abogado mandó escribir
+ * (`src/lib/sociedad.ts` y `messages/en.json`). Cuando el abogado mandó escribir
  * "Windoce, LLC" con coma, esta prueba —que buscaba "Windoce LLC"— tumbó la
  * publicación entera. Leyéndolo de la fuente, un cambio de copy no puede
  * volver a dejar el sitio sin publicar.
@@ -55,13 +55,34 @@ test.describe("Visitante con el navegador en espanol", () => {
     );
   });
 
-  test("el pie de pagina lleva el credito de la sociedad", async ({ page }) => {
+  /**
+   * EL PIE NOMBRA A DOS EMPRESAS DISTINTAS, Y ESA ES LA PRUEBA.
+   *
+   * Hasta el 12 de agosto de 2026 la tienda la operaba Windoce, LLC, que es
+   * además quien programa el sitio. Al ser la misma, esta prueba buscaba un
+   * enlace llamado `SITIO.sociedad` apuntando a windoce.com — y funcionaba de
+   * casualidad.
+   *
+   * Ese día la tienda pasó a Mercatren LLC y la prueba se puso roja buscando un
+   * enlace «Mercatren LLC» hacia windoce.com, que no existe ni debe existir.
+   * **Tumbó la publicación del cambio de sociedad.**
+   *
+   * Ahora comprueba lo que de verdad importa: que quien OPERA y quien PROGRAMA
+   * salen los dos, por separado y cada uno en su sitio.
+   */
+  test("el pie distingue quien opera la tienda de quien la programa", async ({
+    page,
+  }) => {
     await page.goto("/es");
 
-    const credito = page.getByRole("link", { name: SITIO.sociedad });
+    // El crédito del desarrollador: es el enlace, y va a windoce.com.
+    const credito = page.getByRole("link", { name: DESARROLLADOR.nombre });
     await expect(credito).toBeVisible();
-    await expect(credito).toHaveAttribute("href", "https://windoce.com");
+    await expect(credito).toHaveAttribute("href", DESARROLLADOR.sitio);
     await expect(credito).toHaveAttribute("target", "_blank");
+
+    // Y la sociedad que opera, que es otra cosa y no es un enlace.
+    await expect(page.getByRole("contentinfo")).toContainText(SOCIEDAD.nombre);
   });
 });
 
