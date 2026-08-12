@@ -35,9 +35,45 @@ const BASE = "https://api.mercury.com/api/v1";
 export type RespuestaMercury<T> =
   { ok: true; datos: T } | { ok: false; estado: number; motivo: string };
 
-/** El token sale del entorno del sitio, igual que el del correo. */
+/**
+ * El token sale del entorno del sitio, igual que el del correo.
+ *
+ * **Se recorta a propósito.** Al pegar una credencial en el panel de la
+ * plataforma es facilísimo arrastrar un salto de línea o un espacio del final,
+ * y el banco devuelve el mismo 401 que si la llave fuera falsa. Recortar no
+ * cuesta nada y ahorra una tarde de buscar dónde está el error.
+ */
 function token(): string | undefined {
-  return getCloudflareContext().env.MERCURY_TOKEN;
+  return getCloudflareContext().env.MERCURY_TOKEN?.trim() || undefined;
+}
+
+/**
+ * CÓMO LLEGÓ LA LLAVE, SIN ENSEÑARLA.
+ *
+ * Cuando el banco rechaza el token hay tres culpables posibles y el síntoma es
+ * idéntico en los tres: que esté mal, que le sobre un espacio, o que el panel
+ * de la plataforma la haya guardado a medias — ya pasó con otros campos
+ * largos. Adivinar entre los tres es una tarde perdida.
+ *
+ * Esto devuelve el LARGO y si venía con espacios, nunca el contenido. Con eso
+ * se compara contra la llave original y se sabe en un vistazo si llegó
+ * entera. Un token de Mercury ronda los 70 caracteres y empieza por
+ * `secret-token:`.
+ */
+export function comoLlegoLaLlave(): {
+  largo: number;
+  teniaEspacios: boolean;
+  empiezaBien: boolean;
+} | null {
+  const crudo = getCloudflareContext().env.MERCURY_TOKEN;
+  if (!crudo) return null;
+
+  const limpio = crudo.trim();
+  return {
+    largo: limpio.length,
+    teniaEspacios: limpio.length !== crudo.length,
+    empiezaBien: limpio.startsWith("secret-token:"),
+  };
 }
 
 /** Si no hay token, el sistema sigue funcionando: solo no habla con el banco. */

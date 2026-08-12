@@ -1063,7 +1063,8 @@
         "sinToken": "No bank key loaded yet. It goes in as MERCURY_TOKEN in the platform panel.",
         "tokenRechazado": "The bank rejected the key. It's almost always a partial copy or a stray space.",
         "falloConEstado": "The bank replied with an error ({estado}).",
-        "conectado": "{n, plural, =0 {Connected, but it returned no accounts} one {Connected. # account} other {Connected. # accounts}}"
+        "conectado": "{n, plural, =0 {Connected, but it returned no accounts} one {Connected. # account} other {Connected. # accounts}}",
+        "comoLlego": "The key that reached the site: {largo} characters · extra whitespace? {espacios} · starts with «secret-token:»? {prefijo}"
       }
     },
     "usuarios": {

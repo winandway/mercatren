@@ -1,7 +1,11 @@
 "use server";
 
 import { exigirEquipoInterno } from "@/lib/autorizacion";
-import { listarCuentas, mercuryConfigurado } from "@/lib/mercury/cliente";
+import {
+  comoLlegoLaLlave,
+  listarCuentas,
+  mercuryConfigurado,
+} from "@/lib/mercury/cliente";
 import { mensajes } from "@/lib/mensajes";
 
 /**
@@ -52,7 +56,22 @@ export async function probarMercury(): Promise<ResultadoSonda> {
         ? t("mercury.tokenRechazado")
         : t("mercury.falloConEstado", { estado: respuesta.estado });
 
-    return { ok: false, mensaje, detalle: respuesta.motivo };
+    /* Con un rechazo, lo primero que hay que descartar es que la llave haya
+       llegado cortada o con espacios. Se dice el largo, nunca el contenido. */
+    const llave = comoLlegoLaLlave();
+    const pistas = llave
+      ? t("mercury.comoLlego", {
+          largo: llave.largo,
+          espacios: llave.teniaEspacios ? "sí" : "no",
+          prefijo: llave.empiezaBien ? "sí" : "no",
+        })
+      : "";
+
+    return {
+      ok: false,
+      mensaje,
+      detalle: [pistas, respuesta.motivo].filter(Boolean).join(" · "),
+    };
   }
 
   const cuentas = respuesta.datos.accounts ?? [];

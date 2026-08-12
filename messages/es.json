@@ -1063,7 +1063,8 @@
         "sinToken": "Todavía no hay llave del banco cargada. Va como MERCURY_TOKEN en el panel de la plataforma.",
         "tokenRechazado": "El banco rechazó la llave. Casi siempre es que se copió a medias o le sobra un espacio.",
         "falloConEstado": "El banco respondió con un error ({estado}).",
-        "conectado": "{n, plural, =0 {Conectado, pero no devolvió ninguna cuenta} one {Conectado. # cuenta} other {Conectado. # cuentas}}"
+        "conectado": "{n, plural, =0 {Conectado, pero no devolvió ninguna cuenta} one {Conectado. # cuenta} other {Conectado. # cuentas}}",
+        "comoLlego": "La llave que llegó al sitio: {largo} caracteres · ¿traía espacios de más? {espacios} · ¿empieza por «secret-token:»? {prefijo}"
       }
     },
     "usuarios": {
