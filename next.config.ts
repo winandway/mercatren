@@ -67,6 +67,29 @@ const CABECERAS = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+
+  /**
+   * EL LÍMITE QUE DEJABA A LOS COMERCIOS SIN PODER CARGAR SUS PRODUCTOS.
+   *
+   * Next pone **1 MB** por defecto al cuerpo de una acción de servidor, y las
+   * fotos de un producto viajan por ahí dentro. Cada foto se encoge en el
+   * navegador hasta unos 400 KB (`PESO_OBJETIVO`), así que **a la tercera foto
+   * ya se pasa** y el guardado revienta. El formulario deja elegir ocho.
+   *
+   * Y falla de la peor manera posible: el rechazo ocurre en el marco, antes de
+   * llegar a nuestro código, así que no hay forma de devolver un motivo. El
+   * comercio solo veía «no pudimos guardar ahora mismo» y volvía a intentarlo
+   * con el mismo resultado.
+   *
+   * Le pasó a MEGAYES el 12 ago 2026 subiendo las fotos de sus motos.
+   *
+   * 20 MB da sitio a las ocho fotos con holgura y al caso en que comprimir
+   * falla —un HEIC de iPhone en un navegador que no lo sabe dibujar— y se sube
+   * el original. Sigue muy por debajo de lo que acepta Cloudflare.
+   */
+  experimental: {
+    serverActions: { bodySizeLimit: "20mb" },
+  },
   async headers() {
     return [{ source: "/:ruta*", headers: CABECERAS }];
   },

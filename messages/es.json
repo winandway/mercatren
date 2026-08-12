@@ -739,7 +739,8 @@
       "marcaPlaceholder": "Marca del producto",
       "fotos": {
         "titulo": "Fotos",
-        "texto": "La primera es la que se ve en el listado. Hasta 8."
+        "texto": "La primera es la que se ve en el listado. Hasta 8.",
+        "pesanDemasiado": "Las fotos pesan {peso} y el máximo por guardado es {tope}. Guarda el producto con menos fotos y después vuelve a entrar para agregar el resto."
       },
       "agregarFotos": "Agregar fotos",
       "quitarFoto": "Quitar foto",

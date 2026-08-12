@@ -41,6 +41,19 @@ export const LADO_MAXIMO_LOGO = 512;
  */
 export const PESO_OBJETIVO = 400 * 1024;
 
+/**
+ * CUÁNTO PUEDE PESAR TODO JUNTO EN UN SOLO GUARDADO.
+ *
+ * Las fotos viajan dentro de una acción de servidor, y el marco rechaza el
+ * envío entero si pasa del tope configurado en `next.config.ts` (20 MB). Ese
+ * rechazo ocurre ANTES de llegar a nuestro código, así que no hay forma de
+ * devolver un motivo: el comercio solo ve «no pudimos guardar».
+ *
+ * Por eso se mide en el navegador y se avisa con nombre y apellido. Se deja
+ * margen respecto al tope real para que el resto del formulario quepa.
+ */
+export const PESO_MAXIMO_ENVIO = 18 * 1024 * 1024;
+
 export type Medida = { ancho: number; alto: number };
 
 /**

@@ -739,7 +739,8 @@
       "marcaPlaceholder": "Product brand",
       "fotos": {
         "titulo": "Photos",
-        "texto": "The first one shows in listings. Up to 8."
+        "texto": "The first one shows in listings. Up to 8.",
+        "pesanDemasiado": "The photos add up to {peso} and the limit per save is {tope}. Save the product with fewer photos, then come back and add the rest."
       },
       "agregarFotos": "Add photos",
       "quitarFoto": "Remove photo",

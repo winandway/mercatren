@@ -12,6 +12,7 @@ import {
 import { baseDesdePublicado } from "@/lib/dinero";
 import { ESTADOS } from "@/lib/entrega/zonas";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
+import { pesoLegible, PESO_MAXIMO_ENVIO } from "@/lib/imagenes/medidas";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
 
@@ -162,6 +163,30 @@ export function FormularioProducto({
         // Las fotos elegidas viajan aparte: el campo de archivo se limpia al
         // renderizar y se perderian.
         for (const foto of nuevas) datos.append("fotos", foto);
+
+        /**
+         * EL PESO SE MIDE AQUÍ, PORQUE MÁS ALLÁ YA NO SE PUEDE AVISAR.
+         *
+         * Si el envío pasa del tope de la acción de servidor, el marco lo
+         * rechaza ANTES de llegar a nuestro código: no hay forma de devolver
+         * un motivo y el comercio solo ve «no pudimos guardar». Le pasó a un
+         * comercio real subiendo las fotos de sus motos.
+         *
+         * Midiéndolo aquí se le dice cuánto pesa, cuánto cabe y qué hacer.
+         */
+        const pesan = nuevas.reduce((suma, f) => suma + f.size, 0);
+        if (pesan > PESO_MAXIMO_ENVIO) {
+          setGuardando(false);
+          setAviso({
+            ok: false,
+            texto: t("fotos.pesanDemasiado", {
+              peso: pesoLegible(pesan),
+              tope: pesoLegible(PESO_MAXIMO_ENVIO),
+            }),
+          });
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          return;
+        }
 
         /**
          * NADA DE LO QUE PASE AQUÍ PUEDE BORRAR EL FORMULARIO.
