@@ -1912,3 +1912,56 @@ export const intentosAcceso = sqliteTable("intentos_acceso", {
   /** Milisegundos. Cuando empezo la ventana vigente. */
   ventanaDesde: integer("ventana_desde").notNull(),
 });
+
+/**
+ * LA PRUEBA DE ENTREGA: lo unico que gana una disputa.
+ *
+ * ══ POR QUE HACE FALTA ══
+ *
+ * Un cobro con tarjeta se revierte hasta **120 dias despues**. Cuando llega el
+ * contracargo, el banco pregunta una sola cosa: demuestrame que el comprador
+ * recibio la mercancia. `hitos_pedido` ya guarda quien marco «entregado» y
+ * cuando, y eso no basta: cualquiera puede pulsar un boton. Lo que se defiende
+ * es la GUIA del transportista, la FOTO de la entrega o la FIRMA de quien
+ * recibio.
+ *
+ * ══ TABLA NUEVA, NO COLUMNAS ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, asi que una columna
+ * agregada a `pedidos` no llegaria sola a produccion. Y ademas un pedido puede
+ * tener varias pruebas: la guia y la foto del paquete en la puerta.
+ *
+ * ══ EL ARCHIVO ES PRIVADO ══
+ *
+ * Una foto de entrega lleva una direccion y a veces una persona. Se guarda con
+ * `clave` en nuestro bucket y se sirve por `/media`, que ya comprueba quien
+ * pregunta — igual que los comprobantes de pago.
+ */
+export const TIPOS_PRUEBA = ["guia", "foto", "firma", "nota"] as const;
+
+export const pruebasEntrega = sqliteTable(
+  "pruebas_entrega",
+  {
+    id: text("id").primaryKey(),
+    pedidoId: text("pedido_id")
+      .notNull()
+      .references(() => pedidos.id, { onDelete: "cascade" }),
+    /** `guia`, `foto`, `firma` o `nota`. */
+    tipo: text("tipo").notNull(),
+    /** El numero de guia o el transportista, cuando el tipo lo lleva. */
+    referencia: text("referencia"),
+    /** La clave del archivo en nuestro bucket. Se sirve por /media. */
+    clave: text("clave"),
+    /** Lo que escriba quien la sube. */
+    nota: text("nota"),
+
+    /** Quien la aporto. Se guarda el nombre por si esa cuenta desaparece. */
+    subidoPorId: text("subido_por_id").references(() => user.id),
+    subidoPorNombre: text("subido_por_nombre"),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_pruebas_entrega").on(t.pedidoId)],
+);

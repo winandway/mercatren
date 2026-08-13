@@ -1067,7 +1067,17 @@
         "falloConEstado": "El banco respondió con un error ({estado}).",
         "conectado": "{n, plural, =0 {Conectado, pero no devolvió ninguna cuenta} one {Conectado. # cuenta} other {Conectado. # cuentas}}",
         "comoLlego": "La llave que llegó al sitio: {largo} caracteres · ¿traía espacios de más? {espacios} · ¿empieza por «secret-token:»? {prefijo}"
-      }
+      },
+      "pruebaVacia": "Pon al menos el número de guía, una foto o una nota.",
+      "pruebaGuardada": "Prueba de entrega guardada.",
+      "identificadorObligatorio": "Falta el identificador.",
+      "identificadorLargo": "Ese identificador no es válido.",
+      "identificadorRaro": "Ese identificador no es válido.",
+      "numeroDePedidoRaro": "Ese número de pedido no es válido.",
+      "motivoCorto": "Escribe el motivo con un poco más de detalle: el comprador lo va a leer.",
+      "motivoLargo": "El motivo es demasiado largo.",
+      "montoObligatorio": "Escribe el monto.",
+      "montoRaro": "Ese monto no es válido."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1579,6 +1589,28 @@
     },
     "exportar": {
       "boton": "Descargar en Excel"
+    },
+    "pruebaEntrega": {
+      "titulo": "Prueba de entrega",
+      "texto": "Un cobro con tarjeta se puede revertir hasta 120 días después. Si eso pasa, el banco pide una sola cosa: que se demuestre que el comprador recibió la mercancía.",
+      "tipo": "Qué estás aportando",
+      "tipos": {
+        "guia": "Número de guía",
+        "foto": "Foto de la entrega",
+        "firma": "Firma de quien recibió",
+        "nota": "Nota"
+      },
+      "referencia": "Número de guía o transportista",
+      "referenciaMarcador": "Número de guía",
+      "nota": "Nota",
+      "notaMarcador": "Quién recibió, dónde y cuándo",
+      "archivo": "Foto o documento",
+      "guardar": "Guardar la prueba",
+      "guardando": "Guardando…",
+      "sinPruebas": "Todavía no hay ninguna prueba de entrega para este pedido.",
+      "quitar": "Quitar",
+      "verArchivo": "Ver el archivo",
+      "aportadaPor": "Aportada por {quien}"
     }
   },
   "catalogo": {
@@ -2233,7 +2265,15 @@
       "alfanumerico": "Solo letras y números, sin espacios.",
       "sitioWebInvalido": "Revisa la dirección del sitio web.",
       "textoLargo": "Te pasaste del largo permitido.",
-      "invalido": "Revisa este dato."
+      "invalido": "Revisa este dato.",
+      "identificadorObligatorio": "Falta el identificador.",
+      "identificadorLargo": "Ese identificador no es válido.",
+      "identificadorRaro": "Ese identificador no es válido.",
+      "numeroDePedidoRaro": "Ese número de pedido no es válido.",
+      "motivoCorto": "Escribe el motivo con un poco más de detalle: el comprador lo va a leer.",
+      "motivoLargo": "El motivo es demasiado largo.",
+      "montoObligatorio": "Escribe el monto.",
+      "montoRaro": "Ese monto no es válido."
     },
     "borradorRecuperado": "Recuperamos lo que estabas escribiendo.",
     "descartarBorrador": "Empezar de nuevo"
@@ -2251,15 +2291,7 @@
     "sinComercioTexto": "Para vender en Mercatren hace falta dar de alta tu comercio. Toma dos minutos y puedes empezar a cargar tus productos enseguida.",
     "darDeAlta": "Dar de alta mi comercio",
     "noSePudoGuardar": "No pudimos guardar ahora mismo. Lo que escribiste sigue aquí: vuelve a darle a guardar en un momento.",
-    "noSePudoGuardarPorque": "No pudimos guardar: {motivo}. Lo que escribiste sigue aquí.",
-    "identificadorObligatorio": "Falta el identificador.",
-    "identificadorLargo": "Ese identificador no es válido.",
-    "identificadorRaro": "Ese identificador no es válido.",
-    "numeroDePedidoRaro": "Ese número de pedido no es válido.",
-    "motivoCorto": "Escribe el motivo con un poco más de detalle: el comprador lo va a leer.",
-    "motivoLargo": "El motivo es demasiado largo.",
-    "montoObligatorio": "Escribe el monto.",
-    "montoRaro": "Ese monto no es válido."
+    "noSePudoGuardarPorque": "No pudimos guardar: {motivo}. Lo que escribiste sigue aquí."
   },
   "blog": {
     "titulo": "Blog",

@@ -1067,7 +1067,17 @@
         "falloConEstado": "The bank replied with an error ({estado}).",
         "conectado": "{n, plural, =0 {Connected, but it returned no accounts} one {Connected. # account} other {Connected. # accounts}}",
         "comoLlego": "The key that reached the site: {largo} characters · extra whitespace? {espacios} · starts with «secret-token:»? {prefijo}"
-      }
+      },
+      "pruebaVacia": "Add at least a tracking number, a photo or a note.",
+      "pruebaGuardada": "Delivery proof saved.",
+      "identificadorObligatorio": "The identifier is missing.",
+      "identificadorLargo": "That identifier is not valid.",
+      "identificadorRaro": "That identifier is not valid.",
+      "numeroDePedidoRaro": "That order number is not valid.",
+      "motivoCorto": "Please explain the reason in a bit more detail — the buyer will read it.",
+      "motivoLargo": "The reason is too long.",
+      "montoObligatorio": "Enter the amount.",
+      "montoRaro": "That amount is not valid."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1579,6 +1589,28 @@
     },
     "exportar": {
       "boton": "Download for Excel"
+    },
+    "pruebaEntrega": {
+      "titulo": "Delivery proof",
+      "texto": "A card payment can be reversed up to 120 days later. If that happens, the bank asks for one thing only: proof that the buyer received the goods.",
+      "tipo": "What you are adding",
+      "tipos": {
+        "guia": "Tracking number",
+        "foto": "Delivery photo",
+        "firma": "Recipient signature",
+        "nota": "Note"
+      },
+      "referencia": "Tracking number or carrier",
+      "referenciaMarcador": "Tracking number",
+      "nota": "Note",
+      "notaMarcador": "Who received it, where and when",
+      "archivo": "Photo or document",
+      "guardar": "Save the proof",
+      "guardando": "Saving…",
+      "sinPruebas": "There is no delivery proof for this order yet.",
+      "quitar": "Remove",
+      "verArchivo": "View file",
+      "aportadaPor": "Added by {quien}"
     }
   },
   "catalogo": {
@@ -2233,7 +2265,15 @@
       "alfanumerico": "Letters and numbers only, no spaces.",
       "sitioWebInvalido": "Check the website address.",
       "textoLargo": "That's longer than allowed.",
-      "invalido": "Check this field."
+      "invalido": "Check this field.",
+      "identificadorObligatorio": "The identifier is missing.",
+      "identificadorLargo": "That identifier is not valid.",
+      "identificadorRaro": "That identifier is not valid.",
+      "numeroDePedidoRaro": "That order number is not valid.",
+      "motivoCorto": "Please explain the reason in a bit more detail — the buyer will read it.",
+      "motivoLargo": "The reason is too long.",
+      "montoObligatorio": "Enter the amount.",
+      "montoRaro": "That amount is not valid."
     },
     "borradorRecuperado": "We restored what you were writing.",
     "descartarBorrador": "Start over"
@@ -2251,15 +2291,7 @@
     "sinComercioTexto": "To sell on Mercatren you'll need to register your business. It takes two minutes, and you can start adding products right away.",
     "darDeAlta": "Register my business",
     "noSePudoGuardar": "We couldn't save just now. Everything you typed is still here — try saving again in a moment.",
-    "noSePudoGuardarPorque": "We couldn't save: {motivo}. Everything you typed is still here.",
-    "identificadorObligatorio": "The identifier is missing.",
-    "identificadorLargo": "That identifier is not valid.",
-    "identificadorRaro": "That identifier is not valid.",
-    "numeroDePedidoRaro": "That order number is not valid.",
-    "motivoCorto": "Please explain the reason in a bit more detail — the buyer will read it.",
-    "motivoLargo": "The reason is too long.",
-    "montoObligatorio": "Enter the amount.",
-    "montoRaro": "That amount is not valid."
+    "noSePudoGuardarPorque": "We couldn't save: {motivo}. Everything you typed is still here."
   },
   "blog": {
     "titulo": "Blog",

@@ -10,6 +10,7 @@ import { AvisoDisputa } from "@/components/panel/aviso-disputa";
 import { DocumentosDeLaVenta } from "@/components/panel/documentos-venta";
 import { LineaDeTiempo } from "@/components/panel/linea-de-tiempo";
 import { PasosDeLaVenta } from "@/components/panel/pasos-de-la-venta";
+import { PruebaDeEntrega } from "@/components/panel/prueba-entrega";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -17,6 +18,7 @@ import { disputas } from "@/lib/db/schema";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { parDeFacturas } from "@/lib/facturas/par";
 import { hitosDe } from "@/lib/pedidos/hitos";
+import { listarPruebasDeEntrega } from "@/lib/pedidos/prueba-entrega";
 import { fechaCorta } from "@/lib/fechas";
 import { obtenerPedidoDelPanel } from "@/lib/pedidos/consultas";
 import { cn } from "@/lib/utils";
@@ -71,6 +73,7 @@ export default async function PaginaPedidoDelPanel({
   if (!pedido) notFound();
 
   const esEquipo = await esEquipoInterno();
+  const pruebas = await listarPruebasDeEntrega(numero);
   const db = getDb();
 
   /* Todo lo de apoyo, junto: el papeleo y el historial solo los ve el equipo;
@@ -231,6 +234,15 @@ export default async function PaginaPedidoDelPanel({
       {/* CÓMO SE PAGÓ. Va antes de la mercancía a propósito: si el cobro no
           entró, lo demás no se despacha. */}
       <ComoSePago rastro={pedido.rastro} />
+
+      {/* LO QUE DEFIENDE LA VENTA SI LLEGA UN CONTRACARGO. Va junto al cobro
+          porque es de lo mismo: aquí se demuestra que la mercancía llegó. */}
+      <PruebaDeEntrega
+        numero={pedido.numero}
+        pruebas={pruebas}
+        idioma={idioma}
+        esEquipo={esEquipo}
+      />
 
       {/* EL PAPELEO Y EL HISTORIAL, solo para el equipo. */}
       <DocumentosDeLaVenta
