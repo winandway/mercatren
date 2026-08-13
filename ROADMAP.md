@@ -38,9 +38,18 @@ importa hasta cerrarlo.
 
 1. **Claves de Stripe** al panel de YaDominios: `STRIPE_SECRET_KEY`,
    `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`.
-2. **Webhook de Stripe** apuntando a `https://mercatren.com/datos/stripe/aviso`,
+2. **Webhook de Stripe** apuntando a **`https://mercatren.com/datos/stripe`**,
    con los cinco eventos: `payment_intent.succeeded`,
    `payment_intent.payment_failed` y los tres `charge.dispute.*`.
+
+   **La dirección es esa, sin `/aviso` al final.** Aquí decía
+   `/datos/stripe/aviso` y esa ruta nunca existió: el archivo está en
+   `src/app/datos/stripe/route.ts`. Configurado así, Stripe habría llamado a
+   un 404, habría dado el aviso por fallido y el comprador se quedaría con su
+   pedido en «esperando el pago» teniendo el dinero ya cobrado.
+   `tests/unit/rutas.test.ts` comprueba contra el disco que la constante
+   apunte a un `route.ts` que existe.
+
 3. **Zelle de Chase.** ✅ Dado de alta y activo (13 ago 2026). **Ojo con el
    correo: es `pagos@mercatren.com`, no `zelle@`** — el banco no aceptó
    registrar el seller directamente y hubo que darlo de alta de otra forma.
