@@ -27,7 +27,7 @@ estado de cuenta, eso genera reclamos y contracargos.
 **LO QUE QUEDA POR CAMBIAR FUERA DEL CÓDIGO** (variables de entorno del panel
 de YaDominios Cloud, no código): las claves de Stripe (`STRIPE_SECRET_KEY`,
 `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`), el correo receptor de Zelle
-(`ZELLE_CORREO_RECEPTOR` → `zelle@mercatren.com`), los datos bancarios de
+(`ZELLE_CORREO_RECEPTOR` → `pagos@mercatren.com`), los datos bancarios de
 Mercury (`PAGO_CUENTA`, `PAGO_RUTA_ACH`, `PAGO_RUTA_WIRE`) y el emisor de las
 facturas (`EMISOR_IDENTIFICACION`, `EMISOR_DIRECCION`).
 

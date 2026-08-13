@@ -41,10 +41,12 @@ importa hasta cerrarlo.
 2. **Webhook de Stripe** apuntando a `https://mercatren.com/datos/stripe/aviso`,
    con los cinco eventos: `payment_intent.succeeded`,
    `payment_intent.payment_failed` y los tres `charge.dispute.*`.
-3. **Zelle de Chase.** La cuenta está aprobada y con fondo, pero **el Zelle
-   todavía no se ha dado de alta en el banco**. Cuando se haga, hay que
-   cambiar **las dos variables a la vez**:
-   - `ZELLE_CORREO_RECEPTOR` → `zelle@mercatren.com`
+3. **Zelle de Chase.** ✅ Dado de alta y activo (13 ago 2026). **Ojo con el
+   correo: es `pagos@mercatren.com`, no `zelle@`** — el banco no aceptó
+   registrar el seller directamente y hubo que darlo de alta de otra forma.
+
+   Falta cargar **las dos variables a la vez** en el panel de YaDominios:
+   - `ZELLE_CORREO_RECEPTOR` → `pagos@mercatren.com`
    - `ZELLE_NOMBRE_RECEPTOR` → `Mercatren LLC` (hoy dice `Windoce LLC`)
 
    Es el nombre que ve el comprador al ir a pagar. Si se cambia el nombre
