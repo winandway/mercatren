@@ -1253,7 +1253,13 @@
       "viaWire": "Llega por transferencia internacional (wire). El banco intermediario puede cobrar una cuota.",
       "opcional": "opcional",
       "delSistemaAnterior": "Retiro del sistema anterior",
-      "sinFechaEnArchivo": "sin fecha en el archivo"
+      "sinFechaEnArchivo": "sin fecha en el archivo",
+      "datosParaTransferir": "Datos para hacer la transferencia",
+      "avisoAntesDeTransferir": "Comprueba el número de cuenta dígito por dígito antes de enviar. Una transferencia mal dirigida no rebota al día siguiente.",
+      "via": {
+        "ach": "ACH · Estados Unidos",
+        "wire": "Wire internacional"
+      }
     },
     "pedido": {
       "volver": "Volver a Órdenes",

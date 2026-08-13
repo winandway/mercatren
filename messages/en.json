@@ -1253,7 +1253,13 @@
       "viaWire": "Sent by international wire. The intermediary bank may charge a fee.",
       "opcional": "optional",
       "delSistemaAnterior": "Withdrawal from the previous system",
-      "sinFechaEnArchivo": "no date in the archive"
+      "sinFechaEnArchivo": "no date in the archive",
+      "datosParaTransferir": "Bank details for the transfer",
+      "avisoAntesDeTransferir": "Check the account number digit by digit before sending. A misdirected transfer does not bounce back the next day.",
+      "via": {
+        "ach": "ACH · United States",
+        "wire": "International wire"
+      }
     },
     "pedido": {
       "volver": "Back to Orders",

@@ -1,6 +1,7 @@
 import { Archive, Building2, Landmark, Store, Zap } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { DatosParaTransferir } from "@/components/panel/retiros/datos-para-transferir";
 import { AccionesRetiro } from "@/components/panel/retiros/acciones-retiro";
 import { DesgloseDelCobro } from "@/components/panel/desglose-cobro";
 import { PedirRetiro } from "@/components/panel/retiros/pedir-retiro";
@@ -193,6 +194,23 @@ export default async function PaginaRetiros({
                       <p className="mt-1 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
                         {r.motivoRechazo}
                       </p>
+                    ) : null}
+
+                    {/**
+                     * LOS DATOS CON LOS QUE SE VA AL BANCO.
+                     *
+                     * Solo al equipo, solo mientras está pedido, y solo si va
+                     * a un banco. Un retiro a otro comercio de Mercatren no
+                     * tiene datos bancarios —el dinero no sale del sistema— y
+                     * uno ya pagado no hace falta volver a enseñarlo: son
+                     * datos bancarios de una persona.
+                     */}
+                    {interno &&
+                    r.estado === "solicitado" &&
+                    r.forma !== "comercio" ? (
+                      <DatosParaTransferir
+                        destino={r.destino as Record<string, unknown> | null}
+                      />
                     ) : null}
                   </div>
 
