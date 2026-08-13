@@ -38,8 +38,13 @@ import { cn } from "@/lib/utils";
 
 export function DatosParaTransferir({
   destino,
+  direccionFicha,
+  ciudadFicha,
 }: {
   destino: Record<string, unknown> | null;
+  /** Respaldo para los retiros pedidos antes de que se pidiera la dirección. */
+  direccionFicha?: string | null;
+  ciudadFicha?: string | null;
 }) {
   const t = useTranslations("panel.retiros");
   const tc = useTranslations("panel.retiros.campos");
@@ -71,6 +76,23 @@ export function DatosParaTransferir({
 
   if (filas.length === 0) return null;
 
+  /**
+   * SI FALTA LA DIRECCIÓN, SE DICE Y SE OFRECE LA DE SU FICHA.
+   *
+   * Los retiros pedidos antes del 12 ago 2026 no la traen: el formulario no la
+   * preguntaba. Sin ella Mercury no deja crear el destinatario internacional, y
+   * quien está delante del banco se queda sin saber qué le falta. Se avisa, y
+   * se enseña la que el comercio puso en su ficha de empresa — marcada como lo
+   * que es, un respaldo, no el dato que él declaró para cobrar.
+   */
+  const pideDireccion = pais?.via === "wire";
+  const faltaDireccion =
+    pideDireccion && !String(destino.direccion ?? "").trim();
+  const respaldo = [direccionFicha, ciudadFicha]
+    .map((x) => (x ?? "").trim())
+    .filter(Boolean)
+    .join(", ");
+
   return (
     <section className="mt-3 rounded-xl border border-riel-800 bg-riel-900 p-4 text-white">
       <h3 className="flex flex-wrap items-center gap-2 font-bold">
@@ -87,13 +109,13 @@ export function DatosParaTransferir({
         {filas.map((f) => (
           <div
             key={f.etiqueta}
-            className="flex items-center justify-between gap-3 rounded-lg bg-white/10 px-3 py-2"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white/10 px-3 py-2"
           >
             <div className="min-w-0">
               <dt className="text-xs tracking-wide text-white/60 uppercase">
                 {f.etiqueta}
               </dt>
-              <dd className="font-mono text-sm font-semibold break-all">
+              <dd className="font-mono text-sm font-semibold break-words">
                 {f.valor}
               </dd>
             </div>
@@ -101,6 +123,27 @@ export function DatosParaTransferir({
           </div>
         ))}
       </dl>
+
+      {faltaDireccion ? (
+        <div className="mt-3 rounded-lg bg-amber-400/20 px-3 py-2.5">
+          <p className="text-sm font-semibold text-amber-100">
+            {t("faltaDireccion")}
+          </p>
+          {respaldo ? (
+            <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-white/10 px-3 py-2">
+              <div className="min-w-0">
+                <p className="text-xs tracking-wide text-white/60 uppercase">
+                  {t("direccionDeLaFicha")}
+                </p>
+                <p className="font-mono text-sm font-semibold break-words">
+                  {respaldo}
+                </p>
+              </div>
+              <Copiar valor={respaldo} />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {/* Lo que hay que mirar ANTES de ir al banco, no después. */}
       <p className="mt-3 text-xs text-white/70">

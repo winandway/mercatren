@@ -112,6 +112,10 @@ describe("los largos que el banco exige", () => {
       banco: "BBVA",
       documento: "ABCD123456",
       swift: "BCMRMXMM",
+      /* Desde el 12 ago 2026 el banco pide la dirección para el wire. */
+      direccion: "Calle 10 # 5-20",
+      ciudad: "Medellín",
+      region: "Antioquia",
     };
     expect(revisarCuenta("MX", { ...base, clabe: "0".repeat(18) })).toEqual([]);
     expect(revisarCuenta("MX", { ...base, clabe: "0".repeat(17) })).toContain(
@@ -141,6 +145,9 @@ describe("los largos que el banco exige", () => {
       banco: "Galicia",
       documento: "20123456789",
       swift: "GABAARBA",
+      direccion: "Av. Corrientes 500",
+      ciudad: "Buenos Aires",
+      region: "CABA",
     };
     expect(revisarCuenta("AR", { ...base, cbu: "1".repeat(22) })).toEqual([]);
     expect(revisarCuenta("AR", { ...base, cbu: "1".repeat(21) })).toContain(
@@ -163,6 +170,9 @@ describe("los espacios y guiones no son un error", () => {
       banco: "Santander",
       iban: "ES91 2100 0418 4502 0005 1332",
       swift: "BSCHESMM",
+      direccion: "Gran Vía 1",
+      ciudad: "Madrid",
+      region: "Madrid",
     });
     expect(r).toEqual([]);
   });
@@ -188,6 +198,9 @@ describe("los espacios y guiones no son un error", () => {
         cuenta: "123-456-789-01",
         documento: "1020304050",
         swift: "COLOCOBM",
+        direccion: "Calle 10 # 5-20",
+        ciudad: "Medellín",
+        region: "Antioquia",
       }),
     ).toEqual([]);
   });
@@ -210,6 +223,9 @@ describe("lo que falta se dice, campo por campo", () => {
       cuenta: "12345678",
       documento: "12345678901",
       swift: "ITAUBRSP",
+      direccion: "Av. Paulista 1000",
+      ciudad: "São Paulo",
+      region: "SP",
     });
     // Sin Pix, y aun así la cuenta está completa.
     expect(malos).toEqual([]);
@@ -228,5 +244,53 @@ describe("lo que falta se dice, campo por campo", () => {
 
   it("un país desconocido se rechaza entero", () => {
     expect(revisarCuenta("XX", { titular: "Alguien" })).toEqual(["pais"]);
+  });
+});
+
+/**
+ * LA DIRECCIÓN DEL TITULAR (12 ago 2026).
+ *
+ * Mercury no deja crear un destinatario internacional sin ella, y nuestro
+ * formulario no la pedía: quien iba al banco se encontraba cuatro casillas
+ * obligatorias y ningún dato. Se descubrió con una transferencia real a
+ * Colombia, a mitad de camino.
+ */
+describe("la dirección que exige el banco", () => {
+  it("se le pide a todo el que cobra por wire", () => {
+    for (const p of PAISES_BANCARIOS.filter((x) => x.via === "wire")) {
+      const nombres = p.campos.map((c) => c.nombre);
+      expect(nombres, p.codigo).toContain("direccion");
+      expect(nombres, p.codigo).toContain("ciudad");
+      expect(nombres, p.codigo).toContain("region");
+    }
+  });
+
+  it("NO se le pide a quien cobra por ACH dentro de Estados Unidos", () => {
+    /* Ahí no hace falta, y cuatro casillas de más son la forma más rápida de
+       que alguien abandone el formulario a medias. */
+    const us = PAISES_BANCARIOS.find((p) => p.codigo === "US")!;
+    expect(us.campos.map((c) => c.nombre)).not.toContain("direccion");
+  });
+
+  it("sin dirección, la cuenta de un país de wire está incompleta", () => {
+    const malos = revisarCuenta("CO", {
+      titular: "Carlos Ruiz",
+      banco: "Bancolombia",
+      tipoCuenta: "Ahorros",
+      cuenta: "12345678901",
+      documento: "1020304050",
+      swift: "COLOCOBM",
+    });
+    expect(malos).toContain("direccion");
+    expect(malos).toContain("ciudad");
+  });
+
+  it("el código postal es opcional, y es a propósito", () => {
+    /* Hay países donde no se usa o la gente no se lo sabe. Bloquear un retiro
+       por eso es peor que mandarlo sin él. */
+    for (const p of PAISES_BANCARIOS.filter((x) => x.via === "wire")) {
+      const cp = p.campos.find((c) => c.nombre === "codigoPostal");
+      expect(cp?.opcional, p.codigo).toBe(true);
+    }
   });
 });

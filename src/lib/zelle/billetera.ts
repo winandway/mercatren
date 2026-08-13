@@ -539,3 +539,81 @@ export async function obtenerBilleteraOperador(): Promise<BilleteraOperador | nu
     })),
   };
 }
+
+/**
+ * LO QUE SE LE DEBE A CADA COMERCIO, TODOS DE UNA.
+ *
+ * ══ EL FALLO QUE ARREGLA (12 ago 2026) ══
+ *
+ * «Por pagar a los comercios» es la pantalla que contesta cuanto dinero de
+ * otros tenemos en la cuenta. Hasta hoy, cuando la abria el equipo sin pedir un
+ * comercio concreto, `tiendaAConsultar()` cogia **la primera billetera que
+ * encontrara** y enseñaba SOLO esa: un nombre cualquiera, su saldo, y hasta el
+ * boton «Retirar mi dinero», que es del comercio y no del equipo.
+ *
+ * Lo vio el dueño: la pantalla decia «pendiente de pago $0.00 · MEGAYES»
+ * —un comercio que ni siquiera ha subido un producto— mientras el que estaba
+ * esperando su dinero era otro, con $29 pedidos. Una pantalla de dinero que
+ * enseña un comercio al azar es peor que no tenerla: se mira, se lee «cero» y
+ * se cierra tranquilo.
+ *
+ * Esto devuelve la fila de CADA comercio con billetera. La suma se hace
+ * arriba, en la pantalla, para que el total y el detalle no puedan
+ * contradecirse.
+ *
+ * ══ SOLO PARA EL EQUIPO ══
+ *
+ * Un vendedor que llegue aqui recibe una lista vacia: son los saldos de todos
+ * los comercios, incluidos sus competidores.
+ */
+export type FilaDeComercio = {
+  tiendaId: string;
+  slug: string;
+  nombre: string;
+  moneda: string;
+  saldoCentavos: number;
+  enTramiteCentavos: number;
+};
+
+export async function saldosDeTodosLosComercios(): Promise<FilaDeComercio[]> {
+  const alcance = await obtenerAlcance();
+  if (alcance.tipo === "tienda") return [];
+
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      tiendaId: tiendas.id,
+      slug: tiendas.slug,
+      nombre: tiendas.nombre,
+      moneda: billeteras.moneda,
+    })
+    .from(billeteras)
+    .innerJoin(tiendas, eq(tiendas.id, billeteras.tiendaId));
+
+  /* Se reutiliza `obtenerPosicion`, que ya sabe sumar Zelle, tarjeta y
+     retiros. Calcularlo aparte aqui seria tener dos cuentas del mismo dinero,
+     y la que se creeria es la que estuviera mal. */
+  const posiciones = await Promise.all(
+    filas.map((f) => obtenerPosicion(f.tiendaId)),
+  );
+
+  return (
+    filas
+      .map((f, i) => {
+        const p = posiciones[i];
+        if (!p) return null;
+        return {
+          tiendaId: f.tiendaId,
+          slug: f.slug,
+          nombre: f.nombre,
+          moneda: p.moneda,
+          saldoCentavos: p.saldoCentavos,
+          enTramiteCentavos: p.enTramiteCentavos,
+        };
+      })
+      .filter((f): f is FilaDeComercio => f !== null)
+      /* De mayor a menor: lo que hay que pagar primero es lo que mas pesa. */
+      .sort((a, b) => b.saldoCentavos - a.saldoCentavos)
+  );
+}

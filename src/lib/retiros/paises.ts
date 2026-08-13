@@ -134,6 +134,72 @@ const IBAN = (largoExacto: number): CampoBancario => ({
  * LA LISTA. Estados Unidos primero porque es el destino principal y el único
  * que no cuesta una comisión de wire.
  */
+/**
+ * LA DIRECCIÓN DEL TITULAR: la pide el BANCO, no nosotros.
+ *
+ * ══ POR QUÉ SE AGREGÓ (12 ago 2026) ══
+ *
+ * Mercury no deja crear un destinatario internacional sin dirección legal:
+ * calle, ciudad, departamento y código postal. Nuestro formulario nunca se la
+ * pidió al comercio, así que quien iba a hacer el wire se encontraba con
+ * cuatro casillas obligatorias y ningún dato — y el comercio, esperando su
+ * dinero, sin enterarse de que faltaba algo.
+ *
+ * Lo destapó el dueño en mitad de una transferencia a Colombia: *«no has hecho
+ * el software para hacerlo bien»*. Tenía razón.
+ *
+ * ══ SOLO EN LOS PAÍSES DE WIRE ══
+ *
+ * Un ACH dentro de Estados Unidos no la necesita, y pedir cuatro casillas más
+ * a quien no le hacen falta es la forma más rápida de que abandone el
+ * formulario a medias. Cada país declara sus campos; la dirección va con los
+ * que salen por wire.
+ */
+const DIRECCION: CampoBancario = {
+  nombre: "direccion",
+  etiqueta: "direccion",
+  forma: "texto",
+  minimo: 5,
+  maximo: 120,
+  ayuda: "direccionAyuda",
+};
+
+const CIUDAD_TITULAR: CampoBancario = {
+  nombre: "ciudad",
+  etiqueta: "ciudadTitular",
+  forma: "texto",
+  minimo: 2,
+  maximo: 60,
+};
+
+const REGION: CampoBancario = {
+  nombre: "region",
+  etiqueta: "region",
+  forma: "texto",
+  minimo: 2,
+  maximo: 60,
+  ayuda: "regionAyuda",
+};
+
+const CODIGO_POSTAL: CampoBancario = {
+  nombre: "codigoPostal",
+  etiqueta: "codigoPostal",
+  forma: "texto",
+  minimo: 3,
+  maximo: 12,
+  /* Opcional a propósito: hay países donde no se usa o la gente no se lo sabe,
+     y bloquear el retiro por eso es peor que mandarlo sin él. */
+  opcional: true,
+};
+
+/** Las cuatro juntas, que es como las pide el banco. */
+const DIRECCION_COMPLETA: CampoBancario[] = [
+  DIRECCION,
+  CIUDAD_TITULAR,
+  REGION,
+  CODIGO_POSTAL,
+];
+
 export const PAISES_BANCARIOS: PaisBancario[] = [
   {
     codigo: "US",
@@ -158,7 +224,15 @@ export const PAISES_BANCARIOS: PaisBancario[] = [
     codigo: "CO",
     bandera: "🇨🇴",
     via: "wire",
-    campos: [TITULAR, BANCO, TIPO_CUENTA, CUENTA(20), DOCUMENTO, SWIFT],
+    campos: [
+      TITULAR,
+      BANCO,
+      TIPO_CUENTA,
+      CUENTA(20),
+      DOCUMENTO,
+      SWIFT,
+      ...DIRECCION_COMPLETA,
+    ],
   },
   {
     codigo: "VE",
@@ -177,6 +251,7 @@ export const PAISES_BANCARIOS: PaisBancario[] = [
       },
       DOCUMENTO,
       SWIFT,
+      ...DIRECCION_COMPLETA,
     ],
   },
   {
@@ -196,6 +271,7 @@ export const PAISES_BANCARIOS: PaisBancario[] = [
       },
       DOCUMENTO,
       SWIFT,
+      ...DIRECCION_COMPLETA,
     ],
   },
   {
@@ -224,6 +300,7 @@ export const PAISES_BANCARIOS: PaisBancario[] = [
         opcional: true,
         ayuda: "pixAyuda",
       },
+      ...DIRECCION_COMPLETA,
     ],
   },
   {
@@ -243,13 +320,22 @@ export const PAISES_BANCARIOS: PaisBancario[] = [
       },
       DOCUMENTO,
       SWIFT,
+      ...DIRECCION_COMPLETA,
     ],
   },
   {
     codigo: "CL",
     bandera: "🇨🇱",
     via: "wire",
-    campos: [TITULAR, BANCO, TIPO_CUENTA, CUENTA(20), DOCUMENTO, SWIFT],
+    campos: [
+      TITULAR,
+      BANCO,
+      TIPO_CUENTA,
+      CUENTA(20),
+      DOCUMENTO,
+      SWIFT,
+      ...DIRECCION_COMPLETA,
+    ],
   },
   {
     codigo: "PE",
@@ -269,31 +355,48 @@ export const PAISES_BANCARIOS: PaisBancario[] = [
       },
       DOCUMENTO,
       SWIFT,
+      ...DIRECCION_COMPLETA,
     ],
   },
   {
     codigo: "EC",
     bandera: "🇪🇨",
     via: "wire",
-    campos: [TITULAR, BANCO, TIPO_CUENTA, CUENTA(20), DOCUMENTO, SWIFT],
+    campos: [
+      TITULAR,
+      BANCO,
+      TIPO_CUENTA,
+      CUENTA(20),
+      DOCUMENTO,
+      SWIFT,
+      ...DIRECCION_COMPLETA,
+    ],
   },
   {
     codigo: "PA",
     bandera: "🇵🇦",
     via: "wire",
-    campos: [TITULAR, BANCO, TIPO_CUENTA, CUENTA(20), DOCUMENTO, SWIFT],
+    campos: [
+      TITULAR,
+      BANCO,
+      TIPO_CUENTA,
+      CUENTA(20),
+      DOCUMENTO,
+      SWIFT,
+      ...DIRECCION_COMPLETA,
+    ],
   },
   {
     codigo: "ES",
     bandera: "🇪🇸",
     via: "wire",
-    campos: [TITULAR, BANCO, IBAN(24), SWIFT],
+    campos: [TITULAR, BANCO, IBAN(24), SWIFT, ...DIRECCION_COMPLETA],
   },
   {
     codigo: "RO",
     bandera: "🇷🇴",
     via: "wire",
-    campos: [TITULAR, BANCO, IBAN(24), SWIFT],
+    campos: [TITULAR, BANCO, IBAN(24), SWIFT, ...DIRECCION_COMPLETA],
   },
 ];
 

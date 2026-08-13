@@ -422,7 +422,13 @@
       "saldoAyudaComercio": "Es tuyo y está en la cuenta del banco esperando a que lo pidas. Se suma solo con cada venta que se confirma.",
       "acreditadoComercio": "Te hemos acreditado en total",
       "yaRetiradoComercio": "Ya lo sacaste",
-      "avisoHistoricoComercio": "Tu saldo no está escrito a mano: sale de sumar todo lo que te acreditamos y restarle lo que ya sacaste. Cada venta que se confirma lo sube sola."
+      "avisoHistoricoComercio": "Tu saldo no está escrito a mano: sale de sumar todo lo que te acreditamos y restarle lo que ya sacaste. Cada venta que se confirma lo sube sola.",
+      "totalPorPagar": "Total por pagar a los comercios",
+      "totalPorPagarAyuda": "La suma de lo que todos los comercios tienen a su favor. Ese dinero está en la cuenta del banco.",
+      "porComercio": "Comercio por comercio",
+      "sinComerciosConSaldo": "Ningún comercio tiene saldo a su favor ahora mismo.",
+      "verDetalle": "Ver su billetera",
+      "enTramiteFila": "{monto} ya pedido"
     },
     "comercios": {
       "titulo": "Comercios",
@@ -1244,7 +1250,13 @@
         "cciAyuda": "Veinte dígitos. Es el que hace falta para recibir del exterior.",
         "cuentaVeAyuda": "Veinte dígitos, sin espacios ni guiones.",
         "pix": "Clave Pix",
-        "pixAyuda": "Opcional. Si la pones, agiliza la acreditación."
+        "pixAyuda": "Opcional. Si la pones, agiliza la acreditación.",
+        "direccion": "Dirección del titular",
+        "direccionAyuda": "La calle y el número, como figura en su banco. El banco la exige para una transferencia internacional.",
+        "ciudadTitular": "Ciudad",
+        "region": "Departamento / estado / provincia",
+        "regionAyuda": "Como se llame en tu país: departamento, estado, provincia o región.",
+        "codigoPostal": "Código postal"
       },
       "pais": "¿En qué país está tu cuenta?",
       "paisAyuda": "Elige el país y te pedimos exactamente los datos que ese banco necesita.",
@@ -1259,7 +1271,9 @@
       "via": {
         "ach": "ACH · Estados Unidos",
         "wire": "Wire internacional"
-      }
+      },
+      "faltaDireccion": "Falta la dirección del titular. El banco la pide para el wire internacional — pídesela al comercio o mira la de su ficha, abajo.",
+      "direccionDeLaFicha": "Dirección que el comercio puso en su ficha de empresa"
     },
     "pedido": {
       "volver": "Volver a Órdenes",

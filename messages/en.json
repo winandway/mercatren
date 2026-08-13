@@ -422,7 +422,13 @@
       "saldoAyudaComercio": "It is yours and it is sitting in the bank account waiting for you to ask for it. Every confirmed sale adds to it on its own.",
       "acreditadoComercio": "Credited to you in total",
       "yaRetiradoComercio": "Already withdrawn",
-      "avisoHistoricoComercio": "Your balance is not typed in by hand: it is everything credited to you minus everything you have withdrawn. Every confirmed sale adds to it on its own."
+      "avisoHistoricoComercio": "Your balance is not typed in by hand: it is everything credited to you minus everything you have withdrawn. Every confirmed sale adds to it on its own.",
+      "totalPorPagar": "Total owed to merchants",
+      "totalPorPagarAyuda": "The sum of what every merchant has in their favor. That money is in the bank account.",
+      "porComercio": "Merchant by merchant",
+      "sinComerciosConSaldo": "No merchant has a balance in their favor right now.",
+      "verDetalle": "View their wallet",
+      "enTramiteFila": "{monto} already requested"
     },
     "comercios": {
       "titulo": "Merchants",
@@ -1244,7 +1250,13 @@
         "cciAyuda": "Twenty digits. It's the one needed to receive from abroad.",
         "cuentaVeAyuda": "Twenty digits, no spaces or dashes.",
         "pix": "Pix key",
-        "pixAyuda": "Optional. Adding it speeds up crediting."
+        "pixAyuda": "Optional. Adding it speeds up crediting.",
+        "direccion": "Account holder's address",
+        "direccionAyuda": "Street and number, as it appears at their bank. Banks require it for an international transfer.",
+        "ciudadTitular": "City",
+        "region": "State / province / region",
+        "regionAyuda": "Whatever it is called in your country: department, state, province or region.",
+        "codigoPostal": "Postal code"
       },
       "pais": "What country is your account in?",
       "paisAyuda": "Pick the country and we'll ask for exactly what that bank needs.",
@@ -1259,7 +1271,9 @@
       "via": {
         "ach": "ACH · United States",
         "wire": "International wire"
-      }
+      },
+      "faltaDireccion": "The account holder's address is missing. The bank requires it for the international wire — ask the merchant, or check their company profile below.",
+      "direccionDeLaFicha": "Address the merchant entered in their company profile"
     },
     "pedido": {
       "volver": "Back to Orders",

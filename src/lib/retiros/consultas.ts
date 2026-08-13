@@ -41,6 +41,9 @@ export type RetiroEnLista = {
   forma: (typeof FORMAS_RETIRO)[number] | null;
   destino: Destino | null;
   destinoTienda: string | null;
+  /** Respaldo: lo que el comercio puso en su ficha de empresa. */
+  direccionFicha: string | null;
+  ciudadFicha: string | null;
   notaComercio: string | null;
   motivoRechazo: string | null;
   referencia: string | null;
@@ -131,6 +134,8 @@ async function retirosDelHistorico(
     forma: null,
     destino: null,
     destinoTienda: null,
+    direccionFicha: null,
+    ciudadFicha: null,
     notaComercio: f.nota,
     motivoRechazo: null,
     referencia: f.codigo,
@@ -171,6 +176,12 @@ export async function listarRetiros(opciones?: {
       id: retiros.id,
       tiendaId: retiros.tiendaId,
       nombreTienda: tiendas.nombre,
+      /* La dirección de la ficha de empresa del comercio. Es el RESPALDO para
+         los retiros pedidos antes de que el formulario la preguntara: sin ella,
+         quien va al banco no puede crear el destinatario internacional y el
+         comercio se queda esperando sin saber por qué. */
+      direccionFicha: tiendas.direccion,
+      ciudadFicha: tiendas.ciudad,
       montoCentavos: retiros.montoCentavos,
       moneda: retiros.moneda,
       estado: retiros.estado,
@@ -211,6 +222,8 @@ export async function listarRetiros(opciones?: {
     estado: f.estado,
     forma: f.forma,
     destino: (f.destino as Destino | null) ?? null,
+    direccionFicha: f.direccionFicha ?? null,
+    ciudadFicha: f.ciudadFicha ?? null,
     destinoTienda: f.destinoTiendaId
       ? (nombres.get(f.destinoTiendaId) ?? null)
       : null,
