@@ -23,6 +23,7 @@
 | Correos @mercatren.com           | ✅ buzón real en Google Workspace |
 | El sitio dice Mercatren LLC      | ✅ publicado y comprobado         |
 | Candado de aprobación en Mercury | ✅ todos los pagos, desde $0      |
+| Google Merchant Center           | ⏸ 3 de 5 — parado en envíos       |
 
 **Lo que esto significa:** la sociedad existe y puede operar. Lo que todavía no
 ocurre es que el dinero entre a su nombre.
@@ -133,6 +134,35 @@ medias multiplica el problema, no los ingresos.
 3. ~~**Avisar al comprador del concepto del Zelle**~~ ✅ 12 ago 2026 — en rojo,
    debajo del monto, con `Mercatren MT-000002` en grande y su botón de copiar.
 4. ~~**Aviso al equipo cuando entra una venta.**~~ ✅ 12 ago 2026.
+5. **La tienda de Estados Unidos, y con ella el catálogo para Google Shopping.**
+   Proyecto que el dueño ya tenía en la cabeza: una tienda dentro de Mercatren
+   con mercancía que se entrega **en Estados Unidos**, algunas cosas nuevas y
+   otras usadas.
+
+   Desbloquea Merchant Center. El 12 ago 2026 se llegó hasta el paso de
+   envíos y se paró en «Do it later» a propósito: Google compara lo que se
+   declara con lo que ve un comprador estadounidense en la ficha, y hoy la
+   ficha dice «lo retiras en el local del comercio», en Venezuela. Declarar un
+   envío dentro de EE.UU. que no existe es tergiversación, y esa es la causa
+   número uno de suspensión de una cuenta.
+
+   Lo que hace falta, en orden:
+   - Una tienda con dirección y entrega reales en Estados Unidos.
+   - Marcar en el catálogo qué productos se entregan allá, y que
+     `/datos/google` mande **solo esos** — hoy manda todo.
+   - Sus fichas en inglés de nativo, no traducción: Google las lee desde allá.
+   - Recién entonces, volver a Merchant Center, declarar el envío de verdad y
+     terminar el paso 4 de 5.
+
+   Mientras tanto **no se pierde nada**: el posicionamiento normal de Google
+   —mapa del sitio, datos estructurados, fichas y documentación— no depende de
+   Merchant Center y ya está corriendo.
+
+6. **El correo de contacto público sigue siendo `@windoce.com`.** Es la
+   mención de Windoce más visible que queda en el sitio, y la que hace que la
+   IA de Google siga asociando Mercatren con Windoce. Ya hay buzón real en
+   `@mercatren.com`, así que cambiarlo es una línea — falta decidir qué alias
+   se publica.
 
 ---
 
