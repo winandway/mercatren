@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  baseDelAgente,
   esperaConfirmacion,
   idDeConversacion,
   idValido,
@@ -122,5 +123,43 @@ describe("cuánto esperar tras un 429", () => {
 
   it("un valor absurdo se acota", () => {
     expect(segundosDeEspera("999999")).toBe(1800);
+  });
+});
+
+describe("la dirección del agente", () => {
+  it("se acepta tal cual si viene bien", () => {
+    expect(baseDelAgente("https://agente.ejemplo.dev")).toBe(
+      "https://agente.ejemplo.dev",
+    );
+  });
+
+  it("le quita la barra del final", () => {
+    /* Al copiarla del navegador viene con `/`, y pegada tal cual daría
+       `.../salud` con dos barras: unos servidores lo aceptan y otros
+       devuelven 404. Es el error que se pasa una tarde buscando. */
+    expect(baseDelAgente("https://agente.ejemplo.dev/")).toBe(
+      "https://agente.ejemplo.dev",
+    );
+    expect(baseDelAgente("https://agente.ejemplo.dev///")).toBe(
+      "https://agente.ejemplo.dev",
+    );
+    expect(baseDelAgente("  https://agente.ejemplo.dev/  ")).toBe(
+      "https://agente.ejemplo.dev",
+    );
+  });
+
+  it("exige HTTPS: el token viaja en la cabecera", () => {
+    /* Por HTTP iría en claro por la red. */
+    expect(baseDelAgente("http://agente.ejemplo.dev")).toBeNull();
+  });
+
+  it("sin dirección NO se inventa ninguna", () => {
+    /* Apuntar a un sitio por defecto sería mandarle el token a una dirección
+       que nadie decidió. */
+    expect(baseDelAgente(undefined)).toBeNull();
+    expect(baseDelAgente(null)).toBeNull();
+    expect(baseDelAgente("")).toBeNull();
+    expect(baseDelAgente("   ")).toBeNull();
+    expect(baseDelAgente("no-es-una-direccion")).toBeNull();
   });
 });

@@ -3,6 +3,7 @@ import "server-only";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import {
+  baseDelAgente,
   motivoDelEstado,
   segundosDeEspera,
   type MotivoFallo,
@@ -31,7 +32,19 @@ import {
  * consola.
  */
 
-const BASE = "https://agente-operativo-multitenant.blinxor.workers.dev";
+/**
+ * LAS DOS VARIABLES, Y SE LLAMAN EXACTAMENTE ASÍ.
+ *
+ *   AGENTE_URL    la dirección base, sin barra al final
+ *   AGENTE_TOKEN  el token, secreto, solo servidor
+ *
+ * Ninguna lleva el prefijo `NEXT_PUBLIC_`, y eso no es un descuido: cualquier
+ * variable con ese prefijo termina escrita dentro del JavaScript que descarga
+ * el navegador, y ahí el token se lee abriendo la consola.
+ */
+function base(): string | null {
+  return baseDelAgente(getCloudflareContext().env.AGENTE_URL);
+}
 
 function token(): string | undefined {
   /* Se recorta: al pegar una credencial en el panel de la plataforma es
@@ -40,9 +53,14 @@ function token(): string | undefined {
   return getCloudflareContext().env.AGENTE_TOKEN?.trim() || undefined;
 }
 
-/** Si no está configurado, el sitio funciona igual: solo no hay asistente. */
+/**
+ * Hacen falta LAS DOS.
+ *
+ * Con una sola, la pantalla dibujaría un chat que falla en cada envío sin
+ * decir por qué. Sin ninguna, el sitio funciona igual: solo no hay asistente.
+ */
 export function agenteConfigurado(): boolean {
-  return Boolean(token());
+  return Boolean(token() && base());
 }
 
 export type ResultadoAgente =
@@ -59,11 +77,12 @@ async function llamar(
   opciones?: { metodo?: string; cuerpo?: unknown },
 ): Promise<ResultadoAgente> {
   const llave = token();
-  if (!llave) return { ok: false, motivo: "sin_token" };
+  const donde = base();
+  if (!llave || !donde) return { ok: false, motivo: "sin_token" };
 
   let respuesta: Response;
   try {
-    respuesta = await fetch(`${BASE}${ruta}`, {
+    respuesta = await fetch(`${donde}${ruta}`, {
       method: opciones?.metodo ?? "GET",
       headers: {
         authorization: `Bearer ${llave}`,
@@ -144,8 +163,11 @@ export async function saludDelAgente(): Promise<{
   responde: boolean;
   modeloConfigurado: boolean;
 }> {
+  const donde = base();
+  if (!donde) return { responde: false, modeloConfigurado: false };
+
   try {
-    const r = await fetch(`${BASE}/salud`, { cache: "no-store" });
+    const r = await fetch(`${donde}/salud`, { cache: "no-store" });
     if (!r.ok) return { responde: false, modeloConfigurado: false };
     const d = (await r.json()) as { modelo_configurado?: boolean };
     return { responde: true, modeloConfigurado: Boolean(d.modelo_configurado) };

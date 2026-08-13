@@ -127,3 +127,42 @@ export function segundosDeEspera(cabecera: string | null): number {
   /* Un valor absurdo tampoco sirve: media hora ya es «vuelve mañana». */
   return Math.min(Math.ceil(n), 1800);
 }
+
+/* -------------------------------------------------------------------------- */
+/* La dirección del agente                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * La dirección base del agente, normalizada.
+ *
+ * ══ POR QUÉ ES UNA VARIABLE Y NO UNA CONSTANTE DEL CÓDIGO ══
+ *
+ * Estaba escrita aquí dentro y funcionaba. Se saca al entorno porque el agente
+ * puede mudarse de dirección —una versión nueva, otro dominio— y no tiene
+ * sentido recompilar y volver a publicar todo el sitio para cambiar un texto.
+ *
+ * ══ LA BARRA DEL FINAL ══
+ *
+ * Se quita. Al copiar una dirección del navegador viene con `/` al final, y
+ * pegada tal cual daría `.../salud` con dos barras: hay servidores que lo
+ * aceptan y otros que devuelven 404. Es exactamente el error que se pasa una
+ * tarde buscando.
+ *
+ * Sin dirección devuelve `null` y **no se inventa ninguna**: apuntar a un sitio
+ * por defecto sería mandarle el token a una dirección que nadie decidió.
+ */
+export function baseDelAgente(valor: string | undefined | null): string | null {
+  const limpio = (valor ?? "").trim().replace(/\/+$/, "");
+  if (!limpio) return null;
+
+  /* Tiene que ser una dirección de verdad y por HTTPS: el token viaja en la
+     cabecera, y por HTTP iría en claro por la red. */
+  try {
+    const u = new URL(limpio);
+    if (u.protocol !== "https:") return null;
+  } catch {
+    return null;
+  }
+
+  return limpio;
+}

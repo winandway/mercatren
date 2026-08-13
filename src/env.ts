@@ -92,7 +92,9 @@ export const esquemaEntorno = z.object({
   TURNSTILE_CLAVE_SITIO: z.string().optional(),
   TURNSTILE_SECRETO: z.string().optional(),
 
-  /* El agente operativo. Sin ella el sitio funciona igual: no hay asistente. */
+  /* El agente operativo. Sin ellas el sitio funciona igual: no hay asistente.
+     Hacen falta LAS DOS: con una sola, el chat fallaria en cada envio. */
+  AGENTE_URL: z.string().url().optional(),
   AGENTE_TOKEN: z.string().optional(),
 
   /**

@@ -69,6 +69,8 @@ interface CloudflareEnv {
   TURNSTILE_CLAVE_SITIO?: string;
   TURNSTILE_SECRETO?: string;
 
+  /** La direccion base del agente operativo, sin barra al final. */
+  AGENTE_URL?: string;
   /**
    * El token del agente operativo. Identifica a la CUENTA y a la EMPRESA:
    * quien lo tenga le habla al agente como si fuera Mercatren. Solo servidor.
