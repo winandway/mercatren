@@ -10,6 +10,7 @@ import { AvisoDisputa } from "@/components/panel/aviso-disputa";
 import { DocumentosDeLaVenta } from "@/components/panel/documentos-venta";
 import { LineaDeTiempo } from "@/components/panel/linea-de-tiempo";
 import { PasosDeLaVenta } from "@/components/panel/pasos-de-la-venta";
+import { DevolverPago } from "@/components/panel/devolver-pago";
 import { PruebaDeEntrega } from "@/components/panel/prueba-entrega";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
@@ -234,6 +235,12 @@ export default async function PaginaPedidoDelPanel({
       {/* CÓMO SE PAGÓ. Va antes de la mercancía a propósito: si el cobro no
           entró, lo demás no se despacha. */}
       <ComoSePago rastro={pedido.rastro} />
+
+      {/* DEVOLVER, solo para el equipo y solo si hay algo cobrado. Escondido
+          tras los tres puntos: devolver dinero no tiene marcha atrás. */}
+      {esEquipo && pedido.rastro.estado === "confirmado" ? (
+        <DevolverPago numero={pedido.numero} />
+      ) : null}
 
       {/* LO QUE DEFIENDE LA VENTA SI LLEGA UN CONTRACARGO. Va junto al cobro
           porque es de lo mismo: aquí se demuestra que la mercancía llegó. */}

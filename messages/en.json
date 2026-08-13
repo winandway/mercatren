@@ -1077,7 +1077,14 @@
       "motivoCorto": "Please explain the reason in a bit more detail — the buyer will read it.",
       "motivoLargo": "The reason is too long.",
       "montoObligatorio": "Enter the amount.",
-      "montoRaro": "That amount is not valid."
+      "montoRaro": "That amount is not valid.",
+      "yaEstabaReembolsado": "This order was already refunded.",
+      "soloSeDevuelveTarjeta": "Only card payments can be refunded from here. A Zelle payment is returned manually from the bank.",
+      "stripeSinConfigurar": "Stripe is not configured yet.",
+      "noHayCobroQueDevolver": "This order has no confirmed payment to refund.",
+      "devolucionMayorQueElCobro": "You cannot refund more than what was charged.",
+      "stripeRechazo": "Stripe declined the refund: {motivo}",
+      "devolucionHecha": "Refunded ${monto} to the buyer."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1611,6 +1618,17 @@
       "quitar": "Remove",
       "verArchivo": "View file",
       "aportadaPor": "Added by {quien}"
+    },
+    "devolucion": {
+      "titulo": "Refund the payment",
+      "texto": "The refund goes back to the same card that paid. The buyer receives it in a few days, depending on their bank.",
+      "monto": "Amount to refund",
+      "montoAyuda": "Leave it empty to refund everything.",
+      "motivo": "Reason",
+      "motivoMarcador": "What happened with this order",
+      "boton": "Refund the payment",
+      "procesando": "Refunding…",
+      "aviso": "This cannot be undone. The merchant's net is NOT deducted automatically: who absorbs this refund is agreed with them separately."
     }
   },
   "catalogo": {

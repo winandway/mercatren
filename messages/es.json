@@ -1077,7 +1077,14 @@
       "motivoCorto": "Escribe el motivo con un poco más de detalle: el comprador lo va a leer.",
       "motivoLargo": "El motivo es demasiado largo.",
       "montoObligatorio": "Escribe el monto.",
-      "montoRaro": "Ese monto no es válido."
+      "montoRaro": "Ese monto no es válido.",
+      "yaEstabaReembolsado": "Este pedido ya estaba reembolsado.",
+      "soloSeDevuelveTarjeta": "Solo se puede devolver desde aquí lo que se cobró con tarjeta. Un pago por Zelle se devuelve a mano desde el banco.",
+      "stripeSinConfigurar": "Stripe todavía no está configurado.",
+      "noHayCobroQueDevolver": "Este pedido no tiene ningún cobro confirmado que devolver.",
+      "devolucionMayorQueElCobro": "No se puede devolver más de lo que se cobró.",
+      "stripeRechazo": "Stripe no aceptó la devolución: {motivo}",
+      "devolucionHecha": "Devuelto ${monto} al comprador."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1611,6 +1618,17 @@
       "quitar": "Quitar",
       "verArchivo": "Ver el archivo",
       "aportadaPor": "Aportada por {quien}"
+    },
+    "devolucion": {
+      "titulo": "Devolver el dinero",
+      "texto": "Se devuelve por la misma tarjeta con la que se pagó. Al comprador le llega en unos días, según su banco.",
+      "monto": "Cuánto devolver",
+      "montoAyuda": "Déjalo vacío para devolver todo.",
+      "motivo": "Motivo",
+      "motivoMarcador": "Qué pasó con este pedido",
+      "boton": "Devolver el dinero",
+      "procesando": "Devolviendo…",
+      "aviso": "Esto no se puede deshacer. El neto del comercio NO se descuenta solo: quién asume esta devolución se acuerda con él aparte."
     }
   },
   "catalogo": {

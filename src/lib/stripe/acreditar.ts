@@ -3,6 +3,7 @@ import "server-only";
 import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { SITIO } from "@/lib/sitio";
 import { getDb } from "@/lib/db";
 import { anotarHito } from "@/lib/pedidos/hitos";
 import {
@@ -216,6 +217,30 @@ export async function acreditarPagoConTarjeta(
         });
       }
     }
+
+    /**
+     * Y AL EQUIPO, QUE HASTA HOY NO SE ENTERABA DE NADA.
+     *
+     * De una venta con tarjeta solo recibían correo el comprador y el
+     * comercio. Nadie de Mercatren sabía que había entrado dinero hasta que
+     * alguien abriera el panel — y hay cosas que dependen de mirarlo pronto:
+     * que el comercio despache, que el pedido no se quede parado, que un
+     * primer cobro de un comercio nuevo no pase inadvertido.
+     *
+     * Va DESPUÉS de acreditar y dentro del `try` de los avisos, como todo lo
+     * demás: un correo que no sale jamás puede deshacer un cobro.
+     */
+    const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
+    await correoAvisoAlEquipo({
+      asunto: `Venta con tarjeta ${pedido.numero}`,
+      lineas: [
+        `Entró un cobro con tarjeta del pedido ${pedido.numero}.`,
+        `Total: ${(montoCentavos / 100).toFixed(2)} USD.`,
+        "El neto ya está acreditado en la billetera del comercio.",
+      ],
+      url: `${SITIO.url}/es/panel/ordenes/${pedido.numero}`,
+      boton: "Ver el pedido",
+    });
 
     // Lo mismo que al aprobar un Zelle: si la venta dejó algo en cero, el
     // comercio se entera hoy y no cuando note que dejó de vender.
