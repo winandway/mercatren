@@ -1096,7 +1096,12 @@
       "noHayCobroQueDevolver": "Este pedido no tiene ningún cobro confirmado que devolver.",
       "devolucionMayorQueElCobro": "No se puede devolver más de lo que se cobró.",
       "stripeRechazo": "Stripe no aceptó la devolución: {motivo}",
-      "devolucionHecha": "Devuelto ${monto} al comprador."
+      "devolucionHecha": "Devuelto ${monto} al comprador.",
+      "soloSoporte": "Esto solo lo puede hacer una cuenta de Soporte.",
+      "cuentaNoExiste": "Esa cuenta no existe.",
+      "correoEsElMismo": "Ese ya es el correo de la cuenta.",
+      "correoYaEnUso": "Ya hay otra cuenta con ese correo.",
+      "correoCambiado": "Listo. Ahora entra con {correo}, con la misma contraseña."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1148,7 +1153,16 @@
       },
       "aprobarComercio": "Aprobar y dejarlo vender",
       "esperaAprobacion": "Este comercio espera aprobación",
-      "esperaAprobacionTexto": "Se dio de alta con sus datos y todavía no puede vender. Revísalos antes de aprobarlo."
+      "esperaAprobacionTexto": "Se dio de alta con sus datos y todavía no puede vender. Revísalos antes de aprobarlo.",
+      "cambiarCorreo": {
+        "titulo": "Cambiar el correo de acceso",
+        "texto": "Con este correo entra y recupera su contraseña. Cámbialo cuando la cuenta se creó con un correo nuestro y el comercio no puede recibir nada.",
+        "campo": "Correo nuevo",
+        "marcador": "correo@ejemplo.com",
+        "guardar": "Cambiar el correo",
+        "guardando": "Cambiando…",
+        "aviso": "La contraseña NO cambia: sigue entrando con la misma. Se le avisa al correo nuevo y al anterior."
+      }
     },
     "primerosPasos": {
       "titulo": "Para empezar a vender",

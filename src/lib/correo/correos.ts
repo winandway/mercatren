@@ -658,3 +658,50 @@ export async function correoProductoAgotado(
     contacto,
   });
 }
+
+/**
+ * 13. Le cambiaron el correo a una cuenta.
+ *
+ * Va a las DOS direcciones: a la nueva para que sepa que ya es la suya —y de
+ * paso comprueba que recibe—, y a la anterior porque si el cambio no lo pidió
+ * nadie, ese aviso es la única forma de enterarse.
+ */
+export async function correoCambioDeCorreo(d: {
+  nombre: string;
+  correoNuevo: string;
+  correoAnterior: string;
+  quienLoCambio: string;
+}) {
+  const piezas: PiezasCorreo = {
+    asunto: "Tu correo de acceso a Mercatren cambió",
+    previo: `Ahora entras con ${d.correoNuevo}.`,
+    saludo: `Hola, ${d.nombre}:`,
+    titulo: "Tu correo de acceso cambió",
+    /* Texto plano: `armarHtml` escapa los párrafos, así que una etiqueta
+       aquí saldría escrita tal cual en el correo. */
+    parrafos: [
+      "A partir de ahora entras a Mercatren con este correo, y tu contraseña es la misma de siempre.",
+      `El cambio lo hizo ${d.quienLoCambio}, del equipo de Mercatren, a petición tuya.`,
+      "Si no lo pediste, escríbenos ahora mismo.",
+    ],
+    resaltado: { tono: "neutro", texto: d.correoNuevo },
+    motivo: "Te escribimos porque cambió el correo de acceso de tu cuenta.",
+    contacto: "¿Alguna duda?",
+  };
+
+  /* A las dos, en envíos separados: si una rebota, la otra sale igual. */
+  return Promise.allSettled([
+    enviarCorreo({
+      a: d.correoNuevo,
+      asunto: piezas.asunto,
+      html: armarHtml(piezas),
+      texto: armarTexto(piezas),
+    }),
+    enviarCorreo({
+      a: d.correoAnterior,
+      asunto: piezas.asunto,
+      html: armarHtml(piezas),
+      texto: armarTexto(piezas),
+    }),
+  ]);
+}

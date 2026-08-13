@@ -2,8 +2,10 @@ import { ArrowLeft, BadgeCheck, Store, UserRound } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { CambiarCorreo } from "@/components/panel/usuarios/cambiar-correo";
 import { AprobarComercio } from "@/components/panel/aprobar-comercio";
 import { Link } from "@/i18n/navigation";
+import { obtenerUsuario } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,9 @@ export default async function FichaDeUsuario({
 
   const t = await getTranslations("panel.usuarios");
   const usuario = await obtenerUsuarioPorId(id).catch(() => null);
+  /* Cambiar el correo de acceso es cambiar quién entra a una cuenta: no es
+     tarea de un validador. */
+  const soySoporte = (await obtenerUsuario())?.rol === "soporte";
   if (!usuario) notFound();
 
   const resumen = usuario.tienda
@@ -205,6 +210,14 @@ export default async function FichaDeUsuario({
             </Link>
           </div>
         </section>
+      ) : null}
+
+      {/* CAMBIARLE EL CORREO DE ACCESO. Solo Soporte: es cambiar quién puede
+          entrar a esa cuenta, no una tarea operativa. La comprobación de
+          verdad va en la acción del servidor; esconder el formulario es
+          comodidad, no seguridad. */}
+      {soySoporte ? (
+        <CambiarCorreo usuarioId={usuario.id} correoActual={usuario.correo} />
       ) : null}
     </div>
   );

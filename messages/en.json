@@ -974,7 +974,7 @@
       "tiendaNoExiste": "We couldn't find that store.",
       "tiendaSinIdentificar": "It's not clear which store to save.",
       "tiendaGuardada": "Saved. This is how your store looks now.",
-      "correoInvalido": "That email address isn't valid.",
+      "correoInvalido": "That email is not valid.",
       "direccionInvalida": "That address isn't valid.",
       "productoNoExiste": "That product no longer exists.",
       "productoAjeno": "That product doesn't belong to your store.",
@@ -1096,7 +1096,12 @@
       "noHayCobroQueDevolver": "This order has no confirmed payment to refund.",
       "devolucionMayorQueElCobro": "You cannot refund more than what was charged.",
       "stripeRechazo": "Stripe declined the refund: {motivo}",
-      "devolucionHecha": "Refunded ${monto} to the buyer."
+      "devolucionHecha": "Refunded ${monto} to the buyer.",
+      "soloSoporte": "Only a Support account can do this.",
+      "cuentaNoExiste": "That account does not exist.",
+      "correoEsElMismo": "That is already the account's email.",
+      "correoYaEnUso": "Another account already uses that email.",
+      "correoCambiado": "Done. They now sign in with {correo}, using the same password."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1148,7 +1153,16 @@
       },
       "aprobarComercio": "Approve and let them sell",
       "esperaAprobacion": "This store is awaiting approval",
-      "esperaAprobacionTexto": "They signed up with their details and can't sell yet. Review them before approving."
+      "esperaAprobacionTexto": "They signed up with their details and can't sell yet. Review them before approving.",
+      "cambiarCorreo": {
+        "titulo": "Change the sign-in email",
+        "texto": "This is the email they sign in with and use to recover their password. Change it when the account was created with one of our own addresses and the merchant can't receive anything.",
+        "campo": "New email",
+        "marcador": "email@example.com",
+        "guardar": "Change the email",
+        "guardando": "Changing…",
+        "aviso": "The password does NOT change: they keep signing in with the same one. Both the new and the previous address are notified."
+      }
     },
     "primerosPasos": {
       "titulo": "To start selling",
