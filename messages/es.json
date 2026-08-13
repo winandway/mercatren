@@ -336,7 +336,7 @@
     "abrirMenu": "Abrir menú",
     "cerrarMenu": "Cerrar menú",
     "menu": {
-      "resumen": "Resumen",
+      "resumen": "Tablero",
       "validacion": "Por validar",
       "billetera": "Por pagar a los comercios",
       "ordenes": "Órdenes",
@@ -357,8 +357,7 @@
       "equipo": "Equipo Mercatren",
       "cobros": "Cobros",
       "billeteraComercio": "Mi dinero",
-      "ordenesCompraComercio": "Mis facturas a Mercatren",
-      "asistente": "Asistente"
+      "ordenesCompraComercio": "Mis facturas a Mercatren"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -453,7 +452,7 @@
       "verPagos": "Ver sus pagos"
     },
     "resumen": {
-      "titulo": "Resumen",
+      "titulo": "Tablero",
       "subtitulo": "Estado general de la operación.",
       "verPagos": "Ver los pagos",
       "hoy": "Vendido hoy",
@@ -480,7 +479,13 @@
       "disponible": "Disponible para retirar",
       "disponiblePie": "Tuyo, esperando a que lo pidas",
       "archivoTextoComercio": "{n} operaciones tuyas por {monto}, de tu tienda anterior. Ya se liquidaron allá; se guardan aquí para que tengas el registro completo.",
-      "subtituloComercio": "Cómo va tu tienda: lo que vendiste, lo que tienes por cobrar y lo que te falta por hacer."
+      "subtituloComercio": "Cómo va tu tienda: lo que vendiste, lo que tienes por cobrar y lo que te falta por hacer.",
+      "vendido": "Vendido",
+      "comprado": "Comprado a los comercios",
+      "compradoComercio": "Te pagamos",
+      "entregadas": "Entregadas",
+      "clientesNuevos": "Clientes nuevos",
+      "esteMes": "Este mes"
     },
     "enConstruccion": {
       "titulo": "Sección en preparación",
@@ -1673,7 +1678,17 @@
         "mensaje_vacio": "Escribe algo antes de enviar.",
         "mensaje_largo": "El mensaje es demasiado largo.",
         "cuerpo_invalido": "No se entendió la petición."
-      }
+      },
+      "abrir": "Abrir el asistente",
+      "cerrar": "Cerrar",
+      "agrandar": "Agrandar",
+      "achicar": "Achicar",
+      "dictar": "Dictar en voz alta",
+      "dejarDeDictar": "Dejar de dictar",
+      "escuchando": "Escuchando…",
+      "mandarImagen": "Mandar una imagen",
+      "subiendoImagen": "Preparando la imagen…",
+      "imagenAdjunta": "Imagen adjunta"
     }
   },
   "catalogo": {

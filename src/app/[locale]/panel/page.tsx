@@ -2,9 +2,12 @@ import {
   ArrowRight,
   CalendarDays,
   Clock,
+  PackageCheck,
   PiggyBank,
+  ShoppingBag,
   Store,
   TrendingUp,
+  UserPlus,
   Wallet,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -133,6 +136,56 @@ export default async function PaginaResumen({
             titulo={tz("tarjetas.sellers")}
             valor={String(resumen.sellers)}
             pie={tz("tarjetas.sellersPie")}
+          />
+        )}
+      </section>
+
+      {/**
+       * LA SEGUNDA FILA: EL CICLO COMPLETO DEL MES.
+       *
+       * Lo pidió el dueño, y tiene razón en el fondo: con solo lo vendido y el
+       * margen no se ve el negocio. El modelo entero se apoya en una resta
+       * —bruto − costo de mercancía = margen— y sin el renglón del medio los
+       * otros dos no se pueden comprobar.
+       *
+       * Y a lo vendido le faltaba lo que de verdad SALIÓ: un mes puede cerrar
+       * con muchas ventas y poca mercancía entregada, y eso es un problema que
+       * hay que ver el día que pasa, no a fin de mes.
+       */}
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <TarjetaMetrica
+          Icono={ShoppingBag}
+          titulo={t(
+            esComercio ? "resumen.compradoComercio" : "resumen.comprado",
+          )}
+          valor={formatearPrecio(hoy.mesCompradoCentavos, idioma, hoy.moneda)}
+          pie={t("resumen.esteMes")}
+        />
+        <TarjetaMetrica
+          Icono={PackageCheck}
+          titulo={t("resumen.entregadas")}
+          valor={String(hoy.mesEntregadas)}
+          pie={t("resumen.esteMes")}
+        />
+        {/* Los compradores son de Mercatren, no de un comercio: enseñárselos a
+            uno le haría creer que son los suyos. */}
+        {hoy.mesClientesNuevos !== null ? (
+          <TarjetaMetrica
+            Icono={UserPlus}
+            titulo={t("resumen.clientesNuevos")}
+            valor={String(hoy.mesClientesNuevos)}
+            pie={t("resumen.esteMes")}
+          />
+        ) : (
+          <TarjetaMetrica
+            Icono={Wallet}
+            titulo={t("resumen.disponible")}
+            valor={formatearPrecio(
+              hoy.disponibleCentavos ?? 0,
+              idioma,
+              hoy.moneda,
+            )}
+            pie={t("resumen.disponiblePie")}
           />
         )}
       </section>

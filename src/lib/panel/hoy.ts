@@ -11,6 +11,7 @@ import {
   pagosZelle,
   pedidos,
   retiros,
+  user,
 } from "@/lib/db/schema";
 
 /**
@@ -40,6 +41,21 @@ export type ResumenDeHoy = {
   mesCantidad: number;
   mesCentavos: number;
   mesMargenCentavos: number;
+  /**
+   * LO QUE SE LE COMPRÓ A LOS COMERCIOS ESTE MES.
+   *
+   * Es el costo de la mercancía: lo vendido menos nuestro margen. Va en el
+   * tablero porque el modelo entero se apoya en esa resta —bruto − costo =
+   * margen— y sin el renglón del medio los otros dos no se pueden comprobar.
+   *
+   * Para un comercio no es «lo comprado» sino LO QUE SE LE PAGA. La pantalla
+   * lo llama distinto según quién mire, como el resto del panel.
+   */
+  mesCompradoCentavos: number;
+  /** Ventas ya entregadas este mes: lo que salió de verdad. */
+  mesEntregadas: number;
+  /** Cuentas de comprador nuevas este mes. Null para un comercio: no son suyas. */
+  mesClientesNuevos: number | null;
   /* LO QUE ESTÁ ESPERANDO A UNA PERSONA. Es la lista de tareas del día. */
   porValidar: number;
   porEntregar: number;
@@ -166,12 +182,48 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     .where(sql`${disputas.estado} = 'abierta' ${disputasSuyas}`)
     .catch(() => [{ n: 0 }]);
 
+  /**
+   * LO ENTREGADO Y LOS CLIENTES NUEVOS.
+   *
+   * Los dos van con `.catch()` como el resto: una consulta que falle en el
+   * tablero no puede dejar sin pantalla de entrada a quien viene a trabajar.
+   * Se enseña un cero, que es peor que el dato pero muchísimo mejor que un 500.
+   */
+  const [entregadas] = await db
+    .select({ n: sql<number>`COUNT(*)` })
+    .from(pedidos)
+    .where(
+      and(
+        eq(pedidos.estado, "entregado"),
+        gte(pedidos.actualizadoEn, primeroDelMes),
+        ...suyo,
+      ),
+    )
+    .catch(() => [{ n: 0 }]);
+
+  /* Solo para el equipo: los compradores son de Mercatren, no de un comercio.
+     Enseñarle a uno «cuántos clientes se registraron» le haría creer que son
+     los suyos. */
+  const clientesNuevos = tiendaId
+    ? null
+    : await db
+        .select({ n: sql<number>`COUNT(*)` })
+        .from(user)
+        .where(and(eq(user.rol, "cliente"), gte(user.createdAt, primeroDelMes)))
+        .then((f) => Number(f[0]?.n ?? 0))
+        .catch(() => 0);
+
   return {
     hoyCantidad: hoy.n,
     hoyCentavos: hoy.monto,
     mesCantidad: mes.n,
     mesCentavos: mes.monto,
     mesMargenCentavos: mes.margen,
+    /* La resta, no una consulta aparte: si se calculara por su cuenta, el
+       tablero podría enseñar tres números que no cuadran entre sí. */
+    mesCompradoCentavos: mes.monto - mes.margen,
+    mesEntregadas: Number(entregadas?.n ?? 0),
+    mesClientesNuevos: clientesNuevos,
     porValidar: Number(pendientes?.n ?? 0),
     porEntregar: Number(sinEntregar?.n ?? 0),
     retirosPendientes: Number(porPagar?.n ?? 0),

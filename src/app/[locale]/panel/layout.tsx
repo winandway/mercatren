@@ -7,6 +7,7 @@ import {
   setRequestLocale,
 } from "next-intl/server";
 
+import { BurbujaAsistente } from "@/components/panel/asistente/burbuja";
 import { MenuLateral } from "@/components/panel/menu-lateral";
 import { FranjaVerComo } from "@/components/panel/ver-como";
 import { redirect } from "@/i18n/navigation";
@@ -15,6 +16,7 @@ import {
   tienePermisoDePanel,
   obtenerUsuario,
 } from "@/lib/autorizacion";
+import { agenteConfigurado } from "@/lib/asistente/cliente";
 import { getDb } from "@/lib/db";
 import { tiendas } from "@/lib/db/schema";
 import { contarRetirosPendientes } from "@/lib/retiros/consultas";
@@ -59,6 +61,10 @@ export default async function LayoutPanel({
     obtenerUsuario(),
     esEquipoInterno(),
   ]);
+
+  /* Sin token configurado no se dibuja la burbuja: sería un botón que abre un
+     chat que falla en cada envío. */
+  const hayAsistente = agenteConfigurado();
 
   /**
    * UN COMERCIO SIN TIENDA NO PUEDE VER EL PANEL, PERO TAMPOCO DEBE ROMPERLO.
@@ -120,6 +126,13 @@ export default async function LayoutPanel({
             {children}
           </main>
         </div>
+
+        {/* EL ASISTENTE, ENCIMA DE TODO EL PANEL. Una pregunta casi nunca nace
+            en su propia pantalla: nace mirando un pedido, un retiro o un
+            comercio. Obligar a irse a otra sección para preguntar es perder el
+            contexto que motivó la pregunta. Solo el equipo interno: su token
+            identifica a la EMPRESA. */}
+        {interno && hayAsistente ? <BurbujaAsistente idioma={locale} /> : null}
       </div>
     </NextIntlClientProvider>
   );

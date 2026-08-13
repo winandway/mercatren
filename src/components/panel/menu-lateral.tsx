@@ -3,7 +3,6 @@
 import {
   ArrowUpRight,
   BookOpen,
-  Bot,
   CreditCard,
   FileText,
   Languages,
@@ -112,14 +111,6 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/configuracion",
         clave: "configuracion",
         Icono: Settings,
-        soloInterno: true,
-      },
-      /* EL ASISTENTE. Solo del equipo: su token identifica a la EMPRESA, así
-         que quien lo use le habla al agente como si fuera Mercatren. */
-      {
-        href: "/panel/asistente",
-        clave: "asistente",
-        Icono: Bot,
         soloInterno: true,
       },
       /* CÓMO SE HABLA DE MERCATREN. Material interno: enseña las palabras que

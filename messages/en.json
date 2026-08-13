@@ -336,7 +336,7 @@
     "abrirMenu": "Open menu",
     "cerrarMenu": "Close menu",
     "menu": {
-      "resumen": "Overview",
+      "resumen": "Dashboard",
       "validacion": "To review",
       "billetera": "Owed to merchants",
       "ordenes": "Orders",
@@ -357,8 +357,7 @@
       "equipo": "Mercatren team",
       "cobros": "Payments in",
       "billeteraComercio": "My money",
-      "ordenesCompraComercio": "My invoices to Mercatren",
-      "asistente": "Assistant"
+      "ordenesCompraComercio": "My invoices to Mercatren"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -453,7 +452,7 @@
       "verPagos": "View their payments"
     },
     "resumen": {
-      "titulo": "Overview",
+      "titulo": "Dashboard",
       "subtitulo": "How the operation is doing.",
       "verPagos": "View payments",
       "hoy": "Sold today",
@@ -480,7 +479,13 @@
       "disponible": "Available to withdraw",
       "disponiblePie": "Yours, waiting for you to ask",
       "archivoTextoComercio": "{n} of your transactions for {monto}, from your previous store. They were settled there; kept here so your record stays complete.",
-      "subtituloComercio": "How your store is doing: what you sold, what you have coming, and what's left to do."
+      "subtituloComercio": "How your store is doing: what you sold, what you have coming, and what's left to do.",
+      "vendido": "Sold",
+      "comprado": "Bought from merchants",
+      "compradoComercio": "Paid to you",
+      "entregadas": "Delivered",
+      "clientesNuevos": "New customers",
+      "esteMes": "This month"
     },
     "enConstruccion": {
       "titulo": "Section being prepared",
@@ -1673,7 +1678,17 @@
         "mensaje_vacio": "Type something before sending.",
         "mensaje_largo": "The message is too long.",
         "cuerpo_invalido": "The request wasn't understood."
-      }
+      },
+      "abrir": "Open the assistant",
+      "cerrar": "Close",
+      "agrandar": "Expand",
+      "achicar": "Shrink",
+      "dictar": "Dictate out loud",
+      "dejarDeDictar": "Stop dictating",
+      "escuchando": "Listening…",
+      "mandarImagen": "Send an image",
+      "subiendoImagen": "Preparing the image…",
+      "imagenAdjunta": "Attached image"
     }
   },
   "catalogo": {
