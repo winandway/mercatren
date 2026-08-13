@@ -327,7 +327,8 @@
     "errorCorreoOcupado": "Ese correo ya tiene una cuenta. Puedes iniciar sesión o recuperar tu contraseña.",
     "errorCorreoInvalido": "Ese correo no parece válido. Revísalo.",
     "aceptoTerminos": "He leído y acepto los <terminos>términos y condiciones</terminos> y la <privacidad>política de privacidad</privacidad>.",
-    "errorAceptaTerminos": "Para crear la cuenta tienes que aceptar los términos y condiciones."
+    "errorAceptaTerminos": "Para crear la cuenta tienes que aceptar los términos y condiciones.",
+    "errorDemasiadosIntentos": "Demasiados intentos seguidos. Espera unos minutos y vuelve a probar."
   },
   "panel": {
     "titulo": "Administración",

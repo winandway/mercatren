@@ -327,7 +327,8 @@
     "errorCorreoOcupado": "That email already has an account. You can sign in or reset your password.",
     "errorCorreoInvalido": "That email does not look valid. Check it.",
     "aceptoTerminos": "I have read and accept the <terminos>terms and conditions</terminos> and the <privacidad>privacy policy</privacidad>.",
-    "errorAceptaTerminos": "To create an account you need to accept the terms and conditions."
+    "errorAceptaTerminos": "To create an account you need to accept the terms and conditions.",
+    "errorDemasiadosIntentos": "Too many attempts in a row. Wait a few minutes and try again."
   },
   "panel": {
     "titulo": "Admin",

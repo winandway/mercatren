@@ -1887,3 +1887,28 @@ export const preguntasProducto = sqliteTable(
   },
   (t) => [index("preguntas_producto_producto").on(t.productoId)],
 );
+
+/**
+ * LOS INTENTOS FALLIDOS EN LAS PUERTAS DE ENTRADA.
+ *
+ * Una fila por llave —`ip:1.2.3.4` o `cuenta:correo@x.com`— y no una por
+ * intento: guardar cada golpe de un ataque de fuerza bruta sería dejar que el
+ * atacante nos llene la base, que es justo lo que viene a hacer. Con un
+ * contador y la fecha en que empezó la ventana alcanza, y son dos escrituras
+ * por fallo en vez de miles.
+ *
+ * TABLA NUEVA, NO COLUMNAS: `schema.sql` solo trae `CREATE TABLE IF NOT
+ * EXISTS`, así que una columna añadida a una tabla que ya existe no llegaría
+ * sola a producción.
+ *
+ * La lógica —cuántos, cuánto dura la ventana y por qué el tope por dirección es
+ * mucho más alto que el de cuenta— vive en `src/lib/seguridad/intentos.ts`,
+ * pura y con pruebas.
+ */
+export const intentosAcceso = sqliteTable("intentos_acceso", {
+  /** `ip:<direccion>` o `cuenta:<correo en minusculas>`. */
+  llave: text("llave").primaryKey(),
+  intentos: integer("intentos").notNull().default(0),
+  /** Milisegundos. Cuando empezo la ventana vigente. */
+  ventanaDesde: integer("ventana_desde").notNull(),
+});

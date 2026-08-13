@@ -41,8 +41,20 @@ export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
     setEnviando(false);
 
     if (fallo) {
+      /**
+       * EL 429 SE DICE CON SUS PALABRAS.
+       *
+       * Sin esto, quien agota los intentos ve «correo o contraseña
+       * incorrectos» — que es mentira y además lo manda a cambiar la
+       * contraseña que sí tenía bien. La frase sale de los textos, no del
+       * servidor, para que aparezca en el idioma de quien mira.
+       */
       setError(
-        fallo.status === 403 ? t("errorEscudo") : t("errorCredenciales"),
+        fallo.status === 429
+          ? t("errorDemasiadosIntentos")
+          : fallo.status === 403
+            ? t("errorEscudo")
+            : t("errorCredenciales"),
       );
       return;
     }
