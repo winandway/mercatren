@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -160,7 +161,7 @@ export const VENDER_ES: PaginaContenido = {
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "Escríbenos a mercatren@windoce.com",
+          titulo: `Escríbenos a ${CORREO_CONTACTO}`,
           parrafos: [
             "Cuéntanos qué vendes, en qué país entregas y quién es tu proveedor en Estados Unidos. Te contestamos con los requisitos exactos para tu caso.",
             "Estamos en fase piloto y damos de alta pocos comercios a la vez, para acompañar bien a cada uno.",
@@ -335,7 +336,7 @@ export const VENDER_EN: PaginaContenido = {
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "Write to mercatren@windoce.com",
+          titulo: `Write to ${CORREO_CONTACTO}`,
           parrafos: [
             "Tell us what you sell, which country you deliver in, and who your US supplier is. We'll reply with the exact requirements for your case.",
             "We're in pilot phase and onboard a few merchants at a time, so we can support each one properly.",

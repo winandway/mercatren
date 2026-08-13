@@ -13,7 +13,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
  *   compra, pagos, contrasenas. No recibe nada; responderle no llega a nadie.
  *   Cualquier buzon @mercatren.com sirve como remitente: el dominio entero
  *   esta autorizado y firmado.
- * - `mercatren@windoce.com` SOLO RECIBE. Es el buzon real y funcional donde
+ * - `CORREO_CONTACTO` SOLO RECIBE. Es el buzon real y funcional donde
  *   entra el contacto de la web, y el que figura en terminos y condiciones.
  *   Va como Reply-To en cada envio: si alguien responde un aviso, la
  *   respuesta cae en el buzon de verdad.
@@ -98,7 +98,7 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
   /**
    * `reply_to` SOLO acepta una direccion del dominio autorizado a enviar.
    *
-   * Nuestro buzon real (`mercatren@windoce.com`) es de otro dominio, asi que
+   * Nuestro buzon publico vive en @mercatren.com, el mismo dominio, asi que
    * no cabe aqui: se pone el propio remitente. No se pierde el contacto — la
    * direccion de verdad va escrita dentro de cada correo (`contacto` en la
    * plantilla), que es donde la gente la busca.
@@ -136,7 +136,7 @@ export async function enviarCorreo({ a, asunto, html, texto }: Envio) {
        * 1. `replyTo` en una sola palabra es el formato del binding de
        *    Workers; esta API REST habla con guiones bajos.
        * 2. Solo acepta una direccion del dominio que tiene autorizado a
-       *    enviar. Nuestro buzon real es `mercatren@windoce.com` — otro
+       *    enviar. El buzon publico es `CORREO_CONTACTO` — mismo
        *    dominio —, asi que ahi no cabe y el campo se omite.
        *
        * No pasa nada por omitirlo: la direccion de contacto real va escrita

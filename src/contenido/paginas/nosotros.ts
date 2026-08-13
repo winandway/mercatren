@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -147,7 +148,7 @@ export const NOSOTROS_ES: PaginaContenido = {
             },
             {
               titulo: "Un buzón real",
-              texto: "mercatren@windoce.com. Escribe y contesta una persona.",
+              texto: `${CORREO_CONTACTO}. Escribe y contesta una persona.`,
             },
           ],
         },
@@ -295,7 +296,7 @@ export const NOSOTROS_EN: PaginaContenido = {
             },
             {
               titulo: "A real inbox",
-              texto: "mercatren@windoce.com. Write, and a person answers.",
+              texto: `${CORREO_CONTACTO}. Write, and a person answers.`,
             },
           ],
         },

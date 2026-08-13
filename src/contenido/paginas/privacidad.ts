@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -25,7 +26,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto: `${SOCIEDAD.nombre}, sociedad registrada en Estados Unidos, operando bajo la marca Mercatren. Para cualquier asunto de privacidad puedes escribirnos a mercatren@windoce.com.`,
+          texto: `${SOCIEDAD.nombre}, sociedad registrada en Estados Unidos, operando bajo la marca Mercatren. Para cualquier asunto de privacidad puedes escribirnos a ${CORREO_CONTACTO}.`,
         },
       ],
     },
@@ -211,8 +212,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Escribiéndonos a mercatren@windoce.com desde el correo de tu cuenta puedes pedirnos:",
+          texto: `Escribiéndonos a ${CORREO_CONTACTO} desde el correo de tu cuenta puedes pedirnos:`,
         },
         {
           tipo: "lista",
@@ -298,7 +298,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
             },
             {
               titulo: "Contacto",
-              texto: "mercatren@windoce.com. Es un buzón real y contestamos.",
+              texto: `${CORREO_CONTACTO}. Es un buzón real y contestamos.`,
             },
           ],
         },
@@ -322,7 +322,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto: `${SOCIEDAD.nombre}, a company registered in the United States, operating under the Mercatren brand. For any privacy matter, write to us at mercatren@windoce.com.`,
+          texto: `${SOCIEDAD.nombre}, a company registered in the United States, operating under the Mercatren brand. For any privacy matter, write to us at ${CORREO_CONTACTO}.`,
         },
       ],
     },
@@ -508,8 +508,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "By writing to mercatren@windoce.com from your account email, you can ask us to:",
+          texto: `By writing to ${CORREO_CONTACTO} from your account email, you can ask us to:`,
         },
         {
           tipo: "lista",
@@ -595,7 +594,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
             },
             {
               titulo: "Contact",
-              texto: "mercatren@windoce.com. It's a real inbox and we answer.",
+              texto: `${CORREO_CONTACTO}. It's a real inbox and we answer.`,
             },
           ],
         },

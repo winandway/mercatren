@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 
 import { getDb } from "@/lib/db";
 import { tiendas } from "@/lib/db/schema";
@@ -125,7 +126,7 @@ Declarado en \`robots.txt\` con \`Content-Signal\`:
 
 ## Contacto
 
-- Correo: mercatren@windoce.com
+- Correo: ${CORREO_CONTACTO}
 - [Ayuda](${SITIO.url}/es/ayuda) · [Devoluciones](${SITIO.url}/es/devoluciones)
   · [Entrega](${SITIO.url}/es/entrega)
 - [Términos](${SITIO.url}/es/terminos) · [Privacidad](${SITIO.url}/es/privacidad)

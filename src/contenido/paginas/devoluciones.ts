@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -180,7 +181,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
             {
               numero: "1",
               etiqueta: "Escríbenos",
-              titulo: "Un correo a mercatren@windoce.com",
+              titulo: `Un correo a ${CORREO_CONTACTO}`,
               parrafos: [
                 "Desde el correo de tu cuenta, con el número de pedido (por ejemplo MT-000042) y qué pasó. Adjunta fotos si el problema se ve.",
               ],
@@ -212,7 +213,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     texto:
       "Escríbenos con tu número de pedido. Contesta una persona del equipo.",
     boton: "Escribir a Mercatren",
-    href: "mailto:mercatren@windoce.com",
+    href: `mailto:${CORREO_CONTACTO}`,
   },
 };
 
@@ -366,7 +367,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
             {
               numero: "1",
               etiqueta: "Email us",
-              titulo: "Write to mercatren@windoce.com",
+              titulo: `Write to ${CORREO_CONTACTO}`,
               parrafos: [
                 "From your account's email address, with the order number (for example MT-000042) and what happened. Attach photos if the problem is visible.",
               ],
@@ -397,6 +398,6 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     titulo: "Having a problem with an order?",
     texto: "Email us your order number. A person on our team will answer.",
     boton: "Email Mercatren",
-    href: "mailto:mercatren@windoce.com",
+    href: `mailto:${CORREO_CONTACTO}`,
   },
 };

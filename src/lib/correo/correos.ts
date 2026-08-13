@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { SITIO } from "@/lib/sitio";
 
-import { CORREO_CONTACTO } from "./direcciones";
+import { CORREO_CONTACTO, CORREO_EQUIPO } from "./direcciones";
 import { enviarCorreo } from "./enviar";
 import { armarHtml, armarTexto, type PiezasCorreo } from "./plantilla";
 
@@ -357,7 +357,7 @@ export async function correoComercioAprobado(
  *
  * Un comercio nuevo por aprobar o un comprobante por validar no pueden
  * depender de que alguien entre al panel a mirar: se avisan al buzón real
- * (mercatren@windoce.com). Va en español fijo — es interno del equipo.
+ * (CORREO_EQUIPO). Va en español fijo — es interno del equipo.
  */
 export async function correoAvisoAlEquipo(aviso: {
   asunto: string;
@@ -377,7 +377,10 @@ export async function correoAvisoAlEquipo(aviso: {
   };
 
   return enviarCorreo({
-    a: CORREO_CONTACTO,
+    /* Al buzón que el equipo lee todos los días, no al público: de estos
+       avisos depende que alguien mire la cola y que a un comercio le llegue su
+       dinero. */
+    a: CORREO_EQUIPO,
     asunto: piezas.asunto,
     html: armarHtml(piezas),
     texto: armarTexto(piezas),

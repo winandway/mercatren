@@ -33,7 +33,7 @@ const SECCIONES = [
          cualquier página del sitio, o no aprueba la cuenta. */
       { clave: "entrega", href: "/entrega" },
       { clave: "devoluciones", href: "/devoluciones" },
-      // El contacto abre el buzon REAL (mercatren@windoce.com). Nunca poner
+      // El contacto abre el buzon REAL de CORREO_CONTACTO. Nunca poner
       // aqui un correo @mercatren.com sin SMTP: no recibe y el mensaje se
       // pierde. noreply@mercatren.com es solo para ENVIAR avisos del sistema.
       { clave: "contacto", href: `mailto:${CORREO_CONTACTO}` },

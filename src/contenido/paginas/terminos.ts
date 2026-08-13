@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -17,7 +18,7 @@ import { SOCIEDAD } from "@/lib/sociedad";
  * del sitio. No afirman la calificacion regulatoria del servicio: eso lo
  * decide el abogado del proyecto, no esta pagina.
  *
- * El correo de contacto es SIEMPRE mercatren@windoce.com (el buzon real). Ver
+ * El correo de contacto es SIEMPRE CORREO_CONTACTO (el buzon real). Ver
  * src/lib/correo/direcciones.ts.
  */
 export const TERMINOS_ES: PaginaContenido = {
@@ -307,8 +308,7 @@ export const TERMINOS_ES: PaginaContenido = {
             },
             {
               titulo: "Disputas",
-              texto:
-                "escríbenos primero a mercatren@windoce.com: la mayoría se resuelve en el mismo día. Si el reclamo no se resuelve, se dirime conforme a la ley aplicable indicada en la sección de cierre de estos términos, y conservamos toda la documentación de la operación durante cinco años para sustentarlo.",
+              texto: `escríbenos primero a ${CORREO_CONTACTO}: la mayoría se resuelve en el mismo día. Si el reclamo no se resuelve, se dirime conforme a la ley aplicable indicada en la sección de cierre de estos términos, y conservamos toda la documentación de la operación durante cinco años para sustentarlo.`,
             },
           ],
         },
@@ -458,8 +458,7 @@ export const TERMINOS_ES: PaginaContenido = {
             },
             {
               titulo: "Escríbenos",
-              texto:
-                "para cualquier duda, reclamo o solicitud sobre estos términos, a mercatren@windoce.com. Contestamos por ahí.",
+              texto: `para cualquier duda, reclamo o solicitud sobre estos términos, a ${CORREO_CONTACTO}. Contestamos por ahí.`,
             },
           ],
         },
@@ -757,8 +756,7 @@ export const TERMINOS_EN: PaginaContenido = {
             },
             {
               titulo: "Disputes",
-              texto:
-                "write to mercatren@windoce.com first: most are resolved the same day. If a claim is not resolved, it is resolved under the governing law stated in the closing section of these terms, and we keep all documentation of the transaction for five years to support it.",
+              texto: `write to ${CORREO_CONTACTO} first: most are resolved the same day. If a claim is not resolved, it is resolved under the governing law stated in the closing section of these terms, and we keep all documentation of the transaction for five years to support it.`,
             },
           ],
         },
@@ -904,8 +902,7 @@ export const TERMINOS_EN: PaginaContenido = {
             },
             {
               titulo: "Write to us",
-              texto:
-                "for any question, complaint, or request about these terms, at mercatren@windoce.com. That's where we answer.",
+              texto: `for any question, complaint, or request about these terms, at ${CORREO_CONTACTO}. That's where we answer.`,
             },
           ],
         },

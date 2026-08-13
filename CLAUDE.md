@@ -732,14 +732,26 @@ ponerse un precio de un dólar, aquí no le sirve de nada.
 
 Dos direcciones, y no se inventan otras (**regla del proyecto**):
 
-- **`mercatren@windoce.com` RECIBE.** Es el buzón real y funcional: el
-  contacto de la web, el que figura en términos y condiciones, y el Reply-To
-  de todo lo que enviamos. Vive en `src/lib/correo/direcciones.ts`.
+- **`hola@mercatren.com` es el contacto PÚBLICO** (12 ago 2026): la web, los
+  documentos y el Reply-To de todo lo que enviamos. Antes era
+  `mercatren@windoce.com`, de cuando la tienda la operaba Windoce, y esa era
+  **la mención de Windoce más visible que quedaba en el sitio** — salía en el
+  pie, en términos, en privacidad y hasta en el `llms.txt`. Por eso Google, al
+  preguntarle con qué empresa funciona Mercatren, seguía contestando «Windoce,
+  LLC»: leía la página y la dirección de contacto se lo decía.
+- **`mercatren@windoce.com` sigue recibiendo los avisos INTERNOS** del equipo
+  (`CORREO_EQUIPO`): venta nueva, contracargo, retiro pedido. Se queda ahí a
+  propósito hasta que el equipo confirme que lee el nuevo — de esos correos
+  depende que alguien mire la cola y que a un comercio le llegue su dinero.
 - **`avisos@mercatren.com` SOLO ENVÍA.** Es la voz del sistema: bienvenida,
   contraseña, compra, pagos. No recibe nada. Cualquier buzón `@mercatren.com`
   sirve de remitente: el dominio entero está autorizado y firmado.
-- **PROHIBIDO** poner de contacto un correo `@mercatren.com` sin buzón real
-  (ej. soporte@mercatren.com): no recibe y el mensaje del cliente se pierde.
+- **PROHIBIDO** poner de contacto una dirección sin buzón real: no recibe y el
+  mensaje del cliente se pierde sin que nadie se entere.
+- **Y PROHIBIDO escribir la dirección a mano.** Sale de
+  `src/lib/correo/direcciones.ts`; `tests/unit/correo-contacto.test.ts` se pone
+  roja si alguien la teclea en otro archivo. Cambiarla costó tocar diez
+  archivos; la próxima vez es una línea.
 
 Cómo está armado: `src/lib/correo/` — `direcciones.ts` (las dos direcciones),
 `plantilla.ts` (HTML de tablas con estilos en línea, que es lo único que se ve

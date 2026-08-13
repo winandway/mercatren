@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -6,7 +7,7 @@ import { SOCIEDAD } from "@/lib/sociedad";
  *
  * Escritas como las hace la gente, no como las escribiria un abogado. Cada
  * respuesta termina en algo accionable; cuando no hay respuesta buena, se
- * manda al buzon real (mercatren@windoce.com) y no a un formulario ciego.
+ * manda al buzon real (CORREO_CONTACTO) y no a un formulario ciego.
  */
 export const AYUDA_ES: PaginaContenido = {
   titulo: "Centro de ayuda",
@@ -189,7 +190,7 @@ export const AYUDA_ES: PaginaContenido = {
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "Escríbenos a mercatren@windoce.com",
+          titulo: `Escríbenos a ${CORREO_CONTACTO}`,
           parrafos: [
             "Es un buzón real y contesta una persona. Si es sobre un pedido, ponnos el número (empieza por MT-) y vamos directo al grano.",
           ],
@@ -380,7 +381,7 @@ export const AYUDA_EN: PaginaContenido = {
         {
           tipo: "aviso",
           tono: "bien",
-          titulo: "Write to mercatren@windoce.com",
+          titulo: `Write to ${CORREO_CONTACTO}`,
           parrafos: [
             "It's a real inbox and a person answers. If it's about an order, include the number (it starts with MT-) and we'll get straight to it.",
           ],

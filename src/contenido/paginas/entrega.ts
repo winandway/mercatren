@@ -1,4 +1,5 @@
 import type { PaginaContenido } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -134,12 +135,12 @@ export const ENTREGA_ES: PaginaContenido = {
       ],
     },
   ],
-  cierre: `Esta política forma parte de los términos y condiciones de Mercatren, un servicio de ${SOCIEDAD.nombre}. Si algo de tu entrega no salió como dice aquí, escríbenos a mercatren@windoce.com con tu número de pedido.`,
+  cierre: `Esta política forma parte de los términos y condiciones de Mercatren, un servicio de ${SOCIEDAD.nombre}. Si algo de tu entrega no salió como dice aquí, escríbenos a ${CORREO_CONTACTO} con tu número de pedido.`,
   accion: {
     titulo: "¿Dudas con la entrega de tu pedido?",
     texto: "Escríbenos con tu número de pedido y lo revisamos contigo.",
     boton: "Escribir a Mercatren",
-    href: "mailto:mercatren@windoce.com",
+    href: `mailto:${CORREO_CONTACTO}`,
   },
 };
 
@@ -256,11 +257,11 @@ export const ENTREGA_EN: PaginaContenido = {
       ],
     },
   ],
-  cierre: `This policy is part of the terms and conditions of Mercatren, a service of ${SOCIEDAD.nombre}. If something about your delivery didn't go the way this page describes, email us at mercatren@windoce.com with your order number.`,
+  cierre: `This policy is part of the terms and conditions of Mercatren, a service of ${SOCIEDAD.nombre}. If something about your delivery didn't go the way this page describes, email us at ${CORREO_CONTACTO} with your order number.`,
   accion: {
     titulo: "Questions about your order's delivery?",
     texto: "Email us your order number and we'll look into it with you.",
     boton: "Email Mercatren",
-    href: "mailto:mercatren@windoce.com",
+    href: `mailto:${CORREO_CONTACTO}`,
   },
 };
