@@ -817,6 +817,60 @@ silencio hace creer que el sistema se inventó unos datos.
   adivinar entre la red, el peso de las fotos, un permiso y la base. Se
   perdieron días así.
 
+## Seguridad y dinero: lo que se cerró el 12 ago 2026 (bloque 3)
+
+**El concepto del Zelle, tan grande como el monto.** Zelle no manda un cobro:
+manda una transferencia suelta con una nota, y de este lado llega dinero de un
+banco cualquiera a nombre de alguien que muchas veces no compró. Sin el número
+de factura en la nota, quien valida solo puede adivinar. Se le pedía en una
+línea gris al final de la pantalla, con un «si tu banco lo permite» que se lee
+como opcional. Ahora va en rojo, debajo del monto y **antes** de los datos del
+banco —el orden en que se lee es el orden en que se llena el formulario—, con
+`Mercatren MT-000002` en grande y su botón de copiar. Lleva la marca delante
+porque en el extracto, semanas después, «MT-000002» a secas no le dice nada al
+comprador y llama al banco: el primer paso de un contracargo.
+`src/lib/pedidos/concepto.ts`, 6 pruebas. Sin número no dibuja nada.
+
+**Límite de intentos** (`src/lib/seguridad/intentos.ts`, 14 pruebas + tabla
+`intentos_acceso`). Hasta ese día no había NINGUNO: la única defensa era
+Turnstile, que frena robots y no a alguien decidido. Ocho fallos por cuenta y
+cuarenta por dirección, en quince minutos. Se cuenta por las dos cosas porque
+tapan agujeros distintos: por dirección frena a quien prueba contra muchas
+cuentas, por cuenta frena mil máquinas contra UNA. **Solo se cuentan los
+fallos**, y al entrar bien se limpia el contador de esa cuenta —pero no el de
+la dirección, o el atacante entraría a una cuenta que sí conoce para limpiar el
+marcador—. Recuperar la contraseña también entra, porque manda un correo.
+
+**`zod` en las acciones que tocan dinero** (`src/lib/validacion/acciones.ts`,
+13 pruebas). Una regla por tipo de dato escrita UNA vez, no `zod` suelto en
+cada archivo. Puesto en aprobar/rechazar un Zelle, subir el comprobante, abrir
+y avanzar un pedido, y el enlace de un cobro. **Falta en el resto de los
+archivos de acciones** — sigue siendo deuda escrita.
+
+**Prueba de entrega** (tabla `pruebas_entrega`). Un cobro con tarjeta se
+revierte hasta 120 días después y el banco pide una sola cosa: demuéstrame que
+la mercancía llegó. `hitos_pedido` dice que alguien pulsó un botón; la guía, la
+foto o la firma dicen que llegó. **El comprador no puede aportarla** —sería
+pedirle la prueba en su contra— y **solo el equipo puede quitarla**.
+
+**Devoluciones desde el panel** (`src/lib/stripe/devolver.ts`). El estado
+`reembolsado` existía sin forma de llegar a él. Va dentro de los tres puntos.
+**NO le descuenta el neto al comercio**: quién asume la devolución es una
+decisión de negocio, la misma que ya se tomó con los contracargos. Una
+devolución parcial no marca el pedido como reembolsado. Zelle no se devuelve
+desde aquí y se dice.
+
+**Aviso al equipo en cada venta con tarjeta.** Antes solo se enteraban el
+comprador y el comercio.
+
+**La letra del panel, un escalón más grande** (`.letra-panel` en
+`globals.css`). Se hace redefiniendo `--text-xs` / `--text-sm` / `--text-base`
+dentro del panel, no cambiando 500 clases: sube todo de golpe, mantiene las
+proporciones y **no toca ni un píxel de la tienda**. Un escalón y no dos:
+pasarse rompe las tablas anchas, que es la otra forma de no poder leer un panel.
+
+---
+
 ## Los formularios: una sola regla por tipo de dato
 
 Todo lo que se escribe en una casilla del sitio pasa por

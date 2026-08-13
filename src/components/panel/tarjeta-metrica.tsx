@@ -74,7 +74,7 @@ export function TarjetaMetrica({
       ) : null}
 
       {etiqueta ? (
-        <p className="mt-3 inline-flex rounded-full bg-slate-200/80 px-2 py-0.5 text-[11px] font-semibold text-tinta-suave">
+        <p className="mt-3 inline-flex rounded-full bg-slate-200/80 px-2 py-0.5 text-[12px] font-semibold text-tinta-suave">
           {etiqueta}
         </p>
       ) : null}

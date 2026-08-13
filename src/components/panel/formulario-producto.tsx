@@ -393,7 +393,7 @@ export function FormularioProducto({
               {!f.esNuestra ? (
                 <span
                   title={t("fotoDeOrigen")}
-                  className="absolute right-0 bottom-0 left-0 bg-riel-900/80 px-1 py-0.5 text-center text-[9px] text-white"
+                  className="absolute right-0 bottom-0 left-0 bg-riel-900/80 px-1 py-0.5 text-center text-[10px] text-white"
                 >
                   {t("fotoDeOrigen")}
                 </span>

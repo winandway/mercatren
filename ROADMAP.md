@@ -92,13 +92,12 @@ margen`. **Es del contador, y es la pregunta de esta semana, no de marzo.**
 
 Nada de esto da ingresos. Todo evita perderlos.
 
-1. **Prueba de entrega en el pedido.** Un cobro con tarjeta se revierte hasta
-   **120 días** después. Hoy se guarda quién marcó «entregado» y cuándo, pero
-   no hay dónde poner guía, foto o firma — y eso es lo único que gana una
-   disputa. Tabla nueva, no columna.
-2. **Devoluciones desde el panel.** Existe el estado `reembolsado` pero no la
-   forma de hacer una. El primer cliente que la pida se atiende a mano en
-   Stripe.
+1. ~~**Prueba de entrega en el pedido.**~~ ✅ 12 ago 2026 — tabla
+   `pruebas_entrega`: guía, foto, firma o nota, con quién la aportó. El
+   comprador no puede subirla y solo el equipo puede quitarla.
+2. ~~**Devoluciones desde el panel.**~~ ✅ 12 ago 2026 — dentro de los tres
+   puntos, con motivo obligatorio. No descuenta el neto del comercio: quién
+   asume la devolución se acuerda aparte.
 3. **Retiros con la API de Mercury, tramo 1.** El comercio pide → Mercatren
    revisa → sale a Mercury como solicitud → un admin aprueba. Lo que resuelve
    no es aprobar: es dejar de copiar a mano el banco, la cuenta y la ruta, que
@@ -112,8 +111,9 @@ Nada de esto da ingresos. Todo evita perderlos.
    vez por comercio) y enganchar el botón de retiro del comercio.
 
 4. **Rotar `SOCIO_LLAVE`.** Se pegó en un chat. Sigue viva.
-5. **Límite de intentos** en entrar, registro y recuperar clave. Hoy solo hay
-   Turnstile, que frena robots pero no a alguien decidido.
+5. ~~**Límite de intentos**~~ ✅ 12 ago 2026 — ocho por cuenta y cuarenta por
+   dirección cada quince minutos, en entrar y en recuperar clave. Registro no:
+   ahí no hay contraseña que adivinar.
 
 ---
 
@@ -130,11 +130,9 @@ medias multiplica el problema, no los ingresos.
    bastante y empeoraría el desorden de facturación.
 2. **Una página de «cómo trabajar con Mercatren»**, abierta y sin login, para
    mandarle el enlace a cada comercio nuevo en vez de explicarlo otra vez.
-3. **Avisar al comprador del concepto del Zelle**: hoy no se le pide nada, y el
-   número de factura en el concepto es lo que convierte una transferencia
-   suelta en el pago de una venta.
-4. **Aviso al equipo cuando entra una venta.** Hoy solo se enteran el comprador
-   y el comercio.
+3. ~~**Avisar al comprador del concepto del Zelle**~~ ✅ 12 ago 2026 — en rojo,
+   debajo del monto, con `Mercatren MT-000002` en grande y su botón de copiar.
+4. ~~**Aviso al equipo cuando entra una venta.**~~ ✅ 12 ago 2026.
 
 ---
 
@@ -143,8 +141,9 @@ medias multiplica el problema, no los ingresos.
 Está anotada en `CLAUDE.md` con su porqué. Se cierra archivo por archivo, cada
 uno con su prueba.
 
-1. **`zod` en los 9 archivos de acciones que no lo tienen.** Es la deuda más
-   grande que dejó el blindaje.
+1. **`zod` en las acciones que faltan.** Eran 15 archivos, no 9. Cerrados los
+   que tocan dinero (Zelle, comprobante, pedidos, cobros) con
+   `src/lib/validacion/acciones.ts`; **faltan los demás**.
 2. **Nonce por petición en la CSP**, para poder quitar `unsafe-inline`.
 3. **`noUncheckedIndexedAccess`**: rompe en 16 sitios.
 4. **Buscador global en el panel**: hoy hay que saber en qué sección mirar.

@@ -78,7 +78,7 @@ export default async function PaginaUsuarios({
                   </span>
                   <span className="flex items-center gap-2">
                     <span
-                      className="flex items-center gap-1.5 text-[11px] font-medium text-tinta-suave"
+                      className="flex items-center gap-1.5 text-[12px] font-medium text-tinta-suave"
                       title={t(`estados.${u.estadoCuenta}`)}
                     >
                       <span
@@ -92,7 +92,7 @@ export default async function PaginaUsuarios({
                     </span>
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                        "rounded-full px-2 py-0.5 text-[12px] font-bold",
                         TONO_ROL[u.rol] ?? TONO_ROL.cliente,
                       )}
                     >

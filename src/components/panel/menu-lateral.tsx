@@ -175,7 +175,7 @@ export function MenuLateral({
           if (entradas.length === 0) return null;
           return (
             <div key={grupo.titulo}>
-              <h2 className="px-3 pb-2 text-[11px] font-semibold tracking-wider text-white/40 uppercase">
+              <h2 className="px-3 pb-2 text-[12px] font-semibold tracking-wider text-white/40 uppercase">
                 {t(`menu.${grupo.titulo}`)}
               </h2>
               <ul className="space-y-0.5">
@@ -232,7 +232,7 @@ export function MenuLateral({
                           {t(`menu.${etiqueta}`)}
                         </span>
                         {insignia > 0 ? (
-                          <span className="shrink-0 rounded-full bg-carga-500 px-1.5 py-0.5 text-[11px] font-bold text-riel-950">
+                          <span className="shrink-0 rounded-full bg-carga-500 px-1.5 py-0.5 text-[12px] font-bold text-riel-950">
                             {insignia}
                           </span>
                         ) : null}

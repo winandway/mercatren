@@ -92,7 +92,7 @@ export default async function PaginaClientes({
                 <span className="block text-lg font-extrabold tabular-nums">
                   {formatearPrecio(c.gastadoCentavos, idioma)}
                 </span>
-                <span className="block text-[11px] text-tinta-suave">
+                <span className="block text-[12px] text-tinta-suave">
                   {t("columna.gastado")}
                 </span>
               </p>

@@ -51,7 +51,7 @@ export async function SelloMetodoPago({ rastro }: { rastro: Rastro }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset",
+        "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[12px] font-semibold ring-1 ring-inset",
         TONO[rastro.estado],
       )}
     >

@@ -71,7 +71,7 @@ export default async function PaginaEnlacesDeCobro({
                       </span>
                       <span
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                          "rounded-full px-2 py-0.5 text-[12px] font-semibold",
                           TONO[estado],
                         )}
                       >

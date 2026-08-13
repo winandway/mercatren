@@ -63,7 +63,7 @@ export default async function PaginaComercios({
                     </p>
                   </div>
                   <span
-                    className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold ${ESTILO_ESTADO[c.estado]}`}
+                    className={`shrink-0 rounded-full px-2 py-1 text-[12px] font-semibold ${ESTILO_ESTADO[c.estado]}`}
                   >
                     {t(`estados.${c.estado}`)}
                   </span>

@@ -309,7 +309,7 @@ export default async function PaginaConfiguracion({
                       <td className="py-2 pr-3">
                         <span className="line-clamp-1">{d.titulo}</span>
                         {d.aPerdida ? (
-                          <span className="mt-0.5 inline-block rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-800 uppercase">
+                          <span className="mt-0.5 inline-block rounded bg-red-100 px-1.5 py-0.5 text-[11px] font-bold text-red-800 uppercase">
                             {tp("marcaPerdida")}
                           </span>
                         ) : null}

@@ -136,7 +136,7 @@ export function VisorComprobante({
             <dl className="space-y-3 border-t border-slate-200 px-6 py-4 sm:px-8">
               {extras.map((d) => (
                 <div key={d.etiqueta}>
-                  <dt className="text-[11px] tracking-wide text-tinta-suave uppercase">
+                  <dt className="text-[12px] tracking-wide text-tinta-suave uppercase">
                     {d.etiqueta}
                   </dt>
                   <dd className="text-sm font-medium break-words">{d.valor}</dd>

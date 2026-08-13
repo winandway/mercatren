@@ -77,7 +77,7 @@ export function PruebaDeEntrega({
               key={p.id}
               className="flex flex-wrap items-start gap-3 rounded-lg bg-slate-50 px-3 py-2.5 text-sm"
             >
-              <span className="rounded-full bg-riel-900 px-2 py-0.5 text-[11px] font-bold text-white">
+              <span className="rounded-full bg-riel-900 px-2 py-0.5 text-[12px] font-bold text-white">
                 {t(`tipos.${p.tipo}` as never)}
               </span>
 

@@ -186,7 +186,7 @@ function TarjetaPago({
 
         <span
           className={cn(
-            "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold",
+            "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[12px] font-semibold",
             estilo.chip,
           )}
         >
@@ -228,7 +228,7 @@ function TarjetaPago({
             )}
           />
         </div>
-        <p className="mt-1 text-[11px] font-medium text-tinta-suave">{etapa}</p>
+        <p className="mt-1 text-[12px] font-medium text-tinta-suave">{etapa}</p>
       </div>
 
       {/* Datos */}
@@ -281,7 +281,7 @@ function TarjetaPago({
           {pago.reciboUrl ? t("pago.recibo") : t("pago.sinRecibo")}
         </button>
 
-        <span className="text-[11px] font-medium text-tinta-suave">
+        <span className="text-[12px] font-medium text-tinta-suave">
           {pago.origen === "import" ? t("pago.importado") : t("pago.enVivo")}
         </span>
       </div>

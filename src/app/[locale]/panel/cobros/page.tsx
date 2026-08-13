@@ -208,14 +208,14 @@ export default async function PaginaCobrosTarjeta({
                     )}
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                        "rounded-full px-2 py-0.5 text-[12px] font-semibold",
                         TONO[c.estado],
                       )}
                     >
                       {t(`estado.${c.estado}`)}
                     </span>
                     {c.disputa ? (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-900">
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[12px] font-semibold text-red-900">
                         {t("conContracargo")}
                       </span>
                     ) : null}

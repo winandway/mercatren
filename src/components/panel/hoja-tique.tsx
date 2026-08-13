@@ -77,12 +77,12 @@ export function HojaTique({
           alt="Mercatren"
           className="mx-auto h-8"
         />
-        <p className="mt-2 text-[11px] tracking-wider text-tinta-suave uppercase">
+        <p className="mt-2 text-[12px] tracking-wider text-tinta-suave uppercase">
           {t("titulo")}
         </p>
         {/* QUE SE LEA EN EL PAPEL, no solo en la pantalla. Un comprobante
             impreso acaba en cualquier escritorio y lleva nuestro margen. */}
-        <p className="mt-1.5 inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-bold tracking-wider text-amber-900 uppercase">
+        <p className="mt-1.5 inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-bold tracking-wider text-amber-900 uppercase">
           {t("usoInterno")}
         </p>
       </div>
@@ -92,7 +92,7 @@ export function HojaTique({
         <p className="text-4xl font-extrabold tracking-tight tabular-nums">
           {formatearPrecio(pago.montoCentavos, idioma, pago.moneda)}
         </p>
-        <p className="mt-2 inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-900">
+        <p className="mt-2 inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-[12px] font-bold text-emerald-900">
           {t("entregado")}
         </p>
       </div>
@@ -113,7 +113,7 @@ export function HojaTique({
           Sin esto el comprobante decía que entraron $2.48 y nada más: no
           sustentaba ninguna compraventa, porque no identificaba la mercancía. */}
       <div className="border-b border-dashed border-slate-300 py-4">
-        <p className="text-[11px] font-bold tracking-wider text-tinta-suave uppercase">
+        <p className="text-[12px] font-bold tracking-wider text-tinta-suave uppercase">
           {t("mercancia")}
         </p>
 
@@ -142,7 +142,7 @@ export function HojaTique({
                 {/* A QUIÉN SE LE COMPRÓ. Es la parte que sustenta la figura:
                     hubo un proveedor concreto y un depósito concreto. */}
                 {linea.proveedor || linea.deposito ? (
-                  <p className="mt-0.5 text-[11px] text-tinta-suave">
+                  <p className="mt-0.5 text-[12px] text-tinta-suave">
                     {linea.proveedor ? (
                       <>
                         {t("compradaA")} {linea.proveedor}
@@ -183,13 +183,13 @@ export function HojaTique({
 
       {/* Pie: el corte del papel */}
       <div className="border-t border-dashed border-slate-300 pt-4 text-center">
-        <p className="text-[11px] leading-relaxed font-semibold text-tinta">
+        <p className="text-[12px] leading-relaxed font-semibold text-tinta">
           {t("noEsFactura")}
         </p>
-        <p className="mt-1 text-[11px] leading-relaxed text-tinta-suave">
+        <p className="mt-1 text-[12px] leading-relaxed text-tinta-suave">
           {t("pie")}
         </p>
-        <p className="mt-1 text-[11px] text-tinta-suave">{ZONA}</p>
+        <p className="mt-1 text-[12px] text-tinta-suave">{ZONA}</p>
       </div>
     </div>
   );

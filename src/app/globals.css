@@ -51,6 +51,34 @@
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/* EL PANEL SE LEE MÁS GRANDE                                                 */
+/* -------------------------------------------------------------------------- */
+
+/* Lo pidió el dueño: «las letras del software, del superadmin, deberían ser un
+   poquito más grandes».
+ *
+ * Aquí no se trabaja tres minutos: se pasan horas mirando cifras, referencias
+ * de banco y números de cuenta, y muchas veces desde un teléfono a media luz.
+ * Un `text-xs` de doce píxeles está bien para un pie de foto, no para el saldo
+ * de un comercio.
+ *
+ * SE HACE CON LAS VARIABLES, NO CAMBIANDO 500 CLASES. En Tailwind v4 cada
+ * `text-sm` sale de `var(--text-sm)`: redefinirlas dentro del panel sube todo
+ * de golpe, mantiene las proporciones y —lo importante— no toca ni un píxel de
+ * la tienda, que es lo que ve el comprador y ya está afinado.
+ *
+ * Se sube un escalón, no dos: pasarse rompe las tablas anchas, que es la otra
+ * forma de no poder leer un panel. */
+.letra-panel {
+  --text-xs: 0.8125rem; /* 12 → 13 */
+  --text-xs--line-height: 1.15rem;
+  --text-sm: 0.9375rem; /* 14 → 15 */
+  --text-sm--line-height: 1.4rem;
+  --text-base: 1.0625rem; /* 16 → 17 */
+  --text-base--line-height: 1.6rem;
+}
+
 @layer components {
   /* Boton principal, el ambar de Mercatren. */
   .boton-principal {

@@ -105,7 +105,7 @@ export default async function LayoutPanel({
 
   return (
     <NextIntlClientProvider messages={mensajes}>
-      <div className="min-h-screen bg-slate-50">
+      <div className="letra-panel min-h-screen bg-slate-50">
         {comercioMirado ? (
           <FranjaVerComo nombre={comercioMirado.nombre} />
         ) : null}

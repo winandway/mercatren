@@ -188,7 +188,7 @@ export default async function PaginaMisProductos({
 
               <span
                 className={cn(
-                  "hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold sm:inline",
+                  "hidden shrink-0 rounded-full px-2 py-0.5 text-[12px] font-semibold sm:inline",
                   TONO_ESTADO[p.estado],
                 )}
               >

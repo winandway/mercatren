@@ -94,7 +94,7 @@ export default async function PaginaDiccionario({
                         ✕
                       </span>
                       <span>
-                        <span className="block text-[11px] font-semibold tracking-wide uppercase opacity-70">
+                        <span className="block text-[12px] font-semibold tracking-wide uppercase opacity-70">
                           {t("noSeDice")}
                         </span>
                         {entrada.mal[idioma]}
@@ -106,7 +106,7 @@ export default async function PaginaDiccionario({
                         ✓
                       </span>
                       <span>
-                        <span className="block text-[11px] font-semibold tracking-wide uppercase opacity-70">
+                        <span className="block text-[12px] font-semibold tracking-wide uppercase opacity-70">
                           {t("seDice")}
                         </span>
                         <span className="font-semibold">
@@ -127,7 +127,7 @@ export default async function PaginaDiccionario({
                     <p className="text-sm leading-relaxed text-tinta-suave">
                       <span
                         className={cn(
-                          "mr-2 rounded px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase",
+                          "mr-2 rounded px-1.5 py-0.5 text-[11px] font-bold tracking-wide uppercase",
                           entrada.nivel === "critico"
                             ? "bg-red-100 text-red-800"
                             : "bg-slate-100 text-tinta-suave",
