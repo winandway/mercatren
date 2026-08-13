@@ -3,6 +3,7 @@
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { idDeRegistro, revisar } from "@/lib/validacion/acciones";
 import { sePuedePagar, type EstadoCobro } from "@/lib/cobros/reglas";
 import { getDb } from "@/lib/db";
 import {
@@ -38,6 +39,12 @@ export async function intentoParaCobro(
   enlace: string,
 ): Promise<IntentoDeCobro> {
   if (!stripeConfigurado()) return { ok: false, motivo: "sin_configurar" };
+
+  /* El enlace llega por la dirección del navegador y es lo único que protege
+     este cobro: se comprueba su forma antes de buscarlo. */
+  const revisado = revisar(idDeRegistro, enlace);
+  if (!revisado.ok) return { ok: false, motivo: "no_existe" };
+  enlace = revisado.datos;
 
   const db = getDb();
 

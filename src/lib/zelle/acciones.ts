@@ -4,6 +4,11 @@ import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
+import {
+  idDeRegistro,
+  motivoEscrito,
+  revisar,
+} from "@/lib/validacion/acciones";
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
@@ -86,6 +91,12 @@ export async function aprobarPago(id: string): Promise<Resultado> {
   } catch {
     return { ok: false, mensaje: t("sinPermisoAprobar") };
   }
+
+  /* Lo que llega se comprueba ANTES de tocar la base: esta acción acredita
+     dinero a la billetera de un comercio. */
+  const revisado = revisar(idDeRegistro, id);
+  if (!revisado.ok) return { ok: false, mensaje: t(revisado.aviso) };
+  id = revisado.datos;
 
   const db = getDb();
   const usuario = await obtenerUsuario();
@@ -351,13 +362,16 @@ export async function rechazarPago(
     return { ok: false, mensaje: t("sinPermisoRechazar") };
   }
 
-  const limpio = motivo.trim();
-  if (limpio.length < 5) {
-    return {
-      ok: false,
-      mensaje: t("motivoObligatorio"),
-    };
+  const revisadoId = revisar(idDeRegistro, id);
+  if (!revisadoId.ok) return { ok: false, mensaje: t(revisadoId.aviso) };
+  id = revisadoId.datos;
+
+  /* El motivo se lo lleva el comprador en un correo: tiene que explicar algo. */
+  const revisadoMotivo = revisar(motivoEscrito, motivo);
+  if (!revisadoMotivo.ok) {
+    return { ok: false, mensaje: t(revisadoMotivo.aviso) };
   }
+  const limpio = revisadoMotivo.datos;
 
   const db = getDb();
   const usuario = await obtenerUsuario();

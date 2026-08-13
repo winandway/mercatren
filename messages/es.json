@@ -2251,7 +2251,15 @@
     "sinComercioTexto": "Para vender en Mercatren hace falta dar de alta tu comercio. Toma dos minutos y puedes empezar a cargar tus productos enseguida.",
     "darDeAlta": "Dar de alta mi comercio",
     "noSePudoGuardar": "No pudimos guardar ahora mismo. Lo que escribiste sigue aquí: vuelve a darle a guardar en un momento.",
-    "noSePudoGuardarPorque": "No pudimos guardar: {motivo}. Lo que escribiste sigue aquí."
+    "noSePudoGuardarPorque": "No pudimos guardar: {motivo}. Lo que escribiste sigue aquí.",
+    "identificadorObligatorio": "Falta el identificador.",
+    "identificadorLargo": "Ese identificador no es válido.",
+    "identificadorRaro": "Ese identificador no es válido.",
+    "numeroDePedidoRaro": "Ese número de pedido no es válido.",
+    "motivoCorto": "Escribe el motivo con un poco más de detalle: el comprador lo va a leer.",
+    "motivoLargo": "El motivo es demasiado largo.",
+    "montoObligatorio": "Escribe el monto.",
+    "montoRaro": "Ese monto no es válido."
   },
   "blog": {
     "titulo": "Blog",

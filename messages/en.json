@@ -2251,7 +2251,15 @@
     "sinComercioTexto": "To sell on Mercatren you'll need to register your business. It takes two minutes, and you can start adding products right away.",
     "darDeAlta": "Register my business",
     "noSePudoGuardar": "We couldn't save just now. Everything you typed is still here — try saving again in a moment.",
-    "noSePudoGuardarPorque": "We couldn't save: {motivo}. Everything you typed is still here."
+    "noSePudoGuardarPorque": "We couldn't save: {motivo}. Everything you typed is still here.",
+    "identificadorObligatorio": "The identifier is missing.",
+    "identificadorLargo": "That identifier is not valid.",
+    "identificadorRaro": "That identifier is not valid.",
+    "numeroDePedidoRaro": "That order number is not valid.",
+    "motivoCorto": "Please explain the reason in a bit more detail — the buyer will read it.",
+    "motivoLargo": "The reason is too long.",
+    "montoObligatorio": "Enter the amount.",
+    "montoRaro": "That amount is not valid."
   },
   "blog": {
     "titulo": "Blog",

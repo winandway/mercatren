@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
+import { numeroDePedido, revisar } from "@/lib/validacion/acciones";
 import { obtenerAlcance, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { avisoDeCampo, mensajes } from "@/lib/mensajes";
@@ -379,6 +380,12 @@ export async function obtenerPedidoPropio(numero: string) {
   const usuario = await obtenerUsuario();
   if (!usuario) return null;
 
+  /* El número sale de la dirección del navegador, donde cualquiera escribe lo
+     que quiera. Se comprueba su forma antes de ir a la base. */
+  const revisado = revisar(numeroDePedido, numero);
+  if (!revisado.ok) return null;
+  numero = revisado.datos;
+
   const db = getDb();
 
   const [pedido] = await db
@@ -474,6 +481,10 @@ export async function avanzarPedido(
 
   const alcance = await obtenerAlcance().catch(() => null);
   if (!alcance) return { ok: false, mensaje: t("sinPermiso") };
+
+  const revisado = revisar(numeroDePedido, numero);
+  if (!revisado.ok) return { ok: false, mensaje: t(revisado.aviso) };
+  numero = revisado.datos;
 
   const db = getDb();
 

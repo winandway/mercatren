@@ -5,6 +5,8 @@ import { eq, sum } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
+import { avisoDeCampo } from "@/lib/mensajes";
+import { numeroDePedido, revisar } from "@/lib/validacion/acciones";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import {
@@ -38,7 +40,13 @@ export async function subirComprobante(
     return { ok: false, mensaje: "Entra con tu cuenta para subir el pago." };
   }
 
-  const numero = String(formulario.get("numero") ?? "");
+  /* El número llega del navegador: se comprueba su FORMA antes de buscarlo.
+     Un `MT-1;drop` no es un pedido que no existe, es alguien probando. */
+  const revisado = revisar(numeroDePedido, formulario.get("numero"));
+  if (!revisado.ok) {
+    return { ok: false, mensaje: await avisoDeCampo(revisado.aviso) };
+  }
+  const numero = revisado.datos;
   const codigo = String(formulario.get("codigo") ?? "").trim();
   const archivo = formulario.get("captura");
 
