@@ -357,7 +357,8 @@
       "equipo": "Equipo Mercatren",
       "cobros": "Cobros",
       "billeteraComercio": "Mi dinero",
-      "ordenesCompraComercio": "Mis facturas a Mercatren"
+      "ordenesCompraComercio": "Mis facturas a Mercatren",
+      "asistente": "Asistente"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1649,6 +1650,30 @@
       "boton": "Devolver el dinero",
       "procesando": "Devolviendo…",
       "aviso": "Esto no se puede deshacer. El neto del comercio NO se descuenta solo: quién asume esta devolución se acuerda con él aparte."
+    },
+    "asistente": {
+      "titulo": "Asistente de operación",
+      "entradilla": "Pregúntale por la operación con tus palabras. Consulta los datos y, cuando algo no se puede deshacer, se detiene y te pide que lo confirmes por escrito.",
+      "vacio": "Escribe abajo para empezar.",
+      "pensando": "Está mirando…",
+      "marcador": "Escribe tu pregunta",
+      "marcadorConfirmar": "Escribe aquí tu confirmación",
+      "enviar": "Enviar",
+      "reiniciar": "Empezar de nuevo",
+      "esperandoConfirmacion": "Está esperando que confirmes. Lee arriba qué tienes que escribir exactamente y escríbelo tú — aquí no hay botón que lo haga por ti.",
+      "toolFallo": "falló",
+      "sinConfigurar": "El asistente todavía no está conectado. Falta cargar su token en el panel de la plataforma.",
+      "errores": {
+        "sin_token": "El asistente no está conectado: falta su token.",
+        "token_rechazado": "El asistente rechazó nuestra llave. Hay que revisarla en el panel de la plataforma.",
+        "demasiadas_peticiones": "Demasiadas preguntas seguidas. Vuelve a probar en {minutos} minutos.",
+        "agente_sin_configurar": "Al asistente le falta configuración de su lado.",
+        "sin_respuesta": "El asistente no contestó. Prueba otra vez en un momento.",
+        "sin_permiso": "Esta pantalla es solo del equipo de Mercatren.",
+        "mensaje_vacio": "Escribe algo antes de enviar.",
+        "mensaje_largo": "El mensaje es demasiado largo.",
+        "cuerpo_invalido": "No se entendió la petición."
+      }
     }
   },
   "catalogo": {

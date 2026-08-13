@@ -92,6 +92,9 @@ export const esquemaEntorno = z.object({
   TURNSTILE_CLAVE_SITIO: z.string().optional(),
   TURNSTILE_SECRETO: z.string().optional(),
 
+  /* El agente operativo. Sin ella el sitio funciona igual: no hay asistente. */
+  AGENTE_TOKEN: z.string().optional(),
+
   /**
    * LA LLAVE DE LAS PLATAFORMAS SOCIAS (hoy QRbott).
    *

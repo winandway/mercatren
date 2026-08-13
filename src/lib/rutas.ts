@@ -14,3 +14,9 @@ export const RUTA_AUTH = "/datos/auth";
 export const RUTA_STRIPE_WEBHOOK = "/datos/stripe/aviso";
 export const RUTA_MEDIA = "/media";
 export const RUTA_UPLOAD = "/upload";
+
+/**
+ * El agente operativo. El navegador habla SOLO con esta ruta de nuestro sitio;
+ * el token del agente se lo pega el servidor y nunca sale de allí.
+ */
+export const RUTA_ASISTENTE = "/datos/asistente";

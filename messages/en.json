@@ -357,7 +357,8 @@
       "equipo": "Mercatren team",
       "cobros": "Payments in",
       "billeteraComercio": "My money",
-      "ordenesCompraComercio": "My invoices to Mercatren"
+      "ordenesCompraComercio": "My invoices to Mercatren",
+      "asistente": "Assistant"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1649,6 +1650,30 @@
       "boton": "Refund the payment",
       "procesando": "Refunding…",
       "aviso": "This cannot be undone. The merchant's net is NOT deducted automatically: who absorbs this refund is agreed with them separately."
+    },
+    "asistente": {
+      "titulo": "Operations assistant",
+      "entradilla": "Ask about the operation in plain words. It looks up the data and, when something can't be undone, it stops and asks you to confirm in writing.",
+      "vacio": "Type below to start.",
+      "pensando": "Looking into it…",
+      "marcador": "Type your question",
+      "marcadorConfirmar": "Type your confirmation here",
+      "enviar": "Send",
+      "reiniciar": "Start over",
+      "esperandoConfirmacion": "It's waiting for you to confirm. Read above for exactly what to type, and type it yourself — there is no button here that does it for you.",
+      "toolFallo": "failed",
+      "sinConfigurar": "The assistant isn't connected yet. Its token still has to be loaded in the platform panel.",
+      "errores": {
+        "sin_token": "The assistant isn't connected: its token is missing.",
+        "token_rechazado": "The assistant rejected our key. It needs to be checked in the platform panel.",
+        "demasiadas_peticiones": "Too many questions in a row. Try again in {minutos} minutes.",
+        "agente_sin_configurar": "The assistant is missing configuration on its side.",
+        "sin_respuesta": "The assistant didn't answer. Try again in a moment.",
+        "sin_permiso": "This screen is for the Mercatren team only.",
+        "mensaje_vacio": "Type something before sending.",
+        "mensaje_largo": "The message is too long.",
+        "cuerpo_invalido": "The request wasn't understood."
+      }
     }
   },
   "catalogo": {

@@ -70,6 +70,12 @@ interface CloudflareEnv {
   TURNSTILE_SECRETO?: string;
 
   /**
+   * El token del agente operativo. Identifica a la CUENTA y a la EMPRESA:
+   * quien lo tenga le habla al agente como si fuera Mercatren. Solo servidor.
+   */
+  AGENTE_TOKEN?: string;
+
+  /**
    * La llave de las plataformas socias (QRbott). Solo sirve para VINCULAR una
    * tienda, y es la credencial mas peligrosa del sistema: quien la tenga puede
    * pedir el token de cualquier comercio. Si falta, esa puerta se cierra.
