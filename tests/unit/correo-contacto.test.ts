@@ -66,4 +66,15 @@ describe("las direcciones de correo", () => {
        manda cualquiera desde la web. */
     expect(CORREO_EQUIPO).not.toBe(CORREO_CONTACTO);
   });
+
+  it("ninguna de las dos es de la sociedad anterior", () => {
+    /* El 14 ago 2026 se movió también el buzón del equipo, que era el último
+       `@windoce.com` que quedaba operando el sistema. No era el que confundía
+       a Google —ese no sale en ninguna página— pero no hay razón para que una
+       dirección de la sociedad anterior siga recibiendo los avisos de dinero
+       de la nueva. Esta prueba impide que vuelva por descuido. */
+    for (const correo of [CORREO_CONTACTO, CORREO_EQUIPO]) {
+      expect(correo.endsWith("@mercatren.com")).toBe(true);
+    }
+  });
 });

@@ -148,14 +148,32 @@ export async function PiePagina() {
         </p>
       </div>
 
-      {/* Credito del desarrollador: va en todos los sitios de Windoce, LLC. */}
+      {/**
+       * CRÉDITO DEL DESARROLLADOR. Va en todos los sitios de Windoce, LLC y no
+       * se quita.
+       *
+       * ══ POR QUÉ LLEVA `nofollow` (14 ago 2026) ══
+       *
+       * Es el único nombre de otra empresa que queda en el sitio, y sale en el
+       * pie de TODAS las páginas con un enlace a windoce.com. Para un buscador,
+       * un enlace repetido en cada página es una señal fuerte de relación entre
+       * las dos: preguntándole a Google con qué empresa funciona Mercatren,
+       * seguía contestando «Windoce, LLC».
+       *
+       * `nofollow` le dice al buscador que no trate este enlace como un aval ni
+       * como una relación de negocio. Es exactamente para lo que existe —los
+       * créditos de plantilla y de patrocinio— y **no cambia nada de lo que ve
+       * una persona**: el crédito se sigue leyendo y se sigue pudiendo pulsar.
+       *
+       * `noreferrer` no sirve para esto: solo oculta de dónde vino la visita.
+       */}
       <div className="border-t border-white/10 bg-riel-950">
         <div className="mx-auto max-w-[1500px] px-4 py-5 text-center text-xs text-white/60">
           © {anio} mercatren.com | {t("derechos")} {t("desarrolladoPor")}{" "}
           <a
             href={DESARROLLADOR.sitio}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
             className="font-semibold text-white/80 transition-colors hover:text-carga-400"
           >
             {DESARROLLADOR.nombre}

@@ -739,10 +739,14 @@ Dos direcciones, y no se inventan otras (**regla del proyecto**):
   pie, en términos, en privacidad y hasta en el `llms.txt`. Por eso Google, al
   preguntarle con qué empresa funciona Mercatren, seguía contestando «Windoce,
   LLC»: leía la página y la dirección de contacto se lo decía.
-- **`mercatren@windoce.com` sigue recibiendo los avisos INTERNOS** del equipo
-  (`CORREO_EQUIPO`): venta nueva, contracargo, retiro pedido. Se queda ahí a
-  propósito hasta que el equipo confirme que lee el nuevo — de esos correos
-  depende que alguien mire la cola y que a un comercio le llegue su dinero.
+- **`soporte@mercatren.com` recibe los avisos INTERNOS** del equipo
+  (`CORREO_EQUIPO`): venta nueva, contracargo, retiro pedido. Era
+  `mercatren@windoce.com` y se movió el **14 ago 2026**, después que el
+  público y no a la vez: de estos avisos depende que alguien mire la cola de
+  retiros y que a un comercio le llegue su dinero, así que primero había que
+  estar seguros de que el buzón nuevo se lee. **Tiene que ser distinta del
+  contacto público** —hay una prueba que lo exige— o los avisos de dinero se
+  pierden entre los mensajes de los clientes.
 - **`avisos@mercatren.com` SOLO ENVÍA.** Es la voz del sistema: bienvenida,
   contraseña, compra, pagos. No recibe nada. Cualquier buzón `@mercatren.com`
   sirve de remitente: el dominio entero está autorizado y firmado.
@@ -776,6 +780,31 @@ con el motivo (`rechazarPago`).
 **El correo nunca es requisito:** si el envío falla o `CLOUDFLARE_EMAIL_TOKEN`
 no está configurada, se registra el aviso perdido y la operación sigue. Un pago
 aprobado jamás se deshace porque el aviso no salió.
+
+## Por qué Google decía «Windoce, LLC» (14 ago 2026)
+
+El dueño lo notó buscándose a sí mismo: al preguntarle a Google con qué empresa
+funciona Mercatren, contestaba **Windoce, LLC**. No se lo inventaba — leía la
+página.
+
+Eran dos señales, y las dos se cerraron:
+
+1. **El correo de contacto era `mercatren@windoce.com`** y salía en el pie, en
+   términos, en privacidad y en el `llms.txt`. Corregido el 12 ago 2026:
+   `hola@mercatren.com`.
+2. **El crédito del desarrollador**, que enlaza a windoce.com desde el pie de
+   TODAS las páginas. Ese **no se quita** —es regla de la casa—, pero el enlace
+   lleva ahora `nofollow`, que es justo para lo que existe: decirle al buscador
+   que un crédito de plantilla no es una relación de negocio. **No cambia nada
+   de lo que ve una persona.**
+
+Comprobado en el sitio publicado: las únicas menciones de Windoce que quedan en
+cualquier página son las de ese crédito. Los textos (`messages/*.json`) están
+en cero, y el pie dice «Operado por Mercatren LLC, Michigan» mientras los datos
+estructurados declaran `legalName: Mercatren LLC`.
+
+**Lo que queda es cuestión de tiempo:** Google tiene que volver a rastrear. No
+hay nada más que tocar en el sitio.
 
 ## Lo escrito NO se pierde: borrador en todos los formularios (12 ago 2026)
 

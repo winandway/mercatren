@@ -18,10 +18,19 @@
  * - `CORREO_CONTACTO` es el que ve el mundo: la web, los documentos y el
  *   Reply-To de lo que enviamos. Va en @mercatren.com, que es la marca.
  * - `CORREO_EQUIPO` recibe los avisos internos —una venta nueva, un
- *   contracargo, un retiro pedido—. Se queda en el buzón que el equipo lee
- *   TODOS LOS DÍAS. Cambiarlo a la vez que el otro habría mandado los avisos
- *   de dinero a un buzón nuevo que quizá nadie mira todavía, y de esos avisos
- *   depende que a un comercio le llegue su plata.
+ *   contracargo, un retiro pedido—. **También pasó a @mercatren.com el 14 ago
+ *   2026**, cuando ya no quedaba una sola dirección de Windoce en el sistema.
+ *   Se movió después y no a la vez que el público, a propósito: de estos
+ *   avisos depende que alguien mire la cola de retiros y que a un comercio le
+ *   llegue su plata, así que primero había que estar seguros de que el buzón
+ *   nuevo se lee.
+ *
+ * ══ ESTA NO ERA LA QUE CONFUNDÍA A GOOGLE ══
+ *
+ * `CORREO_EQUIPO` no sale en ninguna página: es solo el destinatario de los
+ * avisos internos. La que Google leía era `CORREO_CONTACTO`, y esa se cambió
+ * el 12 de agosto. Se mueve igual porque no hay razón para que una dirección
+ * de la sociedad anterior siga operando el sistema de la nueva.
  *
  * Los dos existen y RECIBEN de verdad. Esa es la regla dura: **PROHIBIDO
  * poner de contacto una dirección sin buzón real** —no recibe, y el mensaje
@@ -44,11 +53,15 @@ export const CORREO_CONTACTO = "hola@mercatren.com";
 /**
  * Donde le llegan al equipo los avisos del sistema.
  *
- * Se queda en el buzón de siempre a propósito: de estos correos depende que
- * alguien mire la cola de retiros y que a un comercio le llegue su dinero.
- * Se mueve el día que el equipo confirme que lee el nuevo, no antes.
+ * Tiene que ser DISTINTA del contacto público, y hay una prueba que lo exige:
+ * si fueran la misma, los avisos de dinero se mezclarían con los mensajes de
+ * los clientes y el que importa se pierde entre los otros veinte.
+ *
+ * De estos correos depende que alguien mire la cola de retiros y que a un
+ * comercio le llegue su dinero. Al cambiarla, se comprueba con **Panel →
+ * Configuración → Probar el envío** que el buzón recibe de verdad.
  */
-export const CORREO_EQUIPO = "mercatren@windoce.com";
+export const CORREO_EQUIPO = "soporte@mercatren.com";
 
 /** El remitente del sistema: solo envía. */
 export const CORREO_REMITENTE = "Mercatren <avisos@mercatren.com>";
