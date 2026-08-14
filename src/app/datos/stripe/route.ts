@@ -86,6 +86,58 @@ export async function POST(peticion: Request) {
   }
 
   /**
+   * LAS DEVOLUCIONES HECHAS DESDE EL PANEL DE STRIPE.
+   *
+   * Devolver desde `/panel/ordenes` ya deja el rastro escrito. Pero el botón de
+   * devolver también está dentro de Stripe, y es el que uno pulsa cuando está
+   * mirando la venta ahí. Sin este aviso, el dinero salía de la cuenta y en
+   * Mercatren el pedido seguía diciendo «pagado»: el comercio con su venta
+   * acreditada, el equipo con una entrega pendiente de despachar, y la factura
+   * en pie. No se veía hasta cuadrar el mes.
+   */
+  if (evento.type === "charge.refunded") {
+    const { registrarReembolsoExterno } =
+      await import("@/lib/stripe/reembolso-externo");
+    await registrarReembolsoExterno(evento.data.object);
+  }
+
+  /**
+   * EL AVISO TEMPRANO DE FRAUDE.
+   *
+   * La red de la tarjeta nos dice que ese cargo fue reportado como fraude
+   * ANTES de que se convierta en contracargo. Es la única ventana que hay para
+   * devolver por decisión propia y evitar la disputa entera con su multa — y
+   * sobre todo, para no despachar mercancía que ya se sabe que no se cobró.
+   *
+   * Solo avisa. Devolver o no es del equipo: hay avisos que no terminan en
+   * nada, y devolver solo le quitaría al comercio una venta buena.
+   */
+  if (evento.type === "radar.early_fraud_warning.created") {
+    try {
+      const aviso = evento.data.object;
+      const cargoId =
+        typeof aviso.charge === "string" ? aviso.charge : aviso.charge.id;
+
+      const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
+      const { SITIO } = await import("@/lib/sitio");
+      await correoAvisoAlEquipo({
+        asunto: "Aviso temprano de fraude en un cobro con tarjeta",
+        lineas: [
+          `La red de la tarjeta reportó el cargo ${cargoId} como fraude. Motivo: ${aviso.fraud_type}.`,
+          "Todavía NO es un contracargo, y esa es la diferencia: aún se puede devolver por decisión propia y evitar la disputa con su multa.",
+          "Lo urgente es la mercancía: si todavía no salió, no la despaches hasta decidir.",
+        ],
+        url: `${SITIO.url}/es/panel/cobros`,
+        boton: "Ver los cobros",
+      });
+    } catch (fallo) {
+      /* Un correo que no sale nunca puede tumbar el aviso: si esta ruta
+         devuelve error, Stripe reintenta y reprocesa TODO lo de arriba. */
+      console.error("[stripe] aviso de fraude; el correo no salio:", fallo);
+    }
+  }
+
+  /**
    * LOS CONTRACARGOS.
    *
    * Un comprador desconoce el cargo, el banco le devuelve el dinero

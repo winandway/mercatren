@@ -39,8 +39,15 @@ importa hasta cerrarlo.
 1. **Claves de Stripe** al panel de YaDominios: `STRIPE_SECRET_KEY`,
    `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`.
 2. **Webhook de Stripe** apuntando a **`https://mercatren.com/datos/stripe`**,
-   con los cinco eventos: `payment_intent.succeeded`,
-   `payment_intent.payment_failed` y los tres `charge.dispute.*`.
+   con **siete** eventos: `payment_intent.succeeded`,
+   `payment_intent.payment_failed`, los tres `charge.dispute.*`,
+   `charge.refunded` y `radar.early_fraud_warning.created`.
+
+   Los dos últimos se agregaron el 13 ago 2026. `charge.refunded` tapa el
+   hueco de devolver **desde el panel de Stripe** en vez del nuestro: el dinero
+   salía y aquí el pedido seguía diciendo «pagado». El aviso de fraude llega
+   ANTES de que haya contracargo, que es la única ventana para no despachar la
+   mercancía y devolver por decisión propia.
 
    **La dirección es esa, sin `/aviso` al final.** Aquí decía
    `/datos/stripe/aviso` y esa ruta nunca existió: el archivo está en
