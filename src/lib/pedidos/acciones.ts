@@ -482,6 +482,31 @@ export async function avanzarPedido(
   const alcance = await obtenerAlcance().catch(() => null);
   if (!alcance) return { ok: false, mensaje: t("sinPermiso") };
 
+  /**
+   * MARCAR ENTREGADO ES SOLO DEL COMERCIO QUE VENDIÓ.
+   *
+   * El equipo de Mercatren no entrega mercancía. Si pulsa «entregado» por
+   * error, el comprador llama al comercio reclamándole una entrega que nunca
+   * ocurrió: el sistema mete a dos personas en una discusión por algo que no
+   * hizo ninguna de las dos.
+   *
+   * Va AQUÍ y no solo en la pantalla, y se mira el **rol real de la sesión**,
+   * no el alcance: con «Ver su panel» Soporte navega con el de un comercio, y
+   * ese modo es solo para mirar — la misma regla que ya impide pedir un retiro
+   * desde ahí.
+   *
+   * `enviado` no se toca: despachar por transporte sí es algo que el equipo
+   * puede llegar a registrar, y no afirma que nadie recibió nada.
+   */
+  if (nuevoEstado === "entregado") {
+    const { obtenerUsuario } = await import("@/lib/autorizacion");
+    const { puedeMarcarEntrega } = await import("@/lib/pedidos/quien-entrega");
+    const quien = await obtenerUsuario().catch(() => null);
+    if (!puedeMarcarEntrega(quien?.rol)) {
+      return { ok: false, mensaje: t("entregaSoloDelComercio") };
+    }
+  }
+
   const revisado = revisar(numeroDePedido, numero);
   if (!revisado.ok) return { ok: false, mensaje: t(revisado.aviso) };
   numero = revisado.datos;

@@ -1112,7 +1112,8 @@
       "correoCambiado": "Listo. Ahora entra con {correo}, con la misma contraseña.",
       "tokenEmitido": "Token emitido para {comercio}. Cópialo ahora: no se vuelve a mostrar.",
       "tokenRotado": "Token nuevo para {comercio}. El anterior dejó de servir: cárgalo en su sistema o dejará de cobrar.",
-      "demasiadosIntentos": "Demasiados intentos. Espera unos minutos y vuelve a probar."
+      "demasiadosIntentos": "Demasiados intentos. Espera unos minutos y vuelve a probar.",
+      "entregaSoloDelComercio": "Solo el comercio que vendió puede marcar la entrega. Es quien tiene la mercancía y quien se la da al comprador."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1324,7 +1325,8 @@
       "copiar": "Copiar la dirección",
       "copiada": "Copiada",
       "comprobarCobro": "Comprobar el cobro",
-      "noSePudoComprobar": "No se pudo comprobar. Vuelve a intentarlo."
+      "noSePudoComprobar": "No se pudo comprobar. Vuelve a intentarlo.",
+      "entregaDelComercio": "La entrega la marca el comercio que vendió, no Mercatren."
     },
     "diccionario": {
       "etiqueta": "Material interno",

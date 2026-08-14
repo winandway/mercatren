@@ -1112,7 +1112,8 @@
       "correoCambiado": "Done. They now sign in with {correo}, using the same password.",
       "tokenEmitido": "Token issued for {comercio}. Copy it now — it will not be shown again.",
       "tokenRotado": "New token for {comercio}. The previous one no longer works: load it into their system or they will stop collecting.",
-      "demasiadosIntentos": "Too many attempts. Wait a few minutes and try again."
+      "demasiadosIntentos": "Too many attempts. Wait a few minutes and try again.",
+      "entregaSoloDelComercio": "Only the merchant who sold it can mark the delivery — they're the one handing the goods to the buyer."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1324,7 +1325,8 @@
       "copiar": "Copy the address",
       "copiada": "Copied",
       "comprobarCobro": "Check the charge",
-      "noSePudoComprobar": "Couldn't check. Try again."
+      "noSePudoComprobar": "Couldn't check. Try again.",
+      "entregaDelComercio": "The merchant who sold it marks the delivery, not Mercatren."
     },
     "diccionario": {
       "etiqueta": "Internal material",

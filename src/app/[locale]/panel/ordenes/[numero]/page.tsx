@@ -13,7 +13,8 @@ import { PasosDeLaVenta } from "@/components/panel/pasos-de-la-venta";
 import { DevolverPago } from "@/components/panel/devolver-pago";
 import { PruebaDeEntrega } from "@/components/panel/prueba-entrega";
 import { Link } from "@/i18n/navigation";
-import { esEquipoInterno } from "@/lib/autorizacion";
+import { esEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
+import { puedeMarcarEntrega } from "@/lib/pedidos/quien-entrega";
 import { getDb } from "@/lib/db";
 import { disputas } from "@/lib/db/schema";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -74,6 +75,11 @@ export default async function PaginaPedidoDelPanel({
   if (!pedido) notFound();
 
   const esEquipo = await esEquipoInterno();
+
+  /* Solo el comercio que vendió marca la entrega. Por el rol REAL, no por el
+     alcance: «Ver su panel» presta el de un comercio y es solo para mirar. */
+  const quien = await obtenerUsuario().catch(() => null);
+  const marcaEntregas = puedeMarcarEntrega(quien?.rol);
   const pruebas = await listarPruebasDeEntrega(numero);
   const db = getDb();
 
@@ -308,8 +314,12 @@ export default async function PaginaPedidoDelPanel({
           </div>
         ) : cerrado ? (
           <p className="text-sm text-tinta-suave">{t("yaCerrado")}</p>
-        ) : (
+        ) : marcaEntregas ? (
           <CerrarPedido numero={pedido.numero} estado={pedido.estado} />
+        ) : (
+          /* Al equipo se le dice por qué no lo ve, en vez de dejar un hueco
+               que parece un fallo de la pantalla. */
+          <p className="text-sm text-tinta-suave">{t("entregaDelComercio")}</p>
         )}
       </section>
     </div>

@@ -2,6 +2,8 @@ import { Clock, ShoppingBag, TriangleAlert } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { CerrarPedido } from "@/components/panel/cerrar-pedido";
+import { obtenerUsuario } from "@/lib/autorizacion";
+import { puedeMarcarEntrega } from "@/lib/pedidos/quien-entrega";
 import { SelloMetodoPago } from "@/components/panel/como-se-pago";
 import { Exportar } from "@/components/panel/exportar";
 import { ListaTiques } from "@/components/panel/lista-tiques";
@@ -62,6 +64,11 @@ export default async function PaginaOrdenes({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.ordenes");
+
+  /* El rol REAL de la sesión, no el alcance: con «Ver su panel» el alcance es
+     el de un comercio, y el botón de entrega no puede aparecer ahí. */
+  const usuario = await obtenerUsuario().catch(() => null);
+  const marcaEntregas = puedeMarcarEntrega(usuario?.rol);
   const tt = await getTranslations("panel.tique");
   const tp = await getTranslations("pedido");
   const filtros = await searchParams;
@@ -280,7 +287,20 @@ export default async function PaginaOrdenes({
                  * ficha además de marcar la entrega — el enlace envuelve todo lo
                  * que tiene dentro.
                  */}
-                <CerrarPedido numero={p.numero} estado={p.estado} compacto />
+                {/**
+                 * SOLO EL COMERCIO QUE VENDIÓ MARCA LA ENTREGA.
+                 *
+                 * El equipo de Mercatren no entrega mercancía: si pulsa esto
+                 * por error, el comprador llama al comercio reclamándole una
+                 * entrega que nunca ocurrió.
+                 *
+                 * Se mira el rol REAL de la sesión, no el alcance — con «Ver
+                 * su panel» Soporte navega con el de un comercio, y ahí el
+                 * botón reaparecería justo para quien no debe tocarlo.
+                 */}
+                {marcaEntregas ? (
+                  <CerrarPedido numero={p.numero} estado={p.estado} compacto />
+                ) : null}
               </li>
             );
           })}

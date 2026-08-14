@@ -412,6 +412,7 @@ export async function cancelarRetiro(id: string): Promise<Resultado> {
   if (!alcance) return { ok: false, mensaje: t("soloComercio") };
 
   const db = getDb();
+  const usuario = await obtenerUsuario();
 
   const condiciones = [eq(retiros.id, id), eq(retiros.estado, "solicitado")];
   // Un comercio solo cancela los suyos.
@@ -421,7 +422,19 @@ export async function cancelarRetiro(id: string): Promise<Resultado> {
 
   const marcado = await db
     .update(retiros)
-    .set({ estado: "cancelado", resueltoEn: new Date() })
+    /**
+     * SE GUARDA QUIÉN LO CANCELÓ.
+     *
+     * Marcar pagado y rechazar ya lo guardaban; cancelar no. El resultado era
+     * un retiro que decía «cancelado» y no había forma de saber si lo canceló
+     * el comercio o alguien del equipo — que es exactamente la primera pregunta
+     * cuando uno mira ese renglón semanas después.
+     */
+    .set({
+      estado: "cancelado",
+      resueltoEn: new Date(),
+      resueltoPorId: usuario?.id ?? null,
+    })
     .where(and(...condiciones))
     .returning({ id: retiros.id });
 
