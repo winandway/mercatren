@@ -8,7 +8,7 @@
 > que crece. Un negocio que factura mal o cobra a nombre equivocado no se
 > arregla creciendo — se arregla parando.
 >
-> Última revisión: 12 de agosto de 2026.
+> Última revisión: 14 de agosto de 2026.
 
 ---
 
@@ -36,10 +36,13 @@ Mientras esto no esté, **un cobro con tarjeta sigue entrando en la cuenta de
 Windoce, LLC** y le aparece así al comprador. Nada de lo que viene después
 importa hasta cerrarlo.
 
-1. **Claves de Stripe** al panel de YaDominios: `STRIPE_SECRET_KEY`,
-   `STRIPE_CLAVE_PUBLICA`, `STRIPE_WEBHOOK_SECRET`.
-2. **Webhook de Stripe** apuntando a **`https://mercatren.com/datos/stripe`**,
-   con **siete** eventos: `payment_intent.succeeded`,
+1. ~~**Claves de Stripe** al panel de YaDominios.~~ ✅ 14 ago 2026 — las tres
+   cargadas y comprobadas contra producción: el webhook contesta `400 sin
+firma` (no `503 sin configurar`), así que están las dos que él exige, y
+   `400 firma invalida` ante una firma falsa, así que la verificación corre con
+   el `whsec_` nuevo.
+2. ~~**Webhook de Stripe.**~~ ✅ 14 ago 2026 — destino `mercatren-llc` activo en
+   **`https://mercatren.com/datos/stripe`**, con **siete** eventos: `payment_intent.succeeded`,
    `payment_intent.payment_failed`, los tres `charge.dispute.*`,
    `charge.refunded` y `radar.early_fraud_warning.created`.
 
@@ -61,23 +64,66 @@ importa hasta cerrarlo.
    correo: es `pagos@mercatren.com`, no `zelle@`** — el banco no aceptó
    registrar el seller directamente y hubo que darlo de alta de otra forma.
 
-   Falta cargar **las dos variables a la vez** en el panel de YaDominios:
-   - `ZELLE_CORREO_RECEPTOR` → `pagos@mercatren.com`
-   - `ZELLE_NOMBRE_RECEPTOR` → `Mercatren LLC` (hoy dice `Windoce LLC`)
-
-   Es el nombre que ve el comprador al ir a pagar. Si se cambia el nombre
-   antes que el correo, se le enseña un nombre nuevo con la cuenta vieja y no
-   paga.
+   ✅ Las dos variables cargadas el 14 ago 2026: `ZELLE_CORREO_RECEPTOR` =
+   `pagos@mercatren.com` y `ZELLE_NOMBRE_RECEPTOR` = `Mercatren LLC`. Van
+   siempre juntas: con el nombre nuevo sobre la cuenta vieja, el comprador ve
+   un nombre que no le cuadra con lo que busca en su banco y no paga.
 
 4. **Datos de Mercury** para los retiros: `PAGO_CUENTA`, `PAGO_RUTA_ACH`,
    `PAGO_RUTA_WIRE`.
 5. **Emisor de las facturas**: `EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION`.
-6. **Una venta de prueba de punta a punta**, de verdad y con dinero real: pagar
+6. **La cuenta bancaria de los depósitos en Stripe** (pestaña «Cuentas externas
+   vinculadas»): tiene que ser el Mercury de **Mercatren LLC**, Checking ••9805.
+   Si ahí queda la de Windoce, todo cobra igual y el dinero sigue cayendo en la
+   sociedad vieja **sin dar ningún error**.
+7. **La pestaña «Verificada» de Stripe sin nada pendiente.** Mientras haya algo
+   abierto, Stripe cobra pero retiene los depósitos.
+8. **Send test webhook** desde Stripe: tiene que devolver 200.
+9. **Una venta de prueba de punta a punta**, de verdad y con dinero real: pagar
    con tarjeta, ver que entra en Mercury, que se emite el par de facturas, y
    que el neto aparece en la billetera del comercio.
 
+**Métodos de pago en Stripe: solo los que cuesten como la tarjeta.** El precio
+publicado se calcula con la tarifa de tarjeta (2.9 % + $0.30). Klarna, Affirm y
+compañía cobran cerca del 6 % y con un margen del 3 % cada venta por ahí es una
+pérdida — sin error en ninguna pantalla. Apagadas el 14 ago 2026. El criterio es
+el COSTO, no el país: los métodos europeos que cuesten igual o menos se quedan
+encendidos, porque Europa está en el plan.
+
 **El corte contable es un hecho, no una fecha:** el primer dólar que Stripe
 liquide en la cuenta de Mercatren LLC. Ni un hueco ni un solapamiento.
+
+---
+
+## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
+
+Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega
+subiendo por tramos: **cada 60 días se sube un escalón**, avisando antes. No de
+un salto: un salto del 3 al 8 se nota en el precio de golpe y espanta al
+comprador que ya conocía la tienda.
+
+**EL ORDEN NO ES NEGOCIABLE, Y LOS PRECIOS VAN PRIMERO:**
+
+1. `node scripts/recalcular-precios.ts`
+2. `npm run db:cargar`
+3. **Recién ahí** desplegar la constante del margen
+
+El precio publicado lleva el margen dentro. Si sube la constante y los precios
+se quedan como estaban, la diferencia sale del bolsillo del comercio en cada
+venta, sin aparecer en ninguna pantalla. Haciéndolo en este orden, durante los
+minutos de la publicación el error cuesta de NUESTRO lado — que es el único
+lado donde puede costar.
+
+**Las tres constantes tienen que cuadrar entre sí:** `COMISION_TARJETA_PB`,
+`COMISION_ZELLE_PB` y `tiendas.comision_puntos_base`. Del 5 al 7 de agosto
+estuvieron desincronizadas y ese punto salía del comercio sin verse.
+
+**Y al pasar del 6.5 % se pueden volver a encender Klarna y Affirm.** Están
+apagadas en Stripe porque cobran cerca del 6 % y con un margen del 3 % cada
+venta por ahí es una pérdida. Con el margen por encima de su tarifa dejan de
+serlo y pasan a ser ventas de más.
+
+El plan completo está en `PLAN-COMISION.md`.
 
 ---
 
@@ -97,8 +143,19 @@ nuestros. No bloquea al bloque 1, pero sí a cualquier crecimiento serio.
 margen`. **Es del contador, y es la pregunta de esta semana, no de marzo.**
 3. **Términos y privacidad revisados por el abogado.** Siguen pendientes desde
    que se escribieron.
-4. **Regenerar el PDF del modelo de negocio** con Mercatren LLC. Lo revisó el
-   abogado, así que el cambio pasa por él.
+4. **Regenerar los DOS PDF que nombran a la sociedad** con Mercatren LLC. Los
+   revisó el abogado, así que el cambio pasa por él:
+   - `public/docs/mercatren-modelo-de-negocio.pdf`
+   - `docs/mercatren-ventas-a-credito.pdf` — este se le entrega a cada comercio
+     que pide crédito, y hoy dice «Windoce, LLC compra y revende mercancía».
+     Nombra a la sociedad equivocada como vendedora, en el documento que el
+     comercio firma. Se regenera con `npm run docs:pdf-credito` desde
+     `scripts/plantillas/credito-comercios.html` (4 líneas), pero **no se toca
+     sin el abogado**.
+
+   Ojo al hacerlo: el pie «Developed by Windoce LLC» de esos documentos **se
+   queda**. Ese es el crédito del desarrollador, no la sociedad que vende.
+
 5. **El flujo de facturación por escrito**, de la venta a los libros, para
    llevarlo a QuickBooks Online.
 6. **La dirección publicada es una casa.** Sale en las facturas y en los
