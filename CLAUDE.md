@@ -1017,6 +1017,51 @@ tienen, y cualquier pantalla nueva la hereda. En iniciar sesión no aparece, y
 está bien — ahí la clave ya existe y calificarla solo delataría en pantalla qué
 tan floja es.
 
+## El correo del registro tiene que poder recibir (14 ago 2026)
+
+Cualquiera podía registrarse con un correo inventado. Nunca recibía la
+bienvenida, ni el aviso de su compra, ni el enlace de recuperar la clave — y del
+lado de la base quedaba una cuenta que no sirve para nada. Casi siempre no es
+alguien colándose: **es un cliente que se equivocó al escribir y no se enteró**.
+
+Tres capas, todas en el SERVIDOR (`src/lib/validacion/correo-real.ts` para lo
+que se decide sin red, `dns-correo.ts` para la consulta, `correo-servidor.ts`
+para juntarlas). El formulario del navegador se salta abriendo la consola: ahí
+esto sería un adorno.
+
+1. **Dominios de ejemplo** (`example.com`, `ejemplo.com`, `localhost`…) y
+   cualquier dominio sin punto. Rechazo inmediato, sin gastar la consulta.
+2. **Correos temporales** (mailinator, yopmail y compañía). Funcionan hoy y se
+   autodestruyen mañana: abrir una cuenta ahí es abrirla sin poder avisar nada.
+3. **DNS sobre HTTPS**, que es la que de verdad importa: las listas siempre se
+   quedan cortas porque los dominios inventados son infinitos. Se pregunta por
+   el registro MX y, si no tiene, por el A — hay dominios pequeños que reciben
+   en su propia dirección sin declarar MX aparte.
+
+**SI EL DNS FALLA O TARDA MÁS DE 2 SEGUNDOS, SE DEJA PASAR.** Es la regla que
+manda sobre las demás. Rechazar a un cliente real porque una consulta se puso
+lenta es muchísimo peor que dejar entrar un correo falso, que de todos modos se
+queda sin confirmar. Una puerta de registro que se cierra sola cuando un
+servicio ajeno tose es la forma más cara de perder clientes: no da error
+visible, no avisa a nadie, y desde fuera parece que el sitio no quiere tu
+correo.
+
+**Los dominios que IMITAN a los grandes —`gmial.com`, `hotmial.com`— pasan, y
+está bien que pasen.** Existen y tienen servidor de correo. Cazarlos por
+parecido significaría rechazar dominios legítimos parecidos a otro.
+
+**Solo en el alta, jamás al entrar.** A quien ya tiene cuenta no se le vuelve a
+mirar el correo: si esto corriera en el login, un cliente de hace meses podría
+quedarse fuera de su propia cuenta porque hoy su dominio no contesta.
+
+Cada rechazo queda anotado en `rechazos_correo` (motivo, correo, dominio, IP).
+Un filtro que nadie mide se convierte en una pared silenciosa: sin ese registro,
+el día que empiece a rechazar un dominio legítimo nos enteraríamos por un
+cliente enfadado — o por ninguno, porque el que no puede registrarse se va.
+
+Para comprobarlo: `npx tsx scripts/probar-correos.ts`, que usa las mismas
+funciones que el registro.
+
 ## El login: escudo anti-fuerza bruta
 
 `/entrar` y `/registro` llevan Cloudflare Turnstile. Sin él, cualquiera puede

@@ -1905,6 +1905,40 @@ export const preguntasProducto = sqliteTable(
  * mucho más alto que el de cuenta— vive en `src/lib/seguridad/intentos.ts`,
  * pura y con pruebas.
  */
+/**
+ * LOS CORREOS QUE EL REGISTRO RECHAZO, Y POR QUE.
+ *
+ * ══ PARA QUE SIRVE ══
+ *
+ * El filtro de correos falsos es una pared, y una pared que nadie mide se
+ * convierte en una pared silenciosa: si manana empieza a rechazar un dominio
+ * legitimo, sin este registro nos enterariamos por un cliente enfadado — o por
+ * ninguno, porque el que no puede registrarse simplemente se va.
+ *
+ * Con esto se puede mirar cuantos rechazos hubo de cada tipo y, sobre todo,
+ * cuales fueron falsos positivos que hay que dejar pasar.
+ *
+ * ══ TABLA NUEVA, NO COLUMNA ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, asi que una tabla nueva
+ * llega sola a produccion en la siguiente publicacion. Una columna nueva en una
+ * tabla que ya existe NO llegaria.
+ */
+export const rechazosCorreo = sqliteTable("rechazos_correo", {
+  id: text("id").primaryKey(),
+  /** El correo tal como lo escribio quien intentaba registrarse. */
+  correo: text("correo").notNull(),
+  /** Su dominio, aparte, para poder contar por dominio sin partir el texto. */
+  dominio: text("dominio").notNull(),
+  /** `correoDeEjemplo`, `correoTemporal`, `correoSinServidor`… */
+  motivo: text("motivo").notNull(),
+  /** De donde vino. Sirve para distinguir un cliente despistado de un robot. */
+  ip: text("ip"),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
 export const intentosAcceso = sqliteTable("intentos_acceso", {
   /** `ip:<direccion>` o `cuenta:<correo en minusculas>`. */
   llave: text("llave").primaryKey(),

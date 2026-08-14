@@ -56,6 +56,27 @@ async function correoDelCuerpo(request: Request): Promise<string | null> {
   }
 }
 
+/**
+ * LO QUE SE LE DICE A QUIEN ESCRIBIÓ UN CORREO QUE NO SIRVE.
+ *
+ * En palabras normales, sin jerga y sin acusarlo de nada — casi siempre es una
+ * persona que se equivocó al escribir, no alguien intentando colarse. Y en los
+ * tres casos se dice **por qué importa**: ahí le llega la confirmación.
+ *
+ * Van en español fijo, como el resto de esta ruta: Better Auth responde antes
+ * de que el sitio sepa en qué idioma está la pantalla.
+ */
+const MENSAJE_RECHAZO: Record<string, string> = {
+  correoDeEjemplo:
+    "Ese correo es de ejemplo y no existe. Escribe el tuyo de verdad: ahí te llega la confirmación de la cuenta.",
+  correoSinServidor:
+    "Ese correo no puede recibir mensajes. Revisa que esté bien escrito: ahí te llega la confirmación de la cuenta.",
+  correoTemporal:
+    "Usa un correo permanente. Los correos temporales no se aceptan porque no podríamos avisarte.",
+  correoMalEscrito:
+    "Ese correo no está bien escrito. Revísalo: ahí te llega la confirmación de la cuenta.",
+};
+
 export async function POST(request: Request) {
   const { pathname } = new URL(request.url);
 
@@ -86,6 +107,48 @@ export async function POST(request: Request) {
         },
         { status: 403 },
       );
+    }
+  }
+
+  /**
+   * EL CORREO DEL ALTA TIENE QUE PODER RECIBIR.
+   *
+   * Solo en el registro, y **nunca** al entrar: a quien ya tiene cuenta no se
+   * le vuelve a mirar el correo. Si esto corriera en el login, un cliente de
+   * hace meses podría quedarse fuera de su propia cuenta porque hoy su dominio
+   * no contesta.
+   *
+   * Va aquí, en el servidor, porque el formulario del navegador se salta
+   * abriendo la consola. Y va ANTES de que Better Auth cree nada: una cuenta
+   * con un correo al que no llega la confirmación es un usuario basura en la
+   * base y, casi siempre, un cliente que se equivocó al escribir y no se
+   * enteró nunca.
+   */
+  if (pathname.endsWith("/sign-up/email")) {
+    const correoAlta = await correoDelCuerpo(request);
+    if (correoAlta) {
+      const { correoAceptable, anotarRechazo } =
+        await import("@/lib/validacion/correo-servidor");
+      const veredicto = await correoAceptable(correoAlta);
+
+      if (!veredicto.ok) {
+        await anotarRechazo({
+          correo: correoAlta,
+          motivo: veredicto.motivo,
+          dominio: veredicto.dominio,
+          ip: ipDe(request),
+        });
+
+        /* El mensaje se le enseña tal cual a quien se está registrando: sin
+           jerga y sin acusarlo de nada. Que entienda qué hacer y por qué. */
+        return Response.json(
+          {
+            message: MENSAJE_RECHAZO[veredicto.motivo],
+            code: "CORREO_NO_VALIDO",
+          },
+          { status: 400 },
+        );
+      }
     }
   }
 
