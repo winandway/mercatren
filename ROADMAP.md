@@ -112,21 +112,16 @@ liquide en la cuenta de Mercatren LLC. Ni un hueco ni un solapamiento.
    - `EMISOR_IDENTIFICACION` → el EIN, como en la carta CP 575
    - `EMISOR_DIRECCION` → `30080 Montmorency Drive, Novi, MI 48377`
 
-2. **La cuenta bancaria de los depósitos en Stripe** («Cuentas externas
-   vinculadas»): el Mercury de **Mercatren LLC**, Checking ••9805. Con la
-   cuenta equivocada todo cobra igual y el dinero cae en la sociedad vieja,
-   **sin dar ningún error**.
-
-3. **La pestaña «Verificada» de Stripe sin nada pendiente.** Mientras haya algo
+2. **La pestaña «Verificada» de Stripe sin nada pendiente.** Mientras haya algo
    abierto, Stripe cobra pero retiene los depósitos.
 
-4. **Probar el envío de correo** (Panel → Configuración → Probar el envío). El
+3. **Probar el envío de correo** (Panel → Configuración → Probar el envío). El
    buzón del equipo pasó a `soporte@mercatren.com` el 14 ago; de esos avisos
    depende que alguien mire la cola de retiros.
 
-5. **Send test webhook** desde Stripe: tiene que devolver 200.
+4. **Send test webhook** desde Stripe: tiene que devolver 200.
 
-6. **Una compra de prueba de un dólar, con tarjeta de verdad.** Que el pedido
+5. **Una compra de prueba de un dólar, con tarjeta de verdad.** Que el pedido
    pase solo a «pagado», que se emitan las dos facturas, que el neto aparezca en
    la billetera del comercio y que el dinero se vea en Mercury.
 
@@ -150,6 +145,81 @@ liquide en la cuenta de Mercatren LLC. Ni un hueco ni un solapamiento.
   de negocio.
 - **Klarna y Affirm están apagadas** porque cobran cerca del 6 % y el margen es
   3 %. Se encienden cuando el margen pase del 6.5 %.
+
+---
+
+## MAÑANA — el primer retiro de verdad (15 ago 2026)
+
+**Armando (MEGAYES) pide su dinero.** Se cumplen los tres días de la
+transferencia ACH a la cuenta de Mercury de Mercatren LLC, así que el dinero ya
+habrá caído y el retiro se puede ejecutar.
+
+Es la primera vez que el circuito completo corre de punta a punta con dinero de
+un comercio real: él lo pide en el panel → el monto se aparta de su saldo → al
+equipo le entra en la cola → una persona lo transfiere desde Mercury → se marca
+«Ya lo pagué».
+
+**Qué mirar mientras pasa:**
+
+- Que los datos bancarios de Colombia salgan completos y copiables uno por uno
+  (`/panel/retiros`, tarjeta «Datos para transferir»). Es el punto donde un
+  wire mal dirigido se queda semanas dando vueltas entre bancos.
+- Que el monto apartado cuadre con lo que baja de su saldo.
+- Que el desglose de arriba sume el bruto exacto: lo que pagaron los
+  compradores − Stripe − Mercatren = lo que le queda. Un centavo que no cuadre
+  en una pantalla de dinero rompe la confianza en todo lo demás.
+- Que al marcar «Ya lo pagué» el movimiento quede con su autor y su fecha.
+
+---
+
+## COBRAR TAMBIÉN POR ACH Y POR WIRE (pedido el 14 ago 2026)
+
+Hoy el comprador solo tiene **tarjeta y Zelle**. Zelle tiene tope diario y a
+mucha gente no le alcanza para comprar una moto o algo grande — justo las
+ventas que más margen dejan. Un ACH o un wire no tienen ese tope.
+
+**Lo que falta, y no es solo enseñar el número de cuenta:**
+
+1. **Un cuarto método.** Hoy `METODOS_PAGO` es `["stripe", "zelle",
+"billetera"]`. Entra `transferencia`, con su pantalla y su rastro.
+2. **Su comprobante y su cola de validación**, igual que Zelle: un ACH no avisa
+   a nadie cuando llega. Alguien tiene que comprobarlo contra Mercury y
+   aprobarlo, y de ahí sale la acreditación al comercio.
+3. **Las variables del banco**: `PAGO_CUENTA`, `PAGO_RUTA_ACH`,
+   `PAGO_RUTA_WIRE`, `PAGO_BENEFICIARIO`, `PAGO_BANCO`. Ya están declaradas y
+   la ficha las usa; sin ellas dice que no está configurado y **no inventa
+   datos**.
+4. **El precio.** Un ACH entrante no cuesta lo que una tarjeta. Si se cobra el
+   mismo precio publicado, ahí hay margen de más; si se le hace su propia
+   fórmula, hay que meterla en `dinero.ts` con sus pruebas, como las otras dos.
+5. **Decir cuánto tarda.** Un ACH se demora días. Quien no lo sabe cree que su
+   pedido se trabó.
+
+**Ojo con el vocabulario:** es el pago de una compra, no una transferencia de
+dinero. En pantalla va como «pagar por transferencia bancaria», nunca como
+«enviar dinero».
+
+---
+
+## SABER POR DÓNDE ENTRA CADA DÓLAR (pedido el 14 ago 2026)
+
+Todo el dinero entra ahora directo a Mercatren LLC, y no hay ninguna pantalla
+que diga **cuánto entró por tarjeta, cuánto por Zelle y cuánto por
+transferencia**. Hoy el tablero suma todo junto.
+
+Hace falta para tres cosas distintas:
+
+- **Cuadrar con el banco.** Stripe deposita en tandas y Zelle entra suelto; sin
+  separar por método, cuadrar el extracto de Mercury es a ojo.
+- **Saber cuánto cuesta cobrar.** Cada método deja un margen distinto: la
+  tarjeta paga 2.9 % + $0.30 al procesador y Zelle no paga nada. Sin el
+  desglose no se sabe cuál conviene empujar.
+- **El 1099-K.** Stripe reporta solo lo suyo. Lo que entró por Zelle y por
+  transferencia también es ingreso y hay que poder separarlo para el contador.
+
+**El dato ya está guardado** —cada pago sabe su método— así que esto es una
+pantalla, no una migración: un desglose por método en el tablero y en la
+exportación a Excel, con su filtro por fechas.
 
 ---
 
