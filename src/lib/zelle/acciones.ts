@@ -341,6 +341,38 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     });
   }
 
+  /**
+   * Y AL EQUIPO, QUE DE UN ZELLE APROBADO NO SE ENTERABA NADIE.
+   *
+   * Una venta con tarjeta ya avisaba; esta no. El resultado era que las ventas
+   * por Zelle —que hoy son las más— no llegaban a ningún celular: había que
+   * abrir el panel para saber que entró dinero y que hay algo que despachar.
+   *
+   * Va con la MISMA ficha que la tarjeta, para que los dos correos digan lo
+   * mismo y no haya que aprenderse dos formatos.
+   */
+  if (pago.pedidoId) {
+    try {
+      const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
+      const { fichaDeVenta, lineasDeLaVenta } =
+        await import("@/lib/pedidos/ficha-para-el-equipo");
+      const { SITIO } = await import("@/lib/sitio");
+
+      const ficha = await fichaDeVenta(pago.pedidoId);
+      if (ficha) {
+        await correoAvisoAlEquipo({
+          asunto: `Venta por Zelle ${ficha.numero}`,
+          lineas: lineasDeLaVenta(ficha),
+          url: `${SITIO.url}/es/panel/ordenes/${ficha.numero}`,
+          boton: "Ver el pedido",
+        });
+      }
+    } catch (e) {
+      /* Un aviso que no sale jamás deshace un pago ya acreditado. */
+      console.error("[zelle] pago aprobado; el aviso al equipo no salio:", e);
+    }
+  }
+
   // Y si esa venta dejó algo en cero, que el comercio lo sepa hoy y no
   // cuando note que dejó de vender.
   const { avisarAgotados } = await import("@/lib/productos/agotados");

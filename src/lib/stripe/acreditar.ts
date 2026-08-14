@@ -231,13 +231,22 @@ export async function acreditarPagoConTarjeta(
      * demás: un correo que no sale jamás puede deshacer un cobro.
      */
     const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
+    const { fichaDeVenta, lineasDeLaVenta } =
+      await import("@/lib/pedidos/ficha-para-el-equipo");
+
+    /* La ficha completa: qué comercio vendió, quién compró, qué se llevó, quién
+       tiene que entregarlo y con qué números. Si por lo que sea no se puede
+       armar, sale el aviso corto de siempre — mejor escueto que ninguno. */
+    const ficha = await fichaDeVenta(pedidoId).catch(() => null);
+
     await correoAvisoAlEquipo({
       asunto: `Venta con tarjeta ${pedido.numero}`,
-      lineas: [
-        `Entró un cobro con tarjeta del pedido ${pedido.numero}.`,
-        `Total: ${(montoCentavos / 100).toFixed(2)} USD.`,
-        "El neto ya está acreditado en la billetera del comercio.",
-      ],
+      lineas: ficha
+        ? lineasDeLaVenta(ficha)
+        : [
+            `Entró un cobro con tarjeta del pedido ${pedido.numero}.`,
+            `Total: ${(montoCentavos / 100).toFixed(2)} USD.`,
+          ],
       url: `${SITIO.url}/es/panel/ordenes/${pedido.numero}`,
       boton: "Ver el pedido",
     });

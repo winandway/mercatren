@@ -1,6 +1,7 @@
 import { Clock, ShoppingBag, TriangleAlert } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { CerrarPedido } from "@/components/panel/cerrar-pedido";
 import { SelloMetodoPago } from "@/components/panel/como-se-pago";
 import { Exportar } from "@/components/panel/exportar";
 import { ListaTiques } from "@/components/panel/lista-tiques";
@@ -266,6 +267,20 @@ export default async function PaginaOrdenes({
                     </p>
                   ) : null}
                 </Link>
+
+                {/**
+                 * «ENTREGADO», SIN ABRIR EL PEDIDO.
+                 *
+                 * El botón existía desde siempre, pero dentro de la ficha: para
+                 * cerrar cinco entregas había que entrar y salir cinco veces, y
+                 * el comercio ni sabía que estaba ahí. Palabras del dueño: *«no
+                 * tenemos ese botón, yo no sé dónde está»*.
+                 *
+                 * Va FUERA del `<Link>` a propósito: dentro, tocarlo abriría la
+                 * ficha además de marcar la entrega — el enlace envuelve todo lo
+                 * que tiene dentro.
+                 */}
+                <CerrarPedido numero={p.numero} estado={p.estado} compacto />
               </li>
             );
           })}

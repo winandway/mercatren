@@ -1111,7 +1111,8 @@
       "correoYaEnUso": "Ya hay otra cuenta con ese correo.",
       "correoCambiado": "Listo. Ahora entra con {correo}, con la misma contraseña.",
       "tokenEmitido": "Token emitido para {comercio}. Cópialo ahora: no se vuelve a mostrar.",
-      "tokenRotado": "Token nuevo para {comercio}. El anterior dejó de servir: cárgalo en su sistema o dejará de cobrar."
+      "tokenRotado": "Token nuevo para {comercio}. El anterior dejó de servir: cárgalo en su sistema o dejará de cobrar.",
+      "demasiadosIntentos": "Demasiados intentos. Espera unos minutos y vuelve a probar."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2290,7 +2291,7 @@
     "enviar": "Mandarme el enlace",
     "enviando": "Mandando…",
     "listoTitulo": "Revisa tu correo",
-    "listoTexto": "Si esa dirección tiene una cuenta en Mercatren, ya salió el enlace. Revisa también la carpeta de correo no deseado.",
+    "listoTexto": "Te acabamos de enviar el enlace para poner una contraseña nueva. Revisa tu correo, y mira también en la carpeta de no deseados.",
     "volver": "Volver a iniciar sesión",
     "nuevaTitulo": "Pon tu contraseña nueva",
     "nuevaTexto": "Escríbela dos veces para que no quede una que no querías.",
@@ -2304,7 +2305,8 @@
     "enlaceVencido": "Ese enlace ya no sirve. Pide uno nuevo.",
     "cambiada": "Listo. Ya puedes entrar con tu contraseña nueva.",
     "sinEnlace": "Abre el enlace que te llegó por correo para poner una contraseña nueva.",
-    "algoFallo": "No se pudo. Inténtalo otra vez en un momento."
+    "algoFallo": "No se pudo. Inténtalo otra vez en un momento.",
+    "noExiste": "Ese correo no tiene una cuenta en Mercatren. Revisa si lo escribiste bien o si te registraste con otro."
   },
   "entrega": {
     "dondeEstas": "¿Dónde estás?",

@@ -21,9 +21,18 @@ import { avanzarPedido } from "@/lib/pedidos/acciones";
 export function CerrarPedido({
   numero,
   estado,
+  compacto = false,
 }: {
   numero: string;
   estado: string;
+  /**
+   * En la LISTA de órdenes, no dentro de la ficha.
+   *
+   * Ahí solo va «Entregado» y en pequeño: es lo que se pulsa el 90% de las
+   * veces y lo que evita entrar y salir de cinco pedidos para cerrar cinco
+   * entregas. «Enviado» se queda para la ficha, donde hay sitio para pensarlo.
+   */
+  compacto?: boolean;
 }) {
   const t = useTranslations("panel.pedido");
   const router = useRouter();
@@ -43,6 +52,31 @@ export function CerrarPedido({
       if (r.ok) router.refresh();
       else setError(r.mensaje);
     });
+  }
+
+  if (compacto) {
+    return (
+      <div className="mt-2">
+        <button
+          type="button"
+          disabled={pendiente}
+          onClick={() => mover("entregado")}
+          className="hover:bg-precio-700 inline-flex items-center gap-1.5 rounded-lg bg-precio-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-60"
+        >
+          {pendiente ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+          ) : (
+            <Check className="h-3.5 w-3.5" aria-hidden />
+          )}
+          {t("marcarEntregado")}
+        </button>
+        {error ? (
+          <p role="alert" className="mt-1 text-xs text-red-700">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   return (

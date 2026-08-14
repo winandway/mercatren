@@ -1111,7 +1111,8 @@
       "correoYaEnUso": "Another account already uses that email.",
       "correoCambiado": "Done. They now sign in with {correo}, using the same password.",
       "tokenEmitido": "Token issued for {comercio}. Copy it now — it will not be shown again.",
-      "tokenRotado": "New token for {comercio}. The previous one no longer works: load it into their system or they will stop collecting."
+      "tokenRotado": "New token for {comercio}. The previous one no longer works: load it into their system or they will stop collecting.",
+      "demasiadosIntentos": "Too many attempts. Wait a few minutes and try again."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2290,7 +2291,7 @@
     "enviar": "Send me the link",
     "enviando": "Sending…",
     "listoTitulo": "Check your email",
-    "listoTexto": "If that address has a Mercatren account, the link is on its way. Check your spam folder too.",
+    "listoTexto": "We just sent you the link to set a new password. Check your inbox, and your spam folder too.",
     "volver": "Back to sign in",
     "nuevaTitulo": "Set your new password",
     "nuevaTexto": "Type it twice so you do not end up with one you did not mean.",
@@ -2304,7 +2305,8 @@
     "enlaceVencido": "That link is no longer valid. Request a new one.",
     "cambiada": "All set. You can sign in with your new password now.",
     "sinEnlace": "Open the link we emailed you to set a new password.",
-    "algoFallo": "That did not work. Please try again in a moment."
+    "algoFallo": "That did not work. Please try again in a moment.",
+    "noExiste": "That email doesn't have a Mercatren account. Check the spelling, or whether you signed up with a different one."
   },
   "entrega": {
     "dondeEstas": "Where are you?",

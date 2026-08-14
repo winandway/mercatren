@@ -6,17 +6,24 @@ import { useState } from "react";
 
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { tieneCuenta } from "@/lib/cuenta/recuperar";
 
 /**
  * "Olvidé mi contraseña": pedir el enlace.
  *
- * NUNCA SE DICE SI EL CORREO EXISTE. Salga bien o mal, la pantalla responde
- * lo mismo: "si esa dirección tiene cuenta, ya salió el enlace". Un mensaje
- * distinto para un correo desconocido convierte esta pantalla en una forma
- * cómoda de averiguar quién tiene cuenta aquí — y aquí dentro hay dinero de
- * comercios.
+ * ══ SE DICE LA VERDAD: SI EL CORREO NO TIENE CUENTA, SE AVISA ══
  *
- * Por eso tampoco se enseña el error del servidor: solo se registra.
+ * Antes contestaba lo mismo siempre —«si esa dirección tiene cuenta, ya salió
+ * el enlace»— para no revelar quién tiene cuenta aquí. Y le costó la suya a
+ * una persona de verdad: se registró con un correo, olvidó la clave, escribió
+ * OTRO correo al recuperarla, y la pantalla le dijo que el enlace había salido
+ * con éxito. Se quedó esperando un correo que nunca iba a llegar, sin forma de
+ * saber que el equivocado era el que había escrito.
+ *
+ * Decisión del dueño el 14 ago 2026: no se le miente a la gente. El precio es
+ * que se puede averiguar si una dirección tiene cuenta; el freno sigue siendo
+ * el límite de intentos del servidor, que cuenta CADA consulta —acierte o no—
+ * y no deja barrer una lista de correos.
  */
 export function PedirEnlaceClave() {
   const t = useTranslations("clave");
@@ -24,10 +31,30 @@ export function PedirEnlaceClave() {
   const [correo, setCorreo] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [listo, setListo] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function enviar(evento: React.FormEvent) {
     evento.preventDefault();
     setEnviando(true);
+    setError(null);
+
+    /* PRIMERO se comprueba que ese correo tenga cuenta. Si no la tiene, no se
+       manda nada y se dice — que es justo lo que faltaba. */
+    const respuesta = await tieneCuenta(correo.trim()).catch(() => null);
+
+    if (!respuesta) {
+      setEnviando(false);
+      setError(t("algoFallo"));
+      return;
+    }
+
+    if (respuesta.estado !== "existe") {
+      setEnviando(false);
+      setError(
+        respuesta.estado === "no_existe" ? t("noExiste") : respuesta.mensaje,
+      );
+      return;
+    }
 
     // El enlace del correo lleva de vuelta a la pantalla donde se escribe la
     // contraseña nueva, en el idioma en el que se pidió.
@@ -79,6 +106,15 @@ export function PedirEnlaceClave() {
           className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
         />
       </div>
+
+      {error ? (
+        <p
+          role="alert"
+          className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800"
+        >
+          {error}
+        </p>
+      ) : null}
 
       <button
         type="submit"
