@@ -95,6 +95,64 @@ liquide en la cuenta de Mercatren LLC. Ni un hueco ni un solapamiento.
 
 ---
 
+## ANTES DE ABRIR AL PÚBLICO — la lista del lanzamiento (15 ago 2026)
+
+> Comprobado en producción el 14 ago 2026 de madrugada: las 13 rutas críticas
+> responden 200, el webhook contesta `400 sin firma` (las claves están) y
+> `400 firma invalida` (la verificación corre), y el crédito del pie ya sale
+> con `nofollow`.
+
+### Lo que hay que hacer ANTES de la primera venta, no después
+
+1. **`EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION` en YaDominios.** Es lo único
+   de esta lista que **no se puede arreglar después**: cada factura copia los
+   datos del emisor DENTRO del documento, para siempre. Las que se emitan sin
+   esas variables saldrán con el nombre solo, sin EIN ni dirección, y así se
+   quedan. Corregirlas es reeditar un documento contable ya emitido.
+   - `EMISOR_IDENTIFICACION` → el EIN, como en la carta CP 575
+   - `EMISOR_DIRECCION` → `30080 Montmorency Drive, Novi, MI 48377`
+
+2. **La cuenta bancaria de los depósitos en Stripe** («Cuentas externas
+   vinculadas»): el Mercury de **Mercatren LLC**, Checking ••9805. Con la
+   cuenta equivocada todo cobra igual y el dinero cae en la sociedad vieja,
+   **sin dar ningún error**.
+
+3. **La pestaña «Verificada» de Stripe sin nada pendiente.** Mientras haya algo
+   abierto, Stripe cobra pero retiene los depósitos.
+
+4. **Probar el envío de correo** (Panel → Configuración → Probar el envío). El
+   buzón del equipo pasó a `soporte@mercatren.com` el 14 ago; de esos avisos
+   depende que alguien mire la cola de retiros.
+
+5. **Send test webhook** desde Stripe: tiene que devolver 200.
+
+6. **Una compra de prueba de un dólar, con tarjeta de verdad.** Que el pedido
+   pase solo a «pagado», que se emitan las dos facturas, que el neto aparezca en
+   la billetera del comercio y que el dinero se vea en Mercury.
+
+### Lo que puede esperar unos días
+
+- **`PAGO_CUENTA`, `PAGO_RUTA_ACH`, `PAGO_RUTA_WIRE`.** Sin ellas, la ficha del
+  pedido no ofrece transferencia bancaria y lo dice — no inventa datos. Tarjeta
+  y Zelle funcionan igual.
+- **Los retiros salen a mano desde Mercury.** El comercio los pide en el panel y
+  una persona los ejecuta en el banco. Funciona; solo es trabajo manual.
+
+### Lo que NO está y hay que saber que no está
+
+- **Envío e impuestos van en CERO.** Se acuerdan con cada comercio por fuera.
+  Un comprador que pida algo pesado no ve ningún costo de envío.
+- **Las existencias se descuentan al confirmarse el pago, no al hacer el
+  pedido.** Dos personas pueden comprar la última unidad; el validador tiene que
+  mirar el stock antes de aprobar.
+- **Un pedido que mezcla varios comercios deja el pago sin comercio asignado** y
+  lo resuelve el equipo a mano. Repartir un pago entre comercios es una decisión
+  de negocio.
+- **Klarna y Affirm están apagadas** porque cobran cerca del 6 % y el margen es
+  3 %. Se encienden cuando el margen pase del 6.5 %.
+
+---
+
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
 Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega
