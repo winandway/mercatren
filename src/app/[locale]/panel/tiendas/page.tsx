@@ -2,6 +2,7 @@ import { ArrowRight, Wallet } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonVerComo } from "@/components/panel/ver-como";
+import { TokenIntegracion } from "@/components/panel/tiendas/token-integracion";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -99,6 +100,9 @@ export default async function PaginaComercios({
                 {esSoporte ? (
                   <div className="mt-4">
                     <BotonVerComo tiendaId={c.id} nombre={c.nombre} />
+                    {/* El token con el que su caja cobra por Mercatren. Solo
+                        Soporte: deja crear cobros a nombre del comercio. */}
+                    <TokenIntegracion tiendaId={c.id} nombre={c.nombre} />
                   </div>
                 ) : null}
 

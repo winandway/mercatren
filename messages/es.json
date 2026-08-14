@@ -449,7 +449,15 @@
         "pendiente": "Pendiente de aprobar"
       },
       "vacio": "Todavía no hay comercios registrados.",
-      "verPagos": "Ver sus pagos"
+      "verPagos": "Ver sus pagos",
+      "token": {
+        "boton": "Emitir token para su sistema",
+        "confirmar": "Vas a emitir un token para {comercio}.\\n\\nSi ya tenía uno, el anterior DEJA DE SERVIR en este momento y hay que cargar el nuevo en su sistema. ¿Sigo?",
+        "unaVez": "Cópialo ahora. Al cerrar esto no se vuelve a ver.",
+        "copiar": "Copiar el token",
+        "copiado": "Copiado",
+        "dondeVa": "Va en el servidor del comercio, como variable MERCATREN_TOKEN. Nunca en su página ni por correo."
+      }
     },
     "resumen": {
       "titulo": "Tablero",
@@ -1101,7 +1109,9 @@
       "cuentaNoExiste": "Esa cuenta no existe.",
       "correoEsElMismo": "Ese ya es el correo de la cuenta.",
       "correoYaEnUso": "Ya hay otra cuenta con ese correo.",
-      "correoCambiado": "Listo. Ahora entra con {correo}, con la misma contraseña."
+      "correoCambiado": "Listo. Ahora entra con {correo}, con la misma contraseña.",
+      "tokenEmitido": "Token emitido para {comercio}. Cópialo ahora: no se vuelve a mostrar.",
+      "tokenRotado": "Token nuevo para {comercio}. El anterior dejó de servir: cárgalo en su sistema o dejará de cobrar."
     },
     "usuarios": {
       "titulo": "Cuentas",

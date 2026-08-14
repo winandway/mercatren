@@ -449,7 +449,15 @@
         "pendiente": "Pending approval"
       },
       "vacio": "No merchants registered yet.",
-      "verPagos": "View their payments"
+      "verPagos": "View their payments",
+      "token": {
+        "boton": "Issue token for their system",
+        "confirmar": "You are about to issue a token for {comercio}.\\n\\nIf they already had one, the previous token STOPS WORKING right now and the new one must be loaded into their system. Continue?",
+        "unaVez": "Copy it now. Once you close this, it cannot be shown again.",
+        "copiar": "Copy token",
+        "copiado": "Copied",
+        "dondeVa": "It goes on the merchant's server, as the MERCATREN_TOKEN variable. Never on their website or by email."
+      }
     },
     "resumen": {
       "titulo": "Dashboard",
@@ -1101,7 +1109,9 @@
       "cuentaNoExiste": "That account does not exist.",
       "correoEsElMismo": "That is already the account's email.",
       "correoYaEnUso": "Another account already uses that email.",
-      "correoCambiado": "Done. They now sign in with {correo}, using the same password."
+      "correoCambiado": "Done. They now sign in with {correo}, using the same password.",
+      "tokenEmitido": "Token issued for {comercio}. Copy it now — it will not be shown again.",
+      "tokenRotado": "New token for {comercio}. The previous one no longer works: load it into their system or they will stop collecting."
     },
     "usuarios": {
       "titulo": "Accounts",
