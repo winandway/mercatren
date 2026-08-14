@@ -9,6 +9,7 @@ import { getDb } from "@/lib/db";
 import { itemsPedido, pagos, pedidos } from "@/lib/db/schema";
 import { COMISION_TARJETA_PB, calcularComisionCentavos } from "@/lib/dinero";
 import { getStripe, stripeConfigurado } from "@/lib/stripe";
+import { sufijoDelExtracto } from "@/lib/pagos/descriptor";
 
 /**
  * El intento de pago con tarjeta de un pedido.
@@ -112,10 +113,12 @@ export async function crearIntentoDePago(
       margen_bruto_centavos: String(desglose.margenBrutoCentavos),
     },
     description: `Mercatren · ${pedido.numero}`,
-    /* Lo que el comprador ve en su estado de cuenta. Sin esto lee el nombre
-       de la sociedad y no reconoce el cargo, y un cargo que no se reconoce se
-       reclama: cada contracargo cuesta la venta, la comisión y $15 de multa. */
-    statement_descriptor_suffix: "MERCATREN",
+    /* Lo que el comprador ve en su estado de cuenta, junto al prefijo de la
+       cuenta: `MERCATREN* MT-000003`. Va el número del pedido y no la marca
+       otra vez, que es lo único que le deja saber DE CUÁL compra se trata tres
+       semanas después. Un cargo que no se reconoce se reclama, y cada
+       contracargo cuesta la venta, la comisión y la multa. */
+    statement_descriptor_suffix: sufijoDelExtracto(pedido.numero),
   });
 
   if (!intento.client_secret) return { ok: false };

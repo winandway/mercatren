@@ -15,6 +15,7 @@ import {
 } from "@/lib/db/schema";
 import { calcularComisionCentavos, COMISION_TARJETA_PB } from "@/lib/dinero";
 import { getStripe, stripeConfigurado } from "@/lib/stripe";
+import { sufijoDelExtracto } from "@/lib/pagos/descriptor";
 
 /**
  * PAGAR UN COBRO PEDIDO POR UN COMERCIO.
@@ -79,9 +80,13 @@ export async function intentoParaCobro(
     automatic_payment_methods: { enabled: true },
     metadata: { cobroId: cobro.id, referencia: cobro.referencia },
     description: `Mercatren · ${cobro.referencia}`,
-    /* Lo que ve en su estado de cuenta. Un cargo que no se reconoce se
-       reclama, y cada contracargo cuesta la venta más $15 de multa. */
-    statement_descriptor_suffix: "MERCATREN",
+    /* Lo que ve en su estado de cuenta, junto al prefijo de la cuenta. Va la
+       referencia de la factura del comercio: quien paga suele ser un familiar
+       en Estados Unidos, y semanas después es lo único que le permite atar ese
+       cargo a la compra que le pidieron. La referencia la escribe una persona
+       en un mostrador, así que se limpia antes: con un acento o una comilla
+       dentro, Stripe rechaza el cobro completo. */
+    statement_descriptor_suffix: sufijoDelExtracto(cobro.referencia),
   });
 
   if (!intento.client_secret) return { ok: false, motivo: "no_pagable" };
