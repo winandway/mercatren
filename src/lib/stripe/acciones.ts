@@ -95,6 +95,35 @@ export async function crearIntentoDePago(
         clavePublica: env.STRIPE_CLAVE_PUBLICA!,
       };
     }
+
+    /**
+     * EL INTENTO GUARDADO YA NO SIRVE: SE CIERRA.
+     *
+     * ══ POR QUÉ (13 ago 2026, al cambiar de cuenta de Stripe) ══
+     *
+     * Un intento creado con las claves de la sociedad anterior **no existe**
+     * para las claves nuevas: Stripe contesta «no encontrado» y el `catch` de
+     * arriba lo deja en null. Sin esto, la fila seguía marcada `pendiente`, y
+     * como es la primera que devuelve la consulta, **cada vez que el comprador
+     * abría su pedido se creaba un intento nuevo**: uno por recarga, todos
+     * colgando en Stripe.
+     *
+     * También pasa sin cambiar de cuenta, cuando el intento caduca o el monto
+     * del pedido cambió.
+     *
+     * Se marca `rechazado` porque es la verdad: por esa referencia ya no puede
+     * entrar dinero. Y así deja de contarse como un cobro en el aire — que es
+     * lo que hace que un pedido parezca tener dos pagos pendientes.
+     */
+    await db
+      .update(pagos)
+      .set({ estado: "rechazado", actualizadoEn: new Date() })
+      .where(
+        and(
+          eq(pagos.referenciaExterna, previo.referenciaExterna),
+          eq(pagos.estado, "pendiente"),
+        ),
+      );
   }
 
   const desglose = await desglosarPedido(pedido.id);
