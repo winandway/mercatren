@@ -568,6 +568,17 @@ export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
     .select({
       id: tiendas.id,
       slug: tiendas.slug,
+      /**
+       * SE TRAE EL ESTADO Y **NO** SE FILTRA POR ÉL AQUÍ.
+       *
+       * Filtrarlo en la consulta era lo que le daba un 404 al comercio sobre su
+       * PROPIA tienda recién creada, que nace en `pendiente`. Quién puede verla
+       * lo decide `puedeVerLaFicha` en la pantalla, que sabe quién está
+       * mirando; esta función solo trae los datos.
+       *
+       * La pantalla sigue devolviendo 404 a un visitante: eso no cambió.
+       */
+      estado: tiendas.estado,
       nombre: tiendas.nombre,
       descripcionEs: tiendas.descripcionEs,
       descripcionEn: tiendas.descripcionEn,
@@ -587,7 +598,7 @@ export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
       horario: tiendas.horario,
     })
     .from(tiendas)
-    .where(and(eq(tiendas.slug, slug), eq(tiendas.estado, "activa")))
+    .where(eq(tiendas.slug, slug))
     .limit(1);
 
   if (!tienda) return null;

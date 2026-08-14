@@ -1986,7 +1986,12 @@
     "verificada": "Verified business",
     "dondeSeRetira": "Pickup location",
     "masDelComercio": "More about this merchant",
-    "mensajeWhatsapp": "Hi, I'm writing from Mercatren.com. I'm interested in your products and would like more information."
+    "mensajeWhatsapp": "Hi, I'm writing from Mercatren.com. I'm interested in your products and would like more information.",
+    "noPublica": {
+      "borrador": "This is your store and it's still a draft — only you can see it. Finish setting it up in My store and submit it for review to go public.",
+      "pendiente": "This is your store and it isn't public yet — we're reviewing it. Only you and the Mercatren team can see it. We'll let you know as soon as it goes live.",
+      "suspendida": "This store isn't visible to the public right now. Get in touch and we'll look into it with you."
+    }
   },
   "docs": {
     "titulo": "Documentation",

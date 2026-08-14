@@ -28,6 +28,12 @@ import { comoJsonLd, fichaDeTienda } from "@/lib/seo/datos-estructurados";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 import { verificacionDe } from "@/lib/verificacion/consultas";
 import { luceElSello } from "@/lib/verificacion/estado";
+import {
+  avisoDeFichaNoPublica,
+  puedeVerLaFicha,
+  seIndexa,
+  type Mirador,
+} from "@/lib/tiendas/visibilidad";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +60,12 @@ export async function generateMetadata({
   return {
     title: datos.tienda.nombre,
     description: resumen,
+    /* Una tienda que todavía no es pública NO se indexa, aunque su dueño la
+       esté mirando: si Google la guarda durante la revisión, queda en sus
+       resultados una tienda que quizá no se aprobó nunca. */
+    ...(seIndexa(datos.tienda.estado)
+      ? {}
+      : { robots: { index: false, follow: false } }),
     alternates: rutaCanonica(`/tienda/${slug}`, locale),
     openGraph: {
       type: "website",
@@ -70,6 +82,29 @@ export async function generateMetadata({
  * Es lo que se abre al hacer clic en el nombre del vendedor: su portada, su
  * presentacion y todo su catalogo. Cada comercio tiene la suya.
  */
+/**
+ * QUIÉN ESTÁ MIRANDO ESTA FICHA.
+ *
+ * Se resuelve una sola vez y se le pasa a `puedeVerLaFicha`, que es quien
+ * decide. Si algo falla al leer la sesión se trata como visitante: lo prudente
+ * es enseñar de menos, nunca de más.
+ */
+async function quienMira(): Promise<Mirador> {
+  try {
+    const { obtenerAlcance, esEquipoInterno } =
+      await import("@/lib/autorizacion");
+    if (await esEquipoInterno()) return { tipo: "equipo" };
+
+    const alcance = await obtenerAlcance();
+    if (alcance.tipo === "tienda") {
+      return { tipo: "comercio", tiendaId: alcance.tiendaId };
+    }
+  } catch {
+    /* Sin sesión, o con una rota: visitante. */
+  }
+  return { tipo: "visitante" };
+}
+
 export default async function PaginaTienda({
   params,
   searchParams,
@@ -90,6 +125,18 @@ export default async function PaginaTienda({
   if (!datos) notFound();
 
   const { tienda, productos, total, paginas } = datos;
+
+  /**
+   * ¿ESTA FICHA SE LE PUEDE ENSEÑAR A QUIEN LA PIDIÓ?
+   *
+   * Una tienda nueva nace en `pendiente` y antes esto daba 404 **también a su
+   * dueño**, que acababa de subirle el logo y la portada. Ahora la ve él y la
+   * ve el equipo; a un visitante le sigue dando 404.
+   */
+  const mirador = await quienMira();
+  if (!puedeVerLaFicha(tienda.estado, mirador, tienda.id)) notFound();
+
+  const avisoNoPublica = avisoDeFichaNoPublica(tienda.estado);
 
   /* Cómo despacha. Un comercio sin fila devuelve "sin definir", que NO es lo
      mismo que "no envía": es que todavía no lo dijo, y así se enseña. */
@@ -223,6 +270,22 @@ export default async function PaginaTienda({
         // Escapado: el nombre y la descripción los escribe el comercio.
         dangerouslySetInnerHTML={{ __html: comoJsonLd(paraGoogle) }}
       />
+
+      {/**
+       * LA FRANJA QUE FALTABA.
+       *
+       * Solo la ve quien puede ver una ficha no pública —su dueño o el equipo—,
+       * porque a nadie más se le enseña la página. Va ARRIBA DEL TODO y en
+       * amarillo: quien acaba de subir su portada y no ve su tienda en Google
+       * necesita saber por qué en el primer segundo, no después de bajar.
+       */}
+      {avisoNoPublica ? (
+        <div className="border-b border-amber-300 bg-amber-100">
+          <p className="mx-auto max-w-[1500px] px-4 py-3 text-sm font-semibold text-amber-900">
+            {t(`noPublica.${avisoNoPublica}`)}
+          </p>
+        </div>
+      ) : null}
 
       {/* LA PORTADA.
 

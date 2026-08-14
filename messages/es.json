@@ -1986,7 +1986,12 @@
     "verificada": "Empresa verificada",
     "dondeSeRetira": "Dónde se retira",
     "masDelComercio": "Más de este comercio",
-    "mensajeWhatsapp": "Hola, te escribo desde Mercatren.com. Estoy interesado en tus productos y quiero más información."
+    "mensajeWhatsapp": "Hola, te escribo desde Mercatren.com. Estoy interesado en tus productos y quiero más información.",
+    "noPublica": {
+      "borrador": "Esta es tu tienda y todavía está en borrador: solo la ves tú. Termina de completarla en Mi tienda y envíala a revisión para que salga al público.",
+      "pendiente": "Esta es tu tienda y todavía no es pública: la estamos revisando. Solo la ves tú y el equipo de Mercatren. Te avisamos en cuanto quede activa.",
+      "suspendida": "Esta tienda no está visible para el público ahora mismo. Escríbenos y lo revisamos contigo."
+    }
   },
   "docs": {
     "titulo": "Documentación",

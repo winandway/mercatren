@@ -478,6 +478,37 @@ base local igual. **Ojo al agregar columnas:** `schema.sql` solo trae
 `CREATE TABLE IF NOT EXISTS`, así que una base que ya existe NO las recibe
 sola; hay que aplicar el ALTER a mano, una vez, con el token.
 
+## La tienda recién creada le daba 404 a su propio dueño (14 ago 2026)
+
+Un comercio creó su tienda, le subió el logo y la portada, tocó «ver mi tienda»
+y se encontró un **404 de su propia tienda**. La sospecha razonable fue que la
+imagen pesaba demasiado; no era eso — **el banner y el logo se comprimen en el
+navegador desde hace tiempo**, igual que las fotos de producto.
+
+La causa: **una tienda nueva nace en `pendiente`** —la revisa el equipo antes de
+publicarla— y `obtenerTiendaPorSlug` filtraba por `estado = 'activa'` dentro de
+la consulta. Así que la ficha no existía para nadie, ni para su dueño.
+
+Desde su silla, un 404 no se lee como «está en revisión»: se lee como que el
+sitio perdió su trabajo. Y lo primero que uno piensa es que la culpa fue de la
+foto que acaba de subir.
+
+**Ahora la consulta trae el estado y NO filtra por él**; quién puede ver la
+ficha lo decide `src/lib/tiendas/visibilidad.ts` (puro, 10 pruebas), que sabe
+quién está mirando:
+
+- **Su dueño y el equipo** la ven, con una franja amarilla arriba del todo que
+  dice por qué todavía no es pública y qué falta.
+- **Un visitante sigue recibiendo 404.** Enseñar tiendas sin revisar al público
+  es justo lo que la revisión viene a evitar, y un 404 ni siquiera confirma que
+  ese nombre exista.
+- **Otro comercio tampoco.** Se compara el id de la tienda con el de quien
+  mira; sin eso, cualquiera espiaría la tienda sin publicar de un competidor
+  escribiendo su dirección.
+- **Google no la indexa** mientras no sea pública, aunque su dueño la esté
+  viendo: si la guarda durante la revisión, queda en sus resultados una tienda
+  que quizá no se aprobó nunca.
+
 ## El comercio piloto
 
 `Ferremateriales Bley C.A` (id `tienda-bley-ferreteria`) viene del MVP
