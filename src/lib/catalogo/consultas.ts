@@ -561,7 +561,19 @@ export async function listarComerciosDestacados() {
 }
 
 /** La tienda de un comercio: sus datos y sus productos. */
-export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
+export async function obtenerTiendaPorSlug(
+  slug: string,
+  pagina = 1,
+  /**
+   * SOLO SE PIDEN LAS NO PÚBLICAS CUANDO HAY ALGUIEN CON SESIÓN MIRANDO.
+   *
+   * Por defecto va **false**, así que para un visitante esta consulta es
+   * exactamente la de siempre, con su `estado = 'activa'`. Se hizo así después
+   * de que quitar el filtro para todos dejara caída la ficha de un comercio en
+   * producción: el camino del público no puede depender de código nuevo.
+   */
+  incluirNoPublicas = false,
+) {
   const db = getDb();
 
   const [tienda] = await db
@@ -598,7 +610,11 @@ export async function obtenerTiendaPorSlug(slug: string, pagina = 1) {
       horario: tiendas.horario,
     })
     .from(tiendas)
-    .where(eq(tiendas.slug, slug))
+    .where(
+      incluirNoPublicas
+        ? eq(tiendas.slug, slug)
+        : and(eq(tiendas.slug, slug), eq(tiendas.estado, "activa")),
+    )
     .limit(1);
 
   if (!tienda) return null;

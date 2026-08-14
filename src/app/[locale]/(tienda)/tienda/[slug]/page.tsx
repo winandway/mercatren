@@ -121,19 +121,29 @@ export default async function PaginaTienda({
   const tc = await getTranslations("catalogo");
   const te = await getTranslations("envio");
 
-  const datos = await obtenerTiendaPorSlug(slug, Number(pagina) || 1);
-  if (!datos) notFound();
-
-  const { tienda, productos, total, paginas } = datos;
-
   /**
    * ¿ESTA FICHA SE LE PUEDE ENSEÑAR A QUIEN LA PIDIÓ?
    *
    * Una tienda nueva nace en `pendiente` y antes esto daba 404 **también a su
    * dueño**, que acababa de subirle el logo y la portada. Ahora la ve él y la
    * ve el equipo; a un visitante le sigue dando 404.
+   *
+   * El orden importa: primero se sabe quién mira, y **solo si tiene sesión** se
+   * pide la tienda sin el filtro de estado. Para un visitante la consulta es
+   * byte por byte la de siempre — el camino del público no puede depender de
+   * código nuevo.
    */
   const mirador = await quienMira();
+
+  const datos = await obtenerTiendaPorSlug(
+    slug,
+    Number(pagina) || 1,
+    mirador.tipo !== "visitante",
+  );
+  if (!datos) notFound();
+
+  const { tienda, productos, total, paginas } = datos;
+
   if (!puedeVerLaFicha(tienda.estado, mirador, tienda.id)) notFound();
 
   const avisoNoPublica = avisoDeFichaNoPublica(tienda.estado);
