@@ -168,7 +168,18 @@ export async function PiePagina() {
        * `noreferrer` no sirve para esto: solo oculta de dónde vino la visita.
        */}
       <div className="border-t border-white/10 bg-riel-950">
-        <div className="mx-auto max-w-[1500px] px-4 py-5 text-center text-xs text-white/60">
+        {/**
+         * `data-nosnippet` saca este bloque de los fragmentos que Google
+         * enseña en sus resultados y en sus respuestas de IA. La persona que
+         * entra al sitio lo sigue viendo tal cual —no es ocultarlo, es que
+         * deje de ser texto citable fuera del sitio—, y así el crédito no
+         * puede volver a salir en un resumen como si fuera quien opera la
+         * tienda. Es el único bloque de la página que lo lleva.
+         */}
+        <div
+          data-nosnippet
+          className="mx-auto max-w-[1500px] px-4 py-5 text-center text-xs text-white/60"
+        >
           © {anio} mercatren.com | {t("derechos")} {t("desarrolladoPor")}{" "}
           <a
             href={DESARROLLADOR.sitio}

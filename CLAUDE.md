@@ -803,8 +803,23 @@ cualquier página son las de ese crédito. Los textos (`messages/*.json`) están
 en cero, y el pie dice «Operado por Mercatren LLC, Michigan» mientras los datos
 estructurados declaran `legalName: Mercatren LLC`.
 
-**Lo que queda es cuestión de tiempo:** Google tiene que volver a rastrear. No
-hay nada más que tocar en el sitio.
+3. **El crédito lleva además `data-nosnippet`** (14 ago 2026). Eso lo saca de
+   los fragmentos que Google enseña en sus resultados y en sus respuestas de
+   IA. No lo oculta: quien entra al sitio lo sigue viendo igual. Lo que deja de
+   ser es texto citable fuera del sitio, que es exactamente como terminó en un
+   resumen de Google como si Windoce operara la tienda.
+
+**LO QUE QUEDA NO SE ARREGLA TOCANDO EL SITIO: GOOGLE ESTÁ CITANDO SU COPIA
+VIEJA.** Comprobado leyendo las páginas publicadas el 14 de agosto: la de
+privacidad dice, literalmente, «Mercatren LLC, sociedad registrada en Estados
+Unidos, operando bajo la marca Mercatren». Es la misma frase que Google cita —
+con el nombre correcto. La suya es de antes del 12 de agosto.
+
+Lo único que acelera eso es **pedir la reindexación en Search Console**
+(Inspección de URL → Solicitar indexación), página por página: portada,
+términos, privacidad, nosotros, cómo funciona y transparencia, en los dos
+idiomas. Reescribir textos que ya están bien no cambia nada y hace perder el
+día.
 
 ## Lo escrito NO se pierde: borrador en todos los formularios (12 ago 2026)
 
