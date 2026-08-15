@@ -54,6 +54,8 @@ export const esquemaEntorno = z.object({
   BETTER_AUTH_SECRET: z.string().min(32).optional(),
 
   // Cobros con tarjeta.
+  /** La llave de CJ Dropshipping, que surte el catalogo de Estados Unidos. */
+  CJ_API_KEY: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().startsWith("sk_").optional(),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
   STRIPE_CLAVE_PUBLICA: z.string().startsWith("pk_").optional(),

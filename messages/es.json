@@ -905,6 +905,13 @@
         "texto": "Comprueba que la llave del banco sirve antes de que haga falta de verdad. Solo consulta las cuentas: no mueve ni un centavo.",
         "boton": "Probar la conexión con el banco",
         "probando": "Probando…"
+      },
+      "cj": {
+        "titulo": "CJ Dropshipping",
+        "texto": "Surte el catálogo de Estados Unidos. Comprueba que la llave sirve y que se puede leer su catálogo.",
+        "boton": "Probar la conexión con CJ",
+        "probando": "Probando…",
+        "leyo": "Leyó {n} productos de prueba."
       }
     },
     "fotos": {
@@ -1113,7 +1120,13 @@
       "tokenEmitido": "Token emitido para {comercio}. Cópialo ahora: no se vuelve a mostrar.",
       "tokenRotado": "Token nuevo para {comercio}. El anterior dejó de servir: cárgalo en su sistema o dejará de cobrar.",
       "demasiadosIntentos": "Demasiados intentos. Espera unos minutos y vuelve a probar.",
-      "entregaSoloDelComercio": "Solo el comercio que vendió puede marcar la entrega. Es quien tiene la mercancía y quien se la da al comprador."
+      "entregaSoloDelComercio": "Solo el comercio que vendió puede marcar la entrega. Es quien tiene la mercancía y quien se la da al comprador.",
+      "cj": {
+        "sinLlave": "Falta la variable CJ_API_KEY en el panel de YaDominios. Cárgala y vuelve a publicar el sitio.",
+        "llaveRechazada": "CJ no aceptó la llave.",
+        "sinCatalogo": "La llave sirve, pero no se pudo leer el catálogo.",
+        "conectado": "Conectado con CJ. La llave sirve y el catálogo se puede leer."
+      }
     },
     "usuarios": {
       "titulo": "Cuentas",

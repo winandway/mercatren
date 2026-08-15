@@ -905,6 +905,13 @@
         "texto": "Check that the bank key works before you actually need it. It only reads the accounts — it doesn't move a cent.",
         "boton": "Test the bank connection",
         "probando": "Testing…"
+      },
+      "cj": {
+        "titulo": "CJ Dropshipping",
+        "texto": "Supplies the United States catalog. Check that the key works and that its catalog can be read.",
+        "boton": "Test the CJ connection",
+        "probando": "Testing…",
+        "leyo": "Read {n} sample products."
       }
     },
     "fotos": {
@@ -1113,7 +1120,13 @@
       "tokenEmitido": "Token issued for {comercio}. Copy it now — it will not be shown again.",
       "tokenRotado": "New token for {comercio}. The previous one no longer works: load it into their system or they will stop collecting.",
       "demasiadosIntentos": "Too many attempts. Wait a few minutes and try again.",
-      "entregaSoloDelComercio": "Only the merchant who sold it can mark the delivery — they're the one handing the goods to the buyer."
+      "entregaSoloDelComercio": "Only the merchant who sold it can mark the delivery — they're the one handing the goods to the buyer.",
+      "cj": {
+        "sinLlave": "The CJ_API_KEY variable is missing from the YaDominios panel. Add it and republish the site.",
+        "llaveRechazada": "CJ rejected the key.",
+        "sinCatalogo": "The key works, but the catalog could not be read.",
+        "conectado": "Connected to CJ. The key works and the catalog can be read."
+      }
     },
     "usuarios": {
       "titulo": "Accounts",

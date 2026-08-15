@@ -16,6 +16,8 @@ interface CloudflareEnv {
   BETTER_AUTH_SECRET: string;
 
   /** Stripe Connect: cobros del cliente y pago dividido al vendedor. */
+  /** CJ Dropshipping: surte el catalogo de Estados Unidos. */
+  CJ_API_KEY?: string;
   STRIPE_SECRET_KEY: string;
   /** La clave publicable: va al navegador, no es secreta. */
   STRIPE_CLAVE_PUBLICA?: string;

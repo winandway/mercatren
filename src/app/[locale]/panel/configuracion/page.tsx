@@ -4,6 +4,7 @@ import {
   Check,
   ImageIcon,
   Landmark,
+  PackageSearch,
   Languages,
   Mail,
   Settings,
@@ -15,6 +16,7 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
+import { ProbarCj } from "@/components/panel/probar-cj";
 import { ProbarMercury } from "@/components/panel/probar-mercury";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
@@ -179,6 +181,27 @@ export default async function PaginaConfiguracion({
           {t("mercury.texto")}
         </p>
         <ProbarMercury />
+      </section>
+
+      {/**
+       * CJ DROPSHIPPING: el proveedor del catálogo de Estados Unidos.
+       *
+       * Se comprueba con un botón por el mismo motivo que el banco y el correo:
+       * la llave se pega en el panel de la plataforma, donde guardar siempre
+       * «funciona», y lo que falla es la primera llamada de verdad. Sin este
+       * botón, esa primera llamada sería la sincronización del catálogo de
+       * madrugada, sin nadie mirando.
+       */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <PackageSearch className="h-4 w-4 text-carga-500" aria-hidden />
+          CJ Dropshipping
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+          Surte el catálogo de Estados Unidos. Comprueba que la llave
+          (CJ_API_KEY) sirve y que se puede leer su catálogo.
+        </p>
+        <ProbarCj />
       </section>
 
       {/* Las variables de cobro: solo si estan, nunca su valor. */}
