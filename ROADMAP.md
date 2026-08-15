@@ -415,6 +415,64 @@ Falta la captura que el dueño va a mandar para afinar el detalle.
   y todavía sin hacer; va completo o no va.
 - **Los avisos por Telegram.** Pedido el 14 ago, nunca existió.
 
+## LAS TIENDAS POR RUBRO Y LA NAVEGACIÓN (pedido el 15 ago 2026)
+
+### 6. Al entrar en una categoría, la barra de categorías DESAPARECE
+
+Desde la portada se ven los 23 departamentos en la tira de arriba y funciona
+precioso. Se toca uno, se entra… **y la tira ya no está**. Para ir a otra
+categoría hay que devolverse con el botón de atrás.
+
+Eso es un callejón sin salida: quien está navegando por gusto —que es quien más
+compra— se topa con una pared en el segundo clic. La tira tiene que quedarse,
+con la categoría en la que estás marcada.
+
+### 7. VARIAS TIENDAS DE ESTADOS UNIDOS, UNA POR RUBRO
+
+Hoy todo lo de Estados Unidos cuelga de una sola tienda. Con 10.000 o 20.000
+productos dentro, eso se ve mal y se ve a monopolio: una tienda que lo vende
+todo no se parece a nada real.
+
+**El plan:** varias tiendas, cada una con su nombre propio y su rubro — una de
+repuestos de carro, otra de muebles, otra de carteras, y así. El comprador ve
+un mercado con muchos vendedores, que es lo que es Mercatren.
+
+**Por dentro no cambia nada:** la compra a CJ y la factura las hace
+**Mercatren LLC**, directo, igual que hoy. El nombre de la tienda es
+presentación.
+
+**LA REGLA QUE NO SE NEGOCIA, y es la que hace que esto sea legítimo:** en la
+ficha de cada producto y en cada tienda se lee **quién vende y factura**
+(«Vendido y facturado por Mercatren LLC»). Con esa línea son marcas de la casa,
+como Amazon Basics o las marcas propias de cualquier cadena — perfectamente
+normal. Sin ella son vendedores inventados, y eso es tergiversación: causa de
+suspensión en Merchant Center y de contracargos ganados por el comprador. La
+línea puede ir discreta; lo que no puede es faltar.
+
+Lo que hay que construir:
+
+- **En el panel, dar de alta una tienda de la casa**: nombre, rubro y su ficha.
+  Solo el equipo interno.
+- **El producto cae solo en la tienda de su rubro.** Ya se calcula el
+  departamento al agregarlo desde CJ (`src/lib/cj/departamento.ts`); esa misma
+  decisión elige la tienda. Si estando en la de repuestos se agrega una cartera,
+  la cartera **se va sola a la de carteras** — no se queda donde no va.
+- **Repartir los 78 que ya están.** Hoy cuelgan todos de
+  `tienda-mercatren-us`. Hay que moverlos a la tienda que les toca, sin romper
+  sus direcciones web ni sus fotos.
+- **Un rubro sin tienda propia se queda en la tienda general.** Nunca se
+  descarta un producto por no tener dónde ponerlo.
+
+### 8. El mapa del almacén en cada tienda
+
+Que quien entra vea **dónde está el almacén**: un punto en una ciudad de
+Estados Unidos y flechas saliendo hacia todo el país. Cada tienda nueva lleva
+el suyo.
+
+**No se miente y no hace falta:** el almacén está en Estados Unidos de verdad, y
+el mapa dice eso. Es un dibujo nuestro, no un mapa de un tercero — nada de
+incrustar Google Maps, que además cobra por carga.
+
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
 Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega
