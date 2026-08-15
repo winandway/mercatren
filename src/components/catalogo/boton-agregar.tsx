@@ -14,14 +14,20 @@ import { cn } from "@/lib/utils";
  */
 export function BotonAgregar({
   linea,
+  minimo = 1,
   agotado = false,
 }: {
   linea: Omit<LineaCarrito, "cantidad">;
+  /** Lo mínimo que se puede llevar. Doce en la tienda mayorista. */
+  minimo?: number;
   agotado?: boolean;
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
-  const [cantidad, setCantidad] = useState(1);
+  /* En la mayorista se arranca en el mínimo, no en 1: si el desplegable
+     empieza en uno, el comprador pide una unidad de algo que solo se vende por
+     docena y se entera al final — o no se entera. */
+  const [cantidad, setCantidad] = useState(minimo);
   const [agregado, setAgregado] = useState(false);
 
   if (agotado) {
@@ -38,6 +44,7 @@ export function BotonAgregar({
           las existencias, no el desplegable. */}
       <SelectorCantidad
         valor={cantidad}
+        minimo={minimo}
         maximo={linea.maximo}
         onCambiar={setCantidad}
         etiqueta={t("cantidad")}

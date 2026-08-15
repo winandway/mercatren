@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonAgregar } from "@/components/catalogo/boton-agregar";
+import { cantidadMinima } from "@/lib/cj/mayorista";
 import { SelectorVariante } from "@/components/catalogo/selector-variante";
 import {
   coloresDe,
@@ -111,6 +112,10 @@ export default async function PaginaProducto({
      mundo "no hacemos entregas a domicilio", y desde que los comercios pueden
      enviar eso era mentira: al que sí despacha le estábamos quitando la venta
      en su propia ficha. */
+  /* Doce en la mayorista, una en el resto. Lo decide la tienda del producto,
+     y el servidor lo vuelve a comprobar al crear el pedido. */
+  const minimoDeCompra = cantidadMinima(ficha.tiendaId);
+
   const envioDelComercio = await politicaDeEnvio(ficha.tiendaId);
   /* Las preguntas de la ficha. Si fallan salen vacias y el bloque desaparece:
      un problema de base no puede tumbar la pagina donde se vende. */
@@ -385,6 +390,7 @@ export default async function PaginaProducto({
             ) : (
               <BotonAgregar
                 agotado={agotado}
+                minimo={minimoDeCompra}
                 linea={{
                   productoId: producto.id,
                   slug: producto.slug,

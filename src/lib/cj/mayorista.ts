@@ -38,11 +38,10 @@ export const TIENDA_MAYORISTA = {
 /**
  * Cuántas unidades hay que llevar como mínimo.
  *
- * Diez, que es lo que convierte un margen de un dólar en uno de diez. No es un
- * número redondo por gusto: por debajo de ahí el producto vuelve a ser el que
- * una devolución hunde.
+ * Una docena. Es lo que convierte un margen de un dólar en uno de doce, y es la
+ * unidad de compra que la gente ya entiende sin que haya que explicarla.
  */
-export const MINIMO_MAYORISTA = 10;
+export const MINIMO_MAYORISTA = 12;
 
 /** ¿Este producto va a la mayorista en vez de a la tienda de su rubro? */
 export function vaAlMayorista(margenCentavos: number): boolean {

@@ -28,12 +28,21 @@ import { cn } from "@/lib/utils";
  */
 export function SelectorCantidad({
   valor,
+  minimo = 1,
   maximo,
   onCambiar,
   etiqueta,
   compacto = false,
 }: {
   valor: number;
+  /**
+   * Lo mínimo que se puede llevar.
+   *
+   * En la tienda mayorista son doce. Sin esto, el desplegable arrancaba en 1 y
+   * el comprador podía pedir una unidad suelta de un producto que solo se
+   * vende por docena — y se enteraba al final, o ni se enteraba.
+   */
+  minimo?: number;
   /** Existencias disponibles; null = no se controlan (tope de cortesía). */
   maximo: number | null;
   onCambiar: (cantidad: number) => void;
@@ -98,7 +107,7 @@ export function SelectorCantidad({
           ref={casilla}
           type="number"
           inputMode="numeric"
-          min={1}
+          min={minimo}
           max={max}
           step={1}
           value={texto}
@@ -141,7 +150,10 @@ export function SelectorCantidad({
       aria-label={etiqueta}
       className={estiloCaja}
     >
-      {Array.from({ length: Math.min(9, max) }, (_, i) => i + 1).map((n) => (
+      {Array.from(
+        { length: Math.max(1, Math.min(9, max - minimo + 1)) },
+        (_, i) => i + minimo,
+      ).map((n) => (
         <option key={n} value={n}>
           {n}
         </option>

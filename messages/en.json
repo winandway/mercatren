@@ -1866,7 +1866,8 @@
         "casilleroTexto": "You can rent a U.S. mail forwarding address —several companies offer this— and enter it at checkout. We ship to that address for free, and the forwarding company takes it from there to your country. Cost, delivery time, and customs on that final leg are handled by them, not by Mercatren.",
         "mapaTitulo": "Our warehouse in the United States",
         "mapaPie": "We ship from here to the entire country."
-      }
+      },
+      "ventaMinima": "Minimum order: {minimo} units · {total} per lot"
     },
     "paginacion": {
       "anterior": "Previous",
