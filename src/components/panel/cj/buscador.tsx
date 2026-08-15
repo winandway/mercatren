@@ -33,7 +33,7 @@ type ProductoVista = {
   sku: string | null;
   categoria: string | null;
   costoCentavos: number;
-  existencias: number;
+  existencias: number | null;
   precio: {
     publicadoCentavos: number;
     procesadorCentavos: number;
@@ -42,7 +42,13 @@ type ProductoVista = {
 };
 
 type Respuesta =
-  | { ok: true; productos: ProductoVista[]; pagina: number; hayMas: boolean }
+  | {
+      ok: true;
+      productos: ProductoVista[];
+      pagina: number;
+      hayMas: boolean;
+      diagnostico: { trajoCj: number; descartados: number };
+    }
   | { ok: false; motivo: string };
 
 const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
@@ -77,7 +83,7 @@ export function BuscadorCj({
     datos.set("imagen", p.imagen ?? "");
     datos.set("sku", p.sku ?? "");
     datos.set("costo", String(p.costoCentavos));
-    datos.set("existencias", String(p.existencias));
+    datos.set("existencias", String(p.existencias ?? 0));
 
     try {
       const r = await agregarProductoDeCj(datos);
@@ -129,9 +135,18 @@ export function BuscadorCj({
       ) : null}
 
       {resultado?.ok && resultado.productos.length === 0 ? (
-        <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-tinta-suave">
-          {t("nada")}
-        </p>
+        <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-tinta-suave">
+          <p>{t("nada")}</p>
+          {/* POR QUÉ está vacía. Sin esto, «CJ no devolvió nada» y «devolvió y
+              se descartó todo» se ven idénticas, y la siguiente vez hay que
+              adivinar dónde mirar. */}
+          <p className="mt-1 text-xs">
+            {t("diagnostico", {
+              trajo: resultado.diagnostico.trajoCj,
+              fuera: resultado.diagnostico.descartados,
+            })}
+          </p>
+        </div>
       ) : null}
 
       {resultado?.ok && resultado.productos.length > 0 ? (
@@ -191,7 +206,9 @@ export function BuscadorCj({
                     </div>
                     <div className="flex justify-between gap-2">
                       <dt className="text-tinta-suave">{t("almacen")}</dt>
-                      <dd className="tabular-nums">{p.existencias}</dd>
+                      <dd className="tabular-nums">
+                        {p.existencias === null ? "—" : p.existencias}
+                      </dd>
                     </div>
                   </dl>
 

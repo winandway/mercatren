@@ -1751,7 +1751,8 @@
       "anterior": "← Previous",
       "siguiente": "Next →",
       "pagina": "Page {n}",
-      "soloEquipo": "This section is for the team only."
+      "soloEquipo": "This section is for the team only.",
+      "diagnostico": "CJ returned {trajo} products and {fuera} were discarded for price or stock."
     }
   },
   "catalogo": {

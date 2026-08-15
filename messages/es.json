@@ -1751,7 +1751,8 @@
       "anterior": "← Anterior",
       "siguiente": "Siguiente →",
       "pagina": "Página {n}",
-      "soloEquipo": "Esta parte es solo para el equipo."
+      "soloEquipo": "Esta parte es solo para el equipo.",
+      "diagnostico": "CJ devolvió {trajo} productos y se descartaron {fuera} por precio o existencias."
     }
   },
   "catalogo": {

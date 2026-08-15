@@ -30,7 +30,17 @@ import { desglosarUs, type DesgloseUs } from "@/lib/destino/precio-us";
  * de CJ a secas.
  */
 
-/** Lo mínimo que tiene que haber en almacén para que valga la pena publicarlo. */
+/**
+ * Lo mínimo que tiene que haber en almacén para que valga la pena publicarlo.
+ *
+ * **Solo se descarta cuando SE SABE que hay menos.** Si CJ no manda el dato de
+ * inventario en el listado —y no siempre lo manda—, el producto pasa igual con
+ * `existencias: null`.
+ *
+ * Tratar «no viene el dato» como «hay cero» dejaba la pantalla vacía para
+ * cualquier búsqueda, sin una sola pista de por qué. Un dato que falta se dice;
+ * no se rellena con el que había a mano.
+ */
 export const EXISTENCIAS_MINIMAS = 10;
 
 /** Un producto de CJ tal como lo vamos a mirar nosotros. */
@@ -42,7 +52,8 @@ export type ProductoCj = {
   categoria: string | null;
   /** Lo que cobra CJ por el producto, en centavos. */
   costoCentavos: number;
-  existencias: number;
+  /** `null` cuando CJ no lo manda: no es lo mismo que cero. */
+  existencias: number | null;
   /** Nuestro precio y el reparto del dinero. */
   precio: DesgloseUs;
 };
@@ -72,14 +83,53 @@ type RespuestaLista = { list?: FilaCj[]; total?: number };
  * cuadra. Es el mismo cuidado que ya se tiene en el cobro por enlace.
  */
 function aCentavos(valor: number | string | undefined): number {
-  const n = typeof valor === "string" ? Number(valor) : (valor ?? 0);
-  if (!Number.isFinite(n) || n <= 0) return 0;
-  return Math.round(Number((n * 100).toPrecision(12)));
+  /**
+   * ══ CJ MANDA RANGOS, NO SIEMPRE UN NÚMERO ══
+   *
+   * Un producto con variantes —tallas, colores— llega con el precio así:
+   * `"12.50 -- 15.30"`. Pasarlo por `Number()` da NaN, y ese NaN se convertía
+   * en cero, y el cero hacía que el producto se descartara.
+   *
+   * Resultado: la pantalla salía **vacía** para cualquier búsqueda, sin decir
+   * por qué. Se toma el número más bajo del rango, que es el que de verdad
+   * cuesta la variante más barata.
+   */
+  if (typeof valor === "number") {
+    return Number.isFinite(valor) && valor > 0
+      ? Math.round(Number((valor * 100).toPrecision(12)))
+      : 0;
+  }
+
+  if (!valor) return 0;
+
+  const numeros = String(valor)
+    .match(/\d+(?:\.\d+)?/g)
+    ?.map(Number)
+    .filter((n) => Number.isFinite(n) && n > 0);
+
+  if (!numeros?.length) return 0;
+
+  const menor = Math.min(...numeros);
+  return Math.round(Number((menor * 100).toPrecision(12)));
 }
 
-function aEntero(valor: number | string | undefined): number {
-  const n = typeof valor === "string" ? Number(valor) : (valor ?? 0);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+function aEntero(valor: number | string | undefined): number | null {
+  if (valor === undefined || valor === null || valor === "") return null;
+  const n = typeof valor === "string" ? Number(valor) : valor;
+  return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : null;
+}
+
+/**
+ * Las existencias, o `null` si CJ no las mandó.
+ *
+ * Se prefiere el inventario verificado, que es el que de verdad está en el
+ * almacén. Si ninguno de los dos viene, no se sabe — y no saber no es cero.
+ */
+function existenciasDe(f: FilaCj): number | null {
+  const verificado = aEntero(f.totalVerifiedInventory);
+  const almacen = aEntero(f.warehouseInventoryNum);
+  if (verificado === null && almacen === null) return null;
+  return Math.max(verificado ?? 0, almacen ?? 0);
 }
 
 export type BusquedaCj = {
@@ -93,7 +143,14 @@ export type BusquedaCj = {
 };
 
 export type ResultadoBusqueda =
-  | { ok: true; productos: ProductoCj[]; pagina: number; hayMas: boolean }
+  | {
+      ok: true;
+      productos: ProductoCj[];
+      pagina: number;
+      hayMas: boolean;
+      /** Para que una pantalla vacía diga POR QUÉ está vacía. */
+      diagnostico: { trajoCj: number; descartados: number };
+    }
   | { ok: false; motivo: string };
 
 export async function buscarEnCj(
@@ -107,12 +164,19 @@ export async function buscarEnCj(
     size: String(porPagina),
     /* EL FILTRO QUE NO SE TOCA. Ver el comentario de arriba. */
     countryCode: "US",
-    /* Por existencias, de más a menos: lo que está bien surtido primero. Un
-       producto que se agota en tres días no sirve para un catálogo que Google
-       va a indexar. */
-    orderBy: "4",
-    sort: "desc",
   });
+
+  /**
+   * NO SE MANDA `orderBy` NI `sort`, Y ES DELIBERADO.
+   *
+   * Los puse para traer primero lo mejor surtido, y son justo la clase de
+   * parámetro que uno da por bueno sin comprobar: si CJ no los admite tal como
+   * se los mando, la respuesta vuelve vacía y la pantalla queda en blanco sin
+   * decir nada.
+   *
+   * Ordenar es un lujo; que salgan productos es el requisito. Se vuelven a
+   * poner el día que se compruebe contra su API de verdad que los acepta.
+   */
 
   if (filtros.texto?.trim()) parametros.set("keyWord", filtros.texto.trim());
   if (filtros.precioMinimo) {
@@ -132,16 +196,17 @@ export async function buscarEnCj(
     ? respuesta.datos.list
     : [];
 
-  const productos = filas
+  const convertidos = filas
     .map((f) => aProducto(f))
-    /* Se descarta aquí y no en la pantalla: un producto sin precio o sin
-       existencias no es una opción que haya que enseñar y descartar a mano. */
-    .filter(
-      (p): p is ProductoCj =>
-        p !== null &&
-        p.costoCentavos > 0 &&
-        p.existencias >= EXISTENCIAS_MINIMAS,
-    );
+    .filter((p): p is ProductoCj => p !== null);
+
+  const productos = convertidos.filter(
+    (p) =>
+      p.costoCentavos > 0 &&
+      /* Solo se descarta si SE SABE que hay poco. Ver el comentario de
+         `EXISTENCIAS_MINIMAS`. */
+      (p.existencias === null || p.existencias >= EXISTENCIAS_MINIMAS),
+  );
 
   return {
     ok: true,
@@ -150,6 +215,18 @@ export async function buscarEnCj(
     /* CJ no siempre manda el total, así que «hay más» se deduce de si vino la
        página llena. Es lo único honesto sin inventarse un número. */
     hayMas: filas.length >= porPagina,
+    /**
+     * QUÉ TRAJO CJ Y QUÉ SE DESCARTÓ.
+     *
+     * Sin esto, una pantalla vacía tiene tres causas posibles —CJ no devolvió
+     * nada, devolvió y se descartó todo por precio, o por existencias— y las
+     * tres se ven idénticas. Con el conteo, la siguiente vez se sabe dónde
+     * mirar en vez de adivinar.
+     */
+    diagnostico: {
+      trajoCj: filas.length,
+      descartados: convertidos.length - productos.length,
+    },
   };
 }
 
@@ -183,10 +260,7 @@ function aProducto(f: FilaCj): ProductoCj | null {
       f.oneCategoryName?.trim() ||
       null,
     costoCentavos: costo,
-    existencias: Math.max(
-      aEntero(f.totalVerifiedInventory),
-      aEntero(f.warehouseInventoryNum),
-    ),
+    existencias: existenciasDe(f),
     precio,
   };
 }
