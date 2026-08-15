@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { BuscadorCj } from "@/components/panel/cj/buscador";
+import { RepartirCatalogo } from "@/components/panel/cj/repartir";
 import { Link } from "@/i18n/navigation";
 import { TIENDA_US } from "@/lib/cj/constantes";
 import { esEquipoInterno } from "@/lib/autorizacion";
@@ -80,6 +81,8 @@ export default async function PaginaCatalogoUsa({
           </Link>
         </div>
       </header>
+
+      <RepartirCatalogo />
 
       {configurado ? (
         <BuscadorCj buscar={buscar} idioma={locale} />

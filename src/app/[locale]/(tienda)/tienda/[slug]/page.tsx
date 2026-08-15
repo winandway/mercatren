@@ -14,6 +14,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
+import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
 import { Link } from "@/i18n/navigation";
@@ -603,6 +604,19 @@ export default async function PaginaTienda({
             ) : null}
           </div>
         </details>
+
+        {/* EL MAPA DEL ALMACÉN, solo en las tiendas de Estados Unidos.
+            Quien llega de Google a una tienda con un nombre que no conoce se
+            pregunta lo mismo siempre: «¿esto de dónde me va a llegar?». Un
+            plazo escrito no contesta eso; un mapa sí, y sin leer. */}
+        {tienda.paisOrigen?.trim().toUpperCase() === "US" ? (
+          <div className="mt-5 max-w-xl">
+            <MapaAlmacen
+              titulo={tc("producto.entregaUs.mapaTitulo")}
+              pie={tc("producto.entregaUs.mapaPie")}
+            />
+          </div>
+        ) : null}
 
         <div className="mt-5 hidden gap-3 lg:grid lg:grid-cols-3">
           <div className="rounded-xl bg-slate-50 px-4 py-3">

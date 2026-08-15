@@ -17,6 +17,12 @@ import { COMISION_US_PB } from "@/lib/dinero";
 import { SOCIEDAD } from "@/lib/sociedad";
 import { FUENTE_CJ, TIENDA_US } from "@/lib/cj/constantes";
 import { idDeDepartamento } from "@/lib/cj/departamento";
+import {
+  TIENDA_US_GENERAL,
+  esDepartamentoReal,
+  nombrePropuesto,
+  tiendaDeRubro,
+} from "@/lib/cj/rubros";
 import { DEPARTAMENTOS } from "@/lib/catalogo/departamentos";
 import { desglosarUs } from "@/lib/destino/precio-us";
 
@@ -154,6 +160,82 @@ async function fuenteDeCj(tiendaId: string): Promise<string> {
 }
 
 /**
+ * LA TIENDA DEL RUBRO, creándola la primera vez que hace falta.
+ *
+ * ══ SE CREA AL AGREGAR, NO ANTES ══
+ *
+ * Pedirle al equipo que dé de alta veintitrés tiendas antes de poder cargar el
+ * primer producto es un trámite que nadie hace. Así, la tienda nace cuando
+ * entra su primer producto y ya queda lista para el resto.
+ *
+ * El nombre que se le pone es **una propuesta** —el del departamento— y se
+ * cambia después desde el panel como el de cualquier comercio. Un formulario
+ * en blanco antes de poder trabajar es lo que hace que nadie empiece.
+ *
+ * ══ Y EL PRODUCTO MANDA SOBRE LA PANTALLA ══
+ *
+ * A qué tienda va lo decide el departamento del producto, no lo que estuviera
+ * abierto: si estando en repuestos se agrega una cartera, la cartera se va a la
+ * de carteras. El equipo no tiene que acordarse de cambiar de tienda antes de
+ * cada producto — que es justo donde se equivocaría, y el error no se ve hasta
+ * que un comprador entra a una tienda de repuestos llena de bolsos.
+ */
+async function tiendaDelRubro(
+  departamento: string | null,
+  propietarioId: string,
+): Promise<string> {
+  if (!departamento || !esDepartamentoReal(departamento)) {
+    /* Sin departamento reconocido se queda en la general: perder mercancía por
+       no tener dónde ponerla es peor que tenerla un tiempo en la genérica. */
+    return tiendaDeEstadosUnidos(propietarioId);
+  }
+
+  const db = getDb();
+  const { id, slug } = tiendaDeRubro(departamento);
+
+  const [existente] = await db
+    .select({ id: tiendas.id })
+    .from(tiendas)
+    .where(eq(tiendas.id, id))
+    .limit(1);
+
+  if (existente) return existente.id;
+
+  /* La general tiene que existir igual: es el respaldo de todo lo que no
+     encaje, y de ella cuelga la fuente `cj`. */
+  await tiendaDeEstadosUnidos(propietarioId);
+
+  const ahora = new Date();
+  const nombreEs = nombrePropuesto(departamento, "es");
+  const nombreEn = nombrePropuesto(departamento, "en");
+
+  await db.insert(tiendas).values({
+    id,
+    slug,
+    nombre: nombreEs,
+    propietarioId,
+    paisOrigen: "US",
+    estado: "activa",
+    comisionPuntosBase: COMISION_US_PB,
+    /* QUIÉN VENDE Y FACTURA VA ESCRITO. Con esta línea son marcas de la casa
+       —como las marcas propias de cualquier cadena— y es normal. Sin ella son
+       vendedores inventados, y eso es tergiversación: causa de suspensión en
+       Merchant Center y de contracargos que el comprador gana. */
+    descripcionEs: `${nombreEs} con entrega en Estados Unidos en 2 a 5 días hábiles y el envío incluido en el precio. Vendido y facturado por ${SOCIEDAD.nombre}.`,
+    descripcionEn: `${nombreEn} delivered anywhere in the United States in 2 to 5 business days, shipping included in the price. Sold and invoiced by ${SOCIEDAD.nombre}.`,
+    creadoEn: ahora,
+    actualizadoEn: ahora,
+  });
+
+  await db
+    .insert(billeteras)
+    .values({ id: `billetera-${nanoid(10)}`, tiendaId: id })
+    .catch(() => undefined);
+
+  return id;
+}
+
+/**
  * Una dirección web a partir del nombre.
  *
  * El nombre de CJ viene en inglés y a veces larguísimo. Se recorta y se le pega
@@ -265,11 +347,14 @@ async function guardarProducto({
   departamento: string | null;
 }): Promise<Resultado> {
   const db = getDb();
-  const tiendaId = await tiendaDeEstadosUnidos(propietarioId);
+
+  /* LA TIENDA LA ELIGE EL PRODUCTO, no la pantalla. Ver `tiendaDelRubro`. */
+  const tiendaId = await tiendaDelRubro(departamento, propietarioId);
 
   /* La fuente ANTES del producto: `productos.fuente_id` apunta a ella y la base
-     rechaza el producto si todavía no existe. */
-  await fuenteDeCj(tiendaId);
+     rechaza el producto si todavía no existe. Cuelga de la tienda general, que
+     `tiendaDelRubro` se encarga de dejar creada. */
+  await fuenteDeCj(TIENDA_US_GENERAL);
 
   /* El envío se sigue asumiendo en cero hasta que se cotice contra una
      dirección real. El precio queda como mínimo y se ajusta al publicarlo. */
@@ -364,4 +449,94 @@ async function guardarProducto({
 
   revalidatePath("/[locale]/panel", "layout");
   return { ok: true, mensaje: `Agregado: ${nombre.slice(0, 60)}` };
+}
+
+/**
+ * REPARTIR EN SUS TIENDAS LO QUE YA ESTÁ CARGADO.
+ *
+ * Los productos que entraron antes de que existieran las tiendas por rubro
+ * cuelgan todos de la general. Esto los mueve a la que les toca, creando cada
+ * tienda a su paso.
+ *
+ * ══ MUEVE, NO COPIA NI BORRA ══
+ *
+ * Se cambia la tienda del producto y nada más: **conserva su dirección web, sus
+ * fotos, su precio y su historial**. Un producto que ya está en Google no puede
+ * cambiar de dirección sin perder lo que tenía.
+ *
+ * ══ SE PUEDE VOLVER A PULSAR ══
+ *
+ * Solo mira los que siguen en la general, así que repetirlo no hace nada. Un
+ * botón que hay que pulsar una sola vez y exactamente una es un botón que
+ * alguien va a pulsar dos veces.
+ */
+export async function repartirCatalogoUs(): Promise<{
+  ok: boolean;
+  mensaje: string;
+  movidos?: number;
+  sinRubro?: number;
+}> {
+  const permitido = await exigirEquipoInterno()
+    .then(() => true)
+    .catch(() => false);
+
+  if (!permitido) {
+    return { ok: false, mensaje: "Esta parte es solo para el equipo." };
+  }
+
+  const { obtenerUsuario } = await import("@/lib/autorizacion");
+  const usuario = await obtenerUsuario();
+  if (!usuario) return { ok: false, mensaje: "Hace falta una sesión." };
+
+  try {
+    const db = getDb();
+
+    const pendientes = await db
+      .select({ id: productos.id, categoriaId: productos.categoriaId })
+      .from(productos)
+      .where(eq(productos.tiendaId, TIENDA_US_GENERAL));
+
+    let movidos = 0;
+    let sinRubro = 0;
+
+    for (const p of pendientes) {
+      /* El departamento se guarda como `dep-<slug>`; se le quita el prefijo
+         para volver al slug, que es lo que conoce `tiendaDeRubro`. */
+      const departamento = p.categoriaId?.startsWith("dep-")
+        ? p.categoriaId.slice(4)
+        : null;
+
+      if (!departamento || !esDepartamentoReal(departamento)) {
+        sinRubro += 1;
+        continue;
+      }
+
+      const destino = await tiendaDelRubro(departamento, usuario.id);
+      if (destino === TIENDA_US_GENERAL) {
+        sinRubro += 1;
+        continue;
+      }
+
+      await db
+        .update(productos)
+        .set({ tiendaId: destino, actualizadoEn: new Date() })
+        .where(eq(productos.id, p.id));
+
+      movidos += 1;
+    }
+
+    revalidatePath("/[locale]/panel", "layout");
+    revalidatePath("/[locale]", "layout");
+
+    return {
+      ok: true,
+      mensaje: `Repartidos ${movidos}. ${sinRubro} se quedaron en la tienda general por no tener departamento reconocido.`,
+      movidos,
+      sinRubro,
+    };
+  } catch (fallo) {
+    console.error("[cj] no se pudo repartir el catálogo:", fallo);
+    const motivo = fallo instanceof Error ? fallo.message : String(fallo);
+    return { ok: false, mensaje: `No se pudo repartir: ${motivo}` };
+  }
 }

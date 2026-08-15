@@ -1756,7 +1756,10 @@
       "departamento": "Departamento",
       "sinDepartamento": "Sin departamento",
       "verMisProductos": "Ver lo que llevo agregado",
-      "verLaTienda": "Ver la tienda como el comprador"
+      "verLaTienda": "Ver la tienda como el comprador",
+      "repartirTitulo": "Repartir en sus tiendas",
+      "repartirTexto": "Mueve a la tienda de su rubro los productos que ya estaban cargados en la tienda general. Conserva su dirección, sus fotos y su precio. Se puede pulsar las veces que haga falta.",
+      "repartirBoton": "Repartir por rubro"
     }
   },
   "catalogo": {

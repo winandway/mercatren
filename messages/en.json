@@ -1756,7 +1756,10 @@
       "departamento": "Department",
       "sinDepartamento": "No department",
       "verMisProductos": "See what I've added",
-      "verLaTienda": "View the store as a shopper"
+      "verLaTienda": "View the store as a shopper",
+      "repartirTitulo": "Sort into their stores",
+      "repartirTexto": "Moves products already in the general store into the store for their category. Keeps their address, photos, and price. Safe to run as many times as you need.",
+      "repartirBoton": "Sort by category"
     }
   },
   "catalogo": {

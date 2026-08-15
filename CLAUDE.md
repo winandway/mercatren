@@ -843,6 +843,71 @@ para eso y **todavía no está puesto en el carrito ni en el checkout**. El
 selector de destino en el encabezado (el croquis del 15 ago) es la otra mitad
 de esa historia.
 
+### Varias tiendas de EE. UU., una por rubro (15 ago 2026)
+
+Con 10.000 productos colgando de una sola tienda el sitio se ve como un depósito
+y se lee como un monopolio. Ahora hay una tienda por rubro
+(`src/lib/cj/rubros.ts`, puro, 7 pruebas): `tienda-us-<departamento>`, con su
+nombre y su ficha.
+
+**Por dentro no cambia nada:** la compra a CJ y la factura las hace Mercatren
+LLC, directo. El nombre de la tienda es presentación.
+
+**LA REGLA QUE HACE QUE ESTO SEA LEGÍTIMO, y no se toca:** en la ficha de cada
+tienda **se lee quién vende y factura** («Vendido y facturado por Mercatren
+LLC»). Con esa línea son marcas de la casa, como las marcas propias de cualquier
+cadena. Sin ella son vendedores inventados, y eso es tergiversación: causa de
+suspensión en Merchant Center y de contracargos que el comprador gana.
+
+- **La tienda nace al entrar su primer producto**, con el nombre del
+  departamento como propuesta; se cambia después desde el panel. Pedir que se
+  den de alta veintitrés tiendas antes de cargar nada es un trámite que nadie
+  hace.
+- **El producto manda sobre la pantalla.** Si estando en repuestos se agrega una
+  cartera, la cartera se va sola a la de carteras. El equipo no tiene que
+  acordarse de cambiar de tienda antes de cada producto.
+- **Un rubro sin tienda propia se queda en la general**, nunca se descarta.
+- **`Repartir por rubro`** (Panel → Catálogo de EE. UU.) mueve lo que ya estaba
+  cargado. **Mueve, no copia:** conserva dirección, fotos y precio — un producto
+  que ya está en Google no puede cambiar de dirección. Se puede pulsar las veces
+  que haga falta.
+
+### El mapa del almacén y el envío gratis en la ficha (15 ago 2026)
+
+La ficha no decía **ni que el envío es gratis ni a dónde llega**, que es lo que
+uno se pregunta antes de comprar. Ahora va arriba, pegado al precio, con el
+plazo y con «el precio que ves es el final» — y es cierto: el costo del envío
+está dentro del precio publicado.
+
+**El mapa (`src/components/catalogo/mapa-almacen.tsx`) es un dibujo nuestro**,
+no Google Maps: eso cobra por carga, mete un guion de un tercero en la ficha y
+obligaría a tocar la política de cookies. **Alaska y Hawái NO se dibujan** — el
+envío estándar de CJ no siempre llega allá, y dibujarlas sería prometerlo sin
+comprobarlo.
+
+**El consejo del casillero** va en gris y abajo, sin competirle al botón de
+comprar: **sin nombrar ninguna empresa** y **sin prometer nada del tramo
+internacional** —ni plazo, ni costo, ni aduana—, porque ahí no mandamos
+nosotros.
+
+### La mezcla y la barra de categorías (15 ago 2026)
+
+**Los productos salían en bloque** —hileras enteras con banderita seguidas de
+hileras sin ella— y la causa no era el orden: el barajado le da **ventaja a lo
+recién llegado**, y los 78 entraron el mismo día. Se intercalan **después** de
+consultar (`src/lib/catalogo/intercalar.ts`, 9 pruebas), nunca en el SQL: el
+orden que llega trae la semilla —que impide que la portada «baile» entre
+recargas— y esa ventaja, y eso no se rehace.
+
+**La garantía NO es «nunca más de dos seguidos»**, y lo tumbó su propia prueba:
+cuando una tienda se agota, el resto **tiene** que salir de corrido — dejar
+huecos en la parrilla sería peor. Lo que se garantiza es que no haya rachas
+**mientras quede de otra tienda**.
+
+**Y la tira de departamentos se queda al entrar al catálogo.** Antes solo estaba
+en la portada: se tocaba un departamento, se entraba, y desaparecía — un
+callejón sin salida en el segundo clic, justo para quien navega por gusto.
+
 ### Dos trampas de la API de CJ que ya costaron una noche
 
 1. **`listV2` devuelve los productos en `data.content[].productList[]`**, no en
