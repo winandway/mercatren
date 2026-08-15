@@ -110,6 +110,19 @@ function enZona(ciudades: string[]) {
       ${productos.depositoId} IS NULL
       AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(${tiendas.ciudad}), 'á','a'),'é','e'),'í','i'),'ó','o'),'ú','u')) IN (${nombres})
     )
+    /**
+     * ══ LO QUE SE ENTREGA EN ESTADOS UNIDOS NO SE FILTRA POR CIUDAD ══
+     *
+     * Este filtro contesta «¿dónde lo retiro?», y esa pregunta solo existe en
+     * Venezuela. Un producto de Estados Unidos no se retira en ningún lado: se
+     * despacha a la dirección del comprador, en 2 a 5 días.
+     *
+     * Sin esta línea quedaban invisibles: la tienda de Estados Unidos no tiene
+     * depósito ni una ciudad venezolana, así que las dos condiciones de arriba
+     * le daban falso y **los 78 productos no salían en la portada** aunque el
+     * catálogo estuviera montado y publicado.
+     */
+    OR UPPER(TRIM(COALESCE(${tiendas.paisOrigen}, ''))) = 'US'
   )`;
 }
 
@@ -153,6 +166,14 @@ export type ProductoLista = {
   creadoEn: Date | string | null;
   tiendaNombre: string;
   tiendaSlug: string;
+  /**
+   * El país de la tienda, que es de donde sale el destino del producto.
+   *
+   * Va en la tarjeta para poder dibujar la banderita sin una consulta más: en
+   * una portada con seis bandas son cientos de tarjetas, y preguntar por cada
+   * una sería una consulta por producto.
+   */
+  tiendaPais: string | null;
   imagenUrl: string | null;
   imagenAlt: string | null;
 };
@@ -249,6 +270,7 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
       tiendaId: tiendas.id,
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
+      tiendaPais: tiendas.paisOrigen,
       fotoUrl: PRIMERA_FOTO.url,
       fotoClave: PRIMERA_FOTO.clave,
       fotoAlt: PRIMERA_FOTO.alt,
@@ -278,6 +300,7 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
     tiendaId: f.tiendaId,
     tiendaNombre: f.tiendaNombre,
     tiendaSlug: f.tiendaSlug,
+    tiendaPais: f.tiendaPais,
     imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
     imagenAlt: f.fotoAlt,
   }));
@@ -789,6 +812,7 @@ export async function parrillaDeProductos(
       tiendaId: tiendas.id,
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
+      tiendaPais: tiendas.paisOrigen,
       fotoUrl: PRIMERA_FOTO.url,
       fotoClave: PRIMERA_FOTO.clave,
       fotoAlt: PRIMERA_FOTO.alt,
@@ -855,6 +879,7 @@ export async function parrillaDeProductos(
       creadoEn: f.creadoEn,
       tiendaNombre: f.tiendaNombre,
       tiendaSlug: f.tiendaSlug,
+      tiendaPais: f.tiendaPais,
       imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
       imagenAlt: f.fotoAlt,
     })),
@@ -920,6 +945,7 @@ export async function bandasDeDepartamentos(
           creadoEn: productos.creadoEn,
           tiendaNombre: tiendas.nombre,
           tiendaSlug: tiendas.slug,
+          tiendaPais: tiendas.paisOrigen,
           fotoUrl: PRIMERA_FOTO.url,
           fotoClave: PRIMERA_FOTO.clave,
           fotoAlt: PRIMERA_FOTO.alt,
@@ -973,6 +999,7 @@ export async function bandasDeDepartamentos(
           creadoEn: f.creadoEn,
           tiendaNombre: f.tiendaNombre,
           tiendaSlug: f.tiendaSlug,
+          tiendaPais: f.tiendaPais,
           imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
           imagenAlt: f.fotoAlt,
         })),

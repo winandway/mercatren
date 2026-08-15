@@ -1822,7 +1822,8 @@
         "titulo": "Preguntas sobre este producto",
         "bajada": "Lo que más preguntan quienes compran aquí.",
         "respondeElComercio": "Respondido por el comercio"
-      }
+      },
+      "entregaUsa": "EE. UU."
     },
     "paginacion": {
       "anterior": "Anterior",
@@ -2370,7 +2371,7 @@
     "todaVenezuela": "Toda Venezuela",
     "mercatrenAqui": "Mercatren está aquí",
     "productosAqui": "{n} productos",
-    "viendoZona": "Estás viendo lo que se retira en {ciudad} o cerca.",
+    "viendoZona": "Estás viendo lo que se retira en {ciudad} o cerca, más lo que se entrega en Estados Unidos.",
     "verTodaVenezuela": "Ver toda Venezuela",
     "viendoTodaVenezuela": "Estás viendo todo Venezuela.",
     "volverAMiZona": "Ver solo lo de {ciudad}",

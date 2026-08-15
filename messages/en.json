@@ -1822,7 +1822,8 @@
         "titulo": "Questions about this product",
         "bajada": "What buyers ask most about this item.",
         "respondeElComercio": "Answered by the store"
-      }
+      },
+      "entregaUsa": "U.S."
     },
     "paginacion": {
       "anterior": "Previous",
@@ -2370,7 +2371,7 @@
     "todaVenezuela": "All of Venezuela",
     "mercatrenAqui": "Mercatren is here",
     "productosAqui": "{n} products",
-    "viendoZona": "You're seeing what's available for pickup in or near {ciudad}.",
+    "viendoZona": "You're seeing what's available for pickup in or near {ciudad}, plus everything we deliver in the United States.",
     "verTodaVenezuela": "See all of Venezuela",
     "viendoTodaVenezuela": "You're seeing all of Venezuela.",
     "volverAMiZona": "Show only {ciudad}",

@@ -13,6 +13,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
 import { Link } from "@/i18n/navigation";
@@ -331,9 +332,17 @@ export default async function PaginaTienda({
             <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
               {tienda.nombre}
             </h1>
+            {/* LA BANDERITA AL LADO DEL PAÍS. El nombre ya está escrito; la
+                bandera es el ancla que hace que el ojo lo enfoque sin leer, que
+                es de lo que se trata en una ficha a la que se llega de Google
+                sin saber de dónde despacha. Solo la lleva Estados Unidos. */}
             <p className="mt-2 flex items-center gap-1.5 text-xs tracking-wide text-white/65 uppercase">
               <MapPin className="h-4 w-4" aria-hidden />
               {[tienda.ciudad, pais].filter(Boolean).join(", ")}
+              <BanderaDeLaTienda
+                paisOrigen={tienda.paisOrigen}
+                className="h-3 w-4 rounded-[1px] ring-1 ring-white/25"
+              />
             </p>
           </div>
 

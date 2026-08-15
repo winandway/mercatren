@@ -801,6 +801,48 @@ Cuatro cosas de ahí que no se tocan:
    `productos.categoria_id` tiene llave foránea: uno mal escrito haría fallar el
    guardado entero.
 
+### Los dos países, mezclados, con banderita (15 ago 2026)
+
+El catálogo de Estados Unidos estaba publicado y **no salía en la portada**. La
+causa: el filtro de «¿dónde lo retiro?» (`enZona`, en `catalogo/consultas.ts`)
+pide depósito o ciudad venezolana, y la tienda de EE. UU. no tiene ninguna de
+las dos — así que las 78 fichas quedaban invisibles con una ciudad elegida.
+
+**Esa pregunta solo existe en Venezuela.** Un producto de Estados Unidos no se
+retira en ningún lado: se despacha a la dirección del comprador. Por eso el
+filtro ahora lleva `OR paisOrigen = 'US'`, y el aviso de la portada lo dice
+completo: «lo que se retira en {ciudad} o cerca, **más lo que se entrega en
+Estados Unidos**».
+
+**Se marca la EXCEPCIÓN, no lo normal.** La banderita de EE. UU. va solo en los
+productos de allá (`src/components/catalogo/bandera-destino.tsx`, 6 pruebas);
+lo de Venezuela es la mayoría del catálogo y va sin nada — la tarjeta ya dice
+debajo en qué ciudad se retira. Marcarlo todo convertiría la portada en un mar
+de banderas que deja de significar algo.
+
+Cuatro cosas de ahí que no se tocan:
+
+1. **Es un dibujo, no un emoji.** El emoji de bandera **no se dibuja en
+   Windows**: sale como dos letras en un recuadro, y media clientela de Estados
+   Unidos vería un cuadro roto en cada tarjeta del catálogo nuevo.
+2. **Va abajo a la izquierda de la foto.** Arriba a la izquierda vive el sello
+   de descuento y arriba a la derecha el de «Nuevo»: un producto rebajado y de
+   EE. UU. habría quedado con dos sellos encima del otro.
+3. **NO toca nada de Google.** Es una imagen al lado de la tarjeta, con su
+   texto alternativo. No entra en el título, ni en la descripción, ni en el
+   archivo del feed. Meterla dentro del título sí sería un problema — Merchant
+   Center rechaza los títulos con adornos.
+4. **`tiendaPais` viaja en `ProductoLista`**, no se consulta por tarjeta: en una
+   portada con seis bandas son cientos de tarjetas y sería una consulta por
+   producto.
+
+**Lo que falta y es de negocio, no de código:** un carrito no puede mezclar
+destinos —lo de EE. UU. se entrega allá y lo de Venezuela se retira allá—, y
+hoy nada lo impide. `cabenJuntos()` en `src/lib/destino/reglas.ts` existe justo
+para eso y **todavía no está puesto en el carrito ni en el checkout**. El
+selector de destino en el encabezado (el croquis del 15 ago) es la otra mitad
+de esa historia.
+
 ### Dos trampas de la API de CJ que ya costaron una noche
 
 1. **`listV2` devuelve los productos en `data.content[].productList[]`**, no en

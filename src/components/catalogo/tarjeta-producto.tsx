@@ -3,6 +3,7 @@
 import { ImageOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { BanderaDestino } from "@/components/catalogo/bandera-destino";
 import { BotonAgregarRapido } from "@/components/catalogo/boton-agregar-rapido";
 import { PrecioTienda } from "@/components/catalogo/precio-tienda";
 import { Link } from "@/i18n/navigation";
@@ -81,6 +82,14 @@ export function TarjetaProducto({
             <span className="text-xs">{t("sinFoto")}</span>
           </span>
         )}
+
+        {/* DE DÓNDE SALE. Solo se marca lo que se entrega en Estados Unidos:
+            lo de Venezuela es la mayoría del catálogo, y marcar lo normal
+            convierte la portada en un mar de banderas que deja de decir nada. */}
+        <BanderaDestino
+          paisOrigen={producto.tiendaPais}
+          etiqueta={t("entregaUsa")}
+        />
 
         {descuento ? (
           <span className="absolute top-1.5 left-1.5 rounded-md bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
