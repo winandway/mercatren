@@ -316,6 +316,18 @@ CREATE TABLE IF NOT EXISTS `verification` (
 
 CREATE INDEX IF NOT EXISTS `idx_verification_identifier` ON `verification` (`identifier`);
 -- ── Tablas (0001_curly_lady_deathstrike.sql) ──
+CREATE TABLE IF NOT EXISTS `comprobantes_retiro` (
+	`id` text PRIMARY KEY NOT NULL,
+	`retiro_id` text NOT NULL,
+	`clave` text NOT NULL,
+	`subido_por_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`retiro_id`) REFERENCES `retiros`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`subido_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
+);
+
+CREATE INDEX IF NOT EXISTS `idx_comprobantes_retiro` ON `comprobantes_retiro` (`retiro_id`);
+
 CREATE TABLE IF NOT EXISTS `retiros_fee` (
 	`id` text PRIMARY KEY NOT NULL,
 	`monto_centavos` integer NOT NULL,
