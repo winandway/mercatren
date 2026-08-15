@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { aCentavos } from "@/lib/cj/lista";
 import { precioPublicadoUs } from "@/lib/destino/precio-us";
 
 /**
@@ -14,23 +15,15 @@ import { precioPublicadoUs } from "@/lib/destino/precio-us";
  * precio».
  *
  * Tres búsquedas seguidas sin un solo resultado y ni una pista de por qué.
+ *
+ * ══ Y SE PRUEBA LA FUNCIÓN DE VERDAD, NO UNA COPIA ══
+ *
+ * La primera versión de esta prueba traía su propia copia de `aCentavos`,
+ * porque el archivo donde vivía es `server-only` y no se puede importar desde
+ * una prueba. Una copia siempre pasa en verde: mide lo que la prueba escribió,
+ * no lo que corre en producción. Por eso la función se mudó a `cj/lista.ts`,
+ * que no toca ni la llave ni la red.
  */
-
-/** La misma conversión que usa el importador, aislada para poder probarla. */
-function aCentavos(valor: number | string | undefined): number {
-  if (typeof valor === "number") {
-    return Number.isFinite(valor) && valor > 0
-      ? Math.round(Number((valor * 100).toPrecision(12)))
-      : 0;
-  }
-  if (!valor) return 0;
-  const numeros = String(valor)
-    .match(/\d+(?:\.\d+)?/g)
-    ?.map(Number)
-    .filter((n) => Number.isFinite(n) && n > 0);
-  if (!numeros?.length) return 0;
-  return Math.round(Number((Math.min(...numeros) * 100).toPrecision(12)));
-}
 
 describe("el precio que manda CJ", () => {
   it("un número normal se pasa a centavos", () => {

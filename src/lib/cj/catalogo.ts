@@ -1,6 +1,13 @@
 import "server-only";
 
 import { llamarCj } from "@/lib/cj/cliente";
+import {
+  aCentavos,
+  existenciasDe,
+  filasDeCj,
+  type FilaCj,
+  type RespuestaLista,
+} from "@/lib/cj/lista";
 import { desglosarUs, type DesgloseUs } from "@/lib/destino/precio-us";
 
 /**
@@ -57,80 +64,6 @@ export type ProductoCj = {
   /** Nuestro precio y el reparto del dinero. */
   precio: DesgloseUs;
 };
-
-type FilaCj = {
-  id?: string;
-  pid?: string;
-  nameEn?: string;
-  sku?: string;
-  bigImage?: string;
-  sellPrice?: number | string;
-  nowPrice?: number | string;
-  threeCategoryName?: string;
-  twoCategoryName?: string;
-  oneCategoryName?: string;
-  warehouseInventoryNum?: number | string;
-  totalVerifiedInventory?: number | string;
-};
-
-type RespuestaLista = { list?: FilaCj[]; total?: number };
-
-/**
- * Un precio de CJ llega en dólares con decimales y a veces como texto.
- *
- * `toPrecision` antes de multiplicar: `45.90 * 100` da 4589.999999999999 en
- * coma flotante, y ese centavo perdido aparece después en una factura que no
- * cuadra. Es el mismo cuidado que ya se tiene en el cobro por enlace.
- */
-function aCentavos(valor: number | string | undefined): number {
-  /**
-   * ══ CJ MANDA RANGOS, NO SIEMPRE UN NÚMERO ══
-   *
-   * Un producto con variantes —tallas, colores— llega con el precio así:
-   * `"12.50 -- 15.30"`. Pasarlo por `Number()` da NaN, y ese NaN se convertía
-   * en cero, y el cero hacía que el producto se descartara.
-   *
-   * Resultado: la pantalla salía **vacía** para cualquier búsqueda, sin decir
-   * por qué. Se toma el número más bajo del rango, que es el que de verdad
-   * cuesta la variante más barata.
-   */
-  if (typeof valor === "number") {
-    return Number.isFinite(valor) && valor > 0
-      ? Math.round(Number((valor * 100).toPrecision(12)))
-      : 0;
-  }
-
-  if (!valor) return 0;
-
-  const numeros = String(valor)
-    .match(/\d+(?:\.\d+)?/g)
-    ?.map(Number)
-    .filter((n) => Number.isFinite(n) && n > 0);
-
-  if (!numeros?.length) return 0;
-
-  const menor = Math.min(...numeros);
-  return Math.round(Number((menor * 100).toPrecision(12)));
-}
-
-function aEntero(valor: number | string | undefined): number | null {
-  if (valor === undefined || valor === null || valor === "") return null;
-  const n = typeof valor === "string" ? Number(valor) : valor;
-  return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : null;
-}
-
-/**
- * Las existencias, o `null` si CJ no las mandó.
- *
- * Se prefiere el inventario verificado, que es el que de verdad está en el
- * almacén. Si ninguno de los dos viene, no se sabe — y no saber no es cero.
- */
-function existenciasDe(f: FilaCj): number | null {
-  const verificado = aEntero(f.totalVerifiedInventory);
-  const almacen = aEntero(f.warehouseInventoryNum);
-  if (verificado === null && almacen === null) return null;
-  return Math.max(verificado ?? 0, almacen ?? 0);
-}
 
 export type BusquedaCj = {
   texto?: string;
@@ -192,9 +125,7 @@ export async function buscarEnCj(
 
   if (!respuesta.ok) return { ok: false, motivo: respuesta.motivo };
 
-  const filas = Array.isArray(respuesta.datos?.list)
-    ? respuesta.datos.list
-    : [];
+  const filas = filasDeCj(respuesta.datos);
 
   const convertidos = filas
     .map((f) => aProducto(f))
@@ -212,9 +143,13 @@ export async function buscarEnCj(
     ok: true,
     productos,
     pagina,
-    /* CJ no siempre manda el total, así que «hay más» se deduce de si vino la
-       página llena. Es lo único honesto sin inventarse un número. */
-    hayMas: filas.length >= porPagina,
+    /* `listV2` sí manda cuántas páginas hay; cuando viene, se usa. Si no viene,
+       se deduce de si la página llegó llena — que es lo único honesto sin
+       inventarse un número. */
+    hayMas:
+      typeof respuesta.datos?.totalPages === "number"
+        ? pagina < respuesta.datos.totalPages
+        : filas.length >= porPagina,
     /**
      * QUÉ TRAJO CJ Y QUÉ SE DESCARTÓ.
      *
