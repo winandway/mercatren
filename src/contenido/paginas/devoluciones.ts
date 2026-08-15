@@ -15,13 +15,23 @@ import { SOCIEDAD } from "@/lib/sociedad";
  *    que va a recoger otra persona en otro país. Si no sabe qué pasa cuando
  *    llega roto o llega otro, no compra.
  *
- * CÓMO ESTÁ ESCRITA. La mercancía se retira EN PERSONA y se puede revisar
- * antes de llevársela — eso cambia todo respecto a una tienda que envía a
- * ciegas. Por eso hay tres momentos distintos y cada uno tiene su regla, en
- * vez de una sola frase de "30 días" copiada de otro sitio que aquí no
- * significaría nada.
+ * ══ SON DOS POLÍTICAS, PORQUE SON DOS FORMAS DE ENTREGAR ══
  *
- * QUIEN RESPONDE ES WINDOCE, LLC. Es quien vende y factura al comprador (ver
+ * **Estados Unidos** (15 ago 2026): llega por transportista a la puerta del
+ * comprador, que no puede revisarla antes de recibirla. Ahí rige el estándar
+ * del comercio en línea estadounidense: **30 días desde que RECIBE**. Google
+ * exige que el plazo se cuente desde la recepción y rechaza las políticas que
+ * lo cuentan desde la compra — es de los motivos de rechazo más comunes.
+ *
+ * **Venezuela**: la mercancía se retira EN PERSONA y se puede revisar antes de
+ * llevársela. Eso cambia todo respecto a una tienda que envía a ciegas, y por
+ * eso hay tres momentos distintos con su regla cada uno, en vez de una sola
+ * frase de "30 días" que ahí no significaría nada.
+ *
+ * Mezclar las dos en una sola política sería prometerle a uno lo que solo vale
+ * para el otro. Van separadas y se dice cuál aplica desde la primera línea.
+ *
+ * QUIEN RESPONDE ES MERCATREN LLC. Es quien vende y factura al comprador (ver
  * la figura jurídica en CLAUDE.md), así que el reclamo entra por Mercatren y
  * no por el comercio. Mandar al comprador a discutir con el comercio sería
  * decirle que no le vendimos nosotros.
@@ -35,13 +45,59 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
   titulo: "Devoluciones y reclamos",
   entradilla:
     "Qué hacer si tu pedido llegó dañado, incompleto o no es el que pediste. Y en qué casos te devolvemos el dinero.",
-  vigencia: "Versión 1 · Vigente desde el 5 de agosto de 2026",
+  vigencia: "Versión 2 · Vigente desde el 15 de agosto de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
-      id: "antes-de-retirar",
+      id: "estados-unidos",
       numero: "1",
-      titulo: "Antes de retirar: cancelas y te devolvemos todo",
+      titulo: "Pedidos con entrega en Estados Unidos: 30 días",
+      bloques: [
+        {
+          tipo: "parrafo",
+          texto:
+            "Si tu pedido se entrega en una dirección de Estados Unidos, tienes 30 días para devolverlo, contados desde el día en que lo recibes — no desde el día que lo compraste. Nos escribes, te damos la instrucción de devolución, y te devolvemos el importe completo cuando la mercancía llega de vuelta.",
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: "Cuándo empieza el plazo",
+              texto:
+                "El día que el transportista entrega. Si el paquete llega el 20 de agosto, tienes hasta el 19 de septiembre.",
+            },
+            {
+              titulo: "En qué estado tiene que volver",
+              texto:
+                "Sin usar y en su empaque original, con sus accesorios y etiquetas. Puedes abrirlo y comprobarlo, igual que en una tienda: lo que no se acepta es la mercancía usada o instalada.",
+            },
+            {
+              titulo: "Quién paga el envío de vuelta",
+              texto:
+                "Nosotros, si el producto llegó dañado, incompleto o no es el que pediste. Si simplemente cambiaste de opinión, el envío de vuelta corre por tu cuenta.",
+            },
+            {
+              titulo: "Cuándo vuelve el dinero",
+              texto:
+                "Dentro de los 5 días hábiles siguientes a que la mercancía llegue de vuelta, por la misma vía por la que pagaste.",
+            },
+          ],
+        },
+        {
+          tipo: "aviso",
+          tono: "neutro",
+          titulo: "El envío te lo damos gratis",
+          parrafos: [
+            "El precio que ves es el precio final: el envío dentro de Estados Unidos va incluido y llega en 2 a 5 días hábiles. No hay un costo que aparezca al final del checkout.",
+            "Si devuelves porque cambiaste de opinión, ese envío que te dimos gratis no se cobra: lo único que corre por tu cuenta es mandar la mercancía de vuelta.",
+          ],
+        },
+      ],
+    },
+    {
+      id: "antes-de-retirar",
+      numero: "2",
+      titulo: "Venezuela · Antes de retirar: cancelas y te devolvemos todo",
       bloques: [
         {
           tipo: "parrafo",
@@ -66,8 +122,8 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "al-retirar",
-      numero: "2",
-      titulo: "Al retirar: revisa antes de firmar",
+      numero: "3",
+      titulo: "Venezuela · Al retirar: revisa antes de firmar",
       bloques: [
         {
           tipo: "parrafo",
@@ -83,8 +139,8 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "despues-de-retirar",
-      numero: "3",
-      titulo: "Después de retirar: 7 días para reclamar",
+      numero: "4",
+      titulo: "Venezuela · Después de retirar: 7 días para reclamar",
       bloques: [
         {
           tipo: "parrafo",
@@ -123,7 +179,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "no-aplica",
-      numero: "4",
+      numero: "5",
       titulo: "Qué no se devuelve",
       bloques: [
         {
@@ -155,7 +211,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "garantia",
-      numero: "5",
+      numero: "6",
       titulo: "Garantía del fabricante",
       bloques: [
         {
@@ -172,7 +228,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "como-reclamar",
-      numero: "6",
+      numero: "7",
       titulo: "Cómo se pide una devolución",
       bloques: [
         {
@@ -221,13 +277,59 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
   titulo: "Returns and claims",
   entradilla:
     "What to do if your order arrived damaged, incomplete, or isn't what you ordered — and when we refund you.",
-  vigencia: "Version 1 · Effective August 5, 2026",
+  vigencia: "Version 2 · Effective August 15, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
-      id: "antes-de-retirar",
+      id: "estados-unidos",
       numero: "1",
-      titulo: "Before pickup: cancel and get everything back",
+      titulo: "Orders delivered in the United States: 30 days",
+      bloques: [
+        {
+          tipo: "parrafo",
+          texto:
+            "If your order ships to a United States address, you have 30 days to return it, counted from the day you receive it — not the day you bought it. Contact us, we'll send you the return instructions, and we'll refund you in full once the merchandise gets back to us.",
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: "When the clock starts",
+              texto:
+                "The day the carrier delivers. If your package arrives on August 20, you have until September 19.",
+            },
+            {
+              titulo: "What condition it has to come back in",
+              texto:
+                "Unused and in its original packaging, with accessories and tags. You can open it and check it, just like in a store — what we can't accept is merchandise that's been used or installed.",
+            },
+            {
+              titulo: "Who pays return shipping",
+              texto:
+                "We do, if the product arrived damaged, incomplete, or isn't what you ordered. If you simply changed your mind, return shipping is on you.",
+            },
+            {
+              titulo: "When you get your money back",
+              texto:
+                "Within 5 business days of the merchandise reaching us, refunded the same way you paid.",
+            },
+          ],
+        },
+        {
+          tipo: "aviso",
+          tono: "neutro",
+          titulo: "Shipping is on us",
+          parrafos: [
+            "The price you see is the final price: shipping within the United States is included and arrives in 2 to 5 business days. Nothing extra shows up at checkout.",
+            "If you return an item because you changed your mind, we don't charge you for the shipping we covered — the only cost on you is sending the merchandise back.",
+          ],
+        },
+      ],
+    },
+    {
+      id: "antes-de-retirar",
+      numero: "2",
+      titulo: "Venezuela · Before pickup: cancel and get everything back",
       bloques: [
         {
           tipo: "parrafo",
@@ -252,7 +354,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "al-retirar",
-      numero: "2",
+      numero: "3",
       titulo: "At pickup: check it before you sign",
       bloques: [
         {
@@ -269,7 +371,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "despues-de-retirar",
-      numero: "3",
+      numero: "4",
       titulo: "After pickup: 7 days to file a claim",
       bloques: [
         {
@@ -309,7 +411,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "no-aplica",
-      numero: "4",
+      numero: "5",
       titulo: "What we don't take back",
       bloques: [
         {
@@ -341,7 +443,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "garantia",
-      numero: "5",
+      numero: "6",
       titulo: "Manufacturer's warranty",
       bloques: [
         {
@@ -358,7 +460,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "como-reclamar",
-      numero: "6",
+      numero: "7",
       titulo: "How to request a return",
       bloques: [
         {

@@ -25,7 +25,7 @@ export const TERMINOS_ES: PaginaContenido = {
   titulo: "Términos y condiciones",
   entradilla:
     "Las reglas del servicio de Mercatren: qué hacemos, qué no hacemos, cómo se paga, cómo se entrega y qué puedes esperar de nosotros.",
-  vigencia: "Versión 1 · Vigentes desde el 5 de agosto de 2026",
+  vigencia: "Versión 2 · Vigentes desde el 15 de agosto de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -201,9 +201,14 @@ export const TERMINOS_ES: PaginaContenido = {
                 "el proveedor nos vende la mercancía a su precio; el precio al que te la vendemos a ti lo fijamos y lo publicamos nosotros, y es el que ves en el catálogo.",
             },
             {
-              titulo: "El envío y los impuestos",
+              titulo: "El envío",
               texto:
-                "cuando apliquen, se mostrarán en el pedido antes de que pagues. Hoy la mercancía se retira en el depósito indicado en cada producto.",
+                "en los productos con entrega en Estados Unidos, el envío va incluido en el precio publicado y llega en 2 a 5 días hábiles; no se cobra nada aparte al pagar. En los productos con entrega en Venezuela, la mercancía se retira en el depósito indicado en cada producto, salvo que el comercio ofrezca despacho y lo diga en su ficha.",
+            },
+            {
+              titulo: "Los impuestos",
+              texto:
+                "cuando apliquen, se mostrarán en el pedido antes de que pagues.",
             },
             {
               titulo: "Errores evidentes de precio",
@@ -472,7 +477,7 @@ export const TERMINOS_EN: PaginaContenido = {
   titulo: "Terms and conditions",
   entradilla:
     "The rules of the Mercatren service: what we do, what we don't do, how payment works, how delivery works, and what you can expect from us.",
-  vigencia: "Version 1 · Effective August 5, 2026",
+  vigencia: "Version 2 · Effective August 15, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
@@ -648,9 +653,14 @@ export const TERMINOS_EN: PaginaContenido = {
                 "the supplier sells us the merchandise at its price; the price at which we resell it to you is set and published by us, and it is the one you see in the catalog.",
             },
             {
-              titulo: "Shipping and taxes",
+              titulo: "Shipping",
               texto:
-                "where they apply, they are shown on the order before you pay. Today the merchandise is picked up at the warehouse listed on each product.",
+                "for products delivered within the United States, shipping is included in the published price and arrives in 2 to 5 business days — nothing extra is charged at checkout. For products delivered in Venezuela, the merchandise is picked up at the warehouse listed on each product, unless the merchant offers delivery and says so on their page.",
+            },
+            {
+              titulo: "Taxes",
+              texto:
+                "where they apply, they are shown on the order before you pay.",
             },
             {
               titulo: "Obvious pricing errors",
