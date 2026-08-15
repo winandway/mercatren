@@ -357,7 +357,8 @@
       "equipo": "Mercatren team",
       "cobros": "Payments in",
       "billeteraComercio": "My money",
-      "ordenesCompraComercio": "My invoices to Mercatren"
+      "ordenesCompraComercio": "My invoices to Mercatren",
+      "catalogoUsa": "U.S. catalog"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1731,6 +1732,26 @@
       "mandarImagen": "Send an image",
       "subiendoImagen": "Preparing the image…",
       "imagenAdjunta": "Attached image"
+    },
+    "catalogoUsa": {
+      "titulo": "United States catalog",
+      "texto": "Search CJ Dropshipping and pick what to sell. Only products stocked in United States warehouses show up — those are the ones that arrive in 2 to 5 days. Whatever you add comes in as a draft: you publish it later, once it has its own description.",
+      "sinLlave": "The CJ_API_KEY variable is missing from the YaDominios panel. Add it, republish the site, and test the connection in Settings.",
+      "marcador": "Search in English: drill, kitchen, phone case…",
+      "buscar": "Search",
+      "aviso": "Only products stocked in United States warehouses are searched. The price you see is the minimum: shipping is quoted when you publish and may raise it.",
+      "nada": "Nothing in stock in a United States warehouse for that search. Try another word.",
+      "cuesta": "CJ cost",
+      "publica": "Published at",
+      "queda": "We keep",
+      "almacen": "In stock",
+      "flaco": "Leaves very little. A single return turns it into a loss.",
+      "agregar": "Add to catalog",
+      "puesto": "In your catalog, as a draft",
+      "anterior": "← Previous",
+      "siguiente": "Next →",
+      "pagina": "Page {n}",
+      "soloEquipo": "This section is for the team only."
     }
   },
   "catalogo": {

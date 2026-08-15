@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   BookOpen,
   CreditCard,
+  Flag,
   FileText,
   Languages,
   LayoutDashboard,
@@ -98,6 +99,15 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/tiendas",
         clave: "tiendas",
         Icono: Store,
+        soloInterno: true,
+      },
+      /* EL CATÁLOGO DE ESTADOS UNIDOS. Es el nuestro, no el de un comercio:
+         Mercatren LLC compra a CJ y revende. Por eso vive en «Equipo» y no en
+         «Mi negocio», que es donde cada proveedor ve lo suyo. */
+      {
+        href: "/panel/catalogo-usa",
+        clave: "catalogoUsa",
+        Icono: Flag,
         soloInterno: true,
       },
       // Las CUENTAS del sistema, que no es lo mismo que los compradores.

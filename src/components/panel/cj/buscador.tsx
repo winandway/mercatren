@@ -1,0 +1,267 @@
+"use client";
+
+import { Check, Loader2, Plus, Search, TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState, useTransition } from "react";
+
+import { agregarProductoDeCj } from "@/lib/cj/importar";
+import { MARGEN_MINIMO_CENTAVOS } from "@/lib/destino/precio-us";
+import { cn } from "@/lib/utils";
+
+/**
+ * ELEGIR LOS PRODUCTOS DEL CATÁLOGO DE ESTADOS UNIDOS.
+ *
+ * ══ POR QUÉ SE ELIGEN AQUÍ Y NO EN EL PANEL DE CJ ══
+ *
+ * Porque aquí se ve **lo que de verdad queda**. En el panel de CJ solo se ve su
+ * precio; la decisión de si un producto conviene depende de lo que sobra
+ * después de que CJ, el envío y Stripe cobren lo suyo — y eso solo lo sabe
+ * nuestro sistema.
+ *
+ * ══ EL PRECIO QUE SE ENSEÑA ES EL MÍNIMO ══
+ *
+ * El envío todavía no está cotizado: CJ lo calcula por dirección de destino, no
+ * por producto, y pedirlo para los 24 de una página serían 24 llamadas más
+ * contra su límite por minuto. Se dice en pantalla en vez de dar por bueno un
+ * número que va a subir.
+ */
+
+type ProductoVista = {
+  id: string;
+  nombre: string;
+  imagen: string | null;
+  sku: string | null;
+  categoria: string | null;
+  costoCentavos: number;
+  existencias: number;
+  precio: {
+    publicadoCentavos: number;
+    procesadorCentavos: number;
+    margenCentavos: number;
+  };
+};
+
+type Respuesta =
+  | { ok: true; productos: ProductoVista[]; pagina: number; hayMas: boolean }
+  | { ok: false; motivo: string };
+
+const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
+
+export function BuscadorCj({
+  buscar,
+}: {
+  buscar: (filtros: { texto?: string; pagina?: number }) => Promise<Respuesta>;
+}) {
+  const t = useTranslations("panel.catalogoUsa");
+  const [texto, setTexto] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const [resultado, setResultado] = useState<Respuesta | null>(null);
+  const [buscando, iniciarBusqueda] = useTransition();
+
+  /** Qué se agregó ya, para no dejar el botón igual después de pulsarlo. */
+  const [agregados, setAgregados] = useState<Record<string, string>>({});
+  const [agregando, setAgregando] = useState<string | null>(null);
+
+  function lanzar(nuevaPagina: number) {
+    setPagina(nuevaPagina);
+    iniciarBusqueda(async () => {
+      setResultado(await buscar({ texto: texto.trim(), pagina: nuevaPagina }));
+    });
+  }
+
+  async function agregar(p: ProductoVista) {
+    setAgregando(p.id);
+    const datos = new FormData();
+    datos.set("id", p.id);
+    datos.set("nombre", p.nombre);
+    datos.set("imagen", p.imagen ?? "");
+    datos.set("sku", p.sku ?? "");
+    datos.set("costo", String(p.costoCentavos));
+    datos.set("existencias", String(p.existencias));
+
+    try {
+      const r = await agregarProductoDeCj(datos);
+      setAgregados((a) => ({ ...a, [p.id]: r.ok ? "ok" : r.mensaje }));
+    } catch (fallo) {
+      console.error("[cj] no se pudo agregar:", fallo);
+      setAgregados((a) => ({ ...a, [p.id]: String(fallo) }));
+    } finally {
+      setAgregando(null);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          lanzar(1);
+        }}
+        className="flex flex-wrap gap-2"
+      >
+        <input
+          type="search"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder={t("marcador")}
+          className="min-w-[220px] flex-1 rounded-lg border border-borde px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:text-sm"
+        />
+        <button
+          type="submit"
+          disabled={buscando}
+          className="boton-principal gap-2 disabled:opacity-60"
+        >
+          {buscando ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <Search className="h-4 w-4" aria-hidden />
+          )}
+          {t("buscar")}
+        </button>
+      </form>
+
+      <p className="text-xs text-tinta-suave">{t("aviso")}</p>
+
+      {resultado && !resultado.ok ? (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900">
+          {resultado.motivo}
+        </p>
+      ) : null}
+
+      {resultado?.ok && resultado.productos.length === 0 ? (
+        <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-tinta-suave">
+          {t("nada")}
+        </p>
+      ) : null}
+
+      {resultado?.ok && resultado.productos.length > 0 ? (
+        <>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {resultado.productos.map((p) => {
+              const flaco = p.precio.margenCentavos < MARGEN_MINIMO_CENTAVOS;
+              const puesto = agregados[p.id];
+
+              return (
+                <li
+                  key={p.id}
+                  className="flex flex-col rounded-xl border border-borde bg-white p-3"
+                >
+                  {p.imagen ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={p.imagen}
+                      alt=""
+                      className="mb-2 h-36 w-full rounded-lg object-contain"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="mb-2 h-36 w-full rounded-lg bg-slate-100" />
+                  )}
+
+                  <p className="line-clamp-2 text-sm font-semibold">
+                    {p.nombre}
+                  </p>
+                  {p.categoria ? (
+                    <p className="mt-0.5 truncate text-xs text-tinta-suave">
+                      {p.categoria}
+                    </p>
+                  ) : null}
+
+                  <dl className="mt-2 space-y-1 text-xs">
+                    <div className="flex justify-between gap-2">
+                      <dt className="text-tinta-suave">{t("cuesta")}</dt>
+                      <dd className="tabular-nums">{usd(p.costoCentavos)}</dd>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <dt className="text-tinta-suave">{t("publica")}</dt>
+                      <dd className="font-bold tabular-nums">
+                        {usd(p.precio.publicadoCentavos)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <dt className="text-tinta-suave">{t("queda")}</dt>
+                      <dd
+                        className={cn(
+                          "font-bold tabular-nums",
+                          flaco ? "text-red-700" : "text-precio-700",
+                        )}
+                      >
+                        {usd(p.precio.margenCentavos)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                      <dt className="text-tinta-suave">{t("almacen")}</dt>
+                      <dd className="tabular-nums">{p.existencias}</dd>
+                    </div>
+                  </dl>
+
+                  {flaco ? (
+                    <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-red-50 px-2 py-1.5 text-[11px] leading-relaxed text-red-800">
+                      <TriangleAlert
+                        className="mt-0.5 h-3 w-3 shrink-0"
+                        aria-hidden
+                      />
+                      {t("flaco")}
+                    </p>
+                  ) : null}
+
+                  <div className="mt-auto pt-3">
+                    {puesto === "ok" ? (
+                      <p className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-2 text-xs font-semibold text-emerald-900">
+                        <Check className="h-3.5 w-3.5" aria-hidden />
+                        {t("puesto")}
+                      </p>
+                    ) : puesto ? (
+                      <p className="rounded-lg bg-red-50 px-2.5 py-2 text-xs text-red-900">
+                        {puesto}
+                      </p>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={agregando === p.id}
+                        onClick={() => agregar(p)}
+                        className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold transition-colors hover:bg-slate-50 disabled:opacity-60"
+                      >
+                        {agregando === p.id ? (
+                          <Loader2
+                            className="h-3.5 w-3.5 animate-spin"
+                            aria-hidden
+                          />
+                        ) : (
+                          <Plus className="h-3.5 w-3.5" aria-hidden />
+                        )}
+                        {t("agregar")}
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <button
+              type="button"
+              disabled={pagina <= 1 || buscando}
+              onClick={() => lanzar(pagina - 1)}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold disabled:opacity-40"
+            >
+              {t("anterior")}
+            </button>
+            <span className="text-xs text-tinta-suave">
+              {t("pagina", { n: pagina })}
+            </span>
+            <button
+              type="button"
+              disabled={!resultado.hayMas || buscando}
+              onClick={() => lanzar(pagina + 1)}
+              className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold disabled:opacity-40"
+            >
+              {t("siguiente")}
+            </button>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}

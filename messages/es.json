@@ -357,7 +357,8 @@
       "equipo": "Equipo Mercatren",
       "cobros": "Cobros",
       "billeteraComercio": "Mi dinero",
-      "ordenesCompraComercio": "Mis facturas a Mercatren"
+      "ordenesCompraComercio": "Mis facturas a Mercatren",
+      "catalogoUsa": "Catálogo de EE. UU."
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1731,6 +1732,26 @@
       "mandarImagen": "Mandar una imagen",
       "subiendoImagen": "Preparando la imagen…",
       "imagenAdjunta": "Imagen adjunta"
+    },
+    "catalogoUsa": {
+      "titulo": "Catálogo de Estados Unidos",
+      "texto": "Busca en CJ Dropshipping y elige qué vender. Solo aparecen productos con almacén en Estados Unidos, que son los que llegan en 2 a 5 días. Lo que agregues entra como borrador: se publica después, cuando tenga su ficha escrita.",
+      "sinLlave": "Falta la variable CJ_API_KEY en el panel de YaDominios. Cárgala, republica el sitio y comprueba la conexión en Configuración.",
+      "marcador": "Busca en inglés: drill, kitchen, phone case…",
+      "buscar": "Buscar",
+      "aviso": "Solo se buscan productos con almacén en Estados Unidos y con existencias. El precio que ves es el mínimo: el envío se cotiza al publicar y puede subirlo.",
+      "nada": "Nada con existencias en almacén de Estados Unidos para esa búsqueda. Prueba con otra palabra, en inglés.",
+      "cuesta": "Cuesta en CJ",
+      "publica": "Se publica a",
+      "queda": "Nos queda",
+      "almacen": "En almacén",
+      "flaco": "Deja muy poco. Una sola devolución lo convierte en pérdida.",
+      "agregar": "Agregar al catálogo",
+      "puesto": "En tu catálogo, como borrador",
+      "anterior": "← Anterior",
+      "siguiente": "Siguiente →",
+      "pagina": "Página {n}",
+      "soloEquipo": "Esta parte es solo para el equipo."
     }
   },
   "catalogo": {
