@@ -24,6 +24,7 @@
 | El sitio dice Mercatren LLC      | ✅ publicado y comprobado         |
 | Candado de aprobación en Mercury | ✅ todos los pagos, desde $0      |
 | Google Merchant Center           | ⏸ 3 de 5 — parado en envíos       |
+| Catálogo de Estados Unidos       | 🟡 78 productos, en la tienda ya  |
 
 **Lo que esto significa:** la sociedad existe y puede operar. Lo que todavía no
 ocurre es que el dinero entre a su nombre.
@@ -235,8 +236,8 @@ electrónica— y no solo moda. Cuenta creada y llave cargada el 15 ago 2026.
 ### El orden, y por qué NO se toca el frente todavía
 
 1. ~~Cuenta y llave de CJ~~ ✅
-2. **El importador**, con el filtro por almacén. ← aquí estamos
-3. **Los productos cargados**, 250–300.
+2. ~~El importador, con el filtro por almacén~~ ✅ (15 ago)
+3. **Los productos cargados**, 250–300. ← aquí estamos: **78 puestos**
 4. **Recién entonces el selector de destino en el encabezado.**
 
 Un selector que ofrece «Estados Unidos» y lleva a un catálogo vacío es peor que
@@ -314,6 +315,105 @@ contracargo se comía treinta ventas. Con el 30 % deja $13.55.
 hacia el 8 % para el mercado de Venezuela; esto ya nace en su banda de mercado.
 
 ---
+
+## LO QUE FALTA DEL FRENTE (pedido el 15 ago 2026 · se hace el 16)
+
+El catálogo de Estados Unidos ya se ve mezclado con el de Venezuela y cada
+producto de allá lleva su banderita. Lo que sigue es lo que el dueño vio al
+usarlo, en sus palabras, y en el orden en que lo dijo.
+
+### 1. Los productos salen en BLOQUE, no mezclados
+
+Salen hileras enteras con banderita seguidas de hileras enteras sin ella.
+Parece dos tiendas pegadas con cinta, no una sola. La causa es que los 78 de
+Estados Unidos entraron el mismo día y el orden manda la fecha.
+
+**Hay que intercalarlos**, y no es solo estética: una hilera entera de
+lámparas en inglés le dice al comprador venezolano que esa parte no es para
+él, y deja de bajar.
+
+Dos cosas que no se pueden romper al hacerlo:
+
+- **La portada usa una semilla para no “bailar”** entre una carga y la
+  siguiente. La mezcla tiene que respetarla o los productos se cambiarán de
+  sitio cada vez que alguien refresque.
+- **Los departamentos siguen mandando.** Mezclar no es revolver: dentro de
+  «Ferretería y construcción» se intercalan los de ferretería, no se cuelan
+  carteras.
+
+### 2. La ficha del producto no dice que el envío es GRATIS
+
+Hoy quien abre un producto de Estados Unidos **no sabe si el envío está
+incluido ni a dónde llega**. Eso es exactamente lo que se pregunta antes de
+comprar, y si no lo encuentra, se va.
+
+Arriba, pegado al precio, donde sí se lee:
+
+- **Envío gratis a cualquier parte de Estados Unidos.**
+- Llega en **2 a 5 días hábiles**.
+- **El precio que ves es el precio final** (el envío ya va dentro).
+
+**ANTES de escribirlo hay que confirmar con CJ hasta dónde llega de verdad:**
+Alaska, Hawái y Puerto Rico no siempre entran en el envío estándar. Prometer
+un destino al que el proveedor no despacha no es un texto mal redactado — es
+un pedido cobrado que hay que cancelar y devolver.
+
+### 3. El consejo del casillero, para quien está fuera de Estados Unidos
+
+Más abajo en la ficha, sin ruido y sin competirle al botón de comprar: quien
+esté en Colombia, Chile, Panamá, México o España puede **alquilar un casillero
+en Estados Unidos**, poner esa dirección al comprar, y la empresa del casillero
+se encarga de llevárselo a su país. Nosotros lo llevamos gratis hasta el
+casillero.
+
+Es lo que la gente ya hace, y decírselo nosotros evita que se vaya sin
+preguntar. Tres reglas para que sea un consejo y no un problema:
+
+- **Es un consejo, no un servicio nuestro.** No se nombra ni se recomienda una
+  empresa concreta sin un acuerdo firmado; si algún día se nombra, se dice que
+  no tenemos relación con ella.
+- **No se promete nada del tramo internacional**: ni plazo, ni costo, ni
+  aduana. Ahí no mandamos nosotros.
+- **La devolución de esos casos hay que pensarla aparte.** Nuestra política de
+  30 días no puede cubrir un producto que ya salió del país; hay que decirlo
+  antes, no cuando el comprador reclame.
+
+### 4. El buscador se achicó, y el buscador es la INSIGNIA
+
+Palabras del dueño: _«el buscador es la insignia de nosotros, no puede
+achicarse y ponerse todo feo»_. Tiene que volver a ser largo y grande.
+
+### 5. El encabezado con sesión iniciada está recargado
+
+Y es la causa de lo anterior: con sesión hay cuatro cosas peleándose el ancho
+—Panel · Hola, Soporte / Cuenta y listas · Hola, / Devoluciones y pedidos ·
+Carrito— y lo que se comen es el buscador.
+
+- **«Devoluciones y pedidos» no merece un sitio propio en la barra.** Va dentro
+  del menú de la cuenta o dentro de «Todo».
+- **«Cuenta y listas» se queda**, pero compacto.
+- **«Panel» está bien** donde está.
+
+Falta la captura que el dueño va a mandar para afinar el detalle.
+
+### Y lo que quedó abierto de este mismo día
+
+- **Un carrito puede mezclar destinos.** Un tubo de Caracas y una cámara de
+  Estados Unidos no se pueden entregar juntos, y hoy nada lo impide.
+  `cabenJuntos()` en `src/lib/destino/reglas.ts` está escrito y probado, y
+  **todavía no está puesto en el carrito ni en el checkout**. Es lo más
+  urgente de esta lista: se cobra un pedido que no se puede despachar.
+- **El selector de destino del encabezado** (el croquis del 15 ago), que es la
+  otra mitad de la misma historia.
+- **`/datos/google` manda el catálogo entero**, incluidos los productos
+  venezolanos, que no se pueden entregar en Estados Unidos. Hay que separarlo
+  **antes** de conectar Merchant Center: es motivo de suspensión.
+- **Las fichas de CJ están en inglés en los dos idiomas.** Falta el título en
+  español y una descripción propia — sin eso, Merchant Center las trata como
+  fichas pobres. No se inventan traducciones automáticas.
+- **Las estrellas de valoración** de productos y de comercios. Pedido el 14 ago
+  y todavía sin hacer; va completo o no va.
+- **Los avisos por Telegram.** Pedido el 14 ago, nunca existió.
 
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
