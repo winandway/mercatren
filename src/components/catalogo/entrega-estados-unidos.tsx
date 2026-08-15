@@ -1,6 +1,7 @@
 import { Globe2, PackageCheck, Truck } from "lucide-react";
 
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
+import { almacenDeLaTienda } from "@/lib/destino/almacenes";
 import { destinoDeLaTienda } from "@/lib/destino/reglas";
 
 /**
@@ -34,9 +35,14 @@ import { destinoDeLaTienda } from "@/lib/destino/reglas";
  */
 export function EntregaEstadosUnidos({
   paisOrigen,
+  tiendaId,
+  idioma,
   textos,
 }: {
   paisOrigen: string | null | undefined;
+  /** De aquí sale el estado del almacén: cada tienda enseña el suyo. */
+  tiendaId: string;
+  idioma: string;
   textos: {
     envioGratis: string;
     aTodoEeuu: string;
@@ -67,7 +73,12 @@ export function EntregaEstadosUnidos({
         </p>
       </div>
 
-      <MapaAlmacen titulo={textos.mapaTitulo} pie={textos.mapaPie} />
+      <MapaAlmacen
+        almacen={almacenDeLaTienda(tiendaId)}
+        idioma={idioma}
+        titulo={textos.mapaTitulo}
+        pie={textos.mapaPie}
+      />
 
       {/* EL CONSEJO, en gris y abajo: es una salida para quien no está en
           Estados Unidos, no una oferta nuestra. */}

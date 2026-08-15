@@ -15,6 +15,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
+import { almacenDeLaTienda } from "@/lib/destino/almacenes";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
 import { Link } from "@/i18n/navigation";
@@ -612,6 +613,8 @@ export default async function PaginaTienda({
         {tienda.paisOrigen?.trim().toUpperCase() === "US" ? (
           <div className="mt-5 max-w-xl">
             <MapaAlmacen
+              almacen={almacenDeLaTienda(tienda.id)}
+              idioma={locale}
               titulo={tc("producto.entregaUs.mapaTitulo")}
               pie={tc("producto.entregaUs.mapaPie")}
             />

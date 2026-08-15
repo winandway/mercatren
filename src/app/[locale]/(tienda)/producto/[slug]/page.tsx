@@ -283,6 +283,8 @@ export default async function PaginaProducto({
               se dibuja nada de esto en un producto venezolano. */}
           <EntregaEstadosUnidos
             paisOrigen={ficha.tiendaPais}
+            tiendaId={ficha.tiendaId}
+            idioma={locale}
             textos={{
               envioGratis: t("entregaUs.envioGratis"),
               aTodoEeuu: t("entregaUs.aTodoEeuu"),
