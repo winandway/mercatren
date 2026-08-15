@@ -4,10 +4,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ControlesCatalogo } from "@/components/catalogo/controles-catalogo";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
 import { Link } from "@/i18n/navigation";
 import {
   listarCategoriasConProductos,
   listarComerciosDelCatalogo,
+  listarDepartamentosDePortada,
   listarProductos,
   type OrdenCatalogo,
 } from "@/lib/catalogo/consultas";
@@ -62,7 +64,7 @@ export default async function PaginaCatalogo({
   const visibles =
     zona && !verTodas ? ciudadesVisiblesDesde(zona.slug) : undefined;
 
-  const [resultado, categorias, comercios] = await Promise.all([
+  const [resultado, categorias, comercios, departamentos] = await Promise.all([
     listarProductos({
       busqueda: filtros.q,
       categoria: filtros.categoria,
@@ -73,6 +75,8 @@ export default async function PaginaCatalogo({
     }),
     listarCategoriasConProductos(),
     listarComerciosDelCatalogo(),
+    /* LA TIRA TAMBIÉN AQUÍ DENTRO. Ver el comentario de abajo. */
+    listarDepartamentosDePortada(idioma).catch(() => []),
   ]);
 
   const hayBusqueda = Boolean(
@@ -96,6 +100,26 @@ export default async function PaginaCatalogo({
         </h1>
         <p className="mt-1 text-sm text-tinta-suave">{t("subtitulo")}</p>
       </header>
+
+      {/**
+       * LA TIRA DE DEPARTAMENTOS SE QUEDA AL ENTRAR.
+       *
+       * Antes solo salía en la portada: se tocaba un departamento, se entraba
+       * al catálogo, y **la tira desaparecía**. Para ir a otro había que
+       * devolverse con el botón de atrás del navegador.
+       *
+       * Eso es un callejón sin salida en el segundo clic, justo para quien
+       * navega por gusto — que es quien más termina comprando. Ahora se queda,
+       * con el departamento donde estás marcado en naranja.
+       */}
+      {departamentos.length > 0 ? (
+        <div className="mb-6 border-b border-borde pb-5">
+          <TiraDepartamentos
+            departamentos={departamentos}
+            activo={filtros.categoria}
+          />
+        </div>
+      ) : null}
 
       <ControlesCatalogo
         categorias={categorias.map((c) => ({

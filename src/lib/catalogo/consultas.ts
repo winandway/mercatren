@@ -6,6 +6,7 @@ import {
   DEPARTAMENTOS,
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
+import { intercalarPorTienda } from "@/lib/catalogo/intercalar";
 import { recordado } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
@@ -283,27 +284,31 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
     .limit(porPagina)
     .offset((pagina - 1) * porPagina);
 
-  const lista: ProductoLista[] = filas.map((f) => ({
-    id: f.id,
-    slug: f.slug,
-    tituloEs: f.tituloEs,
-    tituloEn: f.tituloEn,
-    precioCentavos: f.precioCentavos,
-    precioAntesCentavos: f.precioAntesCentavos,
-    moneda: f.moneda,
-    existencias: f.existencias,
-    controlaExistencias: f.controlaExistencias,
-    unidad: f.unidad,
-    marca: f.marca,
-    destacado: f.destacado,
-    creadoEn: f.creadoEn,
-    tiendaId: f.tiendaId,
-    tiendaNombre: f.tiendaNombre,
-    tiendaSlug: f.tiendaSlug,
-    tiendaPais: f.tiendaPais,
-    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-    imagenAlt: f.fotoAlt,
-  }));
+  /* El catálogo también salía en bloque cuando no hay filtro de comercio. */
+  const lista: ProductoLista[] = intercalarPorTienda(
+    filas.map((f) => ({
+      id: f.id,
+      slug: f.slug,
+      tituloEs: f.tituloEs,
+      tituloEn: f.tituloEn,
+      precioCentavos: f.precioCentavos,
+      precioAntesCentavos: f.precioAntesCentavos,
+      moneda: f.moneda,
+      existencias: f.existencias,
+      controlaExistencias: f.controlaExistencias,
+      unidad: f.unidad,
+      marca: f.marca,
+      destacado: f.destacado,
+      creadoEn: f.creadoEn,
+      tiendaId: f.tiendaId,
+      tiendaNombre: f.tiendaNombre,
+      tiendaSlug: f.tiendaSlug,
+      tiendaPais: f.tiendaPais,
+      imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+      imagenAlt: f.fotoAlt,
+    })),
+    (p) => p.tiendaSlug,
+  );
 
   return {
     productos: lista,
@@ -863,26 +868,32 @@ export async function parrillaDeProductos(
   const total = Number(conteo?.n ?? 0);
 
   return {
-    productos: filas.map((f): ProductoLista => ({
-      id: f.id,
-      slug: f.slug,
-      tituloEs: f.tituloEs,
-      tituloEn: f.tituloEn,
-      precioCentavos: f.precioCentavos,
-      precioAntesCentavos: f.precioAntesCentavos,
-      moneda: f.moneda,
-      existencias: f.existencias,
-      controlaExistencias: f.controlaExistencias,
-      unidad: f.unidad,
-      marca: f.marca,
-      destacado: f.destacado,
-      creadoEn: f.creadoEn,
-      tiendaNombre: f.tiendaNombre,
-      tiendaSlug: f.tiendaSlug,
-      tiendaPais: f.tiendaPais,
-      imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-      imagenAlt: f.fotoAlt,
-    })),
+    /* SE INTERCALA DESPUÉS DE CONSULTAR, no en el SQL: el orden que llega ya
+       trae la semilla y la ventaja de lo recién llegado, y eso no se rehace —
+       solo se separa lo que quedó amontonado. Ver `catalogo/intercalar.ts`. */
+    productos: intercalarPorTienda(
+      filas.map((f): ProductoLista => ({
+        id: f.id,
+        slug: f.slug,
+        tituloEs: f.tituloEs,
+        tituloEn: f.tituloEn,
+        precioCentavos: f.precioCentavos,
+        precioAntesCentavos: f.precioAntesCentavos,
+        moneda: f.moneda,
+        existencias: f.existencias,
+        controlaExistencias: f.controlaExistencias,
+        unidad: f.unidad,
+        marca: f.marca,
+        destacado: f.destacado,
+        creadoEn: f.creadoEn,
+        tiendaNombre: f.tiendaNombre,
+        tiendaSlug: f.tiendaSlug,
+        tiendaPais: f.tiendaPais,
+        imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+        imagenAlt: f.fotoAlt,
+      })),
+      (p) => p.tiendaSlug,
+    ),
     total,
     pagina,
     paginas: Math.max(1, Math.ceil(total / porPagina)),
@@ -983,26 +994,31 @@ export async function bandasDeDepartamentos(
         slug: d.slug,
         nombre: d.nombre,
         cuantos: d.cuantos,
-        productos: filas.map((f): ProductoLista => ({
-          id: f.id,
-          slug: f.slug,
-          tituloEs: f.tituloEs,
-          tituloEn: f.tituloEn,
-          precioCentavos: f.precioCentavos,
-          precioAntesCentavos: f.precioAntesCentavos,
-          moneda: f.moneda,
-          existencias: f.existencias,
-          controlaExistencias: f.controlaExistencias,
-          unidad: f.unidad,
-          marca: f.marca,
-          destacado: f.destacado,
-          creadoEn: f.creadoEn,
-          tiendaNombre: f.tiendaNombre,
-          tiendaSlug: f.tiendaSlug,
-          tiendaPais: f.tiendaPais,
-          imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-          imagenAlt: f.fotoAlt,
-        })),
+        /* Mismo intercalado que la parrilla: dentro de una banda también
+           salían todos los de una tienda juntos. */
+        productos: intercalarPorTienda(
+          filas.map((f): ProductoLista => ({
+            id: f.id,
+            slug: f.slug,
+            tituloEs: f.tituloEs,
+            tituloEn: f.tituloEn,
+            precioCentavos: f.precioCentavos,
+            precioAntesCentavos: f.precioAntesCentavos,
+            moneda: f.moneda,
+            existencias: f.existencias,
+            controlaExistencias: f.controlaExistencias,
+            unidad: f.unidad,
+            marca: f.marca,
+            destacado: f.destacado,
+            creadoEn: f.creadoEn,
+            tiendaNombre: f.tiendaNombre,
+            tiendaSlug: f.tiendaSlug,
+            tiendaPais: f.tiendaPais,
+            imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+            imagenAlt: f.fotoAlt,
+          })),
+          (p) => p.tiendaSlug,
+        ),
       };
     }),
   );

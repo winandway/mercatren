@@ -1823,7 +1823,17 @@
         "bajada": "What buyers ask most about this item.",
         "respondeElComercio": "Answered by the store"
       },
-      "entregaUsa": "U.S."
+      "entregaUsa": "U.S.",
+      "entregaUs": {
+        "envioGratis": "Free shipping",
+        "aTodoEeuu": "To any address in all 50 U.S. states.",
+        "plazo": "Arrives in 2 to 5 business days",
+        "precioFinal": "The price you see is the final price — shipping is already included.",
+        "casilleroTitulo": "Want it in another country?",
+        "casilleroTexto": "You can rent a U.S. mail forwarding address —several companies offer this— and enter it at checkout. We ship to that address for free, and the forwarding company takes it from there to your country. Cost, delivery time, and customs on that final leg are handled by them, not by Mercatren.",
+        "mapaTitulo": "Our warehouse in the United States",
+        "mapaPie": "We ship from here to the entire country."
+      }
     },
     "paginacion": {
       "anterior": "Previous",

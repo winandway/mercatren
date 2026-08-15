@@ -1823,7 +1823,17 @@
         "bajada": "Lo que más preguntan quienes compran aquí.",
         "respondeElComercio": "Respondido por el comercio"
       },
-      "entregaUsa": "EE. UU."
+      "entregaUsa": "EE. UU.",
+      "entregaUs": {
+        "envioGratis": "Envío gratis",
+        "aTodoEeuu": "A cualquier dirección de los 50 estados de Estados Unidos.",
+        "plazo": "Llega en 2 a 5 días hábiles",
+        "precioFinal": "El precio que ves es el precio final: el envío ya va incluido.",
+        "casilleroTitulo": "¿Lo quieres en otro país?",
+        "casilleroTexto": "Puedes alquilar un casillero en Estados Unidos —hay varias empresas que lo ofrecen— y poner esa dirección al comprar. Nosotros te lo llevamos gratis hasta el casillero, y esa empresa se encarga de enviártelo a tu país. El costo, el plazo y la aduana de ese último tramo los maneja ella, no Mercatren.",
+        "mapaTitulo": "Nuestro almacén en Estados Unidos",
+        "mapaPie": "Despachamos desde aquí a todo el país."
+      }
     },
     "paginacion": {
       "anterior": "Anterior",

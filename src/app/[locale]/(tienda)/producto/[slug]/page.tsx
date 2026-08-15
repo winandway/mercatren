@@ -12,6 +12,7 @@ import {
   variantesDe,
 } from "@/lib/productos/variantes";
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
+import { EntregaEstadosUnidos } from "@/components/catalogo/entrega-estados-unidos";
 import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
 import { preguntasDe } from "@/lib/preguntas/consultas";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
@@ -276,6 +277,23 @@ export default async function PaginaProducto({
               {ficha.tiendaNombre}
             </Link>
           </p>
+
+          {/* SI SE ENTREGA EN ESTADOS UNIDOS: envío gratis, plazo, el mapa
+              del almacén y la salida del casillero para quien está fuera. No
+              se dibuja nada de esto en un producto venezolano. */}
+          <EntregaEstadosUnidos
+            paisOrigen={ficha.tiendaPais}
+            textos={{
+              envioGratis: t("entregaUs.envioGratis"),
+              aTodoEeuu: t("entregaUs.aTodoEeuu"),
+              plazo: t("entregaUs.plazo"),
+              precioFinal: t("entregaUs.precioFinal"),
+              casilleroTitulo: t("entregaUs.casilleroTitulo"),
+              casilleroTexto: t("entregaUs.casilleroTexto"),
+              mapaTitulo: t("entregaUs.mapaTitulo"),
+              mapaPie: t("entregaUs.mapaPie"),
+            }}
+          />
 
           {/* DÓNDE SE RETIRA, justo debajo de quién lo vende. Es lo primero
               que necesita saber quien ya se decidió: adónde voy por él. */}
