@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Landmark } from "lucide-react";
+import { Check, ChevronDown, Copy, Landmark } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -93,9 +93,24 @@ export function DatosParaTransferir({
     .filter(Boolean)
     .join(", ");
 
+  /**
+   * ══ CERRADO POR DEFECTO, Y SE ABRE AL IR A PAGAR ══
+   *
+   * Cada bloque de datos bancarios mide media pantalla. Con veinte comercios
+   * esperando su dinero, la cola se vuelve un scroll interminable donde no se
+   * puede encontrar a nadie: para llegar al quinto hay que pasar por cuatro
+   * fichas de banco enteras que no se van a usar.
+   *
+   * Lo que se necesita para BUSCAR es el nombre, el monto y la vía — y eso ya
+   * está arriba, en la fila. Los datos del banco solo hacen falta en el momento
+   * de ir a hacer la transferencia, y para eso se abre este.
+   *
+   * Es un `<details>` del navegador, como el resto del sitio: abre y cierra sin
+   * una línea de JavaScript y funciona con teclado y con lector de pantalla.
+   */
   return (
-    <section className="mt-3 rounded-xl border border-riel-800 bg-riel-900 p-4 text-white">
-      <h3 className="flex flex-wrap items-center gap-2 font-bold">
+    <details className="group mt-3 rounded-xl border border-riel-800 bg-riel-900 text-white">
+      <summary className="flex cursor-pointer flex-wrap items-center gap-2 p-4 font-bold select-none">
         <Landmark className="h-4 w-4 shrink-0" aria-hidden />
         {t("datosParaTransferir")}
         {pais ? (
@@ -103,53 +118,61 @@ export function DatosParaTransferir({
             {pais.bandera} {t(`via.${pais.via}` as never)}
           </span>
         ) : null}
-      </h3>
+        {/* La flecha dice que esto se abre. Sin ella, un bloque cerrado se lee
+            como un título suelto y nadie lo toca. */}
+        <ChevronDown
+          className="ml-auto h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+          aria-hidden
+        />
+      </summary>
 
-      <dl className="mt-3 space-y-2">
-        {filas.map((f) => (
-          <div
-            key={f.etiqueta}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white/10 px-3 py-2"
-          >
-            <div className="min-w-0">
-              <dt className="text-xs tracking-wide text-white/60 uppercase">
-                {f.etiqueta}
-              </dt>
-              <dd className="font-mono text-sm font-semibold break-words">
-                {f.valor}
-              </dd>
-            </div>
-            <Copiar valor={f.valor} />
-          </div>
-        ))}
-      </dl>
-
-      {faltaDireccion ? (
-        <div className="mt-3 rounded-lg bg-amber-400/20 px-3 py-2.5">
-          <p className="text-sm font-semibold text-amber-100">
-            {t("faltaDireccion")}
-          </p>
-          {respaldo ? (
-            <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-white/10 px-3 py-2">
+      <div className="px-4 pb-4">
+        <dl className="mt-3 space-y-2">
+          {filas.map((f) => (
+            <div
+              key={f.etiqueta}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white/10 px-3 py-2"
+            >
               <div className="min-w-0">
-                <p className="text-xs tracking-wide text-white/60 uppercase">
-                  {t("direccionDeLaFicha")}
-                </p>
-                <p className="font-mono text-sm font-semibold break-words">
-                  {respaldo}
-                </p>
+                <dt className="text-xs tracking-wide text-white/60 uppercase">
+                  {f.etiqueta}
+                </dt>
+                <dd className="font-mono text-sm font-semibold break-words">
+                  {f.valor}
+                </dd>
               </div>
-              <Copiar valor={respaldo} />
+              <Copiar valor={f.valor} />
             </div>
-          ) : null}
-        </div>
-      ) : null}
+          ))}
+        </dl>
 
-      {/* Lo que hay que mirar ANTES de ir al banco, no después. */}
-      <p className="mt-3 text-xs text-white/70">
-        {t("avisoAntesDeTransferir")}
-      </p>
-    </section>
+        {faltaDireccion ? (
+          <div className="mt-3 rounded-lg bg-amber-400/20 px-3 py-2.5">
+            <p className="text-sm font-semibold text-amber-100">
+              {t("faltaDireccion")}
+            </p>
+            {respaldo ? (
+              <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-white/10 px-3 py-2">
+                <div className="min-w-0">
+                  <p className="text-xs tracking-wide text-white/60 uppercase">
+                    {t("direccionDeLaFicha")}
+                  </p>
+                  <p className="font-mono text-sm font-semibold break-words">
+                    {respaldo}
+                  </p>
+                </div>
+                <Copiar valor={respaldo} />
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Lo que hay que mirar ANTES de ir al banco, no después. */}
+        <p className="mt-3 text-xs text-white/70">
+          {t("avisoAntesDeTransferir")}
+        </p>
+      </div>
+    </details>
   );
 }
 
