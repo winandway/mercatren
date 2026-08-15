@@ -310,6 +310,43 @@ export default async function PaginaProducto({
             </Link>
           </p>
 
+          {/* LAS ESTRELLAS, pegadas al nombre. Sin opiniones no se dibuja
+              nada: «0 de 5» se lee como un producto malísimo cuando lo que
+              pasa es que nadie ha opinado todavía. */}
+          {resumenEstrellas.cuantas > 0 ? (
+            <p className="mt-2">
+              <Estrellas
+                promedio={resumenEstrellas.promedio}
+                cuantas={resumenEstrellas.cuantas}
+                texto={
+                  resumenEstrellas.cuantas === 1
+                    ? t("deUna")
+                    : t("deCuantas", { n: resumenEstrellas.cuantas })
+                }
+              />
+            </p>
+          ) : null}
+
+          {/**
+           * VENTA POR DOCENA, DICHO ANTES DE ELEGIR NADA.
+           *
+           * Esta tienda existe para los productos que sueltos dan pérdida. Si
+           * el comprador no ve el mínimo hasta el final, o pide uno y el
+           * sistema se lo sube a doce por detrás, la compra se siente como una
+           * trampa. Se dice aquí, con el precio del lote ya hecho.
+           */}
+          {minimoDeCompra > 1 ? (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm font-semibold text-amber-900">
+              {t("ventaMinima", {
+                minimo: minimoDeCompra,
+                total: formatearPrecio(
+                  producto.precioCentavos * minimoDeCompra,
+                  idioma,
+                ),
+              })}
+            </p>
+          ) : null}
+
           {/* SI SE ENTREGA EN ESTADOS UNIDOS: envío gratis, plazo, el mapa
               del almacén y la salida del casillero para quien está fuera. No
               se dibuja nada de esto en un producto venezolano. */}
