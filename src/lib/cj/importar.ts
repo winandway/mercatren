@@ -8,6 +8,7 @@ import { exigirEquipoInterno } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import {
   billeteras,
+  fuentesCatalogo,
   imagenesProducto,
   productos,
   tiendas,
@@ -97,6 +98,51 @@ async function tiendaDeEstadosUnidos(propietarioId: string): Promise<string> {
 }
 
 /**
+ * LA FUENTE «CJ», SIN LA CUAL NINGÚN PRODUCTO SE PUEDE GUARDAR.
+ *
+ * ══ ESTE ERA EL FALLO DEL BOTÓN «AGREGAR AL CATÁLOGO» ══
+ *
+ * `productos.fuente_id` tiene una llave foránea contra `fuentes_catalogo`. Yo
+ * guardaba `"cj"` ahí dando por hecho que era una simple etiqueta de texto, y
+ * nunca creé la fila. La base rechaza el producto —«FOREIGN KEY constraint
+ * failed»—, la acción revienta, y al dueño le sale un error de servidor sin una
+ * sola pista de qué pasó.
+ *
+ * Y no es una fila de relleno para contentar a la base: es la misma ficha que
+ * ya usa el catálogo importado de cualquier comercio. Ahí queda registrado
+ * **de dónde salió cada producto**, que es lo que permite volver a
+ * sincronizarlo, saber cuándo se miró por última vez, y apagar la fuente sin
+ * borrar nada. Sin ella, los productos de CJ serían huérfanos.
+ *
+ * Se crea una sola vez, la primera; de ahí en adelante solo se lee.
+ */
+async function fuenteDeCj(tiendaId: string): Promise<string> {
+  const db = getDb();
+
+  const [existente] = await db
+    .select({ id: fuentesCatalogo.id })
+    .from(fuentesCatalogo)
+    .where(eq(fuentesCatalogo.id, FUENTE_CJ))
+    .limit(1);
+
+  if (existente) return existente.id;
+
+  await db.insert(fuentesCatalogo).values({
+    id: FUENTE_CJ,
+    tiendaId,
+    nombre: "CJ Dropshipping",
+    estado: "activa",
+    /* SIN `url`, Y A PROPÓSITO. Las otras fuentes leen un archivo que el
+       comercio publica; esta se lee por la API de CJ con su propia llave, así
+       que aquí no hay dirección que guardar. Inventarle una haría creer que se
+       sincroniza sola desde ahí. */
+    creadoEn: new Date(),
+  });
+
+  return FUENTE_CJ;
+}
+
+/**
  * Una dirección web a partir del nombre.
  *
  * El nombre de CJ viene en inglés y a veces larguísimo. Se recorta y se le pega
@@ -147,8 +193,56 @@ export async function agregarProductoDeCj(
     return { ok: false, mensaje: "Ese producto llegó incompleto de CJ." };
   }
 
+  try {
+    return await guardarProducto({
+      propietarioId: usuario.id,
+      externoId,
+      nombre,
+      imagen,
+      sku,
+      costoCentavos,
+      existencias,
+    });
+  } catch (fallo) {
+    /**
+     * ══ EL MOTIVO SE DICE, NO SE ESCONDE ══
+     *
+     * Sin esto, un fallo de la base sale como «Error del servidor» y hay que
+     * adivinar entre la llave foránea, una columna que falta y un permiso.
+     * Ya se perdió una noche así con el botón de agregar.
+     *
+     * Aquí se puede enseñar entero porque esta pantalla es **solo del equipo
+     * interno**: no hay un comprador del otro lado a quien filtrarle nada.
+     */
+    console.error("[cj] no se pudo guardar el producto:", fallo);
+    const motivo = fallo instanceof Error ? fallo.message : String(fallo);
+    return { ok: false, mensaje: `No se pudo guardar: ${motivo}` };
+  }
+}
+
+async function guardarProducto({
+  propietarioId,
+  externoId,
+  nombre,
+  imagen,
+  sku,
+  costoCentavos,
+  existencias,
+}: {
+  propietarioId: string;
+  externoId: string;
+  nombre: string;
+  imagen: string;
+  sku: string;
+  costoCentavos: number;
+  existencias: number;
+}): Promise<Resultado> {
   const db = getDb();
-  const tiendaId = await tiendaDeEstadosUnidos(usuario.id);
+  const tiendaId = await tiendaDeEstadosUnidos(propietarioId);
+
+  /* La fuente ANTES del producto: `productos.fuente_id` apunta a ella y la base
+     rechaza el producto si todavía no existe. */
+  await fuenteDeCj(tiendaId);
 
   /* El envío se sigue asumiendo en cero hasta que se cotice contra una
      dirección real. El precio queda como mínimo y se ajusta al publicarlo. */
