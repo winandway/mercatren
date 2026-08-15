@@ -1735,7 +1735,7 @@
     },
     "catalogoUsa": {
       "titulo": "Catálogo de Estados Unidos",
-      "texto": "Busca en CJ Dropshipping y elige qué vender. Solo aparecen productos con almacén en Estados Unidos, que son los que llegan en 2 a 5 días. Lo que agregues entra como borrador: se publica después, cuando tenga su ficha escrita.",
+      "texto": "Busca en CJ Dropshipping y elige qué vender. Solo aparecen productos con almacén en Estados Unidos, que son los que llegan en 2 a 5 días. Lo que agregues se publica de una en tu tienda, en el departamento que dice cada tarjeta.",
       "sinLlave": "Falta la variable CJ_API_KEY en el panel de YaDominios. Cárgala, republica el sitio y comprueba la conexión en Configuración.",
       "marcador": "Busca en inglés: drill, kitchen, phone case…",
       "buscar": "Buscar",
@@ -1747,7 +1747,7 @@
       "almacen": "En almacén",
       "flaco": "Deja muy poco. Una sola devolución lo convierte en pérdida.",
       "agregar": "Agregar al catálogo",
-      "puesto": "En tu catálogo, como borrador",
+      "puesto": "Publicado en tu tienda",
       "anterior": "← Anterior",
       "siguiente": "Siguiente →",
       "pagina": "Página {n}",

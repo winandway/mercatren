@@ -1735,7 +1735,7 @@
     },
     "catalogoUsa": {
       "titulo": "United States catalog",
-      "texto": "Search CJ Dropshipping and pick what to sell. Only products stocked in United States warehouses show up — those are the ones that arrive in 2 to 5 days. Whatever you add comes in as a draft: you publish it later, once it has its own description.",
+      "texto": "Search CJ Dropshipping and pick what to sell. Only products stocked in United States warehouses show up — those are the ones that arrive in 2 to 5 days. Whatever you add goes live in your store right away, in the department shown on each card.",
       "sinLlave": "The CJ_API_KEY variable is missing from the YaDominios panel. Add it, republish the site, and test the connection in Settings.",
       "marcador": "Search in English: drill, kitchen, phone case…",
       "buscar": "Search",
@@ -1747,7 +1747,7 @@
       "almacen": "In stock",
       "flaco": "Leaves very little. A single return turns it into a loss.",
       "agregar": "Add to catalog",
-      "puesto": "In your catalog, as a draft",
+      "puesto": "Published in your store",
       "anterior": "← Previous",
       "siguiente": "Next →",
       "pagina": "Page {n}",
