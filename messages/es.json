@@ -358,7 +358,8 @@
       "cobros": "Cobros",
       "billeteraComercio": "Mi dinero",
       "ordenesCompraComercio": "Mis facturas a Mercatren",
-      "catalogoUsa": "Catálogo de EE. UU."
+      "catalogoUsa": "Catálogo de EE. UU.",
+      "tiendasUsa": "Tiendas USA"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -727,7 +728,9 @@
       "verEnTienda": "Ver en la tienda",
       "acciones": "Acciones",
       "sinControl": "Sin control",
-      "guardado": "Guardado"
+      "guardado": "Guardado",
+      "departamento": "Departamento",
+      "sinDepartamento": "Sin departamento"
     },
     "producto": {
       "tituloNuevo": "Nuevo producto",
@@ -1129,7 +1132,9 @@
         "llaveRechazada": "CJ no aceptó la llave.",
         "sinCatalogo": "La llave sirve, pero no se pudo leer el catálogo.",
         "conectado": "Conectado con CJ. La llave sirve y el catálogo se puede leer."
-      }
+      },
+      "departamentoNoExiste": "Ese departamento no existe.",
+      "departamentoCambiado": "Departamento cambiado. La tienda no se tocó."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1763,6 +1768,26 @@
       "repartirTitulo": "Repartir en sus tiendas",
       "repartirTexto": "Mueve a la tienda de su rubro los productos que ya estaban cargados en la tienda general. Conserva su dirección, sus fotos y su precio. Se puede pulsar las veces que haga falta.",
       "repartirBoton": "Repartir por rubro"
+    },
+    "tiendasUsa": {
+      "titulo": "Tiendas de Estados Unidos",
+      "texto": "Cuánto llevamos cargado, en qué tienda está y qué departamento sigue vacío. Para agregar productos, entra en Catálogo de Estados Unidos.",
+      "productos": "Productos cargados",
+      "deMeta": "de {meta}",
+      "publicados": "Publicados",
+      "publicadosPie": "Los que ya se ven en la tienda.",
+      "tiendas": "Tiendas",
+      "tiendasPie": "Cada una con su rubro.",
+      "lasTiendas": "Las tiendas",
+      "todaviaNada": "Todavía no hay ninguna tienda de Estados Unidos. Se crean solas al agregar el primer producto.",
+      "porLotes": "Por lotes · mínimo {minimo}",
+      "productosCortito": "productos",
+      "enBorrador": "{n} en borrador",
+      "editar": "Nombre y logo",
+      "verProductos": "Sus productos",
+      "ver": "Ver la tienda",
+      "porDepartamento": "Por departamento",
+      "porDepartamentoAyuda": "Los que están en cero son los que hay que buscar. Un departamento vacío en la tienda se ve como una sección abandonada."
     }
   },
   "catalogo": {

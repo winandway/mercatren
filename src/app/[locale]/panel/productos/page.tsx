@@ -2,6 +2,11 @@ import { ImageOff, Package, Plus, Search } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AccionesProducto } from "@/components/panel/acciones-producto";
+import { SelectorDepartamento } from "@/components/panel/selector-departamento";
+import {
+  DEPARTAMENTOS,
+  nombreDepartamento,
+} from "@/lib/catalogo/departamentos";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { contarPorEstado, listarMisProductos } from "@/lib/productos/consultas";
@@ -42,6 +47,13 @@ export default async function PaginaMisProductos({
   )
     ? (filtros.estado as "publicado" | "borrador" | "agotado")
     : undefined;
+
+  /* La lista de departamentos, ya traducida: se arma una vez para toda la
+     página, no una por fila. */
+  const departamentos = DEPARTAMENTOS.map((d) => ({
+    slug: d.slug,
+    nombre: nombreDepartamento(d, locale),
+  }));
 
   const [datos, conteo] = await Promise.all([
     listarMisProductos({
@@ -184,6 +196,26 @@ export default async function PaginaMisProductos({
                   </span>
                   {p.sku ? <span className="truncate">{p.sku}</span> : null}
                 </p>
+
+                {/* EL DEPARTAMENTO, CORREGIBLE EN EL ACTO.
+                    El error se ve navegando —un kit de brochas dentro de
+                    Electrodomésticos— y si para arreglarlo hay que abrir la
+                    ficha, nadie lo arregla. Cambiarlo NO mueve el producto de
+                    tienda: la tienda dice quién lo vende, el departamento dice
+                    dónde se busca. */}
+                <span className="mt-1.5 inline-flex">
+                  <SelectorDepartamento
+                    id={p.id}
+                    departamento={
+                      p.categoriaId?.startsWith("dep-")
+                        ? p.categoriaId.slice(4)
+                        : null
+                    }
+                    opciones={departamentos}
+                    etiqueta={t("departamento")}
+                    sinDepartamento={t("sinDepartamento")}
+                  />
+                </span>
               </div>
 
               <span

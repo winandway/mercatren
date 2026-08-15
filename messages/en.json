@@ -358,7 +358,8 @@
       "cobros": "Payments in",
       "billeteraComercio": "My money",
       "ordenesCompraComercio": "My invoices to Mercatren",
-      "catalogoUsa": "U.S. catalog"
+      "catalogoUsa": "U.S. catalog",
+      "tiendasUsa": "US stores"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -727,7 +728,9 @@
       "verEnTienda": "View in store",
       "acciones": "Actions",
       "sinControl": "Not tracked",
-      "guardado": "Saved"
+      "guardado": "Saved",
+      "departamento": "Department",
+      "sinDepartamento": "No department"
     },
     "producto": {
       "tituloNuevo": "New product",
@@ -1129,7 +1132,9 @@
         "llaveRechazada": "CJ rejected the key.",
         "sinCatalogo": "The key works, but the catalog could not be read.",
         "conectado": "Connected to CJ. The key works and the catalog can be read."
-      }
+      },
+      "departamentoNoExiste": "That department doesn't exist.",
+      "departamentoCambiado": "Department changed. The store was left as is."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1763,6 +1768,26 @@
       "repartirTitulo": "Sort into their stores",
       "repartirTexto": "Moves products already in the general store into the store for their category. Keeps their address, photos, and price. Safe to run as many times as you need.",
       "repartirBoton": "Sort by category"
+    },
+    "tiendasUsa": {
+      "titulo": "United States stores",
+      "texto": "How much is loaded, which store it's in, and which department is still empty. To add products, go to United States catalog.",
+      "productos": "Products loaded",
+      "deMeta": "of {meta}",
+      "publicados": "Published",
+      "publicadosPie": "The ones already visible in the store.",
+      "tiendas": "Stores",
+      "tiendasPie": "One per category.",
+      "lasTiendas": "The stores",
+      "todaviaNada": "No United States stores yet. They're created automatically when you add the first product.",
+      "porLotes": "Wholesale · min {minimo}",
+      "productosCortito": "products",
+      "enBorrador": "{n} in draft",
+      "editar": "Name and logo",
+      "verProductos": "Its products",
+      "ver": "View store",
+      "porDepartamento": "By department",
+      "porDepartamentoAyuda": "The ones at zero are what to look for next. An empty department looks like an abandoned aisle."
     }
   },
   "catalogo": {

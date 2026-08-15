@@ -473,6 +473,75 @@ el suyo.
 el mapa dice eso. Es un dibujo nuestro, no un mapa de un tercero — nada de
 incrustar Google Maps, que además cobra por carga.
 
+## LA TIENDA MAYORISTA Y LA CLASIFICACIÓN (pedido el 15 ago 2026)
+
+### 9. Lo que deja poco se vende POR LOTES ✅ (hecho el 15 ago)
+
+La pantalla de selección marca en rojo los productos que dejan menos de dos
+dólares: ahí **una sola devolución convierte la venta en pérdida**. Hasta ahora
+la única salida era no agregarlos — y son justo los baratos, que es lo que más
+se busca.
+
+**Ahora van a una tienda mayorista y se venden de a diez.** El mismo producto
+que deja $0.90 suelto deja nueve en un lote, y una devolución sobre un lote pesa
+lo mismo que sobre una venta: deja de ser el riesgo que era.
+
+Encaja con el consejo del casillero que ya está en la ficha: quien compra diez
+unidades para llevárselas a su país por casillero **está haciendo exactamente lo
+que este catálogo permite**. Ahí hay que hacer énfasis.
+
+**El mínimo se comprueba en el SERVIDOR.** El carrito vive en el navegador y
+cualquiera lo edita; si el mínimo solo estuviera en la pantalla se vendería una
+unidad suelta, que es justo lo que esta tienda viene a evitar. Y **sube, nunca
+baja**: quien pidió 25 se lleva 25.
+
+### 10. Cambiar el departamento a mano ✅ (hecho el 15 ago)
+
+Un kit de brochas de maquillaje apareció dentro de **Electrodomésticos**. Quien
+filtra por un departamento y se topa con algo que no va deja de creerle al
+filtro.
+
+Ahora hay un desplegable **en la propia fila de Mis productos**: se ve el error
+navegando y se corrige en el acto. Si para arreglarlo hubiera que abrir la
+ficha, nadie lo arreglaría.
+
+**Y lo que no se puede romper nunca:** cambiar el departamento **NO mueve el
+producto de tienda**. La tienda dice _quién lo vende_; el departamento dice
+_dónde se busca_. Una tienda que vende brochas puede tener una mal clasificada,
+y corregirla no puede sacársela de su tienda ni cambiarle su dirección web —
+eso rompería sus enlaces y lo que Google ya tenga guardado.
+
+### 11. EL BARRIDO CON IA que reclasifica solo — PENDIENTE
+
+A mano no se van a repasar mil productos. Ya tenemos el asistente con IA en el
+panel; la idea es encargarle que recorra el catálogo y proponga el departamento
+correcto de cada producto.
+
+Cómo hacerlo sin romper nada:
+
+- **Que PROPONGA, no que aplique.** Una pantalla con «este producto está en
+  Electrodomésticos y debería estar en Belleza», y un botón para aceptar todas
+  las que estén bien. Un barrido que reescribe el catálogo entero sin que nadie
+  mire puede dejarlo peor de lo que estaba, y sin forma de saber qué cambió.
+- **Solo el departamento.** Igual que la herramienta manual: nunca la tienda.
+- **Por tandas y retomable**, como el botón de traer las fotos: mil productos no
+  entran en una sola llamada.
+- **Con tope de gasto escrito ANTES de encenderlo**, según la regla de la casa
+  sobre modelos de IA.
+- La herramienta manual se queda igual: cuantas más herramientas, mejor.
+
+### 12. La pantalla de Tiendas USA ✅ (hecho el 15 ago)
+
+Antes, al agregar un producto no quedaba **ni un número en pantalla**: no se
+sabía si iban 78 o 400, ni qué departamento seguía vacío. Con mil productos por
+delante eso es trabajar a ciegas.
+
+Botón propio en el menú —**Tiendas USA**, aparte del de agregar, porque son dos
+trabajos distintos— con el total hacia la meta de 1.000, cuántas tiendas hay,
+cuántos productos tiene cada una, y **todos los departamentos incluidos los que
+están en cero**: el hueco es lo que dice qué buscar mañana. Desde ahí se edita
+el nombre y el logo de cada tienda.
+
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
 Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega

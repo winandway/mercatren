@@ -2,6 +2,8 @@
 
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
+
+import { ajustarCantidad } from "@/lib/cj/mayorista";
 import { revalidatePath } from "next/cache";
 
 import { numeroDePedido, revisar } from "@/lib/validacion/acciones";
@@ -226,7 +228,21 @@ export async function crearPedido(
           .join(" · ")
       : producto.tituloEs;
 
-    if (controla && disponibles < linea.cantidad) {
+    /**
+     * ══ EL MÍNIMO DE LA MAYORISTA SE APLICA AQUÍ, EN EL SERVIDOR ══
+     *
+     * El carrito vive en el navegador y cualquiera lo puede editar. Si el
+     * mínimo solo estuviera en la pantalla, se vendería una unidad suelta de
+     * un producto que no la cubre — que es exactamente lo que la tienda
+     * mayorista viene a evitar.
+     *
+     * **Sube, nunca baja.** Quien pidió 25 se lleva 25; quien pidió 3 se lleva
+     * 10. Recortar lo que la persona ya eligió es como se pierde una compra
+     * decidida.
+     */
+    const cantidad = ajustarCantidad(linea.cantidad, producto.tiendaId);
+
+    if (controla && disponibles < cantidad) {
       return {
         ok: false,
         mensaje: t("sinSuficiente", {
@@ -237,7 +253,7 @@ export async function crearPedido(
     }
 
     // El precio sale de la base, NO del carrito.
-    const subtotalLinea = precioUnitario * linea.cantidad;
+    const subtotalLinea = precioUnitario * cantidad;
     subtotal += subtotalLinea;
 
     items.push({
@@ -247,7 +263,7 @@ export async function crearPedido(
       tiendaId: producto.tiendaId,
       titulo: tituloLinea,
       precioUnitarioCentavos: precioUnitario,
-      cantidad: linea.cantidad,
+      cantidad,
       subtotalCentavos: subtotalLinea,
       /* La comisión se guarda con la tarifa DEL MÉTODO, no con la de la
          tienda a secas: con tarjeta es el 2%, que es el que ya viene dentro

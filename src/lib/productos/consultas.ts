@@ -75,6 +75,9 @@ export async function listarMisProductos(filtros: FiltrosMisProductos = {}) {
     .select({
       id: productos.id,
       slug: productos.slug,
+      /* Para el selector de departamento de la lista: se cambia ahí mismo y
+         NO mueve el producto de tienda. */
+      categoriaId: productos.categoriaId,
       depositoId: productos.depositoId,
       tituloEs: productos.tituloEs,
       sku: productos.sku,

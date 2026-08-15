@@ -23,6 +23,11 @@ import {
   nombrePropuesto,
   tiendaDeRubro,
 } from "@/lib/cj/rubros";
+import {
+  MINIMO_MAYORISTA,
+  TIENDA_MAYORISTA,
+  vaAlMayorista,
+} from "@/lib/cj/mayorista";
 import { DEPARTAMENTOS } from "@/lib/catalogo/departamentos";
 import { desglosarUs } from "@/lib/destino/precio-us";
 
@@ -180,6 +185,53 @@ async function fuenteDeCj(tiendaId: string): Promise<string> {
  * cada producto — que es justo donde se equivocaría, y el error no se ve hasta
  * que un comprador entra a una tienda de repuestos llena de bolsos.
  */
+/**
+ * LA TIENDA MAYORISTA, creándose la primera vez que entra un producto flaco.
+ *
+ * Los que dejan menos de dos dólares sueltos —donde una sola devolución
+ * convierte la venta en pérdida— no se descartan: se venden **de a diez**. El
+ * mismo producto que deja $0.90 suelto deja nueve en un lote.
+ */
+async function tiendaMayorista(propietarioId: string): Promise<string> {
+  const db = getDb();
+
+  const [existente] = await db
+    .select({ id: tiendas.id })
+    .from(tiendas)
+    .where(eq(tiendas.id, TIENDA_MAYORISTA.id))
+    .limit(1);
+
+  if (existente) return existente.id;
+
+  await tiendaDeEstadosUnidos(propietarioId);
+
+  const ahora = new Date();
+
+  await db.insert(tiendas).values({
+    id: TIENDA_MAYORISTA.id,
+    slug: TIENDA_MAYORISTA.slug,
+    nombre: TIENDA_MAYORISTA.nombreEs,
+    propietarioId,
+    paisOrigen: "US",
+    estado: "activa",
+    comisionPuntosBase: COMISION_US_PB,
+    /* EL MÍNIMO SE DICE EN LA PROPIA FICHA DE LA TIENDA, no solo en el
+       producto: quien entra por la tienda tiene que saber a qué entró antes de
+       elegir nada. Y quién vende y factura, como en todas. */
+    descripcionEs: `Compra por lotes con entrega en Estados Unidos en 2 a 5 días hábiles y el envío incluido en el precio. Mínimo ${MINIMO_MAYORISTA} unidades por producto. Vendido y facturado por ${SOCIEDAD.nombre}.`,
+    descripcionEn: `Wholesale lots delivered anywhere in the United States in 2 to 5 business days, shipping included in the price. Minimum ${MINIMO_MAYORISTA} units per product. Sold and invoiced by ${SOCIEDAD.nombre}.`,
+    creadoEn: ahora,
+    actualizadoEn: ahora,
+  });
+
+  await db
+    .insert(billeteras)
+    .values({ id: `billetera-${nanoid(10)}`, tiendaId: TIENDA_MAYORISTA.id })
+    .catch(() => undefined);
+
+  return TIENDA_MAYORISTA.id;
+}
+
 async function tiendaDelRubro(
   departamento: string | null,
   propietarioId: string,
@@ -348,17 +400,27 @@ async function guardarProducto({
 }): Promise<Resultado> {
   const db = getDb();
 
-  /* LA TIENDA LA ELIGE EL PRODUCTO, no la pantalla. Ver `tiendaDelRubro`. */
-  const tiendaId = await tiendaDelRubro(departamento, propietarioId);
+  /* El envío se sigue asumiendo en cero hasta que se cotice contra una
+     dirección real; el margen que sale de aquí es el que decide la tienda. */
+  const precioPrevio = desglosarUs(costoCentavos, 0);
+
+  /**
+   * EL MARGEN MANDA SOBRE EL RUBRO.
+   *
+   * Un producto que deja menos de dos dólares suelto va a la mayorista, se
+   * venda lo que se venda: ahí una sola devolución convierte la venta en
+   * pérdida. En la mayorista se vende de a diez y deja de ser ese riesgo.
+   */
+  const tiendaId = vaAlMayorista(precioPrevio.margenCentavos)
+    ? await tiendaMayorista(propietarioId)
+    : await tiendaDelRubro(departamento, propietarioId);
 
   /* La fuente ANTES del producto: `productos.fuente_id` apunta a ella y la base
      rechaza el producto si todavía no existe. Cuelga de la tienda general, que
      `tiendaDelRubro` se encarga de dejar creada. */
   await fuenteDeCj(TIENDA_US_GENERAL);
 
-  /* El envío se sigue asumiendo en cero hasta que se cotice contra una
-     dirección real. El precio queda como mínimo y se ajusta al publicarlo. */
-  const precio = desglosarUs(costoCentavos, 0);
+  const precio = precioPrevio;
 
   const [yaEsta] = await db
     .select({ id: productos.id })

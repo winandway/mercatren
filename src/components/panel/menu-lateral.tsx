@@ -110,6 +110,15 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         Icono: Flag,
         soloInterno: true,
       },
+      /* TIENDAS USA es OTRO trabajo: la de arriba sirve para agregar y esta
+         para saber cuánto llevamos, en qué tienda está y qué departamento
+         sigue vacío. Dos botones porque son dos preguntas distintas. */
+      {
+        href: "/panel/tiendas-usa",
+        clave: "tiendasUsa",
+        Icono: Store,
+        soloInterno: true,
+      },
       // Las CUENTAS del sistema, que no es lo mismo que los compradores.
       {
         href: "/panel/usuarios",

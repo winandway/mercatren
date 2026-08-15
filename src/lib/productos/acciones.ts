@@ -682,3 +682,82 @@ export async function guardarMedidas(
   revalidatePath("/[locale]", "layout");
   return { ok: true, mensaje: t("medidasGuardadas") };
 }
+
+/**
+ * CAMBIAR EL DEPARTAMENTO DE UN PRODUCTO, A MANO.
+ *
+ * ══ POR QUÉ HACE FALTA UNA MANO HUMANA ══
+ *
+ * El departamento se adivina de la categoría que trae CJ, y adivinar acierta
+ * casi siempre — pero «casi» deja cosas como una brocha de maquillaje dentro de
+ * Ferretería y construcción. Quien filtra por ferretería y se topa con una
+ * brocha de maquillaje deja de creerle al filtro.
+ *
+ * Ningún barrido automático arregla eso mejor que una persona que ve el
+ * producto. La herramienta es para el que lo encuentra: un toque y queda donde
+ * va.
+ *
+ * ══ CAMBIAR EL DEPARTAMENTO NO MUEVE EL PRODUCTO DE TIENDA ══
+ *
+ * Y esto es lo que no se puede romper. La tienda dice **quién lo vende**; el
+ * departamento dice **dónde se busca**. Son dos cosas distintas: una tienda que
+ * vende brochas puede tener una mal clasificada, y corregir la clasificación no
+ * puede sacársela de su tienda ni cambiarle la dirección web — eso rompería sus
+ * enlaces y lo que Google ya tenga guardado.
+ *
+ * Aquí solo se toca `categoria_id`. `tienda_id` ni se menciona.
+ */
+export async function cambiarDepartamento(
+  id: string,
+  departamento: string,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
+  let alcance;
+  try {
+    alcance = await obtenerAlcance();
+  } catch (fallo) {
+    console.error("[producto] sin alcance:", fallo);
+    return { ok: false, mensaje: t("cuentaSinComercio") };
+  }
+
+  const db = getDb();
+
+  const [producto] = await db
+    .select({ tiendaId: productos.tiendaId })
+    .from(productos)
+    .where(eq(productos.id, id))
+    .limit(1);
+
+  if (!producto) return { ok: false, mensaje: t("productoNoExiste") };
+  if (alcance.tipo === "tienda" && producto.tiendaId !== alcance.tiendaId) {
+    return { ok: false, mensaje: t("productoAjeno") };
+  }
+
+  /**
+   * SE COMPRUEBA CONTRA LA LISTA ANTES DE GUARDAR.
+   *
+   * `productos.categoria_id` tiene llave foránea: un slug que no exista haría
+   * fallar el guardado entero con un error que no dice nada. Vacío se admite y
+   * significa «sin departamento», que es mejor que uno equivocado.
+   */
+  const limpio = departamento.trim();
+  const { DEPARTAMENTOS } = await import("@/lib/catalogo/departamentos");
+
+  if (limpio && !DEPARTAMENTOS.some((d) => d.slug === limpio)) {
+    return { ok: false, mensaje: t("departamentoNoExiste") };
+  }
+
+  await db
+    .update(productos)
+    .set({
+      categoriaId: limpio ? `dep-${limpio}` : null,
+      actualizadoEn: new Date(),
+    })
+    .where(eq(productos.id, id));
+
+  revalidatePath("/[locale]/panel", "layout");
+  revalidatePath("/[locale]", "layout");
+
+  return { ok: true, mensaje: t("departamentoCambiado") };
+}
