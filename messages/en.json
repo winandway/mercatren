@@ -456,7 +456,9 @@
         "unaVez": "Copy it now. Once you close this, it cannot be shown again.",
         "copiar": "Copy token",
         "copiado": "Copied",
-        "dondeVa": "It goes on the merchant's server, as the MERCATREN_TOKEN variable. Never on their website or by email."
+        "dondeVa": "It goes on the merchant's server, as the MERCATREN_TOKEN variable. Never on their website or by email.",
+        "resumen": "Does their POS charge through Mercatren? (advanced)",
+        "paraQue": "Only for merchants who run their own point-of-sale and want to charge from there: the cashier creates the invoice, taps a button, and the customer automatically receives the payment link by email. If the merchant sells only through Mercatren, this isn't needed."
       }
     },
     "resumen": {

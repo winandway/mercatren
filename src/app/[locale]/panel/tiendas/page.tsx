@@ -2,6 +2,7 @@ import { ArrowRight, Wallet } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonVerComo } from "@/components/panel/ver-como";
+import { AprobarComercio } from "@/components/panel/aprobar-comercio";
 import { TokenIntegracion } from "@/components/panel/tiendas/token-integracion";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
@@ -97,12 +98,46 @@ export default async function PaginaComercios({
 
                 {/* «Ver su panel»: para responderle cuando manda una captura
                     preguntando dónde se hace algo. Solo para Soporte. */}
+                {/**
+                 * ACTIVAR UNA QUE QUEDÓ PENDIENTE.
+                 *
+                 * Desde el 15 ago 2026 las tiendas nacen activas, así que esto
+                 * solo sale para las que se registraron antes del cambio, o
+                 * para una que se suspendió y se quiere devolver.
+                 *
+                 * Va AQUÍ y no escondido en la ficha de la cuenta: es donde el
+                 * dueño lo buscó, y no encontrarlo es lo mismo que no tenerlo.
+                 */}
+                {esSoporte && c.estado === "pendiente" ? (
+                  <div className="mt-4">
+                    <AprobarComercio tiendaId={c.id} />
+                  </div>
+                ) : null}
+
                 {esSoporte ? (
                   <div className="mt-4">
                     <BotonVerComo tiendaId={c.id} nombre={c.nombre} />
-                    {/* El token con el que su caja cobra por Mercatren. Solo
-                        Soporte: deja crear cobros a nombre del comercio. */}
-                    <TokenIntegracion tiendaId={c.id} nombre={c.nombre} />
+                    {/**
+                     * EL TOKEN VA PLEGADO, Y ES A PROPÓSITO.
+                     *
+                     * Casi ningún comercio lo necesita: solo los que tienen su
+                     * propio sistema de caja y quieren cobrar desde ahí. A la
+                     * vista en cada ficha era un botón que nadie entendía —
+                     * «¿para qué es esto?»— repetido seis veces en la pantalla.
+                     *
+                     * Un `<details>` del navegador: abre sin JavaScript y el
+                     * texto de dentro explica para qué sirve antes de que haya
+                     * que preguntarlo.
+                     */}
+                    <details className="mt-3 border-t border-borde pt-3">
+                      <summary className="cursor-pointer text-xs font-semibold text-tinta-suave">
+                        {t("token.resumen")}
+                      </summary>
+                      <p className="mt-2 text-xs leading-relaxed text-tinta-suave">
+                        {t("token.paraQue")}
+                      </p>
+                      <TokenIntegracion tiendaId={c.id} nombre={c.nombre} />
+                    </details>
                   </div>
                 ) : null}
 

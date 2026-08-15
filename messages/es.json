@@ -456,7 +456,9 @@
         "unaVez": "Cópialo ahora. Al cerrar esto no se vuelve a ver.",
         "copiar": "Copiar el token",
         "copiado": "Copiado",
-        "dondeVa": "Va en el servidor del comercio, como variable MERCATREN_TOKEN. Nunca en su página ni por correo."
+        "dondeVa": "Va en el servidor del comercio, como variable MERCATREN_TOKEN. Nunca en su página ni por correo.",
+        "resumen": "¿Su caja cobra por Mercatren? (avanzado)",
+        "paraQue": "Solo para comercios que tienen su propio sistema de caja y quieren cobrar desde ahí: su cajera hace la factura, toca un botón, y a su cliente le llega solo el correo con el enlace de pago. Si el comercio vende únicamente por Mercatren, no hace falta."
       }
     },
     "resumen": {

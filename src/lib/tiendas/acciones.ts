@@ -293,8 +293,23 @@ export async function solicitarComercio(
       paisOrigen: d.paisOrigen,
       sitioWeb: d.sitioWeb || null,
       descripcionEs: d.descripcionEs || null,
-      // Nace pendiente: la aprueba el equipo, no el propio comercio.
-      estado: "pendiente",
+      /**
+       * NACE ACTIVA. Decision del dueño, 15 ago 2026.
+       *
+       * Antes nacia `pendiente` y la aprobaba el equipo. En la practica eso era
+       * una cola que nadie miraba: los comercios que se registran son gente a
+       * la que el dueño MANDA a registrarse, asi que la aprobacion era un
+       * tramite que el siempre iba a conceder — y mientras tanto el comercio
+       * veia su tienda en 404 y creia que el sitio habia perdido su trabajo.
+       *
+       * El control no desaparece, cambia de momento: se revisa DESPUES y se
+       * suspende a quien no cumpla. Es la diferencia entre frenar a todos por
+       * si acaso y frenar a quien de verdad hace algo raro.
+       *
+       * `pendiente` y `borrador` siguen existiendo y las pantallas los saben
+       * leer: es lo que queda al suspender a alguien.
+       */
+      estado: "activa",
     }),
 
     // Su billetera, desde el primer día.

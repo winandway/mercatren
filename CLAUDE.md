@@ -478,6 +478,23 @@ base local igual. **Ojo al agregar columnas:** `schema.sql` solo trae
 `CREATE TABLE IF NOT EXISTS`, así que una base que ya existe NO las recibe
 sola; hay que aplicar el ALTER a mano, una vez, con el token.
 
+## Las tiendas nacen ACTIVAS (15 ago 2026)
+
+Decisión del dueño, y la razón es de operación, no de tecnología: **los
+comercios que se registran son gente a la que él manda a registrarse.** La
+aprobación era un trámite que siempre iba a conceder, así que en la práctica no
+era un filtro — era una cola que nadie miraba, con el comercio del otro lado
+viendo su tienda en 404 y creyendo que el sitio había perdido su trabajo.
+
+**El control no desaparece, cambia de momento:** se revisa después y se suspende
+a quien no cumpla. Es la diferencia entre frenar a todos por si acaso y frenar a
+quien de verdad hace algo raro.
+
+`pendiente` y `borrador` siguen existiendo y las pantallas los saben leer —es lo
+que queda al suspender a alguien— y el botón de aprobar sigue estando, ahora en
+**Comercios**, que es donde el dueño lo buscó. Estaba escondido en la ficha de
+la cuenta, y no encontrarlo es lo mismo que no tenerlo.
+
 ## La tienda recién creada le daba 404 a su propio dueño (14 ago 2026)
 
 Un comercio creó su tienda, le subió el logo y la portada, tocó «ver mi tienda»
