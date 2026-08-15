@@ -1767,7 +1767,9 @@
       "verLaTienda": "View the store as a shopper",
       "repartirTitulo": "Sort into their stores",
       "repartirTexto": "Moves products already in the general store into the store for their category. Keeps their address, photos, and price. Safe to run as many times as you need.",
-      "repartirBoton": "Sort by category"
+      "repartirBoton": "Sort by category",
+      "vaAlMayorista": "Goes to the Wholesale store: sold in lots of {minimo}.",
+      "dejaElLote": "The lot leaves {monto}."
     },
     "tiendasUsa": {
       "titulo": "United States stores",

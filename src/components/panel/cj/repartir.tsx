@@ -2,6 +2,8 @@
 
 import { Check, Loader2, Split } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { recargarSiEsVersionVieja } from "@/lib/version-vieja";
 import { useState } from "react";
 
 import { repartirCatalogoUs } from "@/lib/cj/importar";
@@ -30,6 +32,7 @@ export function RepartirCatalogo() {
       setBien(r.ok);
       setResultado(r.mensaje);
     } catch (fallo) {
+      if (recargarSiEsVersionVieja(fallo)) return;
       console.error("[cj] repartir falló:", fallo);
       setBien(false);
       setResultado(String(fallo));

@@ -9,6 +9,7 @@ import {
 
 import { BurbujaAsistente } from "@/components/panel/asistente/burbuja";
 import { MenuLateral } from "@/components/panel/menu-lateral";
+import { VigilanteDeVersion } from "@/components/panel/vigilante-de-version";
 import { FranjaVerComo } from "@/components/panel/ver-como";
 import { redirect } from "@/i18n/navigation";
 import {
@@ -116,6 +117,10 @@ export default async function LayoutPanel({
   return (
     <NextIntlClientProvider messages={mensajes}>
       <div className="letra-panel min-h-screen bg-slate-50">
+        {/* Si la pestaña se quedó en la versión de antes de publicar, se
+            recarga sola en vez de enseñar «Server Action no encontrada», que
+            no le dice nada a nadie y parece un botón roto. */}
+        <VigilanteDeVersion />
         {comercioMirado ? (
           <FranjaVerComo nombre={comercioMirado.nombre} />
         ) : null}

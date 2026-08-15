@@ -4,6 +4,7 @@ import { Check, Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 
 import { cambiarDepartamento } from "@/lib/productos/acciones";
+import { recargarSiEsVersionVieja } from "@/lib/version-vieja";
 
 /**
  * CAMBIAR EL DEPARTAMENTO DE UN PRODUCTO, DESDE LA PROPIA LISTA.
@@ -50,7 +51,15 @@ export function SelectorDepartamento({
     setListo(false);
 
     iniciar(async () => {
-      const r = await cambiarDepartamento(id, nuevo);
+      let r;
+      try {
+        r = await cambiarDepartamento(id, nuevo);
+      } catch (fallo) {
+        if (recargarSiEsVersionVieja(fallo)) return;
+        setValor(antes);
+        setError(String(fallo));
+        return;
+      }
       if (r.ok) {
         setListo(true);
         /* La palomita se apaga sola: un aviso que se queda fijo deja de

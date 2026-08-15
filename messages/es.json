@@ -1767,7 +1767,9 @@
       "verLaTienda": "Ver la tienda como el comprador",
       "repartirTitulo": "Repartir en sus tiendas",
       "repartirTexto": "Mueve a la tienda de su rubro los productos que ya estaban cargados en la tienda general. Conserva su dirección, sus fotos y su precio. Se puede pulsar las veces que haga falta.",
-      "repartirBoton": "Repartir por rubro"
+      "repartirBoton": "Repartir por rubro",
+      "vaAlMayorista": "Va a la tienda Mayorista: se vende de a {minimo} unidades.",
+      "dejaElLote": "El lote deja {monto}."
     },
     "tiendasUsa": {
       "titulo": "Tiendas de Estados Unidos",

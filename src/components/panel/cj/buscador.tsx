@@ -2,6 +2,8 @@
 
 import { Check, Loader2, Plus, Search, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { recargarSiEsVersionVieja } from "@/lib/version-vieja";
 import { useState, useTransition } from "react";
 
 import {
@@ -9,6 +11,7 @@ import {
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
 import { agregarProductoDeCj } from "@/lib/cj/importar";
+import { MINIMO_MAYORISTA } from "@/lib/cj/mayorista";
 import { MARGEN_MINIMO_CENTAVOS } from "@/lib/destino/precio-us";
 import { cn } from "@/lib/utils";
 
@@ -104,6 +107,9 @@ export function BuscadorCj({
       const r = await agregarProductoDeCj(datos);
       setAgregados((a) => ({ ...a, [p.id]: r.ok ? "ok" : r.mensaje }));
     } catch (fallo) {
+      /* Si la pestaña se quedó en la versión anterior, se recarga sola: el
+         texto de Next no le dice nada a nadie y parece un botón roto. */
+      if (recargarSiEsVersionVieja(fallo)) return;
       console.error("[cj] no se pudo agregar:", fallo);
       setAgregados((a) => ({ ...a, [p.id]: String(fallo) }));
     } finally {
@@ -242,13 +248,32 @@ export function BuscadorCj({
                     </div>
                   </dl>
 
+                  {/**
+                   * SI DEJA POCO, SE DICE A DÓNDE VA — no solo que deja poco.
+                   *
+                   * Antes la tarjeta avisaba «una sola devolución lo convierte
+                   * en pérdida» y ahí se quedaba: no se sabía si se podía
+                   * agregar ni qué iba a pasar si se agregaba. Ahora dice la
+                   * consecuencia entera —va a la mayorista, se vende de a
+                   * diez— y **cuánto deja el lote**, que es el número con el
+                   * que se decide.
+                   */}
                   {flaco ? (
-                    <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-red-50 px-2 py-1.5 text-[11px] leading-relaxed text-red-800">
+                    <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] leading-relaxed text-amber-900">
                       <TriangleAlert
                         className="mt-0.5 h-3 w-3 shrink-0"
                         aria-hidden
                       />
-                      {t("flaco")}
+                      <span>
+                        {t("vaAlMayorista", { minimo: MINIMO_MAYORISTA })}
+                        <b className="ml-1 whitespace-nowrap">
+                          {t("dejaElLote", {
+                            monto: usd(
+                              p.precio.margenCentavos * MINIMO_MAYORISTA,
+                            ),
+                          })}
+                        </b>
+                      </span>
                     </p>
                   ) : null}
 
