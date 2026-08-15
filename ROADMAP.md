@@ -223,6 +223,65 @@ exportación a Excel, con su filtro por fechas.
 
 ---
 
+## EL CATÁLOGO DE ESTADOS UNIDOS (arrancado el 15 ago 2026)
+
+Es lo que desbloquea Google Merchant Center, parado en el paso 4 de 5 desde el
+12 de agosto porque no hay una tienda con entrega real en EE. UU.
+
+**Proveedor: CJ Dropshipping.** Sin pago mensual, almacenes en EE. UU. con
+entrega de 2 a 5 días, y catálogo parecido al nuestro —herramientas, hogar,
+electrónica— y no solo moda. Cuenta creada y llave cargada el 15 ago 2026.
+
+### El orden, y por qué NO se toca el frente todavía
+
+1. ~~Cuenta y llave de CJ~~ ✅
+2. **El importador**, con el filtro por almacén. ← aquí estamos
+3. **Los productos cargados**, 250–300.
+4. **Recién entonces el selector de destino en el encabezado.**
+
+Un selector que ofrece «Estados Unidos» y lleva a un catálogo vacío es peor que
+no tener selector: es exactamente la tergiversación que suspende cuentas de
+Merchant Center, y además le enseña una tienda vacía a un comprador real.
+
+### Las decisiones de diseño que ya están tomadas
+
+**La pregunta es «¿a dónde lo enviamos?», no «¿dónde estás?».** Quien compra
+está en Miami y la entrega es en Maracaibo; preguntar por la ubicación de la
+persona da siempre el dato equivocado.
+
+**NUNCA se adivina por la conexión.** El 100% de los compradores de Venezuela
+navegan desde Estados Unidos: detectar por IP le daría el catálogo equivocado a
+toda la clientela actual.
+
+**El destino sale del país de la TIENDA, no de una columna nueva.** Todo
+producto cuelga de una tienda y toda tienda ya declara su `paisOrigen`, así que
+el dato ya está en la base. Evita una columna nueva, que aquí es un problema
+real: `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS` y una columna nueva no
+llega sola a producción.
+
+**El catálogo de EE. UU. cuelga de una tienda interna nuestra.** Mercatren LLC
+es quien vende y factura allá, y eso es justo lo que Merchant Center necesita:
+un solo vendedor responsable con una política de envío y una de devoluciones —
+no un mercado de terceros que habría que demostrar tienda por tienda. Por eso
+en EE. UU. no se abren tiendas de terceros.
+
+**El destino sigue al contenido.** Abrir un producto de Bley cambia el destino a
+Venezuela solo: la clientela que llega por WhatsApp nunca cae en el catálogo
+equivocado sin que haya que explicarle nada.
+
+**Un destino por carrito.** Un taladro de Texas y un tubo de PVC de Maracaibo no
+caben en la misma caja.
+
+`src/lib/destino/reglas.ts`, puro, 13 pruebas.
+
+### Lo que falta decidir, y es tuyo
+
+- Si el envío en EE. UU. va gratis con el precio dentro, o cobrado aparte.
+- Cuántos días de devolución. **Google exige que el plazo cuente desde que el
+  cliente RECIBE**, no desde que compra.
+
+---
+
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
 Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega
