@@ -328,6 +328,20 @@ CREATE TABLE IF NOT EXISTS `comprobantes_retiro` (
 
 CREATE INDEX IF NOT EXISTS `idx_comprobantes_retiro` ON `comprobantes_retiro` (`retiro_id`);
 
+CREATE TABLE IF NOT EXISTS `valoraciones` (
+	`id` text PRIMARY KEY NOT NULL,
+	`producto_id` text NOT NULL,
+	`usuario_id` text NOT NULL,
+	`estrellas` integer NOT NULL,
+	`comentario` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_valoracion_unica` ON `valoraciones` (`producto_id`,`usuario_id`);
+CREATE INDEX IF NOT EXISTS `idx_valoraciones_producto` ON `valoraciones` (`producto_id`);
+
 CREATE TABLE IF NOT EXISTS `retiros_fee` (
 	`id` text PRIMARY KEY NOT NULL,
 	`monto_centavos` integer NOT NULL,
