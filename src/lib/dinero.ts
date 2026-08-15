@@ -210,6 +210,41 @@ export function ajusteCentavos(baseCentavos: number): number {
  * lado y no del suyo. El plan entero está en `PLAN-COMISION.md`.
  */
 export const COMISION_TARJETA_PB = 300;
+
+/**
+ * EL MARGEN DEL CATÁLOGO DE ESTADOS UNIDOS: 30 %.
+ *
+ * ══ POR QUÉ NO ES EL 3 % DE VENEZUELA ══
+ *
+ * Son dos negocios distintos y confundirlos costaría dinero en cada venta.
+ *
+ * En Venezuela, Mercatren es un mercado: **el comercio pone la mercancía, la
+ * despacha y responde por ella**. Nosotros cobramos y facturamos. El 3 % ahí es
+ * limpio porque no ponemos capital ni asumimos el riesgo de la cosa vendida.
+ *
+ * En Estados Unidos, Mercatren **compra el producto, paga su envío, atiende al
+ * comprador y asume la devolución y el contracargo**. Eso no es comisión de
+ * mercado: es venta al por menor, y las márgenes de venta al por menor son otra
+ * escala.
+ *
+ * ══ LO QUE SE USA DE VERDAD EN ESTE NEGOCIO (comprobado 15 ago 2026) ══
+ *
+ * El estándar del dropshipping es **15–30 % neto**, con margen bruto de 30–50 %
+ * antes de publicidad. Por debajo del 10 % se considera insostenible en cuanto
+ * aparecen devoluciones. Se elige el 30 % —el techo de la banda neta— porque
+ * aquí no hay presupuesto de publicidad que se coma la diferencia, y porque
+ * un solo contracargo cuesta la venta más la multa de Stripe.
+ *
+ * Con el 3 % anterior, un producto de $30 de costo dejaba **97 centavos**: un
+ * contracargo se comía treinta ventas.
+ *
+ * ══ CÓMO SE CAMBIA ══
+ *
+ * Esta línea, y después `node scripts/recalcular-precios.ts` para que los
+ * precios ya publicados se rehagan. El orden importa y está en el ROADMAP: los
+ * precios PRIMERO, la constante después.
+ */
+export const COMISION_US_PB = 3000;
 export const COMISION_ZELLE_PB = 300;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 

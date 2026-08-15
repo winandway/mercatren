@@ -274,11 +274,44 @@ caben en la misma caja.
 
 `src/lib/destino/reglas.ts`, puro, 13 pruebas.
 
-### Lo que falta decidir, y es tuyo
+### Lo decidido el 15 ago 2026
 
-- Si el envío en EE. UU. va gratis con el precio dentro, o cobrado aparte.
-- Cuántos días de devolución. **Google exige que el plazo cuente desde que el
-  cliente RECIBE**, no desde que compra.
+- **El envío va GRATIS, con su costo dentro del precio.** Es lo que espera un
+  comprador estadounidense y en Merchant Center es una etiqueta visible. Además
+  deja un solo número que cuadrar entre la ficha y lo declarado, en vez de dos.
+- **30 días de devolución, contados desde que el cliente RECIBE.** Google
+  rechaza los plazos contados desde la compra.
+- **El margen del catálogo de EE. UU. es 30 %, no el 3 % de Venezuela**
+  (`COMISION_US_PB`).
+
+### Por qué el margen aquí es 30 % y no 3 %
+
+Son dos negocios distintos, y confundirlos costaba dinero en cada venta.
+
+En Venezuela, Mercatren es un **mercado**: el comercio pone la mercancía, la
+despacha y responde por ella. El 3 % es limpio porque no ponemos capital ni
+asumimos el riesgo de la cosa vendida.
+
+En Estados Unidos, Mercatren **compra, paga el envío, atiende al comprador y
+asume la devolución y el contracargo**. Eso es venta al por menor.
+
+Comprobado contra el mercado: el estándar del dropshipping es **15–30 % neto**,
+con bruto de 30–50 % antes de publicidad, y por debajo del 10 % se considera
+insostenible en cuanto aparecen devoluciones.
+
+**Con el 3 %, un producto de $30 de costo dejaba 97 centavos** — un solo
+contracargo se comía treinta ventas. Con el 30 % deja $13.55.
+
+| Costo en CJ | Se publica a | Stripe | Nos queda |
+| ----------- | ------------ | ------ | --------- |
+| $9.00       | $13.86       | $0.70  | $4.16     |
+| $14.00      | $21.32       | $0.92  | $6.40     |
+| $30.00      | $45.16       | $1.61  | $13.55    |
+| $58.00      | $86.89       | $2.82  | $26.07    |
+| $135.00     | $201.64      | $6.15  | $60.49    |
+
+**La escalera de cada 60 días NO se aplica a este catálogo.** Aquella sube el 3 %
+hacia el 8 % para el mercado de Venezuela; esto ya nace en su banda de mercado.
 
 ---
 
