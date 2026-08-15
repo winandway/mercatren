@@ -1134,7 +1134,12 @@
         "conectado": "Conectado con CJ. La llave sirve y el catálogo se puede leer."
       },
       "departamentoNoExiste": "Ese departamento no existe.",
-      "departamentoCambiado": "Departamento cambiado. La tienda no se tocó."
+      "departamentoCambiado": "Departamento cambiado. La tienda no se tocó.",
+      "valorarEntra": "Entra con tu cuenta para dejar tu opinión.",
+      "valorarDatos": "Elige de 1 a 5 estrellas.",
+      "valorarSinCompra": "Solo puede opinar quien compró este producto.",
+      "valorarGracias": "Gracias por tu opinión.",
+      "valorarFallo": "No se pudo guardar tu opinión. Inténtalo de nuevo."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1867,7 +1872,15 @@
         "mapaTitulo": "Nuestro almacén en Estados Unidos",
         "mapaPie": "Despachamos desde aquí a todo el país."
       },
-      "ventaMinima": "Venta mínima: {minimo} unidades · {total} el lote"
+      "ventaMinima": "Venta mínima: {minimo} unidades · {total} el lote",
+      "opiniones": "Opiniones",
+      "sinOpiniones": "Todavía nadie ha opinado sobre este producto.",
+      "tuOpinion": "Tu opinión",
+      "enviarOpinion": "Publicar mi opinión",
+      "comentarioOpcional": "Cuéntanos qué te pareció (opcional)",
+      "deCuantas": "{n} opiniones",
+      "deUna": "1 opinión",
+      "soloCompradores": "Solo opinan quienes compraron aquí."
     },
     "paginacion": {
       "anterior": "Anterior",

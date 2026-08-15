@@ -5,6 +5,14 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonAgregar } from "@/components/catalogo/boton-agregar";
 import { cantidadMinima } from "@/lib/cj/mayorista";
+import { codigoVisible } from "@/lib/catalogo/codigo";
+import { Estrellas } from "@/components/catalogo/estrellas";
+import { OpinionesProducto } from "@/components/catalogo/opiniones-producto";
+import {
+  opinionesDe,
+  puedeValorar,
+  resumenDeProducto,
+} from "@/lib/valoraciones/consultas";
 import { SelectorVariante } from "@/components/catalogo/selector-variante";
 import {
   coloresDe,
@@ -134,6 +142,18 @@ export default async function PaginaProducto({
   const colores = coloresDe(variantes);
 
   const { producto } = ficha;
+
+  /* Las estrellas y las opiniones. Si fallan salen vacías y el bloque
+     desaparece: una ficha no puede caerse porque una opinión no cargó. */
+  const [resumenEstrellas, opiniones, quienOpina] = await Promise.all([
+    resumenDeProducto(producto.id).catch(() => ({
+      promedio: null,
+      cuantas: 0,
+    })),
+    opinionesDe(producto.id).catch(() => []),
+    puedeValorar(producto.id).catch(() => ({ puede: false, suya: null })),
+  ]);
+
   const titulo =
     idioma === "en"
       ? (producto.tituloEn ?? producto.tituloEs)
@@ -182,7 +202,14 @@ export default async function PaginaProducto({
 
   const datos = [
     { etiqueta: t("marca"), valor: producto.marca },
-    { etiqueta: t("sku"), valor: producto.sku },
+    {
+      etiqueta: t("sku"),
+      /* SIN LAS SIGLAS DEL PROVEEDOR. El código sigue identificando el
+         producto —los números no se tocan— pero deja de ser el camino para
+         encontrarlo en el catálogo del mayorista. El original queda entero en
+         la base para reclamarle a CJ. */
+      valor: codigoVisible(producto.sku, ficha.tiendaPais),
+    },
     {
       etiqueta: t("categoria"),
       valor:
@@ -428,6 +455,21 @@ export default async function PaginaProducto({
               casilleroTexto: t("entregaUs.casilleroTexto"),
               mapaTitulo: t("entregaUs.mapaTitulo"),
               mapaPie: t("entregaUs.mapaPie"),
+            }}
+          />
+
+          <OpinionesProducto
+            productoId={producto.id}
+            opiniones={opiniones}
+            puede={quienOpina.puede}
+            suya={quienOpina.suya}
+            textos={{
+              titulo: t("opiniones"),
+              sinOpiniones: t("sinOpiniones"),
+              tuOpinion: t("tuOpinion"),
+              enviar: t("enviarOpinion"),
+              comentario: t("comentarioOpcional"),
+              soloCompradores: t("soloCompradores"),
             }}
           />
 

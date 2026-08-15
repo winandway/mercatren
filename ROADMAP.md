@@ -542,6 +542,57 @@ cuántos productos tiene cada una, y **todos los departamentos incluidos los que
 están en cero**: el hueco es lo que dice qué buscar mañana. Desde ahí se edita
 el nombre y el logo de cada tienda.
 
+## LA FICHA COMPLETA Y LAS OPINIONES (15 ago 2026)
+
+### 13. El código ya no delata al proveedor ✅ (hecho)
+
+`CJCS2493466` → **`MT-2493466`**. Los números —que son los que identifican el
+producto— se conservan; solo se cambia el prefijo. El original queda entero en
+la base: el día que haya que reclamarle a CJ, **el código que ellos entienden
+es el suyo**. Los códigos de los comercios venezolanos NO se tocan: son suyos y
+los usan en su propio sistema.
+
+### 14. Las estrellas ✅ (hecho)
+
+Tabla `valoraciones`, promedio calculado (nunca guardado), estrellas en la
+ficha y formulario para quien compró.
+
+- **Solo puntúa quien compró**, comprobado EN EL SERVIDOR. La pantalla solo
+  evita enseñar un formulario que iba a ser rechazado.
+- **Una por persona y producto**, con llave única en la base: sin eso, uno solo
+  pone cien estrellas y el promedio deja de significar nada.
+- **Se puede corregir la propia.** Quien probó el producto una semana después
+  tiene derecho a cambiar de opinión; bloquearlo hace que escriba la queja en
+  otro sitio.
+- **Sin opiniones NO se dibuja «0 de 5»**: eso se lee como un producto malísimo
+  cuando lo que pasa es que nadie opinó, y hundiría los 1.248 recién
+  publicados.
+- **Nunca se redondea hacia arriba.** Un 4,44 se enseña 4,4.
+
+### 15. LA FICHA COMPLETA DESDE CJ — PENDIENTE, y es lo que desatasca Google
+
+Hoy cada producto se guarda con título, precio, existencias, SKU y **una** foto.
+El buscador de CJ (`listV2`) solo devuelve el resumen; la descripción, las demás
+fotos, el material, el peso y las medidas están en **`/product/query`**, una
+llamada por producto que nunca se hizo.
+
+- Traerlo al agregar, y **un botón por tandas para los 1.248 ya cargados**,
+  retomable como el de traer las fotos.
+- Es lo que hace que Merchant Center deje de tratarlas como fichas pobres.
+- **El título en español sigue pendiente y no se inventa** con traducción
+  automática.
+
+### 16. Las opiniones de CJ, CON SU ORIGEN DECLARADO — PENDIENTE
+
+CJ las expone en **`/product/productComments`**: comentario, puntuación, fecha,
+país y las fotos del comprador.
+
+**Se pueden enseñar, pero nunca como propias.** Son de compradores de OTRAS
+tiendas. Van en su propio bloque, diciendo de dónde vienen, y **jamás
+promediadas con las estrellas de Mercatren**: nuestro número tiene que salir
+solo de gente que nos compró a nosotros. Mezclarlas es exactamente lo que
+sanciona la FTC, y es la misma línea que ya trazó `PLAN-CONFIANZA.md`.
+
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
 Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega

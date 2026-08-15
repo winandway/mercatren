@@ -2039,3 +2039,45 @@ export const pruebasEntrega = sqliteTable(
   },
   (t) => [index("idx_pruebas_entrega").on(t.pedidoId)],
 );
+
+/**
+ * LAS ESTRELLAS Y EL COMENTARIO DE QUIEN COMPRÓ.
+ *
+ * ══ SOLO PUNTÚA QUIEN COMPRÓ, Y ESO NO ES NEGOCIABLE ══
+ *
+ * Una estrella de alguien que no compró no vale nada, y una tienda que las
+ * admite se llena de opiniones falsas —propias y de la competencia— en cuanto
+ * alguien se da cuenta. Por eso hay una llave única por (producto, persona) y
+ * la acción comprueba que exista un pedido pagado suyo con ese producto.
+ *
+ * ══ NO SE MEZCLAN CON LAS DEL PROVEEDOR ══
+ *
+ * Las opiniones que trae CJ son de compradores de OTRAS tiendas. Se pueden
+ * enseñar diciendo de dónde vienen, pero **jamás promediadas con estas**: el
+ * número de estrellas de Mercatren tiene que salir solo de gente que le compró
+ * a Mercatren. Mezclarlas es exactamente lo que sanciona la FTC.
+ */
+export const valoraciones = sqliteTable(
+  "valoraciones",
+  {
+    id: text("id").primaryKey(),
+    productoId: text("producto_id")
+      .notNull()
+      .references(() => productos.id, { onDelete: "cascade" }),
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    /** De 1 a 5. Se comprueba antes de guardar. */
+    estrellas: integer("estrellas").notNull(),
+    comentario: text("comentario"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    /* UNA POR PERSONA Y PRODUCTO: sin esto, uno solo puede poner cien
+       estrellas y el promedio deja de significar nada. */
+    uniqueIndex("idx_valoracion_unica").on(t.productoId, t.usuarioId),
+    index("idx_valoraciones_producto").on(t.productoId),
+  ],
+);
