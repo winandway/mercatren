@@ -606,21 +606,6 @@ export default async function PaginaTienda({
           </div>
         </details>
 
-        {/* EL MAPA DEL ALMACÉN, solo en las tiendas de Estados Unidos.
-            Quien llega de Google a una tienda con un nombre que no conoce se
-            pregunta lo mismo siempre: «¿esto de dónde me va a llegar?». Un
-            plazo escrito no contesta eso; un mapa sí, y sin leer. */}
-        {tienda.paisOrigen?.trim().toUpperCase() === "US" ? (
-          <div className="mt-5 max-w-xl">
-            <MapaAlmacen
-              almacen={almacenDeLaTienda(tienda.id)}
-              idioma={locale}
-              titulo={tc("producto.entregaUs.mapaTitulo")}
-              pie={tc("producto.entregaUs.mapaPie")}
-            />
-          </div>
-        ) : null}
-
         <div className="mt-5 hidden gap-3 lg:grid lg:grid-cols-3">
           <div className="rounded-xl bg-slate-50 px-4 py-3">
             <p className="flex items-center gap-1.5 text-xs text-tinta-suave">
@@ -680,6 +665,29 @@ export default async function PaginaTienda({
             </p>
           ) : (
             <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
+              {/**
+               * EL MAPA VA DENTRO DE LA PARRILLA, COMO UNA TARJETA MÁS.
+               *
+               * Antes iba arriba, a lo ancho, y **mataba la entrada de la
+               * tienda**: se abría la ficha y no se veía ni un producto — solo
+               * un mapa enorme y un campo blanco al lado. Quien llega a una
+               * tienda viene a ver mercancía.
+               *
+               * Aquí ocupa el sitio de dos tarjetas y los productos lo rodean:
+               * se sigue viendo de dónde despachamos, pero sin tapar lo que la
+               * gente vino a mirar.
+               */}
+              {tienda.paisOrigen?.trim().toUpperCase() === "US" ? (
+                <li className="col-span-2 self-start">
+                  <MapaAlmacen
+                    almacen={almacenDeLaTienda(tienda.id)}
+                    idioma={locale}
+                    titulo={tc("producto.entregaUs.mapaTitulo")}
+                    pie={tc("producto.entregaUs.mapaPie")}
+                  />
+                </li>
+              ) : null}
+
               {productos.map((producto) => (
                 <li key={producto.id}>
                   <TarjetaProducto producto={producto} idioma={idioma} />

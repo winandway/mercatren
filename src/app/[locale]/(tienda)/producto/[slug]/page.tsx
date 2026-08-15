@@ -282,6 +282,7 @@ export default async function PaginaProducto({
               del almacén y la salida del casillero para quien está fuera. No
               se dibuja nada de esto en un producto venezolano. */}
           <EntregaEstadosUnidos
+            parte="aviso"
             paisOrigen={ficha.tiendaPais}
             tiendaId={ficha.tiendaId}
             idioma={locale}
@@ -401,6 +402,28 @@ export default async function PaginaProducto({
               />
             )}
           </div>
+
+          {/* EL MAPA Y EL CONSEJO DEL CASILLERO, DEBAJO DEL PRECIO.
+              Arriba empujaban el precio y el botón de comprar fuera de la
+              primera pantalla — y lo primero que tiene que ver quien abre una
+              ficha es cuánto cuesta y dónde se compra. Aquí abajo acompañan al
+              que ya se interesó, que es para quien son. */}
+          <EntregaEstadosUnidos
+            parte="mapa"
+            paisOrigen={ficha.tiendaPais}
+            tiendaId={ficha.tiendaId}
+            idioma={locale}
+            textos={{
+              envioGratis: t("entregaUs.envioGratis"),
+              aTodoEeuu: t("entregaUs.aTodoEeuu"),
+              plazo: t("entregaUs.plazo"),
+              precioFinal: t("entregaUs.precioFinal"),
+              casilleroTitulo: t("entregaUs.casilleroTitulo"),
+              casilleroTexto: t("entregaUs.casilleroTexto"),
+              mapaTitulo: t("entregaUs.mapaTitulo"),
+              mapaPie: t("entregaUs.mapaPie"),
+            }}
+          />
 
           {/* LA FICHA TÉCNICA: peso y medidas.
               Solo sale lo que el comercio cargó — una tabla con "Peso: —" en
