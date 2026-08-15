@@ -8,6 +8,7 @@ import {
   type FilaCj,
   type RespuestaLista,
 } from "@/lib/cj/lista";
+import { departamentoDeCj } from "@/lib/cj/departamento";
 import { desglosarUs, type DesgloseUs } from "@/lib/destino/precio-us";
 
 /**
@@ -57,6 +58,14 @@ export type ProductoCj = {
   imagen: string | null;
   sku: string | null;
   categoria: string | null;
+  /**
+   * En qué departamento de Mercatren cae, o `null` si no se reconoce.
+   *
+   * Se calcula aquí para que se vea en la tarjeta ANTES de agregarlo: así el
+   * que caiga mal se corrige en ese momento y no en una revisión de
+   * trescientos productos ya publicados.
+   */
+  departamento: string | null;
   /** Lo que cobra CJ por el producto, en centavos. */
   costoCentavos: number;
   /** `null` cuando CJ no lo manda: no es lo mismo que cero. */
@@ -196,6 +205,12 @@ function aProducto(f: FilaCj): ProductoCj | null {
       null,
     costoCentavos: costo,
     existencias: existenciasDe(f),
+    /* De lo más específico a lo más general: el tercer nivel dice «Wallets» y
+       el primero «Women's Clothing». El título es el último recurso. */
+    departamento: departamentoDeCj(
+      [f.threeCategoryName, f.twoCategoryName, f.oneCategoryName],
+      f.nameEn,
+    ),
     precio,
   };
 }

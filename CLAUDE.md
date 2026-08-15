@@ -756,6 +756,77 @@ npm run productos:importar -- --archivo=otra/ruta.json
 El importador **se detiene** si los totales no cuadran con los del propio
 archivo.
 
+## El catálogo de Estados Unidos (15 ago 2026)
+
+Se elige en **Panel → Catálogo de Estados Unidos**, buscando en CJ Dropshipping.
+La decisión se toma viendo **lo que de verdad queda** —después de que CJ, el
+envío y Stripe cobren lo suyo—, que es algo que el panel de CJ no puede enseñar
+porque no conoce nuestras tarifas. El margen aquí es **30 %**
+(`COMISION_US_PB`), no el 3 % de Venezuela: allá el comercio pone la mercancía
+y responde por ella; aquí Mercatren compra, despacha y asume la devolución y el
+contracargo.
+
+**Cuelga de una tienda interna nuestra** (`tienda-mercatren-us`), porque en
+Estados Unidos **Mercatren LLC es quien vende y factura**. Se crea sola la
+primera vez, con su billetera, y es lo que Merchant Center necesita: un solo
+vendedor responsable con una política de envío y una de devoluciones.
+
+**El producto se publica al agregarlo, y cae en su departamento.** Antes nacía
+en borrador —la intención era buena, una ficha de dos líneas en inglés es media
+suspensión en Merchant Center— pero en borrador **no se ve en la tienda**, así
+que el catálogo se armaba a ciegas. El riesgo de Google se atiende donde de
+verdad está: en el archivo que se le manda, no en la tienda.
+
+**El departamento se calcula de la categoría que ya trae CJ**
+(`src/lib/cj/departamento.ts`, puro, 10 pruebas) y **se ve en la tarjeta antes
+de pulsar el botón**: así el que caiga mal se corrige en ese momento y no en una
+revisión de trescientos productos ya publicados. Se prueba del nivel más
+específico al más general —«Wallets» antes que «Women's Clothing»—, y el título
+es el último recurso: los de CJ vienen cargados de palabras sueltas para su
+buscador.
+
+Cuatro cosas de ahí que no se tocan:
+
+1. **«card» NO es «car».** La comparación va por palabras enteras, no por
+   trozos de texto: con un `includes` a secas, el «Pop Up **Card** Holder» —de
+   los primeros resultados al buscar «wallet»— se iba a «Repuestos de carro».
+2. **El orden de la lista ES la regla.** Mascotas antes que Juguetes («Dog
+   Toys»), Jardín antes que Hogar («Garden Decoration»), Camping antes que ropa
+   («Sleeping Bags»), Cocina antes que Ferretería («Kitchen Tools»). Las dos
+   primeras las encontró su propia prueba.
+3. **Lo que no se reconoce se deja SIN colgar.** Un producto sin departamento
+   se ve y se busca igual; uno colgado del equivocado no lo encuentra nunca
+   quien sí lo quería.
+4. **El slug se comprueba contra la lista antes de guardarlo.**
+   `productos.categoria_id` tiene llave foránea: uno mal escrito haría fallar el
+   guardado entero.
+
+### Dos trampas de la API de CJ que ya costaron una noche
+
+1. **`listV2` devuelve los productos en `data.content[].productList[]`**, no en
+   `data.list` como el endpoint viejo (`/product/list`, el de la sonda de
+   Configuración). Leerlos donde no están daba **cero resultados para cualquier
+   búsqueda, sin ningún error** — la llamada iba bien y la respuesta venía
+   vacía. `tests/unit/cj-lista.test.ts` parsea la forma real.
+2. **El precio llega como rango** (`"12.50 -- 15.30"`) en los productos con
+   variantes. `Number()` de eso da NaN, el NaN se volvía cero y el producto se
+   descartaba por «sin precio». Se toma el más barato del rango.
+
+Y una de la base: **`productos.fuente_id` tiene llave foránea contra
+`fuentes_catalogo`**. La fila `cj` se crea sola la primera vez; sin ella la base
+rechaza el producto y el botón de agregar devuelve un 500 que no dice nada.
+
+**Los errores de esta pantalla se enseñan enteros**, con el motivo de la base
+incluido. Es solo del equipo interno: no hay un comprador del otro lado a quien
+filtrarle nada, y un «error del servidor» a secas obliga a adivinar entre una
+llave, una columna que falta y un permiso.
+
+**Lo que falta antes de mandárselo a Google:** la descripción propia de cada
+ficha y el título en español (hoy se guarda el inglés de CJ en los dos campos,
+y **no se inventa una traducción automática**). Y `/datos/google` todavía manda
+el catálogo entero, incluidos los productos venezolanos, que no se pueden
+entregar en Estados Unidos.
+
 ## El carrito y la compra
 
 El carrito vive en el navegador (`src/lib/carrito/store.ts`, se guarda solo) y

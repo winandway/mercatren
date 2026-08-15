@@ -16,6 +16,8 @@ import {
 import { COMISION_US_PB } from "@/lib/dinero";
 import { SOCIEDAD } from "@/lib/sociedad";
 import { FUENTE_CJ, TIENDA_US } from "@/lib/cj/constantes";
+import { idDeDepartamento } from "@/lib/cj/departamento";
+import { DEPARTAMENTOS } from "@/lib/catalogo/departamentos";
 import { desglosarUs } from "@/lib/destino/precio-us";
 
 /**
@@ -40,11 +42,20 @@ import { desglosarUs } from "@/lib/destino/precio-us";
  * catálogo que ya existe. Sin eso, la segunda pasada llenaría el catálogo de
  * copias.
  *
- * ══ NACE EN BORRADOR, A PROPÓSITO ══
+ * ══ SE PUBLICA AL AGREGARLO, Y CAE EN SU DEPARTAMENTO ══
  *
- * Traerlo no es publicarlo. La ficha llega con el nombre en inglés de CJ y sin
- * descripción propia, y **una ficha de dos líneas es media suspensión** en
- * Merchant Center. Se revisa, se le escribe su texto, y entonces se publica.
+ * Antes entraba en borrador. La intención era buena —una ficha de dos líneas en
+ * inglés es media suspensión en Merchant Center— pero en borrador **no se ve en
+ * la tienda**, y entonces el catálogo se arma a ciegas: veinte productos
+ * elegidos y una tienda que sigue vacía.
+ *
+ * El departamento se calcula de la categoría que ya trae CJ (ver
+ * `cj/departamento.ts`) y se ve en la tarjeta antes de pulsar el botón, para
+ * corregir ahí el que caiga mal y no en una revisión de trescientos.
+ *
+ * Lo de Merchant Center sigue pendiente y se atiende donde de verdad está: en
+ * el archivo que se le manda a Google, no en la tienda. Falta la descripción
+ * propia y el título en español.
  */
 
 type Resultado = { ok: boolean; mensaje: string };
@@ -184,6 +195,19 @@ export async function agregarProductoDeCj(
   const costoCentavos = Number(formulario.get("costo") ?? 0);
   const existencias = Number(formulario.get("existencias") ?? 0);
 
+  /**
+   * EL DEPARTAMENTO SE COMPRUEBA CONTRA LA LISTA, no se guarda tal cual.
+   *
+   * Llega calculado desde la pantalla —para que se vea antes de pulsar— pero
+   * `productos.categoria_id` tiene una llave foránea: un slug que no exista
+   * haría fallar el guardado entero. Se compara contra la lista real y, si no
+   * está, el producto entra sin departamento en vez de no entrar.
+   */
+  const pedido = String(formulario.get("departamento") ?? "").trim();
+  const departamento = DEPARTAMENTOS.some((d) => d.slug === pedido)
+    ? pedido
+    : null;
+
   if (
     !externoId ||
     !nombre ||
@@ -202,6 +226,7 @@ export async function agregarProductoDeCj(
       sku,
       costoCentavos,
       existencias,
+      departamento,
     });
   } catch (fallo) {
     /**
@@ -228,6 +253,7 @@ async function guardarProducto({
   sku,
   costoCentavos,
   existencias,
+  departamento,
 }: {
   propietarioId: string;
   externoId: string;
@@ -236,6 +262,7 @@ async function guardarProducto({
   sku: string;
   costoCentavos: number;
   existencias: number;
+  departamento: string | null;
 }): Promise<Resultado> {
   const db = getDb();
   const tiendaId = await tiendaDeEstadosUnidos(propietarioId);
@@ -266,6 +293,13 @@ async function guardarProducto({
         precioCentavos: precio.publicadoCentavos,
         precioBaseCentavos: costoCentavos,
         existencias,
+        categoriaId: idDeDepartamento(departamento),
+        /* Volver a pulsar el botón también lo publica, y es a propósito: es lo
+           que arregla los que se agregaron cuando nacían en borrador, sin
+           tener que ir a buscarlos uno por uno. El precio de esto es que un
+           producto retirado a mano vuelve a la tienda si alguien lo agrega de
+           nuevo desde aquí — que es, literalmente, lo que dice el botón. */
+        estado: "publicado",
         actualizadoEn: ahora,
       })
       .where(eq(productos.id, yaEsta.id));
@@ -290,10 +324,21 @@ async function guardarProducto({
     moneda: "USD",
     existencias,
     controlaExistencias: true,
-    /* BORRADOR. Traerlo no es publicarlo: la ficha todavía no tiene su texto
-       propio, y una ficha de dos líneas es media suspensión en Merchant
-       Center. */
-    estado: "borrador",
+    categoriaId: idDeDepartamento(departamento),
+    /**
+     * ══ NACE PUBLICADO (decisión del dueño, 15 ago 2026) ══
+     *
+     * Antes entraba en borrador para que nadie publicara una ficha de dos
+     * líneas en inglés, que es media suspensión en Merchant Center. Pero en
+     * borrador **no se ve en la tienda**, así que el catálogo se armaba a
+     * ciegas: veinte productos elegidos y una tienda que seguía vacía.
+     *
+     * El riesgo de Merchant Center no desaparece — se atiende donde de verdad
+     * está, que es el archivo que se le manda a Google, no la tienda. Ver la
+     * nota del `CLAUDE.md`: al catálogo de EE. UU. le falta la descripción
+     * propia y el título en español antes de mandárselo a Google.
+     */
+    estado: "publicado",
     fuenteId: FUENTE_CJ,
     externoId,
     creadoEn: ahora,

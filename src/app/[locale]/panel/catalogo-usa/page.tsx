@@ -1,8 +1,10 @@
-import { Flag } from "lucide-react";
+import { ExternalLink, Flag, Package } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { BuscadorCj } from "@/components/panel/cj/buscador";
+import { Link } from "@/i18n/navigation";
+import { TIENDA_US } from "@/lib/cj/constantes";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { buscarEnCj } from "@/lib/cj/catalogo";
 import { cjConfigurado } from "@/lib/cj/cliente";
@@ -52,10 +54,35 @@ export default async function PaginaCatalogoUsa({
           {t("titulo")}
         </h1>
         <p className="mt-1 max-w-3xl text-sm text-tinta-suave">{t("texto")}</p>
+
+        {/* DÓNDE VER LO QUE SE LLEVA AGREGADO. Sin estos dos enlaces, el
+            catálogo se arma a ciegas: se eligen veinte productos y no hay
+            forma de mirarlos juntos ni de ver cómo le quedan al comprador. */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link
+            href={{
+              pathname: "/panel/productos",
+              query: { comercio: TIENDA_US.slug },
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-slate-50"
+          >
+            <Package className="h-3.5 w-3.5" aria-hidden />
+            {t("verMisProductos")}
+          </Link>
+          <Link
+            href={`/tienda/${TIENDA_US.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-slate-50"
+          >
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            {t("verLaTienda")}
+          </Link>
+        </div>
       </header>
 
       {configurado ? (
-        <BuscadorCj buscar={buscar} />
+        <BuscadorCj buscar={buscar} idioma={locale} />
       ) : (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
           {t("sinLlave")}

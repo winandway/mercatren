@@ -4,6 +4,10 @@ import { Check, Loader2, Plus, Search, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import {
+  departamentoPorSlug,
+  nombreDepartamento,
+} from "@/lib/catalogo/departamentos";
 import { agregarProductoDeCj } from "@/lib/cj/importar";
 import { MARGEN_MINIMO_CENTAVOS } from "@/lib/destino/precio-us";
 import { cn } from "@/lib/utils";
@@ -32,6 +36,7 @@ type ProductoVista = {
   imagen: string | null;
   sku: string | null;
   categoria: string | null;
+  departamento: string | null;
   costoCentavos: number;
   existencias: number | null;
   precio: {
@@ -53,10 +58,19 @@ type Respuesta =
 
 const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
+/** El nombre visible del departamento, en el idioma del panel. */
+function nombreDeDepartamento(slug: string | null, idioma: string) {
+  if (!slug) return null;
+  const d = departamentoPorSlug(slug);
+  return d ? nombreDepartamento(d, idioma) : null;
+}
+
 export function BuscadorCj({
   buscar,
+  idioma,
 }: {
   buscar: (filtros: { texto?: string; pagina?: number }) => Promise<Respuesta>;
+  idioma: string;
 }) {
   const t = useTranslations("panel.catalogoUsa");
   const [texto, setTexto] = useState("");
@@ -84,6 +98,7 @@ export function BuscadorCj({
     datos.set("sku", p.sku ?? "");
     datos.set("costo", String(p.costoCentavos));
     datos.set("existencias", String(p.existencias ?? 0));
+    datos.set("departamento", p.departamento ?? "");
 
     try {
       const r = await agregarProductoDeCj(datos);
@@ -208,6 +223,21 @@ export function BuscadorCj({
                       <dt className="text-tinta-suave">{t("almacen")}</dt>
                       <dd className="tabular-nums">
                         {p.existencias === null ? "—" : p.existencias}
+                      </dd>
+                    </div>
+                    {/* EN QUÉ DEPARTAMENTO VA A CAER, antes de agregarlo. Así
+                        el que caiga mal se corrige en el momento y no en una
+                        revisión de trescientos productos ya publicados. */}
+                    <div className="flex justify-between gap-2">
+                      <dt className="text-tinta-suave">{t("departamento")}</dt>
+                      <dd
+                        className={cn(
+                          "text-right",
+                          !p.departamento && "text-amber-700",
+                        )}
+                      >
+                        {nombreDeDepartamento(p.departamento, idioma) ??
+                          t("sinDepartamento")}
                       </dd>
                     </div>
                   </dl>

@@ -1752,7 +1752,11 @@
       "siguiente": "Siguiente →",
       "pagina": "Página {n}",
       "soloEquipo": "Esta parte es solo para el equipo.",
-      "diagnostico": "CJ devolvió {trajo} productos y se descartaron {fuera} por precio o existencias."
+      "diagnostico": "CJ devolvió {trajo} productos y se descartaron {fuera} por precio o existencias.",
+      "departamento": "Departamento",
+      "sinDepartamento": "Sin departamento",
+      "verMisProductos": "Ver lo que llevo agregado",
+      "verLaTienda": "Ver la tienda como el comprador"
     }
   },
   "catalogo": {
