@@ -313,10 +313,25 @@ export function BurbujaAsistente({ idioma }: { idioma: string }) {
         type="button"
         onClick={() => setAbierto(true)}
         aria-label={t("abrir")}
-        className="fixed right-4 bottom-4 z-40 inline-flex items-center gap-2 rounded-full bg-riel-900 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-transform hover:scale-105 hover:bg-riel-800 sm:right-6 sm:bottom-6"
+        title={t("titulo")}
+        /**
+         * ══ UN CÍRCULO, NO UNA PASTILLA CON EL NOMBRE ══
+         *
+         * Era una pastilla de más de 200 px de ancho con el texto «Asistente de
+         * operación», flotando fija sobre la esquina de abajo a la derecha — que
+         * es exactamente donde vive la columna de acciones de todos los
+         * listados del panel. Tapaba el menú de tres puntos de la última fila y
+         * **no dejaba pulsarlo**: no era que se viera mal, era que no
+         * funcionaba.
+         *
+         * El nombre no aporta nada ahí: quien administra el panel aprende en un
+         * día qué hace ese botón, y al pasar el ratón se lee igual. Lo que sí
+         * costaba era el ancho. Con el círculo tapa una cuarta parte, y el
+         * hueco que reserva el layout al final se encarga del resto.
+         */
+        className="fixed right-4 bottom-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-riel-900 text-white shadow-lg transition-transform hover:scale-105 hover:bg-riel-800 sm:right-6 sm:bottom-6"
       >
-        <Sparkles className="h-4 w-4 text-carga-400" aria-hidden />
-        <span className="hidden sm:inline">{t("titulo")}</span>
+        <Sparkles className="h-5 w-5 text-carga-400" aria-hidden />
       </button>
     );
   }

@@ -21,6 +21,7 @@ import { getDb } from "@/lib/db";
 import { tiendas } from "@/lib/db/schema";
 import { contarRetirosPendientes } from "@/lib/retiros/consultas";
 import { comercioObservado } from "@/lib/soporte/ver-como";
+import { cn } from "@/lib/utils";
 import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
 
@@ -109,6 +110,9 @@ export default async function LayoutPanel({
         .catch(() => [])
     : [];
 
+  /* Si se dibuja el asistente: manda el hueco del final y el propio botón. */
+  const conAsistente = interno && hayAsistente;
+
   return (
     <NextIntlClientProvider messages={mensajes}>
       <div className="letra-panel min-h-screen bg-slate-50">
@@ -122,7 +126,27 @@ export default async function LayoutPanel({
           nombre={usuario?.name ?? ""}
         />
         <div className="lg:pl-64">
-          <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8">
+          <main
+            className={cn(
+              "mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8",
+              /**
+               * ══ SITIO AL FINAL PARA QUE EL ASISTENTE NO TAPE NADA ══
+               *
+               * El botón flota fijo en la esquina de abajo a la derecha, que es
+               * justo donde vive la acción de la última fila de cualquier
+               * listado: el menú de tres puntos, el botón de agregar. Tapado
+               * significa que **no se puede pulsar** — no es que se vea mal.
+               *
+               * Pasó de verdad el 15 ago 2026: en «Mis productos», el último
+               * producto de la lista no se podía tocar.
+               *
+               * Se reserva el hueco solo cuando el asistente está puesto. Con
+               * el hueco fijo, todo panel sin asistente arrastraría un vacío al
+               * final sin ninguna razón.
+               */
+              conAsistente && "pb-28",
+            )}
+          >
             {children}
           </main>
         </div>
@@ -132,7 +156,7 @@ export default async function LayoutPanel({
             comercio. Obligar a irse a otra sección para preguntar es perder el
             contexto que motivó la pregunta. Solo el equipo interno: su token
             identifica a la EMPRESA. */}
-        {interno && hayAsistente ? <BurbujaAsistente idioma={locale} /> : null}
+        {conAsistente ? <BurbujaAsistente idioma={locale} /> : null}
       </div>
     </NextIntlClientProvider>
   );
