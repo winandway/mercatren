@@ -620,6 +620,46 @@ export const movimientosBilletera = sqliteTable(
  * LA NOTA NO SE MUESTRA. Es interna del operador: se guarda para la
  * contabilidad, pero no sale en ninguna pantalla.
  */
+
+/**
+ * LA CAPTURA DE LA TRANSFERENCIA QUE SE LE HIZO AL COMERCIO.
+ *
+ * ══ POR QUÉ HACE FALTA ══
+ *
+ * Una ACH tarda uno o dos días y un wire internacional puede tardar más. En ese
+ * hueco el comercio ve «pagado» en el panel y **nada en su cuenta**, y lo único
+ * que puede hacer es escribir preguntando si de verdad se mandó. La captura del
+ * banco contesta esa pregunta antes de que la haga: ya salió, aquí está, es
+ * cuestión de esperar.
+ *
+ * ══ TABLA NUEVA, NO UNA COLUMNA ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que una columna
+ * nueva **no llegaría sola a producción** — la tabla `retiros` ya existe allá.
+ * Es la misma razón por la que `disputas`, `hitos_pedido` y `huellas_comprobante`
+ * son tablas.
+ *
+ * Y admite varias por retiro a propósito: un wire con dos comprobantes —el de
+ * salida y el de acreditación— es normal.
+ */
+export const comprobantesRetiro = sqliteTable(
+  "comprobantes_retiro",
+  {
+    id: text("id").primaryKey(),
+    retiroId: text("retiro_id")
+      .notNull()
+      .references(() => retiros.id, { onDelete: "cascade" }),
+    /** La clave en el bucket. Se sirve por `/media`, que exige sesión. */
+    clave: text("clave").notNull(),
+    /** Quién del equipo la subió. Un documento sin autor no defiende a nadie. */
+    subidoPorId: text("subido_por_id").references(() => user.id),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_comprobantes_retiro").on(t.retiroId)],
+);
+
 export const retirosFee = sqliteTable(
   "retiros_fee",
   {

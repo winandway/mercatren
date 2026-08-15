@@ -94,6 +94,31 @@ async function puedeVerlo(ruta: string) {
 
     const db = getDb();
 
+    /**
+     * La captura de una transferencia: solo el comercio a quien se le pagó.
+     *
+     * En la ruta viene el id del RETIRO, no el de la tienda, así que hay que
+     * mirar la base. Se compara contra el alcance de la sesión y no contra
+     * nada que venga en el enlace: así un vendedor no puede ver el pago de
+     * otro cambiando la dirección a mano.
+     */
+    if (ruta.startsWith("retiros/")) {
+      const { obtenerAlcance } = await import("@/lib/autorizacion");
+      const alcance = await obtenerAlcance();
+      if (alcance.tipo !== "tienda") return false;
+
+      const { retiros } = await import("@/lib/db/schema");
+      const [suyo] = await db
+        .select({ id: retiros.id })
+        .from(retiros)
+        .where(
+          and(eq(retiros.id, duenno), eq(retiros.tiendaId, alcance.tiendaId)),
+        )
+        .limit(1);
+
+      return Boolean(suyo);
+    }
+
     /* La factura de compra: solo el comercio que la subió. Se comprueba
        contra el alcance de la sesión, no contra la ruta — así un vendedor no
        puede leer la de otro cambiando el enlace a mano. */

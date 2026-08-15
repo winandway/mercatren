@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -47,6 +47,8 @@ export type RetiroEnLista = {
   notaComercio: string | null;
   motivoRechazo: string | null;
   referencia: string | null;
+  /** La captura del banco, si el equipo la subió al marcarlo pagado. */
+  comprobanteClave: string | null;
   creadoEn: number;
   resueltoEn: number | null;
   /**
@@ -130,6 +132,8 @@ async function retirosDelHistorico(
     moneda: f.moneda,
     /* Ya se pagaron: por eso el saldo los descuenta. */
     estado: "pagado" as const,
+    /* El histórico del sistema anterior llegó sin comprobantes. */
+    comprobanteClave: null,
     /* No se guardó por qué vía salió, y no se inventa una. */
     forma: null,
     destino: null,
@@ -191,6 +195,16 @@ export async function listarRetiros(opciones?: {
       notaComercio: retiros.notaComercio,
       motivoRechazo: retiros.motivoRechazo,
       referencia: retiros.referencia,
+      /**
+       * LA CAPTURA DE LA TRANSFERENCIA, si el equipo la subió.
+       *
+       * Va en la misma consulta y no en una aparte: una ACH tarda uno o dos
+       * días, y en ese hueco el comercio ve «pagado» y nada en su cuenta. La
+       * captura contesta antes de que pregunte.
+       */
+      comprobanteClave: sql<
+        string | null
+      >`(SELECT c.clave FROM comprobantes_retiro c WHERE c.retiro_id = ${retiros.id} ORDER BY c.creado_en DESC LIMIT 1)`,
       creadoEn: retiros.creadoEn,
       resueltoEn: retiros.resueltoEn,
     })
@@ -230,6 +244,7 @@ export async function listarRetiros(opciones?: {
     notaComercio: f.notaComercio,
     motivoRechazo: f.motivoRechazo,
     referencia: f.referencia,
+    comprobanteClave: f.comprobanteClave,
     creadoEn: enMilisegundos(f.creadoEn) ?? 0,
     resueltoEn: enMilisegundos(f.resueltoEn),
     historico: false,

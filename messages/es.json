@@ -1321,7 +1321,10 @@
         "wire": "Wire internacional"
       },
       "faltaDireccion": "Falta la dirección del titular. El banco la pide para el wire internacional — pídesela al comercio o mira la de su ficha, abajo.",
-      "direccionDeLaFicha": "Dirección que el comercio puso en su ficha de empresa"
+      "direccionDeLaFicha": "Dirección que el comercio puso en su ficha de empresa",
+      "capturaTransferencia": "Captura de la transferencia (opcional)",
+      "capturaAyuda": "El comercio la verá en su panel. Con una ACH o un wire que tardan días, es lo que le dice que ya salió.",
+      "verComprobante": "Ver el comprobante"
     },
     "pedido": {
       "volver": "Volver a Órdenes",

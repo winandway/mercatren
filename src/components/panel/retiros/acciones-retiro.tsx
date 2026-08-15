@@ -40,6 +40,7 @@ export function AccionesRetiro({
   const [error, setError] = useState<string | null>(null);
   const caja = useRef<HTMLDivElement>(null);
   const referencia = useRef<HTMLInputElement>(null);
+  const captura = useRef<HTMLInputElement>(null);
   const motivo = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -85,6 +86,35 @@ export function AccionesRetiro({
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-carga-500"
         />
         <p className="text-xs text-tinta-suave">{t("referenciaAyuda")}</p>
+
+        {/**
+         * LA CAPTURA DE LA TRANSFERENCIA.
+         *
+         * Una ACH tarda uno o dos días y un wire internacional más. Sin la
+         * captura, el comercio ve «pagado» en su panel y NADA en su cuenta, y
+         * lo único que puede hacer es escribir preguntando. Con ella sabe que
+         * salió de verdad y que solo hay que esperar.
+         *
+         * Es OPCIONAL: un retiro a otro comercio de Mercatren no tiene
+         * comprobante que subir —el dinero no sale del sistema— y exigirla
+         * dejaría ese caso sin poder marcarse.
+         */}
+        <label
+          htmlFor={`captura-${id}`}
+          className="block pt-1 text-xs font-medium"
+        >
+          {t("capturaTransferencia")}
+        </label>
+        <input
+          ref={captura}
+          id={`captura-${id}`}
+          type="file"
+          /* `image/*` y no una lista cerrada: la lista dejaba fuera el HEIC,
+             que es el formato por defecto del iPhone. */
+          accept="image/*,application/pdf"
+          className="block w-full text-xs file:mr-3 file:rounded-lg file:border file:border-slate-300 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-semibold"
+        />
+        <p className="text-xs text-tinta-suave">{t("capturaAyuda")}</p>
         {error ? (
           <p role="alert" className="text-xs text-red-700">
             {error}
@@ -96,7 +126,11 @@ export function AccionesRetiro({
             disabled={pendiente}
             onClick={() =>
               correr(() =>
-                marcarRetiroPagado(id, referencia.current?.value ?? ""),
+                marcarRetiroPagado(
+                  id,
+                  referencia.current?.value ?? "",
+                  captura.current?.files?.[0] ?? null,
+                ),
               )
             }
             className="boton-principal gap-2 text-sm disabled:opacity-60"

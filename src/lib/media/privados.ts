@@ -33,6 +33,12 @@ export const MEDIA_PRIVADOS = [
   "comprobantes/",
   /** La factura que nos manda un comercio: sus datos fiscales y sus precios. */
   "facturas-compra/",
+  /**
+   * La captura de la transferencia que se le hizo a un comercio. Lleva el
+   * nombre del titular y los últimos dígitos de su cuenta: la ve él y el
+   * equipo, nadie más.
+   */
+  "retiros/",
 ] as const;
 
 /** Las mismas rutas como las escribe el robots.txt. */

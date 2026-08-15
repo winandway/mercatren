@@ -11,6 +11,7 @@ import {
   obtenerUsuario,
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { comprobantesRetiro } from "@/lib/db/schema";
 import {
   limpiarCuenta,
   paisBancario,
@@ -248,6 +249,20 @@ export async function pedirRetiro(
 export async function marcarRetiroPagado(
   id: string,
   referencia?: string,
+  /**
+   * LA CAPTURA DE LA TRANSFERENCIA, opcional.
+   *
+   * Una ACH tarda uno o dos días y un wire internacional más. En ese hueco el
+   * comercio ve «pagado» en el panel y **nada en su cuenta**, y lo único que
+   * puede hacer es escribir preguntando si de verdad se mandó. La captura
+   * contesta esa pregunta antes de que la haga.
+   *
+   * Va como opcional a propósito: **un fallo al subir la imagen NUNCA puede
+   * impedir que el retiro quede marcado**. El dinero ya salió del banco; que
+   * el sistema no lo reconozca por una foto sería mucho peor que quedarse sin
+   * la foto.
+   */
+  captura?: File | null,
 ): Promise<Resultado> {
   const t = await mensajes();
 
@@ -286,6 +301,33 @@ export async function marcarRetiroPagado(
 
   if (marcado.length === 0) {
     return { ok: false, mensaje: t("retiroYaResuelto") };
+  }
+
+  /**
+   * LA CAPTURA VA DESPUÉS DE MARCAR, Y EN SU PROPIO `try`.
+   *
+   * El orden importa: si se subiera antes y la marca fallara, quedaría un
+   * comprobante de un retiro que el sistema sigue creyendo pendiente. Y si la
+   * subida revienta, el retiro ya está marcado — que es lo que de verdad
+   * importa, porque el dinero ya salió del banco.
+   */
+  if (captura instanceof File && captura.size > 0) {
+    try {
+      const { subirDocumento } = await import("@/lib/subidas");
+      const subida = await subirDocumento(captura, `retiros/${id}`);
+      if (subida.ok) {
+        await db.insert(comprobantesRetiro).values({
+          id: `compret-${nanoid(12)}`,
+          retiroId: id,
+          clave: subida.clave,
+          subidoPorId: usuario?.id ?? null,
+        });
+      } else {
+        console.error("[retiro] la captura no se pudo subir:", subida.mensaje);
+      }
+    } catch (e) {
+      console.error("[retiro] pagado; la captura falló:", e);
+    }
   }
 
   /**

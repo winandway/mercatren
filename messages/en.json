@@ -1321,7 +1321,10 @@
         "wire": "International wire"
       },
       "faltaDireccion": "The account holder's address is missing. The bank requires it for the international wire — ask the merchant, or check their company profile below.",
-      "direccionDeLaFicha": "Address the merchant entered in their company profile"
+      "direccionDeLaFicha": "Address the merchant entered in their company profile",
+      "capturaTransferencia": "Transfer screenshot (optional)",
+      "capturaAyuda": "The seller sees it in their panel. With an ACH or wire that takes days, it's what tells them the money is on its way.",
+      "verComprobante": "View receipt"
     },
     "pedido": {
       "volver": "Back to Orders",

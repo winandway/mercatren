@@ -1,4 +1,11 @@
-import { Archive, Building2, Landmark, Store, Zap } from "lucide-react";
+import {
+  Archive,
+  Building2,
+  Landmark,
+  Paperclip,
+  Store,
+  Zap,
+} from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { DatosParaTransferir } from "@/components/panel/retiros/datos-para-transferir";
@@ -7,6 +14,7 @@ import { DesgloseDelCobro } from "@/components/panel/desglose-cobro";
 import { PedirRetiro } from "@/components/panel/retiros/pedir-retiro";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import { RUTA_MEDIA } from "@/lib/rutas";
 import { fechaCorta } from "@/lib/fechas";
 import {
   comerciosDestino,
@@ -194,6 +202,31 @@ export default async function PaginaRetiros({
                       <p className="mt-1 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
                         {r.motivoRechazo}
                       </p>
+                    ) : null}
+
+                    {/**
+                     * LA CAPTURA DE LA TRANSFERENCIA.
+                     *
+                     * Es lo que el comercio necesita mientras el dinero va en
+                     * camino: una ACH tarda uno o dos días y un wire más, y en
+                     * ese hueco ve «pagado» y nada en su cuenta. Aquí ve que
+                     * salió de verdad y deja de escribir preguntando.
+                     *
+                     * Se abre en otra pestaña en vez de dibujarse: la ruta
+                     * `/media` exige sesión, así que el enlace no sirve fuera
+                     * del panel — y una imagen incrustada haría una petición
+                     * más en cada fila de la lista.
+                     */}
+                    {r.comprobanteClave ? (
+                      <a
+                        href={`${RUTA_MEDIA}/${r.comprobanteClave}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-900 transition-colors hover:bg-emerald-100"
+                      >
+                        <Paperclip className="h-3.5 w-3.5" aria-hidden />
+                        {t("verComprobante")}
+                      </a>
                     ) : null}
 
                     {/**
