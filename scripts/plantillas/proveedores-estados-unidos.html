@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Proveedores para Estados Unidos · Comparativa y plan</title>
+    <style>
+      /* ───────────────────────────────────────────────────────────────────
+         CUARTO DOCUMENTO PARA LA MISMA PERSONA. TIENE QUE VERSE DISTINTO
+         DE LOS TRES ANTERIORES.
+
+           · Ventas a crédito  → azul marino + naranja, sans, tarjetas.
+           · Plan de la API    → verde, dibujos grandes, pasos en línea.
+           · Informe de precios→ vino + arena, serif, lomo a la izquierda.
+           · ESTE              → GRAFITO + ÁMBAR, todo sans condensado, con
+                                 una franja superior gruesa y semáforos de
+                                 colores. Sin lomo, sin serif.
+
+         Y cambia el REGISTRO: este es un DOCUMENTO DE DECISIÓN. Va a leerse
+         para elegir un proveedor y arrancar, así que manda la tabla
+         comparativa, cada página cierra con una conclusión en una línea, y la
+         última hoja es el plan con fechas.
+
+         HORIZONTAL (regla del 7 ago 2026), y pensado PARA el horizontal: la
+         tabla comparativa es ancha y corta, que es justo lo que cabe bien en
+         297 × 210 mm.
+         ─────────────────────────────────────────────────────────────────── */
+
+      @page { size: A4 landscape; margin: 0; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --grafito: #23262b;
+        --grafito-suave: #4a4f57;
+        --ambar: #e08c1a;
+        --ambar-claro: #fdf3e2;
+        --linea: #dcdfe4;
+        --papel: #ffffff;
+        --si: #1d7a4c;
+        --no: #b3271e;
+        --ojo: #b8860b;
+      }
+
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: var(--grafito);
+        font-size: 9.5pt;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .hoja {
+        width: 297mm;
+        height: 210mm;
+        page-break-after: always;
+        position: relative;
+        background: var(--papel);
+        padding: 13mm 14mm 12mm;
+        overflow: hidden;
+      }
+      .hoja:last-child { page-break-after: auto; }
+
+      /* La franja de arriba: la firma visual de este documento. */
+      .franja {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6mm;
+        background: var(--grafito);
+      }
+      .franja::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 62mm;
+        background: var(--ambar);
+      }
+
+      .folio {
+        position: absolute;
+        bottom: 6mm; right: 14mm;
+        font-size: 7.5pt;
+        color: var(--grafito-suave);
+        letter-spacing: .04em;
+      }
+      .pie-marca {
+        position: absolute;
+        bottom: 6mm; left: 14mm;
+        font-size: 7.5pt;
+        color: var(--grafito-suave);
+      }
+
+      h1 {
+        font-size: 21pt;
+        letter-spacing: -.02em;
+        line-height: 1.1;
+        margin-bottom: 2mm;
+      }
+      h2 {
+        font-size: 13pt;
+        letter-spacing: -.01em;
+        margin-bottom: 3mm;
+        padding-bottom: 1.5mm;
+        border-bottom: 2px solid var(--ambar);
+        display: inline-block;
+      }
+      h3 {
+        font-size: 10pt;
+        margin-bottom: 1.5mm;
+        color: var(--grafito);
+      }
+      p { margin-bottom: 2.5mm; }
+      .suave { color: var(--grafito-suave); }
+      .peq { font-size: 8.5pt; }
+
+      /* Conclusión de cada página: una línea, imposible de saltar. */
+      .cierre {
+        margin-top: auto;
+        background: var(--ambar-claro);
+        border-left: 3px solid var(--ambar);
+        padding: 3mm 4mm;
+        font-size: 9.5pt;
+      }
+      .cierre b { color: var(--grafito); }
+
+      .cols { display: flex; gap: 8mm; }
+      .col { flex: 1; }
+
+      table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+      th {
+        text-align: left;
+        background: var(--grafito);
+        color: #fff;
+        padding: 2mm 2.5mm;
+        font-size: 8pt;
+        letter-spacing: .02em;
+        font-weight: 600;
+      }
+      td {
+        padding: 2mm 2.5mm;
+        border-bottom: 1px solid var(--linea);
+        vertical-align: top;
+      }
+      tr:nth-child(even) td { background: #fafbfc; }
+      td.nombre { font-weight: 700; }
+
+      .si { color: var(--si); font-weight: 700; }
+      .no { color: var(--no); font-weight: 700; }
+      .ojo { color: var(--ojo); font-weight: 700; }
+
+      .marco {
+        border: 1px solid var(--linea);
+        border-radius: 2mm;
+        padding: 3.5mm 4mm;
+        margin-bottom: 3mm;
+      }
+      .marco.destacado {
+        border: 2px solid var(--ambar);
+        background: var(--ambar-claro);
+      }
+      .marco.alerta {
+        border-left: 3px solid var(--no);
+        background: #fdf2f1;
+      }
+
+      ol, ul { margin-left: 4.5mm; margin-bottom: 2.5mm; }
+      li { margin-bottom: 1.5mm; }
+
+      .paso {
+        display: flex;
+        gap: 3mm;
+        margin-bottom: 3mm;
+        align-items: flex-start;
+      }
+      .num {
+        flex: 0 0 7mm;
+        height: 7mm;
+        border-radius: 50%;
+        background: var(--grafito);
+        color: #fff;
+        font-size: 9pt;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .num.ambar { background: var(--ambar); color: var(--grafito); }
+
+      .flujo { display: flex; align-items: stretch; gap: 0; margin: 4mm 0; }
+      .etapa {
+        flex: 1;
+        border: 1px solid var(--linea);
+        border-right: none;
+        padding: 3mm;
+        text-align: center;
+      }
+      .etapa:last-child { border-right: 1px solid var(--linea); }
+      .etapa.hecho { background: #f0f8f3; border-color: #bfe0cd; }
+      .etapa.ahora { background: var(--ambar-claro); border-color: var(--ambar); }
+      .etapa .t { font-weight: 700; font-size: 9pt; display: block; }
+      .etapa .d { font-size: 7.5pt; color: var(--grafito-suave); }
+
+      .contenido { display: flex; flex-direction: column; height: 100%; }
+      .cuerpo { flex: 1; }
+
+      /* La hoja de la tabla es la más apretada de las cinco: siete filas más
+         el aviso más la conclusión. Sin esto, el cierre se monta encima del
+         pie de página — pasó en la primera versión. */
+      .hoja.apretada { padding-bottom: 14mm; }
+      .hoja.apretada table { font-size: 8pt; }
+      .hoja.apretada td { padding: 1.6mm 2.5mm; }
+      .hoja.apretada th { padding: 1.6mm 2.5mm; }
+      .hoja.apretada .cierre { padding: 2.5mm 4mm; }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════ PORTADA ══════════════ -->
+    <div class="hoja">
+      <div class="franja"></div>
+      <div class="contenido">
+        <div class="cuerpo" style="padding-top: 14mm">
+          <p class="peq suave" style="letter-spacing: .18em; margin-bottom: 4mm">
+            MERCATREN LLC · DOCUMENTO DE DECISIÓN · 16 DE AGOSTO DE 2026
+          </p>
+          <h1 style="font-size: 30pt; max-width: 190mm">
+            Con qué proveedor abrimos las ventas<br />de Estados Unidos
+          </h1>
+          <p style="max-width: 165mm; font-size: 11pt; margin-top: 5mm" class="suave">
+            Comparativa de cinco proveedores frente a los seis requisitos del
+            negocio, la respuesta al problema de la forma de pago, y el plan de
+            arranque con fechas.
+          </p>
+
+          <div class="cols" style="margin-top: 12mm">
+            <div class="col marco">
+              <h3>El problema que paró el proyecto</h3>
+              <p class="peq suave">
+                El catálogo de Estados Unidos está publicado, pero no se puede
+                despachar: para cargar saldo en el proveedor hay que pasar por
+                Payoneer y esperar tres días hábiles. Las ventas quedaron
+                suspendidas para no cobrarle a nadie algo que no podemos
+                entregar.
+              </p>
+            </div>
+            <div class="col marco">
+              <h3>La pregunta que responde este documento</h3>
+              <p class="peq suave">
+                ¿Existe un proveedor que cumpla los seis requisitos a la vez?
+                Y si no existe, ¿cuál es el camino que nos deja arrancar esta
+                semana sin comprometer el negocio ni el expediente de Google?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="cierre">
+          <b>Conclusión de este informe:</b> ningún proveedor cumple los seis
+          requisitos a la vez — la mensualidad y el pago con tarjeta van
+          siempre juntos. Se recomienda abrir con dos en paralelo y decidir con
+          las cajas en la mano, no con las páginas web.
+        </div>
+      </div>
+      <div class="pie-marca">Mercatren LLC · Michigan, Estados Unidos</div>
+      <div class="folio">1 / 5</div>
+    </div>
+
+    <!-- ══════════════ 2 · LOS REQUISITOS ══════════════ -->
+    <div class="hoja">
+      <div class="franja"></div>
+      <div class="contenido">
+        <div class="cuerpo">
+          <h2>Los seis requisitos, y de dónde sale cada uno</h2>
+
+          <div class="cols" style="margin-top: 4mm">
+            <div class="col">
+              <div class="marco">
+                <h3>1 · Sin mensualidad</h3>
+                <p class="peq suave">
+                  Pedido por el dueño. Un costo fijo antes de la primera venta
+                  es dinero que sale sin nada que lo respalde.
+                </p>
+              </div>
+              <div class="marco">
+                <h3>2 · Producto en Estados Unidos</h3>
+                <p class="peq suave">
+                  Decide el plazo de entrega. Desde China son 15–20 días;
+                  desde un almacén de Estados Unidos, 2–7. La ficha ya le
+                  promete al comprador «2 a 5 días hábiles».
+                </p>
+              </div>
+              <div class="marco">
+                <h3>3 · Factura personalizada</h3>
+                <p class="peq suave">
+                  Si la caja trae la factura del mayorista con su precio, el
+                  comprador ve nuestro margen impreso. Es reclamo, contracargo
+                  y cliente perdido.
+                </p>
+              </div>
+            </div>
+            <div class="col">
+              <div class="marco">
+                <h3>4 · Dirección de devolución conocida</h3>
+                <p class="peq suave">
+                  Google exige política de devoluciones con dirección y plazo
+                  reales. Una devolución a China no se sostiene ante un
+                  comprador estadounidense.
+                </p>
+              </div>
+              <div class="marco">
+                <h3>5 · Pago inmediato del pedido</h3>
+                <p class="peq suave">
+                  <b>Es el requisito que paró el proyecto.</b> Si hay que
+                  precargar saldo con tres días de espera, una venta de
+                  madrugada no se puede despachar.
+                </p>
+              </div>
+              <div class="marco">
+                <h3>6 · API para automatizar</h3>
+                <p class="peq suave">
+                  Sin ella, cada venta obliga a que una persona entre a
+                  comprar a mano. Funciona con tres ventas al día; no con
+                  treinta.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="marco alerta" style="margin-top: 2mm">
+            <h3>Lo que Google exige, y por qué se cruza con la elección</h3>
+            <p class="peq">
+              Google permite el dropshipping, pero suspende por
+              <b>tergiversación</b>: prometer un plazo de entrega que no se
+              cumple, una política de devoluciones vaga o sin dirección, y
+              fichas de producto pobres. Las devoluciones y el plazo no los
+              decidimos nosotros — <b>los decide el proveedor</b>. Por eso la
+              elección del proveedor y la aprobación de Google son el mismo
+              problema, no dos.
+            </p>
+          </div>
+        </div>
+
+        <div class="cierre">
+          <b>Conclusión:</b> los requisitos 3, 4 y 5 no se pueden verificar
+          leyendo una página web. El 3 y el 4 se comprueban abriendo una caja;
+          el 5, intentando pagar.
+        </div>
+      </div>
+      <div class="pie-marca">Proveedores para Estados Unidos</div>
+      <div class="folio">2 / 5</div>
+    </div>
+
+    <!-- ══════════════ 3 · LA TABLA ══════════════ -->
+    <div class="hoja apretada">
+      <div class="franja"></div>
+      <div class="contenido">
+        <div class="cuerpo">
+          <h2>La comparativa</h2>
+          <p class="peq suave" style="margin-bottom: 3mm">
+            Datos verificados en la documentación oficial de cada proveedor el
+            16 de agosto de 2026. Lo marcado con «?» es lo que solo se sabe
+            comprando.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 15%">Proveedor</th>
+                <th style="width: 11%">Mensualidad</th>
+                <th style="width: 14%">Cómo se paga el pedido</th>
+                <th style="width: 12%">Almacén EE. UU.</th>
+                <th style="width: 12%">Factura propia</th>
+                <th style="width: 10%">API real</th>
+                <th style="width: 26%">Lo que hay que saber</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="nombre">CJ Dropshipping<br /><span class="peq suave">(el actual)</span></td>
+                <td class="si">Ninguna</td>
+                <td>
+                  <span class="ojo">Saldo</span> (Payoneer / wire $2.000)<br />
+                  <span class="peq suave">o tarjeta pedido a pedido, a mano</span>
+                </td>
+                <td class="si">Sí</td>
+                <td class="ojo">?</td>
+                <td class="si">Sí<br /><span class="peq suave">solo con saldo</span></td>
+                <td>El catálogo y el precio son buenos. <b>El problema es solo la forma de pago.</b> Con tarjeta se puede pagar hoy mismo, pero pedido a pedido y a mano.</td>
+              </tr>
+              <tr>
+                <td class="nombre">Zendrop</td>
+                <td class="no">$49/mes</td>
+                <td class="si">Tarjeta automática<br /><span class="peq suave">en cada pedido</span></td>
+                <td class="si">Sí · 5–8 días</td>
+                <td class="si">Sí</td>
+                <td class="no">No<br /><span class="peq suave">solo para Shopify</span></td>
+                <td>Resuelve el pago de raíz. Pero su API no permite crear pedidos desde nuestra plataforma: está hecha para Shopify.</td>
+              </tr>
+              <tr>
+                <td class="nombre">AutoDS</td>
+                <td class="ojo">$26,90/mes</td>
+                <td class="si">Tarjeta</td>
+                <td class="si">Sí · 3–7 días<br /><span class="peq suave">~3.000 productos</span></td>
+                <td class="si">Sí</td>
+                <td class="si">Sí · REST<br /><span class="peq suave">pedidos y stock</span></td>
+                <td><b>El único con tarjeta + API de verdad.</b> Su catálogo de almacén estadounidense es más chico que el de CJ.</td>
+              </tr>
+              <tr>
+                <td class="nombre">Doba</td>
+                <td class="no">$29,99/mes</td>
+                <td class="si">Tarjeta</td>
+                <td class="si">Sí · 2–5 días<br /><span class="peq suave">~90 % del catálogo</span></td>
+                <td class="ojo">?</td>
+                <td class="si">Sí</td>
+                <td>El más «estadounidense» de todos: proveedores locales de verdad. Sin plan gratis, solo prueba de $0,99.</td>
+              </tr>
+              <tr>
+                <td class="nombre">Trendsi</td>
+                <td class="si">Ninguna</td>
+                <td class="si">Tarjeta</td>
+                <td class="si">Sí · 2–10 días</td>
+                <td class="si">Sí</td>
+                <td class="ojo">?</td>
+                <td><b>Solo moda y ropa.</b> Gratis, con devoluciones de 7 días. Riesgo cero para probar, pero no cubre un catálogo general.</td>
+              </tr>
+              <tr>
+                <td class="nombre">Spocket</td>
+                <td class="no">$39,99/mes<br /><span class="peq suave">$99,99 con factura</span></td>
+                <td class="si">Tarjeta</td>
+                <td class="si">Sí · 2–5 días</td>
+                <td class="no">Solo en el plan de $99,99</td>
+                <td class="ojo">Limitada</td>
+                <td class="no">Descartado: la factura propia —que es requisito— cuesta $99,99 al mes.</td>
+              </tr>
+              <tr>
+                <td class="nombre">Sup Dropshipping</td>
+                <td class="si">Ninguna</td>
+                <td class="no">Payoneer / wire</td>
+                <td class="si">Sí</td>
+                <td class="ojo">?</td>
+                <td class="ojo">?</td>
+                <td class="no">Descartado: <b>tiene exactamente el mismo problema de pago que CJ.</b></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="marco alerta" style="margin-top: 4mm">
+            <p class="peq" style="margin: 0">
+              <b>WorldFirst no es una salida.</b> Aparece en la pantalla de CJ
+              junto a Payoneer, pero es otra cuenta del mismo tipo: se recarga
+              por transferencia bancaria, no con tarjeta. Abrirla es más
+              papeleo para llegar al mismo sitio.
+            </p>
+          </div>
+        </div>
+
+        <div class="cierre">
+          <b>Conclusión:</b> «sin mensualidad» y «tarjeta con API» no existen
+          juntos en el mercado. Los gratis cobran por transferencia; los de
+          tarjeta cobran mensualidad. Hay que elegir cuál de los dos se cede.
+        </div>
+      </div>
+      <div class="pie-marca">Proveedores para Estados Unidos</div>
+      <div class="folio">3 / 5</div>
+    </div>
+
+    <!-- ══════════════ 4 · LA RECOMENDACIÓN ══════════════ -->
+    <div class="hoja">
+      <div class="franja"></div>
+      <div class="contenido">
+        <div class="cuerpo">
+          <h2>Qué recomiendo, y por qué</h2>
+
+          <div class="marco destacado" style="margin-top: 4mm">
+            <h3 style="font-size: 12pt">
+              No abandonar CJ todavía. Probarlo esta semana pagando con tarjeta,
+              pedido a pedido.
+            </h3>
+            <p class="peq" style="margin-bottom: 0">
+              El problema de CJ nunca fue el catálogo ni el precio: fue creer
+              que había que precargar $2.000 para poder probar.
+              <b>No hay que hacerlo.</b> CJ acepta tarjeta al pagar cada pedido
+              — sin saldo, sin Payoneer, sin esperar tres días. Ese camino
+              está abierto hoy y no cuesta ni una cuenta nueva.
+            </p>
+          </div>
+
+          <div class="cols">
+            <div class="col">
+              <h3>Por qué no descartarlo</h3>
+              <ul class="peq suave">
+                <li>Es el único sin mensualidad con catálogo general y almacén en Estados Unidos.</li>
+                <li>Los 78 productos ya están cargados, clasificados y publicados. Cambiar de proveedor tira ese trabajo.</li>
+                <li>Su API sí crea y paga pedidos — el día que haya saldo, la automatización es directa.</li>
+                <li>Las tres preguntas que faltan (qué papel trae la caja, de qué almacén sale, qué dirección de devolución) <b>se responden con seis compras de prueba</b>, no cambiando de proveedor.</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h3>Y en paralelo, abrir AutoDS</h3>
+              <ul class="peq suave">
+                <li>$26,90 al mes: menos de un dólar al día. Es el precio de tener un plan B probado.</li>
+                <li><b>Es el único con tarjeta automática y API de verdad</b> — la combinación que nos deja despachar una venta de madrugada sin nadie despierto.</li>
+                <li>Se prueba con las mismas seis compras y la misma vara de medir.</li>
+                <li>Si CJ falla en la prueba de la caja, el reemplazo ya está listo y no se pierde un mes.</li>
+              </ul>
+              <p class="peq" style="margin-top: 2mm">
+                <b>Trendsi</b> queda de tercera opción gratuita, pero solo para
+                moda. Sirve si algún día se abre una tienda de ropa; no cubre
+                un catálogo general.
+              </p>
+            </div>
+          </div>
+
+          <div class="marco" style="margin-top: 1mm">
+            <h3>La decisión que sí es tuya, en una línea</h3>
+            <p class="peq suave" style="margin-bottom: 0">
+              Si el requisito de «cero mensualidad» es intocable, el camino es
+              CJ con tarjeta a mano, y aceptar que cada venta la despacha una
+              persona hasta que haya saldo. Si se acepta pagar $26,90 al mes,
+              AutoDS da automatización completa desde el primer día. <b>Las dos
+              se pueden probar a la vez esta semana por menos de $130.</b>
+            </p>
+          </div>
+        </div>
+
+        <div class="cierre">
+          <b>Conclusión:</b> el proyecto no está parado por falta de proveedor.
+          Está parado por una prueba de seis compras que todavía no se ha
+          hecho, y que cuesta cien dólares y cinco días.
+        </div>
+      </div>
+      <div class="pie-marca">Proveedores para Estados Unidos</div>
+      <div class="folio">4 / 5</div>
+    </div>
+
+    <!-- ══════════════ 5 · EL PLAN ══════════════ -->
+    <div class="hoja">
+      <div class="franja"></div>
+      <div class="contenido">
+        <div class="cuerpo">
+          <h2>El plan de arranque</h2>
+
+          <div class="flujo">
+            <div class="etapa hecho">
+              <span class="t">Ventas en pausa</span>
+              <span class="d">Hecho · 15 ago</span>
+            </div>
+            <div class="etapa ahora">
+              <span class="t">Seis compras de prueba</span>
+              <span class="d">Esta semana · ~$100</span>
+            </div>
+            <div class="etapa">
+              <span class="t">Medir las cajas</span>
+              <span class="d">5–8 días</span>
+            </div>
+            <div class="etapa">
+              <span class="t">Elegir proveedor</span>
+              <span class="d">Con datos</span>
+            </div>
+            <div class="etapa">
+              <span class="t">Automatizar y abrir</span>
+              <span class="d">Se quita la pausa</span>
+            </div>
+          </div>
+
+          <div class="cols">
+            <div class="col">
+              <div class="paso">
+                <div class="num ambar">1</div>
+                <div>
+                  <h3>Seis compras, no una</h3>
+                  <p class="peq suave">
+                    Tres en CJ y tres en AutoDS, con productos baratos y
+                    distintos entre sí: algo de tela, algo electrónico, algo
+                    frágil. Y a direcciones diferentes — la tuya y la de dos
+                    amigos. Un pedido da un dato; seis dan un patrón, y dejan
+                    saber si falló el producto o falló el proveedor.
+                  </p>
+                </div>
+              </div>
+              <div class="paso">
+                <div class="num ambar">2</div>
+                <div>
+                  <h3>Se mide lo mismo en las dos</h3>
+                  <p class="peq suave">
+                    Qué papel viene dentro de la caja · desde qué almacén salió
+                    · cuántos días tardó de verdad · qué dirección de
+                    devolución trae · si el producto es el de la foto · cómo
+                    llegó embalado.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="paso">
+                <div class="num">3</div>
+                <div>
+                  <h3>Mientras tanto, lo nuestro no se detiene</h3>
+                  <p class="peq suave">
+                    Las ventas de Venezuela siguen abiertas y funcionando. Las
+                    fichas de Estados Unidos siguen publicadas y Google las
+                    sigue indexando: el posicionamiento no se pierde durante la
+                    pausa. Lo único cerrado es el botón de comprar.
+                  </p>
+                </div>
+              </div>
+              <div class="paso">
+                <div class="num">4</div>
+                <div>
+                  <h3>Al elegir, se abre en tres pasos</h3>
+                  <p class="peq suave">
+                    Se conecta el pago automático del pedido · se ajusta el
+                    plazo de entrega de la ficha al real medido · se corrige la
+                    política de devoluciones con la dirección verdadera. Recién
+                    ahí se quita la pausa y se le manda el catálogo a Google.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="marco" style="margin-top: 1mm">
+            <h3>Lo que hace falta de tu parte esta semana</h3>
+            <p class="peq suave" style="margin-bottom: 0">
+              Solo dos cosas: <b>hacer las seis compras de prueba</b> con
+              tarjeta (sin cargar saldo en ninguna parte) y decirme si abrimos
+              la cuenta de AutoDS. Todo lo demás —la pantalla de seguimiento de
+              las pruebas, el pago automático, el ajuste de las fichas y la
+              apertura— es trabajo mío.
+            </p>
+          </div>
+        </div>
+
+        <div class="cierre">
+          <b>Conclusión:</b> el proyecto vuelve a moverse esta semana. La pausa
+          no es un retroceso — es lo que impide que el primer cliente
+          estadounidense pague algo que no le podemos entregar.
+        </div>
+      </div>
+      <div class="pie-marca">Mercatren LLC · 16 de agosto de 2026</div>
+      <div class="folio">5 / 5</div>
+    </div>
+  </body>
+</html>
