@@ -359,7 +359,8 @@
       "billeteraComercio": "Mi dinero",
       "ordenesCompraComercio": "Mis facturas a Mercatren",
       "catalogoUsa": "Catálogo de EE. UU.",
-      "tiendasUsa": "Tiendas USA"
+      "tiendasUsa": "Tiendas USA",
+      "proveedor": "Pedidos al proveedor"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1841,6 +1842,36 @@
       "ver": "Ver la tienda",
       "porDepartamento": "Por departamento",
       "porDepartamentoAyuda": "Los que están en cero son los que hay que buscar. Un departamento vacío en la tienda se ve como una sección abandonada."
+    },
+    "proveedor": {
+      "titulo": "Pedidos al proveedor",
+      "subtitulo": "Lo que hay que comprarle a CJ para despachar las ventas de Estados Unidos. El pedido se crea solo con la dirección del comprador; tú solo pagas.",
+      "sinComprar": "Ventas esperando que se les compre",
+      "sinComprarVacio": "No hay ventas esperando. Todo lo vendido ya se le pidió al proveedor.",
+      "comprar": "Crear el pedido en el proveedor",
+      "creando": "Creando…",
+      "cola": "Compras al proveedor",
+      "colaVacia": "Todavía no se le ha comprado nada al proveedor.",
+      "pagar": "Pagar este pedido",
+      "yaPague": "Ya lo pagué",
+      "costo": "Nos cuesta",
+      "sinCosto": "Costo sin confirmar",
+      "suPedido": "Su n.º",
+      "guia": "Guía",
+      "estados": {
+        "por_pagar": "Por pagar",
+        "pagado": "Pagado",
+        "enviado": "Enviado",
+        "con_error": "No se pudo crear",
+        "cerrado": "Cerrado"
+      },
+      "comoFunciona": "Cómo funciona",
+      "reglas": [
+        "El pedido se crea en el proveedor con la dirección del comprador, sus productos y sus cantidades. No hay que transcribir nada.",
+        "El proveedor no puede cobrar una tarjeta guardada: por eso el pago es un botón, no algo automático.",
+        "No hace falta cargar billetera ni esperar tres días. Se paga con tarjeta en el momento.",
+        "Si algo falla, aquí sale el motivo exacto que dio el proveedor y se puede reintentar."
+      ]
     }
   },
   "catalogo": {

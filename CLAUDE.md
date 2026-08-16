@@ -1099,6 +1099,45 @@ silencio hace creer que el sistema se inventó unos datos.
   adivinar entre la red, el peso de las fotos, un permiso y la base. Se
   perdieron días así.
 
+## El botón que desbloqueó las ventas de EE. UU. (16 ago 2026)
+
+**La API de CJ NO puede cobrar una tarjeta guardada.** Comprobado en su
+documentación: sus tres formas de pago son `payBalance`, `payBalanceV2` y
+`payType=2`, y las tres descuentan del saldo — que solo se recarga por Payoneer
+o wire, con tres días de espera. No hay tokenización. Eso es lo que tenía el
+proyecto parado.
+
+**Pero `payType=1` devuelve `cjPayUrl`,** y ahí está la salida. Ahora, cuando
+entra una venta de Estados Unidos, el sistema **crea solo el pedido en CJ** con
+la dirección del comprador, sus renglones y sus cantidades, y deja un **botón de
+pagar con tarjeta** — en el correo al equipo y en Panel → Pedidos al proveedor.
+Diez segundos, sin buscar el producto, sin transcribir direcciones y **sin
+cargar billetera**.
+
+- `src/lib/cj/pedidos.ts` + tabla **`pedidos_proveedor`** (tabla, no columnas).
+- **Se pide por SKU**, que es lo que ya guarda el importador: la API acepta
+  `vid` o `sku` y exige al menos uno.
+- **Idempotente por pedido**: si ya hay una compra viva no se crea otra. Sin
+  eso, dos clics comprarían el producto dos veces — dinero de verdad saliendo
+  dos veces.
+- **Sin dirección no se compra, y se dice cuál falta.** El checkout está hecho
+  para el retiro en depósito de Venezuela y deja la calle opcional; mandarle a
+  CJ un pedido sin calle es pagar por un paquete que no llega.
+- **Nunca tumba una venta**: va en su propio try al final de acreditar. Si CJ
+  no contesta, el cobro sigue en pie y la compra queda pendiente en el panel
+  **con el motivo exacto que dio CJ**, no con un «no se pudo».
+- **Pagar y marcar son dos actos separados**: el pago ocurre en la pasarela de
+  CJ y fingir que lo sabemos sería inventar un dato. Se guarda quién marcó y
+  cuándo, como en los retiros.
+- El filtro `paisOrigen = 'US'` en la cola **no es decorativo**: sin él, cada
+  venta venezolana aparecería como «hay que comprársela al proveedor» y alguien
+  le pagaría a CJ un producto que la ferretería ya despachó.
+
+**`TRANSPORTE = "USPS+"` es una suposición hasta que las compras de prueba
+digan cuál usa de verdad el almacén de EE. UU.** Si el nombre no existe, CJ
+rechaza el pedido y su mensaje sale entero en el panel para corregirlo en un
+minuto.
+
 ## LAS VENTAS DE ESTADOS UNIDOS, EN PAUSA (15 ago 2026)
 
 Decisión del dueño, y es la correcta: **antes de vender lo que no se puede

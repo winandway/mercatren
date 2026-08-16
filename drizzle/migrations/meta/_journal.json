@@ -155,6 +155,13 @@
       "when": 1786886757483,
       "tag": "0021_bizarre_grim_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1786891333734,
+      "tag": "0022_wise_mister_fear",
+      "breakpoints": true
     }
   ]
 }

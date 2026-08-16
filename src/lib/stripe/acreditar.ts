@@ -258,4 +258,26 @@ export async function acreditarPagoConTarjeta(
   } catch (e) {
     console.error("[stripe] pago acreditado; el aviso no salio:", e);
   }
+
+  /**
+   * Y SI LA VENTA ES DE ESTADOS UNIDOS, SE LE PIDE AL PROVEEDOR.
+   *
+   * Va en su propio try y al final de todo: el cobro ya está acreditado y el
+   * stock descontado. Si el proveedor no contesta, la venta sigue en pie y la
+   * compra queda pendiente EN EL PANEL con su motivo — nunca al revés. Un
+   * cobro no se deshace porque el proveedor tuviera un mal minuto.
+   *
+   * Crea el pedido con la dirección del comprador y deja el enlace de pago
+   * listo. Pagarlo sigue siendo un acto humano: la API del proveedor no puede
+   * cobrar una tarjeta guardada, y por eso el correo trae el botón.
+   */
+  try {
+    const { esDeEstadosUnidos } = await import("@/lib/cj/pedidos");
+    if (await esDeEstadosUnidos(pedidoId)) {
+      const { comprarAlProveedor } = await import("@/lib/cj/pedidos");
+      await comprarAlProveedor(pedidoId);
+    }
+  } catch (e) {
+    console.error("[stripe] acreditado; la compra al proveedor no salio:", e);
+  }
 }

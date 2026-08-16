@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Store,
+  Truck,
   UserRound,
   Users,
   Wallet,
@@ -108,6 +109,16 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/catalogo-usa",
         clave: "catalogoUsa",
         Icono: Flag,
+        soloInterno: true,
+      },
+      /* LO QUE HAY QUE COMPRARLE AL PROVEEDOR para despachar cada venta de
+         Estados Unidos. Va en «Equipo» y no en «Dinero» porque aquí se ven
+         enlaces que cobran de NUESTRA tarjeta y el costo real de la mercancía
+         — el número que un comercio no puede ver jamás. */
+      {
+        href: "/panel/proveedor",
+        clave: "proveedor",
+        Icono: Truck,
         soloInterno: true,
       },
       /* TIENDAS USA es OTRO trabajo: la de arriba sirve para agregar y esta

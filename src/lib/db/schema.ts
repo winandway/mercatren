@@ -2136,3 +2136,99 @@ export const zelleCobrosTienda = sqliteTable("zelle_cobros_tienda", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * LOS PEDIDOS QUE HAY QUE COMPRARLE AL PROVEEDOR DE ESTADOS UNIDOS.
+ *
+ * ══ POR QUÉ EXISTE ESTA TABLA ══
+ *
+ * Una venta de Estados Unidos no se despacha sola: hay que comprarle el
+ * producto a CJ. Su API **no puede cobrar una tarjeta guardada** —comprobado
+ * en su documentación el 16 ago 2026: sus tres formas de pago son saldo,
+ * saldo y «crear sin pagar»— pero sí devuelve un **enlace de pago**
+ * (`cjPayUrl`) cuando el pedido se crea con `payType=1`.
+ *
+ * Con eso, todo lo pesado se automatiza: el pedido se crea en CJ con la
+ * dirección del comprador, sus renglones y sus variantes. Lo único humano es
+ * abrir ese enlace y pagar con tarjeta — diez segundos, sin buscar el
+ * producto, sin copiar direcciones y sin cargar billetera.
+ *
+ * ══ ESTA TABLA ES EL RASTRO DE ESE PASO ══
+ *
+ * Sin ella, un pedido pagado por el cliente y no comprado al proveedor no
+ * aparece en ninguna pantalla: es exactamente el fallo silencioso que deja a
+ * un comprador esperando una caja que nadie pidió.
+ *
+ * Tabla y no columnas, como manda la regla del proyecto: `schema.sql` solo
+ * trae CREATE TABLE IF NOT EXISTS y una columna nueva no llegaría sola a
+ * producción.
+ */
+export const ESTADOS_PEDIDO_PROVEEDOR = [
+  /** Creado en CJ, esperando que alguien abra el enlace y pague. */
+  "por_pagar",
+  /** Pagado; CJ lo está preparando. */
+  "pagado",
+  /** Despachado, con su número de guía. */
+  "enviado",
+  /** No se pudo crear en CJ. El motivo queda escrito. */
+  "con_error",
+  /** Se resolvió por fuera (compra a mano, cancelación). */
+  "cerrado",
+] as const;
+
+export const pedidosProveedor = sqliteTable(
+  "pedidos_proveedor",
+  {
+    id: text("id").primaryKey(),
+
+    /** Nuestro pedido. Uno nuestro puede necesitar más de una compra. */
+    pedidoId: text("pedido_id")
+      .notNull()
+      .references(() => pedidos.id, { onDelete: "cascade" }),
+
+    /** Quién surte. Hoy solo `cj`, mañana el que gane la comparativa. */
+    proveedor: text("proveedor").notNull().default("cj"),
+
+    estado: text("estado")
+      .$type<(typeof ESTADOS_PEDIDO_PROVEEDOR)[number]>()
+      .notNull()
+      .default("por_pagar"),
+
+    /** El identificador del pedido EN EL PROVEEDOR, para reclamar. */
+    externoId: text("externo_id"),
+    /** El número que el proveedor le enseña a su propio soporte. */
+    externoNumero: text("externo_numero"),
+
+    /**
+     * EL ENLACE DE PAGO. Es lo que hace que esto valga la pena.
+     *
+     * No se enseña en ninguna pantalla pública: es una dirección que cobra
+     * dinero de nuestra tarjeta. Solo el equipo interno lo ve.
+     */
+    urlPago: text("url_pago"),
+
+    /** Lo que nos cuesta a nosotros, en centavos enteros como todo el dinero. */
+    costoCentavos: integer("costo_centavos"),
+
+    /** El número de guía, cuando CJ despacha. */
+    guia: text("guia"),
+    transportista: text("transportista"),
+
+    /** El motivo exacto cuando algo falla. Un «no se pudo» obliga a adivinar. */
+    ultimoError: text("ultimo_error"),
+
+    pagadoEn: integer("pagado_en", { mode: "timestamp" }),
+    pagadoPorId: text("pagado_por_id").references(() => user.id),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_pedidos_proveedor_pedido").on(t.pedidoId),
+    index("idx_pedidos_proveedor_estado").on(t.estado),
+  ],
+);

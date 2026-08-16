@@ -359,7 +359,8 @@
       "billeteraComercio": "My money",
       "ordenesCompraComercio": "My invoices to Mercatren",
       "catalogoUsa": "U.S. catalog",
-      "tiendasUsa": "US stores"
+      "tiendasUsa": "US stores",
+      "proveedor": "Supplier orders"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1841,6 +1842,36 @@
       "ver": "View store",
       "porDepartamento": "By department",
       "porDepartamentoAyuda": "The ones at zero are what to look for next. An empty department looks like an abandoned aisle."
+    },
+    "proveedor": {
+      "titulo": "Supplier orders",
+      "subtitulo": "What we need to buy from CJ to fulfill US sales. The order is created automatically with the buyer's address; you just pay.",
+      "sinComprar": "Sales waiting to be ordered",
+      "sinComprarVacio": "No sales waiting. Everything sold has been ordered from the supplier.",
+      "comprar": "Create the order at the supplier",
+      "creando": "Creating…",
+      "cola": "Supplier purchases",
+      "colaVacia": "Nothing has been ordered from the supplier yet.",
+      "pagar": "Pay this order",
+      "yaPague": "I already paid it",
+      "costo": "Costs us",
+      "sinCosto": "Cost unconfirmed",
+      "suPedido": "Their no.",
+      "guia": "Tracking",
+      "estados": {
+        "por_pagar": "To pay",
+        "pagado": "Paid",
+        "enviado": "Shipped",
+        "con_error": "Couldn't be created",
+        "cerrado": "Closed"
+      },
+      "comoFunciona": "How it works",
+      "reglas": [
+        "The order is created at the supplier with the buyer's address, products, and quantities. Nothing to retype.",
+        "The supplier can't charge a saved card — that's why paying is a button, not something automatic.",
+        "No wallet to load and no three-day wait. You pay by card on the spot.",
+        "If something fails, the supplier's exact reason shows here and it can be retried."
+      ]
     }
   },
   "catalogo": {
