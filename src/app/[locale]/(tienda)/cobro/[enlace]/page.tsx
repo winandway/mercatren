@@ -3,7 +3,7 @@ import { Clock, Store } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { PagarCobro } from "@/components/cobro/pagar-cobro";
+import { MetodosDeCobro } from "@/components/cobro/metodos-de-cobro";
 import { estadoParaMostrar, sePuedePagar } from "@/lib/cobros/reglas";
 import { getDb } from "@/lib/db";
 import { cobrosSolicitados, tiendas } from "@/lib/db/schema";
@@ -54,6 +54,7 @@ export default async function PaginaDeCobro({
       concepto: cobrosSolicitados.concepto,
       venceEn: cobrosSolicitados.venceEn,
       pagadoEn: cobrosSolicitados.pagadoEn,
+      tiendaId: cobrosSolicitados.tiendaId,
       comercio: tiendas.nombre,
     })
     .from(cobrosSolicitados)
@@ -106,6 +107,25 @@ export default async function PaginaDeCobro({
   const estado = estadoParaMostrar(cobro.estado, cobro.venceEn, ahora);
   const pagable = sePuedePagar(cobro.estado, cobro.venceEn, ahora);
 
+  /**
+   * ¿ZELLE, Y CON QUÉ CONCEPTO? Se decide EN EL SERVIDOR, con la configuración
+   * de la tienda y el mínimo del panel. La página solo dibuja lo que ya se
+   * decidió — el candado de verdad está en la acción que recibe la captura.
+   */
+  let zelle: { receptor: string; concepto: string } | null = null;
+  let enRevision = false;
+  if (pagable) {
+    const { zelleDelCobro, comprobantePendienteDeCobro } =
+      await import("@/lib/cobros/consultas");
+    const { conceptoDelPago } = await import("@/lib/pedidos/concepto");
+    const decision = await zelleDelCobro(cobro.tiendaId, cobro.montoCentavos);
+    const concepto = conceptoDelPago(cobro.referencia);
+    if (decision.disponible && concepto) {
+      zelle = { receptor: decision.receptor, concepto };
+    }
+    enRevision = await comprobantePendienteDeCobro(cobro.id).catch(() => false);
+  }
+
   return (
     <main className="mx-auto max-w-lg px-4 py-10 sm:py-16">
       <div className="rounded-2xl border border-borde bg-white p-6 shadow-sm sm:p-8">
@@ -155,14 +175,21 @@ export default async function PaginaDeCobro({
             <p className="rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
               {t("cancelado")}
             </p>
+          ) : enRevision ? (
+            /* Con una captura esperando al validador no se ofrece pagar otra
+               vez: lo que toca es esperar, y se dice cuánto. */
+            <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
+              {t("zEnRevision")}
+            </p>
           ) : (
-            <PagarCobro
+            <MetodosDeCobro
               enlace={enlace}
               montoTexto={formatearPrecio(
                 cobro.montoCentavos,
                 idioma,
                 cobro.moneda,
               )}
+              zelle={zelle}
             />
           )}
         </div>

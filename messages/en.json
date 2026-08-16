@@ -935,6 +935,20 @@
         },
         "ultima": "Last time",
         "sinComercios": "No merchant has their catalog connected yet."
+      },
+      "zelleCobros": {
+        "titulo": "Zelle on payment links",
+        "texto": "Every store always has card payments. Zelle is granted store by store, because each payment is verified by a person. The payer sees the reconciliation number front and center and can't send their proof without it.",
+        "minimoGlobal": "General minimum (USD)",
+        "minimoGlobalAyuda": "Applies to stores without their own minimum. Empty = {respaldo} (the catalog rule).",
+        "guardar": "Save",
+        "tienda": "Store",
+        "interruptor": "Zelle on their links",
+        "minimoPropio": "Own minimum (USD)",
+        "minimoPropioAyuda": "Empty = uses the general one. Zero = no minimum.",
+        "sinTiendas": "No store uses the payment API yet.",
+        "encendido": "Enabled",
+        "apagado": "No Zelle (card only)"
       }
     },
     "fotos": {
@@ -1166,7 +1180,12 @@
       "valorarSinCompra": "Only buyers of this product can review it.",
       "valorarGracias": "Thanks for your review.",
       "valorarFallo": "We couldn't save your review. Please try again.",
-      "ventasEnPausa": "This store is under maintenance and can't take orders right now. Please check back soon."
+      "ventasEnPausa": "This store is under maintenance and can't take orders right now. Please check back soon.",
+      "zelleCobros": {
+        "montoInvalido": "The minimum must be an amount in dollars, like 200 or 49.90.",
+        "tiendaInvalida": "That store doesn't exist.",
+        "guardado": "Saved. It applies from the next link that gets opened."
+      }
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2337,6 +2356,15 @@
         "Your payment went through and the store has been notified. There's nothing else you need to do.",
         "Keep this email — it's your receipt. On your bank statement, the charge appears under Mercatren along with your invoice number."
       ]
+    },
+    "comprobanteCobro": {
+      "asunto": "We received your payment proof · {referencia}",
+      "previo": "A member of our team is reviewing it.",
+      "titulo": "Your payment proof is under review",
+      "parrafos": [
+        "We received the screenshot of your transfer. A member of our team checks it against the bank, usually the same business day.",
+        "As soon as it's confirmed you'll get your receipt in this same inbox, and the store will be notified. There's nothing else you need to do."
+      ]
     }
   },
   "misPedidos": {
@@ -2604,6 +2632,31 @@
     "vencidoQueHacer": "Ask the merchant for another one — a new link arrives instantly and you don't lose the purchase.",
     "cancelado": "The merchant cancelled this payment.",
     "vence": "The link expires on {fecha}.",
-    "quienCobra": "Mercatren collects this payment on behalf of {comercio}."
+    "quienCobra": "Your purchase is from {comercio}. Mercatren receives and invoices the payment.",
+    "metodoTitulo": "How would you like to pay?",
+    "metodoTarjeta": "With card",
+    "metodoTarjetaDetalle": "Confirmed instantly",
+    "metodoZelle": "With Zelle",
+    "metodoZelleDetalle": "Confirmed by a person, usually the same business day",
+    "zPaso1": "Send {monto} through Zelle to this address",
+    "zPaso2": "Write this in your transfer's memo",
+    "zPaso2Detalle": "Copy it exactly as shown. It's how we match your payment at the bank — without this memo, your payment can sit unidentified for weeks.",
+    "zPaso3": "Upload a screenshot of your transfer",
+    "zCodigo": "Confirmation code (if your bank gave you one)",
+    "zEnviar": "Send my proof of payment",
+    "zEnviando": "Sending…",
+    "zEnRevision": "Your proof of payment is under review. A member of our team checks it against the bank, usually the same business day. We'll email you.",
+    "zCopiar": "Copy",
+    "zCopiado": "Copied",
+    "zErrores": {
+      "enlace_invalido": "This link doesn't work. Ask the store to send you a new one.",
+      "no_pagable": "This payment can no longer be made. Ask the store to send you a new link.",
+      "zelle_no_disponible": "Zelle isn't available for this payment. You can pay with card.",
+      "ya_en_revision": "We already received a screenshot for this payment. We're reviewing it.",
+      "sin_captura": "Choose the screenshot of your transfer.",
+      "captura_invalida": "The screenshot must be an image (JPG, PNG, or WEBP).",
+      "captura_pesada": "The image is too large. Maximum 8 MB.",
+      "no_se_pudo": "We couldn't save your proof of payment. Please try again."
+    }
   }
 }

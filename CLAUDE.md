@@ -1496,6 +1496,43 @@ $31.87 con tarjeta, **$30.91 disponibles**. Y los 32 centavos que quedaban
 pendientes de decidir se resolvieron solos al pasar al 3 %: su comisión guardada
 (96) es exactamente la que toca ahora.
 
+## Zelle en los enlaces de cobro, con conciliación estricta (16 ago 2026)
+
+Decisión del dueño: el enlace de cobro ofrece **tarjeta y Zelle**, y la
+conciliación bancaria de Mercatren LLC es **obligatoria y estricta** — cada
+transferencia del extracto tiene que cuadrar con su cobro.
+
+- **El número de conciliación es el protagonista**: `Mercatren F-00123`
+  (la referencia de la factura del comercio por `conceptoDelPago`), en rojo, en
+  grande y con botón de copiar, ANTES de la captura. Queda escrito también en
+  las `notas` del pago, delante del validador.
+- **La captura entra a la MISMA cola de validación** (`pagos_zelle` con
+  `pedido_id` en null); el puente con el cobro es la tabla **`cobros_zelle`**
+  — tabla y no columna, como manda la regla del proyecto. La huella anti
+  captura-repetida y las alertas aplican solas.
+- **Al aprobar, el cobro se cierra** (`estado='abierto'` dentro del WHERE: si
+  ya se pagó con tarjeta mientras la captura esperaba, no se pisa) y salen el
+  recibo al pagador, el aviso al equipo, y el sistema del comercio ve `pagado`.
+  Al rechazar, el pagador recibe el MOTIVO y el cobro sigue abierto.
+- **Sin doble conteo**: un cobro pagado por Zelle suma por el camino de Zelle;
+  el join de la cuarta fuente de la billetera filtra por
+  `nota LIKE 'Cobro por enlace%'`, que solo escribe la acreditación con
+  tarjeta. Comprobado con SQL contra la base.
+- **Control por tienda, solo rol `soporte`** (Configuración → Zelle en los
+  enlaces de cobro): interruptor + mínimo propio; mínimo general en
+  `configuracion.zelle_cobros_minimo_centavos`; respaldo final
+  `ZELLE_MINIMO_CENTAVOS`. Sin fila NO hay Zelle: encenderlo es un acto del
+  equipo (`zelle_cobros_tienda`). La decisión es pura
+  (`src/lib/cobros/zelle.ts`, 10 pruebas) y se re-comprueba EN EL SERVIDOR al
+  recibir la captura.
+- **`GET /datos/socios/cobro` ahora dice `metodo`** (`tarjeta`/`zelle`) **y
+  `en_revision`**: el sistema del comercio puede decir «pago en revisión» en
+  vez de un «sin pagar» que no cuenta la historia.
+- De paso: la página decía «Mercatren cobra este pago **por cuenta de** …» —
+  vocabulario prohibido que se escapó por conjugación (el test buscaba el
+  infinitivo). Corregido el texto Y el test (`"por cuenta de"`, `"on behalf
+of"`).
+
 ## La auditoría del sistema de cobro por enlace (16 ago 2026)
 
 El dueño pidió auditar a fondo el cobro de la ferretería antes de que lo usen.

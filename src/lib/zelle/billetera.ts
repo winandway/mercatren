@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, exists, gte, or, sql } from "drizzle-orm";
+import { and, desc, eq, exists, gte, like, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -300,7 +300,13 @@ export async function obtenerPosicion(
     .from(cobrosSolicitados)
     .innerJoin(
       movimientosBilletera,
-      eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+      and(
+        eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+        /* SOLO la acreditación con TARJETA. Un cobro pagado por Zelle ya suma
+           por el camino de Zelle (pagos_zelle): su movimiento lleva otra nota,
+           y contarlo aquí también sería dinero dos veces. */
+        like(movimientosBilletera.nota, "Cobro por enlace%"),
+      ),
     )
     .where(COBRO_PAGADO);
 
@@ -312,7 +318,13 @@ export async function obtenerPosicion(
     .from(cobrosSolicitados)
     .innerJoin(
       movimientosBilletera,
-      eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+      and(
+        eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+        /* SOLO la acreditación con TARJETA. Un cobro pagado por Zelle ya suma
+           por el camino de Zelle (pagos_zelle): su movimiento lleva otra nota,
+           y contarlo aquí también sería dinero dos veces. */
+        like(movimientosBilletera.nota, "Cobro por enlace%"),
+      ),
     )
     .where(and(COBRO_PAGADO, gte(cobrosSolicitados.pagadoEn, desde)));
 
@@ -503,7 +515,11 @@ export async function listarMovimientosReales(
       .from(cobrosSolicitados)
       .innerJoin(
         movimientosBilletera,
-        eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+        and(
+          eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+          // Solo tarjeta: los pagados por Zelle ya salen como pagos_zelle.
+          like(movimientosBilletera.nota, "Cobro por enlace%"),
+        ),
       )
       .where(
         and(

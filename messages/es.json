@@ -935,6 +935,20 @@
         },
         "ultima": "Última vez",
         "sinComercios": "Todavía no hay ningún comercio con su catálogo conectado."
+      },
+      "zelleCobros": {
+        "titulo": "Zelle en los enlaces de cobro",
+        "texto": "La tarjeta la tienen todas las tiendas, siempre. Zelle se da tienda por tienda, porque cada pago lo valida una persona. El pagador ve el número de conciliación en grande y no puede mandar la captura sin él delante.",
+        "minimoGlobal": "Mínimo general (USD)",
+        "minimoGlobalAyuda": "Aplica a las tiendas que no tengan un mínimo propio. Vacío = {respaldo} (la regla del catálogo).",
+        "guardar": "Guardar",
+        "tienda": "Tienda",
+        "interruptor": "Zelle en sus enlaces",
+        "minimoPropio": "Mínimo propio (USD)",
+        "minimoPropioAyuda": "Vacío = usa el general. Cero = sin mínimo.",
+        "sinTiendas": "Ninguna tienda usa todavía la API de cobros.",
+        "encendido": "Activado",
+        "apagado": "Sin Zelle (solo tarjeta)"
       }
     },
     "fotos": {
@@ -1166,7 +1180,12 @@
       "valorarSinCompra": "Solo puede opinar quien compró este producto.",
       "valorarGracias": "Gracias por tu opinión.",
       "valorarFallo": "No se pudo guardar tu opinión. Inténtalo de nuevo.",
-      "ventasEnPausa": "Esta tienda está en mantenimiento y por ahora no puede recibir pedidos. Vuelve pronto."
+      "ventasEnPausa": "Esta tienda está en mantenimiento y por ahora no puede recibir pedidos. Vuelve pronto.",
+      "zelleCobros": {
+        "montoInvalido": "El mínimo tiene que ser un monto en dólares, como 200 o 49.90.",
+        "tiendaInvalida": "Esa tienda no existe.",
+        "guardado": "Guardado. Aplica desde el próximo enlace que se abra."
+      }
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2337,6 +2356,15 @@
         "Tu pago quedó registrado y el comercio ya fue notificado. No tienes que hacer nada más.",
         "Guarda este correo: es tu constancia. En tu estado de cuenta, el cargo aparece a nombre de Mercatren junto con el número de tu factura."
       ]
+    },
+    "comprobanteCobro": {
+      "asunto": "Recibimos tu comprobante · {referencia}",
+      "previo": "Una persona de nuestro equipo lo está revisando.",
+      "titulo": "Tu comprobante está en revisión",
+      "parrafos": [
+        "Recibimos la captura de tu transferencia. Una persona de nuestro equipo la compara contra el banco, normalmente el mismo día hábil.",
+        "En cuanto quede confirmada te llega tu recibo por este mismo correo, y el comercio queda avisado. No tienes que hacer nada más."
+      ]
     }
   },
   "misPedidos": {
@@ -2604,6 +2632,31 @@
     "vencidoQueHacer": "Pídele al comercio que te mande otro: le llega uno nuevo al instante y no pierdes la compra.",
     "cancelado": "El comercio canceló este cobro.",
     "vence": "El enlace vence el {fecha}.",
-    "quienCobra": "Mercatren cobra este pago por cuenta de {comercio}."
+    "quienCobra": "Tu compra es en {comercio}. El pago lo recibe y lo factura Mercatren.",
+    "metodoTitulo": "¿Cómo quieres pagar?",
+    "metodoTarjeta": "Con tarjeta",
+    "metodoTarjetaDetalle": "Se confirma al instante",
+    "metodoZelle": "Por Zelle",
+    "metodoZelleDetalle": "Lo confirma una persona, normalmente el mismo día hábil",
+    "zPaso1": "Envía {monto} por Zelle a esta dirección",
+    "zPaso2": "Escribe esto en la nota de tu transferencia",
+    "zPaso2Detalle": "Cópialo tal cual. Es lo que nos deja reconocer tu pago en el banco: sin esta nota, tu pago puede quedar semanas sin identificar.",
+    "zPaso3": "Sube la captura de tu transferencia",
+    "zCodigo": "Código de confirmación (si tu banco te dio uno)",
+    "zEnviar": "Enviar mi comprobante",
+    "zEnviando": "Enviando…",
+    "zEnRevision": "Tu comprobante está en revisión. Una persona de nuestro equipo lo compara contra el banco, normalmente el mismo día hábil. Te avisamos por correo.",
+    "zCopiar": "Copiar",
+    "zCopiado": "Copiado",
+    "zErrores": {
+      "enlace_invalido": "Este enlace no sirve. Pídele al comercio que te mande uno nuevo.",
+      "no_pagable": "Este cobro ya no se puede pagar. Pídele al comercio que te mande uno nuevo.",
+      "zelle_no_disponible": "El pago por Zelle no está disponible para este cobro. Puedes pagar con tarjeta.",
+      "ya_en_revision": "Ya recibimos una captura de este pago. La estamos revisando.",
+      "sin_captura": "Elige la captura de tu transferencia.",
+      "captura_invalida": "La captura tiene que ser una imagen (JPG, PNG o WEBP).",
+      "captura_pesada": "La imagen pesa demasiado. Máximo 8 MB.",
+      "no_se_pudo": "No pudimos guardar tu comprobante. Inténtalo otra vez."
+    }
   }
 }

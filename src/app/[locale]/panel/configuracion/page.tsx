@@ -20,6 +20,7 @@ import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { ProbarCj } from "@/components/panel/probar-cj";
 import { ProbarMercury } from "@/components/panel/probar-mercury";
 import { SaludCatalogos } from "@/components/panel/salud-catalogos";
+import { ZelleCobros } from "@/components/panel/zelle-cobros";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
 import { TraerFotos } from "@/components/panel/traer-fotos";
@@ -27,6 +28,8 @@ import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
+import { estadoZelleCobros } from "@/lib/cobros/zelle-admin";
+import { ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
 import { cn } from "@/lib/utils";
 
@@ -92,6 +95,9 @@ export default async function PaginaConfiguracion({
   /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
      quedan congelados y aquí no se veía NADA. Esta es la pantalla que faltaba. */
   const catalogos = await saludDeLosComercios().catch(() => []);
+
+  // Zelle en los enlaces de cobro: solo se dibuja para el rol soporte.
+  const zelleCobros = await estadoZelleCobros().catch(() => null);
 
   const { env } = getCloudflareContext();
   const puesta = (clave: string) =>
@@ -227,6 +233,25 @@ export default async function PaginaConfiguracion({
         </p>
         <SaludCatalogos filas={catalogos} />
       </section>
+
+      {zelleCobros ? (
+        <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <Landmark className="h-4 w-4 text-carga-500" aria-hidden />
+            {t("zelleCobros.titulo")}
+          </h2>
+          <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+            {t("zelleCobros.texto")}
+          </p>
+          <div className="mt-4">
+            <ZelleCobros
+              minimoGlobalCentavos={zelleCobros.minimoGlobalCentavos}
+              respaldoCentavos={ZELLE_MINIMO_CENTAVOS}
+              tiendas={zelleCobros.tiendas}
+            />
+          </div>
+        </section>
+      ) : null}
 
       {/* Las variables de cobro: solo si estan, nunca su valor. */}
       <section

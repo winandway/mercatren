@@ -373,6 +373,83 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     }
   }
 
+  /**
+   * SI ESTA CAPTURA PERTENECE A UN COBRO POR ENLACE, EL COBRO SE CIERRA AQUÍ.
+   *
+   * El dinero ya entró por el camino normal de Zelle (movimiento + saldo, unas
+   * líneas más arriba). Lo que falta es lo que el comercio y el pagador están
+   * esperando: la factura marcada como pagada —que es lo que su sistema
+   * consulta— y sus correos. Va después de acreditar y en su propio try: un
+   * pago aprobado jamás se deshace porque un aviso no salió.
+   */
+  try {
+    const { cobrosZelle, cobrosSolicitados } = await import("@/lib/db/schema");
+    const [puente] = await db
+      .select({ cobroId: cobrosZelle.cobroId })
+      .from(cobrosZelle)
+      .where(eq(cobrosZelle.pagoZelleId, pago.id))
+      .limit(1);
+
+    if (puente) {
+      /* `estado = 'abierto'` DENTRO del WHERE: si el cobro ya se pagó por
+         otro camino (tarjeta mientras la captura esperaba), no se pisa. */
+      const cerrado = await db
+        .update(cobrosSolicitados)
+        .set({ estado: "pagado", pagadoEn: ahora, pagoId: pago.id })
+        .where(
+          and(
+            eq(cobrosSolicitados.id, puente.cobroId),
+            eq(cobrosSolicitados.estado, "abierto"),
+          ),
+        )
+        .returning({
+          referencia: cobrosSolicitados.referencia,
+          montoCentavos: cobrosSolicitados.montoCentavos,
+          contactoCorreo: cobrosSolicitados.contactoCorreo,
+          contactoNombre: cobrosSolicitados.contactoNombre,
+          tiendaId: cobrosSolicitados.tiendaId,
+        });
+
+      const cobro = cerrado[0];
+      if (cobro) {
+        const correos = await import("@/lib/correo/correos");
+
+        if (cobro.contactoCorreo) {
+          const [duennoCobro] = await db
+            .select({ nombre: tiendas.nombre })
+            .from(tiendas)
+            .where(eq(tiendas.id, cobro.tiendaId))
+            .limit(1);
+
+          await correos.correoReciboDeCobro(
+            {
+              email: cobro.contactoCorreo,
+              name: cobro.contactoNombre ?? "",
+              idioma: "es",
+            },
+            {
+              comercio: duennoCobro?.nombre ?? "",
+              referencia: cobro.referencia,
+              montoCentavos: cobro.montoCentavos,
+            },
+          );
+        }
+
+        await correos.correoAvisoAlEquipo({
+          asunto: `Cobro por enlace pagado por Zelle · ${cobro.referencia}`,
+          lineas: [
+            `Cobro ${cobro.referencia} · ${(cobro.montoCentavos / 100).toFixed(2)} USD · Zelle`,
+            `Neto al comercio: ${(acreditado / 100).toFixed(2)} USD`,
+          ],
+          url: "https://mercatren.com/es/panel/cobros/enlaces",
+          boton: "Ver los enlaces de cobro",
+        });
+      }
+    }
+  } catch (fallo) {
+    console.error("[zelle] aprobado; el cierre del cobro no salio:", fallo);
+  }
+
   // Y si esa venta dejó algo en cero, que el comercio lo sepa hoy y no
   // cuando note que dejó de vender.
   const { avisarAgotados } = await import("@/lib/productos/agotados");
@@ -446,6 +523,42 @@ export async function rechazarPago(
       { numero: cliente.numero, totalCentavos: cliente.totalCentavos },
       limpio,
     );
+  }
+
+  /* Si la captura era de un cobro por enlace, el pagador se entera con el
+     MOTIVO: el cobro sigue abierto y puede volver a intentar — corregir la
+     transferencia o pagar con tarjeta — mientras el enlace no venza. Sin este
+     correo se queda esperando un recibo que no va a llegar. */
+  try {
+    const { cobrosZelle, cobrosSolicitados } = await import("@/lib/db/schema");
+    const [puente] = await db
+      .select({
+        referencia: cobrosSolicitados.referencia,
+        montoCentavos: cobrosSolicitados.montoCentavos,
+        contactoCorreo: cobrosSolicitados.contactoCorreo,
+        contactoNombre: cobrosSolicitados.contactoNombre,
+      })
+      .from(cobrosZelle)
+      .innerJoin(
+        cobrosSolicitados,
+        eq(cobrosSolicitados.id, cobrosZelle.cobroId),
+      )
+      .where(eq(cobrosZelle.pagoZelleId, id))
+      .limit(1);
+
+    if (puente?.contactoCorreo) {
+      await correoPagoRechazado(
+        {
+          email: puente.contactoCorreo,
+          name: puente.contactoNombre ?? "",
+          idioma: "es",
+        },
+        { numero: puente.referencia, totalCentavos: puente.montoCentavos },
+        limpio,
+      );
+    }
+  } catch (fallo) {
+    console.error("[zelle] rechazado; el aviso del cobro no salio:", fallo);
   }
 
   return { ok: true, mensaje: t("pagoRechazado") };

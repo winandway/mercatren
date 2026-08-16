@@ -2081,3 +2081,58 @@ export const valoraciones = sqliteTable(
     index("idx_valoraciones_producto").on(t.productoId),
   ],
 );
+
+/**
+ * EL PUENTE ENTRE UN COBRO POR ENLACE Y SU PAGO POR ZELLE.
+ *
+ * Un cobro pagado con tarjeta guarda su `pi_…` en `cobros_solicitados.pago_id`
+ * y listo. Uno pagado por Zelle pasa primero por la cola de validación como
+ * cualquier comprobante (`pagos_zelle`), y este puente es lo que le dice al
+ * validador —y al sistema— a qué cobro pertenece esa captura.
+ *
+ * Es tabla y no columna a propósito: `schema.sql` solo trae CREATE TABLE IF
+ * NOT EXISTS, así que una columna nueva jamás llegaría sola a producción. Y un
+ * cobro puede acumular VARIOS intentos (uno rechazado, otro corregido), por
+ * eso la llave primaria es el pago, no el cobro.
+ */
+export const cobrosZelle = sqliteTable(
+  "cobros_zelle",
+  {
+    pagoZelleId: text("pago_zelle_id")
+      .primaryKey()
+      .references(() => pagosZelle.id, { onDelete: "cascade" }),
+    cobroId: text("cobro_id")
+      .notNull()
+      .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_cobros_zelle_cobro").on(t.cobroId)],
+);
+
+/**
+ * ZELLE EN LOS ENLACES DE COBRO: QUIÉN LO TIENE Y DESDE CUÁNTO.
+ *
+ * Lo decide el equipo, por tienda, desde Configuración. La tarjeta la tienen
+ * todas siempre; Zelle se puede dar y quitar, porque cada pago por Zelle es
+ * trabajo de validación para una persona.
+ *
+ *  - Sin fila, la tienda NO tiene Zelle en sus enlaces. Encenderlo es un acto
+ *    del equipo, no un valor por defecto que nadie decidió.
+ *  - `minimo_centavos` en null usa el mínimo general (llave
+ *    `zelle_cobros_minimo_centavos` de la tabla `configuracion`).
+ */
+export const zelleCobrosTienda = sqliteTable("zelle_cobros_tienda", {
+  tiendaId: text("tienda_id")
+    .primaryKey()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+  habilitado: integer("habilitado", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  /** En null, manda el mínimo general. El dinero siempre en centavos enteros. */
+  minimoCentavos: integer("minimo_centavos"),
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

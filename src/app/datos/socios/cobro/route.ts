@@ -242,6 +242,7 @@ export async function GET(peticion: Request) {
       montoCentavos: cobrosSolicitados.montoCentavos,
       venceEn: cobrosSolicitados.venceEn,
       pagadoEn: cobrosSolicitados.pagadoEn,
+      pagoId: cobrosSolicitados.pagoId,
       enlace: cobrosSolicitados.enlace,
     })
     .from(cobrosSolicitados)
@@ -258,12 +259,40 @@ export async function GET(peticion: Request) {
   if (!cobro) return error(404, "no_existe");
 
   const { estadoParaMostrar } = await import("@/lib/cobros/reglas");
+  const estado = estadoParaMostrar(cobro.estado, cobro.venceEn, new Date());
+
+  /**
+   * CON QUÉ SE PAGÓ, Y SI HAY UNA CAPTURA ESPERANDO.
+   *
+   * El sistema del comercio necesita las dos cosas: el método para su propia
+   * contabilidad (la conciliación de allá también existe), y `en_revision`
+   * para poder decirle a su cajera «el pago está en revisión» en vez de un
+   * «sin pagar» que no cuenta la historia completa.
+   *
+   * El método se deduce del identificador guardado al pagarse: un `pi_…` solo
+   * lo emite Stripe; cualquier otro es el id del pago Zelle aprobado.
+   */
+  const metodo =
+    estado === "pagado" && cobro.pagoId
+      ? cobro.pagoId.startsWith("pi_")
+        ? "tarjeta"
+        : "zelle"
+      : null;
+
+  let enRevision = false;
+  if (estado === "abierto") {
+    const { comprobantePendienteDeCobro } =
+      await import("@/lib/cobros/consultas");
+    enRevision = await comprobantePendienteDeCobro(cobro.id).catch(() => false);
+  }
 
   return Response.json({
     id: cobro.id,
     referencia: cobro.referencia,
     // El vencimiento se calcula: un estado guardado se queda viejo.
-    estado: estadoParaMostrar(cobro.estado, cobro.venceEn, new Date()),
+    estado,
+    metodo,
+    en_revision: enRevision,
     monto_centavos: cobro.montoCentavos,
     pagado_en: cobro.pagadoEn?.toISOString() ?? null,
     url: `${url.origin}/es/cobro/${cobro.enlace}`,

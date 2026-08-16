@@ -265,6 +265,34 @@ export async function correoReciboDeCobro(
   });
 }
 
+/**
+ * 4c. Al pagador de un cobro: recibimos tu captura, la revisa una persona.
+ *
+ * Sin este correo, quien sube la captura se queda mirando una pantalla que
+ * dice «en revisión» sin saber si de verdad llegó ni cuánto tarda.
+ */
+export async function correoComprobanteDeCobroRecibido(
+  d: Destinatario,
+  cobro: { referencia: string; montoCentavos: number },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const monto = formatearPrecio(cobro.montoCentavos, idioma);
+
+  return enviar(d, {
+    asunto: t("comprobanteCobro.asunto", { referencia: cobro.referencia }),
+    previo: t("comprobanteCobro.previo"),
+    saludo,
+    titulo: t("comprobanteCobro.titulo"),
+    parrafos: t.raw("comprobanteCobro.parrafos") as string[],
+    datos: [
+      { etiqueta: t("enlaceDeCobro.referencia"), valor: cobro.referencia },
+      { etiqueta: t("comun.monto"), valor: monto },
+    ],
+    motivo,
+    contacto,
+  });
+}
+
 /** 5. El validador aprobo: su compra fue aprobada. */
 export async function correoCompraAprobada(
   d: Destinatario,

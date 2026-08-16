@@ -40,7 +40,12 @@ const CONTENIDO = join(import.meta.dirname, "..", "..", "src", "contenido");
  * término obligaría a hablar de él con rodeos, que es peor.
  */
 const PROHIBIDAS = [
-  "cobrar por cuenta de",
+  /* «por cuenta de» a secas, no solo el infinitivo: «cobra este pago por
+     cuenta de» se escapó por conjugación y estuvo publicado en la página del
+     cobro por enlace hasta el 16 ago 2026. «Por cuenta propia» —que es lo
+     nuestro y es legítimo— no contiene esta frase y no matchea. */
+  "por cuenta de",
+  "on behalf of",
   "liquidamos",
   "liquidar el pago",
   "liquidación de pagos",

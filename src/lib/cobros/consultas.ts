@@ -347,3 +347,84 @@ export async function listarEnlacesDeCobro(
     .limit(100)
     .catch(() => []);
 }
+
+/**
+ * LA DECISIÓN DE ZELLE PARA UN COBRO CONCRETO.
+ *
+ * Junta las tres fuentes —el interruptor de la tienda, el mínimo general del
+ * panel y la variable del receptor— y le pasa todo a la función pura, que es
+ * la que decide y la que está probada. Aquí solo se lee.
+ */
+export async function zelleDelCobro(
+  tiendaId: string,
+  montoCentavos: number,
+): Promise<
+  | { disponible: true; receptor: string; minimoCentavos: number }
+  | { disponible: false }
+> {
+  const { decidirZelle } = await import("@/lib/cobros/zelle");
+  const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+  const { zelleCobrosTienda, configuracion } = await import("@/lib/db/schema");
+
+  const db = getDb();
+  const { env } = getCloudflareContext();
+  const receptor = env.ZELLE_CORREO_RECEPTOR?.trim() || null;
+
+  const [fila] = await db
+    .select({
+      habilitado: zelleCobrosTienda.habilitado,
+      minimoCentavos: zelleCobrosTienda.minimoCentavos,
+    })
+    .from(zelleCobrosTienda)
+    .where(eq(zelleCobrosTienda.tiendaId, tiendaId))
+    .limit(1);
+
+  const [global] = await db
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, "zelle_cobros_minimo_centavos"))
+    .limit(1);
+
+  const minimoGlobal = global ? Number.parseInt(global.valor, 10) : null;
+
+  const decision = decidirZelle(
+    {
+      habilitada: Boolean(fila?.habilitado),
+      minimoTiendaCentavos: fila?.minimoCentavos ?? null,
+      minimoGlobalCentavos: Number.isFinite(minimoGlobal) ? minimoGlobal : null,
+      receptorConfigurado: Boolean(receptor),
+    },
+    montoCentavos,
+  );
+
+  if (!decision.disponible || !receptor) return { disponible: false };
+  return {
+    disponible: true,
+    receptor,
+    minimoCentavos: decision.minimoCentavos,
+  };
+}
+
+/**
+ * ¿Este cobro ya tiene una captura esperando al validador?
+ *
+ * Con una pendiente no se acumula otra — la misma regla de los pedidos — y la
+ * página deja de ofrecer los métodos de pago: lo que toca es esperar.
+ */
+export async function comprobantePendienteDeCobro(
+  cobroId: string,
+): Promise<boolean> {
+  const { cobrosZelle, pagosZelle } = await import("@/lib/db/schema");
+  const db = getDb();
+
+  const [fila] = await db
+    .select({ id: pagosZelle.id })
+    .from(cobrosZelle)
+    .innerJoin(pagosZelle, eq(pagosZelle.id, cobrosZelle.pagoZelleId))
+    .where(
+      and(eq(cobrosZelle.cobroId, cobroId), eq(pagosZelle.estado, "pendiente")),
+    )
+    .limit(1);
+
+  return Boolean(fila);
+}
