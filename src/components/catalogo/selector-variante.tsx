@@ -30,6 +30,7 @@ export function SelectorVariante({
   idioma,
   hayTallas,
   hayColores,
+  paisOrigen,
 }: {
   variantes: VarianteVista[];
   /** Lo del producto padre: título, foto, tienda. La variante pone lo suyo. */
@@ -37,6 +38,8 @@ export function SelectorVariante({
   idioma: Idioma;
   hayTallas: { valor: string }[];
   hayColores: { nombre: string; hex: string | null }[];
+  /** De dónde despacha la tienda. Decide si la venta está en pausa. */
+  paisOrigen?: string | null;
 }) {
   const t = useTranslations("catalogo.producto");
 
@@ -172,6 +175,7 @@ export function SelectorVariante({
 
       {elegida && !agotada ? (
         <BotonAgregar
+          paisOrigen={paisOrigen}
           linea={{
             ...linea,
             /* El id lleva la variante pegada: si no, dos tallas del mismo

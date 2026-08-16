@@ -436,6 +436,7 @@ export default async function PaginaProducto({
                 general": el comercio quedaría adivinando cuál despachar. */}
             {variantes.length > 0 ? (
               <SelectorVariante
+                paisOrigen={ficha.tiendaPais}
                 variantes={variantes}
                 idioma={idioma}
                 hayTallas={tallas.map((valor) => ({ valor }))}
@@ -455,6 +456,7 @@ export default async function PaginaProducto({
               <BotonAgregar
                 agotado={agotado}
                 minimo={minimoDeCompra}
+                paisOrigen={ficha.tiendaPais}
                 linea={{
                   productoId: producto.id,
                   slug: producto.slug,

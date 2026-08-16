@@ -7,6 +7,7 @@ import { useState } from "react";
 import { SelectorCantidad } from "@/components/catalogo/selector-cantidad";
 import { useCarrito, type LineaCarrito } from "@/lib/carrito/store";
 import { cn } from "@/lib/utils";
+import { ventaPausada } from "@/lib/ventas/pausa";
 
 /**
  * Agrega el producto al carrito y avisa que se agrego, para que el cliente no
@@ -16,11 +17,14 @@ export function BotonAgregar({
   linea,
   minimo = 1,
   agotado = false,
+  paisOrigen,
 }: {
   linea: Omit<LineaCarrito, "cantidad">;
   /** Lo mínimo que se puede llevar. Doce en la tienda mayorista. */
   minimo?: number;
   agotado?: boolean;
+  /** De dónde despacha la tienda. Decide si la venta está en pausa. */
+  paisOrigen?: string | null;
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
@@ -29,6 +33,26 @@ export function BotonAgregar({
      docena y se entera al final — o no se entera. */
   const [cantidad, setCantidad] = useState(minimo);
   const [agregado, setAgregado] = useState(false);
+
+  /**
+   * EL CARTEL DE MANTENIMIENTO VA DONDE ESTABA EL BOTÓN.
+   *
+   * No se esconde la ficha ni se saca del catálogo: el producto se sigue
+   * viendo, se busca y Google lo sigue leyendo. Lo único que no se puede es
+   * comprarlo — porque todavía no se puede despachar.
+   *
+   * Se comprueba ANTES que «agotado»: enseñar «sin existencias» de algo que en
+   * realidad está en pausa es mentirle al comprador, y además le hace creer que
+   * mañana vuelve.
+   */
+  if (ventaPausada(paisOrigen)) {
+    return (
+      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
+        <p className="text-sm font-bold text-amber-900">{t("pausaTitulo")}</p>
+        <p className="mt-0.5 text-sm text-amber-900">{t("pausaTexto")}</p>
+      </div>
+    );
+  }
 
   if (agotado) {
     return (

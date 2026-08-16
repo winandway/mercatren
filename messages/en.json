@@ -1165,7 +1165,8 @@
       "valorarDatos": "Pick from 1 to 5 stars.",
       "valorarSinCompra": "Only buyers of this product can review it.",
       "valorarGracias": "Thanks for your review.",
-      "valorarFallo": "We couldn't save your review. Please try again."
+      "valorarFallo": "We couldn't save your review. Please try again.",
+      "ventasEnPausa": "This store is under maintenance and can't take orders right now. Please check back soon."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1906,7 +1907,9 @@
       "comentarioOpcional": "Tell us what you think (optional)",
       "deCuantas": "{n} reviews",
       "deUna": "1 review",
-      "soloCompradores": "Only buyers here can review."
+      "soloCompradores": "Only buyers here can review.",
+      "pausaTitulo": "Store under maintenance",
+      "pausaTexto": "We're fine-tuning shipping for this store, so we can't take orders just yet. Check back soon — it won't be long."
     },
     "paginacion": {
       "anterior": "Previous",

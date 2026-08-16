@@ -1099,6 +1099,45 @@ silencio hace creer que el sistema se inventó unos datos.
   adivinar entre la red, el peso de las fotos, un permiso y la base. Se
   perdieron días así.
 
+## LAS VENTAS DE ESTADOS UNIDOS, EN PAUSA (15 ago 2026)
+
+Decisión del dueño, y es la correcta: **antes de vender lo que no se puede
+entregar, se pone el cartel de mantenimiento.** El catálogo de EE. UU. está
+publicado y navegable, pero la billetera del proveedor está en cero y la pieza
+que le manda la orden **no está construida** — comprobado: no existe ni una
+llamada a `createOrder` en todo el código. Un comprador que pagara hoy se
+quedaría con el cobro hecho y sin mercancía. Eso no es un error de
+programación, es un contracargo.
+
+`src/lib/ventas/pausa.ts` (puro, 7 pruebas). **Se quita con una línea:
+`EN_PAUSA = false`** y un push.
+
+- **Se pausa la COMPRA, no la ficha.** El producto se sigue viendo, se busca y
+  Google lo sigue leyendo: apagar las fichas tiraría el posicionamiento que ya
+  está corriendo, y volver a levantarlas cuesta semanas de indexación.
+- **Venezuela no se toca.** Ahí hay comercios reales despachando de verdad, y
+  su venta no puede pagar por una prueba que es nuestra.
+- **El candado va en `crearPedido`, en el servidor**, antes de tocar
+  existencias. El cartel de la ficha es cortesía: el botón dibujado se lo salta
+  cualquiera que abra la consola.
+- **La pausa se comprueba ANTES que «agotado»**: decir «sin existencias» de algo
+  que en realidad está en pausa es mentir, y encima hace creer que mañana vuelve.
+- **En la parrilla NO se dibuja cartel**, solo desaparece el botón de agregar
+  rápido: cien avisos amarillos en una parrilla se leen como que el sitio entero
+  está roto. El motivo se cuenta en la ficha, donde la persona ya decidió que
+  ese producto le interesa.
+- Es constante y no variable de entorno a propósito: el día que se levante hay
+  que **probar que de verdad se puede despachar**, y eso pasa por una
+  publicación mirada, no por alguien tocando un panel de madrugada.
+
+**Lo que hay que resolver antes de quitarla** (decidido el 15 ago 2026): probar
+el proveedor con compras propias y medir qué papel viene DENTRO de la caja (si
+trae la factura del mayorista con el precio de compra, el comprador ve nuestro
+margen), desde qué almacén salió (EE. UU. o China cambia el plazo de 5 a 20
+días, y la ficha ya promete uno), qué dirección de devolución trae, y si el
+producto es el de la foto. Y comparar contra otros dos o tres proveedores antes
+de casarse con este.
+
 ## Los catálogos ya no envejecen solos (15 ago 2026)
 
 La ferretería agregó lijas a su depósito y aquí no aparecían; vendían en su

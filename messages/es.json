@@ -1165,7 +1165,8 @@
       "valorarDatos": "Elige de 1 a 5 estrellas.",
       "valorarSinCompra": "Solo puede opinar quien compró este producto.",
       "valorarGracias": "Gracias por tu opinión.",
-      "valorarFallo": "No se pudo guardar tu opinión. Inténtalo de nuevo."
+      "valorarFallo": "No se pudo guardar tu opinión. Inténtalo de nuevo.",
+      "ventasEnPausa": "Esta tienda está en mantenimiento y por ahora no puede recibir pedidos. Vuelve pronto."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1906,7 +1907,9 @@
       "comentarioOpcional": "Cuéntanos qué te pareció (opcional)",
       "deCuantas": "{n} opiniones",
       "deUna": "1 opinión",
-      "soloCompradores": "Solo opinan quienes compraron aquí."
+      "soloCompradores": "Solo opinan quienes compraron aquí.",
+      "pausaTitulo": "Tienda en mantenimiento",
+      "pausaTexto": "Estamos afinando los envíos de esta tienda y por ahora no podemos recibir pedidos. Vuelve pronto: falta poco."
     },
     "paginacion": {
       "anterior": "Anterior",

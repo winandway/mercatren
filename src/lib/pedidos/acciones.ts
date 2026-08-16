@@ -27,6 +27,7 @@ import {
   ZELLE_MINIMO_CENTAVOS,
 } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
+import { carritoPausado } from "@/lib/ventas/pausa";
 import { anotarHito } from "@/lib/pedidos/hitos";
 
 /**
@@ -143,6 +144,7 @@ export async function crearPedido(
       estado: productos.estado,
       tiendaId: productos.tiendaId,
       tiendaEstado: tiendas.estado,
+      tiendaPais: tiendas.paisOrigen,
       comisionPuntosBase: tiendas.comisionPuntosBase,
     })
     .from(productos)
@@ -155,6 +157,20 @@ export async function crearPedido(
     );
 
   const porId = new Map(encontrados.map((p) => [p.id, p]));
+
+  /**
+   * EL CANDADO DE LA PAUSA, Y VA EN EL SERVIDOR.
+   *
+   * La ficha ya enseña el cartel de mantenimiento, pero eso es cortesía: el
+   * botón dibujado se lo salta cualquiera que sepa abrir la consola. Aquí es
+   * donde de verdad no se crea el pedido — y por lo tanto donde no se cobra.
+   *
+   * Se comprueba ANTES de tocar existencias o de armar un solo renglón: un
+   * pedido a medio crear de algo que no se puede despachar no le sirve a nadie.
+   */
+  if (carritoPausado(encontrados.map((p) => p.tiendaPais))) {
+    return { ok: false, mensaje: t("ventasEnPausa") };
+  }
 
   const items: (typeof itemsPedido.$inferInsert)[] = [];
   const enlacesVariante: (typeof itemsVariante.$inferInsert)[] = [];

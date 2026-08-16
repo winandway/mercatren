@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { useCarrito, type LineaCarrito } from "@/lib/carrito/store";
 import { cn } from "@/lib/utils";
+import { ventaPausada } from "@/lib/ventas/pausa";
 
 /**
  * Agregar al carrito SIN abrir el producto, desde la tarjeta del catálogo.
@@ -24,13 +25,22 @@ import { cn } from "@/lib/utils";
 export function BotonAgregarRapido({
   linea,
   agotado = false,
+  paisOrigen,
 }: {
   linea: Omit<LineaCarrito, "cantidad">;
   agotado?: boolean;
+  /** De dónde despacha la tienda. Decide si la venta está en pausa. */
+  paisOrigen?: string | null;
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
   const [agregado, setAgregado] = useState(false);
+
+  /* En pausa NO se dibuja el botón de agregar rápido, y tampoco un cartel: en
+     una parrilla de cien tarjetas, cien avisos amarillos se leen como que el
+     sitio entero está roto. El motivo se cuenta entero al abrir la ficha, que
+     es donde la persona ya decidió que ese producto le interesa. */
+  if (ventaPausada(paisOrigen)) return null;
 
   if (agotado) return null;
 
