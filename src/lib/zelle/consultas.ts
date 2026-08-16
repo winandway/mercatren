@@ -310,9 +310,14 @@ export async function listarPendientesDeValidacion(comercio?: string) {
  * Los comercios que se pueden mirar. Un vendedor solo se ve a si mismo, asi
  * que el selector de comercio no le sirve para espiar a nadie.
  */
-export async function listarComercios() {
+export async function listarComercios(busqueda?: string) {
   const db = getDb();
   const alcance = await obtenerAlcance();
+
+  /* El filtro va EN LA BASE, no sobre lo ya traído: con una tienda por rubro
+     de Estados Unidos más los comercios reales, esta lista solo crece. */
+  const texto = (busqueda ?? "").trim().toLowerCase();
+  const patron = `%${texto}%`;
 
   const aprobadosDeLaTienda = sql`${pagosZelle.tiendaId} = ${tiendas.id} AND ${pagosZelle.tipo} = 'entrada' AND ${pagosZelle.estado} = 'aprobado'`;
 
@@ -330,7 +335,21 @@ export async function listarComercios() {
     })
     .from(tiendas)
     .where(
-      alcance.tipo === "tienda" ? eq(tiendas.id, alcance.tiendaId) : undefined,
+      and(
+        /* El alcance manda SIEMPRE, buscando o sin buscar: un vendedor que
+           escriba el nombre de otro comercio sigue viendo solo el suyo. */
+        alcance.tipo === "tienda"
+          ? eq(tiendas.id, alcance.tiendaId)
+          : undefined,
+        texto
+          ? or(
+              sql`LOWER(${tiendas.nombre}) LIKE ${patron}`,
+              sql`LOWER(${tiendas.slug}) LIKE ${patron}`,
+              sql`LOWER(COALESCE(${tiendas.razonSocial}, '')) LIKE ${patron}`,
+              sql`LOWER(COALESCE(${tiendas.ciudad}, '')) LIKE ${patron}`,
+            )
+          : undefined,
+      ),
     )
     .orderBy(desc(tiendas.creadoEn));
 

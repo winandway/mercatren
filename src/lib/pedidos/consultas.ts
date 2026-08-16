@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, or, sql, type SQL } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -167,9 +167,17 @@ export async function contarPedidosPorEstado(comercioPedido?: string) {
  * Un comercio ve solo a quienes le compraron A EL, y el gasto es lo que
  * gastaron EN SU TIENDA. El equipo de Mercatren ve a todos.
  */
-export async function listarClientes(comercioPedido?: string) {
+export async function listarClientes(
+  comercioPedido?: string,
+  busqueda?: string,
+) {
   const db = getDb();
   const tiendaId = await tiendaDelAlcance(comercioPedido);
+
+  /* Se filtra en la base: esta lista crece con CADA comprador, así que es de
+     las que más rápido se vuelven imposibles de recorrer a ojo. */
+  const texto = (busqueda ?? "").trim().toLowerCase();
+  const patron = `%${texto}%`;
 
   const gastado = tiendaId
     ? sql<number>`COALESCE(SUM((SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})), 0)`
@@ -191,7 +199,17 @@ export async function listarClientes(comercioPedido?: string) {
     })
     .from(pedidos)
     .innerJoin(user, eq(user.id, pedidos.clienteId))
-    .where(donde)
+    .where(
+      texto
+        ? and(
+            donde,
+            or(
+              sql`LOWER(${user.name}) LIKE ${patron}`,
+              sql`LOWER(${user.email}) LIKE ${patron}`,
+            ),
+          )
+        : donde,
+    )
     .groupBy(user.id, user.name, user.email, user.paisEntrega)
     .orderBy(desc(sql`COUNT(${pedidos.id})`))
     .limit(100);

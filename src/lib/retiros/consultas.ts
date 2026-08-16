@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -161,6 +161,7 @@ async function retirosDelHistorico(
 export async function listarRetiros(opciones?: {
   estados?: (typeof ESTADOS_RETIRO)[number][];
   limite?: number;
+  busqueda?: string;
 }): Promise<RetiroEnLista[]> {
   const alcance = await obtenerAlcance();
   const db = getDb();
@@ -171,6 +172,21 @@ export async function listarRetiros(opciones?: {
   }
   if (opciones?.estados?.length) {
     condiciones.push(inArray(retiros.estado, opciones.estados));
+  }
+
+  /* Se busca por el comercio y por la referencia bancaria: son las dos cosas
+     con las que se llega aquí — «el retiro de Bley» o «el que tiene esta
+     referencia en el extracto». El alcance ya está en `condiciones`, así que
+     un vendedor que busque otro comercio sigue viendo solo el suyo. */
+  const texto = (opciones?.busqueda ?? "").trim().toLowerCase();
+  if (texto) {
+    const patron = `%${texto}%`;
+    condiciones.push(
+      or(
+        sql`LOWER(${tiendas.nombre}) LIKE ${patron}`,
+        sql`LOWER(COALESCE(${retiros.referencia}, '')) LIKE ${patron}`,
+      )!,
+    );
   }
 
   // Se lee el nombre de la tienda destino aparte: son pocas filas y una

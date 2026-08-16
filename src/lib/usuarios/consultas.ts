@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, or, sql } from "drizzle-orm";
 
 import { exigirEquipoInterno } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
@@ -110,14 +110,50 @@ function aFicha(f: {
   };
 }
 
-export async function listarUsuarios(): Promise<FichaUsuario[]> {
+/**
+ * Las cuentas, con un buscador que filtra EN LA BASE.
+ *
+ * ══ POR QUÉ EN LA BASE Y NO EN LA PANTALLA ══
+ *
+ * Filtrar lo ya traído obliga a bajarse las cuentas enteras en cada visita.
+ * Con veinte da igual; con doscientas, la pantalla tarda antes de dejar
+ * escribir. Aquí se pide solo lo que se va a enseñar.
+ *
+ * ══ BUSCA POR LAS TRES COSAS QUE UNO RECUERDA ══
+ *
+ * El nombre de la persona, su correo y **el nombre de su comercio** — que
+ * muchas veces es lo único que se recuerda («el de MEGAYES»), y no está en la
+ * fila de la cuenta sino en la de su tienda. Sin ese tercer campo, buscar el
+ * comercio por su nombre no encontraría nada y el buscador parecería roto.
+ *
+ * El texto va con `like` y minúsculas a los dos lados: quien busca escribe
+ * «bley» y la cuenta dice «Bleyder».
+ */
+export async function listarUsuarios(
+  busqueda?: string,
+): Promise<FichaUsuario[]> {
   await exigirEquipoInterno();
 
   const db = getDb();
+  const texto = (busqueda ?? "").trim().toLowerCase();
+
+  /* El comodín se arma aquí y el valor viaja como parámetro, no pegado al SQL:
+     un nombre con una comilla dentro —que los hay— rompería la consulta. */
+  const patron = `%${texto}%`;
+
   const filas = await db
     .select({ usuario: user, tienda: tiendas })
     .from(user)
     .leftJoin(tiendas, eq(tiendas.propietarioId, user.id))
+    .where(
+      texto
+        ? or(
+            sql`LOWER(${user.name}) LIKE ${patron}`,
+            sql`LOWER(${user.email}) LIKE ${patron}`,
+            sql`LOWER(COALESCE(${tiendas.nombre}, '')) LIKE ${patron}`,
+          )
+        : undefined,
+    )
     .orderBy(desc(user.createdAt));
 
   return filas.map(aFicha);

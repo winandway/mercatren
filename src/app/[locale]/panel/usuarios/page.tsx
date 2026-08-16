@@ -1,6 +1,7 @@
 import { BadgeCheck, Store, UserRound } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { Link } from "@/i18n/navigation";
 import type { Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -39,15 +40,20 @@ const TONO_ROL: Record<string, string> = {
  */
 export default async function PaginaUsuarios({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.usuarios");
-  const usuarios = await listarUsuarios().catch(() => []);
+  /* El texto viaja en la dirección: así el resultado sobrevive a un refresco y
+     se puede pasar por chat. Se recorta antes de consultar. */
+  const busqueda = ((await searchParams).q ?? "").trim().slice(0, 80);
+  const usuarios = await listarUsuarios(busqueda).catch(() => []);
 
   return (
     <div className="space-y-6">
@@ -56,13 +62,29 @@ export default async function PaginaUsuarios({
         <p className="mt-1 text-sm text-tinta-suave">{t("subtitulo")}</p>
       </header>
 
+      <BuscadorPanel
+        busqueda={busqueda}
+        ruta="/panel/usuarios"
+        placeholder={t("buscarPlaceholder")}
+        textoTotal={t("total", { n: usuarios.length })}
+        textoResultados={t("resultados", {
+          n: usuarios.length,
+          texto: busqueda,
+        })}
+      />
+
       {usuarios.length === 0 ? (
         <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
           <UserRound
             className="mx-auto h-10 w-10 text-tinta-suave"
             aria-hidden
           />
-          <p className="mt-4 text-sm text-tinta-suave">{t("vacio")}</p>
+          {/* «No hay cuentas» y «no hay resultados» son cosas distintas: con el
+              primero uno va a crear una cuenta; con el segundo, a corregir lo
+              que escribió. */}
+          <p className="mt-4 text-sm text-tinta-suave">
+            {busqueda ? t("sinResultados", { texto: busqueda }) : t("vacio")}
+          </p>
         </div>
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">

@@ -462,7 +462,11 @@
         "dondeVa": "It goes on the merchant's server, as the MERCATREN_TOKEN variable. Never on their website or by email.",
         "resumen": "Does their POS charge through Mercatren? (advanced)",
         "paraQue": "Only for merchants who run their own point-of-sale and want to charge from there: the cashier creates the invoice, taps a button, and the customer automatically receives the payment link by email. If the merchant sells only through Mercatren, this isn't needed."
-      }
+      },
+      "buscarPlaceholder": "Name, legal name, or city",
+      "total": "{n, plural, one {# store} other {# stores}}",
+      "resultados": "{n, plural, one {# store} other {# stores}} matching “{texto}”",
+      "sinResultados": "No store matches “{texto}”."
     },
     "resumen": {
       "titulo": "Dashboard",
@@ -830,7 +834,11 @@
         "ultimo": "Last purchase"
       },
       "pedidos": "{n, plural, =1 {# order} other {# orders}}",
-      "pista": "Looking for a store or a system account? They're under Accounts."
+      "pista": "Looking for a store or a system account? They're under Accounts.",
+      "buscarPlaceholder": "Buyer's name or email",
+      "total": "{n, plural, one {# buyer} other {# buyers}}",
+      "resultados": "{n, plural, one {# buyer} other {# buyers}} matching “{texto}”",
+      "sinResultados": "No buyer matches “{texto}”."
     },
     "configuracion": {
       "titulo": "Settings",
@@ -1247,7 +1255,13 @@
         "guardar": "Change the email",
         "guardando": "Changing…",
         "aviso": "The password does NOT change: they keep signing in with the same one. Both the new and the previous address are notified."
-      }
+      },
+      "buscar": "Search accounts",
+      "buscarPlaceholder": "Name, email, or store",
+      "limpiar": "Clear search",
+      "total": "{n, plural, one {# account} other {# accounts}}",
+      "resultados": "{n, plural, one {# account} other {# accounts}} matching “{texto}”",
+      "sinResultados": "No account matches “{texto}”. Try the email or the store name."
     },
     "primerosPasos": {
       "titulo": "To start selling",
@@ -1381,7 +1395,11 @@
       "direccionDeLaFicha": "Address the merchant entered in their company profile",
       "capturaTransferencia": "Transfer screenshot (optional)",
       "capturaAyuda": "The seller sees it in their panel. With an ACH or wire that takes days, it's what tells them the money is on its way.",
-      "verComprobante": "View receipt"
+      "verComprobante": "View receipt",
+      "buscarPlaceholder": "Store or bank reference",
+      "total": "{n, plural, one {# withdrawal} other {# withdrawals}}",
+      "resultados": "{n, plural, one {# withdrawal} other {# withdrawals}} matching “{texto}”",
+      "sinResultados": "No withdrawal matches “{texto}”."
     },
     "pedido": {
       "volver": "Back to Orders",
@@ -1872,6 +1890,10 @@
         "No wallet to load and no three-day wait. You pay by card on the spot.",
         "If something fails, the supplier's exact reason shows here and it can be retried."
       ]
+    },
+    "buscador": {
+      "buscar": "Search",
+      "limpiar": "Clear search"
     }
   },
   "catalogo": {

@@ -462,7 +462,11 @@
         "dondeVa": "Va en el servidor del comercio, como variable MERCATREN_TOKEN. Nunca en su página ni por correo.",
         "resumen": "¿Su caja cobra por Mercatren? (avanzado)",
         "paraQue": "Solo para comercios que tienen su propio sistema de caja y quieren cobrar desde ahí: su cajera hace la factura, toca un botón, y a su cliente le llega solo el correo con el enlace de pago. Si el comercio vende únicamente por Mercatren, no hace falta."
-      }
+      },
+      "buscarPlaceholder": "Nombre, razón social o ciudad",
+      "total": "{n, plural, one {# comercio} other {# comercios}}",
+      "resultados": "{n, plural, one {# comercio} other {# comercios}} con «{texto}»",
+      "sinResultados": "Ningún comercio coincide con «{texto}»."
     },
     "resumen": {
       "titulo": "Tablero",
@@ -830,7 +834,11 @@
         "ultimo": "Última compra"
       },
       "pedidos": "{n, plural, =1 {# pedido} other {# pedidos}}",
-      "pista": "¿Buscas un comercio o una cuenta del sistema? Están en Cuentas."
+      "pista": "¿Buscas un comercio o una cuenta del sistema? Están en Cuentas.",
+      "buscarPlaceholder": "Nombre o correo del comprador",
+      "total": "{n, plural, one {# comprador} other {# compradores}}",
+      "resultados": "{n, plural, one {# comprador} other {# compradores}} con «{texto}»",
+      "sinResultados": "Ningún comprador coincide con «{texto}»."
     },
     "configuracion": {
       "titulo": "Configuración",
@@ -1247,7 +1255,13 @@
         "guardar": "Cambiar el correo",
         "guardando": "Cambiando…",
         "aviso": "La contraseña NO cambia: sigue entrando con la misma. Se le avisa al correo nuevo y al anterior."
-      }
+      },
+      "buscar": "Buscar una cuenta",
+      "buscarPlaceholder": "Nombre, correo o comercio",
+      "limpiar": "Limpiar la búsqueda",
+      "total": "{n, plural, one {# cuenta} other {# cuentas}}",
+      "resultados": "{n, plural, one {# cuenta} other {# cuentas}} con «{texto}»",
+      "sinResultados": "Ninguna cuenta coincide con «{texto}». Prueba con el correo o con el nombre del comercio."
     },
     "primerosPasos": {
       "titulo": "Para empezar a vender",
@@ -1381,7 +1395,11 @@
       "direccionDeLaFicha": "Dirección que el comercio puso en su ficha de empresa",
       "capturaTransferencia": "Captura de la transferencia (opcional)",
       "capturaAyuda": "El comercio la verá en su panel. Con una ACH o un wire que tardan días, es lo que le dice que ya salió.",
-      "verComprobante": "Ver el comprobante"
+      "verComprobante": "Ver el comprobante",
+      "buscarPlaceholder": "Comercio o referencia bancaria",
+      "total": "{n, plural, one {# retiro} other {# retiros}}",
+      "resultados": "{n, plural, one {# retiro} other {# retiros}} con «{texto}»",
+      "sinResultados": "Ningún retiro coincide con «{texto}»."
     },
     "pedido": {
       "volver": "Volver a Órdenes",
@@ -1872,6 +1890,10 @@
         "No hace falta cargar billetera ni esperar tres días. Se paga con tarjeta en el momento.",
         "Si algo falla, aquí sale el motivo exacto que dio el proveedor y se puede reintentar."
       ]
+    },
+    "buscador": {
+      "buscar": "Buscar",
+      "limpiar": "Limpiar la búsqueda"
     }
   },
   "catalogo": {

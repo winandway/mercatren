@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { DatosParaTransferir } from "@/components/panel/retiros/datos-para-transferir";
 import { AccionesRetiro } from "@/components/panel/retiros/acciones-retiro";
 import { DesgloseDelCobro } from "@/components/panel/desglose-cobro";
@@ -61,18 +62,19 @@ export default async function PaginaRetiros({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ comercio?: string }>;
+  searchParams: Promise<{ comercio?: string; q?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const idioma = locale as Idioma;
 
-  const { comercio } = await searchParams;
+  const { comercio, q } = await searchParams;
+  const busqueda = (q ?? "").trim().slice(0, 80);
   const t = await getTranslations("panel.retiros");
 
   const [posicion, lista, interno] = await Promise.all([
     obtenerPosicion(comercio),
-    listarRetiros(),
+    listarRetiros({ busqueda }),
     esEquipoInterno(),
   ]);
 
@@ -140,10 +142,29 @@ export default async function PaginaRetiros({
         </section>
       ) : null}
 
+      {/* El buscador solo para el equipo: un comercio ve los suyos, que son
+          pocos, y una casilla de buscar sobre cuatro filas es un mueble. */}
+      {interno ? (
+        <BuscadorPanel
+          busqueda={busqueda}
+          ruta="/panel/retiros"
+          placeholder={t("buscarPlaceholder")}
+          textoTotal={t("total", { n: enOrden.length })}
+          textoResultados={t("resultados", {
+            n: enOrden.length,
+            texto: busqueda,
+          })}
+        />
+      ) : null}
+
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
         {enOrden.length === 0 ? (
           <p className="px-6 py-12 text-center text-sm text-tinta-suave">
-            {interno ? t("sinRetirosEquipo") : t("sinRetiros")}
+            {busqueda
+              ? t("sinResultados", { texto: busqueda })
+              : interno
+                ? t("sinRetirosEquipo")
+                : t("sinRetiros")}
           </p>
         ) : (
           <ul className="divide-y divide-slate-100">

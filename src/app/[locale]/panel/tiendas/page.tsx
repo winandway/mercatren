@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BotonVerComo } from "@/components/panel/ver-como";
 import { AprobarComercio } from "@/components/panel/aprobar-comercio";
 import { TokenIntegracion } from "@/components/panel/tiendas/token-integracion";
+import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -25,8 +26,10 @@ const ESTILO_ESTADO = {
  */
 export default async function PaginaComercios({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -36,7 +39,8 @@ export default async function PaginaComercios({
   /* Solo `soporte`, nunca `validador`: uno atiende comercios y el otro revisa
      comprobantes. El servidor lo vuelve a comprobar en la acción. */
   const esSoporte = (await obtenerUsuario())?.rol === "soporte";
-  const comercios = await listarComercios();
+  const busqueda = ((await searchParams).q ?? "").trim().slice(0, 80);
+  const comercios = await listarComercios(busqueda);
 
   return (
     <div className="space-y-6">
@@ -47,9 +51,20 @@ export default async function PaginaComercios({
         </p>
       </header>
 
+      <BuscadorPanel
+        busqueda={busqueda}
+        ruta="/panel/tiendas"
+        placeholder={t("buscarPlaceholder")}
+        textoTotal={t("total", { n: comercios.length })}
+        textoResultados={t("resultados", {
+          n: comercios.length,
+          texto: busqueda,
+        })}
+      />
+
       {comercios.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-tinta-suave">
-          {t("vacio")}
+          {busqueda ? t("sinResultados", { texto: busqueda }) : t("vacio")}
         </p>
       ) : (
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

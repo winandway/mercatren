@@ -1099,6 +1099,52 @@ silencio hace creer que el sistema se inventó unos datos.
   adivinar entre la red, el peso de las fotos, un permiso y la base. Se
   perdieron días así.
 
+## Los buscadores del panel: uno solo, y dónde van (16 ago 2026)
+
+Lo pidió el dueño al ver Cuentas y Comercios ya largas: _«estamos creciendo y no
+quiero comenzar a querer buscar algo y no encontrarlo»_.
+
+**`src/components/panel/buscador-panel.tsx` es UNO para todas las listas.**
+Escritos por separado se desincronizan: uno espera 350 ms y otro 800, uno limpia
+el filtro de la dirección y otro solo vacía la casilla, y quien usa el panel
+tiene que aprenderse cada uno.
+
+- **Filtra EN LA BASE, no sobre lo ya traído.** Con veinte filas da igual; con
+  las 1.852 de productos, la pantalla tarda antes de dejar escribir.
+- **El texto viaja en la dirección** (`?q=`): el resultado sobrevive a un
+  refresco y se puede pasar por chat.
+- **Espera 350 ms.** Sin eso, «Bleyder» son siete consultas y siete recargas con
+  el texto saltando mientras se teclea.
+- **Se ajusta durante el renderizado, no en un efecto.** El lint lo rechaza con
+  razón: un `setState` dentro de un efecto dispara un segundo renderizado en
+  cascada y se vería como un parpadeo al escribir.
+- **Se apaga la equis nativa de Chrome** en los `type="search"`: salían dos, y la
+  del navegador solo vacía la casilla sin quitar el filtro de la dirección — la
+  lista se quedaba filtrada con la casilla en blanco.
+- **El alcance manda sobre la búsqueda, siempre.** Un vendedor que escriba el
+  nombre de otro comercio sigue viendo solo el suyo.
+- **«No hay nada» y «no hay resultados» son textos distintos**: con el primero
+  uno va a crear algo; con el segundo, a corregir lo que escribió.
+
+**Dónde está puesto y por qué** (filas en producción el 16 ago 2026):
+
+| Pantalla    | Filas | Busca por                                  |
+| ----------- | ----- | ------------------------------------------ |
+| Productos   | 1.852 | ya lo tenía                                |
+| Pagos Zelle | 745   | ya lo tenía                                |
+| Cuentas     | 10    | nombre, correo y **nombre de su comercio** |
+| Comercios   | 28    | nombre, razón social, slug y ciudad        |
+| Compradores | 2     | nombre y correo (crece con cada venta)     |
+| Retiros     | 73    | comercio y referencia bancaria             |
+
+**Pendientes a propósito, y el criterio:** enlaces de cobro, órdenes de compra,
+créditos y pedidos al proveedor están **hoy casi vacíos** (0–2 filas). Una
+casilla de buscar sobre dos filas es un mueble. Se les pone cuando pasen de unas
+30, y con el componente ya hecho es de diez minutos cada una.
+
+**En Retiros el buscador es solo del equipo**: un comercio ve los suyos, que son
+cuatro.
+
 ## El botón que desbloqueó las ventas de EE. UU. (16 ago 2026)
 
 **La API de CJ NO puede cobrar una tarjeta guardada.** Comprobado en su

@@ -1,6 +1,7 @@
 import { Users } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { Link } from "@/i18n/navigation";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
@@ -23,7 +24,7 @@ export default async function PaginaClientes({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ comercio?: string }>;
+  searchParams: Promise<{ comercio?: string; q?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -31,10 +32,11 @@ export default async function PaginaClientes({
 
   const t = await getTranslations("panel.clientes");
   const tm = await getTranslations("panel.menu");
-  const { comercio } = await searchParams;
+  const { comercio, q } = await searchParams;
+  const busqueda = (q ?? "").trim().slice(0, 80);
 
   const alcance = await obtenerAlcance();
-  const clientes = await listarClientes(comercio);
+  const clientes = await listarClientes(comercio, busqueda);
 
   return (
     <div className="space-y-6">
@@ -45,10 +47,23 @@ export default async function PaginaClientes({
         </p>
       </header>
 
+      <BuscadorPanel
+        busqueda={busqueda}
+        ruta="/panel/clientes"
+        placeholder={t("buscarPlaceholder")}
+        textoTotal={t("total", { n: clientes.length })}
+        textoResultados={t("resultados", {
+          n: clientes.length,
+          texto: busqueda,
+        })}
+      />
+
       {clientes.length === 0 ? (
         <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
           <Users className="mx-auto h-10 w-10 text-tinta-suave" aria-hidden />
-          <p className="mt-4 text-sm text-tinta-suave">{t("vacio")}</p>
+          <p className="mt-4 text-sm text-tinta-suave">
+            {busqueda ? t("sinResultados", { texto: busqueda }) : t("vacio")}
+          </p>
 
           {/* Aquí es donde se confunde la gente: entra buscando un comercio y
               encuentra la pantalla vacía. Se le dice a dónde ir. */}
