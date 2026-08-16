@@ -1159,6 +1159,16 @@ guardar solo la dirección le borraba la llave a alguien sin avisar.
   nadie: es una credencial de máquina que se pega una vez, y esconderla
   mientras se pega solo consigue que se pegue mal.
 
+**PONER LA DIRECCIÓN ES ENCENDERLA (15 ago 2026).** Las fuentes de las
+importaciones a mano nacen `pausada`, y el robotito salta las pausadas a
+propósito. Así que un comercio podía pegar su dirección, ver el mensaje verde de
+guardado, y quedarse esperando para siempre una lectura que nunca iba a ocurrir
+— sin un solo error en ninguna pantalla. Nadie va a buscar un interruptor que no
+sabe que existe: poner la dirección ES decir «léeme». Quitarla la apaga.
+`con_error` se respeta —ahí la apagó un fallo de verdad— y **se cura sola** en
+la primera lectura que salga bien; si no, un mal minuto del servidor del
+comercio dejaría su catálogo apagado para siempre.
+
 **Lo que falta no es código:** el token del catálogo de la ferretería (vive en
 `configuracion_sistema.token_catalogo`, en SU Supabase — no en ningún
 repositorio, que es lo correcto) y `SINCRONIZAR_LLAVE` en los dos sitios

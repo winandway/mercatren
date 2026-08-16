@@ -183,6 +183,10 @@ export async function sincronizarCatalogo(
       .set({
         ultimaSincronizacion: new Date(),
         ultimoResultado: `No se pudo leer: ${detalle}`.slice(0, 200),
+        /* Marcada, no apagada a mano: asi `con_error` significa algo y no es
+           un estado que solo pone una persona. Se cura sola en la primera
+           lectura que salga bien. */
+        estado: "con_error",
       })
       .where(eq(fuentesCatalogo.id, fuenteId));
 
@@ -430,6 +434,9 @@ export async function sincronizarCatalogo(
     .set({
       ultimaSincronizacion: ahora,
       ultimoResultado: resumen,
+      /* Una lectura buena borra el `con_error` de la anterior: si no, un fallo
+         pasajero de su servidor dejaria la fuente apagada para siempre. */
+      estado: "activa",
       // Los PRODUCTOS, no las líneas del archivo: 757 líneas son 690 productos.
       productosSincronizados: grupos.length,
     })
@@ -477,7 +484,10 @@ export async function guardarFuente(
   const token = tokenCrudo === null ? null : String(tokenCrudo).trim();
 
   const [fuente] = await db
-    .select({ tiendaId: fuentesCatalogo.tiendaId })
+    .select({
+      tiendaId: fuentesCatalogo.tiendaId,
+      estado: fuentesCatalogo.estado,
+    })
     .from(fuentesCatalogo)
     .where(eq(fuentesCatalogo.id, id))
     .limit(1);
@@ -499,6 +509,25 @@ export async function guardarFuente(
     .set({
       url: url || null,
       ...(token === null ? {} : { token: token || null }),
+      /**
+       * PONER LA DIRECCIÓN ES ENCENDERLA. Y QUITARLA, APAGARLA.
+       *
+       * Las fuentes de las importaciones a mano nacen `pausada`, y el robotito
+       * salta las pausadas a propósito. Así que un comercio podía pegar su
+       * dirección, ver el mensaje verde de guardado, y quedarse esperando para
+       * siempre una lectura que nunca iba a ocurrir — sin un solo error en
+       * ninguna pantalla. Le pasó al comercio piloto: 99 productos suyos y 62
+       * bajas se quedaron fuera hasta el 15 ago 2026.
+       *
+       * Nadie va a buscar un interruptor que no sabe que existe. Poner la
+       * dirección ES decir «léeme»; no hay una tercera intención posible.
+       *
+       * Se respeta `con_error`: ahí la apagó un fallo de verdad y volver a
+       * guardar no lo arregla. Se enciende sola cuando una lectura sale bien.
+       */
+      ...(fuente.estado === "con_error"
+        ? {}
+        : { estado: url ? ("activa" as const) : ("pausada" as const) }),
     })
     .where(eq(fuentesCatalogo.id, id));
 
