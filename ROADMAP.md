@@ -593,6 +593,62 @@ promediadas con las estrellas de Mercatren**: nuestro número tiene que salir
 solo de gente que nos compró a nosotros. Mezclarlas es exactamente lo que
 sanciona la FTC, y es la misma línea que ya trazó `PLAN-CONFIANZA.md`.
 
+## PROBAR PROVEEDORES ANTES DE CASARSE CON UNO (decidido el 15 ago 2026)
+
+> Decisión del dueño. Antes de meter $2.000 en una billetera, se compra con
+> $100, se mide, y se compara contra otros. **Las ventas de EE. UU. quedan en
+> pausa mientras tanto** (ver `EN_PAUSA` en `src/lib/ventas/pausa.ts`).
+
+### Cómo se paga la prueba
+
+**Con tarjeta, pedido por pedido.** CJ acepta tarjeta en el checkout de cada
+orden; lo que NO acepta tarjeta es la carga de la billetera (ahí solo hay
+WorldFirst, Payoneer y wire con mínimo de $2.000). Comprobado en su
+documentación el 15 ago 2026.
+
+**La API no puede pagar con tarjeta**: sus tres modos son página de pago, saldo,
+o crear sin pagar. O sea que **sin saldo no hay automatización posible** — y por
+eso la prueba se hace a mano, que además es lo correcto: no se automatiza lo que
+todavía no se sabe si sirve.
+
+**Payoneer no se recarga con tarjeta**, sino con transferencia bancaria (unos 3
+días). Sería Mercury → Payoneer → CJ, tres saltos. Si de todos modos hay que
+transferir, vale comparar contra la wire directa.
+
+### Qué se mide en cada compra de prueba
+
+Seis u ocho pedidos baratos, repartidos entre almacenes (EE. UU. y China) y
+tipos de producto (tela, electrónico, frágil). Un pedido da un dato; ocho dan un
+patrón, y dejan distinguir si falló el producto o falló el proveedor.
+
+1. **Qué papel viene DENTRO de la caja.** El más importante. Si trae la factura
+   del mayorista con el precio de compra, el comprador ve nuestro margen del
+   30 % impreso: reclamo, contracargo y cliente perdido. Hay que saber si
+   despachan en blanco o si hay que pedirlo.
+2. **Desde qué almacén salió.** EE. UU. o China cambia el plazo de 5 a 20 días,
+   y nuestra ficha ya le promete un plazo al comprador y le dibuja el mapa. Un
+   plazo prometido y no cumplido es contracargo.
+3. **Qué dirección de devolución trae.** Merchant Center exige política de
+   devoluciones, y una devolución a China no se sostiene.
+4. **Si el producto es el de la foto.** Merchant Center suspende por eso, y es
+   lo que más pasa con catálogos de mayorista.
+5. Tiempo real de llegada, empaque, y cómo se maneja la facturación.
+
+### La comparativa
+
+Dos o tres proveedores más, con saldo en cada uno y compras desde todos. Se
+compara: calidad y velocidad de entrega, cómo llega el producto, qué trae la
+caja, cómo se factura, y **cómo funciona su API** — si permite pagar sin saldo,
+si expone existencias en tiempo real y si avisa de los cambios.
+
+### Lo que sigue pendiente y bloquea a Google
+
+- `/datos/google` manda el catálogo entero, incluidos los productos venezolanos.
+  _(El dueño decidió el 15 ago 2026 no frenar por esto: los productos que
+  funcionen son los que Google verá.)_
+- Las fichas de CJ traen dos líneas en inglés y nada en español. La descripción
+  propia por ficha sigue siendo el trabajo grande.
+
 ## LOS CATÁLOGOS DEJARON DE ENVEJECER SOLOS (15 ago 2026)
 
 > Lo destapó el dueño: la ferretería agregó lijas a su depósito y aquí no
