@@ -918,6 +918,23 @@
         "boton": "Probar la conexión con CJ",
         "probando": "Probando…",
         "leyo": "Leyó {n} productos de prueba."
+      },
+      "saludCatalogos": {
+        "titulo": "Catálogos de los comercios",
+        "texto": "Si el sistema de un comercio deja de mandarnos sus cambios, sus productos se quedan con el precio y las existencias del último día que funcionó. Aquí se ve de un vistazo cuál lleva rato callado.",
+        "via": {
+          "empuja": "Su sistema nos manda los cambios",
+          "leemos": "Leemos su archivo cada 15 minutos",
+          "ninguna": "Sin conexión configurada"
+        },
+        "estado": {
+          "al_dia": "Al día",
+          "atrasada": "Sin novedades desde hace {cuanto}",
+          "nunca": "Nunca ha llegado nada",
+          "sin_direccion": "Falta poner la dirección de su archivo"
+        },
+        "ultima": "Última vez",
+        "sinComercios": "Todavía no hay ningún comercio con su catálogo conectado."
       }
     },
     "fotos": {
@@ -941,6 +958,12 @@
       "sinDireccion": "Pon la dirección de tu archivo para poder sincronizar.",
       "ultima": "Última sincronización",
       "nunca": "Todavía no se ha sincronizado",
+      "automatica": "Mercatren la lee sola cada 15 minutos. No tienes que pulsar nada: el botón de aquí abajo es para cuando acabas de cambiar algo y no quieres esperar.",
+      "atrasada": "Llevamos {minutos} sin poder leer tu archivo. Mientras tanto, aquí se están mostrando precios y existencias viejos. Revisa que la dirección siga funcionando y pulsa «Sincronizar ahora».",
+      "alDia": "Al día",
+      "haceMinutos": "{n, plural, one {# minuto} other {# minutos}}",
+      "haceHoras": "{n, plural, one {# hora} other {# horas}}",
+      "haceDias": "{n, plural, one {# día} other {# días}}",
       "queHace": "Qué hace al sincronizar",
       "reglas": [
         "Los productos que ya existen se actualizan, no se duplican.",

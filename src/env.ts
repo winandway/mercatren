@@ -98,6 +98,14 @@ export const esquemaEntorno = z.object({
      Hacen falta LAS DOS: con una sola, el chat fallaria en cada envio. */
   AGENTE_URL: z.string().url().optional(),
   AGENTE_TOKEN: z.string().optional(),
+  /**
+   * La llave del robotito que sincroniza los catálogos cada cuarto de hora.
+   *
+   * Sin ella, `/datos/sincronizar` responde 503 y no hace nada: una dirección
+   * que reescribe el catálogo de los comercios no puede quedar abierta porque
+   * una variable no esté puesta.
+   */
+  SINCRONIZAR_LLAVE: z.string().optional(),
 
   /**
    * LA LLAVE DE LAS PLATAFORMAS SOCIAS (hoy QRbott).

@@ -101,13 +101,28 @@ const ESTADOS: Record<string, "publicado" | "borrador" | "agotado"> = {
  */
 export async function sincronizarCatalogo(
   fuenteId: string,
+  /**
+   * SIN SESIÓN: solo para la sincronización automática.
+   *
+   * El robotito que corre cada cuarto de hora no tiene sesión de nadie — no
+   * hay comercio que consultar ni alcance que comprobar. Va como parámetro
+   * explícito y no como «si no hay sesión, adelante», porque eso último
+   * convertiría cualquier fallo al leer la sesión en un permiso.
+   *
+   * Quien lo llama así es `/datos/sincronizar`, que exige su propia llave.
+   */
+  opciones?: { sinSesion?: boolean },
 ): Promise<ResultadoSincronizacion> {
   const t = await mensajes();
 
   /* Si la cuenta no tiene comercio, se avisa: dejar que la excepción suba
      borraría el formulario del comercio con todo lo que llevara escrito. */
-  const alcance = await obtenerAlcance().catch(() => null);
-  if (!alcance) return { ok: false, mensaje: t("cuentaSinComercio") };
+  const alcance = opciones?.sinSesion
+    ? null
+    : await obtenerAlcance().catch(() => null);
+  if (!opciones?.sinSesion && !alcance) {
+    return { ok: false, mensaje: t("cuentaSinComercio") };
+  }
   const db = getDb();
 
   const [fuente] = await db
@@ -118,7 +133,11 @@ export async function sincronizarCatalogo(
 
   if (!fuente) return { ok: false, mensaje: t("fuenteNoExiste") };
 
-  if (alcance.tipo === "tienda" && fuente.tiendaId !== alcance.tiendaId) {
+  if (
+    alcance &&
+    alcance.tipo === "tienda" &&
+    fuente.tiendaId !== alcance.tiendaId
+  ) {
     return { ok: false, mensaje: t("fuenteAjena") };
   }
   if (!fuente.url) {

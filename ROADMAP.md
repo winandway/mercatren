@@ -593,6 +593,81 @@ promediadas con las estrellas de Mercatren**: nuestro número tiene que salir
 solo de gente que nos compró a nosotros. Mezclarlas es exactamente lo que
 sanciona la FTC, y es la misma línea que ya trazó `PLAN-CONFIANZA.md`.
 
+## LOS CATÁLOGOS DEJARON DE ENVEJECER SOLOS (15 ago 2026)
+
+> Lo destapó el dueño: la ferretería agregó lijas a su depósito y aquí no
+> aparecían; vendían en su mostrador y nuestro stock no bajaba. Pidió una
+> revisión honesta, sin adornos. Esta es.
+
+### Lo que se encontró, dicho como es
+
+Los dos caminos para mantener el catálogo al día **estaban construidos y
+funcionaban**:
+
+| Camino                         | Qué hace                                   |
+| ------------------------------ | ------------------------------------------ |
+| `POST /datos/socios/productos` | El sistema del comercio nos empuja cambios |
+| `GET /datos/socios/cambios`    | Su sistema lee lo que cambió aquí          |
+| `fuentes_catalogo.url` + botón | Nosotros leemos el archivo que él publica  |
+
+Y nuestras propias ventas **sí descontaban stock** (`stripe/acreditar.ts` y
+`zelle/acciones.ts`, con `MAX(0, existencias - cantidad)`).
+
+**Lo que faltaba era el reloj.** Comprobado: ni `wrangler.jsonc`, ni
+`yadominios.json`, ni ningún flujo de GitHub tenía un `cron`. Los tres caminos
+eran botones, y nadie los pulsaba. Los catálogos se separaban un poco más cada
+día sin que nada fallara ni se pusiera en rojo.
+
+### 15. El robotito que sincroniza ✅ (hecho)
+
+`.github/workflows/sincronizar.yml` cada 15 minutos →
+`POST /datos/sincronizar` (con `SINCRONIZAR_LLAVE`) → recorre cada fuente con
+dirección y la relee.
+
+- **El reloj va fuera de la aplicación** porque Next sobre este adaptador no
+  expone un `scheduled()`. GitHub Actions ya está montado y no cuesta nada: no
+  hubo que crear ni un recurso nuevo en ninguna nube.
+- **Sin la llave, la puerta responde 503 y no hace nada.** Una dirección que
+  reescribe el catálogo de los comercios no puede quedar abierta porque una
+  variable no esté puesta.
+- **La llave se compara en tiempo constante** y a quien no corresponde se le
+  devuelve **404**, no 401: así ni se le confirma que esto existe.
+- **El fallo de una fuente no detiene a las demás**, y el motivo queda escrito
+  en la respuesta. Una sincronización que falla en silencio es peor que no
+  tenerla: se sigue confiando en un stock que ya no es cierto.
+- **No se cancela la corrida en marcha** (al revés que la publicación). Cortarla
+  a mitad dejaría la mitad de los productos con fecha nueva y la otra mitad con
+  la vieja, y el barrido de «lo que ya no viene» los pasaría a borrador.
+
+### 16. Que se VEA si un catálogo dejó de llegar ✅ (hecho)
+
+Una fecha vieja se lee igual de bien que una nueva. Sin esto, el comercio
+seguía confiando en un stock congelado y se enteraba vendiendo algo que ya no
+tenía.
+
+- `src/lib/catalogo/salud-sincronizacion.ts` — puro, **12 pruebas**.
+- **La tolerancia NO es el intervalo.** El robotito corre cada 15 minutos, pero
+  la alarma salta a los 60: GitHub retrasa las tareas programadas cuando anda
+  cargado, y una pantalla que se pone roja cada vez que una corrida llega tarde
+  enseña a ignorar el rojo.
+- **«Nunca» y «sin dirección» no son «atrasada».** «Atrasada» le dice al
+  comercio que algo se rompió; lo que le toca leer es qué le falta hacer.
+- **Un reloj adelantado no dispara una alarma falsa** — lo cubre su prueba.
+- **Panel → Configuración → Catálogos de los comercios**: los dos caminos
+  juntos (quien empuja y a quien leemos), lo atrasado arriba y en ámbar. Con
+  veinte comercios, el que está roto no puede quedar en el puesto diecisiete.
+- En **Mi tienda** se dice ahora que **la lectura corre sola cada 15 minutos**.
+  Sin esa línea, el botón se lee como «esto solo pasa si lo pulsas» — que es
+  exactamente lo que hacía que nadie lo pulsara.
+
+### Lo que falta, y no depende del código
+
+1. **La dirección donde la ferretería publica su archivo de exportación**, en
+   Panel → Mi tienda. Mientras esté vacía, el robotito no tiene qué leer de ese
+   comercio (y la pantalla lo dice: «Falta poner la dirección de su archivo»).
+2. **`SINCRONIZAR_LLAVE`**, la misma cadena en dos sitios: variable del sitio en
+   YaDominios Cloud y secreto del repositorio en GitHub.
+
 ## LA ESCALERA DEL MARGEN — cada 60 días (decidido el 13 ago 2026)
 
 Hoy el margen es **3 %** en los dos métodos. La meta es **8 %**, y se llega

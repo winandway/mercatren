@@ -918,6 +918,23 @@
         "boton": "Test the CJ connection",
         "probando": "Testing…",
         "leyo": "Read {n} sample products."
+      },
+      "saludCatalogos": {
+        "titulo": "Merchant catalogs",
+        "texto": "If a merchant's system stops sending us their changes, their products stay frozen at the price and stock of the last day it worked. This shows at a glance which one has gone quiet.",
+        "via": {
+          "empuja": "Their system pushes changes to us",
+          "leemos": "We read their file every 15 minutes",
+          "ninguna": "No connection set up"
+        },
+        "estado": {
+          "al_dia": "Up to date",
+          "atrasada": "Nothing new for {cuanto}",
+          "nunca": "Nothing has ever arrived",
+          "sin_direccion": "Their file address is missing"
+        },
+        "ultima": "Last time",
+        "sinComercios": "No merchant has their catalog connected yet."
       }
     },
     "fotos": {
@@ -941,6 +958,12 @@
       "sinDireccion": "Add your file address to be able to sync.",
       "ultima": "Last sync",
       "nunca": "Not synced yet",
+      "automatica": "Mercatren reads it on its own every 15 minutes. You don't have to press anything — the button below is for when you just changed something and don't want to wait.",
+      "atrasada": "We haven't been able to read your file for {minutos}. In the meantime, this store is showing old prices and stock. Check that the address still works and press “Sync now”.",
+      "alDia": "Up to date",
+      "haceMinutos": "{n, plural, one {# minute} other {# minutes}}",
+      "haceHoras": "{n, plural, one {# hour} other {# hours}}",
+      "haceDias": "{n, plural, one {# day} other {# days}}",
       "queHace": "What syncing does",
       "reglas": [
         "Products that already exist are updated, not duplicated.",

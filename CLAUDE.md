@@ -1099,6 +1099,54 @@ silencio hace creer que el sistema se inventó unos datos.
   adivinar entre la red, el peso de las fotos, un permiso y la base. Se
   perdieron días así.
 
+## Los catálogos ya no envejecen solos (15 ago 2026)
+
+La ferretería agregó lijas a su depósito y aquí no aparecían; vendían en su
+mostrador y nuestro stock no bajaba. **Los tres caminos estaban construidos y
+funcionaban** —el comercio nos empuja (`POST /datos/socios/productos`), su
+sistema lee lo que cambió aquí (`GET /datos/socios/cambios`), o nosotros leemos
+el archivo que publica (`fuentes_catalogo.url`)— y nuestras propias ventas sí
+descontaban stock. **Lo que faltaba era el reloj:** ni `wrangler.jsonc`, ni
+`yadominios.json`, ni ningún flujo de GitHub tenía un `cron`. Eran botones, y
+nadie los pulsaba.
+
+`.github/workflows/sincronizar.yml` cada 15 minutos → `POST /datos/sincronizar`
+→ recorre cada fuente con dirección y la relee.
+
+- **El reloj va FUERA de la aplicación**: Next sobre este adaptador no expone un
+  `scheduled()`, así que no hay dónde colgar un cron por dentro. GitHub Actions
+  ya está montado y no obligó a crear ni un recurso nuevo en ninguna nube.
+- **Sin `SINCRONIZAR_LLAVE` la puerta responde 503 y no hace nada.** Una
+  dirección que reescribe el catálogo de los comercios no puede quedar abierta
+  porque una variable no esté puesta. La llave se compara en tiempo constante y
+  a quien no corresponde se le devuelve **404**: ni se le confirma que existe.
+- **`sincronizarCatalogo(id, { sinSesion: true })`** salta la comprobación de
+  alcance. Va como parámetro explícito y NO como «si no hay sesión, adelante»:
+  eso último convertiría cualquier fallo al leer la sesión en un permiso.
+- **El fallo de una fuente no detiene a las demás**, y el motivo queda escrito.
+  Una sincronización que falla en silencio es peor que no tenerla: se sigue
+  confiando en un stock que ya no es cierto.
+- **No se cancela la corrida en marcha** (al revés que la publicación): cortarla
+  a mitad dejaría medio catálogo con fecha nueva y medio con la vieja, y el
+  barrido de «lo que ya no viene» lo pasaría a borrador.
+
+**Y AHORA SE VE SI UN CATÁLOGO DEJÓ DE LLEGAR** (`salud-sincronizacion.ts`,
+puro, 12 pruebas). Una fecha vieja se lee igual de bien que una nueva.
+
+- **La tolerancia no es el intervalo**: corre cada 15 minutos y la alarma salta
+  a los 60. GitHub retrasa las tareas programadas cuando anda cargado, y una
+  pantalla que se pone roja por un retraso normal enseña a ignorar el rojo.
+- **«Nunca» y «sin dirección» no son «atrasada».** Atrasada dice que algo se
+  rompió; lo que el comercio necesita leer es qué le falta hacer a él.
+- **Panel → Configuración → Catálogos de los comercios** junta los dos caminos
+  (quien empuja y a quien leemos) con lo atrasado arriba. Los que empujan se
+  miden contra **un día**, no contra una hora: una ferretería que no tocó nada
+  desde ayer no está rota, simplemente no vendió de madrugada.
+
+**Lo que falta no es código:** la dirección donde el comercio publica su archivo
+(Panel → Mi tienda) y `SINCRONIZAR_LLAVE` cargada en los dos sitios —variable
+del sitio en YaDominios Cloud y secreto del repositorio en GitHub—.
+
 ## Seguridad y dinero: lo que se cerró el 12 ago 2026 (bloque 3)
 
 **El concepto del Zelle, tan grande como el monto.** Zelle no manda un cobro:

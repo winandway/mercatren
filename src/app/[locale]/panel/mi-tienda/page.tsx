@@ -8,6 +8,7 @@ import { SelectorColor } from "@/components/panel/marca/selector-color";
 import { SincronizarCatalogo } from "@/components/panel/sincronizar-catalogo";
 import { Link } from "@/i18n/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
+import { saludDeSincronizacion } from "@/lib/catalogo/salud-sincronizacion";
 import { getDb } from "@/lib/db";
 import { fuentesCatalogo, tiendas } from "@/lib/db/schema";
 import type { Idioma } from "@/lib/dinero";
@@ -119,6 +120,15 @@ export default async function PaginaMiTienda({
                   : null
               }
               ultimoResultado={fuente.ultimoResultado}
+              /* La salud se calcula EN EL SERVIDOR: el reloj del navegador de
+                 quien mira puede estar corrido y daría una alarma falsa. */
+              salud={saludDeSincronizacion(
+                fuente.ultimaSincronizacion,
+                new Date(),
+                {
+                  tieneDireccion: Boolean(fuente.url?.trim()),
+                },
+              )}
             />
           </div>
         </section>

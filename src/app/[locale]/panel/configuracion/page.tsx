@@ -5,6 +5,7 @@ import {
   ImageIcon,
   Landmark,
   PackageSearch,
+  RefreshCw,
   Languages,
   Mail,
   Settings,
@@ -18,12 +19,14 @@ import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { ProbarCj } from "@/components/panel/probar-cj";
 import { ProbarMercury } from "@/components/panel/probar-mercury";
+import { SaludCatalogos } from "@/components/panel/salud-catalogos";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
+import { saludDeLosComercios } from "@/lib/socios/salud";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +88,10 @@ export default async function PaginaConfiguracion({
     desalineados: [],
   }));
   const fotosPendientes = await contarFotosPendientes();
+
+  /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
+     quedan congelados y aquí no se veía NADA. Esta es la pantalla que faltaba. */
+  const catalogos = await saludDeLosComercios().catch(() => []);
 
   const { env } = getCloudflareContext();
   const puesta = (clave: string) =>
@@ -202,6 +209,23 @@ export default async function PaginaConfiguracion({
           (CJ_API_KEY) sirve y que se puede leer su catálogo.
         </p>
         <ProbarCj />
+      </section>
+
+      {/**
+       * LOS CATÁLOGOS DE LOS COMERCIOS.
+       *
+       * Va aquí arriba y no al final: es lo que contesta «¿por qué la
+       * ferretería tiene lijas que aquí no salen?» sin llamar a nadie.
+       */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <RefreshCw className="h-4 w-4 text-carga-500" aria-hidden />
+          {t("saludCatalogos.titulo")}
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+          {t("saludCatalogos.texto")}
+        </p>
+        <SaludCatalogos filas={catalogos} />
       </section>
 
       {/* Las variables de cobro: solo si estan, nunca su valor. */}

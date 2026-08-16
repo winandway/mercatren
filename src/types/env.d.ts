@@ -78,6 +78,8 @@ interface CloudflareEnv {
    * quien lo tenga le habla al agente como si fuera Mercatren. Solo servidor.
    */
   AGENTE_TOKEN?: string;
+  /** La llave del robotito que sincroniza los catálogos (ver /datos/sincronizar). */
+  SINCRONIZAR_LLAVE?: string;
 
   /**
    * La llave de las plataformas socias (QRbott). Solo sirve para VINCULAR una

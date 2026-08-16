@@ -1,0 +1,72 @@
+name: sincronizar-catalogos
+
+# EL RELOJ DE LA SINCRONIZACION.
+#
+# Los comercios siguen vendiendo en su mostrador y cargando productos en su
+# propio sistema. Los dos caminos para enterarnos ya estaban construidos —el
+# comercio nos empuja su catalogo, o nosotros leemos el archivo que publica—
+# pero NINGUNO corria solo: eran botones que alguien tenia que pulsar, y nadie
+# los pulsaba. Resultado comprobado el 15 ago 2026: lijas nuevas en el deposito
+# de la ferreteria que aqui no existian, y ventas suyas que no bajaban el stock.
+#
+# POR QUE AQUI Y NO DENTRO DE LA APLICACION. Next sobre este adaptador no expone
+# un `scheduled()`, asi que no hay donde colgar un cron por dentro. GitHub
+# Actions ya esta montado, no cuesta nada y esta dentro del perimetro del
+# proyecto: no hay que crear ni un recurso nuevo en ninguna nube.
+on:
+  schedule:
+    # Cada 15 minutos. Es lo que tarda un producto en dejar de existir en el
+    # deposito y seguir a la venta aqui — el rato en que se puede vender algo
+    # que ya no hay. Mas seguido no aporta: el comercio no carga productos cada
+    # minuto, y cada corrida lee su servidor entero.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+# UNA A LA VEZ. Dos sincronizaciones en paralelo sobre el mismo catalogo se
+# pisan: la que termina segunda puede escribir un stock mas viejo que la
+# primera. Aqui NO se cancela la que va corriendo, se espera: cancelarla a
+# mitad dejaria la mitad de los productos con la fecha nueva y la otra mitad
+# con la vieja, y el barrido de "lo que ya no viene" los pasaria a borrador.
+concurrency:
+  group: sincronizar-catalogos
+  cancel-in-progress: false
+
+jobs:
+  sincronizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pedirle al sitio que sincronice
+        env:
+          LLAVE: ${{ secrets.SINCRONIZAR_LLAVE }}
+        run: |
+          if [ -z "$LLAVE" ]; then
+            echo "::error::Falta el secreto SINCRONIZAR_LLAVE en el repositorio."
+            exit 1
+          fi
+
+          # `--max-time` alto a proposito: un catalogo de 700 productos tarda.
+          # Se guarda el cuerpo aparte del codigo para poder enseñar el motivo
+          # exacto cuando algo falle — un "no sincronizo" a secas obliga a
+          # adivinar entre la red, el servidor del comercio y la base.
+          codigo=$(curl -s -o respuesta.json -w "%{http_code}" \
+            --max-time 600 \
+            -X POST "https://mercatren.com/datos/sincronizar" \
+            -H "Authorization: Bearer $LLAVE")
+
+          echo "Respuesta HTTP: $codigo"
+          cat respuesta.json || true
+          echo
+
+          if [ "$codigo" != "200" ]; then
+            echo "::error::El sitio respondio $codigo."
+            exit 1
+          fi
+
+          # La puerta puede responder 200 y traer fuentes con fallo dentro: el
+          # servidor de un comercio caido no es un fallo NUESTRO, pero tiene
+          # que verse en rojo o nadie se entera de que ese catalogo lleva dias
+          # sin actualizarse.
+          if grep -q '"conFallo":[1-9]' respuesta.json; then
+            echo "::error::Alguna fuente fallo. El detalle esta arriba."
+            exit 1
+          fi
