@@ -32,10 +32,13 @@ export const metadata = { robots: { index: false, follow: false } };
 
 export default async function PaginaDeCobro({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; enlace: string }>;
+  searchParams: Promise<{ payment_intent?: string }>;
 }) {
   const { locale, enlace } = await params;
+  const { payment_intent: intentoDeVuelta } = await searchParams;
   setRequestLocale(locale);
   const idioma = locale as Idioma;
 
@@ -61,6 +64,43 @@ export default async function PaginaDeCobro({
   /* Un enlace que no existe da 404, no un «no encontrado» explicado: así no se
      puede saber si un enlace inventado casi acierta. */
   if (!cobro) notFound();
+
+  /**
+   * EL RESPALDO DEL WEBHOOK, igual que en los pedidos.
+   *
+   * Stripe redirige de vuelta aquí con `?payment_intent=pi_…`. Si el aviso de
+   * Stripe no llegó —pasa—, sin esto el cobro se quedaba «abierto» para
+   * siempre: el pagador ya pagó, y el sistema del comercio preguntando por su
+   * factura jamás la vería pagada. El momento en que esto importa es justo
+   * cuando la persona está mirando la pantalla.
+   *
+   * No hace falta cron: se le pregunta a Stripe aquí mismo. Y no se confía en
+   * el parámetro — se confía en lo que Stripe responda de ese intento, y solo
+   * si su metadata apunta a ESTE cobro: con el id de otro intento pegado en la
+   * dirección, la comprobación no encuentra nada que acreditar.
+   */
+  if (cobro.estado === "abierto" && intentoDeVuelta?.startsWith("pi_")) {
+    try {
+      const { getStripe, stripeConfigurado } = await import("@/lib/stripe");
+      if (stripeConfigurado()) {
+        const intento =
+          await getStripe().paymentIntents.retrieve(intentoDeVuelta);
+        if (
+          intento.status === "succeeded" &&
+          intento.metadata?.cobroId === cobro.id
+        ) {
+          const { acreditarCobro } = await import("@/lib/cobros/acciones");
+          await acreditarCobro(cobro.id, intento.id);
+          cobro.estado = "pagado";
+          cobro.pagadoEn = new Date();
+        }
+      }
+    } catch (fallo) {
+      /* Si Stripe no contesta, la página se enseña igual: el webhook sigue
+         siendo el camino principal y esto es solo el respaldo. */
+      console.error("[cobro] no se pudo conciliar al volver:", fallo);
+    }
+  }
 
   const ahora = new Date();
   const estado = estadoParaMostrar(cobro.estado, cobro.venceEn, ahora);

@@ -2318,16 +2318,25 @@
     },
     "enlaceDeCobro": {
       "asunto": "{comercio} te manda un enlace para pagar",
-      "previo": "Paga {monto} desde donde estés, con tarjeta o por Zelle.",
+      "previo": "Paga {monto} desde donde estés, con tu tarjeta.",
       "titulo": "Tu compra en {comercio}",
       "parrafos": [
-        "Tu compra ya está lista. Solo falta el pago, y lo puedes hacer desde donde estés — con tarjeta o por Zelle, desde un banco de Estados Unidos.",
+        "Tu compra ya está lista. Solo falta el pago, y lo puedes hacer desde donde estés, con tu tarjeta.",
         "Si quien va a pagar es otra persona, reenvíale este correo: el enlace funciona igual para quien lo abra.",
         "El enlace vence en 48 horas. Si se te pasa, pídele otro al comercio y te llega uno nuevo al instante."
       ],
       "comercio": "Comercio",
       "referencia": "Tu factura",
       "boton": "Pagar ahora"
+    },
+    "reciboDeCobro": {
+      "asunto": "Tu recibo: pago a {comercio}",
+      "previo": "Recibimos tu pago de {monto}. Guarda este correo como constancia.",
+      "titulo": "Pago recibido",
+      "parrafos": [
+        "Tu pago quedó registrado y el comercio ya fue notificado. No tienes que hacer nada más.",
+        "Guarda este correo: es tu constancia. En tu estado de cuenta, el cargo aparece a nombre de Mercatren junto con el número de tu factura."
+      ]
     }
   },
   "misPedidos": {

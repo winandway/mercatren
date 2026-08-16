@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { idDeRegistro, revisar } from "@/lib/validacion/acciones";
@@ -10,7 +10,6 @@ import {
   billeteras,
   cobrosSolicitados,
   movimientosBilletera,
-  pagos,
   tiendas,
 } from "@/lib/db/schema";
 import { calcularComisionCentavos, COMISION_TARJETA_PB } from "@/lib/dinero";
@@ -91,15 +90,18 @@ export async function intentoParaCobro(
 
   if (!intento.client_secret) return { ok: false, motivo: "no_pagable" };
 
-  await db.insert(pagos).values({
-    id: `pago-${nanoid(12)}`,
-    pedidoId: cobro.id,
-    metodo: "stripe",
-    estado: "pendiente",
-    montoCentavos: cobro.montoCentavos,
-    referenciaExterna: intento.id,
-  });
-
+  /**
+   * AQUÍ NO SE ESCRIBE EN `pagos`, Y NO ES UN OLVIDO.
+   *
+   * `pagos.pedido_id` tiene llave foránea contra `pedidos`, y un cobro por
+   * enlace NO es un pedido: el insert revienta con FOREIGN KEY constraint
+   * failed — probado contra la base el 15 ago 2026 — y le tumbaba la pantalla
+   * de pago al pagador en el momento exacto de meter la tarjeta.
+   *
+   * El rastro del cobro no se pierde: el intento (`pi_…`) queda guardado en
+   * `cobros_solicitados.pago_id` al acreditarse, que es donde este dinero se
+   * consulta de verdad.
+   */
   return {
     ok: true,
     clientSecret: intento.client_secret,
@@ -127,24 +129,30 @@ export async function acreditarCobro(
   const db = getDb();
   const ahora = new Date();
 
+  /* El estado va DENTRO del WHERE, y esa condición ES el candado: Stripe
+     reintenta los webhooks, y el respaldo de la página puede entrar a la vez.
+     El segundo en llegar actualiza cero filas y se va sin acreditar nada — un
+     reintento que acreditara otra vez sería dinero duplicado en la billetera
+     del comercio. */
   const marcado = await db
     .update(cobrosSolicitados)
     .set({ estado: "pagado", pagadoEn: ahora, pagoId: intentoId })
-    .where(eq(cobrosSolicitados.id, cobroId))
+    .where(
+      and(
+        eq(cobrosSolicitados.id, cobroId),
+        eq(cobrosSolicitados.estado, "abierto"),
+      ),
+    )
     .returning({
       tiendaId: cobrosSolicitados.tiendaId,
       montoCentavos: cobrosSolicitados.montoCentavos,
       referencia: cobrosSolicitados.referencia,
-      estadoPrevio: cobrosSolicitados.estado,
+      contactoCorreo: cobrosSolicitados.contactoCorreo,
+      contactoNombre: cobrosSolicitados.contactoNombre,
     });
 
   const cobro = marcado[0];
   if (!cobro) return;
-
-  await db
-    .update(pagos)
-    .set({ estado: "confirmado", actualizadoEn: ahora })
-    .where(eq(pagos.referenciaExterna, intentoId));
 
   /* Al comercio le toca el neto: el monto menos el margen de Mercatren. El
      costo del procesador ya está dentro de lo que cobró Stripe. */
@@ -154,44 +162,86 @@ export async function acreditarCobro(
   );
   const neto = cobro.montoCentavos - comision;
 
-  const [billetera] = await db
+  let [billetera] = await db
     .select({ id: billeteras.id, saldoCentavos: billeteras.saldoCentavos })
     .from(billeteras)
     .where(eq(billeteras.tiendaId, cobro.tiendaId))
     .limit(1);
 
-  if (billetera) {
-    await db.insert(movimientosBilletera).values({
-      id: `mov-${nanoid(12)}`,
-      billeteraId: billetera.id,
-      tipo: "recarga",
-      montoCentavos: neto,
-      saldoResultanteCentavos: billetera.saldoCentavos + neto,
-      referencia: intentoId,
-      nota: `Cobro por enlace · ${cobro.referencia}`,
-      creadoEn: ahora,
-    });
+  /* Sin billetera se CREA, no se salta: saltarla dejaba el cobro pagado sin
+     su movimiento, y ese movimiento es de donde la posición del comercio lee
+     el neto exacto. Un dinero cobrado que no aparece en ninguna pantalla es
+     el fallo más caro de todos. */
+  if (!billetera) {
+    billetera = { id: `billetera-${nanoid(10)}`, saldoCentavos: 0 };
+    await db
+      .insert(billeteras)
+      .values({ id: billetera.id, tiendaId: cobro.tiendaId })
+      .catch(() => undefined);
   }
 
-  // Al comercio se le avisa; si el correo falla, el cobro sigue acreditado.
+  await db.insert(movimientosBilletera).values({
+    id: `mov-${nanoid(12)}`,
+    billeteraId: billetera.id,
+    tipo: "recarga",
+    montoCentavos: neto,
+    saldoResultanteCentavos: billetera.saldoCentavos + neto,
+    referencia: intentoId,
+    nota: `Cobro por enlace · ${cobro.referencia}`,
+    creadoEn: ahora,
+  });
+
+  /* Los tres avisos van en su propio try: si un correo falla, el cobro sigue
+     acreditado. Un pago no se deshace porque un aviso no salió. */
   try {
     const [duenno] = await db
-      .select({ propietarioId: tiendas.propietarioId })
+      .select({ propietarioId: tiendas.propietarioId, nombre: tiendas.nombre })
       .from(tiendas)
       .where(eq(tiendas.id, cobro.tiendaId))
       .limit(1);
 
+    const correos = await import("@/lib/correo/correos");
+
+    /* 1. Al comercio: le entró su dinero. */
     if (duenno?.propietarioId) {
       const { contactoDeUsuario } = await import("@/lib/correo/contactos");
       const contacto = await contactoDeUsuario(duenno.propietarioId);
       if (contacto) {
-        const { correoVentaAcreditada } = await import("@/lib/correo/correos");
-        await correoVentaAcreditada(contacto, {
+        await correos.correoVentaAcreditada(contacto, {
           montoCentavos: neto,
           referencia: cobro.referencia,
         });
       }
     }
+
+    /* 2. Al pagador: su recibo. Semanas después, cuando vea el cargo en su
+       estado de cuenta, este correo es lo que le recuerda qué pagó — y el
+       primer paso de un contracargo es justamente no reconocer un cargo. */
+    if (cobro.contactoCorreo) {
+      await correos.correoReciboDeCobro(
+        {
+          email: cobro.contactoCorreo,
+          name: cobro.contactoNombre ?? "",
+          idioma: "es",
+        },
+        {
+          comercio: duenno?.nombre ?? "",
+          referencia: cobro.referencia,
+          montoCentavos: cobro.montoCentavos,
+        },
+      );
+    }
+
+    /* 3. Al equipo: dinero que entró, igual que en cada venta con tarjeta. */
+    await correos.correoAvisoAlEquipo({
+      asunto: `Cobro por enlace pagado · ${cobro.referencia}`,
+      lineas: [
+        `${duenno?.nombre ?? cobro.tiendaId} cobró ${(cobro.montoCentavos / 100).toFixed(2)} USD por enlace (factura ${cobro.referencia}).`,
+        `Neto acreditado al comercio: ${(neto / 100).toFixed(2)} USD.`,
+      ],
+      url: "https://mercatren.com/es/panel/cobros/enlaces",
+      boton: "Ver los enlaces de cobro",
+    });
   } catch (fallo) {
     console.error("[cobro] acreditado; el aviso no salio:", fallo);
   }

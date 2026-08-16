@@ -6,7 +6,9 @@ import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import {
   billeteras,
+  cobrosSolicitados,
   itemsPedido,
+  movimientosBilletera,
   pagos,
   pedidos as tablaPedidos,
   pagosZelle,
@@ -62,10 +64,9 @@ function fechaEnMilisegundos(valor: number | null): number | null {
 }
 
 /** La más reciente de dos fechas, aguantando que falte cualquiera de las dos. */
-function ultimaFecha(a: number | null, b: number | null): number | null {
-  if (a === null) return b;
-  if (b === null) return a;
-  return Math.max(a, b);
+function ultimaFecha(...fechas: (number | null)[]): number | null {
+  const conValor = fechas.filter((f): f is number => f !== null);
+  return conValor.length > 0 ? Math.max(...conValor) : null;
 }
 
 /**
@@ -265,6 +266,56 @@ export async function obtenerPosicion(
       ),
     );
 
+  /**
+   * LOS COBROS POR ENLACE, que también son dinero del comercio.
+   *
+   * ══ EL FALLO QUE ARREGLA (15 ago 2026) ══
+   *
+   * La cajera cobra por enlace, el pago entra por Stripe, se acredita el
+   * movimiento… y esta pantalla no lo sumaba: el comercio cobraba y su
+   * «disponible para retirar» no subía un centavo. Es el mismo fallo que ya
+   * pasó con la primera venta con tarjeta (MT-000002), en otra puerta.
+   *
+   * ══ EL NETO SALE DEL MOVIMIENTO, NO DE RECALCULAR ══
+   *
+   * El join va contra el movimiento que escribió la acreditación
+   * (`referencia = pago_id`), que guarda el neto EXACTO de ese día. Recalcular
+   * con la comisión de hoy reescribiría el pasado: el margen va a subir por
+   * tramos, y un cobro viejo debe seguir diciendo lo que se acreditó.
+   *
+   * No cuenta Zelle dos veces: los movimientos de Zelle llevan otra
+   * referencia, y el join solo empata los `pi_…` de los cobros de ESTA tienda.
+   */
+  const COBRO_PAGADO = and(
+    eq(cobrosSolicitados.tiendaId, tiendaId),
+    eq(cobrosSolicitados.estado, "pagado"),
+  );
+
+  const [enlaces] = await db
+    .select({
+      bruto: sql<number>`COALESCE(SUM(${cobrosSolicitados.montoCentavos}), 0)`,
+      neto: sql<number>`COALESCE(SUM(${movimientosBilletera.montoCentavos}), 0)`,
+      ultimo: sql<number | null>`MAX(${cobrosSolicitados.pagadoEn})`,
+    })
+    .from(cobrosSolicitados)
+    .innerJoin(
+      movimientosBilletera,
+      eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+    )
+    .where(COBRO_PAGADO);
+
+  const [enlacesDelMes] = await db
+    .select({
+      bruto: sql<number>`COALESCE(SUM(${cobrosSolicitados.montoCentavos}), 0)`,
+      neto: sql<number>`COALESCE(SUM(${movimientosBilletera.montoCentavos}), 0)`,
+    })
+    .from(cobrosSolicitados)
+    .innerJoin(
+      movimientosBilletera,
+      eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+    )
+    .where(and(COBRO_PAGADO, gte(cobrosSolicitados.pagadoEn, desde)));
+
   const [billetera] = await db
     .select({ moneda: billeteras.moneda, proveedor: billeteras.proveedor })
     .from(billeteras)
@@ -302,8 +353,10 @@ export async function obtenerPosicion(
 
   const netoTarjeta =
     Number(tarjeta?.bruto ?? 0) - Number(tarjeta?.comision ?? 0);
+  const netoEnlaces = Number(enlaces?.neto ?? 0);
+  const comisionEnlaces = Number(enlaces?.bruto ?? 0) - netoEnlaces;
 
-  const neto = Number(datos?.netoHistorico ?? 0) + netoTarjeta;
+  const neto = Number(datos?.netoHistorico ?? 0) + netoTarjeta + netoEnlaces;
   const retirado = Number(datos?.retirado ?? 0) + Number(pedidos?.pagado ?? 0);
   const enTramite = Number(pedidos?.enTramite ?? 0);
   const saldo = neto - retirado;
@@ -323,19 +376,29 @@ export async function obtenerPosicion(
     retiros: Number(datos?.retiros ?? 0) + Number(pedidos?.veces ?? 0),
     mes: {
       brutoCentavos:
-        Number(mes?.bruto ?? 0) + Number(tarjetaDelMes?.bruto ?? 0),
+        Number(mes?.bruto ?? 0) +
+        Number(tarjetaDelMes?.bruto ?? 0) +
+        Number(enlacesDelMes?.bruto ?? 0),
       comisionCentavos:
-        Number(mes?.comision ?? 0) + Number(tarjetaDelMes?.comision ?? 0),
+        Number(mes?.comision ?? 0) +
+        Number(tarjetaDelMes?.comision ?? 0) +
+        (Number(enlacesDelMes?.bruto ?? 0) - Number(enlacesDelMes?.neto ?? 0)),
       retiradoCentavos: Number(mes?.retirado ?? 0),
       rechazadoCentavos: Number(mes?.rechazado ?? 0),
     },
     comisionGanadaCentavos:
-      Number(datos?.comisionGanada ?? 0) + Number(tarjeta?.comision ?? 0),
-    brutoTarjetaCentavos: Number(tarjeta?.bruto ?? 0),
+      Number(datos?.comisionGanada ?? 0) +
+      Number(tarjeta?.comision ?? 0) +
+      comisionEnlaces,
+    /* Los cobros por enlace entran aquí: también son ventas con tarjeta, y el
+       desglose de los dos fees del retiro se calcula sobre este bruto. */
+    brutoTarjetaCentavos:
+      Number(tarjeta?.bruto ?? 0) + Number(enlaces?.bruto ?? 0),
     brutoZelleCentavos: Number(brutoZelle?.total ?? 0),
     ultimoMovimiento: ultimaFecha(
       datos?.ultimo ? Number(datos.ultimo) * 1000 : null,
       fechaEnMilisegundos(tarjeta?.ultimo ?? null),
+      fechaEnMilisegundos(enlaces?.ultimo ?? null),
     ),
   };
 }
@@ -365,7 +428,7 @@ export async function listarMovimientosReales(
 
   const db = getDb();
 
-  const [filas, salidas, conTarjeta] = await Promise.all([
+  const [filas, salidas, conTarjeta, porEnlace] = await Promise.all([
     db
       .select({
         id: pagosZelle.id,
@@ -425,6 +488,31 @@ export async function listarMovimientosReales(
       .groupBy(tablaPedidos.id)
       .orderBy(desc(tablaPedidos.actualizadoEn))
       .limit(limite),
+
+    /* Los cobros por enlace pagados. El neto sale del movimiento que escribió
+       la acreditación — el mismo número que suma la posición de arriba: dos
+       pantallas que dicen cosas distintas del mismo dinero es como un comercio
+       deja de creerle al sistema. */
+    db
+      .select({
+        id: cobrosSolicitados.id,
+        fecha: cobrosSolicitados.pagadoEn,
+        referencia: cobrosSolicitados.referencia,
+        neto: movimientosBilletera.montoCentavos,
+      })
+      .from(cobrosSolicitados)
+      .innerJoin(
+        movimientosBilletera,
+        eq(movimientosBilletera.referencia, cobrosSolicitados.pagoId),
+      )
+      .where(
+        and(
+          eq(cobrosSolicitados.tiendaId, posicion.tiendaId),
+          eq(cobrosSolicitados.estado, "pagado"),
+        ),
+      )
+      .orderBy(desc(cobrosSolicitados.pagadoEn))
+      .limit(limite),
   ]);
 
   const movimientos: MovimientoBilletera[] = [
@@ -458,6 +546,16 @@ export async function listarMovimientosReales(
          comercio tiene delante en su pantalla de órdenes. */
       concepto: v.numero,
       montoCentavos: Number(v.bruto) - Number(v.comision),
+      saldoResultanteCentavos: 0,
+    })),
+    ...porEnlace.map((c) => ({
+      id: c.id,
+      fecha: c.fecha instanceof Date ? c.fecha.getTime() : null,
+      tipo: "entrada" as const,
+      /* La referencia de SU factura, no un identificador de Stripe: es el
+         número que la cajera tiene delante en su propio sistema. */
+      concepto: c.referencia,
+      montoCentavos: Number(c.neto),
       saldoResultanteCentavos: 0,
     })),
   ]

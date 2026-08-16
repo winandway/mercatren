@@ -234,6 +234,37 @@ export async function correoEnlaceDeCobro(
   });
 }
 
+/**
+ * 4b. El recibo de quien pagó un cobro por enlace.
+ *
+ * Semanas después, cuando el cargo aparezca en su estado de cuenta, este
+ * correo es lo único que le recuerda qué pagó y a quién. El primer paso de un
+ * contracargo es no reconocer un cargo — y quien paga aquí muchas veces ni
+ * siquiera es el cliente del comercio, sino su familiar en Estados Unidos.
+ */
+export async function correoReciboDeCobro(
+  d: Destinatario,
+  cobro: { comercio: string; referencia: string; montoCentavos: number },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const monto = formatearPrecio(cobro.montoCentavos, idioma);
+
+  return enviar(d, {
+    asunto: t("reciboDeCobro.asunto", { comercio: cobro.comercio }),
+    previo: t("reciboDeCobro.previo", { monto }),
+    saludo,
+    titulo: t("reciboDeCobro.titulo"),
+    parrafos: t.raw("reciboDeCobro.parrafos") as string[],
+    datos: [
+      { etiqueta: t("enlaceDeCobro.comercio"), valor: cobro.comercio },
+      { etiqueta: t("enlaceDeCobro.referencia"), valor: cobro.referencia },
+      { etiqueta: t("comun.monto"), valor: monto },
+    ],
+    motivo,
+    contacto,
+  });
+}
+
 /** 5. El validador aprobo: su compra fue aprobada. */
 export async function correoCompraAprobada(
   d: Destinatario,

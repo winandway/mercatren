@@ -1496,6 +1496,36 @@ $31.87 con tarjeta, **$30.91 disponibles**. Y los 32 centavos que quedaban
 pendientes de decidir se resolvieron solos al pasar al 3 %: su comisión guardada
 (96) es exactamente la que toca ahora.
 
+## La auditoría del sistema de cobro por enlace (16 ago 2026)
+
+El dueño pidió auditar a fondo el cobro de la ferretería antes de que lo usen.
+La conexión estaba viva (token vinculado, cero cobros creados) — y menos mal que
+cero, porque el camino principal estaba roto. Lo que se encontró y se arregló:
+
+1. **Pagar con tarjeta reventaba.** `intentoParaCobro` escribía en `pagos` con
+   el id del cobro en `pedido_id`, que tiene llave foránea contra `pedidos`.
+   Probado contra la base: `FOREIGN KEY constraint failed`, en la cara del
+   pagador al meter la tarjeta. Ya no se escribe ahí — el rastro vive en
+   `cobros_solicitados.pago_id`.
+2. **El dinero no entraba a la billetera del comercio.** La posición no sumaba
+   los cobros por enlace: cobraban y su «disponible» no subía. Ahora son la
+   cuarta fuente de `billetera.ts`, y el neto sale del MOVIMIENTO escrito al
+   acreditar (join `movimientos_billetera.referencia = pago_id`), no de
+   recalcular con la comisión de hoy: el margen va a subir por tramos y un
+   cobro viejo debe seguir diciendo lo que se acreditó.
+3. **Acreditar no era idempotente.** El comentario prometía `estado='abierto'`
+   en el WHERE y no estaba: un reintento del webhook duplicaba el dinero.
+4. **Sin respaldo si el webhook no llegaba.** El cobro quedaba «abierto» para
+   siempre y el sistema del comercio jamás veía pagada su factura. La página
+   ahora concilia al volver de Stripe (`?payment_intent=`), confiando solo en
+   lo que Stripe responda y solo si su metadata apunta a ESE cobro.
+5. **El correo prometía Zelle y la página solo ofrece tarjeta.** El texto ya
+   dice la verdad. Agregar Zelle al enlace es decisión del dueño, pendiente.
+6. **Faltaban dos correos:** el recibo al pagador (`reciboDeCobro` — semanas
+   después, ese correo es lo que le recuerda qué pagó; el primer paso de un
+   contracargo es no reconocer un cargo) y el aviso al equipo por cada cobro
+   entrado. La billetera se crea si falta, en vez de saltarse el movimiento.
+
 ## Cobrar por Mercatren desde el sistema del comercio (10 ago 2026)
 
 Primera etapa de `mercatren-api-integraciones.pdf`. La cajera de la ferretería
