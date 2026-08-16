@@ -155,7 +155,26 @@ export async function sincronizarCatalogo(
         ? { Authorization: `Bearer ${fuente.token}` }
         : undefined,
     });
-    if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+    if (!respuesta.ok) {
+      /**
+       * EL MOTIVO QUE MANDA EL OTRO SERVIDOR SE ENSEÑA, NO SE TIRA.
+       *
+       * Un 401 a secas obliga a adivinar entre dos cosas muy distintas: que la
+       * llave no viajó (no se guardó de este lado) o que viajó y no coincide
+       * con la suya. Son dos arreglos diferentes, y sin el texto del servidor
+       * la única salida es probar a ciegas. Pasó el 15 ago 2026 con la
+       * ferretería piloto.
+       *
+       * Se recorta a 200: lo que sigue suele ser una página de error entera.
+       */
+      const detalle = await respuesta.text().catch(() => "");
+      const motivo = detalle.trim().slice(0, 200);
+      throw new Error(
+        motivo
+          ? `HTTP ${respuesta.status} · ${motivo}`
+          : `HTTP ${respuesta.status}`,
+      );
+    }
     archivo = (await respuesta.json()) as ArchivoDeOrigen;
   } catch (e) {
     const detalle = e instanceof Error ? e.message : String(e);
