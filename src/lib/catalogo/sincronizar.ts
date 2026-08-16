@@ -430,7 +430,14 @@ export async function sincronizarCatalogo(
   };
 }
 
-/** Guarda la direccion del archivo del comercio. */
+/**
+ * Guarda la direccion del archivo del comercio, y su llave si la lleva.
+ *
+ * LA LLAVE NO ES UN EXTRA: casi ningun comercio publica su catalogo abierto al
+ * mundo. El de la ferreteria piloto pide `Authorization: Bearer <token>` y sin
+ * el responde 401 — asi que un formulario que solo pidiera la direccion dejaria
+ * la lectura muerta para siempre, con la pantalla diciendo que esta todo bien.
+ */
 export async function guardarFuente(
   formulario: FormData,
 ): Promise<{ ok: boolean; mensaje: string }> {
@@ -444,6 +451,11 @@ export async function guardarFuente(
 
   const id = String(formulario.get("id") ?? "");
   const url = String(formulario.get("url") ?? "").trim();
+  /* `null` = no vino el campo (no se toca lo guardado). Cadena vacia = vino
+     vacio a proposito, y entonces se borra. Son dos cosas distintas: sin esa
+     diferencia, guardar solo la direccion borraria la llave sin avisar. */
+  const tokenCrudo = formulario.get("token");
+  const token = tokenCrudo === null ? null : String(tokenCrudo).trim();
 
   const [fuente] = await db
     .select({ tiendaId: fuentesCatalogo.tiendaId })
@@ -465,7 +477,10 @@ export async function guardarFuente(
 
   await db
     .update(fuentesCatalogo)
-    .set({ url: url || null })
+    .set({
+      url: url || null,
+      ...(token === null ? {} : { token: token || null }),
+    })
     .where(eq(fuentesCatalogo.id, id));
 
   revalidatePath("/[locale]/panel", "layout");

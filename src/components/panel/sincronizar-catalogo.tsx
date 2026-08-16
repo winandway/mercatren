@@ -23,17 +23,27 @@ export function SincronizarCatalogo({
   ultima,
   ultimoResultado,
   salud,
+  tieneLlave,
 }: {
   fuenteId: string;
   url: string | null;
   ultima: string | null;
   ultimoResultado: string | null;
   salud: SaludSincronizacion;
+  /**
+   * SOLO SI HAY UNA, NUNCA CUÁL ES.
+   *
+   * La llave del sistema de otro no se vuelve a dibujar en pantalla: se pega
+   * una vez y se queda en la base. Traerla al navegador la deja en el HTML de
+   * la página, a la vista de cualquiera que mire por encima del hombro.
+   */
+  tieneLlave: boolean;
 }) {
   const t = useTranslations("panel.sincronizacion");
   const router = useRouter();
 
   const [direccion, setDireccion] = useState(url ?? "");
+  const [llave, setLlave] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [sincronizando, setSincronizando] = useState(false);
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(
@@ -127,6 +137,31 @@ export function SincronizarCatalogo({
           />
           <span className="mt-1 block text-xs text-tinta-suave">
             {t("direccionAyuda")}
+          </span>
+        </label>
+
+        {/**
+         * LA LLAVE, QUE SIN ELLA LA MITAD DE LOS CATÁLOGOS NO SE PUEDEN LEER.
+         *
+         * Va como texto normal y NO como casilla de contraseña, a propósito: no
+         * es la clave de nadie, es una credencial de máquina que se pega una
+         * vez, y esconderla mientras se pega solo consigue que se pegue mal.
+         * Por eso tampoco lleva el ojito — no hay nada que destapar.
+         */}
+        <label className="mt-3 block">
+          <span className="text-sm font-semibold">{t("llave")}</span>
+          <input
+            type="text"
+            name="token"
+            value={llave}
+            onChange={(e) => setLlave(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+            placeholder={tieneLlave ? "••••••••••••" : ""}
+            className="mt-1 w-full rounded-lg border border-borde px-3 py-2.5 font-mono text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30"
+          />
+          <span className="mt-1 block text-xs text-tinta-suave">
+            {tieneLlave ? t("llaveGuardada") : t("llaveAyuda")}
           </span>
         </label>
 

@@ -1143,9 +1143,27 @@ puro, 12 pruebas). Una fecha vieja se lee igual de bien que una nueva.
   miden contra **un día**, no contra una hora: una ferretería que no tocó nada
   desde ayer no está rota, simplemente no vendió de madrugada.
 
-**Lo que falta no es código:** la dirección donde el comercio publica su archivo
-(Panel → Mi tienda) y `SINCRONIZAR_LLAVE` cargada en los dos sitios —variable
-del sitio en YaDominios Cloud y secreto del repositorio en GitHub—.
+**LA DIRECCIÓN NO VA SOLA: VA CON SU LLAVE.** Casi ningún comercio publica su
+catálogo abierto al mundo. El de la ferretería piloto
+(`https://ferrematerialesbley.com/exportar/catalogo`) exige
+`Authorization: Bearer <token>` y sin él responde 401 — y el formulario de «Mi
+tienda» solo pedía la dirección. Se habría guardado, la pantalla habría dicho
+que todo bien, y la lectura habría muerto en un 401 para siempre. Ahora la
+casilla está al lado, y `guardarFuente` distingue **campo ausente** (no se toca
+lo guardado) de **campo vacío a propósito** (se borra): sin esa diferencia,
+guardar solo la dirección le borraba la llave a alguien sin avisar.
+
+- **La llave guardada NUNCA se vuelve a dibujar**, solo si la hay. Traerla al
+  navegador la deja escrita en el HTML de la página.
+- **Va como texto normal, no como casilla de contraseña.** No es la clave de
+  nadie: es una credencial de máquina que se pega una vez, y esconderla
+  mientras se pega solo consigue que se pegue mal.
+
+**Lo que falta no es código:** el token del catálogo de la ferretería (vive en
+`configuracion_sistema.token_catalogo`, en SU Supabase — no en ningún
+repositorio, que es lo correcto) y `SINCRONIZAR_LLAVE` en los dos sitios
+—variable del sitio en YaDominios Cloud y secreto del repositorio en GitHub, las
+dos ya cargadas y comprobadas el 15 ago 2026 con un `200`—.
 
 ## Seguridad y dinero: lo que se cerró el 12 ago 2026 (bloque 3)
 

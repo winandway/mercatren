@@ -74,9 +74,20 @@ export default async function PaginaMiTienda({
   // Null si nunca eligió: el selector le enseña el que se le derivó del nombre.
   const color = await colorGuardado(tienda.id);
 
-  // La fuente de catalogo del comercio, si tiene una.
+  /* La fuente de catalogo del comercio, si tiene una.
+     LAS COLUMNAS VAN NOMBRADAS, NUNCA `.select()` A SECAS. Drizzle pediria
+     TODAS las del esquema, incluidas las que se acaben de agregar — y como
+     `schema.sql` solo trae CREATE TABLE IF NOT EXISTS, una base que ya existe
+     no las recibe. Paso el 5 ago 2026 con `deposito_id`: en local perfecto, en
+     produccion la pantalla reventaba con un 500. */
   const [fuente] = await db
-    .select()
+    .select({
+      id: fuentesCatalogo.id,
+      url: fuentesCatalogo.url,
+      token: fuentesCatalogo.token,
+      ultimaSincronizacion: fuentesCatalogo.ultimaSincronizacion,
+      ultimoResultado: fuentesCatalogo.ultimoResultado,
+    })
     .from(fuentesCatalogo)
     .where(eq(fuentesCatalogo.tiendaId, tienda.id))
     .limit(1);
@@ -120,6 +131,9 @@ export default async function PaginaMiTienda({
                   : null
               }
               ultimoResultado={fuente.ultimoResultado}
+              /* Solo si HAY llave, jamás cuál es: traerla al navegador la
+                 dejaría escrita en el HTML de la página. */
+              tieneLlave={Boolean(fuente.token?.trim())}
               /* La salud se calcula EN EL SERVIDOR: el reloj del navegador de
                  quien mira puede estar corrido y daría una alarma falsa. */
               salud={saludDeSincronizacion(
