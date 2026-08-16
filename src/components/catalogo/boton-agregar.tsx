@@ -18,6 +18,7 @@ export function BotonAgregar({
   minimo = 1,
   agotado = false,
   paisOrigen,
+  esEquipoInterno = false,
 }: {
   linea: Omit<LineaCarrito, "cantidad">;
   /** Lo mínimo que se puede llevar. Doce en la tienda mayorista. */
@@ -25,6 +26,8 @@ export function BotonAgregar({
   agotado?: boolean;
   /** De dónde despacha la tienda. Decide si la venta está en pausa. */
   paisOrigen?: string | null;
+  /** El equipo puede comprar en pausa, para probar el circuito completo. */
+  esEquipoInterno?: boolean;
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
@@ -45,7 +48,7 @@ export function BotonAgregar({
    * realidad está en pausa es mentirle al comprador, y además le hace creer que
    * mañana vuelve.
    */
-  if (ventaPausada(paisOrigen)) {
+  if (ventaPausada(paisOrigen, { esEquipoInterno })) {
     return (
       <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
         <p className="text-sm font-bold text-amber-900">{t("pausaTitulo")}</p>
@@ -62,39 +65,51 @@ export function BotonAgregar({
     );
   }
 
-  return (
-    <div className="flex flex-wrap gap-2">
-      {/* 1–9 y "10+": el que quiere cien, la escribe. El tope real lo ponen
-          las existencias, no el desplegable. */}
-      <SelectorCantidad
-        valor={cantidad}
-        minimo={minimo}
-        maximo={linea.maximo}
-        onCambiar={setCantidad}
-        etiqueta={t("cantidad")}
-      />
+  const enPausaParaElPublico = esEquipoInterno && ventaPausada(paisOrigen);
 
-      <button
-        type="button"
-        onClick={() => {
-          agregar(linea, cantidad);
-          setAgregado(true);
-          window.setTimeout(() => setAgregado(false), 2000);
-        }}
-        className={cn(
-          "inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg px-6 text-sm font-semibold transition-colors",
-          agregado
-            ? "bg-precio-600 text-white"
-            : "bg-carga-500 text-riel-950 hover:bg-carga-600",
-        )}
-      >
-        {agregado ? (
-          <Check className="h-4 w-4" aria-hidden />
-        ) : (
-          <ShoppingCart className="h-4 w-4" aria-hidden />
-        )}
-        {t("agregar")}
-      </button>
+  return (
+    <div>
+      {enPausaParaElPublico ? (
+        /* Sin este aviso, quien compra desde una cuenta del equipo creería que
+           la tienda ya está abierta al público — y no lo está. */
+        <p className="mb-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">
+          {t("pausaEquipo")}
+        </p>
+      ) : null}
+
+      <div className="flex flex-wrap gap-2">
+        {/* 1–9 y "10+": el que quiere cien, la escribe. El tope real lo ponen
+          las existencias, no el desplegable. */}
+        <SelectorCantidad
+          valor={cantidad}
+          minimo={minimo}
+          maximo={linea.maximo}
+          onCambiar={setCantidad}
+          etiqueta={t("cantidad")}
+        />
+
+        <button
+          type="button"
+          onClick={() => {
+            agregar(linea, cantidad);
+            setAgregado(true);
+            window.setTimeout(() => setAgregado(false), 2000);
+          }}
+          className={cn(
+            "inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg px-6 text-sm font-semibold transition-colors",
+            agregado
+              ? "bg-precio-600 text-white"
+              : "bg-carga-500 text-riel-950 hover:bg-carga-600",
+          )}
+        >
+          {agregado ? (
+            <Check className="h-4 w-4" aria-hidden />
+          ) : (
+            <ShoppingCart className="h-4 w-4" aria-hidden />
+          )}
+          {t("agregar")}
+        </button>
+      </div>
     </div>
   );
 }

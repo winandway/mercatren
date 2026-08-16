@@ -1959,7 +1959,8 @@
       "deUna": "1 review",
       "soloCompradores": "Only buyers here can review.",
       "pausaTitulo": "Store under maintenance",
-      "pausaTexto": "We're fine-tuning shipping for this store, so we can't take orders just yet. Check back soon — it won't be long."
+      "pausaTexto": "We're fine-tuning shipping for this store, so we can't take orders just yet. Check back soon — it won't be long.",
+      "pausaEquipo": "You're buying with a team account. For the public, this store is still under maintenance."
     },
     "paginacion": {
       "anterior": "Previous",

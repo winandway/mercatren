@@ -163,6 +163,11 @@ export default async function PaginaProducto({
       ? (producto.descripcionEn ?? producto.descripcionEs)
       : producto.descripcionEs;
 
+  /* El equipo puede comprar durante la pausa: es la única forma de probar el
+     circuito completo sin abrirle la tienda al público. */
+  const { esEquipoInterno } = await import("@/lib/autorizacion");
+  const delEquipo = await esEquipoInterno().catch(() => false);
+
   const agotado = producto.controlaExistencias && producto.existencias <= 0;
   const pocas =
     producto.controlaExistencias &&
@@ -437,6 +442,7 @@ export default async function PaginaProducto({
             {variantes.length > 0 ? (
               <SelectorVariante
                 paisOrigen={ficha.tiendaPais}
+                esEquipoInterno={delEquipo}
                 variantes={variantes}
                 idioma={idioma}
                 hayTallas={tallas.map((valor) => ({ valor }))}
@@ -457,6 +463,7 @@ export default async function PaginaProducto({
                 agotado={agotado}
                 minimo={minimoDeCompra}
                 paisOrigen={ficha.tiendaPais}
+                esEquipoInterno={delEquipo}
                 linea={{
                   productoId: producto.id,
                   slug: producto.slug,

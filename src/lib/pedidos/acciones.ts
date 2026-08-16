@@ -168,7 +168,20 @@ export async function crearPedido(
    * Se comprueba ANTES de tocar existencias o de armar un solo renglón: un
    * pedido a medio crear de algo que no se puede despachar no le sirve a nadie.
    */
-  if (carritoPausado(encontrados.map((p) => p.tiendaPais))) {
+  /* El equipo interno sí puede comprar durante la pausa: es la única forma de
+     probar el circuito completo —venta, pedido al proveedor, pago, entrega—
+     sin abrirle la tienda al público antes de saber que se puede despachar. */
+  const { esEquipoInterno } = await import("@/lib/autorizacion");
+  const delEquipo = await esEquipoInterno().catch(() => false);
+
+  if (
+    carritoPausado(
+      encontrados.map((p) => p.tiendaPais),
+      {
+        esEquipoInterno: delEquipo,
+      },
+    )
+  ) {
     return { ok: false, mensaje: t("ventasEnPausa") };
   }
 

@@ -44,9 +44,24 @@ export const PAIS_EN_PAUSA = "US";
  * Recibe el país de la tienda, no el producto entero: así la misma función
  * sirve en el servidor —donde se conoce la fila de `tiendas`— y en la ficha,
  * donde solo viaja el país. Puro, para poder probarlo sin base de datos.
+ *
+ * ══ EL EQUIPO SÍ PUEDE COMPRAR ══
+ *
+ * Y no es un privilegio: es la ÚNICA forma de probar el circuito completo
+ * —venta, pedido al proveedor, pago con tarjeta, entrega— sin abrirle la
+ * tienda al público antes de saber que se puede despachar. La alternativa era
+ * quitar la pausa unas horas y cruzar los dedos para que nadie comprara.
+ *
+ * Se pasa explícito y por defecto es `false`: si algún día alguien olvida
+ * pasarlo, el candado se queda puesto. Al revés —abrir por defecto y cerrar a
+ * mano— el olvido abre la venta, que es el fallo caro.
  */
-export function ventaPausada(paisOrigen: string | null | undefined): boolean {
+export function ventaPausada(
+  paisOrigen: string | null | undefined,
+  opciones?: { esEquipoInterno?: boolean },
+): boolean {
   if (!EN_PAUSA) return false;
+  if (opciones?.esEquipoInterno === true) return false;
   /* Se compara en mayúsculas y sin espacios: el país entra a mano en el panel
      y un « us » con espacio dejaría la venta abierta justo donde no debe. */
   return (paisOrigen ?? "").trim().toUpperCase() === PAIS_EN_PAUSA;
@@ -61,6 +76,7 @@ export function ventaPausada(paisOrigen: string | null | undefined): boolean {
  */
 export function carritoPausado(
   paises: Array<string | null | undefined>,
+  opciones?: { esEquipoInterno?: boolean },
 ): boolean {
-  return paises.some((p) => ventaPausada(p));
+  return paises.some((p) => ventaPausada(p, opciones));
 }

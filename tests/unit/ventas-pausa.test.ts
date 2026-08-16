@@ -41,3 +41,20 @@ describe("la pausa de las ventas de Estados Unidos", () => {
     expect(carritoPausado([])).toBe(false);
   });
 });
+
+describe("el equipo puede comprar durante la pausa", () => {
+  it("para el equipo interno, un producto de EE. UU. sí se vende", () => {
+    /* Es la única forma de probar el circuito completo sin abrirle la tienda
+       al público antes de saber que se puede despachar. */
+    expect(ventaPausada("US", { esEquipoInterno: true })).toBe(false);
+    expect(carritoPausado(["US", "VE"], { esEquipoInterno: true })).toBe(false);
+  });
+
+  it("sin pasar la opción, el candado sigue puesto", () => {
+    /* Por defecto es `false`: si alguien olvida pasarlo, se cierra. Al revés
+       —abrir por defecto— el olvido abriría la venta, que es el fallo caro. */
+    expect(ventaPausada("US")).toBe(EN_PAUSA);
+    expect(ventaPausada("US", {})).toBe(EN_PAUSA);
+    expect(ventaPausada("US", { esEquipoInterno: false })).toBe(EN_PAUSA);
+  });
+});

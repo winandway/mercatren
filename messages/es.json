@@ -1959,7 +1959,8 @@
       "deUna": "1 opinión",
       "soloCompradores": "Solo opinan quienes compraron aquí.",
       "pausaTitulo": "Tienda en mantenimiento",
-      "pausaTexto": "Estamos afinando los envíos de esta tienda y por ahora no podemos recibir pedidos. Vuelve pronto: falta poco."
+      "pausaTexto": "Estamos afinando los envíos de esta tienda y por ahora no podemos recibir pedidos. Vuelve pronto: falta poco.",
+      "pausaEquipo": "Estás comprando con una cuenta del equipo. Para el público esta tienda sigue en mantenimiento."
     },
     "paginacion": {
       "anterior": "Anterior",

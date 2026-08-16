@@ -1168,6 +1168,15 @@ programación, es un contracargo.
 - Es constante y no variable de entorno a propósito: el día que se levante hay
   que **probar que de verdad se puede despachar**, y eso pasa por una
   publicación mirada, no por alguien tocando un panel de madrugada.
+- **EL EQUIPO SÍ PUEDE COMPRAR DURANTE LA PAUSA** (16 ago 2026), y no es un
+  privilegio: es la única forma de probar el circuito completo —venta, pedido
+  al proveedor, pago con tarjeta, entrega— sin abrirle la tienda al público
+  antes de saber que se puede despachar. La alternativa era quitar la pausa
+  unas horas y cruzar los dedos. La opción se pasa **explícita y por defecto en
+  `false`**: si alguien olvida pasarla, el candado se queda puesto; al revés,
+  el olvido abriría la venta, que es el fallo caro. En la ficha sale una franja
+  ámbar diciendo que para el público sigue en mantenimiento — comprar sin
+  saberlo haría creer que la tienda ya está abierta.
 
 **Lo que hay que resolver antes de quitarla** (decidido el 15 ago 2026): probar
 el proveedor con compras propias y medir qué papel viene DENTRO de la caja (si
