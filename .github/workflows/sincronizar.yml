@@ -57,6 +57,20 @@ jobs:
           cat respuesta.json || true
           echo
 
+          # 503 SIGNIFICA UNA SOLA COSA: la variable SINCRONIZAR_LLAVE todavia
+          # no esta cargada en el panel del sitio. Eso es una configuracion que
+          # falta, no algo roto — y ya se ve en Panel -> Configuracion, donde
+          # cada catalogo dice cuando llego por ultima vez.
+          #
+          # Se avisa y se sale en VERDE a proposito. Fallando cada 15 minutos
+          # serian casi cien correos al dia, y un buzon lleno de rojo es como
+          # se deja de mirar el rojo — que es justo lo que este robotito viene
+          # a evitar. Cualquier OTRA respuesta si es un fallo de verdad.
+          if [ "$codigo" = "503" ]; then
+            echo "::warning::Falta cargar SINCRONIZAR_LLAVE en YaDominios Cloud. Hasta entonces los catalogos no se releen solos."
+            exit 0
+          fi
+
           if [ "$codigo" != "200" ]; then
             echo "::error::El sitio respondio $codigo."
             exit 1
