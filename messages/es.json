@@ -919,7 +919,9 @@
         "titulo": "El banco (Mercury)",
         "texto": "Comprueba que la llave del banco sirve antes de que haga falta de verdad. Solo consulta las cuentas: no mueve ni un centavo.",
         "boton": "Probar la conexión con el banco",
-        "probando": "Probando…"
+        "probando": "Probando…",
+        "copiarId": "Copiar el ID",
+        "copiado": "Copiado"
       },
       "cj": {
         "titulo": "CJ Dropshipping",

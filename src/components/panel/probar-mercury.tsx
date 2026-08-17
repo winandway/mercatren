@@ -1,6 +1,13 @@
 "use client";
 
-import { CheckCircle2, Landmark, Loader2, TriangleAlert } from "lucide-react";
+import {
+  Check,
+  CheckCircle2,
+  Copy,
+  Landmark,
+  Loader2,
+  TriangleAlert,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
@@ -17,6 +24,7 @@ import { cn } from "@/lib/utils";
 export function ProbarMercury() {
   const t = useTranslations("panel.configuracion.mercury");
   const [estado, setEstado] = useState<ResultadoSonda | null>(null);
+  const [copiado, setCopiado] = useState<string | null>(null);
   const [probando, iniciar] = useTransition();
 
   return (
@@ -62,13 +70,53 @@ export function ProbarMercury() {
           ) : null}
 
           {estado.cuentas?.length ? (
-            <ul className="mt-2 space-y-1 text-xs">
+            <ul className="mt-2 space-y-2">
               {estado.cuentas.map((c) => (
-                <li key={`${c.nombre}-${c.tipo}`} className="flex gap-2">
-                  <span className="font-semibold">{c.nombre}</span>
-                  <span className="opacity-70">{c.tipo}</span>
-                  <span className="ml-auto tabular-nums">
-                    ${c.saldo.toFixed(2)}
+                <li
+                  key={c.id}
+                  className="rounded-lg border border-borde bg-white p-2.5"
+                >
+                  <span className="flex items-center gap-2 text-xs">
+                    <span className="font-semibold">{c.nombre}</span>
+                    <span className="opacity-70">{c.tipo}</span>
+                    <span className="ml-auto tabular-nums">
+                      ${c.saldo.toFixed(2)}
+                    </span>
+                  </span>
+
+                  {/**
+                   * EL IDENTIFICADOR, PARA COPIARLO.
+                   *
+                   * Es lo que va en `MERCURY_CUENTA_ID`, y sin él los retiros
+                   * no salen. Mandar a buscarlo al panel del banco es mandar a
+                   * alguien a un sitio donde tampoco está a la vista.
+                   *
+                   * No es un secreto: identifica la cuenta, no autoriza nada.
+                   * Lo que autoriza es el token, y ese no se enseña nunca.
+                   */}
+                  <span className="mt-1.5 flex items-center gap-2">
+                    <code className="min-w-0 flex-1 rounded bg-slate-100 px-2 py-1 font-mono text-[11px] break-all">
+                      {c.id}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard?.writeText(c.id);
+                        setCopiado(c.id);
+                        window.setTimeout(() => setCopiado(null), 2000);
+                      }}
+                      className="inline-flex shrink-0 items-center gap-1 rounded border border-borde px-2 py-1 text-[11px] font-semibold hover:border-carga-500"
+                    >
+                      {copiado === c.id ? (
+                        <Check
+                          className="h-3 w-3 text-precio-600"
+                          aria-hidden
+                        />
+                      ) : (
+                        <Copy className="h-3 w-3" aria-hidden />
+                      )}
+                      {copiado === c.id ? t("copiado") : t("copiarId")}
+                    </button>
                   </span>
                 </li>
               ))}

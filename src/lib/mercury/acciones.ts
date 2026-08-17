@@ -35,7 +35,14 @@ export type ResultadoSonda = {
   mensaje: string;
   /** Lo que contestó el banco, para poder pegarlo si hay que preguntar. */
   detalle?: string;
-  cuentas?: { nombre: string; tipo: string; saldo: number; estado: string }[];
+  cuentas?: {
+    /** El identificador de la cuenta en Mercury. Es lo que hay que copiar. */
+    id: string;
+    nombre: string;
+    tipo: string;
+    saldo: number;
+    estado: string;
+  }[];
 };
 
 export async function probarMercury(): Promise<ResultadoSonda> {
@@ -80,6 +87,12 @@ export async function probarMercury(): Promise<ResultadoSonda> {
     ok: true,
     mensaje: t("mercury.conectado", { n: cuentas.length }),
     cuentas: cuentas.map((c) => ({
+      /* El id se ENSEÑA para poder copiarlo: es lo que va en
+         `MERCURY_CUENTA_ID` y sin él los retiros no salen. Mandar a buscarlo
+         al panel del banco es mandar a alguien a un sitio donde tampoco está
+         a la vista. No es un secreto: identifica la cuenta, no autoriza nada
+         — lo que autoriza es el token, que jamás se enseña. */
+      id: c.id,
       nombre: c.name,
       tipo: c.kind,
       /* Mercury devuelve dólares con decimales; aquí se enseña tal cual y no
