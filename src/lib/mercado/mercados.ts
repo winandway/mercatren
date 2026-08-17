@@ -82,3 +82,15 @@ export function mercadoPorCodigo(codigo: string | null | undefined): Mercado {
 export function esMercadoPrincipal(mercado: Mercado): boolean {
   return mercado.codigo === MERCADO_PRINCIPAL.codigo;
 }
+
+/**
+ * La marca tal como se enseña en ese mercado: «Mercatren.cl».
+ *
+ * En los países la marca ES el dominio — así lo pidió el dueño al ver la
+ * miniatura de WhatsApp de mercatren.cl diciendo «Compra en Estados
+ * Unidos»: quien comparte el enlace chileno tiene que ver la casa chilena.
+ * En el principal la marca sigue siendo «Mercatren» a secas.
+ */
+export function marcaDelMercado(mercado: Mercado): string {
+  return mercado.dominio.charAt(0).toUpperCase() + mercado.dominio.slice(1);
+}

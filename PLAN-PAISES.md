@@ -156,10 +156,12 @@ Cloud (`env.DB_CL`…), que avisará cuando exista.
 
 Pendiente de decisión del dueño o de trabajo por fase:
 
-- **Moneda**: ¿Chile vende en CLP o en USD, y con qué procesador (Webpay /
-  tarjetas locales)? El CLP no tiene centavos; el dinero entero en unidades
-  menores aguanta, pero la decisión es de negocio. El pie de .cl hoy dice
-  «cobra en dólares» — se corrige con esta decisión.
+- **Moneda: DECIDIDO (17 ago 2026) — Chile vende en PESOS CHILENOS (CLP).**
+  El CLP no tiene centavos: la unidad menor ES el peso, así que
+  `precio_centavos` guarda pesos enteros para el mercado CL y el formateo
+  sale de la moneda del producto. Falta elegir el procesador (Webpay /
+  tarjetas locales) y corregir el pie de .cl, que hoy dice «cobra en
+  dólares».
 - **Turnstile**: agregar mercatren.cl a los dominios del widget, o el
   login/registro desde .cl se queda sin escudo.
 - **Copy por mercado**: el `<title>` y el hero dicen «Compra en Estados

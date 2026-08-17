@@ -1,7 +1,8 @@
 {
   "marca": {
     "nombre": "Mercatren",
-    "lema": "Compra en Estados Unidos, entrega donde la necesites"
+    "lema": "Compra en Estados Unidos, entrega donde la necesites",
+    "lemaMercadoNuevo": "Muy pronto en {pais}: comercios y productos que se entregan en tu país"
   },
   "encabezado": {
     "buscarPlaceholder": "Buscar productos, tiendas y marcas",

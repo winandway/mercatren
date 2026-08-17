@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   esMercadoPrincipal,
+  marcaDelMercado,
   MERCADO_PRINCIPAL,
   MERCADOS,
   mercadoPorCodigo,
@@ -65,5 +66,12 @@ describe("el registro de mercados", () => {
     expect(mercadoPorCodigo("XX").codigo).toBe("US");
     expect(mercadoPorCodigo(null).codigo).toBe("US");
     expect(mercadoPorCodigo(" cl ").codigo).toBe("CL");
+  });
+
+  it("la marca de un país es su dominio: «Mercatren.cl»", () => {
+    /* Lo pidió el dueño al ver la miniatura de WhatsApp de mercatren.cl
+       diciendo «Compra en Estados Unidos»: el enlace chileno enseña la casa
+       chilena. */
+    expect(marcaDelMercado(mercadoPorCodigo("CL"))).toBe("Mercatren.cl");
   });
 });

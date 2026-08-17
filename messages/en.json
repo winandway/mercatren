@@ -1,7 +1,8 @@
 {
   "marca": {
     "nombre": "Mercatren",
-    "lema": "Cross-border buying and selling"
+    "lema": "Cross-border buying and selling",
+    "lemaMercadoNuevo": "Coming soon to {pais}: local stores and products delivered in your country"
   },
   "encabezado": {
     "buscarPlaceholder": "Search products, stores and brands",

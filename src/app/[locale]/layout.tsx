@@ -12,6 +12,8 @@ import { Proveedores } from "@/components/proveedores";
 import { RegistroAppInstalable } from "@/components/registro-app-instalable";
 import { ESPACIOS_QUE_NO_VIAJAN } from "@/i18n/espacios";
 import { comoJsonLd } from "@/lib/seo/datos-estructurados";
+import { mercadoActual } from "@/lib/mercado/actual";
+import { esMercadoPrincipal, marcaDelMercado } from "@/lib/mercado/mercados";
 import { routing } from "@/i18n/routing";
 import { SITIO } from "@/lib/sitio";
 
@@ -38,16 +40,35 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "marca" });
-  const titulo = `${t("nombre")} — ${t("lema")}`;
+
+  /**
+   * LA MINIATURA HABLA EL IDIOMA DEL DOMINIO (17 ago 2026).
+   *
+   * Al compartir mercatren.cl por WhatsApp, la tarjeta decía «Compra en
+   * Estados Unidos» — el lema del mercado principal en el enlace chileno.
+   * Fuera del principal, la marca es el dominio («Mercatren.cl») y el lema
+   * no menciona ningún otro país.
+   *
+   * OJO: esto solo alcanza a las páginas DINÁMICAS (la portada lo es). Las
+   * prerenderizadas se hornean con el mercado principal y se sirven iguales
+   * en los dos dominios — está anotado en la fase 3 de PLAN-PAISES.md.
+   */
+  const mercado = await mercadoActual();
+  const principal = esMercadoPrincipal(mercado);
+  const marca = principal ? t("nombre") : marcaDelMercado(mercado);
+  const lema = principal
+    ? t("lema")
+    : t("lemaMercadoNuevo", { pais: mercado.nombre });
+  const titulo = `${marca} — ${lema}`;
 
   return {
-    metadataBase: new URL(SITIO.url),
+    metadataBase: new URL(principal ? SITIO.url : `https://${mercado.dominio}`),
     title: {
       default: titulo,
-      template: `%s | ${t("nombre")}`,
+      template: `%s | ${marca}`,
     },
-    description: t("lema"),
-    applicationName: t("nombre"),
+    description: lema,
+    applicationName: marca,
     manifest: "/manifest.webmanifest",
     alternates: {
       canonical: `/${locale}`,
@@ -58,29 +79,30 @@ export async function generateMetadata({
     },
     openGraph: {
       type: "website",
-      siteName: t("nombre"),
+      siteName: marca,
       title: titulo,
-      description: t("lema"),
+      description: lema,
       url: `/${locale}`,
-      locale: locale === "es" ? "es_US" : "en_US",
+      locale:
+        locale === "es" ? `es_${principal ? "US" : mercado.codigo}` : "en_US",
       images: [
         {
           url: "/og.png",
           width: 1200,
           height: 630,
-          alt: t("nombre"),
+          alt: marca,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
       title: titulo,
-      description: t("lema"),
+      description: lema,
       images: ["/og.png"],
     },
     appleWebApp: {
       capable: true,
-      title: t("nombre"),
+      title: marca,
       statusBarStyle: "black-translucent",
     },
   };
