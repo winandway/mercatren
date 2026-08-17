@@ -1911,6 +1911,10 @@
     "buscador": {
       "buscar": "Search",
       "limpiar": "Clear search"
+    },
+    "mercado": {
+      "elige": "Dashboard country",
+      "estasViendo": "You are viewing the {pais} dashboard"
     }
   },
   "catalogo": {

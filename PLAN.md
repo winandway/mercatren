@@ -23,12 +23,12 @@
 
 ## FASE 4 · El panel de administración por país
 
-- [ ] Paso 7: El mercado del panel vive en la SESIÓN (cookie firmada por el
+- [x] Paso 7: El mercado del panel vive en la SESIÓN (cookie firmada por el
       servidor), NUNCA en un parámetro de la URL. `mercadoDelPanel()` con sus
       pruebas.
-- [ ] Paso 8: El selector en el encabezado del panel (solo rol `soporte`) y la
+- [x] Paso 8: El selector en el encabezado del panel (solo rol `soporte`) y la
       franja permanente cuando NO se está en el mercado principal.
-- [ ] Paso 9: Que las consultas del panel (comercios, cuentas, órdenes,
+- [x] Paso 9: Que las consultas del panel (comercios, cuentas, órdenes,
       cobros, retiros) respeten ese mercado. El alcance del comercio manda por
       encima, como siempre.
 

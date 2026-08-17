@@ -1911,6 +1911,10 @@
     "buscador": {
       "buscar": "Buscar",
       "limpiar": "Limpiar la búsqueda"
+    },
+    "mercado": {
+      "elige": "País del panel",
+      "estasViendo": "Estás viendo el panel de {pais}"
     }
   },
   "catalogo": {

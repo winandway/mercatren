@@ -14,6 +14,7 @@ import {
 } from "drizzle-orm";
 
 import { comercioEfectivo, obtenerAlcance } from "@/lib/autorizacion";
+import { mercadoDelPanel } from "@/lib/mercado/panel";
 import { getDb } from "@/lib/db";
 import {
   billeteras,
@@ -313,6 +314,7 @@ export async function listarPendientesDeValidacion(comercio?: string) {
 export async function listarComercios(busqueda?: string) {
   const db = getDb();
   const alcance = await obtenerAlcance();
+  const mercadoMirado = await mercadoDelPanel();
 
   /* El filtro va EN LA BASE, no sobre lo ya traído: con una tienda por rubro
      de Estados Unidos más los comercios reales, esta lista solo crece. */
@@ -340,6 +342,17 @@ export async function listarComercios(busqueda?: string) {
            escriba el nombre de otro comercio sigue viendo solo el suyo. */
         alcance.tipo === "tienda"
           ? eq(tiendas.id, alcance.tiendaId)
+          : undefined,
+        /**
+         * EL PAÍS QUE EL EQUIPO ESTÁ MIRANDO (fase 4 del plan multi-país).
+         *
+         * Solo se le aplica al equipo. Un comercio ve el suyo y punto, y su
+         * alcance ya lo dejó en una sola fila — filtrarlo además por país lo
+         * haría desaparecer de su propia lista el día que se le cambie de
+         * vitrina, y no entendería por qué.
+         */
+        alcance.tipo === "todos"
+          ? eq(tiendas.mercado, mercadoMirado.codigo)
           : undefined,
         texto
           ? or(

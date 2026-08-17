@@ -10,6 +10,10 @@ import {
 import { BurbujaAsistente } from "@/components/panel/asistente/burbuja";
 import { MenuLateral } from "@/components/panel/menu-lateral";
 import { VigilanteDeVersion } from "@/components/panel/vigilante-de-version";
+import {
+  FranjaMercado,
+  SelectorMercado,
+} from "@/components/panel/selector-mercado";
 import { FranjaVerComo } from "@/components/panel/ver-como";
 import { redirect } from "@/i18n/navigation";
 import {
@@ -21,6 +25,9 @@ import { agenteConfigurado } from "@/lib/asistente/cliente";
 import { getDb } from "@/lib/db";
 import { tiendas } from "@/lib/db/schema";
 import { contarRetirosPendientes } from "@/lib/retiros/consultas";
+import { esSoporteDeVerdad } from "@/lib/autorizacion";
+import { MERCADOS } from "@/lib/mercado/mercados";
+import { hayQueAvisarDelMercado, mercadoDelPanel } from "@/lib/mercado/panel";
 import { comercioObservado } from "@/lib/soporte/ver-como";
 import { cn } from "@/lib/utils";
 import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
@@ -111,6 +118,12 @@ export default async function LayoutPanel({
         .catch(() => [])
     : [];
 
+  /* EL PAÍS QUE ESTÁ MIRANDO EL PANEL. Solo Soporte lo puede cambiar, y por
+     eso solo a Soporte se le dibuja el selector — pero el muro no es este
+     `if`, es que `mercadoDelPanel()` comprueba el rol al leer la cookie. */
+  const mercado = await mercadoDelPanel();
+  const puedeCambiarDePais = await esSoporteDeVerdad();
+
   /* Si se dibuja el asistente: manda el hueco del final y el propio botón. */
   const conAsistente = interno && hayAsistente;
 
@@ -121,6 +134,9 @@ export default async function LayoutPanel({
             recarga sola en vez de enseñar «Server Action no encontrada», que
             no le dice nada a nadie y parece un botón roto. */}
         <VigilanteDeVersion />
+        {hayQueAvisarDelMercado(mercado) ? (
+          <FranjaMercado pais={mercado.nombre} />
+        ) : null}
         {comercioMirado ? (
           <FranjaVerComo nombre={comercioMirado.nombre} />
         ) : null}
@@ -131,6 +147,21 @@ export default async function LayoutPanel({
           nombre={usuario?.name ?? ""}
         />
         <div className="lg:pl-64">
+          {/* EL SELECTOR DE PAÍS, solo para Soporte. Va arriba del contenido y
+              no dentro del menú lateral: en el celular el menú vive plegado, y
+              un selector que hay que abrir un cajón para encontrar es un
+              selector que nadie usa. */}
+          {puedeCambiarDePais ? (
+            <div className="flex justify-end border-b border-borde bg-white px-4 py-2 sm:px-6">
+              <SelectorMercado
+                actual={mercado.codigo}
+                opciones={MERCADOS.map((m) => ({
+                  codigo: m.codigo,
+                  nombre: m.nombre,
+                }))}
+              />
+            </div>
+          ) : null}
           <main
             className={cn(
               "mx-auto max-w-[1400px] px-4 py-6 sm:px-6 lg:py-8",
