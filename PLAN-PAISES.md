@@ -1,141 +1,183 @@
-# PLAN-PAISES — Un país = un dominio = un catálogo
+# PLAN-PAISES — Multi-inquilino: un país = un inquilino, el dominio es la puerta
 
-> Escrito el 17 ago 2026, el día que entró `mercatren.cl`. Chile es el país de
-> prueba: la estructura que se arma con él tiene que servir TAL CUAL para
-> `mercatren.com.co`, `mercatren.mx` y los que vengan. Si agregar México
-> obliga a programar algo nuevo, esta estructura quedó mal hecha.
+> Versión 2 — 17 ago 2026. El dueño trajo el plan de arquitectura armado junto
+> con YaDominios Cloud y ESTE es el que manda. La versión 1 de este archivo
+> (multidominio por fases) queda absorbida aquí: lo construido ese mismo día
+> se mapea abajo, fase por fase. Chile (`mercatren.cl`) es el país de prueba;
+> cuando esté en orden, vienen el resto de dominios.
 
-## La regla de cabecera
+## La doctrina (esto manda sobre todas las decisiones)
 
-**El dominio decide el mercado.** Quien entra por `mercatren.com` ve el
-mercado principal (los comercios de Venezuela + el catálogo de EE. UU.);
-quien entra por `mercatren.cl` ve SOLO lo de Chile. Un producto que no se
-puede entregar en un país no puede salir en el dominio de ese país:
-enseñarlo es prometer una entrega que no existe.
+**El problema no es multidominio: es multi-inquilino.** Cada país es un
+INQUILINO con su catálogo, su stock, sus precios, sus pedidos y su
+administrador. El dominio es solo la puerta por la que se entra.
 
-**Y cada país se opera como una empresa de ese país**: sus proveedores, sus
-medios de pago, su moneda, sus impuestos, su logística. El código es uno; la
-operación es por país.
+**Regla de oro: el código NUNCA se separa. Se separa el DATO.** Nada de una
+carpeta para Chile: el arreglo del carrito se haría en una y se olvidaría en
+la otra. Carpetas por país solo para páginas de verdad distintas (una landing
+local, un texto legal), jamás para lógica.
 
-## Cómo está armado (lo que ya existe desde hoy)
+**Tres muros independientes — poner uno y creerse a salvo es el error clásico:**
 
-- **`src/lib/mercado/mercados.ts`** — la lista cerrada de mercados: código,
-  dominio, nombre. Es lista y no tabla a propósito: abrir un país pasa por
-  una publicación mirada, no por una fila creada de madrugada.
-- **`src/lib/mercado/actual.ts`** — lee el dominio de la petición y devuelve
-  el mercado. Un host desconocido (localhost, sitios.dev) cae en el
-  principal.
-- **`tiendas.mercado`** — a qué vitrina pertenece cada comercio. Los 28 de
-  hoy están en `US`. No confundir con `paisOrigen` (desde dónde sale la
-  mercancía): la ferretería es paisOrigen VE, mercado US.
-- **El candado vive en las consultas** (`visibleAqui()` en
-  `catalogo/consultas.ts` y `buscar.ts`), no en las páginas — igual que el
-  alcance de los comercios: una pantalla nueva no puede olvidarse de él.
-- Las llaves de la caché de portada y menú llevan el mercado; el sitemap, el
-  `llms.txt` y el catálogo de Google quedaron fijados al principal (sus
-  direcciones son de mercatren.com).
-- Better Auth confía en todos los dominios de la lista: **la misma cuenta
-  entra en todos**, aunque la cookie sea por dominio.
+| Muro   | Regla                                                        |
+| ------ | ------------------------------------------------------------ |
+| CÓDIGO | No se separa nunca. Uno solo.                                |
+| DATOS  | El país es una dimensión OBLIGATORIA, no un filtro opcional. |
+| CACHÉ  | El país va DENTRO de la clave de caché.                      |
 
----
+**Separar las bases de datos NO salva de la caché**: la caché responde ANTES
+de llegar a la base. Se hacen las tres cosas.
 
-## Las fases
+**País e idioma son dos ejes distintos.** En Chile y en Colombia se habla
+español: el idioma jamás decide el país. Hoy la app resuelve idioma (next-intl)
+y país (host) por caminos separados, y así se queda.
 
-### ✅ Fase 0 — El candado del mercado (17 ago 2026)
+## Lo verificado por la plataforma (no supuesto)
 
-`mercatren.cl` carga el sistema completo (encabezado, menú, páginas), con
-**cero productos, cero tiendas y cero resultados de búsqueda**. La portada
-enseña «Mercatren llega a Chile» con la invitación a abrir tienda — no una
-parrilla vacía que se lee como un sitio roto. El selector de ciudades (que es
-la geografía de Venezuela) no sale fuera del mercado principal.
-
-### Fase 1 — Chile se puede operar (antes de buscar comercios chilenos)
-
-| Qué                                                                                                                                                                                                                                                             | Cómo se comprueba                                              |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Alta de comercio con mercado.** El registro y el alta desde el panel guardan el mercado del dominio por el que se entró; el equipo puede corregirlo en Comercios.                                                                                             | Una tienda creada desde mercatren.cl sale en .cl y NO en .com. |
-| **Turnstile en el dominio nuevo.** El widget solo se dibuja en los dominios dados de alta en Cloudflare; sin esto, entrar y registrarse desde .cl se queda sin escudo (o sin login, si el escudo es exigido).                                                   | El login funciona en mercatren.cl con las claves reales.       |
-| **Los correos dicen el dominio correcto.** Los enlaces de los correos salen de `SITIO.url`; para cuentas del mercado CL deben llevar mercatren.cl.                                                                                                              | El correo de bienvenida de una cuenta .cl enlaza a .cl.        |
-| **Moneda por mercado (decisión de negocio).** Chile compra en CLP, y el CLP no tiene centavos. El dinero del proyecto es entero en unidades menores, así que el modelo aguanta; lo que hay que decidir es si Chile vende en CLP o en USD, y con qué procesador. | Está escrito aquí, con la decisión del dueño.                  |
-| **Geografía de Chile** (regiones y comunas), como `entrega/venezuela.ts`, para el selector y el retiro/entrega.                                                                                                                                                 | El selector de ciudad aparece en .cl con comunas chilenas.     |
-
-### Fase 2 — El comprador de Chile compra de verdad
-
-- **Proveedores chilenos de dropshipping** — la búsqueda y las compras de
-  prueba, igual que se hizo con CJ: qué papel viene en la caja, desde dónde
-  sale, cuánto tarda. Sin esto no se abre la venta (la misma regla de la
-  pausa de EE. UU.: `pausa.ts` sabrá de mercados).
-- **Medios de pago del país.** Stripe funciona en Chile, pero el comprador
-  chileno paga con Webpay/tarjetas locales; decidir procesador y cuenta
-  receptora ANTES de publicar precios (el orden EIN→banco→Stripe→sitio de la
-  sociedad, repetido para cada país).
-- **Checkout por mercado**: dirección chilena, sin la pregunta «¿dónde lo
-  retiras?» de Venezuela, y con el carrito incapaz de mezclar mercados
-  (`cabenJuntos()` ya existe y esta fase lo conecta).
-- **Impuestos**: boleta/factura y el registro que exija el SII — con contador
-  o abogado del país, no adivinado desde el código.
-
-### Fase 3 — SEO multidominio (el que se hace con calma y una sola vez)
-
-Hoy los canónicos de TODAS las páginas apuntan a mercatren.com — y eso, con
-.cl vacío, es **correcto**: le dice a Google que la página buena es la de
-.com y evita contenido duplicado. Cuando Chile tenga catálogo propio:
-
-1. **`SITIO.url` pasa a ser por mercado** (el host decide), y `rutaCanonica`
-   emite el dominio del mercado.
-2. **hreflang cruzado entre dominios**: `es-CL` → mercatren.cl, `es-US` /
-   `es-VE` → mercatren.com, `x-default` → mercatren.com. Es lo que le dice a
-   Google «es la misma marca, un sitio por país» — como Amazon o
-   MercadoLibre.
-3. **Un sitemap por dominio** (el de .cl lista lo de .cl) y **una propiedad
-   de Search Console por dominio**.
-4. **Datos estructurados por mercado**: la Organization es la misma
-   (Mercatren LLC), el `areaServed` cambia.
-5. El robots de un mercado vacío no cambia nada: los canónicos a .com ya lo
-   protegen mientras tanto.
-
-### Fase 4 — El panel sabe de países
-
-- **Selector de mercado para el equipo** (rol soporte), arriba del panel,
-  con el mismo mecanismo de cookie que «ver su panel»: elegido Chile, TODAS
-  las listas —comercios, cuentas, órdenes, cobros, retiros— se acotan a ese
-  mercado. Un vendedor no necesita selector: su alcance ya es su tienda.
-- **Los números no se mezclan**: el resumen de ventas, la cola de
-  validación y la de retiros dicen de qué mercado son. Sumar CLP con USD en
-  una misma tarjeta es un número que no existe.
-- **Retiros por país** ya casi está: `retiros/paises.ts` tiene los doce
-  países y Mercury manda el wire. Lo que falta es que el desglose y la
-  moneda del comercio chileno cuadren con lo que su banco recibe.
-
-### Fase 5 — Abrir un país nuevo es una rutina, no un proyecto
-
-La meta: agregar México = **una entrada en `mercados.ts` + esta lista**, en
-un día de trabajo:
-
-1. Comprar el dominio y agregarlo en YaDominios → al sitio `mercatren`.
-2. La entrada en `MERCADOS` (código, dominio, nombre) + push.
-3. El dominio en el widget de Turnstile.
-4. Geografía del país (si vende con retiro/entrega local).
-5. Proveedores + medios de pago + impuestos (fases 1–2 de ese país).
-6. Search Console + sitemap del dominio (fase 3).
-7. Comercios: los primeros del país, con su mercado puesto.
-
-Hasta que un país complete su lista, su dominio enseña «Mercatren llega a
-{país}» — que es un estado correcto y honesto, no un error.
+- mercatren.com y mercatren.cl apuntan al MISMO sitio y al MISMO worker; un
+  despliegue sirve los dos.
+- La petición llega INTACTA: el `Host` original es de fiar.
+- Bindings de hoy: `env.DB` (UNA sola base D1), `env.BUCKET`, `env.ASSETS` y
+  las variables del panel. **No asumir varias bases**: `env.DB_CL` /
+  `env.DB_GLOBAL` está contemplado en el plan Cosmos de YaDominios Cloud pero
+  NO construido. No diseñar contando con ello hasta el aviso.
+- Este repo usa **App Router** (`src/app/`).
+- Dominios, DNS, certificados y correo los lleva YaDominios Cloud. Cuando se
+  registre mercatren.com.co, la plataforma lo conecta y avisa.
 
 ---
 
-## Lo que NO se hace, y por qué
+## FASE 1 · El país se resuelve UNA sola vez — ✅ HECHA (17 ago 2026)
 
-- **No se comparte la sesión entre dominios (por ahora).** Las cookies no
-  cruzan de .com a .cl; un SSO con traspaso de token es trabajo fino de
-  seguridad para cuando exista un usuario que de verdad viva en dos países.
-  La misma cuenta ya entra en los dos con su contraseña — eso alcanza hoy.
-- **No se redirige por geolocalización.** Detectar el país por IP y mandar a
-  la gente al dominio «correcto» rompe SEO (Googlebot entra desde EE. UU.),
-  rompe los enlaces compartidos y quita control al usuario. El que quiere
-  comprar en Chile entra a mercatren.cl; a lo sumo, más adelante, un aviso
-  discreto «¿buscabas Mercatren Chile?» — nunca una redirección.
-- **No se traduce el catálogo entre mercados.** Un producto vive en UN
-  mercado. «Vender lo mismo en dos países» = dos productos, cada uno con su
-  proveedor y su precio en su moneda.
+Mapa explícito, nunca adivinado por la extensión
+(`src/lib/mercado/mercados.ts`, lista cerrada, 8 pruebas):
+
+```
+mercatren.com     → US (principal/global)
+mercatren.cl     → CL
+mercatren.com.co → CO   (cuando se registre)
+cualquier otro   → principal (localhost, sitios.dev, hosts raros)
+```
+
+**La mecánica en este repo: `mercadoActual()` (src/lib/mercado/actual.ts) lee
+el Host con `headers()` — una sola función de deducción, un solo lugar donde
+equivocarse.** Se eligió esto en vez de inyectar el país desde el middleware
+por una razón de esta plataforma: el matcher del middleware EXCLUYE `/datos`
+(las rutas de servidor: parrilla infinita, sugerencias del buscador, feeds),
+así que un header inyectado ahí no existiría justo en las rutas que también
+consultan el catálogo. Leer el Host directo cubre TODAS las puertas con el
+mismo camino. El objetivo de la fase —nadie deduce el país por su cuenta— se
+cumple: la única forma de saber el mercado es llamar a `mercadoPorHost` /
+`mercadoActual`.
+
+El middleware no toca `_next`, estáticos ni imágenes (ya era así).
+
+## FASE 2 · La capa de datos con el país OBLIGATORIO — A MEDIAS
+
+**El miedo real que esta fase mata: «alguien se olvida de filtrar y un chileno
+ve stock de Estados Unidos». Ese olvido no da error: devuelve datos
+equivocados, que es lo que más tarda en descubrirse.**
+
+Lo hecho (17 ago 2026):
+
+- `tiendas.mercado` NOT NULL con su índice, aplicada a producción y a local
+  con ALTER a mano (schema.sql no agrega columnas a tablas existentes). Los
+  28 comercios de hoy → `US`.
+- El candado en el catálogo público: `visibleAqui()` dentro de
+  `catalogo/consultas.ts` y `buscar.ts`. Comprobado en producción: en .cl la
+  búsqueda da cero y la ficha de un producto o tienda de .com sale
+  «no encontrado».
+
+Lo que falta para cerrar la fase:
+
+- [ ] **La capa de repositorio formal**: ninguna página ni API habla con
+      `env.DB` directo; cada función de la capa recibe el país y el TIPO lo
+      hace obligatorio (pedir productos sin país no compila).
+- [ ] **La prueba-muro**: recorre la capa y FALLA si una consulta a una tabla
+      con dimensión de país va sin su filtro. Se comprueba en ROJO.
+- [ ] **`mercado` en las tablas por país que faltan** (pedidos al crearse, y
+      las que vengan), con índice compuesto que empiece por el país.
+- [ ] **Documentar qué es GLOBAL y qué es POR PAÍS.** Decidido hoy: - Por país: tiendas (su vitrina), catálogo/stock/precios (cuelgan de la
+      tienda), pedidos, envíos, impuestos, proveedores (CJ para US, Dropi u
+      otro para Chile). - Global: cuentas de usuario (la misma cuenta entra en todos los
+      dominios — ya funciona con `trustedOrigins`), el equipo interno, la
+      configuración del sistema.
+
+## FASE 3 · La caché con el país en la clave — A MEDIAS
+
+Sin esto, las fases 1 y 2 no sirven de nada: los dos dominios comparten
+worker y una caché por ruta sin país sirve contenido cruzado — y no se ve en
+desarrollo, aparece con tráfico real.
+
+Lo hecho (17 ago 2026):
+
+- Las llaves de `recordado()` (caché en memoria del worker) llevan el
+  mercado: portada, menú de categorías, comercios destacados.
+- Las rutas que consultan el catálogo son dinámicas (usan `headers()`), así
+  que hoy no hay ISR compartido entre dominios en esas páginas.
+
+Lo que falta para cerrar la fase:
+
+- [ ] **Auditar el caché incremental de OpenNext** ruta por ruta: toda ruta
+      cacheada cuya respuesta dependa del país lleva el país en la clave, o
+      se declara dinámica. Con su prueba en rojo.
+- [ ] **`Vary` donde corresponda.**
+- [ ] **Matar las URL absolutas fijas**: `SITIO.url` / `NEXT_PUBLIC_SITIO_URL`
+      alimentan canónicos, sitemap, robots y los enlaces de los correos. Con
+      varios dominios hay varios valores: se calculan POR PETICIÓN desde el
+      host/país. (Mientras .cl esté vacío, sus canónicos apuntando a .com son
+      correctos — evitan contenido duplicado; el cambio entra con el catálogo
+      chileno. El sitemap, llms.txt y el feed de Google quedaron fijados al
+      principal a propósito hasta esta fase.)
+
+## FASE 4 · El panel de administración por país — PENDIENTE
+
+Al entrar, el administrador elige el país y solo ve y toca ese país.
+
+**El selector es COMODIDAD; el muro es que el país viva en la SESIÓN del
+servidor** y toda consulta lo use. Si un parámetro de URL puede cambiarlo, el
+selector es un adorno. Mismo mecanismo de cookie que «ver su panel», con las
+mismas tres reglas: solo soporte, comprobado en el servidor, franja visible.
+Los números no se mezclan: CLP con USD en una misma tarjeta es un número que
+no existe.
+
+## FASE 5 · Bases separadas — SOLO si hace falta, y va la ÚLTIMA
+
+Con las fases 1–3 bien hechas deja de ser urgente. Se haría por ley de
+residencia de datos o para vender la operación de un país — NO para evitar
+que se mezcle stock (eso lo mata la fase 2). Su costo real: migraciones ×N
+que se desincronizan, informes globales sumados en código, y una base extra
+para lo común (serían cuatro, no tres). Depende del plan Cosmos de YaDominios
+Cloud (`env.DB_CL`…), que avisará cuando exista.
+
+---
+
+## Lo que abre Chile de verdad (operación, no arquitectura)
+
+Pendiente de decisión del dueño o de trabajo por fase:
+
+- **Moneda**: ¿Chile vende en CLP o en USD, y con qué procesador (Webpay /
+  tarjetas locales)? El CLP no tiene centavos; el dinero entero en unidades
+  menores aguanta, pero la decisión es de negocio. El pie de .cl hoy dice
+  «cobra en dólares» — se corrige con esta decisión.
+- **Turnstile**: agregar mercatren.cl a los dominios del widget, o el
+  login/registro desde .cl se queda sin escudo.
+- **Copy por mercado**: el `<title>` y el hero dicen «Compra en Estados
+  Unidos» — el texto de .cl se escribe cuando Chile tenga su propuesta.
+- **Geografía de Chile** (regiones y comunas) para selector y entrega.
+- **Proveedores chilenos** (Dropi u otro): compras de prueba antes de abrir
+  la venta, igual que CJ — la pausa (`pausa.ts`) sabrá de mercados.
+- **Impuestos**: boleta/factura y SII, con contador o abogado del país.
+- **Alta de comercio con mercado**: el registro guarda el mercado del dominio
+  por el que entró; el equipo lo corrige en Comercios.
+- **Correos con el dominio del mercado** (enlaces de bienvenida, compra…).
+
+## Cómo se trabaja (no es opcional)
+
+- Cada fase con sus pruebas, y cada prueba comprobada en ROJO.
+- Antes de dar algo por terminado, recorrer el camino COMPLETO de un
+  visitante en los DOS dominios.
+- Cada error se arregla para TODOS los casos: «¿dónde MÁS vive este fallo?».
+- Un mensaje en pantalla que engaña es un fallo completo.
+- **No se redirige por geolocalización, nunca**: rompe SEO y los enlaces
+  compartidos. El dominio es la elección del usuario.
