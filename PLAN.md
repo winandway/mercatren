@@ -48,7 +48,7 @@
 - [x] Paso 14: Matar las URL absolutas fijas: canónicos, sitemap, robots,
       `llms.txt` y los enlaces de los correos calculados POR PETICIÓN desde el
       host/mercado.
-- [ ] Paso 15: Auditar el caché de OpenNext ruta por ruta — toda ruta cacheada
+- [x] Paso 15: Auditar el caché de OpenNext ruta por ruta — toda ruta cacheada
       cuya respuesta dependa del país lleva el país en la clave o se declara
       dinámica. Con su prueba.
 - [ ] Paso 16: `npm run verify` completo, publicar, y comprobar EN VIVO el

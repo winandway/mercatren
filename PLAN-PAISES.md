@@ -127,43 +127,75 @@ las dos columnas presentes, y el archivo corre dos veces seguidas sin romperse
 **una columna nueva sobre una base viva se aplica A MANO**, y el generador ahora
 lo avisa por pantalla en vez de detener el trabajo.
 
-## FASE 3 · La caché con el país en la clave — A MEDIAS
+## FASE 3 · La caché con el país en la clave — ✅ HECHA (17 ago 2026)
 
-Sin esto, las fases 1 y 2 no sirven de nada: los dos dominios comparten
-worker y una caché por ruta sin país sirve contenido cruzado — y no se ve en
-desarrollo, aparece con tráfico real.
+**Sin esto, las fases 1 y 2 no sirven de nada: la caché responde ANTES de
+llegar a la base.** Se puede tener el filtro de país perfecto en cada consulta
+y aun así servirle a un visitante del .com una página chilena guardada, sin
+tocar la base ni una vez. Y no se ve en desarrollo: aparece con tráfico real.
 
-Lo hecho (17 ago 2026):
+### La auditoría, ruta por ruta
 
-- Las llaves de `recordado()` (caché en memoria del worker) llevan el
-  mercado: portada, menú de categorías, comercios destacados.
-- Las rutas que consultan el catálogo son dinámicas (usan `headers()`), así
-  que hoy no hay ISR compartido entre dominios en esas páginas.
+**De 80 rutas, solo 5 se hornean.** Todas las páginas son dinámicas —consultan
+la sesión o la base—, así que no había ISR compartido entre dominios. Las cinco
+estáticas eran `_not-found`, `icon.png`, `apple-icon.png`, `robots.txt` y
+**`manifest.webmanifest`** — y esa última era la única cuyo contenido cambia con
+el país: lleva el nombre de la marca dentro.
 
-Lo que falta para cerrar la fase:
+**No se veía en ninguna pantalla.** Se veía en el celular de quien instalara la
+aplicación desde Chile: el icono en su pantalla de inicio diría el nombre del
+otro país. Ya es `force-dynamic`.
 
-- [ ] **Auditar el caché incremental de OpenNext** ruta por ruta: toda ruta
-      cacheada cuya respuesta dependa del país lleva el país en la clave, o
-      se declara dinámica. Con su prueba en rojo.
-- [ ] **`Vary` donde corresponda.**
-- [ ] **Matar las URL absolutas fijas**: `SITIO.url` / `NEXT_PUBLIC_SITIO_URL`
-      alimentan canónicos, sitemap, robots y los enlaces de los correos. Con
-      varios dominios hay varios valores: se calculan POR PETICIÓN desde el
-      host/país. (Mientras .cl esté vacío, sus canónicos apuntando a .com son
-      correctos — evitan contenido duplicado; el cambio entra con el catálogo
-      chileno. El sitemap, llms.txt y el feed de Google quedaron fijados al
-      principal a propósito hasta esta fase.)
+### Las llaves de la memoria del worker
 
-## FASE 4 · El panel de administración por país — PENDIENTE
+Las cuatro llaves de `recordado()` llevan el mercado. La que faltaba era
+`cobertura-ciudades`, y su consulta **contaba productos de todos los mercados**:
+el bombillo de una ciudad prometía mercancía que en ese dominio no existe.
 
-Al entrar, el administrador elige el país y solo ve y toca ese país.
+### Las URL absolutas, calculadas por petición
 
-**El selector es COMODIDAD; el muro es que el país viva en la SESIÓN del
-servidor** y toda consulta lo use. Si un parámetro de URL puede cambiarlo, el
-selector es un adorno. Mismo mecanismo de cookie que «ver su panel», con las
-mismas tres reglas: solo soporte, comprobado en el servidor, franja visible.
-Los números no se mezclan: CLP con USD en una misma tarjeta es un número que
-no existe.
+- **`rutaCanonica()` devuelve RELATIVAS.** Next las resuelve contra
+  `metadataBase`, que el layout calcula por dominio — un cambio arregla las 18
+  páginas que la usan. Antes mercatren.cl declaraba como canónica una dirección
+  de mercatren.com, o sea le decía a Google «esta página en realidad es aquella
+  otra», y el dominio chileno no se habría indexado nunca.
+- **El sitemap sale del dominio de la petición.** Servía direcciones de .com
+  desde .cl, y un mapa de dominio cruzado Google lo descarta entero. Comprobado:
+  .com 642 direcciones, .cl 19 (solo las fijas, que es la verdad).
+- **El JSON-LD de la organización** declara el dominio por el que se entró.
+- **La tarjeta social** (`og-cl.png`) y el **logo del pie** también.
+
+### El muro que lo fija
+
+`tests/unit/muro-cache.test.ts`, **comprobado en ROJO dos veces**: quitándole el
+país a una llave y volviendo a hornear el manifest. Las dos saltaron.
+
+**`robots.txt` se queda estático a propósito**: no menciona ningún dominio, así
+que sirve igual en todos.
+
+## FASE 4 · El panel de administración por país — ✅ HECHA (17 ago 2026)
+
+Soporte elige el país en el encabezado del panel y a partir de ahí solo ve ese.
+
+**El selector es COMODIDAD; el muro es que el país viva en la SESIÓN.** Vive en
+una cookie que solo escribe el servidor (`src/lib/mercado/panel.ts`), nunca en
+un parámetro de la dirección — con un `?mercado=CL` el selector sería un adorno.
+
+Tres candados, y el tercero es el que casi siempre falta:
+
+1. **Solo el rol `soporte`**, y `esSoporteDeVerdad()`: quien esté mirando el
+   panel de un comercio con el disfraz de «ver su panel» no puede además
+   cambiar de país, o la franja diría una cosa y los números otra.
+2. **El rol se comprueba AL LEER la cookie, no solo al escribirla.** A una
+   cuenta a la que le bajen el rol se le deja de respetar en el acto, sin
+   esperar a que caduque. Comprobado en ROJO quitando esa comprobación.
+3. **Franja permanente** cuando no se mira el principal. Lo peligroso no es
+   cambiar de país: es olvidar que lo cambiaste — quien vea «0 ventas» creyendo
+   estar en .com buscará un fallo que no existe. Va en AZUL y no en ámbar
+   porque el ámbar ya significa «estás viendo el panel de otro».
+
+Volver al principal **borra** la cookie en vez de escribir «US»: dos formas de
+significar lo mismo es como se acaban leyendo distinto en dos pantallas.
 
 ## FASE 5 · Bases separadas — SOLO si hace falta, y va la ÚLTIMA
 

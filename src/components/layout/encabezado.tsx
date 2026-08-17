@@ -56,7 +56,11 @@ export async function Encabezado() {
     ).catch(() => []),
     obtenerUsuario().catch(() => null),
     zonaDelCliente(),
-    recordado("cobertura-ciudades", 60_000, coberturaPorCiudad),
+    /* La llave lleva el mercado: el conteo por ciudad se calcula sobre el
+       catálogo de ESTE país, y una llave única serviría el de otro. */
+    recordado(`cobertura-ciudades-${mercado.codigo}`, 60_000, () =>
+      coberturaPorCiudad(mercado),
+    ),
   ]);
   const trabajaEnElPanel =
     usuario?.rol === "soporte" ||

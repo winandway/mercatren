@@ -1,4 +1,5 @@
 import "server-only";
+import type { Mercado } from "@/lib/mercado/mercados";
 
 import { sql } from "drizzle-orm";
 
@@ -16,7 +17,9 @@ import { zonaPorSlug } from "./zonas";
  * de los depósitos con productos publicados, así que crece sola cuando un
  * comercio nuevo carga su catálogo.
  */
-export async function coberturaPorCiudad(): Promise<Record<string, number>> {
+export async function coberturaPorCiudad(
+  mercado: Mercado,
+): Promise<Record<string, number>> {
   try {
     const db = getDb();
     const filas = await db.all<{ zona: string; cuantos: number }>(sql`
@@ -29,6 +32,9 @@ export async function coberturaPorCiudad(): Promise<Record<string, number>> {
          AND p.estado = 'publicado'
          AND p.precio_centavos > 0
          AND t.estado = 'activa'
+         -- El bombillo cuenta lo que se retira EN ESTE PAIS. Sin esto, el
+         -- selector de un dominio prometia mercancia de otro.
+         AND t.mercado = ${mercado.codigo}
        GROUP BY d.zona
     `);
 
