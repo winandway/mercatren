@@ -162,6 +162,13 @@ Pendiente de decisión del dueño o de trabajo por fase:
   sale de la moneda del producto. Falta elegir el procesador (Webpay /
   tarjetas locales) y corregir el pie de .cl, que hoy dice «cobra en
   dólares».
+- **La IMAGEN de la miniatura con «Mercatren.cl»** (pedido el 17 ago 2026,
+  con captura). El texto de la tarjeta de WhatsApp ya sale chileno, pero la
+  imagen (`/og.png`, la genera `npm run iconos`) trae dibujado
+  «Mercatren.com». Hay que generar una `og-cl.png` con «Mercatren.cl» y que
+  el layout sirva la imagen del mercado — el motivo es confianza: quien
+  recibe el enlace chileno tiene que ver la casa chilena completa, imagen
+  incluida.
 - **Turnstile**: agregar mercatren.cl a los dominios del widget, o el
   login/registro desde .cl se queda sin escudo.
 - **Copy por mercado**: el `<title>` y el hero dicen «Compra en Estados
