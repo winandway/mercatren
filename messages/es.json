@@ -119,6 +119,7 @@
     "operadoPor": "Mercatren es un servicio operado por",
     "vendeConNosotros": "¿Tienes un comercio?",
     "vendeTexto": "Abre tu tienda y cobra en dólares.",
+    "vendeTextoMercado": "Abre tu tienda y vende en {pais}.",
     "vendeBoton": "Empezar a vender"
   },
   "comun": {

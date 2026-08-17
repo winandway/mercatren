@@ -11,6 +11,7 @@ import {
   obtenerUsuario,
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mercadoActual } from "@/lib/mercado/actual";
 import { VERSION_TERMINOS } from "@/lib/legal";
 import { mensajes } from "@/lib/mensajes";
 import { aceptaciones, billeteras, tiendas, user } from "@/lib/db/schema";
@@ -291,6 +292,22 @@ export async function solicitarComercio(
       direccion: d.direccion,
       ciudad: d.ciudad,
       paisOrigen: d.paisOrigen,
+      /**
+       * LA VITRINA DONDE VA A VENDER: el dominio por el que se registró.
+       *
+       * No se deduce de `paisOrigen` y son cosas distintas: la ferretería
+       * despacha DESDE Venezuela y vende EN mercatren.com. Quien se dé de alta
+       * entrando por mercatren.cl vende en Chile, salga su mercancía de donde
+       * salga.
+       *
+       * Sin esto, un comercio chileno se registraba y su tienda aparecía en el
+       * catálogo de mercatren.com —el default de la columna— mientras su
+       * propio dominio seguía vacío. El comercio no vería su tienda por ningún
+       * lado y no tendría forma de entender por qué.
+       *
+       * El equipo lo puede corregir después desde Comercios.
+       */
+      mercado: (await mercadoActual()).codigo,
       sitioWeb: d.sitioWeb || null,
       descripcionEs: d.descripcionEs || null,
       /**

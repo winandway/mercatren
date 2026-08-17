@@ -119,6 +119,7 @@
     "operadoPor": "Mercatren is a service operated by",
     "vendeConNosotros": "Run a business?",
     "vendeTexto": "Open your store and collect in dollars.",
+    "vendeTextoMercado": "Open your store and sell in {pais}.",
     "vendeBoton": "Start selling"
   },
   "comun": {

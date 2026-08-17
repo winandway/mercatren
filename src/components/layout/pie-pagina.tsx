@@ -5,6 +5,8 @@ import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
+import { mercadoActual } from "@/lib/mercado/actual";
+import { esMercadoPrincipal } from "@/lib/mercado/mercados";
 import { DESARROLLADOR, SOCIEDAD } from "@/lib/sociedad";
 
 const SECCIONES = [
@@ -57,6 +59,16 @@ export async function PiePagina() {
   const t = await getTranslations("piePagina");
   const anio = new Date().getFullYear();
 
+  /**
+   * EL PIE HABLA DEL PAÍS EN EL QUE ESTÁ (17 ago 2026).
+   *
+   * En mercatren.cl decía «abre tu tienda y cobra en dólares» y «cobros
+   * únicamente desde bancos de Estados Unidos». Las dos son verdad en
+   * mercatren.com y ninguna lo es en Chile, que vende en pesos chilenos.
+   */
+  const mercado = await mercadoActual();
+  const principal = esMercadoPrincipal(mercado);
+
   return (
     <footer className="mt-16 bg-riel-900 text-white" data-solo-pantalla>
       {/* Franja de llamada al comercio. El pie de una tienda lo lee mucha
@@ -65,7 +77,11 @@ export async function PiePagina() {
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-4 px-4 py-6">
           <div>
             <p className="font-bold">{t("vendeConNosotros")}</p>
-            <p className="text-sm text-white/60">{t("vendeTexto")}</p>
+            <p className="text-sm text-white/60">
+              {principal
+                ? t("vendeTexto")
+                : t("vendeTextoMercado", { pais: mercado.nombre })}
+            </p>
           </div>
           <Link
             href="/vender"
@@ -81,15 +97,20 @@ export async function PiePagina() {
         <div className="grid gap-10 lg:grid-cols-[1.4fr_2.6fr]">
           {/* La marca y de que va esto. */}
           <div className="max-w-sm">
-            <Logo variante="horizontalComOscuro" className="h-9" />
+            <Logo
+              variante={principal ? "horizontalComOscuro" : "horizontalOscuro"}
+              className="h-9"
+            />
             <p className="mt-4 text-sm leading-relaxed text-white/70">
               {t("descripcion")}
             </p>
 
-            <p className="mt-5 flex items-start gap-2 text-xs text-white/60">
-              <BanderaEEUU className="mt-0.5 h-4 w-4" />
-              {t("soloEEUU")}
-            </p>
+            {principal ? (
+              <p className="mt-5 flex items-start gap-2 text-xs text-white/60">
+                <BanderaEEUU className="mt-0.5 h-4 w-4" />
+                {t("soloEEUU")}
+              </p>
+            ) : null}
 
             {/* El buzon real, bien visible: es el unico que recibe. */}
             <div className="mt-6 rounded-xl bg-white/5 p-4">

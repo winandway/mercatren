@@ -60,6 +60,12 @@ export async function generateMetadata({
     ? t("lema")
     : t("lemaMercadoNuevo", { pais: mercado.nombre });
   const titulo = `${marca} — ${lema}`;
+  /* La IMAGEN de la tarjeta también es del mercado: el principal conserva su
+     logotipo con «.com» dibujado; los demás llevan el logo oficial sin
+     dominio y el suyo escrito debajo (ver scripts/generar-iconos.mjs). */
+  const tarjeta = principal
+    ? "/og.png"
+    : `/og-${mercado.codigo.toLowerCase()}.png`;
 
   return {
     metadataBase: new URL(principal ? SITIO.url : `https://${mercado.dominio}`),
@@ -87,7 +93,7 @@ export async function generateMetadata({
         locale === "es" ? `es_${principal ? "US" : mercado.codigo}` : "en_US",
       images: [
         {
-          url: "/og.png",
+          url: tarjeta,
           width: 1200,
           height: 630,
           alt: marca,
@@ -98,7 +104,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: titulo,
       description: lema,
-      images: ["/og.png"],
+      images: [tarjeta],
     },
     appleWebApp: {
       capable: true,
@@ -142,15 +148,26 @@ export default async function LayoutIdioma({
     ),
   ) as typeof mensajes;
 
-  // La ficha de la organizacion para Google: Mercatren es la marca y
-  // Windoce, LLC la sociedad que la opera. Una sola vez, en el layout.
+  /**
+   * La ficha de la organizacion para Google: Mercatren es la marca y la
+   * sociedad la que la opera. Una sola vez, en el layout.
+   *
+   * LA DIRECCION ES LA DEL DOMINIO POR EL QUE SE ENTRO. Declarar
+   * `mercatren.com` desde mercatren.cl le dice a Google que la pagina chilena
+   * pertenece al sitio estadounidense — justo la señal que hace que un dominio
+   * nuevo no arranque nunca.
+   */
+  const mercado = await mercadoActual();
+  const base = esMercadoPrincipal(mercado)
+    ? SITIO.url
+    : `https://${mercado.dominio}`;
   const fichaOrganizacion = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: SITIO.nombre,
+    name: esMercadoPrincipal(mercado) ? SITIO.nombre : marcaDelMercado(mercado),
     legalName: SITIO.sociedad,
-    url: SITIO.url,
-    logo: `${SITIO.url}/icon-512.png`,
+    url: base,
+    logo: `${base}/icon-512.png`,
   };
 
   return (

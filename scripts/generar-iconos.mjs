@@ -58,23 +58,68 @@ async function generar() {
     .toFile(path.join(APP, "apple-icon.png"));
 
   // Tarjeta que se ve al compartir el enlace en WhatsApp, Facebook o X.
-  const logoAncho = 760;
-  const logo = await sharp(
-    await readFile(
-      path.join(MARCA, "mercatren-isologotipo-horizontal-com-oscuro.svg"),
-    ),
-    { density: 300 },
-  )
-    .resize({ width: logoAncho })
-    .png()
-    .toBuffer();
+  //
+  // ══ UNA POR PAIS (17 ago 2026) ══
+  //
+  // Al compartir mercatren.cl salia la tarjeta con el logotipo «Mercatren.com»
+  // dibujado dentro. El texto de la tarjeta ya decia Chile, pero la IMAGEN
+  // seguia diciendo otro dominio — y la imagen es lo primero que se mira.
+  //
+  // EL LOGOTIPO NO SE INVENTA. El «.com» del logo oficial son TRAZOS, no
+  // texto: no hay forma honesta de convertirlo en «.cl» sin dibujar letras a
+  // ojo, y un logotipo con letras inventadas es peor que no tenerlo. Para los
+  // demas paises se usa el logo oficial SIN dominio —que es un archivo de
+  // marca de verdad— y el dominio va debajo, como texto de la tarjeta.
+  //
+  // Eso no es alterar la marca: es una tarjeta de difusion, no el logotipo.
+  const AZUL_TEXTO = "#FFFFFF";
 
-  await sharp({
-    create: { width: 1200, height: 630, channels: 4, background: AZUL },
-  })
-    .composite([{ input: logo, gravity: "center" }])
-    .png()
-    .toFile(path.join(PUBLICO, "og.png"));
+  async function tarjeta(archivoLogo, dominio, salida) {
+    const logo = await sharp(await readFile(path.join(MARCA, archivoLogo)), {
+      density: 300,
+    })
+      .resize({ width: dominio ? 640 : 760 })
+      .png()
+      .toBuffer();
+
+    const capas = [{ input: logo, gravity: "center" }];
+
+    if (dominio) {
+      /* El dominio en texto, centrado bajo el logo. Se dibuja como SVG para
+         que salga nitido a cualquier tamaño, no como imagen escalada. */
+      const alto = 120;
+      const rotulo = Buffer.from(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${alto}">
+           <text x="600" y="78" text-anchor="middle"
+                 font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+                 font-size="64" font-weight="600" fill="${AZUL_TEXTO}"
+                 letter-spacing="1">${dominio}</text>
+         </svg>`,
+      );
+      capas.push({ input: rotulo, top: 380, left: 0 });
+    }
+
+    await sharp({
+      create: { width: 1200, height: 630, channels: 4, background: AZUL },
+    })
+      .composite(capas)
+      .png()
+      .toFile(path.join(PUBLICO, salida));
+  }
+
+  // El principal conserva su logotipo con «.com» dibujado, tal cual estaba.
+  await tarjeta(
+    "mercatren-isologotipo-horizontal-com-oscuro.svg",
+    null,
+    "og.png",
+  );
+
+  // Chile: logo oficial sin dominio + «mercatren.cl» escrito debajo.
+  await tarjeta(
+    "mercatren-isologotipo-horizontal-oscuro.svg",
+    "mercatren.cl",
+    "og-cl.png",
+  );
 
   await writeFile(
     path.join(PUBLICO, "LEEME-iconos.txt"),

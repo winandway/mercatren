@@ -34,18 +34,18 @@
 
 ## Chile de verdad (lo que no depende del dominio)
 
-- [ ] Paso 10: Moneda por mercado (`src/lib/mercado/moneda.ts`): CL → CLP sin
+- [x] Paso 10: Moneda por mercado (`src/lib/mercado/moneda.ts`): CL → CLP sin
       decimales, US → USD. El formateo del dinero sale de ahí, con pruebas.
-- [ ] Paso 11: El alta de comercio guarda el mercado del dominio por el que
+- [x] Paso 11: El alta de comercio guarda el mercado del dominio por el que
       entró, y el equipo lo puede corregir en Comercios.
-- [ ] Paso 12: El copy de .cl sin «cobra en dólares» ni Estados Unidos (pie,
+- [x] Paso 12: El copy de .cl sin «cobra en dólares» ni Estados Unidos (pie,
       hero y llamada a vender), bilingüe.
 
 ## Lo que depende del dominio — VA AL FINAL
 
-- [ ] Paso 13: La imagen de la miniatura por mercado (`og-cl.png` que dice
+- [x] Paso 13: La imagen de la miniatura por mercado (`og-cl.png` que dice
       «Mercatren.cl») y que el layout sirva la del mercado.
-- [ ] Paso 14: Matar las URL absolutas fijas: canónicos, sitemap, robots,
+- [x] Paso 14: Matar las URL absolutas fijas: canónicos, sitemap, robots,
       `llms.txt` y los enlaces de los correos calculados POR PETICIÓN desde el
       host/mercado.
 - [ ] Paso 15: Auditar el caché de OpenNext ruta por ruta — toda ruta cacheada

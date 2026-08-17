@@ -4,7 +4,8 @@ import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { getDbAsync, schema } from "@/lib/db";
 import { articulosDe, rutaDeArticulo } from "@/contenido/articulos";
-import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
+import { mercadoActual } from "@/lib/mercado/actual";
+import { esMercadoPrincipal } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
@@ -20,17 +21,30 @@ export const dynamic = "force-dynamic";
  *
  * Las paginas privadas (panel, carrito, checkout, entrar) no van aqui: no
  * tienen nada que buscar y no deben aparecer en resultados.
+ *
+ * ══ CADA DOMINIO SIRVE EL SUYO (17 ago 2026) ══
+ *
+ * Antes las direcciones se armaban con `SITIO.url` fijo, asi que
+ * mercatren.cl/sitemap.xml entregaba una lista de direcciones de
+ * mercatren.com. Un mapa que apunta a OTRO dominio no es un mapa incompleto:
+ * Google lo descarta entero por dominio cruzado, y de paso el dominio nuevo
+ * se queda sin mapa.
+ *
+ * Ahora la base sale del dominio de la peticion y el catalogo se filtra por
+ * SU mercado. En un pais todavia vacio, el mapa trae solo las paginas fijas —
+ * que es la verdad: esas paginas existen y las otras no.
  */
 
 /** Una entrada con sus versiones por idioma. */
 function entrada(
+  base: string,
   ruta: string,
   prioridad: number,
   frecuencia: MetadataRoute.Sitemap[number]["changeFrequency"],
 ): MetadataRoute.Sitemap[number] {
   const languages: Record<string, string> = {};
   for (const idioma of routing.locales) {
-    languages[idioma] = `${SITIO.url}/${idioma}${ruta}`;
+    languages[idioma] = `${base}/${idioma}${ruta}`;
   }
   /**
    * `x-default` es la versión para quien no busca ni en español ni en inglés.
@@ -38,10 +52,10 @@ function entrada(
    * elegir mal. Es el mismo criterio que ya usa `rutaCanonica()` en las
    * páginas; aquí faltaba, así que el mapa y las páginas se contradecían.
    */
-  languages["x-default"] = `${SITIO.url}/${routing.defaultLocale}${ruta}`;
+  languages["x-default"] = `${base}/${routing.defaultLocale}${ruta}`;
 
   return {
-    url: `${SITIO.url}/${routing.defaultLocale}${ruta}`,
+    url: `${base}/${routing.defaultLocale}${ruta}`,
     lastModified: new Date(),
     changeFrequency: frecuencia,
     priority: prioridad,
@@ -82,8 +96,13 @@ const FIJAS: [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const mercado = await mercadoActual();
+  const base = esMercadoPrincipal(mercado)
+    ? SITIO.url
+    : `https://${mercado.dominio}`;
+
   const paginas = FIJAS.map(([ruta, prioridad, frecuencia]) =>
-    entrada(ruta, prioridad, frecuencia),
+    entrada(base, ruta, prioridad, frecuencia),
   );
 
   /* Cada artículo del blog y de la documentación es una página propia y entra
@@ -91,7 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
      cosa que se publica suma para Google. Se leen del español, que es donde
      están todos; `entrada()` ya escribe las dos versiones de idioma. */
   for (const articulo of articulosDe("es")) {
-    paginas.push(entrada(rutaDeArticulo(articulo), 0.7, "monthly"));
+    paginas.push(entrada(base, rutaDeArticulo(articulo), 0.7, "monthly"));
   }
 
   // El catalogo se suma si la base responde. Si no responde, el mapa sale
@@ -128,10 +147,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         and(
           eq(schema.tiendas.estado, "activa"),
           eq(schema.productos.estado, "publicado"),
-          /* Este mapa es el de mercatren.com: sus direcciones llevan ese
-             dominio, asi que solo lista el mercado principal. Cada pais
-             tendra el suyo cuando su catalogo exista (PLAN-PAISES.md). */
-          eq(schema.tiendas.mercado, MERCADO_PRINCIPAL.codigo),
+          /* El catalogo del mercado por el que se pidio el mapa. Un pais
+             vacio entrega solo las paginas fijas, que es la verdad. */
+          eq(schema.tiendas.mercado, mercado.codigo),
         ),
       );
 
@@ -145,15 +163,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .where(
         and(
           eq(schema.productos.estado, "publicado"),
-          eq(schema.tiendas.mercado, MERCADO_PRINCIPAL.codigo),
+          eq(schema.tiendas.mercado, mercado.codigo),
         ),
       );
 
     for (const t of tiendas) {
-      paginas.push(entrada(`/tienda/${t.slug}`, 0.7, "weekly"));
+      paginas.push(entrada(base, `/tienda/${t.slug}`, 0.7, "weekly"));
     }
     for (const p of productos) {
-      paginas.push(entrada(`/producto/${p.slug}`, 0.6, "weekly"));
+      paginas.push(entrada(base, `/producto/${p.slug}`, 0.6, "weekly"));
     }
   } catch {
     // Sin base disponible (por ejemplo en un build sin enlazar): solo fijas.

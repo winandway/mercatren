@@ -6,9 +6,27 @@
  * mercado con miles de pedidos eso se convierte en plata que no cuadra.
  */
 
+import { divisorDe } from "@/lib/mercado/moneda";
+
 export type Idioma = "es" | "en";
 
-/** Convierte centavos a texto de precio para mostrar en pantalla. */
+/**
+ * Convierte lo guardado a texto de precio para mostrar en pantalla.
+ *
+ * ══ NO SIEMPRE SE DIVIDE ENTRE 100 (17 ago 2026) ══
+ *
+ * El dinero se guarda en la UNIDAD MENOR de su moneda. En dólares es el
+ * centavo, así que 1050 son $10.50. Pero **el peso chileno no tiene
+ * centavos**: su unidad menor es el peso, así que 5990 son $5.990 CLP.
+ *
+ * Dividir siempre entre 100 convertiría un producto de 5.990 pesos en uno de
+ * 59 con 90 — un cero de menos en un precio no es un problema de pantalla,
+ * es una venta a pérdida. El divisor sale de `mercado/moneda.ts`, que lo sabe
+ * por moneda y no por país, para que Colombia y México (también sin centavos)
+ * lo hereden sin tocar nada.
+ *
+ * Para el dólar el resultado es idéntico al de antes.
+ */
 export function formatearPrecio(
   centavos: number,
   idioma: Idioma = "es",
@@ -17,7 +35,7 @@ export function formatearPrecio(
   return new Intl.NumberFormat(idioma === "es" ? "es-US" : "en-US", {
     style: "currency",
     currency: moneda,
-  }).format(centavos / 100);
+  }).format(centavos / divisorDe(moneda));
 }
 
 /**
