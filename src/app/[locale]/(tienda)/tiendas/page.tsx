@@ -9,6 +9,7 @@ import {
   direccionImagen,
   listarComerciosDestacados,
 } from "@/lib/catalogo/consultas";
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import type { Idioma } from "@/lib/dinero";
 import { rutaCanonica } from "@/lib/sitio";
 
@@ -55,7 +56,8 @@ export default async function PaginaTiendas({
 
   // Si la base no responde, la página sale vacía pero sale: el directorio
   // nunca puede tumbar la navegación.
-  const comercios = await listarComerciosDestacados().catch(() => []);
+  const mercado = await mercadoDeLaPeticion();
+  const comercios = await listarComerciosDestacados(mercado).catch(() => []);
 
   const tiendas: TiendaDirectorio[] = comercios.map((c) => ({
     slug: c.slug,

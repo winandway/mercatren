@@ -448,6 +448,19 @@ export const pedidos = sqliteTable(
     impuestosCentavos: integer("impuestos_centavos").notNull().default(0),
     totalCentavos: integer("total_centavos").notNull().default(0),
     moneda: text("moneda").notNull().default("USD"),
+    /**
+     * EL MERCADO DONDE SE HIZO ESTA VENTA (fase 2 del plan multi-país).
+     *
+     * Se guarda EN EL PEDIDO y no se deduce de la tienda: un pedido es un
+     * hecho ya ocurrido, y si mañana un comercio cambia de vitrina, sus
+     * ventas viejas tienen que seguir contando donde ocurrieron. Es la misma
+     * razón por la que la factura copia los datos del emisor en vez de
+     * apuntarlos.
+     *
+     * Los pedidos anteriores al 17 ago 2026 quedan en `US` por el default,
+     * que es la verdad: hasta ese día solo existía mercatren.com.
+     */
+    mercado: text("mercado").notNull().default("US"),
     /** Como eligio pagar. La forma decide que pasa despues del pedido. */
     metodoPago: text("metodo_pago").$type<(typeof METODOS_PAGO)[number]>(),
     /**
@@ -470,6 +483,10 @@ export const pedidos = sqliteTable(
   (t) => [
     index("idx_pedidos_cliente").on(t.clienteId),
     index("idx_pedidos_estado").on(t.estado),
+    /* El índice EMPIEZA por el país, como manda la fase 2: así sirve tanto
+       para «los pedidos de Chile» como para «los de Chile en tal estado». Al
+       revés solo serviría para lo segundo. */
+    index("idx_pedidos_mercado_estado").on(t.mercado, t.estado),
   ],
 );
 

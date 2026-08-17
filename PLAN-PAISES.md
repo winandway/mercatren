@@ -72,36 +72,60 @@ cumple: la única forma de saber el mercado es llamar a `mercadoPorHost` /
 
 El middleware no toca `_next`, estáticos ni imágenes (ya era así).
 
-## FASE 2 · La capa de datos con el país OBLIGATORIO — A MEDIAS
+## FASE 2 · La capa de datos con el país OBLIGATORIO — ✅ HECHA (17 ago 2026)
 
 **El miedo real que esta fase mata: «alguien se olvida de filtrar y un chileno
 ve stock de Estados Unidos». Ese olvido no da error: devuelve datos
 equivocados, que es lo que más tarda en descubrirse.**
 
-Lo hecho (17 ago 2026):
+### Las tres defensas, y por qué son tres
 
-- `tiendas.mercado` NOT NULL con su índice, aplicada a producción y a local
-  con ALTER a mano (schema.sql no agrega columnas a tablas existentes). Los
-  28 comercios de hoy → `US`.
-- El candado en el catálogo público: `visibleAqui()` dentro de
-  `catalogo/consultas.ts` y `buscar.ts`. Comprobado en producción: en .cl la
-  búsqueda da cero y la ficha de un producto o tienda de .com sale
-  «no encontrado».
+| Defensa                                                                           | Qué atrapa                            | Cuándo salta             |
+| --------------------------------------------------------------------------------- | ------------------------------------- | ------------------------ |
+| **El argumento obligatorio** — cada consulta recibe `mercado: Mercado` de primero | Llamar sin decir el país              | Al escribir (no compila) |
+| **El tipo `FiltroDeMercado`** — símbolo único NO exportado en `repositorio.ts`    | Fabricar un filtro sin país y colarlo | Al escribir (no compila) |
+| **La prueba-muro** (`tests/unit/muro-mercado.test.ts`)                            | Recibir el país y **no usarlo**       | Al correr las pruebas    |
 
-Lo que falta para cerrar la fase:
+Las dos primeras las comprueba el compilador; la tercera cubre lo que el
+compilador no ve. El tipo obliga a RECIBIR el país, la prueba obliga a USARLO.
 
-- [ ] **La capa de repositorio formal**: ninguna página ni API habla con
-      `env.DB` directo; cada función de la capa recibe el país y el TIPO lo
-      hace obligatorio (pedir productos sin país no compila).
-- [ ] **La prueba-muro**: recorre la capa y FALLA si una consulta a una tabla
-      con dimensión de país va sin su filtro. Se comprueba en ROJO.
-- [ ] **`mercado` en las tablas por país que faltan** (pedidos al crearse, y
-      las que vengan), con índice compuesto que empiece por el país.
-- [ ] **Documentar qué es GLOBAL y qué es POR PAÍS.** Decidido hoy: - Por país: tiendas (su vitrina), catálogo/stock/precios (cuelgan de la
-      tienda), pedidos, envíos, impuestos, proveedores (CJ para US, Dropi u
-      otro para Chile). - Global: cuentas de usuario (la misma cuenta entra en todos los
-      dominios — ya funciona con `trustedOrigins`), el equipo interno, la
-      configuración del sistema.
+**Comprobada en ROJO** quitándole el filtro a `listarComerciosDelCatalogo`: la
+prueba se puso roja nombrando esa función. Y de paso **destapó dos fugas
+reales** que el compilador no podía ver: `listarComerciosDestacados` y
+`obtenerTiendaPorSlug` todavía escribían `eq(tiendas.mercado, …)` a mano en vez
+de usar la capa — dos copias que se habrían desincronizado al primer arreglo.
+Ya no: la prueba prohíbe escribir ese filtro fuera del repositorio.
+
+### Qué es GLOBAL y qué es POR PAÍS (decidido el 17 ago 2026)
+
+|              | Tablas                                                                                                                                                        | Por qué                                                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **POR PAÍS** | `tiendas.mercado` · `pedidos.mercado` · el catálogo, stock y precios (cuelgan de la tienda) · envíos · impuestos · proveedores (CJ para US, Dropi para Chile) | Es lo que cambia de un país a otro: qué se vende, a cuánto, quién lo despacha                                           |
+| **GLOBAL**   | Cuentas de usuario · el equipo interno · la configuración del sistema · los departamentos del catálogo                                                        | La misma cuenta entra en todos los dominios (`trustedOrigins`); los departamentos son el vocabulario común del servicio |
+
+**`pedidos.mercado` se GUARDA, no se deduce de la tienda.** Un pedido es un
+hecho ya ocurrido: si mañana un comercio cambia de vitrina, sus ventas viejas
+tienen que seguir contando donde ocurrieron. Es la misma razón por la que la
+factura copia los datos del emisor en vez de apuntarlos.
+
+**El índice EMPIEZA por el país** (`idx_pedidos_mercado_estado`): así sirve
+para «los pedidos de Chile» y para «los de Chile en tal estado». Al revés solo
+serviría para lo segundo.
+
+### El agujero que apareció al hacerlo: `schema.sql` no tenía las columnas
+
+`tiendas.mercado` y `pedidos.mercado` se aplicaron a mano a las bases vivas
+—correcto— pero **`schema.sql` se quedó sin ellas**, porque el generador
+concatenaba las migraciones y se plantaba ante cualquier `ALTER`. En producción
+no se veía nada; habría explotado el día que se levantara un sitio nuevo, con
+una base naciendo incompleta.
+
+Ahora el DDL sale de **`drizzle-kit export`**: el esquema TAL COMO ESTÁ HOY, así
+que las tablas nacen completas. Comprobado contra una base vacía — 47 tablas,
+las dos columnas presentes, y el archivo corre dos veces seguidas sin romperse
+(que es lo que pasa en cada publicación). Sigue valiendo la regla de siempre:
+**una columna nueva sobre una base viva se aplica A MANO**, y el generador ahora
+lo avisa por pantalla en vez de detener el trabajo.
 
 ## FASE 3 · La caché con el país en la clave — A MEDIAS
 

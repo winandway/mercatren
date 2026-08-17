@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { ajustarCantidad } from "@/lib/cj/mayorista";
+import { mercadoActual } from "@/lib/mercado/actual";
 import { revalidatePath } from "next/cache";
 
 import { numeroDePedido, revisar } from "@/lib/validacion/acciones";
@@ -372,6 +373,10 @@ export async function crearPedido(
       impuestosCentavos: 0,
       totalCentavos: total,
       moneda: encontrados[0]?.moneda ?? "USD",
+      /* El dominio por el que entró la compra. No se deduce de la tienda:
+         es un hecho de esta venta y tiene que sobrevivir a que el comercio
+         cambie de vitrina. */
+      mercado: (await mercadoActual()).codigo,
       metodoPago,
       /* Es retiro en depósito: se guarda quién retira y su ciudad. Los
          campos de dirección quedan por compatibilidad con pedidos viejos. */

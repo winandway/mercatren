@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, sql, type SQL } from "drizzle-orm";
 
 import {
   DEPARTAMENTOS,
@@ -20,7 +20,12 @@ import {
 } from "@/lib/db/schema";
 import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { DIAS_PRODUCTO_NUEVO } from "@/lib/dinero";
-import { mercadoActual } from "@/lib/mercado/actual";
+import type { Mercado } from "@/lib/mercado/mercados";
+import {
+  type FiltroDeMercado,
+  tiendaVisibleEn,
+  visibleEn,
+} from "@/lib/mercado/repositorio";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
 /**
@@ -50,9 +55,8 @@ const VISIBLE = and(
  * la primera que lo olvide enseñaria el catalogo de un pais en el dominio
  * de otro.
  */
-async function visibleAqui() {
-  const mercado = await mercadoActual();
-  return and(VISIBLE, eq(tiendas.mercado, mercado.codigo))!;
+function visibleAqui(mercado: Mercado): FiltroDeMercado {
+  return visibleEn(mercado);
 }
 
 export type OrdenCatalogo = "recientes" | "precio_asc" | "precio_desc";
@@ -211,12 +215,15 @@ const PRIMERA_FOTO = {
   >`(SELECT ${imagenesProducto.textoAltEs} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
 };
 
-export async function listarProductos(filtros: FiltrosCatalogo = {}) {
+export async function listarProductos(
+  mercado: Mercado,
+  filtros: FiltrosCatalogo = {},
+) {
   const db = getDb();
   const pagina = Math.max(1, filtros.pagina ?? 1);
   const porPagina = Math.min(60, Math.max(6, filtros.porPagina ?? 24));
 
-  const condiciones = [await visibleAqui()];
+  const condiciones: SQL[] = [visibleAqui(mercado)];
 
   /**
    * El slug puede ser un DEPARTAMENTO de Mercatren o una categoria del propio
@@ -338,7 +345,7 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
 }
 
 /** Un producto con todas sus fotos, para su ficha. */
-export async function obtenerProductoPorSlug(slug: string) {
+export async function obtenerProductoPorSlug(mercado: Mercado, slug: string) {
   const db = getDb();
 
   const [fila] = await db
@@ -402,7 +409,7 @@ export async function obtenerProductoPorSlug(slug: string) {
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
     .leftJoin(depositos, eq(depositos.id, productos.depositoId))
-    .where(and(eq(productos.slug, slug), await visibleAqui()))
+    .where(and(eq(productos.slug, slug), visibleAqui(mercado)))
     .limit(1);
 
   if (!fila) return null;
@@ -436,7 +443,7 @@ export async function obtenerProductoPorSlug(slug: string) {
 }
 
 /** Categorias que de verdad tienen algo que mostrar. */
-export async function listarCategoriasConProductos() {
+export async function listarCategoriasConProductos(mercado: Mercado) {
   const db = getDb();
 
   const filas = await db
@@ -449,7 +456,7 @@ export async function listarCategoriasConProductos() {
     .from(categorias)
     .innerJoin(productos, eq(productos.categoriaId, categorias.id))
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(await visibleAqui())
+    .where(visibleAqui(mercado))
     .groupBy(categorias.slug, categorias.nombreEs, categorias.nombreEn)
     .orderBy(desc(count(productos.id)));
 
@@ -457,7 +464,7 @@ export async function listarCategoriasConProductos() {
 }
 
 /** Comercios con catalogo publicado. */
-export async function listarComerciosDelCatalogo() {
+export async function listarComerciosDelCatalogo(mercado: Mercado) {
   const db = getDb();
 
   const filas = await db
@@ -468,7 +475,7 @@ export async function listarComerciosDelCatalogo() {
     })
     .from(tiendas)
     .innerJoin(productos, eq(productos.tiendaId, tiendas.id))
-    .where(await visibleAqui())
+    .where(visibleAqui(mercado))
     .groupBy(
       tiendas.id,
       tiendas.slug,
@@ -494,6 +501,7 @@ export async function listarComerciosDelCatalogo() {
  * que tumbarla con un error 500, se muestra vacia.
  */
 export async function obtenerPortada(
+  mercado: Mercado,
   idioma = "es",
   semilla = 7919,
   zona?: string[],
@@ -513,23 +521,20 @@ export async function obtenerPortada(
   /* La llave de lo recordado LLEVA EL MERCADO: sin eso, el primero que
      entrara por mercatren.cl guardaria su lista vacia (o la llena de .com)
      y el otro dominio la serviria durante un minuto. */
-  const mercado = await mercadoActual();
 
   const [parrilla, departamentos, bandas, comercios] = await Promise.all([
-    parrillaDeProductos(semilla, 1, 24, zona).catch((e) => {
+    parrillaDeProductos(mercado, semilla, 1, 24, zona).catch((e) => {
       console.error("[portada] la parrilla no respondio:", e);
       return null;
     }),
     // La tira de arriba enseña TODOS los departamentos del servicio, con o
     // sin zona: es el cartel de "esto se puede vender aquí", no el filtro.
     recordado(`portada-departamentos-${mercado.codigo}-${idioma}`, 60_000, () =>
-      listarDepartamentosDePortada(idioma),
+      listarDepartamentosDePortada(mercado, idioma),
     ).catch(() => []),
-    bandasDeDepartamentos(idioma, 6, 21, zona).catch(() => []),
-    recordado(
-      `portada-comercios-${mercado.codigo}`,
-      60_000,
-      listarComerciosDestacados,
+    bandasDeDepartamentos(mercado, idioma, 6, 21, zona).catch(() => []),
+    recordado(`portada-comercios-${mercado.codigo}`, 60_000, () =>
+      listarComerciosDestacados(mercado),
     ).catch(() => []),
   ]);
 
@@ -572,9 +577,8 @@ export async function obtenerPortada(
  * una contradicción — esa lista es para Google, y mandarlo a una página sin
  * contenido cuenta en contra. Son dos públicos distintos.
  */
-export async function listarComerciosDestacados() {
+export async function listarComerciosDestacados(mercado: Mercado) {
   const db = getDb();
-  const mercado = await mercadoActual();
 
   const filas = await db
     .select({
@@ -608,9 +612,7 @@ export async function listarComerciosDestacados() {
       ),
     )
     // En el filtro se queda SOLO lo que es de la tienda.
-    .where(
-      and(eq(tiendas.estado, "activa"), eq(tiendas.mercado, mercado.codigo)),
-    )
+    .where(tiendaVisibleEn(mercado))
     .groupBy(tiendas.id, tiendas.slug, tiendas.nombre)
     .orderBy(desc(count(productos.id)));
 
@@ -619,6 +621,7 @@ export async function listarComerciosDestacados() {
 
 /** La tienda de un comercio: sus datos y sus productos. */
 export async function obtenerTiendaPorSlug(
+  mercado: Mercado,
   slug: string,
   pagina = 1,
   /**
@@ -632,7 +635,6 @@ export async function obtenerTiendaPorSlug(
   incluirNoPublicas = false,
 ) {
   const db = getDb();
-  const mercado = await mercadoActual();
 
   const [tienda] = await db
     .select({
@@ -675,17 +677,13 @@ export async function obtenerTiendaPorSlug(
          cualquier dominio: su panel vive en el principal. */
       incluirNoPublicas
         ? eq(tiendas.slug, slug)
-        : and(
-            eq(tiendas.slug, slug),
-            eq(tiendas.estado, "activa"),
-            eq(tiendas.mercado, mercado.codigo),
-          ),
+        : and(eq(tiendas.slug, slug), tiendaVisibleEn(mercado)),
     )
     .limit(1);
 
   if (!tienda) return null;
 
-  const listado = await listarProductos({ comercio: slug, pagina });
+  const listado = await listarProductos(mercado, { comercio: slug, pagina });
 
   return { tienda, ...listado };
 }
@@ -731,6 +729,7 @@ export type DepartamentoDePortada = {
  */
 
 export async function listarDepartamentosDePortada(
+  mercado: Mercado,
   idioma: string,
   zona?: string[],
 ): Promise<DepartamentoDePortada[]> {
@@ -771,8 +770,6 @@ export async function listarDepartamentosDePortada(
         )
       )`
     : sql``;
-
-  const mercado = await mercadoActual();
 
   const DEL_DEPARTAMENTO = sql`
     p.estado = 'publicado'
@@ -827,6 +824,7 @@ export async function listarDepartamentosDePortada(
  * Barato y sin tablas de más.
  */
 export async function parrillaDeProductos(
+  mercado: Mercado,
   semilla: number,
   pagina = 1,
   porPagina = 24,
@@ -834,7 +832,7 @@ export async function parrillaDeProductos(
 ) {
   const db = getDb();
 
-  const visible = await visibleAqui();
+  const visible = visibleAqui(mercado);
   const donde = zona?.length
     ? and(visible, gt(productos.precioCentavos, 0), enZona(zona))
     : and(visible, gt(productos.precioCentavos, 0));
@@ -965,12 +963,15 @@ export type BandaDeDepartamento = {
 };
 
 export async function bandasDeDepartamentos(
+  mercado: Mercado,
   idioma: string,
   cuantasBandas = 6,
   porBanda = 21,
   zona?: string[],
 ): Promise<BandaDeDepartamento[]> {
-  const conProductos = (await listarDepartamentosDePortada(idioma, zona))
+  const conProductos = (
+    await listarDepartamentosDePortada(mercado, idioma, zona)
+  )
     .filter((d) => d.cuantos > 0)
     .sort((a, b) => b.cuantos - a.cuantos)
     .slice(0, cuantasBandas);
@@ -978,7 +979,7 @@ export async function bandasDeDepartamentos(
   if (conProductos.length === 0) return [];
 
   const db = getDb();
-  const visible = await visibleAqui();
+  const visible = visibleAqui(mercado);
 
   return Promise.all(
     conProductos.map(async (d) => {

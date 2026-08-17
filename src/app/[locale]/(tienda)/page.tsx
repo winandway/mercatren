@@ -56,6 +56,7 @@ export default async function PaginaInicio({
   const { locale } = await params;
   setRequestLocale(locale);
   const idioma = locale as Idioma;
+  const mercado = await mercadoActual();
 
   const t = await getTranslations("inicio");
   const tEntrega = await getTranslations("entrega");
@@ -74,7 +75,7 @@ export default async function PaginaInicio({
   // Una semilla por visita. Se pasa al navegador para que las tandas
   // siguientes sigan el mismo orden.
   const semilla = nuevaSemilla();
-  let portada = await obtenerPortada(idioma, semilla, visibles);
+  let portada = await obtenerPortada(mercado, idioma, semilla, visibles);
 
   /**
    * EN TU CIUDAD TODAVÍA NO HAY NADA. Una portada en blanco parece un sitio
@@ -90,7 +91,7 @@ export default async function PaginaInicio({
   const filtroVacio = Boolean(visibles && portada.parrilla.total === 0);
   const sinCobertura = filtroVacio && !portada.fallo;
   if (filtroVacio) {
-    portada = await obtenerPortada(idioma, semilla);
+    portada = await obtenerPortada(mercado, idioma, semilla);
   }
   const { parrilla, departamentos, bandas, comercios } = portada;
   const filtrada = Boolean(visibles) && !sinCobertura;
@@ -108,7 +109,6 @@ export default async function PaginaInicio({
    * (`portada.fallo`), la portada normal se dibuja igual — misma regla que el
    * aviso de ciudad sin comercios.
    */
-  const mercado = await mercadoActual();
   if (
     !esMercadoPrincipal(mercado) &&
     parrilla.total === 0 &&

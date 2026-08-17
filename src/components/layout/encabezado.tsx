@@ -51,10 +51,8 @@ export async function Encabezado() {
   const [categorias, usuario, zona, cobertura] = await Promise.all([
     /* La llave lleva el mercado: el menú de categorías ya sale filtrado por
        el dominio, y una llave única serviría el de un país en el otro. */
-    recordado(
-      `menu-categorias-${mercado.codigo}`,
-      60_000,
-      listarCategoriasConProductos,
+    recordado(`menu-categorias-${mercado.codigo}`, 60_000, () =>
+      listarCategoriasConProductos(mercado),
     ).catch(() => []),
     obtenerUsuario().catch(() => null),
     zonaDelCliente(),

@@ -3,8 +3,9 @@
  * (env.DB) en cada publicacion.
  *
  * Que lleva, y SOLO eso:
- *   1. Las tablas (el DDL de drizzle/migrations, vuelto idempotente con
- *      IF NOT EXISTS, porque el archivo corre en CADA despliegue).
+ *   1. Las tablas: el DDL del ESQUEMA ACTUAL (drizzle-kit export), vuelto
+ *      idempotente con IF NOT EXISTS porque el archivo corre en CADA
+ *      despliegue.
  *   2. El comercio piloto y su billetera EN CERO (ON CONFLICT DO NOTHING:
  *      jamas pisa un saldo que ya este andando en produccion).
  *
@@ -24,10 +25,31 @@
  *
  * Uso:  npm run db:schema-cloud   (y commitear el schema.sql resultante)
  *
- * OJO al evolucionar el esquema: IF NOT EXISTS no aplica cambios a tablas ya
- * creadas. Si una migracion nueva trae ALTER TABLE, este script la detiene:
- * ahi hay que decidir a mano como llevar ese cambio a produccion.
+ * ══ POR QUE SALE DEL ESQUEMA ACTUAL Y NO DE LA CADENA DE MIGRACIONES ══
+ *
+ * Antes se concatenaban los .sql de drizzle/migrations. Eso funciona mientras
+ * todo sean CREATE TABLE, pero en cuanto aparece un ALTER (una columna nueva
+ * en una tabla que ya existia) el generador se plantaba — y con razon: un
+ * ALTER repetido en cada publicacion revienta a la segunda.
+ *
+ * El problema es lo que quedaba detras: schema.sql se quedaba SIN esa columna,
+ * asi que una base NUEVA nacia incompleta. Se descubrio el 17 ago 2026 con
+ * `tiendas.mercado` y `pedidos.mercado`: las dos aplicadas a mano a las bases
+ * que ya existian, y las dos ausentes del archivo que crea una base desde cero.
+ * En produccion no se veia nada; habria explotado el dia que se levantara un
+ * sitio nuevo.
+ *
+ * Ahora el DDL sale del esquema de Drizzle TAL COMO ESTA HOY, asi que las
+ * tablas nacen completas. Y sigue valiendo la regla de siempre:
+ *
+ *   IF NOT EXISTS NO TOCA UNA TABLA QUE YA EXISTE. Una columna nueva sobre
+ *   una base viva se aplica A MANO, una vez, con `npm run db:cargar`.
+ *
+ * Por eso el generador sigue avisando cuando la migracion nueva trae un ALTER:
+ * ya no para el trabajo, pero deja escrito en pantalla que ese cambio hay que
+ * llevarlo a las bases vivas por separado.
  */
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 
 import { DEPARTAMENTOS } from "../src/lib/catalogo/departamentos.ts";
@@ -56,31 +78,66 @@ const PILOTO = {
 };
 
 function ddlIdempotente() {
+  /**
+   * El esquema actual completo, no la suma de los parches historicos. Un
+   * `drizzle-kit export` describe las tablas como son HOY, que es justo lo
+   * que necesita una base que nace vacia.
+   */
+  const ddl = execFileSync(
+    "npx",
+    [
+      "drizzle-kit",
+      "export",
+      "--dialect=sqlite",
+      "--schema=src/lib/db/schema.ts",
+    ],
+    { encoding: "utf8", cwd: process.cwd() },
+  );
+
+  const sql = ddl
+    .replaceAll("--> statement-breakpoint", "")
+    .replace(/CREATE TABLE `/g, "CREATE TABLE IF NOT EXISTS `")
+    .replace(/CREATE INDEX `/g, "CREATE INDEX IF NOT EXISTS `")
+    .replace(/CREATE UNIQUE INDEX `/g, "CREATE UNIQUE INDEX IF NOT EXISTS `");
+
+  /* Un export nunca deberia traer ALTER ni DROP: describe un estado, no un
+     cambio. Si aparece uno, algo se torcio y es mejor parar que publicar un
+     archivo que rompa la base en cada despliegue. */
+  const peligroso = sql.match(/^\s*(ALTER|DROP)\s/im);
+  if (peligroso) {
+    throw new Error(
+      `El export trae ${peligroso[1]} y este archivo corre en CADA publicacion. ` +
+        "Revisa el esquema antes de seguir.",
+    );
+  }
+
+  avisarDeColumnasNuevas();
+
+  return [`-- ── Tablas (esquema actual) ──\n${sql.trim()}`];
+}
+
+/**
+ * Avisa por pantalla si la ultima migracion trae un ALTER.
+ *
+ * No detiene nada —el schema.sql ya sale correcto para una base nueva— pero
+ * recuerda lo que el archivo NO puede hacer: una tabla que ya existe no
+ * recibe columnas nuevas por mucho IF NOT EXISTS que lleve.
+ */
+function avisarDeColumnasNuevas() {
   const archivos = readdirSync(MIGRACIONES)
     .filter((a) => a.endsWith(".sql"))
     .sort();
+  const ultima = archivos.at(-1);
+  if (!ultima) return;
 
-  return archivos.map((archivo) => {
-    let sql = readFileSync(path.join(MIGRACIONES, archivo), "utf8");
+  const sql = readFileSync(path.join(MIGRACIONES, ultima), "utf8");
+  if (!/^\s*ALTER\s/im.test(sql)) return;
 
-    // Un ALTER o DROP no se puede repetir a ciegas en cada despliegue: si
-    // aparece uno, ese cambio se piensa a mano en vez de romper produccion.
-    const peligroso = sql.match(/^\s*(ALTER|DROP)\s/im);
-    if (peligroso) {
-      throw new Error(
-        `${archivo} trae ${peligroso[1]} y este generador solo sabe de CREATE. ` +
-          "Decide a mano como llevar ese cambio a produccion.",
-      );
-    }
-
-    sql = sql
-      .replaceAll("--> statement-breakpoint", "")
-      .replace(/CREATE TABLE `/g, "CREATE TABLE IF NOT EXISTS `")
-      .replace(/CREATE INDEX `/g, "CREATE INDEX IF NOT EXISTS `")
-      .replace(/CREATE UNIQUE INDEX `/g, "CREATE UNIQUE INDEX IF NOT EXISTS `");
-
-    return `-- ── Tablas (${archivo}) ──\n${sql.trim()}`;
-  });
+  console.warn(
+    `\n  OJO: ${ultima} trae un ALTER. schema.sql crea las tablas nuevas ya\n` +
+      "  completas, pero las bases que YA existen (produccion y la local) no\n" +
+      "  reciben esa columna solas. Aplicala a mano con npm run db:cargar.\n",
+  );
 }
 
 function texto(valor: string) {

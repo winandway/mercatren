@@ -169,6 +169,13 @@
       "when": 1786941105851,
       "tag": "0023_smiling_orphan",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1786971192502,
+      "tag": "0024_next_wolfsbane",
+      "breakpoints": true
     }
   ]
 }

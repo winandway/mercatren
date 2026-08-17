@@ -5,7 +5,7 @@
 -- SOLO tablas y el comercio piloto: esto corre en CADA publicacion y tiene
 -- que ser rapido. El catalogo y el historico se cargan aparte, una vez.
 
--- ── Tablas (0000_young_dormammu.sql) ──
+-- ── Tablas (esquema actual) ──
 CREATE TABLE IF NOT EXISTS `account` (
 	`id` text PRIMARY KEY NOT NULL,
 	`account_id` text NOT NULL,
@@ -24,6 +24,24 @@ CREATE TABLE IF NOT EXISTS `account` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_account_user` ON `account` (`user_id`);
+CREATE TABLE IF NOT EXISTS `aceptaciones` (
+	`id` text PRIMARY KEY NOT NULL,
+	`user_id` text NOT NULL,
+	`documento` text NOT NULL,
+	`version` text NOT NULL,
+	`contexto` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_aceptaciones_usuario` ON `aceptaciones` (`user_id`);
+CREATE TABLE IF NOT EXISTS `apariencia_tienda` (
+	`tienda_id` text PRIMARY KEY NOT NULL,
+	`color_banner` text,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `billeteras` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text NOT NULL,
@@ -53,12 +71,146 @@ CREATE TABLE IF NOT EXISTS `categorias` (
 
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_categorias_tienda_slug` ON `categorias` (`tienda_id`,`slug`);
 CREATE INDEX IF NOT EXISTS `idx_categorias_padre` ON `categorias` (`padre_id`);
+CREATE TABLE IF NOT EXISTS `cobros_solicitados` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`enlace` text NOT NULL,
+	`referencia` text NOT NULL,
+	`monto_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`estado` text DEFAULT 'abierto' NOT NULL,
+	`cliente_id` text,
+	`contacto_correo` text NOT NULL,
+	`contacto_nombre` text,
+	`concepto` text,
+	`vence_en` integer,
+	`pago_id` text,
+	`pagado_en` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `cobros_solicitados_enlace_unique` ON `cobros_solicitados` (`enlace`);
+CREATE INDEX IF NOT EXISTS `idx_cobros_tienda` ON `cobros_solicitados` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_cobros_estado` ON `cobros_solicitados` (`estado`);
+CREATE INDEX IF NOT EXISTS `idx_cobros_referencia` ON `cobros_solicitados` (`referencia`);
+CREATE TABLE IF NOT EXISTS `cobros_zelle` (
+	`pago_zelle_id` text PRIMARY KEY NOT NULL,
+	`cobro_id` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pago_zelle_id`) REFERENCES `pagos_zelle`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cobro_id`) REFERENCES `cobros_solicitados`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_cobros_zelle_cobro` ON `cobros_zelle` (`cobro_id`);
+CREATE TABLE IF NOT EXISTS `comprobantes_retiro` (
+	`id` text PRIMARY KEY NOT NULL,
+	`retiro_id` text NOT NULL,
+	`clave` text NOT NULL,
+	`subido_por_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`retiro_id`) REFERENCES `retiros`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`subido_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_comprobantes_retiro` ON `comprobantes_retiro` (`retiro_id`);
 CREATE TABLE IF NOT EXISTS `configuracion` (
 	`clave` text PRIMARY KEY NOT NULL,
 	`valor` text NOT NULL,
 	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `creditos_cliente` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`tope_centavos` integer DEFAULT 0 NOT NULL,
+	`dias_plazo` integer DEFAULT 30 NOT NULL,
+	`estado` text DEFAULT 'activo' NOT NULL,
+	`activado_por_id` text,
+	`nota_interna` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`activado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_credito_tienda_cliente` ON `creditos_cliente` (`tienda_id`,`cliente_id`);
+CREATE INDEX IF NOT EXISTS `idx_credito_tienda` ON `creditos_cliente` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_credito_cliente` ON `creditos_cliente` (`cliente_id`);
+CREATE TABLE IF NOT EXISTS `depositos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`nombre` text NOT NULL,
+	`que_guarda` text,
+	`zona` text NOT NULL,
+	`direccion` text,
+	`como_llegar` text,
+	`externo_nombre` text,
+	`activo` integer DEFAULT true NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_depositos_tienda` ON `depositos` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_depositos_zona` ON `depositos` (`zona`);
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_depositos_tienda_nombre` ON `depositos` (`tienda_id`,`nombre`);
+CREATE TABLE IF NOT EXISTS `disputas` (
+	`id` text PRIMARY KEY NOT NULL,
+	`intento_id` text,
+	`pedido_id` text,
+	`estado` text DEFAULT 'abierta' NOT NULL,
+	`monto_centavos` integer DEFAULT 0 NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`motivo` text,
+	`responde_hasta` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_disputas_pedido` ON `disputas` (`pedido_id`);
+CREATE INDEX IF NOT EXISTS `idx_disputas_estado` ON `disputas` (`estado`);
+CREATE TABLE IF NOT EXISTS `envios_tienda` (
+	`tienda_id` text PRIMARY KEY NOT NULL,
+	`modo` text DEFAULT 'sin_definir' NOT NULL,
+	`porcentaje_puntos_base` integer DEFAULT 0 NOT NULL,
+	`cobertura_es` text,
+	`cobertura_en` text,
+	`plazo_es` text,
+	`plazo_en` text,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE TABLE IF NOT EXISTS `facturas` (
+	`id` text PRIMARY KEY NOT NULL,
+	`numero` text NOT NULL,
+	`tipo` text DEFAULT 'venta' NOT NULL,
+	`pedido_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`emisor_nombre` text NOT NULL,
+	`emisor_identificacion` text,
+	`emisor_direccion` text,
+	`receptor_nombre` text NOT NULL,
+	`receptor_correo` text,
+	`receptor_direccion` text,
+	`subtotal_centavos` integer NOT NULL,
+	`impuestos_centavos` integer DEFAULT 0 NOT NULL,
+	`total_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`idioma` text DEFAULT 'es' NOT NULL,
+	`emitida_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `facturas_numero_unique` ON `facturas` (`numero`);
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_facturas_pedido` ON `facturas` (`pedido_id`);
+CREATE INDEX IF NOT EXISTS `idx_facturas_cliente` ON `facturas` (`cliente_id`);
+CREATE INDEX IF NOT EXISTS `idx_facturas_emitida` ON `facturas` (`emitida_en`);
 CREATE TABLE IF NOT EXISTS `fuentes_catalogo` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text NOT NULL,
@@ -75,6 +227,26 @@ CREATE TABLE IF NOT EXISTS `fuentes_catalogo` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_fuentes_tienda` ON `fuentes_catalogo` (`tienda_id`);
+CREATE TABLE IF NOT EXISTS `hitos_pedido` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`hito` text NOT NULL,
+	`hecho_por_id` text,
+	`hecho_por_nombre` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_hitos_pedido` ON `hitos_pedido` (`pedido_id`);
+CREATE TABLE IF NOT EXISTS `huellas_comprobante` (
+	`pago_id` text PRIMARY KEY NOT NULL,
+	`huella` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pago_id`) REFERENCES `pagos_zelle`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_huellas_comprobante` ON `huellas_comprobante` (`huella`);
 CREATE TABLE IF NOT EXISTS `imagenes_producto` (
 	`id` text PRIMARY KEY NOT NULL,
 	`producto_id` text NOT NULL,
@@ -87,6 +259,12 @@ CREATE TABLE IF NOT EXISTS `imagenes_producto` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_imagenes_producto` ON `imagenes_producto` (`producto_id`);
+CREATE TABLE IF NOT EXISTS `intentos_acceso` (
+	`llave` text PRIMARY KEY NOT NULL,
+	`intentos` integer DEFAULT 0 NOT NULL,
+	`ventana_desde` integer NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `items_pedido` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -104,6 +282,36 @@ CREATE TABLE IF NOT EXISTS `items_pedido` (
 
 CREATE INDEX IF NOT EXISTS `idx_items_pedido` ON `items_pedido` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_items_tienda` ON `items_pedido` (`tienda_id`);
+CREATE TABLE IF NOT EXISTS `items_variante` (
+	`item_pedido_id` text PRIMARY KEY NOT NULL,
+	`variante_id` text NOT NULL,
+	FOREIGN KEY (`item_pedido_id`) REFERENCES `items_pedido`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`variante_id`) REFERENCES `variantes_producto`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE TABLE IF NOT EXISTS `lineas_factura` (
+	`id` text PRIMARY KEY NOT NULL,
+	`factura_id` text NOT NULL,
+	`descripcion` text NOT NULL,
+	`cantidad` real DEFAULT 1 NOT NULL,
+	`precio_unitario_centavos` integer NOT NULL,
+	`subtotal_centavos` integer NOT NULL,
+	FOREIGN KEY (`factura_id`) REFERENCES `facturas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_lineas_factura` ON `lineas_factura` (`factura_id`);
+CREATE TABLE IF NOT EXISTS `medidas_producto` (
+	`producto_id` text PRIMARY KEY NOT NULL,
+	`peso_gramos` integer,
+	`largo_mm` integer,
+	`ancho_mm` integer,
+	`alto_mm` integer,
+	`material_es` text,
+	`material_en` text,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `movimientos_billetera` (
 	`id` text PRIMARY KEY NOT NULL,
 	`billetera_id` text NOT NULL,
@@ -120,6 +328,26 @@ CREATE TABLE IF NOT EXISTS `movimientos_billetera` (
 
 CREATE INDEX IF NOT EXISTS `idx_movimientos_billetera` ON `movimientos_billetera` (`billetera_id`);
 CREATE INDEX IF NOT EXISTS `idx_movimientos_referencia` ON `movimientos_billetera` (`referencia`);
+CREATE TABLE IF NOT EXISTS `ordenes_compra` (
+	`id` text PRIMARY KEY NOT NULL,
+	`numero` text NOT NULL,
+	`pedido_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
+	`subtotal_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`estado` text DEFAULT 'emitida' NOT NULL,
+	`factura_proveedor_numero` text,
+	`factura_proveedor_clave` text,
+	`facturada_en` integer,
+	`emitida_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `ordenes_compra_numero_unique` ON `ordenes_compra` (`numero`);
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_oc_pedido_tienda` ON `ordenes_compra` (`pedido_id`,`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_oc_tienda` ON `ordenes_compra` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_oc_estado` ON `ordenes_compra` (`estado`);
 CREATE TABLE IF NOT EXISTS `pagos` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -196,6 +424,7 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
 	`impuestos_centavos` integer DEFAULT 0 NOT NULL,
 	`total_centavos` integer DEFAULT 0 NOT NULL,
 	`moneda` text DEFAULT 'USD' NOT NULL,
+	`mercado` text DEFAULT 'US' NOT NULL,
 	`metodo_pago` text,
 	`direccion_entrega` text,
 	`pais_destino` text,
@@ -209,6 +438,68 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
 CREATE UNIQUE INDEX IF NOT EXISTS `pedidos_numero_unique` ON `pedidos` (`numero`);
 CREATE INDEX IF NOT EXISTS `idx_pedidos_cliente` ON `pedidos` (`cliente_id`);
 CREATE INDEX IF NOT EXISTS `idx_pedidos_estado` ON `pedidos` (`estado`);
+CREATE INDEX IF NOT EXISTS `idx_pedidos_mercado_estado` ON `pedidos` (`mercado`,`estado`);
+CREATE TABLE IF NOT EXISTS `pedidos_credito` (
+	`pedido_id` text PRIMARY KEY NOT NULL,
+	`credito_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`total_centavos` integer NOT NULL,
+	`estado` text DEFAULT 'abierto' NOT NULL,
+	`vence_en` integer NOT NULL,
+	`saldado_en` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`credito_id`) REFERENCES `creditos_cliente`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_pedcredito_tienda` ON `pedidos_credito` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_pedcredito_cliente` ON `pedidos_credito` (`cliente_id`);
+CREATE INDEX IF NOT EXISTS `idx_pedcredito_estado` ON `pedidos_credito` (`estado`);
+CREATE TABLE IF NOT EXISTS `pedidos_proveedor` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`proveedor` text DEFAULT 'cj' NOT NULL,
+	`estado` text DEFAULT 'por_pagar' NOT NULL,
+	`externo_id` text,
+	`externo_numero` text,
+	`url_pago` text,
+	`costo_centavos` integer,
+	`guia` text,
+	`transportista` text,
+	`ultimo_error` text,
+	`pagado_en` integer,
+	`pagado_por_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`pagado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_pedido` ON `pedidos_proveedor` (`pedido_id`);
+CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_estado` ON `pedidos_proveedor` (`estado`);
+CREATE TABLE IF NOT EXISTS `preguntas_producto` (
+	`id` text PRIMARY KEY NOT NULL,
+	`producto_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
+	`pregunta_es` text NOT NULL,
+	`pregunta_en` text,
+	`respuesta_es` text,
+	`respuesta_en` text,
+	`autor` text DEFAULT 'comercio' NOT NULL,
+	`usuario_id` text,
+	`orden` integer DEFAULT 0 NOT NULL,
+	`estado` text DEFAULT 'publicada' NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`respondido_en` integer,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
+);
+
+CREATE INDEX IF NOT EXISTS `preguntas_producto_producto` ON `preguntas_producto` (`producto_id`);
 CREATE TABLE IF NOT EXISTS `productos` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text NOT NULL,
@@ -246,6 +537,74 @@ CREATE UNIQUE INDEX IF NOT EXISTS `idx_productos_externo` ON `productos` (`tiend
 CREATE INDEX IF NOT EXISTS `idx_productos_estado` ON `productos` (`estado`);
 CREATE INDEX IF NOT EXISTS `idx_productos_categoria` ON `productos` (`categoria_id`);
 CREATE INDEX IF NOT EXISTS `idx_productos_destacado` ON `productos` (`destacado`);
+CREATE TABLE IF NOT EXISTS `pruebas_entrega` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`tipo` text NOT NULL,
+	`referencia` text,
+	`clave` text,
+	`nota` text,
+	`subido_por_id` text,
+	`subido_por_nombre` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`subido_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_pruebas_entrega` ON `pruebas_entrega` (`pedido_id`);
+CREATE TABLE IF NOT EXISTS `rechazos_correo` (
+	`id` text PRIMARY KEY NOT NULL,
+	`correo` text NOT NULL,
+	`dominio` text NOT NULL,
+	`motivo` text NOT NULL,
+	`ip` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `retiros` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`solicitado_por_id` text,
+	`monto_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`estado` text DEFAULT 'solicitado' NOT NULL,
+	`forma` text NOT NULL,
+	`destino` text,
+	`destino_tienda_id` text,
+	`nota_comercio` text,
+	`motivo_rechazo` text,
+	`referencia` text,
+	`resuelto_por_id` text,
+	`resuelto_en` integer,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`solicitado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`destino_tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`resuelto_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_retiros_tienda` ON `retiros` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_retiros_estado` ON `retiros` (`estado`);
+CREATE INDEX IF NOT EXISTS `idx_retiros_fecha` ON `retiros` (`creado_en`);
+CREATE TABLE IF NOT EXISTS `retiros_fee` (
+	`id` text PRIMARY KEY NOT NULL,
+	`monto_centavos` integer NOT NULL,
+	`moneda` text DEFAULT 'USD' NOT NULL,
+	`hecho_en` integer NOT NULL,
+	`nota` text,
+	`origen` text DEFAULT 'live' NOT NULL,
+	`hecho_por_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_retiros_fee_fecha` ON `retiros_fee` (`hecho_en`);
+CREATE TABLE IF NOT EXISTS `series_documento` (
+	`id` text PRIMARY KEY NOT NULL,
+	`prefijo` text NOT NULL,
+	`ultimo` integer DEFAULT 0 NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`token` text NOT NULL,
@@ -260,6 +619,30 @@ CREATE TABLE IF NOT EXISTS `session` (
 
 CREATE UNIQUE INDEX IF NOT EXISTS `session_token_unique` ON `session` (`token`);
 CREATE INDEX IF NOT EXISTS `idx_session_user` ON `session` (`user_id`);
+CREATE TABLE IF NOT EXISTS `socios_alias` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`externo_id` text NOT NULL,
+	`producto_id` text NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `socios_alias_tienda_externo` ON `socios_alias` (`tienda_id`,`externo_id`);
+CREATE INDEX IF NOT EXISTS `socios_alias_producto` ON `socios_alias` (`producto_id`);
+CREATE TABLE IF NOT EXISTS `socios_tienda` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`plataforma` text NOT NULL,
+	`externo_id` text NOT NULL,
+	`token_hash` text NOT NULL,
+	`cursor` text,
+	`ultimo_resultado` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `tiendas` (
 	`id` text PRIMARY KEY NOT NULL,
 	`propietario_id` text,
@@ -290,6 +673,7 @@ CREATE TABLE IF NOT EXISTS `tiendas` (
 CREATE UNIQUE INDEX IF NOT EXISTS `tiendas_slug_unique` ON `tiendas` (`slug`);
 CREATE INDEX IF NOT EXISTS `idx_tiendas_propietario` ON `tiendas` (`propietario_id`);
 CREATE INDEX IF NOT EXISTS `idx_tiendas_estado` ON `tiendas` (`estado`);
+CREATE INDEX IF NOT EXISTS `idx_tiendas_mercado` ON `tiendas` (`mercado`);
 CREATE TABLE IF NOT EXISTS `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
@@ -306,87 +690,19 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 CREATE UNIQUE INDEX IF NOT EXISTS `user_email_unique` ON `user` (`email`);
 CREATE INDEX IF NOT EXISTS `idx_user_rol` ON `user` (`rol`);
-CREATE TABLE IF NOT EXISTS `verification` (
+CREATE TABLE IF NOT EXISTS `valoraciones` (
 	`id` text PRIMARY KEY NOT NULL,
-	`identifier` text NOT NULL,
-	`value` text NOT NULL,
-	`expires_at` integer NOT NULL,
-	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
-	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS `idx_verification_identifier` ON `verification` (`identifier`);
--- ── Tablas (0001_curly_lady_deathstrike.sql) ──
-CREATE TABLE IF NOT EXISTS `retiros_fee` (
-	`id` text PRIMARY KEY NOT NULL,
-	`monto_centavos` integer NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`hecho_en` integer NOT NULL,
-	`nota` text,
-	`origen` text DEFAULT 'live' NOT NULL,
-	`hecho_por_id` text,
+	`producto_id` text NOT NULL,
+	`usuario_id` text NOT NULL,
+	`estrellas` integer NOT NULL,
+	`comentario` text,
 	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
-CREATE INDEX IF NOT EXISTS `idx_retiros_fee_fecha` ON `retiros_fee` (`hecho_en`);
--- ── Tablas (0002_brainy_lord_tyger.sql) ──
-CREATE TABLE IF NOT EXISTS `retiros` (
-	`id` text PRIMARY KEY NOT NULL,
-	`tienda_id` text NOT NULL,
-	`solicitado_por_id` text,
-	`monto_centavos` integer NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`estado` text DEFAULT 'solicitado' NOT NULL,
-	`forma` text NOT NULL,
-	`destino` text,
-	`destino_tienda_id` text,
-	`nota_comercio` text,
-	`motivo_rechazo` text,
-	`referencia` text,
-	`resuelto_por_id` text,
-	`resuelto_en` integer,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`solicitado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`destino_tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`resuelto_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE INDEX IF NOT EXISTS `idx_retiros_tienda` ON `retiros` (`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_retiros_estado` ON `retiros` (`estado`);
-CREATE INDEX IF NOT EXISTS `idx_retiros_fecha` ON `retiros` (`creado_en`);
--- ── Tablas (0003_loose_virginia_dare.sql) ──
-CREATE TABLE IF NOT EXISTS `depositos` (
-	`id` text PRIMARY KEY NOT NULL,
-	`tienda_id` text NOT NULL,
-	`nombre` text NOT NULL,
-	`que_guarda` text,
-	`zona` text NOT NULL,
-	`direccion` text,
-	`como_llegar` text,
-	`externo_nombre` text,
-	`activo` integer DEFAULT true NOT NULL,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE INDEX IF NOT EXISTS `idx_depositos_tienda` ON `depositos` (`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_depositos_zona` ON `depositos` (`zona`);
-CREATE UNIQUE INDEX IF NOT EXISTS `idx_depositos_tienda_nombre` ON `depositos` (`tienda_id`,`nombre`);
--- ── Tablas (0004_curly_raza.sql) ──
-CREATE TABLE IF NOT EXISTS `medidas_producto` (
-	`producto_id` text PRIMARY KEY NOT NULL,
-	`peso_gramos` integer,
-	`largo_mm` integer,
-	`ancho_mm` integer,
-	`alto_mm` integer,
-	`material_es` text,
-	`material_en` text,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_valoracion_unica` ON `valoraciones` (`producto_id`,`usuario_id`);
+CREATE INDEX IF NOT EXISTS `idx_valoraciones_producto` ON `valoraciones` (`producto_id`);
 CREATE TABLE IF NOT EXISTS `variantes_producto` (
 	`id` text PRIMARY KEY NOT NULL,
 	`producto_id` text NOT NULL,
@@ -406,172 +722,6 @@ CREATE TABLE IF NOT EXISTS `variantes_producto` (
 
 CREATE INDEX IF NOT EXISTS `idx_variantes_producto` ON `variantes_producto` (`producto_id`);
 CREATE UNIQUE INDEX IF NOT EXISTS `uq_variante_combinacion` ON `variantes_producto` (`producto_id`,`talla`,`color`);
--- ── Tablas (0005_silly_anita_blake.sql) ──
-CREATE TABLE IF NOT EXISTS `items_variante` (
-	`item_pedido_id` text PRIMARY KEY NOT NULL,
-	`variante_id` text NOT NULL,
-	FOREIGN KEY (`item_pedido_id`) REFERENCES `items_pedido`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`variante_id`) REFERENCES `variantes_producto`(`id`) ON UPDATE no action ON DELETE no action
-);
--- ── Tablas (0006_true_gorgon.sql) ──
-CREATE TABLE IF NOT EXISTS `aceptaciones` (
-	`id` text PRIMARY KEY NOT NULL,
-	`user_id` text NOT NULL,
-	`documento` text NOT NULL,
-	`version` text NOT NULL,
-	`contexto` text NOT NULL,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE INDEX IF NOT EXISTS `idx_aceptaciones_usuario` ON `aceptaciones` (`user_id`);
--- ── Tablas (0007_cynical_exodus.sql) ──
-CREATE TABLE IF NOT EXISTS `creditos_cliente` (
-	`id` text PRIMARY KEY NOT NULL,
-	`tienda_id` text NOT NULL,
-	`cliente_id` text NOT NULL,
-	`tope_centavos` integer DEFAULT 0 NOT NULL,
-	`dias_plazo` integer DEFAULT 30 NOT NULL,
-	`estado` text DEFAULT 'activo' NOT NULL,
-	`activado_por_id` text,
-	`nota_interna` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`activado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS `idx_credito_tienda_cliente` ON `creditos_cliente` (`tienda_id`,`cliente_id`);
-CREATE INDEX IF NOT EXISTS `idx_credito_tienda` ON `creditos_cliente` (`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_credito_cliente` ON `creditos_cliente` (`cliente_id`);
-CREATE TABLE IF NOT EXISTS `pedidos_credito` (
-	`pedido_id` text PRIMARY KEY NOT NULL,
-	`credito_id` text NOT NULL,
-	`tienda_id` text NOT NULL,
-	`cliente_id` text NOT NULL,
-	`total_centavos` integer NOT NULL,
-	`estado` text DEFAULT 'abierto' NOT NULL,
-	`vence_en` integer NOT NULL,
-	`saldado_en` integer,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`credito_id`) REFERENCES `creditos_cliente`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE INDEX IF NOT EXISTS `idx_pedcredito_tienda` ON `pedidos_credito` (`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_pedcredito_cliente` ON `pedidos_credito` (`cliente_id`);
-CREATE INDEX IF NOT EXISTS `idx_pedcredito_estado` ON `pedidos_credito` (`estado`);
--- ── Tablas (0008_massive_crusher_hogan.sql) ──
-CREATE TABLE IF NOT EXISTS `facturas` (
-	`id` text PRIMARY KEY NOT NULL,
-	`numero` text NOT NULL,
-	`tipo` text DEFAULT 'venta' NOT NULL,
-	`pedido_id` text NOT NULL,
-	`cliente_id` text NOT NULL,
-	`emisor_nombre` text NOT NULL,
-	`emisor_identificacion` text,
-	`emisor_direccion` text,
-	`receptor_nombre` text NOT NULL,
-	`receptor_correo` text,
-	`receptor_direccion` text,
-	`subtotal_centavos` integer NOT NULL,
-	`impuestos_centavos` integer DEFAULT 0 NOT NULL,
-	`total_centavos` integer NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`idioma` text DEFAULT 'es' NOT NULL,
-	`emitida_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS `facturas_numero_unique` ON `facturas` (`numero`);
-CREATE UNIQUE INDEX IF NOT EXISTS `idx_facturas_pedido` ON `facturas` (`pedido_id`);
-CREATE INDEX IF NOT EXISTS `idx_facturas_cliente` ON `facturas` (`cliente_id`);
-CREATE INDEX IF NOT EXISTS `idx_facturas_emitida` ON `facturas` (`emitida_en`);
-CREATE TABLE IF NOT EXISTS `lineas_factura` (
-	`id` text PRIMARY KEY NOT NULL,
-	`factura_id` text NOT NULL,
-	`descripcion` text NOT NULL,
-	`cantidad` real DEFAULT 1 NOT NULL,
-	`precio_unitario_centavos` integer NOT NULL,
-	`subtotal_centavos` integer NOT NULL,
-	FOREIGN KEY (`factura_id`) REFERENCES `facturas`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE INDEX IF NOT EXISTS `idx_lineas_factura` ON `lineas_factura` (`factura_id`);
-CREATE TABLE IF NOT EXISTS `ordenes_compra` (
-	`id` text PRIMARY KEY NOT NULL,
-	`numero` text NOT NULL,
-	`pedido_id` text NOT NULL,
-	`tienda_id` text NOT NULL,
-	`subtotal_centavos` integer NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`estado` text DEFAULT 'emitida' NOT NULL,
-	`factura_proveedor_numero` text,
-	`factura_proveedor_clave` text,
-	`facturada_en` integer,
-	`emitida_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS `ordenes_compra_numero_unique` ON `ordenes_compra` (`numero`);
-CREATE UNIQUE INDEX IF NOT EXISTS `idx_oc_pedido_tienda` ON `ordenes_compra` (`pedido_id`,`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_oc_tienda` ON `ordenes_compra` (`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_oc_estado` ON `ordenes_compra` (`estado`);
-CREATE TABLE IF NOT EXISTS `series_documento` (
-	`id` text PRIMARY KEY NOT NULL,
-	`prefijo` text NOT NULL,
-	`ultimo` integer DEFAULT 0 NOT NULL
-);
--- ── Tablas (0009_dashing_risque.sql) ──
-CREATE TABLE IF NOT EXISTS `envios_tienda` (
-	`tienda_id` text PRIMARY KEY NOT NULL,
-	`modo` text DEFAULT 'sin_definir' NOT NULL,
-	`porcentaje_puntos_base` integer DEFAULT 0 NOT NULL,
-	`cobertura_es` text,
-	`cobertura_en` text,
-	`plazo_es` text,
-	`plazo_en` text,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
-);
--- ── Tablas (0010_handy_black_panther.sql) ──
-CREATE TABLE IF NOT EXISTS `apariencia_tienda` (
-	`tienda_id` text PRIMARY KEY NOT NULL,
-	`color_banner` text,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
-);
--- ── Tablas (0011_quiet_the_anarchist.sql) ──
-CREATE TABLE IF NOT EXISTS `socios_tienda` (
-	`id` text PRIMARY KEY NOT NULL,
-	`tienda_id` text NOT NULL,
-	`plataforma` text NOT NULL,
-	`externo_id` text NOT NULL,
-	`token_hash` text NOT NULL,
-	`cursor` text,
-	`ultimo_resultado` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
-);
--- ── Tablas (0012_fine_tyger_tiger.sql) ──
-CREATE TABLE IF NOT EXISTS `socios_alias` (
-	`id` text PRIMARY KEY NOT NULL,
-	`tienda_id` text NOT NULL,
-	`externo_id` text NOT NULL,
-	`producto_id` text NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS `socios_alias_tienda_externo` ON `socios_alias` (`tienda_id`,`externo_id`);
-CREATE INDEX IF NOT EXISTS `socios_alias_producto` ON `socios_alias` (`producto_id`);
--- ── Tablas (0013_long_sage.sql) ──
 CREATE TABLE IF NOT EXISTS `verificacion_tienda` (
 	`tienda_id` text PRIMARY KEY NOT NULL,
 	`estado` text DEFAULT 'en_observacion' NOT NULL,
@@ -582,155 +732,17 @@ CREATE TABLE IF NOT EXISTS `verificacion_tienda` (
 	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`revisado_por`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
 );
--- ── Tablas (0014_cynical_karnak.sql) ──
-CREATE TABLE IF NOT EXISTS `preguntas_producto` (
+
+CREATE TABLE IF NOT EXISTS `verification` (
 	`id` text PRIMARY KEY NOT NULL,
-	`producto_id` text NOT NULL,
-	`tienda_id` text NOT NULL,
-	`pregunta_es` text NOT NULL,
-	`pregunta_en` text,
-	`respuesta_es` text,
-	`respuesta_en` text,
-	`autor` text DEFAULT 'comercio' NOT NULL,
-	`usuario_id` text,
-	`orden` integer DEFAULT 0 NOT NULL,
-	`estado` text DEFAULT 'publicada' NOT NULL,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	`respondido_en` integer,
-	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
+	`identifier` text NOT NULL,
+	`value` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS `preguntas_producto_producto` ON `preguntas_producto` (`producto_id`);
--- ── Tablas (0015_purple_sumo.sql) ──
-CREATE TABLE IF NOT EXISTS `huellas_comprobante` (
-	`pago_id` text PRIMARY KEY NOT NULL,
-	`huella` text NOT NULL,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pago_id`) REFERENCES `pagos_zelle`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE INDEX IF NOT EXISTS `idx_huellas_comprobante` ON `huellas_comprobante` (`huella`);
--- ── Tablas (0016_early_hex.sql) ──
-CREATE TABLE IF NOT EXISTS `disputas` (
-	`id` text PRIMARY KEY NOT NULL,
-	`intento_id` text,
-	`pedido_id` text,
-	`estado` text DEFAULT 'abierta' NOT NULL,
-	`monto_centavos` integer DEFAULT 0 NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`motivo` text,
-	`responde_hasta` integer,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE INDEX IF NOT EXISTS `idx_disputas_pedido` ON `disputas` (`pedido_id`);
-CREATE INDEX IF NOT EXISTS `idx_disputas_estado` ON `disputas` (`estado`);
-CREATE TABLE IF NOT EXISTS `hitos_pedido` (
-	`id` text PRIMARY KEY NOT NULL,
-	`pedido_id` text NOT NULL,
-	`hito` text NOT NULL,
-	`hecho_por_id` text,
-	`hecho_por_nombre` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`hecho_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE INDEX IF NOT EXISTS `idx_hitos_pedido` ON `hitos_pedido` (`pedido_id`);
--- ── Tablas (0017_mighty_the_call.sql) ──
-CREATE TABLE IF NOT EXISTS `cobros_solicitados` (
-	`id` text PRIMARY KEY NOT NULL,
-	`tienda_id` text NOT NULL,
-	`enlace` text NOT NULL,
-	`referencia` text NOT NULL,
-	`monto_centavos` integer NOT NULL,
-	`moneda` text DEFAULT 'USD' NOT NULL,
-	`estado` text DEFAULT 'abierto' NOT NULL,
-	`cliente_id` text,
-	`contacto_correo` text NOT NULL,
-	`contacto_nombre` text,
-	`concepto` text,
-	`vence_en` integer,
-	`pago_id` text,
-	`pagado_en` integer,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS `cobros_solicitados_enlace_unique` ON `cobros_solicitados` (`enlace`);
-CREATE INDEX IF NOT EXISTS `idx_cobros_tienda` ON `cobros_solicitados` (`tienda_id`);
-CREATE INDEX IF NOT EXISTS `idx_cobros_estado` ON `cobros_solicitados` (`estado`);
-CREATE INDEX IF NOT EXISTS `idx_cobros_referencia` ON `cobros_solicitados` (`referencia`);
--- ── Tablas (0018_futuristic_prowler.sql) ──
-CREATE TABLE IF NOT EXISTS `intentos_acceso` (
-	`llave` text PRIMARY KEY NOT NULL,
-	`intentos` integer DEFAULT 0 NOT NULL,
-	`ventana_desde` integer NOT NULL
-);
--- ── Tablas (0019_unique_spyke.sql) ──
-CREATE TABLE IF NOT EXISTS `pruebas_entrega` (
-	`id` text PRIMARY KEY NOT NULL,
-	`pedido_id` text NOT NULL,
-	`tipo` text NOT NULL,
-	`referencia` text,
-	`clave` text,
-	`nota` text,
-	`subido_por_id` text,
-	`subido_por_nombre` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`subido_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE INDEX IF NOT EXISTS `idx_pruebas_entrega` ON `pruebas_entrega` (`pedido_id`);
--- ── Tablas (0020_colorful_switch.sql) ──
-CREATE TABLE IF NOT EXISTS `rechazos_correo` (
-	`id` text PRIMARY KEY NOT NULL,
-	`correo` text NOT NULL,
-	`dominio` text NOT NULL,
-	`motivo` text NOT NULL,
-	`ip` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
-);
--- ── Tablas (0021_bizarre_grim_reaper.sql) ──
-CREATE TABLE IF NOT EXISTS `cobros_zelle` (
-	`pago_zelle_id` text PRIMARY KEY NOT NULL,
-	`cobro_id` text NOT NULL,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pago_zelle_id`) REFERENCES `pagos_zelle`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`cobro_id`) REFERENCES `cobros_solicitados`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE INDEX IF NOT EXISTS `idx_cobros_zelle_cobro` ON `cobros_zelle` (`cobro_id`);
-CREATE TABLE IF NOT EXISTS `comprobantes_retiro` (
-	`id` text PRIMARY KEY NOT NULL,
-	`retiro_id` text NOT NULL,
-	`clave` text NOT NULL,
-	`subido_por_id` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`retiro_id`) REFERENCES `retiros`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`subido_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE INDEX IF NOT EXISTS `idx_comprobantes_retiro` ON `comprobantes_retiro` (`retiro_id`);
-CREATE TABLE IF NOT EXISTS `valoraciones` (
-	`id` text PRIMARY KEY NOT NULL,
-	`producto_id` text NOT NULL,
-	`usuario_id` text NOT NULL,
-	`estrellas` integer NOT NULL,
-	`comentario` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS `idx_valoracion_unica` ON `valoraciones` (`producto_id`,`usuario_id`);
-CREATE INDEX IF NOT EXISTS `idx_valoraciones_producto` ON `valoraciones` (`producto_id`);
+CREATE INDEX IF NOT EXISTS `idx_verification_identifier` ON `verification` (`identifier`);
 CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 	`tienda_id` text PRIMARY KEY NOT NULL,
 	`habilitado` integer DEFAULT false NOT NULL,
@@ -738,42 +750,17 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
 	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
 );
--- ── Tablas (0022_wise_mister_fear.sql) ──
-CREATE TABLE IF NOT EXISTS `pedidos_proveedor` (
-	`id` text PRIMARY KEY NOT NULL,
-	`pedido_id` text NOT NULL,
-	`proveedor` text DEFAULT 'cj' NOT NULL,
-	`estado` text DEFAULT 'por_pagar' NOT NULL,
-	`externo_id` text,
-	`externo_numero` text,
-	`url_pago` text,
-	`costo_centavos` integer,
-	`guia` text,
-	`transportista` text,
-	`ultimo_error` text,
-	`pagado_en` integer,
-	`pagado_por_id` text,
-	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
-	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`pagado_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
-);
-
-CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_pedido` ON `pedidos_proveedor` (`pedido_id`);
-CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_estado` ON `pedidos_proveedor` (`estado`);
--- ── Tablas (0023_smiling_orphan.sql) ──
-CREATE INDEX IF NOT EXISTS `idx_tiendas_mercado` ON `tiendas` (`mercado`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786941190, 1786941190)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786971289, 1786971289)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786941190)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786971289)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──

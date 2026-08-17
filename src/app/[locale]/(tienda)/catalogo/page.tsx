@@ -13,6 +13,7 @@ import {
   listarProductos,
   type OrdenCatalogo,
 } from "@/lib/catalogo/consultas";
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
@@ -64,8 +65,10 @@ export default async function PaginaCatalogo({
   const visibles =
     zona && !verTodas ? ciudadesVisiblesDesde(zona.slug) : undefined;
 
+  const mercado = await mercadoDeLaPeticion();
+
   const [resultado, categorias, comercios, departamentos] = await Promise.all([
-    listarProductos({
+    listarProductos(mercado, {
       busqueda: filtros.q,
       categoria: filtros.categoria,
       comercio: filtros.comercio,
@@ -73,10 +76,10 @@ export default async function PaginaCatalogo({
       pagina: Number(filtros.pagina) || 1,
       zona: visibles,
     }),
-    listarCategoriasConProductos(),
-    listarComerciosDelCatalogo(),
+    listarCategoriasConProductos(mercado),
+    listarComerciosDelCatalogo(mercado),
     /* LA TIRA TAMBIÉN AQUÍ DENTRO. Ver el comentario de abajo. */
-    listarDepartamentosDePortada(idioma).catch(() => []),
+    listarDepartamentosDePortada(mercado, idioma).catch(() => []),
   ]);
 
   const hayBusqueda = Boolean(

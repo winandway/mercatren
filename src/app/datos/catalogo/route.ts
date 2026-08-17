@@ -1,4 +1,5 @@
 import { parrillaDeProductos } from "@/lib/catalogo/consultas";
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 
@@ -33,7 +34,14 @@ export async function GET(peticion: Request) {
       url.searchParams.get("todas") === "1" ? null : await zonaDelCliente();
     const visibles = zona ? ciudadesVisiblesDesde(zona.slug) : undefined;
 
-    const tanda = await parrillaDeProductos(semilla, pagina, 24, visibles);
+    const mercado = await mercadoDeLaPeticion();
+    const tanda = await parrillaDeProductos(
+      mercado,
+      semilla,
+      pagina,
+      24,
+      visibles,
+    );
     return Response.json({
       productos: tanda.productos,
       pagina: tanda.pagina,

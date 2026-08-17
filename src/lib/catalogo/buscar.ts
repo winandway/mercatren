@@ -7,7 +7,12 @@ import {
   productos,
   tiendas,
 } from "@/lib/db/schema";
-import { mercadoActual } from "@/lib/mercado/actual";
+import type { Mercado } from "@/lib/mercado/mercados";
+import {
+  type FiltroDeMercado,
+  tiendaVisibleEn,
+  visibleEn,
+} from "@/lib/mercado/repositorio";
 
 import { direccionImagen } from "./consultas";
 
@@ -109,18 +114,12 @@ const MARCA_Y_SKU = normalizar(
   sql`COALESCE(${productos.marca}, '') || ' ' || COALESCE(${productos.sku}, '')`,
 );
 
-/** Solo productos publicados de comercios activos. */
-const VISIBLE = and(
-  eq(productos.estado, "publicado"),
-  eq(tiendas.estado, "activa"),
-);
-
-/** El mismo candado del mercado que en consultas.ts: el dominio decide qué
- *  catálogo se busca. Buscar en mercatren.cl no puede encontrar mercancía
- *  que solo se entrega desde mercatren.com. */
-async function visibleAqui() {
-  const mercado = await mercadoActual();
-  return and(VISIBLE, eq(tiendas.mercado, mercado.codigo))!;
+/** El candado del mercado sale de la capa: el dominio decide qué catálogo se
+ *  busca, y buscar en mercatren.cl no puede encontrar mercancía que solo se
+ *  entrega desde mercatren.com. Aquí NO se vuelve a escribir el filtro — una
+ *  segunda copia se desincroniza de la primera al primer arreglo. */
+function visibleAqui(mercado: Mercado): FiltroDeMercado {
+  return visibleEn(mercado);
 }
 
 /**
@@ -183,14 +182,17 @@ export type Sugerencia = {
  * Las mejores coincidencias, para el desplegable del buscador.
  * Devuelve pocas y ordenadas: es una ayuda mientras se escribe, no un listado.
  */
-export async function sugerencias(busqueda: string, cuantas = 8) {
+export async function sugerencias(
+  mercado: Mercado,
+  busqueda: string,
+  cuantas = 8,
+) {
   const palabras = palabrasDe(busqueda);
   if (palabras.length === 0) return { productos: [], comercios: [], total: 0 };
 
   const db = getDb();
   const relevancia = puntuacion(busqueda, palabras);
-  const mercado = await mercadoActual();
-  const donde = and(await visibleAqui(), todasLasPalabras(palabras));
+  const donde = and(visibleAqui(mercado), todasLasPalabras(palabras));
 
   const [filas, [conteo], comercios] = await Promise.all([
     db
@@ -229,8 +231,7 @@ export async function sugerencias(busqueda: string, cuantas = 8) {
       .from(tiendas)
       .where(
         and(
-          eq(tiendas.estado, "activa"),
-          eq(tiendas.mercado, mercado.codigo),
+          tiendaVisibleEn(mercado),
           sql`${normalizar(tiendas.nombre)} LIKE ${"%" + palabras[0] + "%"}`,
         ),
       )
@@ -268,16 +269,29 @@ export function condicionDeBusqueda(busqueda?: string) {
 }
 
 /** Categorias que calzan con lo buscado, para sugerir un atajo. */
-export async function categoriasQueCalzan(busqueda: string) {
+export async function categoriasQueCalzan(mercado: Mercado, busqueda: string) {
   const palabras = palabrasDe(busqueda);
   if (palabras.length === 0) return [];
 
   const db = getDb();
+  /**
+   * SOLO CATEGORÍAS QUE DE VERDAD TIENEN ALGO EN ESTE PAÍS.
+   *
+   * Antes esta consulta no miraba el mercado: en mercatren.cl, escribir
+   * «taladro» ofrecía el atajo a «Ferretería y construcción» y ese atajo
+   * llevaba a una página vacía. No es una fuga de datos, es peor de leer:
+   * el sitio promete un camino y al final no hay nada.
+   */
   return db
     .selectDistinct({ slug: categorias.slug, nombre: categorias.nombreEs })
     .from(categorias)
+    .innerJoin(productos, eq(productos.categoriaId, categorias.id))
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .where(
-      sql`${normalizar(categorias.nombreEs)} LIKE ${"%" + palabras[0] + "%"}`,
+      and(
+        visibleEn(mercado),
+        sql`${normalizar(categorias.nombreEs)} LIKE ${"%" + palabras[0] + "%"}`,
+      ),
     )
     .limit(3);
 }

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
@@ -46,7 +47,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const datos = await obtenerTiendaPorSlug(slug);
+  const datos = await obtenerTiendaPorSlug(await mercadoDeLaPeticion(), slug);
   if (!datos) return {};
 
   const descripcion =
@@ -139,6 +140,7 @@ export default async function PaginaTienda({
   const mirador = await quienMira();
 
   const datos = await obtenerTiendaPorSlug(
+    await mercadoDeLaPeticion(),
     slug,
     Number(pagina) || 1,
     mirador.tipo !== "visitante",

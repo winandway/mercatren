@@ -1,4 +1,5 @@
 import { sugerencias } from "@/lib/catalogo/buscar";
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET(peticion: Request) {
   }
 
   try {
-    const resultado = await sugerencias(q, 8);
+    const resultado = await sugerencias(await mercadoDeLaPeticion(), q, 8);
     return Response.json(resultado, {
       // Se puede cachear un ratito: las mismas letras dan lo mismo, y asi el
       // que escribe rapido no golpea la base en cada tecla.
