@@ -51,5 +51,5 @@
 - [x] Paso 15: Auditar el caché de OpenNext ruta por ruta — toda ruta cacheada
       cuya respuesta dependa del país lleva el país en la clave o se declara
       dinámica. Con su prueba.
-- [ ] Paso 16: `npm run verify` completo, publicar, y comprobar EN VIVO el
+- [x] Paso 16: `npm run verify` completo, publicar, y comprobar EN VIVO el
       camino completo de un visitante en los DOS dominios.

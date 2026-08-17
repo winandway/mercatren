@@ -197,6 +197,36 @@ Tres candados, y el tercero es el que casi siempre falta:
 Volver al principal **borra** la cookie en vez de escribir «US»: dos formas de
 significar lo mismo es como se acaban leyendo distinto en dos pantallas.
 
+## El 200 de las páginas que no existen NO es un fallo (17 ago 2026)
+
+Salió en el recorrido completo de los dos dominios: `mercatren.cl/es/tienda/
+bley-ferreteria` —una tienda que solo existe en .com— responde **200** en vez
+de 404. Y no es cosa del país: `mercatren.com/es/tienda/no-existe-jamas`
+también responde 200.
+
+**Es comportamiento documentado de Next 16**, no un fallo del código. Su guía
+(`node_modules/next/dist/docs/.../loading.md`, sección Status Codes) lo dice
+con todas las letras: en una respuesta **en streaming** las cabeceras ya
+salieron cuando se ejecuta `notFound()`, así que el estado ya no se puede
+cambiar. Todas nuestras páginas son dinámicas, así que todas van en streaming.
+
+**Lo que protege el SEO es otra cosa, y está funcionando:** Next inyecta
+`<meta name="robots" content="noindex">` en esas páginas. Comprobado en
+producción — la ficha de un comercio de .com vista desde .cl lo lleva, la de
+un producto ajeno lo lleva, y **una página buena NO lo lleva**. Google no
+indexa lo que está marcado `noindex` aunque el estado sea 200; su propia guía
+lo dice.
+
+**Y el dato tampoco se filtra:** esas páginas no enseñan ni el nombre del
+comercio ni un solo producto. El muro de la fase 2 hace su trabajo; lo único
+que no cambia es el número del estado HTTP.
+
+**NO se persiga el 404 a lo bruto.** La única forma de conseguirlo sería
+comprobar la existencia en el middleware, antes de que empiece el streaming —
+una consulta a la base en CADA visita a una ficha, en el borde, para arreglar
+un número que Google ya está ignorando. Se apunta aquí por si algún día hace
+falta por cumplimiento o por analítica; hoy no compensa.
+
 ## FASE 5 · Bases separadas — SOLO si hace falta, y va la ÚLTIMA
 
 Con las fases 1–3 bien hechas deja de ser urgente. Se haría por ley de
