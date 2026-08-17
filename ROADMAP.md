@@ -593,6 +593,62 @@ promediadas con las estrellas de Mercatren**: nuestro número tiene que salir
 solo de gente que nos compró a nosotros. Mezclarlas es exactamente lo que
 sanciona la FTC, y es la misma línea que ya trazó `PLAN-CONFIANZA.md`.
 
+## RETIROS AUTOMÁTICOS POR LA API DE MERCURY (investigado el 16 ago 2026)
+
+> Pedido del dueño, y tiene razón: con tres mil retiros nadie llena tres mil
+> formularios a mano. Mercatren entra en Chile y Colombia, y el sistema tiene
+> que escalar solo.
+
+### SE PUEDE, Y EL ENDPOINT ES ESTE
+
+**`POST /account/{accountId}/request-send-money`** — no `createTransaction`.
+La diferencia es toda la historia:
+
+|                    | `createTransaction`                     | **`request-send-money`**                     |
+| ------------------ | --------------------------------------- | -------------------------------------------- |
+| Wire internacional | ❌ solo `ach`, `check`, `domesticWire`  | ✅ **acepta `internationalWire`**            |
+| Aprobación humana  | Sale de una                             | ✅ **queda esperando aprobación en Mercury** |
+| Lista blanca de IP | ✅ obligatoria para tokens de escritura | ✅ **EXENTO**                                |
+
+Los tres puntos importan, y el tercero es el que lo hace posible: nuestro sitio
+corre en el borde y **no tiene una IP fija que se pueda declarar**. Con
+`createTransaction` la lista blanca lo haría inviable; `request-send-money`
+está exento por diseño, justo porque el dinero no sale sin que una persona lo
+apruebe.
+
+### EL FLUJO COMPLETO, SIN FORMULARIOS
+
+1. El comercio pide su retiro en nuestro panel (ya funciona).
+2. Nuestro sistema crea el **destinatario** en Mercury por API — con los datos
+   que el comercio ya llenó, incluido el SWIFT y la dirección del titular.
+3. Nuestro sistema crea la **solicitud de pago** con `internationalWire` o
+   `ach` según el país (que ya lo decidimos nosotros).
+4. Al dueño le aparece en Mercury **esperando su aprobación**. Un botón.
+5. El **webhook** de Mercury nos avisa cuando sale, y el retiro se marca pagado
+   solo, con su comprobante.
+
+Cero transcripción. Escala a tres mil igual que a tres.
+
+### LO QUE HAY QUE TENER EN CUENTA AL CONSTRUIRLO
+
+- **`idempotencyKey` es obligatorio y es la red de seguridad**: repetir la
+  misma llave devuelve 409 en vez de pagar dos veces. Se usa el id del retiro.
+  Mercury además bloquea duplicados dentro de 24 horas.
+- **`purpose` es obligatorio en los wires** (categoría del pago). Sin eso, el
+  wire se rechaza.
+- **El destinatario necesita `internationalWireRoutingInfo`** con IBAN/SWIFT y
+  campos propios de cada país — que es justo lo que `paises.ts` ya modela.
+- **Quien aprueba tiene que ser distinto de quien creó el token.** Es una regla
+  de Mercury, no nuestra, y conviene saberla antes de crear el token.
+- **Los tokens se degradan solos**: si en 45 días no se usan los permisos de
+  escritura, Mercury los baja. Con retiros de verdad no aplica, pero durante
+  las pruebas sí.
+
+### LO ÚNICO QUE HACE FALTA Y NO ESTÁ EN EL CÓDIGO
+
+El **token de la API de Mercury** y el **id de la cuenta**. Solo los puede
+sacar el dueño, en su banco.
+
 ## PROBAR PROVEEDORES ANTES DE CASARSE CON UNO (decidido el 15 ago 2026)
 
 > Decisión del dueño. Antes de meter $2.000 en una billetera, se compra con
