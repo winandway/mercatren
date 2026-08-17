@@ -1688,6 +1688,32 @@ meter ahí un cobro que va en camino descuadraría el cierre del día con dinero
 que nadie recibió. Cómo se contabiliza esa venta cuando el pago llega es una
 decisión del comercio, no del código.
 
+## LA PUBLICACIÓN SE CAYÓ POR EL PESO DEL WORKER (17 ago 2026)
+
+YaDominios Cloud rechaza la publicación: «Tu `_worker.js` pesa 12.3 MB y es
+demasiado grande». **El sitio lleva desde el 16 ago 12:55 sirviendo la versión
+vieja**, y por eso tampoco corrió `schema.sql` — las tablas nuevas hubo que
+aplicarlas a mano.
+
+**Medido, no supuesto:**
+
+|                                 |                                     |
+| ------------------------------- | ----------------------------------- |
+| `_worker.js` sin comprimir      | **12,31 MB**                        |
+| `_worker.js` comprimido (gzip)  | **3,22 MB**                         |
+| Tope real de Cloudflare Workers | **10 MB COMPRIMIDO** (plan de pago) |
+
+**Estamos a menos de un tercio del tope real.** El worker ya sale minificado, y
+**nada nuestro está dentro**: se comprobó buscando los textos del modelo de
+negocio, los de idioma, los países bancarios y los datos del comercio piloto —
+ninguno aparece. Los dibujos de los iconos suman 0,03 MB. Los 12,31 MB son el
+motor de Next.js y el adaptador, que es la línea base de OpenNext.
+
+**Conclusión: no hay nada que recortar de este lado.** El fallo es que la
+plataforma mide el archivo **sin comprimir** contra un tope que Cloudflare
+aplica **comprimido**. Se arregla en YaDominios Cloud, que es otro proyecto y
+va en su propia sesión.
+
 ## Los retiros salen por la API de Mercury (16 ago 2026)
 
 Lo pidió el dueño, y tenía razón: con tres mil retiros nadie llena tres mil
