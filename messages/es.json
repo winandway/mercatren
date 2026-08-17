@@ -39,6 +39,8 @@
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
     "subtituloHero": "Elige tu producto, paga el precio publicado y dinos dónde entregarlo. El precio que ves es el precio final.",
+    "mercadoNuevoTitulo": "Mercatren llega a {pais}",
+    "mercadoNuevoTexto": "Estamos preparando el catálogo para {pais}: comercios y productos que se entregan en tu país. Muy pronto vas a poder comprar aquí. Si tienes un negocio, este es el mejor momento para abrir tu tienda.",
     "verCatalogo": "Ver catálogo",
     "abrirTienda": "Abrir mi tienda",
     "comoFunciona": "Cómo funciona",

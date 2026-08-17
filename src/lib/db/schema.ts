@@ -181,6 +181,18 @@ export const tiendas = sqliteTable(
     /** Cuenta conectada de Stripe del vendedor, para el pago dividido. */
     stripeCuentaId: text("stripe_cuenta_id"),
     paisOrigen: text("pais_origen").notNull().default("US"),
+    /**
+     * El MERCADO (dominio-país) donde vende: US = mercatren.com,
+     * CL = mercatren.cl. No confundir con `paisOrigen`, que dice desde dónde
+     * sale la mercancía: la ferretería tiene paisOrigen VE y mercado US,
+     * porque su vitrina es mercatren.com. La lista vive en
+     * src/lib/mercado/mercados.ts.
+     *
+     * OJO: esta columna llegó a producción con ALTER TABLE a mano (17 ago
+     * 2026) — schema.sql solo trae CREATE TABLE IF NOT EXISTS y una base que
+     * ya existe no recibe columnas nuevas sola.
+     */
+    mercado: text("mercado").notNull().default("US"),
 
     /**
      * Los datos de la empresa, tal como los quiere mostrar el comercio en su
@@ -209,6 +221,8 @@ export const tiendas = sqliteTable(
   (t) => [
     index("idx_tiendas_propietario").on(t.propietarioId),
     index("idx_tiendas_estado").on(t.estado),
+    // Toda consulta pública del catálogo filtra por mercado desde el 17 ago 2026.
+    index("idx_tiendas_mercado").on(t.mercado),
   ],
 );
 

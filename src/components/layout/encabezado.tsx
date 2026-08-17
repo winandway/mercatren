@@ -15,6 +15,8 @@ import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
 import { coberturaPorCiudad } from "@/lib/entrega/cobertura";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import type { Idioma } from "@/lib/dinero";
+import { mercadoActual } from "@/lib/mercado/actual";
+import { esMercadoPrincipal } from "@/lib/mercado/mercados";
 
 /**
  * Encabezado del sitio: barra oscura con el buscador ancho arriba, igual que
@@ -39,10 +41,21 @@ export async function Encabezado() {
    * Si algo falla, se sigue sin esa pieza: el encabezado nunca puede tumbar
    * la página.
    */
+  const mercado = await mercadoActual();
+  /* Las ciudades del selector son la geografía de VENEZUELA, que solo tiene
+     sentido en el mercado principal. En mercatren.cl la pregunta «¿dónde lo
+     retiras?» todavía no existe; cuando Chile tenga su geografía, el
+     selector se enseña con la suya (PLAN-PAISES.md, fase 2). */
+  const conSelectorDeCiudad = esMercadoPrincipal(mercado);
+
   const [categorias, usuario, zona, cobertura] = await Promise.all([
-    recordado("menu-categorias", 60_000, listarCategoriasConProductos).catch(
-      () => [],
-    ),
+    /* La llave lleva el mercado: el menú de categorías ya sale filtrado por
+       el dominio, y una llave única serviría el de un país en el otro. */
+    recordado(
+      `menu-categorias-${mercado.codigo}`,
+      60_000,
+      listarCategoriasConProductos,
+    ).catch(() => []),
     obtenerUsuario().catch(() => null),
     zonaDelCliente(),
     recordado("cobertura-ciudades", 60_000, coberturaPorCiudad),
@@ -68,12 +81,14 @@ export async function Encabezado() {
           {/* DÓNDE ESTÁ QUIEN COMPRA. Antes aquí había un texto fijo que
               decía "Estados Unidos" y no detectaba nada — le decía lo mismo a
               alguien parado en Caracas. Ahora se pregunta y se recuerda. */}
-          <div className="hidden xl:block">
-            <SelectorCiudad
-              zonaActual={zona?.slug ?? null}
-              cobertura={cobertura}
-            />
-          </div>
+          {conSelectorDeCiudad ? (
+            <div className="hidden xl:block">
+              <SelectorCiudad
+                zonaActual={zona?.slug ?? null}
+                cobertura={cobertura}
+              />
+            </div>
+          ) : null}
 
           {/* EL BUSCADOR ES EL PROTAGONISTA. Se come todo el espacio libre y
               en celular baja a su propia fila para salir completo. Lo demas
@@ -149,15 +164,17 @@ export async function Encabezado() {
           invisible justo en el aparato por donde entra casi todo el mundo.
           Va en su propia franja bajo el buscador, como en Amazon: una línea,
           de lado a lado, imposible de no ver. */}
-      <div className="border-b border-white/10 bg-riel-800 text-white xl:hidden">
-        <div className="mx-auto flex max-w-[1500px] px-3 py-1 sm:px-4">
-          <SelectorCiudad
-            zonaActual={zona?.slug ?? null}
-            cobertura={cobertura}
-            enLinea
-          />
+      {conSelectorDeCiudad ? (
+        <div className="border-b border-white/10 bg-riel-800 text-white xl:hidden">
+          <div className="mx-auto flex max-w-[1500px] px-3 py-1 sm:px-4">
+            <SelectorCiudad
+              zonaActual={zona?.slug ?? null}
+              cobertura={cobertura}
+              enLinea
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Fila de categorias */}
       <div className="bg-riel-800 text-white">

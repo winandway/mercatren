@@ -1688,6 +1688,46 @@ meter ahí un cobro que va en camino descuadraría el cierre del día con dinero
 que nadie recibió. Cómo se contabiliza esa venta cuando el pago llega es una
 decisión del comercio, no del código.
 
+## Un país = un dominio = un catálogo (17 ago 2026)
+
+Entró `mercatren.cl` y con él la estructura multi-país. **El plan completo
+vive en `PLAN-PAISES.md`** — fases, decisiones de negocio pendientes y la
+rutina para abrir cada país nuevo. Lo que ya está construido:
+
+- **El dominio decide el mercado** (`src/lib/mercado/mercados.ts`, lista
+  cerrada + 8 pruebas; `actual.ts` lee el host). mercatren.com = mercado
+  `US` (Venezuela + catálogo de EE. UU.); mercatren.cl = `CL`, hoy vacío.
+- **`tiendas.mercado`** dice a qué vitrina pertenece cada comercio. NO es
+  `paisOrigen`: la ferretería es paisOrigen VE y mercado US. La columna se
+  aplicó a producción y a local con ALTER a mano (schema.sql no agrega
+  columnas a tablas que ya existen); los 28 comercios quedaron en `US`.
+- **El candado vive en las CONSULTAS** (`visibleAqui()` en
+  `catalogo/consultas.ts` y `buscar.ts`), no en las páginas — misma razón
+  que el alcance: una pantalla nueva no puede olvidarse de él. En .cl la
+  búsqueda da cero, la ficha de un producto o tienda de .com sale «no
+  encontrado», y la portada enseña «Mercatren llega a Chile» con la
+  invitación a abrir tienda (solo con un cero DE VERDAD; si la base
+  tropieza, `portada.fallo` dibuja la portada normal).
+- **Las llaves de `recordado()` llevan el mercado** (portada, menú de
+  categorías): con la llave única, el primero que entrara por .cl guardaría
+  su lista y el otro dominio la serviría un minuto.
+- **El selector de ciudades no sale fuera del principal**: es la geografía
+  de Venezuela. Chile tendrá la suya (fase 1 del plan).
+- **Sitemap, llms.txt y el catálogo de Google quedaron fijados al mercado
+  principal**: sus direcciones llevan mercatren.com. Los canónicos de .cl
+  siguen apuntando a .com A PROPÓSITO mientras esté vacío — eso evita el
+  contenido duplicado; el SEO multidominio de verdad es la fase 3 del plan.
+- **Better Auth confía en todos los dominios de la lista**
+  (`trustedOrigins`): la misma cuenta entra en .com y en .cl. La cookie
+  sigue siendo por dominio; el SSO cruzado se descartó por ahora.
+- **No se redirige por geolocalización, nunca**: rompe SEO y los enlaces
+  compartidos. El dominio es la elección del usuario.
+
+**Pendiente para operar Chile de verdad** (fases 1–2 del plan): Turnstile
+con mercatren.cl entre sus dominios, alta de comercio con mercado, moneda
+CLP (decisión de negocio), geografía chilena, proveedores y medios de pago
+del país.
+
 ## LA PUBLICACIÓN SE CAYÓ POR EL PESO DEL WORKER (17 ago 2026)
 
 YaDominios Cloud rechaza la publicación: «Tu `_worker.js` pesa 12.3 MB y es

@@ -4,6 +4,7 @@ import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { getDbAsync, schema } from "@/lib/db";
 import { articulosDe, rutaDeArticulo } from "@/contenido/articulos";
+import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
@@ -127,13 +128,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         and(
           eq(schema.tiendas.estado, "activa"),
           eq(schema.productos.estado, "publicado"),
+          /* Este mapa es el de mercatren.com: sus direcciones llevan ese
+             dominio, asi que solo lista el mercado principal. Cada pais
+             tendra el suyo cuando su catalogo exista (PLAN-PAISES.md). */
+          eq(schema.tiendas.mercado, MERCADO_PRINCIPAL.codigo),
         ),
       );
 
     const productos = await db
       .select({ slug: schema.productos.slug })
       .from(schema.productos)
-      .where(eq(schema.productos.estado, "publicado"));
+      .innerJoin(
+        schema.tiendas,
+        eq(schema.tiendas.id, schema.productos.tiendaId),
+      )
+      .where(
+        and(
+          eq(schema.productos.estado, "publicado"),
+          eq(schema.tiendas.mercado, MERCADO_PRINCIPAL.codigo),
+        ),
+      );
 
     for (const t of tiendas) {
       paginas.push(entrada(`/tienda/${t.slug}`, 0.7, "weekly"));

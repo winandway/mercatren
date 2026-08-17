@@ -593,6 +593,15 @@ promediadas con las estrellas de Mercatren**: nuestro número tiene que salir
 solo de gente que nos compró a nosotros. Mezclarlas es exactamente lo que
 sanciona la FTC, y es la misma línea que ya trazó `PLAN-CONFIANZA.md`.
 
+## MERCATREN POR PAÍSES — mercatren.cl y los que vienen (17 ago 2026)
+
+**El plan completo, por fases, vive en `PLAN-PAISES.md`.** La regla: un país
+= un dominio = un catálogo, y cada país se opera como una empresa de ese
+país. La fase 0 ya está en producción: mercatren.cl carga el sistema con el
+catálogo en cero y la invitación a abrir tienda, sin enseñar ni un producto
+de mercatren.com. Chile es el molde; México y Colombia se abren repitiendo
+la rutina de la fase 5.
+
 ## RETIROS AUTOMÁTICOS POR LA API DE MERCURY (investigado el 16 ago 2026)
 
 > Pedido del dueño, y tiene razón: con tres mil retiros nadie llena tres mil

@@ -39,6 +39,8 @@
   "inicio": {
     "tituloHero": "Shop in the U.S., delivered where you need it",
     "subtituloHero": "Pick your product, pay the published price, and tell us where to deliver it. The price you see is the final price.",
+    "mercadoNuevoTitulo": "Mercatren is coming to {pais}",
+    "mercadoNuevoTexto": "We're getting the {pais} catalog ready: local stores and products delivered in your country. You'll be able to shop here very soon. If you run a business, now is the perfect time to open your store.",
     "verCatalogo": "Browse catalog",
     "abrirTienda": "Open my store",
     "comoFunciona": "How it works",

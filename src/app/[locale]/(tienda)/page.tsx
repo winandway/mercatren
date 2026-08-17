@@ -17,6 +17,8 @@ import { nuevaSemilla } from "@/lib/catalogo/semilla";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
+import { mercadoActual } from "@/lib/mercado/actual";
+import { esMercadoPrincipal } from "@/lib/mercado/mercados";
 import { cn } from "@/lib/utils";
 
 /**
@@ -92,6 +94,45 @@ export default async function PaginaInicio({
   }
   const { parrilla, departamentos, bandas, comercios } = portada;
   const filtrada = Boolean(visibles) && !sinCobertura;
+
+  /**
+   * UN MERCADO NUEVO, TODAVÍA SIN CATÁLOGO (17 ago 2026).
+   *
+   * Quien entra por mercatren.cl no puede ver la mercancía de mercatren.com
+   * —no se le puede entregar en Chile—, así que su catálogo arranca en cero.
+   * Una portada con parrillas vacías se lee como un sitio roto; esta se lee
+   * como lo que es: un país que está por abrir. Sale el aviso y la invitación
+   * a los comercios, que es exactamente lo que un mercado vacío necesita.
+   *
+   * SOLO con un cero DE VERDAD: si lo que hubo fue un tropiezo de la base
+   * (`portada.fallo`), la portada normal se dibuja igual — misma regla que el
+   * aviso de ciudad sin comercios.
+   */
+  const mercado = await mercadoActual();
+  if (
+    !esMercadoPrincipal(mercado) &&
+    parrilla.total === 0 &&
+    !portada.fallo &&
+    !visibles
+  ) {
+    return (
+      <section className="bg-riel-900 text-white">
+        <div className="mx-auto max-w-[1500px] px-4 py-16 sm:py-24">
+          <h1 className="max-w-2xl text-2xl font-extrabold tracking-tight text-balance sm:text-4xl">
+            {t("mercadoNuevoTitulo", { pais: mercado.nombre })}
+          </h1>
+          <p className="mt-3 max-w-xl text-sm text-white/80 sm:text-base">
+            {t("mercadoNuevoTexto", { pais: mercado.nombre })}
+          </p>
+          <div className="mt-6">
+            <Link href="/vender" className="boton-principal">
+              {t("abrirTienda")}
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>

@@ -7,6 +7,7 @@ import {
   productos,
   tiendas,
 } from "@/lib/db/schema";
+import { mercadoActual } from "@/lib/mercado/actual";
 
 import { direccionImagen } from "./consultas";
 
@@ -114,6 +115,14 @@ const VISIBLE = and(
   eq(tiendas.estado, "activa"),
 );
 
+/** El mismo candado del mercado que en consultas.ts: el dominio decide qué
+ *  catálogo se busca. Buscar en mercatren.cl no puede encontrar mercancía
+ *  que solo se entrega desde mercatren.com. */
+async function visibleAqui() {
+  const mercado = await mercadoActual();
+  return and(VISIBLE, eq(tiendas.mercado, mercado.codigo))!;
+}
+
 /**
  * Que tan bien calza un producto con lo buscado.
  *
@@ -180,7 +189,8 @@ export async function sugerencias(busqueda: string, cuantas = 8) {
 
   const db = getDb();
   const relevancia = puntuacion(busqueda, palabras);
-  const donde = and(VISIBLE, todasLasPalabras(palabras));
+  const mercado = await mercadoActual();
+  const donde = and(await visibleAqui(), todasLasPalabras(palabras));
 
   const [filas, [conteo], comercios] = await Promise.all([
     db
@@ -220,6 +230,7 @@ export async function sugerencias(busqueda: string, cuantas = 8) {
       .where(
         and(
           eq(tiendas.estado, "activa"),
+          eq(tiendas.mercado, mercado.codigo),
           sql`${normalizar(tiendas.nombre)} LIKE ${"%" + palabras[0] + "%"}`,
         ),
       )

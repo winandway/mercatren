@@ -1,6 +1,7 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 
 import { getDbAsync, schema } from "@/lib/db";
+import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
 
 /**
@@ -141,6 +142,9 @@ export async function GET() {
         and(
           eq(productos.estado, "publicado"),
           eq(tiendas.estado, "activa"),
+          // Este archivo es el del Merchant Center de mercatren.com: solo su
+          // mercado. El de cada pais tendra el suyo (PLAN-PAISES.md).
+          eq(tiendas.mercado, MERCADO_PRINCIPAL.codigo),
           // Un producto sin precio no se le manda a Google: lo rechazaría, y
           // con razón — no se puede comprar algo que no tiene precio.
           gt(productos.precioCentavos, 0),

@@ -273,6 +273,7 @@ CREATE TABLE IF NOT EXISTS `tiendas` (
 	`comision_puntos_base` integer DEFAULT 300 NOT NULL,
 	`stripe_cuenta_id` text,
 	`pais_origen` text DEFAULT 'US' NOT NULL,
+	`mercado` text DEFAULT 'US' NOT NULL,
 	`razon_social` text,
 	`identificacion_fiscal` text,
 	`correo_contacto` text,
@@ -760,17 +761,19 @@ CREATE TABLE IF NOT EXISTS `pedidos_proveedor` (
 
 CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_pedido` ON `pedidos_proveedor` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_estado` ON `pedidos_proveedor` (`estado`);
+-- ── Tablas (0023_smiling_orphan.sql) ──
+CREATE INDEX IF NOT EXISTS `idx_tiendas_mercado` ON `tiendas` (`mercado`);
 
 -- ── Comercio piloto y su billetera ──
 -- La billetera nace en CERO (el historico ya se liquido en el sistema
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786891340, 1786891340)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1786941190, 1786941190)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786891340)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1786941190)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──

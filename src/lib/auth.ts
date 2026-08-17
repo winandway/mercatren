@@ -9,6 +9,7 @@ import { cache } from "react";
 import { eq } from "drizzle-orm";
 
 import { getDb, schema } from "@/lib/db";
+import { MERCADOS } from "@/lib/mercado/mercados";
 import { RUTA_AUTH } from "@/lib/rutas";
 
 /**
@@ -85,6 +86,19 @@ export const getAuth = cache(async () => {
     basePath: RUTA_AUTH,
     secret: await secretoDeSesiones(env),
     baseURL: env.NEXT_PUBLIC_SITIO_URL,
+    /**
+     * LOS DOMINIOS DE LOS MERCADOS SON ORÍGENES DE CONFIANZA.
+     *
+     * Sin esto, entrar desde mercatren.cl se rechaza en silencio: Better
+     * Auth compara el Origin de la petición contra el baseURL (que dice
+     * mercatren.com) y descarta el login como si fuera otro sitio. La
+     * sesión sigue siendo por dominio —una cookie no cruza de .com a .cl—,
+     * pero la MISMA cuenta entra en los dos.
+     */
+    trustedOrigins: MERCADOS.flatMap((m) => [
+      `https://${m.dominio}`,
+      `https://www.${m.dominio}`,
+    ]),
 
     emailAndPassword: {
       enabled: true,

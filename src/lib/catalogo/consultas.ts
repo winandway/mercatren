@@ -20,6 +20,7 @@ import {
 } from "@/lib/db/schema";
 import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { DIAS_PRODUCTO_NUEVO } from "@/lib/dinero";
+import { mercadoActual } from "@/lib/mercado/actual";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
 /**
@@ -27,14 +28,32 @@ import { RUTA_MEDIA } from "@/lib/rutas";
  *
  * Estas SI son abiertas: cualquiera puede ver la tienda sin cuenta. Por eso
  * aqui no se pide permiso, pero a cambio solo se devuelve lo que puede ver
- * cualquiera: productos PUBLICADOS de comercios ACTIVOS, y nada de datos
- * internos del comercio.
+ * cualquiera: productos PUBLICADOS de comercios ACTIVOS **del mercado por el
+ * que se entro**, y nada de datos internos del comercio.
  */
 
 const VISIBLE = and(
   eq(productos.estado, "publicado"),
   eq(tiendas.estado, "activa"),
 );
+
+/**
+ * EL CANDADO DEL MERCADO (17 ago 2026).
+ *
+ * El dominio decide el catalogo: mercatren.com enseña el mercado US (los
+ * comercios de Venezuela + el catalogo de EE. UU.) y mercatren.cl enseña
+ * SOLO lo de Chile. Un producto que no se puede entregar en Chile no puede
+ * salir en mercatren.cl.
+ *
+ * Se resuelve AQUI, dentro de las consultas, y no en cada pagina: igual que
+ * el alcance de los comercios, si dependiera de que cada pantalla lo pase,
+ * la primera que lo olvide enseñaria el catalogo de un pais en el dominio
+ * de otro.
+ */
+async function visibleAqui() {
+  const mercado = await mercadoActual();
+  return and(VISIBLE, eq(tiendas.mercado, mercado.codigo))!;
+}
 
 export type OrdenCatalogo = "recientes" | "precio_asc" | "precio_desc";
 
@@ -197,7 +216,7 @@ export async function listarProductos(filtros: FiltrosCatalogo = {}) {
   const pagina = Math.max(1, filtros.pagina ?? 1);
   const porPagina = Math.min(60, Math.max(6, filtros.porPagina ?? 24));
 
-  const condiciones = [VISIBLE];
+  const condiciones = [await visibleAqui()];
 
   /**
    * El slug puede ser un DEPARTAMENTO de Mercatren o una categoria del propio
@@ -383,7 +402,7 @@ export async function obtenerProductoPorSlug(slug: string) {
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
     .leftJoin(depositos, eq(depositos.id, productos.depositoId))
-    .where(and(eq(productos.slug, slug), VISIBLE))
+    .where(and(eq(productos.slug, slug), await visibleAqui()))
     .limit(1);
 
   if (!fila) return null;
@@ -430,7 +449,7 @@ export async function listarCategoriasConProductos() {
     .from(categorias)
     .innerJoin(productos, eq(productos.categoriaId, categorias.id))
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(VISIBLE)
+    .where(await visibleAqui())
     .groupBy(categorias.slug, categorias.nombreEs, categorias.nombreEn)
     .orderBy(desc(count(productos.id)));
 
@@ -449,7 +468,7 @@ export async function listarComerciosDelCatalogo() {
     })
     .from(tiendas)
     .innerJoin(productos, eq(productos.tiendaId, tiendas.id))
-    .where(VISIBLE)
+    .where(await visibleAqui())
     .groupBy(
       tiendas.id,
       tiendas.slug,
@@ -491,6 +510,11 @@ export async function obtenerPortada(
    * el mundo y cambian poco: se recuerdan un minuto para no repetir esos
    * agregados en cada visita. Lo filtrado por zona se consulta siempre.
    */
+  /* La llave de lo recordado LLEVA EL MERCADO: sin eso, el primero que
+     entrara por mercatren.cl guardaria su lista vacia (o la llena de .com)
+     y el otro dominio la serviria durante un minuto. */
+  const mercado = await mercadoActual();
+
   const [parrilla, departamentos, bandas, comercios] = await Promise.all([
     parrillaDeProductos(semilla, 1, 24, zona).catch((e) => {
       console.error("[portada] la parrilla no respondio:", e);
@@ -498,13 +522,15 @@ export async function obtenerPortada(
     }),
     // La tira de arriba enseña TODOS los departamentos del servicio, con o
     // sin zona: es el cartel de "esto se puede vender aquí", no el filtro.
-    recordado(`portada-departamentos-${idioma}`, 60_000, () =>
+    recordado(`portada-departamentos-${mercado.codigo}-${idioma}`, 60_000, () =>
       listarDepartamentosDePortada(idioma),
     ).catch(() => []),
     bandasDeDepartamentos(idioma, 6, 21, zona).catch(() => []),
-    recordado("portada-comercios", 60_000, listarComerciosDestacados).catch(
-      () => [],
-    ),
+    recordado(
+      `portada-comercios-${mercado.codigo}`,
+      60_000,
+      listarComerciosDestacados,
+    ).catch(() => []),
   ]);
 
   return {
@@ -548,6 +574,7 @@ export async function obtenerPortada(
  */
 export async function listarComerciosDestacados() {
   const db = getDb();
+  const mercado = await mercadoActual();
 
   const filas = await db
     .select({
@@ -581,7 +608,9 @@ export async function listarComerciosDestacados() {
       ),
     )
     // En el filtro se queda SOLO lo que es de la tienda.
-    .where(eq(tiendas.estado, "activa"))
+    .where(
+      and(eq(tiendas.estado, "activa"), eq(tiendas.mercado, mercado.codigo)),
+    )
     .groupBy(tiendas.id, tiendas.slug, tiendas.nombre)
     .orderBy(desc(count(productos.id)));
 
@@ -603,6 +632,7 @@ export async function obtenerTiendaPorSlug(
   incluirNoPublicas = false,
 ) {
   const db = getDb();
+  const mercado = await mercadoActual();
 
   const [tienda] = await db
     .select({
@@ -639,9 +669,17 @@ export async function obtenerTiendaPorSlug(
     })
     .from(tiendas)
     .where(
+      /* El publico solo ve las fichas de SU mercado: una tienda de
+         mercatren.com no existe en mercatren.cl (404, como cualquier slug
+         inventado). El dueño y el equipo (incluirNoPublicas) la ven desde
+         cualquier dominio: su panel vive en el principal. */
       incluirNoPublicas
         ? eq(tiendas.slug, slug)
-        : and(eq(tiendas.slug, slug), eq(tiendas.estado, "activa")),
+        : and(
+            eq(tiendas.slug, slug),
+            eq(tiendas.estado, "activa"),
+            eq(tiendas.mercado, mercado.codigo),
+          ),
     )
     .limit(1);
 
@@ -734,9 +772,12 @@ export async function listarDepartamentosDePortada(
       )`
     : sql``;
 
+  const mercado = await mercadoActual();
+
   const DEL_DEPARTAMENTO = sql`
     p.estado = 'publicado'
     AND t.estado = 'activa'
+    AND t.mercado = ${mercado.codigo}
     AND (
       p.categoria_id = d.id
       OR p.categoria_id IN (
@@ -793,9 +834,10 @@ export async function parrillaDeProductos(
 ) {
   const db = getDb();
 
+  const visible = await visibleAqui();
   const donde = zona?.length
-    ? and(VISIBLE, gt(productos.precioCentavos, 0), enZona(zona))
-    : and(VISIBLE, gt(productos.precioCentavos, 0));
+    ? and(visible, gt(productos.precioCentavos, 0), enZona(zona))
+    : and(visible, gt(productos.precioCentavos, 0));
 
   const desdeCuandoEsNuevo = corteDeNovedad();
 
@@ -936,6 +978,7 @@ export async function bandasDeDepartamentos(
   if (conProductos.length === 0) return [];
 
   const db = getDb();
+  const visible = await visibleAqui();
 
   return Promise.all(
     conProductos.map(async (d) => {
@@ -965,7 +1008,7 @@ export async function bandasDeDepartamentos(
         .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
         .where(
           and(
-            VISIBLE,
+            visible,
             gt(productos.precioCentavos, 0),
             ...(zona?.length ? [enZona(zona)] : []),
             sql`${productos.categoriaId} IN (

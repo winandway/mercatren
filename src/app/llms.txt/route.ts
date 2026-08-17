@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 
 import { getDb } from "@/lib/db";
 import { tiendas } from "@/lib/db/schema";
+import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
 import { SOCIEDAD } from "@/lib/sociedad";
 
@@ -44,7 +45,13 @@ export async function GET() {
     comercios = await getDb()
       .select({ slug: tiendas.slug, nombre: tiendas.nombre })
       .from(tiendas)
-      .where(eq(tiendas.estado, "activa"));
+      // Los enlaces de este archivo llevan mercatren.com: solo su mercado.
+      .where(
+        and(
+          eq(tiendas.estado, "activa"),
+          eq(tiendas.mercado, MERCADO_PRINCIPAL.codigo),
+        ),
+      );
   } catch {
     /* Si la base no responde, sale el archivo sin la lista de comercios en vez
        de un error. Media respuesta le sirve al asistente; un 500 no. */

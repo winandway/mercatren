@@ -265,6 +265,7 @@ CREATE TABLE `tiendas` (
 	`comision_puntos_base` integer DEFAULT 300 NOT NULL,
 	`stripe_cuenta_id` text,
 	`pais_origen` text DEFAULT 'US' NOT NULL,
+	`mercado` text DEFAULT 'US' NOT NULL,
 	`razon_social` text,
 	`identificacion_fiscal` text,
 	`correo_contacto` text,
