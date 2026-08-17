@@ -1284,7 +1284,7 @@
       "cuanto": "¿Cuánto quieres retirar?",
       "cuantoAyuda": "Puedes pedir hasta {monto}.",
       "todo": "Retirar todo",
-      "comoLoQuieres": "¿Cómo lo quieres recibir?",
+      "comoLoQuieres": "¿A dónde quieres que llegue?",
       "formas": {
         "comercio": "A otro comercio de Mercatren",
         "comercioAyuda": "Llega al momento y no cuesta nada.",
@@ -1380,8 +1380,8 @@
       "pais": "¿En qué país está tu cuenta?",
       "paisAyuda": "Elige el país y te pedimos exactamente los datos que ese banco necesita.",
       "revisaCampos": "Revisa los datos de la cuenta: hay campos vacíos o mal escritos.",
-      "viaAch": "Llega por transferencia ACH, en 1 a 3 días hábiles.",
-      "viaWire": "Llega por transferencia internacional (wire). El banco intermediario puede cobrar una cuota.",
+      "viaAch": "Sale por transferencia ACH dentro de Estados Unidos. Llega en 1 a 3 días hábiles.",
+      "viaWire": "Sale por transferencia internacional a tu país. Llega en 1 a 3 días hábiles; el banco intermediario puede cobrar una cuota.",
       "opcional": "opcional",
       "delSistemaAnterior": "Retiro del sistema anterior",
       "sinFechaEnArchivo": "sin fecha en el archivo",
@@ -1399,7 +1399,14 @@
       "buscarPlaceholder": "Comercio o referencia bancaria",
       "total": "{n, plural, one {# retiro} other {# retiros}}",
       "resultados": "{n, plural, one {# retiro} other {# retiros}} con «{texto}»",
-      "sinResultados": "Ningún retiro coincide con «{texto}»."
+      "sinResultados": "Ningún retiro coincide con «{texto}».",
+      "destinos": {
+        "comercio": "A otro comercio de Mercatren",
+        "comercioAyuda": "Llega al momento y no cuesta nada.",
+        "banco": "A mi cuenta bancaria",
+        "bancoAyuda": "A tu banco, en cualquiera de los países de la lista. Nosotros elegimos la vía según tu país."
+      },
+      "revisaEstosCampos": "Revisa estos datos: {campos}. Si los copiaste del banco, comprueba que no falte ningún número."
     },
     "pedido": {
       "volver": "Volver a Órdenes",

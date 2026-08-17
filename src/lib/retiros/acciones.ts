@@ -98,7 +98,27 @@ function esquema(t: Textos) {
         return;
       }
 
-      if (revisarCuenta(pais, valores).length > 0) fallo(t("revisaCampos"));
+      /**
+       * SE DICE QUÉ CAMPO ESTÁ MAL, NO «revisa los campos».
+       *
+       * `revisarCuenta` ya devuelve la lista de los que fallan y hasta hoy esa
+       * información se tiraba. Un comercio con ocho casillas delante y un
+       * «revisa los campos» solo puede repasarlas una por una adivinando —y si
+       * no lo ve, escribe preguntando, o abandona y se queda sin su dinero.
+       *
+       * Los nombres van traducidos con las MISMAS etiquetas que dibuja el
+       * formulario: si el aviso dice «CLABE» y la casilla dice otra cosa, no
+       * sirve de nada.
+       */
+      const malos = revisarCuenta(pais, valores);
+      if (malos.length > 0) {
+        const declarados = paisBancario(pais)?.campos ?? [];
+        const nombres = malos.map((nombre) => {
+          const campo = declarados.find((c) => c.nombre === nombre);
+          return campo ? t(`campos.${campo.etiqueta}`) : nombre;
+        });
+        fallo(t("revisaEstosCampos", { campos: nombres.join(", ") }));
+      }
     });
 }
 

@@ -1688,6 +1688,35 @@ meter ahí un cobro que va en camino descuadraría el cierre del día con dinero
 que nadie recibió. Cómo se contabiliza esa venta cuando el pago llega es una
 decisión del comercio, no del código.
 
+## El comercio ya no elige el carril bancario (16 ago 2026)
+
+Lo destapó un retiro real a **Colombia**. El formulario preguntaba «¿cómo lo
+quieres recibir?» con tres opciones: a otro comercio, **ACH** o **wire**. Eso le
+pide al comercio una decisión técnica que no puede tomar bien —y que el sistema
+ya sabe por su país—.
+
+Un comercio colombiano leía «ACH: a tu cuenta de Estados Unidos» y «wire», no se
+reconocía en ninguna de las dos, y se quedaba sin pedir su dinero. Peor: podía
+elegir «ACH» y después Colombia, dejando la pantalla diciendo dos cosas
+contradictorias del mismo retiro.
+
+**Ahora elige lo único que decide él —a otro comercio o a su banco— y el PAÍS
+escoge el carril.** `ach` y `wire` se siguen guardando igual en la base: es lo
+que necesita quien va a Mercury a hacer la transferencia, pero eso es trabajo
+nuestro, no una pregunta para el comercio. Viaja en un campo oculto calculado
+del país.
+
+**Y el error dice QUÉ campo está mal.** `revisarCuenta` ya devolvía la lista de
+los que fallan y esa información se estaba tirando: el comercio veía «revisa los
+campos» con ocho casillas delante y solo podía repasarlas adivinando. Ahora se
+nombran, con las mismas etiquetas que dibuja el formulario — si el aviso dice
+«CLABE» y la casilla dice otra cosa, no sirve de nada.
+
+Las pruebas del formulario se reescribieron para proteger la garantía nueva, que
+es más fuerte: que al comercio **no** se le ofrezca elegir carril, que el oculto
+siga al país (`US → ach`, `CO → wire`), y que Zelle no aparezca ni escondido —
+Mercury no lo hace.
+
 ## Sacar el dinero desde cualquier país (10 ago 2026)
 
 Un comercio de Colombia entró a pedir su dinero, eligió «wire», y **no encontró

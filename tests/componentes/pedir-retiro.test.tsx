@@ -51,23 +51,74 @@ async function abrirFormulario() {
 /** Las casillas del país se dibujan con su id, no con `name`. */
 const casilla = (id: string) => document.getElementById(id);
 
+/**
+ * El selector de país, por su id y no por su etiqueta.
+ *
+ * Buscarlo por el texto «país» era ambiguo: la ayuda de «A mi cuenta bancaria»
+ * también dice «países», y Testing Library encuentra dos elementos y falla. El
+ * id es exacto y no depende de cómo esté redactado el texto de al lado.
+ */
+const selectorPais = () => casilla("pais")!;
+
 describe("pedir el cobro", () => {
-  it("ofrece tres formas, y Zelle NO es una de ellas", async () => {
+  it("NO le pide al comercio elegir el carril bancario", async () => {
+    /**
+     * Antes había que elegir entre «ACH» y «wire». Es una decisión técnica que
+     * el comercio no puede tomar bien —y que el sistema ya sabe por el país—:
+     * uno de Colombia leía «ACH: a tu cuenta de Estados Unidos», no se
+     * reconocía en ninguna de las dos, y se quedaba sin pedir su dinero.
+     *
+     * Ahora elige lo único que decide él: a otro comercio o a su banco.
+     */
+    await abrirFormulario();
+
+    expect(
+      document.querySelector('input[type="radio"][value="banco"]'),
+    ).not.toBeNull();
+    expect(
+      document.querySelector('input[type="radio"][value="comercio"]'),
+    ).not.toBeNull();
+
+    /* Los carriles ya no son una pregunta para él. Se busca el RADIO y no
+       cualquier input: el campo oculto que manda el carril a la base también
+       vale «ach», y con un selector amplio esta prueba fallaría siempre. */
+    expect(
+      document.querySelector('input[type="radio"][value="ach"]'),
+    ).toBeNull();
+    expect(
+      document.querySelector('input[type="radio"][value="wire"]'),
+    ).toBeNull();
+  });
+
+  it("el carril lo decide el PAÍS, y viaja igual a la base", async () => {
+    /* La base sigue guardando `ach` o `wire`: es lo que necesita quien va a
+       Mercury a hacer la transferencia. Lo que cambió es quién lo decide. */
+    const usuario = await abrirFormulario();
+    const oculto = () =>
+      document.querySelector<HTMLInputElement>(
+        'input[type="hidden"][name="forma"]',
+      );
+
+    expect(oculto()?.value, "Estados Unidos va por ACH").toBe("ach");
+
+    await usuario.selectOptions(selectorPais(), "CO");
+    expect(oculto()?.value, "Colombia va por wire").toBe("wire");
+  });
+
+  it("Zelle NO es una opción, ni escondida", async () => {
     /* Mercury no hace Zelle: solo ACH dentro de Estados Unidos y wire para
        afuera. Mientras estuvo en la lista, un comercio podía pedirlo y quien
        iba al banco no lo podía ejecutar. */
     await abrirFormulario();
 
-    for (const forma of ["comercio", "ach", "wire"]) {
-      expect(
-        document.querySelector(`input[name="forma"][value="${forma}"]`),
-        `falta la forma ${forma}`,
-      ).not.toBeNull();
-    }
-
     expect(
-      document.querySelector('input[name="forma"][value="zelle"]'),
+      document.querySelector('input[type="radio"][value="zelle"]'),
     ).toBeNull();
+    expect(
+      document.querySelector<HTMLInputElement>(
+        'input[type="hidden"][name="forma"]',
+      )?.value,
+    ).not.toBe("zelle");
   });
 });
 
@@ -84,7 +135,7 @@ describe("el país decide qué se pregunta", () => {
     /* Esta es LA prueba: es exactamente lo que el comercio no pudo hacer. */
     const usuario = await abrirFormulario();
 
-    await usuario.selectOptions(screen.getByLabelText(/país/i), "CO");
+    await usuario.selectOptions(selectorPais(), "CO");
 
     expect(casilla("tipoCuenta")).not.toBeNull();
     expect(casilla("documento")).not.toBeNull();
@@ -94,7 +145,7 @@ describe("el país decide qué se pregunta", () => {
 
   it("México pide CLABE", async () => {
     const usuario = await abrirFormulario();
-    await usuario.selectOptions(screen.getByLabelText(/país/i), "MX");
+    await usuario.selectOptions(selectorPais(), "MX");
 
     expect(casilla("clabe")).not.toBeNull();
     expect(casilla("ruta")).toBeNull();
@@ -104,7 +155,7 @@ describe("el país decide qué se pregunta", () => {
     const usuario = await abrirFormulario();
 
     for (const codigo of ["ES", "RO"]) {
-      await usuario.selectOptions(screen.getByLabelText(/país/i), codigo);
+      await usuario.selectOptions(selectorPais(), codigo);
       expect(casilla("iban"), `falta el IBAN en ${codigo}`).not.toBeNull();
     }
   });
@@ -113,7 +164,7 @@ describe("el país decide qué se pregunta", () => {
     await abrirFormulario();
 
     const opciones = Array.from(
-      (screen.getByLabelText(/país/i) as unknown as HTMLSelectElement).options,
+      (selectorPais() as unknown as HTMLSelectElement).options,
     ).map((o) => o.value);
 
     expect(opciones).toHaveLength(12);
@@ -127,14 +178,14 @@ describe("el país decide qué se pregunta", () => {
        después va al banco con esos datos en la mano. */
     const usuario = await abrirFormulario();
 
-    await usuario.selectOptions(screen.getByLabelText(/país/i), "MX");
+    await usuario.selectOptions(selectorPais(), "MX");
     await usuario.type(casilla("clabe") as HTMLElement, "012345678901234567");
     expect((casilla("clabe") as HTMLInputElement).value).toBe(
       "012345678901234567",
     );
 
-    await usuario.selectOptions(screen.getByLabelText(/país/i), "CO");
-    await usuario.selectOptions(screen.getByLabelText(/país/i), "MX");
+    await usuario.selectOptions(selectorPais(), "CO");
+    await usuario.selectOptions(selectorPais(), "MX");
 
     expect((casilla("clabe") as HTMLInputElement).value).toBe("");
   });
@@ -150,7 +201,7 @@ describe("el país decide qué se pregunta", () => {
       "falta el aviso de que Estados Unidos va por ACH",
     ).toBeInTheDocument();
 
-    await usuario.selectOptions(screen.getByLabelText(/país/i), "CO");
+    await usuario.selectOptions(selectorPais(), "CO");
 
     expect(
       screen.getByText(es.panel.retiros.viaWire),
@@ -165,10 +216,12 @@ describe("el traspaso entre comercios no pide banco", () => {
     const usuario = await abrirFormulario();
 
     await usuario.click(
-      document.querySelector('input[value="comercio"]') as HTMLElement,
+      document.querySelector(
+        'input[type="radio"][value="comercio"]',
+      ) as HTMLElement,
     );
 
     expect(casilla("ruta")).toBeNull();
-    expect(screen.queryByLabelText(/país/i)).not.toBeInTheDocument();
+    expect(casilla("pais")).toBeNull();
   });
 });

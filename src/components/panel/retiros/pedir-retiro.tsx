@@ -39,10 +39,28 @@ import { cn } from "@/lib/utils";
  * a mirar el disponible y los datos contra las reglas del país.
  */
 
-const FORMAS = [
+/**
+ * A DÓNDE VA EL DINERO. DOS OPCIONES, NO TRES.
+ *
+ * ══ EL FALLO QUE ARREGLA (16 ago 2026) ══
+ *
+ * Antes se le pedía al comercio que eligiera **el carril bancario**: «ACH» o
+ * «wire». Esa es una decisión que no puede tomar bien —y que además el sistema
+ * ya sabe por el país—. Un comercio de Colombia leía «ACH: a tu cuenta de
+ * Estados Unidos» y «wire», no reconocía su país en ninguna de las dos, y se
+ * quedaba parado sin pedir su dinero.
+ *
+ * Peor: podía elegir «ACH» y después Colombia, dejando la pantalla diciendo
+ * dos cosas contradictorias sobre el mismo retiro.
+ *
+ * Ahora elige lo único que de verdad decide él —a otro comercio o a su banco— y
+ * **el país escoge el carril**. ACH y wire siguen guardándose igual en la base:
+ * quien va a Mercury necesita saber cuál es, pero eso es trabajo nuestro, no
+ * una pregunta para el comercio.
+ */
+const DESTINOS = [
   { valor: "comercio", Icono: Store },
-  { valor: "ach", Icono: Landmark },
-  { valor: "wire", Icono: Building2 },
+  { valor: "banco", Icono: Landmark },
 ] as const;
 
 export function PedirRetiro({
@@ -61,7 +79,7 @@ export function PedirRetiro({
 }) {
   const t = useTranslations("panel.retiros");
   const [abierto, setAbierto] = useState(false);
-  const [forma, setForma] = useState<"comercio" | "ach" | "wire">("ach");
+  const [destino, setDestino] = useState<"comercio" | "banco">("banco");
   /* El país manda: decide qué casillas se dibujan y por qué vía sale. Se
      arranca en Estados Unidos porque es el destino principal. */
   const [pais, setPais] = useState("US");
@@ -100,7 +118,13 @@ export function PedirRetiro({
 
   /* Los datos de banco solo aplican a ACH y wire. Zelle pide su correo y
      el traspaso entre comercios no pide nada. */
-  const esInterno = forma === "ach" || forma === "wire";
+  const esInterno = destino === "banco";
+
+  /* El carril lo decide el PAÍS, no el comercio. Se calcula aquí y viaja en un
+     campo oculto: la base sigue guardando `ach` o `wire`, que es lo que
+     necesita quien va a Mercury a hacer la transferencia. */
+  const formaEfectiva =
+    destino === "comercio" ? "comercio" : (paisBancario(pais)?.via ?? "wire");
 
   /** Las casillas que pide el país elegido. */
   const campos = paisBancario(pais)?.campos ?? [];
@@ -114,6 +138,10 @@ export function PedirRetiro({
       {puedeElegirTienda ? (
         <input type="hidden" name="tiendaId" value={tiendaId} />
       ) : null}
+
+      {/* El carril bancario que decidió el PAÍS. El comercio no lo elige: es
+          una decisión técnica que no le toca y que ya sabemos por su país. */}
+      <input type="hidden" name="forma" value={formaEfectiva} readOnly />
 
       {/* Cuánto */}
       <div>
@@ -162,7 +190,7 @@ export function PedirRetiro({
       <fieldset>
         <legend className="text-sm font-medium">{t("comoLoQuieres")}</legend>
         <div className="mt-2 space-y-2">
-          {FORMAS.map(({ valor, Icono }) => {
+          {DESTINOS.map(({ valor, Icono }) => {
             // Sin otro comercio activo, mandar dinero "a otro comercio" no
             // lleva a ninguna parte: se esconde en vez de fallar al enviar.
             if (valor === "comercio" && comercios.length === 0) return null;
@@ -172,17 +200,18 @@ export function PedirRetiro({
                 key={valor}
                 className={cn(
                   "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
-                  forma === valor
+                  destino === valor
                     ? "border-carga-500 bg-carga-500/5"
                     : "border-slate-200 hover:bg-slate-50",
                 )}
               >
                 <input
                   type="radio"
-                  name="forma"
+                  /* Sin `name`: lo que se manda es `formaEfectiva`, en el
+                     campo oculto de abajo. Este grupo solo elige a dónde. */
                   value={valor}
-                  checked={forma === valor}
-                  onChange={() => setForma(valor)}
+                  checked={destino === valor}
+                  onChange={() => setDestino(valor)}
                   className="mt-1 accent-carga-500"
                 />
                 <Icono
@@ -191,10 +220,10 @@ export function PedirRetiro({
                 />
                 <span className="min-w-0">
                   <span className="block text-sm font-medium">
-                    {t(`formas.${valor}`)}
+                    {t(`destinos.${valor}`)}
                   </span>
                   <span className="block text-xs text-tinta-suave">
-                    {t(`formas.${valor}Ayuda`)}
+                    {t(`destinos.${valor}Ayuda`)}
                   </span>
                 </span>
               </label>
@@ -204,7 +233,7 @@ export function PedirRetiro({
       </fieldset>
 
       {/* A dónde */}
-      {forma === "comercio" ? (
+      {destino === "comercio" ? (
         <div>
           <label
             htmlFor="destinoTiendaId"
