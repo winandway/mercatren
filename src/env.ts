@@ -132,6 +132,8 @@ export const esquemaEntorno = z.object({
    * retiros se hacen a mano como hasta ahora.
    */
   MERCURY_TOKEN: z.string().optional(),
+  /** De qué cuenta de Mercury sale el dinero de los retiros. */
+  MERCURY_CUENTA_ID: z.string().optional(),
 });
 
 export type Entorno = z.infer<typeof esquemaEntorno>;

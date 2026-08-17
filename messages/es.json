@@ -1406,7 +1406,12 @@
         "banco": "A mi cuenta bancaria",
         "bancoAyuda": "A tu banco, en cualquiera de los países de la lista. Nosotros elegimos la vía según tu país."
       },
-      "revisaEstosCampos": "Revisa estos datos: {campos}. Si los copiaste del banco, comprueba que no falte ningún número."
+      "revisaEstosCampos": "Revisa estos datos: {campos}. Si los copiaste del banco, comprueba que no falte ningún número.",
+      "mandadoAMercury": "Listo. El pago está esperando tu aprobación en Mercury.",
+      "retiroNoExiste": "Ese retiro no existe.",
+      "mandarAMercury": "Mandar a Mercury",
+      "mandando": "Mandando…",
+      "mandarAyuda": "Crea el destinatario y deja el pago esperando tu aprobación en Mercury. El dinero no sale hasta que lo apruebes allá."
     },
     "pedido": {
       "volver": "Volver a Órdenes",

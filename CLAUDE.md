@@ -1688,6 +1688,53 @@ meter ahí un cobro que va en camino descuadraría el cierre del día con dinero
 que nadie recibió. Cómo se contabiliza esa venta cuando el pago llega es una
 decisión del comercio, no del código.
 
+## Los retiros salen por la API de Mercury (16 ago 2026)
+
+Lo pidió el dueño, y tenía razón: con tres mil retiros nadie llena tres mil
+formularios. Mercatren entra en Chile y Colombia; el sistema tiene que escalar
+solo.
+
+**`POST /account/{id}/request-send-money`, NO `transactions`.** La diferencia
+es toda la historia — comprobado en la documentación de Mercury:
+
+|                    | `transactions`                         | **`request-send-money`**            |
+| ------------------ | -------------------------------------- | ----------------------------------- |
+| Wire internacional | ❌ solo `ach`, `check`, `domesticWire` | ✅ **acepta `internationalWire`**   |
+| Aprobación humana  | Sale de una                            | ✅ **espera aprobación en Mercury** |
+| Lista blanca de IP | ✅ obligatoria                         | ✅ **EXENTO**                       |
+
+**El tercer punto es el que lo hace posible.** El sitio corre en el borde y no
+tiene IP fija que declarar: con `transactions` la automatización sería
+inviable. `request-send-money` está exento **precisamente porque el dinero no
+sale sin que una persona lo apruebe** — la forma de trabajar que queríamos es
+la que el banco premia. Y once de los doce países salen por wire, así que con
+el otro endpoint solo se habría podido automatizar Estados Unidos.
+
+**El flujo:** el comercio pide → el sistema crea el destinatario y la solicitud
+→ al dueño le aparece en Mercury esperando su botón → aprueba y sale.
+
+- `src/lib/retiros/a-mercury.ts` — la traducción, **pura y con 14 pruebas**. Es
+  donde un error cuesta dinero: un SWIFT en el campo equivocado o el país como
+  «Colombia» donde el banco espera «CO» deja el wire dando vueltas semanas.
+- **Cada país llama a su cuenta de otra forma**: IBAN en España y Rumanía,
+  CLABE en México, CBU en Argentina, CCI en Perú. Buscar solo `iban` habría
+  mandado a México **sin número de cuenta** — Mercury acepta el destinatario y
+  el wire no llega. Lo encontró su propia prueba.
+- **La llave de idempotencia es el id del retiro.** Repetirla devuelve 409 en
+  vez de crear un segundo pago: la diferencia entre un reintento y pagarle dos
+  veces al comercio. Mercury además bloquea duplicados dentro de 24 horas.
+- **`purpose` es obligatorio en los wires.** Va fijo (`Vendor payment`): en
+  Mercatren siempre es lo mismo, se le paga al comercio su mercancía.
+- **El SWIFT se manda en mayúsculas y sin espacios.** La gente lo copia del
+  banco como «colo co bb» y así no sale.
+- **Solo el rol `soporte`, con `esSoporteDeVerdad()`.** Quien mira el panel de
+  un comercio con el disfraz de «ver su panel» no puede mandarle plata a nadie.
+- **El motivo del banco se enseña entero.** Con un SWIFT mal escrito o un país
+  no permitido, un «no se pudo» obliga a adivinar.
+
+**Falta cargar `MERCURY_CUENTA_ID`** en el panel del sitio: de qué cuenta sale
+el dinero. `MERCURY_TOKEN` ya estaba.
+
 ## El comercio ya no elige el carril bancario (16 ago 2026)
 
 Lo destapó un retiro real a **Colombia**. El formulario preguntaba «¿cómo lo

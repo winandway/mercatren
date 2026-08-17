@@ -69,6 +69,10 @@ export default async function PaginaRetiros({
   const idioma = locale as Idioma;
 
   const { comercio, q } = await searchParams;
+  /* El rol de verdad, no el prestado: el alcance de «ver su panel» jamás puede
+     mover dinero de nadie. */
+  const { esSoporteDeVerdad } = await import("@/lib/autorizacion");
+  const esSoporte = await esSoporteDeVerdad().catch(() => false);
   const busqueda = (q ?? "").trim().slice(0, 80);
   const t = await getTranslations("panel.retiros");
 
@@ -274,6 +278,12 @@ export default async function PaginaRetiros({
                         id={r.id}
                         puedePagar={interno}
                         puedeCancelar={!interno}
+                        /* Mandar plata al banco es solo de `soporte`, y se
+                           comprueba con el rol de VERDAD: quien está mirando
+                           con el disfraz de «ver su panel» no puede. */
+                        puedeMandarAMercury={
+                          esSoporte && r.estado === "solicitado" && !r.historico
+                        }
                       />
                     </div>
                   ) : null}

@@ -1406,7 +1406,12 @@
         "banco": "To my bank account",
         "bancoAyuda": "To your bank, in any of the listed countries. We pick the route based on your country."
       },
-      "revisaEstosCampos": "Please check these details: {campos}. If you copied them from your bank, make sure no digits are missing."
+      "revisaEstosCampos": "Please check these details: {campos}. If you copied them from your bank, make sure no digits are missing.",
+      "mandadoAMercury": "Done. The payment is waiting for your approval in Mercury.",
+      "retiroNoExiste": "That withdrawal doesn't exist.",
+      "mandarAMercury": "Send to Mercury",
+      "mandando": "Sending…",
+      "mandarAyuda": "Creates the recipient and leaves the payment waiting for your approval in Mercury. No money moves until you approve it there."
     },
     "pedido": {
       "volver": "Back to Orders",

@@ -507,3 +507,42 @@ export async function cancelarRetiro(id: string): Promise<Resultado> {
   revalidatePath("/[locale]/panel", "layout");
   return { ok: true, mensaje: t("retiroCancelado") };
 }
+
+/**
+ * MANDARLE EL RETIRO A MERCURY DESDE EL PANEL.
+ *
+ * ══ ESTO NO SACA EL DINERO ══
+ *
+ * Crea el destinatario y deja la **solicitud de pago** esperando dentro de
+ * Mercury. El dinero sale cuando una persona la aprueba allá, con un botón —
+ * y esa aprobación es justo lo que permite que esto funcione desde aquí sin
+ * lista blanca de IP.
+ *
+ * Solo `soporte`, comprobado con `esSoporteDeVerdad()`: quien mira el panel
+ * de un comercio con el disfraz de «ver su panel» **no** puede mandarle plata
+ * a nadie.
+ */
+export async function mandarRetiroAMercury(
+  id: string,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
+  const { esSoporteDeVerdad } = await import("@/lib/autorizacion");
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, mensaje: t("sinPermiso") };
+  }
+
+  const { idDeRegistro, revisar } = await import("@/lib/validacion/acciones");
+  const revisado = revisar(idDeRegistro, id);
+  if (!revisado.ok) return { ok: false, mensaje: t("retiroNoExiste") };
+
+  const { enviarRetiroPorMercury } =
+    await import("@/lib/retiros/enviar-por-mercury");
+  const r = await enviarRetiroPorMercury(revisado.datos);
+
+  revalidatePath("/[locale]/panel/retiros", "page");
+
+  return r.ok
+    ? { ok: true, mensaje: t("mandadoAMercury") }
+    : { ok: false, mensaje: r.motivo };
+}

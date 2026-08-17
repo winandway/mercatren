@@ -142,3 +142,92 @@ export async function listarCuentas(): Promise<
 > {
   return pedir<{ accounts: CuentaMercury[] }>("/accounts");
 }
+
+/**
+ * ══════════════════════════════════════════════════════════════════════════
+ * MANDAR DINERO: EL DESTINATARIO Y LA SOLICITUD DE PAGO
+ * ══════════════════════════════════════════════════════════════════════════
+ *
+ * ══ POR QUÉ `request-send-money` Y NO `transactions` ══
+ *
+ * Son dos endpoints distintos y la diferencia lo decide todo. Comprobado en la
+ * documentación de Mercury el 16 ago 2026:
+ *
+ *   · `POST /account/{id}/transactions` — envía de una. Solo acepta `ach`,
+ *     `check` y `domesticWire`, y **exige lista blanca de IP** para el token
+ *     de escritura.
+ *
+ *   · `POST /account/{id}/request-send-money` — **acepta también
+ *     `internationalWire`**, deja el pago esperando aprobación humana dentro
+ *     de Mercury, y **está EXENTO de la lista blanca de IP**.
+ *
+ * El tercer punto es el que hace esto posible: el sitio corre en el borde y no
+ * tiene una IP fija que declarar. Con el primer endpoint la automatización
+ * sería inviable. El segundo está exento **precisamente porque el dinero no
+ * sale sin que una persona lo apruebe** — o sea, la forma de trabajar que
+ * queríamos es la que el banco premia.
+ *
+ * ══ Y LOS WIRES INTERNACIONALES SON LA MAYORÍA ══
+ *
+ * De los doce países que acepta el formulario, once salen por wire. Con
+ * `transactions` solo se habría podido automatizar Estados Unidos.
+ */
+
+/** Lo que Mercury entiende por forma de pago. */
+export type MetodoMercury =
+  "ach" | "check" | "domesticWire" | "internationalWire";
+
+export type DestinatarioMercury = { id: string };
+
+/**
+ * Da de alta al comercio como destinatario.
+ *
+ * Mercury exige el destinatario ANTES de poder mandarle nada: la solicitud de
+ * pago solo acepta un `recipientId`, nunca los datos sueltos. Por eso esto es
+ * el primer paso y no un detalle.
+ */
+export async function crearDestinatario(cuerpo: {
+  name: string;
+  emails: string[];
+  electronicRoutingInfo?: unknown;
+  internationalWireRoutingInfo?: unknown;
+}): Promise<RespuestaMercury<DestinatarioMercury>> {
+  return pedir<DestinatarioMercury>("/recipients", {
+    metodo: "POST",
+    cuerpo,
+  });
+}
+
+export type SolicitudMercury = {
+  id?: string;
+  status?: string;
+};
+
+/**
+ * Pide que se le mande el dinero. NO lo manda: lo deja esperando aprobación.
+ *
+ * ══ LA LLAVE DE IDEMPOTENCIA ES LA RED DE SEGURIDAD ══
+ *
+ * Es obligatoria, y se usa el id del retiro. Repetir la misma llave devuelve
+ * 409 en vez de crear un segundo pago — que con dinero de verdad es la
+ * diferencia entre un reintento y pagarle dos veces al comercio. Mercury
+ * además bloquea duplicados dentro de 24 horas, aunque cambie la llave.
+ */
+export async function solicitarEnvio(
+  cuentaId: string,
+  cuerpo: {
+    recipientId: string;
+    amount: number;
+    paymentMethod: MetodoMercury;
+    idempotencyKey: string;
+    /** Obligatorio en los wires. Sin esto el banco lo rechaza. */
+    purpose?: { simple: { category: string; additionalInfo?: string } };
+    note?: string;
+    externalMemo?: string;
+  },
+): Promise<RespuestaMercury<SolicitudMercury>> {
+  return pedir<SolicitudMercury>(
+    `/account/${encodeURIComponent(cuentaId)}/request-send-money`,
+    { metodo: "POST", cuerpo },
+  );
+}

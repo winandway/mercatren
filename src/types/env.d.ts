@@ -96,6 +96,8 @@ interface CloudflareEnv {
    * dinero — solo deja solicitudes que alguien rechaza de un clic.
    */
   MERCURY_TOKEN?: string;
+  /** La cuenta de Mercury de la que salen los retiros. */
+  MERCURY_CUENTA_ID?: string;
 }
 
 declare namespace NodeJS {

@@ -1,12 +1,13 @@
 "use client";
 
-import { Check, Loader2, MoreVertical, X } from "lucide-react";
+import { Check, Landmark, Loader2, MoreVertical, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import {
   cancelarRetiro,
+  mandarRetiroAMercury,
   marcarRetiroPagado,
   rechazarRetiro,
 } from "@/lib/retiros/acciones";
@@ -25,10 +26,13 @@ export function AccionesRetiro({
   id,
   puedePagar,
   puedeCancelar,
+  puedeMandarAMercury = false,
 }: {
   id: string;
   /** Solo el equipo de Mercatren paga y rechaza. */
   puedePagar: boolean;
+  /** Solo `soporte`: manda el pago al banco por la API. */
+  puedeMandarAMercury?: boolean;
   /** El comercio puede echarse atrás mientras nadie lo haya tocado. */
   puedeCancelar: boolean;
 }) {
@@ -201,6 +205,36 @@ export function AccionesRetiro({
 
   return (
     <div className="flex items-center justify-end gap-1">
+      {/**
+       * MANDARLO AL BANCO POR LA API, en vez de transcribirlo a mano.
+       *
+       * Crea el destinatario en Mercury y deja el pago esperando aprobación
+       * allá. El dinero NO sale de aquí: sale cuando una persona lo aprueba en
+       * Mercury, con un botón. Por eso este botón es seguro y por eso el
+       * endpoint que usa está exento de lista blanca de IP.
+       */}
+      {puedeMandarAMercury ? (
+        <button
+          type="button"
+          disabled={pendiente}
+          title={t("mandarAyuda")}
+          onClick={() =>
+            iniciar(async () => {
+              setError(null);
+              const r = await mandarRetiroAMercury(id);
+              /* El motivo del banco se enseña ENTERO: con un SWIFT mal escrito
+                 o un país no permitido, un «no se pudo» obliga a adivinar. */
+              if (!r.ok) setError(r.mensaje);
+              router.refresh();
+            })
+          }
+          className="text-carga-700 inline-flex items-center gap-1.5 rounded-lg border border-carga-500 px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors hover:bg-carga-500/10 disabled:opacity-60"
+        >
+          <Landmark className="h-3.5 w-3.5" aria-hidden />
+          {pendiente ? t("mandando") : t("mandarAMercury")}
+        </button>
+      ) : null}
+
       {puedePagar ? (
         <button
           type="button"
