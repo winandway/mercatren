@@ -1,23 +1,25 @@
-# Plan: abrir Colombia (mercatren.com.co)
+# Plan: la dirección de Estados Unidos en el checkout
 
-> Piloto automático, 18 ago 2026. Mismo patrón que Chile: el dominio decide el
-> mercado y solo cambia el DATO, nunca el código.
+> 18 ago 2026. Lo destapó el dueño comprando un producto de CJ: eligió «que me
+> lo envíen» y **no hay dónde escribir la dirección**. No estaba haciendo nada
+> mal — el checkout se construyó para el retiro en depósito de Venezuela.
 >
-> **La plataforma va por su lado:** hoy `mercatren.com.co` responde 522 (activo
-> en el panel, todavía sin llegar al sitio) y `mercatren.co` aún no resuelve.
-> Eso lo resuelve YaDominios; aquí se deja todo listo para que funcione en
-> cuanto ellos terminen.
+> **Y es peor de lo que se ve en pantalla.** Comprobado contra la
+> documentación oficial de CJ: `shippingProvince` (el estado) es OBLIGATORIO
+> y hoy se manda `entrega.referencia`, que va vacío. El pedido se rechazaría.
+> El código postal no se manda en absoluto.
 
-- [x] Paso 1: Declarar el mercado `CO` en `src/lib/mercado/mercados.ts`, con sus
-      pruebas y sin tocar los otros dos.
-- [x] Paso 2: Moneda: Colombia vende en **pesos colombianos (COP)**, que no
-      tienen centavos — igual que el peso chileno.
-- [x] Paso 3: El documento de Colombia es el **NIT**, con dígito verificador de
-      la DIAN. Comprobado contra 5 NIT públicos reales antes de escribirlo.
-- [x] Paso 4: Vocabulario del formulario de alta para Colombia (teléfono +57,
-      ayuda de dirección, país ya puesto), bilingüe.
-- [x] Paso 5: La tarjeta social `og-co.png` que dice «mercatren.com.co».
-- [x] Paso 6: `npm run verify`, publicar y comprobar en vivo lo que se pueda
-      —el 522 depende de la plataforma— dejando constancia de qué falta.
-- [x] Paso 7: Actualizar `PLAN-PAISES.md` y `CLAUDE.md`, y anotar qué queda
-      pendiente del lado de YaDominios.
+- [x] Paso 1: `src/lib/entrega/destino.ts` — decidir qué pide cada destino
+      (retiro en Venezuela vs. envío a Estados Unidos). Puro, con pruebas.
+- [x] Paso 2: Las casillas de Estados Unidos en el checkout: calle, casa o
+      apartamento, ciudad, **estado** y **código postal**. Bilingüe.
+- [x] Paso 3: `crearPedido` guarda esos campos, y los EXIGE cuando el destino
+      es Estados Unidos. El servidor manda, no el formulario.
+- [x] Paso 4: `cj/pedidos.ts` manda `shippingProvince` y `shippingZip` de
+      verdad, no la referencia prestada.
+- [x] Paso 5: Que el estado de EE. UU. se elija de una lista, no a mano — CJ
+      lo compara y «Florida» no es lo mismo que «FL».
+- [x] Paso 6: Probar en el navegador el camino completo de un producto de CJ,
+      con captura.
+- [ ] Paso 7: `npm run verify`, publicar, y dejar la guía de la compra de
+      prueba escrita para el dueño.

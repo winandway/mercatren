@@ -1184,6 +1184,45 @@ digan cuál usa de verdad el almacén de EE. UU.** Si el nombre no existe, CJ
 rechaza el pedido y su mensaje sale entero en el panel para corregirlo en un
 minuto.
 
+## El checkout no tenía dónde escribir la dirección (18 ago 2026)
+
+Lo destapó el dueño comprando un producto de CJ como Soporte: eligió «que me
+lo envíen» y **solo le pedía nombre, teléfono y "¿en qué ciudad estás?"**.
+Escribió «MI» en la casilla de ciudad — que es exactamente lo que hace
+cualquiera cuando el formulario no dice qué quiere.
+
+No era un descuido: el checkout se construyó cuando Mercatren solo vendía en
+Venezuela, donde **todo se retira en el depósito**, y su propio comentario
+decía que pedir calle y número contradecía cada ficha del sitio. Era correcto.
+Dejó de serlo el día que entró el catálogo de Estados Unidos.
+
+**Y lo que no se veía era peor.** Comprobado contra la documentación oficial de
+CJ: **`shippingProvince` (el estado) es OBLIGATORIO** y se le mandaba
+`entrega.referencia` —una casilla prestada que va vacía—, así que **el pedido
+se habría rechazado aunque el comprador pagara**. El código postal no se
+mandaba en absoluto.
+
+`src/lib/destino/direccion.ts` (puro, 13 pruebas) decide qué pide cada
+destino. Cinco cosas que no se tocan:
+
+1. **Es una TABLA por destino, no un `if`.** Chile y Colombia van a pedir lo
+   suyo; con un `if (destino === "US")` repartido por el formulario, el
+   servidor y el proveedor, el primer país nuevo obliga a encontrar los tres
+   — y siempre se olvida uno.
+2. **El estado se elige de una LISTA, jamás se escribe.** CJ compara el código
+   de dos letras contra su tabla: «Florida», «florida» y «FL» no son lo mismo
+   para ellos, y lo que no reconocen lo rechazan.
+3. **El candado está en el SERVIDOR** (`crearPedido`), no en el formulario, y
+   decide con lo que ya leyó de la base — de qué tienda es cada producto—, no
+   con lo que diga el navegador.
+4. **El destino se lo dice el servidor al checkout**, dentro de
+   `opcionesDeEntrega`, que ya consultaba esos productos: el carrito guardado
+   en el navegador NO lleva el país, porque los que ya existen nacieron antes
+   de que hubiera catálogo de EE. UU.
+5. **Venezuela no cambió ni un campo.** Comprobado en pantalla con los dos
+   carritos: el de allá sigue pidiendo quién retira y su ciudad, sin
+   dirección.
+
 ## LAS VENTAS DE ESTADOS UNIDOS, EN PAUSA (15 ago 2026)
 
 Decisión del dueño, y es la correcta: **antes de vender lo que no se puede

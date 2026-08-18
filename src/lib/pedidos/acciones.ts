@@ -29,6 +29,12 @@ import {
 } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
 import { carritoPausado } from "@/lib/ventas/pausa";
+import {
+  esCodigoPostalUS,
+  esEstadoUS,
+  faltantesDeEntrega,
+} from "@/lib/destino/direccion";
+import type { Destino } from "@/lib/destino/reglas";
 import { anotarHito } from "@/lib/pedidos/hitos";
 
 /**
@@ -174,6 +180,49 @@ export async function crearPedido(
      sin abrirle la tienda al público antes de saber que se puede despachar. */
   const { esEquipoInterno } = await import("@/lib/autorizacion");
   const delEquipo = await esEquipoInterno().catch(() => false);
+
+  /**
+   * LA DIRECCIÓN SE EXIGE SEGÚN A DÓNDE VA (18 ago 2026).
+   *
+   * El checkout se construyó para el retiro en depósito de Venezuela, así que
+   * la calle era opcional. Con el catálogo de Estados Unidos eso deja pasar
+   * un pedido sin dirección — y a CJ hay que mandarle el estado y la calle o
+   * lo rechaza. Es el fallo que destapó el dueño comprando: eligió «que me lo
+   * envíen» y no había dónde escribirla.
+   *
+   * Se decide con lo que ya se leyó de la BASE (de qué tienda es cada
+   * producto), no con lo que diga el navegador.
+   */
+  const destinoDelPedido: Destino = encontrados.some(
+    (p) => (p.tiendaPais ?? "").trim().toUpperCase() === "US",
+  )
+    ? "US"
+    : "VE";
+
+  const faltan = faltantesDeEntrega(destinoDelPedido, {
+    nombre: entrega.nombre,
+    telefono: entrega.telefono,
+    ciudad: entrega.ciudad,
+    direccion: entrega.direccion,
+    estado: entrega.estado,
+    codigoPostal: entrega.codigoPostal,
+  });
+  if (faltan.length > 0) {
+    /* Se nombran TODOS los que faltan, no el primero: quien está comprando
+       tiene que poder arreglarlo de una pasada. */
+    return { ok: false, mensaje: t("faltaDireccion") };
+  }
+
+  if (destinoDelPedido === "US") {
+    /* El estado y el código postal se comprueban de verdad. «Florida» no es
+       «FL» para CJ, y un código postal inventado es un paquete perdido. */
+    if (!esEstadoUS(entrega.estado)) {
+      return { ok: false, mensaje: t("estadoInvalido") };
+    }
+    if (!esCodigoPostalUS(entrega.codigoPostal)) {
+      return { ok: false, mensaje: t("codigoPostalInvalido") };
+    }
+  }
 
   if (
     carritoPausado(
@@ -378,16 +427,24 @@ export async function crearPedido(
          cambie de vitrina. */
       mercado: (await mercadoActual()).codigo,
       metodoPago,
-      /* Es retiro en depósito: se guarda quién retira y su ciudad. Los
-         campos de dirección quedan por compatibilidad con pedidos viejos. */
+      /* En Venezuela se retira en depósito y basta con quién y su ciudad; a
+         Estados Unidos se despacha, y entonces la dirección completa ES el
+         pedido: sin ella el proveedor no puede sacar la caja. */
       direccionEntrega: {
         nombre: entrega.nombre,
-        pais: entrega.pais ?? "Venezuela",
+        pais:
+          entrega.pais ??
+          (destinoDelPedido === "US" ? "United States" : "Venezuela"),
         ciudad: entrega.ciudad,
         direccion: entrega.direccion ?? "",
+        direccion2: entrega.direccion2 ?? null,
+        estado: entrega.estado?.trim().toUpperCase() ?? null,
+        codigoPostal: entrega.codigoPostal?.trim() ?? null,
         referencia: entrega.referencia ?? null,
       },
-      paisDestino: entrega.pais ?? "Venezuela",
+      paisDestino:
+        entrega.pais ??
+        (destinoDelPedido === "US" ? "United States" : "Venezuela"),
       telefonoContacto: entrega.telefono,
       notasCliente: entrega.notas ?? null,
       creadoEn: ahora,

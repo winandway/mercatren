@@ -34,10 +34,23 @@ export const esquemaEntrega = z.object({
   telefono: CAMPOS.telefono.esquema,
   ciudad: CAMPOS.ciudad.esquema,
 
-  /* Campos de cuando el sitio pedía dirección de entrega. Se quedan opcionales
-     para no romper los pedidos ya guardados. */
+  /**
+   * LA DIRECCIÓN, PARA LO QUE SE DESPACHA A ESTADOS UNIDOS (18 ago 2026).
+   *
+   * Aquí van OPCIONALES a propósito, y el candado de verdad está en
+   * `crearPedido`: quién los exige depende del DESTINO del carrito, y eso
+   * este esquema no lo sabe — lo sabe el servidor, después de leer de qué
+   * tienda es cada producto.
+   *
+   * Marcarlos obligatorios aquí rompería todas las compras de Venezuela, que
+   * se retiran en el depósito y no tienen dirección que dar.
+   */
   pais: opcional(CAMPOS.textoCorto),
   direccion: opcional(CAMPOS.direccion),
+  direccion2: opcional(CAMPOS.textoCorto),
+  /** El estado de EE. UU., en código de dos letras. CJ lo exige. */
+  estado: opcional(CAMPOS.textoCorto),
+  codigoPostal: opcional(CAMPOS.textoCorto),
   referencia: opcional(CAMPOS.textoCorto),
   notas: opcional(CAMPOS.textoCorto),
 });

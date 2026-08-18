@@ -132,6 +132,9 @@ export async function comprarAlProveedor(
     pais: string;
     ciudad: string;
     direccion: string;
+    direccion2?: string | null;
+    estado?: string | null;
+    codigoPostal?: string | null;
     referencia: string | null;
   }>;
 
@@ -142,9 +145,14 @@ export async function comprarAlProveedor(
    * deja la calle opcional. Mandarle a CJ un pedido sin calle es pagar por un
    * paquete que no llega a ninguna parte — y eso no se recupera.
    */
+  /* El estado y el código postal entran en la lista de lo que falta: sin
+     estado CJ rechaza el pedido, y sin código postal el transportista entrega
+     a ciegas. Antes ni se miraban porque no existían en el formulario. */
   const faltan = [
     !entrega.nombre && "el nombre de quien recibe",
     !entrega.direccion && "la dirección",
+    !entrega.estado && "el estado",
+    !entrega.codigoPostal && "el código postal",
     !entrega.ciudad && "la ciudad",
   ].filter(Boolean);
 
@@ -196,12 +204,22 @@ export async function comprarAlProveedor(
         orderNumber: pedido.numero,
         shippingCountryCode: "US",
         shippingCountry: pedido.pais || entrega.pais || "United States",
-        /* El estado va donde el checkout guarda la referencia: es lo que hay
-           hasta que el formulario tenga su propia casilla de estado, que es
-           obligatoria para Estados Unidos. Anotado en el roadmap. */
-        shippingProvince: entrega.referencia || "",
+        /**
+         * EL ESTADO, DE VERDAD (18 ago 2026).
+         *
+         * Hasta hoy iba `entrega.referencia` —una casilla prestada que va
+         * vacía— porque el checkout no tenía dónde pedirlo. Y
+         * `shippingProvince` es OBLIGATORIO en la API de CJ: el pedido se
+         * habría rechazado aunque el comprador pagara.
+         *
+         * Ahora sale del formulario, elegido de una lista, en código de dos
+         * letras — que es lo que CJ compara contra su tabla.
+         */
+        shippingProvince: entrega.estado || entrega.referencia || "",
+        shippingZip: entrega.codigoPostal || "",
         shippingCity: entrega.ciudad!,
         shippingAddress: entrega.direccion!,
+        shippingAddress2: entrega.direccion2 || "",
         shippingCustomerName: entrega.nombre!,
         shippingPhone: pedido.telefono || "",
         logisticName: TRANSPORTE,

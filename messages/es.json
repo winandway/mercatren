@@ -1092,7 +1092,7 @@
       "faltaRazonSocial": "Escribe la razón social de la empresa.",
       "faltaIdentificacion": "Falta la identificación fiscal (RIF, EIN o equivalente).",
       "faltaTelefono": "Escribe un teléfono de contacto.",
-      "faltaDireccion": "Escribe la dirección de la empresa.",
+      "faltaDireccion": "Falta la dirección de entrega. Revisa que estén la calle, la ciudad, el estado y el código postal.",
       "faltaCiudad": "Escribe la ciudad.",
       "faltaPais": "Elige el país de la cuenta.",
       "yaTienesComercio": "Ya tienes un comercio registrado con esta cuenta.",
@@ -1212,7 +1212,9 @@
       "rutDigito": "Ese RUT no es válido: el dígito del final no corresponde. Revísalo.",
       "faltaNit": "Falta el NIT de la empresa.",
       "nitFormato": "El NIT son solo números: 9 dígitos y su verificador. Por ejemplo: 900.123.456-8",
-      "nitDigito": "Ese NIT no es válido: el dígito del final no corresponde. Revísalo."
+      "nitDigito": "Ese NIT no es válido: el dígito del final no corresponde. Revísalo.",
+      "estadoInvalido": "Elige tu estado de la lista.",
+      "codigoPostalInvalido": "El código postal son 5 dígitos. Por ejemplo: 33101"
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2064,13 +2066,19 @@
       "ciudad": "¿En qué ciudad estás?",
       "ciudadPlaceholder": "Tu ciudad",
       "direccion": "Dirección",
-      "direccionPlaceholder": "Calle, número, sector",
+      "direccionPlaceholder": "Calle y número",
       "referencia": "Punto de referencia",
       "referenciaPlaceholder": "Algo que ayude a encontrar el lugar",
       "notas": "Notas para el comercio",
       "notasPlaceholder": "Algo que el comercio deba saber",
       "opcional": "Opcional",
-      "aviso": "Todo se retira en el depósito que indica cada producto. Te avisamos cuándo está listo para buscar."
+      "aviso": "Todo se retira en el depósito que indica cada producto. Te avisamos cuándo está listo para buscar.",
+      "direccion2": "Apartamento, suite o piso",
+      "direccion2Placeholder": "Apto 4B",
+      "estado": "Estado",
+      "estadoPlaceholder": "Elige tu estado",
+      "codigoPostal": "Código postal",
+      "codigoPostalPlaceholder": "33101"
     },
     "pago": {
       "titulo": "¿Cómo vas a pagar?",

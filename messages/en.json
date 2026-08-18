@@ -1092,7 +1092,7 @@
       "faltaRazonSocial": "Enter the company's legal name.",
       "faltaIdentificacion": "Tax ID is missing (EIN, RIF or equivalent).",
       "faltaTelefono": "Enter a contact phone number.",
-      "faltaDireccion": "Enter the company address.",
+      "faltaDireccion": "The delivery address is incomplete. Check the street, city, state and ZIP code.",
       "faltaCiudad": "Enter the city.",
       "faltaPais": "Choose the account's country.",
       "yaTienesComercio": "This account already has a store registered.",
@@ -1212,7 +1212,9 @@
       "rutDigito": "That RUT isn't valid: the final check digit doesn't match. Please review it.",
       "faltaNit": "The company's NIT is missing.",
       "nitFormato": "A NIT is digits only: 9 plus its check digit. For example: 900.123.456-8",
-      "nitDigito": "That NIT isn't valid: the final check digit doesn't match. Please review it."
+      "nitDigito": "That NIT isn't valid: the final check digit doesn't match. Please review it.",
+      "estadoInvalido": "Choose your state from the list.",
+      "codigoPostalInvalido": "A ZIP code is 5 digits. For example: 33101"
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2064,13 +2066,19 @@
       "ciudad": "What city are you in?",
       "ciudadPlaceholder": "Your city",
       "direccion": "Address",
-      "direccionPlaceholder": "Street, number, area",
+      "direccionPlaceholder": "Street and number",
       "referencia": "Landmark",
       "referenciaPlaceholder": "Anything that helps find the place",
       "notas": "Notes for the merchant",
       "notasPlaceholder": "Anything the merchant should know",
       "opcional": "Optional",
-      "aviso": "Everything is picked up at the warehouse listed on each product. We'll let you know when it's ready."
+      "aviso": "Everything is picked up at the warehouse listed on each product. We'll let you know when it's ready.",
+      "direccion2": "Apartment, suite or floor",
+      "direccion2Placeholder": "Apt 4B",
+      "estado": "State",
+      "estadoPlaceholder": "Choose your state",
+      "codigoPostal": "ZIP code",
+      "codigoPostalPlaceholder": "33101"
     },
     "pago": {
       "titulo": "How are you paying?",

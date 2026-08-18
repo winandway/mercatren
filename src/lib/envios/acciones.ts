@@ -115,12 +115,28 @@ export async function guardarPoliticaDeEnvio(
  */
 export async function opcionesDeEntrega(
   lineas: { productoId: string; cantidad: number }[],
-): Promise<{ despachan: boolean; costoCentavos: number }> {
-  const vacio = { despachan: false, costoCentavos: 0 };
+): Promise<{
+  despachan: boolean;
+  costoCentavos: number;
+  destino: "US" | "VE";
+}> {
+  /**
+   * TAMBIÉN DEVUELVE EL DESTINO (18 ago 2026).
+   *
+   * El checkout necesita saber si pedir la dirección completa de Estados
+   * Unidos o solo quién retira en Venezuela, y **el carrito guardado en el
+   * navegador no lleva el país**: los que ya están guardados nacieron antes de
+   * que existiera el catálogo de EE. UU.
+   *
+   * Se resuelve aquí, con la misma consulta que ya se hacía para los envíos:
+   * un viaje menos al servidor, y el dato sale de la BASE, que es donde vive
+   * la verdad de a qué tienda pertenece cada producto.
+   */
+  const vacio = { despachan: false, costoCentavos: 0, destino: "VE" as const };
   if (lineas.length === 0) return vacio;
 
-  const { inArray } = await import("drizzle-orm");
-  const { productos } = await import("@/lib/db/schema");
+  const { eq, inArray } = await import("drizzle-orm");
+  const { productos, tiendas } = await import("@/lib/db/schema");
   const { politicasDeEnvio } = await import("@/lib/envios/consultas");
   const { costoEnvioCentavos, despacha } =
     await import("@/lib/envios/politica");
@@ -133,9 +149,21 @@ export async function opcionesDeEntrega(
       id: productos.id,
       tiendaId: productos.tiendaId,
       precioCentavos: productos.precioCentavos,
+      tiendaPais: tiendas.paisOrigen,
     })
     .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .where(inArray(productos.id, ids));
+
+  /* Basta UN producto de Estados Unidos para que el pedido se despache allá y
+     haga falta la dirección completa. Es la misma regla que aplica el
+     servidor al crear el pedido; si las dos se separan, la pantalla pediría
+     una cosa y el servidor exigiría otra. */
+  const destino: "US" | "VE" = encontrados.some(
+    (p) => (p.tiendaPais ?? "").trim().toUpperCase() === "US",
+  )
+    ? "US"
+    : "VE";
 
   const subtotalPorTienda = new Map<string, number>();
   for (const linea of lineas) {
@@ -162,5 +190,5 @@ export async function opcionesDeEntrega(
     costoCentavos += costoEnvioCentavos(politica, sub);
   }
 
-  return { despachan, costoCentavos };
+  return { despachan, costoCentavos, destino };
 }

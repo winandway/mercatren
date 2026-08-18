@@ -14,6 +14,7 @@ import {
   olvidarBorrador,
 } from "@/components/ui/formulario-persistente";
 import { Campo } from "@/components/ui/campo";
+import { camposDeEntrega, ESTADOS_US } from "@/lib/destino/direccion";
 import { Link, useRouter } from "@/i18n/navigation";
 import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
 import {
@@ -62,7 +63,11 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   /* Si alguno de los comercios del carrito despacha, y cuánto costaría. Lo
      calcula el SERVIDOR con las políticas de la base: el número que se enseña
      aquí tiene que ser el mismo que se va a cobrar. */
-  const [envio, setEnvio] = useState({ despachan: false, costoCentavos: 0 });
+  const [envio, setEnvio] = useState<{
+    despachan: boolean;
+    costoCentavos: number;
+    destino: "US" | "VE";
+  }>({ despachan: false, costoCentavos: 0, destino: "VE" });
 
   /* Se pregunta al montar y cada vez que cambia el carrito. Si falla, se queda
      en "no despachan": mejor no ofrecer un envío que ofrecerlo y no cumplirlo. */
@@ -164,6 +169,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           pais: texto("pais"),
           ciudad: texto("ciudad"),
           direccion: texto("direccion"),
+          direccion2: texto("direccion2"),
+          estado: texto("estado"),
+          codigoPostal: texto("codigoPostal"),
           /* Vacío se manda vacío, no `undefined`: el esquema del servidor ya
              trata la casilla en blanco como una respuesta válida. */
           referencia: texto("referencia"),
@@ -250,32 +258,59 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           </p>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Campo
-              tipo="nombrePersona"
-              nombre="nombre"
-              etiqueta={t("entrega.nombre")}
-              marcador={t("entrega.nombrePlaceholder")}
-              requerido
-            />
-            <Campo
-              tipo="telefono"
-              nombre="telefono"
-              etiqueta={t("entrega.telefono")}
-              marcador={t("entrega.telefonoPlaceholder")}
-              requerido
-            />
-            {/* NADA DE DIRECCIÓN DE ENTREGA. Todo se retira en el depósito
-                del producto y el sitio entero lo dice; pedir aquí calle y
-                número contradecía cada ficha y hacía creer que llevábamos.
-                Se pide en qué ciudad está quien retira, para confirmar que
-                sabe a dónde tiene que ir. */}
-            <Campo
-              tipo="ciudad"
-              nombre="ciudad"
-              etiqueta={t("entrega.ciudad")}
-              marcador={t("entrega.ciudadPlaceholder")}
-              requerido
-            />
+            {/* LAS CASILLAS LAS DECIDE EL DESTINO, no un `if` aquí dentro.
+                Venezuela se retira en el depósito y basta con quién va a
+                buscarlo; Estados Unidos se despacha, y ahí la dirección
+                completa ES el pedido. La tabla vive en
+                src/lib/destino/direccion.ts y la usa también el servidor, así
+                que la pantalla y el candado no se pueden desincronizar. */}
+            {camposDeEntrega(envio.destino).map((campo) =>
+              campo.nombre === "estado" ? (
+                /* El estado, de una LISTA. Escrito a mano llegan «Florida»,
+                   «florida» y «MI» pensando en la ciudad — y CJ compara el
+                   código de dos letras contra su tabla: lo que no reconoce, lo
+                   rechaza. */
+                <div key={campo.nombre}>
+                  <label htmlFor="estado" className="block text-sm font-medium">
+                    {t("entrega.estado")}
+                  </label>
+                  <select
+                    id="estado"
+                    name="estado"
+                    required
+                    autoComplete="address-level1"
+                    defaultValue=""
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
+                  >
+                    <option value="" disabled>
+                      {t("entrega.estadoPlaceholder")}
+                    </option>
+                    {ESTADOS_US.map((e) => (
+                      <option key={e.codigo} value={e.codigo}>
+                        {e.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div
+                  key={campo.nombre}
+                  className={campo.ancho ? "sm:col-span-2" : undefined}
+                >
+                  <Campo
+                    tipo={campo.tipo}
+                    nombre={campo.nombre}
+                    etiqueta={
+                      campo.obligatorio
+                        ? t(`entrega.${campo.nombre}`)
+                        : `${t(`entrega.${campo.nombre}`)} · ${t("entrega.opcional")}`
+                    }
+                    marcador={t(`entrega.${campo.nombre}Placeholder`)}
+                    requerido={campo.obligatorio}
+                  />
+                </div>
+              ),
+            )}
             <div className="sm:col-span-2">
               <Campo
                 tipo="textoCorto"
