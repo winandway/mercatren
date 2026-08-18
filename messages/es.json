@@ -2169,6 +2169,25 @@
       "pagar": "Pagar ahora",
       "pagando": "Procesando…",
       "seguridad": "Pago procesado por Stripe. Los datos de tu tarjeta nunca pasan por Mercatren."
+    },
+    "pasos": {
+      "titulo": "Pasos de tu compra",
+      "creado": "Pedido creado",
+      "pago": "Pago",
+      "listo": "Listo",
+      "deTantos": "Paso {actual} de {total}"
+    },
+    "avisos": {
+      "reciénCreado": "¡Listo! Tu pedido quedó registrado.",
+      "reciénCreadoTexto": "Ahora falta el pago. Sigue los pasos de abajo y tu pedido se prepara apenas lo verifiquemos.",
+      "esperandoVerificacion": "Recibimos tu comprobante.",
+      "esperandoVerificacionTexto": "Una persona lo está comprobando con el banco, normalmente el mismo día hábil. No hace falta que pagues otra vez.",
+      "pagado": "Tu pedido está pagado.",
+      "pagadoTexto": "Recibimos tu pago. Ya no tienes que hacer nada más: te avisamos en cuanto se despache.",
+      "cancelado": "Este pedido está cancelado.",
+      "canceladoTexto": "Si crees que es un error, escríbenos y lo revisamos.",
+      "reembolsado": "Este pedido fue reembolsado.",
+      "reembolsadoTexto": "El dinero volvió a tu medio de pago. Puede tardar unos días en aparecer en tu estado de cuenta."
     }
   },
   "datosPago": {

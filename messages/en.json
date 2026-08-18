@@ -2169,6 +2169,25 @@
       "pagar": "Pay now",
       "pagando": "Processing…",
       "seguridad": "Payment processed by Stripe. Your card details never touch Mercatren."
+    },
+    "pasos": {
+      "titulo": "Your purchase steps",
+      "creado": "Order placed",
+      "pago": "Payment",
+      "listo": "Done",
+      "deTantos": "Step {actual} of {total}"
+    },
+    "avisos": {
+      "reciénCreado": "Done! Your order is registered.",
+      "reciénCreadoTexto": "Now the payment. Follow the steps below and we'll prepare your order as soon as we verify it.",
+      "esperandoVerificacion": "We got your receipt.",
+      "esperandoVerificacionTexto": "Someone is checking it against the bank, usually the same business day. No need to pay again.",
+      "pagado": "Your order is paid.",
+      "pagadoTexto": "We received your payment. Nothing else for you to do — we'll let you know as soon as it ships.",
+      "cancelado": "This order was cancelled.",
+      "canceladoTexto": "If you think this is a mistake, write to us and we'll look into it.",
+      "reembolsado": "This order was refunded.",
+      "reembolsadoTexto": "The money went back to your payment method. It can take a few days to show on your statement."
     }
   },
   "datosPago": {

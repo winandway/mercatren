@@ -1,5 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { CheckCircle2, FileText, Store, Truck } from "lucide-react";
+import { CheckCircle2, Clock, FileText, Store, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -13,6 +13,15 @@ import { fechaHora } from "@/lib/fechas";
 import { tieneFactura } from "@/lib/facturas/consultas";
 import { conciliarPedido } from "@/lib/stripe/conciliar";
 import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
+import { PasosCompra } from "@/components/pedido/pasos-compra";
+import {
+  avisoDelPedido,
+  estaPagado,
+  pasoActual,
+  type EstadoDePedido,
+  type MetodoDePago,
+} from "@/lib/pedidos/pasos";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +73,14 @@ export default async function PaginaPedido({
   if (!datos) notFound();
 
   const { pedido, renglones, pago } = datos;
+
+  /* Con Zelle, una captura subida y sin validar NO es «falta el pago»: el pago
+     puede estar hecho y lo que falta es que alguien lo mire. */
+  const aviso = avisoDelPedido(
+    pedido.estado as EstadoDePedido,
+    pedido.metodoPago as MetodoDePago,
+    pago?.estado === "pendiente",
+  );
   const hayFactura = await tieneFactura(pedido.id);
   const direccion = pedido.direccionEntrega as {
     nombre?: string;
@@ -92,21 +109,68 @@ export default async function PaginaPedido({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-        <p className="flex items-center gap-2 font-bold text-emerald-900">
-          <CheckCircle2 className="h-5 w-5" aria-hidden />
-          {t("creado")}
+      {/* EN QUÉ PASO VA. Antes no se decía en ninguna parte: se pagaba y la
+          pantalla quedaba igual, así que nadie sabía si había terminado. */}
+      <PasosCompra
+        actual={pasoActual(pedido.estado as EstadoDePedido)}
+        terminado={estaPagado(pedido.estado as EstadoDePedido)}
+      />
+
+      {/**
+       * EL AVISO DE ARRIBA, SEGÚN DÓNDE ESTÉ EL PEDIDO DE VERDAD.
+       *
+       * Estaba escrito fijo: decía «ahora falta el pago» aunque el pago ya
+       * hubiera entrado. El dueño pagó $7.95 con tarjeta, Stripe lo confirmó,
+       * y la pantalla le siguió pidiendo que pagara. Quien lee eso paga otra
+       * vez o llama al banco — las dos cuestan dinero.
+       */}
+      <div
+        className={cn(
+          "mt-4 rounded-xl border p-5",
+          aviso.tono === "verde" && "border-emerald-200 bg-emerald-50",
+          aviso.tono === "ambar" && "border-amber-300 bg-amber-50",
+          aviso.tono === "gris" && "border-borde bg-slate-50",
+        )}
+      >
+        <p
+          className={cn(
+            "flex items-center gap-2 text-lg font-bold",
+            aviso.tono === "verde" && "text-emerald-900",
+            aviso.tono === "ambar" && "text-amber-900",
+          )}
+        >
+          {aviso.tono === "verde" ? (
+            <CheckCircle2 className="h-6 w-6 shrink-0" aria-hidden />
+          ) : (
+            <Clock className="h-6 w-6 shrink-0" aria-hidden />
+          )}
+          {t(`avisos.${aviso.clave}`)}
         </p>
-        <p className="mt-1 text-sm text-emerald-800">{t("creadoTexto")}</p>
+        <p
+          className={cn(
+            "mt-1 text-sm",
+            aviso.tono === "verde" && "text-emerald-800",
+            aviso.tono === "ambar" && "text-amber-800",
+            aviso.tono === "gris" && "text-tinta-suave",
+          )}
+        >
+          {t(`avisos.${aviso.clave}Texto`)}
+        </p>
       </div>
 
       <header className="mt-6 flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-2xl font-bold tracking-tight">
           {t("titulo", { numero: pedido.numero })}
         </h1>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold">
-          {t(`estado.${pedido.estado}`)}
-        </span>
+        {/* La etiqueta gris chiquita se queda SOLO para los estados que no son
+            el pago: «enviado», «entregado». Que ya está pagado lo dice el
+            aviso grande de arriba, que es donde se mira. */}
+        {estaPagado(pedido.estado as EstadoDePedido) &&
+        pedido.estado !== "pagado" ? (
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold">
+            {t(`estado.${pedido.estado}`)}
+          </span>
+        ) : null}
       </header>
       <p className="mt-1 text-xs text-tinta-suave">
         {fechaHora(pedido.creadoEn, idioma)}

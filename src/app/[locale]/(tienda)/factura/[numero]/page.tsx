@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonImprimir } from "@/components/facturas/boton-imprimir";
+import { Logo } from "@/components/marca/logo";
+import { CORREO_EQUIPO } from "@/lib/correo/direcciones";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -86,26 +88,46 @@ export default async function PaginaFactura({
       {/* `hoja-factura` es lo que las reglas de impresión de globals.css usan
           para esconder encabezado y pie: lo que se guarda es el documento. */}
       <article className="hoja-factura rounded-xl border border-borde bg-white p-8 print:border-0 print:p-0">
-        <header className="flex flex-wrap items-start justify-between gap-6 border-b border-borde pb-6">
-          <div>
-            <p className="text-xs font-bold tracking-widest text-tinta-suave uppercase">
-              {t("documento")}
-            </p>
-            <h1 className="mt-1 text-2xl font-bold">{factura.numero}</h1>
-            <p className="mt-1 text-sm text-tinta-suave">
-              {fechaLarga(factura.emitidaEn, idioma)}
-            </p>
-          </div>
-          <div className="text-right text-sm">
-            <p className="font-bold">{factura.emisorNombre}</p>
-            {factura.emisorIdentificacion ? (
-              <p className="text-tinta-suave">{factura.emisorIdentificacion}</p>
-            ) : null}
-            {factura.emisorDireccion ? (
-              <p className="max-w-[16rem] text-tinta-suave">
-                {factura.emisorDireccion}
+        {/**
+         * LA CABECERA CON LA MARCA (18 ago 2026).
+         *
+         * Antes era texto negro sobre blanco: parecía un recibo de máquina,
+         * no el documento de una empresa. Y a un comprador que gastó dinero
+         * la factura es lo único que le queda en la mano — si esa hoja no
+         * inspira confianza, la compra tampoco.
+         *
+         * Va en el azul de la casa con el logo encima, y **se imprime tal
+         * cual**: `print-color-adjust: exact` obliga al navegador a poner el
+         * fondo, que por defecto lo quita para ahorrar tinta y dejaría el
+         * logo blanco sobre blanco.
+         */}
+        <header className="-m-8 mb-0 bg-riel-900 px-8 py-6 text-white [print-color-adjust:exact] print:m-0 print:px-6">
+          <div className="flex flex-wrap items-start justify-between gap-6">
+            <div>
+              <Logo variante="horizontalOscuro" className="h-8" />
+              <p className="mt-4 text-xs font-bold tracking-widest uppercase opacity-70">
+                {t("documento")}
               </p>
-            ) : null}
+              <p className="mt-0.5 text-2xl font-bold">{factura.numero}</p>
+              <p className="mt-1 text-sm opacity-80">
+                {fechaLarga(factura.emitidaEn, idioma)}
+              </p>
+            </div>
+            <div className="text-right text-sm">
+              <p className="font-bold">{factura.emisorNombre}</p>
+              {factura.emisorIdentificacion ? (
+                <p className="opacity-80">{factura.emisorIdentificacion}</p>
+              ) : null}
+              {factura.emisorDireccion ? (
+                <p className="max-w-[16rem] opacity-80">
+                  {factura.emisorDireccion}
+                </p>
+              ) : null}
+              {/* EL CORREO QUE RECIBE DE VERDAD. Sin él, quien tiene una duda
+                  con su factura no sabe a dónde escribir — y termina
+                  llamando al banco, que es el primer paso de un contracargo. */}
+              <p className="mt-2 opacity-80">{CORREO_EQUIPO}</p>
+            </div>
           </div>
         </header>
 
