@@ -1200,7 +1200,10 @@
         "montoInvalido": "The minimum must be an amount in dollars, like 200 or 49.90.",
         "tiendaInvalida": "That store doesn't exist.",
         "guardado": "Saved. It applies from the next link that gets opened."
-      }
+      },
+      "faltaRut": "The company's RUT is missing.",
+      "rutFormato": "A RUT has 8 or 9 digits plus its check digit. For example: 76.123.456-0",
+      "rutDigito": "That RUT isn't valid: the final check digit doesn't match. Please review it."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2530,7 +2533,15 @@
       "sitioWeb": "https://",
       "descripcionEs": "In a line or two"
     },
-    "aceptoTerminosComercio": "I have read and accept the <terminos>terms and conditions</terminos>, including the section for suppliers publishing a catalog: I sell the merchandise to «SOCIEDAD» and invoice each sale."
+    "aceptoTerminosComercio": "I have read and accept the <terminos>terms and conditions</terminos>, including the section for suppliers publishing a catalog: I sell the merchandise to «SOCIEDAD» and invoice each sale.",
+    "chile": {
+      "ciudad": "Comuna",
+      "ciudadAyuda": "Providencia, Las Condes, Maipú…",
+      "direccionAyuda": "Street, number, apartment or office",
+      "paisAyuda": "Chile",
+      "telefonoAyuda": "+56 9 1234 5678",
+      "porQueLosDatos": "We ask for this because every sale is invoiced under your company's name and stays documented. Without it we can't open your store."
+    }
   },
   "clave": {
     "titulo": "Forgot your password?",

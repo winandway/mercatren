@@ -12,6 +12,10 @@ import {
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { mercadoActual } from "@/lib/mercado/actual";
+import {
+  documentoDelMercado,
+  type DocumentoDelMercado,
+} from "@/lib/mercado/identificacion";
 import { VERSION_TERMINOS } from "@/lib/legal";
 import { mensajes } from "@/lib/mensajes";
 import { aceptaciones, billeteras, tiendas, user } from "@/lib/db/schema";
@@ -191,15 +195,33 @@ export async function guardarMiTienda(
  * 3. Se le abre su billetera desde el primer día. Sin ella, el primer pago
  *    que le aprueben no tendría dónde acreditarse.
  */
-const esquemaComercio = (t: Textos) =>
+const esquemaComercio = (t: Textos, documento: DocumentoDelMercado) =>
   z.object({
     nombre: z.string().trim().min(2, t("nombreTiendaObligatorio")).max(80),
     razonSocial: z.string().trim().min(2, t("faltaRazonSocial")).max(120),
+    /**
+     * EL DOCUMENTO DE LA EMPRESA, CON LA REGLA DE SU PAÍS.
+     *
+     * En Chile es el RUT y lleva dígito verificador, así que se comprueba de
+     * verdad: un dedazo se atrapa aquí y no semanas después, al facturarle.
+     * En los demás mercados sigue la regla genérica de siempre — mercatren.com
+     * no cambia ni un carácter.
+     *
+     * Se guarda NORMALIZADO (sin puntos ni guiones): lo guardado es lo que
+     * alguien copia y pega en un banco o en una factura.
+     */
     identificacionFiscal: z
       .string()
       .trim()
-      .min(4, t("faltaIdentificacion"))
-      .max(40),
+      .min(1, t("faltaIdentificacion"))
+      .max(40)
+      .superRefine((valor, ctx) => {
+        const aviso = documento.revisar(valor);
+        if (aviso) {
+          ctx.addIssue({ code: "custom", message: t(aviso) });
+        }
+      })
+      .transform((valor) => documento.normalizar(valor)),
     correoContacto: z.string().trim().email(t("correoInvalido")),
     telefono: z.string().trim().min(6, t("faltaTelefono")).max(40),
     direccion: z.string().trim().min(4, t("faltaDireccion")).max(200),
@@ -229,6 +251,11 @@ export async function solicitarComercio(
 
   if (!usuario) return { ok: false, mensaje: t("entraParaComprar") };
 
+  /* El país por el que entró decide DOS cosas: con qué regla se comprueba su
+     documento (RUT en Chile) y en qué vitrina nace su tienda. Se resuelve una
+     vez, aquí. */
+  const mercado = await mercadoActual();
+
   const db = getDb();
 
   // Si ya tiene comercio, no se le crea otro: se le manda a su panel.
@@ -255,7 +282,7 @@ export async function solicitarComercio(
     creadoEn: new Date(),
   });
 
-  const revisado = esquemaComercio(t).safeParse(
+  const revisado = esquemaComercio(t, documentoDelMercado(mercado)).safeParse(
     Object.fromEntries(datos) as Record<string, string>,
   );
 
@@ -307,7 +334,7 @@ export async function solicitarComercio(
        *
        * El equipo lo puede corregir después desde Comercios.
        */
-      mercado: (await mercadoActual()).codigo,
+      mercado: mercado.codigo,
       sitioWeb: d.sitioWeb || null,
       descripcionEs: d.descripcionEs || null,
       /**

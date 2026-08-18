@@ -55,7 +55,32 @@ const CAMPOS = [
   { nombre: "sitioWeb", tipo: "url", obligatorio: false, auto: "url" },
 ] as const;
 
-export function FormularioComercio() {
+/**
+ * EL DOCUMENTO DE LA EMPRESA CAMBIA CON EL PAÍS.
+ *
+ * En mercatren.cl la casilla se llama «RUT» y su ejemplo es un RUT; en el
+ * resto sigue siendo «Identificación fiscal» con el ejemplo de siempre. Llega
+ * ya resuelto desde el servidor —este componente es del navegador y no puede
+ * leer el dominio— y por eso viaja como texto, no como función: una función no
+ * cruza esa frontera.
+ */
+export function FormularioComercio({
+  documento,
+  local,
+}: {
+  documento: { nombre: string; ejemplo: string };
+  /**
+   * Lo que ese país llama distinto. Llega RESUELTO y TRADUCIDO del servidor,
+   * que es el único que sabe por qué dominio entró la persona.
+   *
+   * Vacío en el mercado principal: mercatren.com no cambia ni una etiqueta.
+   */
+  local?: {
+    etiquetas?: Partial<Record<string, string>>;
+    ayudas?: Partial<Record<string, string>>;
+    valores?: Partial<Record<string, string>>;
+  };
+}) {
   const t = useTranslations("comercio");
   const idioma = useLocale();
   const [estado, accion, enviando] = useActionState(solicitarComercio, null);
@@ -132,7 +157,10 @@ export function FormularioComercio() {
             className={campo.nombre === "direccion" ? "sm:col-span-2" : ""}
           >
             <label htmlFor={campo.nombre} className="block text-sm font-medium">
-              {t(`campos.${campo.nombre}`)}
+              {campo.nombre === "identificacionFiscal"
+                ? documento.nombre
+                : (local?.etiquetas?.[campo.nombre] ??
+                  t(`campos.${campo.nombre}`))}
               {campo.obligatorio ? null : (
                 <span className="text-tinta-suave"> · {t("opcional")}</span>
               )}
@@ -143,7 +171,18 @@ export function FormularioComercio() {
               type={campo.tipo}
               required={campo.obligatorio}
               autoComplete={"auto" in campo ? campo.auto : undefined}
-              placeholder={t(`ayudas.${campo.nombre}`)}
+              placeholder={
+                campo.nombre === "identificacionFiscal"
+                  ? documento.ejemplo
+                  : (local?.ayudas?.[campo.nombre] ??
+                    t(`ayudas.${campo.nombre}`))
+              }
+              /* El país viene puesto en los dominios de un solo país: quien
+                 entra por mercatren.cl entrega en Chile. Se deja editable
+                 —un comercio puede despachar desde otro sitio— pero no se le
+                 hace escribirlo, que es donde se acaban guardando «chile»,
+                 «CHILE» y «Chile » como si fueran tres países. */
+              defaultValue={local?.valores?.[campo.nombre]}
               // 16px como mínimo: por debajo, el iPhone hace zoom al tocar.
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
             />

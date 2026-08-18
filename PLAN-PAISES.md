@@ -197,6 +197,47 @@ Tres candados, y el tercero es el que casi siempre falta:
 Volver al principal **borra** la cookie en vez de escribir «US»: dos formas de
 significar lo mismo es como se acaban leyendo distinto en dos pantallas.
 
+## El alta de comercio habla chileno (17 ago 2026)
+
+Lo reportaron los propios comercios: el formulario les pedía «Identificación
+fiscal» con el ejemplo `J-12345678-9` —un RIF venezolano— cuando en Chile ese
+dato se llama **RUT**. **Alguien que no reconoce el nombre del campo escribe
+cualquier cosa o abandona**, y lo primero es peor: queda un comercio dado de
+alta con una identificación que no sirve para facturarle.
+
+`src/lib/mercado/identificacion.ts` (puro, 12 pruebas). Cambia solo en .cl.
+
+**El RUT se COMPRUEBA de verdad, no solo se renombra.** Lleva dígito
+verificador (módulo 11): el último carácter se calcula de los demás, así que un
+dedazo se atrapa en el momento en vez de descubrirse semanas después, al
+emitirle una factura.
+
+Cuatro cosas de ahí que no se tocan:
+
+1. **La «K» es un dígito, no una letra de relleno.** Es el once, que no cabe en
+   una cifra. Un validador que solo acepte números rechaza a una de cada once
+   empresas chilenas — y ese es justo el fallo que trae media librería suelta
+   por internet.
+2. **Se acepta como lo escribe la gente**: `12.345.678-5`, `12345678-5` y
+   `123456785`. Las tres circulan en Chile. Rechazar un dato bueno es el error
+   más caro: el comercio ya decidió vender con nosotros y no puede ni darse de
+   alta.
+3. **Se guarda pelado y se enseña con puntos.** Lo guardado es lo que alguien
+   copia y pega en un banco o en una factura.
+4. **Un país sin regla propia se queda con la genérica.** No se inventa la
+   regla de un país que no conocemos.
+
+**Lo demás que tampoco encajaba**, y se corrigió con el mismo mecanismo (solo
+en .cl): «Ciudad» pasa a **«Comuna»**, el país viene puesto como Chile —así no
+se guardan «chile», «CHILE» y «Chile » como si fueran tres—, la ayuda de la
+dirección deja de decir «sector» (venezolano), el teléfono enseña el formato
++56, y el aviso de arriba decía **«cada venta se cobra en Estados Unidos»**,
+que es verdad en .com y falso en Chile. Ahora dice lo que es cierto en los dos:
+que la venta se factura a nombre de su empresa.
+
+**Comprobado en los dos dominios**, campo por campo: en .cl sale RUT/Comuna/
+Chile y en .com no cambió ni una etiqueta.
+
 ## El 200 de las páginas que no existen NO es un fallo (17 ago 2026)
 
 Salió en el recorrido completo de los dos dominios: `mercatren.cl/es/tienda/

@@ -1200,7 +1200,10 @@
         "montoInvalido": "El mínimo tiene que ser un monto en dólares, como 200 o 49.90.",
         "tiendaInvalida": "Esa tienda no existe.",
         "guardado": "Guardado. Aplica desde el próximo enlace que se abra."
-      }
+      },
+      "faltaRut": "Falta el RUT de la empresa.",
+      "rutFormato": "El RUT se escribe con 8 o 9 dígitos y su verificador. Por ejemplo: 76.123.456-0",
+      "rutDigito": "Ese RUT no es válido: el dígito del final no corresponde. Revísalo."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2530,7 +2533,15 @@
       "sitioWeb": "https://",
       "descripcionEs": "En una o dos líneas"
     },
-    "aceptoTerminosComercio": "He leído y acepto los <terminos>términos y condiciones</terminos>, incluida la sección para quien publica su catálogo como proveedor: le vendo la mercancía a «SOCIEDAD» y le facturo cada venta."
+    "aceptoTerminosComercio": "He leído y acepto los <terminos>términos y condiciones</terminos>, incluida la sección para quien publica su catálogo como proveedor: le vendo la mercancía a «SOCIEDAD» y le facturo cada venta.",
+    "chile": {
+      "ciudad": "Comuna",
+      "ciudadAyuda": "Providencia, Las Condes, Maipú…",
+      "direccionAyuda": "Calle, número, departamento u oficina",
+      "paisAyuda": "Chile",
+      "telefonoAyuda": "+56 9 1234 5678",
+      "porQueLosDatos": "Pedimos estos datos porque cada venta se factura a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda."
+    }
   },
   "clave": {
     "titulo": "¿Olvidaste tu contraseña?",
