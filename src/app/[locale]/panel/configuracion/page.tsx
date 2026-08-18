@@ -2,6 +2,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import {
   Calculator,
   Check,
+  CreditCard,
   ImageIcon,
   Landmark,
   PackageSearch,
@@ -12,6 +13,7 @@ import {
   TriangleAlert,
   Wallet,
   Wand2,
+  X,
 } from "lucide-react";
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -29,6 +31,7 @@ import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
 import { estadoZelleCobros } from "@/lib/cobros/zelle-admin";
+import { REQUISITOS, revisarCobroPorEnlace } from "@/lib/cobros/listo";
 import { ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
 import { CORREO_CONTACTO, CORREO_REMITENTE } from "@/lib/correo/direcciones";
 import { cn } from "@/lib/utils";
@@ -105,6 +108,13 @@ export default async function PaginaConfiguracion({
 
   const faltantes = VARIABLES_DE_PAGO.filter((v) => !puesta(v));
 
+  /* ¿Se puede cobrar por enlace HOY? Lo que decide una prueba con un comercio
+     real. Se pasan solo los NOMBRES de las variables que existen: esta
+     pantalla jamás toca sus valores. */
+  const listoCobro = revisarCobroPorEnlace(
+    new Set(REQUISITOS.map((r) => r.clave).filter(puesta)),
+  );
+
   return (
     <div className="space-y-6">
       <header>
@@ -116,6 +126,58 @@ export default async function PaginaConfiguracion({
           {t("subtitulo")}
         </p>
       </header>
+
+      {/* ══ ¿SE PUEDE COBRAR POR ENLACE? ══
+          Va lo primero porque es lo que se mira antes de una prueba con un
+          comercio de verdad. Si falta algo, falla delante del pagador con la
+          tarjeta en la mano — no al configurarlo. */}
+      <section
+        className={cn(
+          "rounded-xl border p-5",
+          listoCobro.puedeCobrar
+            ? listoCobro.avisos.length > 0
+              ? "border-amber-300 bg-amber-50/50"
+              : "border-emerald-300 bg-emerald-50/50"
+            : "border-red-300 bg-red-50/60",
+        )}
+      >
+        <h2 className="flex items-center gap-2 font-bold">
+          <CreditCard className="h-4 w-4 text-carga-500" aria-hidden />
+          {t("cobroEnlace.titulo")}
+        </h2>
+        <p className="mt-1 text-sm font-semibold">
+          {listoCobro.puedeCobrar
+            ? t("cobroEnlace.listo")
+            : t("cobroEnlace.noListo")}
+        </p>
+
+        {listoCobro.bloqueantes.length + listoCobro.avisos.length === 0 ? (
+          <p className="mt-2 text-sm text-tinta-suave">
+            {t("cobroEnlace.todoPuesto")}
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {[...listoCobro.bloqueantes, ...listoCobro.avisos].map((r) => (
+              <li
+                key={r.clave}
+                className="flex items-start gap-2 rounded-lg bg-white px-3 py-2 text-sm ring-1 ring-borde"
+              >
+                <X
+                  className={cn(
+                    "mt-0.5 h-4 w-4 shrink-0",
+                    r.bloquea ? "text-red-600" : "text-amber-600",
+                  )}
+                  aria-hidden
+                />
+                <span>
+                  <code className="font-mono text-xs font-bold">{r.clave}</code>
+                  <span className="block text-tinta-suave">{r.siFalta}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {/* El idioma, lo primero: es lo que se cambia con prisa. */}
       <section className="rounded-xl border border-carga-500/30 bg-white p-4 sm:p-6">

@@ -964,6 +964,12 @@
         "sinTiendas": "Ninguna tienda usa todavía la API de cobros.",
         "encendido": "Activado",
         "apagado": "Sin Zelle (solo tarjeta)"
+      },
+      "cobroEnlace": {
+        "titulo": "¿Se puede cobrar por enlace?",
+        "listo": "Sí. El cobro con tarjeta está listo para una prueba real.",
+        "noListo": "No. Falta algo y fallaría delante del pagador.",
+        "todoPuesto": "Todo lo que hace falta está cargado: tarjeta, Zelle y correo."
       }
     },
     "fotos": {

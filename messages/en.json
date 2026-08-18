@@ -964,6 +964,12 @@
         "sinTiendas": "No store uses the payment API yet.",
         "encendido": "Enabled",
         "apagado": "No Zelle (card only)"
+      },
+      "cobroEnlace": {
+        "titulo": "Can we charge by payment link?",
+        "listo": "Yes. Card payments are ready for a real test.",
+        "noListo": "No. Something's missing and it would fail in front of the payer.",
+        "todoPuesto": "Everything needed is loaded: card, Zelle and email."
       }
     },
     "fotos": {
