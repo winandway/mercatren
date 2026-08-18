@@ -128,13 +128,27 @@ export function FormularioPersistente({
    * El aviso de «lo recuperamos» se enciende en un microtask, fuera del cuerpo
    * del efecto: primero quedan las casillas puestas, después se avisa.
    */
-  const yaSeIntento = useRef<string | null>(null);
+  /**
+   * ══ SE VUELVE A INTENTAR CUANDO APARECEN CASILLAS NUEVAS (18 ago 2026) ══
+   *
+   * Antes esto corría UNA sola vez y ya. Con un formulario cuyas casillas
+   * llegan después —el checkout pregunta al servidor a qué país va el pedido
+   * antes de saber si pedir la dirección de Estados Unidos— la restitución
+   * pasaba cuando esas casillas todavía no existían, y al aparecer nacían
+   * vacías.
+   *
+   * Lo peor no era perder lo escrito: era que **el aviso decía «recuperamos lo
+   * que estabas escribiendo» con el formulario en blanco**. Un mensaje que
+   * miente es un fallo completo, no un detalle.
+   *
+   * Ahora un observador mira el formulario y, cada vez que aparecen casillas,
+   * vuelve a aplicar el borrador **solo a las que están VACÍAS**. Así nunca
+   * puede pisar algo que la persona acaba de escribir.
+   */
+  const yaSeAviso = useRef<string | null>(null);
 
   const restituir = useCallback(
-    (form: HTMLFormElement) => {
-      if (yaSeIntento.current === llave) return;
-      yaSeIntento.current = llave;
-
+    (form: HTMLFormElement, soloVacias = false) => {
       let borrador;
       try {
         borrador = leerBorrador(
@@ -171,6 +185,16 @@ export function FormularioPersistente({
           continue;
         }
 
+        /* En la segunda pasada solo se rellena lo que está vacío. Las
+           marcas (casilla y opción) se dejan como están: volver a marcarlas
+           desharía lo que la persona acaba de desmarcar. */
+        if (soloVacias) {
+          if (campo instanceof HTMLInputElement && tipo === "checkbox")
+            continue;
+          if (campo instanceof HTMLInputElement && tipo === "radio") continue;
+          if (campo.value !== "") continue;
+        }
+
         if (campo instanceof HTMLInputElement && tipo === "checkbox") {
           const marcar = guardado === "on";
           if (campo.checked !== marcar) {
@@ -199,14 +223,28 @@ export function FormularioPersistente({
         }
       }
 
-      if (algoCambio) queueMicrotask(() => setRecuperado(true));
+      /* El aviso se enciende UNA vez, y solo si de verdad se puso algo: con
+         el formulario en blanco, decir que se recuperó algo es mentir. */
+      if (algoCambio && yaSeAviso.current !== llave) {
+        yaSeAviso.current = llave;
+        queueMicrotask(() => setRecuperado(true));
+      }
     },
     [llave],
   );
 
   useEffect(() => {
     const form = formulario.current;
-    if (form) restituir(form);
+    if (!form) return;
+
+    restituir(form);
+
+    /* Las casillas que llegan después —porque el servidor tardó en decir a
+       qué país va el pedido— también se rellenan. Sin esto, la dirección de
+       Estados Unidos se perdía entera. */
+    const observador = new MutationObserver(() => restituir(form, true));
+    observador.observe(form, { childList: true, subtree: true });
+    return () => observador.disconnect();
   }, [restituir]);
 
   /* ── Guardar según se escribe ───────────────────────────────────────── */

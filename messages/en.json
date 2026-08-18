@@ -2078,7 +2078,9 @@
       "estado": "State",
       "estadoPlaceholder": "Choose your state",
       "codigoPostal": "ZIP code",
-      "codigoPostalPlaceholder": "33101"
+      "codigoPostalPlaceholder": "33101",
+      "tituloEnvio": "Where do we ship it?",
+      "nombreEnvio": "Name of who receives it"
     },
     "pago": {
       "titulo": "How are you paying?",
@@ -2725,7 +2727,8 @@
     "avisoRetiro": "You'll pick it up at the merchant's location. We'll let you know when it's ready.",
     "avisoEnvio": "The merchant ships it to you. Shipping is added to the total and they'll reach out to arrange delivery.",
     "enPedidoRetiro": "You pick it up at the merchant's location",
-    "enPedidoEnvio": "The merchant ships it to you"
+    "enPedidoEnvio": "The merchant ships it to you",
+    "avisoEnvioIncluido": "We ship it to that address. Shipping is already included in the price: what you see is what you pay."
   },
   "cobro": {
     "titulo": "Pay for your purchase",

@@ -148,9 +148,14 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
       precioZelleCentavos(baseDesdePublicado(l.precioCentavos)) * l.cantidad,
     0,
   );
+  /* En Estados Unidos siempre se despacha: lo decide el destino del carrito,
+     que sale de la base. */
+  const soloEnvio = envio.destino === "US";
+  const formaReal = soloEnvio ? "envio" : forma;
+
   const esZelle = metodo === "zelle";
   /* El envío solo se cobra si lo eligió Y hay quien despache. */
-  const costoEnvio = forma === "envio" ? envio.costoCentavos : 0;
+  const costoEnvio = formaReal === "envio" ? envio.costoCentavos : 0;
   const totalAMostrar = (esZelle ? totalZelle : total) + costoEnvio;
   const ahorroZelle = Math.max(0, total - totalZelle);
 
@@ -178,7 +183,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           notas: texto("notas"),
         },
         metodoPago: metodo as "zelle" | "stripe",
-        formaEntrega: forma,
+        formaEntrega: formaReal,
         lineas: lineas.map((l) => ({
           productoId: l.productoId,
           cantidad: l.cantidad,
@@ -207,12 +212,26 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
     >
       <div className="space-y-6">
         <section className="rounded-xl border border-borde p-5">
-          <h2 className="text-lg font-bold">{t("entrega.titulo")}</h2>
+          <h2 className="text-lg font-bold">
+            {/* «¿Quién retira el pedido?» no tiene sentido cuando solo se
+                despacha: nadie va a retirar nada. */}
+            {soloEnvio ? t("entrega.tituloEnvio") : t("entrega.titulo")}
+          </h2>
 
-          {/* CÓMO QUIERE RECIBIRLO. Solo se pregunta si algún comercio del
-              carrito despacha: ofrecer un envío que nadie puede hacer es peor
-              que no ofrecerlo. El retiro siempre está y viene marcado. */}
-          {envio.despachan ? (
+          {/**
+           * CÓMO QUIERE RECIBIRLO — Y EN ESTADOS UNIDOS NO SE PREGUNTA.
+           *
+           * Los productos que vienen de una API (CJ hoy, Dropi mañana) **los
+           * despacha el proveedor**: no hay local a donde ir a buscarlos.
+           * Estados Unidos se trabaja a nivel nacional, no por tiendas
+           * físicas, así que ofrecer «lo busco en su local» es ofrecer algo
+           * que no existe — y hacer elegir entre dos opciones cuando solo hay
+           * una es una pregunta que sobra justo antes de pagar.
+           *
+           * Los comercios de Venezuela SÍ tienen local: ahí se puede retirar
+           * o pedir envío, y las dos opciones se quedan como estaban.
+           */}
+          {soloEnvio ? null : envio.despachan ? (
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {(["retiro", "envio"] as const).map((opcion) => (
                 <label
@@ -250,11 +269,15 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
               aunque el comercio despachara, así que el comprador leía lo
               contrario de lo que iba a pasar justo antes de pagar. */}
           <p className="mt-1 rounded-lg bg-carga-500/5 px-3 py-2 text-sm text-tinta-suave ring-1 ring-carga-500/30">
-            {envio.despachan
-              ? forma === "envio"
-                ? te("avisoEnvio")
-                : te("avisoRetiro")
-              : t("entrega.aviso")}
+            {soloEnvio
+              ? /* «$0.00» al lado de un envío se lee como que falta cobrarlo.
+                   Lo que pasa de verdad es que ya está dentro del precio. */
+                te("avisoEnvioIncluido")
+              : envio.despachan
+                ? forma === "envio"
+                  ? te("avisoEnvio")
+                  : te("avisoRetiro")
+                : t("entrega.aviso")}
           </p>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -300,11 +323,17 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                   <Campo
                     tipo={campo.tipo}
                     nombre={campo.nombre}
-                    etiqueta={
-                      campo.obligatorio
-                        ? t(`entrega.${campo.nombre}`)
-                        : `${t(`entrega.${campo.nombre}`)} · ${t("entrega.opcional")}`
-                    }
+                    etiqueta={(() => {
+                      /* «Nombre de quien retira» no vale cuando nadie va a
+                         retirar nada: en Estados Unidos se despacha siempre. */
+                      const base =
+                        soloEnvio && campo.nombre === "nombre"
+                          ? t("entrega.nombreEnvio")
+                          : t(`entrega.${campo.nombre}`);
+                      return campo.obligatorio
+                        ? base
+                        : `${base} · ${t("entrega.opcional")}`;
+                    })()}
                     marcador={t(`entrega.${campo.nombre}Placeholder`)}
                     requerido={campo.obligatorio}
                   />

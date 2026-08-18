@@ -2078,7 +2078,9 @@
       "estado": "Estado",
       "estadoPlaceholder": "Elige tu estado",
       "codigoPostal": "Código postal",
-      "codigoPostalPlaceholder": "33101"
+      "codigoPostalPlaceholder": "33101",
+      "tituloEnvio": "¿A dónde lo enviamos?",
+      "nombreEnvio": "Nombre de quien recibe"
     },
     "pago": {
       "titulo": "¿Cómo vas a pagar?",
@@ -2725,7 +2727,8 @@
     "avisoRetiro": "Vas a buscarlo en el local del comercio. Te avisamos cuándo está listo.",
     "avisoEnvio": "El comercio te lo despacha. Se suma el costo de envío al total y él te escribe para coordinar la entrega.",
     "enPedidoRetiro": "Lo retiras en el local del comercio",
-    "enPedidoEnvio": "El comercio te lo despacha"
+    "enPedidoEnvio": "El comercio te lo despacha",
+    "avisoEnvioIncluido": "Te lo enviamos a esa dirección. El envío ya está incluido en el precio: lo que ves es lo que pagas."
   },
   "cobro": {
     "titulo": "Paga tu compra",
