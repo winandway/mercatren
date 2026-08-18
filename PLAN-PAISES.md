@@ -55,8 +55,12 @@ Mapa explícito, nunca adivinado por la extensión
 ```
 mercatren.com     → US (principal/global)
 mercatren.cl     → CL
-mercatren.com.co → CO   (cuando se registre)
+mercatren.com.co → CO   (registrado el 18 ago 2026)
 cualquier otro   → principal (localhost, sitios.dev, hosts raros)
+
+mercatren.co  NO se declara: redirige a mercatren.com.co desde la plataforma.
+Si estuviera aquí, las dos direcciones se disputarían la misma página ante
+Google — que es justo lo que una redirección viene a evitar.
 ```
 
 **La mecánica en este repo: `mercadoActual()` (src/lib/mercado/actual.ts) lee
@@ -196,6 +200,41 @@ Tres candados, y el tercero es el que casi siempre falta:
 
 Volver al principal **borra** la cookie en vez de escribir «US»: dos formas de
 significar lo mismo es como se acaban leyendo distinto en dos pantallas.
+
+## Colombia abierta (18 ago 2026)
+
+Tercera plaza, y la primera que se abrió **entera de una sola vez** — con la
+estructura de las fases 1 a 4 ya puesta, agregar un país es declararlo y
+decirle en qué se diferencia. No se tocó una línea de lógica.
+
+|                |                                                                           |
+| -------------- | ------------------------------------------------------------------------- |
+| Dominio        | `mercatren.com.co` (el principal de la plaza)                             |
+| Moneda         | **Peso colombiano (COP)**, sin centavos — la tabla por moneda ya lo sabía |
+| Documento      | **NIT**, con dígito verificador de la DIAN                                |
+| Tarjeta social | `og-co.png`                                                               |
+
+**El NIT lleva OTRO algoritmo que el RUT**, aunque los dos acaben en un módulo
+11: aquí cada dígito se multiplica por un peso de una lista fija (3, 7, 13,
+17, 19, 23…). **Se comprobó contra cinco NIT públicos antes de escribirlo** —
+Bancolombia, Ecopetrol, Banco de Bogotá, Grupo Éxito y Grupo Argos — porque una
+tabla de pesos copiada de memoria es exactamente el error que pasa las pruebas
+que uno mismo se inventa y falla con el primer comercio de verdad. Hay una
+prueba que exige que Colombia y Chile **no** compartan regla: si se cruzaran,
+cada país rechazaría los documentos buenos del otro.
+
+**En Colombia sí se dice «Ciudad»** (la «Comuna» es de Chile), así que ahí la
+etiqueta no cambia: solo los ejemplos, que son los que hacen que se entienda de
+un vistazo. Y el vocabulario pasó de un `if` por país a **una tabla**: con
+quince plazas, el `if` son quince ramas que nadie se acuerda de tocar al
+agregar la dieciseisava.
+
+### Lo que falta, y NO es del código
+
+`mercatren.com.co` responde **522** — activo en el panel, todavía sin llegar al
+sitio. Y `mercatren.co` aún no resuelve, que es lo esperado: ese va después y
+solo redirige. **Las dos cosas las resuelve YaDominios Cloud**; de este lado
+está todo listo y comprobado en local con los tres dominios a la vez.
 
 ## El alta de comercio habla chileno (17 ago 2026)
 

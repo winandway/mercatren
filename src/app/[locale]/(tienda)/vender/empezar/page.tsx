@@ -13,6 +13,49 @@ import { obtenerUsuario } from "@/lib/autorizacion";
 
 export const dynamic = "force-dynamic";
 
+type Textos = (clave: string) => string;
+
+/** En qué espacio de textos vive el vocabulario de cada plaza. */
+const LLAVE: Record<string, string> = { CL: "chile", CO: "colombia" };
+
+/**
+ * LO QUE CADA PAÍS LLAMA DISTINTO EN EL FORMULARIO DE ALTA.
+ *
+ * Una tabla y no un `if` por país: con quince plazas, el `if` se convierte en
+ * quince ramas que nadie se acuerda de tocar al agregar la dieciseisava. Lo
+ * que no esté aquí usa los textos de siempre.
+ */
+const VOCABULARIO: Record<
+  string,
+  {
+    etiquetas: (t: Textos) => Record<string, string>;
+    ayudas: (t: Textos) => Record<string, string>;
+    valores: (t: Textos) => Record<string, string>;
+  }
+> = {
+  CL: {
+    /* En Chile la unidad de una dirección es la COMUNA, no la ciudad. */
+    etiquetas: (t) => ({ ciudad: t("chile.ciudad") }),
+    ayudas: (t) => ({
+      ciudad: t("chile.ciudadAyuda"),
+      direccion: t("chile.direccionAyuda"),
+      telefono: t("chile.telefonoAyuda"),
+    }),
+    valores: (t) => ({ paisOrigen: t("chile.paisAyuda") }),
+  },
+  CO: {
+    /* En Colombia sí se dice «Ciudad», así que la etiqueta no cambia: solo
+       los ejemplos, que son los que hacen que se entienda de un vistazo. */
+    etiquetas: () => ({}),
+    ayudas: (t) => ({
+      ciudad: t("colombia.ciudadAyuda"),
+      direccion: t("colombia.direccionAyuda"),
+      telefono: t("colombia.telefonoAyuda"),
+    }),
+    valores: (t) => ({ paisOrigen: t("colombia.paisAyuda") }),
+  },
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -63,11 +106,11 @@ export default async function PaginaEmpezarAVender({
       <p className="mt-2 text-tinta-suave">{t("entradilla")}</p>
 
       <p className="mt-4 rounded-lg border border-borde bg-slate-50 px-4 py-3 text-sm text-tinta-suave">
-        {/* «Se cobra en Estados Unidos» es verdad en mercatren.com y falsa
-            en Chile, que vende en pesos chilenos. Lo que sí es cierto en los
-            dos: la venta se factura a nombre de su empresa. */}
-        {mercado.codigo === "CL"
-          ? t("chile.porQueLosDatos")
+        {/* «Se cobra en Estados Unidos» es verdad en mercatren.com y falsa en
+            las demás plazas, que venden en su propia moneda. Lo que sí es
+            cierto en todas: la venta se factura a nombre de su empresa. */}
+        {VOCABULARIO[mercado.codigo]
+          ? t(`${LLAVE[mercado.codigo]}.porQueLosDatos`)
           : t("porQueLosDatos")}
       </p>
 
@@ -81,17 +124,15 @@ export default async function PaginaEmpezarAVender({
           ejemplo: documento.ejemplo,
         }}
         local={
-          /* Solo Chile tiene vocabulario propio hoy. En el resto va sin nada
-             y el formulario usa sus textos de siempre. */
-          mercado.codigo === "CL"
+          /* El vocabulario propio de cada plaza. El mercado principal va sin
+             nada y usa sus textos de siempre — mercatren.com no se toca.
+             «Comuna» es de Chile; en Colombia se dice «Ciudad», que ya es la
+             etiqueta por defecto, así que ahí solo cambian las ayudas. */
+          VOCABULARIO[mercado.codigo]
             ? {
-                etiquetas: { ciudad: t("chile.ciudad") },
-                ayudas: {
-                  ciudad: t("chile.ciudadAyuda"),
-                  direccion: t("chile.direccionAyuda"),
-                  telefono: t("chile.telefonoAyuda"),
-                },
-                valores: { paisOrigen: t("chile.paisAyuda") },
+                etiquetas: VOCABULARIO[mercado.codigo]!.etiquetas(t),
+                ayudas: VOCABULARIO[mercado.codigo]!.ayudas(t),
+                valores: VOCABULARIO[mercado.codigo]!.valores(t),
               }
             : undefined
         }

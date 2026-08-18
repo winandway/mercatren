@@ -1203,7 +1203,10 @@
       },
       "faltaRut": "Falta el RUT de la empresa.",
       "rutFormato": "El RUT se escribe con 8 o 9 dígitos y su verificador. Por ejemplo: 76.123.456-0",
-      "rutDigito": "Ese RUT no es válido: el dígito del final no corresponde. Revísalo."
+      "rutDigito": "Ese RUT no es válido: el dígito del final no corresponde. Revísalo.",
+      "faltaNit": "Falta el NIT de la empresa.",
+      "nitFormato": "El NIT son solo números: 9 dígitos y su verificador. Por ejemplo: 900.123.456-8",
+      "nitDigito": "Ese NIT no es válido: el dígito del final no corresponde. Revísalo."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2540,6 +2543,13 @@
       "direccionAyuda": "Calle, número, departamento u oficina",
       "paisAyuda": "Chile",
       "telefonoAyuda": "+56 9 1234 5678",
+      "porQueLosDatos": "Pedimos estos datos porque cada venta se factura a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda."
+    },
+    "colombia": {
+      "ciudadAyuda": "Bogotá, Medellín, Cali…",
+      "direccionAyuda": "Calle, número, barrio",
+      "paisAyuda": "Colombia",
+      "telefonoAyuda": "+57 300 123 4567",
       "porQueLosDatos": "Pedimos estos datos porque cada venta se factura a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda."
     }
   },

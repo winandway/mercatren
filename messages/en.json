@@ -1203,7 +1203,10 @@
       },
       "faltaRut": "The company's RUT is missing.",
       "rutFormato": "A RUT has 8 or 9 digits plus its check digit. For example: 76.123.456-0",
-      "rutDigito": "That RUT isn't valid: the final check digit doesn't match. Please review it."
+      "rutDigito": "That RUT isn't valid: the final check digit doesn't match. Please review it.",
+      "faltaNit": "The company's NIT is missing.",
+      "nitFormato": "A NIT is digits only: 9 plus its check digit. For example: 900.123.456-8",
+      "nitDigito": "That NIT isn't valid: the final check digit doesn't match. Please review it."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2540,6 +2543,13 @@
       "direccionAyuda": "Street, number, apartment or office",
       "paisAyuda": "Chile",
       "telefonoAyuda": "+56 9 1234 5678",
+      "porQueLosDatos": "We ask for this because every sale is invoiced under your company's name and stays documented. Without it we can't open your store."
+    },
+    "colombia": {
+      "ciudadAyuda": "Bogotá, Medellín, Cali…",
+      "direccionAyuda": "Street, number, neighborhood",
+      "paisAyuda": "Colombia",
+      "telefonoAyuda": "+57 300 123 4567",
       "porQueLosDatos": "We ask for this because every sale is invoiced under your company's name and stays documented. Without it we can't open your store."
     }
   },

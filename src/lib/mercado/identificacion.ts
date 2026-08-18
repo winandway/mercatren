@@ -106,6 +106,67 @@ const RUT: DocumentoDelMercado = {
   },
 };
 
+/**
+ * EL DÍGITO VERIFICADOR DEL NIT COLOMBIANO (el de la DIAN).
+ *
+ * Otro algoritmo distinto al del RUT, aunque los dos acaben en un módulo 11:
+ * aquí cada dígito se multiplica por un peso de una lista fija (3, 7, 13, 17,
+ * 19, 23, 29, 37, 41…) recorriendo de derecha a izquierda. Si el resto es 0
+ * o 1, ese ES el dígito; si no, es 11 menos el resto.
+ *
+ * **Comprobado contra cinco NIT públicos antes de escribirlo** —Bancolombia,
+ * Ecopetrol, Banco de Bogotá, Grupo Éxito y Grupo Argos— porque una tabla de
+ * pesos copiada de memoria es exactamente el tipo de error que pasa las
+ * pruebas que uno mismo se inventa y falla con el primer comercio de verdad.
+ */
+const PESOS_NIT = [
+  3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71,
+] as const;
+
+export function digitoVerificadorNit(cuerpo: string): string {
+  let suma = 0;
+  for (let i = 0; i < cuerpo.length; i++) {
+    const digito = Number(cuerpo[cuerpo.length - 1 - i]);
+    suma += digito * (PESOS_NIT[i] ?? 0);
+  }
+
+  const resto = suma % 11;
+  return resto < 2 ? String(resto) : String(11 - resto);
+}
+
+/** El NIT como se enseña en Colombia: `890.903.938-8`. */
+export function formatearNit(valor: string): string {
+  const limpio = pelado(valor);
+  if (limpio.length < 2) return limpio;
+
+  const cuerpo = limpio.slice(0, -1);
+  const dv = limpio.slice(-1);
+  return `${cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}-${dv}`;
+}
+
+const NIT: DocumentoDelMercado = {
+  nombre: "NIT",
+  /* Con verificador correcto y obviamente ficticio: jamás el NIT de una
+     empresa real, que es la regla de placeholders del proyecto. */
+  ejemplo: "900.123.456-8",
+  normalizar: pelado,
+  revisar: (valor) => {
+    const limpio = pelado(valor);
+    if (!limpio) return "faltaNit";
+
+    /* Un NIT de empresa son 9 dígitos más el verificador. Se aceptan de 8 a 10
+       de cuerpo porque también hay personas naturales con NIT (su cédula), y
+       un comercio puede darse de alta así. */
+    if (!/^\d{8,11}$/.test(limpio)) return "nitFormato";
+
+    const cuerpo = limpio.slice(0, -1);
+    const dv = limpio.slice(-1);
+    if (digitoVerificadorNit(cuerpo) !== dv) return "nitDigito";
+
+    return null;
+  },
+};
+
 /** Lo de siempre, para los mercados sin regla propia. */
 const GENERICO: DocumentoDelMercado = {
   nombre: "identificacionFiscal",
@@ -124,6 +185,7 @@ const GENERICO: DocumentoDelMercado = {
 
 const POR_MERCADO: Record<string, DocumentoDelMercado> = {
   CL: RUT,
+  CO: NIT,
 };
 
 /**

@@ -114,12 +114,17 @@ async function generar() {
     "og.png",
   );
 
-  // Chile: logo oficial sin dominio + «mercatren.cl» escrito debajo.
-  await tarjeta(
-    "mercatren-isologotipo-horizontal-oscuro.svg",
-    "mercatren.cl",
-    "og-cl.png",
-  );
+  // Los demás países: logo oficial sin dominio + el suyo escrito debajo.
+  for (const [archivo, dominio] of [
+    ["og-cl.png", "mercatren.cl"],
+    ["og-co.png", "mercatren.com.co"],
+  ]) {
+    await tarjeta(
+      "mercatren-isologotipo-horizontal-oscuro.svg",
+      dominio,
+      archivo,
+    );
+  }
 
   await writeFile(
     path.join(PUBLICO, "LEEME-iconos.txt"),

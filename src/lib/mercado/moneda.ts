@@ -64,6 +64,9 @@ const MONEDA_POR_MERCADO: Record<string, string> = {
   US: "USD",
   /* Decidido por el dueño el 17 ago 2026: Chile vende en pesos chilenos. */
   CL: "CLP",
+  /* Colombia, en pesos colombianos. Tampoco tienen centavos: la tabla de
+     arriba ya lo sabía desde el primer día, así que esto sale gratis. */
+  CO: "COP",
 };
 
 /**

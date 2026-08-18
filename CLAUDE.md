@@ -1699,8 +1699,11 @@ distintas: código, datos y **caché**.
 **Fases 1 a 4 hechas y en producción.** Lo que hay que saber al tocar esto:
 
 - **El dominio decide el mercado** (`src/lib/mercado/mercados.ts`, lista
-  cerrada; `actual.ts` lee el Host). mercatren.com = `US`, mercatren.cl = `CL`.
-  Una sola función de deducción: nadie mira el Host por su cuenta.
+  cerrada; `actual.ts` lee el Host). mercatren.com = `US`, mercatren.cl = `CL`,
+  mercatren.com.co = `CO`. Una sola función de deducción: nadie mira el Host
+  por su cuenta. **`mercatren.co` NO se declara**: redirige al `.com.co` desde
+  la plataforma, y declararlo haría que las dos direcciones se disputaran la
+  misma página ante Google.
 - **El país es obligatorio EN EL TIPO.** Cada consulta del catálogo recibe
   `mercado: Mercado` de primer argumento, y el filtro solo se puede fabricar
   dentro de `src/lib/mercado/repositorio.ts` (lleva un símbolo único que no se
@@ -1714,9 +1717,14 @@ distintas: código, datos y **caché**.
 - **El panel se mira por país** (Soporte, selector arriba a la derecha). El
   país vive en la SESIÓN, nunca en la dirección — con un `?mercado=` el
   selector sería un adorno. Franja azul permanente fuera del principal.
-- **Chile vende en PESOS CHILENOS**, y el peso NO tiene centavos: el divisor
-  sale de `mercado/moneda.ts`, por moneda y no por país, así Colombia y México
-  lo heredan solos. El dólar sale idéntico a como salía.
+- **Chile vende en PESOS CHILENOS y Colombia en PESOS COLOMBIANOS**, y ninguno
+  de los dos tiene centavos: el divisor sale de `mercado/moneda.ts`, por moneda
+  y no por país, así el siguiente país lo hereda solo. El dólar sale idéntico.
+- **El documento de la empresa cambia por país** (`mercado/identificacion.ts`):
+  RUT en Chile y NIT en Colombia, los dos **con su dígito verificador
+  comprobado de verdad** — y son algoritmos DISTINTOS. El NIT se validó contra
+  cinco NIT públicos reales antes de escribirlo. Un país sin regla propia se
+  queda con la genérica: no se inventa la regla de un país que no conocemos.
 - **Las URL absolutas se calculan por petición**: `rutaCanonica()` devuelve
   relativas y Next las resuelve contra `metadataBase`, que es del dominio. El
   sitemap, el JSON-LD, la tarjeta social y el manifest, también.

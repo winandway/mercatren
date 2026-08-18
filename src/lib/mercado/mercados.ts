@@ -45,6 +45,13 @@ export const MERCADOS: readonly Mercado[] = [
     principal: true,
   },
   { codigo: "CL", dominio: "mercatren.cl", nombre: "Chile" },
+  /**
+   * Colombia entra por `mercatren.com.co`, que es el dominio PRINCIPAL de esa
+   * plaza — no `mercatren.co`. Ese segundo redirige al primero desde la
+   * plataforma, así que aquí no existe: si estuviera declarado, las dos
+   * direcciones se disputarían la misma página ante Google.
+   */
+  { codigo: "CO", dominio: "mercatren.com.co", nombre: "Colombia" },
 ] as const;
 
 export const MERCADO_PRINCIPAL: Mercado = MERCADOS.find((m) => m.principal)!;

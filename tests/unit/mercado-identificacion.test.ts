@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  digitoVerificadorNit,
   digitoVerificadorRut,
   documentoDelMercado,
+  formatearNit,
   formatearRut,
   tieneDocumentoPropio,
 } from "@/lib/mercado/identificacion";
@@ -11,7 +13,10 @@ import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 const CHILE = mercadoPorCodigo("CL");
 const PRINCIPAL = mercadoPorCodigo("US");
 
+const COLOMBIA = mercadoPorCodigo("CO");
+
 const rut = documentoDelMercado(CHILE);
+const nit = documentoDelMercado(COLOMBIA);
 
 describe("el dígito verificador del RUT", () => {
   it("sale bien en los tres casos del módulo 11", () => {
@@ -105,5 +110,60 @@ describe("los demás países no se tocan", () => {
     /* Un ejemplo con el dígito mal enseña a escribirlo mal. Y no puede ser el
        RUT de una empresa real: regla de placeholders del proyecto. */
     expect(rut.revisar(rut.ejemplo)).toBeNull();
+  });
+});
+
+describe("el NIT colombiano", () => {
+  /**
+   * Los pesos del algoritmo de la DIAN copiados de memoria son EXACTAMENTE el
+   * error que pasa las pruebas que uno se inventa y falla con el primer
+   * comercio real. Por eso se comprueban contra NIT públicos de empresas
+   * grandes de Colombia, que cualquiera puede verificar.
+   */
+  it("da el dígito correcto de cinco empresas colombianas reales", () => {
+    expect(digitoVerificadorNit("890903938")).toBe("8"); // Bancolombia
+    expect(digitoVerificadorNit("899999068")).toBe("1"); // Ecopetrol
+    expect(digitoVerificadorNit("860002964")).toBe("4"); // Banco de Bogotá
+    expect(digitoVerificadorNit("800197268")).toBe("4"); // Grupo Éxito
+    expect(digitoVerificadorNit("890900608")).toBe("9"); // Grupo Argos
+  });
+
+  it("acepta el NIT con puntos, sin puntos y con guion", () => {
+    expect(nit.revisar("890.903.938-8")).toBeNull();
+    expect(nit.revisar("890903938-8")).toBeNull();
+    expect(nit.revisar("8909039388")).toBeNull();
+  });
+
+  it("un verificador que no cuadra se rechaza", () => {
+    expect(nit.revisar("890.903.938-1")).toBe("nitDigito");
+  });
+
+  it("lo que no tiene forma de NIT se rechaza por forma", () => {
+    /* El NIT es solo dígitos: una letra delante es un RIF venezolano, y el
+       aviso tiene que mandar a corregir la forma, no el último carácter. */
+    expect(nit.revisar("J-12345678-9")).toBe("nitFormato");
+    expect(nit.revisar("123")).toBe("nitFormato");
+  });
+
+  it("vacío se avisa como que falta", () => {
+    expect(nit.revisar("")).toBe("faltaNit");
+  });
+
+  it("se guarda pelado y se enseña con puntos", () => {
+    expect(nit.normalizar("890.903.938-8")).toBe("8909039388");
+    expect(formatearNit("8909039388")).toBe("890.903.938-8");
+  });
+
+  it("el ejemplo que se enseña es válido y ficticio", () => {
+    expect(nit.revisar(nit.ejemplo)).toBeNull();
+  });
+
+  it("Colombia y Chile NO comparten regla", () => {
+    /* Los dos acaban en un módulo 11 pero con pesos distintos. Si se cruzaran,
+       cada país rechazaría los documentos buenos del otro. */
+    expect(nit.nombre).toBe("NIT");
+    expect(rut.nombre).toBe("RUT");
+    expect(nit.revisar("12.345.678-5")).not.toBeNull();
+    expect(rut.revisar("890.903.938-8")).not.toBeNull();
   });
 });
