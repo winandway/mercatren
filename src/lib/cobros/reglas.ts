@@ -32,16 +32,45 @@ export type EstadoCobro =
   | "cancelado";
 
 /**
- * CUÁNTO DURA UN ENLACE SIN USAR: 48 horas.
+ * CUÁNTO DURA UN ENLACE SIN USAR.
  *
- * Lo sugirió el documento del modelo y tiene sentido: un enlace de cobro que
- * no caduca nunca es una factura viva para siempre, y el precio de la
- * mercancía cambia. 48 horas alcanza de sobra para que alguien en otro huso
- * horario lo vea, lo pague, o lo reenvíe a quien va a pagar.
+ * ══ ERAN 48 HORAS Y ESTABA MAL (19 ago 2026) ══
  *
- * Vencer no pierde la venta: el comercio pide otro y sale otro correo.
+ * Lo puse yo suponiendo que «alcanza de sobra para que alguien lo vea, lo
+ * pague, o lo reenvíe». **Esa suposición no describe el negocio real.**
+ *
+ * Lo reportó el comercio piloto con el caso medido: en un abono de una
+ * ferretería del interior de Venezuela **la cadena es de tres personas** — el
+ * cliente llama a la ferretería y dice cuánto va a abonar, la ferretería
+ * llama al vendedor y le pide el enlace, y recién ahí quien paga tiene que
+ * conseguir la tarjeta o hablar con el familiar en Estados Unidos que se lo va
+ * a pagar. **Sus clientes tardan hasta una semana en cerrar un pago**, y eso
+ * no es un cliente lento: es cómo funciona cobrar con dinero que viene de
+ * afuera.
+ *
+ * Y mi consuelo de «vencer no pierde la venta, el comercio pide otro» tampoco
+ * era cierto: cada vencimiento obliga a escribirle otra vez al cliente, y cada
+ * vez que hay que volver a escribirle **se pierden cobros**.
+ *
+ * ══ AHORA: SIETE DÍAS POR DEFECTO, HASTA QUINCE SI LO PIDEN ══
+ *
+ * Sigue habiendo tope, y el motivo original sigue en pie: un enlace que no
+ * caduca nunca es una factura viva para siempre, y el precio de la mercancía
+ * cambia. Pero el plazo lo decide quien conoce a su cliente, no yo.
  */
-export const HORAS_DE_VIDA = 48;
+export const DIAS_DE_VIDA_POR_DEFECTO = 7;
+
+/**
+ * El techo, y no es un capricho.
+ *
+ * Un enlace con monto fijo que vive un mes acaba circulando por WhatsApp
+ * mucho después de que el abono se saldó por otra vía. Quince días cubre el
+ * caso más lento que reportó el comercio con margen de sobra.
+ */
+export const DIAS_DE_VIDA_MAXIMO = 15;
+
+/** Menos de un día no da tiempo ni a leer el correo. */
+export const DIAS_DE_VIDA_MINIMO = 1;
 
 /**
  * EL MÍNIMO Y EL MÁXIMO.
@@ -108,13 +137,34 @@ export function revisarPeticion(p: Partial<PeticionDeCobro>): FalloDeCobro[] {
 }
 
 /**
+ * Cuántos días vale el enlace, a partir de lo que pida el comercio.
+ *
+ * ══ UN DATO RARO NO PUEDE DEJAR UN COBRO SIN VENCIMIENTO ══
+ *
+ * Lo que llega de fuera puede ser cualquier cosa: texto, un número enorme, un
+ * negativo. Todo lo que no se entienda cae en el valor por defecto, y lo que
+ * se pase del techo se recorta **en silencio hasta el techo** en vez de
+ * rechazar el cobro entero: quien pide 30 días quiere que dure mucho, no que
+ * su venta se caiga por un número.
+ */
+export function diasDeVida(pedido: unknown): number {
+  const n = Number(pedido);
+  if (!Number.isFinite(n) || n <= 0) return DIAS_DE_VIDA_POR_DEFECTO;
+
+  return Math.min(
+    DIAS_DE_VIDA_MAXIMO,
+    Math.max(DIAS_DE_VIDA_MINIMO, Math.floor(n)),
+  );
+}
+
+/**
  * Cuándo vence un cobro pedido ahora.
  *
  * Se recibe `ahora` de fuera para que la función sea previsible al probarla:
  * una que lee el reloj por dentro solo se puede probar con trampas.
  */
-export function venceEn(ahora: Date): Date {
-  return new Date(ahora.getTime() + HORAS_DE_VIDA * 3_600_000);
+export function venceEn(ahora: Date, dias?: unknown): Date {
+  return new Date(ahora.getTime() + diasDeVida(dias) * 86_400_000);
 }
 
 /**

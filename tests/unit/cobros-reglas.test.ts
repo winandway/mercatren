@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   estadoParaMostrar,
   generarEnlace,
-  HORAS_DE_VIDA,
+  DIAS_DE_VIDA_MAXIMO,
+  DIAS_DE_VIDA_POR_DEFECTO,
+  diasDeVida,
   MAXIMO_CENTAVOS,
   MINIMO_CENTAVOS,
   revisarPeticion,
@@ -92,8 +94,48 @@ describe("el monto", () => {
 });
 
 describe("cuánto dura el enlace", () => {
-  it("vence a las 48 horas", () => {
-    expect(venceEn(AHORA).getTime()).toBe(enHoras(HORAS_DE_VIDA).getTime());
+  /**
+   * ERAN 48 HORAS Y ESTABA MAL (19 ago 2026).
+   *
+   * Lo reportó el comercio piloto con el caso medido: en un abono de una
+   * ferretería del interior de Venezuela la cadena es de tres personas, y quien
+   * paga muchas veces tiene que hablar con un familiar en Estados Unidos.
+   * **Tardan hasta una semana en cerrar un pago.**
+   */
+  it("por defecto dura una semana", () => {
+    expect(venceEn(AHORA).getTime()).toBe(
+      enHoras(DIAS_DE_VIDA_POR_DEFECTO * 24).getTime(),
+    );
+  });
+
+  it("el comercio puede pedir otro plazo", () => {
+    expect(venceEn(AHORA, 3).getTime()).toBe(enHoras(72).getTime());
+    expect(venceEn(AHORA, 15).getTime()).toBe(enHoras(360).getTime());
+  });
+
+  it("lo que se pase del techo se recorta, NO tumba el cobro", () => {
+    /* Quien pide 30 días quiere que dure mucho, no que su venta se caiga por
+       un número. Se le da el máximo y se sigue. */
+    expect(diasDeVida(30)).toBe(DIAS_DE_VIDA_MAXIMO);
+    expect(diasDeVida(9999)).toBe(DIAS_DE_VIDA_MAXIMO);
+  });
+
+  it("un dato raro cae en el defecto, nunca deja el cobro sin vencimiento", () => {
+    expect(diasDeVida(undefined)).toBe(DIAS_DE_VIDA_POR_DEFECTO);
+    expect(diasDeVida(null)).toBe(DIAS_DE_VIDA_POR_DEFECTO);
+    expect(diasDeVida("siete")).toBe(DIAS_DE_VIDA_POR_DEFECTO);
+    expect(diasDeVida(0)).toBe(DIAS_DE_VIDA_POR_DEFECTO);
+    expect(diasDeVida(-5)).toBe(DIAS_DE_VIDA_POR_DEFECTO);
+  });
+
+  it("acepta el texto de un JSON, que es como llega de verdad", () => {
+    /* Los sistemas de los comercios mandan números como texto más a menudo de
+       lo que uno cree. Rechazarlos sería rechazar cobros buenos. */
+    expect(diasDeVida("10")).toBe(10);
+  });
+
+  it("los decimales se truncan hacia abajo", () => {
+    expect(diasDeVida(7.9)).toBe(7);
   });
 });
 

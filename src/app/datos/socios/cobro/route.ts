@@ -33,7 +33,18 @@ import {
  *   POST /datos/socios/cobro
  *   Authorization: Bearer <token de la tienda>
  *   { "monto": 45.90, "referencia": "F-00123",
- *     "correo": "cliente@…", "nombre": "…", "concepto": "…" }
+ *     "correo": "cliente@…", "nombre": "…", "concepto": "…",
+ *     "dias": 7 }
+ *
+ * ══ EL PLAZO LO DECIDE EL COMERCIO ══
+ *
+ * `dias` es opcional: por defecto **7**, hasta **15**. Antes eran 48 horas
+ * fijas y estaba mal — en un abono de una ferretería del interior de Venezuela
+ * la cadena es de tres personas y quien paga muchas veces tiene que hablar con
+ * un familiar en Estados Unidos. Tardan hasta una semana.
+ *
+ * Lo que se pase de 15 se recorta al máximo en vez de rechazar el cobro: quien
+ * pide 30 días quiere que dure mucho, no que su venta se caiga por un número.
  *
  * ══ Y CUANDO EL QUE PAGA NO CONOCE AL COMERCIO ══
  *
@@ -188,6 +199,10 @@ export async function POST(peticion: Request) {
   const ahora = new Date();
   const enlace = generarEnlace();
   const id = `cobro-${nanoid(14)}`;
+  /* Se calcula UNA vez y se usa en los dos sitios. Calcularlo aparte para la
+     respuesta hacía que dijera una fecha distinta de la guardada — y el sistema
+     del comercio se guarda la de la respuesta. */
+  const vence = venceEn(ahora, cuerpo.dias);
 
   await db.insert(cobrosSolicitados).values({
     id,
@@ -200,7 +215,7 @@ export async function POST(peticion: Request) {
     contactoCorreo: datos.correo!,
     contactoNombre: datos.nombre ?? null,
     concepto: cuerpo.concepto ? String(cuerpo.concepto).slice(0, 300) : null,
-    venceEn: venceEn(ahora),
+    venceEn: vence,
     creadoEn: ahora,
   });
 
@@ -253,7 +268,7 @@ export async function POST(peticion: Request) {
     enlace,
     url,
     estado: "abierto",
-    vence_en: venceEn(ahora).toISOString(),
+    vence_en: vence.toISOString(),
     monto_centavos: datos.montoCentavos,
   });
 }

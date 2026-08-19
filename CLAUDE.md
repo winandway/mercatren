@@ -1841,10 +1841,29 @@ hace su factura como todos los días, toca un botón, y **el correo con el enlac
 de pago sale solo**. Quien paga —muchas veces el hijo o el socio en Estados
 Unidos, a quien le reenviaron el correo— abre y paga con tarjeta o por Zelle.
 
-- `src/lib/cobros/reglas.ts` — puro, 20 pruebas. El enlace vive 48 horas y **el
+- `src/lib/cobros/reglas.ts` — puro, 25 pruebas. El enlace vive **7 días por
+  defecto y hasta 15 si el comercio los pide** (`dias` en el POST), y **el
   vencimiento se calcula, no se guarda**: un estado `vencido` guardado depende
   de que algo lo escriba a tiempo, y si eso falla alguien paga una venta que el
   comercio ya dio por perdida.
+- **ERAN 48 HORAS Y ESTABA MAL** (corregido el 19 ago 2026). Lo puse suponiendo
+  que «alcanza de sobra para que alguien lo vea, lo pague o lo reenvíe». Esa
+  suposición no describe el negocio: en un abono de una ferretería del interior
+  de Venezuela **la cadena es de tres personas** —el cliente llama a la
+  ferretería, la ferretería llama al vendedor, y recién ahí quien paga tiene que
+  conseguir la tarjeta o hablar con el familiar en Estados Unidos— y **tardan
+  hasta una semana**. Y mi consuelo de «vencer no pierde la venta, se pide otro»
+  tampoco era cierto: cada vencimiento obliga a escribirle otra vez al cliente,
+  y **cada vez que hay que volver a escribirle se pierden cobros**.
+- **Un cobro vencido se REACTIVA conservando su referencia Y su enlace**
+  (`POST /datos/socios/cobro/reactivar`). Crear otro obligaba al comercio a
+  cambiar la referencia (`VIG-02497-A1` → `A2`), y eso ensucia la conciliación:
+  en el extracto parecen dos cobros distintos cuando es el mismo abono.
+  Conservar el enlace además hace que **el correo que ya se mandó vuelva a
+  funcionar**, así muchas veces no hay que volver a escribirle a nadie.
+  **Solo revive lo que está `abierto`**, y el estado se vuelve a comprobar
+  dentro del `WHERE`: entre leerlo y escribirlo puede entrar el pago, y revivir
+  un cobro pagado es abrirle la puerta a que se pague dos veces.
 - **El enlace NO es el identificador del cobro.** Ese aparece en el sistema del
   comercio y en sus pantallas; el enlace es un secreto aparte de 24 bytes que
   solo viaja en ese correo.
