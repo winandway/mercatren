@@ -157,6 +157,28 @@ CREATE TABLE IF NOT EXISTS `depositos` (
 CREATE INDEX IF NOT EXISTS `idx_depositos_tienda` ON `depositos` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_depositos_zona` ON `depositos` (`zona`);
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_depositos_tienda_nombre` ON `depositos` (`tienda_id`,`nombre`);
+CREATE TABLE IF NOT EXISTS `devoluciones` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`usuario_id` text,
+	`estado` text DEFAULT 'solicitada' NOT NULL,
+	`motivo` text NOT NULL,
+	`comentario` text,
+	`direccion_entregada` text,
+	`guia_retorno` text,
+	`reembolsado_centavos` integer,
+	`motivo_rechazo` text,
+	`resuelto_en` integer,
+	`resuelto_por_id` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`resuelto_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_devoluciones_pedido` ON `devoluciones` (`pedido_id`);
+CREATE INDEX IF NOT EXISTS `idx_devoluciones_estado` ON `devoluciones` (`estado`);
 CREATE TABLE IF NOT EXISTS `disputas` (
 	`id` text PRIMARY KEY NOT NULL,
 	`intento_id` text,
@@ -211,6 +233,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS `facturas_numero_unique` ON `facturas` (`numer
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_facturas_pedido` ON `facturas` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_facturas_cliente` ON `facturas` (`cliente_id`);
 CREATE INDEX IF NOT EXISTS `idx_facturas_emitida` ON `facturas` (`emitida_en`);
+CREATE TABLE IF NOT EXISTS `fotos_devolucion` (
+	`id` text PRIMARY KEY NOT NULL,
+	`devolucion_id` text NOT NULL,
+	`clave` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`devolucion_id`) REFERENCES `devoluciones`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_fotos_devolucion` ON `fotos_devolucion` (`devolucion_id`);
 CREATE TABLE IF NOT EXISTS `fuentes_catalogo` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text NOT NULL,
@@ -773,11 +804,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787098239, 1787098239)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787099053, 1787099053)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787098239)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787099053)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
