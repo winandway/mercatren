@@ -19,6 +19,24 @@ import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 /**
+ * LA LISTA DE PEDIDOS EN EL PANEL DE CJ.
+ *
+ * ══ ESTA DIRECCIÓN ESTÁ COMPROBADA, NO ADIVINADA (18 ago 2026) ══
+ *
+ * La primera versión decía `app.cjdropshipping.com/dashboard/order/list`, que
+ * me inventé. **Redirige a una ruta que no existe y CJ contesta con su 404**,
+ * que además se va solo a su portada a los cuatro segundos. El dueño la abrió
+ * dos veces, en dos navegadores, creyendo que era cosa de su sesión.
+ *
+ * Comprobado con peticiones de verdad: esta devuelve **200**, la inventada
+ * devolvía **302** hacia el 404, y una ruta falsa a propósito también daba 302.
+ * Si CJ vuelve a cambiar su panel, esto es una línea — pero se cambia
+ * comprobando, no a ojo.
+ */
+const PEDIDOS_EN_CJ =
+  "https://www.cjdropshipping.com/mine/dropshipping/orderList?orderType=6";
+
+/**
  * LA COLA DE COMPRAS AL PROVEEDOR.
  *
  * Arriba las ventas que todavía no se le pidieron a nadie —cada una es un
@@ -247,7 +265,7 @@ function FilaCompra({
               etiqueta={t("pedirEnlace")}
             />
             <a
-              href="https://app.cjdropshipping.com/dashboard/order/list"
+              href={PEDIDOS_EN_CJ}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-borde bg-white px-3 py-2 text-sm font-semibold hover:border-carga-500"
