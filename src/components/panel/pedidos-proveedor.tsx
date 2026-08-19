@@ -6,14 +6,12 @@ import {
   CreditCard,
   ExternalLink,
   Loader2,
-  RefreshCw,
-  ShoppingCart,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import { ElegirVariantes } from "@/components/panel/elegir-variantes";
 import {
-  comprarPedidoAlProveedor,
   marcarCompraPagada,
   type CompraAlProveedor,
 } from "@/lib/cj/proveedor-acciones";
@@ -84,11 +82,6 @@ function FilaSinComprar({
   venta: { id: string; numero: string; montoTexto: string };
 }) {
   const t = useTranslations("panel.proveedor");
-  const router = useRouter();
-  const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(
-    null,
-  );
-  const [creando, iniciar] = useTransition();
 
   return (
     <li className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5">
@@ -96,38 +89,13 @@ function FilaSinComprar({
         <span className="font-mono text-sm font-bold">{venta.numero}</span>
         <span className="text-sm text-tinta-suave">{venta.montoTexto}</span>
 
-        <button
-          type="button"
-          disabled={creando}
-          onClick={() =>
-            iniciar(async () => {
-              const r = await comprarPedidoAlProveedor(venta.id);
-              setAviso({ ok: r.ok, texto: r.mensaje });
-              router.refresh();
-            })
-          }
-          className="boton-principal ml-auto gap-2 text-sm disabled:opacity-60"
-        >
-          {creando ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          ) : (
-            <ShoppingCart className="h-4 w-4" aria-hidden />
-          )}
-          {creando ? t("creando") : t("comprar")}
-        </button>
+        {/* NO compra al primer clic: abre la lista de tallas y colores. El
+            dueño pulsó «crear el pedido» y la talla le apareció después, con el
+            pedido ya creado en CJ y sin forma de cambiarla. */}
+        <span className="ml-auto">
+          <ElegirVariantes pedidoId={venta.id} etiqueta={t("comprar")} />
+        </span>
       </div>
-
-      {aviso ? (
-        <p
-          role="status"
-          className={cn(
-            "mt-2 text-sm font-medium",
-            aviso.ok ? "text-precio-600" : "text-red-700",
-          )}
-        >
-          {aviso.texto}
-        </p>
-      ) : null}
     </li>
   );
 }
@@ -246,25 +214,49 @@ function FilaCompra({
        * volver a intentarlo sin meter mano en la base.
        */}
       {conError ? (
-        <button
-          type="button"
-          disabled={marcando}
-          onClick={() =>
-            iniciar(async () => {
-              const r = await comprarPedidoAlProveedor(compra.pedidoId);
-              setAviso(r.mensaje);
-              router.refresh();
-            })
-          }
-          className="boton-principal mt-2 gap-2 text-sm disabled:opacity-60"
-        >
-          {marcando ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          ) : (
-            <RefreshCw className="h-4 w-4" aria-hidden />
-          )}
-          {marcando ? t("creando") : t("reintentar")}
-        </button>
+        <div className="mt-2">
+          <ElegirVariantes
+            pedidoId={compra.pedidoId}
+            etiqueta={t("reintentar")}
+          />
+        </div>
+      ) : null}
+
+      {/**
+       * «POR PAGAR» PERO SIN ENLACE: EL OTRO CALLEJÓN SIN SALIDA (18 ago 2026).
+       *
+       * Con `createOrderV3` el pedido se creaba bien y CJ **no devolvía el
+       * enlace de pago**. La fila quedaba en «Por pagar», con el aviso de que no
+       * hubo enlace, y **sin un solo botón**: ni pagar, ni reintentar, porque
+       * reintentar solo salía con error. El dueño se quedó mirando una pantalla
+       * que no le dejaba hacer nada, con el comprador ya cobrado.
+       *
+       * El fondo se arregló pasando a `createOrderV2`, que sí lo devuelve. Esto
+       * es la salida para las filas que quedaron atrapadas antes: se vuelve a
+       * pedir —ahora por V2— o se abre el panel de CJ a pagarlo a mano.
+       */}
+      {porPagar && !compra.urlPago ? (
+        <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
+          <p className="flex items-start gap-2 text-sm text-amber-900">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            {t("sinEnlace")}
+          </p>
+          <div className="mt-2 flex flex-wrap items-start gap-2">
+            <ElegirVariantes
+              pedidoId={compra.pedidoId}
+              etiqueta={t("pedirEnlace")}
+            />
+            <a
+              href="https://app.cjdropshipping.com/dashboard/order/list"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-borde bg-white px-3 py-2 text-sm font-semibold hover:border-carga-500"
+            >
+              {t("abrirPanelCj")}
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            </a>
+          </div>
+        </div>
       ) : null}
 
       {/**

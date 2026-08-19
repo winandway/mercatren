@@ -179,9 +179,35 @@ export async function ventasSinComprar(): Promise<
   return candidatos.filter((c) => !yaComprados.has(c.id));
 }
 
-/** Dispara la compra al proveedor de un pedido. */
+/**
+ * QUÉ VARIANTES HAY, PARA ELEGIR ANTES DE COMPRAR.
+ *
+ * El panel llama a esto **primero**. Sin este paso la talla se elegía sola y
+ * solo se veía después, con el pedido ya creado en CJ y sin forma de cambiarla.
+ */
+export async function variantesDeLaVenta(pedidoId: string) {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return [];
+  }
+
+  const revisado = revisar(idDeRegistro, pedidoId);
+  if (!revisado.ok) return [];
+
+  const { variantesParaElegir } = await import("@/lib/cj/pedidos");
+  return variantesParaElegir(revisado.datos);
+}
+
+/**
+ * Dispara la compra al proveedor de un pedido.
+ *
+ * `elegidas` es `{ productoId: vid }` con lo que una persona eligió en el
+ * panel. Manda sobre la elección automática — ver `cj/variantes.ts`.
+ */
 export async function comprarPedidoAlProveedor(
   pedidoId: string,
+  elegidas?: Record<string, string>,
 ): Promise<Resultado> {
   try {
     await exigirEquipoInterno();
@@ -193,7 +219,7 @@ export async function comprarPedidoAlProveedor(
   if (!revisado.ok) return { ok: false, mensaje: "Ese pedido no existe." };
 
   const { comprarAlProveedor } = await import("@/lib/cj/pedidos");
-  const r = await comprarAlProveedor(revisado.datos);
+  const r = await comprarAlProveedor(revisado.datos, elegidas);
 
   revalidatePath("/[locale]/panel/proveedor", "page");
 

@@ -117,8 +117,14 @@ function precio(v: VarianteCj): number | null {
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
 }
 
-/** Cómo se llama la variante de cara a una persona. */
-function comoSeLlama(v: VarianteCj): string | null {
+/**
+ * Cómo se llama la variante de cara a una persona.
+ *
+ * Se exporta porque el panel tiene que enseñar **exactamente** los mismos
+ * nombres que van a viajar en el pedido. Con dos formas de nombrarlas, la
+ * pantalla diría «Black-S» y el pedido pediría otra cosa.
+ */
+export function nombreDeVariante(v: VarianteCj): string | null {
   return (
     v.variantKey?.trim() ||
     v.variantNameEn?.trim() ||
@@ -141,15 +147,21 @@ function comoSeLlama(v: VarianteCj): string | null {
  * viniera la lista ese día, y entonces el panel diría una cosa y CJ despacharía
  * otra.
  */
-export function elegirVariante(
+/**
+ * Las variantes utilizables, en el ORDEN en que se eligen.
+ *
+ * Se exporta para que el panel enseñe la lista en el mismo orden: así la
+ * primera de la pantalla es exactamente la que saldría sola, y quien mira
+ * entiende de un vistazo qué va a pasar si no toca nada.
+ */
+export function ordenarVariantes(
   variantes: readonly VarianteCj[],
-): VarianteElegida | null {
+): VarianteCj[] {
   /* Sin `vid` no sirve: es lo único que identifica la variante sin lugar a
      dudas. Una fila a medias de CJ se descarta en vez de mandarla y fallar. */
   const utiles = variantes.filter((v) => v.vid?.trim());
-  if (utiles.length === 0) return null;
 
-  const ordenadas = [...utiles].sort((a, b) => {
+  return [...utiles].sort((a, b) => {
     const pa = precio(a);
     const pb = precio(b);
 
@@ -161,20 +173,49 @@ export function elegirVariante(
 
     return (a.variantSku ?? "").localeCompare(b.variantSku ?? "");
   });
+}
 
-  const elegida = ordenadas[0]!;
+export function elegirVariante(
+  variantes: readonly VarianteCj[],
+  /**
+   * El `vid` que una PERSONA eligió en el panel.
+   *
+   * ══ MANDA SOBRE EL AUTOMÁTICO, Y ESE ES TODO EL PUNTO (18 ago 2026) ══
+   *
+   * El dueño pulsó «crear el pedido» y la talla elegida le apareció DESPUÉS,
+   * con el pedido ya creado en CJ. Sus palabras: «no sé qué voy a cambiar, si
+   * ya le di a enviar». Una decisión que se enseña después de tomarla no está
+   * enseñada: está avisada.
+   *
+   * Si el `vid` que llega no existe entre las variantes de hoy —el producto
+   * cambió, se agotó esa talla— **se cae al automático en vez de fallar**: el
+   * comprador ya pagó y quedarse sin comprar es peor que comprar la más barata
+   * marcada como elegida por el sistema.
+   */
+  vidElegido?: string,
+): VarianteElegida | null {
+  const ordenadas = ordenarVariantes(variantes);
+  if (ordenadas.length === 0) return null;
+
+  const aMano = vidElegido?.trim()
+    ? ordenadas.find((v) => v.vid!.trim() === vidElegido.trim())
+    : undefined;
+
+  const elegida = aMano ?? ordenadas[0]!;
 
   return {
     vid: elegida.vid!.trim(),
     sku: elegida.variantSku?.trim() || null,
-    nombre: comoSeLlama(elegida),
-    ambigua: ordenadas.length > 1,
+    nombre: nombreDeVariante(elegida),
+    /* «Ambigua» = la eligió el sistema entre varias. Si la eligió una persona
+       NO es ambigua, aunque hubiera veinticinco: alguien la miró. */
+    ambigua: !aMano && ordenadas.length > 1,
     deCuantas: ordenadas.length,
     /* Solo las primeras: un producto de CJ puede traer cuarenta combinaciones
        y una lista de cuarenta en el panel no se lee, tapa el botón de pagar. */
     otras: ordenadas
       .slice(1, 7)
-      .map((v) => comoSeLlama(v))
+      .map((v) => nombreDeVariante(v))
       .filter((n): n is string => Boolean(n)),
   };
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   elegirVariante,
+  ordenarVariantes,
   variantesDeCj,
   type VarianteCj,
 } from "@/lib/cj/variantes";
@@ -107,6 +108,50 @@ describe("elegir qué se compra", () => {
     };
     expect(elegirVariante([a, b])?.vid).toBe("v-a");
     expect(elegirVariante([b, a])?.vid).toBe("v-a");
+  });
+});
+
+describe("cuando la elige una PERSONA en el panel", () => {
+  /**
+   * EL FALLO QUE ESTO ARREGLA (18 ago 2026): el dueño pulsó «crear el pedido»
+   * y la talla elegida le apareció DESPUÉS, con el pedido ya creado en CJ y sin
+   * forma de cambiarla. Sus palabras: «no sé qué voy a cambiar, si ya le di a
+   * enviar». Una decisión que se enseña después de tomarla no está enseñada.
+   */
+  it("manda su elección sobre la automática, aunque sea más cara", () => {
+    const e = elegirVariante([negro, rojo], "vid-negro");
+    expect(e?.vid).toBe("vid-negro");
+    expect(e?.nombre).toBe("Black-M");
+  });
+
+  it("y entonces YA NO es ambigua: alguien la miró", () => {
+    /* El aviso ámbar dice «la eligió el sistema». Si lo eligió una persona,
+       seguir avisando sería mentir y enseñaría a ignorar el aviso. */
+    expect(elegirVariante([negro, rojo], "vid-negro")?.ambigua).toBe(false);
+    expect(elegirVariante([negro, rojo])?.ambigua).toBe(true);
+  });
+
+  it("si el vid elegido ya no existe, se cae al automático en vez de fallar", () => {
+    /* El producto cambió o esa talla se agotó. El comprador YA PAGÓ: quedarse
+       sin comprar es peor que comprar la más barata marcada como automática. */
+    const e = elegirVariante([negro, rojo], "vid-que-ya-no-existe");
+    expect(e?.vid).toBe("vid-rojo");
+    expect(e?.ambigua).toBe(true);
+  });
+});
+
+describe("el orden de la lista es el mismo que el de la elección", () => {
+  it("la primera de `ordenarVariantes` es la que elige el sistema", () => {
+    /* Si el panel ordenara distinto, enseñaría una talla arriba y el pedido
+       pediría otra. */
+    const lista = ordenarVariantes([negro, rojo]);
+    expect(lista[0]?.vid).toBe(elegirVariante([negro, rojo])?.vid);
+  });
+
+  it("descarta las que no tienen vid, igual que la elección", () => {
+    expect(ordenarVariantes([{ variantSku: "SIN-VID" }, negro])).toHaveLength(
+      1,
+    );
   });
 });
 

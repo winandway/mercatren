@@ -1923,7 +1923,16 @@
         "If something fails, the supplier's exact reason shows here and it can be retried."
       ],
       "reintentar": "Try again",
-      "varianteAutomatica": "· auto-picked from {total}"
+      "varianteAutomatica": "· auto-picked from {total}",
+      "mirandoVariantes": "Checking sizes and colors…",
+      "eligeVariante": "Choose before ordering",
+      "eligeVarianteTexto": "This product has several options and the buyer didn't pick one. Pick it here, then we'll place the order.",
+      "laMasBarata": "(the default)",
+      "confirmarYComprar": "Place the order with this",
+      "cancelar": "Cancel",
+      "sinEnlace": "The supplier created the order but didn't return a payment link. Request it again, or open their dashboard and pay there.",
+      "pedirEnlace": "Request the link again",
+      "abrirPanelCj": "Open supplier dashboard"
     },
     "buscador": {
       "buscar": "Search",

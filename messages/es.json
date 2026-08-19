@@ -1923,7 +1923,16 @@
         "Si algo falla, aquí sale el motivo exacto que dio el proveedor y se puede reintentar."
       ],
       "reintentar": "Volver a intentarlo",
-      "varianteAutomatica": "· la eligió el sistema entre {total}"
+      "varianteAutomatica": "· la eligió el sistema entre {total}",
+      "mirandoVariantes": "Mirando tallas y colores…",
+      "eligeVariante": "Elige antes de comprar",
+      "eligeVarianteTexto": "Este producto tiene varias opciones y el comprador no eligió ninguna. Elige tú, y después se crea el pedido.",
+      "laMasBarata": "(la que saldría sola)",
+      "confirmarYComprar": "Crear el pedido con esto",
+      "cancelar": "Cancelar",
+      "sinEnlace": "El proveedor creó el pedido pero no devolvió el enlace de pago. Vuelve a pedirlo, o ábrelo en su panel y págalo ahí.",
+      "pedirEnlace": "Volver a pedir el enlace",
+      "abrirPanelCj": "Abrir el panel del proveedor"
     },
     "buscador": {
       "buscar": "Buscar",

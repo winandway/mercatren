@@ -7,7 +7,10 @@ import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import {
   elegirVariante,
+  nombreDeVariante,
+  ordenarVariantes,
   variantesDeCj,
+  type VarianteCj,
   type VarianteElegida,
 } from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
@@ -68,6 +71,10 @@ type RespuestaPedidoCj = {
   orderNumber?: string;
   cjPayUrl?: string;
   orderAmount?: number | string;
+  /** Lo que CJ cobra de ENVÍO. Es el número que hoy entra como cero al fijar
+      el precio de venta, así que se guarda en cuanto CJ lo dice. */
+  postageAmount?: number | string;
+  productAmount?: number | string;
   orderStatus?: string;
 };
 
@@ -108,17 +115,17 @@ const DESDE = "US";
  * que se haya importado sin él. Sin ese respaldo, un hueco en un dato del
  * catálogo se convertiría en una venta que no se puede despachar.
  */
-async function resolverVariante(
+async function leerVariantes(
   pid: string | null,
   productSku: string | null,
-): Promise<VarianteElegida | null> {
+): Promise<VarianteCj[]> {
   const parametros = pid?.trim()
     ? `pid=${encodeURIComponent(pid.trim())}`
     : productSku?.trim()
       ? `productSku=${encodeURIComponent(productSku.trim())}`
       : null;
 
-  if (!parametros) return null;
+  if (!parametros) return [];
 
   const respuesta = await llamarCj<unknown>(
     `/product/variant/query?${parametros}`,
@@ -126,10 +133,91 @@ async function resolverVariante(
 
   if (!respuesta.ok) {
     console.error("[cj] no se pudieron leer las variantes:", respuesta.motivo);
-    return null;
+    return [];
   }
 
-  return elegirVariante(variantesDeCj(respuesta.datos));
+  return variantesDeCj(respuesta.datos);
+}
+
+async function resolverVariante(
+  pid: string | null,
+  productSku: string | null,
+  /** El `vid` que una persona ya eligió en el panel. Manda sobre el automático. */
+  vidElegido?: string,
+): Promise<VarianteElegida | null> {
+  const variantes = await leerVariantes(pid, productSku);
+  return elegirVariante(variantes, vidElegido);
+}
+
+/**
+ * LAS VARIANTES DE UNA VENTA, PARA ELEGIR ANTES DE COMPRAR.
+ *
+ * Se llama desde el panel **antes** de crear el pedido. Sin esto, la talla se
+ * elegía sola y solo se veía después, con el pedido ya creado en CJ y sin forma
+ * de cambiarla.
+ */
+export type VariantesDeUnaVenta = {
+  productoId: string;
+  titulo: string | null;
+  cantidad: number;
+  opciones: Array<{
+    vid: string;
+    nombre: string;
+    precioCentavos: number | null;
+  }>;
+};
+
+export async function variantesParaElegir(
+  pedidoId: string,
+): Promise<VariantesDeUnaVenta[]> {
+  if (!cjConfigurado()) return [];
+
+  const db = getDb();
+
+  const renglones = await db
+    .select({
+      productoId: productos.id,
+      externoId: productos.externoId,
+      sku: productos.sku,
+      titulo: productos.tituloEs,
+      cantidad: itemsPedido.cantidad,
+    })
+    .from(itemsPedido)
+    .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
+    .where(eq(itemsPedido.pedidoId, pedidoId))
+    .catch(() => []);
+
+  const salida: VariantesDeUnaVenta[] = [];
+
+  for (const r of renglones) {
+    if (!r.externoId && !r.sku) continue;
+
+    const variantes = await leerVariantes(r.externoId, r.sku);
+
+    /* Se ordenan igual que las elige el sistema —por precio y luego por SKU—
+       para que la primera de la lista sea exactamente la que saldría sola. Si
+       el orden fuera otro, el panel enseñaría una cosa y el pedido pediría
+       otra. */
+    const opciones = ordenarVariantes(variantes)
+      .filter((v) => v.vid?.trim())
+      .map((v) => ({
+        vid: v.vid!.trim(),
+        nombre: nombreDeVariante(v) ?? v.vid!.trim(),
+        precioCentavos: (() => {
+          const n = Number(v.variantSellPrice);
+          return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
+        })(),
+      }));
+
+    salida.push({
+      productoId: r.productoId,
+      titulo: r.titulo,
+      cantidad: Math.max(1, Math.round(Number(r.cantidad))),
+      opciones,
+    });
+  }
+
+  return salida;
 }
 
 /**
@@ -215,6 +303,24 @@ async function transporteReal(
  */
 export async function comprarAlProveedor(
   pedidoId: string,
+  /**
+   * QUÉ VARIANTE SE COMPRA DE CADA PRODUCTO, SI ALGUIEN YA LA ELIGIÓ.
+   *
+   * ══ POR QUÉ EXISTE (18 ago 2026) ══
+   *
+   * El dueño estaba siguiendo el tutorial, pulsó «crear el pedido», y **la
+   * talla elegida le apareció DESPUÉS**, con el pedido ya creado en CJ y sin
+   * forma de cambiarla. Sus palabras: «no sé qué voy a cambiar, si ya le di a
+   * enviar».
+   *
+   * Tenía razón y el orden estaba mal. Enseñar una decisión después de
+   * tomarla no es enseñarla: es avisar de algo que ya no se puede tocar.
+   *
+   * Ahora el panel pregunta primero. Esto llega como `{ productoId: vid }` y
+   * manda sobre la elección automática. Si viene vacío se sigue eligiendo la
+   * más barata, que es la que se le cobró al comprador.
+   */
+  elegidas?: Record<string, string>,
 ): Promise<ResultadoCompra> {
   if (!cjConfigurado()) {
     return { ok: false, motivo: "Falta CJ_API_KEY en el panel del sitio." };
@@ -326,7 +432,11 @@ export async function comprarAlProveedor(
 
   for (const r of delProveedor) {
     const cantidad = Math.max(1, Math.round(Number(r.cantidad)));
-    const variante = await resolverVariante(r.externoId, r.sku);
+    const variante = await resolverVariante(
+      r.externoId,
+      r.sku,
+      elegidas?.[r.productoId],
+    );
 
     if (!variante) {
       /* Se corta el pedido ENTERO, no se compra lo que sí se pudo. Media
@@ -364,15 +474,28 @@ export async function comprarAlProveedor(
   );
 
   /**
-   * `payType: 1` ES LA CLAVE DE TODO ESTO.
+   * ══ V2 Y NO V3, Y ESO COSTÓ LA SEGUNDA PRUEBA (18 ago 2026) ══
    *
-   * Con 2 (saldo) haría falta billetera cargada. Con 3 el pedido se crea sin
-   * pagar y sin enlace, y habría que buscarlo a mano en el panel de CJ. Con 1
-   * nos devuelve la dirección de pago, que es justo lo que convierte esto en
-   * un botón.
+   * Con `createOrderV3` el pedido SE CREA bien —el arreglo de las variantes
+   * funcionó— pero **CJ no devuelve el enlace de pago**: la fila quedaba en
+   * «Por pagar» con el aviso «el proveedor no devolvió enlace de pago» y sin
+   * ningún botón. Había que entrar al panel de CJ a buscarlo a mano, que es
+   * exactamente lo que esto viene a evitar.
+   *
+   * Comprobado en su documentación: **solo `createOrderV2` documenta que
+   * `payType=1` devuelve `cjPayUrl`.** V3 lo lista como campo de respuesta pero
+   * sin decir cuándo llega, y en la práctica no llegó. V2 pide los mismos
+   * campos obligatorios y trata `vid`/`sku` igual; lo único que suma V3 es la
+   * elección de almacén, que aquí no se usa.
+   *
+   * Y V2 devuelve además **`postageAmount`**: lo que CJ cobra de envío. Ese es
+   * el número que hoy entra como CERO al calcular el precio de venta.
+   *
+   * `payType: 1` es lo que pide la página de pago. Con 2 haría falta billetera
+   * cargada; con 3 el pedido se crea sin pagar y sin enlace.
    */
   const respuesta = await llamarCj<RespuestaPedidoCj>(
-    "/shopping/order/createOrderV3",
+    "/shopping/order/createOrderV2",
     {
       metodo: "POST",
       cuerpo: {
@@ -535,11 +658,23 @@ export async function comprarAlProveedor(
         /* El flete, a la vista. Hoy entra como CERO al calcular el precio de
            venta, así que este número es el que dice si la venta gana o pierde
            dinero. Sin enseñarlo, esa pérdida no aparece en ninguna pantalla. */
-        `Transporte: ${transporte.nombre}${
-          transporte.costoCentavos !== null
-            ? ` · envío ${(transporte.costoCentavos / 100).toFixed(2)} USD (OJO: el envío NO está dentro del precio que se le cobró al comprador)`
-            : ""
-        }`,
+        /**
+         * EL ENVÍO, Y DE LA FUENTE MÁS FIABLE QUE HAYA.
+         *
+         * Se prefiere el `postageAmount` del pedido ya creado sobre el de la
+         * cotización: el primero es lo que se va a pagar, el segundo una
+         * estimación. Este número es el que decide si la venta gana o pierde
+         * dinero, porque hoy el envío entra como CERO al fijar el precio.
+         */
+        (() => {
+          const envio =
+            aCentavos(datos.postageAmount) ?? transporte.costoCentavos;
+          return `Transporte: ${transporte.nombre}${
+            envio !== null
+              ? ` · envío ${(envio / 100).toFixed(2)} USD (OJO: el envío NO está dentro del precio que se le cobró al comprador)`
+              : ""
+          }`;
+        })(),
         ...aOjo.map(
           (r) =>
             `Ojo: de «${r.titulo ?? "un producto"}» había ${r.variante.deCuantas} variantes y se pidió «${r.variante.nombre ?? r.variante.vid}». Compruébalo antes de pagar.`,
