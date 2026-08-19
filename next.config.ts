@@ -25,6 +25,29 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
  * - `frame-ancestors 'none'` impide que alguien meta el sitio dentro de un
  *   marco en otra página para robar clics sobre el panel.
  */
+/**
+ * ══ FORZAR HTTPS SOLO EN PRODUCCIÓN (18 ago 2026) ══
+ *
+ * `upgrade-insecure-requests` y HSTS eran fijos, también en `npm run dev`. En
+ * una máquina de desarrollo eso rompe dos cosas:
+ *
+ * 1. **La página no llega a funcionar.** El navegador pide la hoja de estilos y
+ *    los guiones por `https://localhost:3000`, donde no hay TLS, y mueren con
+ *    error de conexión segura. La pantalla se dibuja pero nada responde: un
+ *    formulario de entrar donde el botón no hace absolutamente nada.
+ * 2. **Y se queda grabado.** HSTS lo recuerda el navegador **por dominio**, así
+ *    que `localhost` queda clavado en HTTPS durante un año para TODOS los
+ *    proyectos de esa máquina, no solo para este. Se limpia a mano en
+ *    `chrome://net-internals/#hsts`, si uno sabe que existe.
+ *
+ * Lo destapó la prueba de devoluciones en celular: el login «no respondía» y la
+ * causa no estaba en el login. Es el mismo fallo que arrastraba
+ * `comprobante.spec.ts`, que llevaba meses en rojo sin que se supiera por qué.
+ *
+ * En producción las dos siguen igual de puestas, que es donde sirven.
+ */
+const EN_PRODUCCION = process.env.NODE_ENV === "production";
+
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com",
@@ -37,16 +60,22 @@ const CSP = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
+  ...(EN_PRODUCCION ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const CABECERAS = [
   { key: "Content-Security-Policy", value: CSP },
-  /* Un año de HTTPS obligatorio. El sitio ya va entero por HTTPS. */
-  {
-    key: "Strict-Transport-Security",
-    value: "max-age=31536000; includeSubDomains",
-  },
+  /* Un año de HTTPS obligatorio. El sitio ya va entero por HTTPS.
+     Fuera de producción NO se manda: se le quedaría grabado al navegador que
+     `localhost` va por HTTPS, y eso afecta a todos los proyectos de la máquina. */
+  ...(EN_PRODUCCION
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=31536000; includeSubDomains",
+        },
+      ]
+    : []),
   /* Que el navegador no adivine el tipo de un archivo: así una imagen subida
      por alguien no se puede hacer pasar por un guion. Importa de verdad aquí,
      donde los clientes suben comprobantes. */

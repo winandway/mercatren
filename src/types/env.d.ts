@@ -56,6 +56,16 @@ interface CloudflareEnv {
   EMISOR_DIRECCION?: string;
 
   /**
+   * A donde se manda una devolucion.
+   *
+   * Va en el entorno y NO en el codigo porque puede cambiar dentro de un ano,
+   * o antes, y cambiarla no puede depender de una publicacion. Es la misma
+   * razon por la que no se publica en ninguna pagina: solo la ve quien ya
+   * abrio su tramite, y asi siempre es la de hoy.
+   */
+  DEVOLUCION_DIRECCION?: string;
+
+  /**
    * Envio de correos del sistema, con el servicio propio de Mercatren
    * (Cloudflare Email Sending). El remitente debe ser @mercatren.com: el
    * dominio entero esta autorizado y firmado.

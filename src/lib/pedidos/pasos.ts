@@ -26,10 +26,27 @@
  * sin base de datos y sin navegador: un error aquí es una pantalla que miente.
  */
 
-/** Los estados de un pedido que le importan a quien compró. */
+/**
+ * Los estados de un pedido que le importan a quien compró.
+ *
+ * ══ `preparando` FALTABA, Y ERA EL MISMO FALLO OTRA VEZ (18 ago 2026) ══
+ *
+ * La lista se escribió sin él y las pantallas lo colaban con `as
+ * EstadoDePedido`, así que nadie se enteró. Consecuencia: un pedido marcado
+ * como «preparando» —que está PAGADO y lo está armando el comercio— caía en la
+ * rama de «recién creado» y la pantalla volvía a decirle **«ahora falta el
+ * pago»** a alguien que ya había pagado.
+ *
+ * O sea: el fallo que se arregló para `pagado` seguía vivo por otra puerta, y
+ * habría vuelto a aparecer en cuanto alguien tocara ese botón en el panel.
+ *
+ * Ahora está la lista entera y el compilador la comprueba: si mañana se agrega
+ * un estado, esto no pasa en silencio.
+ */
 export type EstadoDePedido =
   | "pendiente_pago"
   | "pagado"
+  | "preparando"
   | "enviado"
   | "entregado"
   | "cancelado"
@@ -66,9 +83,19 @@ export function pasoActual(estado: EstadoDePedido): number {
   return estado === "pendiente_pago" ? 2 : 3;
 }
 
-/** ¿Está el pedido ya pagado? Lo que decide el aviso verde grande. */
+/**
+ * ¿Está el pedido ya pagado? Lo que decide el aviso verde grande.
+ *
+ * `preparando` cuenta: significa que el comercio lo está armando, y a eso no
+ * se llega sin haber cobrado.
+ */
 export function estaPagado(estado: EstadoDePedido): boolean {
-  return estado === "pagado" || estado === "enviado" || estado === "entregado";
+  return (
+    estado === "pagado" ||
+    estado === "preparando" ||
+    estado === "enviado" ||
+    estado === "entregado"
+  );
 }
 
 export type Aviso = {

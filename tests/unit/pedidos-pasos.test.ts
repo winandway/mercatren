@@ -22,6 +22,20 @@ describe("el aviso NUNCA dice que falta pagar algo ya pagado", () => {
     expect(a.tono).toBe("verde");
   });
 
+  it("«preparando» TAMBIÉN está pagado", () => {
+    /**
+     * EL MISMO FALLO, VIVO POR OTRA PUERTA (lo destapó el compilador el 18 ago
+     * 2026). `preparando` no estaba en la lista de estados y las pantallas lo
+     * colaban con `as EstadoDePedido`, así que caía en la rama de «recién
+     * creado»: en cuanto alguien marcara un pedido como «preparando» —que está
+     * PAGADO, lo está armando el comercio— la pantalla volvía a decirle «ahora
+     * falta el pago» a quien ya había pagado.
+     */
+    expect(estaPagado("preparando")).toBe(true);
+    expect(avisoDelPedido("preparando", "stripe", false).clave).toBe("pagado");
+    expect(avisoDelPedido("preparando", "stripe", false).tono).toBe("verde");
+  });
+
   it("y sigue diciéndolo cuando ya se envió o se entregó", () => {
     /* El pago no se «deshace» al despachar: quien mire su pedido una semana
        después tiene que seguir viendo que está pagado. */

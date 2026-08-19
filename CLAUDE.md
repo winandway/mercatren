@@ -1223,6 +1223,113 @@ destino. Cinco cosas que no se tocan:
    carritos: el de allá sigue pidiendo quién retira y su ciudad, sin
    dirección.
 
+## LA PRIMERA COMPRA PAGADA MURIÓ POR UN SKU (18 ago 2026)
+
+MT-000004 se pagó de verdad y CJ la rechazó con **«No variants found for
+provided SKUs»**. La causa, comprobada en su documentación: **CJ tiene dos SKU
+y le mandábamos el que no era.**
+
+| Cuál             | Ejemplo           | De qué es             |
+| ---------------- | ----------------- | --------------------- |
+| `productSku`     | `CJJT05843`       | Del producto (el SPU) |
+| **`variantSku`** | `CJJT05843-Black` | **De la variante**    |
+
+El buscador guarda el primero —es el que manda `listV2`— y `createOrderV3` pide
+el segundo, con esas palabras: «CJ variant SKU». **Y como el enlace de pago lo
+devuelve CJ AL CREAR el pedido, sin pedido no había dónde pagar.** No faltaba
+una pantalla: faltaba el pedido.
+
+`src/lib/cj/variantes.ts` (puro, 14 pruebas) pregunta las variantes por `pid` y
+manda el `vid`. Cuatro cosas de ahí que no se tocan:
+
+1. **Se resuelve al COMPRAR, no al importar.** Así los 78 productos ya
+   publicados quedan arreglados sin recargarlos, sin columna nueva, y la
+   existencia que se mira es la de hoy.
+2. **Se elige la MÁS BARATA**, porque es exactamente la que se le cobró al
+   comprador: al importar, un precio en rango se publica por el mínimo. Elegir
+   otra sería vender a un precio y comprar a otro más caro.
+3. **A igual precio desempata el SKU.** Sin ese segundo criterio, dos
+   reintentos elegirían variantes distintas: el panel diría una cosa y CJ
+   despacharía otra.
+4. **Queda escrito qué se pidió** (`renglones_proveedor`) y sale en ámbar
+   cuando la eligió el sistema. Nuestra ficha publica el producto de CJ como
+   una sola cosa, así que **el comprador nunca eligió talla ni color**. El pago
+   a CJ lo pulsa una persona: esa es la oportunidad de cancelar.
+
+**UNA COMPRA CON ERROR NO TENÍA NINGÚN BOTÓN**, y a la vez desaparecía de
+«ventas esperando» porque su fila ya existía. El pedido quedaba en un callejón
+sin salida con el comprador ya cobrado. Ahora hay «Volver a intentarlo», y el
+reintento **reescribe** la fila fallida en vez de apilar otra.
+
+**`logisticName` ya no está escrito a mano.** Era `"USPS+"` fijo; ahora se
+preguntan los transportes reales (`freightCalculate`) y se cae a USPS+ solo si
+esa consulta falla. De paso el correo dice **lo que cuesta el envío**, que hoy
+entra como CERO al calcular el precio de venta.
+
+**Y el compilador destapó que `pasos.ts` no conocía el estado `preparando`.**
+Las pantallas lo colaban con `as EstadoDePedido`, así que un pedido marcado
+como «preparando» —que está PAGADO— caía en la rama de «recién creado» y la
+pantalla volvía a decir **«ahora falta el pago»**. Era el fallo del 18 de agosto
+vivo por otra puerta.
+
+## LAS DEVOLUCIONES: LA DIRECCIÓN NO SE PUBLICA (18 ago 2026)
+
+Decisión del dueño, y el motivo es práctico: **esa dirección puede cambiar
+dentro de un año, o antes.** Publicada se copia, se reenvía y se queda
+circulando; el día que cambie seguirán llegando cajas a un sitio donde ya no hay
+nadie que las reciba.
+
+**El comprador abre su trámite en `/pedido/<número>` —motivo, comentario y
+fotos— y la dirección aparece EN ESE MOMENTO.** Antes no existe: ni en la
+política, ni en el correo, ni en el HTML de la página.
+
+- `src/lib/devoluciones/reglas.ts` (puro, 19 pruebas) + tablas `devoluciones` y
+  `fotos_devolucion`. La dirección sale de **`DEVOLUCION_DIRECCION`**, variable
+  de entorno: cambiarla no puede depender de una publicación.
+- **La dirección se COPIA dentro del trámite.** Si mañana cambia, quien ya
+  despachó tiene que poder demostrar que mandó a donde se le dijo.
+- **El plazo son 30 días desde la ENTREGA**, no desde la compra — Google
+  rechaza lo segundo. La fecha sale de `hitos_pedido`; **sin fecha el plazo no
+  corre**, porque ese hueco es nuestro y no se le cobra al cliente.
+- **`enviado` SÍ puede reclamar.** «No me llegó» es justo el reclamo de un
+  paquete que salió y no aparece; cerrarle esa puerta lo manda al banco.
+- **Las fotos solo cuando el motivo las necesita.** De algo que no llegó no hay
+  foto que sacar, y pedirla es una pared donde no hay nada que comprobar.
+- **`tests/unit/direccion-devolucion.test.ts` se pone rojo** si alguien lee la
+  variable fuera de `devoluciones/acciones.ts` o pega una dirección postal a
+  mano en `src/`. Mismo candado que el nombre de la sociedad y el ojito de las
+  contraseñas.
+
+**Por qué la dirección es la de Mercatren LLC y no la de CJ:** CJ solo acepta
+devoluciones en su almacén de China, y desde abril de 2026 Google cruza la
+dirección de devolución contra la identidad declarada del comercio. Un comercio
+de Michigan que devuelve a China es el patrón que suspenden. Además el que le
+vendió al comprador es Mercatren LLC. **La mercancía vuelve a Novi y Mercatren
+asume lo que valga** — decisión del dueño, y es el costo de vender.
+
+## EL SITIO FORZABA HTTPS TAMBIÉN EN DESARROLLO (18 ago 2026)
+
+`upgrade-insecure-requests` y HSTS iban fijos en `next.config.ts`. En una
+máquina de desarrollo eso rompe dos cosas:
+
+1. **La página no llega a funcionar.** El navegador pide los estilos y los
+   guiones por `https://localhost:3000`, donde no hay TLS, y mueren con error de
+   conexión segura. La pantalla se dibuja y nada responde: un formulario de
+   entrar donde el botón no hace absolutamente nada.
+2. **Y se queda grabado.** HSTS lo recuerda el navegador por dominio, así que
+   `localhost` queda clavado en HTTPS **un año, para todos los proyectos de esa
+   máquina**. Se limpia a mano en `chrome://net-internals/#hsts`, si uno sabe
+   que existe.
+
+Lo destapó la prueba de devoluciones en celular. En producción las dos cabeceras
+siguen igual de puestas, que es donde sirven.
+
+**Y el ayudante `e2e/apoyo/entrar.ts` perdía el correo.** En el perfil de
+teléfono se escribía antes de que React montara el formulario y al montar lo
+reiniciaba: la instantánea del error enseñaba la casilla del correo vacía y la
+de la contraseña llena. Ahora se comprueba que lo escrito quedó, y si no, se
+vuelve a escribir.
+
 ## LAS VENTAS DE ESTADOS UNIDOS, EN PAUSA (15 ago 2026)
 
 Decisión del dueño, y es la correcta: **antes de vender lo que no se puede

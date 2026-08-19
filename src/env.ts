@@ -84,6 +84,20 @@ export const esquemaEntorno = z.object({
   EMISOR_IDENTIFICACION: z.string().optional(),
   EMISOR_DIRECCION: z.string().optional(),
 
+  /**
+   * A DÓNDE SE MANDA UNA DEVOLUCIÓN.
+   *
+   * Va en el entorno y NO en el código porque **puede cambiar dentro de un
+   * año, o antes** — y cambiarla no puede depender de una publicación. Es la
+   * misma razón por la que la dirección no se publica en ninguna página: solo
+   * la ve quien ya abrió su trámite, y siempre es la de hoy.
+   *
+   * Si falta, el trámite se abre igual y la pantalla dice que el equipo la
+   * enviará por correo. **Nunca inventa una dirección**: una caja mandada a un
+   * sitio equivocado no vuelve.
+   */
+  DEVOLUCION_DIRECCION: z.string().optional(),
+
   // Los correos del sistema.
   CLOUDFLARE_EMAIL_TOKEN: z.string().optional(),
   CORREO_REMITENTE: z.string().optional(),

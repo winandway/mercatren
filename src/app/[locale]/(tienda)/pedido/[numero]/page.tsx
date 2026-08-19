@@ -14,6 +14,8 @@ import { tieneFactura } from "@/lib/facturas/consultas";
 import { conciliarPedido } from "@/lib/stripe/conciliar";
 import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
 import { PasosCompra } from "@/components/pedido/pasos-compra";
+import { Devolver } from "@/components/pedido/devolver";
+import { devolucionDelPedido } from "@/lib/devoluciones/acciones";
 import {
   avisoDelPedido,
   estaPagado,
@@ -76,6 +78,10 @@ export default async function PaginaPedido({
 
   /* Con Zelle, una captura subida y sin validar NO es «falta el pago»: el pago
      puede estar hecho y lo que falta es que alguien lo mire. */
+  /* La devolución del pedido, si la hay. Va aquí y no dentro del componente
+     porque la comprobación de quién puede ver la dirección es del SERVIDOR. */
+  const devolucion = await devolucionDelPedido(pedido.id);
+
   const aviso = avisoDelPedido(
     pedido.estado as EstadoDePedido,
     pedido.metodoPago as MetodoDePago,
@@ -352,6 +358,14 @@ export default async function PaginaPedido({
             )}
           </div>
         </>
+      ) : null}
+
+      {/* Devolver. Solo tiene sentido con el pedido ya pagado: antes de eso lo
+          que toca es cancelar, y ofrecer las dos cosas a la vez confunde. */}
+      {estaPagado(pedido.estado) ? (
+        <div className="mt-6">
+          <Devolver pedidoId={pedido.id} yaHay={devolucion} />
+        </div>
       ) : null}
 
       <div className="mt-6">

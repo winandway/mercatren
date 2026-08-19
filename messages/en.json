@@ -2190,6 +2190,42 @@
       "canceladoTexto": "If you think this is a mistake, write to us and we'll look into it.",
       "reembolsado": "This order was refunded.",
       "reembolsadoTexto": "The money went back to your payment method. It can take a few days to show on your statement."
+    },
+    "devolver": {
+      "abrir": "I have a problem with this order",
+      "porQue": "What happened?",
+      "motivos": {
+        "noEsLoQuePedi": "It's not what I ordered",
+        "llegoDanado": "It arrived broken or damaged",
+        "noFunciona": "It doesn't work",
+        "noLlego": "It never arrived",
+        "yaNoLoQuiero": "I no longer want it"
+      },
+      "cuentanos": "Tell us what happened",
+      "cuentanosPista": "The more you tell us, the faster we can fix it",
+      "fotos": "Add a photo (up to {maximo})",
+      "fotosPista": "A photo showing the problem. It's what lets us resolve this the same day.",
+      "enviar": "Request a return",
+      "enviando": "Sending…",
+      "despues": "As soon as you send this, we'll give you the address to ship it to.",
+      "estados": {
+        "solicitada": "Done — your return is open",
+        "en_camino": "You told us it's on its way back",
+        "recibida": "We've received it",
+        "reembolsada": "We've refunded your money",
+        "rechazada": "We couldn't accept this return"
+      },
+      "mandaloA": "Ship it to this address:",
+      "direccionAviso": "This address is for your return only. Keep it until you ship the package; if you have an older one, use this one instead.",
+      "direccionPorCorreo": "We'll email you the address within a few hours. Please don't ship anything until you get it.",
+      "errores": {
+        "sinPagar": "This order hasn't been paid yet.",
+        "sinEntregar": "This order hasn't shipped yet. Message us and we'll cancel it.",
+        "fueraDePlazo": "It's been more than 30 days since delivery. Message us anyway and we'll take a look.",
+        "yaSolicitada": "You already have an open return for this order.",
+        "cancelado": "This order is already canceled.",
+        "faltanFotos": "For this case we need at least one photo."
+      }
     }
   },
   "datosPago": {

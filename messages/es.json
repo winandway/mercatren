@@ -2190,6 +2190,42 @@
       "canceladoTexto": "Si crees que es un error, escríbenos y lo revisamos.",
       "reembolsado": "Este pedido fue reembolsado.",
       "reembolsadoTexto": "El dinero volvió a tu medio de pago. Puede tardar unos días en aparecer en tu estado de cuenta."
+    },
+    "devolver": {
+      "abrir": "Tengo un problema con este pedido",
+      "porQue": "¿Qué pasó?",
+      "motivos": {
+        "noEsLoQuePedi": "No es lo que pedí",
+        "llegoDanado": "Llegó roto o dañado",
+        "noFunciona": "No funciona",
+        "noLlego": "Nunca me llegó",
+        "yaNoLoQuiero": "Ya no lo quiero"
+      },
+      "cuentanos": "Cuéntanos qué pasó",
+      "cuentanosPista": "Con lo que nos digas resolvemos más rápido",
+      "fotos": "Sube una foto (hasta {maximo})",
+      "fotosPista": "Una foto donde se vea el problema. Es lo que nos deja resolverlo el mismo día.",
+      "enviar": "Pedir la devolución",
+      "enviando": "Enviando…",
+      "despues": "Al enviarlo te damos al momento la dirección a donde mandarlo.",
+      "estados": {
+        "solicitada": "Listo, ya tienes tu devolución abierta",
+        "en_camino": "Nos dijiste que ya viene en camino",
+        "recibida": "Ya nos llegó de vuelta",
+        "reembolsada": "Ya te devolvimos tu dinero",
+        "rechazada": "No pudimos aceptar esta devolución"
+      },
+      "mandaloA": "Mándalo a esta dirección:",
+      "direccionAviso": "Esta dirección es solo para tu devolución. Guárdala hasta que envíes el paquete; si tienes otra de antes, usa esta.",
+      "direccionPorCorreo": "Te mandamos la dirección por correo en unas horas. No envíes nada hasta recibirla.",
+      "errores": {
+        "sinPagar": "Este pedido todavía no está pagado.",
+        "sinEntregar": "Este pedido todavía no ha salido. Escríbenos y lo cancelamos.",
+        "fueraDePlazo": "Ya pasaron los 30 días desde que te llegó. Escríbenos igual y lo miramos.",
+        "yaSolicitada": "Ya tienes una devolución abierta para este pedido.",
+        "cancelado": "Este pedido ya está cancelado.",
+        "faltanFotos": "Para este caso necesitamos al menos una foto."
+      }
     }
   },
   "datosPago": {

@@ -2336,3 +2336,111 @@ export const renglonesProveedor = sqliteTable(
   },
   (t) => [index("idx_renglones_proveedor").on(t.pedidoProveedorId)],
 );
+
+/**
+ * LAS DEVOLUCIONES.
+ *
+ * ══ LA REGLA QUE DEFINE ESTA TABLA (18 ago 2026) ══
+ *
+ * **La dirección de devolución no se publica: se entrega cuando el trámite
+ * existe.** Esta fila ES el trámite. Sin una fila aquí, la persona no ve a
+ * dónde mandar nada — ni en la política, ni en el correo, ni en el HTML.
+ *
+ * El motivo lo dio el dueño: esa dirección puede cambiar dentro de un año.
+ * Publicada se copia, se reenvía y se queda circulando, y el día que cambie
+ * seguirán llegando cajas a un sitio donde ya no hay nadie que las reciba.
+ *
+ * ══ Y LA DIRECCIÓN SE COPIA DENTRO ══
+ *
+ * `direccionEntregada` guarda la que se le enseñó **ese día**. Si mañana
+ * cambia, el que ya despachó tiene que poder demostrar que mandó a donde se le
+ * dijo — igual que las facturas copian los datos del emisor en vez de
+ * apuntarlos.
+ */
+export const devoluciones = sqliteTable(
+  "devoluciones",
+  {
+    id: text("id").primaryKey(),
+
+    pedidoId: text("pedido_id")
+      .notNull()
+      .references(() => pedidos.id, { onDelete: "cascade" }),
+
+    /** Quién la pidió. Solo el dueño del pedido puede abrirla. */
+    usuarioId: text("usuario_id").references(() => user.id),
+
+    estado: text("estado")
+      .$type<
+        "solicitada" | "en_camino" | "recibida" | "reembolsada" | "rechazada"
+      >()
+      .notNull()
+      .default("solicitada"),
+
+    /** De la lista cerrada de motivos, no texto libre: se cuenta y se compara. */
+    motivo: text("motivo").notNull(),
+
+    /** Lo que escribió la persona. Texto libre, aparte del motivo. */
+    comentario: text("comentario"),
+
+    /**
+     * LA DIRECCIÓN QUE SE LE ENSEÑÓ, COPIADA.
+     *
+     * No se apunta a una variable de entorno: el día que cambie, esta
+     * devolución tiene que seguir diciendo a dónde se le mandó despachar.
+     */
+    direccionEntregada: text("direccion_entregada"),
+
+    /** El número de guía con el que la mandó de vuelta, si lo da. */
+    guiaRetorno: text("guia_retorno"),
+
+    /** Lo que se le devolvió, en centavos enteros como todo el dinero. */
+    reembolsadoCentavos: integer("reembolsado_centavos"),
+
+    /** Por qué se rechazó. Un rechazo sin motivo no se puede discutir. */
+    motivoRechazo: text("motivo_rechazo"),
+
+    resueltoEn: integer("resuelto_en", { mode: "timestamp" }),
+    resueltoPorId: text("resuelto_por_id").references(() => user.id),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_devoluciones_pedido").on(t.pedidoId),
+    index("idx_devoluciones_estado").on(t.estado),
+  ],
+);
+
+/**
+ * LAS FOTOS DE UNA DEVOLUCIÓN.
+ *
+ * Tabla aparte y no una columna con una lista: son varias, se borran de una en
+ * una, y una lista dentro de un campo de texto no se puede consultar ni
+ * limpiar cuando se borra el archivo del bucket.
+ *
+ * **No son públicas**: se sirven por `/media`, que ya comprueba quién mira —
+ * igual que los comprobantes de pago. La foto del salón de alguien no es
+ * material de catálogo.
+ */
+export const fotosDevolucion = sqliteTable(
+  "fotos_devolucion",
+  {
+    id: text("id").primaryKey(),
+
+    devolucionId: text("devolucion_id")
+      .notNull()
+      .references(() => devoluciones.id, { onDelete: "cascade" }),
+
+    /** La llave dentro del bucket. Nunca una dirección pública. */
+    clave: text("clave").notNull(),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_fotos_devolucion").on(t.devolucionId)],
+);

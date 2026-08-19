@@ -26,8 +26,39 @@ export async function entrar(
 ) {
   await page.goto("/es/entrar");
 
-  await page.getByLabel(es.entrar.correo).fill(cuenta.email);
-  await page.getByLabel(es.entrar.clave, { exact: true }).fill(cuenta.clave);
+  const correo = page.getByLabel(es.entrar.correo);
+  const clave = page.getByLabel(es.entrar.clave, { exact: true });
+
+  /**
+   * SE ESCRIBE Y SE COMPRUEBA QUE QUEDÓ ESCRITO.
+   *
+   * ══ EL FALLO QUE ESTO ARREGLA (18 ago 2026) ══
+   *
+   * En el perfil de celular la prueba escribía las dos casillas, pulsaba
+   * «Iniciar sesión» y se quedaba colgada. La instantánea del error lo enseñó:
+   * **la casilla del correo estaba VACÍA y la de la contraseña llena.**
+   *
+   * La causa es una carrera con la hidratación: se escribe antes de que React
+   * monte el formulario, y al montar reinicia la casilla a su valor inicial. En
+   * escritorio hidrata antes de que dé tiempo a nada; en el perfil de teléfono,
+   * que va más despacio, se pierde lo escrito.
+   *
+   * Así que se comprueba lo que quedó y, si se borró, se vuelve a escribir. Sin
+   * esto la prueba salía roja por algo que no tenía nada que ver con lo que
+   * probaba — el fallo más caro de una suite: el que enseña a ignorar el rojo.
+   */
+  for (let intento = 0; intento < 3; intento++) {
+    await correo.fill(cuenta.email);
+    await clave.fill(cuenta.clave);
+    if ((await correo.inputValue()) === cuenta.email) break;
+    await page.waitForTimeout(500);
+  }
+
+  await expect(
+    correo,
+    "el formulario no retuvo el correo: la página no terminó de cargar",
+  ).toHaveValue(cuenta.email);
+
   await page.getByRole("button", { name: es.entrar.entrar }).click();
 
   /* La señal de que terminó: la dirección deja de ser la de entrar. Se espera
