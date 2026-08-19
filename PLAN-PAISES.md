@@ -343,9 +343,65 @@ Pendiente de decisión del dueño o de trabajo por fase:
 - **Proveedores chilenos** (Dropi u otro): compras de prueba antes de abrir
   la venta, igual que CJ — la pausa (`pausa.ts`) sabrá de mercados.
 - **Impuestos**: boleta/factura y SII, con contador o abogado del país.
+  **YA ESTAMOS REGISTRADOS — ver el apartado de abajo.**
 - **Alta de comercio con mercado**: el registro guarda el mercado del dominio
   por el que entró; el equipo lo corrige en Comercios.
 - **Correos con el dominio del mercado** (enlaces de bienvenida, compra…).
+
+## EL IVA DE CHILE: ya estamos registrados (18 ago 2026)
+
+**Mercatren LLC quedó inscrita en el Portal de IVA Digital del SII.** Número de
+usuario `59330700K`. Lo elegido, que **solo se puede cambiar del 21 al 31 de
+enero de cada año**:
+
+| Campo                 | Elegido        |
+| --------------------- | -------------- |
+| Inicio de operaciones | 18/08/2026     |
+| Periodicidad          | **Trimestral** |
+| Moneda                | **USD**        |
+
+Se declara y paga el **F129** en los primeros 20 días del mes siguiente al
+trimestre. **Sin ventas no hay que declarar nada**: el SII no pide declaración
+en cero.
+
+### A QUÉ FLUJO APLICA, Y A CUÁL NO
+
+Esto es lo que más se presta a confundir, así que va escrito:
+
+- ✅ **Mercancía que está FUERA de Chile** y se le vende a un consumidor chileno,
+  por **hasta USD 500**. Ahí Mercatren le cobra el **19 %** al comprador, lo
+  guarda, y lo declara cada trimestre. El paquete entra **sin arancel** y sin
+  sorpresas en la aduana. Es el flujo tipo CJ.
+- ❌ **Dropi y cualquier proveedor con mercancía ya en tierra chilena.** Si el
+  producto ya está en Chile no hay importación, así que este régimen no entra.
+- ❌ **Por encima de USD 500.** Eso paga IVA **más aranceles** en la aduana, y lo
+  asume quien recibe. Es un límite de negocio: hay que decidir qué hace la
+  tienda con un producto que se pase de ahí — lo más probable es no publicarlo
+  en Chile, porque un comprador al que le cobran de sorpresa en la aduana no
+  vuelve.
+
+### Lo que hay que construir, y por qué corre prisa
+
+**El sitio hoy no cobra ningún impuesto**: `crearPedido` escribe
+`impuestosCentavos: 0` para todos los países. Estar registrado compromete a
+cobrar ese 19 % **desde el 18 de agosto de 2026** en el flujo de importación.
+Mientras no esté construido, ese 19 % sale del bolsillo de Mercatren en cada
+venta chilena que cruce la frontera.
+
+El módulo es, en orden:
+
+1. El impuesto por mercado en una pieza pura y con pruebas — el país decide si
+   hay impuesto, cuál es la tasa y sobre qué base.
+2. El tope de USD 500 como regla del catálogo: qué se puede publicar en Chile.
+3. Que se vea en la ficha, en el checkout y en la factura, desglosado.
+4. Un reporte trimestral en el panel con lo cobrado, para llenar el F129 sin
+   sumar a mano.
+
+**DOS COSAS SIN CONFIRMAR, y hay que preguntárselas al contador ANTES de
+programar la calculadora**: si el tope de USD 500 se mide solo sobre la
+mercancía o incluye flete y seguro; y qué compone la base del 19 % — el precio
+de venta publicado, o mercancía + flete + seguro. Programar eso a ojo es
+declarar de menos o cobrarle de más al comprador.
 
 ## Cómo se trabaja (no es opcional)
 
