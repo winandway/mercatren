@@ -35,7 +35,9 @@
     "docs:pdf-credito": "tsx scripts/pdf-credito.ts",
     "docs:pdf-api": "tsx scripts/pdf-api.ts",
     "docs:pdf-informe": "tsx scripts/pdf-informe.ts",
-    "docs:pdf-proveedores": "tsx scripts/pdf-proveedores.ts"
+    "docs:pdf-proveedores": "tsx scripts/pdf-proveedores.ts",
+    "docs:pdf-manual-cliente": "tsx scripts/pdf-manual-cliente.ts",
+    "docs:capturas-cliente": "tsx scripts/capturas-manual-cliente.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [

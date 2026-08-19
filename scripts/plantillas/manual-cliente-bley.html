@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Paga tu compra — Ferremateriales Bley</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+
+  :root{
+    --rojo:#E3342B; --tinta:#16181D; --gris:#6B7280; --linea:#E5E7EB;
+    --azul:#2563EB; --crema:#FEF9EC; --ambar:#D97706; --verde:#0F7A4A;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;color:var(--tinta);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  .hoja{width:297mm;height:210mm;page-break-after:always;position:relative;padding:16mm 18mm 14mm;overflow:hidden;background:#fff}
+  .hoja:last-child{page-break-after:auto}
+
+  /* ── portada ── */
+  .portada{background:#141417;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0}
+  .portada .marca{color:var(--rojo);font-size:11pt;font-weight:700;letter-spacing:.38em;text-transform:uppercase;margin-bottom:9mm}
+  .portada h1{color:#fff;font-size:40pt;font-weight:800;line-height:1.1;letter-spacing:-.02em;max-width:210mm}
+  .portada p{color:#9CA3AF;font-size:12pt;margin-top:7mm}
+  .franja{position:absolute;left:0;right:0;bottom:0;height:9mm;background:var(--rojo)}
+
+  /* ── cabecera de página ── */
+  .cab{display:flex;gap:6mm;align-items:flex-start;margin-bottom:11mm}
+  .ficha{width:16mm;height:16mm;border-radius:50%;background:var(--rojo);color:#fff;display:flex;align-items:center;justify-content:center;font-size:17pt;font-weight:800;flex:none}
+  .cab h2{font-size:21pt;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+  .cab .sub{color:var(--gris);font-size:11.5pt;margin-top:2mm}
+
+  /* ── pie ── */
+  .pie{position:absolute;left:18mm;right:18mm;bottom:9mm;display:flex;justify-content:space-between;color:#9CA3AF;font-size:8.5pt}
+
+  /* ── tarjetas del diagrama ── */
+  .fila{display:flex;align-items:stretch;gap:4mm;margin-top:4mm}
+  .caja{flex:1;border:1px solid var(--linea);border-radius:4mm;padding:6mm 5mm;background:#fff}
+  .quien{font-size:8pt;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:4mm}
+  .q-tu{color:var(--rojo)} .q-mt{color:var(--azul)} .q-ok{color:var(--verde)}
+  .icono{font-size:20pt;line-height:1;margin-bottom:4mm;display:block}
+  .caja p{font-size:10.5pt;line-height:1.5}
+  .flecha{display:flex;align-items:center;color:#C4C8CE;font-size:16pt;flex:none}
+
+  /* ── avisos ── */
+  .aviso{margin-top:9mm;background:var(--crema);border-left:3px solid var(--ambar);padding:5mm 6mm;font-size:10.5pt;line-height:1.55}
+  .aviso b{font-weight:800}
+  .aviso.rojo{background:#FEF2F2;border-left-color:var(--rojo)}
+
+  /* ── captura + explicación al lado ── */
+  .conCaptura{display:flex;gap:12mm;align-items:flex-start}
+  .conCaptura .foto{flex:none;width:78mm;border:1px solid var(--linea);border-radius:4mm;overflow:hidden;background:#fff}
+  .conCaptura .foto img{display:block;width:100%}
+  .conCaptura .texto{flex:1;padding-top:2mm}
+  .conCaptura .texto li{font-size:11.5pt;line-height:1.65;margin-bottom:5mm;list-style:none;padding-left:8mm;position:relative}
+  .conCaptura .texto li:before{content:"";position:absolute;left:0;top:3.2mm;width:3mm;height:3mm;border-radius:50%;background:var(--rojo)}
+  .conCaptura .texto b{font-weight:800}
+
+  .refCaja{margin-top:6mm;border:2px solid var(--rojo);border-radius:3mm;padding:5mm 6mm;background:#FEF2F2}
+  .refCaja .et{font-size:8.5pt;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--rojo)}
+  .refCaja .val{font-family:"SF Mono",Menlo,monospace;font-size:19pt;font-weight:700;margin-top:2mm}
+
+  .lista2{display:flex;gap:6mm;margin-top:2mm}
+  .lista2 .col{flex:1}
+  .lista2 h3{font-size:12pt;font-weight:800;margin-bottom:4mm}
+  .lista2 li{font-size:10.5pt;line-height:1.6;margin-bottom:3.5mm;list-style:none;padding-left:6mm;position:relative}
+  .lista2 li:before{content:"·";position:absolute;left:1mm;font-weight:800}
+  .si li:before{content:"✓";color:var(--verde);font-size:10pt}
+  .no li:before{content:"✕";color:var(--rojo);font-size:9pt}
+</style>
+</head>
+<body>
+
+<!-- 1 · PORTADA -->
+<section class="hoja portada">
+  <div class="marca">Ferremateriales Bley</div>
+  <h1>Paga tu compra<br>desde donde estés</h1>
+  <p>Te llega un correo, tocas un botón y pagas · 4 pasos</p>
+  <div class="franja"></div>
+</section>
+
+<!-- 2 · CÓMO FUNCIONA -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">?</div>
+    <div><h2>Cómo funciona</h2><div class="sub">No tienes que ir a la ferretería ni instalar nada.</div></div>
+  </div>
+
+  <div class="fila">
+    <div class="caja"><div class="quien q-tu">Ferremateriales Bley</div><span class="icono">🧾</span>
+      <p>Te pasa el cobro por tu factura.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-mt">Mercatren</div><span class="icono">✉️</span>
+      <p>Te llega un correo con el monto y un botón para pagar.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-tu">Tú</div><span class="icono">💳</span>
+      <p>Pagas con tarjeta o por Zelle, desde el teléfono.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-ok">Listo</div><span class="icono">✅</span>
+      <p>Te llega el recibo y la ferretería ve tu pago.</p></div>
+  </div>
+
+  <div class="aviso"><b>El enlace dura 48 horas.</b> Si se te vence, pídele otro a la ferretería — no cuesta nada y te llega igual de rápido.</div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>2</span></div>
+</section>
+
+<!-- 3 · PASO 1 -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">1</div>
+    <div><h2>Busca el correo</h2><div class="sub">Llega al momento, de parte de Mercatren.</div></div>
+  </div>
+
+  <div class="conCaptura">
+    <div class="foto"><img src="capturas/paso1-correo.png" alt=""></div>
+    <ul class="texto">
+      <li>El asunto dice <b>Ferremateriales Bley te pasó un cobro</b>.</li>
+      <li>Antes de tocar nada, mira que el <b>monto</b> y el <b>número de factura</b> sean los que acordaste.</li>
+      <li>Si no lo ves en tu bandeja, <b>revisa la carpeta de correo no deseado</b>. A veces cae ahí la primera vez.</li>
+      <li>Toca el botón <b>Pagar ahora</b>. Se abre en tu teléfono, no hace falta computadora.</li>
+    </ul>
+  </div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>3</span></div>
+</section>
+
+<!-- 4 · PASO 2 -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">2</div>
+    <div><h2>Comprueba que todo cuadre</h2><div class="sub">Es la página de pago. Solo tuya, solo para esta factura.</div></div>
+  </div>
+
+  <div class="conCaptura">
+    <div class="foto"><img src="capturas/paso2-pagina.png" alt=""></div>
+    <ul class="texto">
+      <li>Arriba sale <b>Ferremateriales Bley C.A</b>: así sabes que el cobro es de tu ferretería.</li>
+      <li>El <b>monto</b> en grande, y debajo la <b>factura</b> y el <b>concepto</b>.</li>
+      <li>Si algo no cuadra, <b>no pagues</b>. Llama primero a la ferretería.</li>
+      <li>Abajo dice hasta cuándo vale el enlace.</li>
+    </ul>
+  </div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>4</span></div>
+</section>
+
+<!-- 5 · PASO 3 -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">3</div>
+    <div><h2>Elige cómo pagar</h2><div class="sub">Dos formas. Las dos valen igual.</div></div>
+  </div>
+
+  <div class="conCaptura">
+    <div class="foto"><img src="capturas/paso3-zelle.png" alt=""></div>
+    <ul class="texto">
+      <li><b>Con tarjeta</b> — se confirma al instante. Pones los datos de tu tarjeta y ya está.</li>
+      <li><b>Por Zelle</b> — transfieres desde tu banco y subes la captura. Lo revisa una persona, normalmente el mismo día hábil.</li>
+      <li>Toca la que prefieras: el recuadro se marca en naranja.</li>
+      <li>Si eliges Zelle, <b>la página siguiente trae un número que tienes que copiar</b>. Sin él, tu pago se demora.</li>
+    </ul>
+  </div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>5</span></div>
+</section>
+
+<!-- 6 · TARJETA -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">💳</div>
+    <div><h2>Si pagas con tarjeta</h2><div class="sub">Lo más rápido: termina en un minuto.</div></div>
+  </div>
+
+  <div class="fila">
+    <div class="caja"><div class="quien q-tu">1</div><span class="icono">💳</span>
+      <p>Escribes el número de tu tarjeta, la fecha y los tres dígitos de atrás.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-tu">2</div><span class="icono">🔒</span>
+      <p>Puede que tu banco te pida un código por mensaje. Es normal.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-ok">3</div><span class="icono">✅</span>
+      <p>La página te dice <b>Pagado</b> al instante y te llega el recibo por correo.</p></div>
+  </div>
+
+  <div class="aviso"><b>Tu tarjeta no la ve la ferretería.</b> Los datos van directo al procesador de pagos; ni Ferremateriales Bley ni Mercatren los guardan.</div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>6</span></div>
+</section>
+
+<!-- 7 · ZELLE -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">🏦</div>
+    <div><h2>Si pagas por Zelle</h2><div class="sub">Un paso más, y hay uno que no puedes saltarte.</div></div>
+  </div>
+
+  <div class="fila">
+    <div class="caja"><div class="quien q-tu">1</div><span class="icono">🏦</span>
+      <p>Entras a tu banco y mandas el Zelle al correo que te muestra la página.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-tu">2</div><span class="icono">📝</span>
+      <p>En la nota del Zelle copias <b>el número que sale en la página</b>.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-tu">3</div><span class="icono">📸</span>
+      <p>Vuelves y subes la <b>captura</b> del pago.</p></div>
+    <div class="flecha">→</div>
+    <div class="caja"><div class="quien q-ok">4</div><span class="icono">👤</span>
+      <p>Una persona lo comprueba con el banco. Normalmente el mismo día hábil.</p></div>
+  </div>
+
+  <div class="refCaja">
+    <div class="et">El número de la nota se ve así</div>
+    <div class="val">Mercatren F-00123</div>
+  </div>
+
+  <div class="aviso rojo"><b>Sin ese número, tu pago se demora.</b> Al banco llegan muchas transferencias iguales y ese número es lo único que dice cuál es la tuya.</div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>7</span></div>
+</section>
+
+<!-- 8 · SEGURIDAD -->
+<section class="hoja">
+  <div class="cab">
+    <div class="ficha">✓</div>
+    <div><h2>Para que pagues tranquilo</h2><div class="sub">Cuatro cosas que conviene saber.</div></div>
+  </div>
+
+  <div class="lista2">
+    <div class="col si">
+      <h3>Así es como funciona</h3>
+      <ul>
+        <li>El cobro <b>siempre llega por correo</b>, con el nombre de Ferremateriales Bley y tu número de factura.</li>
+        <li>La página de pago está en <b>mercatren.com</b>. Míralo en la barra de tu navegador.</li>
+        <li><b>Mercatren cobra y factura</b> por tu compra en la ferretería.</li>
+        <li>Cuando pagas, <b>te llega un recibo por correo</b>. Guárdalo.</li>
+      </ul>
+    </div>
+    <div class="col no">
+      <h3>Nunca te vamos a pedir</h3>
+      <ul>
+        <li>Tu <b>clave del banco</b> ni la de tu correo.</li>
+        <li>Que pagues a <b>una cuenta personal</b> de alguien.</li>
+        <li>Que mandes dinero por otro camino <b>porque el enlace falló</b>. Si falla, pide uno nuevo.</li>
+        <li>Que pagues <b>de urgencia</b>. Si te apuran, llama a la ferretería antes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="aviso"><b>¿Algo no cuadra?</b> Llama a Ferremateriales Bley antes de pagar. Un cobro de verdad te espera; uno falso te apura.</div>
+
+  <div class="pie"><span>Ferremateriales Bley</span><span>8</span></div>
+</section>
+
+</body>
+</html>
