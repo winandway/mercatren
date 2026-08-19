@@ -5,8 +5,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { MetodosDeCobro } from "@/components/cobro/metodos-de-cobro";
 import { estadoParaMostrar, sePuedePagar } from "@/lib/cobros/reglas";
+import { queSeEnsena } from "@/lib/cobros/presentacion";
 import { getDb } from "@/lib/db";
-import { cobrosSolicitados, tiendas } from "@/lib/db/schema";
+import { cobrosCadena, cobrosSolicitados, tiendas } from "@/lib/db/schema";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 
@@ -56,15 +57,24 @@ export default async function PaginaDeCobro({
       pagadoEn: cobrosSolicitados.pagadoEn,
       tiendaId: cobrosSolicitados.tiendaId,
       comercio: tiendas.nombre,
+      /* El modo vive en una tabla aparte y casi ningún cobro la tiene: por eso
+         `leftJoin`. Sin fila = modo de siempre, que es lo correcto para los
+         cientos de cobros que ya existen. */
+      modo: cobrosCadena.modo,
     })
     .from(cobrosSolicitados)
     .innerJoin(tiendas, eq(tiendas.id, cobrosSolicitados.tiendaId))
+    .leftJoin(cobrosCadena, eq(cobrosCadena.cobroId, cobrosSolicitados.id))
     .where(eq(cobrosSolicitados.enlace, enlace))
     .limit(1);
 
   /* Un enlace que no existe da 404, no un «no encontrado» explicado: así no se
      puede saber si un enlace inventado casi acierta. */
   if (!cobro) notFound();
+
+  /* Qué nombre se enseña. Se decide ANTES de dibujar nada: así el nombre del
+     comercio no llega al navegador ni escondido en el HTML de la página. */
+  const presentacion = queSeEnsena(cobro.modo, cobro.comercio);
 
   /**
    * EL RESPALDO DEL WEBHOOK, igual que en los pedidos.
@@ -129,10 +139,20 @@ export default async function PaginaDeCobro({
   return (
     <main className="mx-auto max-w-lg px-4 py-10 sm:py-16">
       <div className="rounded-2xl border border-borde bg-white p-6 shadow-sm sm:p-8">
-        <p className="flex items-center gap-2 text-sm text-tinta-suave">
-          <Store className="h-4 w-4" aria-hidden />
-          {cobro.comercio}
-        </p>
+        {/**
+          * EL NOMBRE DEL COMERCIO NO SIEMPRE SALE.
+          *
+          * Cuando quien paga no conoce al comercio —le compró a otro que a su
+          * vez le compra a este— nombrarlo le enseña un negocio ajeno. Solo se
+          * ve Mercatren, que es quien cobra y quien factura. La decisión vive
+          * en `cobros/presentacion.ts`, con sus pruebas.
+          */}
+        {presentacion.comercio ? (
+          <p className="flex items-center gap-2 text-sm text-tinta-suave">
+            <Store className="h-4 w-4" aria-hidden />
+            {presentacion.comercio}
+          </p>
+        ) : null}
 
         <h1 className="mt-2 text-2xl font-extrabold tracking-tight">
           {t("titulo")}
@@ -203,7 +223,9 @@ export default async function PaginaDeCobro({
       </div>
 
       <p className="mt-4 px-2 text-center text-xs text-tinta-suave">
-        {t("quienCobra", { comercio: cobro.comercio })}
+        {presentacion.nombrarEnElPie
+          ? t("quienCobra", { comercio: cobro.comercio })
+          : t("quienCobraSolo")}
       </p>
     </main>
   );

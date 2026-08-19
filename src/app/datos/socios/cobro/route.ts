@@ -1,8 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { modoPedido } from "@/lib/cobros/presentacion";
 import { getDb } from "@/lib/db";
 import {
+  cobrosCadena,
   cobrosSolicitados,
   sociosTienda,
   tiendas,
@@ -32,6 +34,24 @@ import {
  *   Authorization: Bearer <token de la tienda>
  *   { "monto": 45.90, "referencia": "F-00123",
  *     "correo": "cliente@…", "nombre": "…", "concepto": "…" }
+ *
+ * ══ Y CUANDO EL QUE PAGA NO CONOCE AL COMERCIO ══
+ *
+ * Tres campos más, **todos opcionales** para que lo de siempre siga
+ * funcionando sin tocar una línea del otro lado:
+ *
+ *   "modo": "solo_mercatren"      ← la página NO nombra al comercio
+ *   "referencia_deuda": "D-0099"  ← cómo llama el comercio a esa deuda
+ *   "deudor": "Ferretería B"      ← quién debe, para el rastro interno
+ *
+ * El caso: Bley le fía a la Ferretería B y quien paga es un cliente de la
+ * Ferretería B. Ese cliente le compró a B, no a Bley — y en su pantalla no
+ * puede salir ninguno de los dos. Nombrar a Bley le enseña un negocio ajeno;
+ * nombrar a B le cuenta a su propio cliente a quién le compra y cuánto le
+ * debe. Solo se ve Mercatren, que es quien cobra y quien factura.
+ *
+ * `deudor` **no sale a ninguna pantalla**: se guarda para poder demostrar
+ * quién pagó por cuenta de qué deuda si meses después hay un contracargo.
  *
  * Devuelve el enlace, para que el sistema del comercio lo pueda guardar contra
  * su factura y enseñarlo en pantalla si hace falta.
@@ -118,6 +138,17 @@ export async function POST(peticion: Request) {
   if (fallos.length > 0)
     return error(400, "peticion_invalida", { campos: fallos });
 
+  /* Lo que no se entiende cae en el modo NORMAL, nunca en el callado: un dato
+     mal escrito que quitara el nombre del comercio haría que un cobro
+     corriente dejara de pagarse sin que nadie supiera por qué. */
+  const modo = modoPedido(cuerpo.modo);
+  const referenciaDeuda = cuerpo.referencia_deuda
+    ? String(cuerpo.referencia_deuda).trim().slice(0, 120)
+    : null;
+  const deudorNombre = cuerpo.deudor
+    ? String(cuerpo.deudor).trim().slice(0, 160)
+    : null;
+
   /**
    * LA CUENTA DEL CLIENTE SE ABRE SOLA.
    *
@@ -173,6 +204,31 @@ export async function POST(peticion: Request) {
     creadoEn: ahora,
   });
 
+  /**
+   * LA FILA DE CADENA SOLO SE ESCRIBE SI HACE FALTA.
+   *
+   * Un cobro normal no la lleva, y su ausencia significa exactamente «modo de
+   * siempre». Así los cientos de cobros que ya existen se comportan igual sin
+   * tocar nada.
+   *
+   * Va en su propio `try`: el cobro ya está creado y el enlace ya se puede
+   * pagar. Perder el modo es feo — saldría el nombre del comercio donde no
+   * debía— pero perder el cobro después de que la cajera ya despachó es peor.
+   */
+  if (modo !== "comercio" || referenciaDeuda || deudorNombre) {
+    try {
+      await db.insert(cobrosCadena).values({
+        cobroId: id,
+        modo,
+        referenciaDeuda,
+        deudorNombre,
+        creadoEn: ahora,
+      });
+    } catch (fallo) {
+      console.error("[cobro] no se pudo guardar el modo de cadena:", fallo);
+    }
+  }
+
   const url = `${new URL(peticion.url).origin}/es/cobro/${enlace}`;
 
   // El correo va en su propio try: el cobro ya está creado y se paga igual.
@@ -182,6 +238,7 @@ export async function POST(peticion: Request) {
       { email: datos.correo!, name: datos.nombre ?? "", idioma: "es" },
       {
         comercio: tienda.nombre,
+        nombrarComercio: modo !== "solo_mercatren",
         referencia: datos.referencia!,
         montoCentavos: datos.montoCentavos!,
         url,

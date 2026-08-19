@@ -2512,7 +2512,13 @@
       ],
       "comercio": "Merchant",
       "referencia": "Your invoice",
-      "boton": "Pay now"
+      "boton": "Pay now",
+      "asuntoSolo": "You have a payment pending on Mercatren",
+      "tituloSolo": "Pay from wherever you are",
+      "parrafosSolo": [
+        "You have a payment pending. You can pay it from wherever you are, with your card.",
+        "If someone else is paying, you can forward them this email."
+      ]
     },
     "reciboDeCobro": {
       "asunto": "Your receipt: payment to {comercio}",
@@ -2839,6 +2845,7 @@
       "captura_invalida": "The screenshot must be an image (JPG, PNG, or WEBP).",
       "captura_pesada": "The image is too large. Maximum 8 MB.",
       "no_se_pudo": "We couldn't save your proof of payment. Please try again."
-    }
+    },
+    "quienCobraSolo": "Mercatren receives and invoices this payment."
   }
 }

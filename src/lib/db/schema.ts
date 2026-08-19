@@ -2444,3 +2444,56 @@ export const fotosDevolucion = sqliteTable(
   },
   (t) => [index("idx_fotos_devolucion").on(t.devolucionId)],
 );
+
+/**
+ * LOS COBROS DE UNA CADENA: CUANDO EL QUE PAGA NO CONOCE AL COMERCIO.
+ *
+ * ══ EL CASO (19 ago 2026) ══
+ *
+ * Ferremateriales Bley le fía a la Ferretería B, y quien pone el dinero es un
+ * cliente de la Ferretería B. Ese cliente le compró a B, no a Bley.
+ *
+ * En su pantalla de pago **no puede salir ninguno de los dos**: Bley es un
+ * negocio con el que él no tiene nada que ver, y nombrar a B le contaría a su
+ * propio cliente a quién le compra y cuánto le debe. Solo se ve **Mercatren**,
+ * que es quien cobra y quien factura — igual que en Amazon o Mercado Libre.
+ *
+ * ══ TABLA NUEVA, NO COLUMNAS ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que una columna
+ * nueva NO llega sola a una base que ya existe. Y no es una tabla para un
+ * booleano: guarda además **de qué deuda vino el pago**, que es lo que deja
+ * reconstruir la cadena meses después cuando alguien reclame.
+ */
+export const cobrosCadena = sqliteTable("cobros_cadena", {
+  cobroId: text("cobro_id")
+    .primaryKey()
+    .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+
+  /** `comercio` (el de siempre) o `solo_mercatren`. */
+  modo: text("modo")
+    .$type<"comercio" | "solo_mercatren">()
+    .notNull()
+    .default("comercio"),
+
+  /**
+   * Cómo llama el comercio a la deuda que este pago salda.
+   *
+   * Es SUYO y solo suyo: aquí no se interpreta, se guarda. Es lo que le
+   * permite a su sistema saber cuál bajar cuando le avise que entró el pago.
+   */
+  referenciaDeuda: text("referencia_deuda"),
+
+  /**
+   * Quién debe, en palabras del comercio.
+   *
+   * **Nunca sale a ninguna pantalla pública** — la prueba
+   * `cobros-presentacion` lo fija. Vive aquí para que, si meses después hay un
+   * contracargo, se pueda demostrar quién pagó por cuenta de qué deuda.
+   */
+  deudorNombre: text("deudor_nombre"),
+
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

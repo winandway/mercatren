@@ -208,20 +208,36 @@ export async function correoEnlaceDeCobro(
     referencia: string;
     montoCentavos: number;
     url: string;
+    /**
+     * El correo TAMPOCO nombra al comercio en el modo callado.
+     *
+     * De nada sirve limpiar la página si el correo que lleva a ella trae el
+     * nombre en el asunto — que además es lo primero que se ve, sin abrirlo.
+     */
+    nombrarComercio?: boolean;
   },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const nombrar = cobro.nombrarComercio !== false;
 
   return enviar(d, {
-    asunto: t("enlaceDeCobro.asunto", { comercio: cobro.comercio }),
+    asunto: nombrar
+      ? t("enlaceDeCobro.asunto", { comercio: cobro.comercio })
+      : t("enlaceDeCobro.asuntoSolo"),
     previo: t("enlaceDeCobro.previo", {
       monto: formatearPrecio(cobro.montoCentavos, idioma),
     }),
     saludo,
-    titulo: t("enlaceDeCobro.titulo", { comercio: cobro.comercio }),
-    parrafos: t.raw("enlaceDeCobro.parrafos") as string[],
+    titulo: nombrar
+      ? t("enlaceDeCobro.titulo", { comercio: cobro.comercio })
+      : t("enlaceDeCobro.tituloSolo"),
+    parrafos: t.raw(
+      nombrar ? "enlaceDeCobro.parrafos" : "enlaceDeCobro.parrafosSolo",
+    ) as string[],
     datos: [
-      { etiqueta: t("enlaceDeCobro.comercio"), valor: cobro.comercio },
+      ...(nombrar
+        ? [{ etiqueta: t("enlaceDeCobro.comercio"), valor: cobro.comercio }]
+        : []),
       { etiqueta: t("enlaceDeCobro.referencia"), valor: cobro.referencia },
       {
         etiqueta: t("comun.monto"),

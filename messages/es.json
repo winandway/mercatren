@@ -2512,7 +2512,13 @@
       ],
       "comercio": "Comercio",
       "referencia": "Tu factura",
-      "boton": "Pagar ahora"
+      "boton": "Pagar ahora",
+      "asuntoSolo": "Tienes un pago pendiente en Mercatren",
+      "tituloSolo": "Paga desde donde estés",
+      "parrafosSolo": [
+        "Tienes un pago pendiente. Lo puedes hacer desde donde estés, con tu tarjeta.",
+        "Si quien va a pagar es otra persona, puedes reenviarle este correo."
+      ]
     },
     "reciboDeCobro": {
       "asunto": "Tu recibo: pago a {comercio}",
@@ -2839,6 +2845,7 @@
       "captura_invalida": "La captura tiene que ser una imagen (JPG, PNG o WEBP).",
       "captura_pesada": "La imagen pesa demasiado. Máximo 8 MB.",
       "no_se_pudo": "No pudimos guardar tu comprobante. Inténtalo otra vez."
-    }
+    },
+    "quienCobraSolo": "El pago lo recibe y lo factura Mercatren."
   }
 }
