@@ -1921,7 +1921,9 @@
         "The supplier can't charge a saved card — that's why paying is a button, not something automatic.",
         "No wallet to load and no three-day wait. You pay by card on the spot.",
         "If something fails, the supplier's exact reason shows here and it can be retried."
-      ]
+      ],
+      "reintentar": "Try again",
+      "varianteAutomatica": "· auto-picked from {total}"
     },
     "buscador": {
       "buscar": "Search",

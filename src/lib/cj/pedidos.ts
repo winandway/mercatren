@@ -5,12 +5,18 @@ import { nanoid } from "nanoid";
 
 import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
+import {
+  elegirVariante,
+  variantesDeCj,
+  type VarianteElegida,
+} from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
 import {
   itemsPedido,
   pedidos,
   pedidosProveedor,
   productos,
+  renglonesProveedor,
 } from "@/lib/db/schema";
 
 /**
@@ -35,11 +41,19 @@ import {
  * el producto entre miles, transcribir una dirección —que es donde se pierden
  * los paquetes— y elegir la variante correcta. Aquí eso ya está hecho.
  *
- * ══ SE PIDE POR SKU, NO POR VARIANTE ══
+ * ══ SE PIDE POR VARIANTE, Y ESTO COSTÓ LA PRIMERA COMPRA ══
  *
- * La API acepta `vid` o `sku`, y exige al menos uno. Guardamos el SKU de CJ al
- * importar, así que se pide por ahí y no hace falta una tabla más de variantes
- * del proveedor.
+ * Aquí decía que bastaba con el SKU que guarda el importador. **Era falso**, y
+ * por eso MT-000004 —pagada de verdad— murió en CJ con «No variants found for
+ * provided SKUs»: CJ tiene `productSku` (`CJJT05843`) y `variantSku`
+ * (`CJJT05843-Black`), guardábamos el primero y `createOrderV3` pide el
+ * segundo. Su documentación lo dice con esas palabras: «CJ variant SKU».
+ *
+ * Y como el enlace de pago lo devuelve CJ **al crear** el pedido, sin pedido no
+ * había dónde pagar. No faltaba una pantalla: faltaba el pedido.
+ *
+ * Ahora se le pregunta a CJ por las variantes del producto justo antes de
+ * comprar y se manda el `vid`. Ver `src/lib/cj/variantes.ts`.
  *
  * ══ ESTO NUNCA TUMBA UNA VENTA ══
  *
@@ -70,17 +84,127 @@ function aCentavos(valor: number | string | undefined): number | null {
 }
 
 /**
- * El transporte que se le pide a CJ.
+ * El transporte de respaldo.
  *
- * Va como constante y no adivinando: si el nombre no existe, CJ rechaza el
- * pedido entero, y su mensaje se enseña tal cual para poder corregirlo en un
- * minuto en vez de a ciegas. Se ajusta cuando las compras de prueba digan cuál
- * usa de verdad el almacén de Estados Unidos.
+ * `USPS+` sale de la propia documentación de CJ como opción doméstica de EE.
+ * UU., pero **no está disponible para todo producto ni toda ruta**, y un nombre
+ * que no exista hace que CJ rechace el pedido entero. Por eso se le pregunta
+ * primero cuáles hay de verdad (ver `transporteReal`) y esto queda solo para
+ * cuando esa consulta no conteste: **es mucho mejor intentarlo con un nombre
+ * plausible que no crear el pedido.**
  */
-const TRANSPORTE = "USPS+";
+const TRANSPORTE_RESPALDO = "USPS+";
 
 /** Desde dónde despacha. El almacén de EE. UU. es el que hace el plazo corto. */
 const DESDE = "US";
+
+/**
+ * Le pregunta a CJ qué variantes tiene un producto y elige cuál se compra.
+ *
+ * ══ SE PREGUNTA POR `pid` Y SE CAE AL `productSku` ══
+ *
+ * Su endpoint acepta los dos. Se prefiere el `pid` porque es el identificador
+ * de verdad; el `productSku` queda de respaldo para cualquier producto viejo
+ * que se haya importado sin él. Sin ese respaldo, un hueco en un dato del
+ * catálogo se convertiría en una venta que no se puede despachar.
+ */
+async function resolverVariante(
+  pid: string | null,
+  productSku: string | null,
+): Promise<VarianteElegida | null> {
+  const parametros = pid?.trim()
+    ? `pid=${encodeURIComponent(pid.trim())}`
+    : productSku?.trim()
+      ? `productSku=${encodeURIComponent(productSku.trim())}`
+      : null;
+
+  if (!parametros) return null;
+
+  const respuesta = await llamarCj<unknown>(
+    `/product/variant/query?${parametros}`,
+  );
+
+  if (!respuesta.ok) {
+    console.error("[cj] no se pudieron leer las variantes:", respuesta.motivo);
+    return null;
+  }
+
+  return elegirVariante(variantesDeCj(respuesta.datos));
+}
+
+/**
+ * QUÉ TRANSPORTE HAY DE VERDAD PARA ESTE PEDIDO, Y CUÁNTO CUESTA.
+ *
+ * ══ POR QUÉ SE PREGUNTA EN VEZ DE FIJARLO ══
+ *
+ * `logisticName` es obligatorio en `createOrderV3` y CJ lo compara contra su
+ * tabla: un nombre que no exista para esa ruta tumba el pedido entero. Tenerlo
+ * escrito a mano significaba que el día que un producto no admitiera USPS,
+ * la venta se caía y había que adivinar por qué.
+ *
+ * ══ Y DE PASO SE VE LO QUE CUESTA EL ENVÍO ══
+ *
+ * Hoy el envío entra como **cero** al calcular el precio de venta, así que
+ * cada venta con flete de $4 o más pierde dinero sin que ninguna pantalla lo
+ * diga. Esto no lo arregla —eso es recalcular los precios publicados, y es
+ * decisión del dueño— pero al menos deja el número a la vista.
+ *
+ * ══ SI NO CONTESTA, SE SIGUE ══
+ *
+ * Con el respaldo. Quedarse sin crear el pedido porque una consulta de apoyo
+ * falló sería cambiar un problema chico por uno grande: el comprador ya pagó.
+ */
+async function transporteReal(
+  variantes: readonly { vid: string; cantidad: number }[],
+  entrega: {
+    pais?: string;
+    estado?: string | null;
+    codigoPostal?: string | null;
+  },
+): Promise<{ nombre: string; costoCentavos: number | null }> {
+  const respuesta = await llamarCj<unknown>("/logistic/freightCalculate", {
+    metodo: "POST",
+    cuerpo: {
+      startCountryCode: DESDE,
+      endCountryCode: "US",
+      products: variantes.map((v) => ({ quantity: v.cantidad, vid: v.vid })),
+      zip: entrega.codigoPostal ?? undefined,
+      province: entrega.estado ?? undefined,
+    },
+  }).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+
+  if (!respuesta.ok) {
+    console.error("[cj] no se pudo calcular el flete:", respuesta.motivo);
+    return { nombre: TRANSPORTE_RESPALDO, costoCentavos: null };
+  }
+
+  const opciones = (
+    Array.isArray(respuesta.datos) ? respuesta.datos : []
+  ) as Array<{ logisticName?: string; logisticPrice?: number | string }>;
+
+  const utiles = opciones.filter((o) => o.logisticName?.trim());
+  if (utiles.length === 0) {
+    return { nombre: TRANSPORTE_RESPALDO, costoCentavos: null };
+  }
+
+  /* La más barata. El plazo lo promete la ficha en días y todas las de esta
+     ruta son domésticas: pagar de más por un día no compensa cuando el envío
+     ya está dentro del precio publicado. */
+  const elegida = [...utiles].sort((a, b) => {
+    const pa = Number(a.logisticPrice);
+    const pb = Number(b.logisticPrice);
+    if (!Number.isFinite(pa)) return 1;
+    if (!Number.isFinite(pb)) return -1;
+    return pa - pb;
+  })[0]!;
+
+  const precio = Number(elegida.logisticPrice);
+
+  return {
+    nombre: elegida.logisticName!.trim(),
+    costoCentavos: Number.isFinite(precio) ? Math.round(precio * 100) : null,
+  };
+}
 
 /**
  * Crea en CJ la compra que corresponde a un pedido nuestro.
@@ -167,6 +291,10 @@ export async function comprarAlProveedor(
      Venezuela lo despacha su propio comercio. */
   const renglones = await db
     .select({
+      productoId: productos.id,
+      /* El `pid` de CJ. Es con lo que se preguntan las variantes: el SKU que
+         guardamos es el del producto y no sirve para comprar. */
+      externoId: productos.externoId,
       sku: productos.sku,
       titulo: productos.tituloEs,
       cantidad: itemsPedido.cantidad,
@@ -175,7 +303,7 @@ export async function comprarAlProveedor(
     .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
     .where(eq(itemsPedido.pedidoId, pedidoId));
 
-  const delProveedor = renglones.filter((r) => r.sku);
+  const delProveedor = renglones.filter((r) => r.externoId ?? r.sku);
   if (delProveedor.length === 0) {
     return {
       ok: false,
@@ -183,8 +311,57 @@ export async function comprarAlProveedor(
     };
   }
 
-  const id = `prov-${nanoid(12)}`;
+  /**
+   * QUÉ VARIANTE SE COMPRA DE CADA UNO.
+   *
+   * Se resuelve aquí y no al importar: así los productos ya publicados quedan
+   * arreglados sin recargarlos, y la existencia que se mira es la de hoy.
+   */
+  const aComprar: Array<{
+    productoId: string;
+    titulo: string | null;
+    cantidad: number;
+    variante: VarianteElegida;
+  }> = [];
+
+  for (const r of delProveedor) {
+    const cantidad = Math.max(1, Math.round(Number(r.cantidad)));
+    const variante = await resolverVariante(r.externoId, r.sku);
+
+    if (!variante) {
+      /* Se corta el pedido ENTERO, no se compra lo que sí se pudo. Media
+         compra deja al cliente con una caja incompleta y a nosotros pagando
+         dos envíos; y no hay forma de saberlo mirando el panel. */
+      return {
+        ok: false,
+        motivo: `El proveedor no tiene variantes disponibles de «${r.titulo ?? r.sku ?? "un producto"}». Puede que lo haya descatalogado.`,
+      };
+    }
+
+    aComprar.push({
+      productoId: r.productoId,
+      titulo: r.titulo,
+      cantidad,
+      variante,
+    });
+  }
+
+  /**
+   * UN REINTENTO REESCRIBE LA FILA QUE FALLÓ, NO APILA OTRA.
+   *
+   * Antes cada intento insertaba una fila nueva: tres reintentos dejaban tres
+   * renglones del mismo pedido en el panel, y ninguno decía cuál era el bueno.
+   * Con el id reutilizado, la cola enseña un solo estado por compra — que es lo
+   * que hace falta para saber si hay que pagar o no.
+   */
+  const reintento = Boolean(yaHay);
+  const id = yaHay?.id ?? `prov-${nanoid(12)}`;
   const ahora = new Date();
+
+  const transporte = await transporteReal(
+    aComprar.map((r) => ({ vid: r.variante.vid, cantidad: r.cantidad })),
+    entrega,
+  );
 
   /**
    * `payType: 1` ES LA CLAVE DE TODO ESTO.
@@ -222,12 +399,20 @@ export async function comprarAlProveedor(
         shippingAddress2: entrega.direccion2 || "",
         shippingCustomerName: entrega.nombre!,
         shippingPhone: pedido.telefono || "",
-        logisticName: TRANSPORTE,
+        logisticName: transporte.nombre,
         fromCountryCode: DESDE,
         payType: 1,
-        products: delProveedor.map((r) => ({
-          sku: r.sku,
-          quantity: Math.max(1, Math.round(Number(r.cantidad))),
+        /**
+         * VA EL `vid`, QUE ES LO ÚNICO SIN AMBIGÜEDAD.
+         *
+         * Su documentación: «vid and sku cannot both be null. When vid is
+         * missing, sku will be used to query the CJ variant.» O sea que el SKU
+         * es el camino largo, y encima tiene que ser el de la variante. Con el
+         * `vid` no hay nada que buscar ni que confundir.
+         */
+        products: aComprar.map((r) => ({
+          vid: r.variante.vid,
+          quantity: r.cantidad,
         })),
       },
     },
@@ -237,19 +422,31 @@ export async function comprarAlProveedor(
     /* El fallo se GUARDA, no solo se devuelve: un pedido que no se pudo
        comprar tiene que verse en el panel, o el comprador se queda esperando
        una caja que nadie pidió y nadie se entera. */
-    await db
-      .insert(pedidosProveedor)
-      .values({
-        id,
-        pedidoId,
-        proveedor: FUENTE_CJ,
-        estado: "con_error",
-        ultimoError: respuesta.motivo.slice(0, 300),
-        creadoEn: ahora,
-        actualizadoEn: ahora,
-      })
-      .onConflictDoNothing()
-      .catch(() => undefined);
+    if (reintento) {
+      await db
+        .update(pedidosProveedor)
+        .set({
+          estado: "con_error",
+          ultimoError: respuesta.motivo.slice(0, 300),
+          actualizadoEn: ahora,
+        })
+        .where(eq(pedidosProveedor.id, id))
+        .catch(() => undefined);
+    } else {
+      await db
+        .insert(pedidosProveedor)
+        .values({
+          id,
+          pedidoId,
+          proveedor: FUENTE_CJ,
+          estado: "con_error",
+          ultimoError: respuesta.motivo.slice(0, 300),
+          creadoEn: ahora,
+          actualizadoEn: ahora,
+        })
+        .onConflictDoNothing()
+        .catch(() => undefined);
+    }
 
     return { ok: false, motivo: respuesta.motivo };
   }
@@ -257,18 +454,67 @@ export async function comprarAlProveedor(
   const datos = respuesta.datos ?? {};
   const urlPago = datos.cjPayUrl?.trim() || null;
 
-  await db.insert(pedidosProveedor).values({
-    id,
-    pedidoId,
-    proveedor: FUENTE_CJ,
-    estado: "por_pagar",
+  const yaCreado = {
+    estado: "por_pagar" as const,
     externoId: datos.orderId ?? null,
     externoNumero: datos.orderNumber ?? null,
     urlPago,
     costoCentavos: aCentavos(datos.orderAmount),
-    creadoEn: ahora,
+    /* Se limpia el error del intento anterior: dejarlo escrito al lado de un
+       enlace de pago que sí funciona hace dudar de si se puede pagar. */
+    ultimoError: null,
     actualizadoEn: ahora,
-  });
+  };
+
+  if (reintento) {
+    await db
+      .update(pedidosProveedor)
+      .set(yaCreado)
+      .where(eq(pedidosProveedor.id, id));
+
+    /* Los renglones del intento fallido se van: si el producto cambió de
+       variante entre un intento y otro, la lista vieja diría que se compró
+       algo que no se compró. */
+    await db
+      .delete(renglonesProveedor)
+      .where(eq(renglonesProveedor.pedidoProveedorId, id))
+      .catch(() => undefined);
+  } else {
+    await db.insert(pedidosProveedor).values({
+      id,
+      pedidoId,
+      proveedor: FUENTE_CJ,
+      creadoEn: ahora,
+      ...yaCreado,
+    });
+  }
+
+  /**
+   * QUEDA ESCRITO QUÉ VARIANTE SE PIDIÓ DE CADA COSA.
+   *
+   * Va en su propio `try`: la compra ya está creada y el enlace de pago ya
+   * existe. Perder la anotación es molesto; perder el enlace por no poder
+   * anotarla sería absurdo.
+   */
+  try {
+    await db.insert(renglonesProveedor).values(
+      aComprar.map((r) => ({
+        id: `rprov-${nanoid(12)}`,
+        pedidoProveedorId: id,
+        productoId: r.productoId,
+        titulo: r.titulo,
+        vid: r.variante.vid,
+        varianteSku: r.variante.sku,
+        varianteNombre: r.variante.nombre,
+        cantidad: r.cantidad,
+        varianteAutomatica: r.variante.ambigua,
+        variantesTotales: r.variante.deCuantas,
+        creadoEn: ahora,
+      })),
+    );
+  } catch (fallo) {
+    console.error("[cj] compra creada; no se anotaron los renglones:", fallo);
+  }
 
   /* El aviso va después de guardar y en su propio try: si el correo falla, la
      compra ya está creada y el enlace vive en el panel. */
@@ -277,10 +523,27 @@ export async function comprarAlProveedor(
     const { SITIO } = await import("@/lib/sitio");
     const costo = aCentavos(datos.orderAmount);
 
+    /* Si el sistema tuvo que elegir talla o color, se dice EN EL CORREO y no
+       solo en el panel: es lo que hay que mirar antes de pagar, y quien lee el
+       aviso en el teléfono puede no abrir el panel. */
+    const aOjo = aComprar.filter((r) => r.variante.ambigua);
+
     await correoAvisoAlEquipo({
       asunto: `Pagar al proveedor · ${pedido.numero}`,
       lineas: [
-        `${pedido.numero} · ${delProveedor.length} producto(s)${costo !== null ? ` · ${(costo / 100).toFixed(2)} USD` : ""}`,
+        `${pedido.numero} · ${aComprar.length} producto(s)${costo !== null ? ` · ${(costo / 100).toFixed(2)} USD` : ""}`,
+        /* El flete, a la vista. Hoy entra como CERO al calcular el precio de
+           venta, así que este número es el que dice si la venta gana o pierde
+           dinero. Sin enseñarlo, esa pérdida no aparece en ninguna pantalla. */
+        `Transporte: ${transporte.nombre}${
+          transporte.costoCentavos !== null
+            ? ` · envío ${(transporte.costoCentavos / 100).toFixed(2)} USD (OJO: el envío NO está dentro del precio que se le cobró al comprador)`
+            : ""
+        }`,
+        ...aOjo.map(
+          (r) =>
+            `Ojo: de «${r.titulo ?? "un producto"}» había ${r.variante.deCuantas} variantes y se pidió «${r.variante.nombre ?? r.variante.vid}». Compruébalo antes de pagar.`,
+        ),
         urlPago
           ? "Toca el botón, paga con tarjeta y CJ despacha. No hace falta saldo."
           : "CJ no devolvió enlace de pago. Hay que abrirlo en su panel.",

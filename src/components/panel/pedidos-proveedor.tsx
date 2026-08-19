@@ -6,6 +6,7 @@ import {
   CreditCard,
   ExternalLink,
   Loader2,
+  RefreshCw,
   ShoppingCart,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -234,6 +235,74 @@ function FilaCompra({
               adivinar entre el transporte, el SKU y la dirección. */}
           {compra.ultimoError}
         </p>
+      ) : null}
+
+      {/**
+       * REINTENTAR, QUE ES LO QUE FALTABA.
+       *
+       * Una compra con error no tenía ningún botón, y a la vez desaparecía de
+       * «ventas esperando» porque su fila ya existía. El pedido quedaba en un
+       * callejón sin salida: el comprador había pagado y no había forma de
+       * volver a intentarlo sin meter mano en la base.
+       */}
+      {conError ? (
+        <button
+          type="button"
+          disabled={marcando}
+          onClick={() =>
+            iniciar(async () => {
+              const r = await comprarPedidoAlProveedor(compra.pedidoId);
+              setAviso(r.mensaje);
+              router.refresh();
+            })
+          }
+          className="boton-principal mt-2 gap-2 text-sm disabled:opacity-60"
+        >
+          {marcando ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <RefreshCw className="h-4 w-4" aria-hidden />
+          )}
+          {marcando ? t("creando") : t("reintentar")}
+        </button>
+      ) : null}
+
+      {/**
+       * QUÉ SE PIDIÓ EXACTAMENTE, ANTES DE PAGAR.
+       *
+       * Cuando un producto de CJ tiene tallas o colores, el comprador nunca
+       * eligió —nuestra ficha lo publica como una sola cosa— así que la eligió
+       * el sistema. Aquí se ve, y por eso el pago sigue siendo un botón que
+       * pulsa una persona: es la única oportunidad de cancelar si el color no
+       * era ese.
+       */}
+      {compra.renglones.length > 0 ? (
+        <ul className="mt-2 space-y-1 border-t border-borde/60 pt-2">
+          {compra.renglones.map((r) => (
+            <li key={r.id} className="text-xs">
+              <span className="text-tinta-suave">
+                {r.cantidad} × {r.titulo ?? "—"}
+              </span>
+              {r.varianteNombre ? (
+                <span
+                  className={cn(
+                    "ml-1.5 rounded px-1.5 py-0.5 font-semibold",
+                    r.varianteAutomatica
+                      ? "bg-amber-100 text-amber-900"
+                      : "bg-slate-100",
+                  )}
+                >
+                  {r.varianteNombre}
+                </span>
+              ) : null}
+              {r.varianteAutomatica ? (
+                <span className="ml-1.5 text-amber-800">
+                  {t("varianteAutomatica", { total: r.variantesTotales ?? 0 })}
+                </span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
       ) : null}
 
       {aviso ? (

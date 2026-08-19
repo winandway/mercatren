@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { pedidos, pedidosProveedor } from "@/lib/db/schema";
+import { pedidos, pedidosProveedor, renglonesProveedor } from "@/lib/db/schema";
 import { idDeRegistro, revisar } from "@/lib/validacion/acciones";
 
 /**
@@ -29,6 +29,26 @@ export type CompraAlProveedor = {
   guia: string | null;
   ultimoError: string | null;
   creadoEn: Date | null;
+  /** Qué se le pidió exactamente, con la variante elegida de cada renglón. */
+  renglones: RenglonComprado[];
+};
+
+/**
+ * UN RENGLÓN DE LO QUE SE LE PIDIÓ AL PROVEEDOR.
+ *
+ * Se enseña ANTES de pagar porque, cuando un producto de CJ tiene tallas o
+ * colores, **el comprador nunca eligió**: nuestra ficha lo publica como una
+ * sola cosa. La elige el sistema, y quien va a pagar tiene que poder verlo y
+ * cancelar si el color no era ese. Mandar la talla equivocada es una
+ * devolución, y una devolución de un producto de $8 la pagamos nosotros.
+ */
+export type RenglonComprado = {
+  id: string;
+  titulo: string | null;
+  varianteNombre: string | null;
+  cantidad: number;
+  varianteAutomatica: boolean;
+  variantesTotales: number | null;
 };
 
 /** Lo que hay pendiente de comprar o de pagar, lo más viejo primero. */
@@ -62,7 +82,37 @@ export async function listarComprasAlProveedor(
     .limit(limite)
     .catch(() => []);
 
-  return filas;
+  if (filas.length === 0) return [];
+
+  /* Una sola consulta para todos los renglones, no una por compra: con la cola
+     llena serían cincuenta viajes a la base para pintar una pantalla. */
+  const renglones = await db
+    .select({
+      id: renglonesProveedor.id,
+      pedidoProveedorId: renglonesProveedor.pedidoProveedorId,
+      titulo: renglonesProveedor.titulo,
+      varianteNombre: renglonesProveedor.varianteNombre,
+      cantidad: renglonesProveedor.cantidad,
+      varianteAutomatica: renglonesProveedor.varianteAutomatica,
+      variantesTotales: renglonesProveedor.variantesTotales,
+    })
+    .from(renglonesProveedor)
+    .where(
+      inArray(
+        renglonesProveedor.pedidoProveedorId,
+        filas.map((f) => f.id),
+      ),
+    )
+    /* La tabla es nueva: una base todavía sin ella no puede tumbar la cola de
+       pagos, que es lo único imprescindible de esta pantalla. */
+    .catch(() => []);
+
+  return filas.map((f) => ({
+    ...f,
+    renglones: renglones
+      .filter((r) => r.pedidoProveedorId === f.id)
+      .map(({ pedidoProveedorId: _, ...resto }) => resto),
+  }));
 }
 
 /**

@@ -2263,3 +2263,76 @@ export const pedidosProveedor = sqliteTable(
     index("idx_pedidos_proveedor_estado").on(t.estado),
   ],
 );
+
+/**
+ * QUÉ VARIANTE SE LE COMPRÓ AL PROVEEDOR, RENGLÓN POR RENGLÓN.
+ *
+ * ══ POR QUÉ HACE FALTA ESTO (18 ago 2026) ══
+ *
+ * Nuestra ficha publica un producto de CJ como **una sola cosa con un solo
+ * precio**; CJ lo tiene con tallas y colores. O sea que el comprador nunca
+ * eligió variante y **la elige el sistema** (`src/lib/cj/variantes.ts`: la más
+ * barata, que es la que se le cobró).
+ *
+ * Una elección que hace el sistema y que nadie puede ver no es una elección: es
+ * una sorpresa dentro de una caja. Aquí queda escrita, sale en el panel antes
+ * de pagar —el pago a CJ lo pulsa una persona— y se puede cancelar si el color
+ * no era ese.
+ *
+ * Y sirve para después: cuando llegue una devolución o una factura de ajuste
+ * (`makeup`), esto dice exactamente qué se pidió.
+ *
+ * ══ TABLA NUEVA, NO COLUMNAS ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que una columna
+ * nueva NO llega sola a una base que ya existe. Una tabla sí.
+ */
+export const renglonesProveedor = sqliteTable(
+  "renglones_proveedor",
+  {
+    id: text("id").primaryKey(),
+
+    pedidoProveedorId: text("pedido_proveedor_id")
+      .notNull()
+      .references(() => pedidosProveedor.id, { onDelete: "cascade" }),
+
+    /** Nuestro producto. Sin cascada: el histórico no se borra al despublicar. */
+    productoId: text("producto_id").references(() => productos.id),
+
+    /** Cómo se llama en nuestra ficha, copiado. Si mañana cambia, esto no. */
+    titulo: text("titulo"),
+
+    /** El identificador de la variante EN CJ. Es lo que viajó en el pedido. */
+    vid: text("vid"),
+
+    /**
+     * El SKU de la VARIANTE — `CJJT05843-Black`, no `CJJT05843`.
+     *
+     * Confundir los dos es justo lo que tumbó la primera compra pagada.
+     */
+    varianteSku: text("variante_sku"),
+
+    /** Legible: «Black-XXL». Es lo que lee la persona que va a pagar. */
+    varianteNombre: text("variante_nombre"),
+
+    cantidad: integer("cantidad").notNull().default(1),
+
+    /**
+     * La eligió el sistema porque había más de una, no porque fuera la única.
+     *
+     * Se pinta en ámbar en el panel: mandar la talla equivocada es una
+     * devolución, y una devolución de un producto de $8 la pagamos nosotros.
+     */
+    varianteAutomatica: integer("variante_automatica", { mode: "boolean" })
+      .notNull()
+      .default(false),
+
+    /** Cuántas variantes había. Un «1 de 12» se lee distinto que un «1 de 1». */
+    variantesTotales: integer("variantes_totales"),
+
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_renglones_proveedor").on(t.pedidoProveedorId)],
+);

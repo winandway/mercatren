@@ -176,6 +176,13 @@
       "when": 1786971192502,
       "tag": "0024_next_wolfsbane",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1787098239025,
+      "tag": "0025_late_supernaut",
+      "breakpoints": true
     }
   ]
 }

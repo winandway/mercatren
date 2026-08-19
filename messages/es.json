@@ -1921,7 +1921,9 @@
         "El proveedor no puede cobrar una tarjeta guardada: por eso el pago es un botón, no algo automático.",
         "No hace falta cargar billetera ni esperar tres días. Se paga con tarjeta en el momento.",
         "Si algo falla, aquí sale el motivo exacto que dio el proveedor y se puede reintentar."
-      ]
+      ],
+      "reintentar": "Volver a intentarlo",
+      "varianteAutomatica": "· la eligió el sistema entre {total}"
     },
     "buscador": {
       "buscar": "Buscar",
