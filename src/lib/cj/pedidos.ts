@@ -694,6 +694,73 @@ export async function comprarAlProveedor(
 }
 
 /**
+ * PREGUNTARLE A CJ CÓMO VA UN PEDIDO QUE YA EXISTE.
+ *
+ * ══ POR QUÉ ESTO Y NO «VOLVER A PEDIR EL ENLACE» (18 ago 2026) ══
+ *
+ * Cuando MT-000004 quedó creada sin enlace de pago, la salida obvia parecía ser
+ * volver a pedirlo. **Es peligroso y no funciona:**
+ *
+ * 1. Comprobado en su documentación: **`cjPayUrl` solo llega al CREAR el
+ *    pedido.** Ni `list`, ni `getOrderDetail`, ni el lote lo devuelven. Si no se
+ *    capturó en ese momento, por API no se recupera — se paga en su panel.
+ * 2. Y volver a crear no «vuelve a pedir el enlace»: **crea un SEGUNDO pedido**.
+ *    Dos pedidos del mismo producto es pagar dos veces. Por eso el candado de
+ *    idempotencia se queda como está.
+ *
+ * Lo que sí se puede es preguntar cómo va. Y eso trae justo lo que falta: el
+ * costo real, **el envío** —el número que hoy entra como cero al fijar el precio
+ * de venta— el estado, y la guía cuando despachen.
+ *
+ * Se pregunta por NUESTRO número de pedido: su endpoint acepta el propio del
+ * comercio, así que no hace falta haber guardado el suyo.
+ */
+type DetalleCj = {
+  orderId?: string;
+  orderNum?: string;
+  orderStatus?: string;
+  orderAmount?: number | string;
+  postageAmount?: number | string;
+  logisticName?: string;
+  trackNumber?: string;
+};
+
+export type ComoVaEnCj = {
+  estado: string | null;
+  costoCentavos: number | null;
+  envioCentavos: number | null;
+  guia: string | null;
+  transportista: string | null;
+};
+
+export async function comoVaEnCj(
+  numeroDePedido: string,
+): Promise<{ ok: true; datos: ComoVaEnCj } | { ok: false; motivo: string }> {
+  if (!cjConfigurado()) {
+    return { ok: false, motivo: "Falta CJ_API_KEY en el panel del sitio." };
+  }
+
+  const respuesta = await llamarCj<DetalleCj>(
+    `/shopping/order/getOrderDetail?orderId=${encodeURIComponent(numeroDePedido)}`,
+  );
+
+  if (!respuesta.ok) return { ok: false, motivo: respuesta.motivo };
+
+  const d = respuesta.datos ?? {};
+
+  return {
+    ok: true,
+    datos: {
+      estado: d.orderStatus?.trim() || null,
+      costoCentavos: aCentavos(d.orderAmount),
+      envioCentavos: aCentavos(d.postageAmount),
+      guia: d.trackNumber?.trim() || null,
+      transportista: d.logisticName?.trim() || null,
+    },
+  };
+}
+
+/**
  * ¿Este pedido lo surte el proveedor de Estados Unidos?
  *
  * Se pregunta ANTES de intentar la compra para no llamar a CJ por cada venta

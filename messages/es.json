@@ -1930,9 +1930,9 @@
       "laMasBarata": "(la que saldría sola)",
       "confirmarYComprar": "Crear el pedido con esto",
       "cancelar": "Cancelar",
-      "sinEnlace": "El proveedor creó el pedido pero no devolvió el enlace de pago. Vuelve a pedirlo, o ábrelo en su panel y págalo ahí.",
-      "pedirEnlace": "Volver a pedir el enlace",
-      "abrirPanelCj": "Abrir el panel del proveedor"
+      "sinEnlace": "El proveedor creó el pedido pero no devolvió el enlace de pago. Ese enlace solo lo da al crear el pedido y no se puede recuperar: ábrelo en su panel y págalo ahí, buscando el número de arriba. NO se puede volver a pedir sin crear un segundo pedido.",
+      "abrirPanelCj": "Abrir el panel del proveedor",
+      "comprobar": "Preguntar cómo va"
     },
     "buscador": {
       "buscar": "Buscar",

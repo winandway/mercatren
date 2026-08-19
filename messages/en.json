@@ -1930,9 +1930,9 @@
       "laMasBarata": "(the default)",
       "confirmarYComprar": "Place the order with this",
       "cancelar": "Cancel",
-      "sinEnlace": "The supplier created the order but didn't return a payment link. Request it again, or open their dashboard and pay there.",
-      "pedirEnlace": "Request the link again",
-      "abrirPanelCj": "Open supplier dashboard"
+      "sinEnlace": "The supplier created the order but returned no payment link. That link is only issued at creation and can't be recovered: open their dashboard and pay it there, searching for the number above. It can't be requested again without creating a second order.",
+      "abrirPanelCj": "Open supplier dashboard",
+      "comprobar": "Check its status"
     },
     "buscador": {
       "buscar": "Search",

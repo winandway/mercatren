@@ -6,12 +6,14 @@ import {
   CreditCard,
   ExternalLink,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
 import { ElegirVariantes } from "@/components/panel/elegir-variantes";
 import {
+  comprobarEnProveedor,
   marcarCompraPagada,
   type CompraAlProveedor,
 } from "@/lib/cj/proveedor-acciones";
@@ -260,10 +262,36 @@ function FilaCompra({
             {t("sinEnlace")}
           </p>
           <div className="mt-2 flex flex-wrap items-start gap-2">
-            <ElegirVariantes
-              pedidoId={compra.pedidoId}
-              etiqueta={t("pedirEnlace")}
-            />
+            {/**
+             * AQUÍ NO VA UN «VOLVER A INTENTARLO», Y ES A PROPÓSITO.
+             *
+             * Volver a crear NO recupera el enlace: **crea un SEGUNDO pedido en
+             * CJ**, y dos pedidos del mismo producto es pagar dos veces. Y
+             * comprobado en su documentación, `cjPayUrl` **solo llega al crear**
+             * — ningún endpoint de consulta lo devuelve.
+             *
+             * Así que se paga en su panel, y desde aquí se pregunta cómo va:
+             * eso sí trae el costo real, el envío y la guía.
+             */}
+            <button
+              type="button"
+              disabled={marcando}
+              onClick={() =>
+                iniciar(async () => {
+                  const r = await comprobarEnProveedor(compra.id);
+                  setAviso(r.mensaje);
+                  router.refresh();
+                })
+              }
+              className="inline-flex items-center gap-2 rounded-lg border border-borde bg-white px-3 py-2 text-sm font-semibold hover:border-carga-500 disabled:opacity-60"
+            >
+              {marcando ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <RefreshCw className="h-4 w-4" aria-hidden />
+              )}
+              {t("comprobar")}
+            </button>
             <a
               href={PEDIDOS_EN_CJ}
               target="_blank"

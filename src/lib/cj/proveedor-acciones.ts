@@ -234,6 +234,74 @@ export async function comprarPedidoAlProveedor(
 }
 
 /**
+ * COMPROBAR EN EL PROVEEDOR CÓMO VA UNA COMPRA QUE YA EXISTE.
+ *
+ * Trae el costo real, **el envío**, el estado y la guía, y los guarda. Es lo
+ * que se puede hacer cuando CJ creó el pedido pero no devolvió el enlace de
+ * pago: volver a crearlo sería un SEGUNDO pedido, o sea pagar dos veces.
+ */
+export async function comprobarEnProveedor(id: string): Promise<Resultado> {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const revisado = revisar(idDeRegistro, id);
+  if (!revisado.ok) return { ok: false, mensaje: "Esa compra no existe." };
+
+  const db = getDb();
+
+  const [fila] = await db
+    .select({
+      id: pedidosProveedor.id,
+      numero: pedidos.numero,
+      estado: pedidosProveedor.estado,
+    })
+    .from(pedidosProveedor)
+    .innerJoin(pedidos, eq(pedidos.id, pedidosProveedor.pedidoId))
+    .where(eq(pedidosProveedor.id, revisado.datos))
+    .limit(1);
+
+  if (!fila) return { ok: false, mensaje: "Esa compra no existe." };
+
+  const { comoVaEnCj } = await import("@/lib/cj/pedidos");
+  const r = await comoVaEnCj(fila.numero);
+
+  if (!r.ok) return { ok: false, mensaje: r.motivo };
+
+  /* Solo se escribe lo que CJ mandó de verdad: un `null` suyo no borra lo que
+     ya teníamos. El costo de un pedido no se pierde porque una consulta viniera
+     a medias. */
+  const cambios: Record<string, unknown> = { actualizadoEn: new Date() };
+  if (r.datos.costoCentavos !== null)
+    cambios.costoCentavos = r.datos.costoCentavos;
+  if (r.datos.guia) cambios.guia = r.datos.guia;
+  if (r.datos.transportista) cambios.transportista = r.datos.transportista;
+
+  await db
+    .update(pedidosProveedor)
+    .set(cambios)
+    .where(eq(pedidosProveedor.id, fila.id));
+
+  revalidatePath("/[locale]/panel/proveedor", "page");
+
+  /* El envío se DICE aunque no se guarde: es el número que decide si la venta
+     gana o pierde dinero, porque hoy entra como cero al fijar el precio. */
+  const envio =
+    r.datos.envioCentavos !== null
+      ? ` · envío $${(r.datos.envioCentavos / 100).toFixed(2)}`
+      : "";
+
+  return {
+    ok: true,
+    mensaje: `El proveedor dice: ${r.datos.estado ?? "sin estado"}${envio}${
+      r.datos.guia ? ` · guía ${r.datos.guia}` : ""
+    }`,
+  };
+}
+
+/**
  * «Ya lo pagué»: lo marca quien abrió el enlace y pagó.
  *
  * Se guarda QUIÉN y CUÁNDO, igual que los retiros: el pago ocurre fuera del
