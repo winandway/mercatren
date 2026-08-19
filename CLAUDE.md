@@ -11,10 +11,41 @@ queda solo como el estudio que desarrolla el software — el crédito del pie de
 página, que **no debe cambiar nunca**.
 
 **MERCATREN LLC · Michigan · miembro único.** Domicilio registrado y fiscal:
-30080 Montmorency Drive, Novi, MI 48377. EIN asignado el 11 ago 2026 (carta
-CP 575 del IRS). El nombre legal va **SIN coma** — así está en LARA y en el
-IRS, y así tiene que escribirse en todas partes. Windoce, LLC, la anterior, de
-Delaware, sí la llevaba: no es un descuido, son dos nombres distintos.
+30080 Montmorency Drive, Novi, MI 48377. El nombre legal va **SIN coma** — así
+está en LARA y en el IRS, y así tiene que escribirse en todas partes. Windoce,
+LLC, la anterior, de Delaware, sí la llevaba: no es un descuido, son dos
+nombres distintos.
+
+### Los datos que piden los formularios (comprobados en el registro público)
+
+Verificado el 19 ago 2026 en `mibusinessregistry.lara.state.mi.us`, que es
+contra lo que cotejan Payoneer, Google Merchant Center y los bancos:
+
+| Dato                    | Valor                                    |
+| ----------------------- | ---------------------------------------- |
+| Identification #        | **900260648**                            |
+| **Fecha de constitución** | **11 ago 2026** (LARA: `08/11/2026`)   |
+| EIN                     | **42-4386110** (carta CP575G del IRS)    |
+| Agente residente        | Pedro M Llerena                          |
+| Estado                  | Active · AR Standing Good                |
+| **Informe anual vence** | **15 feb 2027**                          |
+
+**OJO CON DOS COSAS AL LLENAR FORMULARIOS:**
+
+1. **La fecha de constitución NO es la de la firma.** Las Articles of
+   Organization se firmaron el **7 de agosto** y LARA las procesó el **11**. La
+   que vale es la del registro. Yo mismo me equivoqué recomendando la de la
+   firma; el registro público lo corrigió.
+2. **El EIN se escribe SIN guion** cuando el formulario lo rechaza:
+   `424386110`. Payoneer no admite `42-4386110`.
+
+**El informe anual del 15 de febrero de 2027 no es un trámite menor**: si se
+pasa, la LLC pierde el «Good Standing», y con eso se caen la verificación de
+Payoneer, la de Merchant Center y potencialmente la cuenta de Mercury.
+
+**La dirección del registro es la MISMA que la de devoluciones**, y eso es
+deliberado: desde abril de 2026 Google cruza la dirección de devolución contra
+la identidad declarada del comercio.
 
 Banco en **Mercury** (Checking ••9805) y **Stripe activa**, las dos a nombre de
 Mercatren LLC. Falta la cuenta de Zelle.
