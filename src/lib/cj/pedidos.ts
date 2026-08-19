@@ -127,8 +127,25 @@ async function leerVariantes(
 
   if (!parametros) return [];
 
+  /**
+   * ══ SOLO LAS QUE TIENEN EXISTENCIA EN EL ALMACÉN DE EE. UU. ══
+   *
+   * EL FALLO QUE ESTO ARREGLA (18 ago 2026): se elegía la variante por PRECIO
+   * sin mirar si había stock. MT-000004 salió con «Black-S» —la más barata— y
+   * al ir a pagarla CJ la rechazó:
+   *
+   *     (Elk Grove Village, IL, US) Insufficient inventory
+   *
+   * El pedido se creaba bien, se podía enviar a preparación, y **moría en la
+   * pantalla del pago**. El dueño lo reintentó dos veces creyendo que era un
+   * bucle de su navegador; no lo era: era la misma talla agotada una y otra vez.
+   *
+   * Su API lo resuelve con un parámetro, y lo dice con estas palabras: «Only
+   * variants with inventory in that country will be returned». Sin él, el
+   * catálogo de tallas que se ofrece incluye las que no se pueden comprar.
+   */
   const respuesta = await llamarCj<unknown>(
-    `/product/variant/query?${parametros}`,
+    `/product/variant/query?${parametros}&countryCode=${DESDE}`,
   );
 
   if (!respuesta.ok) {
@@ -444,7 +461,11 @@ export async function comprarAlProveedor(
          dos envíos; y no hay forma de saberlo mirando el panel. */
       return {
         ok: false,
-        motivo: `El proveedor no tiene variantes disponibles de «${r.titulo ?? r.sku ?? "un producto"}». Puede que lo haya descatalogado.`,
+        /* El motivo nombra el ALMACÉN, no dice «no hay variantes» a secas: casi
+           siempre el producto existe y lo que falta es existencia en Estados
+           Unidos. Con el mensaje genérico uno va a buscar el producto y lo
+           encuentra, y se queda sin entender nada. */
+        motivo: `«${r.titulo ?? r.sku ?? "Un producto"}» no tiene ninguna talla ni color con existencia en el almacén de Estados Unidos. Sin eso el pedido se crea pero CJ no deja pagarlo.`,
       };
     }
 

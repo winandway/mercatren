@@ -14,6 +14,7 @@ import { useState, useTransition } from "react";
 import { ElegirVariantes } from "@/components/panel/elegir-variantes";
 import {
   comprobarEnProveedor,
+  descartarCompra,
   marcarCompraPagada,
   type CompraAlProveedor,
 } from "@/lib/cj/proveedor-acciones";
@@ -292,6 +293,33 @@ function FilaCompra({
               )}
               {t("comprobar")}
             </button>
+            {/**
+             * DESCARTAR, PARA PODER VOLVER A PEDIRLO CON OTRA TALLA.
+             *
+             * Cuando CJ rechaza el pago por «Insufficient inventory» no hay
+             * arreglo posible sobre ese pedido: la talla no está en su almacén.
+             * Esto marca NUESTRA fila como fallida para poder pedirlo de nuevo
+             * —ahora solo con tallas que sí tienen existencia allá—.
+             *
+             * Avisa antes, porque no borra nada en CJ: si el pedido sigue vivo
+             * allá y aquí se vuelve a pedir, quedan DOS.
+             */}
+            <button
+              type="button"
+              disabled={marcando}
+              onClick={() =>
+                iniciar(async () => {
+                  if (!window.confirm(t("descartarConfirmar"))) return;
+                  const r = await descartarCompra(compra.id);
+                  setAviso(r.mensaje);
+                  router.refresh();
+                })
+              }
+              className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-800 hover:border-red-500 disabled:opacity-60"
+            >
+              {t("descartar")}
+            </button>
+
             <a
               href={PEDIDOS_EN_CJ}
               target="_blank"

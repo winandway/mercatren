@@ -302,6 +302,71 @@ export async function comprobarEnProveedor(id: string): Promise<Resultado> {
 }
 
 /**
+ * DESCARTAR UNA COMPRA PARA PODER VOLVER A PEDIRLA.
+ *
+ * ══ POR QUÉ HACE FALTA (18 ago 2026) ══
+ *
+ * MT-000004 se creó en CJ con una talla **sin existencia en su almacén de
+ * Estados Unidos**, y ahí no hay arreglo posible: el pedido se puede enviar a
+ * preparación pero **la pantalla del pago lo rechaza**, una y otra vez. Desde
+ * fuera parece un bucle.
+ *
+ * El candado de idempotencia —que está bien y protege dinero— impide volver a
+ * pedirlo mientras la fila esté en «Por pagar». Esto la marca como fallida, con
+ * el motivo escrito, para que se pueda pedir de nuevo con una talla que sí
+ * tenga existencia.
+ *
+ * ══ NO BORRA NADA EN CJ, Y POR ESO AVISA ══
+ *
+ * Solo toca NUESTRO registro. El pedido sigue vivo allá hasta que alguien lo
+ * cancele en su panel; si no se cancela y aquí se vuelve a pedir, quedan **dos
+ * pedidos del mismo producto**. Por eso el aviso de la pantalla lo dice antes.
+ */
+export async function descartarCompra(id: string): Promise<Resultado> {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const revisado = revisar(idDeRegistro, id);
+  if (!revisado.ok) return { ok: false, mensaje: "Esa compra no existe." };
+
+  const usuario = await obtenerUsuario();
+
+  /* `pagado` NO se descarta: si ya salió dinero, marcarla como fallida haría
+     que alguien la volviera a pedir y a pagar. */
+  const cambiadas = await getDb()
+    .update(pedidosProveedor)
+    .set({
+      estado: "con_error",
+      /* El motivo se escribe AQUÍ, no llega del navegador. Es un registro
+         interno de la base —queda para siempre al lado de la compra— y lo que
+         manda un cliente no puede acabar escrito en él tal cual. */
+      ultimoError:
+        `Descartada por ${usuario?.name ?? "el equipo"} para volver a pedirla.`.slice(
+          0,
+          300,
+        ),
+      urlPago: null,
+      actualizadoEn: new Date(),
+    })
+    .where(
+      and(
+        eq(pedidosProveedor.id, revisado.datos),
+        eq(pedidosProveedor.estado, "por_pagar"),
+      ),
+    )
+    .returning({ id: pedidosProveedor.id });
+
+  revalidatePath("/[locale]/panel/proveedor", "page");
+
+  return cambiadas.length > 0
+    ? { ok: true, mensaje: "Descartada. Ya puedes volver a pedirla." }
+    : { ok: false, mensaje: "Solo se puede descartar una compra por pagar." };
+}
+
+/**
  * «Ya lo pagué»: lo marca quien abrió el enlace y pagó.
  *
  * Se guarda QUIÉN y CUÁNDO, igual que los retiros: el pago ocurre fuera del

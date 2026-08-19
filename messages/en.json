@@ -1932,7 +1932,9 @@
       "cancelar": "Cancel",
       "sinEnlace": "The supplier created the order but returned no payment link. That link is only issued at creation and can't be recovered: open their dashboard and pay it there, searching for the number above. It can't be requested again without creating a second order.",
       "abrirPanelCj": "Open supplier dashboard",
-      "comprobar": "Check its status"
+      "comprobar": "Check its status",
+      "descartar": "Discard and re-order",
+      "descartarConfirmar": "Are you sure? This does NOT cancel the order at the supplier. Cancel it there first, or you'll end up with two orders for the same product."
     },
     "buscador": {
       "buscar": "Search",

@@ -1932,7 +1932,9 @@
       "cancelar": "Cancelar",
       "sinEnlace": "El proveedor creó el pedido pero no devolvió el enlace de pago. Ese enlace solo lo da al crear el pedido y no se puede recuperar: ábrelo en su panel y págalo ahí, buscando el número de arriba. NO se puede volver a pedir sin crear un segundo pedido.",
       "abrirPanelCj": "Abrir el panel del proveedor",
-      "comprobar": "Preguntar cómo va"
+      "comprobar": "Preguntar cómo va",
+      "descartar": "Descartar y volver a pedir",
+      "descartarConfirmar": "¿Seguro? Esto NO cancela el pedido en el proveedor. Cancélalo allá primero, o vas a terminar con dos pedidos del mismo producto."
     },
     "buscador": {
       "buscar": "Buscar",
