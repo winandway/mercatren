@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cobrar cuando el cliente es otra ferretería</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  :root{
+    --bley:#E3342B; --b:#2563EB; --mt:#FF6B1A; --azulm:#10263A;
+    --tinta:#16181D; --gris:#6B7280; --linea:#E5E7EB;
+    --crema:#FEF9EC; --ambar:#B45309; --verde:#0F7A4A; --rosa:#FEF2F2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;color:var(--tinta);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .hoja{width:297mm;height:210mm;page-break-after:always;position:relative;padding:14mm 16mm 12mm;overflow:hidden;background:#fff}
+  .hoja:last-child{page-break-after:auto}
+
+  h1{font-size:20pt;font-weight:800;letter-spacing:-.01em}
+  .baja{color:var(--gris);font-size:10.5pt;margin-top:2mm}
+  .pie{position:absolute;left:16mm;right:16mm;bottom:8mm;display:flex;justify-content:space-between;color:#9CA3AF;font-size:8pt}
+
+  .rot{font-size:8pt;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin:9mm 0 4mm}
+  .r-ok{color:var(--verde)} .r-new{color:var(--mt)} .r-b{color:var(--b)}
+
+  .fila{display:flex;align-items:stretch;gap:3mm}
+  .n{flex:1;border:1px solid var(--linea);border-radius:3mm;padding:4.5mm 4mm;background:#fff}
+  .n.bley{border-color:var(--bley);border-width:1.5px}
+  .n.bb{border-color:var(--b);border-width:1.5px}
+  .n .q{font-size:7.5pt;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:2.5mm;color:var(--gris)}
+  .n.bley .q{color:var(--bley)} .n.bb .q{color:var(--b)}
+  .n .t{font-size:11pt;font-weight:700;line-height:1.25}
+  .n .d{font-size:9pt;color:var(--gris);margin-top:1.5mm;line-height:1.4}
+  .fl{display:flex;align-items:center;color:#C4C8CE;font-size:13pt;flex:none}
+  .plata{flex:none;width:34mm;border-radius:3mm;padding:4.5mm 3mm;text-align:center;background:#F3F4F6}
+  .plata .m{font-size:14pt;font-weight:800}
+  .plata .s{font-size:8pt;color:var(--gris);margin-top:1mm}
+
+  .nota{margin-top:5mm;padding:4mm 5mm;font-size:10pt;line-height:1.55;border-radius:2mm;background:#F8FAFC;border-left:3px solid var(--mt)}
+  .nota b{font-weight:800}
+  .nota.ok{background:#F0FDF4;border-left-color:var(--verde)}
+  .nota.ojo{background:var(--crema);border-left-color:var(--ambar)}
+
+  /* respuestas */
+  .rta{border:1px solid var(--linea);border-radius:3mm;padding:5mm 5.5mm;margin-bottom:4.5mm}
+  .rta .preg{font-size:10.5pt;font-weight:800;margin-bottom:3mm}
+  .rta .veredicto{display:inline-block;font-size:8pt;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:1.5mm 3.5mm;border-radius:10mm;margin-right:3mm;vertical-align:1mm}
+  .v-si{background:#DCFCE7;color:var(--verde)}
+  .v-no{background:#FEE2E2;color:#B91C1C}
+  .rta p{font-size:9.8pt;line-height:1.55;margin-top:2.5mm}
+  .rta .enCambio{margin-top:3mm;padding:3.5mm 4mm;background:#F0FDF4;border-radius:2mm;font-size:9.8pt;line-height:1.5}
+  .rta .enCambio b{color:var(--verde);font-weight:800}
+
+  /* dos columnas */
+  .cols{display:flex;gap:8mm;margin-top:3mm}
+  .col{flex:1}
+  .col h3{font-size:11pt;font-weight:800;padding-bottom:2.5mm;border-bottom:2px solid;margin-bottom:4mm}
+  .c-bley h3{border-color:var(--bley);color:var(--bley)}
+  .c-mt h3{border-color:var(--mt);color:var(--mt)}
+  .col li{font-size:9.8pt;line-height:1.5;margin-bottom:3.5mm;list-style:none;padding-left:7mm;position:relative}
+  .col li b{font-weight:800}
+  .col li .num{position:absolute;left:0;top:.2mm;font-weight:800;font-size:9pt;color:var(--gris)}
+  .col li .sub{display:block;color:var(--gris);font-size:9pt;margin-top:.8mm}
+
+  .tipos{display:flex;gap:3mm;margin-top:3mm}
+  .tipo{flex:1;border:1px solid var(--linea);border-radius:3mm;padding:4mm;text-align:center}
+  .tipo .ic{font-size:15pt;display:block;margin-bottom:2mm}
+  .tipo .t{font-size:9.5pt;font-weight:800}
+  .tipo .d{font-size:8.5pt;color:var(--gris);margin-top:1mm;line-height:1.4}
+  .tipo.dest{border-color:var(--b);border-width:1.5px;background:#EFF6FF}
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="hoja">
+  <h1>Las dos formas de cobrar una deuda</h1>
+  <div class="baja">Ferremateriales Bley · <b style="color:var(--bley)">rojo</b> = Bley · <b style="color:var(--b)">azul</b> = la ferretería que revende · el pago viaja por Mercatren</div>
+
+  <div class="rot r-ok">Forma 1 · ya funciona hoy</div>
+  <div class="fila">
+    <div class="n bley"><div class="q">Ferretería A</div><div class="t">Bley</div></div>
+    <div class="fl">→</div>
+    <div class="n"><div class="q">Vendedor</div><div class="t">Le fía y le da 30 días</div></div>
+    <div class="fl">→</div>
+    <div class="n"><div class="q">Cliente del vendedor</div><div class="t">Consumidor final</div></div>
+    <div class="fl">→</div>
+    <div class="plata"><div class="m">$2.300</div><div class="s">a 30 días</div></div>
+  </div>
+  <div class="nota ok">El enlace le llega a ese mismo cliente. Abona cuando puede y la deuda baja. <b>Una deuda, un pago, una persona.</b></div>
+
+  <div class="rot r-new">Forma 2 · lo que falta — cuando el cliente es otra ferretería</div>
+  <div class="fila">
+    <div class="n bley"><div class="q">Ferretería A</div><div class="t">Bley</div></div>
+    <div class="fl">→</div>
+    <div class="n"><div class="q">Vendedor</div><div class="t">Le fía a un negocio</div></div>
+    <div class="fl">→</div>
+    <div class="n bb"><div class="q">Ferretería B</div><div class="t">Revende · ya está registrada como cliente de Bley</div></div>
+    <div class="fl">→</div>
+    <div class="plata"><div class="m">$1.200</div><div class="s">B le debe a Bley</div></div>
+  </div>
+  <div class="fila" style="margin-top:3mm">
+    <div class="n" style="flex:2.1;visibility:hidden"></div>
+    <div class="fl" style="visibility:hidden">→</div>
+    <div class="n bb" style="flex:1"><div class="q">Cliente de la Ferretería B</div><div class="t">A Bley no lo conoce</div><div class="d">Le compra a B, no a Bley</div></div>
+    <div class="fl">→</div>
+    <div class="plata"><div class="m">$1.400</div><div class="s">le debe a B</div></div>
+  </div>
+
+  <div class="nota"><b>El puente es esto:</b> el enlace de pago se le manda al cliente de la Ferretería B. Cuando él paga, ese pago baja la deuda que B tiene con Bley. B no tiene que poner la plata por adelantado ni salir a cobrar dos veces.</div>
+
+  <div class="pie"><span>Mercatren · plano acordado con Ferremateriales Bley</span><span>1</span></div>
+</section>
+
+<!-- 2 -->
+<section class="hoja">
+  <h1>La pieza que faltaba: la Ferretería B ya está en la base de datos</h1>
+  <div class="baja">Esto simplifica el trabajo y quita el paso más frágil del plan anterior.</div>
+
+  <div class="rot r-b">Bley no tiene un solo tipo de cliente — tiene tres</div>
+  <div class="tipos">
+    <div class="tipo dest"><span class="ic">🏪</span><div class="t">Ferreterías</div><div class="d">Revenden. Tienen sus propios clientes.</div></div>
+    <div class="tipo"><span class="ic">👤</span><div class="t">Personas</div><div class="d">Consumidor final. Compra y se lo lleva.</div></div>
+    <div class="tipo"><span class="ic">🏗️</span><div class="t">Constructoras y fabricantes</div><div class="d">Compran para su obra. No revenden.</div></div>
+  </div>
+
+  <div class="nota ok"><b>Solo el primer tipo necesita el puente.</b> Hoy los tres están mezclados como «cliente» a secas, así que el sistema no puede distinguirlos. Marcar el tipo es una casilla, no un módulo.</div>
+
+  <div class="rot r-new">Y por eso el enlace NO se reenvía</div>
+  <div class="fila">
+    <div class="n bb"><div class="q">1 · Ferretería B</div><div class="t">Le dice al vendedor a quién mandarle el cobro</div><div class="d">Es su cliente y ella decide</div></div>
+    <div class="fl">→</div>
+    <div class="n bley"><div class="q">2 · El vendedor</div><div class="t">Manda el cobro en nombre de la Ferretería B</div><div class="d">Desde el panel, como hoy</div></div>
+    <div class="fl">→</div>
+    <div class="n"><div class="q">3 · El cliente de B</div><div class="t">Recibe el enlace y paga</div><div class="d">Directo, sin intermediarios</div></div>
+    <div class="fl">→</div>
+    <div class="n"><div class="q">4 · Listo</div><div class="t">Baja la deuda de B con Bley</div></div>
+  </div>
+
+  <div class="nota ojo"><b>En el plan anterior, B recibía el enlace y lo reenviaba.</b> Ese paso sobra y era el más frágil: un reenvío que no ocurre es una venta que no se cobra. Como B ya está registrada, el vendedor manda el cobro directo.</div>
+
+  <div class="pie"><span>Mercatren · plano acordado con Ferremateriales Bley</span><span>2</span></div>
+</section>
+
+<!-- 3 -->
+<section class="hoja">
+  <h1>Las tres preguntas, contestadas</h1>
+  <div class="baja">Dos de ellas, tal como estaban planteadas, romperían el modelo. Hay otra forma de resolver lo mismo.</div>
+
+  <div style="margin-top:7mm">
+    <div class="rta">
+      <div class="preg"><span class="veredicto v-no">No así</span>1 · ¿Puede la página de pago decir «Ferretería B»?</div>
+      <p>El cargo le va a aparecer en el estado de cuenta como <b>Mercatren</b>, porque Mercatren es quien cobra y factura. Si la página dice un nombre y el banco dice otro, eso es un contracargo — y en tarjeta se reclama hasta 120 días después. Además la Ferretería B no tiene cuenta ni contrato con Mercatren: ponerla como vendedora sería inventar un vendedor.</p>
+      <div class="enCambio"><b>Lo que sí resuelve el problema:</b> la página dirá <b>«Abono a tu cuenta con Ferretería B»</b>, con el nombre de B en grande, y debajo, en chico, quién cobra y factura. El cliente reconoce su deuda al instante y el papel queda correcto.</div>
+    </div>
+
+    <div class="rta">
+      <div class="preg"><span class="veredicto v-si">Sí</span>2 · El aviso automático cuando el pago entra</div>
+      <p>Tienen razón en que hace falta: aquí paga un tercero que nadie está mirando. <b>Ya existe una forma de preguntar</b> —el sistema de Bley puede consultar si una factura se pagó— pero preguntar cada rato no es lo mismo que enterarse.</p>
+      <div class="enCambio"><b>Lo construyo:</b> un aviso que Mercatren le manda al sistema de Bley en cuanto el pago entra, diciendo <b>de qué deuda era</b>. Sin ese dato, su lado no sabría cuál bajar.</div>
+    </div>
+
+    <div class="rta">
+      <div class="preg"><span class="veredicto v-no">No</span>3 · ¿Se puede repartir un cobro entre Bley y la Ferretería B?</div>
+      <p>Es la más delicada de las tres. Repartir un cobro entre dos destinatarios es exactamente la figura que el abogado desarmó en agosto, y es causa de cierre de cuenta en los procesadores de pago. Aparte: la Ferretería B no tiene cuenta de banco cargada en Mercatren — no hay a dónde mandarle nada.</p>
+      <div class="enCambio"><b>La salida es más simple:</b> el cobro se hace <b>solo por lo que B le debe a Bley</b>. Lo que sobre entre B y su cliente se queda entre ellos dos y no pasa por aquí. Un cobro, un destinatario, cero riesgo.</div>
+    </div>
+  </div>
+
+  <div class="pie"><span>Mercatren · plano acordado con Ferremateriales Bley</span><span>3</span></div>
+</section>
+
+<!-- 4 -->
+<section class="hoja">
+  <h1>Qué construye cada lado</h1>
+  <div class="baja">Con la Ferretería B ya registrada, el trabajo de Bley baja de seis piezas a cuatro.</div>
+
+  <div class="cols">
+    <div class="col c-bley">
+      <h3>Lado de Ferremateriales Bley</h3>
+      <ul>
+        <li><span class="num">1</span><b>Marcar el tipo de cliente</b><span class="sub">Ferretería, persona o constructora. Es una casilla en la ficha que ya existe.</span></li>
+        <li><span class="num">2</span><b>Guardar a quién se le cobra por cada ferretería</b><span class="sub">B le dice al vendedor a qué correo mandar. Se guarda para no volver a preguntarlo.</span></li>
+        <li><span class="num">3</span><b>Mandar el cobro en nombre de la Ferretería B</b><span class="sub">Desde la misma pantalla de abonos de hoy, eligiendo a quién.</span></li>
+        <li><span class="num">4</span><b>Al llegar el aviso, bajar la deuda de B</b><span class="sub">La de B con Bley — no la del que pagó. Es el error más fácil y el más caro de encontrar.</span></li>
+      </ul>
+    </div>
+
+    <div class="col c-mt">
+      <h3>Lado de Mercatren</h3>
+      <ul>
+        <li><span class="num">1</span><b>Recibir de quién es la deuda</b><span class="sub">Dos datos nuevos en la conexión, opcionales: así lo de hoy sigue funcionando sin tocar nada.</span></li>
+        <li><span class="num">2</span><b>Que la página lo diga</b><span class="sub">«Abono a tu cuenta con Ferretería B», y lo mismo en el correo y en el recibo.</span></li>
+        <li><span class="num">3</span><b>El aviso automático de pago</b><span class="sub">En cuanto entra, con el dato de qué deuda era.</span></li>
+        <li><span class="num">4</span><b>Dejar rastro de quién pagó por quién</b><span class="sub">Sin eso, un contracargo no se puede defender meses después.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="nota ojo" style="margin-top:8mm"><b>Falta una decisión que solo puede tomar el dueño:</b> si el cliente de la Ferretería B abona más de lo que B le debe a Bley, ¿se le cobra solo hasta cubrir la deuda de B, o se le cobra todo y B ajusta con su cliente aparte? De esa respuesta depende cómo se programa el monto del enlace.</div>
+
+  <div class="pie"><span>Mercatren · plano acordado con Ferremateriales Bley</span><span>4</span></div>
+</section>
+
+</body>
+</html>

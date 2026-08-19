@@ -151,10 +151,70 @@ riesgo de la cuenta de Stripe.
 
 ---
 
+## LO QUE CONTESTÓ LA SESIÓN DE BLEY (19 ago 2026)
+
+Mandaron su propio plano y **coinciden en el diagnóstico**. Dos cosas cambiaron:
+
+### La pieza que faltaba, y la puso el dueño
+
+**La Ferretería B YA ESTÁ REGISTRADA como cliente de Bley.** Y Bley no tiene un
+tipo de cliente sino tres: **ferreterías** que revenden, **personas** que
+consumen, y **constructoras y fabricantes** que compran para su obra.
+
+Eso quita el paso más frágil del plan de ellos: en su versión, B recibía el
+enlace y lo **reenviaba** a su cliente. **Un reenvío que no ocurre es una venta
+que no se cobra.** Como B ya está registrada, le dice al vendedor a quién
+mandarle el cobro y el vendedor lo manda directo.
+
+Y su primera pieza —«marcar quién es ferretería»— es **una casilla en una ficha
+que ya existe**, no un módulo.
+
+### Sus tres preguntas, contestadas
+
+| | Su pregunta | Respuesta |
+| --- | --- | --- |
+| 1 | ¿La página puede decir «Ferretería B»? | **No así** |
+| 2 | El aviso automático de pago | **Sí, lo construyo** |
+| 3 | ¿Se puede repartir un cobro? | **No** |
+
+**1 · El nombre en la página.** El cargo aparece en el estado de cuenta como
+Mercatren, porque Mercatren cobra y factura. Página con un nombre y banco con
+otro es un contracargo. Y la Ferretería B no tiene cuenta ni contrato aquí:
+ponerla como vendedora sería **inventar un vendedor** — la misma tergiversación
+que ya está prohibida para las tiendas de EE. UU.
+**Lo que sí:** «Abono a tu cuenta con Ferretería B», con el nombre de B en
+grande y, debajo, quién cobra y factura. Resuelve el reconocimiento sin tocar
+el modelo.
+
+**2 · El aviso.** Tienen razón: aquí paga un tercero que nadie está mirando. Ya
+existe la consulta (`GET /datos/socios/cobro?referencia=…`), pero preguntar cada
+rato no es enterarse. **El aviso tiene que decir DE QUÉ DEUDA era**, o su lado
+no sabe cuál bajar.
+
+**3 · Repartir el cobro.** La más peligrosa. Repartir entre dos destinatarios es
+`transfer_data` + `application_fee_amount`, o sea **Stripe Connect** — prohibido
+en este proyecto por escrito, y la figura que el abogado desarmó el 5 de agosto.
+Aparte, la Ferretería B no tiene datos bancarios cargados: no hay a dónde
+mandarle nada.
+**Lo que sí:** el cobro se hace **solo por lo que B le debe a Bley**. Lo que
+sobre entre B y su cliente se queda entre ellos. Un cobro, un destinatario.
+
+### Lo que sigue abierto
+
+De las cuatro preguntas originales, **sigue sin respuesta la más importante**:
+¿dónde vive la deuda, en Mercatren o en Bley? Y se suma la del dueño: si el
+cliente de B abona más de lo que B le debe a Bley, ¿se cobra solo hasta cubrir
+esa deuda, o se cobra todo y B ajusta aparte?
+
+El plano para el dueño está en `docs/Plano-cobro-ferreterias.pdf`
+(`npm run docs:pdf-plano-ferreterias`).
+
+---
+
 ## El orden
 
 ```
-1. Las 4 preguntas → sesión de Bley          ← estamos aquí
+1. Las 4 preguntas → sesión de Bley          ← CONTESTADAS, menos «dónde vive la deuda»
 2. La lectura legal → abogado
 3. El contrato y las pantallas → yo
 4. Su lado → ellos

@@ -37,7 +37,8 @@
     "docs:pdf-informe": "tsx scripts/pdf-informe.ts",
     "docs:pdf-proveedores": "tsx scripts/pdf-proveedores.ts",
     "docs:pdf-manual-cliente": "tsx scripts/pdf-manual-cliente.ts",
-    "docs:capturas-cliente": "tsx scripts/capturas-manual-cliente.ts"
+    "docs:capturas-cliente": "tsx scripts/capturas-manual-cliente.ts",
+    "docs:pdf-plano-ferreterias": "tsx scripts/pdf-plano-ferreterias.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [
