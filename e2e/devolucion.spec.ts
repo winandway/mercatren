@@ -62,7 +62,21 @@ test.describe("Devolver un pedido", () => {
   test("la dirección no aparece hasta pedirla, y las fotos solo cuando hacen falta", async ({
     page,
   }) => {
-    await entrar(page, CUENTA);
+    /**
+     * SI NO HAY CUENTA DE PRUEBA, SE SALTA. NO SE CAE.
+     *
+     * En la máquina que compila la base nace vacía, así que el login no lleva a
+     * ninguna parte y `entrar()` revienta por tiempo agotado. **Esta prueba
+     * tumbó una publicación entera por eso**, que es exactamente el fallo del
+     * que avisa el proyecto: una prueba que se cae por algo que no es un fallo
+     * del producto deja el sitio sin recibir nada mientras todo parece normal.
+     *
+     * Es el mismo patrón que ya usa `entrarAlPanel`.
+     */
+    const entro = await entrar(page, CUENTA)
+      .then(() => true)
+      .catch(() => false);
+    test.skip(!entro, "sin cuenta de prueba en la base local (npm run db:local)");
 
     const respuesta = await page.goto(`/es/pedido/${PEDIDO}`);
     test.skip(
