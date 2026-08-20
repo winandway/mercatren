@@ -145,6 +145,26 @@ export async function GET() {
           // Este archivo es el del Merchant Center de mercatren.com: solo su
           // mercado. El de cada pais tendra el suyo (PLAN-PAISES.md).
           eq(tiendas.mercado, MERCADO_PRINCIPAL.codigo),
+          /**
+           * Y SOLO LO QUE SE PUEDE ENTREGAR EN ESTADOS UNIDOS.
+           *
+           * `mercado` dice en que plaza se vende; `pais_origen` dice desde
+           * donde sale la mercancia. No son lo mismo, y confundirlos costaba
+           * caro: la ferreteria venezolana vende EN mercatren.com —mercado
+           * US— pero su mercancia se retira en Venezuela. Medido contra la
+           * base el 19 ago 2026, este archivo le mandaba a Google **622
+           * productos venezolanos** presentados como comprables y entregables
+           * en Estados Unidos. Ni uno lo era.
+           *
+           * Eso no es un detalle de catalogo: es el patron por el que
+           * Merchant Center suspende una cuenta, y una suspension se lleva por
+           * delante tambien lo que si estaba bien.
+           *
+           * El dia que Venezuela tenga su propio feed —o que Google acepte un
+           * envio internacional declarado— este filtro se abre a proposito y
+           * con su politica de envio detras. Hoy no la hay.
+           */
+          eq(tiendas.paisOrigen, "US"),
           // Un producto sin precio no se le manda a Google: lo rechazaría, y
           // con razón — no se puede comprar algo que no tiene precio.
           gt(productos.precioCentavos, 0),

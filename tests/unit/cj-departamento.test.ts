@@ -133,3 +133,64 @@ describe("el departamento de un producto de CJ", () => {
     expect(idDeDepartamento(null)).toBeNull();
   });
 });
+
+describe("las trampas encontradas en el catálogo publicado (19 ago 2026)", () => {
+  /* TÍTULOS REALES, copiados del catálogo en vivo. No son ejemplos de
+     laboratorio: son los que estaban mal colocados en la tienda de repuestos,
+     y por eso son los que tienen que proteger esta prueba. */
+
+  it("una bicicleta de rueda gruesa NO es un repuesto de carro", () => {
+    for (const titulo of [
+      "S26109 Elecony 26 Inch Fat Tire Bike Youth Full Shimano 21 Speed",
+      "S24109 Elecony 24 Inch Fat Tire Bike Adult&Youth Full Shimano",
+      "Professional Electric Bike For Adults, 26 X 4.0 Inches Fat Tire",
+      "A26309 26 Inch Mountain Bike,Full-Suspension 21 Speed",
+    ]) {
+      expect(departamentoDeCj([], titulo)).toBe("bicicletas");
+    }
+  });
+
+  it("una bicicleta de niño va a bicicletas, no a bebés y niños", () => {
+    expect(
+      departamentoDeCj(
+        [],
+        "A20261 20 Inch Children's Bicycle, Shock Absorbing Front Fork",
+      ),
+    ).toBe("bicicletas");
+  });
+
+  it("los accesorios de bicicleta acompañan a la bicicleta", () => {
+    expect(
+      departamentoDeCj([], "1Pc Mini Bike Inflator Portable Bicycle Tire"),
+    ).toBe("bicicletas");
+  });
+
+  it("una carretilla de almacén no es un camión", () => {
+    expect(
+      departamentoDeCj([], "Hand Truck, 600 Lbs Load Capacity, Heavy-Duty"),
+    ).toBe("ferreteria-construccion");
+  });
+
+  it("pero un neumático de carro SIGUE siendo un repuesto", () => {
+    expect(departamentoDeCj(["Car Tire Accessories"], null)).toBe(
+      "repuestos-carro",
+    );
+    expect(departamentoDeCj([], "Universal Car Tire Inflator 12V")).toBe(
+      "repuestos-carro",
+    );
+  });
+
+  it("y una camioneta sigue siendo un repuesto de carro", () => {
+    expect(departamentoDeCj([], "Truck Bed Liner Spray Coating")).toBe(
+      "repuestos-carro",
+    );
+  });
+
+  it("la cartera no se va a repuestos por llevar «card» dentro", () => {
+    /* Esto no lo arregla una excepción: lo arregla que `contiene()` compare
+       palabras enteras. Se comprueba aquí para que nadie lo deshaga. */
+    expect(departamentoDeCj([], "Pop Up Card Holder Slim Wallet")).toBe(
+      "ropa-calzado",
+    );
+  });
+});

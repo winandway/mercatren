@@ -180,7 +180,34 @@ export default async function PaginaCatalogo({
               </Link>
             </>
           ) : (
-            <p>{hayBusqueda ? t("sinResultados") : t("vacio")}</p>
+            <>
+              {/* UNA BÚSQUEDA SIN RESULTADOS NO PUEDE SER UN CALLEJÓN SIN
+                  SALIDA. Antes aquí solo decía «no encontramos nada» y ahí
+                  moría: quien llega hasta este punto ya quería comprar algo, y
+                  dejarlo mirando una pantalla vacía es perder la venta y a la
+                  persona. Se le dice por qué pudo fallar —el catálogo tiene
+                  mucho producto todavía en inglés— y se le deja una puerta. */}
+              <p className="font-semibold text-riel-800">
+                {!hayBusqueda
+                  ? t("vacio")
+                  : filtros.q
+                    ? t("sinResultadosTitulo", { texto: filtros.q })
+                    : t("sinResultados")}
+              </p>
+              {hayBusqueda ? (
+                <>
+                  <p className="mx-auto mt-1 max-w-md">
+                    {t("sinResultadosAyuda")}
+                  </p>
+                  <Link
+                    href="/catalogo"
+                    className="mt-3 inline-block font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+                  >
+                    {t("sinResultadosVerTodo")}
+                  </Link>
+                </>
+              ) : null}
+            </>
           )}
         </div>
       ) : (

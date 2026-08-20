@@ -105,6 +105,8 @@ interface CloudflareEnv {
    * pago con aprobacion, no ejecutarlo. Si se filtra, quien lo tenga no saca
    * dinero — solo deja solicitudes que alguien rechaza de un clic.
    */
+  TRADUCCION_LLAVE?: string;
+  TRADUCCION_MODELO?: string;
   MERCURY_TOKEN?: string;
   /** La cuenta de Mercury de la que salen los retiros. */
   MERCURY_CUENTA_ID?: string;

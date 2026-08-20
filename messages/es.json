@@ -1943,6 +1943,25 @@
     "mercado": {
       "elige": "País del panel",
       "estasViendo": "Estás viendo el panel de {pais}"
+    },
+    "traduccion": {
+      "titulo": "Catálogo en español",
+      "explicacion": "Los productos que entran desde CJ vienen con el título en inglés, porque CJ no publica español. Esto los reescribe como los escribiría una tienda. Lo que ya esté traducido no se vuelve a tocar.",
+      "pendientes": "{cantidad} productos siguen con el título en inglés.",
+      "todoTraducido": "Todo el catálogo de Estados Unidos está en español.",
+      "sinLlave": "Falta cargar TRADUCCION_LLAVE en las variables del sitio. Sin ella no se traduce nada, y el catálogo se queda en inglés — que es lo correcto: nunca se inventa una traducción ni se borra un título.",
+      "boton": "Traducir al español",
+      "traduciendo": "Traduciendo…",
+      "avance": "{hechas} de {total} traducidos"
+    },
+    "preciosUs": {
+      "titulo": "Precios de Estados Unidos",
+      "explicacion": "Los productos publicados antes del 19 de agosto llevan el precio calculado con el envío en cero, así que cada venta suya deja menos de lo que debería. Esto vuelve a cotizar el flete con CJ y corrige el precio. Lo ya corregido no se toca.",
+      "pendientes": "{cantidad} productos tienen el precio armado sin envío.",
+      "todoTraducido": "Todos los precios de Estados Unidos llevan el envío dentro.",
+      "boton": "Recalcular los precios",
+      "traduciendo": "Recalculando…",
+      "avance": "{hechas} de {total} recalculados"
     }
   },
   "catalogo": {
@@ -2041,7 +2060,10 @@
     "cantidad": {
       "masDeNueve": "10+",
       "maximo": "Máx. {n}"
-    }
+    },
+    "sinResultadosTitulo": "No encontramos «{texto}»",
+    "sinResultadosAyuda": "Puede que ese producto esté publicado con otro nombre. Prueba con una palabra más corta, o mira los departamentos de aquí arriba.",
+    "sinResultadosVerTodo": "Ver todo el catálogo"
   },
   "carrito": {
     "titulo": "Tu carrito",

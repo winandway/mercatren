@@ -12,6 +12,7 @@ import {
   imagenesProducto,
   productos,
   tiendas,
+  enviosProducto,
 } from "@/lib/db/schema";
 import { COMISION_US_PB } from "@/lib/dinero";
 import { SOCIEDAD } from "@/lib/sociedad";
@@ -30,6 +31,7 @@ import {
 } from "@/lib/cj/mayorista";
 import { DEPARTAMENTOS } from "@/lib/catalogo/departamentos";
 import { desglosarUs } from "@/lib/destino/precio-us";
+import { fleteDeProducto } from "@/lib/cj/flete";
 
 /**
  * AGREGAR UN PRODUCTO DE CJ AL CATÁLOGO DE ESTADOS UNIDOS.
@@ -400,9 +402,23 @@ async function guardarProducto({
 }): Promise<Resultado> {
   const db = getDb();
 
-  /* El envío se sigue asumiendo en cero hasta que se cotice contra una
-     dirección real; el margen que sale de aquí es el que decide la tienda. */
-  const precioPrevio = desglosarUs(costoCentavos, 0);
+  /**
+   * EL ENVÍO ENTRA EN EL PRECIO, Y SE COTIZA AQUÍ.
+   *
+   * Hasta el 19 ago 2026 esto era `desglosarUs(costoCentavos, 0)`. Ese cero
+   * significaba que el envío salía del margen: medido con MT-000004, el envío
+   * fueron $1.57 y un producto que debía dejar $3.09 dejaba $0.82. No se
+   * perdía dinero — se ganaba un tercio de lo declarado, y en silencio.
+   *
+   * Este es el único momento en que se puede cotizar de verdad, porque es
+   * cuando el precio deja de ser una estimación de pantalla y se guarda como
+   * el precio que va a pagar el comprador.
+   *
+   * Si CJ no cotiza, `envioAUsar` devuelve un estimado y lo marca como tal.
+   * **Nunca cero**: cero es exactamente el fallo que esto cierra.
+   */
+  const envio = await fleteDeProducto(externoId);
+  const precioPrevio = desglosarUs(costoCentavos, envio.costoCentavos);
 
   /**
    * EL MARGEN MANDA SOBRE EL RUBRO.
@@ -450,6 +466,8 @@ async function guardarProducto({
         actualizadoEn: ahora,
       })
       .where(eq(productos.id, yaEsta.id));
+
+    await guardarEnvio(yaEsta.id, envio, ahora);
 
     return { ok: true, mensaje: `Actualizado: ${nombre.slice(0, 60)}` };
   }
@@ -508,6 +526,8 @@ async function guardarProducto({
         console.error("[cj] producto agregado; la foto no:", fallo);
       });
   }
+
+  await guardarEnvio(id, envio, ahora);
 
   revalidatePath("/[locale]/panel", "layout");
   return { ok: true, mensaje: `Agregado: ${nombre.slice(0, 60)}` };
@@ -600,5 +620,47 @@ export async function repartirCatalogoUs(): Promise<{
     console.error("[cj] no se pudo repartir el catálogo:", fallo);
     const motivo = fallo instanceof Error ? fallo.message : String(fallo);
     return { ok: false, mensaje: `No se pudo repartir: ${motivo}` };
+  }
+}
+
+/**
+ * Deja escrito lo que costó mandar este producto.
+ *
+ * ══ NUNCA TUMBA LA PUBLICACIÓN ══
+ *
+ * Va en su propio `try` y después de guardar el producto. Si esta escritura
+ * falla, el producto queda publicado con su precio correcto —el envío ya está
+ * DENTRO del precio, que es lo que importa— y lo único que se pierde es el
+ * papel de trabajo para recalcular después. Tumbar la publicación de un
+ * producto por no poder anotar su flete sería cambiar un problema chico por
+ * uno grande.
+ */
+async function guardarEnvio(
+  productoId: string,
+  envio: { costoCentavos: number; origen: string; transporte: string | null },
+  ahora: Date,
+) {
+  try {
+    const db = getDb();
+    await db
+      .insert(enviosProducto)
+      .values({
+        productoId,
+        costoCentavos: envio.costoCentavos,
+        origen: envio.origen,
+        transporte: envio.transporte,
+        cotizadoEn: ahora,
+      })
+      .onConflictDoUpdate({
+        target: enviosProducto.productoId,
+        set: {
+          costoCentavos: envio.costoCentavos,
+          origen: envio.origen,
+          transporte: envio.transporte,
+          cotizadoEn: ahora,
+        },
+      });
+  } catch (fallo) {
+    console.error("[cj] no se pudo guardar el flete de", productoId, fallo);
   }
 }

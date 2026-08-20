@@ -1,4 +1,4 @@
-import { and, eq, sql, type SQL } from "drizzle-orm";
+import { and, eq, or, sql, type SQL } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import {
@@ -8,6 +8,9 @@ import {
   tiendas,
 } from "@/lib/db/schema";
 import type { Mercado } from "@/lib/mercado/mercados";
+
+import { normalizarTexto } from "./normalizar";
+import { expandir } from "./sinonimos";
 import {
   type FiltroDeMercado,
   tiendaVisibleEn,
@@ -77,10 +80,9 @@ function normalizar(columna: SQL | unknown): SQL {
   return sql`LOWER(${expresion})`;
 }
 
-/** La misma regla, pero en JavaScript, para lo que escribe la persona. */
-export function normalizarTexto(texto: string) {
-  return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-}
+/** La misma regla, pero en JavaScript, para lo que escribe la persona.
+ *  Vive en `normalizar.ts` para no formar un círculo con `sinonimos.ts`. */
+export { normalizarTexto };
 
 /**
  * Parte lo buscado en palabras.
@@ -95,6 +97,17 @@ export function palabrasDe(busqueda: string) {
 
 /**
  * Todo el texto de un producto, pegado y normalizado UNA sola vez.
+ *
+ * ══ EL NOMBRE DEL DEPARTAMENTO CUENTA, Y EN ESPAÑOL ══
+ *
+ * Un producto de CJ se llama «Winch Straps, 6000 Lbs Load Capacity»: ni su
+ * título ni su descripción dicen una palabra en español. Pero está colgado de
+ * «Ferretería y construcción», y eso sí está en español para todos los
+ * productos, vengan de donde vengan.
+ *
+ * Así, quien escribe «ferreteria» encuentra el departamento entero aunque cada
+ * ficha esté en inglés. Es gratis —la tabla ya venía en el join para el
+ * filtro— y funciona antes de traducir un solo producto.
  * Primero se concatena y despues se limpia: asi son catorce reemplazos y no
  * catorce por cada campo.
  */
@@ -104,7 +117,8 @@ const TEXTO_PRODUCTO = normalizar(sql`
   COALESCE(${productos.descripcionEs}, '') || ' ' ||
   COALESCE(${productos.marca}, '') || ' ' ||
   COALESCE(${productos.sku}, '') || ' ' ||
-  COALESCE(${tiendas.nombre}, '')
+  COALESCE(${tiendas.nombre}, '') || ' ' ||
+  COALESCE(${categorias.nombreEs}, '')
 `);
 
 const TITULO = normalizar(productos.tituloEs);
@@ -162,8 +176,32 @@ function puntuacion(busqueda: string, palabras: string[]): SQL {
 /** La condicion: TODAS las palabras tienen que aparecer en el producto. */
 function todasLasPalabras(palabras: string[]): SQL | undefined {
   if (palabras.length === 0) return undefined;
+  /**
+   * CADA PALABRA VALE POR TODAS SUS EQUIVALENTES.
+   *
+   * Sigue haciendo falta que estén TODAS las palabras —quien escribe «freno
+   * bicicleta» quiere las dos cosas—, pero cada una se da por buena si aparece
+   * ella o cualquiera de sus sinónimos: su plural, su nombre en otro país, o
+   * su nombre en inglés.
+   *
+   * Ese último es el que desbloquea el catálogo de Estados Unidos, que está
+   * escrito en inglés: «bicicleta» encuentra «bike» sin haber traducido ni un
+   * producto. Ver `sinonimos.ts`.
+   */
   return and(
-    ...palabras.map((p) => sql`${TEXTO_PRODUCTO} LIKE ${"%" + p + "%"}`),
+    ...palabras.map((p) => {
+      const formas = expandir(p);
+      /* Nunca vacío: `expandir` siempre devuelve al menos lo escrito. Pero si
+         un día devolviera vacío, un `or()` sin argumentos daría `undefined` y
+         la palabra dejaría de filtrar — es decir, el buscador traería el
+         catálogo entero. Se protege aquí. */
+      if (formas.length === 0) {
+        return sql`${TEXTO_PRODUCTO} LIKE ${"%" + p + "%"}`;
+      }
+      return or(
+        ...formas.map((f) => sql`${TEXTO_PRODUCTO} LIKE ${"%" + f + "%"}`),
+      );
+    }),
   );
 }
 

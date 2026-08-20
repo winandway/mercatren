@@ -3,12 +3,13 @@ import {
   Calculator,
   Check,
   CreditCard,
+  DollarSign,
   ImageIcon,
   Landmark,
-  PackageSearch,
-  RefreshCw,
   Languages,
   Mail,
+  PackageSearch,
+  RefreshCw,
   Settings,
   TriangleAlert,
   Wallet,
@@ -25,8 +26,12 @@ import { SaludCatalogos } from "@/components/panel/salud-catalogos";
 import { ZelleCobros } from "@/components/panel/zelle-cobros";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
+import { RecalcularPrecios } from "@/components/panel/recalcular-precios";
+import { TraducirCatalogo } from "@/components/panel/traducir-catalogo";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
+import { estadoDelTraductor } from "@/lib/traduccion/acciones";
+import { contarSinEnvio } from "@/lib/destino/recalcular-us";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
@@ -78,6 +83,8 @@ export default async function PaginaConfiguracion({
 
   const t = await getTranslations("panel.configuracion");
   const tf = await getTranslations("panel.fotos");
+  const tt = await getTranslations("panel.traduccion");
+  const tPrecios = await getTranslations("panel.preciosUs");
   const ta = await getTranslations("panel.configuracion.ajuste");
   const tp = await getTranslations("panel.configuracion.auditoriaPrecios");
   const tc = await getTranslations("panel.configuracion.calculadora");
@@ -94,6 +101,8 @@ export default async function PaginaConfiguracion({
     desalineados: [],
   }));
   const fotosPendientes = await contarFotosPendientes();
+  const traductor = await estadoDelTraductor();
+  const sinEnvio = await contarSinEnvio();
 
   /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
      quedan congelados y aquí no se veía NADA. Esta es la pantalla que faltaba. */
@@ -393,7 +402,7 @@ export default async function PaginaConfiguracion({
         {/* LA AUDITORÍA. Después de que un precio se inflara solo, "está todo
             bien" no puede ser la palabra de nadie: se abre y se comprueba. */}
         <div className="mt-6 border-t border-borde pt-5">
-          <h3 className="text-sm font-bold">{tp("titulo")}</h3>
+          <h3 className="text-sm font-bold">{tPrecios("titulo")}</h3>
           <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
             {tp("texto")}
           </p>
@@ -474,6 +483,33 @@ export default async function PaginaConfiguracion({
         </h2>
         <div className="mt-3">
           <TraerFotos pendientes={fotosPendientes} />
+        </div>
+      </section>
+
+      {/* El catalogo de EE. UU. entra en ingles porque CJ no publica español. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Languages className="h-4 w-4 text-carga-500" aria-hidden />
+          {tt("titulo")}
+        </h2>
+        <p className="mt-1 text-sm text-riel-600">{tt("explicacion")}</p>
+        <div className="mt-3">
+          <TraducirCatalogo
+            pendientes={traductor.sinTraducir}
+            configurado={traductor.configurado}
+          />
+        </div>
+      </section>
+
+      {/* Los que se publicaron con el envio en cero: cada venta deja menos. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <DollarSign className="h-4 w-4 text-carga-500" aria-hidden />
+          {tp("titulo")}
+        </h2>
+        <p className="mt-1 text-sm text-riel-600">{tPrecios("explicacion")}</p>
+        <div className="mt-3">
+          <RecalcularPrecios pendientes={sinEnvio} />
         </div>
       </section>
 

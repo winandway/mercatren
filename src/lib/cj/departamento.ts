@@ -80,6 +80,28 @@ function contiene(textoNormalizado: string, pista: string): boolean {
 const PISTAS: Array<[departamento: string, pistas: string[]]> = [
   ["motos-repuestos", ["motorcycle", "motorbike", "scooter", "moped"]],
   [
+    /* BICICLETAS VA ANTES QUE REPUESTOS DE CARRO, Y EL ORDEN ES LA REGLA.
+       Toda bicicleta de rueda gruesa de CJ se llama «Fat Tire Bike», y
+       `repuestos-carro` captura `tire`. Probando bicicletas primero, la
+       bicicleta gana por su propia palabra antes de que `tire` la desvíe. */
+    "bicicletas",
+    [
+      "bicycle",
+      "bike",
+      "e-bike",
+      "ebike",
+      "cycling",
+      "mountain bike",
+      "bike helmet",
+      "bike pump",
+      "bike inflator",
+      "bike lock",
+      "bike light",
+      "bicycle seat",
+      "bike rack",
+    ],
+  ],
+  [
     "repuestos-carro",
     [
       "auto part",
@@ -233,8 +255,6 @@ const PISTAS: Array<[departamento: string, pistas: string[]]> = [
       "camping",
       "hiking",
       "outdoor",
-      "bicycle",
-      "cycling",
       "swimming",
       "fishing",
       "workout",
@@ -355,6 +375,42 @@ const PISTAS: Array<[departamento: string, pistas: string[]]> = [
 ];
 
 /**
+ * LAS FRASES QUE SIGNIFICAN OTRA COSA QUE SU PALABRA SUELTA.
+ *
+ * Se prueban ANTES que todo lo demás, y por eso ganan siempre.
+ *
+ * ══ POR QUÉ HACE FALTA UNA LISTA APARTE ══
+ *
+ * Hay palabras que, dentro de otra frase, cambian de significado por completo.
+ * Un «hand truck» no es un camión: es una carretilla de almacén. Un «truck
+ * bed liner» sí es un accesorio de camioneta. La palabra es la misma y el
+ * departamento no.
+ *
+ * No se arregla quitando la palabra de la lista general —un `truck` suelto sí
+ * es un vehículo— ni metiendo condiciones dentro del bucle, que se vuelve
+ * ilegible al tercer caso. Se arregla con una lista de frases exactas que se
+ * prueba primero.
+ *
+ * ══ ESTA LISTA CRECE CON LO QUE SE ENCUENTRA, NO CON LO QUE SE IMAGINA ══
+ *
+ * Cada entrada viene de un producto real que cayó mal. Si algún día aparece
+ * otro, se agrega aquí con su prueba y no se toca nada más.
+ */
+const EXCEPCIONES: ReadonlyArray<readonly [string, string]> = [
+  /* Una carretilla de almacén, no un camión. Encontrado el 19 ago 2026 en el
+     catálogo publicado: «Hand Truck, 600 Lbs Load Capacity» salía en
+     «Repuestos de carro». */
+  ["hand truck", "ferreteria-construccion"],
+  ["hand trucks", "ferreteria-construccion"],
+  /* Un carrito de plataforma, lo mismo. */
+  ["platform truck", "ferreteria-construccion"],
+  /* «card» dentro de «car» NO va aquí a propósito: esa trampa ya la resuelve
+     la comparación por palabras enteras de `contiene()`, y la prueba de la
+     cartera lo demuestra. Meterla como excepción la mandaría a un
+     departamento fijo y le quitaría el acierto que ya tiene. */
+];
+
+/**
  * El departamento de un producto de CJ, o `null` si no se reconoce.
  *
  * Las categorías se pasan de la más específica a la más general, que es el
@@ -364,6 +420,12 @@ export function departamentoDeCj(
   categorias: Array<string | null | undefined>,
   titulo?: string | null,
 ): string | null {
+  /* Las excepciones mandan sobre todo, y se miran en el título ADEMÁS de en
+     las categorías: «Hand Truck» es el nombre del producto, no su categoría.
+     Si esto fuera después, la palabra suelta ya habría ganado. */
+  const excepcion = porExcepcion([...categorias, titulo]);
+  if (excepcion) return excepcion;
+
   /* Cada categoría se prueba entera antes de pasar a la siguiente: una
      coincidencia en el nivel específico manda sobre una del nivel general. */
   for (const categoria of categorias) {
@@ -373,6 +435,20 @@ export function departamentoDeCj(
 
   /* El título, al final y solo si las categorías no dijeron nada. */
   return buscar(titulo);
+}
+
+function porExcepcion(
+  textos: Array<string | null | undefined>,
+): string | null {
+  for (const texto of textos) {
+    if (!texto?.trim()) continue;
+    const normalizado = normalizar(texto);
+    if (!normalizado) continue;
+    for (const [frase, departamento] of EXCEPCIONES) {
+      if (contiene(normalizado, frase)) return departamento;
+    }
+  }
+  return null;
 }
 
 function buscar(texto: string | null | undefined): string | null {

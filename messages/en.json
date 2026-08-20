@@ -1943,6 +1943,25 @@
     "mercado": {
       "elige": "Dashboard country",
       "estasViendo": "You are viewing the {pais} dashboard"
+    },
+    "traduccion": {
+      "titulo": "Spanish catalog",
+      "explicacion": "Products imported from CJ come with English titles, since CJ doesn't publish Spanish. This rewrites them the way a store would. Anything already translated is left alone.",
+      "pendientes": "{cantidad} products still have English titles.",
+      "todoTraducido": "The entire US catalog is in Spanish.",
+      "sinLlave": "TRADUCCION_LLAVE hasn't been set in the site variables. Without it nothing gets translated and the catalog stays in English — which is the right outcome: we never invent a translation or erase a title.",
+      "boton": "Translate to Spanish",
+      "traduciendo": "Translating…",
+      "avance": "{hechas} of {total} translated"
+    },
+    "preciosUs": {
+      "titulo": "US pricing",
+      "explicacion": "Products published before August 19 were priced with shipping set to zero, so every sale earns less than it should. This re-quotes freight with CJ and fixes the price. Anything already fixed is left alone.",
+      "pendientes": "{cantidad} products are priced without shipping.",
+      "todoTraducido": "Every US price includes shipping.",
+      "boton": "Recalculate prices",
+      "traduciendo": "Recalculating…",
+      "avance": "{hechas} of {total} recalculated"
     }
   },
   "catalogo": {
@@ -2041,7 +2060,10 @@
     "cantidad": {
       "masDeNueve": "10+",
       "maximo": "Max {n}"
-    }
+    },
+    "sinResultadosTitulo": "No results for “{texto}”",
+    "sinResultadosAyuda": "That item may be listed under a different name. Try a shorter word, or browse the departments above.",
+    "sinResultadosVerTodo": "Browse the full catalog"
   },
   "carrito": {
     "titulo": "Your cart",

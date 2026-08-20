@@ -30,6 +30,7 @@ export type IconoDepartamento =
   | "PaintRoller"
   | "Car"
   | "Bike"
+  | "Motorbike"
   | "Smartphone"
   | "Laptop"
   | "Tv"
@@ -85,6 +86,19 @@ export const DEPARTAMENTOS: Departamento[] = [
     slug: "motos-repuestos",
     es: "Motos y repuestos",
     en: "Motorcycles & Parts",
+    icono: "Motorbike",
+  },
+  {
+    /* LAS BICICLETAS SON DEPARTAMENTO PROPIO, Y NO ES UN CAPRICHO.
+       Estaban cayendo en «Repuestos de carro» porque toda bicicleta de rueda
+       gruesa se llama «Fat Tire Bike» y la palabra `tire` manda a repuestos.
+       Pero aunque eso se arregle, meterlas en «Deportes y aire libre» las
+       esconde entre yoga, pesca y camping: quien busca una bicicleta busca
+       una bicicleta. Aquí entran las de adulto, las eléctricas, LAS DE NIÑO
+       —que no van a «Bebés y niños» por el mismo motivo— y sus accesorios. */
+    slug: "bicicletas",
+    es: "Bicicletas",
+    en: "Bicycles",
     icono: "Bike",
   },
   {

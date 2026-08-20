@@ -2497,3 +2497,50 @@ export const cobrosCadena = sqliteTable("cobros_cadena", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * LO QUE CUESTA MANDAR CADA PRODUCTO, GUARDADO.
+ *
+ * ══ POR QUÉ HACE FALTA GUARDARLO ══
+ *
+ * El precio publicado lleva el envío dentro. Hasta el 19 ago 2026 no lo
+ * llevaba: se publicaba con `desglosarUs(costo, 0)`, y ese cero significa que
+ * el envío salía del margen. Medido con la primera compra real —MT-000004— el
+ * envío fueron **$1.57**, así que un producto que debía dejar $3.09 dejaba
+ * $0.82. No se perdía dinero, pero se ganaba un tercio de lo declarado, y eso
+ * no aparecía en ninguna pantalla.
+ *
+ * Sin esta tabla no se puede recalcular nada sin volver a preguntarle a CJ
+ * producto por producto, y esa consulta cuesta dos llamadas por producto.
+ *
+ * ══ TABLA NUEVA Y NO COLUMNA, COMO MANDA LA REGLA DEL PROYECTO ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que una columna
+ * nueva NO llega sola a producción: hay que aplicar el ALTER a mano. Una tabla
+ * sí llega en la primera publicación.
+ *
+ * ══ SE GUARDA CUÁNDO SE COTIZÓ, Y NO ES DECORACIÓN ══
+ *
+ * El flete de CJ cambia. Una cotización de hace seis meses metida en el precio
+ * de hoy es la misma clase de error, más callado. La fecha permite volver a
+ * cotizar lo viejo sin tocar lo recién puesto.
+ */
+export const enviosProducto = sqliteTable("envios_producto", {
+  /** El producto. Uno solo, y por eso es la llave. */
+  productoId: text("producto_id")
+    .primaryKey()
+    .references(() => productos.id, { onDelete: "cascade" }),
+
+  /** Lo que cobra el proveedor por mandarlo, en centavos enteros. */
+  costoCentavos: integer("costo_centavos").notNull(),
+
+  /** Cómo se supo: `cotizado` si lo dijo el proveedor, `estimado` si es el
+   *  respaldo. Un precio armado con un estimado se puede volver a mirar; uno
+   *  armado con un cero no se distingue de uno correcto. */
+  origen: text("origen").notNull().default("cotizado"),
+
+  /** El transporte que dio ese precio, para poder reclamar. */
+  transporte: text("transporte"),
+
+  cotizadoEn: integer("cotizado_en", { mode: "timestamp" }).notNull(),
+});

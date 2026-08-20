@@ -123,8 +123,32 @@ test.describe("el sitio está de pie", () => {
     const respuesta = await page.request.get(`${baseURL}/datos/google`);
     const xml = await respuesta.text();
 
-    const productos = (xml.match(/<item>/g) ?? []).length;
-    expect(productos, "el catálogo de Google salió vacío").toBeGreaterThan(0);
+    /**
+     * SE COMPRUEBA QUE EL ARCHIVO ESTÉ BIEN ARMADO, NO QUE TENGA PRODUCTOS.
+     *
+     * Antes esto exigía más de un producto, y estaba bien mientras el archivo
+     * llevara el catálogo entero. Desde el 19 ago 2026 lleva **solo lo que se
+     * puede entregar en Estados Unidos** (`pais_origen = 'US'`), porque
+     * mandarle a Merchant Center mercancía que se retira en Venezuela es el
+     * patrón por el que suspenden cuentas.
+     *
+     * Así que una máquina con catálogo venezolano y sin catálogo de EE. UU.
+     * produce un archivo vacío **y eso es lo correcto**. Exigir productos ahí
+     * sería una prueba que se pone roja por hacer lo que debe.
+     *
+     * Lo que sí tiene que cumplirse siempre es que el archivo sea un feed
+     * válido: si la ruta revienta o devuelve HTML, esto lo atrapa.
+     */
+    expect(xml, "el feed de Google no es XML").toContain("<?xml");
+    expect(xml, "el feed de Google no tiene canal").toContain("<channel>");
+
+    /* Y si trae productos, tienen que ser productos de verdad, con su enlace
+       y su precio: un <item> sin precio lo rechaza Google entero. */
+    const items = (xml.match(/<item>/g) ?? []).length;
+    if (items > 0) {
+      expect(xml).toContain("<g:price>");
+      expect(xml).toContain("<link>");
+    }
   });
 
   test("el panel no se abre sin sesión", async ({ page, baseURL }) => {

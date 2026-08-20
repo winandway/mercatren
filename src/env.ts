@@ -145,6 +145,8 @@ export const esquemaEntorno = z.object({
    * Opcional a propósito: sin él el panel sigue funcionando entero y los
    * retiros se hacen a mano como hasta ahora.
    */
+  TRADUCCION_LLAVE: z.string().optional(),
+  TRADUCCION_MODELO: z.string().optional(),
   MERCURY_TOKEN: z.string().optional(),
   /** De qué cuenta de Mercury sale el dinero de los retiros. */
   MERCURY_CUENTA_ID: z.string().optional(),

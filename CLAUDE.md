@@ -2551,6 +2551,130 @@ cache-buster es exactamente cómo se reporta "ya está arriba" cuando no lo est�
 curl -s -H 'Cache-Control: no-cache' "https://mercatren.com/es/nosotros?v=$RANDOM" | grep "lo que cambiaste"
 ```
 
+## EL CATÁLOGO DE EE. UU. SE PUEDE BUSCAR EN ESPAÑOL (19 ago 2026)
+
+El dueño buscó «repuestos» en su propio sitio y no salió nada. **El buscador
+nunca estuvo roto** —busca en título español, inglés, descripción, marca, SKU y
+nombre del comercio—: lo que estaba en inglés era **el dato**. CJ solo publica
+`productName` (chino) y `productNameEn`, así que el importador guarda el inglés
+en los DOS campos y la palabra «repuestos» no existía ni una vez en la base.
+
+**`src/lib/catalogo/sinonimos.ts` (25 pruebas) hace que se pueda buscar hoy, sin
+traducir un producto.** Cada palabra vale por todas sus equivalentes:
+
+1. **Español → inglés.** «bicicleta» encuentra «bike». Eso es lo que desbloquea
+   el catálogo de Estados Unidos ahora mismo.
+2. **Español → español.** «caucho» (Venezuela) encuentra «llanta»;
+   «refacciones» (México) encuentra «repuestos»; «corneta» encuentra «bocina».
+   Esto sigue haciendo falta el día que todo esté traducido.
+
+Cinco cosas de ahí que no se tocan:
+
+1. **Son GRUPOS, no pares.** Un grupo es un concepto y todas sus palabras se
+   valen entre sí en las dos direcciones. Con pares habría que escribir cada
+   relación dos veces y a la tercera palabra el mantenimiento se cae.
+2. **Tope de 12 formas por palabra, y lo tecleado va primero.** Ocho palabras
+   por doce formas son 96 condiciones; sin tope, este proyecto ya se topó una
+   vez con «too many SQL variables». Y si lo escrito no fuera lo primero, el
+   tope podría dejar fuera de su propia búsqueda la palabra que la persona puso.
+3. **`expandir` nunca devuelve vacío.** Un vacío haría que `or()` diera
+   `undefined`, esa palabra dejaría de filtrar, y la búsqueda traería el
+   catálogo entero.
+4. **`normalizarTexto` vive en `normalizar.ts`, aparte.** `sinonimos` la
+   necesita para armar su índice AL CARGAR el módulo y `buscar` necesita a
+   `sinonimos`: importándose entre sí, el índice llamaría a una función a medio
+   inicializar y el buscador moriría con «is not a function».
+5. **El nombre del departamento entra en el texto que se busca.** Es gratis —la
+   tabla ya venía en el join— y hace que «ferreteria» encuentre un producto
+   cuya ficha entera está en inglés.
+
+**Y hay un candado que mira el archivo** (`buscador-espanol.test.ts`): el
+diccionario puede seguir perfecto mientras alguien desenchufa la llamada, y
+entonces todo pasa en verde con el catálogo otra vez invisible.
+
+### El traductor, que es el arreglo de fondo
+
+**Panel → Configuración → Catálogo en español.** Reescribe el título como lo
+escribiría una tienda, no palabra por palabra: los títulos de CJ son montones
+de palabras sueltas puestas para su buscador.
+
+- **Es un modelo de TEXTO** (`gemini-2.5-flash` por defecto), no de imagen. El
+  bloqueo de la casa sigue puesto y no se escala a nada más caro si falla.
+  Traducir diez mil productos cuesta menos de un dólar.
+- **Sin `TRADUCCION_LLAVE` no se dibuja el botón y se dice por qué.** Un botón
+  que siempre falla hace creer que el sistema está roto.
+- **Lo ya traducido NO se vuelve a tocar**, y la señal es que los dos idiomas
+  dejaron de decir lo mismo. No se adivina el idioma: medio catálogo de CJ son
+  códigos y marcas, un detector se equivoca ahí, y equivocarse significa
+  reescribir un título que una persona corrigió a mano.
+- **Nada de lo que devuelve el modelo se cree sin comprobar**: un id que nadie
+  pidió se descarta, y una traducción vacía, igual al original o convertida en
+  parrafada no se guarda — guardarla marcaría el producto como traducido y no
+  se volvería a intentar jamás.
+- Se puede parar y retomar: lo que decide qué falta es el propio dato.
+
+## LAS BICICLETAS ESTABAN EN REPUESTOS DE CARRO (19 ago 2026)
+
+Toda bicicleta de rueda gruesa de CJ se llama «Fat Tire Bike», y
+`repuestos-carro` capturaba la palabra **`tire`** — que se prueba antes que
+deportes. Y la misma trampa con **`truck`**: el «Hand Truck» es una carretilla
+de almacén.
+
+- **`bicicletas` es departamento propio** y va ANTES que repuestos en la lista,
+  porque el orden ES la regla. Entran las de adulto, las eléctricas, **las de
+  niño** —que no van a «Bebés y niños» por el mismo motivo— y sus accesorios.
+- **Motos se quedó con el icono de moto de verdad.** Tenía el de bicicleta.
+- **`EXCEPCIONES`: frases que significan otra cosa que su palabra suelta**, y se
+  prueban primero. No se arregla quitando `truck` de la lista —un `truck` suelto
+  sí es un vehículo— ni metiendo condiciones dentro del bucle. **Esa lista crece
+  con lo que se encuentra, no con lo que se imagina.**
+- **«card» dentro de «car» NO entró ahí a propósito**: esa trampa ya la resuelve
+  la comparación por palabras enteras, y meterla como excepción le habría
+  quitado el acierto que ya tenía. Lo destapó su propia prueba.
+- Las pruebas usan **los títulos REALES del catálogo publicado**, no ejemplos.
+
+## EL PRECIO DE EE. UU. NO LLEVABA EL ENVÍO DENTRO (19 ago 2026)
+
+`cj/importar.ts` publicaba con `desglosarUs(costo, 0)`. Ese cero es el envío.
+Medido con la primera compra real (MT-000004) el envío fueron **$1.57**: un
+producto que debía dejar $3.09 dejaba **$0.82**. No se perdía dinero — se
+ganaba un tercio de lo declarado, y en silencio.
+
+- **El flete se cotiza contra CJ al publicar** (`cj/flete.ts`), que es el único
+  momento en que el precio deja de ser una estimación de pantalla.
+- **EL RESPALDO NUNCA ES CERO** (`destino/envio-us.ts`, 10 pruebas). Volver a
+  cero «porque es lo que había antes» es reproducir el fallo, y de los dos
+  errores posibles es el caro: cobrar de más vende un poco menos; cobrar de
+  menos regala el margen en cada venta, para siempre y en silencio. **Un cero
+  cotizado tampoco se toma por bueno**: ningún transportista lleva nada gratis.
+- **`envios_producto` es tabla nueva, no columna**, como manda la regla: una
+  columna no llega sola a producción. Guarda además **si fue cotizado o
+  estimado y cuándo**: un precio armado con un estimado se puede volver a
+  mirar, uno armado con un cero no se distingue de uno correcto.
+- **Panel → Configuración → Precios de Estados Unidos** recalcula los que ya
+  estaban publicados. Idempotente: solo mira los que no tienen fila de envío.
+- **El estimado de $3.50 sale de UNA medición.** Se sube en cuanto haya tres o
+  cuatro compras medidas.
+
+## A GOOGLE SE LE MANDABAN 622 PRODUCTOS QUE NO SE PUEDEN ENTREGAR (19 ago 2026)
+
+Contado contra la base: `/datos/google` filtraba por `tiendas.mercado`, que dice
+en qué plaza se vende, y no por `pais_origen`, que dice de dónde sale la
+mercancía. La ferretería venezolana vende EN mercatren.com —mercado US— pero su
+mercancía se retira en Venezuela. Resultado: **622 productos venezolanos
+presentados a Merchant Center como comprables y entregables en Estados Unidos.
+Ni uno lo era.**
+
+No es un detalle de catálogo: es el patrón por el que suspenden cuentas, y una
+suspensión se lleva por delante también lo que sí estaba bien.
+
+**La prueba de humo se ajustó, y el cambio importa:** exigía «más de un
+producto» en el feed. Con el filtro puesto, una máquina con catálogo venezolano
+y sin catálogo de EE. UU. produce un archivo vacío **y eso es lo correcto** —
+exigir productos ahí sería una prueba que se pone roja por hacer lo que debe.
+Ahora comprueba que el feed sea XML válido con su canal, y que si trae
+productos, traigan precio y enlace.
+
 ## Comandos
 
 **Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan
