@@ -37,8 +37,12 @@ yarn-error.log*
 
 # Datos reales de clientes (nombres, correos, comprobantes bancarios).
 # El repositorio es publico: esto NUNCA se sube. Vive solo en la base de datos.
-/datos/*.json
-/datos/*.csv
+# Se ignora la carpeta ENTERA, no solo .json y .csv: el histórico Zelle trae
+# nombres y correos de personas reales, y bastaba dejar caer ahí un .sql o un
+# .md para publicarlos. Los tres archivos que sí deben viajar en el repo ya
+# están versionados, y .gitignore no desversiona lo que ya sigue.
+/datos/*
+!/datos/LEEME.md
 /.local/
 
 # typescript

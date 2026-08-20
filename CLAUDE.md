@@ -57,15 +57,26 @@ directos y ACH y **otro distinto para wire**. Lo dice su propia pantalla. Quien
 recibe por ACH —Payoneer, un cobro de un comprador— necesita el de ACH; poner el
 de wire hace que la transferencia rebote.
 
-> **PENDIENTE DE CONFIRMAR, Y ES DE DINERO:** aqui estaba escrito que el banco
-> era **Mercury** (Checking ••9805). Las variables `PAGO_BANCO`, `PAGO_CUENTA`,
-> `PAGO_RUTA_ACH` y `PAGO_RUTA_WIRE` del panel de YaDominios Cloud son las que
-> `pedido/[numero]/page.tsx` le ENSEÑA AL COMPRADOR para que pague por
-> transferencia. Si siguen con los datos de Mercury y el banco real es Chase,
-> ese dinero se va a una cuenta equivocada **sin que salte ningun error**. Hay
-> que comprobarlas antes de que entre un pago por transferencia. Lo mismo con
-> `src/lib/retiros/a-mercury.ts` y `MERCURY_TOKEN`: los retiros automaticos
-> estan construidos contra la API de Mercury.
+**HAY DOS BANCOS Y LOS DOS ESTAN VIVOS** (comprobado el 19 ago 2026 con los
+documentos oficiales): **Mercury** —que por dentro es Column N.A.— con una
+corriente terminada en **9805**, y **Chase** con la ...1098. Asi que la alarma
+de que las variables apuntaran a un banco muerto queda descartada: Mercury
+sigue siendo el que recibe y el que mueve los retiros
+(`src/lib/retiros/a-mercury.ts`). Lo que si hay que mirar una vez es **a cual
+de las dos apuntan** `PAGO_CUENTA`, `PAGO_RUTA_ACH` y `PAGO_RUTA_WIRE`, porque
+son las que `pedido/[numero]/page.tsx` le ENSEÑA AL COMPRADOR.
+
+**Los numeros completos NO viven aqui**, que este repositorio es publico: estan
+en `~/Mercatren-privado/BANCOS-Y-REGISTRO.md`, fuera del repositorio y con
+permisos de solo su dueño. Ahi tambien esta por que un wire internacional a
+Mercury **necesita** el banco intermediario `CHASUS33XXX`, y por que Chase da
+dos rutas distintas —una para ACH y otra para wire— que rebotan el dinero si se
+cambian.
+
+**Y `datos/` NO estaba protegido como decia este archivo:** `.gitignore` solo
+ignoraba `*.json` y `*.csv`, asi que un `.sql` o un `.md` dejado ahi se habria
+publicado — y el historico Zelle trae nombres y correos de personas reales.
+Ahora se ignora la carpeta entera menos su `LEEME.md`.
 
 **EL ORDEN QUE SE SIGUIÓ, Y NO ERA NEGOCIABLE:** EIN → banco → Stripe
 verificada y activa → **y recién entonces el sitio**. El sitio fue lo último a
