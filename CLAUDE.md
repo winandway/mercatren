@@ -2584,9 +2584,21 @@ Cinco cosas de ahí que no se tocan:
    necesita para armar su índice AL CARGAR el módulo y `buscar` necesita a
    `sinonimos`: importándose entre sí, el índice llamaría a una función a medio
    inicializar y el buscador moriría con «is not a function».
-5. **El nombre del departamento entra en el texto que se busca.** Es gratis —la
-   tabla ya venía en el join— y hace que «ferreteria» encuentre un producto
-   cuya ficha entera está en inglés.
+5. **El nombre del departamento entra en el texto que se busca, Y VA COMO
+   SUBCONSULTA.** La primera versión lo escribió como `categorias.nombreEs` a
+   secas, aprovechando el join que ya hacía el listado del catálogo — **y rompió
+   el buscador entero**: `sugerencias()`, el desplegable que sale mientras se
+   escribe, solo une `productos` con `tiendas`, así que su consulta quedó
+   inválida y devolvía CERO para todo. Lo destapó probarlo en el navegador
+   contra la base real: «tablero» daba 3 y pasó a dar 0. Un fragmento de SQL
+   compartido no puede depender de lo que haya unido quien lo llama.
+
+**Dos palabras se ajustaron probando contra el catálogo REAL, no en pruebas:**
+«torch» salió del grupo de linterna —en inglés británico es correcto, pero en
+una ferretería choca con «an*torch*a» de corte y traía justo eso—, y «llave» a
+secas entró en el de wrench, porque las fichas dicen «LLAVE ALLEN» y no «llave
+inglesa», así que «wrench» no encontraba NADA. Encontrar de más es aceptable;
+encontrar de menos es lo que hace que la gente se vaya.
 
 **Y hay un candado que mira el archivo** (`buscador-espanol.test.ts`): el
 diccionario puede seguir perfecto mientras alguien desenchufa la llamada, y

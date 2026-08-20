@@ -106,8 +106,20 @@ export function palabrasDe(busqueda: string) {
  * productos, vengan de donde vengan.
  *
  * Así, quien escribe «ferreteria» encuentra el departamento entero aunque cada
- * ficha esté en inglés. Es gratis —la tabla ya venía en el join para el
- * filtro— y funciona antes de traducir un solo producto.
+ * ficha esté en inglés, y funciona antes de traducir un solo producto.
+ *
+ * ══ VA COMO SUBCONSULTA, Y ESO NO ES UN DETALLE DE ESTILO ══
+ *
+ * La primera versión lo escribió como `categorias.nombreEs` a secas,
+ * aprovechando que el listado del catálogo ya hacía ese join. **Y rompió el
+ * buscador entero**: `sugerencias()` —el desplegable que sale mientras se
+ * escribe— solo une `productos` con `tiendas`, así que su consulta quedó
+ * inválida, murió en su `try`, y devolvía cero resultados para TODO. Lo
+ * destapó probarlo en el navegador: «tablero» daba 3 y pasó a dar 0.
+ *
+ * Este fragmento lo comparten varias consultas con joins distintos, así que
+ * **no puede depender de lo que haya unido quien lo llama**. La subconsulta se
+ * basta sola, igual que ya se hace aquí mismo con la primera foto.
  * Primero se concatena y despues se limpia: asi son catorce reemplazos y no
  * catorce por cada campo.
  */
@@ -118,7 +130,8 @@ const TEXTO_PRODUCTO = normalizar(sql`
   COALESCE(${productos.marca}, '') || ' ' ||
   COALESCE(${productos.sku}, '') || ' ' ||
   COALESCE(${tiendas.nombre}, '') || ' ' ||
-  COALESCE(${categorias.nombreEs}, '')
+  COALESCE((SELECT ${categorias.nombreEs} FROM ${categorias}
+            WHERE ${categorias.id} = ${productos.categoriaId}), '')
 `);
 
 const TITULO = normalizar(productos.tituloEs);

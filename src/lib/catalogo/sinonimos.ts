@@ -91,13 +91,21 @@ export const CONCEPTOS: ReadonlyArray<readonly string[]> = [
   ["herramienta", "herramientas", "tool", "tools", "toolkit", "tool set"],
   ["taladro", "taladros", "drill", "drills"],
   ["destornillador", "destornilladores", "screwdriver", "screwdrivers"],
-  ["llave inglesa", "llave de tuercas", "wrench", "wrenches"],
+  /* «llave» a secas también es cerradura y grifo, y aun así entra: probado
+     contra el catálogo real, «wrench» no encontraba NADA porque las fichas
+     dicen «LLAVE ALLEN», no «llave inglesa». Encontrar de más es aceptable;
+     encontrar de menos es lo que hace que la gente se vaya. */
+  ["llave", "llaves", "llave inglesa", "llave de tuercas", "wrench",
+   "wrenches"],
   ["martillo", "martillos", "hammer", "hammers"],
   ["sierra", "sierras", "serrucho", "saw", "saws"],
   ["tornillo", "tornillos", "screw", "screws"],
   ["clavo", "clavos", "nail", "nails"],
   ["cinta metrica", "metro", "tape measure", "measuring tape"],
-  ["linterna", "linternas", "flashlight", "flashlights", "torch"],
+  /* «torch» NO va aquí: en inglés británico es linterna, pero en un
+     catálogo de ferretería choca con la antorcha de corte, y probándolo
+     contra el catálogo real trajo exactamente eso. */
+  ["linterna", "linternas", "flashlight", "flashlights"],
   ["candado", "candados", "cerradura", "cerraduras", "lock", "locks",
    "padlock"],
   ["carretilla", "carretillas", "hand truck", "dolly", "platform truck"],
