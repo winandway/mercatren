@@ -96,8 +96,19 @@ export async function POST(peticion: Request) {
 
   if (!cobro) return error(404, "no_existe");
 
-  /* `abierto` es lo único que revive. Un pagado volvería a cobrarse, y un
-     cancelado se canceló por algo. */
+  /**
+   * `abierto` ES LO ÚNICO QUE REVIVE.
+   *
+   * Un pagado volvería a cobrarse. Y un CANCELADO tampoco revive, que es lo
+   * que pidió el comercio al abrir `/anular` (20 ago 2026): cancelar es
+   * decidir que ese cobro no va, y revivirlo por esta otra puerta lo desharía
+   * sin que nadie lo pida — justo el enlace que se apagó porque el correo
+   * estaba mal escrito volvería a quedar cobrable.
+   *
+   * No hizo falta agregar nada: exigir `abierto` ya lo deja fuera. Queda
+   * escrito aquí para que nadie lo relaje pensando que «vencido y cancelado
+   * son parecidos».
+   */
   if (cobro.estado !== "abierto") {
     return Response.json(
       { error: "no_reactivable", estado: cobro.estado },

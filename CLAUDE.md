@@ -2687,6 +2687,64 @@ exigir productos ahí sería una prueba que se pone roja por hacer lo que debe.
 Ahora comprueba que el feed sea XML válido con su canal, y que si trae
 productos, traigan precio y enlace.
 
+## CANCELAR UN COBRO YA CREADO (20 ago 2026)
+
+Lo pidió el comercio piloto con un caso real: el cobro `VIG-02497-A1` salió
+hacia `hernandezbleider@gmai.com` — sin la «l» de gmail. Ese correo no existe,
+así que **el enlace nació muerto y seguía vivo y cobrable hasta vencer**, y
+nadie podía apagarlo. Los otros dos casos pasan igual de seguido: el cliente
+pagó en efectivo o por Zelle mientras el enlace andaba dando vueltas —si
+después alguien lo abre y lo paga, pagó dos veces— o se equivocaron de monto,
+de cliente o de factura.
+
+```
+POST /datos/socios/cobro/anular
+Authorization: Bearer <token del comercio>
+{ "referencia": "VIG-02497-A1", "motivo": "el correo estaba mal escrito" }
+```
+
+**EL ESTADO SE LLAMA `cancelado`, NO `anulado`.** El comercio pidió `anulado`;
+aquí se usa el que ya existía en `ESTADOS_COBRO` y que la página de pago ya
+sabía dibujar. Dos palabras para el mismo estado es como empiezan los fallos
+que nadie encuentra: un día alguien compara contra la que no es y el cobro
+sigue cobrable creyendo que está apagado.
+
+- **Un cobro PAGADO no se cancela** (409). Taparía dinero que ya entró: el
+  comercio dejaría de verlo, la conciliación no cuadraría y el cliente se
+  quedaría sin comprobante de algo que sí pagó. Si hay que devolvérselo, eso es
+  una devolución y tiene su propio camino.
+- **Uno ya cancelado devuelve 200, no error.** Un doble clic no puede parecer
+  un fallo, o quien lo pulsó se queda dudando de si de verdad se apagó.
+- **Uno VENCIDO también se cancela**, y por un motivo concreto: un vencido se
+  puede reactivar, así que cancelarlo es justo lo que impide que reviva.
+- **Un cancelado NO revive por `/reactivar`.** No hizo falta agregar nada
+  —esa ruta ya exige `abierto`— pero quedó escrito ahí para que nadie lo relaje
+  pensando que «vencido y cancelado son parecidos».
+- **El estado se re-comprueba DENTRO del `UPDATE`.** Entre leer y escribir
+  puede entrar el pago del cliente; sin eso, un cobro recién pagado quedaría
+  marcado como cancelado y el dinero estaría en la cuenta sin que nadie lo
+  asocie a nada.
+
+**EL MOTIVO NO SALE NUNCA A LA PÁGINA DE PAGO**, y por eso vive en tabla
+aparte (`anulaciones_cobro`, tabla y no columna como manda la regla). Lo
+escribe una persona y puede nombrar al comercio; teniéndolo en otra tabla, la
+consulta que dibuja esa página ni siquiera lo trae, así que no se puede filtrar
+por descuido.
+
+**Y EL MENSAJE DE CANCELADO CAMBIA SEGÚN EL MODO.** Con el cobro normal se
+nombra al comercio («Ferremateriales Bley C.A canceló este cobro»); en modo
+`solo_mercatren` no se nombra a nadie («Este cobro fue cancelado»). No es
+cosmético: ese enlace le llega al cliente de una ferretería que revende, y si
+ahí aparece quién le surte, le compra directo. Es la razón entera de que ese
+modo exista, y filtrarlo justo al cancelar rompería todo lo demás.
+`cobros-anular.test.ts` mira el archivo y se pone rojo si alguien cambia
+`presentacion.comercio` por el nombre crudo.
+
+**Comprobado contra un servidor real, no solo en pruebas:** sin token 401,
+token inválido 401, referencia ajena o inexistente 404, pagado 409, abierto
+200, el mismo otra vez 200, vencido 200, reactivar un cancelado 409, y el GET
+devolviendo `cancelado`. Las dos pantallas se miraron en el navegador.
+
 ## Comandos
 
 **Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan

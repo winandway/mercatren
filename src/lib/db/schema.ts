@@ -2544,3 +2544,34 @@ export const enviosProducto = sqliteTable("envios_producto", {
 
   cotizadoEn: integer("cotizado_en", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * POR QUÉ SE CANCELÓ UN COBRO, Y QUIÉN LO CANCELÓ.
+ *
+ * ══ TABLA NUEVA Y NO COLUMNA, COMO MANDA LA REGLA ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que una columna
+ * nueva en `cobros_solicitados` NO llegaría sola a producción. Una tabla sí.
+ *
+ * ══ EL MOTIVO VIVE AQUÍ Y NO SALE A LA PÁGINA DE PAGO ══
+ *
+ * Separarlo de la fila del cobro no es solo por la regla: es que el motivo lo
+ * escribe una persona y puede nombrar al comercio. En el modo sin nombre, ese
+ * nombre no puede llegarle a quien iba a pagar — es la razón entera de que ese
+ * modo exista. Teniéndolo en otra tabla, la consulta que dibuja la página de
+ * pago ni siquiera lo trae, así que no se puede filtrar por descuido.
+ */
+export const anulacionesCobro = sqliteTable("anulaciones_cobro", {
+  /** El cobro. Uno solo se cancela una vez, y por eso es la llave. */
+  cobroId: text("cobro_id")
+    .primaryKey()
+    .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+
+  /** Texto libre del comercio, recortado a 200. Nunca sale al público. */
+  motivo: text("motivo"),
+
+  /** `socio` si vino por la API del comercio, `panel` si lo hizo el equipo. */
+  origen: text("origen").notNull().default("socio"),
+
+  anuladoEn: integer("anulado_en", { mode: "timestamp" }).notNull(),
+});

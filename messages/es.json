@@ -2845,7 +2845,7 @@
     "yaPagado": "Este cobro ya se pagó el {fecha}. No hay nada más que hacer.",
     "vencido": "Este enlace venció.",
     "vencidoQueHacer": "Pídele al comercio que te mande otro: le llega uno nuevo al instante y no pierdes la compra.",
-    "cancelado": "El comercio canceló este cobro.",
+    "cancelado": "Este cobro fue cancelado.",
     "vence": "El enlace vence el {fecha}.",
     "quienCobra": "Tu compra es en {comercio}. El pago lo recibe y lo factura Mercatren.",
     "metodoTitulo": "¿Cómo quieres pagar?",
@@ -2873,6 +2873,8 @@
       "captura_pesada": "La imagen pesa demasiado. Máximo 8 MB.",
       "no_se_pudo": "No pudimos guardar tu comprobante. Inténtalo otra vez."
     },
-    "quienCobraSolo": "El pago lo recibe y lo factura Mercatren."
+    "quienCobraSolo": "El pago lo recibe y lo factura Mercatren.",
+    "canceladoPorComercio": "{comercio} canceló este cobro.",
+    "canceladoQueHacer": "Comunícate con la persona que te envió este enlace."
   }
 }

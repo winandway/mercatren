@@ -2845,7 +2845,7 @@
     "yaPagado": "This was already paid on {fecha}. Nothing else to do.",
     "vencido": "This link has expired.",
     "vencidoQueHacer": "Ask the merchant for another one — a new link arrives instantly and you don't lose the purchase.",
-    "cancelado": "The merchant cancelled this payment.",
+    "cancelado": "This payment request was canceled.",
     "vence": "The link expires on {fecha}.",
     "quienCobra": "Your purchase is from {comercio}. Mercatren receives and invoices the payment.",
     "metodoTitulo": "How would you like to pay?",
@@ -2873,6 +2873,8 @@
       "captura_pesada": "The image is too large. Maximum 8 MB.",
       "no_se_pudo": "We couldn't save your proof of payment. Please try again."
     },
-    "quienCobraSolo": "Mercatren receives and invoices this payment."
+    "quienCobraSolo": "Mercatren receives and invoices this payment.",
+    "canceladoPorComercio": "{comercio} canceled this payment request.",
+    "canceladoQueHacer": "Please contact the person who sent you this link."
   }
 }

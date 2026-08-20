@@ -192,9 +192,34 @@ export default async function PaginaDeCobro({
               <p className="mt-1">{t("vencidoQueHacer")}</p>
             </div>
           ) : estado === "cancelado" ? (
-            <p className="rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
-              {t("cancelado")}
-            </p>
+            /**
+             * UN COBRO CANCELADO NO ENSEÑA EL FORMULARIO DE PAGO, Y EL TEXTO
+             * CAMBIA SEGÚN SI SE PUEDE NOMBRAR AL COMERCIO.
+             *
+             * `presentacion.comercio` ya viene en `null` cuando el cobro se
+             * creó en modo sin nombre, así que aquí no hace falta volver a
+             * decidir nada: se nombra si hay a quién nombrar, y si no, no.
+             *
+             * Eso no es cosmético. Ese enlace le llega al cliente de una
+             * ferretería que revende: si ahí aparece quién le surte, le compra
+             * directo y la ferretería pierde a su cliente. Es la razón entera
+             * de que ese modo exista, y filtrarlo justo al cancelar rompería
+             * todo lo demás.
+             *
+             * Y EL MOTIVO NO SALE AQUÍ NUNCA. Lo escribe una persona y puede
+             * nombrar al comercio; vive en otra tabla que esta consulta ni
+             * siquiera trae, así que no se puede filtrar por descuido.
+             */
+            <div className="rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
+              <p className="font-semibold">
+                {presentacion.comercio
+                  ? t("canceladoPorComercio", {
+                      comercio: presentacion.comercio,
+                    })
+                  : t("cancelado")}
+              </p>
+              <p className="mt-1">{t("canceladoQueHacer")}</p>
+            </div>
           ) : enRevision ? (
             /* Con una captura esperando al validador no se ofrece pagar otra
                vez: lo que toca es esperar, y se dice cuánto. */
