@@ -182,3 +182,39 @@ contracargo.
 4. **Fases 3, 4 y 5** → necesitan lo de arriba.
 
 Las fases 1 y 2 arrancan en cuanto llegue el token. La 4 espera al correo.
+
+## COLOMBIA, QUE ES LA CUENTA QUE SE USA DE VERDAD (19 ago 2026)
+
+Todo lo de arriba se sondeó contra Chile, pero **la cuenta activa es la de
+Colombia** — con facturación electrónica e identidad ya verificadas. Misma
+estructura, comprobada el 19 ago 2026:
+
+| Qué                | Dónde                                                   |
+| ------------------ | ------------------------------------------------------- |
+| API                | `https://api.dropi.co`                                  |
+| Especificación     | `https://api.dropi.co/docs`                             |
+| Pantalla del token | `app.dropi.co/dashboard/config/integration-list`         |
+
+**LA SPEC PÚBLICA TIENE 8 RUTAS Y NO SIRVE PARA VENDER.** Bajada y contada:
+login, `whoiam`, `register`, motivos de cancelación, categorías, usuarios y
+bodegas. **Ni productos, ni crear orden, ni cotizador de flete.**
+
+### Lo que sí se puede hacer sin pedir permiso a nadie
+
+**El token se genera en el panel**, en Configuración → Integraciones. No hay
+que escribir ningún correo para eso, y es el camino correcto: el token del
+panel no caduca, así que no obliga a guardar la contraseña de Dropi en el
+servidor para renovarlo.
+
+### Lo que sí hay que pedir por correo
+
+La **«Documentación API de Integraciones Dropi»** (17 páginas: autenticación,
+encabezados, consultar órdenes, consulta de productos, generación de guías y
+cotizador de flete). Usa la cabecera `dropi-integration-key`. Circula en
+Scribd tras su muro de pago, pero se pide gratis a **marcos.amado@dropi.co**
+—con copia a `soporteti@dropi.co`—, que es el canal que ellos mismos exigen:
+cierran el chat de soporte y remiten ahí.
+
+**El cotizador de flete es el endpoint que más importa de esa lista**, y lo
+aprendimos caro con CJ: si el costo del envío no entra en el precio publicado,
+cada venta barata pierde dinero y no aparece en ninguna pantalla.
