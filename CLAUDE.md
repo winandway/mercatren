@@ -47,8 +47,25 @@ Payoneer, la de Merchant Center y potencialmente la cuenta de Mercury.
 deliberado: desde abril de 2026 Google cruza la dirección de devolución contra
 la identidad declarada del comercio.
 
-Banco en **Mercury** (Checking ••9805) y **Stripe activa**, las dos a nombre de
-Mercatren LLC. Falta la cuenta de Zelle.
+**EL BANCO DE MERCATREN LLC ES CHASE** (comprobado en pantalla el 19 ago 2026):
+`BUS COMPLETE CHK`, cuenta corriente terminada en **1098**, titular `MERCATREN
+LLC`. **Stripe activa**, tambien a nombre de Mercatren LLC. Falta la cuenta de
+Zelle.
+
+**Dos numeros de ruta, y confundirlos cuesta dias:** Chase da uno para depositos
+directos y ACH y **otro distinto para wire**. Lo dice su propia pantalla. Quien
+recibe por ACH —Payoneer, un cobro de un comprador— necesita el de ACH; poner el
+de wire hace que la transferencia rebote.
+
+> **PENDIENTE DE CONFIRMAR, Y ES DE DINERO:** aqui estaba escrito que el banco
+> era **Mercury** (Checking ••9805). Las variables `PAGO_BANCO`, `PAGO_CUENTA`,
+> `PAGO_RUTA_ACH` y `PAGO_RUTA_WIRE` del panel de YaDominios Cloud son las que
+> `pedido/[numero]/page.tsx` le ENSEÑA AL COMPRADOR para que pague por
+> transferencia. Si siguen con los datos de Mercury y el banco real es Chase,
+> ese dinero se va a una cuenta equivocada **sin que salte ningun error**. Hay
+> que comprobarlas antes de que entre un pago por transferencia. Lo mismo con
+> `src/lib/retiros/a-mercury.ts` y `MERCURY_TOKEN`: los retiros automaticos
+> estan construidos contra la API de Mercury.
 
 **EL ORDEN QUE SE SIGUIÓ, Y NO ERA NEGOCIABLE:** EIN → banco → Stripe
 verificada y activa → **y recién entonces el sitio**. El sitio fue lo último a
