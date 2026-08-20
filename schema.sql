@@ -204,6 +204,15 @@ CREATE TABLE IF NOT EXISTS `disputas` (
 
 CREATE INDEX IF NOT EXISTS `idx_disputas_pedido` ON `disputas` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_disputas_estado` ON `disputas` (`estado`);
+CREATE TABLE IF NOT EXISTS `envios_producto` (
+	`producto_id` text PRIMARY KEY NOT NULL,
+	`costo_centavos` integer NOT NULL,
+	`origen` text DEFAULT 'cotizado' NOT NULL,
+	`transporte` text,
+	`cotizado_en` integer NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `envios_tienda` (
 	`tienda_id` text PRIMARY KEY NOT NULL,
 	`modo` text DEFAULT 'sin_definir' NOT NULL,
@@ -813,11 +822,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787174212, 1787174212)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787203561, 1787203561)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787174212)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787203561)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
@@ -837,59 +846,62 @@ INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, ord
 VALUES ('dep-motos-repuestos', NULL, 'motos-repuestos', 'Motos y repuestos', 'Motorcycles & Parts', NULL, 3)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-celulares-accesorios', NULL, 'celulares-accesorios', 'Celulares y accesorios', 'Cell Phones & Accessories', NULL, 4)
+VALUES ('dep-bicicletas', NULL, 'bicicletas', 'Bicicletas', 'Bicycles', NULL, 4)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-computacion', NULL, 'computacion', 'Computación', 'Computers', NULL, 5)
+VALUES ('dep-celulares-accesorios', NULL, 'celulares-accesorios', 'Celulares y accesorios', 'Cell Phones & Accessories', NULL, 5)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-electronica', NULL, 'electronica', 'Electrónica', 'Electronics', NULL, 6)
+VALUES ('dep-computacion', NULL, 'computacion', 'Computación', 'Computers', NULL, 6)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-electrodomesticos', NULL, 'electrodomesticos', 'Electrodomésticos', 'Appliances', NULL, 7)
+VALUES ('dep-electronica', NULL, 'electronica', 'Electrónica', 'Electronics', NULL, 7)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-hogar-muebles', NULL, 'hogar-muebles', 'Hogar y muebles', 'Home & Furniture', NULL, 8)
+VALUES ('dep-electrodomesticos', NULL, 'electrodomesticos', 'Electrodomésticos', 'Appliances', NULL, 8)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-cocina-comedor', NULL, 'cocina-comedor', 'Cocina y comedor', 'Kitchen & Dining', NULL, 9)
+VALUES ('dep-hogar-muebles', NULL, 'hogar-muebles', 'Hogar y muebles', 'Home & Furniture', NULL, 9)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-belleza-cuidado', NULL, 'belleza-cuidado', 'Belleza y cuidado personal', 'Beauty & Personal Care', NULL, 10)
+VALUES ('dep-cocina-comedor', NULL, 'cocina-comedor', 'Cocina y comedor', 'Kitchen & Dining', NULL, 10)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-salud-bienestar', NULL, 'salud-bienestar', 'Salud y bienestar', 'Health & Wellness', NULL, 11)
+VALUES ('dep-belleza-cuidado', NULL, 'belleza-cuidado', 'Belleza y cuidado personal', 'Beauty & Personal Care', NULL, 11)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-bebes-ninos', NULL, 'bebes-ninos', 'Bebés y niños', 'Baby & Kids', NULL, 12)
+VALUES ('dep-salud-bienestar', NULL, 'salud-bienestar', 'Salud y bienestar', 'Health & Wellness', NULL, 12)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-ropa-calzado', NULL, 'ropa-calzado', 'Ropa y calzado', 'Clothing & Shoes', NULL, 13)
+VALUES ('dep-bebes-ninos', NULL, 'bebes-ninos', 'Bebés y niños', 'Baby & Kids', NULL, 13)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-relojes-joyeria', NULL, 'relojes-joyeria', 'Relojes y joyería', 'Watches & Jewelry', NULL, 14)
+VALUES ('dep-ropa-calzado', NULL, 'ropa-calzado', 'Ropa y calzado', 'Clothing & Shoes', NULL, 14)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-deportes-aire-libre', NULL, 'deportes-aire-libre', 'Deportes y aire libre', 'Sports & Outdoors', NULL, 15)
+VALUES ('dep-relojes-joyeria', NULL, 'relojes-joyeria', 'Relojes y joyería', 'Watches & Jewelry', NULL, 15)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-juguetes-juegos', NULL, 'juguetes-juegos', 'Juguetes y juegos', 'Toys & Games', NULL, 16)
+VALUES ('dep-deportes-aire-libre', NULL, 'deportes-aire-libre', 'Deportes y aire libre', 'Sports & Outdoors', NULL, 16)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-mascotas', NULL, 'mascotas', 'Mascotas', 'Pet Supplies', NULL, 17)
+VALUES ('dep-juguetes-juegos', NULL, 'juguetes-juegos', 'Juguetes y juegos', 'Toys & Games', NULL, 17)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-jardin-exteriores', NULL, 'jardin-exteriores', 'Jardín y exteriores', 'Garden & Outdoor', NULL, 18)
+VALUES ('dep-mascotas', NULL, 'mascotas', 'Mascotas', 'Pet Supplies', NULL, 18)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-oficina-papeleria', NULL, 'oficina-papeleria', 'Oficina y papelería', 'Office & School', NULL, 19)
+VALUES ('dep-jardin-exteriores', NULL, 'jardin-exteriores', 'Jardín y exteriores', 'Garden & Outdoor', NULL, 19)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-agro-campo', NULL, 'agro-campo', 'Agro y campo', 'Farm & Agriculture', NULL, 20)
+VALUES ('dep-oficina-papeleria', NULL, 'oficina-papeleria', 'Oficina y papelería', 'Office & School', NULL, 20)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-industrial-equipos', NULL, 'industrial-equipos', 'Industrial y equipos', 'Industrial & Equipment', NULL, 21)
+VALUES ('dep-agro-campo', NULL, 'agro-campo', 'Agro y campo', 'Farm & Agriculture', NULL, 21)
 ON CONFLICT(id) DO NOTHING;
 INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
-VALUES ('dep-otros', NULL, 'otros', 'Otros', 'Other', NULL, 22)
+VALUES ('dep-industrial-equipos', NULL, 'industrial-equipos', 'Industrial y equipos', 'Industrial & Equipment', NULL, 22)
+ON CONFLICT(id) DO NOTHING;
+INSERT INTO categorias (id, tienda_id, slug, nombre_es, nombre_en, padre_id, orden)
+VALUES ('dep-otros', NULL, 'otros', 'Otros', 'Other', NULL, 23)
 ON CONFLICT(id) DO NOTHING;
