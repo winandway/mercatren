@@ -1952,7 +1952,12 @@
       "sinLlave": "TRADUCCION_LLAVE hasn't been set in the site variables. Without it nothing gets translated and the catalog stays in English — which is the right outcome: we never invent a translation or erase a title.",
       "boton": "Translate to Spanish",
       "traduciendo": "Translating…",
-      "avance": "{hechas} of {total} translated"
+      "avance": "{hechas} of {total} translated",
+      "probar": "Test the translator",
+      "probando": "Testing…",
+      "pruebaOk": "The translator works. Here's how a title comes out:",
+      "eraMuestra": "No untranslated products left, so a sample title was used instead.",
+      "noSeGuardo": "This was only a test — nothing was saved."
     },
     "preciosUs": {
       "titulo": "US pricing",

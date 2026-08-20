@@ -154,3 +154,94 @@ export async function estadoDelTraductor(): Promise<{
     sinTraducir: await contarSinTraducir(),
   };
 }
+
+/**
+ * PROBAR EL TRADUCTOR SIN TOCAR NI UN PRODUCTO.
+ *
+ * ══ POR QUÉ HACE FALTA UN BOTÓN APARTE ══
+ *
+ * El botón de traducir escribe en el catálogo publicado. La primera vez que se
+ * pulsa, uno quiere saber dos cosas antes de eso: que la llave está bien
+ * pegada, y que lo que devuelve el modelo se lee como lo escribiría una
+ * tienda. Esto contesta las dos **sin guardar nada**.
+ *
+ * Es el mismo patrón que «Probar el envío» de los correos, y por el mismo
+ * motivo: hay piezas que no se pueden verificar mirando la pantalla porque
+ * viven del otro lado de una llamada.
+ *
+ * ══ SE PRUEBA CON UN TÍTULO REAL DEL CATÁLOGO ══
+ *
+ * Con un texto inventado se comprueba que la llave funciona y nada más. Con
+ * uno de verdad —de los que están publicados ahora mismo— se ve si el modelo
+ * sabe lidiar con los títulos de CJ, que vienen cargados de códigos y palabras
+ * sueltas. Si no hay ninguno sin traducir, se usa uno de muestra y se dice.
+ */
+export type PruebaDeTraduccion = {
+  ok: boolean;
+  original?: string;
+  traducido?: string;
+  deMuestra?: boolean;
+  motivo?: string;
+};
+
+const MUESTRA =
+  "S24109 Elecony 24 Inch Fat Tire Bike Youth Full Shimano 7 Speed";
+
+export async function probarTraductor(): Promise<PruebaDeTraduccion> {
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, motivo: "no-autorizado" };
+  }
+
+  if (!traductorConfigurado()) {
+    return {
+      ok: false,
+      motivo:
+        "Falta la variable TRADUCCION_LLAVE en el panel del sitio, o el sitio todavía no se ha vuelto a publicar desde que la agregaste.",
+    };
+  }
+
+  /* Un título de verdad del catálogo, si lo hay. */
+  let original = MUESTRA;
+  let deMuestra = true;
+  try {
+    const filas = await getDb()
+      .select({
+        id: productos.id,
+        tituloEs: productos.tituloEs,
+        tituloEn: productos.tituloEn,
+      })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .where(and(eq(tiendas.paisOrigen, "US"), isNotNull(productos.tituloEn)));
+
+    const pendiente = filas.filter(faltaTraducir)[0];
+    if (pendiente?.tituloEn?.trim()) {
+      original = pendiente.tituloEn.trim();
+      deMuestra = false;
+    }
+  } catch {
+    /* Si la consulta falla se prueba igual con la muestra: lo que se está
+       comprobando aquí es el traductor, no la base. */
+  }
+
+  const resultado = await traducirTanda([{ id: "prueba", tituloEn: original }]);
+
+  if (!resultado.ok) {
+    return { ok: false, original, deMuestra, motivo: resultado.motivo };
+  }
+
+  const traducido = resultado.traducciones[0]?.tituloEs;
+  if (!traducido) {
+    return {
+      ok: false,
+      original,
+      deMuestra,
+      motivo:
+        "El traductor contestó, pero lo que devolvió no sirve: o estaba vacío, o era el mismo texto en inglés, o era una parrafada en vez de un título. No se guardó nada.",
+    };
+  }
+
+  /* NO SE GUARDA. Es una prueba, y la prueba de que es una prueba es que aquí
+     no hay ni un UPDATE. */
+  return { ok: true, original, traducido, deMuestra };
+}

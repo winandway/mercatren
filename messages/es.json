@@ -1952,7 +1952,12 @@
       "sinLlave": "Falta cargar TRADUCCION_LLAVE en las variables del sitio. Sin ella no se traduce nada, y el catálogo se queda en inglés — que es lo correcto: nunca se inventa una traducción ni se borra un título.",
       "boton": "Traducir al español",
       "traduciendo": "Traduciendo…",
-      "avance": "{hechas} de {total} traducidos"
+      "avance": "{hechas} de {total} traducidos",
+      "probar": "Probar el traductor",
+      "probando": "Probando…",
+      "pruebaOk": "El traductor funciona. Así queda un título:",
+      "eraMuestra": "No quedaban productos sin traducir, así que se probó con un título de ejemplo.",
+      "noSeGuardo": "Esto fue solo una prueba: no se guardó ningún cambio."
     },
     "preciosUs": {
       "titulo": "Precios de Estados Unidos",

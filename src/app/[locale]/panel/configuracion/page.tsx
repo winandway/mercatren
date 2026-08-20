@@ -26,6 +26,7 @@ import { SaludCatalogos } from "@/components/panel/salud-catalogos";
 import { ZelleCobros } from "@/components/panel/zelle-cobros";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
+import { ProbarTraductor } from "@/components/panel/probar-traductor";
 import { RecalcularPrecios } from "@/components/panel/recalcular-precios";
 import { TraducirCatalogo } from "@/components/panel/traducir-catalogo";
 import { TraerFotos } from "@/components/panel/traer-fotos";
@@ -498,6 +499,8 @@ export default async function PaginaConfiguracion({
             pendientes={traductor.sinTraducir}
             configurado={traductor.configurado}
           />
+          {/* Antes de escribir en el catalogo publicado, ver que sale. */}
+          <ProbarTraductor />
         </div>
       </section>
 
