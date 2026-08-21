@@ -65,6 +65,27 @@ function llaveYModelo(): { llave: string; modelo: string } | null {
   } catch {
     entorno = process.env as Record<string, string | undefined>;
   }
+  /**
+   * LA LLAVE NO SE VALIDA POR FORMATO, Y ESO ES DELIBERADO.
+   *
+   * Lo único que se comprueba es que no venga vacía. Nada de exigir que
+   * empiece por «AIza» ni que mida 39 caracteres.
+   *
+   * ══ POR QUÉ, CON UN CASO REAL ══
+   *
+   * Google emite hoy DOS formatos de llave. El viejo empieza por `AIza` y mide
+   * 39; el nuevo de Google Cloud empieza por **`AQ.`** y mide **53**. La
+   * nuestra es del segundo tipo, y funciona: se probó contra la API el 20 ago
+   * 2026 y devolvió 200.
+   *
+   * Una comprobación de formato «por seguridad» habría rechazado una llave
+   * perfectamente válida, y el mensaje habría dicho que falta la variable —
+   * mandando a buscar el fallo en el panel del sitio, que es donde no está.
+   * Google puede sacar un tercer formato mañana y nadie nos avisaría.
+   *
+   * Quien decide si la llave sirve es Google, y lo dice con su respuesta: si
+   * no vale, devuelve 400 y ese motivo sale entero en el panel.
+   */
   const llave = (entorno.TRADUCCION_LLAVE ?? "").trim();
   if (!llave) return null;
   return {
