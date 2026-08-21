@@ -559,7 +559,12 @@ export default async function PaginaProducto({
       <section className="mt-10 max-w-3xl">
         <h2 className="text-lg font-bold">{t("descripcion")}</h2>
         <p className="mt-2 text-sm whitespace-pre-line text-tinta-suave">
-          {descripcion || t("sinDescripcion")}
+          {/* `.trim()` y no `||` a secas: un texto de solo espacios es TRUTHY en
+              JavaScript, así que pasaba el `||`, se dibujaba el espacio y la
+              ficha quedaba con el título «Descripción» y un hueco en blanco
+              debajo — ni siquiera salía el aviso de que no hay. Pasó el 20 ago
+              2026 al marcar con un espacio los productos sin datos en CJ. */}
+          {descripcion?.trim() || t("sinDescripcion")}
         </p>
       </section>
 

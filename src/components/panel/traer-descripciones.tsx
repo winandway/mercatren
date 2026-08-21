@@ -4,7 +4,10 @@ import { Languages, Loader2, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-import { traerDescripciones } from "@/lib/traduccion/acciones";
+import {
+  reintentarDescripciones,
+  traerDescripciones,
+} from "@/lib/traduccion/acciones";
 
 /**
  * Trae de CJ la descripción de cada producto y la deja en español.
@@ -20,9 +23,11 @@ import { traerDescripciones } from "@/lib/traduccion/acciones";
 export function TraerDescripciones({
   pendientes,
   configurado,
+  motivos = [],
 }: {
   pendientes: number;
   configurado: boolean;
+  motivos?: Array<{ motivo: string; cuantos: number }>;
 }) {
   const t = useTranslations("panel.descripciones");
 
@@ -122,6 +127,32 @@ export function TraerDescripciones({
               agotada y un modelo que no existe. */}
           <span>{error}</span>
         </p>
+      ) : null}
+
+      {/* LO QUE DIJO CJ, AGRUPADO. Es lo que convierte «1.032 sin datos» en
+          una respuesta: tres causas distintas dan el mismo síntoma y solo el
+          motivo las separa. */}
+      {motivos.length > 0 ? (
+        <div className="mt-3 rounded-lg bg-riel-50 px-3 py-2.5 text-sm">
+          <p className="font-semibold text-riel-800">{t("motivosTitulo")}</p>
+          <ul className="mt-1 space-y-0.5 text-riel-700">
+            {motivos.map((m) => (
+              <li key={m.motivo}>
+                <span className="font-semibold">{m.cuantos}</span> · {m.motivo}
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={async () => {
+              await reintentarDescripciones();
+              window.location.reload();
+            }}
+            className="mt-2 text-sm font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+          >
+            {t("reintentar")}
+          </button>
+        </div>
       ) : null}
 
       <button

@@ -99,3 +99,36 @@ describe("recortar la descripción", () => {
     expect(recortar(sinPuntos).length).toBeLessThanOrEqual(2000);
   });
 });
+
+describe("el candado que costó los 1.032 en blanco", () => {
+  /**
+   * La ficha hacía `{descripcion || t("sinDescripcion")}` y los fallos se
+   * marcaban con UN ESPACIO dentro del propio campo. Un espacio es TRUTHY en
+   * JavaScript: pasaba el `||`, se dibujaba, y la ficha quedaba con el título
+   * «Descripción» y un hueco en blanco debajo — sin salir siquiera el aviso de
+   * que no hay descripción.
+   */
+  it("un texto de solo espacios NO cuenta como descripción", () => {
+    const comoSeDibuja = (d: string | null) => d?.trim() || "(sin descripción)";
+    expect(comoSeDibuja(" ")).toBe("(sin descripción)");
+    expect(comoSeDibuja("   \n  ")).toBe("(sin descripción)");
+    expect(comoSeDibuja(null)).toBe("(sin descripción)");
+    expect(comoSeDibuja("Camisa de lino")).toBe("Camisa de lino");
+  });
+
+  it("y así se veía el fallo, para que se entienda", () => {
+    /* Sin el `.trim()`, esto devolvía el espacio. Es la prueba de que el
+       arreglo no es cosmético. */
+    const comoEstabaAntes = (d: string | null) => d || "(sin descripción)";
+    expect(comoEstabaAntes(" ")).not.toBe("(sin descripción)");
+  });
+
+  it("la ficha del producto usa .trim(), no `||` a secas", async () => {
+    const { readFileSync } = await import("node:fs");
+    const pagina = readFileSync(
+      "src/app/[locale]/(tienda)/producto/[slug]/page.tsx",
+      "utf8",
+    );
+    expect(pagina).toContain('descripcion?.trim() || t("sinDescripcion")');
+  });
+});

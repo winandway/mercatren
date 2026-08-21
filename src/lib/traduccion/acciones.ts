@@ -1,10 +1,14 @@
 "use server";
 
-import { and, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { productos, tiendas } from "@/lib/db/schema";
+import {
+  intentosDescripcion,
+  productos,
+  tiendas,
+} from "@/lib/db/schema";
 
 import { descripcionDeCj } from "@/lib/cj/descripcion";
 
@@ -307,20 +311,7 @@ export async function traerDescripciones(): Promise<ResultadoDescripciones> {
   }
 
   const db = getDb();
-
-  const pendientes = await db
-    .select({ id: productos.id, externoId: productos.externoId })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(
-      and(
-        eq(tiendas.paisOrigen, "US"),
-        isNotNull(productos.externoId),
-        /* Lo que decide qué falta es el propio dato: sin descripción en
-           español, falta. Así se puede parar y retomar mil veces. */
-        or(isNull(productos.descripcionEs), eq(productos.descripcionEs, "")),
-      ),
-    );
+  const pendientes = await pendientesDeDescripcion(db);
 
   if (pendientes.length === 0) {
     return { ok: true, escritas: 0, sinDatos: 0, restantes: 0 };
@@ -329,30 +320,36 @@ export async function traerDescripciones(): Promise<ResultadoDescripciones> {
   const tanda = pendientes.slice(0, POR_TANDA_DESCRIPCION);
   const conTexto: Array<{ id: string; textoEn: string }> = [];
   let sinDatos = 0;
+  let ultimoMotivo: string | null = null;
   const ahora = new Date();
 
   for (const p of tanda) {
-    const texto = await descripcionDeCj(p.externoId!).catch(() => null);
-    if (!texto) {
-      /* CJ no tiene nada de este producto. Se marca con un espacio para que no
-         vuelva a entrar en la cola cada vez — si no, la barra nunca llegaría
-         al final y quien la mira creería que se colgó. Un espacio se lee como
-         vacío en la ficha, que es lo correcto: mejor sin descripción que con
-         una inventada. */
+    const r = await descripcionDeCj(p.externoId!);
+
+    if (!r.ok) {
       sinDatos += 1;
+      ultimoMotivo = r.motivo;
+      /* EL MOTIVO QUEDA ESCRITO, en su propia tabla y no pisando la
+         descripción. Marcar el fallo dentro del campo que se le enseña al
+         comprador fue el error de la primera versión: la ficha dibujaba ese
+         espacio y quedaba un hueco en blanco. */
       await db
-        .update(productos)
-        .set({ descripcionEs: " ", actualizadoEn: ahora })
-        .where(eq(productos.id, p.id))
+        .insert(intentosDescripcion)
+        .values({ productoId: p.id, motivo: r.motivo, intentadoEn: ahora })
+        .onConflictDoUpdate({
+          target: intentosDescripcion.productoId,
+          set: { motivo: r.motivo, intentadoEn: ahora },
+        })
         .catch(() => undefined);
       continue;
     }
-    conTexto.push({ id: p.id, textoEn: texto });
+
+    conTexto.push({ id: p.id, textoEn: r.texto });
     /* El original en inglés también se guarda: es el dato de CJ y sirve para
        la ficha en inglés y para volver a traducir si hiciera falta. */
     await db
       .update(productos)
-      .set({ descripcionEn: texto, actualizadoEn: ahora })
+      .set({ descripcionEn: r.texto, actualizadoEn: ahora })
       .where(eq(productos.id, p.id))
       .catch(() => undefined);
   }
@@ -387,22 +384,93 @@ export async function traerDescripciones(): Promise<ResultadoDescripciones> {
     escritas,
     sinDatos,
     restantes: Math.max(0, pendientes.length - escritas - sinDatos),
+    /* Si TODA la tanda falló, el motivo de la última sube a la pantalla: sin
+       eso, la barra avanza «sin datos» y nadie se entera de que lo que pasa es
+       que CJ nos está limitando las llamadas. */
+    motivo: escritas === 0 && ultimoMotivo ? ultimoMotivo : undefined,
   };
+}
+
+/**
+ * Los que todavía no tienen descripción en español.
+ *
+ * ══ UN TEXTO DE SOLO ESPACIOS CUENTA COMO VACÍO ══
+ *
+ * La primera versión marcaba los fallos con un espacio dentro del propio
+ * campo. Aquí se usa `trim` en el SQL para que esos 1.032 vuelvan a entrar en
+ * la cola solos, sin tener que tocar la base a mano.
+ */
+async function pendientesDeDescripcion(db: ReturnType<typeof getDb>) {
+  return db
+    .select({ id: productos.id, externoId: productos.externoId })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .leftJoin(
+      intentosDescripcion,
+      eq(intentosDescripcion.productoId, productos.id),
+    )
+    .where(
+      and(
+        eq(tiendas.paisOrigen, "US"),
+        isNotNull(productos.externoId),
+        isNull(intentosDescripcion.productoId),
+        or(
+          isNull(productos.descripcionEs),
+          eq(sql`trim(${productos.descripcionEs})`, ""),
+        ),
+      ),
+    );
 }
 
 /** Cuántos productos de EE. UU. siguen sin descripción. */
 export async function contarSinDescripcion(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
+  return (await pendientesDeDescripcion(getDb())).length;
+}
+
+/**
+ * QUÉ DIJO CJ DE LOS QUE FALLARON, AGRUPADO POR MOTIVO.
+ *
+ * Es lo que convierte «1.032 sin datos» en una respuesta. Tres causas muy
+ * distintas dan el mismo síntoma —CJ no tiene descripción de ese producto,
+ * CJ nos está limitando las llamadas, o la petición va mal armada— y solo el
+ * motivo las separa. Dos de las tres se arreglan.
+ */
+export async function motivosDeFallo(): Promise<
+  Array<{ motivo: string; cuantos: number }>
+> {
+  if (!(await esSoporteDeVerdad())) return [];
+
   const filas = await getDb()
-    .select({ id: productos.id })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(
-      and(
-        eq(tiendas.paisOrigen, "US"),
-        isNotNull(productos.externoId),
-        or(isNull(productos.descripcionEs), eq(productos.descripcionEs, "")),
-      ),
-    );
-  return filas.length;
+    .select({ motivo: intentosDescripcion.motivo })
+    .from(intentosDescripcion);
+
+  const cuenta = new Map<string, number>();
+  for (const f of filas) {
+    /* Se agrupa por el principio del motivo: los de CJ traen el id de la
+       petición al final y si no, cada fallo sería un grupo de uno. */
+    const clave = f.motivo.slice(0, 90);
+    cuenta.set(clave, (cuenta.get(clave) ?? 0) + 1);
+  }
+
+  return [...cuenta.entries()]
+    .map(([motivo, cuantos]) => ({ motivo, cuantos }))
+    .sort((a, b) => b.cuantos - a.cuantos)
+    .slice(0, 6);
+}
+
+/**
+ * Volver a intentar los que fallaron.
+ *
+ * Borra las marcas para que vuelvan a entrar en la cola. Se usa cuando el
+ * motivo ya se arregló —por ejemplo, si CJ nos estaba limitando las llamadas y
+ * al día siguiente ya no—, y no toca ni una descripción de las que sí se
+ * trajeron.
+ */
+export async function reintentarDescripciones(): Promise<number> {
+  if (!(await esSoporteDeVerdad())) return 0;
+  const borrados = await getDb()
+    .delete(intentosDescripcion)
+    .returning({ id: intentosDescripcion.productoId });
+  return borrados.length;
 }

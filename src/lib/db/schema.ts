@@ -2575,3 +2575,35 @@ export const anulacionesCobro = sqliteTable("anulaciones_cobro", {
 
   anuladoEn: integer("anulado_en", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * POR QUÉ NO SE PUDO TRAER LA DESCRIPCIÓN DE UN PRODUCTO.
+ *
+ * ══ POR QUÉ HACE FALTA ══
+ *
+ * La primera versión marcaba los fallos con un espacio en el campo de la
+ * descripción. Dos cosas salieron mal a la vez: la ficha dibujaba ese espacio
+ * como si fuera una descripción —dejando un hueco en blanco— y, sobre todo,
+ * **se perdía el motivo**. De 1.070 productos, 1.032 salieron «sin datos en
+ * CJ» y no había forma de saber si era que CJ no tiene descripción de esos
+ * productos, si nos estaba limitando por cantidad de llamadas, o si la
+ * petición iba mal armada. Tres causas muy distintas con el mismo síntoma.
+ *
+ * Aquí queda escrito el motivo exacto que dio CJ. Con eso, una sola tanda
+ * dice cuál de las tres es.
+ *
+ * ══ Y SIRVE DE MARCA PARA NO REPETIR ══
+ *
+ * Un producto con fila aquí no vuelve a entrar en la cola, así que la barra
+ * llega al final. Para reintentarlos se borra la fila desde el panel.
+ */
+export const intentosDescripcion = sqliteTable("intentos_descripcion", {
+  productoId: text("producto_id")
+    .primaryKey()
+    .references(() => productos.id, { onDelete: "cascade" }),
+
+  /** Lo que dijo CJ, tal cual. Nunca un «no se pudo». */
+  motivo: text("motivo").notNull(),
+
+  intentadoEn: integer("intentado_en", { mode: "timestamp" }).notNull(),
+});

@@ -1977,7 +1977,9 @@
       "boton": "Traer las descripciones",
       "traduciendo": "Trayendo…",
       "avance": "{hechas} de {total}",
-      "sinDatos": "{cuantos} sin datos en CJ"
+      "sinDatos": "{cuantos} sin datos en CJ",
+      "motivosTitulo": "Lo que dijo CJ de los que no se pudieron traer:",
+      "reintentar": "Volver a intentar los que fallaron"
     }
   },
   "catalogo": {

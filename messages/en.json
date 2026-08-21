@@ -1977,7 +1977,9 @@
       "boton": "Fetch descriptions",
       "traduciendo": "Fetching…",
       "avance": "{hechas} of {total}",
-      "sinDatos": "{cuantos} with no data in CJ"
+      "sinDatos": "{cuantos} with no data in CJ",
+      "motivosTitulo": "What CJ said about the ones that failed:",
+      "reintentar": "Retry the ones that failed"
     }
   },
   "catalogo": {

@@ -36,6 +36,7 @@ import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
 import {
   contarSinDescripcion,
   estadoDelTraductor,
+  motivosDeFallo,
 } from "@/lib/traduccion/acciones";
 import { contarSinEnvio } from "@/lib/destino/recalcular-us";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -110,6 +111,7 @@ export default async function PaginaConfiguracion({
   const fotosPendientes = await contarFotosPendientes();
   const traductor = await estadoDelTraductor();
   const sinDescripcion = await contarSinDescripcion();
+  const motivosDescripcion = await motivosDeFallo();
   const sinEnvio = await contarSinEnvio();
 
   /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
@@ -522,6 +524,7 @@ export default async function PaginaConfiguracion({
           <TraerDescripciones
             pendientes={sinDescripcion}
             configurado={traductor.configurado}
+            motivos={motivosDescripcion}
           />
         </div>
       </section>

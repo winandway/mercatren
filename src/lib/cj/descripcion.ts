@@ -39,24 +39,34 @@ type DetalleCj = {
 };
 
 /**
- * Trae la descripción de un producto de CJ, ya limpia de HTML.
+ * Trae la descripción de un producto de CJ.
  *
- * Devuelve `null` si CJ no tiene nada que decir de ese producto, y eso es una
- * respuesta válida: mejor una ficha sin descripción que una inventada.
+ * ══ CUANDO NO SE PUEDE, DEVUELVE EL MOTIVO — NUNCA UN `null` MUDO ══
+ *
+ * La primera versión devolvía `null` para todo: CJ caído, CJ limitándonos por
+ * cantidad de llamadas, producto sin descripción, petición mal armada. De
+ * 1.070 productos, 1.032 salieron «sin datos» y no había forma de saber cuál
+ * de las cuatro era. Tres de esas cuatro se arreglan; la otra no. Sin el
+ * motivo, no se puede ni empezar.
  */
-export async function descripcionDeCj(pid: string): Promise<string | null> {
+export type DescripcionDeCj =
+  | { ok: true; texto: string }
+  | { ok: false; motivo: string };
+
+export async function descripcionDeCj(pid: string): Promise<DescripcionDeCj> {
   const parametros = new URLSearchParams({ pid }).toString();
   const respuesta = await llamarCj<DetalleCj>(
     `/product/query?${parametros}`,
-  ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+  ).catch((e) => ({ ok: false as const, motivo: `no contestó: ${String(e)}` }));
 
   if (!respuesta.ok) {
-    console.error("[cj] no se pudo pedir el detalle:", respuesta.motivo);
-    return null;
+    /* El motivo entero de CJ, que es lo que distingue «este producto no tiene
+       descripción» de «te estamos limitando las llamadas». */
+    return { ok: false, motivo: respuesta.motivo };
   }
 
   const d = respuesta.datos;
-  if (!d) return null;
+  if (!d) return { ok: false, motivo: "CJ contestó bien pero sin datos" };
 
   const partes = [
     limpiarHtml(d.description),
@@ -67,5 +77,14 @@ export async function descripcionDeCj(pid: string): Promise<string | null> {
   ].filter(Boolean);
 
   const texto = partes.join("\n\n").trim();
-  return texto.length >= 20 ? recortar(texto) : null;
+  if (texto.length < 20) {
+    return {
+      ok: false,
+      motivo: texto
+        ? `CJ solo dio ${texto.length} caracteres: «${texto}»`
+        : "CJ no tiene descripción de este producto",
+    };
+  }
+
+  return { ok: true, texto: recortar(texto) };
 }
