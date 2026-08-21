@@ -1,12 +1,18 @@
 "use server";
 
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, or } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { productos, tiendas } from "@/lib/db/schema";
 
-import { traducirTanda, traductorConfigurado } from "./modelo";
+import { descripcionDeCj } from "@/lib/cj/descripcion";
+
+import {
+  traducirDescripciones,
+  traducirTanda,
+  traductorConfigurado,
+} from "./modelo";
 import { faltaTraducir, POR_TANDA, type PeticionDeTraduccion } from "./reglas";
 
 /**
@@ -244,4 +250,159 @@ export async function probarTraductor(): Promise<PruebaDeTraduccion> {
   /* NO SE GUARDA. Es una prueba, y la prueba de que es una prueba es que aquí
      no hay ni un UPDATE. */
   return { ok: true, original, traducido, deMuestra };
+}
+
+/**
+ * TRAER LAS DESCRIPCIONES DE CJ Y DEJARLAS EN ESPAÑOL.
+ *
+ * ══ LO QUE ARREGLA ══
+ *
+ * Los 1.071 productos de Estados Unidos estaban SIN descripción — no en
+ * inglés: vacía. El catálogo se arma con el buscador de CJ, que devuelve
+ * nombre, foto, SKU y precio y nada más; la descripción vive en el detalle del
+ * producto, que es otra llamada y nunca se hizo.
+ *
+ * Se notó mirando el feed de Google: las fichas iban con una «descripción» que
+ * era el título con una coletilla pegada. Google no indexa eso, y por eso el
+ * catálogo no aparecía en ningún lado.
+ *
+ * ══ DOS PASOS POR PRODUCTO, EN ESTE ORDEN ══
+ *
+ * 1. Se le pide a CJ la descripción real (materiales, medidas, qué trae).
+ * 2. Se traduce con el mismo traductor que ya funciona.
+ *
+ * **Si CJ no da nada, se queda vacía.** No se escribe una descripción a partir
+ * de la foto ni del título: sería inventar afirmaciones sobre un producto que
+ * nunca hemos tocado, y las devoluciones de Estados Unidos las paga Mercatren.
+ *
+ * ══ POR TANDAS DE CINCO ══
+ *
+ * Cada producto son dos llamadas —una a CJ y su parte de la del traductor— y
+ * las descripciones son largas. Cinco es lo que cabe en una petición del borde
+ * sin quedarse a medias.
+ */
+const POR_TANDA_DESCRIPCION = 5;
+
+export type ResultadoDescripciones = {
+  ok: boolean;
+  escritas: number;
+  sinDatos: number;
+  restantes: number;
+  motivo?: string;
+};
+
+export async function traerDescripciones(): Promise<ResultadoDescripciones> {
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, escritas: 0, sinDatos: 0, restantes: 0, motivo: "no-autorizado" };
+  }
+  if (!traductorConfigurado()) {
+    return {
+      ok: false,
+      escritas: 0,
+      sinDatos: 0,
+      restantes: 0,
+      motivo:
+        "Falta la variable TRADUCCION_LLAVE en el panel del sitio. Sin ella se puede traer la descripción de CJ pero no dejarla en español.",
+    };
+  }
+
+  const db = getDb();
+
+  const pendientes = await db
+    .select({ id: productos.id, externoId: productos.externoId })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(
+      and(
+        eq(tiendas.paisOrigen, "US"),
+        isNotNull(productos.externoId),
+        /* Lo que decide qué falta es el propio dato: sin descripción en
+           español, falta. Así se puede parar y retomar mil veces. */
+        or(isNull(productos.descripcionEs), eq(productos.descripcionEs, "")),
+      ),
+    );
+
+  if (pendientes.length === 0) {
+    return { ok: true, escritas: 0, sinDatos: 0, restantes: 0 };
+  }
+
+  const tanda = pendientes.slice(0, POR_TANDA_DESCRIPCION);
+  const conTexto: Array<{ id: string; textoEn: string }> = [];
+  let sinDatos = 0;
+  const ahora = new Date();
+
+  for (const p of tanda) {
+    const texto = await descripcionDeCj(p.externoId!).catch(() => null);
+    if (!texto) {
+      /* CJ no tiene nada de este producto. Se marca con un espacio para que no
+         vuelva a entrar en la cola cada vez — si no, la barra nunca llegaría
+         al final y quien la mira creería que se colgó. Un espacio se lee como
+         vacío en la ficha, que es lo correcto: mejor sin descripción que con
+         una inventada. */
+      sinDatos += 1;
+      await db
+        .update(productos)
+        .set({ descripcionEs: " ", actualizadoEn: ahora })
+        .where(eq(productos.id, p.id))
+        .catch(() => undefined);
+      continue;
+    }
+    conTexto.push({ id: p.id, textoEn: texto });
+    /* El original en inglés también se guarda: es el dato de CJ y sirve para
+       la ficha en inglés y para volver a traducir si hiciera falta. */
+    await db
+      .update(productos)
+      .set({ descripcionEn: texto, actualizadoEn: ahora })
+      .where(eq(productos.id, p.id))
+      .catch(() => undefined);
+  }
+
+  let escritas = 0;
+  if (conTexto.length > 0) {
+    const traducido = await traducirDescripciones(conTexto);
+    if (!traducido.ok) {
+      return {
+        ok: false,
+        escritas: 0,
+        sinDatos,
+        restantes: pendientes.length - sinDatos,
+        motivo: traducido.motivo,
+      };
+    }
+    for (const t of traducido.traducciones) {
+      try {
+        await db
+          .update(productos)
+          .set({ descripcionEs: t.texto, actualizadoEn: ahora })
+          .where(eq(productos.id, t.id));
+        escritas += 1;
+      } catch (fallo) {
+        console.error("[descripcion] no se pudo guardar", t.id, fallo);
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    escritas,
+    sinDatos,
+    restantes: Math.max(0, pendientes.length - escritas - sinDatos),
+  };
+}
+
+/** Cuántos productos de EE. UU. siguen sin descripción. */
+export async function contarSinDescripcion(): Promise<number> {
+  if (!(await esSoporteDeVerdad())) return 0;
+  const filas = await getDb()
+    .select({ id: productos.id })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(
+      and(
+        eq(tiendas.paisOrigen, "US"),
+        isNotNull(productos.externoId),
+        or(isNull(productos.descripcionEs), eq(productos.descripcionEs, "")),
+      ),
+    );
+  return filas.length;
 }

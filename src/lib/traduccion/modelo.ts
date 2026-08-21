@@ -160,3 +160,125 @@ export async function traducirTanda(
   return leerRespuesta(await respuesta.json(), peticiones);
 }
 
+
+const INSTRUCCION_DESCRIPCION = `Eres el redactor de catálogo de una tienda en línea que vende en Estados Unidos y Latinoamérica.
+
+Te van a pasar descripciones de producto en inglés, tal como vienen de un proveedor mayorista chino. Vienen sucias: mal traducidas del chino, con repeticiones, con medidas en pulgadas y con frases sueltas.
+
+Tu trabajo es reescribirlas EN ESPAÑOL como las escribiría una tienda de verdad.
+
+Reglas que NO se rompen:
+- NO INVENTES NADA. Si el original no dice el material, no lo digas. Si no dice la medida, no la pongas. Solo puedes reordenar y aclarar lo que ya está.
+- Español neutro, para todo el continente.
+- De 2 a 5 frases. Lo primero, qué es y para qué sirve.
+- Convierte las medidas al sistema que se entienda, dejando la original entre paréntesis: "10 pulgadas (25 cm)".
+- Deja las marcas y los códigos tal como están.
+- Nada de "compre ya", "el mejor del mercado" ni promesas de envío: eso lo dice la ficha aparte.
+- Si el original no dice nada útil, devuelve una cadena vacía.
+
+Responde SOLO con un JSON así, sin texto alrededor:
+{"t":[{"id":"...","texto":"..."}]}`;
+
+/**
+ * TRADUCIR DESCRIPCIONES, QUE NO ES LO MISMO QUE TRADUCIR TÍTULOS.
+ *
+ * Un título son cuatro palabras y se reescribe entero. Una descripción trae
+ * DATOS —materiales, medidas, qué viene en la caja— y ahí la regla se invierte:
+ * lo que manda es no perder ni inventar nada.
+ *
+ * Por eso la instrucción es otra y lo dice con todas las letras: si el original
+ * no menciona el material, la traducción tampoco. Decir «100 % algodón» de un
+ * producto que nunca hemos tocado es una afirmación falsa nuestra, y las
+ * devoluciones de Estados Unidos las paga Mercatren.
+ */
+export async function traducirDescripciones(
+  peticiones: Array<{ id: string; textoEn: string }>,
+): Promise<
+  | { ok: true; traducciones: Array<{ id: string; texto: string }> }
+  | { ok: false; motivo: string }
+> {
+  if (peticiones.length === 0) return { ok: true, traducciones: [] };
+
+  const config = llaveYModelo();
+  if (!config) {
+    return { ok: false, motivo: "Falta la variable TRADUCCION_LLAVE." };
+  }
+
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${config.modelo}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-goog-api-key": config.llave,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: INSTRUCCION_DESCRIPCION }] },
+          contents: [
+            {
+              parts: [
+                {
+                  text: JSON.stringify(
+                    peticiones.map((p) => ({ id: p.id, texto: p.textoEn })),
+                  ),
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json",
+          },
+        }),
+      },
+    );
+  } catch (fallo) {
+    return { ok: false, motivo: `No se pudo hablar con el traductor: ${String(fallo)}` };
+  }
+
+  if (!respuesta.ok) {
+    const cuerpo = await respuesta.text().catch(() => "");
+    return {
+      ok: false,
+      motivo: `El traductor respondió ${respuesta.status}: ${cuerpo.slice(0, 400)}`,
+    };
+  }
+
+  const crudo = (await respuesta.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  const texto = crudo?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (typeof texto !== "string" || !texto.trim()) {
+    return { ok: false, motivo: "El traductor devolvió una respuesta vacía." };
+  }
+
+  let datos: unknown;
+  try {
+    datos = JSON.parse(texto);
+  } catch {
+    return { ok: false, motivo: `El traductor no devolvió JSON: ${texto.slice(0, 200)}` };
+  }
+
+  const lista = (datos as { t?: unknown })?.t;
+  if (!Array.isArray(lista)) {
+    return { ok: false, motivo: "El traductor devolvió un JSON con otra forma." };
+  }
+
+  const pedidos = new Set(peticiones.map((p) => p.id));
+  const traducciones: Array<{ id: string; texto: string }> = [];
+  for (const fila of lista) {
+    const id = (fila as { id?: unknown })?.id;
+    const t = (fila as { texto?: unknown })?.texto;
+    /* Un id que nadie pidió se descarta, igual que con los títulos. */
+    if (typeof id !== "string" || typeof t !== "string" || !pedidos.has(id)) {
+      continue;
+    }
+    const limpio = t.trim();
+    if (limpio.length < 20) continue;
+    traducciones.push({ id, texto: limpio });
+  }
+
+  return { ok: true, traducciones };
+}

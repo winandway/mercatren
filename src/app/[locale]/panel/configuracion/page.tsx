@@ -4,6 +4,7 @@ import {
   Check,
   CreditCard,
   DollarSign,
+  FileText,
   ImageIcon,
   Landmark,
   Languages,
@@ -27,11 +28,15 @@ import { ZelleCobros } from "@/components/panel/zelle-cobros";
 import { AplicarAjuste } from "@/components/panel/aplicar-ajuste";
 import { CalculadoraPrecio } from "@/components/panel/calculadora-precio";
 import { ProbarTraductor } from "@/components/panel/probar-traductor";
+import { TraerDescripciones } from "@/components/panel/traer-descripciones";
 import { RecalcularPrecios } from "@/components/panel/recalcular-precios";
 import { TraducirCatalogo } from "@/components/panel/traducir-catalogo";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
-import { estadoDelTraductor } from "@/lib/traduccion/acciones";
+import {
+  contarSinDescripcion,
+  estadoDelTraductor,
+} from "@/lib/traduccion/acciones";
 import { contarSinEnvio } from "@/lib/destino/recalcular-us";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
@@ -85,6 +90,7 @@ export default async function PaginaConfiguracion({
   const t = await getTranslations("panel.configuracion");
   const tf = await getTranslations("panel.fotos");
   const tt = await getTranslations("panel.traduccion");
+  const td = await getTranslations("panel.descripciones");
   const tPrecios = await getTranslations("panel.preciosUs");
   const ta = await getTranslations("panel.configuracion.ajuste");
   const tp = await getTranslations("panel.configuracion.auditoriaPrecios");
@@ -103,6 +109,7 @@ export default async function PaginaConfiguracion({
   }));
   const fotosPendientes = await contarFotosPendientes();
   const traductor = await estadoDelTraductor();
+  const sinDescripcion = await contarSinDescripcion();
   const sinEnvio = await contarSinEnvio();
 
   /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
@@ -501,6 +508,21 @@ export default async function PaginaConfiguracion({
           />
           {/* Antes de escribir en el catalogo publicado, ver que sale. */}
           <ProbarTraductor />
+        </div>
+      </section>
+
+      {/* Los 1.071 entraron sin descripcion: CJ no la da en su buscador. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <FileText className="h-4 w-4 text-carga-500" aria-hidden />
+          {td("titulo")}
+        </h2>
+        <p className="mt-1 text-sm text-riel-600">{td("explicacion")}</p>
+        <div className="mt-3">
+          <TraerDescripciones
+            pendientes={sinDescripcion}
+            configurado={traductor.configurado}
+          />
         </div>
       </section>
 

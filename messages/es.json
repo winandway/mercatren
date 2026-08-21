@@ -1967,6 +1967,17 @@
       "boton": "Recalcular los precios",
       "traduciendo": "Recalculando…",
       "avance": "{hechas} de {total} recalculados"
+    },
+    "descripciones": {
+      "titulo": "Descripciones de los productos",
+      "explicacion": "Los productos de CJ entraron SIN descripción: el catálogo se arma con su buscador, que no la devuelve. Esto se la pide a CJ producto por producto y la deja en español. Si CJ no tiene nada, se queda vacía — no se inventa nada a partir de la foto.",
+      "pendientes": "{cantidad} productos no tienen descripción.",
+      "todoTraducido": "Todos los productos de Estados Unidos tienen descripción.",
+      "sinLlave": "Falta cargar TRADUCCION_LLAVE en las variables del sitio. Sin ella se puede traer la descripción de CJ, pero no dejarla en español.",
+      "boton": "Traer las descripciones",
+      "traduciendo": "Trayendo…",
+      "avance": "{hechas} de {total}",
+      "sinDatos": "{cuantos} sin datos en CJ"
     }
   },
   "catalogo": {

@@ -1967,6 +1967,17 @@
       "boton": "Recalculate prices",
       "traduciendo": "Recalculating…",
       "avance": "{hechas} of {total} recalculated"
+    },
+    "descripciones": {
+      "titulo": "Product descriptions",
+      "explicacion": "CJ products were imported with NO description: the catalog is built from their search endpoint, which doesn't return one. This asks CJ product by product and writes it in Spanish. If CJ has nothing, it stays empty — we never invent one from the photo.",
+      "pendientes": "{cantidad} products have no description.",
+      "todoTraducido": "Every US product has a description.",
+      "sinLlave": "TRADUCCION_LLAVE isn't set. Without it we can fetch CJ's description but not put it in Spanish.",
+      "boton": "Fetch descriptions",
+      "traduciendo": "Fetching…",
+      "avance": "{hechas} of {total}",
+      "sinDatos": "{cuantos} with no data in CJ"
     }
   },
   "catalogo": {
