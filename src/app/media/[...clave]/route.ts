@@ -119,6 +119,13 @@ async function puedeVerlo(ruta: string) {
       return Boolean(suyo);
     }
 
+    /* LA FACTURA DEL PROVEEDOR NO LA VE NADIE MÁS QUE EL EQUIPO.
+       Lleva el costo real de la mercancía, que es de donde sale el margen. El
+       equipo ya salió por arriba con `esEquipoInterno`; aquí se cierra en
+       seco para que no caiga al comodín del final, que compara contra
+       `pedidos` y podría dejar pasar a alguien por parecido de id. */
+    if (ruta.startsWith("facturas-proveedor/")) return false;
+
     /* La factura de compra: solo el comercio que la subió. Se comprueba
        contra el alcance de la sesión, no contra la ruta — así un vendedor no
        puede leer la de otro cambiando el enlace a mano. */

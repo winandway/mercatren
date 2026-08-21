@@ -470,7 +470,12 @@
       "buscarPlaceholder": "Name, legal name, or city",
       "total": "{n, plural, one {# store} other {# stores}}",
       "resultados": "{n, plural, one {# store} other {# stores}} matching “{texto}”",
-      "sinResultados": "No store matches “{texto}”."
+      "sinResultados": "No store matches “{texto}”.",
+      "fiscal": {
+        "falta": "Tax form not signed — cannot request withdrawals.",
+        "vencido": "Tax form expired — cannot request withdrawals.",
+        "porVencer": "Tax form expires in {dias} days."
+      }
     },
     "resumen": {
       "titulo": "Dashboard",
@@ -1937,7 +1942,12 @@
       "abrirPanelCj": "Open supplier dashboard",
       "comprobar": "Check its status",
       "descartar": "Discard and re-order",
-      "descartarConfirmar": "Are you sure? This does NOT cancel the order at the supplier. Cancel it there first, or you'll end up with two orders for the same product."
+      "descartarConfirmar": "Are you sure? This does NOT cancel the order at the supplier. Cancel it there first, or you'll end up with two orders for the same product.",
+      "facturaArchivada": "Invoice on file",
+      "verFactura": "View invoice",
+      "facturaFalta": "The supplier invoice is still missing. It is the document that backs the cost of this merchandise.",
+      "facturaNumero": "Invoice number (optional)",
+      "archivarFactura": "File the invoice"
     },
     "buscador": {
       "buscar": "Search",

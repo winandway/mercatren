@@ -18,6 +18,7 @@ import { mercadoDelPanel } from "@/lib/mercado/panel";
 import { getDb } from "@/lib/db";
 import {
   billeteras,
+  formulariosFiscales,
   movimientosBilletera,
   pagosZelle,
   tiendas,
@@ -334,6 +335,27 @@ export async function listarComercios(busqueda?: string) {
       pagos: sql<number>`(SELECT COUNT(*) FROM ${pagosZelle} WHERE ${aprobadosDeLaTienda})`,
       ingresosCentavos: sql<number>`COALESCE((SELECT SUM(${pagosZelle.montoCentavos}) FROM ${pagosZelle} WHERE ${aprobadosDeLaTienda}), 0)`,
       saldoCentavos: sql<number>`COALESCE((SELECT ${billeteras.saldoCentavos} FROM ${billeteras} WHERE ${billeteras.tiendaId} = ${tiendas.id}), 0)`,
+      /**
+       * CUÁNDO VENCE SU FORMULARIO FISCAL, O NADA SI NO LO FIRMÓ.
+       *
+       * Sin esto, el candado de los retiros frena el dinero de un comercio y
+       * **el equipo no tiene dónde mirarlo**: el retiro ni siquiera llega a la
+       * cola, porque se para antes. Alguien llama diciendo «no me deja pedir mi
+       * dinero» y de este lado no hay forma de contestarle.
+       *
+       * Va como subconsulta y no como join para no cambiar el conteo de filas
+       * de una lista que ya trae tres agregados dentro.
+       */
+      /* EN MILISEGUNDOS, Y EL NOMBRE LO DICE.
+         La columna es `mode: "timestamp"`, o sea SEGUNDOS, y una subconsulta
+         cruda se salta la conversión de Drizzle: llega el número pelado. Un
+         `new Date()` de eso da **1970**, y en pantalla se leería como un
+         formulario vencido hace medio siglo — el candado diría que no puede
+         cobrar alguien que sí firmó. Este proyecto ya se quemó con lo mismo al
+         revés en la billetera, donde los movimientos salían en el año 58548. */
+      fiscalVenceEnMs: sql<
+        number | null
+      >`(SELECT ${formulariosFiscales.venceEn} * 1000 FROM ${formulariosFiscales} WHERE ${formulariosFiscales.tiendaId} = ${tiendas.id})`,
     })
     .from(tiendas)
     .where(

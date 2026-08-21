@@ -1,4 +1,4 @@
-import { ArrowRight, Wallet } from "lucide-react";
+import { ArrowRight, FileWarning, Wallet } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonVerComo } from "@/components/panel/ver-como";
@@ -8,6 +8,7 @@ import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import { estadoFiscal, puedeCobrar } from "@/lib/fiscal/w8bene";
 import { listarComercios } from "@/lib/zelle/consultas";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +42,10 @@ export default async function PaginaComercios({
   const esSoporte = (await obtenerUsuario())?.rol === "soporte";
   const busqueda = ((await searchParams).q ?? "").trim().slice(0, 80);
   const comercios = await listarComercios(busqueda);
+  /* Una sola marca de tiempo para toda la lista: con `new Date()` dentro del
+     bucle, dos tarjetas de la misma pantalla podrían caer a distinto lado de
+     la medianoche. */
+  const ahora = new Date();
 
   return (
     <div className="space-y-6">
@@ -110,6 +115,49 @@ export default async function PaginaComercios({
                     </dd>
                   </div>
                 </dl>
+
+                {/**
+                 * SI NO PUEDE COBRAR, SE DICE AQUÍ.
+                 *
+                 * El candado del W-8BEN-E frena el retiro ANTES de que llegue
+                 * a la cola, así que en «Retiros» no aparece nada. Sin esta
+                 * línea, un comercio llama diciendo «no me deja pedir mi
+                 * dinero» y de este lado no hay dónde mirarlo.
+                 *
+                 * Se marca la EXCEPCIÓN, no lo normal: quien lo tiene al día
+                 * no dibuja nada. Un sello verde en cada tarjeta convertiría
+                 * la lista en ruido y el rojo dejaría de significar algo.
+                 */}
+                {(() => {
+                  const fiscal = estadoFiscal(
+                    c.paisOrigen,
+                    c.fiscalVenceEnMs ? new Date(c.fiscalVenceEnMs) : null,
+                    ahora,
+                  );
+                  if (fiscal.estado === "no_hace_falta") return null;
+                  if (fiscal.estado === "al_dia") return null;
+
+                  const frena = !puedeCobrar(fiscal);
+                  return (
+                    <p
+                      className={`mt-3 flex items-start gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold ${
+                        frena
+                          ? "bg-red-50 text-red-800"
+                          : "bg-amber-50 text-amber-900"
+                      }`}
+                    >
+                      <FileWarning
+                        className="mt-px h-3.5 w-3.5 shrink-0"
+                        aria-hidden
+                      />
+                      {fiscal.estado === "falta"
+                        ? t("fiscal.falta")
+                        : fiscal.estado === "vencido"
+                          ? t("fiscal.vencido")
+                          : t("fiscal.porVencer", { dias: fiscal.dias })}
+                    </p>
+                  );
+                })()}
 
                 {/* «Ver su panel»: para responderle cuando manda una captura
                     preguntando dónde se hace algo. Solo para Soporte. */}

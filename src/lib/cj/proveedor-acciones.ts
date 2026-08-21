@@ -5,7 +5,12 @@ import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { pedidos, pedidosProveedor, renglonesProveedor } from "@/lib/db/schema";
+import {
+  facturasProveedor,
+  pedidos,
+  pedidosProveedor,
+  renglonesProveedor,
+} from "@/lib/db/schema";
 import { idDeRegistro, revisar } from "@/lib/validacion/acciones";
 
 /**
@@ -31,6 +36,8 @@ export type CompraAlProveedor = {
   creadoEn: Date | null;
   /** Qué se le pidió exactamente, con la variante elegida de cada renglón. */
   renglones: RenglonComprado[];
+  /** La factura del proveedor, si ya se archivó. Es lo que respalda el costo. */
+  factura: { numero: string | null; clave: string } | null;
 };
 
 /**
@@ -107,8 +114,33 @@ export async function listarComprasAlProveedor(
        pagos, que es lo único imprescindible de esta pantalla. */
     .catch(() => []);
 
+  /* Las facturas ya archivadas, en una sola consulta como los renglones. */
+  const facturas = await db
+    .select({
+      pedidoProveedorId: facturasProveedor.pedidoProveedorId,
+      numero: facturasProveedor.numero,
+      clave: facturasProveedor.clave,
+    })
+    .from(facturasProveedor)
+    .where(
+      inArray(
+        facturasProveedor.pedidoProveedorId,
+        filas.map((f) => f.id),
+      ),
+    )
+    /* Tabla nueva: una base que todavía no la tenga no puede tumbar la cola de
+       pagos, que es lo único imprescindible de esta pantalla. */
+    .catch(() => []);
+
   return filas.map((f) => ({
     ...f,
+    factura: facturas.find((x) => x.pedidoProveedorId === f.id)
+      ? {
+          numero:
+            facturas.find((x) => x.pedidoProveedorId === f.id)?.numero ?? null,
+          clave: facturas.find((x) => x.pedidoProveedorId === f.id)!.clave,
+        }
+      : null,
     renglones: renglones
       .filter((r) => r.pedidoProveedorId === f.id)
       .map(({ pedidoProveedorId: _, ...resto }) => resto),
@@ -404,4 +436,89 @@ export async function marcarCompraPagada(id: string): Promise<Resultado> {
   return cambiadas.length > 0
     ? { ok: true, mensaje: "Marcado como pagado." }
     : { ok: false, mensaje: "Esa compra no existe." };
+}
+
+/**
+ * ARCHIVAR LA FACTURA DEL PROVEEDOR.
+ *
+ * ══ POR QUÉ ESTE ARCHIVO Y NO EL PANEL DE CJ ══
+ *
+ * En una venta de Estados Unidos el vendedor es Mercatren LLC, así que **no
+ * hay orden de compra a ningún comercio**: nadie se factura a sí mismo. Lo
+ * único que respalda el costo de esa mercancía es la factura de quien de
+ * verdad la vendió — el proveedor.
+ *
+ * Sin ella, el asiento del mes tiene el ingreso bruto y un costo sin papel
+ * detrás. Eso no se arregla el día que lo pidan: los paneles de los
+ * proveedores archivan sus documentos, cambian de dirección y cierran cuentas.
+ * El día que haya que enseñarlo, o está en nuestro bucket o no está.
+ *
+ * ══ SOLO EL EQUIPO, Y SE GUARDA QUIÉN ══
+ *
+ * Un documento contable sin autor no defiende a nadie, igual que en los
+ * retiros y en las pruebas de entrega.
+ */
+export async function archivarFacturaDelProveedor(
+  _previo: unknown,
+  datos: FormData,
+): Promise<Resultado> {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const revisado = revisar(idDeRegistro, String(datos.get("compraId") ?? ""));
+  if (!revisado.ok) return { ok: false, mensaje: "Esa compra no existe." };
+
+  const db = getDb();
+
+  const [compra] = await db
+    .select({ id: pedidosProveedor.id })
+    .from(pedidosProveedor)
+    .where(eq(pedidosProveedor.id, revisado.datos))
+    .limit(1);
+
+  if (!compra) return { ok: false, mensaje: "Esa compra no existe." };
+
+  /* SI YA TIENE UNA, NO SE PISA. Reemplazarla en silencio dejaría el bucket
+     con un archivo huérfano y el asiento respaldado por otro documento sin que
+     nadie se entere. Corregir una factura archivada es un acto deliberado. */
+  const [yaTiene] = await db
+    .select({ clave: facturasProveedor.clave })
+    .from(facturasProveedor)
+    .where(eq(facturasProveedor.pedidoProveedorId, compra.id))
+    .limit(1)
+    .catch(() => []);
+
+  if (yaTiene) {
+    return {
+      ok: false,
+      mensaje: "Esa compra ya tiene su factura archivada.",
+    };
+  }
+
+  const { subirDocumento } = await import("@/lib/subidas");
+  const subida = await subirDocumento(
+    datos.get("archivo"),
+    `facturas-proveedor/${compra.id}`,
+  );
+
+  if (!subida.ok) return { ok: false, mensaje: subida.mensaje };
+
+  const usuario = await obtenerUsuario();
+  const numero = String(datos.get("numero") ?? "").trim();
+
+  await db.insert(facturasProveedor).values({
+    pedidoProveedorId: compra.id,
+    /* El número es opcional a propósito: no todos los proveedores lo dan, y
+       exigirlo dejaría la factura sin archivar por un campo que no existe. */
+    numero: numero || null,
+    clave: subida.clave,
+    subidaPor: usuario?.id ?? null,
+    subidaEn: new Date(),
+  });
+
+  revalidatePath("/[locale]/panel/proveedor", "page");
+  return { ok: true, mensaje: "Factura archivada." };
 }

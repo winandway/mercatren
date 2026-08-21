@@ -21,14 +21,14 @@ nombres distintos.
 Verificado el 19 ago 2026 en `mibusinessregistry.lara.state.mi.us`, que es
 contra lo que cotejan Payoneer, Google Merchant Center y los bancos:
 
-| Dato                    | Valor                                    |
-| ----------------------- | ---------------------------------------- |
-| Identification #        | **900260648**                            |
-| **Fecha de constitución** | **11 ago 2026** (LARA: `08/11/2026`)   |
-| EIN                     | **42-4386110** (carta CP575G del IRS)    |
-| Agente residente        | Pedro M Llerena                          |
-| Estado                  | Active · AR Standing Good                |
-| **Informe anual vence** | **15 feb 2027**                          |
+| Dato                      | Valor                                 |
+| ------------------------- | ------------------------------------- |
+| Identification #          | **900260648**                         |
+| **Fecha de constitución** | **11 ago 2026** (LARA: `08/11/2026`)  |
+| EIN                       | **42-4386110** (carta CP575G del IRS) |
+| Agente residente          | Pedro M Llerena                       |
+| Estado                    | Active · AR Standing Good             |
+| **Informe anual vence**   | **15 feb 2027**                       |
 
 **OJO CON DOS COSAS AL LLENAR FORMULARIOS:**
 
@@ -1736,6 +1736,73 @@ persona lo comprueba contra el banco.
 flujo del bucket, y arma las cabeceras a mano. Copiar los metadatos de R2 o
 pasar su flujo tal cual falla en el servidor de desarrollo.
 
+## LA AUDITORÍA DEL 21 DE AGOSTO: CINCO COSAS QUE ESTABAN MAL (21 ago 2026)
+
+El dueño pidió repasar lo construido buscando lo que no se hubiera terminado
+bien. Salieron cinco, y **tres eran de dinero**. Se anotan aquí porque las tres
+nacieron del mismo descuido: dar por hecho lo que no se comprobó en pantalla.
+
+**1. CUALQUIER COMERCIO PODÍA DESCARGAR LA CONTABILIDAD DE MERCATREN LLC.**
+`/datos/exportar?que=asiento` solo exigía `tienePermisoDePanel()`, y ese permiso
+lo tiene el rol `vendedor`. El archivo trae el ingreso bruto de todos los
+comercios juntos, el costo de la mercancía y el margen de la casa: las ventas de
+sus competidores, en un CSV, escribiendo una palabra en la barra de direcciones.
+Ahora `tablaDelAsientoMensual` exige `esEquipoInterno()` **antes de tocar la
+base**. Comprobado con dos sesiones reales: un vendedor con su comercio recibe
+403 en el asiento y **200 en sus propias ventas**.
+
+**Aquí no vale el alcance por comercio** que usan las otras exportaciones: este
+archivo no tiene una versión «la suya» que se le pueda entregar a un vendedor.
+
+**2. EL ASIENTO AGRUPABA TODO EN «1970-01».** `strftime('%Y-%m', creadoEn /
+1000, 'unixepoch')` — y las columnas son `mode: "timestamp"`, o sea **segundos**.
+El `/1000` sobraba. Un asiento MENSUAL que amontona el histórico entero en una
+sola fila no le sirve al contador para nada. Es el mismo fallo de unidades que
+puso los movimientos de la billetera en el año 58548, ahora al revés.
+
+**3. LA COMISIÓN DEL PROCESADOR ERA UN CERO FIJO**, con un comentario al lado
+que prometía que «sale por diferencia». No salía: salía cero, y **el margen del
+mes se declaraba con las comisiones de Stripe dentro**. En un asiento contable
+eso es declarar de más. Ahora la calcula `comisionDelProcesador()`
+(`src/lib/dinero.ts`, pura, 4 pruebas): 2.9 % + $0.30 **por cobro con tarjeta**,
+y cero para Zelle, donde no interviene ningún procesador.
+
+**No pretende cuadrar al centavo con el extracto de Stripe** —de eso ya se
+encarga Xero, conectado con Stripe y con el banco—: sirve para que el margen no
+salga inflado y para saber qué buscar cuando los dos números no coincidan.
+
+**4. LA CASILLA DE LAS FACTURAS DE CJ ESTABA MARCADA SIN QUE EXISTIERA EL
+TRABAJO.** Se creó la tabla `facturas_proveedor` y **nadie escribía en ella**.
+En una venta de Estados Unidos vende Mercatren LLC, así que no hay orden de
+compra a ningún comercio —nadie se factura a sí mismo— y el único papel que
+respalda ese costo es la factura del proveedor. Ya se archiva desde Panel →
+Pedidos al proveedor, en cada compra pagada.
+
+- **`facturas-proveedor/` es privado en `/media`, y ni un comercio con sesión lo
+  abre.** Lleva el precio al que compramos: con esa carpeta abierta, cualquiera
+  calcula el margen restando. Comprobado: soporte 200, comercio 404, sin sesión 404.
+- **No se pisa una factura ya archivada.** Reemplazarla en silencio dejaría un
+  archivo huérfano en el bucket y el asiento respaldado por otro documento sin
+  que nadie se entere.
+- **El número es opcional**: no todos los proveedores lo dan, y exigirlo dejaría
+  la factura sin archivar por un campo que no existe.
+
+**5. EL CANDADO FISCAL FRENABA EL DINERO Y EL EQUIPO NO PODÍA VERLO.** El
+W-8BEN-E se comprueba dentro de `pedirRetiro`, así que el retiro **ni siquiera
+llega a la cola**: un comercio llama diciendo «no me deja pedir mi dinero» y de
+este lado no había dónde mirarlo. Ahora sale en la tarjeta de cada comercio
+(Panel → Comercios), en rojo si frena y en ámbar si solo avisa.
+
+**Se marca la EXCEPCIÓN, no lo normal:** quien lo tiene al día no dibuja nada.
+Un sello verde en cada tarjeta convierte la lista en ruido y hace que el rojo
+deje de significar algo.
+
+**Y esa fecha viaja en MILISEGUNDOS con el nombre diciéndolo**
+(`fiscalVenceEnMs`). Sale de una subconsulta cruda, que se salta la conversión
+de Drizzle: un `new Date()` del número pelado daba **1970**, y la pantalla habría
+dicho que no puede cobrar alguien que sí firmó. Es el punto 2 otra vez, en otro
+archivo, el mismo día.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en
@@ -2791,7 +2858,7 @@ para venderle a Mercatren. Lo que necesita es un **W-8BEN-E**: el papel con el
 que declara que no es estadounidense. Comprobado con las fuentes citadas en
 `PLAN-CONTABILIDAD.md`: a un proveedor extranjero no se le emite 1099, y no hay
 retención porque el ingreso por venta de mercancía se ubica **donde pasa la
-propiedad** —regla del *title passage*, secciones 861(a)(6) y 862(a)(6)— y esa
+propiedad** —regla del _title passage_, secciones 861(a)(6) y 862(a)(6)— y esa
 mercancía se entrega en su país.
 
 **Se llena en pantalla, en español, y sale el documento firmado.** Es lo que

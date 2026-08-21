@@ -43,6 +43,8 @@
 
 - [x] F1 · Exportar el asiento mensual para Xero (bruto, comisión, costo)
 - [x] F2 · Guardar la factura de CJ de cada compra al proveedor
+      _(la casilla estuvo marcada con solo la tabla creada; se cerró de verdad
+      el 21 ago 2026, con su pantalla y su candado en `/media`)_
 
 ## Bloque G — Cerrar
 

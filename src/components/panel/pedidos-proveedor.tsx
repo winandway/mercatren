@@ -5,14 +5,16 @@ import {
   Check,
   CreditCard,
   ExternalLink,
+  FileText,
   Loader2,
   RefreshCw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 
 import { ElegirVariantes } from "@/components/panel/elegir-variantes";
 import {
+  archivarFacturaDelProveedor,
   comprobarEnProveedor,
   descartarCompra,
   marcarCompraPagada,
@@ -371,11 +373,104 @@ function FilaCompra({
         </ul>
       ) : null}
 
+      {/**
+       * LA FACTURA DEL PROVEEDOR, QUE ES LO QUE RESPALDA EL COSTO.
+       *
+       * En una venta de Estados Unidos vende Mercatren LLC, así que no hay
+       * orden de compra a ningún comercio: nadie se factura a sí mismo. El
+       * único papel detrás de ese costo es este.
+       *
+       * Se pide solo cuando la compra ya está pagada: antes no existe.
+       */}
+      {compra.estado === "pagado" ? (
+        <FacturaDelProveedor compra={compra} />
+      ) : null}
+
       {aviso ? (
         <p role="status" className="mt-2 text-sm font-medium text-precio-600">
           {aviso}
         </p>
       ) : null}
     </li>
+  );
+}
+
+/** Subir o mirar la factura de quien nos vendió la mercancía. */
+function FacturaDelProveedor({ compra }: { compra: CompraAlProveedor }) {
+  const t = useTranslations("panel.proveedor");
+  const router = useRouter();
+  const [estado, accion, subiendo] = useActionState(
+    archivarFacturaDelProveedor,
+    null,
+  );
+
+  useEffect(() => {
+    if (estado?.ok) router.refresh();
+  }, [estado?.ok, router]);
+
+  if (compra.factura) {
+    return (
+      <p className="mt-2 flex flex-wrap items-center gap-2 border-t border-borde/60 pt-2 text-xs">
+        <FileText className="h-3.5 w-3.5 text-precio-600" aria-hidden />
+        <span className="font-semibold text-precio-600">
+          {t("facturaArchivada")}
+        </span>
+        {compra.factura.numero ? (
+          <span className="font-mono text-tinta-suave">
+            {compra.factura.numero}
+          </span>
+        ) : null}
+        <a
+          href={`/media/${compra.factura.clave}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold underline"
+        >
+          {t("verFactura")}
+        </a>
+      </p>
+    );
+  }
+
+  return (
+    <form
+      action={accion}
+      className="mt-2 border-t border-borde/60 pt-2 text-xs"
+    >
+      <input type="hidden" name="compraId" value={compra.id} />
+      <p className="text-tinta-suave">{t("facturaFalta")}</p>
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+        <input
+          type="text"
+          name="numero"
+          /* El número es opcional: no todos los proveedores lo dan, y exigirlo
+             dejaría la factura sin archivar por un campo que no existe. */
+          placeholder={t("facturaNumero")}
+          className="h-8 rounded-lg border border-borde px-2"
+        />
+        <input
+          type="file"
+          name="archivo"
+          accept="image/*,application/pdf"
+          required
+          className="text-xs"
+        />
+        <button
+          type="submit"
+          disabled={subiendo}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-borde px-2.5 py-1.5 font-semibold hover:border-carga-500 disabled:opacity-60"
+        >
+          {subiendo ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+          ) : null}
+          {t("archivarFactura")}
+        </button>
+      </div>
+      {estado && !estado.ok ? (
+        <p role="status" className="mt-1.5 text-red-800">
+          {estado.mensaje}
+        </p>
+      ) : null}
+    </form>
   );
 }

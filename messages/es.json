@@ -470,7 +470,12 @@
       "buscarPlaceholder": "Nombre, razón social o ciudad",
       "total": "{n, plural, one {# comercio} other {# comercios}}",
       "resultados": "{n, plural, one {# comercio} other {# comercios}} con «{texto}»",
-      "sinResultados": "Ningún comercio coincide con «{texto}»."
+      "sinResultados": "Ningún comercio coincide con «{texto}».",
+      "fiscal": {
+        "falta": "No ha firmado su formulario fiscal: no puede pedir retiros.",
+        "vencido": "Su formulario fiscal venció: no puede pedir retiros.",
+        "porVencer": "Su formulario fiscal vence en {dias} días."
+      }
     },
     "resumen": {
       "titulo": "Tablero",
@@ -1937,7 +1942,12 @@
       "abrirPanelCj": "Abrir el panel del proveedor",
       "comprobar": "Preguntar cómo va",
       "descartar": "Descartar y volver a pedir",
-      "descartarConfirmar": "¿Seguro? Esto NO cancela el pedido en el proveedor. Cancélalo allá primero, o vas a terminar con dos pedidos del mismo producto."
+      "descartarConfirmar": "¿Seguro? Esto NO cancela el pedido en el proveedor. Cancélalo allá primero, o vas a terminar con dos pedidos del mismo producto.",
+      "facturaArchivada": "Factura archivada",
+      "verFactura": "Ver la factura",
+      "facturaFalta": "Falta archivar la factura del proveedor. Es el papel que respalda el costo de esta mercancía.",
+      "facturaNumero": "Número de la factura (opcional)",
+      "archivarFactura": "Archivar la factura"
     },
     "buscador": {
       "buscar": "Buscar",

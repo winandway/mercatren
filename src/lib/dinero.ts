@@ -374,3 +374,33 @@ export function esProductoNuevo(
   if (!Number.isFinite(fecha)) return false;
   return Date.now() - fecha < DIAS_PRODUCTO_NUEVO * 24 * 60 * 60 * 1000;
 }
+
+/**
+ * LO QUE SE LLEVÓ EL PROCESADOR EN UN MES: 2.9 % + $0.30 POR COBRO.
+ *
+ * Es la misma fórmula con la que se armó el precio de venta, aplicada al
+ * revés. Va aquí, pura y probada, y no dentro de la exportación, porque un
+ * asiento contable con la comisión mal calculada declara un margen que no es.
+ *
+ * ══ SOLO LO COBRADO CON TARJETA ══
+ *
+ * Por Zelle no interviene ningún procesador. Pasarle el bruto entero le
+ * inventaría a Stripe una comisión sobre transferencias que nunca vio, y el
+ * margen del mes saldría más bajo de lo real.
+ *
+ * ══ NO PRETENDE CUADRAR AL CENTAVO CON EL EXTRACTO ══
+ *
+ * De eso se encarga Xero, que está conectado con Stripe y con el banco. Aquí
+ * sirve para que el margen no salga inflado y para saber qué buscar cuando los
+ * dos números no coincidan.
+ */
+export function comisionDelProcesador(
+  brutoTarjetaCentavos: number,
+  cobrosConTarjeta: number,
+): number {
+  if (brutoTarjetaCentavos <= 0 || cobrosConTarjeta <= 0) return 0;
+  return (
+    Math.round((brutoTarjetaCentavos * PROCESADOR_PORCENTAJE_PB) / 10_000) +
+    cobrosConTarjeta * PROCESADOR_FIJO_CENTAVOS
+  );
+}

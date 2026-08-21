@@ -39,6 +39,12 @@ export const MEDIA_PRIVADOS = [
    * equipo, nadie más.
    */
   "retiros/",
+  /**
+   * La factura de quien nos vende la mercancía de Estados Unidos. Lleva el
+   * COSTO REAL del producto — el número que un comprador no debe ver jamás,
+   * porque de él sale el margen. Solo el equipo interno.
+   */
+  "facturas-proveedor/",
 ] as const;
 
 /** Las mismas rutas como las escribe el robots.txt. */

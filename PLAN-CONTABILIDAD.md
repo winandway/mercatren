@@ -17,10 +17,10 @@
 
 ## Lo que ya está conectado
 
-| Fuente | Qué le da a Xero |
-| ------ | ---------------- |
-| **Chase** | El movimiento del banco: lo que entra y lo que sale |
-| **Stripe** | Los cobros con tarjeta y sus comisiones |
+| Fuente     | Qué le da a Xero                                    |
+| ---------- | --------------------------------------------------- |
+| **Chase**  | El movimiento del banco: lo que entra y lo que sale |
+| **Stripe** | Los cobros con tarjeta y sus comisiones             |
 
 Con eso Xero ya sabe **cuánto dinero se movió**. Lo que todavía no sabe es
 **qué se vendió, a quién, y cuánto costó** — que es de donde sale el margen.
@@ -109,9 +109,11 @@ compra la mercancía.
 
 - [ ] ⚠️ **2.1** Pedirles a los dos comercios sus facturas pendientes: $27.74 y
       $30.91, las dos de Inversiones multiservicios.
-- [x] ✅ **2.2** Guardar las facturas de CJ del catálogo de EE. UU. Hoy la
-      compra queda registrada en el panel, pero el PDF de CJ no se archiva en
-      ningún lado.
+- [x] ✅ **2.2** Guardar las facturas de CJ del catálogo de EE. UU. **La
+      casilla estuvo marcada un día sin que el trabajo existiera**: se creó la
+      tabla `facturas_proveedor` y nadie escribía en ella. Ya se archiva desde
+      Panel → Pedidos al proveedor, en cada compra pagada, y el archivo es
+      privado — lleva el costo real, que es de donde sale el margen.
 
 ---
 
@@ -136,7 +138,7 @@ y no se manda a ninguna parte. Vale tres años.
 
 **3 · No hay retención, y este es el punto que lo cierra.** El ingreso por la
 venta de mercancía comprada se ubica **donde pasa la propiedad de la
-mercancía** — es la regla del *title passage* de las secciones 861(a)(6) y
+mercancía** — es la regla del _title passage_ de las secciones 861(a)(6) y
 862(a)(6) del código fiscal. La mercancía de Bley se entrega en Venezuela, así
 que ese ingreso es de fuente extranjera para ellos: **no lleva retención y no
 va en un 1042-S.**
@@ -258,14 +260,13 @@ una vía de pago que no existe.
 
 Todo lo de los bloques 3 y 5 sale de estas, consultadas el 21 ago 2026:
 
-- Regla del *title passage* para mercancía comprada — secciones 861(a)(6) y
+- Regla del _title passage_ para mercancía comprada — secciones 861(a)(6) y
   862(a)(6): [Alston & Bird, sobre las reglas finales de la sección 863(b)](https://www.alston.com/en/insights/publications/2020/10/sourcing-the-source-of-inventory-sales)
 - 1099 y proveedores extranjeros: [Tipalti](https://tipalti.com/blog/1099-for-foreign-contractors/) · [Greenback Tax Services](https://www.greenbacktaxservices.com/knowledge-center/1099s-foreign-contractors/)
 - Formulario W-8BEN-E para entidades extranjeras: [Andrew Mitchel LLC](https://www.andrewmitchel.com/blog/2014_09_payments-to-foreign-contractor-entities-form-w-8ben-e/)
 - Licencias generales 56 y 57 de la OFAC, abril 2026: [Crowell FinTalk](https://www.crowellfintalk.com/2026/04/ofac-expands-venezuela-sanctions-relief-new-general-licenses-56-and-57-and-guidance-on-reporting-obligations/) · [King & Spalding](https://www.jdsupra.com/legalnews/ofac-eases-sanctions-on-financial-1255141/)
 - Los bancos corresponsales que no procesan aunque esté autorizado: [Interstice Digital](https://www.intersticedigital.io/research/how-to-pay-venezuelan-vendors-crypto-2026)
 - Conciliación de Stripe en Xero con cuenta puente: [Bean Ninjas](https://beanninjas.com/blog/avoid-stripe-and-xero-headaches-step-by-step-guide/) · [Synder](https://synder.com/blog/how-to-reconcile-stripe-payments-in-xero/)
-
 
 ---
 
