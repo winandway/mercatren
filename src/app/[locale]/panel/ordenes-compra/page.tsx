@@ -12,6 +12,7 @@ import {
 } from "@/lib/facturas/consultas";
 import { fechaCorta } from "@/lib/fechas";
 import type { MetodoPago } from "@/lib/pagos/rastro";
+import { esTiendaDeLaCasa } from "@/lib/facturas/de-la-casa";
 import { RUTA_MEDIA } from "@/lib/rutas";
 import { cn } from "@/lib/utils";
 
@@ -222,6 +223,25 @@ export default async function PaginaOrdenesCompra({
                           {t("verArchivo")}
                         </a>
                       </div>
+                    ) : esTiendaDeLaCasa(o.tiendaId) ? (
+                      /**
+                       * UNA TIENDA NUESTRA NO SE FACTURA A SÍ MISMA.
+                       *
+                       * «Sole & Thread», «Ridgeback Outdoors» y las demás
+                       * tiendas del catálogo de EE. UU. son marcas de la casa:
+                       * por dentro vende y factura Mercatren LLC. Pedirles una
+                       * factura dejaba esa fila para siempre en «Falta tu
+                       * factura», y encima hacía creer que faltaba un papel
+                       * que no existe.
+                       *
+                       * El costo de esa mercancía sí tiene su documento: la
+                       * factura de CJ, que vive en «Pedidos al proveedor».
+                       * Estas órdenes ya emitidas se quedan —son un hecho
+                       * pasado y no se borran— pero dicen lo que son.
+                       */
+                      <span className="inline-block rounded-md bg-riel-100 px-2 py-0.5 text-xs font-medium text-riel-700">
+                        {t("estado.noAplica")}
+                      </span>
                     ) : (
                       <div className="min-w-[13rem] space-y-2">
                         <span className="text-carga-700 inline-block rounded-md bg-carga-500/15 px-2 py-0.5 text-xs font-medium">

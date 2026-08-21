@@ -1551,7 +1551,8 @@
       },
       "estado": {
         "emitida": "Invoice needed",
-        "facturada": "Invoiced"
+        "facturada": "Invoiced",
+        "noAplica": "Not applicable · this is our own store"
       },
       "adjuntar": "Upload my invoice",
       "numeroFactura": "Your invoice number",

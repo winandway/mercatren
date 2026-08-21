@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { getDb } from "@/lib/db";
+import { llevaOrdenDeCompra } from "@/lib/facturas/de-la-casa";
 import {
   facturas,
   itemsPedido,
@@ -211,6 +212,20 @@ async function emitirOrdenesDeCompra(
 ) {
   const porTienda = new Map<string, number>();
   for (const r of renglones) {
+    /**
+     * A UNA TIENDA NUESTRA NO SE LE PIDE FACTURA.
+     *
+     * En una venta de Estados Unidos, la tienda que aparece —«Sole & Thread»,
+     * «Ridgeback Outdoors»— es una marca de la casa: por dentro vende y
+     * factura Mercatren LLC. Emitirle una orden de compra le pedía una factura
+     * a Mercatren… para Mercatren, y esa fila se quedaba para siempre en
+     * «Falta tu factura».
+     *
+     * El costo de esa mercancía SÍ tiene su papel: es la factura de CJ, que es
+     * a quien de verdad se le compra, y vive en `pedidos_proveedor`.
+     */
+    if (!llevaOrdenDeCompra(r.tiendaId)) continue;
+
     const aPagar = r.subtotalCentavos - r.comisionCentavos;
     porTienda.set(r.tiendaId, (porTienda.get(r.tiendaId) ?? 0) + aPagar);
   }

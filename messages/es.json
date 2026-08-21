@@ -1551,7 +1551,8 @@
       },
       "estado": {
         "emitida": "Falta tu factura",
-        "facturada": "Facturada"
+        "facturada": "Facturada",
+        "noAplica": "No aplica · es una tienda nuestra"
       },
       "adjuntar": "Subir mi factura",
       "numeroFactura": "Número de tu factura",

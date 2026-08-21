@@ -121,6 +121,8 @@ export type OrdenCompraVista = {
   numero: string;
   pedidoNumero: string;
   tiendaNombre: string;
+  /** Para saber si es un comercio de verdad o una marca de la casa. */
+  tiendaId: string;
   subtotalCentavos: number;
   moneda: string;
   estado: "emitida" | "facturada";
@@ -161,6 +163,7 @@ export async function listarOrdenesCompra(
       numero: ordenesCompra.numero,
       pedidoNumero: pedidos.numero,
       tiendaNombre: tiendas.nombre,
+      tiendaId: ordenesCompra.tiendaId,
       subtotalCentavos: ordenesCompra.subtotalCentavos,
       moneda: ordenesCompra.moneda,
       estado: ordenesCompra.estado,
