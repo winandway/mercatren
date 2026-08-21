@@ -2784,6 +2784,74 @@ hay ninguna — que es lo que sí salía ANTES del cambio.
 - Y la consulta de pendientes usa `trim()` en el SQL, así que los que quedaron
   marcados con un espacio vuelven a la cola solos, sin tocar la base a mano.
 
+## EL FORMULARIO FISCAL DEL COMERCIO EXTRANJERO (21 ago 2026)
+
+Un comercio de Venezuela o Colombia **no necesita una LLC en Estados Unidos**
+para venderle a Mercatren. Lo que necesita es un **W-8BEN-E**: el papel con el
+que declara que no es estadounidense. Comprobado con las fuentes citadas en
+`PLAN-CONTABILIDAD.md`: a un proveedor extranjero no se le emite 1099, y no hay
+retención porque el ingreso por venta de mercancía se ubica **donde pasa la
+propiedad** —regla del *title passage*, secciones 861(a)(6) y 862(a)(6)— y esa
+mercancía se entrega en su país.
+
+**Se llena en pantalla, en español, y sale el documento firmado.** Es lo que
+hacen Google y Facebook con quien cobra desde fuera. La alternativa —bajar un
+PDF en inglés, imprimirlo, firmarlo, escanearlo y mandarlo— la abandona la
+mayoría, y con ella se les queda el dinero parado sin que nadie sepa por qué.
+
+Seis cosas que no se tocan:
+
+1. **ESCRIBIR EL NOMBRE NO ES FIRMAR.** El IRS lo dice con esas palabras. Hace
+   falta guardar **fecha, hora, desde dónde** y **el texto exacto de la
+   declaración que se le enseñó**. Guardar solo «aceptó los términos» no
+   demuestra nada el día que alguien lo pida.
+2. **El vencimiento NO es «hoy + 3 años».** Es el 31 de diciembre del tercer
+   año siguiente al de la firma. Uno de marzo y uno de diciembre del mismo año
+   vencen el mismo día; calcularlo como tres años exactos le quitaría nueve
+   meses al primero y se le pediría el papel de nuevo sin motivo.
+3. **A una tienda de Estados Unidos no se le pide.** El formulario es
+   justamente el que declara NO ser estadounidense.
+4. **Uno por vencer SÍ cobra.** Solo se frena el que falta o el que ya venció.
+   Frenarle el dinero a alguien porque su papel vence en cincuenta días sería
+   castigarlo por adelantado — para eso está el aviso a los sesenta días.
+5. **El candado está en `pedirRetiro`, en el servidor, y ANTES de tocar el
+   saldo.** El aviso de «Mi tienda» es cortesía; un botón dibujado se lo salta
+   cualquiera. Y si se comprobara después de apartar el dinero, un comercio sin
+   formulario dejaría su saldo bloqueado por un retiro que nunca sale.
+6. **Lo firma el comercio, nunca el equipo.** Es una declaración bajo pena de
+   perjurio: firmarla por otro sería falsificarla.
+
+**El documento es un formulario SUSTITUTO, y está permitido.** El IRS los
+acepta si llevan la misma información y la misma declaración jurada — por eso
+el texto va en inglés y palabra por palabra, con la traducción al lado. Se
+imprime desde el navegador en vez de generarse en el servidor: meter una
+biblioteca de PDF dentro de un worker del borde es peso y mantenimiento para
+algo que el navegador ya hace.
+
+**Y no se manda a ninguna parte.** No va al IRS. Se guarda por si alguien
+pregunta, y la propia pantalla lo dice antes del primer campo: mucha gente cree
+que está declarando impuestos en Estados Unidos y abandona ahí mismo.
+
+## EL ASIENTO PARA XERO SE EXPORTA, NO SE INTEGRA (21 ago 2026)
+
+Xero está conectado con Chase y con Stripe, así que ya sabe cuánto dinero se
+movió. Lo que no sabe es **qué se vendió y cuánto costó**, que es de donde sale
+el margen.
+
+**No se conecta Mercatren con la API de Xero, a propósito.** Hoy hay tres
+órdenes de compra en total. Una integración son semanas, una credencial más que
+mantener y una pieza que se rompe cuando Xero cambia algo — para automatizar
+tres asientos al mes que se escriben en diez minutos.
+
+**Panel → Configuración → Asiento contable del mes** exporta los tres
+renglones: ingresos por el bruto, costo de mercancía, y comisiones del
+procesador. **Son tres y no dos** porque son dos costos de dueños distintos:
+juntarlos haría que el comercio nos atribuyera los dos y que nadie viera cuál
+de ellos crece.
+
+Se conecta de verdad cuando el asiento pase de una hora, o con más de unas
+cincuenta órdenes al mes.
+
 ## Comandos
 
 **Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan

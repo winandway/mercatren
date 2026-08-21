@@ -1,6 +1,10 @@
 import { tienePermisoDePanel } from "@/lib/autorizacion";
 import { aCsv, nombreDeArchivo } from "@/lib/exportar/csv";
-import { tablaDeCobrosTarjeta, tablaDeVentas } from "@/lib/exportar/consultas";
+import {
+  tablaDeCobrosTarjeta,
+  tablaDelAsientoMensual,
+  tablaDeVentas,
+} from "@/lib/exportar/consultas";
 
 /**
  * DESCARGAR LOS NÚMEROS EN UNA HOJA DE CÁLCULO.
@@ -28,11 +32,16 @@ export async function GET(peticion: Request) {
     const tabla =
       que === "cobros"
         ? await tablaDeCobrosTarjeta(comercio)
-        : await tablaDeVentas(comercio);
+        : que === "asiento"
+          ? /* El asiento contable del mes, para Xero. No lleva `comercio`
+               a propósito: es la contabilidad de Mercatren LLC entera, no la
+               de un comercio. */
+            await tablaDelAsientoMensual()
+          : await tablaDeVentas(comercio);
 
     const cuerpo = aCsv(tabla.cabeceras, tabla.filas);
     const nombre = nombreDeArchivo(
-      que === "cobros" ? "cobros" : "ventas",
+      que === "cobros" ? "cobros" : que === "asiento" ? "asiento" : "ventas",
       new Date(),
     );
 

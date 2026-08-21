@@ -1,5 +1,8 @@
 # Contabilidad, facturación y cómo se le paga a un comercio
 
+> **ESTADO AL 21 AGO 2026 — ejecutado lo que era código.**
+> ✅ construido y publicado · ⚠️ solo lo puede hacer él (ver el final)
+>
 > Escrito el 21 de agosto de 2026, después de conectar Xero con Chase y con
 > Stripe. Todo lo que dice este documento sobre impuestos y sanciones **está
 > buscado en fuentes de agosto de 2026 y citado abajo**, no sacado de memoria.
@@ -57,16 +60,16 @@ Excel no rompa nada.
 haya más de unas 50 órdenes al mes. Antes de eso, la integración cuesta más de
 lo que ahorra.
 
-- [ ] ❌ **1.1** Crear en Xero una **cuenta puente para Stripe** («Stripe
+- [ ] ⚠️ **1.1** Crear en Xero una **cuenta puente para Stripe** («Stripe
       clearing»). Es la forma estándar: entra el bruto de la venta, sale la
       comisión de Stripe, y la cuenta cierra en cero en cada liquidación. Sin
       ella, el ingreso queda registrado por el neto y el margen sale inflado.
-- [ ] ❌ **1.2** Crear la cuenta de **«Costo de mercancía vendida»** y la de
+- [ ] ⚠️ **1.2** Crear la cuenta de **«Costo de mercancía vendida»** y la de
       **«Comisiones de procesador»**, separadas. Son dos costos de dos dueños
       distintos y juntarlos hace imposible ver cuál se lleva qué.
-- [ ] ❌ **1.3** El asiento mensual, escrito como procedimiento de dos pasos en
+- [x] ✅ **1.3** El asiento mensual, escrito como procedimiento de dos pasos en
       este mismo archivo, para que lo pueda hacer cualquiera.
-- [ ] ❌ **1.4** Cargar en Xero, como proveedores, a los comercios que ya
+- [ ] ⚠️ **1.4** Cargar en Xero, como proveedores, a los comercios que ya
       facturan. Hoy son dos.
 
 ---
@@ -104,9 +107,9 @@ vende y factura Mercatren LLC. Nadie se factura a sí mismo.
 Ahí el costo lo respalda **la factura de CJ**, que es a quien de verdad se le
 compra la mercancía.
 
-- [ ] ❌ **2.1** Pedirles a los dos comercios sus facturas pendientes: $27.74 y
+- [ ] ⚠️ **2.1** Pedirles a los dos comercios sus facturas pendientes: $27.74 y
       $30.91, las dos de Inversiones multiservicios.
-- [ ] ❌ **2.2** Guardar las facturas de CJ del catálogo de EE. UU. Hoy la
+- [x] ✅ **2.2** Guardar las facturas de CJ del catálogo de EE. UU. Hoy la
       compra queda registrada en el panel, pero el PDF de CJ no se archiva en
       ningún lado.
 
@@ -140,12 +143,12 @@ va en un 1042-S.**
 
 ### Qué hace falta de verdad, entonces
 
-- [ ] ❌ **3.1** Pedirle a cada comercio extranjero su **W-8BEN-E** firmado,
+- [x] ✅ **3.1** Pedirle a cada comercio extranjero su **W-8BEN-E** firmado,
       antes del primer pago. Cinco minutos, se guarda y ya.
-- [ ] ❌ **3.2** Un acuerdo de compraventa por escrito con cada uno: qué se
+- [ ] ⚠️ **3.2** Un acuerdo de compraventa por escrito con cada uno: qué se
       compra, a qué precio, quién asume qué. Hoy la relación funciona pero no
       está firmada.
-- [ ] ❌ **3.3** Que la factura del comercio diga que la entrega ocurre en su
+- [ ] ⚠️ **3.3** Que la factura del comercio diga que la entrega ocurre en su
       país. Es lo que respalda el punto 3 si algún día alguien pregunta.
 
 ---
@@ -195,10 +198,10 @@ servicio real y la estructura se sostiene sola.
 
 **Lo que no se sostiene es un intermediario que solo firma papeles.**
 
-- [ ] ❌ **4.1** Antes de montar nada: escribir en una línea **qué hace Deea
+- [ ] ⚠️ **4.1** Antes de montar nada: escribir en una línea **qué hace Deea
       que Mercatren no pueda hacer**. Si esa línea no sale, la respuesta es que
       no hace falta.
-- [ ] ❌ **4.2** Si sale: llevársela al contador y al abogado **juntos**, antes
+- [ ] ⚠️ **4.2** Si sale: llevársela al contador y al abogado **juntos**, antes
       de la primera operación. No después.
 
 ---
@@ -226,14 +229,14 @@ mismo problema.** Es una empresa de Estados Unidos, con bancos de Estados
 Unidos, con los mismos bancos corresponsales. Poner una LLC en medio no crea
 una vía de pago que no existe.
 
-- [ ] ❌ **5.1** **Preguntarle a Mercury, por escrito y antes de necesitarlo**,
+- [ ] ⚠️ **5.1** **Preguntarle a Mercury, por escrito y antes de necesitarlo**,
       si ejecutan wires a Venezuela y bajo qué condiciones. Es una pregunta de
       cinco minutos que hoy no tiene respuesta y de la que depende todo lo
       demás.
-- [ ] ❌ **5.2** Si la respuesta es que no: **ese** es el problema que hay que
+- [ ] ⚠️ **5.2** Si la respuesta es que no: **ese** es el problema que hay que
       resolver, y ahí sí puede tener sentido un tercero — pero uno que tenga la
       vía de pago, no uno que solo facture.
-- [ ] ❌ **5.3** Mientras tanto, no prometerle a ningún comercio venezolano un
+- [ ] ⚠️ **5.3** Mientras tanto, no prometerle a ningún comercio venezolano un
       plazo de pago que dependa de un wire que nadie ha probado.
 
 ---
@@ -262,3 +265,44 @@ Todo lo de los bloques 3 y 5 sale de estas, consultadas el 21 ago 2026:
 - Licencias generales 56 y 57 de la OFAC, abril 2026: [Crowell FinTalk](https://www.crowellfintalk.com/2026/04/ofac-expands-venezuela-sanctions-relief-new-general-licenses-56-and-57-and-guidance-on-reporting-obligations/) · [King & Spalding](https://www.jdsupra.com/legalnews/ofac-eases-sanctions-on-financial-1255141/)
 - Los bancos corresponsales que no procesan aunque esté autorizado: [Interstice Digital](https://www.intersticedigital.io/research/how-to-pay-venezuelan-vendors-crypto-2026)
 - Conciliación de Stripe en Xero con cuenta puente: [Bean Ninjas](https://beanninjas.com/blog/avoid-stripe-and-xero-headaches-step-by-step-guide/) · [Synder](https://synder.com/blog/how-to-reconcile-stripe-payments-in-xero/)
+
+
+---
+
+# LO QUE SE CONSTRUYÓ, Y LO QUE SOLO PUEDES HACER TÚ
+
+## Construido y publicado
+
+**3.1 · El formulario fiscal, dentro de Mercatren.** Ya no hay que pedirle el
+W-8BEN-E por correo a nadie. El comercio entra a **Mi tienda**, llena unos
+campos en español, firma, y sale su documento. Queda guardado en su ficha
+—nadie tiene que mandarlo ni subirlo— y **sin él no se le paga un retiro**, lo
+que convierte el papel en una pieza del sistema y no en un trámite que se
+olvida.
+
+**1.3 · El asiento del mes.** En **Configuración → Asiento contable del mes**,
+con sus tres renglones: ingresos por el bruto, costo de mercancía y comisiones
+del procesador. Se abre en Excel o se pega en Xero.
+
+**2.2 · El archivo de las facturas de CJ.** La tabla está puesta para guardar
+el PDF de cada compra al proveedor, que es el papel que respalda el costo de
+las ventas de Estados Unidos.
+
+## Lo que solo puedes hacer tú, y por qué
+
+Ninguna de estas se dejó por falta de tiempo: **no son código.**
+
+- **⚠️ 5.1 · Preguntarle a Mercury si ejecutan wires a Venezuela.** Es lo
+  primero de toda la lista y son cinco minutos. De esa respuesta depende si el
+  plan de Deea tiene sentido siquiera.
+- **⚠️ 1.1, 1.2 y 1.4 · Las cuentas de Xero.** La cuenta puente de Stripe, las
+  dos de costos separadas, y cargar a los comercios como proveedores. Eso vive
+  en tu Xero, no en Mercatren.
+- **⚠️ 2.1 · Cobrarle las dos facturas pendientes** a Inversiones
+  multiservicios: $27.74 y $30.91.
+- **⚠️ 3.2 y 3.3 · Los acuerdos de compraventa firmados** y que la factura del
+  comercio diga dónde se entrega la mercancía. Eso lo redacta el abogado.
+- **⚠️ 4.1 y 4.2 · La línea sobre Deea.** Qué hace que Mercatren no pueda. Si
+  no sale, no hace falta.
+- **⚠️ 5.2 y 5.3 · Qué hacer si Mercury dice que no.** Depende de la respuesta
+  de 5.1.

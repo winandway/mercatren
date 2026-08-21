@@ -12,11 +12,15 @@ export async function Exportar({
   que,
   comercio,
 }: {
-  /** Qué tabla: `ventas` o `cobros`. */
-  que: "ventas" | "cobros";
+  /** Qué tabla: `ventas`, `cobros` o el asiento contable del mes. */
+  que: "ventas" | "cobros" | "asiento";
   comercio?: string;
 }) {
   const t = await getTranslations("panel.exportar");
+
+  /* El asiento lleva su propia etiqueta: «Descargar en Excel» no dice nada de
+     lo que hace, y esto se pulsa una vez al mes con el contador esperando. */
+  const ta = await getTranslations("panel.asiento");
 
   const parametros = new URLSearchParams({ que });
   if (comercio) parametros.set("comercio", comercio);
@@ -27,7 +31,7 @@ export async function Exportar({
       className="inline-flex items-center gap-1.5 rounded-lg border border-borde bg-white px-3 py-1.5 text-xs font-semibold text-tinta-suave transition-colors hover:border-carga-500 hover:text-tinta"
     >
       <Download className="h-3.5 w-3.5" aria-hidden />
-      {t("boton")}
+      {que === "asiento" ? ta("boton") : t("boton")}
     </a>
   );
 }

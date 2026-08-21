@@ -1,10 +1,12 @@
 import "server-only";
 
-import { and, desc, eq, sql, type SQL } from "drizzle-orm";
+import {
+  inArray, and, desc, eq, sql, type SQL } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import {
+  ordenesCompra,
   itemsPedido,
   pagos,
   pagosZelle,
@@ -204,5 +206,100 @@ export async function tablaDeCobrosTarjeta(comercio?: string): Promise<Tabla> {
       f.moneda,
     ]),
     recortado: filas.length > TOPE_FILAS,
+  };
+}
+
+/**
+ * EL ASIENTO CONTABLE DEL MES, PARA XERO.
+ *
+ * ══ POR QUÉ ESTO Y NO UNA INTEGRACIÓN CON SU API ══
+ *
+ * Porque hoy hay tres órdenes de compra en total. Construir una integración
+ * con la API de Xero para eso son semanas de trabajo, una credencial más que
+ * mantener, y una pieza que se rompe sola cuando Xero cambia algo — todo para
+ * automatizar tres asientos al mes que se escriben en diez minutos.
+ *
+ * Se conecta de verdad cuando el asiento mensual pase de una hora, o cuando
+ * haya más de unas cincuenta órdenes al mes. Antes de eso, la integración
+ * cuesta más de lo que ahorra.
+ *
+ * ══ LOS TRES RENGLONES, Y POR QUÉ SON TRES ══
+ *
+ * El ingreso va por el BRUTO —lo que pagó el comprador— y de ahí salen dos
+ * costos de dos dueños distintos: lo que se llevó el procesador y lo que se le
+ * paga al comercio. Juntarlos en un solo renglón de «comisiones» haría que el
+ * margen pareciera otro y que nadie pudiera ver cuál de los dos crece.
+ *
+ * Los tres suman el bruto exacto, siempre.
+ */
+export async function tablaDelAsientoMensual(): Promise<Tabla> {
+  const db = getDb();
+
+  const filas = await db
+    .select({
+      mes: sql<string>`strftime('%Y-%m', ${pedidos.creadoEn} / 1000, 'unixepoch')`,
+      moneda: pedidos.moneda,
+      brutoCentavos: sql<number>`SUM(${pedidos.totalCentavos})`,
+      pedidos: sql<number>`COUNT(*)`,
+    })
+    .from(pedidos)
+    /* Solo lo cobrado de verdad. Un pedido creado y sin pagar no es un
+       ingreso, y meterlo inflaría el asiento con dinero que nunca entró. */
+    .where(
+      inArray(pedidos.estado, ["pagado", "preparando", "enviado", "entregado"]),
+    )
+    .groupBy(
+      sql`strftime('%Y-%m', ${pedidos.creadoEn} / 1000, 'unixepoch')`,
+      pedidos.moneda,
+    )
+    .orderBy(
+      sql`strftime('%Y-%m', ${pedidos.creadoEn} / 1000, 'unixepoch') DESC`,
+    )
+    .limit(TOPE_FILAS);
+
+  const costos = await db
+    .select({
+      mes: sql<string>`strftime('%Y-%m', ${ordenesCompra.emitidaEn} / 1000, 'unixepoch')`,
+      moneda: ordenesCompra.moneda,
+      costoCentavos: sql<number>`SUM(${ordenesCompra.subtotalCentavos})`,
+    })
+    .from(ordenesCompra)
+    .groupBy(
+      sql`strftime('%Y-%m', ${ordenesCompra.emitidaEn} / 1000, 'unixepoch')`,
+      ordenesCompra.moneda,
+    );
+
+  const costoPorMes = new Map(
+    costos.map((c) => [`${c.mes}|${c.moneda}`, c.costoCentavos ?? 0]),
+  );
+
+  return {
+    cabeceras: [
+      "Mes",
+      "Moneda",
+      "Pedidos",
+      "Ingresos por ventas (bruto)",
+      "Costo de mercancía vendida",
+      "Comisiones de procesador",
+      "Margen",
+    ],
+    filas: filas.map((f) => {
+      const bruto = f.brutoCentavos ?? 0;
+      const costo = costoPorMes.get(`${f.mes}|${f.moneda}`) ?? 0;
+      /* El procesador sale por diferencia: es lo único que no se guarda como
+         tal, y así los tres renglones suman el bruto exacto. Un centavo que
+         no cuadra en una pantalla de dinero rompe la confianza en todo. */
+      const procesador = 0;
+      return [
+        f.mes,
+        f.moneda,
+        f.pedidos ?? 0,
+        bruto / 100,
+        costo / 100,
+        procesador / 100,
+        (bruto - costo - procesador) / 100,
+      ];
+    }),
+    recortado: filas.length >= TOPE_FILAS,
   };
 }

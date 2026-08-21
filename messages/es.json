@@ -1214,7 +1214,9 @@
       "nitFormato": "El NIT son solo números: 9 dígitos y su verificador. Por ejemplo: 900.123.456-8",
       "nitDigito": "Ese NIT no es válido: el dígito del final no corresponde. Revísalo.",
       "estadoInvalido": "Elige tu estado de la lista.",
-      "codigoPostalInvalido": "El código postal son 5 dígitos. Por ejemplo: 33101"
+      "codigoPostalInvalido": "El código postal son 5 dígitos. Por ejemplo: 33101",
+      "formularioFiscalFalta": "Antes de cobrar, completa tu formulario fiscal en «Mi tienda». Son cinco minutos y solo se hace una vez cada tres años.",
+      "formularioFiscalVencido": "Tu formulario fiscal venció. Vuelve a firmarlo en «Mi tienda» y podrás pedir tu retiro enseguida."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1981,6 +1983,64 @@
       "sinDatos": "{cuantos} sin datos en CJ",
       "motivosTitulo": "Lo que dijo CJ de los que no se pudieron traer:",
       "reintentar": "Volver a intentar los que fallaron"
+    },
+    "fiscal": {
+      "titulo": "Formulario fiscal (W-8BEN-E)",
+      "explicacion": "Es el papel con el que tu empresa declara que no es de Estados Unidos. Sirve para que te podamos pagar sin retenerte impuestos. Lo llenas aquí, en español, y sale el documento oficial ya firmado.",
+      "noSeManda": "Esto NO se manda al IRS ni a ninguna oficina de impuestos. Se guarda en tu ficha de Mercatren, por si algún día alguien lo pide. Vale por tres años.",
+      "campos": {
+        "nombreLegal": "Nombre legal de tu empresa",
+        "nombreLegalAyuda": "Exactamente como está en tu registro mercantil.",
+        "paisConstitucion": "País donde está registrada",
+        "paisAyuda": "Dos letras: VE, CO, MX, CL…",
+        "tipoEntidad": "Tipo de empresa",
+        "direccion": "Dirección de la empresa",
+        "direccionAyuda": "La dirección real donde funciona. No vale un apartado postal.",
+        "ciudad": "Ciudad",
+        "region": "Estado o provincia",
+        "codigoPostal": "Código postal",
+        "identificacionFiscal": "Identificación fiscal de tu país",
+        "identificacionAyuda": "RIF, NIT, RUT… la que use tu país. Si no tienes, déjalo vacío.",
+        "firmanteNombre": "Nombre de quien firma",
+        "firmanteCargo": "Cargo de quien firma"
+      },
+      "tipos": {
+        "corporacion": "Compañía anónima o sociedad mercantil",
+        "sociedad": "Sociedad de personas",
+        "empresario_individual": "Empresa de una sola persona",
+        "otra": "Otra"
+      },
+      "firma": {
+        "titulo": "Firma",
+        "nombre": "Tu nombre completo",
+        "cargo": "Tu cargo",
+        "cargoAyuda": "Gerente, presidente, propietario…",
+        "declaracion": "Declaro, bajo pena de perjurio, que he revisado la información de este formulario y que es verdadera, correcta y completa. Declaro que la empresa nombrada es la beneficiaria de todos los pagos relacionados, que no es una persona estadounidense, y que estoy autorizado para firmar en su nombre.",
+        "casilla": "He leído la declaración de arriba y firmo este formulario.",
+        "quedaRegistro": "Al firmar queda registrada la fecha, la hora y desde dónde firmaste. Eso es lo que hace válida la firma electrónica."
+      },
+      "errores": {
+        "faltan": "Faltan estos datos: {campos}",
+        "apartado-postal": "La dirección no puede ser un apartado postal. Pon la dirección real donde funciona tu empresa.",
+        "sin-firmar": "Marca la casilla de la firma para poder guardar.",
+        "solo-el-comercio": "Este formulario solo lo puede firmar el dueño del comercio.",
+        "generico": "No se pudo guardar. Intenta de nuevo."
+      },
+      "guardado": "Formulario guardado y firmado. Ya puedes cobrar tus retiros.",
+      "boton": "Firmar y guardar",
+      "botonRehacer": "Volver a firmar",
+      "estado": {
+        "falta": "Para cobrar tu dinero, completa tu formulario fiscal.",
+        "porVencer": "Tu formulario fiscal vence en {dias} días. Vuelve a firmarlo cuando puedas.",
+        "vencido": "Tu formulario fiscal venció. Vuelve a firmarlo para poder cobrar.",
+        "alDia": "Formulario fiscal al día · vence el {fecha}"
+      },
+      "verDocumento": "Ver mi documento"
+    },
+    "asiento": {
+      "titulo": "Asiento contable del mes",
+      "explicacion": "Los tres renglones que se pasan a Xero: lo que entró por ventas, lo que se le paga a los comercios y lo que queda. Uno por mes y por moneda. Se abre en Excel o se pega en Xero a mano.",
+      "boton": "Descargar el asiento"
     }
   },
   "catalogo": {

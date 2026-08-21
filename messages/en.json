@@ -1214,7 +1214,9 @@
       "nitFormato": "A NIT is digits only: 9 plus its check digit. For example: 900.123.456-8",
       "nitDigito": "That NIT isn't valid: the final check digit doesn't match. Please review it.",
       "estadoInvalido": "Choose your state from the list.",
-      "codigoPostalInvalido": "A ZIP code is 5 digits. For example: 33101"
+      "codigoPostalInvalido": "A ZIP code is 5 digits. For example: 33101",
+      "formularioFiscalFalta": "Before you can be paid, complete your tax form under “My store”. It takes five minutes and only needs doing once every three years.",
+      "formularioFiscalVencido": "Your tax form has expired. Sign it again under “My store” and you can request your withdrawal right away."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1981,6 +1983,64 @@
       "sinDatos": "{cuantos} with no data in CJ",
       "motivosTitulo": "What CJ said about the ones that failed:",
       "reintentar": "Retry the ones that failed"
+    },
+    "fiscal": {
+      "titulo": "Tax form (W-8BEN-E)",
+      "explicacion": "This is the form where your company declares it isn't a US entity. It lets us pay you without withholding taxes. Fill it in here and the official signed document is generated for you.",
+      "noSeManda": "This is NOT sent to the IRS or any tax office. It's kept in your Mercatren file in case anyone asks. Valid for three years.",
+      "campos": {
+        "nombreLegal": "Your company's legal name",
+        "nombreLegalAyuda": "Exactly as it appears on your business registration.",
+        "paisConstitucion": "Country of incorporation",
+        "paisAyuda": "Two letters: VE, CO, MX, CL…",
+        "tipoEntidad": "Entity type",
+        "direccion": "Company address",
+        "direccionAyuda": "The real address where the business operates. A PO box won't work.",
+        "ciudad": "City",
+        "region": "State or province",
+        "codigoPostal": "Postal code",
+        "identificacionFiscal": "Local tax ID",
+        "identificacionAyuda": "RIF, NIT, RUT… whichever your country uses. Leave blank if you have none.",
+        "firmanteNombre": "Name of the signer",
+        "firmanteCargo": "Signer's title"
+      },
+      "tipos": {
+        "corporacion": "Corporation",
+        "sociedad": "Partnership",
+        "empresario_individual": "Sole proprietorship",
+        "otra": "Other"
+      },
+      "firma": {
+        "titulo": "Signature",
+        "nombre": "Your full name",
+        "cargo": "Your title",
+        "cargoAyuda": "Manager, president, owner…",
+        "declaracion": "Under penalties of perjury, I declare that I have examined the information on this form and that it is true, correct and complete. I further certify that the entity named is the beneficial owner of all the income to which this form relates, that it is not a U.S. person, and that I have the capacity to sign for the entity.",
+        "casilla": "I have read the declaration above and I sign this form.",
+        "quedaRegistro": "Signing records the date, time and where you signed from. That's what makes the electronic signature valid."
+      },
+      "errores": {
+        "faltan": "These fields are missing: {campos}",
+        "apartado-postal": "The address can't be a PO box. Use the real address where your company operates.",
+        "sin-firmar": "Check the signature box to save.",
+        "solo-el-comercio": "Only the store owner can sign this form.",
+        "generico": "Couldn't save. Please try again."
+      },
+      "guardado": "Form saved and signed. You can now receive your withdrawals.",
+      "boton": "Sign and save",
+      "botonRehacer": "Sign again",
+      "estado": {
+        "falta": "To receive your money, complete your tax form.",
+        "porVencer": "Your tax form expires in {dias} days. Sign it again when you can.",
+        "vencido": "Your tax form has expired. Sign it again to receive payments.",
+        "alDia": "Tax form up to date · expires {fecha}"
+      },
+      "verDocumento": "View my document"
+    },
+    "asiento": {
+      "titulo": "Monthly accounting entry",
+      "explicacion": "The three lines that go into Xero: sales revenue, what's paid to stores, and what's left. One row per month and currency. Opens in Excel or pastes straight into Xero.",
+      "boton": "Download the entry"
     }
   },
   "catalogo": {

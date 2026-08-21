@@ -2607,3 +2607,94 @@ export const intentosDescripcion = sqliteTable("intentos_descripcion", {
 
   intentadoEn: integer("intentado_en", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * EL FORMULARIO FISCAL DE UN COMERCIO EXTRANJERO (W-8BEN-E).
+ *
+ * ══ TABLA NUEVA Y NO COLUMNAS EN `tiendas`, COMO MANDA LA REGLA ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así que doce columnas
+ * nuevas en `tiendas` no llegarían solas a producción.
+ *
+ * ══ LA FIRMA SE GUARDA CON TODO LO QUE LA HACE VÁLIDA ══
+ *
+ * El IRS dice que escribir el nombre en la línea de la firma NO cuenta como
+ * firma electrónica: hace falta **fecha, hora y una declaración** de que se
+ * firmó electrónicamente. Por eso aquí no se guarda solo el nombre — se guarda
+ * el momento exacto, desde qué dirección se firmó, y **el texto completo de la
+ * declaración tal como se le enseñó**.
+ *
+ * Ese último detalle importa más de lo que parece: si mañana se cambia el
+ * texto, quien firmó en 2026 tiene que poder demostrar qué fue exactamente lo
+ * que aceptó. Guardar solo «aceptó los términos» no demuestra nada.
+ *
+ * ══ NO SE MANDA A NINGUNA PARTE ══
+ *
+ * Este formulario no va al IRS. Se guarda aquí por si algún día alguien
+ * pregunta, y punto.
+ */
+export const formulariosFiscales = sqliteTable("formularios_fiscales", {
+  /** Una tienda tiene uno vigente. Al rehacerlo se sustituye. */
+  tiendaId: text("tienda_id")
+    .primaryKey()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+
+  nombreLegal: text("nombre_legal").notNull(),
+  paisConstitucion: text("pais_constitucion").notNull(),
+  tipoEntidad: text("tipo_entidad").notNull(),
+  direccion: text("direccion").notNull(),
+  ciudad: text("ciudad").notNull(),
+  region: text("region"),
+  codigoPostal: text("codigo_postal"),
+  identificacionFiscal: text("identificacion_fiscal"),
+
+  /** Quién firmó y con qué cargo. */
+  firmanteNombre: text("firmante_nombre").notNull(),
+  firmanteCargo: text("firmante_cargo").notNull(),
+
+  /** Lo que hace válida la firma electrónica. */
+  firmadoEn: integer("firmado_en", { mode: "timestamp" }).notNull(),
+  /** Desde dónde se firmó. Parte de la prueba, no un dato de más. */
+  firmadoDesde: text("firmado_desde"),
+  /** El texto EXACTO que se le enseñó al firmar. */
+  declaracion: text("declaracion").notNull(),
+
+  /** Último día del tercer año siguiente al de la firma. */
+  venceEn: integer("vence_en", { mode: "timestamp" }).notNull(),
+});
+
+/**
+ * LA FACTURA DE CJ DE UNA COMPRA AL PROVEEDOR.
+ *
+ * ══ POR QUÉ HACE FALTA ══
+ *
+ * En una venta de Estados Unidos, la tienda que aparece es una marca de la
+ * casa: por dentro vende y factura Mercatren LLC, así que no hay ninguna
+ * factura de un comercio que respalde ese costo. **El documento que lo sostiene
+ * es la factura de CJ**, que es a quien de verdad se le compró la mercancía.
+ *
+ * Hasta ahora la compra quedaba registrada en el panel —con su número, su
+ * monto y su guía— pero el PDF de CJ no se archivaba en ningún lado. Eso deja
+ * un costo declarado sin el papel que lo demuestra, que es exactamente lo que
+ * pide un contador o una auditoría.
+ *
+ * ══ TABLA NUEVA Y NO COLUMNAS, COMO MANDA LA REGLA ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`.
+ */
+export const facturasProveedor = sqliteTable("facturas_proveedor", {
+  /** La compra al proveedor. Una compra, una factura. */
+  pedidoProveedorId: text("pedido_proveedor_id")
+    .primaryKey()
+    .references(() => pedidosProveedor.id, { onDelete: "cascade" }),
+
+  /** El número que le puso el proveedor, para reclamar. */
+  numero: text("numero"),
+  /** El archivo en nuestro bucket. Se sirve por `/media`, nunca en abierto. */
+  clave: text("clave").notNull(),
+
+  /** Quién la subió y cuándo. Igual que en los retiros: un documento
+   *  contable sin autor no defiende a nadie. */
+  subidaPor: text("subida_por"),
+  subidaEn: integer("subida_en", { mode: "timestamp" }).notNull(),
+});

@@ -22,6 +22,8 @@ import { billeteras, retiros, tiendas } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
 import { comercioObservado } from "@/lib/soporte/ver-como";
 import { obtenerPosicion } from "@/lib/zelle/billetera";
+import { situacionFiscal } from "@/lib/fiscal/acciones";
+import { puedeCobrar } from "@/lib/fiscal/w8bene";
 
 /**
  * Sacar el dinero de la billetera.
@@ -158,6 +160,36 @@ export async function pedirRetiro(
       : String(datos.get("tiendaId") ?? "");
 
   if (!tiendaId) return { ok: false, mensaje: t("tiendaSinIdentificar") };
+
+  /**
+   * SIN SU FORMULARIO FISCAL AL DÍA, NO SE PAGA. Y SE COMPRUEBA AQUÍ.
+   *
+   * Es el candado que convierte el formulario en algo real: sin él, la
+   * pantalla del W-8BEN-E sería una más que nadie llena, y el día que hubiera
+   * que enseñarle a alguien los papeles de un pago no habría ninguno.
+   *
+   * ══ POR QUÉ EN EL SERVIDOR Y NO EN LA PANTALLA ══
+   *
+   * El aviso de «Mi tienda» es cortesía; un botón dibujado se lo salta
+   * cualquiera que abra la consola. Lo que de verdad frena el dinero es esta
+   * comprobación.
+   *
+   * ══ UNO POR VENCER SÍ COBRA ══
+   *
+   * Solo se frena el que falta o el que ya venció. Frenarle el dinero a
+   * alguien porque su papel vence en cincuenta días sería castigarlo por
+   * adelantado — para eso está el aviso con sesenta días de antelación.
+   */
+  const fiscal = await situacionFiscal(tiendaId).catch(() => null);
+  if (fiscal && !puedeCobrar(fiscal)) {
+    return {
+      ok: false,
+      mensaje:
+        fiscal.estado === "vencido"
+          ? t("formularioFiscalVencido")
+          : t("formularioFiscalFalta"),
+    };
+  }
 
   const revisado = esquema(t).safeParse(
     Object.fromEntries(datos) as Record<string, string>,

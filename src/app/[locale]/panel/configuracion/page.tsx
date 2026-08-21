@@ -20,6 +20,7 @@ import {
 import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { IdiomaDelPanel } from "@/components/panel/idioma-del-panel";
+import { Exportar } from "@/components/panel/exportar";
 import { ProbarCorreo } from "@/components/panel/probar-correo";
 import { ProbarCj } from "@/components/panel/probar-cj";
 import { ProbarMercury } from "@/components/panel/probar-mercury";
@@ -93,6 +94,7 @@ export default async function PaginaConfiguracion({
   const tt = await getTranslations("panel.traduccion");
   const td = await getTranslations("panel.descripciones");
   const tPrecios = await getTranslations("panel.preciosUs");
+  const tx = await getTranslations("panel.asiento");
   const ta = await getTranslations("panel.configuracion.ajuste");
   const tp = await getTranslations("panel.configuracion.auditoriaPrecios");
   const tc = await getTranslations("panel.configuracion.calculadora");
@@ -526,6 +528,18 @@ export default async function PaginaConfiguracion({
             configurado={traductor.configurado}
             motivos={motivosDescripcion}
           />
+        </div>
+      </section>
+
+      {/* El asiento del mes para llevarlo a Xero a mano. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Calculator className="h-4 w-4 text-carga-500" aria-hidden />
+          {tx("titulo")}
+        </h2>
+        <p className="mt-1 text-sm text-riel-600">{tx("explicacion")}</p>
+        <div className="mt-3">
+          <Exportar que="asiento" />
         </div>
       </section>
 

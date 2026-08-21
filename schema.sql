@@ -259,6 +259,34 @@ CREATE UNIQUE INDEX IF NOT EXISTS `facturas_numero_unique` ON `facturas` (`numer
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_facturas_pedido` ON `facturas` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_facturas_cliente` ON `facturas` (`cliente_id`);
 CREATE INDEX IF NOT EXISTS `idx_facturas_emitida` ON `facturas` (`emitida_en`);
+CREATE TABLE IF NOT EXISTS `facturas_proveedor` (
+	`pedido_proveedor_id` text PRIMARY KEY NOT NULL,
+	`numero` text,
+	`clave` text NOT NULL,
+	`subida_por` text,
+	`subida_en` integer NOT NULL,
+	FOREIGN KEY (`pedido_proveedor_id`) REFERENCES `pedidos_proveedor`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE TABLE IF NOT EXISTS `formularios_fiscales` (
+	`tienda_id` text PRIMARY KEY NOT NULL,
+	`nombre_legal` text NOT NULL,
+	`pais_constitucion` text NOT NULL,
+	`tipo_entidad` text NOT NULL,
+	`direccion` text NOT NULL,
+	`ciudad` text NOT NULL,
+	`region` text,
+	`codigo_postal` text,
+	`identificacion_fiscal` text,
+	`firmante_nombre` text NOT NULL,
+	`firmante_cargo` text NOT NULL,
+	`firmado_en` integer NOT NULL,
+	`firmado_desde` text,
+	`declaracion` text NOT NULL,
+	`vence_en` integer NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `fotos_devolucion` (
 	`id` text PRIMARY KEY NOT NULL,
 	`devolucion_id` text NOT NULL,
@@ -837,11 +865,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787280924, 1787280924)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787337762, 1787337762)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787280924)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787337762)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
