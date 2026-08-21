@@ -1970,7 +1970,7 @@
     },
     "descripciones": {
       "titulo": "Descripciones de los productos",
-      "explicacion": "Los productos de CJ entraron SIN descripción: el catálogo se arma con su buscador, que no la devuelve. Esto se la pide a CJ producto por producto y la deja en español. Si CJ no tiene nada, se queda vacía — no se inventa nada a partir de la foto.",
+      "explicacion": "Los productos de CJ entraron SIN descripción: el catálogo se arma con su buscador, que no la devuelve. Esto se la pide a CJ producto por producto y la deja en español. Si CJ no tiene nada, se queda vacía — no se inventa nada a partir de la foto. CJ solo acepta una consulta por segundo, así que va lento a propósito: deja esta pestaña abierta y sigue solo.",
       "pendientes": "{cantidad} productos no tienen descripción.",
       "todoTraducido": "Todos los productos de Estados Unidos tienen descripción.",
       "sinLlave": "Falta cargar TRADUCCION_LLAVE en las variables del sitio. Sin ella se puede traer la descripción de CJ, pero no dejarla en español.",

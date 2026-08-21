@@ -53,11 +53,53 @@ export type DescripcionDeCj =
   | { ok: true; texto: string }
   | { ok: false; motivo: string };
 
+/**
+ * CJ ACEPTA UNA LLAMADA POR SEGUNDO. UNA.
+ *
+ * ══ CÓMO SE SUPO, Y LO QUE COSTÓ ══
+ *
+ * La primera versión disparaba cinco seguidas sin respirar y CJ contestaba
+ * `Too Many Requests, QPS limit is 1 time/1second` a cuatro de cada cinco. De
+ * 1.033 productos, 989 se quedaron sin descripción — y como el código se
+ * tragaba el motivo, parecía que CJ no tuviera esos datos. No era eso: era
+ * nuestro ritmo.
+ *
+ * 1,2 segundos y no 1,0 a propósito: el límite lo cuenta CJ en su reloj, no en
+ * el nuestro, y dos llamadas separadas por exactamente un segundo pueden
+ * caerle dentro del mismo. El margen cuesta 200 milisegundos por producto y
+ * evita repetir la pasada entera.
+ */
+const ESPERA_MS = 1200;
+
+function esperar(ms: number) {
+  return new Promise((listo) => setTimeout(listo, ms));
+}
+
 export async function descripcionDeCj(pid: string): Promise<DescripcionDeCj> {
   const parametros = new URLSearchParams({ pid }).toString();
-  const respuesta = await llamarCj<DetalleCj>(
+
+  let respuesta = await llamarCj<DetalleCj>(
     `/product/query?${parametros}`,
   ).catch((e) => ({ ok: false as const, motivo: `no contestó: ${String(e)}` }));
+
+  /**
+   * Y SI AUN ASÍ NOS LIMITA, SE ESPERA Y SE REINTENTA UNA VEZ.
+   *
+   * El ritmo de arriba evita el caso normal, pero basta que otra parte del
+   * sitio le hable a CJ en el mismo segundo —una compra, un flete— para
+   * chocar. Un reintento convierte ese choque en 2 segundos perdidos en vez de
+   * un producto sin descripción para siempre.
+   */
+  if (!respuesta.ok && /too many requests|qps/i.test(respuesta.motivo)) {
+    await esperar(2000);
+    respuesta = await llamarCj<DetalleCj>(
+      `/product/query?${parametros}`,
+    ).catch((e) => ({ ok: false as const, motivo: `no contestó: ${String(e)}` }));
+  }
+
+  /* El ritmo se paga SIEMPRE, salga bien o mal: lo que cuenta CJ son las
+     llamadas hechas, no las que funcionaron. */
+  await esperar(ESPERA_MS);
 
   if (!respuesta.ok) {
     /* El motivo entero de CJ, que es lo que distingue «este producto no tiene

@@ -2745,6 +2745,45 @@ token inválido 401, referencia ajena o inexistente 404, pagado 409, abierto
 200, el mismo otra vez 200, vencido 200, reactivar un cancelado 409, y el GET
 devolviendo `cancelado`. Las dos pantallas se miraron en el navegador.
 
+## CJ ACEPTA UNA LLAMADA POR SEGUNDO. UNA. (20 ago 2026)
+
+`Too Many Requests, QPS limit is 1 time/1second`. Eso contestó CJ a 989 de
+1.033 productos cuando se le pidieron las descripciones de a cinco seguidas.
+
+**Y el fallo de fondo no fue el ritmo: fue tragarse el motivo.** La primera
+versión devolvía `null` para todo —CJ caído, CJ limitando, producto sin
+descripción, petición mal armada— así que la pantalla decía «989 sin datos en
+CJ» y eso se leía como «CJ no tiene esas descripciones». Cuatro causas con el
+mismo síntoma y tres de ellas con arreglo. **El motivo entero se guarda ahora
+por producto y el panel lo enseña agrupado**, que es lo que convirtió una
+pregunta en una respuesta de una sola pasada.
+
+- **1,2 segundos entre llamadas, no 1,0.** El límite lo cuenta CJ en su reloj,
+  y dos llamadas separadas por exactamente un segundo pueden caerle dentro del
+  mismo. El margen cuesta 200 ms por producto y evita repetir la pasada entera.
+- **El ritmo se paga salga bien o mal:** lo que CJ cuenta son las llamadas
+  hechas, no las que funcionaron.
+- **Un reintento a los 2 segundos** si aun así responde que somos muchos: basta
+  que otra parte del sitio le hable a CJ en el mismo segundo —una compra, un
+  flete— para chocar sin que nadie tenga la culpa.
+- Vale para **todo** lo que le pida algo a CJ, no solo las descripciones.
+
+## LA MARCA DE UN FALLO NO VA EN EL CAMPO QUE VE EL COMPRADOR (20 ago 2026)
+
+Para que los productos sin descripción no volvieran a entrar en la cola, se
+marcaron con **un espacio** dentro de `descripcion_es`. La ficha hace
+`{descripcion || t("sinDescripcion")}` y **un espacio es TRUTHY en
+JavaScript**: pasaba el `||`, se dibujaba, y la ficha quedaba con el título
+«Descripción» y un hueco en blanco debajo. Ni siquiera salía el aviso de que no
+hay ninguna — que es lo que sí salía ANTES del cambio.
+
+- La ficha usa `descripcion?.trim() || …`, con su prueba, y hay otra que se
+  pone roja si alguien quita ese `.trim()`.
+- La marca de «ya lo intenté» vive en `intentos_descripcion`, **tabla nueva y
+  no columna**, junto al motivo exacto que dio CJ.
+- Y la consulta de pendientes usa `trim()` en el SQL, así que los que quedaron
+  marcados con un espacio vuelven a la cola solos, sin tocar la base a mano.
+
 ## Comandos
 
 **Las pruebas de punta a punta NO llevan textos escritos a mano.** Los sacan
