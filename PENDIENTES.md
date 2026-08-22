@@ -47,6 +47,12 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       Multiservicios: $27.74 y $30.91.
 - [ ] 🟠 👤 **La línea sobre Deea International:** qué hace ella que Mercatren
       no pueda. Sin eso escrito, no se monta.
+- [ ] 🟠 👤 **¿Hay países a los que directamente no se les abre cuenta?** La
+      lista del formulario fiscal trae **los 225 países que existen**, incluidos
+      los sancionados (Cuba, Irán, Corea del Norte, Siria). Eso es correcto —no
+      es una lista de a quién se le puede pagar, y quién recibe dinero lo
+      deciden Mercury y OFAC—, pero **falta decidir si el alta de comercios se
+      cierra para alguno**. Es pregunta para el abogado, no para el código.
 - [ ] 🟡 👤 **El informe anual de Michigan vence el 15 feb 2027.** Si se pasa,
       la LLC pierde el «Good Standing» y con eso se caen Payoneer, Merchant
       Center y potencialmente Mercury.

@@ -7,6 +7,7 @@ import { useActionState } from "react";
 import { Campo } from "@/components/ui/campo";
 import { FormularioPersistente } from "@/components/ui/formulario-persistente";
 import { guardarFormularioFiscal } from "@/lib/fiscal/acciones";
+import { PAISES } from "@/lib/fiscal/paises";
 import { TIPOS_DE_ENTIDAD } from "@/lib/fiscal/w8bene";
 
 /**
@@ -41,7 +42,7 @@ export function FormularioFiscal({
 
   return (
     <FormularioPersistente llave="formulario-fiscal" action={accion}>
-      <div className="rounded-lg bg-riel-50 px-3 py-2.5 text-sm text-riel-700">
+      <div className="bg-riel-50 rounded-lg px-3 py-2.5 text-sm text-riel-700">
         <p className="flex items-start gap-2">
           <FileText className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>{t("noSeManda")}</span>
@@ -63,15 +64,38 @@ export function FormularioFiscal({
           <span className="font-medium text-riel-800">
             {t("campos.paisConstitucion")}
           </span>
-          <input
+          {/**
+           * UNA LISTA, NO UNA CASILLA LIBRE — Y SIN ESTADOS UNIDOS.
+           *
+           * La casilla libre dejó guardado «COUNTRY OF INCORPORATION: ESTADOS
+           * UNIDOS» en un formulario cuyo propósito entero es declarar lo
+           * contrario. Y no fue por escribirlo a mano: el `maxLength` de dos
+           * letras lo saltó el **autocompletado del navegador**, que también
+           * metió «ESTADOSUNIDOS» en el número fiscal.
+           *
+           * La lista no lleva Estados Unidos **ni sus territorios** (Puerto
+           * Rico, Guam, Islas Vírgenes, Samoa, Marianas): para el IRS todos son
+           * «U.S. person» y les toca el W-9. Quitar solo «Estados Unidos» deja
+           * pasar Puerto Rico, que es el mismo error con otro nombre.
+           *
+           * El candado de verdad está en el SERVIDOR: esto se salta con la
+           * consola.
+           */}
+          <select
             name="paisConstitucion"
             defaultValue={paisPorDefecto ?? ""}
-            maxLength={2}
             required
-            className="mt-1 h-9 w-full rounded-lg border border-borde px-3 uppercase"
-            placeholder="VE"
-          />
-          <span className="mt-1 block text-xs text-riel-600">
+            autoComplete="off"
+            className="mt-1 h-9 w-full rounded-lg border border-borde px-2"
+          >
+            <option value="">{t("campos.eligePais")}</option>
+            {PAISES.map((p) => (
+              <option key={p.codigo} value={p.codigo}>
+                {p.nombre}
+              </option>
+            ))}
+          </select>
+          <span className="text-riel-600 mt-1 block text-xs">
             {t("campos.paisAyuda")}
           </span>
         </label>
@@ -120,11 +144,16 @@ export function FormularioFiscal({
           nombre="codigoPostal"
           etiqueta={t("campos.codigoPostal")}
         />
+        {/* `autoComplete="off"`: el navegador rellenó este campo con
+            «ESTADOSUNIDOS», que no es el número fiscal de nadie. En un
+            formulario que se firma bajo pena de perjurio, un dato que puso el
+            navegador y nadie miró es justo lo que no puede pasar. */}
         <Campo
           tipo="identificacionFiscal"
           nombre="identificacionFiscal"
           etiqueta={t("campos.identificacionFiscal")}
           ayuda={t("campos.identificacionAyuda")}
+          autoComplete="off"
         />
       </div>
 
@@ -151,7 +180,7 @@ export function FormularioFiscal({
             Es una declaración bajo pena de perjurio. Esconderla detrás de un
             «acepto los términos» haría que nadie sepa qué está firmando — y
             si algún día hay que demostrar qué aceptó, un enlace no vale. */}
-        <p className="mt-4 rounded-lg bg-riel-50 px-3 py-2.5 text-sm text-riel-700">
+        <p className="bg-riel-50 mt-4 rounded-lg px-3 py-2.5 text-sm text-riel-700">
           {t("firma.declaracion")}
         </p>
 
@@ -166,7 +195,7 @@ export function FormularioFiscal({
           <span>{t("firma.casilla")}</span>
         </label>
 
-        <p className="mt-2 text-xs text-riel-600">{t("firma.quedaRegistro")}</p>
+        <p className="text-riel-600 mt-2 text-xs">{t("firma.quedaRegistro")}</p>
       </div>
 
       {estado && !estado.ok ? (

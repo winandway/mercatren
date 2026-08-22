@@ -1957,6 +1957,53 @@ mismo dato en una pantalla de dinero hace dudar de si son dos cosas distintas
 —¿tengo $24.676 o $49.352?— y esa duda se paga cara. **Eso es exactamente para
 lo que existe el modo.**
 
+## EL W-8BEN-E ACEPTABA «ESTADOS UNIDOS» COMO PAÍS (21 ago 2026)
+
+Lo destapó el dueño creando un comercio de prueba y llenando el formulario. En
+el documento generado se leía, textualmente:
+
+> `2 · COUNTRY OF INCORPORATION` → **ESTADOS UNIDOS**
+
+**Ese formulario es, literalmente, el papel con el que una empresa declara NO
+ser estadounidense.** Un W-8BEN-E que dice «Estados Unidos» se contradice en su
+segunda línea, y no vale para nada.
+
+**Y no fue por escribirlo a mano.** La casilla tenía `maxLength={2}` y el
+placeholder «VE»; lo que metió el texto entero fue **el autocompletado del
+navegador**, que además puso «ESTADOSUNIDOS» en el campo del número fiscal. En
+un documento que se firma bajo pena de perjurio, un dato que puso el navegador
+y nadie miró es exactamente lo que no puede pasar.
+
+**La causa de fondo: el servidor solo comprobaba que el campo no estuviera
+vacío.** `loQueFalta()` no valida contenidos.
+
+`src/lib/fiscal/paises.ts` (puro, 12 pruebas): los 225 países del mundo con su
+código ISO, **sin Estados Unidos**.
+
+Cinco cosas que no se tocan:
+
+1. **NI ESTADOS UNIDOS NI SUS TERRITORIOS.** Quitar solo «Estados Unidos» deja
+   pasar **Puerto Rico**, Guam, Islas Vírgenes, Samoa Americana y las Marianas
+   — y una entidad de Puerto Rico **es «U.S. person» para el IRS**: le toca el
+   W-9. Es el mismo error con otro nombre, y es el que nadie ve.
+2. **El candado está en el SERVIDOR**, no en el desplegable. Comprobado colando
+   `US` y `PR` con la consola abierta: los dos rechazados.
+3. **Se distinguen los dos errores.** A una empresa de Estados Unidos no se le
+   dice «país inválido»: se le dice **que le toca el W-9**. Rechazar sin
+   explicar deja a alguien sin poder cobrar y sin saber qué hacer.
+4. **`autoComplete="off"` en el país y en el número fiscal.** `<Campo>` acepta
+   ahora esa propiedad suelta y **no se cambió la regla del tipo**:
+   `identificacionFiscal` se usa también en «Mi tienda», donde autocompletar sí
+   ayuda.
+5. **NO es una lista de sanciones.** Aquí están los países que existen, no los
+   que se pueden pagar. Quién puede recibir dinero lo deciden Mercury y OFAC;
+   mezclarlo haría creer que un país de la lista está aprobado para pagarle.
+
+**Y el documento se arregló de paso:** decía `VE` en vez de **Venezuela** —el
+campo del IRS pide el país en texto, y quien lo lee no se sabe la tabla ISO— y
+el tipo de entidad salía en español dentro de un formulario en inglés. Ahora va
+**Corporation**, que es lo que espera quien tiene que leerlo.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

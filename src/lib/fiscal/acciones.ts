@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { formulariosFiscales, tiendas } from "@/lib/db/schema";
+import { esDeEstadosUnidos, puedeFirmarW8 } from "@/lib/fiscal/paises";
 
 import {
   DECLARACION_ES,
@@ -36,8 +37,7 @@ import {
  */
 
 export type ResultadoFiscal =
-  | { ok: true }
-  | { ok: false; faltan?: string[]; motivo?: string };
+  { ok: true } | { ok: false; faltan?: string[]; motivo?: string };
 
 export async function guardarFormularioFiscal(
   _previo: unknown,
@@ -76,6 +76,34 @@ export async function guardarFormularioFiscal(
 
   if (pareceApartadoPostal(valores.direccion!)) {
     return { ok: false, motivo: "apartado-postal" };
+  }
+
+  /**
+   * EL PAÍS TIENE QUE SER UNO DE VERDAD, Y NO PUEDE SER ESTADOS UNIDOS.
+   *
+   * Este formulario es, literalmente, el papel con el que una empresa declara
+   * **no ser estadounidense**. Antes el campo era texto libre y aquí solo se
+   * comprobaba que no estuviera vacío, así que se guardó uno que decía
+   * «COUNTRY OF INCORPORATION: ESTADOS UNIDOS» — un documento que se
+   * contradice a sí mismo en su segunda línea.
+   *
+   * ══ SE COMPRUEBA AQUÍ Y NO SOLO EN EL DESPLEGABLE ══
+   *
+   * Una lista en pantalla se salta abriendo la consola, y el navegador la
+   * rellena solo con lo que tenga guardado —que es exactamente lo que metió
+   * «ESTADOS UNIDOS» donde iban dos letras—.
+   *
+   * ══ Y SE DISTINGUE ENTRE LOS DOS ERRORES ══
+   *
+   * A una empresa de Estados Unidos no se le dice «país inválido»: se le dice
+   * que le toca el **W-9**, que es otro formulario. Rechazar sin explicar deja
+   * a alguien sin poder cobrar y sin saber qué hacer.
+   */
+  if (esDeEstadosUnidos(valores.paisConstitucion)) {
+    return { ok: false, motivo: "es-de-estados-unidos" };
+  }
+  if (!puedeFirmarW8(valores.paisConstitucion)) {
+    return { ok: false, motivo: "pais-invalido" };
   }
 
   /* LA CASILLA DE FIRMA ES OBLIGATORIA Y SE COMPRUEBA AQUÍ.
@@ -176,7 +204,11 @@ export async function situacionFiscal(
     .where(eq(formulariosFiscales.tiendaId, tiendaId))
     .limit(1);
 
-  const estado = estadoFiscal(tienda?.pais ?? null, f?.venceEn ?? null, new Date());
+  const estado = estadoFiscal(
+    tienda?.pais ?? null,
+    f?.venceEn ?? null,
+    new Date(),
+  );
   return { ...estado, datos: f ?? null };
 }
 

@@ -2012,7 +2012,8 @@
         "identificacionFiscal": "Identificación fiscal de tu país",
         "identificacionAyuda": "RIF, NIT, RUT… la que use tu país. Si no tienes, déjalo vacío.",
         "firmanteNombre": "Nombre de quien firma",
-        "firmanteCargo": "Cargo de quien firma"
+        "firmanteCargo": "Cargo de quien firma",
+        "eligePais": "Elige el país"
       },
       "tipos": {
         "corporacion": "Compañía anónima o sociedad mercantil",
@@ -2034,7 +2035,9 @@
         "apartado-postal": "La dirección no puede ser un apartado postal. Pon la dirección real donde funciona tu empresa.",
         "sin-firmar": "Marca la casilla de la firma para poder guardar.",
         "solo-el-comercio": "Este formulario solo lo puede firmar el dueño del comercio.",
-        "generico": "No se pudo guardar. Intenta de nuevo."
+        "generico": "No se pudo guardar. Intenta de nuevo.",
+        "es-de-estados-unidos": "Este formulario es solo para empresas de FUERA de Estados Unidos. Si tu empresa está registrada en Estados Unidos (o en Puerto Rico, Guam o las Islas Vírgenes), el que te toca es el W-9 — escríbenos y te lo pedimos.",
+        "pais-invalido": "Elige el país de la lista."
       },
       "guardado": "Formulario guardado y firmado. Ya puedes cobrar tus retiros.",
       "boton": "Firmar y guardar",

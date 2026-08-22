@@ -2012,7 +2012,8 @@
         "identificacionFiscal": "Local tax ID",
         "identificacionAyuda": "RIF, NIT, RUT… whichever your country uses. Leave blank if you have none.",
         "firmanteNombre": "Name of the signer",
-        "firmanteCargo": "Signer's title"
+        "firmanteCargo": "Signer's title",
+        "eligePais": "Choose the country"
       },
       "tipos": {
         "corporacion": "Corporation",
@@ -2034,7 +2035,9 @@
         "apartado-postal": "The address can't be a PO box. Use the real address where your company operates.",
         "sin-firmar": "Check the signature box to save.",
         "solo-el-comercio": "Only the store owner can sign this form.",
-        "generico": "Couldn't save. Please try again."
+        "generico": "Couldn't save. Please try again.",
+        "es-de-estados-unidos": "This form is only for companies registered OUTSIDE the United States. If your company is registered in the U.S. (or in Puerto Rico, Guam or the U.S. Virgin Islands), the right form is the W-9 — write to us and we will request it.",
+        "pais-invalido": "Choose a country from the list."
       },
       "guardado": "Form saved and signed. You can now receive your withdrawals.",
       "boton": "Sign and save",

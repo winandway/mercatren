@@ -40,6 +40,7 @@ export function Campo({
   area = false,
   filas = 3,
   className,
+  autoComplete,
 }: {
   tipo: TipoCampo;
   nombre: string;
@@ -53,6 +54,19 @@ export function Campo({
   area?: boolean;
   filas?: number;
   className?: string;
+  /**
+   * Para APAGAR el autocompletado donde estorba.
+   *
+   * Cada tipo trae el suyo, que es lo correcto casi siempre: el navegador
+   * rellena el teléfono, el correo y la dirección y le ahorra trabajo a la
+   * persona. Pero en un formulario que se firma **bajo pena de perjurio** eso
+   * se vuelve peligroso: el navegador metió «ESTADOSUNIDOS» en el campo del
+   * número fiscal del W-8BEN-E, y nadie lo miró antes de firmar.
+   *
+   * Se pasa suelto y no se cambia la regla del tipo: `identificacionFiscal` se
+   * usa también en «Mi tienda», donde autocompletar sí ayuda.
+   */
+  autoComplete?: string;
 }) {
   const t = useTranslations("formularios.errores");
   const id = useId();
@@ -147,7 +161,7 @@ export function Campo({
           {...comunes}
           type={regla.atributos.type ?? "text"}
           inputMode={regla.atributos.inputMode}
-          autoComplete={regla.atributos.autoComplete}
+          autoComplete={autoComplete ?? regla.atributos.autoComplete}
         />
       )}
 

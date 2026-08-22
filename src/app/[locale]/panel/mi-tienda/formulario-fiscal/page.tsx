@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { fechaCorta, fechaHora } from "@/lib/fechas";
 import { situacionFiscal } from "@/lib/fiscal/acciones";
+import { nombreDePais } from "@/lib/fiscal/paises";
 import { DECLARACION_EN } from "@/lib/fiscal/w8bene";
 import type { Idioma } from "@/lib/dinero";
 import { SITIO } from "@/lib/sitio";
@@ -51,11 +52,17 @@ export default async function PaginaDocumentoFiscal({
   if (!d) notFound();
 
   const t = await getTranslations("panel.fiscal");
+  /* Los textos del DOCUMENTO en inglés, sin importar el idioma de la pantalla:
+     lo va a leer una autoridad estadounidense o un banco. */
+  const tEn = await getTranslations({
+    locale: "en",
+    namespace: "panel.fiscal",
+  });
   const idioma = locale as Idioma;
 
   const fila = (etiqueta: string, valor: string) => (
     <div className="flex gap-3 border-b border-slate-200 py-2">
-      <dt className="w-1/2 shrink-0 text-xs uppercase tracking-wide text-slate-500">
+      <dt className="w-1/2 shrink-0 text-xs tracking-wide text-slate-500 uppercase">
         {etiqueta}
       </dt>
       <dd className="font-medium">{valor || "—"}</dd>
@@ -65,7 +72,7 @@ export default async function PaginaDocumentoFiscal({
   return (
     <div className="mx-auto max-w-3xl bg-white p-6 print:p-0">
       <header className="border-b-2 border-slate-800 pb-3">
-        <p className="text-xs uppercase tracking-widest text-slate-500">
+        <p className="text-xs tracking-widest text-slate-500 uppercase">
           Form W-8BEN-E · Substitute
         </p>
         <h1 className="mt-1 text-xl font-bold">
@@ -78,13 +85,32 @@ export default async function PaginaDocumentoFiscal({
       </header>
 
       <section className="mt-5">
-        <h2 className="text-sm font-bold uppercase tracking-wide">
+        <h2 className="text-sm font-bold tracking-wide uppercase">
           Part I · Identification of Beneficial Owner
         </h2>
         <dl className="mt-2 text-sm">
           {fila("1 · Name of organization", d.nombreLegal)}
-          {fila("2 · Country of incorporation", d.paisConstitucion)}
-          {fila("4 · Chapter 3 Status (entity type)", t(`tipos.${d.tipoEntidad}` as never))}
+          {/**
+           * EL PAÍS CON SU NOMBRE, NO CON EL CÓDIGO.
+           *
+           * El campo del IRS pide «Country of incorporation or organization» en
+           * texto. Un documento que dice «VE» obliga a quien lo lee —un banco,
+           * un contador— a saberse la tabla ISO de memoria.
+           */}
+          {fila(
+            "2 · Country of incorporation",
+            nombreDePais(d.paisConstitucion) ?? d.paisConstitucion,
+          )}
+          {/**
+           * EL TIPO DE ENTIDAD VA EN INGLÉS, aunque la pantalla esté en
+           * español. Este es un documento en inglés para una autoridad
+           * estadounidense: «Compañía anónima» dentro de un formulario del IRS
+           * no lo entiende quien tiene que leerlo.
+           */}
+          {fila(
+            "4 · Chapter 3 Status (entity type)",
+            tEn(`tipos.${d.tipoEntidad}` as never),
+          )}
           {fila("6 · Permanent residence address", d.direccion)}
           {fila("6 · City", d.ciudad)}
           {fila("6 · State / province", d.region ?? "")}
@@ -94,7 +120,7 @@ export default async function PaginaDocumentoFiscal({
       </section>
 
       <section className="mt-6">
-        <h2 className="text-sm font-bold uppercase tracking-wide">
+        <h2 className="text-sm font-bold tracking-wide uppercase">
           Part XXX · Certification
         </h2>
         {/* EN INGLÉS Y PALABRA POR PALABRA: es lo que hace que este documento
@@ -104,7 +130,7 @@ export default async function PaginaDocumentoFiscal({
         </p>
         {/* Y la traducción de lo que de verdad se le enseñó al firmar, para
             que quien firmó pueda demostrar qué aceptó. */}
-        <p className="mt-2 border-l-2 border-slate-300 pl-3 text-xs italic leading-relaxed text-slate-500">
+        <p className="mt-2 border-l-2 border-slate-300 pl-3 text-xs leading-relaxed text-slate-500 italic">
           {d.declaracion}
         </p>
       </section>
