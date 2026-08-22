@@ -78,6 +78,12 @@
   .pestanas{display:flex;gap:.4rem;margin:.2rem 0 1rem;flex-wrap:wrap}
   .pestana{border:1px solid var(--borde);background:#fff;border-radius:999px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;color:var(--tinta);display:flex;gap:.4rem;align-items:center}
   .pestana.activa{background:var(--riel);color:#fff;border-color:var(--riel)}
+  /* Calcado al panel real: píldora de UNA línea, icono de 16 px al lado del
+     texto. Sin esto el SVG salía a su tamaño natural, estiraba la píldora y
+     partía «Enlaces de cobro» en tres líneas. */
+  .pestana{white-space:nowrap;padding:.45rem .85rem}
+  .pestana svg,.boton svg{width:16px;height:16px;flex:none}
+  .boton.chico svg{width:14px;height:14px}
   .boton{display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;background:var(--carga);color:#fff;border:0;border-radius:10px;padding:.6rem 1rem;font-weight:700;font-size:.9rem}
   .boton:hover{background:var(--carga-600)}
   .boton.sec{background:#fff;color:var(--tinta);border:1px solid var(--borde)} .boton.sec:hover{border-color:var(--carga)}
