@@ -2066,6 +2066,46 @@ enlace copiable.
 - **Y dice que la tarjeta SÍ funciona ahí dentro**, o el aviso se lee como «no
   puedes pagar» y la persona cierra la página.
 
+## EL PDF QUE SE LE MANDA A LOS BANCOS DECÍA «WINDOCE» 54 VECES (22 ago 2026)
+
+El dueño pidió barrer toda mención de Windoce del sitio público. El barrido
+dio un resultado limpio —los textos, los términos, la privacidad, el
+`llms.txt`, el sitemap y los datos estructurados están todos en Mercatren
+LLC— salvo dos cosas:
+
+1. **El crédito del pie de página.** Es la única mención visible, y **se queda**:
+   decisión del dueño consultada expresamente. Ya lleva `nofollow` y
+   `data-nosnippet`, así que Google no lo cita ni lo trata como una relación de
+   negocio.
+2. **El PDF del modelo de negocio**, y ese sí era grave.
+
+**`public/docs/mercatren-modelo-de-negocio.pdf` decía «Windoce, LLC» 54 veces
+y «Mercatren» solo 14.** Su primera línea: _«Mercatren es una tienda en línea
+operada por Windoce, LLC»_. Se generó antes del cambio de sociedad y **no se
+regeneró a propósito** —lo revisó el abogado y el cambio pasa por él—, pero
+seguía descargable desde **tres sitios** del sitio público.
+
+**Es el documento que se le manda a un banco o a un procesador cuando piden
+«muéstrame cómo funciona».** Uno que nombra a otra empresa como operadora
+contradice al propio sitio, a los términos y a la cuenta bancaria — que es
+exactamente lo contrario de lo que hace falta para abrir una cuenta.
+
+**Google no lo indexaba** (`robots.ts` lo cierra desde siempre) **pero una
+persona sí lo descargaba**, y es justo la persona que importa.
+
+**Se retiró la descarga, no el archivo.** Se queda en el repositorio para poder
+compararlo cuando se regenere.
+
+- **No deja a nadie sin nada:** la página `/docs/modelo-de-negocio` **ES** el
+  documento, en HTML, actualizado y con los datos de Mercatren LLC. Lo único
+  que falta es la versión imprimible.
+- **A quien necesite los apartados que no se publican** —el encuadre
+  regulatorio, los controles, el plan de crecimiento— se le dice que lo pida
+  por correo. Quitar el botón sin decir cómo conseguirlo habría dejado sin
+  salida justo al banco que preguntaba.
+- **Vuelve cuando el abogado apruebe el PDF regenerado**, y está anotado en
+  `PENDIENTES.md` en rojo.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

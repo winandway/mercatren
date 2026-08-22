@@ -37,6 +37,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🔴 👤 **Cierre de Windoce y apertura de Mercatren**, con la advertencia
       de que **los $337 mil del histórico NO son de ninguna de las dos**: son
       de la tienda anterior de Bley.
+- [ ] 🔴 👤 **REGENERAR EL PDF DEL MODELO DE NEGOCIO.** El archivo que había
+      publicado decía **«Windoce, LLC» 54 veces** y empezaba con «Mercatren es
+      una tienda en línea operada por Windoce, LLC». Es el documento que se le
+      manda a un banco o a un procesador cuando piden «muéstrame cómo
+      funciona». **La descarga se retiró el 22 ago 2026**; la versión web de
+      `/docs/modelo-de-negocio` está actualizada y correcta, así que nadie se
+      queda sin nada — falta solo la versión imprimible. **Regenerarlo pasa por
+      el abogado**, que fue quien revisó el original.
 - [ ] 🟠 👤 **Los acuerdos de compraventa con cada comercio.** Los redacta el
       abogado. Tienen que decir **quién asume devolución y contracargo** (hoy
       no está escrito y en la práctica lo asume Mercatren) y **que la entrega

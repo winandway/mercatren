@@ -1,4 +1,4 @@
-import { ChevronRight, Download, FileText } from "lucide-react";
+import { ChevronRight, FileText } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -8,7 +8,8 @@ import { MODELO_EN } from "@/contenido/docs/modelo.en";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { SITIO, rutaCanonica, PDF_MODELO } from "@/lib/sitio";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
+import { SITIO, rutaCanonica } from "@/lib/sitio";
 import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 
 export function generateStaticParams() {
@@ -159,14 +160,32 @@ export default async function PaginaModeloDeNegocio({
               {doc.actualizado}
             </p>
 
-            <a
-              href={PDF_MODELO}
-              data-solo-pantalla
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-carga-500 px-5 py-2.5 text-sm font-semibold text-riel-950 transition-colors hover:bg-carga-600"
-            >
-              <Download className="h-4 w-4" aria-hidden />
-              {t("descargar")}
-            </a>
+            {/**
+             * LA DESCARGA DEL PDF ESTÁ RETIRADA (22 ago 2026).
+             *
+             * Ese archivo dice «Windoce, LLC» **54 veces** y empieza con
+             * «Mercatren es una tienda en línea operada por Windoce, LLC». Se
+             * generó antes del cambio de sociedad y **no se regeneró a
+             * propósito**: lo revisó el abogado y el cambio pasa por él.
+             *
+             * ══ POR QUÉ SE RETIRA Y NO SE ESPERA ══
+             *
+             * Es el documento que se le manda a un banco o a un procesador
+             * cuando piden «muéstrame cómo funciona». Uno que nombra a otra
+             * empresa como operadora es peor que no tener ninguno: contradice
+             * al propio sitio, a los términos y a la cuenta bancaria.
+             *
+             * Google no lo indexaba —`robots.ts` lo cierra— pero **una persona
+             * sí lo descargaba**, y es justo la persona que importa.
+             *
+             * ══ NO DEJA A NADIE SIN NADA ══
+             *
+             * Esta misma página ES el documento, en HTML, actualizado y con
+             * los datos de Mercatren LLC. Lo único que falta es la versión
+             * imprimible.
+             *
+             * Vuelve cuando el abogado apruebe el PDF regenerado.
+             */}
           </div>
         </div>
       </header>
@@ -269,8 +288,11 @@ export default async function PaginaModeloDeNegocio({
               </dl>
             </section>
 
-            {/* Cierre: el PDF completo, para quien necesita los apartados que
-                no se publican. */}
+            {/**
+             * Aquí iba la descarga del PDF completo. Retirada: ver la nota de
+             * arriba. Se queda el bloque, porque a quien necesita los
+             * apartados que no se publican hay que decirle cómo pedirlos.
+             */}
             <section className="mt-10 rounded-xl border border-borde bg-slate-50 p-5 sm:p-6">
               <p className="flex items-center gap-2 text-xs font-bold tracking-[0.08em] text-carga-600 uppercase">
                 <FileText className="h-4 w-4" aria-hidden />
@@ -279,17 +301,17 @@ export default async function PaginaModeloDeNegocio({
               <p className="mt-2 text-sm leading-relaxed text-tinta-suave">
                 {t("paraBancosTexto")}
               </p>
-              <a
-                href={PDF_MODELO}
-                data-solo-pantalla
-                className="boton-principal mt-4 gap-2"
-                data-descarga="modelo-de-negocio"
-              >
-                <Download className="h-4 w-4" aria-hidden />
-                {t("descargar")}
-              </a>
-              <p className="mt-2 text-xs text-tinta-suave">
-                {t("descargarNota")}
+              <p className="mt-3 text-sm font-semibold">
+                {t.rich("pidelo", {
+                  correo: (texto) => (
+                    <a
+                      href={`mailto:${CORREO_CONTACTO}`}
+                      className="text-carga-600 underline"
+                    >
+                      {texto}
+                    </a>
+                  ),
+                })}
               </p>
             </section>
 

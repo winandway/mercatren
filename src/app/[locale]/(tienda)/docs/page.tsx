@@ -1,10 +1,4 @@
-import {
-  ArrowRight,
-  Download,
-  FileText,
-  Route,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, FileText, Route, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -13,7 +7,7 @@ import { MODELO_EN } from "@/contenido/docs/modelo.en";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { PDF_MODELO, rutaCanonica, SITIO } from "@/lib/sitio";
+import { rutaCanonica, SITIO } from "@/lib/sitio";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -117,13 +111,11 @@ export default async function PaginaDocs({
               {t("leer")}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
-            <a href={PDF_MODELO} className="boton-secundario gap-2">
-              <Download className="h-4 w-4" aria-hidden />
-              {t("descargar")}
-            </a>
+            {/* La descarga del PDF está retirada: ese archivo dice «Windoce,
+                LLC» 54 veces y nombra a otra empresa como operadora de la
+                tienda. Se generó antes del cambio de sociedad y regenerarlo
+                pasa por el abogado. Ver la nota en `docs/modelo-de-negocio`. */}
           </div>
-
-          <p className="mt-3 text-xs text-tinta-suave">{t("descargarNota")}</p>
 
           {/* Lo que el documento contesta. Sirve de resumen y le da a Google
               las preguntas con sus respuestas. */}
