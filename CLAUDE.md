@@ -2124,6 +2124,17 @@ pasaba**. Ahora el paso 1 dice «La cuenta está a nombre de Mercatren LLC».
 - **Se apaga con `prefers-reduced-motion`.** No es acabado: hay gente a la que
   el movimiento repetido le marea de verdad.
 
+**1b. Los tres pasos van en un HILO: círculo numerado y línea que los une.**
+Lo pidió el dueño viendo la pantalla: los pasos «no estaban presentes». Un
+«1 ·» pegado al título se lee como parte del texto; un círculo con el número
+(verde, rojo, oscuro — el tono de cada paso) y una línea que baja hasta el
+siguiente se lee como lo que es: un camino de tres paradas. Es un `<ol>`: el
+número lo lee el lector de pantalla, la línea es `aria-hidden`. Y de paso el
+correo del paso 1 **ya no se parte por la mitad** en celular —«pagos@mercatren.c
+/ om»—: la fila es `flex-wrap` con ancho mínimo, así el botón «Copiar» baja de
+línea cuando no cabe y el correo queda entero. Un correo partido se copia mal a
+mano.
+
 **2. «Esta factura ya está pagada», con método y fecha.** El caso exacto: el
 comercio le hace varios cobros al mismo cliente, alguien vuelve a abrir un
 enlace y no sabe si ese ya se pagó. Ahora sale en verde, arriba, con monto,

@@ -89,130 +89,176 @@ export function PagarConZelle({
       className="space-y-4"
     >
       {/**
-       * Paso 1: A DÓNDE SE MANDA, Y A NOMBRE DE QUIÉN.
+       * LOS TRES PASOS VAN EN UN HILO: CÍRCULO NUMERADO Y LÍNEA QUE LOS UNE.
        *
-       * ══ EN VERDE, Y NO POR GUSTO ══
+       * Lo pidió el dueño viendo la pantalla: los pasos «no estaban presentes».
+       * Un «1 ·» pegado al título se lee como parte del texto; un círculo con
+       * el número y una línea que baja hasta el siguiente se lee como lo que
+       * es — un camino de tres paradas. Quien paga por primera vez sabe en
+       * qué parada va y cuántas le faltan.
        *
-       * Este es el dato que se pega en la app del banco. En gris se lee como
-       * información; en verde se lee como «esto es lo correcto, cópialo». En
-       * una pantalla donde alguien está a punto de mandar dinero a un
-       * desconocido, esa diferencia es confianza.
+       * Cada círculo lleva el tono de su paso (verde, rojo, oscuro) para que
+       * el hilo y las cajas cuenten la misma historia. La línea es decorativa
+       * (`aria-hidden`); el número no: es el que lee el lector de pantalla.
        *
-       * ══ Y EL NOMBRE VA ARRIBA DEL CORREO ══
-       *
-       * Al mandar un Zelle, el banco enseña el nombre del titular ANTES de
-       * confirmar y pregunta si es correcto. Sin saber qué nombre esperar,
-       * quien paga cancela — y hace bien. Aquí se le dice de antemano.
+       * Y los latidos siguen donde estaban: en el botón de copiar del paso 1,
+       * en el del 2, y en la caja de la captura.
        */}
-      <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3">
-        <p className="text-sm font-bold text-emerald-900">
-          1 · {t("zPaso1", { monto: montoTexto })}
-        </p>
-
-        {nombreReceptor ? (
-          <p className="mt-1.5 text-xs text-emerald-900">
-            {t.rich("zTitular", {
-              nombre: nombreReceptor,
-              fuerte: (texto) => <strong>{texto}</strong>,
-            })}
-          </p>
-        ) : null}
-
-        <div className="mt-2 flex items-center gap-2">
-          <code className="flex-1 rounded-lg bg-white px-3 py-2.5 text-sm font-semibold break-all text-emerald-900">
-            {receptor}
-          </code>
-          <button
-            type="button"
-            onClick={() => copiar(receptor, "receptor")}
-            className="latido-guia inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-400 bg-white px-3 py-2.5 text-xs font-semibold text-emerald-900 hover:border-emerald-600"
-          >
-            {copiado === "receptor" ? (
-              <Check className="h-3.5 w-3.5 text-precio-600" aria-hidden />
-            ) : (
-              <Copy className="h-3.5 w-3.5" aria-hidden />
-            )}
-            {copiado === "receptor" ? t("zCopiado") : t("zCopiar")}
-          </button>
-        </div>
-      </div>
-
-      {/**
-       * Paso 2: EL NÚMERO DE CONCILIACIÓN. En rojo y con la explicación de por
-       * qué, no como una orden seca: quien entiende que sin la nota su pago se
-       * pierde semanas, la escribe.
-       */}
-      <div className="rounded-xl border border-red-200 bg-red-50 p-3">
-        <p className="text-sm font-bold text-red-900">2 · {t("zPaso2")}</p>
-        <div className="mt-1.5 flex items-center gap-2">
-          <code className="flex-1 rounded-lg bg-white px-3 py-2.5 text-base font-extrabold tracking-wide text-red-900">
-            {concepto}
-          </code>
-          <button
-            type="button"
-            onClick={() => copiar(concepto, "concepto")}
-            className="latido-guia-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-2.5 text-xs font-semibold text-red-900 hover:border-red-500"
-          >
-            {copiado === "concepto" ? (
-              <Check className="h-3.5 w-3.5 text-precio-600" aria-hidden />
-            ) : (
-              <Copy className="h-3.5 w-3.5" aria-hidden />
-            )}
-            {copiado === "concepto" ? t("zCopiado") : t("zCopiar")}
-          </button>
-        </div>
-        <p className="mt-1.5 text-xs leading-snug font-semibold text-red-900">
-          {t("zPaso2Detalle")}
-        </p>
+      <ol className="space-y-0">
         {/**
-         * POR QUÉ HACE FALTA, DICHO EN SU BENEFICIO Y NO COMO AMENAZA.
+         * Paso 1: A DÓNDE SE MANDA, Y A NOMBRE DE QUIÉN.
          *
-         * Se pensó en advertir «sin este número te devolvemos el dinero», y se
-         * descartó: eso le abre la puerta a quien deje la nota en blanco a
-         * propósito para reclamar la mercancía Y el reembolso.
+         * ══ EN VERDE, Y NO POR GUSTO ══
          *
-         * Lo que sí es cierto —y le sirve a quien paga— es que ese número
-         * documenta las dos puntas del movimiento. Quien entiende que le
-         * protege su propia cuenta lo escribe; a quien se le amenaza,
-         * discute.
+         * Este es el dato que se pega en la app del banco. En gris se lee como
+         * información; en verde se lee como «esto es lo correcto, cópialo». En
+         * una pantalla donde alguien está a punto de mandar dinero a un
+         * desconocido, esa diferencia es confianza.
+         *
+         * ══ Y EL NOMBRE VA ARRIBA DEL CORREO ══
+         *
+         * Al mandar un Zelle, el banco enseña el nombre del titular ANTES de
+         * confirmar y pregunta si es correcto. Sin saber qué nombre esperar,
+         * quien paga cancela — y hace bien. Aquí se le dice de antemano.
          */}
-        <p className="mt-1.5 text-xs leading-snug text-red-800">
-          {t("zPorQueConcepto")}
-        </p>
-      </div>
-
-      {/* Solo bancos de Estados Unidos: por eso no se ofrece SWIFT ni
-          transferencia internacional. Decirlo aquí evita que alguien mande
-          desde fuera un dinero que va a rebotar. */}
-      <p className="text-xs text-tinta-suave">{t("zSoloDesdeEeuu")}</p>
-
-      {/* Paso 3: la captura. */}
-      <div>
-        <p className="text-sm font-semibold">3 · {t("zPaso3")}</p>
-        <label className="latido-guia-3 mt-1.5 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-borde px-3 py-3 text-sm text-tinta-suave hover:border-carga-500">
-          <Upload className="h-4 w-4 shrink-0" aria-hidden />
-          <span className="min-w-0 truncate">
-            {captura ? captura.name : t("zPaso3")}
+        <li className="relative pb-5 pl-11">
+          <span className="absolute top-0 left-0 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-extrabold text-white ring-4 ring-white">
+            1
           </span>
-          <input
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            onChange={(e) => setCaptura(e.target.files?.[0] ?? null)}
+          <span
+            aria-hidden
+            className="absolute top-8 bottom-0 left-[15px] w-0.5 bg-slate-300"
           />
-        </label>
+          <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3">
+            <p className="text-sm font-bold text-emerald-900">
+              {t("zPaso1", { monto: montoTexto })}
+            </p>
 
-        <label className="mt-2 block">
-          <span className="text-xs text-tinta-suave">{t("zCodigo")}</span>
-          <input
-            type="text"
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
-            maxLength={60}
-            className="mt-1 w-full rounded-lg border border-borde px-3 py-2 text-sm outline-none focus:border-carga-500"
+            {nombreReceptor ? (
+              <p className="mt-1.5 text-xs text-emerald-900">
+                {t.rich("zTitular", {
+                  nombre: nombreReceptor,
+                  fuerte: (texto) => <strong>{texto}</strong>,
+                })}
+              </p>
+            ) : null}
+
+            {/* `flex-wrap` + un ancho mínimo para el correo: en un celular
+                estrecho el botón baja de línea en vez de partir
+                «pagos@mercatren.c/om» por la mitad. Un correo partido se
+                copia mal a mano. */}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <code className="min-w-[11rem] flex-1 rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-emerald-900">
+                {receptor}
+              </code>
+              <button
+                type="button"
+                onClick={() => copiar(receptor, "receptor")}
+                className="latido-guia inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-emerald-400 bg-white px-3 py-2.5 text-xs font-semibold text-emerald-900 hover:border-emerald-600"
+              >
+                {copiado === "receptor" ? (
+                  <Check className="h-3.5 w-3.5 text-precio-600" aria-hidden />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" aria-hidden />
+                )}
+                {copiado === "receptor" ? t("zCopiado") : t("zCopiar")}
+              </button>
+            </div>
+          </div>
+        </li>
+
+        {/**
+         * Paso 2: EL NÚMERO DE CONCILIACIÓN. En rojo y con la explicación de
+         * por qué, no como una orden seca: quien entiende que sin la nota su
+         * pago se pierde semanas, la escribe.
+         */}
+        <li className="relative pb-5 pl-11">
+          <span className="absolute top-0 left-0 flex h-8 w-8 items-center justify-center rounded-full bg-red-700 text-sm font-extrabold text-white ring-4 ring-white">
+            2
+          </span>
+          <span
+            aria-hidden
+            className="absolute top-8 bottom-0 left-[15px] w-0.5 bg-slate-300"
           />
-        </label>
-      </div>
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3">
+            <p className="text-sm font-bold text-red-900">{t("zPaso2")}</p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+              <code className="min-w-[11rem] flex-1 rounded-lg bg-white px-3 py-2.5 text-base font-extrabold tracking-wide text-red-900">
+                {concepto}
+              </code>
+              <button
+                type="button"
+                onClick={() => copiar(concepto, "concepto")}
+                className="latido-guia-2 inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-2.5 text-xs font-semibold text-red-900 hover:border-red-500"
+              >
+                {copiado === "concepto" ? (
+                  <Check className="h-3.5 w-3.5 text-precio-600" aria-hidden />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" aria-hidden />
+                )}
+                {copiado === "concepto" ? t("zCopiado") : t("zCopiar")}
+              </button>
+            </div>
+            <p className="mt-1.5 text-xs leading-snug font-semibold text-red-900">
+              {t("zPaso2Detalle")}
+            </p>
+            {/**
+             * POR QUÉ HACE FALTA, DICHO EN SU BENEFICIO Y NO COMO AMENAZA.
+             *
+             * Se pensó en advertir «sin este número te devolvemos el dinero»,
+             * y se descartó: eso le abre la puerta a quien deje la nota en
+             * blanco a propósito para reclamar la mercancía Y el reembolso.
+             *
+             * Lo que sí es cierto —y le sirve a quien paga— es que ese número
+             * documenta las dos puntas del movimiento. Quien entiende que le
+             * protege su propia cuenta lo escribe; a quien se le amenaza,
+             * discute.
+             */}
+            <p className="mt-1.5 text-xs leading-snug text-red-800">
+              {t("zPorQueConcepto")}
+            </p>
+          </div>
+
+          {/* Solo bancos de Estados Unidos: por eso no se ofrece SWIFT ni
+              transferencia internacional. Decirlo aquí evita que alguien
+              mande desde fuera un dinero que va a rebotar. */}
+          <p className="mt-2 text-xs text-tinta-suave">{t("zSoloDesdeEeuu")}</p>
+        </li>
+
+        {/* Paso 3: la captura y, si lo hay, el código del banco. Es la última
+            parada: sin línea debajo. */}
+        <li className="relative pl-11">
+          <span className="absolute top-0 left-0 flex h-8 w-8 items-center justify-center rounded-full bg-riel-900 text-sm font-extrabold text-white ring-4 ring-white">
+            3
+          </span>
+          <div>
+            <p className="pt-1.5 text-sm font-bold">{t("zPaso3")}</p>
+            <label className="latido-guia-3 mt-1.5 flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-borde px-3 py-3 text-sm text-tinta-suave hover:border-carga-500">
+              <Upload className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="min-w-0 truncate">
+                {captura ? captura.name : t("zPaso3")}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(e) => setCaptura(e.target.files?.[0] ?? null)}
+              />
+            </label>
+
+            <label className="mt-2 block">
+              <span className="text-xs text-tinta-suave">{t("zCodigo")}</span>
+              <input
+                type="text"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                maxLength={60}
+                className="mt-1 w-full rounded-lg border border-borde px-3 py-2 text-sm outline-none focus:border-carga-500"
+              />
+            </label>
+          </div>
+        </li>
+      </ol>
 
       {resultado && !resultado.ok ? (
         <p
