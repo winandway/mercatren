@@ -3,6 +3,7 @@ import { Clock, Store } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { AvisoNavegador } from "@/components/cobro/aviso-navegador";
 import { MetodosDeCobro } from "@/components/cobro/metodos-de-cobro";
 import { estadoParaMostrar, sePuedePagar } from "@/lib/cobros/reglas";
 import { queSeEnsena } from "@/lib/cobros/presentacion";
@@ -10,6 +11,11 @@ import { getDb } from "@/lib/db";
 import { cobrosCadena, cobrosSolicitados, tiendas } from "@/lib/db/schema";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
+import {
+  abiertoDentroDeUnaApp,
+  appQueLoAbrio,
+} from "@/lib/navegador/dentro-de-app";
+import { SITIO } from "@/lib/sitio";
 
 /** Un enlace de cobro se abre una vez y se paga: nunca se guarda en caché. */
 export const dynamic = "force-dynamic";
@@ -137,6 +143,22 @@ export default async function PaginaDeCobro({
     .where(eq(cargosCobro.cobroId, cobro.id))
     .catch(() => []);
 
+  /**
+   * ¿SE ABRIÓ DESDE WHATSAPP?
+   *
+   * Ahí dentro **el pago con la cuenta del banco no aparece**, y no es un
+   * fallo: un navegador dentro de una app no puede abrir la ventana del banco
+   * para identificarse, así que Stripe directamente no ofrece ese método.
+   *
+   * Sin avisar, el comercio manda el enlace, quien paga no ve los bancos, y
+   * nadie entiende por qué — desde nuestro lado la página se ve perfecta.
+   */
+  const { headers } = await import("next/headers");
+  const ua = (await headers()).get("user-agent");
+  const dentroDeApp = abiertoDentroDeUnaApp(ua);
+  const urlDelCobro = `${SITIO.url}/${locale}/cobro/${enlace}`;
+  const nombreApp = appQueLoAbrio(ua);
+
   let zelle: { receptor: string; concepto: string } | null = null;
   let enRevision = false;
   if (pagable) {
@@ -227,6 +249,19 @@ export default async function PaginaDeCobro({
             </>
           ) : null}
         </dl>
+
+        {/**
+         * EL AVISO DE «ÁBRELO EN EL NAVEGADOR».
+         *
+         * Va ANTES de los métodos, no después: quien ya eligió tarjeta porque
+         * era lo único que veía, no vuelve a subir a leer un aviso.
+         *
+         * No se puede sacar la página del webview por código —eso lo decide la
+         * app—, así que lo único útil es decirlo y dejar el enlace a un toque.
+         */}
+        {dentroDeApp && estado === "abierto" ? (
+          <AvisoNavegador url={urlDelCobro} app={nombreApp} />
+        ) : null}
 
         <div className="mt-6">
           {estado === "pagado" ? (

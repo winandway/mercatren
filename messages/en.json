@@ -2982,7 +2982,7 @@
     "metodoZelleDetalle": "Confirmed by a person, usually the same business day",
     "zPaso1": "Send {monto} through Zelle to this address",
     "zPaso2": "Write this in your transfer's memo",
-    "zPaso2Detalle": "Copy it exactly as shown. It's how we match your payment at the bank — without this memo, your payment can sit unidentified for weeks.",
+    "zPaso2Detalle": "Copy it exactly as it appears, without changing anything.",
     "zPaso3": "Upload a screenshot of your transfer",
     "zCodigo": "Confirmation code (if your bank gave you one)",
     "zEnviar": "Send my proof of payment",
@@ -3005,6 +3005,14 @@
     "canceladoQueHacer": "Please contact the person who sent you this link.",
     "mercancia": "Merchandise",
     "flete": "Freight and delivery",
-    "manejo": "Handling and additional services"
+    "manejo": "Handling and additional services",
+    "zPorQueConcepto": "That number links your transfer to this invoice: it documents the money leaving your account and the money arriving in ours. Without it, your payment reaches our bank with no name attached and can take days to identify — and a transfer nobody can account for is exactly what makes a bank start asking questions.",
+    "zSoloDesdeEeuu": "We only accept transfers from U.S. bank accounts.",
+    "appTitulo": "You are viewing this inside {app}",
+    "appTituloGenerico": "You are viewing this inside an app",
+    "appDetalle": "To pay with your bank account, open this link in your browser (Chrome or Safari). That option does not appear in here.",
+    "appCopiar": "Copy",
+    "appCopiado": "Copied",
+    "appTarjetaSirve": "You can pay by card right here, without leaving."
   }
 }

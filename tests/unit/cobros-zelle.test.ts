@@ -92,3 +92,41 @@ describe("Zelle en los enlaces de cobro", () => {
     ).toBe(ZELLE_MINIMO_CENTAVOS);
   });
 });
+
+describe("SIN FILA, ZELLE ESTÁ DISPONIBLE: el equipo lo APAGA (21 ago 2026)", () => {
+  /**
+   * Antes era al revés —sin fila no había Zelle— y en la práctica eso
+   * significó que **ningún comercio lo tenía**: un cobro de $620 salía solo
+   * con tarjeta, y Zelle es la forma de pago de esta clientela.
+   *
+   * Lo que filtra lo que no compensa es el MÍNIMO, no el interruptor: por
+   * debajo de él, validar la captura cuesta más de lo que deja el margen.
+   */
+  it("la consulta trata «sin fila» como disponible", async () => {
+    const { readFileSync } = await import("node:fs");
+    const fuente = readFileSync("src/lib/cobros/consultas.ts", "utf8");
+    expect(
+      fuente,
+      "volvió el defecto apagado: ningún comercio tendría Zelle en sus enlaces de cobro",
+    ).toContain("habilitada: fila ? Boolean(fila.habilitado) : true");
+  });
+
+  it("y el interruptor sigue sirviendo para QUITÁRSELO a uno concreto", () => {
+    /* Se conserva a propósito: si un comercio da problemas con las capturas,
+       se le apaga sin tocar a los demás. */
+    const d = decidirZelle({ ...BASE, habilitada: false }, 999_999);
+    expect(d).toMatchObject({ disponible: false, motivo: "no_habilitada" });
+  });
+
+  it("el mínimo manda: $199.99 no, $200 sí", () => {
+    /* Es el número que el dueño fijó de viva voz: «si pasa de doscientos
+       dólares, Zelle debe ir en el link; si no pasa, se restringe». */
+    expect(decidirZelle({ ...BASE }, 19_999)).toMatchObject({
+      disponible: false,
+      motivo: "monto_bajo",
+    });
+    expect(decidirZelle({ ...BASE }, 20_000)).toMatchObject({
+      disponible: true,
+    });
+  });
+});

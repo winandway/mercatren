@@ -126,10 +126,30 @@ export function PagarConZelle({
             {copiado === "concepto" ? t("zCopiado") : t("zCopiar")}
           </button>
         </div>
-        <p className="mt-1.5 text-xs leading-snug text-red-800">
+        <p className="mt-1.5 text-xs leading-snug font-semibold text-red-900">
           {t("zPaso2Detalle")}
         </p>
+        {/**
+         * POR QUÉ HACE FALTA, DICHO EN SU BENEFICIO Y NO COMO AMENAZA.
+         *
+         * Se pensó en advertir «sin este número te devolvemos el dinero», y se
+         * descartó: eso le abre la puerta a quien deje la nota en blanco a
+         * propósito para reclamar la mercancía Y el reembolso.
+         *
+         * Lo que sí es cierto —y le sirve a quien paga— es que ese número
+         * documenta las dos puntas del movimiento. Quien entiende que le
+         * protege su propia cuenta lo escribe; a quien se le amenaza,
+         * discute.
+         */}
+        <p className="mt-1.5 text-xs leading-snug text-red-800">
+          {t("zPorQueConcepto")}
+        </p>
       </div>
+
+      {/* Solo bancos de Estados Unidos: por eso no se ofrece SWIFT ni
+          transferencia internacional. Decirlo aquí evita que alguien mande
+          desde fuera un dinero que va a rebotar. */}
+      <p className="text-xs text-tinta-suave">{t("zSoloDesdeEeuu")}</p>
 
       {/* Paso 3: la captura. */}
       <div>

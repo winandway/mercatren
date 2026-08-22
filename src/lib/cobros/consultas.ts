@@ -397,7 +397,20 @@ export async function zelleDelCobro(
 
   const decision = decidirZelle(
     {
-      habilitada: Boolean(fila?.habilitado),
+      /**
+       * SIN FILA, ZELLE ESTÁ DISPONIBLE. El equipo lo APAGA, no lo enciende.
+       *
+       * Antes era al revés: sin fila no había Zelle, y encenderlo era un acto
+       * del equipo tienda por tienda. En la práctica eso significó que **ningún
+       * comercio lo tenía** — un cobro de $620 salía solo con tarjeta, y Zelle
+       * es la forma de pago de esta clientela.
+       *
+       * Lo que de verdad filtra lo que no compensa es el MÍNIMO, no el
+       * interruptor: por debajo de él, validar la captura cuesta más de lo que
+       * deja el margen. El interruptor se queda para poder quitárselo a un
+       * comercio concreto que dé problemas.
+       */
+      habilitada: fila ? Boolean(fila.habilitado) : true,
       minimoTiendaCentavos: fila?.minimoCentavos ?? null,
       minimoGlobalCentavos: Number.isFinite(minimoGlobal) ? minimoGlobal : null,
       receptorConfigurado: Boolean(receptor),

@@ -2004,6 +2004,68 @@ campo del IRS pide el país en texto, y quien lo lee no se sabe la tabla ISO— 
 el tipo de entidad salía en español dentro de un formulario en inglés. Ahora va
 **Corporation**, que es lo que espera quien tiene que leerlo.
 
+## ZELLE NO SALÍA EN NINGÚN ENLACE DE COBRO (22 ago 2026)
+
+Un cobro de **$620** llegó con solo tarjeta. Zelle estaba construido entero
+—los tres pasos, el número de conciliación en rojo, la captura, la cola de
+validación— y **no lo tenía ni un comercio**.
+
+La causa: `zelle_cobros_tienda` funcionaba como interruptor de ENCENDER. Sin
+fila no había Zelle, y encenderlo era un acto del equipo tienda por tienda. En
+la práctica eso significó que nadie lo tuviera nunca — y Zelle es **la** forma
+de pago de esta clientela.
+
+**AHORA EL EQUIPO LO APAGA, NO LO ENCIENDE.** Sin fila, disponible. Lo que de
+verdad filtra lo que no compensa es el **mínimo de $200**, no el interruptor:
+por debajo, validar la captura cuesta más de lo que deja el margen. El
+interruptor se queda para poder quitárselo a un comercio concreto que dé
+problemas.
+
+Comprobado en pantalla: **$199 no ofrece Zelle ni dibuja el selector; $620
+sí**. El número lo fijó el dueño de viva voz: _«si pasa de doscientos dólares,
+Zelle debe ir en el link; si no pasa, se restringe por todos lados»_.
+
+**OJO con el mínimo por tienda en CERO:** `0` es un valor válido y significa
+«sin mínimo», no «usar el general». Un 0 guardado por descuido le abre Zelle a
+ese comercio desde un centavo.
+
+**Y EL TEXTO DEL NÚMERO DE CONCILIACIÓN SE REESCRIBIÓ.** Se pensó en advertir
+«sin este número te devolvemos el dinero» y **se descartó**: eso le abre la
+puerta a quien deje la nota en blanco a propósito para reclamar la mercancía Y
+el reembolso. Lo que sí es cierto —y le sirve a quien paga— es que ese número
+documenta las dos puntas del movimiento: _«a ti te justifica la salida de tu
+cuenta y a nosotros la entrada en la nuestra»_. Quien entiende que le protege
+su propia cuenta lo escribe; a quien se le amenaza, discute.
+
+## POR QUÉ DESDE WHATSAPP NO SALEN LOS BANCOS (22 ago 2026)
+
+Lo preguntó el dueño y la respuesta no es un fallo nuestro ni de Stripe.
+
+Un enlace abierto desde WhatsApp **no se abre en Chrome ni en Safari**: se abre
+en un navegador que va dentro de la propia app (_webview_). Pagar con la cuenta
+del banco obliga a abrir una ventana del banco para identificarse, y eso un
+webview no lo puede hacer — así que **Stripe directamente no ofrece ese
+método**. Desde el lado del comercio la página se ve completa y nadie entiende
+nada.
+
+**No se puede arreglar**: ninguna página puede sacarse a sí misma de un
+webview, lo decide la app. Lo que sí se puede es **decirlo**, y eso hace
+`src/lib/navegador/dentro-de-app.ts` (puro, 7 pruebas) + el aviso ámbar con el
+enlace copiable.
+
+- **Se busca la marca de la APP, nunca se deduce por descarte.** Casi todos los
+  navegadores de móvil llevan «Safari» o «Chrome» en su identificación,
+  **incluidos los webviews**. Con un «no es Chrome, luego es webview» el aviso
+  le saldría a media clientela — y un aviso que sale cuando no hace falta se
+  aprende a ignorar.
+- **`micromessenger` es WeChat y contiene `messenger`.** Sin descartarlo
+  primero, a un usuario de WeChat se le decía que estaba dentro de Messenger.
+  Lo encontró su propia prueba.
+- **Va ANTES de los métodos de pago**: quien ya eligió tarjeta porque era lo
+  único que veía no vuelve a subir a leer un aviso.
+- **Y dice que la tarjeta SÍ funciona ahí dentro**, o el aviso se lee como «no
+  puedes pagar» y la persona cierra la página.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

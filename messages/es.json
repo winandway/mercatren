@@ -2982,7 +2982,7 @@
     "metodoZelleDetalle": "Lo confirma una persona, normalmente el mismo día hábil",
     "zPaso1": "Envía {monto} por Zelle a esta dirección",
     "zPaso2": "Escribe esto en la nota de tu transferencia",
-    "zPaso2Detalle": "Cópialo tal cual. Es lo que nos deja reconocer tu pago en el banco: sin esta nota, tu pago puede quedar semanas sin identificar.",
+    "zPaso2Detalle": "Cópialo tal cual, sin cambiarle nada.",
     "zPaso3": "Sube la captura de tu transferencia",
     "zCodigo": "Código de confirmación (si tu banco te dio uno)",
     "zEnviar": "Enviar mi comprobante",
@@ -3005,6 +3005,14 @@
     "canceladoQueHacer": "Comunícate con la persona que te envió este enlace.",
     "mercancia": "Mercancía",
     "flete": "Flete y transporte",
-    "manejo": "Manejo y servicios adicionales"
+    "manejo": "Manejo y servicios adicionales",
+    "zPorQueConcepto": "Ese número enlaza tu transferencia con esta factura: a ti te justifica la salida de tu cuenta y a nosotros la entrada en la nuestra. Sin él, tu pago llega a nuestro banco sin nombre y puede tardar días en reconocerse — y un movimiento que nadie puede explicar es justo lo que hace que un banco empiece a preguntar.",
+    "zSoloDesdeEeuu": "Solo aceptamos transferencias desde bancos de Estados Unidos.",
+    "appTitulo": "Estás viendo esto dentro de {app}",
+    "appTituloGenerico": "Estás viendo esto dentro de una aplicación",
+    "appDetalle": "Para pagar con tu cuenta de banco tienes que abrir este enlace en tu navegador (Chrome o Safari). Aquí dentro esa opción no aparece.",
+    "appCopiar": "Copiar",
+    "appCopiado": "Copiado",
+    "appTarjetaSirve": "Con tarjeta puedes pagar aquí mismo, sin salir."
   }
 }
