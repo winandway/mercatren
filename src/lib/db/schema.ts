@@ -2465,6 +2465,56 @@ export const fotosDevolucion = sqliteTable(
  * booleano: guarda además **de qué deuda vino el pago**, que es lo que deja
  * reconstruir la cadena meses después cuando alguien reclame.
  */
+/**
+ * LOS CARGOS ADICIONALES DE UN COBRO: FLETE Y MANEJO.
+ *
+ * ══ POR QUÉ HACÍA FALTA ══
+ *
+ * Un comercio vende diez sacos de cemento por $540 y el cliente pide que se los
+ * lleven. El camión cuesta $40 y subirlos a un tercer piso, otros $20. Hasta
+ * hoy no había dónde meter eso: o se sumaba a mano al precio de la mercancía
+ * —y entonces la factura miente sobre qué se vendió— o no se cobraba.
+ *
+ * ══ POR QUÉ TABLA Y NO DOS COLUMNAS ══
+ *
+ * Regla del proyecto: `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así
+ * que una columna nueva NO llega sola a una base que ya existe. Y además cada
+ * cargo lleva su propia explicación escrita por el comercio, que es lo que hace
+ * que el cliente entienda por qué paga de más.
+ *
+ * ══ EL DESGLOSE SE VE, NO SE ESCONDE ══
+ *
+ * Quien paga tiene que leer «mercancía $540 · flete $40 · manejo $20» y no un
+ * $600 sin explicar. Un cargo que aparece sin decir qué es, es la primera línea
+ * de un contracargo.
+ */
+export const TIPOS_DE_CARGO = ["flete", "manejo"] as const;
+
+export const cargosCobro = sqliteTable("cargos_cobro", {
+  id: text("id").primaryKey(),
+
+  cobroId: text("cobro_id")
+    .notNull()
+    .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+
+  /**
+   * Qué clase de cargo es.
+   *
+   * `flete` es el traslado; `manejo` es lo que se hace con la mercancía —
+   * embalaje especial, carga y descarga, acarreo, subir a un piso—. Es el
+   * término de la industria (*handling*), y separarlos importa: el flete lo
+   * cobra quien transporta y el manejo lo cobra quien pone la gente.
+   */
+  tipo: text("tipo").$type<(typeof TIPOS_DE_CARGO)[number]>().notNull(),
+
+  /** Lo que el comercio escribe para justificarlo, en sus palabras. */
+  concepto: text("concepto"),
+
+  montoCentavos: integer("monto_centavos").notNull(),
+
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+});
+
 export const cobrosCadena = sqliteTable("cobros_cadena", {
   cobroId: text("cobro_id")
     .primaryKey()

@@ -296,6 +296,8 @@ export async function listarDisputas(
 
 export type EnlaceDeCobro = {
   id: string;
+  /** El secreto que se pega en el chat. Es lo que el comercio reenvía. */
+  enlace: string;
   referencia: string;
   concepto: string | null;
   contactoNombre: string | null;
@@ -328,6 +330,12 @@ export async function listarEnlacesDeCobro(
   return db
     .select({
       id: cobrosSolicitados.id,
+      /* EL ENLACE, QUE ES LO QUE SE REENVÍA.
+         No estaba, y por eso el comercio veía su cobro en pantalla y no tenía
+         nada que copiar: para mandárselo a alguien había que sacarlo de la
+         base a mano. Es un secreto, sí — pero es SU secreto, y el alcance ya
+         garantiza que solo ve los suyos. */
+      enlace: cobrosSolicitados.enlace,
       referencia: cobrosSolicitados.referencia,
       concepto: cobrosSolicitados.concepto,
       contactoNombre: cobrosSolicitados.contactoNombre,

@@ -2051,6 +2051,46 @@
       "titulo": "Asiento contable del mes",
       "explicacion": "Los tres renglones que se pasan a Xero: lo que entró por ventas, lo que se le paga a los comercios y lo que queda. Uno por mes y por moneda. Se abre en Excel o se pega en Xero a mano.",
       "boton": "Descargar el asiento"
+    },
+    "pedirCobro": {
+      "titulo": "Pedir un cobro",
+      "queEs": "Se crea un enlace de pago y sale el correo. Puedes copiar el enlace y mandárselo por WhatsApp a quien vaya a pagar, aunque no sea tu cliente.",
+      "deQueComercio": "¿De qué comercio?",
+      "eligeComercio": "Elige el comercio",
+      "cuanto": "¿Cuánto va a pagar?",
+      "cuantoAyuda": "En dólares. Por ejemplo: 45.90",
+      "factura": "Tu número de factura",
+      "facturaAyuda": "El que va a aparecer en tu banco. Por ejemplo: F-00123",
+      "correo": "Correo de quien va a PAGAR",
+      "correoAyuda": "Puede ser otra persona, no tiene que ser tu cliente.",
+      "nombre": "Su nombre",
+      "nombreAyuda": "Opcional. Para que el correo lo salude por su nombre.",
+      "concepto": "¿Qué está pagando?",
+      "conceptoAyuda": "Opcional. Por ejemplo: abono de la compra del 12 de agosto.",
+      "opciones": "Opciones",
+      "dias": "¿Cuántos días vale el enlace?",
+      "unDia": "{n} día",
+      "variosDias": "{n} días",
+      "sinNombrar": "No mostrar el nombre de mi negocio en la página de pago",
+      "boton": "Crear el enlace de pago",
+      "listo": "Listo. El correo ya salió, y este es el enlace de {referencia}:",
+      "mandaloPorWhatsapp": "Cópialo y mándaselo por WhatsApp a quien vaya a pagar.",
+      "copiar": "Copiar",
+      "copiado": "Copiado",
+      "cargosTitulo": "¿Le cobras flete o algún servicio aparte?",
+      "cargosQueEs": "Se suman al total y salen desglosados en la página de pago, para que tu cliente vea por qué paga cada cosa.",
+      "flete": "Flete y transporte",
+      "fleteAyuda": "El camión, la moto, el envío hasta la dirección del cliente.",
+      "fleteEjemplo": "Entrega a domicilio",
+      "manejo": "Manejo y servicios adicionales",
+      "manejoAyuda": "Embalaje especial, carga y descarga, acarreo, subir a un piso.",
+      "manejoEjemplo": "Dos ayudantes, subida a tercer piso",
+      "vaAPagar": "Tu cliente va a pagar:",
+      "deMercancia": "{monto} de mercancía",
+      "masFlete": " + {monto} de flete",
+      "masManejo": " + {monto} de manejo",
+      "otroCorreo": "Mandárselo a otro correo",
+      "reenviar": "Reenviar"
     }
   },
   "catalogo": {
@@ -2959,6 +2999,9 @@
     },
     "quienCobraSolo": "El pago lo recibe y lo factura Mercatren.",
     "canceladoPorComercio": "{comercio} canceló este cobro.",
-    "canceladoQueHacer": "Comunícate con la persona que te envió este enlace."
+    "canceladoQueHacer": "Comunícate con la persona que te envió este enlace.",
+    "mercancia": "Mercancía",
+    "flete": "Flete y transporte",
+    "manejo": "Manejo y servicios adicionales"
   }
 }

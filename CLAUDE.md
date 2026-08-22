@@ -1803,6 +1803,93 @@ de Drizzle: un `new Date()` del número pelado daba **1970**, y la pantalla habr
 dicho que no puede cobrar alguien que sí firmó. Es el punto 2 otra vez, en otro
 archivo, el mismo día.
 
+## COBRAR SIN API, Y REENVIARLE EL ENLACE A QUIEN DE VERDAD PAGA (21 ago 2026)
+
+**El cobro por enlace existía SOLO por API**, así que lo tenía un comercio: el
+único con un programador que la integró. Los demás abrían «Enlaces de cobro», la
+veían vacía para siempre, y **no había un solo botón para crear uno**.
+
+Y el caso que lo pedía es el más común de todos: **quien paga no es el cliente**.
+Alguien compra en el mostrador de Valencia y el que pone la tarjeta es su hijo en
+Miami. El comercio necesita un enlace que se pueda REENVIAR.
+
+`src/lib/cobros/pedir.ts` — misma mecánica que la API (`revisarPeticion`,
+`venceEn`, `generarEnlace`, misma tabla, mismo correo); lo único que cambia es de
+dónde sale la tienda: aquí del **alcance de la sesión**, allá del token.
+
+**Va en archivo aparte de `cobros/acciones.ts` a propósito:** ese es el lado de
+PAGAR un cobro —el intento de Stripe, la acreditación, el comprobante— y este el
+de PEDIRLO. Juntarlos haría un archivo donde el dinero entra y sale en la misma
+pantalla de código. _(Lo aprendí sobrescribiéndolo por error: el typecheck lo
+atrapó, pero antes de crear un archivo hay que mirar si ya existe.)_
+
+Cuatro cosas que no se tocan:
+
+1. **EL MONTO NO USA `tipo="soloNumeros"`.** Ese filtro **se come el punto
+   decimal**: quien escribe 45.90 guarda 4590, o sea **$4,590.00 cobrados por una
+   factura de cuarenta y cinco dólares**. Va a mano con `inputMode="decimal"`,
+   igual que en los retiros. No lo atrapó ningún tipo — lo destapó llenar el
+   formulario en pantalla.
+2. **El enlace se VE y se COPIA, aunque el correo salga.** La mayoría de estos
+   enlaces se mandan por WhatsApp: con quien se habla es por chat. Un sistema que
+   solo mande el correo obliga a entrar al buzón del cliente para copiarlo.
+   `listarEnlacesDeCobro` **no traía el campo `enlace`**, así que el comercio
+   veía su cobro y no tenía nada que copiar.
+3. **Reenviar NO genera un enlace nuevo.** La referencia y el enlace se
+   conservan: en el extracto del banco tiene que seguir apareciendo el mismo
+   número, y el correo que ya circulaba sigue funcionando. Anular y recrear
+   obligaría a cambiar la referencia — justo lo que ensucia la conciliación.
+4. **Uno pagado o cancelado no se reenvía**, y el alcance va **dentro** de la
+   búsqueda: si el cobro es de otro comercio no aparece, así que nadie reenvía
+   un enlace ajeno escribiendo su id a mano.
+
+Y al crearlo bien **se olvida el borrador y se vacía el formulario**: sin lo
+primero, al volver a la pantalla el borrador repinta el cobro anterior y se crea
+dos veces —o con un monto que ya no es—. Pasó en la primera prueba.
+
+## EL FLETE Y EL MANEJO, QUE NO TENÍAN DÓNDE IR (21 ago 2026)
+
+Lo pidió el dueño con el caso exacto: una ferretería vende diez sacos de cemento
+por $540, el camión son $40, y subirlos a un tercer piso con dos ayudantes, $20.
+El cliente paga $600.
+
+Hasta hoy el comercio tenía dos salidas y las dos malas: **sumarlo al precio de
+la mercancía** —y entonces la factura dice que el cemento costó $600, que es
+falso— **o no cobrarlo**.
+
+`src/lib/cobros/cargos.ts` (puro, 10 pruebas) + tabla **`cargos_cobro`**.
+
+**SE LLAMAN «FLETE Y TRANSPORTE» Y «MANEJO Y SERVICIOS ADICIONALES», y el nombre
+no es cosmético.** _Manejo_ es el término de la industria (_handling_): cubre
+embalaje especial, carga y descarga, acarreo y subir a un piso. Separarlo del
+flete importa de verdad — el flete lo cobra quien transporta y el manejo lo cobra
+quien pone la gente. Un solo renglón de «otros gastos» es lo que hace que un
+cliente llame a preguntar, y a veces a su banco.
+
+- **Tabla y no dos columnas**, como manda la regla: `schema.sql` solo trae
+  `CREATE TABLE IF NOT EXISTS` y una columna nueva no llega sola a producción. Y
+  cada cargo lleva **su propia explicación escrita por el comercio**, que es lo
+  que hace que el cliente entienda por qué paga de más.
+- **El desglose se VE en la página de pago**: «mercancía $540 · flete $40 ·
+  manejo $20». Un cargo que aparece sin decir qué es, es la primera línea de un
+  contracargo — y aquí quien paga muchas veces **ni estuvo en el mostrador**
+  cuando se acordó el precio.
+- **El total se calcula, nunca se guarda aparte.** Guardar el total además de sus
+  partes es tener dos verdades.
+- **Un cargo en CERO no se guarda:** saldría «Flete: $0.00», que no significa
+  nada y hace dudar de si falta algo por cobrar.
+- **El concepto NO es obligatorio.** Obligar a explicar cada cargo haría que un
+  comercio con prisa lo sumara al precio de la mercancía — justo lo que esto
+  viene a evitar.
+- **Tope de $5.000 por cargo.** No es desconfianza: un dedo de más convierte $40
+  en $4.000 y quien paga lo ve como un robo. Corta el error de tecleo, no el
+  negocio.
+- **El total se ve mientras se escribe**, antes de mandar el enlace: si no cuadra
+  con lo acordado, se corrige ahí y no anulando el cobro.
+
+Comprobado en pantalla **a 375 px**, que es desde donde se cobra de verdad: el
+formulario, el desglose en la página de pago y el reenvío entran sin desbordarse.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

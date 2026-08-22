@@ -8,9 +8,38 @@
 > que crece. Un negocio que factura mal o cobra a nombre equivocado no se
 > arregla creciendo — se arregla parando.
 >
-> Última revisión: 14 de agosto de 2026.
+> Última revisión: 21 de agosto de 2026.
 
 ---
+
+## ✅ Cobrar sin API, con flete y manejo (21 ago 2026)
+
+**Hecho y publicado.** El comercio pide el cobro desde **Panel → Cobros →
+Enlaces de cobro**, sin necesitar un programador, y puede **reenviarle el enlace
+a quien de verdad va a pagar** — que casi nunca es el cliente que compró.
+
+- **Flete y transporte** y **Manejo y servicios adicionales** se suman al total y
+  salen **desglosados en la página de pago**, cada uno con la explicación que
+  escribió el comercio.
+- «Manejo» es el término de la industria (_handling_): embalaje especial, carga y
+  descarga, acarreo, subir a un piso. **No es un «otros gastos»** — se separa del
+  flete porque lo cobra otra gente y porque un renglón sin nombre es lo que hace
+  que un cliente llame al banco.
+- El enlace **se copia** para mandarlo por WhatsApp, que es como se manda de
+  verdad.
+- Reenviar **no cambia la referencia ni el enlace**: en el extracto del banco
+  sigue apareciendo el mismo número.
+- Comprobado a **375 px**, que es desde donde cobra la mayoría.
+
+### Lo que queda de esto
+
+- [ ] **El flete y el manejo en el checkout de la tienda**, no solo en el cobro
+      por enlace. Hoy un comprador del catálogo no puede pagar un flete acordado
+      aparte.
+- [ ] **Que el comercio guarde sus tarifas** (su flete habitual, su cargo por
+      piso) para no reescribirlas en cada cobro.
+- [ ] **El desglose dentro de la factura de venta.** Hoy se ve en la página de
+      pago; en el documento todavía va en una sola línea.
 
 ## Dónde estamos hoy
 

@@ -1,7 +1,11 @@
 import { Link2 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { PedirCobro, ReenviarCobro } from "@/components/panel/pedir-cobro";
+import { esEquipoInterno } from "@/lib/autorizacion";
 import { listarEnlacesDeCobro } from "@/lib/cobros/consultas";
+import { listarComercios } from "@/lib/zelle/consultas";
+import { SITIO } from "@/lib/sitio";
 import { estadoParaMostrar } from "@/lib/cobros/reglas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -41,9 +45,26 @@ export default async function PaginaEnlacesDeCobro({
   const enlaces = await listarEnlacesDeCobro(comercio);
   const ahora = new Date();
 
+  /* El equipo tiene que decir de qué comercio es el cobro; un comercio no,
+     porque solo puede ser el suyo. Si se adivinara, el dinero se le
+     acreditaría a otro. */
+  const esEquipo = await esEquipoInterno();
+  const comercios = esEquipo
+    ? (await listarComercios()).map((c) => ({ id: c.id, nombre: c.nombre }))
+    : [];
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-tinta-suave">{t("queEs")}</p>
+
+      {/**
+       * EL FORMULARIO PARA PEDIR UN COBRO.
+       *
+       * Hasta hoy esto existía SOLO por API, así que solo lo tenía el único
+       * comercio que la integró: los demás abrían esta pantalla, la veían
+       * vacía para siempre y no había un botón para crear nada.
+       */}
+      <PedirCobro tiendas={esEquipo ? comercios : undefined} />
 
       {enlaces.length === 0 ? (
         <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">
@@ -111,6 +132,20 @@ export default async function PaginaEnlacesDeCobro({
                     {formatearPrecio(e.montoCentavos, idioma, e.moneda)}
                   </p>
                 </div>
+
+                {/**
+                 * EL ENLACE Y EL BOTÓN DE REENVIAR.
+                 *
+                 * Solo mientras se pueda pagar. Enseñar el enlace de un cobro
+                 * ya pagado invita a pagarlo dos veces, y el de uno vencido
+                 * manda a alguien a una página que no lo va a dejar pagar.
+                 */}
+                {estado === "abierto" ? (
+                  <ReenviarCobro
+                    cobroId={e.id}
+                    url={`${SITIO.url}/es/cobro/${e.enlace}`}
+                  />
+                ) : null}
               </li>
             );
           })}

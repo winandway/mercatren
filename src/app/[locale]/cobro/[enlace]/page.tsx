@@ -122,6 +122,21 @@ export default async function PaginaDeCobro({
    * de la tienda y el mínimo del panel. La página solo dibuja lo que ya se
    * decidió — el candado de verdad está en la acción que recibe la captura.
    */
+  /* El desglose del cobro, si lo lleva. En su propio `catch`: la tabla es
+     nueva y una base que todavía no la tenga no puede tumbar una página donde
+     alguien está a punto de pagar. */
+  const { cargosCobro } = await import("@/lib/db/schema");
+  const cargos = await getDb()
+    .select({
+      id: cargosCobro.id,
+      tipo: cargosCobro.tipo,
+      concepto: cargosCobro.concepto,
+      montoCentavos: cargosCobro.montoCentavos,
+    })
+    .from(cargosCobro)
+    .where(eq(cargosCobro.cobroId, cobro.id))
+    .catch(() => []);
+
   let zelle: { receptor: string; concepto: string } | null = null;
   let enRevision = false;
   if (pagable) {
@@ -140,13 +155,13 @@ export default async function PaginaDeCobro({
     <main className="mx-auto max-w-lg px-4 py-10 sm:py-16">
       <div className="rounded-2xl border border-borde bg-white p-6 shadow-sm sm:p-8">
         {/**
-          * EL NOMBRE DEL COMERCIO NO SIEMPRE SALE.
-          *
-          * Cuando quien paga no conoce al comercio —le compró a otro que a su
-          * vez le compra a este— nombrarlo le enseña un negocio ajeno. Solo se
-          * ve Mercatren, que es quien cobra y quien factura. La decisión vive
-          * en `cobros/presentacion.ts`, con sus pruebas.
-          */}
+         * EL NOMBRE DEL COMERCIO NO SIEMPRE SALE.
+         *
+         * Cuando quien paga no conoce al comercio —le compró a otro que a su
+         * vez le compra a este— nombrarlo le enseña un negocio ajeno. Solo se
+         * ve Mercatren, que es quien cobra y quien factura. La decisión vive
+         * en `cobros/presentacion.ts`, con sus pruebas.
+         */}
         {presentacion.comercio ? (
           <p className="flex items-center gap-2 text-sm text-tinta-suave">
             <Store className="h-4 w-4" aria-hidden />
@@ -172,6 +187,44 @@ export default async function PaginaDeCobro({
               <dt className="text-tinta-suave">{t("concepto")}</dt>
               <dd className="text-right font-medium">{cobro.concepto}</dd>
             </div>
+          ) : null}
+
+          {/**
+           * EL DESGLOSE, CUANDO HAY FLETE O MANEJO.
+           *
+           * Quien paga tiene que leer «mercancía $540 · flete $40 · manejo
+           * $20» y no un $600 sin explicar. Un cargo que aparece sin decir qué
+           * es, es la primera línea de un contracargo — y aquí quien paga
+           * muchas veces NO es quien compró, así que ni siquiera estuvo en el
+           * mostrador cuando se acordó el precio.
+           */}
+          {cargos.length > 0 ? (
+            <>
+              <div className="flex justify-between gap-3 border-t border-borde/60 pt-2">
+                <dt className="text-tinta-suave">{t("mercancia")}</dt>
+                <dd className="font-medium tabular-nums">
+                  {formatearPrecio(
+                    cobro.montoCentavos -
+                      cargos.reduce((s, c) => s + c.montoCentavos, 0),
+                    idioma,
+                    cobro.moneda,
+                  )}
+                </dd>
+              </div>
+              {cargos.map((c) => (
+                <div key={c.id} className="flex justify-between gap-3">
+                  <dt className="text-tinta-suave">
+                    {t(c.tipo === "flete" ? "flete" : "manejo")}
+                    {c.concepto ? (
+                      <span className="block text-xs">{c.concepto}</span>
+                    ) : null}
+                  </dt>
+                  <dd className="font-medium tabular-nums">
+                    {formatearPrecio(c.montoCentavos, idioma, cobro.moneda)}
+                  </dd>
+                </div>
+              ))}
+            </>
           ) : null}
         </dl>
 

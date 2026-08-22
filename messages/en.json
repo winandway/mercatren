@@ -2051,6 +2051,46 @@
       "titulo": "Monthly accounting entry",
       "explicacion": "The three lines that go into Xero: sales revenue, what's paid to stores, and what's left. One row per month and currency. Opens in Excel or pastes straight into Xero.",
       "boton": "Download the entry"
+    },
+    "pedirCobro": {
+      "titulo": "Request a payment",
+      "queEs": "This creates a payment link and sends the email. You can copy the link and send it over WhatsApp to whoever is paying, even if they are not your customer.",
+      "deQueComercio": "Which merchant?",
+      "eligeComercio": "Choose the merchant",
+      "cuanto": "How much are they paying?",
+      "cuantoAyuda": "In dollars. For example: 45.90",
+      "factura": "Your invoice number",
+      "facturaAyuda": "The one that will show up on your bank statement. For example: F-00123",
+      "correo": "Email of whoever is PAYING",
+      "correoAyuda": "It can be someone else — it does not have to be your customer.",
+      "nombre": "Their name",
+      "nombreAyuda": "Optional. So the email greets them by name.",
+      "concepto": "What are they paying for?",
+      "conceptoAyuda": "Optional. For example: payment toward the August 12 purchase.",
+      "opciones": "Options",
+      "dias": "How many days is the link good for?",
+      "unDia": "{n} day",
+      "variosDias": "{n} days",
+      "sinNombrar": "Do not show my business name on the payment page",
+      "boton": "Create the payment link",
+      "listo": "Done. The email is on its way, and here is the link for {referencia}:",
+      "mandaloPorWhatsapp": "Copy it and send it over WhatsApp to whoever is paying.",
+      "copiar": "Copy",
+      "copiado": "Copied",
+      "cargosTitulo": "Are you charging freight or a separate service?",
+      "cargosQueEs": "These are added to the total and shown itemized on the payment page, so your customer sees what each charge is for.",
+      "flete": "Freight and delivery",
+      "fleteAyuda": "The truck, the courier, delivery to the customer address.",
+      "fleteEjemplo": "Home delivery",
+      "manejo": "Handling and additional services",
+      "manejoAyuda": "Special packaging, loading and unloading, carrying, delivery to an upper floor.",
+      "manejoEjemplo": "Two helpers, carried to third floor",
+      "vaAPagar": "Your customer will pay:",
+      "deMercancia": "{monto} merchandise",
+      "masFlete": " + {monto} freight",
+      "masManejo": " + {monto} handling",
+      "otroCorreo": "Send it to another email",
+      "reenviar": "Resend"
     }
   },
   "catalogo": {
@@ -2959,6 +2999,9 @@
     },
     "quienCobraSolo": "Mercatren receives and invoices this payment.",
     "canceladoPorComercio": "{comercio} canceled this payment request.",
-    "canceladoQueHacer": "Please contact the person who sent you this link."
+    "canceladoQueHacer": "Please contact the person who sent you this link.",
+    "mercancia": "Merchandise",
+    "flete": "Freight and delivery",
+    "manejo": "Handling and additional services"
   }
 }
