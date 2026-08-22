@@ -40,7 +40,15 @@ export type BloqueArticulo =
    * y lo que lee Google. `pie` es la leyenda que va debajo, para decir en una
    * línea qué mirar.
    */
-  | { tipo: "imagen"; src: string; alt: string; pie?: string };
+  | { tipo: "imagen"; src: string; alt: string; pie?: string }
+  /**
+   * Un botón que lleva a otra pantalla: la demostración, una herramienta, un
+   * formulario. Existe porque un párrafo no es clicable y «abre tal dirección»
+   * escrito en texto obliga a copiarla a mano. `externo` abre en pestaña
+   * nueva: se usa para lo que no es una página del sitio (la demostración es
+   * un HTML aparte y volver atrás desde ahí perdería el artículo).
+   */
+  | { tipo: "boton"; texto: string; href: string; externo?: boolean };
 
 /**
  * Dónde se lista.

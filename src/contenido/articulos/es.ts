@@ -13,6 +13,89 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "demo-del-panel",
+    tipo: "documentacion",
+    titulo: "Así se ve tu panel cuando vendes: una demostración para recorrer",
+    resumen:
+      "Una tienda de ejemplo que vendió unos seis mil dólares en el mes. Entra, recorre las ventas, mira cuánto te quedó y pide un retiro de prueba. Es exactamente lo que verías tú.",
+    fecha: "2026-08-22",
+    temas: ["comercios", "panel", "ventas", "retiros", "demostración"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "Es una demostración",
+        texto:
+          "La tienda, las ventas y los compradores son inventados. Los productos y sus precios sí son reales: salen del catálogo de Estados Unidos de Mercatren. Nada de lo que hagas ahí mueve dinero ni toca una cuenta de verdad.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Cuando empiezas a vender por Mercatren, lo primero que quieres saber es cómo vas a ver tu dinero: qué se vendió, qué se te descontó, cuánto tienes disponible y cómo lo sacas. En vez de explicártelo en texto, armamos una tienda de ejemplo con un mes completo de ventas para que lo recorras tú.",
+      },
+      {
+        tipo: "boton",
+        texto: "Abrir la demostración",
+        href: "/demo/panel-ventas.html",
+        externo: true,
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/demo-panel/1-tablero.png",
+        alt: "El tablero de la tienda de ejemplo: vendido hoy, vendido este mes, comisión de Mercatren y disponible para retirar.",
+        pie: "El tablero: lo vendido, lo descontado y lo disponible, de un vistazo.",
+      },
+      { tipo: "subtitulo", texto: "Qué vas a encontrar" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Tablero",
+            texto:
+              "Lo vendido hoy y en el mes, la comisión que se te descontó, lo que tienes disponible y lo que está esperando algo de tu parte.",
+          },
+          {
+            titulo: "Órdenes",
+            texto:
+              "Cada venta con su comprador, sus productos, cómo se pagó y en qué paso va: comprada, pagada, enviada, entregada, en tu dinero. Toca una para ver el detalle y lo que te quedó de esa venta.",
+          },
+          {
+            titulo: "Cobros",
+            texto:
+              "Todo el dinero que entró, separado por cómo se pagó: tarjeta, Zelle y los enlaces de cobro que pediste desde tu panel.",
+          },
+          {
+            titulo: "Mi dinero",
+            texto:
+              "La cuenta completa: lo que pagaron tus compradores, lo que se llevó el procesador de tarjeta, la comisión de Mercatren, lo que te quedó y lo disponible después de lo que ya sacaste.",
+          },
+          {
+            titulo: "Retiros",
+            texto:
+              "Pide un retiro de prueba: eliges a dónde va, el país decide qué datos bancarios te pide, ves de dónde sale el dinero y el monto queda apartado hasta que el equipo hace la transferencia.",
+          },
+          {
+            titulo: "Mis facturas a Mercatren",
+            texto:
+              "Por cada venta, Mercatren te compra la mercancía y te emite una orden de compra. Ahí ves contra cuál facturar y cuánto te paga.",
+          },
+        ],
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Los números cuadran entre sí: lo vendido menos lo descontado da lo que te quedó, y lo que te quedó menos lo que ya sacaste da lo disponible. Si pides un retiro en la demostración, vas a ver cómo se mueve de «disponible» a «pedido, esperando transferencia» en el mismo momento.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "¿Y en tu tienda real?",
+        texto:
+          "Se ve igual, con tus ventas. Entras a tu panel y encuentras los mismos menús en el mismo orden. Si algo de la demostración no te queda claro, escríbenos y te lo explicamos con tu propia tienda delante.",
+      },
+    ],
+  },
+  {
     slug: "formulario-fiscal-w8ben-e",
     tipo: "documentacion",
     titulo:

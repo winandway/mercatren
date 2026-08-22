@@ -1,4 +1,4 @@
-import { Info } from "lucide-react";
+import { ArrowUpRight, Info } from "lucide-react";
 
 import type { BloqueArticulo } from "@/contenido/articulos/tipos";
 import { cn } from "@/lib/utils";
@@ -157,6 +157,26 @@ export function CuerpoArticulo({ bloques }: { bloques: BloqueArticulo[] }) {
                   </figcaption>
                 ) : null}
               </figure>
+            );
+
+          case "boton":
+            /* Un botón de verdad, no un enlace disfrazado: es la acción
+               principal del artículo («abrir la demostración»), y tiene que
+               verse como tal a primera vista. `target` solo cuando es
+               externo, con `noopener` por la regla de siempre. */
+            return (
+              <p key={i} className="my-6 text-center">
+                <a
+                  href={b.href}
+                  {...(b.externo
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                  className="boton-principal inline-flex gap-2"
+                >
+                  {b.texto}
+                  <ArrowUpRight className="h-4 w-4" aria-hidden />
+                </a>
+              </p>
             );
         }
       })}

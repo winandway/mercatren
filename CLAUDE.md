@@ -2183,6 +2183,29 @@ retención) — **no se inventó nada**.
 - De paso: la ayuda bajo el país decía «Dos letras: VE, CO, MX, CL…» con el
   campo ya convertido en desplegable. Corregida.
 
+## LA DEMOSTRACIÓN DEL PANEL: UNA TIENDA QUE VENDIÓ $6.000 (22 ago 2026)
+
+Lo pidió el dueño para una presentación y un video: enseñarle a un comercio
+**cómo se ve su panel cuando vende** — las ventas, cuánto le quedó, cómo pide
+su dinero. Vive en `public/demo/panel-ventas.html` y se presenta desde
+`/docs/demo-del-panel` (artículo en los dos idiomas, con su captura y un botón).
+
+- **Es un HTML estático aparte, no una pantalla del producto.** Una tienda
+  inventada con ventas inventadas no puede vivir dentro del panel real. Lleva
+  `noindex` para que unas ventas de mentira no salgan en Google como si fueran
+  reales; el artículo de `/docs` sí se indexa y es la entrada.
+- **Los productos son SOLO de nuestras tiendas de Estados Unidos** (Sole &
+  Thread, Ridgeback, Oakhaus, Copper Spoon, Yo soy Elon, Belle & Co…), con su
+  título en español y su precio publicado, sacados del propio feed de Google.
+  Decisión del dueño: ni uno de la ferretería ni de otros comercios — «el
+  cliente va a pensar que le estamos vendiendo los productos».
+- **Los totales se CALCULAN a partir de la lista de ventas** (vendido, comisión,
+  procesador, te quedó, disponible). Así cuadran al centavo y el retiro de
+  prueba mueve «disponible» a «pedido» de verdad.
+- Es bilingüe (ES/EN con interruptor), calcado al panel real (mismos grupos de
+  menú, mismas tarjetas) y entra en celular. El motor de artículos ganó el
+  bloque `boton` para enlazarlo.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

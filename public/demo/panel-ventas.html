@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- DEMOSTRACIÓN CON DATOS DE EJEMPLO. Tienda, ventas y compradores son
+     inventados. Se usa para enseñar cómo se ve el panel cuando se vende.
+     Fuera del índice de Google a propósito: unas ventas de mentira no pueden
+     aparecer en un resultado como si fueran reales. -->
+<meta name="robots" content="noindex, nofollow" />
+<title>Demostración del panel — Mercatren</title>
+<style>
+  :root{
+    --riel:#10263A; --riel-900:#0f1f30; --carga:#FF6B1A; --carga-600:#e85f12;
+    --fondo:#F6F8FB; --borde:#E2E8F0; --tinta:#0F172A; --suave:#64748B;
+    --verde:#059669; --verde-50:#ECFDF5; --verde-200:#A7F3D0;
+    --ambar:#B45309; --ambar-50:#FFFBEB; --ambar-300:#FCD34D;
+    --rojo:#B91C1C; --rojo-50:#FEF2F2; --gris-pill:#E2E8F0;
+  }
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,sans-serif;color:var(--tinta);background:var(--fondo);font-size:15px;line-height:1.45}
+  .tab{font-variant-numeric:tabular-nums}
+  a{color:inherit}
+  button{font:inherit;cursor:pointer}
+  /* ── layout ── */
+  .app{display:grid;grid-template-columns:16rem 1fr;min-height:100vh}
+  .lateral{background:var(--riel);color:#fff;display:flex;flex-direction:column;padding:1.1rem .75rem;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .marca{display:flex;gap:.6rem;align-items:center;padding:0 .5rem .9rem}
+  .marca .iso{width:36px;height:36px;border-radius:10px;background:rgba(255,107,26,.18);display:grid;place-items:center}
+  .marca b{display:block;font-size:.95rem} .marca small{color:rgba(255,255,255,.55);font-size:.75rem}
+  .grupo{margin-top:1.1rem} .grupo h2{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);margin:0 .75rem .35rem;font-weight:600}
+  .item{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;border:0;background:transparent;color:rgba(255,255,255,.85);padding:.55rem .75rem;border-radius:8px;font-size:.92rem;position:relative}
+  .item svg{width:17px;height:17px;flex:none;opacity:.85}
+  .item:hover{background:rgba(255,255,255,.06)}
+  .item.activo{background:rgba(255,255,255,.1);color:#fff;font-weight:600}
+  .item.activo::before{content:"";position:absolute;left:-.75rem;top:6px;bottom:6px;width:3px;background:var(--carga);border-radius:0 3px 3px 0}
+  .item .pill{margin-left:auto;background:var(--carga);color:#fff;font-size:.68rem;font-weight:700;border-radius:999px;min-width:18px;height:18px;display:grid;place-items:center;padding:0 5px}
+  .item.apagado{opacity:.55;cursor:default}
+  .pie-lateral{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08)}
+  .pie-lateral .item{font-size:.85rem;color:rgba(255,255,255,.7)}
+  .principal{min-width:0}
+  .barra{background:#fff;border-bottom:1px solid var(--borde);display:flex;justify-content:flex-end;align-items:center;gap:.6rem;padding:.6rem 1.5rem;font-size:.85rem;color:var(--suave)}
+  .barra .pais{border:1px solid var(--borde);border-radius:8px;padding:.35rem .7rem;color:var(--tinta);font-weight:600;font-size:.85rem;background:#fff}
+  .contenido{padding:1.6rem 1.5rem 3rem;max-width:1200px}
+  h1{font-size:1.55rem;margin:0 0 .25rem;letter-spacing:-.01em}
+  .sub{color:var(--suave);font-size:.92rem;margin:0 0 1.2rem}
+  /* ── tarjetas ── */
+  .tarjetas{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:1rem}
+  .tarjeta{background:#fff;border:1px solid var(--borde);border-radius:14px;padding:.95rem 1.05rem;position:relative}
+  .tarjeta.destacada{border-color:rgba(255,107,26,.55);box-shadow:0 0 0 3px rgba(255,107,26,.12)}
+  .tarjeta.oscura{background:var(--riel);color:#fff;border-color:var(--riel)}
+  .tarjeta .k{font-size:.8rem;color:var(--suave)} .tarjeta.oscura .k{color:rgba(255,255,255,.7)}
+  .tarjeta .v{font-size:1.55rem;font-weight:800;margin:.15rem 0 .1rem;letter-spacing:-.01em}
+  .tarjeta .p{font-size:.78rem;color:var(--suave)} .tarjeta.oscura .p{color:rgba(255,255,255,.6)}
+  .tarjeta .ic{position:absolute;right:.9rem;top:.9rem;width:28px;height:28px;border-radius:8px;background:rgba(255,107,26,.12);display:grid;place-items:center;color:var(--carga)}
+  .tarjeta .ic svg{width:15px;height:15px}
+  /* ── paneles/listas ── */
+  .panel{background:#fff;border:1px solid var(--borde);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+  .panel h3{margin:0 0 .6rem;font-size:1rem}
+  .fila{display:flex;align-items:center;gap:.8rem;padding:.7rem 0;border-top:1px solid var(--borde)}
+  .fila:first-of-type{border-top:0}
+  .fila .ico{width:36px;height:36px;border-radius:10px;background:#F1F5F9;display:grid;place-items:center;flex:none;color:var(--suave)}
+  .fila .ico svg{width:17px;height:17px}
+  .fila .cuerpo{min-width:0;flex:1}
+  .fila .t1{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-weight:700}
+  .fila .t2{font-size:.83rem;color:var(--suave);margin-top:.1rem}
+  .fila .monto{font-weight:800;font-size:1.05rem;white-space:nowrap}
+  .fila .lapiz{font-size:.78rem;color:var(--suave)}
+  .estado{font-size:.72rem;font-weight:700;border-radius:999px;padding:.15rem .55rem;white-space:nowrap}
+  .e-verde{background:var(--verde-50);color:var(--verde)} .e-ambar{background:var(--ambar-50);color:var(--ambar)}
+  .e-gris{background:var(--gris-pill);color:#475569} .e-azul{background:#EFF6FF;color:#1D4ED8}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em}
+  .lista-scroll{max-height:62vh;overflow:auto;padding-right:.25rem}
+  .detalle{display:none;background:#F8FAFC;border:1px dashed var(--borde);border-radius:10px;padding:.6rem .8rem;margin:.4rem 0 .2rem 3.2rem;font-size:.85rem}
+  .detalle.abierto{display:block}
+  .detalle .r{display:flex;justify-content:space-between;gap:1rem;padding:.2rem 0}
+  .detalle .r.total{border-top:1px solid var(--borde);margin-top:.3rem;padding-top:.4rem;font-weight:700}
+  .pestanas{display:flex;gap:.4rem;margin:.2rem 0 1rem;flex-wrap:wrap}
+  .pestana{border:1px solid var(--borde);background:#fff;border-radius:999px;padding:.4rem .9rem;font-size:.85rem;font-weight:600;color:var(--tinta);display:flex;gap:.4rem;align-items:center}
+  .pestana.activa{background:var(--riel);color:#fff;border-color:var(--riel)}
+  .boton{display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;background:var(--carga);color:#fff;border:0;border-radius:10px;padding:.6rem 1rem;font-weight:700;font-size:.9rem}
+  .boton:hover{background:var(--carga-600)}
+  .boton.sec{background:#fff;color:var(--tinta);border:1px solid var(--borde)} .boton.sec:hover{border-color:var(--carga)}
+  .boton.chico{padding:.4rem .7rem;font-size:.8rem;border-radius:8px}
+  .buscador{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+  .buscador input{flex:1;max-width:520px;border:1px solid var(--borde);border-radius:10px;padding:.55rem .8rem .55rem 2.1rem;font:inherit;background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2364748B' stroke-width='2'><circle cx='7' cy='7' r='5'/><path d='m11 11 3.5 3.5'/></svg>") .7rem center no-repeat}
+  .buscador span{font-size:.85rem;color:var(--suave)}
+  .esperando{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .esperando .r{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--borde);border-radius:10px;padding:.55rem .8rem;font-size:.9rem}
+  .esperando .n{background:var(--gris-pill);border-radius:999px;font-size:.75rem;font-weight:800;min-width:22px;height:22px;display:grid;place-items:center;padding:0 6px}
+  .esperando .n.hay{background:var(--carga);color:#fff}
+  .pasos{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin:.4rem 0 .2rem}
+  .paso{text-align:center;font-size:.72rem;color:var(--suave);position:relative}
+  .paso i{display:block;width:22px;height:22px;border-radius:50%;margin:0 auto .25rem;border:2px solid var(--borde);background:#fff}
+  .paso.hecho i{background:var(--verde);border-color:var(--verde)} .paso.hecho{color:var(--tinta);font-weight:600}
+  .paso:not(:last-child)::after{content:"";position:absolute;top:10px;left:calc(50% + 13px);width:calc(100% - 26px);height:2px;background:var(--borde)}
+  .paso.hecho:not(:last-child)::after{background:var(--verde)}
+  /* ── formulario de retiro ── */
+  .form{display:grid;gap:.8rem;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .form label{display:block;font-size:.85rem;font-weight:600}
+  .form input,.form select{width:100%;margin-top:.3rem;border:1px solid var(--borde);border-radius:10px;padding:.55rem .7rem;font:inherit;background:#fff}
+  .form input:focus,.form select:focus{outline:none;border-color:var(--carga);box-shadow:0 0 0 3px rgba(255,107,26,.2)}
+  .form .ancha{grid-column:1/-1}
+  .ayuda{font-size:.78rem;color:var(--suave);font-weight:400;margin-top:.2rem}
+  .desglose{background:#F8FAFC;border:1px solid var(--borde);border-radius:12px;padding:.8rem 1rem;margin:.2rem 0 1rem}
+  .desglose .r{display:flex;justify-content:space-between;gap:1rem;padding:.25rem 0;font-size:.9rem}
+  .desglose .r.total{border-top:1px solid var(--borde);margin-top:.35rem;padding-top:.5rem;font-weight:800;font-size:1rem}
+  .desglose .r span:first-child{color:var(--suave)} .desglose .r.total span:first-child{color:var(--tinta)}
+  .aviso{border-radius:12px;padding:.75rem 1rem;font-size:.88rem;margin-bottom:1rem}
+  .aviso.verde{background:var(--verde-50);border:1px solid var(--verde-200);color:#065F46}
+  .aviso.ambar{background:var(--ambar-50);border:1px solid var(--ambar-300);color:var(--ambar)}
+  .radio2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .radio2 button{border:1px solid var(--borde);background:#fff;border-radius:12px;padding:.7rem .8rem;text-align:left}
+  .radio2 button.sel{border-color:var(--carga);background:rgba(255,107,26,.05);box-shadow:0 0 0 2px rgba(255,107,26,.25)}
+  .radio2 b{display:block;font-size:.9rem} .radio2 small{color:var(--suave);font-size:.78rem}
+  /* ── toast y cinta de demo ── */
+  .toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%) translateY(20px);background:var(--riel);color:#fff;padding:.7rem 1rem;border-radius:12px;font-size:.9rem;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
+  .cinta{position:fixed;right:.9rem;bottom:.9rem;font-size:.7rem;color:var(--suave);background:rgba(255,255,255,.85);border:1px solid var(--borde);border-radius:999px;padding:.25rem .6rem;backdrop-filter:blur(4px)}
+  .oculto{display:none !important}
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr}
+    .lateral{position:static;height:auto;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:.25rem;padding:.6rem .6rem}
+    .marca,.grupo h2,.pie-lateral{display:none}
+    .grupo{display:flex;margin:0;gap:.25rem} .item{white-space:nowrap;padding:.45rem .7rem;font-size:.85rem} .item.activo::before{display:none}
+    .contenido{padding:1rem .9rem 2.5rem} .form{grid-template-columns:1fr} .lista-scroll{max-height:none}
+    .pasos{grid-template-columns:repeat(5,1fr)} .paso{font-size:.62rem}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="lateral" id="lateral"></aside>
+  <main class="principal">
+    <div class="barra">
+      <span id="idiomaTop"></span>
+      <span class="pais">🌐 Estados Unidos</span>
+    </div>
+    <div class="contenido" id="contenido"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<div class="cinta" id="cinta"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   DEMOSTRACIÓN DEL PANEL DE UN COMERCIO — DATOS DE EJEMPLO.
+   Todo lo que ves se calcula a partir de la lista de ventas de abajo, así
+   que vendido, comisión, «te quedó» y «disponible» cuadran entre sí aunque
+   muevas un retiro.
+   ═══════════════════════════════════════════════════════════════════════ */
+const TIENDA = { nombre: "Tienda Aurora", ciudad: "", pais: "US", slug: "tienda-aurora" };
+const HOY = new Date(2026, 7, 22); // 22 ago 2026 (mes 0-based)
+const COMISION = 0.03, STRIPE_PCT = 0.029, STRIPE_FIJO = 0.30;
+
+/* Productos REALES de nuestras tiendas de Estados Unidos (nombre y precio
+   publicado, tal como salen en el catálogo). Ni uno de otros comercios. */
+const P = {
+  biciJuvenil:["Bicicleta de montaña juvenil de 24 pulgadas, 7 velocidades",255.39],
+  sillaSalon:["Silla de salón hidráulica giratoria 360° con bomba",251.90],
+  biciNinos:["Bicicleta de montaña de 20 pulgadas para niños, 7 velocidades",241.88],
+  gabinete:["Gabinete de almacenamiento metálico con ruedas y panel",203.08],
+  maletas4:["Set de 4 maletas rígidas ligeras con cerradura TSA",193.37],
+  helados:["Máquina automática para hacer helados de 1 cuarto",154.13],
+  convertidor:["Convertidor de escritorio de 32 pulgadas, altura ajustable",136.29],
+  maleta3en1:["Maleta de viaje multifuncional 3 en 1 de gran capacidad",128.69],
+  rampa:["Rampa plegable para perros, 4 alturas ajustables",116.73],
+  horno:["Horno asador eléctrico de 24 cuartos con servidor de buffet",111.21],
+  lamparaTecho:["Lámpara de techo LED moderna, empotrada, 6 anillos de acrílico",104.77],
+  mecedora:["Silla mecedora infantil temática husky, base de madera",86.43],
+  lamparaCuadros:["Lámpara inalámbrica para cuadros de 16 pulgadas, recargable",85.59],
+  soporteMotor:["Soporte de motor y transmisión automática (4 piezas)",82.90],
+  destilador:["Destilador de agua 4L para hogar, 750W",82.60],
+  maletas2:["Set de 2 maletas ABS con ruedas giratorias, 14 y 20 pulgadas",80.66],
+  lamparaBano:["Lámpara de baño de 3 luces, negro mate, color madera",77.35],
+  caballo:["Caballo mecedor de peluche con conejo de juguete",75.52],
+  supermercado:["Set de juego de supermercado para niños con caja registradora",74.39],
+  batidora:["Batidora de malteadas eléctrica un cabezal 180 W acero inoxidable",74.25],
+  triciclo:["Triciclo de 3 ruedas para niños pequeños, con campana",74.15],
+  lamparaSemi:["Lámpara de techo semiempotrada de 11.8 pulgadas, 3 luces",69.53],
+  cocheEmpuje:["Coche de empuje 3 en 1 para niños, con bocina, música y luz",68.17],
+  guantes:["Guantes térmicos de invierno impermeables y cortavientos",62.12],
+  barrera:["Barrera de seguridad retráctil para bebés y mascotas, 34 pulgadas",61.14],
+  jugueteMotor:["Juguete de motor mecánico para niños, set de reparación",56.37],
+  ozono:["Generador de ozono 12000mg/h, removedor de olores",52.79],
+  olla:["Olla eléctrica multifuncional 800W 3L antiadherente con cesta",46.85],
+  organizador:["Organizador de maquillaje giratorio de 3 niveles, 360°",43.05],
+  manta:["Manta térmica para alimentos 23.6x15.8 pulgadas, 300W",40.44],
+  padfolio:["Carpeta tipo padfolio de cuero PU, organizador de documentos",39.99],
+  estucheTablet:["Estuche organizador para tablet PC de 9.7 pulgadas",37.92],
+  laminadora:["Laminadora versátil de calentamiento rápido para documentos",36.34],
+  dronS6:["Dron S6 azul con cámara dual y batería única",33.39],
+  dronE99:["Dron E99 con doble batería y pantalla",33.24],
+  laminadora4:["Máquina laminadora 4 en 1",32.33],
+  fundaPadfolio:["Funda tipo padfolio para tablet PC de 7.9 pulgadas",30.66],
+  luzCapo:["Luz LED para capó de auto universal 12V 10W blanca 70 pulgadas",26.68],
+  bolsoCruzado:["Bolso cruzado transparente, aprobado para estadios",25.09],
+  bombillaDRL:["Bombilla LED antiniebla DRL 800lm IP65 (2 piezas)",25.09],
+  micXLR:["Micrófono dinámico XLR de mano para karaoke, canto y eventos",23.37],
+  perfumeNicho:["Perfume de nicho para hombre, fragancia duradera",18.34],
+  zapatosSend:["Zapatos de senderismo casuales para hombre, para exteriores",17.34],
+  calentadorTazas:["Calentador de tazas de café con apagado automático",16.77],
+  alarmaCO:["Alarma detectora de CO y monóxido de carbono con LCD",16.43],
+  micKaraoke:["Micrófono inalámbrico karaoke con altavoz, 3 en 1",15.89],
+  mochilaLaptop:["Mochila de gran capacidad para laptop, negocios y viajes",15.56],
+  locion:["Loción facial rejuvenecedora, hidratante y reafirmante",15.34],
+  miniCamara:["Mini cámara ultraligera portátil con pantalla",15.34],
+  decoPerros:["Decoración de jardín para perros, 2 piezas de metal",14.57],
+  linternaFrontal:["Linterna frontal LED telescópica recargable con sensor",13.86],
+  chaqueta:["Chaqueta de traje de negocios casual para mujer, manga 3/4",13.30],
+  bateria:["Batería pura E88-E99 (3 piezas)",13.30],
+  conjunto:["Conjunto de camisa holgada y pantalón para mujer",11.08],
+  camiseta:["Camiseta de mujer, manga larga, cuello solapa, corte holgado",8.11],
+  vestido:["Vestido camisero casual de verano suelto de color sólido",6.79],
+};
+
+/* Ventas de agosto. [día, comprador, método, estado, renglones[[producto, cantidad]]] */
+const VENTAS = [
+  [1,"Jessica M.","tarjeta","entregado",[["biciJuvenil",1]]],
+  [1,"Carlos R.","zelle","entregado",[["lamparaTecho",1],["alarmaCO",1]]],
+  [2,"Emily T.","tarjeta","entregado",[["maletas2",1],["bolsoCruzado",1]]],
+  [2,"Oscar V.","tarjeta","entregado",[["biciJuvenil",2]]],
+  [3,"Luis A.","tarjeta","entregado",[["rampa",1],["decoPerros",1]]],
+  [4,"Andrea M.","zelle","entregado",[["sillaSalon",1]]],
+  [4,"Michael P.","tarjeta","entregado",[["convertidor",1],["mochilaLaptop",1]]],
+  [5,"Yolanda F.","tarjeta","entregado",[["horno",1],["olla",1]]],
+  [6,"David K.","zelle","entregado",[["gabinete",1]]],
+  [6,"Nicole R.","tarjeta","entregado",[["sillaSalon",1],["organizador",1]]],
+  [7,"Rosa V.","tarjeta","entregado",[["organizador",1],["perfumeNicho",1],["locion",1]]],
+  [8,"Brian S.","tarjeta","entregado",[["dronS6",1],["dronE99",1],["bateria",1]]],
+  [9,"Gabriela L.","zelle","entregado",[["maletas4",1]]],
+  [9,"Hugo M.","zelle","entregado",[["gabinete",1],["lamparaSemi",1]]],
+  [10,"Rafael C.","tarjeta","entregado",[["soporteMotor",1],["luzCapo",1],["bombillaDRL",2]]],
+  [11,"Daniela B.","tarjeta","entregado",[["biciNinos",1]]],
+  [11,"Steven B.","tarjeta","entregado",[["rampa",1],["ozono",1],["decoPerros",1]]],
+  [12,"Antonio Q.","zelle","entregado",[["helados",1],["batidora",1]]],
+  [13,"Sarah W.","tarjeta","entregado",[["lamparaCuadros",1],["lamparaBano",1]]],
+  [13,"Valeria G.","tarjeta","entregado",[["maletas4",1],["maleta3en1",1]]],
+  [14,"Ernesto N.","tarjeta","entregado",[["destilador",1],["ozono",1]]],
+  [15,"Sofía E.","zelle","entregado",[["triciclo",1],["caballo",1]]],
+  [15,"Isabel N.","tarjeta","entregado",[["helados",1],["horno",1]]],
+  [16,"Ramón I.","tarjeta","entregado",[["guantes",1],["zapatosSend",1],["linternaFrontal",1]]],
+  [16,"Diego F.","tarjeta","entregado",[["biciNinos",1],["triciclo",1]]],
+  [17,"Patricia W.","tarjeta","entregado",[["maleta3en1",1]]],
+  [18,"Julio K.","zelle","enviado",[["mecedora",1],["cocheEmpuje",1]]],
+  [19,"Beatriz O.","tarjeta","enviado",[["padfolio",1],["estucheTablet",1],["fundaPadfolio",1]]],
+  [19,"Camila J.","zelle","enviado",[["convertidor",1],["lamparaTecho",1]]],
+  [20,"Kevin H.","tarjeta","enviado",[["supermercado",1],["jugueteMotor",1]]],
+  [21,"Ana C.","zelle","pagado",[["barrera",1],["manta",1]]],
+  [21,"Mariela S.","tarjeta","pagado",[["micXLR",1],["micKaraoke",1],["miniCamara",1]]],
+  [22,"Gustavo P.","tarjeta","pagado",[["laminadora",1],["laminadora4",1],["calentadorTazas",1]]],
+  [22,"Laura D.","zelle","pagado",[["chaqueta",1],["conjunto",1],["camiseta",1],["vestido",1]]],
+];
+
+/* Retiros ya hechos (el equipo los transfirió) */
+const RETIROS = [
+  { id:"r1", dia:10, monto:1250.00, estado:"pagado", via:"ach", cuenta:"Cuenta terminada en 4417", ref:"ACH · a nombre de la empresa" },
+  { id:"r2", dia:17, monto:900.00,  estado:"pagado", via:"ach", cuenta:"Cuenta terminada en 4417", ref:"ACH · a nombre de la empresa" },
+];
+
+/* Cobros por enlace (pedidos desde el mostrador) */
+const ENLACES = [
+  { ref:"F-00871", dia:20, monto:186.40, correo:"hijo.en.miami@…", estado:"pagado", metodo:"tarjeta", concepto:"Abono materiales obra 2° piso" },
+  { ref:"F-00879", dia:22, monto:640.00, correo:"socio.usa@…", estado:"abierto", vence:29, concepto:"10 sacos de cemento + flete" },
+  { ref:"F-00852", dia:8, monto:95.00, correo:"cliente@…", estado:"vencido", concepto:"Repuesto llave de paso" },
+];
+
+/* ── i18n ── */
+const TXT = {
+  es: {
+    soporte:"Tienda Aurora", grupos:{ventas:"Ventas",dinero:"Dinero",negocio:"Mi negocio"},
+    menu:{tablero:"Tablero",ordenes:"Órdenes",cobros:"Cobros",revision:"En revisión",dinero:"Mi dinero",retiros:"Retiros",facturas:"Mis facturas a Mercatren",tienda:"Mi tienda",productos:"Mis productos",compradores:"Compradores",creditos:"Créditos",idioma:"English",cuenta:"Mi cuenta",sitio:"Ir al sitio",salir:"Cerrar sesión"},
+    cinta:"Demostración · datos de ejemplo",
+    tablero:{t:"Tablero",s:"Cómo va tu tienda: lo que vendiste, lo que tienes por cobrar y lo que te falta por hacer.",hoy:"Vendido hoy",hoyP:"{n} ventas",mes:"Vendido este mes",mesP:"{n} ventas · agosto 2026",com:"Comisión de Mercatren",comP:"Lo que se te descontó este mes",disp:"Disponible para retirar",dispP:"Tuyo, esperando a que lo pidas",tePag:"Te pagamos",tePagP:"Este mes · {n} retiros",entr:"Entregadas",entrP:"Este mes",esperando:"Lo que está esperando",e1:"Mis cobros en revisión",e2:"Ventas pagadas que debo despachar",e3:"Mis retiros en trámite",e4:"Contracargos abiertos",ultimas:"Últimas ventas",verOrd:"Ver las órdenes →"},
+    ordenes:{t:"Órdenes",s:"Todo lo que te han comprado. Toca una venta para ver qué llevaba.",buscar:"Número, comprador o producto",total:"{n} ventas este mes · {m}",metodo:{tarjeta:"Tarjeta",zelle:"Zelle"},estado:{entregado:"Entregada",enviado:"Enviada",pagado:"Pagada · por despachar"},x:"× ",subtotal:"Subtotal",comision:"Comisión de Mercatren (3 %)",neto:"Te queda",pasos:["Comprada","Pagada","Enviada","Entregada","En tu dinero"]},
+    cobros:{t:"Cobros",s:"Todo el dinero que entra, sin importar con qué se pagó: tarjeta, Zelle y los enlaces de cobro.",tabs:["Tarjeta","Zelle","Enlaces de cobro"],tarjetaS:"Cobros con tarjeta confirmados al instante por el procesador.",zelleS:"Transferencias Zelle validadas por el equipo contra el banco.",enlacesS:"Cobros que pediste desde tu panel: le mandas el enlace a quien va a pagar y paga con tarjeta o Zelle.",ref:"Ref.",enlaceEstado:{pagado:"Pagado",abierto:"Esperando el pago",vencido:"Vencido"},vence:"Vence el {d} ago",pedir:"Pedir un cobro",aprobado:"Aprobado"},
+    dinero:{t:"Mi dinero",s:"Lo que te pagaron, lo que se descontó y lo que tienes disponible.",pagaron:"Te pagaron",pagaronP:"Lo que pagaron tus compradores",proc:"Se llevó el procesador",procP:"2.9 % + $0.30 por cobro con tarjeta",com:"Comisión de Mercatren",comP:"3 % del precio publicado",quedo:"Te quedó",quedoP:"Acreditado a tu favor",disp:"Disponible para retirar",dispP:"Después de lo que ya sacaste",mov:"Movimientos",acred:"Venta acreditada",retiro:"Retiro",solic:"Retiro pedido (apartado)",pedirRetiro:"Pedir un retiro"},
+    retiros:{t:"Retiros",s:"Tu dinero disponible y lo que ya pediste sacar. Pides cuánto y a dónde; el equipo hace la transferencia y aquí queda la constancia.",disp:"Disponible para retirar",pedido:"Pedido, esperando transferencia",pend:"Pendiente total",buscar:"Referencia bancaria",n:"{n} retiros",pedir:"Pedir un retiro",estado:{pagado:"Pagado",solicitado:"Solicitado",cancelado:"Cancelado"},via:{ach:"Transferencia ACH",wire:"Transferencia internacional (wire)",comercio:"A otro comercio de Mercatren"},comprobante:"Ver el comprobante",f:{como:"¿Cómo lo quieres recibir?",banco:"A mi banco",bancoS:"ACH en Estados Unidos o wire fuera",otro:"A otro comercio de Mercatren",otroS:"Traspaso interno, sin banco",pais:"País del banco",titular:"Titular de la cuenta",bancoN:"Banco",cuenta:"Número de cuenta",ruta:"Número de ruta (ACH)",rutaA:"9 dígitos. Chase da uno para ACH y otro para wire: usa el de ACH.",tipo:"Tipo de cuenta",ahorros:"Ahorros",corriente:"Corriente",doc:"Documento del titular",clabe:"CLABE",clabeA:"18 dígitos",iban:"IBAN",swift:"SWIFT / BIC",monto:"¿Cuánto quieres sacar?",montoA:"En dólares. Puedes pedir hasta {m}.",todo:"Todo lo disponible",desg:"De dónde sale este dinero",d1:"Lo que pagaron tus compradores",d2:"Lo que se llevó el procesador",d3:"Lo que se llevó Mercatren (3 %)",d4:"Lo que te quedó",d5:"Ya retirado",d6:"Disponible ahora",enviar:"Pedir el retiro",cancelar:"Cancelar",ok:"Listo. Tu retiro quedó pedido y el monto se apartó. El equipo hace la transferencia y te avisamos por correo.",mas:"No puedes pedir más de lo disponible.",cero:"Escribe un monto."}},
+    facturas:{t:"Mis facturas a Mercatren",s:"Por cada venta, Mercatren te compra la mercancía y te emite una orden de compra. Tú le facturas contra esa orden.",oc:"Orden de compra",por:"por la venta",estado:{facturada:"Facturada",emitida:"Falta tu factura"},subir:"Subir mi factura",monto:"Lo que te paga Mercatren"},
+    fecha:(d)=>`${d} ago 2026`,
+  },
+  en: {
+    soporte:"Tienda Aurora", grupos:{ventas:"Sales",dinero:"Money",negocio:"My business"},
+    menu:{tablero:"Dashboard",ordenes:"Orders",cobros:"Payments",revision:"In review",dinero:"My money",retiros:"Withdrawals",facturas:"My invoices to Mercatren",tienda:"My store",productos:"My products",compradores:"Buyers",creditos:"Credits",idioma:"Español",cuenta:"My account",sitio:"Go to the site",salir:"Sign out"},
+    cinta:"Demo · sample data",
+    tablero:{t:"Dashboard",s:"How your store is doing: what you sold, what you have coming, and what still needs doing.",hoy:"Sold today",hoyP:"{n} sales",mes:"Sold this month",mesP:"{n} sales · August 2026",com:"Mercatren commission",comP:"Deducted this month",disp:"Available to withdraw",dispP:"Yours, waiting for you to request it",tePag:"We paid you",tePagP:"This month · {n} withdrawals",entr:"Delivered",entrP:"This month",esperando:"What is waiting",e1:"My payments in review",e2:"Paid sales I still have to ship",e3:"My withdrawals in progress",e4:"Open chargebacks",ultimas:"Latest sales",verOrd:"See orders →"},
+    ordenes:{t:"Orders",s:"Everything bought from you. Tap a sale to see what it included.",buscar:"Number, buyer or product",total:"{n} sales this month · {m}",metodo:{tarjeta:"Card",zelle:"Zelle"},estado:{entregado:"Delivered",enviado:"Shipped",pagado:"Paid · to ship"},x:"× ",subtotal:"Subtotal",comision:"Mercatren commission (3%)",neto:"You keep",pasos:["Ordered","Paid","Shipped","Delivered","In your money"]},
+    cobros:{t:"Payments",s:"All money coming in, however it was paid: card, Zelle and payment links.",tabs:["Card","Zelle","Payment links"],tarjetaS:"Card payments confirmed instantly by the processor.",zelleS:"Zelle transfers validated by the team against the bank.",enlacesS:"Payments you requested from your panel: you send the link to whoever pays, and they pay by card or Zelle.",ref:"Ref.",enlaceEstado:{pagado:"Paid",abierto:"Awaiting payment",vencido:"Expired"},vence:"Expires Aug {d}",pedir:"Request a payment",aprobado:"Approved"},
+    dinero:{t:"My money",s:"What you were paid, what was deducted, and what you have available.",pagaron:"You were paid",pagaronP:"What your buyers paid",proc:"Processor took",procP:"2.9% + $0.30 per card payment",com:"Mercatren commission",comP:"3% of the listed price",quedo:"You kept",quedoP:"Credited to you",disp:"Available to withdraw",dispP:"After what you already took out",mov:"Activity",acred:"Sale credited",retiro:"Withdrawal",solic:"Withdrawal requested (set aside)",pedirRetiro:"Request a withdrawal"},
+    retiros:{t:"Withdrawals",s:"Your available money and what you already asked to take out. You say how much and where; the team sends the transfer and the record stays here.",disp:"Available to withdraw",pedido:"Requested, awaiting transfer",pend:"Total pending",buscar:"Bank reference",n:"{n} withdrawals",pedir:"Request a withdrawal",estado:{pagado:"Paid",solicitado:"Requested",cancelado:"Canceled"},via:{ach:"ACH transfer",wire:"International wire",comercio:"To another Mercatren merchant"},comprobante:"View receipt",f:{como:"How do you want to receive it?",banco:"To my bank",bancoS:"ACH in the U.S. or wire abroad",otro:"To another Mercatren merchant",otroS:"Internal transfer, no bank",pais:"Bank country",titular:"Account holder",bancoN:"Bank",cuenta:"Account number",ruta:"Routing number (ACH)",rutaA:"9 digits. Chase has one for ACH and another for wire: use the ACH one.",tipo:"Account type",ahorros:"Savings",corriente:"Checking",doc:"Holder's ID",clabe:"CLABE",clabeA:"18 digits",iban:"IBAN",swift:"SWIFT / BIC",monto:"How much do you want to take out?",montoA:"In dollars. You can request up to {m}.",todo:"Everything available",desg:"Where this money comes from",d1:"What your buyers paid",d2:"What the processor took",d3:"What Mercatren took (3%)",d4:"What you kept",d5:"Already withdrawn",d6:"Available now",enviar:"Request withdrawal",cancelar:"Cancel",ok:"Done. Your withdrawal is requested and the amount is set aside. The team sends the transfer and we'll email you.",mas:"You can't request more than what's available.",cero:"Enter an amount."}},
+    facturas:{t:"My invoices to Mercatren",s:"For each sale, Mercatren buys the goods from you and issues a purchase order. You invoice against that order.",oc:"Purchase order",por:"for sale",estado:{facturada:"Invoiced",emitida:"Your invoice is missing"},subir:"Upload my invoice",monto:"What Mercatren pays you"},
+    fecha:(d)=>`Aug ${d}, 2026`,
+  }
+};
+let LANG = "es";
+const t = () => TXT[LANG];
+const $ = (s, r=document) => r.querySelector(s);
+const usd = (n) => new Intl.NumberFormat(LANG==="es"?"es-US":"en-US",{style:"currency",currency:"USD"}).format(n);
+const r2 = (n) => Math.round(n*100)/100;
+
+/* ── cálculos (una sola fuente de verdad) ── */
+const ordenes = VENTAS.map((v,i)=>{
+  const [dia, comprador, metodo, estado, renglones] = v;
+  const items = renglones.map(([k,q])=>({nombre:P[k][0],precio:P[k][1],cant:q,total:r2(P[k][1]*q)}));
+  const bruto = r2(items.reduce((s,x)=>s+x.total,0));
+  const comision = r2(bruto*COMISION);
+  const stripe = metodo==="tarjeta" ? r2(bruto*STRIPE_PCT+STRIPE_FIJO) : 0;
+  const neto = r2(bruto-comision-stripe);
+  const numero = "MT-"+String(1180+i).padStart(6,"0");
+  const oc = "MT-OC-"+String(412+i).padStart(6,"0");
+  const ref = metodo==="tarjeta" ? "pi_3R"+(7100+i*37).toString(36).toUpperCase()+"x" : "Z-"+(88210+i*13);
+  return {dia,comprador,metodo,estado,items,bruto,comision,stripe,neto,numero,oc,ref};
+});
+let retiros = RETIROS.map(r=>({...r}));
+const tot = () => {
+  const bruto = r2(ordenes.reduce((s,o)=>s+o.bruto,0));
+  const comision = r2(ordenes.reduce((s,o)=>s+o.comision,0));
+  const stripe = r2(ordenes.reduce((s,o)=>s+o.stripe,0));
+  const neto = r2(bruto-comision-stripe);
+  const pagado = r2(retiros.filter(r=>r.estado==="pagado").reduce((s,r)=>s+r.monto,0));
+  const solicitado = r2(retiros.filter(r=>r.estado==="solicitado").reduce((s,r)=>s+r.monto,0));
+  const disponible = r2(neto-pagado-solicitado);
+  const hoy = ordenes.filter(o=>o.dia===22);
+  return {bruto,comision,stripe,neto,pagado,solicitado,disponible,hoy:r2(hoy.reduce((s,o)=>s+o.bruto,0)),nHoy:hoy.length,n:ordenes.length,
+    entregadas:ordenes.filter(o=>o.estado==="entregado").length, porDespachar:ordenes.filter(o=>o.estado==="pagado").length, nPagados:retiros.filter(r=>r.estado==="pagado").length};
+};
+
+/* ── iconos ── */
+const I = {
+  tablero:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  ordenes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
+  cobros:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>',
+  revision:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/><path d="m9 12 2 2 4-4"/></svg>',
+  dinero:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>',
+  retiros:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>',
+  facturas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>',
+  tienda:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10 5 4h14l1 6"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
+  productos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 20 7v10l-8 4-8-4V7z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg>',
+  compradores:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15 14.5a5 5 0 0 1 6.5 5"/></svg>',
+  creditos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 12h4"/></svg>',
+  banco:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/></svg>',
+  tarjeta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>',
+  enlace:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 12-8.5 8.5a5 5 0 0 1-7-7L14 5a3.3 3.3 0 0 1 4.7 4.7L10.5 18a1.7 1.7 0 0 1-2.4-2.4L16 7.8"/></svg>',
+  bolsa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8h12l1 12H5z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12V4h8l9 9-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7V5h13"/><circle cx="16" cy="14" r="1.5"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>',
+  idioma:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h9M8.5 3v2M11 5c-1 4-3 7-6 9M6 9c1.5 2.5 3.5 4.5 6 6"/><path d="M13 20l4-9 4 9M14.5 17h5"/></svg>',
+  cuenta:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  salir:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg>',
+};
+
+/* ── estado de la pantalla ── */
+let pantalla = "tablero", tabCobros = 0, formAbierto = false, tipoRetiro = "banco", paisRetiro = "US", abiertas = new Set();
+
+function lateral(){
+  const T=t();
+  const it=(k,ic,extra="")=>`<button class="item ${pantalla===k?"activo":""}" data-ir="${k}">${I[ic]}<span>${T.menu[k]}</span>${extra}</button>`;
+  const ap=(k,ic)=>`<button class="item apagado" title="${T.cinta}">${I[ic]}<span>${T.menu[k]}</span></button>`;
+  $("#lateral").innerHTML = `
+    <div class="marca"><span class="iso"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B1A" stroke-width="2.2"><path d="M3 16V8h11l4 4h3v4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span><span><b>Mercatren</b><small>${T.soporte}</small></span></div>
+    <div class="grupo"><h2>${T.grupos.ventas}</h2>${it("tablero","tablero")}${it("ordenes","ordenes")}${it("cobros","cobros")}${ap("revision","revision")}</div>
+    <div class="grupo"><h2>${T.grupos.dinero}</h2>${it("dinero","dinero")}${it("retiros","retiros")}${it("facturas","facturas")}</div>
+    <div class="grupo"><h2>${T.grupos.negocio}</h2>${ap("tienda","tienda")}${ap("productos","productos")}${ap("compradores","compradores")}${ap("creditos","creditos")}</div>
+    <div class="pie-lateral"><button class="item" id="btnIdioma">${I.idioma}<span>${T.menu.idioma}</span></button>${ap("cuenta","cuenta")}${ap("sitio","retiros")}${ap("salir","salir")}</div>`;
+  $("#lateral").querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{pantalla=b.dataset.ir;formAbierto=false;render();});
+  $("#btnIdioma").onclick=()=>{LANG=LANG==="es"?"en":"es";document.documentElement.lang=LANG;render();};
+  $("#cinta").textContent=T.cinta;
+  $("#idiomaTop").textContent = LANG==="es"?"Español":"English";
+}
+
+const tarjeta=(k,v,p,opts={})=>`<div class="tarjeta ${opts.cls||""}">${opts.ic?`<span class="ic">${I[opts.ic]}</span>`:""}<div class="k">${k}</div><div class="v tab">${v}</div><div class="p">${p}</div></div>`;
+const metodoPill=(m)=>`<span class="estado ${m==="tarjeta"?"e-azul":"e-verde"}">${t().ordenes.metodo[m]}</span>`;
+const estadoPill=(e)=>`<span class="estado ${e==="entregado"?"e-verde":e==="enviado"?"e-azul":"e-ambar"}">${t().ordenes.estado[e]}</span>`;
+
+function vTablero(){
+  const T=t().tablero, s=tot();
+  const ultimas=[...ordenes].sort((a,b)=>b.dia-a.dia).slice(0,6);
+  return `<h1>${T.t}</h1><p class="sub">${T.s}</p>
+  <div class="tarjetas">
+    ${tarjeta(T.hoy,usd(s.hoy),T.hoyP.replace("{n}",s.nHoy),{cls:"oscura",ic:"tablero"})}
+    ${tarjeta(T.mes,usd(s.bruto),T.mesP.replace("{n}",s.n),{ic:"cal"})}
+    ${tarjeta(T.com,usd(s.comision),T.comP,{ic:"tag"})}
+    ${tarjeta(T.disp,usd(s.disponible),T.dispP,{ic:"wallet"})}
+  </div>
+  <div class="tarjetas" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));max-width:640px">
+    ${tarjeta(T.tePag,usd(s.pagado),T.tePagP.replace("{n}",s.nPagados),{ic:"bolsa"})}
+    ${tarjeta(T.entr,String(s.entregadas),T.entrP,{ic:"check"})}
+  </div>
+  <div class="panel"><h3>${T.esperando}</h3>
+    <div class="esperando">
+      <div class="r"><span>${T.e1}</span><span class="n">0</span></div>
+      <div class="r"><span>${T.e2}</span><span class="n ${s.porDespachar?"hay":""}">${s.porDespachar}</span></div>
+      <div class="r"><span>${T.e3}</span><span class="n ${s.solicitado?"hay":""}">${retiros.filter(r=>r.estado==="solicitado").length}</span></div>
+      <div class="r"><span>${T.e4}</span><span class="n">0</span></div>
+    </div>
+    <button class="boton" style="margin-top:.9rem;background:var(--riel)" data-ir="ordenes">${T.verOrd}</button>
+  </div>
+  <div class="panel"><h3>${T.ultimas}</h3>
+    ${ultimas.map(o=>`<div class="fila"><span class="ico">${I.bolsa}</span><div class="cuerpo"><div class="t1"><span class="mono">${o.numero}</span>${estadoPill(o.estado)}${metodoPill(o.metodo)}</div><div class="t2">${t().fecha(o.dia)} · ${o.comprador} · ${o.items.length} ${LANG==="es"?"productos":"items"}</div></div><div class="monto tab">${usd(o.bruto)}</div></div>`).join("")}
+  </div>`;
+}
+
+function vOrdenes(){
+  const T=t().ordenes, s=tot();
+  const lista=[...ordenes].sort((a,b)=>b.dia-a.dia || b.numero.localeCompare(a.numero));
+  const pasos=(e)=>{const n=e==="entregado"?5:e==="enviado"?3:2;return `<div class="pasos">${T.pasos.map((p,i)=>`<div class="paso ${i<n?"hecho":""}"><i></i>${p}</div>`).join("")}</div>`;};
+  return `<h1>${T.t}</h1><p class="sub">${T.s}</p>
+  <div class="buscador"><input placeholder="${T.buscar}" /><span>${T.total.replace("{n}",s.n).replace("{m}",usd(s.bruto))}</span></div>
+  <div class="panel lista-scroll" id="listaOrdenes">
+    ${lista.map(o=>`<div class="fila" data-abrir="${o.numero}" style="cursor:pointer"><span class="ico">${I.bolsa}</span><div class="cuerpo"><div class="t1"><span class="mono">${o.numero}</span>${estadoPill(o.estado)}${metodoPill(o.metodo)}</div><div class="t2">${t().fecha(o.dia)} · ${o.comprador} · ${o.items.map(i=>i.cant+"× "+i.nombre).join(" · ").slice(0,90)}${o.items.map(i=>i.nombre).join("").length>90?"…":""}</div></div><div class="monto tab">${usd(o.bruto)}</div></div>
+    <div class="detalle ${abiertas.has(o.numero)?"abierto":""}" data-det="${o.numero}">
+      ${pasos(o.estado)}
+      ${o.items.map(i=>`<div class="r"><span>${i.cant}${T.x}${i.nombre}</span><span class="tab">${usd(i.total)}</span></div>`).join("")}
+      <div class="r total"><span>${T.subtotal}</span><span class="tab">${usd(o.bruto)}</span></div>
+      <div class="r"><span>${T.comision}</span><span class="tab">− ${usd(o.comision)}</span></div>
+      ${o.stripe?`<div class="r"><span>${LANG==="es"?"Procesador de tarjeta":"Card processor"}</span><span class="tab">− ${usd(o.stripe)}</span></div>`:""}
+      <div class="r total"><span>${T.neto}</span><span class="tab" style="color:var(--verde)">${usd(o.neto)}</span></div>
+      <div class="r" style="color:var(--suave)"><span>${T.metodo[o.metodo]} · ${LANG==="es"?"ref.":"ref."} <span class="mono">${o.ref}</span></span><span class="mono">${o.oc}</span></div>
+    </div>`).join("")}
+  </div>`;
+}
+
+function vCobros(){
+  const T=t().cobros;
+  const tarjetas=ordenes.filter(o=>o.metodo==="tarjeta").sort((a,b)=>b.dia-a.dia);
+  const zelles=ordenes.filter(o=>o.metodo==="zelle").sort((a,b)=>b.dia-a.dia);
+  const tabs=T.tabs.map((x,i)=>`<button class="pestana ${tabCobros===i?"activa":""}" data-tab="${i}">${[I.tarjeta,I.banco,I.enlace][i]}${x}</button>`).join("");
+  let cuerpo="";
+  if(tabCobros===0) cuerpo=`<p class="sub">${T.tarjetaS}</p><div class="panel lista-scroll">${tarjetas.map(o=>`<div class="fila"><span class="ico">${I.tarjeta}</span><div class="cuerpo"><div class="t1"><span class="mono">${o.numero}</span><span class="estado e-verde">${LANG==="es"?"Confirmado":"Confirmed"}</span></div><div class="t2">${t().fecha(o.dia)} · ${o.comprador} · ${T.ref} <span class="mono">${o.ref}</span></div></div><div class="monto tab">${usd(o.bruto)}</div></div>`).join("")}</div>`;
+  else if(tabCobros===1) cuerpo=`<p class="sub">${T.zelleS}</p><div class="panel lista-scroll">${zelles.map(o=>`<div class="fila"><span class="ico">${I.banco}</span><div class="cuerpo"><div class="t1"><span class="mono">${o.numero}</span><span class="estado e-verde">${T.aprobado}</span></div><div class="t2">${t().fecha(o.dia)} · ${o.comprador} · Mercatren ${o.numero.slice(3)} · ${T.ref} <span class="mono">${o.ref}</span></div></div><div class="monto tab">${usd(o.bruto)}</div></div>`).join("")}</div>`;
+  else cuerpo=`<p class="sub">${T.enlacesS}</p><div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.4rem"><b>${T.tabs[2]}</b><button class="boton chico">${I.enlace}${T.pedir}</button></div>
+    ${ENLACES.map(e=>`<div class="fila"><span class="ico">${I.enlace}</span><div class="cuerpo"><div class="t1"><span class="mono">${e.ref}</span><span class="estado ${e.estado==="pagado"?"e-verde":e.estado==="abierto"?"e-ambar":"e-gris"}">${T.enlaceEstado[e.estado]}</span>${e.metodo?metodoPill(e.metodo):""}</div><div class="t2">${t().fecha(e.dia)} · ${e.correo} · ${e.concepto}${e.vence?` · ${T.vence.replace("{d}",e.vence)}`:""}</div></div><div class="monto tab">${usd(e.monto)}</div></div>`).join("")}</div>`;
+  return `<h1>${T.t}</h1><p class="sub">${T.s}</p><div class="pestanas">${tabs}</div>${cuerpo}`;
+}
+
+function vDinero(){
+  const T=t().dinero, s=tot();
+  const movs=[
+    ...ordenes.map(o=>({dia:o.dia,tipo:"acred",txt:`${T.acred} · ${o.numero} · ${o.comprador}`,monto:o.neto})),
+    ...retiros.map(r=>({dia:r.dia,tipo:r.estado==="solicitado"?"solic":"retiro",txt:`${r.estado==="solicitado"?T.solic:T.retiro} · ${t().retiros.via[r.via]}`,monto:-r.monto})),
+  ].sort((a,b)=>b.dia-a.dia);
+  return `<h1>${T.t}</h1><p class="sub">${T.s}</p>
+  <div class="tarjetas">
+    ${tarjeta(T.pagaron,usd(s.bruto),T.pagaronP,{ic:"bolsa"})}
+    ${tarjeta(T.proc,"− "+usd(s.stripe),T.procP,{ic:"tarjeta"})}
+    ${tarjeta(T.com,"− "+usd(s.comision),T.comP,{ic:"tag"})}
+    ${tarjeta(T.quedo,usd(s.neto),T.quedoP,{ic:"check"})}
+    ${tarjeta(T.disp,usd(s.disponible),T.dispP,{cls:"destacada",ic:"wallet"})}
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin:.2rem 0 .8rem"><h3 style="margin:0">${T.mov}</h3><button class="boton" data-ir="retiros" data-abrir-form="1">${I.wallet}${T.pedirRetiro}</button></div>
+  <div class="panel lista-scroll">
+    ${movs.map(m=>`<div class="fila"><span class="ico">${m.tipo==="acred"?I.bolsa:I.retiros}</span><div class="cuerpo"><div class="t1" style="font-weight:600">${m.txt}</div><div class="t2">${t().fecha(m.dia)}</div></div><div class="monto tab" style="color:${m.monto<0?"var(--tinta)":"var(--verde)"}">${m.monto<0?"− "+usd(-m.monto):"+ "+usd(m.monto)}</div></div>`).join("")}
+  </div>`;
+}
+
+function formRetiro(){
+  const T=t().retiros.f, s=tot();
+  const campos = {
+    US: `<div><label>${T.ruta}<input placeholder="021000021" inputmode="numeric" /></label><div class="ayuda">${T.rutaA}</div></div><label>${T.cuenta}<input placeholder="0000000000" inputmode="numeric" /></label>`,
+    CO: `<label>${T.tipo}<select><option>${T.ahorros}</option><option>${T.corriente}</option></select></label><label>${T.cuenta}<input placeholder="000-000000-00" /></label><label class="ancha">${T.doc}<input placeholder="NIT / CC" /></label>`,
+    MX: `<label class="ancha">${T.clabe}<input placeholder="000000000000000000" inputmode="numeric" /></label><div class="ayuda" style="grid-column:1/-1;margin-top:-.4rem">${T.clabeA}</div>`,
+    ES: `<label>${T.iban}<input placeholder="ES00 0000 0000 0000 0000 0000" /></label><label>${T.swift}<input placeholder="XXXXESMMXXX" /></label>`,
+  }[paisRetiro] || `<label>${T.cuenta}<input /></label><label>${T.swift}<input /></label>`;
+  const paises = [["US","Estados Unidos"],["CO","Colombia"],["MX","México"],["ES","España"],["CL","Chile"],["PE","Perú"],["AR","Argentina"],["BR","Brasil"],["PA","Panamá"],["DO","República Dominicana"]];
+  return `<div class="panel" id="formRetiro">
+    <h3>${t().retiros.pedir}</h3>
+    <div class="radio2" style="margin-bottom:.9rem">
+      <button class="${tipoRetiro==="banco"?"sel":""}" data-tipo="banco"><b>${T.banco}</b><small>${T.bancoS}</small></button>
+      <button class="${tipoRetiro==="otro"?"sel":""}" data-tipo="otro"><b>${T.otro}</b><small>${T.otroS}</small></button>
+    </div>
+    <div class="desglose">
+      <div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">${T.desg}</div>
+      <div class="r"><span>${T.d1}</span><span class="tab">${usd(s.bruto)}</span></div>
+      <div class="r"><span>${T.d2}</span><span class="tab">− ${usd(s.stripe)}</span></div>
+      <div class="r"><span>${T.d3}</span><span class="tab">− ${usd(s.comision)}</span></div>
+      <div class="r"><span>${T.d4}</span><span class="tab">${usd(s.neto)}</span></div>
+      <div class="r"><span>${T.d5}</span><span class="tab">− ${usd(r2(s.pagado+s.solicitado))}</span></div>
+      <div class="r total"><span>${T.d6}</span><span class="tab" style="color:var(--verde)">${usd(s.disponible)}</span></div>
+    </div>
+    <div class="form">
+      ${tipoRetiro==="banco"?`
+      <label>${T.pais}<select id="selPais">${paises.map(([c,n])=>`<option value="${c}" ${c===paisRetiro?"selected":""}>${n}</option>`).join("")}</select></label>
+      <label>${T.titular}<input value="${TIENDA.nombre}" /></label>
+      <label>${T.bancoN}<input placeholder="${paisRetiro==="US"?"Chase, Bank of America…":paisRetiro==="CO"?"Bancolombia, Davivienda…":""}" /></label>
+      ${campos}`:`<label class="ancha">${LANG==="es"?"Comercio que recibe":"Receiving merchant"}<input placeholder="${LANG==="es"?"Nombre o dirección de su tienda":"Store name or address"}" /></label>`}
+      <div class="ancha"><label>${T.monto}<div style="display:flex;gap:.5rem;margin-top:.3rem"><input id="montoRetiro" inputmode="decimal" placeholder="0.00" style="margin:0" /><button class="boton sec" id="btnTodo" type="button">${T.todo}</button></div></label><div class="ayuda">${T.montoA.replace("{m}",usd(s.disponible))}</div></div>
+      <div class="ancha" id="avisoRetiro"></div>
+      <div class="ancha" style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="boton" id="btnPedir">${I.wallet}${T.enviar}</button><button class="boton sec" id="btnCancelar">${T.cancelar}</button></div>
+    </div>
+  </div>`;
+}
+
+function vRetiros(){
+  const T=t().retiros, s=tot();
+  const lista=[...retiros].sort((a,b)=>b.dia-a.dia);
+  return `<h1>${T.t}</h1><p class="sub">${T.s}</p>
+  <div class="tarjetas" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    ${tarjeta(T.disp,usd(s.disponible),"",{cls:"destacada"})}
+    ${tarjeta(T.pedido,usd(s.solicitado),"")}
+    ${tarjeta(T.pend,usd(r2(s.disponible+s.solicitado)),"")}
+  </div>
+  ${formAbierto?formRetiro():`<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.9rem"><div class="buscador" style="margin:0;flex:1"><input placeholder="${T.buscar}" /><span>${T.n.replace("{n}",retiros.length)}</span></div>${s.disponible>0?`<button class="boton" id="abrirForm">${I.wallet}${T.pedir}</button>`:""}</div>`}
+  <div class="panel">
+    ${lista.map(r=>`<div class="fila"><span class="ico">${I.banco}</span><div class="cuerpo"><div class="t1"><span class="tab">${usd(r.monto)}</span><span class="estado ${r.estado==="pagado"?"e-verde":r.estado==="solicitado"?"e-ambar":"e-gris"}">${T.estado[r.estado]}</span></div><div class="t2">${T.via[r.via]} · ${r.cuenta}</div><div class="t2">${t().fecha(r.dia)} · ${TIENDA.nombre}${r.ref?" · "+r.ref:""}</div>${r.estado==="pagado"?`<button class="boton sec chico" style="margin-top:.45rem;border-color:var(--verde-200);background:var(--verde-50);color:var(--verde)">${I.clip}${T.comprobante}</button>`:""}</div></div>`).join("")}
+  </div>`;
+}
+
+function vFacturas(){
+  const T=t().facturas;
+  const lista=[...ordenes].sort((a,b)=>b.dia-a.dia);
+  return `<h1>${T.t}</h1><p class="sub">${T.s}</p>
+  <div class="panel lista-scroll">${lista.map((o,i)=>{const fact=o.estado!=="pagado"; return `<div class="fila"><span class="ico">${I.facturas}</span><div class="cuerpo"><div class="t1"><span class="mono">${o.oc}</span><span class="estado ${fact?"e-verde":"e-ambar"}">${T.estado[fact?"facturada":"emitida"]}</span></div><div class="t2">${t().fecha(o.dia)} · ${T.por} <span class="mono">${o.numero}</span> · ${o.items.length} ${LANG==="es"?"renglones":"lines"}</div>${fact?"":`<button class="boton sec chico" style="margin-top:.45rem">${I.clip}${T.subir}</button>`}</div><div style="text-align:right"><div class="monto tab">${usd(o.neto)}</div><div class="lapiz">${T.monto}</div></div></div>`;}).join("")}</div>`;
+}
+
+function render(){
+  lateral();
+  const v={tablero:vTablero,ordenes:vOrdenes,cobros:vCobros,dinero:vDinero,retiros:vRetiros,facturas:vFacturas}[pantalla];
+  $("#contenido").innerHTML=v();
+  window.scrollTo(0,0);
+  // navegación desde botones del contenido
+  $("#contenido").querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{pantalla=b.dataset.ir;formAbierto=Boolean(b.dataset.abrirForm);render();});
+  $("#contenido").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tabCobros=+b.dataset.tab;render();});
+  $("#contenido").querySelectorAll("[data-abrir]").forEach(f=>f.onclick=()=>{const k=f.dataset.abrir;abiertas.has(k)?abiertas.delete(k):abiertas.add(k);$(`[data-det="${k}"]`).classList.toggle("abierto");});
+  const ab=$("#abrirForm"); if(ab) ab.onclick=()=>{formAbierto=true;render();$("#formRetiro")?.scrollIntoView({behavior:"smooth",block:"start"});};
+  if(formAbierto && pantalla==="retiros"){
+    $("#contenido").querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{tipoRetiro=b.dataset.tipo;render();});
+    const sel=$("#selPais"); if(sel) sel.onchange=()=>{paisRetiro=sel.value;render();$("#formRetiro")?.scrollIntoView({behavior:"smooth",block:"start"});};
+    $("#btnTodo").onclick=()=>{$("#montoRetiro").value=tot().disponible.toFixed(2);};
+    $("#btnCancelar").onclick=()=>{formAbierto=false;render();};
+    $("#btnPedir").onclick=()=>{
+      const T=t().retiros.f, s=tot();
+      const n=parseFloat(($("#montoRetiro").value||"").replace(",","."));
+      const av=$("#avisoRetiro");
+      if(!n||n<=0){av.innerHTML=`<div class="aviso ambar">${T.cero}</div>`;return;}
+      if(n>s.disponible+0.001){av.innerHTML=`<div class="aviso ambar">${T.mas}</div>`;return;}
+      retiros.push({id:"r"+(retiros.length+1),dia:22,monto:r2(n),estado:"solicitado",via:tipoRetiro==="otro"?"comercio":(paisRetiro==="US"?"ach":"wire"),cuenta:tipoRetiro==="otro"?(LANG==="es"?"Traspaso interno":"Internal transfer"):(paisRetiro==="US"?"Cuenta terminada en 4417":"Cuenta terminada en 4417 · "+paisRetiro),ref:""});
+      formAbierto=false; render(); toast(T.ok);
+    };
+  }
+}
+function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("ver");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("ver"),4200);}
+render();
+</script>
+</body>
+</html>
