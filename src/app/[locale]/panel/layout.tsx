@@ -143,7 +143,12 @@ export default async function LayoutPanel({
         <MenuLateral
           porValidar={pendientes.length}
           porRetirar={porRetirar}
-          esInterno={interno}
+          /* MIRANDO EL PANEL DE UN COMERCIO, EL MENÚ ES EL SUYO. Antes esto
+             era `interno` a secas —el ROL de la sesión— así que Soporte veía
+             el panel del comercio con su propio menú completo encima:
+             Comercios, Cuentas, Configuración, Pedidos al proveedor. La gracia
+             del modo es ver EXACTAMENTE lo que ve el comercio. */
+          esInterno={interno && !observado}
           nombre={usuario?.name ?? ""}
         />
         <div className="lg:pl-64">

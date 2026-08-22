@@ -47,9 +47,42 @@ export async function tienePermisoDePanel() {
   return Boolean(usuario?.rol && ROLES_PANEL.includes(usuario.rol));
 }
 
+/**
+ * ¿QUIEN PREGUNTA ES DEL EQUIPO DE MERCATREN, **AHORA MISMO**?
+ *
+ * ══ EN MODO «VER SU PANEL» LA RESPUESTA ES NO ══
+ *
+ * Y es lo que hace que ese modo sirva para algo. Antes esto miraba solo el
+ * ROL, así que Soporte veía el panel de un comercio **con sus propias
+ * pantallas encima**: el menú completo, «Comercios activos: 1», «Margen de
+ * Mercatren», los enlaces que cobran de nuestra tarjeta. La gracia del modo es
+ * ver EXACTAMENTE lo que ve el comercio; enseñando de más no responde la única
+ * pregunta que existe para responder.
+ *
+ * Palabras del dueño, que describen el riesgo mejor que cualquier explicación:
+ * *«estoy viendo la cuenta del superadmin entrando como cliente… hasta usted
+ * se puede equivocar»*.
+ *
+ * ══ Y DE PASO CIERRA LAS ACCIONES, QUE ES LO IMPORTANTE ══
+ *
+ * Las veinticuatro llamadas a esta función cambian a la vez: las pantallas
+ * dejan de enseñar lo del equipo **y** `exigirEquipoInterno()` deja de dejar
+ * pasar. Con el disfraz puesto no se archiva una factura del proveedor, no se
+ * baja el asiento contable y no se compra saltándose la pausa de EE. UU.
+ *
+ * ══ CUANDO HACE FALTA EL ROL DE VERDAD, ESTÁ `esSoporteDeVerdad()` ══
+ *
+ * Esa NO mira el modo, y por eso la usan los retiros por Mercury y el
+ * recálculo de precios: son cosas que se hacen como uno mismo, nunca
+ * disfrazado. Salir del modo tampoco comprueba nada — quitarse el disfraz no
+ * puede fallar nunca.
+ */
 export async function esEquipoInterno() {
   const usuario = await obtenerUsuario();
-  return Boolean(usuario?.rol && ROLES_INTERNOS.includes(usuario.rol));
+  if (!usuario?.rol || !ROLES_INTERNOS.includes(usuario.rol)) return false;
+
+  const { comercioObservado } = await import("@/lib/soporte/ver-como");
+  return !(await comercioObservado());
 }
 
 /**

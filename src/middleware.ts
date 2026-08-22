@@ -3,6 +3,7 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { routing } from "./i18n/routing";
+import { esRutaSoloEquipo } from "./lib/panel/solo-equipo";
 
 const idiomas = createMiddleware(routing);
 
@@ -32,6 +33,47 @@ export default function middleware(request: NextRequest) {
       url.pathname = `/${idioma}/entrar`;
       url.search = `?destino=${encodeURIComponent(destino)}`;
       return NextResponse.redirect(url);
+    }
+
+    /**
+     * MIRANDO EL PANEL DE UN COMERCIO NO SE ENTRA A LO DEL EQUIPO.
+     *
+     * Con el modo «ver su panel» puesto, Soporte veía el panel del comercio
+     * **con su propio menú completo encima**: Comercios, Cuentas,
+     * Configuración, Pedidos al proveedor. Y no era solo el menú — se entraba
+     * de verdad. Palabras del dueño: *«estoy viendo la cuenta del superadmin
+     * entrando como cliente… hasta usted se puede equivocar»*.
+     *
+     * Ahí adentro están los enlaces que cobran de NUESTRA tarjeta, el costo
+     * real de la mercancía y el dinero de todos los demás comercios. La gracia
+     * del modo es ver **exactamente** lo que ve el comercio; si el menú enseña
+     * de más, no sirve para lo único que existe.
+     *
+     * ══ VA AQUÍ Y NO EN CADA PANTALLA ══
+     *
+     * Una línea cubre las secciones de hoy **y las que se agreguen mañana**.
+     * Repartido por pantallas, la próxima nace sin candado y nadie se entera.
+     *
+     * ══ Y CIERRA DE VERDAD, NO SOLO ESCONDE ══
+     *
+     * Ocultar la entrada del menú no basta: la dirección se escribe a mano.
+     * Aquí la petición ni llega a armar la página.
+     *
+     * Se lee la cookie por nombre porque el middleware corre en el borde y no
+     * puede importar `ver-como.ts`, que es `server-only`. El nombre es el
+     * mismo en los dos sitios y hay una prueba que se pone roja si dejan de
+     * coincidir.
+     */
+    if (request.cookies.get("mercatren_ver_como")?.value?.trim()) {
+      if (esRutaSoloEquipo(pathname)) {
+        const idioma = pathname.split("/")[1];
+        const url = request.nextUrl.clone();
+        /* Al panel del comercio, que es donde creía estar. Mandarlo al login
+           o a un 404 haría pensar que se rompió algo. */
+        url.pathname = `/${idioma}/panel`;
+        url.search = "";
+        return NextResponse.redirect(url);
+      }
     }
   }
 

@@ -264,7 +264,18 @@ no texto de cara al público; renombrarlas es una migración aparte.
 
 ---
 
-## LO QUE FALTA SE MIRA EN `ROADMAP.md`
+## LO QUE FALTA SE MIRA EN `PENDIENTES.md`
+
+**Cuando el dueño pregunte «¿qué tenemos pendiente?», se contesta desde
+`PENDIENTES.md`** — la lista completa, por bloques y en orden de urgencia, con
+🔴🟠🟡 y marcando qué es código (💻) y qué solo puede hacer él (👤).
+
+Existe porque los pendientes estaban repartidos en siete archivos y cada
+respuesta se dejaba algo fuera. Los planes por tema siguen valiendo: ahí está
+el detalle y el porqué. `PENDIENTES.md` es el índice completo, no un resumen
+que los reemplace. **Al terminar algo se marca en los dos sitios.**
+
+## Y el detalle de cada tema, en su plan
 
 Cuando el dueño pregunte «¿qué tenemos pendiente?», se contesta desde ahí y por
 bloques, en orden. La regla de cabecera de esa lista: **primero lo formal y lo
@@ -1889,6 +1900,62 @@ cliente llame a preguntar, y a veces a su banco.
 
 Comprobado en pantalla **a 375 px**, que es desde donde se cobra de verdad: el
 formulario, el desglose en la página de pago y el reenvío entran sin desbordarse.
+
+## ENTRANDO COMO UN COMERCIO SE VEÍA EL PANEL DEL SUPERADMIN (21 ago 2026)
+
+Lo destapó el dueño usando «Ver su panel» y es un fallo de los serios. Sus
+palabras: _«estoy viendo la cuenta del superadmin entrando como cliente… hasta
+usted se puede equivocar»_.
+
+Con el modo puesto, el panel del comercio salía **con el menú completo de
+Soporte encima** —Comercios, Cuentas, Configuración, Catálogo de EE. UU.,
+Pedidos al proveedor— y **no era solo el menú: se entraba de verdad**. Ahí
+adentro están los enlaces que cobran de NUESTRA tarjeta, el costo real de la
+mercancía y el dinero de todos los demás comercios.
+
+La causa: el menú y las pantallas miraban `esEquipoInterno()`, que solo leía el
+**rol** de la sesión. Y en este modo el rol sigue siendo `soporte` — lo que
+cambia es el alcance de los datos, no quién eres.
+
+**EL ARREGLO ES LA PROPIA FUNCIÓN, y por eso vale.** `esEquipoInterno()` ahora
+devuelve **false** mientras hay un comercio observado. Con eso cambian las
+**veinticuatro** llamadas a la vez: las pantallas dejan de enseñar lo del
+equipo **y** `exigirEquipoInterno()` deja de dejar pasar. Con el disfraz puesto
+no se archiva una factura del proveedor, no se baja el asiento contable y no se
+compra saltándose la pausa de EE. UU.
+
+- **`esSoporteDeVerdad()` NO mira el modo**, y es deliberado: la usan los
+  retiros por Mercury y el recálculo de precios, que son cosas que se hacen
+  como uno mismo y nunca disfrazado.
+- **Salir del modo no comprueba nada.** Ya estaba así y es lo correcto:
+  quitarse el disfraz no puede fallar nunca, o alguien se queda encerrado.
+
+**Y OCULTAR NO ES CERRAR:** `src/lib/panel/solo-equipo.ts` (puro, 9 pruebas)
+lista los tramos del panel que son solo del equipo, y el **middleware** los
+cierra mientras el modo está puesto. Va ahí y no en cada pantalla porque una
+línea cubre las secciones de hoy **y las que se agreguen mañana**; repartido
+por pantallas, la próxima nace sin candado y nadie se entera.
+
+- **Se compara por TRAMO COMPLETO, nunca por prefijo de texto.** `tiendas` y
+  `mi-tienda` empiezan distinto pero `tiendas` y `tiendas-usa` no: con un
+  `startsWith` a secas, cerrar una habría cerrado la otra — y peor, cerrar
+  «tiendas» habría dejado al comercio sin poder editar su propia ficha.
+- **El middleware lee la cookie por su nombre** porque corre en el borde y no
+  puede importar `ver-como.ts`, que es `server-only`. Hay una prueba que se
+  pone roja si los dos nombres dejan de coincidir: sin ella, renombrarla en un
+  sitio abriría el candado en silencio.
+- **Redirige al panel del comercio**, no al login ni a un 404: es donde la
+  persona creía estar, y cualquier otra cosa haría pensar que se rompió algo.
+
+**Comprobado con las dos sesiones:** con el modo puesto, seis secciones del
+equipo dan 307 y siete del comercio dan 200; al salir, las seis vuelven a 200.
+
+**Y de paso se vio un fallo viejo que solo se ve desde esa silla:** el tablero
+del comercio enseñaba **«Disponible para retirar» DOS VECES**, con el mismo
+número. Son dos ramas distintas que caían en la misma tarjeta. Dos veces el
+mismo dato en una pantalla de dinero hace dudar de si son dos cosas distintas
+—¿tengo $24.676 o $49.352?— y esa duda se paga cara. **Eso es exactamente para
+lo que existe el modo.**
 
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 

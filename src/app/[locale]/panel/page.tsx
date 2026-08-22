@@ -167,8 +167,23 @@ export default async function PaginaResumen({
           valor={String(hoy.mesEntregadas)}
           pie={t("resumen.esteMes")}
         />
-        {/* Los compradores son de Mercatren, no de un comercio: enseñárselos a
-            uno le haría creer que son los suyos. */}
+        {/**
+         * Los compradores son de Mercatren, no de un comercio: enseñárselos a
+         * uno le haría creer que son los suyos.
+         *
+         * ══ Y AL COMERCIO NO SE LE REPITE «DISPONIBLE PARA RETIRAR» ══
+         *
+         * Aquí caía otra vez la misma tarjeta que ya sale arriba, con el mismo
+         * número. Dos veces el mismo dato en la misma pantalla hace dudar de si
+         * son dos cosas distintas —¿tengo $24.676 o $49.352?— y en una pantalla
+         * de dinero esa duda se paga cara.
+         *
+         * Estaba así desde antes; se vio al mirar el panel con los ojos del
+         * comercio, que es exactamente para lo que existe ese modo.
+         *
+         * Con dos tarjetas la rejilla se reacomoda sola. Un hueco es mejor que
+         * un número repetido.
+         */}
         {hoy.mesClientesNuevos !== null ? (
           <TarjetaMetrica
             Icono={UserPlus}
@@ -176,18 +191,7 @@ export default async function PaginaResumen({
             valor={String(hoy.mesClientesNuevos)}
             pie={t("resumen.esteMes")}
           />
-        ) : (
-          <TarjetaMetrica
-            Icono={Wallet}
-            titulo={t("resumen.disponible")}
-            valor={formatearPrecio(
-              hoy.disponibleCentavos ?? 0,
-              idioma,
-              hoy.moneda,
-            )}
-            pie={t("resumen.disponiblePie")}
-          />
-        )}
+        ) : null}
       </section>
 
       {/* LO QUE ESPERA A UNA PERSONA. Es la lista de tareas del día, y cada
