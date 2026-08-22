@@ -2205,6 +2205,14 @@ su dinero. Vive en `public/demo/panel-ventas.html` y se presenta desde
 - Es bilingüe (ES/EN con interruptor), calcado al panel real (mismos grupos de
   menú, mismas tarjetas) y entra en celular. El motor de artículos ganó el
   bloque `boton` para enlazarlo.
+- **La dirección para compartir es `https://mercatren.com/demo/panel-ventas`**
+  (sin `.html`). En producción el servidor de estáticos de Cloudflare quita la
+  extensión: `/demo/panel-ventas.html` responde **307** hacia la limpia, y la
+  limpia 200. En local (`next dev`) es al revés: solo existe la del `.html`.
+  Por eso el artículo enlaza la del `.html` —funciona en los dos sitios— y
+  **no se agrega una ruta de Next para «limpiarla»**: si la plataforma dejara
+  de servir el estático primero, una ruta que redirige al `.html` haría un
+  bucle con el 307 de Cloudflare.
 
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
