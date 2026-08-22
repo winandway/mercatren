@@ -1128,6 +1128,8 @@ export const ESTADOS_COBRO = [
   "pagado",
   "vencido",
   "cancelado",
+  /** Pagado y devuelto. Cerrado: si hay que cobrar otra vez, se crea otro. */
+  "devuelto",
 ] as const;
 
 export const cobrosSolicitados = sqliteTable(
@@ -2511,6 +2513,43 @@ export const cargosCobro = sqliteTable("cargos_cobro", {
   concepto: text("concepto"),
 
   montoCentavos: integer("monto_centavos").notNull(),
+
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+});
+
+/**
+ * LAS DEVOLUCIONES DE LOS COBROS POR ENLACE.
+ *
+ * ══ TABLA Y NO COLUMNAS ══
+ *
+ * Regla del proyecto: `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`, así
+ * que una columna nueva NO llega sola a una base que ya existe. Y además una
+ * devolución es un hecho con autor, fecha y motivo — merece su fila.
+ *
+ * ══ QUIÉN, CUÁNDO, CUÁNTO Y POR QUÉ ══
+ *
+ * Una devolución sin autor ni motivo es un movimiento de dinero que nadie puede
+ * justificar tres meses después. Es justo lo que este sistema entero existe
+ * para evitar, y se aplica también a lo que sale.
+ */
+export const devolucionesCobro = sqliteTable("devoluciones_cobro", {
+  id: text("id").primaryKey(),
+
+  cobroId: text("cobro_id")
+    .notNull()
+    .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+
+  /** Lo que se devolvió. Puede ser menos que el cobro: llegaron tres cosas y
+   *  una vino rota. */
+  montoCentavos: integer("monto_centavos").notNull(),
+
+  /** El identificador del reembolso en el procesador, para reclamar. */
+  externoId: text("externo_id"),
+
+  motivo: text("motivo").notNull(),
+
+  /** Quién la hizo. Un comercio solo devuelve lo suyo. */
+  hechaPorId: text("hecha_por_id").references(() => user.id),
 
   creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
 });

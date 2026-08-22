@@ -13,6 +13,167 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "formulario-fiscal-w8ben-e",
+    tipo: "documentacion",
+    titulo:
+      "The tax form (W-8BEN-E): what it is, why we ask for it, and how to fill it out in 5 minutes",
+    resumen:
+      "If your company is outside the United States and sells through Mercatren, you need to sign a W-8BEN-E before you can get paid. Here is where it lives, what it asks, and why — with screenshots of the panel itself.",
+    fecha: "2026-08-22",
+    temas: ["merchants", "payouts", "tax", "W-8BEN-E", "withdrawals"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "It is a form that says “my company is NOT a U.S. company.” You fill it out once, in your own language, inside your panel, and it is good for three years. Without it, you cannot request withdrawals.",
+      },
+      { tipo: "subtitulo", texto: "What is the W-8BEN-E?" },
+      {
+        tipo: "parrafo",
+        texto:
+          "It is an IRS form — the U.S. tax authority — with which a foreign company tells whoever is paying it that it is not a U.S. person. Google, YouTube, Amazon and any U.S. platform that pays people abroad use it. When you get paid by a U.S. company, that form is what lets them pay you without withholding taxes.",
+      },
+      {
+        tipo: "parrafo",
+        texto: `${SOCIEDAD.nombre} is registered in Michigan, United States, and is the company that buys your merchandise. That is why it asks for it. It is the same thing any serious U.S. customer would ask of you.`,
+      },
+      { tipo: "subtitulo", texto: "Why is it needed?" },
+      {
+        tipo: "lista",
+        puntos: [
+          "So we can pay you without withholding anything. Without the form, a U.S. company would have to hold back part of what it pays you. With it, it does not.",
+          "Because the income from the merchandise you sell us belongs to you and your country: the goods are delivered where you are, so that money is not taxed in the United States. The form puts that in writing.",
+          "Because the day a bank or an accountant asks for it, it is there. We do not want your money stuck over a form that could have been signed in five minutes.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "bien",
+        titulo: "This is NOT sent to any tax office",
+        texto:
+          "Not to the IRS and not to your country's. It is kept in your Mercatren file in case someone ever asks. You are not filing taxes anywhere by completing it.",
+      },
+      { tipo: "subtitulo", texto: "Where it is" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Go to your panel and open “My store.” At the very top you will see an orange card that says “Tax form (W-8BEN-E).” That is where you fill it out.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/1-mi-tienda.png",
+        alt: "The tax form card at the top of the My store screen in the Mercatren panel",
+        pie: "Panel → My store. The orange card at the top is the form.",
+      },
+      { tipo: "subtitulo", texto: "How to fill it out, step by step" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Open “Sign and save”",
+            texto:
+              "Tap that line inside the card and the form unfolds. The first thing you read is the notice that this is not sent to the IRS.",
+          },
+          {
+            titulo: "Legal name of your company",
+            texto:
+              "Exactly as it appears in your business registry, with its suffix: “C.A”, “S.A.S”, “S.R.L”… This is the name that will appear on the document.",
+          },
+          {
+            titulo: "Country of incorporation",
+            texto:
+              "Pick it from the list. If your company is registered in the United States, Puerto Rico or any U.S. territory, this is NOT your form: write to us and we will request the right one (the W-9).",
+          },
+          {
+            titulo: "Type of entity",
+            texto:
+              "Corporation (most companies), partnership, sole proprietorship, or other. If in doubt, the first one.",
+          },
+          {
+            titulo: "Address, city, state and postal code",
+            texto:
+              "The real address where your company operates. A P.O. box is not accepted — the IRS rejects it. State and postal code are optional, since not every country uses them.",
+          },
+          {
+            titulo: "Your country's tax ID",
+            texto:
+              "Your RIF, NIT, RUT or whatever number you use there. It is optional, but if you have it, include it: it gives the document more weight.",
+          },
+          {
+            titulo: "Who signs",
+            texto:
+              "Your name and title (manager, director, legal representative…). It must be someone with authority to sign for the company.",
+          },
+          {
+            titulo: "Read the declaration and check the box",
+            texto:
+              "It is a declaration under penalty of perjury: that the information is true and that the company is not a U.S. person. Read it in full before checking. When you save, the date, time and where you signed from are recorded — that is what turns the checkbox into a valid signature.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/2-formulario.png",
+        alt: "The tax form unfolded, with the legal name, country, entity type and address fields",
+        pie: "The full form. The country is chosen from a list: it does not accept the United States.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/3-firma.png",
+        alt: "The sworn declaration and the signature checkbox at the end of the form",
+        pie: "The declaration is shown in full. You read it, check the box, and save.",
+      },
+      { tipo: "subtitulo", texto: "What happens next" },
+      {
+        tipo: "parrafo",
+        texto:
+          "When you save, the official document comes out already filled in and signed, in English as the IRS requires, with your information. You can view and print it from “My store → View my document.” You do not have to send it to anyone.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/4-documento.png",
+        alt: "The generated W-8BEN-E document, in English, with the company details and the certification",
+        pie: "The document produced when you sign. It is the substitute form the IRS accepts, with your information.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["Question", "Answer"],
+        filas: [
+          [
+            "How long is it valid?",
+            "Three years: until December 31 of the third year after signing. We notify you 60 days before it expires.",
+          ],
+          [
+            "How often do I fill it out?",
+            "Once every three years, or sooner if something about your company changes (name, address, country).",
+          ],
+          ["Does it cost anything?", "No. It is free."],
+          [
+            "Can I get paid while I fill it out?",
+            "No: withdrawals are on hold until it is current. That is why it is worth doing on day one.",
+          ],
+          [
+            "What if my company is a U.S. company?",
+            "Then this is not your form. Write to us and we will request the W-9.",
+          ],
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "If you already signed and need to fix something",
+        texto:
+          "Go to My store and tap “Sign again.” It replaces the previous one and the three-year clock restarts from that date.",
+      },
+    ],
+    enlaces: [
+      { texto: "Go to My store", href: "/panel/mi-tienda" },
+      { texto: "How Mercatren works", href: "/como-funciona" },
+    ],
+  },
+  {
     slug: "pagar-por-zelle-te-sale-mas-barato",
     tipo: "novedad",
     titulo: "You can now see how much you save paying with Zelle",

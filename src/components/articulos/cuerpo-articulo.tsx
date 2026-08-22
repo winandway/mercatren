@@ -136,6 +136,28 @@ export function CuerpoArticulo({ bloques }: { bloques: BloqueArticulo[] }) {
                 ) : null}
               </figure>
             );
+
+          case "imagen":
+            /* Una captura del propio software. Con borde y sombra suave para
+               que se lea como «esto es una pantalla», no como una ilustración;
+               y `loading="lazy"` porque un tutorial puede llevar varias y no
+               todas están a la vista al abrir. */
+            return (
+              <figure key={i} className="my-6">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={b.src}
+                  alt={b.alt}
+                  loading="lazy"
+                  className="mx-auto w-full max-w-md rounded-xl border border-borde shadow-sm"
+                />
+                {b.pie ? (
+                  <figcaption className="mt-2 text-center text-xs text-tinta-suave">
+                    {b.pie}
+                  </figcaption>
+                ) : null}
+              </figure>
+            );
         }
       })}
     </div>

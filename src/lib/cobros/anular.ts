@@ -26,7 +26,8 @@
 /** Lo más largo que se acepta como motivo. */
 export const MOTIVO_MAXIMO = 200;
 
-export type EstadoDeCobro = "abierto" | "pagado" | "vencido" | "cancelado";
+export type EstadoDeCobro =
+  "abierto" | "pagado" | "vencido" | "cancelado" | "devuelto";
 
 export type DecisionAnular =
   | { sePuede: true }
@@ -34,7 +35,7 @@ export type DecisionAnular =
      el segundo intento no puede parecer un fallo — quedaría dudando de si de
      verdad se canceló. */
   | { sePuede: false; yaEstaba: true }
-  | { sePuede: false; yaEstaba: false; motivo: "pagado" };
+  | { sePuede: false; yaEstaba: false; motivo: "pagado" | "devuelto" };
 
 /**
  * ¿Se puede cancelar este cobro?
@@ -50,6 +51,11 @@ export function sePuedeAnular(estado: EstadoDeCobro): DecisionAnular {
   if (estado === "cancelado") return { sePuede: false, yaEstaba: true };
   if (estado === "pagado") {
     return { sePuede: false, yaEstaba: false, motivo: "pagado" };
+  }
+  /* Uno devuelto ya está cerrado por su propio camino: el dinero entró y
+     volvió a salir. Cancelarlo encima borraría el rastro de las dos cosas. */
+  if (estado === "devuelto") {
+    return { sePuede: false, yaEstaba: false, motivo: "devuelto" };
   }
   /* `abierto` y `vencido` se cancelan los dos. Uno vencido se puede
      reactivar, así que cancelarlo es lo que impide que reviva por esa puerta. */

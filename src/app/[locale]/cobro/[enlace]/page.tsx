@@ -1,10 +1,11 @@
 import { eq } from "drizzle-orm";
-import { Clock, Store } from "lucide-react";
+import { CheckCircle2, Clock, Store } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AvisoNavegador } from "@/components/cobro/aviso-navegador";
 import { MetodosDeCobro } from "@/components/cobro/metodos-de-cobro";
+import { comoSePago } from "@/lib/cobros/como-se-pago";
 import { estadoParaMostrar, sePuedePagar } from "@/lib/cobros/reglas";
 import { queSeEnsena } from "@/lib/cobros/presentacion";
 import { getDb } from "@/lib/db";
@@ -61,6 +62,8 @@ export default async function PaginaDeCobro({
       concepto: cobrosSolicitados.concepto,
       venceEn: cobrosSolicitados.venceEn,
       pagadoEn: cobrosSolicitados.pagadoEn,
+      /* Para deducir con qué se pagó: un `pi_`/`ch_` es Stripe. */
+      pagoId: cobrosSolicitados.pagoId,
       tiendaId: cobrosSolicitados.tiendaId,
       comercio: tiendas.nombre,
       /* El modo vive en una tabla aparte y casi ningún cobro la tiene: por eso
@@ -159,7 +162,27 @@ export default async function PaginaDeCobro({
   const urlDelCobro = `${SITIO.url}/${locale}/cobro/${enlace}`;
   const nombreApp = appQueLoAbrio(ua);
 
-  let zelle: { receptor: string; concepto: string } | null = null;
+  /* CÓMO SE PAGÓ, para el aviso de «ya está pagada». Solo se consulta si
+     hace falta: en un cobro abierto esta pregunta no tiene sentido. */
+  const metodoDelPago =
+    cobro.estado === "pagado"
+      ? await (async () => {
+          const { cobrosZelle } = await import("@/lib/db/schema");
+          const [z] = await getDb()
+            .select({ id: cobrosZelle.cobroId })
+            .from(cobrosZelle)
+            .where(eq(cobrosZelle.cobroId, cobro.id))
+            .limit(1)
+            .catch(() => []);
+          return comoSePago({ pagoId: cobro.pagoId, tieneZelle: Boolean(z) });
+        })()
+      : "desconocido";
+
+  let zelle: {
+    receptor: string;
+    concepto: string;
+    nombreReceptor: string | null;
+  } | null = null;
   let enRevision = false;
   if (pagable) {
     const { zelleDelCobro, comprobantePendienteDeCobro } =
@@ -168,7 +191,15 @@ export default async function PaginaDeCobro({
     const decision = await zelleDelCobro(cobro.tiendaId, cobro.montoCentavos);
     const concepto = conceptoDelPago(cobro.referencia);
     if (decision.disponible && concepto) {
-      zelle = { receptor: decision.receptor, concepto };
+      /* EL NOMBRE DEL TITULAR, no solo el correo.
+         Al mandar un Zelle, el banco enseña a nombre de quién está la cuenta
+         ANTES de confirmar. Si ahí sale un nombre que quien paga no reconoce,
+         cancela — y con razón. La variable existía y se usaba en la página del
+         pedido, pero aquí no se pasaba. */
+      const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+      const nombreReceptor =
+        getCloudflareContext().env.ZELLE_NOMBRE_RECEPTOR ?? null;
+      zelle = { receptor: decision.receptor, concepto, nombreReceptor };
     }
     enRevision = await comprobantePendienteDeCobro(cobro.id).catch(() => false);
   }
@@ -265,12 +296,56 @@ export default async function PaginaDeCobro({
 
         <div className="mt-6">
           {estado === "pagado" ? (
-            <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
-              {t("yaPagado", {
-                fecha:
-                  (cobro.pagadoEn && fechaCorta(cobro.pagadoEn, idioma)) || "",
-              })}
-            </p>
+            /**
+             * ESTE COBRO ESTÁ CERRADO, Y SE DICE CON TODAS LAS LETRAS.
+             *
+             * Lo pidió el dueño con el caso exacto: el comercio le hace varios
+             * cobros al mismo cliente, alguien vuelve a abrir un enlace y no
+             * sabe si ese ya se pagó. Un aviso de una línea no basta — hace
+             * falta el monto, el método y la fecha, que es lo que se compara
+             * contra el extracto del banco.
+             *
+             * Y en verde, grande y arriba del todo: quien abre esto quiere
+             * saber en un golpe de vista si tiene que pagar o no.
+             */
+            <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4">
+              <p className="flex items-center gap-2 text-base font-extrabold text-emerald-900">
+                <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
+                {t("pagadaTitulo", {
+                  monto: formatearPrecio(
+                    cobro.montoCentavos,
+                    idioma,
+                    cobro.moneda,
+                  ),
+                })}
+              </p>
+              <dl className="mt-2 space-y-1 text-sm text-emerald-900">
+                <div className="flex justify-between gap-3">
+                  <dt>{t("pagadaMetodo")}</dt>
+                  <dd className="font-semibold">
+                    {t(`pagadaCon.${metodoDelPago}` as never)}
+                  </dd>
+                </div>
+                {cobro.pagadoEn ? (
+                  <div className="flex justify-between gap-3">
+                    <dt>{t("pagadaFecha")}</dt>
+                    <dd className="font-semibold">
+                      {fechaCorta(cobro.pagadoEn, idioma)}
+                    </dd>
+                  </div>
+                ) : null}
+                <div className="flex justify-between gap-3">
+                  <dt>{t("referencia")}</dt>
+                  <dd className="font-mono font-semibold">
+                    {cobro.referencia}
+                  </dd>
+                </div>
+              </dl>
+              {/* Que no quede duda de que no hay nada más que hacer aquí. */}
+              <p className="mt-2 text-xs text-emerald-800">
+                {t("pagadaCerrada")}
+              </p>
+            </div>
           ) : estado === "vencido" ? (
             /* Vencer no pierde la venta: se le dice que pida otro y sale otro
                correo al instante. Un «caducado» a secas deja a la persona sin
@@ -278,6 +353,15 @@ export default async function PaginaDeCobro({
             <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
               <p className="font-semibold">{t("vencido")}</p>
               <p className="mt-1">{t("vencidoQueHacer")}</p>
+            </div>
+          ) : estado === "devuelto" ? (
+            /* Devuelto: se le dice a quien pagó que su dinero ya va de vuelta.
+               Sin esto, abre el enlace, ve «cancelado» o nada, y llama al
+               banco — que es como empieza un contracargo sobre un dinero que
+               ya se le devolvió. */
+            <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+              <p className="font-semibold">{t("devuelto")}</p>
+              <p className="mt-1">{t("devueltoQueHacer")}</p>
             </div>
           ) : estado === "cancelado" ? (
             /**

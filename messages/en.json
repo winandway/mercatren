@@ -1775,7 +1775,8 @@
           "abierto": "awaiting payment",
           "pagado": "paid",
           "vencido": "expired",
-          "cancelado": "canceled"
+          "cancelado": "canceled",
+          "devuelto": "refunded"
         },
         "venceEl": "expires {fecha}",
         "pagadoEl": "paid {fecha}"
@@ -2002,7 +2003,7 @@
         "nombreLegal": "Your company's legal name",
         "nombreLegalAyuda": "Exactly as it appears on your business registration.",
         "paisConstitucion": "Country of incorporation",
-        "paisAyuda": "Two letters: VE, CO, MX, CL…",
+        "paisAyuda": "Choose it from the list. This form is only for companies outside the United States.",
         "tipoEntidad": "Entity type",
         "direccion": "Company address",
         "direccionAyuda": "The real address where the business operates. A PO box won't work.",
@@ -2094,6 +2095,17 @@
       "masManejo": " + {monto} handling",
       "otroCorreo": "Send it to another email",
       "reenviar": "Resend"
+    },
+    "devolverCobro": {
+      "boton": "Refund",
+      "titulo": "Refund from this {monto} payment",
+      "aviso": "Card payments only. The money goes back to the same card within a few days. This cannot be undone.",
+      "cuanto": "How much?",
+      "todo": "All of it",
+      "motivo": "Why?",
+      "motivoEjemplo": "For example: one item arrived broken",
+      "confirmar": "Yes, refund",
+      "cancelar": "No, leave it"
     }
   },
   "catalogo": {
@@ -2492,7 +2504,13 @@
         "etiqueta": "Policy"
       }
     },
-    "pidelo": "Need the full document, including the regulatory framing and controls? <correo>Write to us</correo> and we will send it over."
+    "pidelo": "Need the full document, including the regulatory framing and controls? <correo>Write to us</correo> and we will send it over.",
+    "guias": {
+      "etiqueta": "Guides",
+      "titulo": "Guides for merchants",
+      "entradilla": "How each thing is done, step by step, with screenshots of the panel.",
+      "leer": "Read the guide"
+    }
   },
   "correos": {
     "comun": {
@@ -3014,6 +3032,18 @@
     "appDetalle": "To pay with your bank account, open this link in your browser (Chrome or Safari). That option does not appear in here.",
     "appCopiar": "Copy",
     "appCopiado": "Copied",
-    "appTarjetaSirve": "You can pay by card right here, without leaving."
+    "appTarjetaSirve": "You can pay by card right here, without leaving.",
+    "zTitular": "The account is under the name <fuerte>{nombre}</fuerte>. Your bank will show you this before you confirm.",
+    "pagadaTitulo": "This {monto} invoice is already paid",
+    "pagadaMetodo": "Paid with",
+    "pagadaFecha": "Payment date",
+    "pagadaCerrada": "Nothing else to do. This payment request is closed.",
+    "pagadaCon": {
+      "tarjeta": "Card",
+      "zelle": "Zelle",
+      "desconocido": "Confirmed"
+    },
+    "devuelto": "This payment was made and has been refunded.",
+    "devueltoQueHacer": "You will see the refund on the same card you paid with, usually within 5 to 10 business days. Nothing else to do."
   }
 }

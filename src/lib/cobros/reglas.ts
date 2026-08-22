@@ -28,6 +28,12 @@ export type EstadoCobro =
   | "pagado"
   /** Nadie pagó a tiempo. Se puede volver a pedir uno nuevo. */
   | "vencido"
+  /**
+   * Se pagó y se le devolvió el dinero a quien pagó. Cerrado: un cobro
+   * devuelto no se vuelve a cobrar por el mismo enlace — si hay que cobrar
+   * otra vez, se crea otro. Solo llega aquí lo pagado con tarjeta.
+   */
+  | "devuelto"
   /** El comercio lo canceló desde su sistema. */
   | "cancelado";
 

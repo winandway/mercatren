@@ -1,6 +1,7 @@
 import { Link2 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { DevolverCobro } from "@/components/panel/devolver-cobro";
 import { PedirCobro, ReenviarCobro } from "@/components/panel/pedir-cobro";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { listarEnlacesDeCobro } from "@/lib/cobros/consultas";
@@ -18,6 +19,7 @@ const TONO: Record<string, string> = {
   pagado: "bg-emerald-100 text-emerald-900",
   vencido: "bg-slate-200 text-slate-700",
   cancelado: "bg-slate-200 text-slate-700",
+  devuelto: "bg-sky-100 text-sky-900",
 };
 
 /**
@@ -144,6 +146,25 @@ export default async function PaginaEnlacesDeCobro({
                   <ReenviarCobro
                     cobroId={e.id}
                     url={`${SITIO.url}/es/cobro/${e.enlace}`}
+                  />
+                ) : null}
+
+                {/**
+                 * DEVOLVER, A LA MANO EN CADA COBRO PAGADO.
+                 *
+                 * Lo pidió el dueño: «ese botón téngalo a la mano porque el
+                 * cliente lo tiene que tener a la mano. Muchas veces toca». Un
+                 * comercio que no puede devolver por su cuenta escribe a
+                 * soporte, y mientras tanto quien pagó llama a su banco.
+                 */}
+                {estado === "pagado" ? (
+                  <DevolverCobro
+                    cobroId={e.id}
+                    montoTexto={formatearPrecio(
+                      e.montoCentavos,
+                      idioma,
+                      e.moneda,
+                    )}
                   />
                 ) : null}
               </li>

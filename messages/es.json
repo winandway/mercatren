@@ -1775,7 +1775,8 @@
           "abierto": "esperando el pago",
           "pagado": "pagado",
           "vencido": "vencido",
-          "cancelado": "cancelado"
+          "cancelado": "cancelado",
+          "devuelto": "devuelto"
         },
         "venceEl": "vence el {fecha}",
         "pagadoEl": "pagado el {fecha}"
@@ -2002,7 +2003,7 @@
         "nombreLegal": "Nombre legal de tu empresa",
         "nombreLegalAyuda": "Exactamente como está en tu registro mercantil.",
         "paisConstitucion": "País donde está registrada",
-        "paisAyuda": "Dos letras: VE, CO, MX, CL…",
+        "paisAyuda": "Elígelo de la lista. Este formulario es solo para empresas de fuera de Estados Unidos.",
         "tipoEntidad": "Tipo de empresa",
         "direccion": "Dirección de la empresa",
         "direccionAyuda": "La dirección real donde funciona. No vale un apartado postal.",
@@ -2094,6 +2095,17 @@
       "masManejo": " + {monto} de manejo",
       "otroCorreo": "Mandárselo a otro correo",
       "reenviar": "Reenviar"
+    },
+    "devolverCobro": {
+      "boton": "Devolver el dinero",
+      "titulo": "Devolver de este cobro de {monto}",
+      "aviso": "Solo para lo pagado con tarjeta. El dinero vuelve a la misma tarjeta en unos días. No tiene marcha atrás.",
+      "cuanto": "¿Cuánto?",
+      "todo": "Todo",
+      "motivo": "¿Por qué?",
+      "motivoEjemplo": "Por ejemplo: llegó una pieza rota",
+      "confirmar": "Sí, devolver",
+      "cancelar": "No, dejar así"
     }
   },
   "catalogo": {
@@ -2492,7 +2504,13 @@
         "etiqueta": "Política"
       }
     },
-    "pidelo": "¿Necesitas el documento completo, con el encuadre regulatorio y los controles? <correo>Escríbenos</correo> y te lo mandamos."
+    "pidelo": "¿Necesitas el documento completo, con el encuadre regulatorio y los controles? <correo>Escríbenos</correo> y te lo mandamos.",
+    "guias": {
+      "etiqueta": "Guías",
+      "titulo": "Guías para comercios",
+      "entradilla": "Cómo se hace cada cosa, paso a paso y con capturas del panel.",
+      "leer": "Leer la guía"
+    }
   },
   "correos": {
     "comun": {
@@ -3014,6 +3032,18 @@
     "appDetalle": "Para pagar con tu cuenta de banco tienes que abrir este enlace en tu navegador (Chrome o Safari). Aquí dentro esa opción no aparece.",
     "appCopiar": "Copiar",
     "appCopiado": "Copiado",
-    "appTarjetaSirve": "Con tarjeta puedes pagar aquí mismo, sin salir."
+    "appTarjetaSirve": "Con tarjeta puedes pagar aquí mismo, sin salir.",
+    "zTitular": "La cuenta está a nombre de <fuerte>{nombre}</fuerte>. Tu banco te lo va a mostrar antes de confirmar.",
+    "pagadaTitulo": "Esta factura de {monto} ya está pagada",
+    "pagadaMetodo": "Se pagó con",
+    "pagadaFecha": "Fecha del pago",
+    "pagadaCerrada": "No tienes que hacer nada más. Este cobro está cerrado.",
+    "pagadaCon": {
+      "tarjeta": "Tarjeta",
+      "zelle": "Zelle",
+      "desconocido": "Confirmado"
+    },
+    "devuelto": "Este cobro se pagó y el dinero ya se devolvió.",
+    "devueltoQueHacer": "Verás el reembolso en la misma tarjeta con la que pagaste, normalmente en 5 a 10 días hábiles. No tienes que hacer nada."
   }
 }

@@ -2106,6 +2106,72 @@ compararlo cuando se regenere.
 - **Vuelve cuando el abogado apruebe el PDF regenerado**, y está anotado en
   `PENDIENTES.md` en rojo.
 
+## LA PÁGINA DE PAGO POR ZELLE, GUIADA — Y EL TUTORIAL DEL W-8BEN-E (22 ago 2026)
+
+Tres cosas que pidió el dueño sobre el cobro por enlace, y una cuarta que
+sirvió para destapar un hueco.
+
+**1. El paso 1 va en VERDE, con el nombre del titular, y palpita.** Al mandar un
+Zelle el banco enseña **a nombre de quién** está la cuenta antes de confirmar;
+quien no sabe qué nombre esperar cancela — y hace bien. `ZELLE_NOMBRE_RECEPTOR`
+existía y se usaba en la página del pedido, pero **al cobro por enlace no se le
+pasaba**. Ahora el paso 1 dice «La cuenta está a nombre de Mercatren LLC».
+
+- **El latido va uno detrás de otro, no todos a la vez** (`.latido-guia`,
+  `-2`, `-3` en `globals.css`): paso 1 tres veces, paso 2 arranca a los 3,4 s,
+  paso 3 a los 6,8 s. Si palpitara todo junto no guiaría nada. **Y se para
+  solo** — una animación que no termina se aprende a ignorar.
+- **Se apaga con `prefers-reduced-motion`.** No es acabado: hay gente a la que
+  el movimiento repetido le marea de verdad.
+
+**2. «Esta factura ya está pagada», con método y fecha.** El caso exacto: el
+comercio le hace varios cobros al mismo cliente, alguien vuelve a abrir un
+enlace y no sabe si ese ya se pagó. Ahora sale en verde, arriba, con monto,
+**cómo se pagó**, fecha y referencia. `cobros/como-se-pago.ts` (puro, 4
+pruebas) lo deduce del prefijo del `pago_id` (`pi_`/`ch_` = tarjeta) o de la
+fila en `cobros_zelle` — **y cuando no se sabe, dice «Confirmado», no inventa
+«Tarjeta»**: esa pantalla la mira alguien que está conciliando su banco.
+
+**3. El botón de devolver, a la mano.** Palabras del dueño: _«ese botón téngalo
+a la mano porque el cliente lo tiene que tener a la mano. Muchas veces toca»_.
+**No existía** para los cobros por enlace: un comercio que cobró de más escribía
+a soporte, y mientras tanto quien pagó llamaba a su banco.
+
+- `cobros/devolver.ts` + tabla **`devoluciones_cobro`** (tabla y no columnas,
+  como manda la regla) + estado **`devuelto`** en `ESTADOS_COBRO`.
+- **Solo lo pagado con tarjeta.** Un Zelle no tiene marcha atrás: el dinero
+  está en una cuenta de banco y volver a mandarlo es una transferencia nueva
+  hecha por una persona. El mensaje lo dice con esas palabras.
+- **El motivo es obligatorio**, el alcance va dentro de la búsqueda, no se
+  devuelve más de lo cobrado, y **solo una devolución TOTAL cierra el cobro**:
+  con una parcial sigue pagado — el comercio entregó mercancía y cobró por
+  ella, solo devolvió una parte.
+- **Va dentro de un desplegable, no a la vista.** Un botón rojo suelto al lado
+  de cada cobro pagado es fácil de tocar sin querer en un celular.
+- **Uno devuelto no se puede cancelar encima** (`sePuedeAnular` lo sabe): el
+  dinero entró y volvió a salir, y cancelarlo borraría el rastro de las dos
+  cosas.
+
+**4. El tutorial del W-8BEN-E, con capturas del propio panel.** El dueño lo va a
+mandar a la mayoría de los comercios, así que va en `/docs/formulario-fiscal-w8ben-e`
+en los dos idiomas. Lo que dice está sacado de lo ya verificado en
+`PLAN-CONTABILIDAD.md` (title passage §861/§862, sin 1099 a extranjeros, sin
+retención) — **no se inventó nada**.
+
+- **El motor de artículos no admitía imágenes.** Se agregó el bloque `imagen`
+  (`src`, `alt` obligatorio, `pie`) en `tipos.ts` y `cuerpo-articulo.tsx`. «Un
+  tutorial de solo texto no está terminado» — regla de la casa.
+- **`tests/unit/articulos-imagenes.test.ts`** se pone roja si un artículo
+  referencia una captura que no está en `public/`, o con `alt` vacío. La
+  próxima captura que alguien olvide subir salta ahí, no en la pantalla de un
+  comercio siguiendo el paso 3.
+- Las capturas se tomaron con Playwright a 390 px y DPR 2, y se encogieron a
+  900 px de alto máximo. **La primera salió de 1.800 px** porque la tarjeta
+  trae el formulario desplegado cuando falta firmar: se recortó a los primeros
+  620 px. El formulario entero va en la captura 2.
+- De paso: la ayuda bajo el país decía «Dos letras: VE, CO, MX, CL…» con el
+  campo ya convertido en desplegable. Corregida.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

@@ -27,7 +27,11 @@ export function MetodosDeCobro({
 }: {
   enlace: string;
   montoTexto: string;
-  zelle: { receptor: string; concepto: string } | null;
+  zelle: {
+    receptor: string;
+    concepto: string;
+    nombreReceptor: string | null;
+  } | null;
 }) {
   const t = useTranslations("cobro");
   const [metodo, setMetodo] = useState<"tarjeta" | "zelle">("tarjeta");
@@ -86,6 +90,7 @@ export function MetodosDeCobro({
           <PagarConZelle
             enlace={enlace}
             receptor={zelle.receptor}
+            nombreReceptor={zelle.nombreReceptor}
             concepto={zelle.concepto}
             montoTexto={montoTexto}
           />

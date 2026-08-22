@@ -13,6 +13,167 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "formulario-fiscal-w8ben-e",
+    tipo: "documentacion",
+    titulo:
+      "El formulario fiscal (W-8BEN-E): qué es, por qué te lo pedimos y cómo llenarlo en 5 minutos",
+    resumen:
+      "Si tu empresa está fuera de Estados Unidos y vende por Mercatren, tienes que firmar un W-8BEN-E para poder cobrar. Aquí te decimos dónde está, qué pide y por qué, con capturas del propio panel.",
+    fecha: "2026-08-22",
+    temas: ["comercios", "cobros", "fiscal", "W-8BEN-E", "retiros"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Es un papel que dice «mi empresa NO es de Estados Unidos». Se llena una vez, en español, dentro de tu panel, y vale tres años. Sin él no puedes pedir tus retiros.",
+      },
+      { tipo: "subtitulo", texto: "¿Qué es el W-8BEN-E?" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Es un formulario del IRS —la oficina de impuestos de Estados Unidos— con el que una empresa extranjera le declara a quien le paga que no es estadounidense. Lo usan Google, YouTube, Amazon y cualquier plataforma de allá que le paga a gente de fuera. Cuando cobras de una empresa de Estados Unidos, ese papel es lo que le permite pagarte sin retenerte impuestos.",
+      },
+      {
+        tipo: "parrafo",
+        texto: `${SOCIEDAD.nombre} está registrada en Michigan, Estados Unidos, y es quien te compra la mercancía. Por eso te lo pide. Es lo mismo que te pediría cualquier cliente estadounidense serio.`,
+      },
+      { tipo: "subtitulo", texto: "¿Por qué hace falta?" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Para que podamos pagarte sin retenerte nada. Sin el formulario, una empresa de Estados Unidos tendría que retener una parte de lo que te paga. Con él, no.",
+          "Porque el ingreso por la mercancía que nos vendes es tuyo y de tu país: la mercancía se entrega donde tú estás, así que ese dinero no paga impuestos en Estados Unidos. El formulario es lo que lo deja escrito.",
+          "Porque el día que un banco o un contador lo pida, está. No queremos que tu dinero se quede parado por un papel que se pudo haber firmado en cinco minutos.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "bien",
+        titulo: "Esto NO se manda a ninguna oficina de impuestos",
+        texto:
+          "Ni al IRS ni a la de tu país. Se guarda en tu ficha de Mercatren, por si algún día alguien lo pide. Tú no estás declarando impuestos en ningún lado al llenarlo.",
+      },
+      { tipo: "subtitulo", texto: "Dónde está" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Entra a tu panel y ve a «Mi tienda». Arriba del todo vas a ver una tarjeta naranja que dice «Formulario fiscal (W-8BEN-E)». Ahí mismo se llena.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/1-mi-tienda.png",
+        alt: "La tarjeta del formulario fiscal, arriba de la pantalla Mi tienda del panel de Mercatren",
+        pie: "Panel → Mi tienda. La tarjeta naranja de arriba es el formulario.",
+      },
+      { tipo: "subtitulo", texto: "Cómo llenarlo, paso a paso" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Abre «Firmar y guardar»",
+            texto:
+              "Toca esa línea dentro de la tarjeta y se despliega el formulario. Lo primero que lees es el aviso de que esto no se manda al IRS.",
+          },
+          {
+            titulo: "Nombre legal de tu empresa",
+            texto:
+              "Exactamente como está en tu registro mercantil, con sus siglas: «C.A», «S.A.S», «S.R.L»… Es el nombre que va a salir en el documento.",
+          },
+          {
+            titulo: "País donde está registrada",
+            texto:
+              "Elígelo de la lista. Si tu empresa está registrada en Estados Unidos, Puerto Rico o alguno de sus territorios, este formulario NO es el tuyo: escríbenos y te pedimos el que te toca (el W-9).",
+          },
+          {
+            titulo: "Tipo de empresa",
+            texto:
+              "Compañía anónima o sociedad mercantil (la mayoría), sociedad de personas, empresario individual, u otra. Si dudas, la primera.",
+          },
+          {
+            titulo: "Dirección, ciudad, estado y código postal",
+            texto:
+              "La dirección real donde funciona tu empresa. No vale un apartado postal: el IRS lo rechaza. El estado y el código postal son opcionales — no todos los países los usan.",
+          },
+          {
+            titulo: "Identificación fiscal de tu país",
+            texto:
+              "Tu RIF, NIT, RUT o el número que uses allá. Es opcional, pero si lo tienes, ponlo: le da más peso al documento.",
+          },
+          {
+            titulo: "Quién firma",
+            texto:
+              "Tu nombre y tu cargo (gerente, director, representante legal…). Tiene que ser alguien con autoridad para firmar por la empresa.",
+          },
+          {
+            titulo: "Lee la declaración y marca la casilla",
+            texto:
+              "Es una declaración bajo pena de perjurio: que la información es cierta y que la empresa no es estadounidense. Léela entera antes de marcar. Al guardar, queda registrada la fecha, la hora y desde dónde firmaste — eso es lo que convierte la casilla en una firma válida.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/2-formulario.png",
+        alt: "El formulario fiscal desplegado, con los campos de nombre legal, país, tipo de empresa y dirección",
+        pie: "El formulario completo. El país se elige de una lista: no admite Estados Unidos.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/3-firma.png",
+        alt: "La declaración jurada y la casilla de firma al final del formulario",
+        pie: "La declaración va entera y a la vista. Se lee, se marca la casilla y se guarda.",
+      },
+      { tipo: "subtitulo", texto: "Qué pasa después" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Al guardar, sale el documento oficial ya lleno y firmado, en inglés, como lo exige el IRS, con tu información. Lo puedes ver e imprimir desde «Mi tienda → Ver mi documento». No tienes que mandárselo a nadie.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/4-documento.png",
+        alt: "El documento W-8BEN-E generado, en inglés, con los datos de la empresa y la certificación",
+        pie: "El documento que sale al firmar. Es el formulario sustituto que acepta el IRS, con tu información.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["Pregunta", "Respuesta"],
+        filas: [
+          [
+            "¿Cuánto vale?",
+            "Tres años: hasta el 31 de diciembre del tercer año después de firmar. Te avisamos 60 días antes de que venza.",
+          ],
+          [
+            "¿Cada cuánto lo lleno?",
+            "Una vez cada tres años, o antes si cambia algo de tu empresa (nombre, dirección, país).",
+          ],
+          ["¿Me cobran por esto?", "No. Es gratis."],
+          [
+            "¿Puedo cobrar mientras lo lleno?",
+            "No: los retiros se frenan hasta que esté al día. Por eso conviene hacerlo el primer día.",
+          ],
+          [
+            "¿Y si mi empresa es de Estados Unidos?",
+            "Entonces este no es tu formulario. Escríbenos y te pedimos el W-9.",
+          ],
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Si ya lo firmaste y tienes que corregir algo",
+        texto:
+          "Entra a Mi tienda y toca «Volver a firmar». Se reemplaza el anterior y el plazo de tres años arranca de nuevo desde esa fecha.",
+      },
+    ],
+    enlaces: [
+      { texto: "Ir a Mi tienda", href: "/panel/mi-tienda" },
+      { texto: "Cómo funciona Mercatren", href: "/como-funciona" },
+    ],
+  },
+  {
     slug: "pagar-por-zelle-te-sale-mas-barato",
     tipo: "novedad",
     titulo: "Ahora ves cuánto te ahorras pagando por Zelle",

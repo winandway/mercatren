@@ -27,7 +27,20 @@ export type BloqueArticulo =
       titulo: string;
       texto: string;
     }
-  | { tipo: "tabla"; encabezados: string[]; filas: string[][]; nota?: string };
+  | { tipo: "tabla"; encabezados: string[]; filas: string[][]; nota?: string }
+  /**
+   * UNA CAPTURA DE PANTALLA DEL PROPIO SOFTWARE.
+   *
+   * Lo pidió el dueño para el tutorial del W-8BEN-E: «el link tiene que tener
+   * capturas de pantalla del mismo software de nosotros, que diga dónde está,
+   * en qué menú, los pasos». Un tutorial de solo texto no está terminado —
+   * regla de la casa.
+   *
+   * `alt` es obligatorio y no decorativo: es lo que lee quien no ve la imagen,
+   * y lo que lee Google. `pie` es la leyenda que va debajo, para decir en una
+   * línea qué mirar.
+   */
+  | { tipo: "imagen"; src: string; alt: string; pie?: string };
 
 /**
  * Dónde se lista.

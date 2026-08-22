@@ -1,8 +1,15 @@
-import { ArrowRight, FileText, Route, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  FileText,
+  Route,
+  ShieldCheck,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
+import { articulosPorTipo } from "@/contenido/articulos";
 import { MODELO_EN } from "@/contenido/docs/modelo.en";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import { Link } from "@/i18n/navigation";
@@ -52,6 +59,10 @@ export default async function PaginaDocs({
   setRequestLocale(locale);
 
   const t = await getTranslations("docs");
+  /* Las guías: los artículos de documentación, que se listan solos. Antes el
+     índice era una lista a mano y el tutorial del W-8BEN-E —y el de crédito,
+     que ya existía— no salían en ningún lado salvo por enlace directo. */
+  const guias = articulosPorTipo(locale, "documentacion");
   const doc = locale === "en" ? MODELO_EN : MODELO_ES;
 
   const otros = [
@@ -152,6 +163,50 @@ export default async function PaginaDocs({
             </Link>
           ))}
         </div>
+
+        {/**
+         * LAS GUÍAS PARA COMERCIOS.
+         *
+         * Salen de `articulosPorTipo`, no de una lista escrita aquí: la
+         * próxima guía que se publique aparece sola. El dueño manda estos
+         * enlaces a los comercios, y un tutorial que solo existe por enlace
+         * directo no lo encuentra quien lo necesita después.
+         */}
+        {guias.length > 0 ? (
+          <section className="mt-10">
+            <p className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.08em] text-carga-600 uppercase">
+              <BookOpen className="h-3.5 w-3.5" aria-hidden />
+              {t("guias.etiqueta")}
+            </p>
+            <h2 className="mt-2 text-xl font-bold tracking-tight">
+              {t("guias.titulo")}
+            </h2>
+            <p className="mt-1 text-sm text-tinta-suave">
+              {t("guias.entradilla")}
+            </p>
+            <ul className="mt-4 grid gap-4 md:grid-cols-2">
+              {guias.map((g) => (
+                <li key={g.slug}>
+                  <Link
+                    href={`/docs/${g.slug}`}
+                    className="group block h-full rounded-2xl border border-borde p-5 transition-colors hover:border-carga-500"
+                  >
+                    <h3 className="font-bold group-hover:text-carga-600">
+                      {g.titulo}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-snug text-tinta-suave">
+                      {g.resumen}
+                    </p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-carga-600">
+                      {t("guias.leer")}
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <p className="mt-8 flex items-start gap-2 text-xs leading-relaxed text-tinta-suave">
           <BanderaEEUU className="mt-0.5 h-4 w-4" />
