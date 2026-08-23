@@ -2373,6 +2373,93 @@ falta y que le escriba antes de pagar. Lo de Estados Unidos no pasa por aquí
 Candados: `tests/unit/portada-rondas.test.ts` (reescrita),
 `tests/unit/familia-vendedor.test.ts`, y las e2e de ficha y portada.
 
+## AGENTES DE IA, METADATOS, BANNERS Y EL BLOG (23 ago 2026)
+
+El dueño pasó el sitio por **isitagentready.com** y dio **33/100** («Bot-Aware»):
+Discoverability 3/4, Content 0/1, Bot Access Control 2/2, API/Auth/MCP/Skills
+0/8. Lo que faltaba no era contenido: era que una máquina pudiera descubrir qué
+hay y cómo usarlo. Cuatro puntos en un solo arranconazo.
+
+### 1. Lo que se le publica a los agentes (`src/lib/agentes/`)
+
+**Una sola lista de direcciones** (`recursosDe(base)`) arma todos los
+documentos, para que el catálogo de la API, la tarjeta MCP y el manifiesto ARD
+no se contradigan (tres documentos a mano se desincronizan a la segunda
+semana). `tests/unit/agentes.test.ts` lo exige.
+
+| Qué                           | Dónde                                                        | Qué es                                                                                                                                                                                                                                        |
+| ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Markdown para agentes         | cualquier página con `Accept: text/markdown`                 | El middleware reescribe a `/datos/markdown`, que arma el Markdown DESDE LOS DATOS (portada, ficha, tienda, catálogo, artículos) y para el resto convierte el HTML (`htmlAMarkdown`, sin DOM). Responde `text/markdown` + `x-markdown-tokens`. |
+| Catálogo de la API (RFC 9727) | `/.well-known/api-catalog`                                   | `application/linkset+json` → OpenAPI, docs, salud, MCP.                                                                                                                                                                                       |
+| OpenAPI 3.1                   | `/datos/openapi.json`                                        | Catálogo público, buscador, salud, MCP y la API de socios (sacada de las propias rutas, no de memoria).                                                                                                                                       |
+| Salud                         | `/datos/salud`                                               | `{ok, base}`; 503 si la base no contesta. Es el canario.                                                                                                                                                                                      |
+| Servidor MCP                  | `POST /datos/mcp`                                            | Streamable HTTP sin SSE, JSON-RPC 2.0. Cuatro herramientas de SOLO LECTURA: `buscar_productos`, `ver_producto`, `listar_tiendas`, `ver_tienda`. La lógica del protocolo es pura (`mcp.ts`) y los servicios reales están en `servicios.ts`.    |
+| Tarjeta MCP (SEP-1649)        | `/.well-known/mcp/server-card.json`                          | Anuncia las mismas herramientas que sirve el servidor (prueba).                                                                                                                                                                               |
+| Skills (agentskills.io)       | `/.well-known/agent-skills/index.json` + `<nombre>/SKILL.md` | «comprar-en-mercatren» y «cobrar-por-mercatren». El SHA-256 del índice se calcula del texto que se sirve: no pueden desincronizarse.                                                                                                          |
+| Manifiesto ARD                | `/.well-known/ai-catalog.json`                               | `urn:air:mercatren.com:<espacio>:<nombre>`, tipo IANA, 2–5 consultas representativas por entrada.                                                                                                                                             |
+| Recurso protegido (RFC 9728)  | `/.well-known/oauth-protected-resource`                      | `authorization_servers: []`, honesto: **no hay servidor OAuth** y no se publica uno.                                                                                                                                                          |
+| auth.md                       | `/auth.md`                                                   | Cómo se consigue el token de tienda (lo entrega el equipo; una plataforma socia lo obtiene con su llave en `/datos/socios/vincular`).                                                                                                         |
+| WebMCP                        | `<WebMcp/>` en el layout de la tienda                        | Si el navegador trae `navigator.modelContext`, anuncia buscar, abrir producto e ir a tienda. Nada de carrito ni sesión.                                                                                                                       |
+
+Tres trampas medidas ese día:
+
+- **Tras una reescritura del middleware, `request.url` en la ruta es el
+  ORIGINAL, sin el parámetro.** Toda página devolvía la portada en Markdown.
+  La ruta viaja también en la cabecera `x-ruta-markdown`.
+- **El streaming de React manda el contenido FUERA de `<main>`** (en
+  `<div hidden id="S:…">`). Quedarse con `<main>` daba páginas vacías; se
+  convierten las dos versiones y gana la más completa.
+- **`/.well-known/*` y `/auth.md` no pasan por el middleware** (el matcher
+  excluye todo lo que lleva punto), así que next-intl no les pone idioma.
+  Son rutas de `src/app/.well-known/...`; no hay archivos en `public/` ahí.
+
+**DNS-AID (lo único que no sale del código).** Pendiente de Richard en el DNS
+de mercatren.com: registros tipo **HTTPS (SVCB)** en `_index._agents` y
+`_mcp._agents` con prioridad `1`, destino `mercatren.com.` y parámetros
+`alpn=h2`, y **DNSSEC** encendido. Ver `PENDIENTES.md` bloque 4.
+
+**Lo que NO se hizo a propósito:** un servidor OAuth/OIDC. No existe; publicar
+`/.well-known/oauth-authorization-server` sería mentir. Cuando un tercero lo
+necesite, se construye.
+
+### 2. Los metadatos de cada ficha (`src/lib/seo/meta.ts`, puro, 11 pruebas)
+
+El dueño: «los productos están en español, pero los metadatos no se
+trabajaron». Ahora el título es **producto + comercio** (≤ 60) —«Electrodo
+3/32 gris · Ferremateriales Bley C.A»—, la descripción dice **precio, dónde se
+retira o que se despacha, y cómo se paga** (≤ 155, en los dos idiomas) y van
+palabras clave y tarjeta de Twitter. `titularNormal()` pasa los títulos
+GRITADOS del catálogo importado a normal conservando siglas y números; uno
+escrito a mano no se toca. La tienda dice quién es, dónde está y cuántos
+productos tiene; el catálogo cambia el título según lo buscado o filtrado.
+**Nada inventado**: cada frase sale de un dato; lo que no hay, no se escribe.
+
+### 3. Los banners publicitarios de las parrillas (`src/lib/banners/`)
+
+Tabla **`banners`** (nueva, no columnas), CRUD en **Panel → Equipo → Banners**
+(solo rol soporte, con `esSoporteDeVerdad()`: el disfraz de «ver su panel» no
+puede poner publicidad), y salida en las cuatro parrillas públicas (portada
+«De todas las tiendas», parrilla infinita, tienda y catálogo) con
+`intercalarBanners` (puro, 14 pruebas): después de `cada_cuantos` productos va
+un banner, se turnan, y **nunca abren ni cierran una parrilla**. Uno clavado a
+una tienda sale SOLO en esa tienda; `todas/portada/tienda/catalogo` deciden el
+lugar; `desde/hasta` programan; `mercado` los separa por país. La lista de
+activos se recuerda un minuto por mercado y **se olvida al guardar**
+(`olvidar()`), o quien acaba de pulsar Guardar no ve su banner. El enlace se
+autollena al elegir la tienda. La migración `0028` se recortó a la tabla nueva:
+drizzle-kit quiso volver a crear tablas que ya viajaron por `schema.sql`.
+
+### 4. El blog: de 2 a 10 notas, con capturas reales
+
+Ocho notas nuevas en `src/contenido/articulos/` (ES y EN, mismo slug), con
+capturas tomadas del sitio publicado y del panel local
+(`public/blog/<slug>/…`, encogidas a 1000 px). **Antes de capturar el panel
+local se cambió el correo Zelle de `.dev.vars` a `pagos@mercatren.com` y el
+nombre de la cuenta local a «Soporte Mercatren»**: una captura pública no puede
+enseñar un correo de prueba ni la palabra Windoce. `PLAN-BLOG-IA.md` deja
+escrito el plan de las notas diarias de producto por IA (solo el plan, no se
+ejecuta hasta que el dueño decida).
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

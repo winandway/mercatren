@@ -14,7 +14,7 @@
 > 🔴 urgente · 🟠 importante · 🟡 cuando se pueda
 > 👤 solo lo puede hacer Richard · 💻 es código
 
-Última revisión: **21 de agosto de 2026**.
+Última revisión: **23 de agosto de 2026**.
 
 ---
 
@@ -141,6 +141,25 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 👤 **Pedir la reindexación en Search Console** de las páginas que
       Google todavía cita con la copia vieja (portada, términos, privacidad,
       nosotros, cómo funciona, transparencia — en los dos idiomas).
+
+## Agentes de IA (isitagentready.com daba 33/100 el 23 ago 2026)
+
+- [x] 💻 Markdown para agentes, catálogo de API (RFC 9727) con OpenAPI,
+      recurso protegido (RFC 9728), `auth.md`, servidor MCP de solo lectura con
+      su tarjeta, índice de skills, manifiesto ARD y WebMCP. Hecho el 23 ago.
+- [ ] 🟠 👤 **DNS-AID: los registros `_index._agents` y `_mcp._agents`** (tipo
+      HTTPS/SVCB) en el DNS de mercatren.com, y **DNSSEC encendido**. Es lo
+      único de esa lista que no sale del código: va en el panel del DNS del
+      dominio (YaDominios Cloud / Cloudflare). Los valores exactos están en la
+      sección «Agentes de IA» de `CLAUDE.md`.
+- [ ] 🟡 💻 **Servidor OAuth/OIDC para la API de socios.** No se publicó un
+      `/.well-known/oauth-authorization-server` porque no existe; publicarlo
+      sería mentir. Se construye el día que un tercero lo necesite de verdad.
+- [ ] 🟡 💻 **Notas de producto escritas por IA**: el plan está en
+      `PLAN-BLOG-IA.md`; no se ejecuta hasta que el dueño decida cuántas por
+      día, el tope y si se revisan.
+- [ ] 🟠 👤 **Crear los primeros banners** en Panel → Equipo → Banners (la
+      tienda de zapatos, la de electrónica…): el módulo está listo y vacío.
 
 ---
 

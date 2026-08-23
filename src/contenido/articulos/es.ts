@@ -13,6 +13,401 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "la-portada-abre-con-todas-las-tiendas",
+    tipo: "novedad",
+    titulo:
+      "La portada de Mercatren ahora abre con todas las tiendas: las chicas primero",
+    resumen:
+      "Cada comercio de Venezuela sale en la primera pantalla con sus productos más nuevos, aunque tenga uno solo. Los productos del catálogo de Estados Unidos se reparten entre medio, de a pocos.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "portada", "comercios", "venezuela"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Varios comercios nos lo dijeron con razón: la portada arrancaba con un bloque entero de la tienda que más productos tiene, después venía el catálogo de Estados Unidos, y el resto parecía no existir. Una tienda con dos productos —o con uno— nunca salía de primera.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Desde hoy la portada abre con un bloque que se llama así, «De todas las tiendas»: los dos productos más nuevos de CADA comercio de Venezuela, uno detrás de otro, y recién después seis productos del catálogo de Estados Unidos. El orden de las tiendas cambia en cada visita, así que una vez abre la de láminas de zinc y otra la de zapatos.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/la-portada-abre-con-todas-las-tiendas/1-portada-celular.png",
+        alt: "La portada de Mercatren en un celular: el bloque «De todas las tiendas» con productos de distintos comercios venezolanos.",
+        pie: "En el celular, que es desde donde compra casi todo el mundo.",
+      },
+      { tipo: "subtitulo", texto: "Qué cambia para un comercio" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Da igual si tienes uno o seiscientos productos: tus dos más nuevos salen en la primera pantalla de la portada.",
+          "Cada producto que subas entra de inmediato en ese bloque: subir productos te pone delante.",
+          "Las bandas por departamento (Ferretería, Ropa, Motos…) siguen la misma regla: en cada una, primero los comercios venezolanos, después el catálogo de Estados Unidos.",
+          "Y si tu producto tiene varias fotos, la foto que sale en la lista va rotando entre ellas: se ven todas, no solo la primera.",
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/la-portada-abre-con-todas-las-tiendas/2-portada-escritorio.png",
+        alt: "La portada de Mercatren en una computadora, con el bloque «De todas las tiendas».",
+        pie: "En la computadora se ven siete por hilera; la regla es la misma.",
+      },
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "¿Tienes un comercio?",
+        texto:
+          "Abre tu tienda, sube tus productos con su ciudad y su dirección, y sales en la portada desde el primer día.",
+      },
+    ],
+    enlaces: [
+      { texto: "Ver la portada", href: "/" },
+      { texto: "Abrir mi tienda", href: "/vender" },
+      { texto: "Todos los comercios", href: "/tiendas" },
+    ],
+  },
+  {
+    slug: "productos-similares-y-lo-que-estabas-mirando",
+    tipo: "novedad",
+    titulo:
+      "Productos similares y «Porque estuviste mirando»: la tienda que te sigue el gusto",
+    resumen:
+      "Al pie de cada producto salen otros parecidos, y si miras dos del mismo tipo, la portada te enseña más de eso. La flecha de volver te deja otra vez en la tienda donde estabas.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "compradores", "catálogo"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Tres cosas pequeñas que se notan mucho al recorrer el catálogo. La primera: debajo de cada producto ahora hay una fila de «Productos similares» —primero los de la misma categoría, después los del mismo comercio— con un enlace para ver más de esa tienda.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/productos-similares-y-lo-que-estabas-mirando/1-similares.png",
+        alt: "La fila «Productos similares» al pie de la ficha de unos zapatos en Mercatren.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "La segunda: si abres dos productos del mismo tipo —dos pares de zapatos, dos labiales—, al volver a la portada encuentras una banda que dice «Porque estuviste mirando» con más de eso. Si después te pasas a otra cosa, la banda te sigue. Todo eso queda en tu navegador; no se manda a ningún lado.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/productos-similares-y-lo-que-estabas-mirando/2-porque-estuviste-mirando.png",
+        alt: "La banda «Porque estuviste mirando · Más de Ropa y calzado» en la portada de Mercatren.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Y la tercera, que parecía un detalle y no lo era: la flecha de «Volver» arriba de cada producto te devolvía al catálogo entero, y si venías recorriendo una tienda tenías que buscarla otra vez. Ahora vuelve a donde estabas —la tienda, la búsqueda— y, si llegaste desde un enlace de WhatsApp o de Google, te lleva a la tienda del producto.",
+      },
+    ],
+    enlaces: [
+      { texto: "Ver el catálogo", href: "/catalogo" },
+      { texto: "Cómo funciona Mercatren", href: "/como-funciona" },
+    ],
+  },
+  {
+    slug: "cada-producto-dice-donde-lo-reclamas",
+    tipo: "novedad",
+    titulo:
+      "Cada producto dice dónde lo reclamas: la ciudad y la dirección del comercio",
+    resumen:
+      "Si compras unos zapatos en Tucaní tienes que saber dónde vas a buscarlos. Ahora cada ficha de un comercio venezolano lo dice con claridad, y qué pasa después de pagar.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "compradores", "entrega", "venezuela"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Nadie compra algo sin saber dónde lo va a recibir. Hasta ahora, un producto sin depósito cargado no decía nada, aunque el comercio sí tuviera su dirección en su ficha. Quien miraba los zapatos no tenía cómo saber que se reclaman en la Vía Panamericana, en Tucaní.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Desde hoy, cada producto de un comercio de Venezuela dice dónde se retira —la ciudad y la dirección de la tienda, o su depósito si tiene uno—, y lo que pasa después de pagar: reclamas el producto en esa dirección con tu número de pedido, en un comercio verificado. Si eliges tu ciudad arriba, la ficha te dice además si te queda cerca o lejos.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cada-producto-dice-donde-lo-reclamas/1-ficha-campus.png",
+        alt: "La ficha de unos zapatos en Mercatren con el bloque «Se retira en Tucaní», la dirección del comercio y la nota de qué pasa después de pagar.",
+      },
+      { tipo: "subtitulo", texto: "Para el comercio" },
+      {
+        tipo: "lista",
+        puntos: [
+          "La ciudad y la dirección que tienes en «Mi tienda» son las que le salen al comprador en cada producto. Revísalas.",
+          "Si tienes varios depósitos, cada producto puede llevar el suyo, y ese manda sobre la dirección general.",
+          "Sin ciudad, la ficha le dice al comprador que te escriba antes de pagar: mejor que inventarle un lugar.",
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cada-producto-dice-donde-lo-reclamas/2-tienda-maxium.png",
+        alt: "La ficha del comercio MAXIUM en Mercatren, con su ciudad, su botón de WhatsApp y su único producto.",
+        pie: "Una tienda con un solo producto, y con todo lo que hace falta para comprárselo.",
+      },
+    ],
+    enlaces: [
+      { texto: "Entrega y retiro", href: "/entrega" },
+      { texto: "Ir a Mi tienda", href: "/panel/mi-tienda" },
+    ],
+  },
+  {
+    slug: "cobra-por-enlace-sin-programar-nada",
+    tipo: "novedad",
+    titulo:
+      "Cobra por enlace sin programar nada: reenvíalo a quien paga, con tarjeta o Zelle",
+    resumen:
+      "Desde tu panel creas un enlace de pago con el número de tu factura, lo mandas por WhatsApp o por correo a quien va a pagar —aunque esté en Miami— y te entra el cobro. Con flete y manejo aparte si hace falta.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "comercios", "cobros", "zelle"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "El caso más común de todos: alguien compra en tu mostrador y el que pone la tarjeta es su hijo en Estados Unidos. Hasta ahora, el cobro por enlace solo lo tenía el comercio que lo había conectado a su sistema. Ahora lo tienen todos, desde el panel, en «Cobros → Enlaces de cobro».",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/1-panel-enlaces-de-cobro.png",
+        alt: "El formulario «Pedir un cobro» en el panel de Mercatren: comercio, monto, número de factura, correo de quien paga y concepto.",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Escribe cuánto y el número de tu factura",
+            texto:
+              "Ese número es el que después aparece en tu banco y en el de quien paga; es lo que cuadra las cuentas.",
+          },
+          {
+            titulo: "Pon el correo de quien va a PAGAR",
+            texto:
+              "No tiene que ser tu cliente. Sale el correo con el enlace, y además puedes copiarlo y mandarlo por WhatsApp.",
+          },
+          {
+            titulo: "Si cobras flete o algún servicio aparte, agrégalo",
+            texto:
+              "Van en renglones separados —«Flete y transporte», «Manejo y servicios adicionales»— con su explicación, y quien paga los ve desglosados.",
+          },
+          {
+            titulo: "Quien paga elige tarjeta o Zelle",
+            texto: `Zelle sale a partir de $200 y va guiado paso a paso, con la cuenta a nombre de ${SOCIEDAD.nombre} y el número que tiene que escribir en la nota.`,
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/2-pagina-de-pago.png",
+        alt: "La página de pago de un cobro por enlace de $620: el comercio, la factura, el concepto y las dos formas de pagar.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/3-pagar-por-zelle.png",
+        alt: `Los pasos para pagar por Zelle: enviar a la cuenta a nombre de ${SOCIEDAD.nombre} y escribir el número de conciliación en la nota.`,
+        pie: "El paso 1 dice a nombre de quién está la cuenta: el banco se lo enseña a quien paga antes de confirmar.",
+      },
+      { tipo: "subtitulo", texto: "Y lo que pasa después" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Si el enlace vence, lo reactivas con el mismo número y el mismo enlace: el correo que ya mandaste vuelve a funcionar.",
+          "Si te equivocaste de monto o de cliente, lo cancelas. Uno ya pagado no se cancela: si hay que devolver, está el botón de devolver, a la mano.",
+          "Si vuelven a abrir un enlace ya pagado, la página lo dice: «esta factura ya está pagada», con fecha y método.",
+          "Si tu negocio tiene su propio sistema, todo esto también se hace desde él: hay una API documentada.",
+        ],
+      },
+    ],
+    enlaces: [
+      { texto: "Ir a Cobros", href: "/panel/cobros/enlaces" },
+      { texto: "Cómo se forma el precio", href: "/vender/comisiones" },
+      { texto: "Documentación", href: "/docs" },
+    ],
+  },
+  {
+    slug: "busca-en-espanol-el-catalogo-de-estados-unidos",
+    tipo: "novedad",
+    titulo:
+      "Busca en español el catálogo de Estados Unidos: «bicicleta», «caucho», «corneta»",
+    resumen:
+      "El catálogo que se despacha en Estados Unidos se busca en español, con las palabras de cada país. Noventa y seis resultados para «bicicleta», envío gratis incluido en el precio.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "catálogo", "estados unidos", "búsqueda"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "El catálogo que se entrega en Estados Unidos llegó con sus fichas en inglés, y al buscar «repuestos» no salía nada aunque hubiera repuestos. Ya no: el buscador entiende español —y las palabras de cada país— y encuentra lo mismo aunque la ficha esté en inglés.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/busca-en-espanol-el-catalogo-de-estados-unidos/1-bicicleta.png",
+        alt: "Resultados de buscar «bicicleta» en Mercatren: 96 productos que se despachan en Estados Unidos.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "«bicicleta» encuentra «bike»; «llanta», «caucho» y «neumático» se valen entre sí; «corneta» encuentra «bocina»; «refacciones» encuentra «repuestos».",
+          "Los productos que se despachan en Estados Unidos llevan la banderita en la tarjeta: el envío va dentro del precio y llega en 2 a 5 días.",
+          "Los títulos se van traduciendo al español; mientras tanto, la búsqueda ya funciona.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "¿No encuentras algo?",
+        texto:
+          "Escríbenos. Si es una palabra que usan en tu país y no en otro, la agregamos al diccionario del buscador.",
+      },
+    ],
+    enlaces: [
+      { texto: "Buscar en el catálogo", href: "/catalogo" },
+      { texto: "Ayuda", href: "/ayuda" },
+    ],
+  },
+  {
+    slug: "el-formulario-fiscal-w8ben-e-se-llena-en-pantalla",
+    tipo: "novedad",
+    titulo:
+      "El formulario fiscal W-8BEN-E se llena en pantalla, en español, en cinco minutos",
+    resumen:
+      "Un comercio de Venezuela o Colombia no necesita una empresa en Estados Unidos para vender por Mercatren: necesita este formulario. Ya se llena desde el panel y sale el documento firmado.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "comercios", "fiscal"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "El W-8BEN-E es el papel con el que una empresa declara que no es estadounidense. Es lo que le piden a quien cobra desde fuera Google, Facebook o cualquier marketplace; bajarlo en inglés, imprimirlo, firmarlo y escanearlo es justo donde la mayoría abandona.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Ahora se llena desde «Mi tienda», en español y con cada campo explicado, y al firmar sale el documento en inglés tal como lo espera quien tiene que leerlo. No se manda a ninguna oficina: se guarda por si alguien lo pide. Sin él, no se pueden pedir retiros; por eso conviene hacerlo el primer día.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/2-formulario.png",
+        alt: "El formulario fiscal dentro de «Mi tienda»: nombre legal, país, tipo de empresa, dirección, identificación fiscal y quién firma.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/4-documento.png",
+        alt: "El documento W-8BEN-E generado a partir del formulario, listo para imprimir o guardar.",
+      },
+      {
+        tipo: "boton",
+        texto: "Ver el tutorial paso a paso",
+        href: "/docs/formulario-fiscal-w8ben-e",
+      },
+    ],
+    enlaces: [{ texto: "Ir a Mi tienda", href: "/panel/mi-tienda" }],
+  },
+  {
+    slug: "asi-se-ve-tu-panel-cuando-vendes",
+    tipo: "novedad",
+    titulo: "Así se ve tu panel cuando vendes: una demostración para recorrer",
+    resumen:
+      "Una tienda de muestra con un mes de ventas para que veas, antes de abrir la tuya, cómo entran las órdenes, cuánto te queda de cada venta y cómo pides tu dinero.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "comercios", "panel"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Muchos comercios nos preguntan lo mismo antes de abrir su tienda: «¿y cómo veo yo lo que vendo?». Por eso hicimos una demostración del panel, con una tienda inventada y un mes de ventas inventadas, para recorrerla con calma desde el celular o la computadora.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/demo-panel/1-tablero.png",
+        alt: "El tablero de la tienda de demostración: lo vendido en el mes, la comisión de Mercatren, lo que le quedó y lo disponible para retirar.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Órdenes: cada venta con su fecha, su producto, cómo se pagó y en qué paso va.",
+          "Cobros: tarjeta, Zelle y enlaces de cobro, cada uno por su lado.",
+          "Mi dinero y Retiros: cuánto te quedó de cada venta y cómo lo pides.",
+        ],
+      },
+      {
+        tipo: "boton",
+        texto: "Abrir la demostración",
+        href: "/demo/panel-ventas.html",
+      },
+    ],
+    enlaces: [
+      {
+        texto: "La guía completa de la demostración",
+        href: "/docs/demo-del-panel",
+      },
+      { texto: "Abrir mi tienda", href: "/vender" },
+    ],
+  },
+  {
+    slug: "mercatren-ya-habla-con-los-agentes-de-ia",
+    tipo: "novedad",
+    titulo:
+      "Mercatren ya habla con los agentes de IA: catálogo abierto, servidor MCP y páginas en Markdown",
+    resumen:
+      "Un asistente de IA puede buscar en el catálogo, leer una ficha o ver un comercio sin pelearse con el HTML: hay un servidor MCP de solo lectura, una API documentada y cada página sale en Markdown si se le pide.",
+    fecha: "2026-08-23",
+    temas: ["novedades", "agentes", "api", "desarrolladores"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Cada vez más gente le pregunta a un asistente de IA dónde comprar algo. Para que la respuesta incluya a los comercios de Mercatren, el sitio tiene que poder leerse a máquina. Desde hoy puede.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["Qué", "Dónde", "Para qué"],
+        filas: [
+          [
+            "Servidor MCP (solo lectura)",
+            "/datos/mcp",
+            "Buscar productos, ver una ficha, listar y ver comercios desde cualquier agente compatible.",
+          ],
+          [
+            "Especificación OpenAPI",
+            "/datos/openapi.json",
+            "El catálogo público, la búsqueda y la API de socios para cobrar por enlace, documentados.",
+          ],
+          [
+            "Páginas en Markdown",
+            "cualquier página pública",
+            "Pedirla con Accept: text/markdown devuelve el contenido limpio, sin el HTML.",
+          ],
+          [
+            "Skills",
+            "/.well-known/agent-skills/index.json",
+            "Instrucciones para comprar en Mercatren y para cobrar por Mercatren desde el sistema de un comercio.",
+          ],
+          [
+            "Catálogo de la API y manifiesto",
+            "/.well-known/api-catalog · /.well-known/ai-catalog.json",
+            "Para que un agente descubra solo qué hay y cómo se usa.",
+          ],
+        ],
+        nota: "Nada de esto cobra ni escribe: un agente encuentra y recomienda; comprar sigue siendo un acto de la persona, con su cuenta.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Para quien tiene un sistema",
+        texto:
+          "Si tu negocio ya tiene su programa de facturación, con la API creas cobros por enlace, consultas si se pagaron y sincronizas tu catálogo. Escríbenos y te damos el acceso.",
+      },
+    ],
+    enlaces: [
+      { texto: "Documentación", href: "/docs" },
+      { texto: "Cómo funciona Mercatren", href: "/como-funciona" },
+    ],
+  },
+  {
     slug: "demo-del-panel",
     tipo: "documentacion",
     titulo: "Así se ve tu panel cuando vendes: una demostración para recorrer",

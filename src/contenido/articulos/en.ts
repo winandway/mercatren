@@ -13,6 +13,399 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "la-portada-abre-con-todas-las-tiendas",
+    tipo: "novedad",
+    titulo:
+      "Mercatren's home page now opens with every store — small shops first",
+    resumen:
+      "Every Venezuelan store shows up on the first screen with its newest products, even if it only has one. Products from the US catalog are spread in between, a few at a time.",
+    fecha: "2026-08-23",
+    temas: ["news", "home page", "stores", "venezuela"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Several stores told us, and they were right: the home page opened with a whole block from the store with the most products, then the US catalog, and the rest might as well not exist. A store with two products — or one — never came first.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Starting today the home page opens with a block called exactly that, “From every store”: the two newest products of EACH Venezuelan store, one after another, and only then six products from the US catalog. The order of the stores changes on every visit, so one time the zinc-sheet wholesaler opens and the next time the shoe store does.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/la-portada-abre-con-todas-las-tiendas/1-portada-celular.png",
+        alt: "Mercatren's home page on a phone: the “From every store” block with products from different Venezuelan stores.",
+        pie: "On a phone, which is where almost everyone shops from.",
+      },
+      { tipo: "subtitulo", texto: "What changes for a store" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Whether you have one product or six hundred, your two newest show up on the first screen of the home page.",
+          "Every product you upload goes straight into that block: uploading puts you up front.",
+          "The department bands (Hardware, Apparel, Motorcycles…) follow the same rule: in each one, Venezuelan stores first, then the US catalog.",
+          "And if a product has several photos, the photo shown in the grid rotates through them — people see all of them, not just the first.",
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/la-portada-abre-con-todas-las-tiendas/2-portada-escritorio.png",
+        alt: "Mercatren's home page on a desktop, with the “From every store” block.",
+        pie: "On desktop you see seven per row; the rule is the same.",
+      },
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "Do you run a store?",
+        texto:
+          "Open your store, upload your products with their city and address, and you're on the home page from day one.",
+      },
+    ],
+    enlaces: [
+      { texto: "See the home page", href: "/" },
+      { texto: "Open my store", href: "/vender" },
+      { texto: "All stores", href: "/tiendas" },
+    ],
+  },
+  {
+    slug: "productos-similares-y-lo-que-estabas-mirando",
+    tipo: "novedad",
+    titulo:
+      "Similar products and “Because you were browsing”: a store that follows your taste",
+    resumen:
+      "At the bottom of every product you now get similar ones, and if you look at two of the same kind, the home page shows you more of it. The back arrow drops you right back in the store you were in.",
+    fecha: "2026-08-23",
+    temas: ["news", "shoppers", "catalog"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Three small things you notice a lot while browsing. First: below every product there is now a “Similar products” row — same category first, then the same store — with a link to see more from that store.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/productos-similares-y-lo-que-estabas-mirando/1-similares.png",
+        alt: "The “Similar products” row at the bottom of a sneaker listing on Mercatren.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Second: if you open two products of the same kind — two pairs of shoes, two lipsticks — the home page shows a band that says “Because you were browsing” with more of it. If you move on to something else, the band follows. All of that stays in your browser; it is not sent anywhere.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/productos-similares-y-lo-que-estabas-mirando/2-porque-estuviste-mirando.png",
+        alt: "The “Because you were browsing · More Apparel” band on Mercatren's home page.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "And third, which looked like a detail and wasn't: the “Back” arrow above each product sent you to the whole catalog, and if you were browsing a store you had to find it again. Now it goes back to where you were — the store, the search — and if you arrived from a WhatsApp or Google link, it takes you to the product's store.",
+      },
+    ],
+    enlaces: [
+      { texto: "Browse the catalog", href: "/catalogo" },
+      { texto: "How Mercatren works", href: "/como-funciona" },
+    ],
+  },
+  {
+    slug: "cada-producto-dice-donde-lo-reclamas",
+    tipo: "novedad",
+    titulo:
+      "Every product now says where to pick it up: the store's city and address",
+    resumen:
+      "If you buy a pair of shoes in Tucaní you need to know where to go get them. Every listing from a Venezuelan store now says it plainly, and what happens after you pay.",
+    fecha: "2026-08-23",
+    temas: ["news", "shoppers", "pickup", "venezuela"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Nobody buys something without knowing where they will receive it. Until now, a product with no warehouse assigned said nothing — even when the store had its address on its own page. Whoever looked at the shoes had no way of knowing they are picked up on Vía Panamericana, in Tucaní.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Starting today, every product from a Venezuelan store says where it is picked up — the store's city and address, or its warehouse if it has one — and what happens after paying: you pick the product up at that address with your order number, at a verified store. If you choose your city at the top, the listing also tells you whether it is near or far.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cada-producto-dice-donde-lo-reclamas/1-ficha-campus.png",
+        alt: "A sneaker listing on Mercatren with the “Pick up at Tucaní” block, the store's address and the note about what happens after paying.",
+      },
+      { tipo: "subtitulo", texto: "For the store" },
+      {
+        tipo: "lista",
+        puntos: [
+          "The city and address you have in “My store” are what buyers see on every product. Check them.",
+          "If you have several warehouses, each product can carry its own, and that one takes precedence over the general address.",
+          "Without a city, the listing tells the buyer to message you before paying — better than making up a place.",
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cada-producto-dice-donde-lo-reclamas/2-tienda-maxium.png",
+        alt: "The MAXIUM store page on Mercatren, with its city, its WhatsApp button and its single product.",
+        pie: "A store with a single product — and everything you need to buy it.",
+      },
+    ],
+    enlaces: [
+      { texto: "Delivery and pickup", href: "/entrega" },
+      { texto: "Go to My store", href: "/panel/mi-tienda" },
+    ],
+  },
+  {
+    slug: "cobra-por-enlace-sin-programar-nada",
+    tipo: "novedad",
+    titulo:
+      "Payment links with zero coding: forward them to whoever pays, by card or Zelle",
+    resumen:
+      "From your panel you create a payment link with your invoice number, send it by WhatsApp or email to whoever is paying — even if they're in Miami — and the payment comes in. With freight and handling as separate lines if you need them.",
+    fecha: "2026-08-23",
+    temas: ["news", "stores", "payments", "zelle"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "The most common case of all: someone buys at your counter and the one putting down the card is their son in the United States. Until now, payment links were only available to the store that had connected them to its own system. Now every store has them, from the panel, under “Payments → Payment links”.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/1-panel-enlaces-de-cobro.png",
+        alt: "The “Request a payment” form in the Mercatren panel: store, amount, invoice number, payer's email and concept.",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Enter the amount and your invoice number",
+            texto:
+              "That number is what later shows up in your bank and in the payer's; it is what reconciles the books.",
+          },
+          {
+            titulo: "Enter the email of whoever is PAYING",
+            texto:
+              "It doesn't have to be your customer. The email with the link goes out, and you can also copy the link and send it by WhatsApp.",
+          },
+          {
+            titulo: "If you charge freight or any extra service, add it",
+            texto:
+              "They go on separate lines — “Freight and transportation”, “Handling and additional services” — each with its explanation, and the payer sees them itemized.",
+          },
+          {
+            titulo: "The payer chooses card or Zelle",
+            texto: `Zelle is offered from $200 and is guided step by step, with the account in the name of ${SOCIEDAD.nombre} and the number they must write in the memo.`,
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/2-pagina-de-pago.png",
+        alt: "The payment page for a $620 payment link: the store, the invoice, the concept and the two ways to pay.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/3-pagar-por-zelle.png",
+        alt: `The steps to pay by Zelle: send to the account in the name of ${SOCIEDAD.nombre} and write the reconciliation number in the memo.`,
+        pie: "Step 1 says whose name the account is in: the bank shows it to the payer before confirming.",
+      },
+      { tipo: "subtitulo", texto: "And what happens next" },
+      {
+        tipo: "lista",
+        puntos: [
+          "If the link expires, you reactivate it with the same number and the same link: the email you already sent works again.",
+          "If you got the amount or the customer wrong, you cancel it. A paid one can't be canceled: if money has to go back, the refund button is right there.",
+          "If someone reopens a link that was already paid, the page says so: “this invoice is already paid”, with the date and method.",
+          "If your business has its own system, all of this can be done from it too: there is a documented API.",
+        ],
+      },
+    ],
+    enlaces: [
+      { texto: "Go to Payments", href: "/panel/cobros/enlaces" },
+      { texto: "How the price is formed", href: "/vender/comisiones" },
+      { texto: "Documentation", href: "/docs" },
+    ],
+  },
+  {
+    slug: "busca-en-espanol-el-catalogo-de-estados-unidos",
+    tipo: "novedad",
+    titulo:
+      "Search the US catalog in Spanish: “bicicleta”, “caucho”, “corneta”",
+    resumen:
+      "The catalog that ships within the United States can be searched in Spanish, with each country's words. Ninety-six results for “bicicleta”, free shipping included in the price.",
+    fecha: "2026-08-23",
+    temas: ["news", "catalog", "united states", "search"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "The catalog that ships within the United States arrived with its listings in English, and searching for “repuestos” returned nothing even though there were spare parts. Not anymore: the search understands Spanish — and each country's words — and finds the same thing even if the listing is in English.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/busca-en-espanol-el-catalogo-de-estados-unidos/1-bicicleta.png",
+        alt: "Results for “bicicleta” on Mercatren: 96 products that ship within the United States.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "“bicicleta” finds “bike”; “llanta”, “caucho” and “neumático” all match each other; “corneta” finds “bocina”; “refacciones” finds “repuestos”.",
+          "Products that ship within the United States carry the flag on the card: shipping is included in the price and takes 2–5 days.",
+          "Titles are being translated into Spanish; in the meantime, search already works.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Can't find something?",
+        texto:
+          "Write to us. If it's a word used in your country and not in another, we add it to the search dictionary.",
+      },
+    ],
+    enlaces: [
+      { texto: "Search the catalog", href: "/catalogo" },
+      { texto: "Help", href: "/ayuda" },
+    ],
+  },
+  {
+    slug: "el-formulario-fiscal-w8ben-e-se-llena-en-pantalla",
+    tipo: "novedad",
+    titulo:
+      "The W-8BEN-E tax form is filled out on screen, in Spanish, in five minutes",
+    resumen:
+      "A store in Venezuela or Colombia does not need a US company to sell through Mercatren: it needs this form. It is now filled out from the panel and the signed document comes out.",
+    fecha: "2026-08-23",
+    temas: ["news", "stores", "tax"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "The W-8BEN-E is the form with which a company declares it is not a US company. It is what Google, Facebook or any marketplace asks of anyone getting paid from abroad; downloading it in English, printing it, signing it and scanning it is exactly where most people give up.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Now it is filled out from “My store”, in Spanish and with every field explained, and on signing the document comes out in English, as whoever has to read it expects. It is not sent to any office: it is kept in case someone asks for it. Without it, withdrawals can't be requested — so it's worth doing on day one.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/2-formulario.png",
+        alt: "The tax form inside “My store”: legal name, country, entity type, address, tax ID and signer.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/4-documento.png",
+        alt: "The W-8BEN-E document generated from the form, ready to print or save.",
+      },
+      {
+        tipo: "boton",
+        texto: "See the step-by-step tutorial",
+        href: "/docs/formulario-fiscal-w8ben-e",
+      },
+    ],
+    enlaces: [{ texto: "Go to My store", href: "/panel/mi-tienda" }],
+  },
+  {
+    slug: "asi-se-ve-tu-panel-cuando-vendes",
+    tipo: "novedad",
+    titulo:
+      "This is what your panel looks like when you sell: a demo to walk through",
+    resumen:
+      "A sample store with a month of sales so you can see, before opening yours, how orders come in, how much you keep from each sale and how you request your money.",
+    fecha: "2026-08-23",
+    temas: ["news", "stores", "panel"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "Many stores ask us the same thing before opening theirs: “and how do I see what I sell?”. So we built a demo of the panel, with a made-up store and a made-up month of sales, to walk through calmly from a phone or a computer.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/demo-panel/1-tablero.png",
+        alt: "The demo store's dashboard: sold this month, Mercatren's commission, what was left and what is available to withdraw.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Orders: each sale with its date, product, how it was paid and what step it's at.",
+          "Payments: card, Zelle and payment links, each on its own.",
+          "My money and Withdrawals: how much you kept from each sale and how you request it.",
+        ],
+      },
+      {
+        tipo: "boton",
+        texto: "Open the demo",
+        href: "/demo/panel-ventas.html",
+      },
+    ],
+    enlaces: [
+      { texto: "The full demo guide", href: "/docs/demo-del-panel" },
+      { texto: "Open my store", href: "/vender" },
+    ],
+  },
+  {
+    slug: "mercatren-ya-habla-con-los-agentes-de-ia",
+    tipo: "novedad",
+    titulo:
+      "Mercatren now talks to AI agents: open catalog, MCP server and pages in Markdown",
+    resumen:
+      "An AI assistant can search the catalog, read a listing or look up a store without fighting the HTML: there is a read-only MCP server, a documented API, and every page comes back as Markdown when asked.",
+    fecha: "2026-08-23",
+    temas: ["news", "agents", "api", "developers"],
+    cuerpo: [
+      {
+        tipo: "parrafo",
+        texto:
+          "More and more people ask an AI assistant where to buy something. For the answer to include Mercatren's stores, the site has to be machine-readable. Starting today, it is.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["What", "Where", "What for"],
+        filas: [
+          [
+            "MCP server (read-only)",
+            "/datos/mcp",
+            "Search products, view a listing, list and view stores from any compatible agent.",
+          ],
+          [
+            "OpenAPI specification",
+            "/datos/openapi.json",
+            "The public catalog, search and the partner API for payment links, documented.",
+          ],
+          [
+            "Pages in Markdown",
+            "any public page",
+            "Requesting it with Accept: text/markdown returns the clean content, without the HTML.",
+          ],
+          [
+            "Skills",
+            "/.well-known/agent-skills/index.json",
+            "Instructions for buying on Mercatren and for collecting payments through Mercatren from a store's system.",
+          ],
+          [
+            "API catalog and manifest",
+            "/.well-known/api-catalog · /.well-known/ai-catalog.json",
+            "So an agent can discover on its own what's here and how to use it.",
+          ],
+        ],
+        nota: "None of this charges or writes anything: an agent finds and recommends; buying is still something the person does, with their account.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "If you run a system",
+        texto:
+          "If your business already has its invoicing software, the API lets you create payment links, check whether they were paid and sync your catalog. Write to us and we'll set up your access.",
+      },
+    ],
+    enlaces: [
+      { texto: "Documentation", href: "/docs" },
+      { texto: "How Mercatren works", href: "/como-funciona" },
+    ],
+  },
+  {
     slug: "demo-del-panel",
     tipo: "documentacion",
     titulo:

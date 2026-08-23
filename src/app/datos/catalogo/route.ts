@@ -41,6 +41,28 @@ export async function GET(peticion: Request) {
      * portada. Misma lógica de mercado y de zona que la parrilla; solo cambia
      * qué se pide. `limite` acotado: esto alimenta una fila, no una página.
      */
+    /**
+     * POR PALABRAS (`q`): lo usan los agentes (WebMCP, el skill de compra) y
+     * cualquier integración. Es la misma búsqueda del sitio, con sinónimos.
+     */
+    const q = url.searchParams.get("q")?.trim() || null;
+    if (q) {
+      const limite = Math.min(
+        24,
+        Math.max(4, Number(url.searchParams.get("limite")) || 12),
+      );
+      const r = await listarProductos(mercado, {
+        busqueda: q,
+        pagina,
+        porPagina: limite,
+        zona: visibles,
+      });
+      return Response.json(
+        { productos: r.productos, pagina: r.pagina, paginas: r.paginas },
+        { headers: { "Access-Control-Allow-Origin": "*" } },
+      );
+    }
+
     const categoria = url.searchParams.get("categoria")?.trim() || null;
     if (categoria) {
       const limite = Math.min(

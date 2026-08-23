@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ControlesCatalogo } from "@/components/catalogo/controles-catalogo";
+import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { bannersPara } from "@/lib/banners/consultas";
+import { intercalarBanners } from "@/lib/banners/reglas";
 import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
 import { Link } from "@/i18n/navigation";
 import {
@@ -17,18 +20,70 @@ import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
+import { metaDeCatalogo } from "@/lib/seo/meta";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Parametros>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const filtros = await searchParams;
   const t = await getTranslations({ locale, namespace: "catalogo" });
-  return { title: t("titulo"), description: t("subtitulo") };
+  const base = { title: t("titulo"), description: t("subtitulo") };
+
+  /* Con búsqueda o departamento, el título dice qué se está viendo y cuántos
+     hay: «Ropa y calzado: 40 productos» posiciona; «Catálogo» a secas, no.
+     Si la base no contesta, salen los textos fijos de siempre. */
+  if (!filtros.q && !filtros.categoria && !filtros.comercio) return base;
+  try {
+    const mercado = await mercadoDeLaPeticion();
+    const [r, departamentos] = await Promise.all([
+      listarProductos(mercado, {
+        busqueda: filtros.q,
+        categoria: filtros.categoria,
+        comercio: filtros.comercio,
+        porPagina: 6,
+      }),
+      filtros.categoria
+        ? listarDepartamentosDePortada(mercado, locale)
+        : Promise.resolve([]),
+    ]);
+    const departamento = departamentos.find(
+      (d) => d.slug === filtros.categoria,
+    );
+    /* Un slug que no es de ningún departamento y sin productos: los textos de
+       siempre, no «ferreteria-y-construccion: 0 productos» en Google. */
+    if (filtros.categoria && !departamento && r.total === 0) return base;
+    const nombreCategoria =
+      departamento?.nombre ??
+      (filtros.categoria
+        ? filtros.categoria
+            .replace(/-/g, " ")
+            .replace(/^\w/, (c) => c.toUpperCase())
+        : null);
+    const comercioNombre = filtros.comercio
+      ? (r.productos[0]?.tiendaNombre ?? filtros.comercio)
+      : null;
+    return {
+      ...metaDeCatalogo({
+        busqueda: filtros.q ?? null,
+        categoria: nombreCategoria,
+        comercio: comercioNombre,
+        total: r.total,
+        idioma: locale === "en" ? "en" : "es",
+        tituloBase: base.title,
+        descripcionBase: base.description,
+      }),
+    };
+  } catch {
+    return base;
+  }
 }
 
 type Parametros = {
@@ -81,6 +136,8 @@ export default async function PaginaCatalogo({
     /* LA TIRA TAMBIÉN AQUÍ DENTRO. Ver el comentario de abajo. */
     listarDepartamentosDePortada(mercado, idioma).catch(() => []),
   ]);
+  /* Los banners de la casa para el catálogo. Sin banners activos no cambia nada. */
+  const bannersCatalogo = await bannersPara(mercado, "catalogo", idioma);
 
   const hayBusqueda = Boolean(
     filtros.q || filtros.categoria || filtros.comercio,
@@ -212,11 +269,21 @@ export default async function PaginaCatalogo({
         </div>
       ) : (
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
-          {resultado.productos.map((producto) => (
-            <li key={producto.id}>
-              <TarjetaProducto producto={producto} idioma={idioma} />
-            </li>
-          ))}
+          {intercalarBanners(resultado.productos, bannersCatalogo).map(
+            (x, i) =>
+              x.tipo === "banner" ? (
+                <li
+                  key={`banner-${x.banner.id}-${i}`}
+                  className="col-span-full"
+                >
+                  <BannerPublicitario banner={x.banner} />
+                </li>
+              ) : (
+                <li key={x.item.id}>
+                  <TarjetaProducto producto={x.item} idioma={idioma} />
+                </li>
+              ),
+          )}
         </ul>
       )}
 

@@ -45,6 +45,7 @@ export const TRAMOS_SOLO_EQUIPO = [
   "usuarios",
   "configuracion",
   "diccionario",
+  "banners",
   "catalogo-usa",
   "proveedor",
   "validacion",

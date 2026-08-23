@@ -20,8 +20,35 @@ const ES_PANEL = new RegExp(`^/(${routing.locales.join("|")})/panel(/|$)`);
  * corta aqui y la pagina ni se arma. La comprobacion de verdad (que el rol
  * tenga permiso) se hace despues, en las consultas.
  */
+/**
+ * MARKDOWN PARA AGENTES (23 ago 2026). Una página pública pedida con
+ * `Accept: text/markdown` se sirve en Markdown desde `/datos/markdown`, que la
+ * arma desde los datos (ficha, tienda, artículo, portada) o convierte el HTML.
+ * Los navegadores nunca piden text/markdown, así que para una persona no
+ * cambia nada; lo del panel y lo que lleva sesión no entra.
+ */
+function quiereMarkdown(request: NextRequest): boolean {
+  if (request.method !== "GET") return false;
+  const accept = request.headers.get("accept") ?? "";
+  return /\btext\/markdown\b/i.test(accept);
+}
+
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (quiereMarkdown(request) && !ES_PANEL.test(pathname)) {
+    const ruta = pathname + (request.nextUrl.search || "");
+    const url = request.nextUrl.clone();
+    url.pathname = "/datos/markdown";
+    url.search = `?ruta=${encodeURIComponent(ruta)}`;
+    /* La ruta viaja TAMBIÉN en una cabecera: tras una reescritura, el
+       `request.url` que ve la ruta de servidor es el original, sin el
+       parámetro. Medido el 23 ago 2026: sin esto toda página devolvía la
+       portada. */
+    const cabeceras = new Headers(request.headers);
+    cabeceras.set("x-ruta-markdown", ruta);
+    return NextResponse.rewrite(url, { request: { headers: cabeceras } });
+  }
 
   if (ES_PANEL.test(pathname)) {
     const cookie = getSessionCookie(request, { cookiePrefix: "mercatren" });

@@ -48,6 +48,17 @@ const PARA_MAQUINAS = [
   // El catálogo que lee Google Merchant Center. Si esto deja de responder, los
   // productos se caen de Google y no se entera nadie.
   "/datos/google",
+  /* LO QUE SE LE PUBLICA A LOS AGENTES (23 ago 2026): si una de estas cae, el
+     sitio vuelve a ser invisible para las máquinas sin que nadie lo note. */
+  "/.well-known/api-catalog",
+  "/.well-known/oauth-protected-resource",
+  "/.well-known/mcp/server-card.json",
+  "/.well-known/agent-skills/index.json",
+  "/.well-known/agent-skills/comprar-en-mercatren/SKILL.md",
+  "/.well-known/ai-catalog.json",
+  "/auth.md",
+  "/datos/openapi.json",
+  "/datos/salud",
   "/manifest.webmanifest",
 ];
 

@@ -4,10 +4,11 @@ import {
   ArrowUpRight,
   BookOpen,
   CreditCard,
-  Flag,
   FileText,
+  Flag,
   Languages,
   LayoutDashboard,
+  Megaphone,
   Menu,
   Package,
   Receipt,
@@ -150,6 +151,14 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/diccionario",
         clave: "diccionario",
         Icono: BookOpen,
+        soloInterno: true,
+      },
+      /* LA PUBLICIDAD DE LA CASA: los banners que salen en medio de las
+         parrillas. Los maneja solo el equipo (rol soporte). */
+      {
+        href: "/panel/banners",
+        clave: "banners",
+        Icono: Megaphone,
         soloInterno: true,
       },
     ],

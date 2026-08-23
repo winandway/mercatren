@@ -48,6 +48,7 @@ import {
   fichaDeProducto,
   migasDePan,
 } from "@/lib/seo/datos-estructurados";
+import { metaDeProducto } from "@/lib/seo/meta";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
@@ -81,36 +82,60 @@ export async function generateMetadata({
    * se arma una honesta con lo que sí sabemos: qué es, de quién y dónde se
    * retira. No es relleno: es exactamente lo que el comprador necesita saber.
    */
-  const resumen =
-    descripcion ??
-    [
-      titulo,
-      ficha.tiendaNombre,
-      ficha.depositoZona
-        ? (zonaPorSlug(ficha.depositoZona)?.nombre ?? null)
-        : (zonaPorNombre(ficha.tiendaCiudad)?.nombre ??
-          ficha.tiendaCiudad ??
-          null),
-    ]
-      .filter(Boolean)
-      .join(" · ");
+  /* Dónde se retira: el depósito, y si no, la ciudad de la tienda. */
+  const ciudad = ficha.depositoZona
+    ? (zonaPorSlug(ficha.depositoZona)?.nombre ?? null)
+    : (zonaPorNombre(ficha.tiendaCiudad)?.nombre ?? ficha.tiendaCiudad ?? null);
+  const categoriaNombre =
+    (locale === "en" ? ficha.categoriaNombreEn : ficha.categoriaNombreEs) ??
+    ficha.categoriaNombreEs ??
+    null;
+
+  /**
+   * TÍTULO + COMERCIO Y UNA DESCRIPCIÓN QUE DICE PRECIO, DÓNDE SE RETIRA O SI SE
+   * DESPACHA, Y CÓMO SE PAGA (23 ago 2026). Sale de `src/lib/seo/meta.ts`,
+   * puro y con pruebas. Ninguna ficha va a Google con el título pelado ni sin
+   * descripción: el catálogo importado viene casi todo sin ella, y una página
+   * sin `description` la resume Google como quiere.
+   */
+  const meta = metaDeProducto({
+    titulo,
+    descripcion: descripcion ?? null,
+    marca: ficha.producto.marca,
+    categoria: categoriaNombre,
+    tienda: ficha.tiendaNombre,
+    ciudad,
+    precio: formatearPrecio(
+      ficha.producto.precioCentavos,
+      locale as Idioma,
+      ficha.producto.moneda,
+    ),
+    paisOrigen: ficha.tiendaPais,
+    idioma: locale === "en" ? "en" : "es",
+  });
+  const imagen = ficha.imagenes[0]
+    ? ficha.imagenes[0].url.startsWith("http")
+      ? ficha.imagenes[0].url
+      : `${SITIO.url}${ficha.imagenes[0].url}`
+    : undefined;
 
   return {
-    title: titulo,
-    description: resumen,
+    title: meta.title,
+    description: meta.description,
+    keywords: meta.keywords,
     alternates: rutaCanonica(`/producto/${slug}`, locale),
     openGraph: {
       type: "website",
-      title: titulo,
-      description: resumen,
+      title: meta.title,
+      description: meta.description,
       url: `${SITIO.url}/${locale}/producto/${slug}`,
-      images: ficha.imagenes[0]
-        ? [
-            ficha.imagenes[0].url.startsWith("http")
-              ? ficha.imagenes[0].url
-              : `${SITIO.url}${ficha.imagenes[0].url}`,
-          ]
-        : undefined,
+      images: imagen ? [imagen] : undefined,
+    },
+    twitter: {
+      card: imagen ? "summary_large_image" : "summary",
+      title: meta.title,
+      description: meta.description,
+      images: imagen ? [imagen] : undefined,
     },
   };
 }

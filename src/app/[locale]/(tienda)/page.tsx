@@ -9,12 +9,15 @@ import {
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ParaTi } from "@/components/catalogo/para-ti";
+import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { ParrillaInfinita } from "@/components/catalogo/parrilla-infinita";
 import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
 import { Link } from "@/i18n/navigation";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { obtenerPortada } from "@/lib/catalogo/consultas";
 import { nuevaSemilla } from "@/lib/catalogo/semilla";
+import { bannersPara } from "@/lib/banners/consultas";
+import { intercalarBanners } from "@/lib/banners/reglas";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
@@ -103,6 +106,9 @@ export default async function PaginaInicio({
   const deTodasLasTiendas = parrilla.productos.slice(0, 24);
   const restoDeLaParrilla = parrilla.productos.slice(24);
   const paginasDe24 = Math.max(1, Math.ceil(parrilla.total / 24));
+  /* Los banners de la casa para la portada (23 ago 2026): salen en medio de
+     las parrillas, cada tantos productos. Sin banners activos no cambia nada. */
+  const bannersPortada = await bannersPara(mercado, "portada", idioma);
   const filtrada = Boolean(visibles) && !sinCobertura;
 
   /**
@@ -281,11 +287,21 @@ export default async function PaginaInicio({
               </p>
             </div>
             <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
-              {deTodasLasTiendas.map((producto) => (
-                <li key={producto.id}>
-                  <TarjetaProducto producto={producto} idioma={idioma} />
-                </li>
-              ))}
+              {intercalarBanners(deTodasLasTiendas, bannersPortada).map(
+                (x, i) =>
+                  x.tipo === "banner" ? (
+                    <li
+                      key={`banner-${x.banner.id}-${i}`}
+                      className="col-span-full"
+                    >
+                      <BannerPublicitario banner={x.banner} />
+                    </li>
+                  ) : (
+                    <li key={x.item.id}>
+                      <TarjetaProducto producto={x.item} idioma={idioma} />
+                    </li>
+                  ),
+              )}
             </ul>
           </section>
         ) : null}
@@ -340,6 +356,7 @@ export default async function PaginaInicio({
               semilla={semilla}
               paginas={paginasDe24}
               desdePagina={2}
+              banners={bannersPortada}
               idioma={idioma}
               textoCargando={t("cargandoMas")}
               textoFinal={t("yaViste")}

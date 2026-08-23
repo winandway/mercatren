@@ -354,6 +354,7 @@
       "usuarios": "Cuentas",
       "validacionComercio": "En revisión",
       "retiros": "Retiros",
+      "banners": "Banners",
       "diccionario": "Diccionario",
       "creditos": "Créditos",
       "ordenesCompra": "Órdenes de compra",
@@ -1048,6 +1049,8 @@
       "noEsFactura": "Documento interno. NO es la factura del comprador."
     },
     "mensajes": {
+      "guardado": "Guardado.",
+      "noSePudoGuardar": "No se pudo guardar",
       "sinPermiso": "No tienes permiso para esto.",
       "sinPermisoAprobar": "No tienes permiso para aprobar pagos.",
       "sinPermisoRechazar": "No tienes permiso para rechazar pagos.",
@@ -1462,6 +1465,85 @@
       "comprobarCobro": "Comprobar el cobro",
       "noSePudoComprobar": "No se pudo comprobar. Vuelve a intentarlo.",
       "entregaDelComercio": "La entrega la marca el comercio que vendió, no Mercatren."
+    },
+    "banners": {
+      "etiqueta": "Publicidad de la casa",
+      "titulo": "Banners en las parrillas",
+      "entradilla": "Anuncios nuestros que salen en medio de las parrillas de productos —portada, tiendas y catálogo— para darle empuje a un comercio, a un departamento o a una campaña. Los administra solo el equipo.",
+      "nuevo": "Nuevo banner",
+      "vacio": "Todavía no hay banners. Crea el primero y elige dónde sale y cada cuántos productos.",
+      "cuantos": "{n, plural, one {# banner} other {# banners}}",
+      "columnas": {
+        "banner": "Banner",
+        "donde": "Dónde sale",
+        "cada": "Cada",
+        "vigencia": "Vigencia",
+        "estado": "Estado",
+        "acciones": "Acciones"
+      },
+      "cadaProductos": "cada {n} productos",
+      "soloEnTienda": "Solo en {tienda}",
+      "sinFechas": "Sin fechas",
+      "desdeHasta": "Del {desde} al {hasta}",
+      "soloDesde": "Desde el {desde}",
+      "soloHasta": "Hasta el {hasta}",
+      "estados": {
+        "activo": "Activo",
+        "pausado": "Pausado",
+        "programado": "Programado",
+        "vencido": "Vencido"
+      },
+      "ubicaciones": {
+        "todas": "Todas las parrillas",
+        "portada": "Portada",
+        "tienda": "Tiendas",
+        "catalogo": "Catálogo"
+      },
+      "acciones": {
+        "masOpciones": "Más opciones",
+        "editar": "Editar",
+        "pausar": "Pausar",
+        "activar": "Activar",
+        "borrar": "Eliminar",
+        "seguroBorrar": "¿Eliminar este banner? Deja de salir de inmediato y no se puede deshacer."
+      },
+      "formulario": {
+        "tituloNuevo": "Nuevo banner",
+        "tituloEditar": "Editar banner",
+        "volver": "Volver a la lista",
+        "textos": "Textos",
+        "tituloEs": "Título (español)",
+        "tituloEn": "Título (inglés)",
+        "textoEs": "Texto corto (español)",
+        "textoEn": "Texto corto (inglés)",
+        "botonEs": "Botón (español)",
+        "botonEn": "Botón (inglés)",
+        "botonAyuda": "Opcional. Vacío dice «Ver tienda».",
+        "destino": "A dónde lleva",
+        "tienda": "Tienda",
+        "tiendaAyuda": "Si eliges una, el banner sale SOLO en la parrilla de esa tienda y el enlace se llena solo con su dirección.",
+        "sinTienda": "En todas las tiendas (publicidad general)",
+        "enlace": "Enlace",
+        "enlaceAyuda": "Una ruta del sitio (/tienda/maxium, /catalogo?categoria=ropa-y-calzado) o una dirección https completa.",
+        "dondeYCuando": "Dónde y cuándo",
+        "ubicacion": "Dónde sale",
+        "cadaCuantos": "Cada cuántos productos",
+        "cadaCuantosAyuda": "Entre 3 y 60. Con 12, en el celular sale cada cuatro hileras.",
+        "orden": "Orden",
+        "ordenAyuda": "Con varios banners, el de número menor sale primero.",
+        "mercado": "País (sitio)",
+        "activo": "Activo (sale al público)",
+        "desde": "Desde (opcional)",
+        "hasta": "Hasta (opcional)",
+        "imagen": "Imagen",
+        "imagenAyuda": "Opcional, horizontal (ideal 1600×500). Sin imagen, el banner sale con el azul de la casa y su título.",
+        "imagenVacia": "Sin imagen",
+        "imagenCambiar": "Elegir imagen",
+        "quitarImagen": "Quitar la imagen actual",
+        "vistaPrevia": "Así se ve",
+        "guardar": "Guardar banner",
+        "guardando": "Guardando…"
+      }
     },
     "diccionario": {
       "etiqueta": "Material interno",
@@ -2111,6 +2193,10 @@
     }
   },
   "catalogo": {
+    "banner": {
+      "publicidad": "Publicidad",
+      "verTienda": "Ver tienda"
+    },
     "titulo": "Catálogo",
     "subtitulo": "Todo lo que puedes pedir a través de Mercatren.",
     "buscarEtiqueta": "Buscar en el catálogo",

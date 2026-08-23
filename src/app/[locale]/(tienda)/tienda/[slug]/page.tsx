@@ -17,7 +17,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
 import { almacenDeLaTienda } from "@/lib/destino/almacenes";
+import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { bannersPara } from "@/lib/banners/consultas";
+import { intercalarBanners } from "@/lib/banners/reglas";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
 import { Link } from "@/i18n/navigation";
 import { obtenerTiendaPorSlug } from "@/lib/catalogo/consultas";
@@ -29,6 +32,7 @@ import { colorDeBanner } from "@/lib/marca/colores";
 import { fechaCorta } from "@/lib/fechas";
 import { RUTA_MEDIA } from "@/lib/rutas";
 import { comoJsonLd, fichaDeTienda } from "@/lib/seo/datos-estructurados";
+import { metaDeTienda } from "@/lib/seo/meta";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 import { verificacionDe } from "@/lib/verificacion/consultas";
 import { luceElSello } from "@/lib/verificacion/estado";
@@ -53,17 +57,23 @@ export async function generateMetadata({
   const descripcion =
     (locale === "en"
       ? datos.tienda.descripcionEn
-      : datos.tienda.descripcionEs) ?? undefined;
+      : datos.tienda.descripcionEs) ?? null;
 
-  /* Sin descripción propia, se dice lo que sí sabemos: quién es y dónde
-     está. Una ficha sin descripción la resume Google como quiere. */
-  const resumen =
-    descripcion ??
-    [datos.tienda.nombre, datos.tienda.ciudad].filter(Boolean).join(" · ");
+  /* Quién es, dónde está, cuántos productos tiene y cómo se compra. Regla
+     pura en `src/lib/seo/meta.ts`; lo que no se sabe no se escribe. */
+  const meta = metaDeTienda({
+    nombre: datos.tienda.nombre,
+    ciudad: datos.tienda.ciudad ?? null,
+    descripcion,
+    cuantos: datos.total,
+    paisOrigen: datos.tienda.paisOrigen ?? null,
+    idioma: locale === "en" ? "en" : "es",
+  });
 
   return {
-    title: datos.tienda.nombre,
-    description: resumen,
+    title: meta.title,
+    description: meta.description,
+    keywords: meta.keywords,
     /* Una tienda que todavía no es pública NO se indexa, aunque su dueño la
        esté mirando: si Google la guarda durante la revisión, queda en sus
        resultados una tienda que quizá no se aprobó nunca. */
@@ -73,9 +83,14 @@ export async function generateMetadata({
     alternates: rutaCanonica(`/tienda/${slug}`, locale),
     openGraph: {
       type: "website",
-      title: datos.tienda.nombre,
-      description: resumen,
+      title: meta.title,
+      description: meta.description,
       url: `${SITIO.url}/${locale}/tienda/${slug}`,
+    },
+    twitter: {
+      card: "summary",
+      title: meta.title,
+      description: meta.description,
     },
   };
 }
@@ -163,6 +178,14 @@ export default async function PaginaTienda({
      cualquiera abre tienda y vende desde el primer minuto— eso significaba
      regalarle nuestro respaldo al primero que viniera a estafar. */
   const conSello = luceElSello(await verificacionDe(tienda.id));
+  /* Los banners de la casa para esta parrilla: los de «todas las tiendas» y
+     los clavados a ESTA tienda. Sin banners activos no cambia nada. */
+  const bannersTienda = await bannersPara(
+    await mercadoDeLaPeticion(),
+    "tienda",
+    idioma,
+    tienda.id,
+  );
   const cobertura =
     idioma === "en"
       ? (envio.coberturaEn ?? envio.coberturaEs)
@@ -690,11 +713,20 @@ export default async function PaginaTienda({
                 </li>
               ) : null}
 
-              {productos.map((producto) => (
-                <li key={producto.id}>
-                  <TarjetaProducto producto={producto} idioma={idioma} />
-                </li>
-              ))}
+              {intercalarBanners(productos, bannersTienda).map((x, i) =>
+                x.tipo === "banner" ? (
+                  <li
+                    key={`banner-${x.banner.id}-${i}`}
+                    className="col-span-full"
+                  >
+                    <BannerPublicitario banner={x.banner} />
+                  </li>
+                ) : (
+                  <li key={x.item.id}>
+                    <TarjetaProducto producto={x.item} idioma={idioma} />
+                  </li>
+                ),
+              )}
             </ul>
           )}
 

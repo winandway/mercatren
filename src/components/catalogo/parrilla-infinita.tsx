@@ -3,7 +3,9 @@
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { intercalarBanners, type BannerPublico } from "@/lib/banners/reglas";
 import type { ProductoLista } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 
@@ -28,8 +30,11 @@ export function ParrillaInfinita({
   textoFinal,
   sinFiltroDeZona = false,
   desdePagina = 1,
+  banners = [],
 }: {
   inicial: ProductoLista[];
+  /** Los banners de la casa, que se meten cada tantos productos sobre TODO lo cargado. */
+  banners?: BannerPublico[];
   semilla: number;
   paginas: number;
   /**
@@ -115,11 +120,17 @@ export function ParrillaInfinita({
           enorme y en la primera pantalla apenas caben dos productos; con tres
           se ven seis y la tienda parece una tienda. */}
       <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
-        {productos.map((producto) => (
-          <li key={producto.id}>
-            <TarjetaProducto producto={producto} idioma={idioma} />
-          </li>
-        ))}
+        {intercalarBanners(productos, banners).map((x, i) =>
+          x.tipo === "banner" ? (
+            <li key={`banner-${x.banner.id}-${i}`} className="col-span-full">
+              <BannerPublicitario banner={x.banner} />
+            </li>
+          ) : (
+            <li key={x.item.id}>
+              <TarjetaProducto producto={x.item} idioma={idioma} />
+            </li>
+          ),
+        )}
       </ul>
 
       <div ref={centinela} className="py-8 text-center">

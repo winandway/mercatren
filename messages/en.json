@@ -354,6 +354,7 @@
       "usuarios": "Accounts",
       "validacionComercio": "Under review",
       "retiros": "Withdrawals",
+      "banners": "Banners",
       "diccionario": "Dictionary",
       "creditos": "Credit",
       "ordenesCompra": "Purchase orders",
@@ -1048,6 +1049,8 @@
       "noEsFactura": "Internal document. NOT the buyer's invoice."
     },
     "mensajes": {
+      "guardado": "Saved.",
+      "noSePudoGuardar": "Could not save",
       "sinPermiso": "You don't have permission for this.",
       "sinPermisoAprobar": "You don't have permission to approve payments.",
       "sinPermisoRechazar": "You don't have permission to reject payments.",
@@ -1462,6 +1465,85 @@
       "comprobarCobro": "Check the charge",
       "noSePudoComprobar": "Couldn't check. Try again.",
       "entregaDelComercio": "The merchant who sold it marks the delivery, not Mercatren."
+    },
+    "banners": {
+      "etiqueta": "House advertising",
+      "titulo": "Banners in product grids",
+      "entradilla": "Our own ads shown in the middle of the product grids — home page, stores and catalog — to push a store, a department or a campaign. Managed by the team only.",
+      "nuevo": "New banner",
+      "vacio": "No banners yet. Create the first one and choose where it shows and how often.",
+      "cuantos": "{n, plural, one {# banner} other {# banners}}",
+      "columnas": {
+        "banner": "Banner",
+        "donde": "Where",
+        "cada": "Every",
+        "vigencia": "Dates",
+        "estado": "Status",
+        "acciones": "Actions"
+      },
+      "cadaProductos": "every {n} products",
+      "soloEnTienda": "Only in {tienda}",
+      "sinFechas": "No dates",
+      "desdeHasta": "From {desde} to {hasta}",
+      "soloDesde": "From {desde}",
+      "soloHasta": "Until {hasta}",
+      "estados": {
+        "activo": "Active",
+        "pausado": "Paused",
+        "programado": "Scheduled",
+        "vencido": "Expired"
+      },
+      "ubicaciones": {
+        "todas": "All grids",
+        "portada": "Home page",
+        "tienda": "Stores",
+        "catalogo": "Catalog"
+      },
+      "acciones": {
+        "masOpciones": "More options",
+        "editar": "Edit",
+        "pausar": "Pause",
+        "activar": "Activate",
+        "borrar": "Delete",
+        "seguroBorrar": "Delete this banner? It stops showing immediately and can't be undone."
+      },
+      "formulario": {
+        "tituloNuevo": "New banner",
+        "tituloEditar": "Edit banner",
+        "volver": "Back to the list",
+        "textos": "Copy",
+        "tituloEs": "Title (Spanish)",
+        "tituloEn": "Title (English)",
+        "textoEs": "Short text (Spanish)",
+        "textoEn": "Short text (English)",
+        "botonEs": "Button (Spanish)",
+        "botonEn": "Button (English)",
+        "botonAyuda": "Optional. Empty shows “Visit store”.",
+        "destino": "Where it links to",
+        "tienda": "Store",
+        "tiendaAyuda": "If you pick one, the banner shows ONLY in that store's grid and the link fills in with its address.",
+        "sinTienda": "Every store (general advertising)",
+        "enlace": "Link",
+        "enlaceAyuda": "A site path (/tienda/maxium, /catalogo?categoria=ropa-y-calzado) or a full https address.",
+        "dondeYCuando": "Where and when",
+        "ubicacion": "Where it shows",
+        "cadaCuantos": "Every how many products",
+        "cadaCuantosAyuda": "Between 3 and 60. With 12, on a phone it shows every four rows.",
+        "orden": "Order",
+        "ordenAyuda": "With several banners, the lowest number goes first.",
+        "mercado": "Country (site)",
+        "activo": "Active (visible to the public)",
+        "desde": "From (optional)",
+        "hasta": "Until (optional)",
+        "imagen": "Image",
+        "imagenAyuda": "Optional, landscape (ideal 1600×500). Without an image the banner uses the house blue and its title.",
+        "imagenVacia": "No image",
+        "imagenCambiar": "Choose image",
+        "quitarImagen": "Remove the current image",
+        "vistaPrevia": "Preview",
+        "guardar": "Save banner",
+        "guardando": "Saving…"
+      }
     },
     "diccionario": {
       "etiqueta": "Internal material",
@@ -2111,6 +2193,10 @@
     }
   },
   "catalogo": {
+    "banner": {
+      "publicidad": "Ad",
+      "verTienda": "Visit store"
+    },
     "titulo": "Catalog",
     "subtitulo": "Everything you can order through Mercatren.",
     "buscarEtiqueta": "Search the catalog",

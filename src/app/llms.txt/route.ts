@@ -113,6 +113,14 @@ ${listaComercios}
 - [Cómo empezar](${SITIO.url}/es/vender/empezar)
 - [Qué cuesta](${SITIO.url}/es/vender/comisiones)
 
+## Para agentes de IA
+
+- [Servidor MCP (solo lectura: buscar productos, ver fichas y comercios)](${SITIO.url}/datos/mcp) — tarjeta en ${SITIO.url}/.well-known/mcp/server-card.json
+- [Especificación OpenAPI 3.1](${SITIO.url}/datos/openapi.json) — catálogo de la API (RFC 9727) en ${SITIO.url}/.well-known/api-catalog
+- [Skills](${SITIO.url}/.well-known/agent-skills/index.json) — cómo comprar y cómo cobrar por Mercatren
+- [Manifiesto ARD](${SITIO.url}/.well-known/ai-catalog.json) · [Autenticación](${SITIO.url}/auth.md) · [Recurso protegido](${SITIO.url}/.well-known/oauth-protected-resource)
+- Cualquier página pública pedida con \`Accept: text/markdown\` se sirve en Markdown.
+
 ## Para máquinas
 
 - [Mapa del sitio](${SITIO.url}/sitemap.xml)

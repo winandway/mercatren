@@ -2787,3 +2787,61 @@ export const facturasProveedor = sqliteTable("facturas_proveedor", {
   subidaPor: text("subida_por"),
   subidaEn: integer("subida_en", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * LOS BANNERS PUBLICITARIOS DE LAS PARRILLAS (23 ago 2026).
+ *
+ * Lo pidió el dueño: «veo de una tienda cuarenta productos y en la mitad veo
+ * un banner publicitario de las mismas tiendas… esos banners los vamos a
+ * manejar nosotros». Es publicidad de la casa a sus propios comercios —la
+ * tienda de zapatos, la de electrónica—, no un espacio que se venda a
+ * terceros; por eso lo administra SOLO el rol soporte y no hay nada del lado
+ * del comercio.
+ *
+ * Tabla NUEVA, no columnas: así llega sola a producción con `schema.sql`. Los
+ * textos van en los dos idiomas (sitio bilingüe); la foto va en nuestro bucket
+ * (`imagen_clave`, se sirve por /media) y es opcional: sin foto el banner se
+ * dibuja con el color de la casa y su título. `cada_cuantos` es cada cuántos
+ * productos aparece en una parrilla; `ubicacion` en qué parrillas (portada,
+ * tienda, catálogo o todas); `tienda_id` lo deja fijo a una tienda concreta
+ * (null = en todas las tiendas); `desde`/`hasta` programan la campaña.
+ */
+export const banners = sqliteTable(
+  "banners",
+  {
+    id: text("id").primaryKey(),
+    tituloEs: text("titulo_es").notNull(),
+    tituloEn: text("titulo_en"),
+    textoEs: text("texto_es"),
+    textoEn: text("texto_en"),
+    /** Texto del botón: «Ver tienda», «Ver ofertas»… Opcional. */
+    botonEs: text("boton_es"),
+    botonEn: text("boton_en"),
+    imagenClave: text("imagen_clave"),
+    /** A dónde lleva: una ruta del sitio (/tienda/x, /catalogo?categoria=y) o una URL completa. */
+    enlace: text("enlace").notNull(),
+    /** portada | tienda | catalogo | todas */
+    ubicacion: text("ubicacion").notNull().default("todas"),
+    /** Si solo sale en la parrilla de UNA tienda. null = en todas. */
+    tiendaId: text("tienda_id").references(() => tiendas.id, {
+      onDelete: "set null",
+    }),
+    cadaCuantos: integer("cada_cuantos").notNull().default(12),
+    orden: integer("orden").notNull().default(0),
+    activo: integer("activo", { mode: "boolean" }).notNull().default(true),
+    desde: integer("desde", { mode: "timestamp" }),
+    hasta: integer("hasta", { mode: "timestamp" }),
+    /** El país (mercado) donde sale. Un banner de mercatren.com no sale en .cl. */
+    mercado: text("mercado").notNull().default("US"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_banners_activo_mercado").on(t.activo, t.mercado),
+    index("idx_banners_tienda").on(t.tiendaId),
+  ],
+);
