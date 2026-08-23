@@ -86,7 +86,7 @@ export function recursoProtegido(base?: string) {
 /** auth.md (workos.com/auth-md): cómo se consigue acceso, en palabras normales. */
 export function authMd(base?: string) {
   const r = recursosDe(base);
-  return `# Autenticación en Mercatren
+  return `# auth.md — Autenticación en Mercatren
 
 ## Resumen
 
@@ -118,89 +118,111 @@ export function authMd(base?: string) {
 `;
 }
 
-/** ARD (Agentic Resource Discovery): /.well-known/ai-catalog.json */
+/**
+ * ARD (Agentic Resource Discovery): /.well-known/ai-catalog.json
+ *
+ * Con los nombres del esquema oficial (ai-catalog.schema.json): `host` con
+ * `displayName` e `identifier` (did:web), y cada entrada con `identifier`
+ * (urn:air:<dominio>:<espacio>:<nombre>), `displayName`, `type` (tipo IANA) y
+ * exactamente UNA de `url` o `data`, más 2–5 `representativeQueries`. Medido el
+ * 23 ago 2026: con `id` en vez de `identifier` el medidor daba «0 entradas
+ * válidas».
+ */
 export function catalogoArd(base?: string) {
   const r = recursosDe(base);
   const dominio = new URL(r.base).hostname;
   const urn = (espacio: string, nombre: string) =>
     `urn:air:${dominio}:${espacio}:${nombre}`;
   return {
-    specVersion: "0.1",
+    specVersion: "1.0",
     host: {
-      name: r.nombre,
-      url: r.base,
+      displayName: r.nombre,
+      identifier: `did:web:${dominio}`,
+      documentationUrl: r.docs,
       description: `Marketplace operado por ${r.sociedad}: se paga en Estados Unidos con tarjeta o Zelle y la mercancía se retira en comercios de Venezuela o se despacha en Estados Unidos.`,
-      contact: r.contacto,
     },
     entries: [
       {
-        id: urn("mcp", "catalogo"),
+        identifier: urn("mcp", "catalogo"),
         displayName: "Mercatren MCP (catálogo en solo lectura)",
         description:
-          "Servidor MCP con herramientas para buscar productos, leer fichas y ver comercios.",
-        type: "application/json",
-        url: r.mcp,
-        transport: "streamable-http",
+          "Servidor MCP con herramientas para buscar productos, leer fichas y ver comercios. La tarjeta describe el transporte (Streamable HTTP) y el endpoint.",
+        type: "application/mcp-server-card+json",
+        url: r.tarjetaMcp,
+        tags: ["mcp", "catalogo", "marketplace", "venezuela", "estados-unidos"],
+        capabilities: [
+          "buscar_productos",
+          "ver_producto",
+          "listar_tiendas",
+          "ver_tienda",
+        ],
         representativeQueries: [
           "busca bicicletas en Mercatren",
           "qué comercios venden en El Vigía",
           "cuánto cuesta la lámina de zinc de MAXIUM",
           "muéstrame los productos de Variedades COLOMBIA NEXT",
         ],
+        version: VERSION_AGENTES,
       },
       {
-        id: urn("openapi", "mercatren"),
+        identifier: urn("openapi", "mercatren"),
         displayName: "Mercatren API (OpenAPI 3.1)",
         description:
           "Catálogo público, búsqueda, salud y la API de socios para cobrar por enlace y sincronizar catálogos.",
-        type: "application/vnd.oai.openapi+json;version=3.1",
+        type: "application/vnd.oai.openapi+json",
         url: r.openapi,
+        tags: ["openapi", "api", "cobros", "catalogo"],
         representativeQueries: [
           "crea un cobro por enlace de $45.90 con referencia F-00123",
           "qué estado tiene el cobro F-00123",
           "lista los productos publicados",
         ],
+        version: VERSION_AGENTES,
       },
       {
-        id: urn("skills", "indice"),
+        identifier: urn("skills", "indice"),
         displayName: "Skills para agentes",
         description:
           "Instrucciones para comprar en Mercatren y para cobrar por Mercatren desde el sistema de un comercio.",
         type: "application/json",
         url: r.skills,
+        tags: ["skills", "agentskills"],
         representativeQueries: [
           "cómo se compra en Mercatren",
           "cómo cobra un comercio por enlace",
         ],
       },
       {
-        id: urn("feed", "google-shopping"),
+        identifier: urn("feed", "google-shopping"),
         displayName: "Catálogo entregable en Estados Unidos (Google Shopping)",
         description:
           "RSS/XML con los productos que se despachan en Estados Unidos, con precio y enlace.",
         type: "application/rss+xml",
         url: r.feedGoogle,
+        tags: ["feed", "google-shopping", "estados-unidos"],
         representativeQueries: [
           "productos con envío gratis a Estados Unidos",
           "feed de productos de Mercatren",
         ],
       },
       {
-        id: urn("texto", "llms"),
+        identifier: urn("texto", "llms"),
         displayName: "llms.txt",
         description:
           "Resumen del sitio para asistentes: qué es, cómo funciona, comercios y enlaces.",
         type: "text/plain",
         url: r.llms,
+        tags: ["llms-txt"],
         representativeQueries: ["qué es Mercatren", "cómo funciona Mercatren"],
       },
       {
-        id: urn("texto", "sitemap"),
+        identifier: urn("texto", "sitemap"),
         displayName: "Mapa del sitio",
         description:
           "Todas las páginas públicas, comercios y productos, en los dos idiomas.",
         type: "application/xml",
         url: r.sitemap,
+        tags: ["sitemap"],
         representativeQueries: [
           "lista de páginas de Mercatren",
           "todas las fichas de producto y comercios publicados",

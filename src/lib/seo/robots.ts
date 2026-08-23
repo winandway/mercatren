@@ -140,6 +140,8 @@ export function robotsTxt(): string {
     "",
     `Host: ${SITIO.url}`,
     `Sitemap: ${SITIO.url}/sitemap.xml`,
+    /* ARD (§6.1): dónde está el manifiesto de capacidades para agentes. */
+    `Agentmap: ${SITIO.url}/.well-known/ai-catalog.json`,
     "",
   ].join("\n");
 }

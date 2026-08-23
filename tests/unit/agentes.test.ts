@@ -40,14 +40,17 @@ describe("los documentos de descubrimiento", () => {
     expect(cat.linkset[0]!.status[0]!.href).toBe(r.salud);
     expect(cat.linkset[1]!.anchor).toBe(r.mcp);
     expect(tarjetaMcp(BASE).transport.endpoint).toBe(r.mcp);
-    expect(catalogoArd(BASE).entries.map((e) => e.url)).toContain(r.mcp);
+    /* La entrada MCP del ARD apunta a la TARJETA (que describe el endpoint), como manda el ejemplo de la norma. */
+    expect(catalogoArd(BASE).entries.map((e) => e.url)).toContain(r.tarjetaMcp);
     expect(catalogoArd(BASE).entries.map((e) => e.url)).toContain(r.openapi);
     expect(recursoProtegido(BASE).resource_documentation).toBe(r.authMd);
   });
 
   it("el manifiesto ARD tiene la forma que pide la norma: urn:air:<dominio>:<espacio>:<nombre>, tipo IANA, una sola de url/data y consultas representativas", () => {
+    expect(catalogoArd(BASE).host.displayName).toBe("Mercatren");
+    expect(catalogoArd(BASE).host.identifier).toBe("did:web:mercatren.com");
     for (const e of catalogoArd(BASE).entries) {
-      expect(e.id).toMatch(/^urn:air:mercatren\.com:[a-z-]+:[a-z-]+$/);
+      expect(e.identifier).toMatch(/^urn:air:mercatren\.com:[a-z-]+:[a-z-]+$/);
       expect(e.type).toMatch(/^[a-z]+\/[\w.+-]+(;.*)?$/);
       expect("url" in e).toBe(true);
       expect(e.representativeQueries.length).toBeGreaterThanOrEqual(2);
@@ -64,6 +67,8 @@ describe("los documentos de descubrimiento", () => {
   it("NO se inventa un servidor OAuth: el recurso protegido lo dice y auth.md explica cómo se consigue el token", () => {
     expect(recursoProtegido(BASE).authorization_servers).toEqual([]);
     expect(authMd(BASE)).toContain("No hay servidor OAuth/OIDC");
+    /* El H1 tiene que contener «auth.md»: es lo que busca quien lo descubre. */
+    expect(authMd(BASE).split("\n")[0]).toMatch(/^# .*auth\.md/);
     expect(authMd(BASE)).toContain("hola@mercatren.com");
   });
 

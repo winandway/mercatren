@@ -176,6 +176,8 @@ export default async function LayoutIdioma({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        {/* ARD: el manifiesto de capacidades para agentes. React lo sube al <head>. */}
+        <link rel="ai-catalog" href="/.well-known/ai-catalog.json" />
         <script
           type="application/ld+json"
           // Todo el JSON-LD del sitio pasa por `comoJsonLd`, que lo escapa
