@@ -80,6 +80,8 @@
     "yaViste": "Ya viste todo el catálogo.",
     "cuantosHay": "{n} productos",
     "verTodoDe": "Ver todo",
+    "deTodasLasTiendas": "De todas las tiendas",
+    "deTodasLasTiendasTexto": "Un poco de cada comercio, distinto cada vez que entras.",
     "masVariados": "Más productos",
     "masVariadosTexto": "De todo un poco, distinto cada vez que entras.",
     "verTodasLasTiendas": "Ver todas las tiendas"
@@ -2849,6 +2851,9 @@
     "eligeCiudad": "Elige tu ciudad",
     "retirasEn": "Retiras en",
     "ayuda": "Elige tu estado y tu ciudad, y te decimos dónde retirar cada producto.",
+    "comoReclamar": "Después de pagar, reclamas el producto en esta dirección con tu número de pedido.",
+    "comercioVerificado": "Comercio verificado en Mercatren.",
+    "sinLugar": "El comercio aún no indicó dónde entrega. Escríbele antes de pagar.",
     "seRetiraEn": "Se retira en",
     "aqui": "Está en tu ciudad. Pasas y lo recoges.",
     "cerca": "Está en {ciudad}, te queda cerca. Puedes ir a buscarlo.",

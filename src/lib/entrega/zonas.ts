@@ -56,6 +56,36 @@ for (const estado of VENEZUELA) {
   }
 }
 
+/**
+ * La zona a partir de la CIUDAD ESCRITA A MANO en la ficha del comercio
+ * («Tucani», «El Vigía », «CARACAS»). Sirve para el producto que no tiene
+ * depósito: hereda la ciudad de su tienda (misma regla que `enZona`) y con
+ * esto la ficha puede decir si le queda cerca o lejos a quien mira.
+ * Sin acentos y sin mayúsculas; si no coincide con ninguna, `null` — no se
+ * adivina.
+ */
+export function zonaPorNombre(texto: string | null | undefined): Zona | null {
+  if (!texto) return null;
+  const buscado = normalizarNombre(texto);
+  if (!buscado) return null;
+  return POR_NOMBRE.get(buscado) ?? null;
+}
+
+function normalizarNombre(nombre: string): string {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+/** Índice nombre normalizado → zona. La primera ciudad con ese nombre gana. */
+const POR_NOMBRE = new Map<string, Zona>();
+for (const zona of POR_SLUG.values()) {
+  const llave = normalizarNombre(zona.nombre);
+  if (!POR_NOMBRE.has(llave)) POR_NOMBRE.set(llave, zona);
+}
+
 export function zonaPorSlug(slug: string | null | undefined): Zona | null {
   if (!slug) return null;
   return POR_SLUG.get(slug) ?? null;

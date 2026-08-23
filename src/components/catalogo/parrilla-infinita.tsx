@@ -27,10 +27,17 @@ export function ParrillaInfinita({
   textoCargando,
   textoFinal,
   sinFiltroDeZona = false,
+  desdePagina = 1,
 }: {
   inicial: ProductoLista[];
   semilla: number;
   paginas: number;
+  /**
+   * La tanda inicial puede no ser la primera: la portada enseña la página 1
+   * arriba («De todas las tiendas») y aquí abajo sigue desde la 2, así que
+   * la siguiente que se pide es la 3 y nada sale repetido.
+   */
+  desdePagina?: number;
   idioma: Idioma;
   textoCargando: string;
   textoFinal: string;
@@ -43,7 +50,7 @@ export function ParrillaInfinita({
   sinFiltroDeZona?: boolean;
 }) {
   const [productos, setProductos] = useState(inicial);
-  const [pagina, setPagina] = useState(1);
+  const [pagina, setPagina] = useState(desdePagina);
   const [cargando, setCargando] = useState(false);
   const centinela = useRef<HTMLDivElement>(null);
   const hayMas = pagina < paginas;

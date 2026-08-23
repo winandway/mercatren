@@ -129,7 +129,13 @@ test.describe("La portada sigue lo que la persona estuvo mirando", () => {
        historial del navegador—, no un tiempo: `goto` vuelve en `load`, y el
        efecto que anota corre después de hidratar. */
     const visitar = async (slug: string) => {
-      await page.goto(`/es/producto/${slug}`);
+      /* `domcontentloaded` y no `load`: el `load` espera TODAS las fotos, y las
+         del catálogo importado viven en el servidor del comercio, que a ratos
+         tarda más de 30 s. Lo que hace falta es que el HTML esté y que el
+         efecto anote la visita — eso lo espera el `waitForFunction` de abajo. */
+      await page.goto(`/es/producto/${slug}`, {
+        waitUntil: "domcontentloaded",
+      });
       await page.waitForFunction(
         (s) =>
           (
@@ -184,7 +190,7 @@ test.describe("La portada sigue lo que la persona estuvo mirando", () => {
 
     await visitar(elegida!.a);
     await visitar(elegida!.b);
-    await page.goto("/es");
+    await page.goto("/es", { waitUntil: "domcontentloaded" });
 
     const banda = page
       .locator(`section[aria-label^="${PREFIJO_MAS_DE}"]`)

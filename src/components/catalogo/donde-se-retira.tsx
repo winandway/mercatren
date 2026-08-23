@@ -1,8 +1,13 @@
-import { MapPin, TriangleAlert } from "lucide-react";
+import { BadgeCheck, MapPin, TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { porcentajeVisible, type ModoEnvio } from "@/lib/envios/politica";
-import { distanciaDeRetiro, zonaPorSlug } from "@/lib/entrega/zonas";
+import {
+  distanciaDeRetiro,
+  zonaPorNombre,
+  zonaPorSlug,
+  type Zona,
+} from "@/lib/entrega/zonas";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,9 +29,29 @@ import { cn } from "@/lib/utils";
  *
  * Sin ciudad elegida se enseña neutro: dónde está y ya. A quien acaba de
  * llegar no se le grita por no haber dicho todavía dónde vive.
+ *
+ * ══ SIN DEPÓSITO, LA TIENDA (23 ago 2026) ══
+ *
+ * Lo destapó el dueño con unos zapatos de Variedades COLOMBIA NEXT: la ficha
+ * no decía dónde se retiraban. La tienda tiene su dirección cargada («Vía
+ * Panamericana CC El Metro locales 7-8-14, Tucaní») pero el producto no
+ * tiene depósito, y este bloque callaba. Palabras suyas: «¿cómo yo compro
+ * unos zapatos ahí si no sé ni dónde los voy a recibir? … nadie es adivino».
+ *
+ * Ahora, sin depósito, el producto HEREDA LA CIUDAD Y LA DIRECCIÓN DE SU
+ * TIENDA — la misma regla que ya usaba el filtro por ciudad (`enZona`), así
+ * que la ficha y el filtro cuentan la misma historia. Y se dice con claridad
+ * qué pasa después de pagar: reclamas el producto ahí, con tu número de
+ * pedido, en un comercio verificado. Lo que se inventa: nada. Si la tienda
+ * tampoco cargó ciudad, se dice que falta y que le escriba antes de pagar.
+ *
+ * No se dibuja para lo que se entrega en Estados Unidos: ahí no se retira
+ * nada, se despacha (ver `EntregaEstadosUnidos`).
  */
 export async function DondeSeRetira({
   deposito,
+  tienda,
+  paisOrigen,
   zonaCliente,
   envio,
 }: {
@@ -37,22 +62,61 @@ export async function DondeSeRetira({
     direccion: string | null;
     comoLlegar: string | null;
   };
+  /** La tienda del producto: el respaldo cuando no hay depósito. */
+  tienda: {
+    nombre: string;
+    ciudad: string | null;
+    direccion: string | null;
+  };
+  /** De dónde sale la mercancía. `US` no se retira: se despacha. */
+  paisOrigen: string | null;
   zonaCliente: string | null;
   /** Cómo despacha el comercio de ESTE producto. */
   envio: { modo: ModoEnvio; porcentajePuntosBase: number };
 }) {
-  // Sin depósito no se inventa nada: mejor callar que mandar a alguien a una
-  // dirección que no sabemos.
-  if (!deposito.zona) return null;
+  if ((paisOrigen ?? "").trim().toUpperCase() === "US") return null;
 
   const t = await getTranslations("entrega");
   const te = await getTranslations("envio");
-  const zona = zonaPorSlug(deposito.zona);
-  if (!zona) return null;
 
-  const distancia = distanciaDeRetiro(deposito.zona, zonaCliente);
-  const esLejos = distancia === "lejos" && zonaCliente;
+  /* Primero el depósito (más preciso); si no hay, la tienda. */
+  const zonaDeposito = deposito.zona ? zonaPorSlug(deposito.zona) : null;
+  const zonaTienda = zonaDeposito ? null : zonaPorNombre(tienda.ciudad);
+  const zona: Zona | null = zonaDeposito ?? zonaTienda;
+  const ciudadTexto = zona?.nombre ?? tienda.ciudad?.trim() ?? null;
+  const lugar = zonaDeposito ? deposito.nombre : tienda.nombre;
+  const direccion = zonaDeposito
+    ? deposito.direccion
+    : (tienda.direccion?.trim() ?? null);
+  const comoLlegar = zonaDeposito ? deposito.comoLlegar : null;
+
+  const distancia = zona ? distanciaDeRetiro(zona.slug, zonaCliente) : null;
+  const esLejos = distancia === "lejos" && Boolean(zonaCliente);
   const esCerca = distancia === "cerca";
+
+  const lineaDeEnvio =
+    envio.modo === "porcentaje"
+      ? te("conCosto", { pct: porcentajeVisible(envio.porcentajePuntosBase) })
+      : te(
+          envio.modo === "incluido"
+            ? "incluido"
+            : envio.modo === "solo_retiro"
+              ? "soloRetiro"
+              : "sinDefinir",
+        );
+
+  /* Ni depósito ni ciudad: no se inventa un lugar, se dice que falta. */
+  if (!ciudadTexto) {
+    return (
+      <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
+        <p className="flex items-start gap-2 font-semibold">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <span>{t("sinLugar")}</span>
+        </p>
+        <p className="mt-1.5 pl-6 text-xs">{lineaDeEnvio}</p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -75,18 +139,15 @@ export async function DondeSeRetira({
           />
         )}
         <span>
-          {t("seRetiraEn")} {zona.nombre}
-          {deposito.nombre ? (
-            <span className="font-normal text-tinta-suave">
-              {" "}
-              · {deposito.nombre}
-            </span>
+          {t("seRetiraEn")} {ciudadTexto}
+          {lugar ? (
+            <span className="font-normal text-tinta-suave"> · {lugar}</span>
           ) : null}
         </span>
       </p>
 
       {/* La frase que cambia según qué tan lejos le queda. */}
-      {zonaCliente ? (
+      {zonaCliente && zona && distancia ? (
         <p className={cn("mt-1 pl-6", esLejos ? "" : "text-tinta-suave")}>
           {distancia === "aqui"
             ? t("aqui")
@@ -96,10 +157,10 @@ export async function DondeSeRetira({
         </p>
       ) : null}
 
-      {deposito.direccion ? (
+      {direccion ? (
         <p className="mt-1 pl-6 text-tinta-suave">
-          {deposito.direccion}
-          {deposito.comoLlegar ? ` · ${deposito.comoLlegar}` : ""}
+          {direccion}
+          {comoLlegar ? ` · ${comoLlegar}` : ""}
         </p>
       ) : (
         <p className="mt-1 pl-6 text-xs text-tinta-suave">
@@ -107,19 +168,16 @@ export async function DondeSeRetira({
         </p>
       )}
 
+      {/* Qué pasa después de pagar, dicho con todas las letras. */}
       <p className="mt-1.5 pl-6 text-xs text-tinta-suave">
-        {envio.modo === "porcentaje"
-          ? te("conCosto", {
-              pct: porcentajeVisible(envio.porcentajePuntosBase),
-            })
-          : te(
-              envio.modo === "incluido"
-                ? "incluido"
-                : envio.modo === "solo_retiro"
-                  ? "soloRetiro"
-                  : "sinDefinir",
-            )}
+        {t("comoReclamar")}
       </p>
+      <p className="mt-1 flex items-center gap-1.5 pl-6 text-xs font-medium text-precio-600">
+        <BadgeCheck className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        {t("comercioVerificado")}
+      </p>
+
+      <p className="mt-1.5 pl-6 text-xs text-tinta-suave">{lineaDeEnvio}</p>
     </div>
   );
 }

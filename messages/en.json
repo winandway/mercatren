@@ -80,6 +80,8 @@
     "yaViste": "That is the whole catalog.",
     "cuantosHay": "{n} products",
     "verTodoDe": "See all",
+    "deTodasLasTiendas": "From every store",
+    "deTodasLasTiendasTexto": "A little from each store, different every time you visit.",
     "masVariados": "More products",
     "masVariadosTexto": "A bit of everything, different every time you visit.",
     "verTodasLasTiendas": "See all stores"
@@ -2849,6 +2851,9 @@
     "eligeCiudad": "Choose your city",
     "retirasEn": "Pick up in",
     "ayuda": "Choose your state and city, and we'll tell you where to pick up each product.",
+    "comoReclamar": "After you pay, pick up your order at this address with your order number.",
+    "comercioVerificado": "Verified store on Mercatren.",
+    "sinLugar": "This store hasn't said where it hands over orders yet. Message them before paying.",
     "seRetiraEn": "Pick up at",
     "aqui": "It is in your city. Stop by and grab it.",
     "cerca": "It's in {ciudad}, not far from you. You can go pick it up.",

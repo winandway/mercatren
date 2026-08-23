@@ -2305,6 +2305,74 @@ creer que era el store. No es un fallo del sitio: se comprueba con Playwright,
 que abre la pestaña visible — `e2e/ficha-y-portada.spec.ts`, en celular y en
 escritorio, sin textos escritos a mano.
 
+## LAS TIENDAS CHICAS DE PRIMERO, CJ «VARIADITO», LA FOTO QUE ROTA Y DÓNDE SE RECLAMA (23 ago 2026)
+
+Lo destapó el dueño la misma noche que se publicaron las rondas: _«sale primero
+el bloque de Bley completo, y ahí viene todo lo de CJ, y el resto de productos
+como que no existen… esas tiendas son chiquitas, sácalas de primero a todos;
+¿que tiene un solo producto? no importa, sácalo de primero»_. Los clientes ya
+se lo habían reclamado: parecía que se le daba prioridad a quien más productos
+tiene.
+
+**Por qué las rondas del 22 ago no bastaron.** Dos causas, las dos medidas:
+
+1. **Lo primero que se ve en la portada son las BANDAS por departamento**, no
+   la parrilla del final — y las bandas barajaban con `RANDOM()` a secas: en la
+   de Ferretería la lámina de zinc de MAXIUM competía contra seiscientos
+   productos de la ferretería y salía una vez de cada seiscientas. Las rondas
+   solo se habían puesto en la parrilla de abajo, donde casi nadie llega.
+2. **Las veintitrés tiendas `us-<rubro>` contaban como veintitrés tiendas.** Una
+   ronda eran 46 productos de CJ antes del segundo producto de la tienda de
+   Tucaní. Y «las tiendas con novedades primero» ponía siempre delante a la
+   ferretería, que sincroniza a diario.
+
+**La regla nueva, `ordenPorRondas(semilla)` en `consultas.ts`, usada por la
+parrilla Y por las bandas:**
+
+- El puesto se cuenta por **FAMILIA** (`familiaDe` en `intercalar.ts`): cada
+  comercio venezolano es su propia familia; **todo lo de Estados Unidos es UNA
+  sola, «us»** — detrás vende Mercatren LLC y surte un solo proveedor.
+- La ronda = puesto / cupo: **2 por comercio venezolano, `CJ_POR_RONDA` = 6
+  para toda la familia de CJ** («unos cinco, seis productos»). Ronda 0 = los
+  dos más nuevos de CADA comercio de Venezuela + seis de CJ.
+- **Dentro de la ronda, Venezuela primero**; las tiendas barajadas con la
+  semilla de la visita (una vez abre MAXIUM, otra MEGAYES); CJ barajado con la
+  semilla dentro de su familia.
+- **Se quitó la ventaja entre tiendas por «tener novedades»**: tapaba a las
+  chicas. Lo nuevo de cada comercio sigue yendo primero DENTRO de su tienda.
+- **El intercalado posterior va por familia**, no por tienda: seis rubros de
+  CJ seguidos son seis tiendas distintas para el intercalado por tienda, y el
+  dueño los ve como un bloque.
+- **La portada abre con «De todas las tiendas»** (`inicio.deTodasLasTiendas`):
+  la primera tanda de la parrilla (24), ANTES de las bandas; la parrilla
+  infinita del final sigue desde la página 2 (`desdePagina`), sin repetir.
+  `obtenerPortada` pide 48 y la página los parte.
+
+**La foto de la tarjeta rota** (`fotoDeTurno(semilla)`): MAXIUM tiene dos fotos
+y la linda no la veía nadie. El turno se calcula con `ROW_NUMBER` dentro de las
+fotos del producto —**no con `orden`, que el importador deja en 0 para todas**—
+y las tres subconsultas (dirección, clave, alt) llevan el mismo orden, así que
+hablan de la misma foto. La portada usa la semilla de la visita; el catálogo
+por categoría y los similares, `semillaDelDia()` (estable entre páginas del
+mismo listado). La ficha del producto no pasa por aquí: enseña todas sus fotos.
+Comprobado en SQLite 3.51 y en la API local: seis semillas, la foto alterna y
+el alt la sigue.
+
+**Dónde se reclama, en toda ficha venezolana.** Los zapatos de Variedades
+COLOMBIA NEXT no decían dónde se retiraban: el producto no tiene depósito y la
+tienda sí tiene su dirección cargada. Ahora **sin depósito, el producto hereda
+la ciudad y la dirección de su tienda** (`zonaPorNombre` en `zonas.ts`; la
+misma regla que ya usaba el filtro `enZona`, así ficha y filtro cuentan lo
+mismo), con la frase de lo que pasa después: «Después de pagar, reclamas el
+producto en esta dirección con tu número de pedido» y «Comercio verificado en
+Mercatren». Si la tienda tampoco cargó ciudad, **no se inventa**: se dice que
+falta y que le escriba antes de pagar. Lo de Estados Unidos no pasa por aquí
+(se despacha). `obtenerProductoPorSlug` trae `tiendaCiudad` y
+`tiendaDireccion` (columnas nombradas, existen en producción desde el 5 ago).
+
+Candados: `tests/unit/portada-rondas.test.ts` (reescrita),
+`tests/unit/familia-vendedor.test.ts`, y las e2e de ficha y portada.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

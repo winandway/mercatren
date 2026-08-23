@@ -3,66 +3,142 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  CJ_POR_RONDA,
   MAXIMO_SEGUIDOS,
   PRODUCTOS_POR_RONDA,
 } from "@/lib/catalogo/intercalar";
 
 /**
- * LA PORTADA VA POR RONDAS DE TIENDA, NO POR LOTERÍA CIEGA.
+ * LA PORTADA VA POR RONDAS DE VENDEDOR, VENEZUELA PRIMERO, CJ CON CUPO.
  *
- * El barajado con semilla era justo como mecánica pero ciego a la proporción:
- * la ferretería tiene 622 productos recientes contra 78 de nuestras tiendas,
- * así que «lo nuevo» era 90 % ferretería y la portada arrancaba con veintidós
- * de la misma tienda seguidos. Medido en la portada publicada el 22 ago 2026.
+ * El 22 ago se pasó de la lotería ciega a las rondas por tienda, y el 23 el
+ * dueño volvió a verla mal: «sale primero el bloque de Bley completo, y ahí
+ * viene todo lo de CJ, y el resto de productos como que no existen». Dos
+ * causas: las veintitrés tiendas `us-<rubro>` contaban como veintitrés
+ * tiendas (46 productos de CJ por ronda), y «las tiendas con novedades
+ * primero» ponía siempre delante a la ferretería, que sincroniza a diario.
  *
- * Lo que pidió el dueño: «de cada tienda dos, tres productos, revueltos, y las
- * que están subiendo productos nuevos, primero». Eso vive en la consulta, con
- * funciones de ventana; estas pruebas se ponen rojas si alguien vuelve atrás.
+ * Lo que pidió, con sus palabras: «esas tiendas son chiquitas, sácalas de
+ * primero a todos; ¿que tiene un solo producto? no importa, sácalo de
+ * primero; eso de CJ debe salir variadito, unos cinco, seis productos». Eso
+ * vive en `ordenPorRondas` (consultas.ts); estas pruebas se ponen rojas si
+ * alguien vuelve atrás.
  */
-describe("la parrilla de la portada", () => {
-  const fuente = readFileSync("src/lib/catalogo/consultas.ts", "utf8");
-  const parrilla = fuente.slice(
-    fuente.indexOf("export async function parrillaDeProductos"),
-    fuente.indexOf("export type BandaDeDepartamento"),
+const fuente = readFileSync("src/lib/catalogo/consultas.ts", "utf8");
+
+function tramo(desde: string, hasta: string): string {
+  const a = fuente.indexOf(desde);
+  const b = fuente.indexOf(hasta, a + 1);
+  if (a < 0 || b < 0)
+    throw new Error(`no encuentro el tramo ${desde} … ${hasta}`);
+  return fuente.slice(a, b);
+}
+
+describe("el orden por rondas de vendedor", () => {
+  const orden = tramo(
+    "function ordenPorRondas(",
+    "export async function parrillaDeProductos",
   );
 
-  it("ordena por RONDAS de tienda (los N más nuevos de cada una, luego los N siguientes)", () => {
-    expect(
-      parrilla,
-      "la parrilla dejó de ordenar por rondas de tienda: vuelve la portada de una sola tienda",
-    ).toContain("ROW_NUMBER() OVER (PARTITION BY ${productos.tiendaId}");
-    expect(parrilla).toContain("PRODUCTOS_POR_RONDA");
+  it("el puesto se cuenta por FAMILIA: cada comercio venezolano la suya, y todo lo de EE. UU. es una sola («us»)", () => {
+    expect(orden).toContain("THEN 'us' ELSE ${productos.tiendaId} END");
+    expect(orden).toContain("ROW_NUMBER() OVER (PARTITION BY ${familia}");
   });
 
-  it("las tiendas con novedades van primero dentro de la ronda", () => {
-    expect(parrilla).toContain(
-      "MAX(${productos.creadoEn}) OVER (PARTITION BY ${productos.tiendaId})",
-    );
+  it("el cupo por ronda es distinto: dos por comercio venezolano, CJ_POR_RONDA para toda la familia de CJ", () => {
+    expect(orden).toContain("sql.raw(String(CJ_POR_RONDA))");
+    expect(orden).toContain("sql.raw(String(PRODUCTOS_POR_RONDA))");
+  });
+
+  it("dentro de la ronda, Venezuela primero", () => {
+    expect(orden).toContain("CASE WHEN ${esUs} THEN 1 ELSE 0 END");
   });
 
   it("y las tiendas se barajan con la semilla, para que la portada «se mueva» entre visitas", () => {
-    /* El dueño ya dijo una vez que un puesto fijo «mata la gracia». */
-    expect(parrilla).toContain("(tiendas.rowid * ${semilla}) % 104729");
+    expect(orden).toContain("(tiendas.rowid * ${semilla}) % 104729");
   });
 
-  it("la ronda y el intercalado cuentan la misma historia", () => {
-    /* Dos por tienda en la ronda, y tope de dos seguidos al intercalar: si
-       alguien cambia uno sin el otro, la portada se contradice sola. */
+  it("ya NO hay ventaja entre tiendas por «tener novedades»: tapaba a las chicas", () => {
+    expect(orden).not.toContain("MAX(${productos.creadoEn}) OVER");
+  });
+
+  it("la parrilla Y las bandas usan el mismo orden, y ninguna baraja con RANDOM() a secas", () => {
+    const parrilla = tramo(
+      "export async function parrillaDeProductos",
+      "export type BandaDeDepartamento",
+    );
+    const bandas = tramo(
+      "export async function bandasDeDepartamentos",
+      "\n}\n",
+    );
+    expect(parrilla).toContain("orderBy(...ordenPorRondas(semilla))");
+    expect(bandas).toContain("orderBy(...ordenPorRondas(semilla))");
+    expect(fuente).not.toContain("ABS(RANDOM())");
+  });
+
+  it("el intercalado posterior va por FAMILIA (familiaDe), no por tienda", () => {
+    const parrilla = tramo(
+      "export async function parrillaDeProductos",
+      "export type BandaDeDepartamento",
+    );
+    const bandas = tramo(
+      "export async function bandasDeDepartamentos",
+      "\n}\n",
+    );
+    expect(parrilla).toContain("familiaDe,");
+    expect(bandas).toContain("familiaDe,");
+  });
+
+  it("los cupos cuentan la misma historia que el intercalado", () => {
     expect(PRODUCTOS_POR_RONDA).toBe(MAXIMO_SEGUIDOS);
+    /* «unos cinco, seis productos» de CJ por ronda. */
+    expect(CJ_POR_RONDA).toBeGreaterThanOrEqual(5);
+    expect(CJ_POR_RONDA).toBeLessThanOrEqual(6);
   });
 
-  it("el divisor de la ronda va como literal, no como parámetro", () => {
-    /* Un parámetro numérico puede llegar como REAL y la división dejaría de
-       ser entera: todas las rondas se volverían distintas y el orden, ruido. */
-    expect(parrilla).toContain("sql.raw(String(PRODUCTOS_POR_RONDA))");
+  it("la portada trae 48: los primeros 24 abren «De todas las tiendas», el resto arranca la parrilla infinita", () => {
+    const portada = tramo(
+      "export async function obtenerPortada",
+      "export async function listarComerciosDestacados",
+    );
+    expect(portada).toContain(
+      "parrillaDeProductos(mercado, semilla, 1, 48, zona)",
+    );
+    expect(portada).toContain(
+      "bandasDeDepartamentos(mercado, idioma, 6, 21, zona, semilla)",
+    );
+    const pagina = readFileSync("src/app/[locale]/(tienda)/page.tsx", "utf8");
+    expect(pagina).toContain("parrilla.productos.slice(0, 24)");
+    expect(pagina).toContain("desdePagina={2}");
+    expect(pagina.indexOf('t("deTodasLasTiendas")')).toBeLessThan(
+      pagina.indexOf("bandas.map("),
+    );
+  });
+});
+
+describe("la foto de turno", () => {
+  it("las tarjetas ya no clavan la primera foto: rota con la semilla, y las tres columnas hablan de la misma foto", () => {
+    expect(fuente).not.toContain("PRIMERA_FOTO");
+    const foto = tramo("function fotoDeTurno(", "function semillaDelDia(");
+    expect(foto).toContain(
+      "ROW_NUMBER() OVER (ORDER BY ${imagenesProducto.orden}, imagenes_producto.rowid)",
+    );
+    expect(foto).toContain("% COUNT(*) OVER ()");
+    /* url, clave y alt salen de la misma función `elegir` con el mismo orden */
+    expect(foto.match(/elegir\(sql`/g)?.length).toBe(3);
+  });
+
+  it("se usa en la parrilla, las bandas, el catálogo y los similares", () => {
+    expect(
+      fuente.match(/fotoDeTurno\((semilla|semillaDelDia\(\))\)/g)?.length,
+    ).toBe(4);
   });
 });
 
 describe("los similares de la ficha", () => {
-  const fuente = readFileSync("src/lib/catalogo/consultas.ts", "utf8");
-  const similares = fuente.slice(
-    fuente.indexOf("export async function productosSimilares"),
-    fuente.indexOf("export async function listarCategoriasConProductos"),
+  const similares = tramo(
+    "export async function productosSimilares",
+    "export async function listarCategoriasConProductos",
   );
 
   it("existen, respetan el mercado y nunca devuelven el propio producto", () => {
@@ -87,5 +163,25 @@ describe("los similares de la ficha", () => {
       ficha,
       "volvió el «Volver al catálogo» fijo que sacaba de la tienda",
     ).not.toContain('href="/catalogo"');
+  });
+});
+
+describe("dónde se retira: sin depósito, la tienda", () => {
+  it("la ficha le pasa la ciudad y la dirección de la tienda, y el bloque las usa de respaldo", () => {
+    const ficha = readFileSync(
+      "src/app/[locale]/(tienda)/producto/[slug]/page.tsx",
+      "utf8",
+    );
+    expect(ficha).toContain("ciudad: ficha.tiendaCiudad");
+    expect(ficha).toContain("direccion: ficha.tiendaDireccion");
+    const bloque = readFileSync(
+      "src/components/catalogo/donde-se-retira.tsx",
+      "utf8",
+    );
+    expect(bloque).toContain("zonaPorNombre(tienda.ciudad)");
+    expect(bloque).toContain('t("comoReclamar")');
+    expect(bloque).toContain('t("sinLugar")');
+    /* lo de Estados Unidos no se retira: se despacha */
+    expect(bloque).toContain(`=== "US") return null`);
   });
 });

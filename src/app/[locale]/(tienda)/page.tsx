@@ -95,6 +95,14 @@ export default async function PaginaInicio({
     portada = await obtenerPortada(mercado, idioma, semilla);
   }
   const { parrilla, departamentos, bandas, comercios } = portada;
+  /* La parrilla vino con 48: los primeros 24 abren la portada («De todas las
+     tiendas»: cada comercio venezolano con sus dos más nuevos, luego seis de
+     CJ, luego el resto), y los otros 24 arrancan la parrilla infinita del
+     final, que sigue pidiendo desde la página 3. `paginas` se recalcula en
+     tandas de 24, que es como las sirve /datos/catalogo. */
+  const deTodasLasTiendas = parrilla.productos.slice(0, 24);
+  const restoDeLaParrilla = parrilla.productos.slice(24);
+  const paginasDe24 = Math.max(1, Math.ceil(parrilla.total / 24));
   const filtrada = Boolean(visibles) && !sinCobertura;
 
   /**
@@ -255,6 +263,33 @@ export default async function PaginaInicio({
          * el navegador y no dibuja nada hasta que hay señal: la portada sin
          * historial se ve exactamente igual que antes.
          */}
+        {/**
+         * DE TODAS LAS TIENDAS, PRIMERO (23 ago 2026). Es lo que pidió el dueño
+         * con todas las letras: «esas tiendas son chiquitas, sácalas de primero
+         * a todos; ¿que tiene un solo producto? no importa, sácalo de primero».
+         * Es la primera tanda de la parrilla (ver `ordenPorRondas`): los dos
+         * más nuevos de CADA comercio venezolano, seis de CJ, y recién después
+         * el resto. Antes el primer bloque de la portada era la banda del
+         * departamento más grande —la ferretería entera— y después todo CJ.
+         */}
+        {deTodasLasTiendas.length > 0 ? (
+          <section className="pt-6">
+            <div className="mb-3">
+              <h2 className="text-lg font-bold">{t("deTodasLasTiendas")}</h2>
+              <p className="mt-0.5 text-sm text-tinta-suave">
+                {t("deTodasLasTiendasTexto")}
+              </p>
+            </div>
+            <ul className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+              {deTodasLasTiendas.map((producto) => (
+                <li key={producto.id}>
+                  <TarjetaProducto producto={producto} idioma={idioma} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <ParaTi idioma={idioma} />
 
         {/**
@@ -290,8 +325,8 @@ export default async function PaginaInicio({
           </section>
         ))}
 
-        {/* Y AL FINAL, DE TODO. La que no para. */}
-        {parrilla.productos.length > 0 ? (
+        {/* Y AL FINAL, DE TODO. La que no para: sigue desde la página 2. */}
+        {restoDeLaParrilla.length > 0 ? (
           <section className="pt-6">
             <div className="mb-3">
               <h2 className="text-lg font-bold">{t("masVariados")}</h2>
@@ -301,20 +336,21 @@ export default async function PaginaInicio({
             </div>
 
             <ParrillaInfinita
-              inicial={parrilla.productos}
+              inicial={restoDeLaParrilla}
               semilla={semilla}
-              paginas={parrilla.paginas}
+              paginas={paginasDe24}
+              desdePagina={2}
               idioma={idioma}
               textoCargando={t("cargandoMas")}
               textoFinal={t("yaViste")}
               sinFiltroDeZona={!filtrada}
             />
           </section>
-        ) : (
+        ) : deTodasLasTiendas.length === 0 ? (
           <p className="my-10 rounded-xl border border-dashed border-borde px-6 py-16 text-center text-sm text-tinta-suave">
             {t("catalogoVacio")}
           </p>
-        )}
+        ) : null}
 
         <div className="space-y-10 py-10">
           {/* Los comercios, que es de lo que va esto */}

@@ -44,6 +44,36 @@ export const MAXIMO_SEGUIDOS = 2;
 export const PRODUCTOS_POR_RONDA = MAXIMO_SEGUIDOS;
 
 /**
+ * CUÁNTOS PRODUCTOS DE CJ (nuestras tiendas de Estados Unidos) ENTRAN POR RONDA.
+ *
+ * Las veintitrés tiendas `us-<rubro>` son marcas de la casa: por dentro vende
+ * y factura Mercatren LLC, y el catálogo lo surte UN proveedor. Si cada una
+ * contara como una tienda más, una ronda serían 46 productos de CJ antes de
+ * que una ferretería de Tucaní enseñara el segundo suyo. Palabras del dueño:
+ * «eso de CJ debe salir variadito, unos cinco, seis productos».
+ */
+export const CJ_POR_RONDA = 6;
+
+/**
+ * LA FAMILIA DEL VENDEDOR: a quién se le cuenta el cupo.
+ *
+ * Un comercio venezolano es su propia familia. Todo lo que se entrega en
+ * Estados Unidos —las tiendas `us-*` y la general— es UNA sola familia, «us»,
+ * porque detrás hay un solo vendedor (Mercatren LLC) y un solo proveedor. Es
+ * la misma llave que usa la consulta (`ordenPorRondas`) y el intercalado, a
+ * propósito: si una contara por tienda y la otra por familia, la portada se
+ * contradiría sola.
+ */
+export function familiaDe(p: {
+  tiendaPais: string | null | undefined;
+  tiendaSlug: string;
+}): string {
+  return (p.tiendaPais ?? "").trim().toUpperCase() === "US"
+    ? "us"
+    : p.tiendaSlug;
+}
+
+/**
  * Reparte una lista ya ordenada para que no haya rachas de la misma tienda.
  *
  * `grupoDe` dice a qué tienda pertenece cada uno. Se agrupa por TIENDA y no

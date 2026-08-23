@@ -37,7 +37,11 @@ import {
   productosSimilares,
 } from "@/lib/catalogo/consultas";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
-import { ciudadesVisiblesDesde, zonaPorSlug } from "@/lib/entrega/zonas";
+import {
+  ciudadesVisiblesDesde,
+  zonaPorNombre,
+  zonaPorSlug,
+} from "@/lib/entrega/zonas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import {
   comoJsonLd,
@@ -84,7 +88,9 @@ export async function generateMetadata({
       ficha.tiendaNombre,
       ficha.depositoZona
         ? (zonaPorSlug(ficha.depositoZona)?.nombre ?? null)
-        : null,
+        : (zonaPorNombre(ficha.tiendaCiudad)?.nombre ??
+          ficha.tiendaCiudad ??
+          null),
     ]
       .filter(Boolean)
       .join(" · ");
@@ -417,6 +423,12 @@ export default async function PaginaProducto({
                 direccion: ficha.depositoDireccion,
                 comoLlegar: ficha.depositoComoLlegar,
               }}
+              tienda={{
+                nombre: ficha.tiendaNombre,
+                ciudad: ficha.tiendaCiudad,
+                direccion: ficha.tiendaDireccion,
+              }}
+              paisOrigen={ficha.tiendaPais}
               zonaCliente={zona?.slug ?? null}
               envio={envioDelComercio}
             />

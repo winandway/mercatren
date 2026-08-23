@@ -18,6 +18,8 @@ import {
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
 import {
+  CJ_POR_RONDA,
+  familiaDe,
   intercalarPorTienda,
   PRODUCTOS_POR_RONDA,
 } from "@/lib/catalogo/intercalar";
@@ -216,24 +218,54 @@ export type ProductoLista = {
   imagenAlt: string | null;
 };
 
-/** La primera foto de cada producto, para las tarjetas del listado. */
-const PRIMERA_FOTO = {
-  url: sql<
-    string | null
-  >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
-  clave: sql<
-    string | null
-  >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
-  alt: sql<
-    string | null
-  >`(SELECT ${imagenesProducto.textoAltEs} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
-};
+/**
+ * LA FOTO DE LA TARJETA ROTA ENTRE LAS QUE TIENE EL PRODUCTO (23 ago 2026).
+ *
+ * Lo pidió el dueño con un caso concreto: MAXIUM tiene dos fotos de sus
+ * láminas de zinc; la primera es fea y la segunda, linda — y la linda no la
+ * veía nadie, porque la tarjeta siempre enseñaba la primera. Ahora cada
+ * visita (la semilla de la portada) o cada día (las páginas sin semilla)
+ * elige OTRA de las fotos del producto: «un día una foto, otro día otra».
+ *
+ *  - El turno se calcula con `ROW_NUMBER` dentro de las fotos del producto,
+ *    no con la columna `orden`: el importador deja `orden = 0` en todas, y
+ *    con esa columna sola todas empatarían y no rotaría nada.
+ *  - Las tres subconsultas (dirección, clave y texto alternativo) llevan el
+ *    MISMO criterio de orden, así que las tres hablan de la misma foto.
+ *  - La semilla va como literal entero (`sql.raw` de un número saneado), no
+ *    como parámetro, por la misma razón que el divisor de la ronda.
+ *  - La ficha del producto no pasa por aquí: ahí se ven todas las fotos, en
+ *    su orden. Esto es solo la tarjeta del listado.
+ */
+function fotoDeTurno(semilla: number) {
+  const desplazamiento = sql.raw(String(Math.trunc(Math.abs(semilla)) || 0));
+  const turno = sql`((ROW_NUMBER() OVER (ORDER BY ${imagenesProducto.orden}, imagenes_producto.rowid) + ${desplazamiento}) % COUNT(*) OVER ())`;
+  const elegir = (columna: SQL) =>
+    sql<
+      string | null
+    >`(SELECT ${columna} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${turno} LIMIT 1)`;
+  return {
+    url: elegir(sql`${imagenesProducto.url}`),
+    clave: elegir(sql`${imagenesProducto.clave}`),
+    alt: elegir(sql`${imagenesProducto.textoAltEs}`),
+  };
+}
+
+/**
+ * La semilla de las páginas que NO traen una por visita (el catálogo por
+ * categoría, los similares): cambia una vez al día, así la foto de turno es
+ * estable entre una página y la siguiente del mismo listado.
+ */
+function semillaDelDia(): number {
+  return (Math.floor(Date.now() / 86_400_000) % 99_999) + 1;
+}
 
 export async function listarProductos(
   mercado: Mercado,
   filtros: FiltrosCatalogo = {},
 ) {
   const db = getDb();
+  const foto = fotoDeTurno(semillaDelDia());
   const pagina = Math.max(1, filtros.pagina ?? 1);
   const porPagina = Math.min(60, Math.max(6, filtros.porPagina ?? 24));
 
@@ -312,9 +344,9 @@ export async function listarProductos(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
-      fotoUrl: PRIMERA_FOTO.url,
-      fotoClave: PRIMERA_FOTO.clave,
-      fotoAlt: PRIMERA_FOTO.alt,
+      fotoUrl: foto.url,
+      fotoClave: foto.clave,
+      fotoAlt: foto.alt,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -409,6 +441,10 @@ export async function obtenerProductoPorSlug(mercado: Mercado, slug: string) {
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
+      /* Dónde está la TIENDA: el respaldo de «dónde se retira» cuando el
+         producto no tiene depósito (misma regla que el filtro `enZona`). */
+      tiendaCiudad: tiendas.ciudad,
+      tiendaDireccion: tiendas.direccion,
       /* Dónde se retira: el dato que decide si la compra le sirve o no. */
       depositoNombre: depositos.nombre,
       depositoZona: depositos.zona,
@@ -474,6 +510,7 @@ export async function productosSimilares(
   limite = 10,
 ): Promise<ProductoLista[]> {
   const db = getDb();
+  const foto = fotoDeTurno(semillaDelDia());
 
   const parecido = de.categoriaId
     ? or(
@@ -509,9 +546,9 @@ export async function productosSimilares(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
-      fotoUrl: PRIMERA_FOTO.url,
-      fotoClave: PRIMERA_FOTO.clave,
-      fotoAlt: PRIMERA_FOTO.alt,
+      fotoUrl: foto.url,
+      fotoClave: foto.clave,
+      fotoAlt: foto.alt,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -629,7 +666,9 @@ export async function obtenerPortada(
      y el otro dominio la serviria durante un minuto. */
 
   const [parrilla, departamentos, bandas, comercios] = await Promise.all([
-    parrillaDeProductos(mercado, semilla, 1, 24, zona).catch((e) => {
+    /* 48 y no 24: la portada enseña la primera tanda ARRIBA («De todas las
+       tiendas») y la segunda abajo, donde arranca la parrilla infinita. */
+    parrillaDeProductos(mercado, semilla, 1, 48, zona).catch((e) => {
       console.error("[portada] la parrilla no respondio:", e);
       return null;
     }),
@@ -638,7 +677,9 @@ export async function obtenerPortada(
     recordado(`portada-departamentos-${mercado.codigo}-${idioma}`, 60_000, () =>
       listarDepartamentosDePortada(mercado, idioma),
     ).catch(() => []),
-    bandasDeDepartamentos(mercado, idioma, 6, 21, zona).catch(() => []),
+    bandasDeDepartamentos(mercado, idioma, 6, 21, zona, semilla).catch(
+      () => [],
+    ),
     recordado(`portada-comercios-${mercado.codigo}`, 60_000, () =>
       listarComerciosDestacados(mercado),
     ).catch(() => []),
@@ -917,6 +958,67 @@ export async function listarDepartamentosDePortada(
 }
 
 /**
+ * EL ORDEN DE LA PORTADA: RONDAS POR VENDEDOR, VENEZUELA PRIMERO, CJ CON CUPO.
+ *
+ * Lo que vio el dueño el 23 ago 2026, con sus palabras: «sale primero el
+ * bloque de Bley completo, y ahí viene todo lo de CJ, y el resto de productos
+ * como que no existen». Tenía razón, y la causa eran dos cosas:
+ *
+ *  1. Las rondas del 22 ago contaban a cada tienda `us-<rubro>` como una tienda
+ *     más. Son veintitrés. Una ronda eran 46 productos de CJ antes de que
+ *     MAXIUM (una sola lámina de zinc, mayorista) enseñara nada.
+ *  2. Dentro de la ronda iban primero «las tiendas con novedades», y la
+ *     ferretería SIEMPRE tiene novedades (sincroniza todos los días): la
+ *     tienda de Tucaní con dos productos nunca iba delante.
+ *
+ * La regla nueva, que es la que pidió: «esas tiendas son chiquitas, sácalas de
+ * primero a todos; ¿que tiene un solo producto? no importa, sácalo de primero;
+ * eso de CJ debe salir variadito, unos cinco, seis productos».
+ *
+ *  - Cada producto tiene un PUESTO dentro de su FAMILIA (`familiaDe`): un
+ *    comercio venezolano es su propia familia y va del más nuevo al más viejo;
+ *    todo lo de Estados Unidos es UNA familia, «us», barajada con la semilla
+ *    (es de la casa y lo que importa ahí es la variedad).
+ *  - La RONDA = puesto / cupo. El cupo es PRODUCTOS_POR_RONDA (2) por comercio
+ *    venezolano y CJ_POR_RONDA (6) para toda la familia «us». Ronda 0 = los dos
+ *    más nuevos de CADA comercio de Venezuela + seis de CJ.
+ *  - Dentro de la ronda, VENEZUELA PRIMERO: esas tiendas son las que están en
+ *    la calle, con dirección y mostrador; CJ lo surte un proveedor.
+ *  - Y las tiendas se BARAJAN con la semilla de la visita —un puesto fijo
+ *    «mata la gracia», ya lo dijo el dueño una vez—, así que una vez abre
+ *    MAXIUM, otra vez MEGAYES, y siempre todas en la primera pantalla.
+ *
+ * LO QUE SE QUITÓ A PROPÓSITO: la ventaja entre tiendas por «tener novedades».
+ * Lo nuevo de cada comercio sigue yendo primero DENTRO de su tienda (ronda 0
+ * son sus dos más nuevos), que es lo que hace que «cada vez que un cliente
+ * sube un producto salga entre los primeros»; lo que ya no pasa es que una
+ * tienda que sincroniza a diario tape a las que no.
+ *
+ * Se usa en la parrilla Y en las bandas de departamento: la misma regla en
+ * los dos sitios, o la portada se contradice sola. `tiendas.rowid` y
+ * `productos.rowid` van a mano (Drizzle no conoce la columna interna). Los
+ * cupos van como literales (`sql.raw`): un parámetro numérico puede llegar
+ * como REAL y la división dejaría de ser entera.
+ */
+function ordenPorRondas(semilla: number): SQL[] {
+  const esUs = sql`UPPER(TRIM(COALESCE(${tiendas.paisOrigen}, ''))) = 'US'`;
+  const familia = sql`CASE WHEN ${esUs} THEN 'us' ELSE ${productos.tiendaId} END`;
+  const puesto = sql`ROW_NUMBER() OVER (PARTITION BY ${familia} ORDER BY CASE WHEN ${esUs} THEN (productos.rowid * ${semilla}) % 104729 ELSE 0 END, ${productos.creadoEn} DESC, productos.rowid DESC)`;
+  const cupo = sql`CASE WHEN ${esUs} THEN ${sql.raw(String(CJ_POR_RONDA))} ELSE ${sql.raw(String(PRODUCTOS_POR_RONDA))} END`;
+  return [
+    /* la ronda */
+    sql`((${puesto} - 1) / ${cupo})`,
+    /* dentro de la ronda, Venezuela primero */
+    sql`CASE WHEN ${esUs} THEN 1 ELSE 0 END`,
+    /* las tiendas barajadas con la semilla de la visita */
+    sql`(tiendas.rowid * ${semilla}) % 104729`,
+    sql`${productos.tiendaId}`,
+    desc(productos.creadoEn),
+    sql`${productos.id}`,
+  ];
+}
+
+/**
  * LA PARRILLA DE LA PORTADA: todos los productos, barajados, por tandas.
  *
  * POR QUÉ NO `ORDER BY RANDOM()` AQUÍ. Barajar de nuevo en cada tanda haría
@@ -937,13 +1039,12 @@ export async function parrillaDeProductos(
   zona?: string[],
 ) {
   const db = getDb();
+  const foto = fotoDeTurno(semilla);
 
   const visible = visibleAqui(mercado);
   const donde = zona?.length
     ? and(visible, gt(productos.precioCentavos, 0), enZona(zona))
     : and(visible, gt(productos.precioCentavos, 0));
-
-  const desdeCuandoEsNuevo = corteDeNovedad();
 
   const filas = await db
     .select({
@@ -964,9 +1065,9 @@ export async function parrillaDeProductos(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
-      fotoUrl: PRIMERA_FOTO.url,
-      fotoClave: PRIMERA_FOTO.clave,
-      fotoAlt: PRIMERA_FOTO.alt,
+      fotoUrl: foto.url,
+      fotoClave: foto.clave,
+      fotoAlt: foto.alt,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -1028,14 +1129,8 @@ export async function parrillaDeProductos(
      * El divisor va como literal (`sql.raw`), no como parámetro: un parámetro
      * numérico puede llegar como REAL y la división dejaría de ser entera.
      */
-    .orderBy(
-      sql`((ROW_NUMBER() OVER (PARTITION BY ${productos.tiendaId} ORDER BY ${productos.creadoEn} DESC, productos.rowid DESC) - 1) / ${sql.raw(String(PRODUCTOS_POR_RONDA))})`,
-      sql`CASE WHEN MAX(${productos.creadoEn}) OVER (PARTITION BY ${productos.tiendaId}) > ${desdeCuandoEsNuevo} THEN 0 ELSE 1 END`,
-      sql`(tiendas.rowid * ${semilla}) % 104729`,
-      productos.tiendaId,
-      desc(productos.creadoEn),
-      productos.id,
-    )
+    /* RONDAS POR VENDEDOR (23 ago 2026): ver `ordenPorRondas`. */
+    .orderBy(...ordenPorRondas(semilla))
     .limit(porPagina)
     .offset((pagina - 1) * porPagina);
 
@@ -1072,7 +1167,10 @@ export async function parrillaDeProductos(
         imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
         imagenAlt: f.fotoAlt,
       })),
-      (p) => p.tiendaSlug,
+      /* Por FAMILIA, no por tienda: seis de CJ seguidos son seis tiendas
+         distintas para el intercalado por tienda, y el dueño los ve como un
+         bloque. Con la familia se reparten entre los comercios venezolanos. */
+      familiaDe,
     ),
     total,
     pagina,
@@ -1108,6 +1206,7 @@ export async function bandasDeDepartamentos(
   cuantasBandas = 6,
   porBanda = 21,
   zona?: string[],
+  semilla: number = semillaDelDia(),
 ): Promise<BandaDeDepartamento[]> {
   const conProductos = (
     await listarDepartamentosDePortada(mercado, idioma, zona)
@@ -1119,6 +1218,7 @@ export async function bandasDeDepartamentos(
   if (conProductos.length === 0) return [];
 
   const db = getDb();
+  const foto = fotoDeTurno(semilla);
   const visible = visibleAqui(mercado);
 
   return Promise.all(
@@ -1141,9 +1241,9 @@ export async function bandasDeDepartamentos(
           tiendaNombre: tiendas.nombre,
           tiendaSlug: tiendas.slug,
           tiendaPais: tiendas.paisOrigen,
-          fotoUrl: PRIMERA_FOTO.url,
-          fotoClave: PRIMERA_FOTO.clave,
-          fotoAlt: PRIMERA_FOTO.alt,
+          fotoUrl: foto.url,
+          fotoClave: foto.clave,
+          fotoAlt: foto.alt,
         })
         .from(productos)
         .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -1162,16 +1262,13 @@ export async function bandasDeDepartamentos(
             )`,
           ),
         )
-        /* Los recién llegados llevan VENTAJA en el barajado, no puesto
-           fijo: su número sale de un rango diez veces más chico, así que
-           casi siempre caen en la primera fila pero en un sitio distinto en
-           cada carga. Clavarlos de primeros se sentía congelado — el dueño
-           lo notó refrescando. */
-        .orderBy(
-          sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()}
-            THEN ABS(RANDOM()) % 100000
-            ELSE ABS(RANDOM()) % 1000000 END`,
-        )
+        /* EL MISMO ORDEN QUE LA PARRILLA (23 ago 2026). Antes cada banda
+           barajaba con RANDOM() a secas, y en la de Ferretería la lámina de
+           zinc de MAXIUM competía contra seiscientos productos de la
+           ferretería: salía una vez de cada seiscientas. Con las rondas, la
+           banda abre con los dos más nuevos de CADA comercio venezolano del
+           departamento, después seis de CJ, y recién ahí el resto. */
+        .orderBy(...ordenPorRondas(semilla))
         .limit(porBanda);
 
       return {
@@ -1201,7 +1298,7 @@ export async function bandasDeDepartamentos(
             imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
             imagenAlt: f.fotoAlt,
           })),
-          (p) => p.tiendaSlug,
+          familiaDe,
         ),
       };
     }),
