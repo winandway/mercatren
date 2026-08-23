@@ -2215,6 +2215,12 @@ su dinero. Vive en `public/demo/panel-ventas.html` y se presenta desde
   alguien toque la lista. `tests/unit/demo-panel.test.ts` lee el HTML y se pone
   rojo si vuelve a pasar, si el vocabulario de ferretería reaparece o si se cae
   el `noindex`.
+- **Lleva diez compras chiquitas con tarjeta, desde $1,09, revueltas entre las
+  grandes.** Lo pidió el dueño para el video: enseñar que con tarjeta se compra
+  desde un dólar, sin el mínimo que piden en Venezuela. Una unidad cada una,
+  productos baratos de nuestras tiendas (pegatinas, aceite esencial, labial,
+  camiseta…), con los días repartidos para que en Órdenes se mezclen solas con
+  las grandes. 44 ventas y $6.391,38 en el mes.
 - **Los totales se CALCULAN a partir de la lista de ventas** (vendido, comisión,
   procesador, te quedó, disponible). Así cuadran al centavo y el retiro de
   prueba mueve «disponible» a «pedido» de verdad.
