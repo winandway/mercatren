@@ -50,12 +50,15 @@ describe("el índice no apunta a nada que no exista", () => {
         ? e.href.startsWith("/.well-known/")
           ? join(RAIZ, "src/app", e.href.replace(/\/$/, ""))
           : join(RAIZ, "src/app", e.href)
-        : join(RAIZ, "src/app/[locale]/(tienda)", e.href, "page.tsx");
+        : join(RAIZ, "src/app/[locale]/(tienda)/(docs)", e.href, "page.tsx");
       const existe = e.externo
         ? existsSync(join(ruta, "route.ts")) ||
           existsSync(join(ruta, "[[...ruta]]", "route.ts"))
         : existsSync(ruta);
-      expect(existe, `falta la página de ${e.href} (${ruta})`).toBe(true);
+      expect(
+        existe,
+        `falta la página de ${e.href} dentro del grupo (docs) — fuera del grupo pierde la barra (${ruta})`,
+      ).toBe(true);
     }
   });
   it("cada enlace fijo tiene su texto en los dos idiomas", () => {

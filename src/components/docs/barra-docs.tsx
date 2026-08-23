@@ -9,6 +9,7 @@ import {
 import { getTranslations } from "next-intl/server";
 
 import { BuscadorDocs } from "@/components/docs/buscador-docs";
+import { EnlaceDocs } from "@/components/docs/enlace-docs";
 import { Link } from "@/i18n/navigation";
 import { porSeccion, SECCIONES, type EntradaDocs } from "@/lib/docs/indice";
 
@@ -54,24 +55,12 @@ export async function BarraDocs({ entradas }: { entradas: EntradaDocs[] }) {
               <Icono className="h-4 w-4 text-carga-600" aria-hidden />
               {t(`secciones.${s.id}.titulo`)}
             </p>
-            <ul className="mt-2 space-y-1.5 border-l border-borde pl-3">
+            <ul className="mt-2 space-y-0.5 border-l border-borde pl-2">
               {lista.map((e) => (
                 <li key={e.href}>
-                  {e.externo ? (
-                    <a
-                      href={e.href}
-                      className="block text-sm leading-snug text-tinta hover:text-carga-600"
-                    >
-                      {e.titulo}
-                    </a>
-                  ) : (
-                    <Link
-                      href={e.href}
-                      className="block text-sm leading-snug text-tinta hover:text-carga-600"
-                    >
-                      {e.titulo}
-                    </Link>
-                  )}
+                  <EnlaceDocs href={e.href} externo={e.externo}>
+                    {e.titulo}
+                  </EnlaceDocs>
                 </li>
               ))}
             </ul>

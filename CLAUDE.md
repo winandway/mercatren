@@ -3171,9 +3171,17 @@ indexe sola.
   auth.md, llms.txt) y `seccionDeGuia(temas)`, que mete sola cada guía escrita
   en su sección. `buscarEnDocs` busca sin acentos y sin signos («w8ben»
   encuentra «W-8BEN-E»).
-- `src/app/[locale]/(tienda)/docs/layout.tsx` pone la barra (`BarraDocs`) al
-  lado de TODO lo que cuelga de /docs: el índice, cada guía y el modelo. En el
-  celular la barra va plegada en «Índice de Docs».
+- **La barra NUNCA se pierde.** `src/app/[locale]/(tienda)/(docs)/` es un
+  GRUPO DE RUTAS: ahí adentro viven el índice, cada guía, el modelo **y
+  también** cómo funciona, transparencia, entrega, devoluciones, ayuda,
+  vender, comisiones, términos, privacidad y quiénes somos — con su URL de
+  siempre. `(docs)/layout.tsx` les pone a todas la barra (`BarraDocs`, con el
+  ítem activo resaltado por `EnlaceDocs`) y, arriba del contenido, «← Docs»
+  (`MigasDocs`) para el celular, donde la barra va plegada en «Índice de
+  Docs». Una página de Docs que se saque del grupo pierde la barra:
+  `tests/unit/docs-indice.test.ts` exige que cada enlace del índice exista
+  DENTRO del grupo. (`vender/empezar` se queda fuera a propósito: es el alta
+  de la tienda, no una guía.)
 - `BuscadorDocs` (cliente) filtra en el navegador: son decenas de entradas y la
   lista entera viaja con la página. Sin la equis nativa de Chrome.
 - Las guías nuevas van en `src/contenido/articulos` (tipo `documentacion`) con
