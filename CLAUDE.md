@@ -2199,6 +2199,14 @@ su dinero. Vive en `public/demo/panel-ventas.html` y se presenta desde
   título en español y su precio publicado, sacados del propio feed de Google.
   Decisión del dueño: ni uno de la ferretería ni de otros comercios — «el
   cliente va a pensar que le estamos vendiendo los productos».
+- **Y no solo los productos: TODO lo que se lee sale de esa tienda.** Los
+  conceptos de los cobros por enlace decían «10 sacos de cemento + flete» y
+  «Repuesto llave de paso» — escritos de memoria, del caso de la ferretería de
+  otro trabajo. En un demo que sus clientes ven como «así se ve tu panel», una
+  ferretería que no existe se lee como tomadura de pelo. Ahora son maletas,
+  bicicletas y lámparas de la misma lista, con envío a domicilio por DHL.
+  **Antes de entregar un demo se barre el archivo con `grep`** buscando el
+  vocabulario del caso que NO es.
 - **Los totales se CALCULAN a partir de la lista de ventas** (vendido, comisión,
   procesador, te quedó, disponible). Así cuadran al centavo y el retiro de
   prueba mueve «disponible» a «pedido» de verdad.
