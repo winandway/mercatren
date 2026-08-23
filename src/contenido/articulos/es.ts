@@ -1,4 +1,5 @@
 import type { Articulo } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -856,6 +857,196 @@ export const ARTICULOS_ES: Articulo[] = [
         texto: "Documento completo del modelo (PDF)",
         href: "/docs/mercatren-ventas-a-credito.pdf",
       },
+    ],
+  },
+  {
+    slug: "cobrar-por-enlace",
+    tipo: "documentacion",
+    titulo: "Cobrar por enlace: la guía completa para tu comercio",
+    resumen:
+      "Cómo creas un enlace de cobro desde tu panel, qué ve quien paga (tarjeta o Zelle desde $200), cómo lo reenvías a quien de verdad paga, y cómo lo devuelves, cancelas o revives.",
+    fecha: "2026-08-23",
+    temas: ["comercios", "cobros", "zelle", "tarjeta", "enlace de cobro"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Un enlace de cobro es una página de pago con tu referencia y tu monto. Se la mandas por correo o WhatsApp a quien va a pagar —tu cliente o su familiar en Estados Unidos— y cuando paga, el cobro aparece pagado en tu panel.",
+      },
+      { tipo: "subtitulo", texto: "Dónde está" },
+      {
+        tipo: "parrafo",
+        texto:
+          "En tu panel: Ventas → Cobros → pestaña «Enlaces de cobro». Ahí está el formulario para crear uno y la lista de los que ya creaste, con su estado.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/1-panel-enlaces-de-cobro.png",
+        alt: "El formulario de «Pedir un cobro» en el panel de Mercatren, con monto, referencia, correo y los cargos de flete y manejo.",
+        pie: "Ventas → Cobros → Enlaces de cobro.",
+      },
+      { tipo: "subtitulo", texto: "Cómo se crea, paso a paso" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Monto",
+            texto:
+              "Lo que vale la mercancía, en dólares, con decimales (45.90).",
+          },
+          {
+            titulo: "Referencia",
+            texto:
+              "El número de TU factura. Es lo que va a aparecer en la conciliación y en el extracto de quien paga.",
+          },
+          {
+            titulo: "Correo de quien paga",
+            texto:
+              "Puede ser tu cliente o la persona que paga por él. A ese correo le llega el enlace.",
+          },
+          {
+            titulo: "Flete y manejo (opcional)",
+            texto:
+              "Dos renglones aparte, cada uno con su explicación: el transporte y el manejo (carga, subida a un piso, embalaje). Así la factura no dice que la mercancía costó más de lo que costó.",
+          },
+          {
+            titulo: "Días de vigencia",
+            texto:
+              "Siete por defecto, hasta quince. Si vence, lo revives con la misma referencia y el mismo enlace.",
+          },
+          {
+            titulo: "Crear",
+            texto:
+              "El correo sale solo. Además ves el enlace en pantalla para copiarlo y mandarlo por WhatsApp.",
+          },
+        ],
+      },
+      { tipo: "subtitulo", texto: "Qué ve quien paga" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Una página con el desglose (mercancía, flete, manejo), tu nombre y dos formas de pagar: tarjeta, o Zelle cuando el monto es de $200 en adelante. Con Zelle se le pide que escriba el número de conciliación en la nota de la transferencia: ese número le justifica la salida de su cuenta y a nosotros la entrada en la nuestra.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/2-pagina-de-pago.png",
+        alt: "La página de pago de un enlace de cobro con el desglose de mercancía, flete y manejo, y los métodos de pago.",
+        pie: "La página que recibe quien paga.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/3-pagar-por-zelle.png",
+        alt: `Los tres pasos para pagar por Zelle: la cuenta a nombre de ${SOCIEDAD.nombre}, el número de conciliación y la captura del comprobante.`,
+        pie: "Pagar por Zelle: tres pasos en hilo.",
+      },
+      { tipo: "subtitulo", texto: "Reenviar, devolver, cancelar, revivir" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Reenviar: el botón «Reenviar» manda el mismo enlace otra vez, con la misma referencia. No se crea otro cobro.",
+          "Devolver: solo lo pagado con tarjeta, desde el desplegable del cobro, con motivo obligatorio. Un Zelle no tiene marcha atrás: se devuelve con una transferencia nueva hecha por una persona.",
+          "Cancelar: un cobro abierto o vencido se apaga y deja de ser pagable. Uno pagado no se cancela.",
+          "Revivir: un cobro vencido se reactiva conservando referencia y enlace; el correo que ya mandaste vuelve a funcionar.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "¿Tu sistema hace las facturas?",
+        texto:
+          "Puede crear los cobros solo, sin tocar el panel: la API de socios recibe monto, referencia y correo y devuelve el enlace. Está descrita en la especificación OpenAPI y en la guía para desarrolladores.",
+      },
+    ],
+    enlaces: [
+      { texto: "API y agentes de IA", href: "/docs/api-y-agentes-de-ia" },
+      { texto: "Cómo se forma el precio", href: "/vender/comisiones" },
+    ],
+  },
+  {
+    slug: "api-y-agentes-de-ia",
+    tipo: "documentacion",
+    titulo: "API y agentes de IA: cómo conectarse a Mercatren",
+    resumen:
+      "Lo que está abierto sin credenciales (catálogo, búsqueda, Markdown, servidor MCP), lo que lleva token de tienda (cobros por enlace y sincronización de catálogo) y cómo se pide el acceso.",
+    fecha: "2026-08-23",
+    temas: ["desarrolladores", "api", "agentes", "mcp", "openapi"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Leer el catálogo es público. Cobrar y sincronizar catálogos lleva un token de tienda que entrega el equipo. No hay servidor OAuth, y no se publica uno que no existe.",
+      },
+      { tipo: "subtitulo", texto: "Lo público" },
+      {
+        tipo: "tabla",
+        encabezados: ["Qué", "Dónde", "Para qué"],
+        filas: [
+          [
+            "Catálogo por tandas",
+            "GET /datos/catalogo?pagina=1&todas=1",
+            "Los productos publicados, 24 por tanda; con q= busca por palabras (con sinónimos).",
+          ],
+          [
+            "Sugerencias",
+            "GET /datos/buscar?q=",
+            "Productos y comercios que calzan mientras se escribe.",
+          ],
+          [
+            "Servidor MCP",
+            "POST /datos/mcp",
+            "JSON-RPC 2.0, Streamable HTTP: buscar_productos, ver_producto, listar_tiendas, ver_tienda.",
+          ],
+          [
+            "Markdown para agentes",
+            "cualquier página con Accept: text/markdown",
+            "La ficha, la tienda, el artículo o la portada en Markdown, con x-markdown-tokens.",
+          ],
+          ["Salud", "GET /datos/salud", "ok y si la base contesta."],
+          [
+            "OpenAPI 3.1",
+            "/datos/openapi.json",
+            "La especificación de todo lo anterior y de la API de socios.",
+          ],
+        ],
+      },
+      { tipo: "subtitulo", texto: "Cómo se descubre" },
+      {
+        tipo: "lista",
+        puntos: [
+          "/.well-known/api-catalog — el catálogo de la API (RFC 9727).",
+          "/.well-known/mcp/server-card.json — la tarjeta del servidor MCP.",
+          "/.well-known/agent-skills/index.json — los skills: «comprar en Mercatren» y «cobrar por Mercatren», con su SHA-256.",
+          "/.well-known/ai-catalog.json — el manifiesto ARD.",
+          "/auth.md y /.well-known/oauth-protected-resource — cómo se consigue acceso y qué recurso está protegido.",
+          "/llms.txt — el resumen para asistentes.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Probar el MCP en treinta segundos" },
+      {
+        tipo: "parrafo",
+        texto:
+          'Manda un POST a /datos/mcp con {"jsonrpc":"2.0","id":1,"method":"tools/list"} y recibes las cuatro herramientas. Después {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"buscar_productos","arguments":{"consulta":"bicicleta"}}} y recibes los resultados con título, precio, comercio y enlace.',
+      },
+      { tipo: "subtitulo", texto: "La API de socios (con token)" },
+      {
+        tipo: "parrafo",
+        texto: `Con Authorization: Bearer <token de la tienda>, un sistema crea cobros por enlace (POST /datos/socios/cobro), consulta su estado (GET /datos/socios/cobro?referencia=), los reactiva y los cancela, empuja su catálogo (POST /datos/socios/productos) y lee lo que cambió aquí (GET /datos/socios/cambios?desde=). El token lo entrega el equipo al vincular la tienda: escribe a ${CORREO_CONTACTO} con el nombre de la tienda y para qué lo quieres. Una plataforma socia obtiene el token de cada tienda con su llave en POST /datos/socios/vincular.`,
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Guárdalo bien",
+        texto: `El token va en el servidor, nunca en el navegador ni en un repositorio público. Para rotarlo o revocarlo, escribe a ${CORREO_CONTACTO}.`,
+      },
+    ],
+    enlaces: [
+      { texto: "OpenAPI 3.1", href: "/datos/openapi.json" },
+      { texto: "auth.md", href: "/auth.md" },
+      { texto: "Cobrar por enlace: la guía", href: "/docs/cobrar-por-enlace" },
     ],
   },
 ];

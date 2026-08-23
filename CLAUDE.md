@@ -3154,6 +3154,34 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## DOCS: SE LLAMA «DOCS», SE VE COMO LA DE YADOMINIOS Y CADA GUÍA ES SU PÁGINA (23 ago 2026)
+
+Regla global del dueño (está en el CLAUDE global): la sección se llama **«Docs»** —
+nunca «Documentación» ni «Documentos»— en el menú, el pie, el título y la
+vuelta; se ve como `yadominios.com/docs` (barra lateral con secciones e íconos,
+buscador grande con ⌘K que filtra en vivo, tarjetas con título y resumen por
+sección) pero con los colores de la casa; y cada guía es **su propia página con
+su enlace fijo**, para pasárselo a alguien como soporte y para que Google la
+indexe sola.
+
+- `src/lib/docs/indice.ts` (puro, con pruebas): las cinco secciones con su
+  ícono (Empieza aquí · Para compradores · Para comercios · Para desarrolladores
+  y agentes de IA · Legal), los enlaces fijos del sitio (cómo funciona,
+  entrega, términos…), los recursos para máquinas (OpenAPI, MCP, skills,
+  auth.md, llms.txt) y `seccionDeGuia(temas)`, que mete sola cada guía escrita
+  en su sección. `buscarEnDocs` busca sin acentos y sin signos («w8ben»
+  encuentra «W-8BEN-E»).
+- `src/app/[locale]/(tienda)/docs/layout.tsx` pone la barra (`BarraDocs`) al
+  lado de TODO lo que cuelga de /docs: el índice, cada guía y el modelo. En el
+  celular la barra va plegada en «Índice de Docs».
+- `BuscadorDocs` (cliente) filtra en el navegador: son decenas de entradas y la
+  lista entera viaja con la página. Sin la equis nativa de Chrome.
+- Las guías nuevas van en `src/contenido/articulos` (tipo `documentacion`) con
+  sus `temas`; **los textos de los enlaces fijos en `docs.enlaces.<clave>` en
+  los DOS idiomas**; `tests/unit/docs-indice.test.ts` se pone rojo si un enlace
+  del índice no tiene página, si falta un texto, o si alguien vuelve a escribir
+  «Documentación» en `messages/`.
+
 ## El blog y la documentación
 
 `/blog` (novedades) y `/docs/<slug>` (documentación) salen del **mismo motor**:

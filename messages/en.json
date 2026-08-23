@@ -25,7 +25,7 @@
     "cerrar": "Close",
     "comoFunciona": "How it works",
     "ayuda": "Help",
-    "docs": "Documentation",
+    "docs": "Docs",
     "sinResultados": "Nothing found for “{texto}”",
     "verTodos": "See all {n} results",
     "verTienda": "View store",
@@ -106,7 +106,7 @@
       "privacidad": "Privacy",
       "comoFunciona": "How it works",
       "transparencia": "Transparency",
-      "docs": "Documentation",
+      "docs": "Docs",
       "nosotros": "About us",
       "tiendas": "All stores",
       "entrega": "Pickup and delivery",
@@ -2567,10 +2567,111 @@
     }
   },
   "docs": {
-    "titulo": "Documentation",
-    "entradilla": "Mercatren's public documents: what we sell and to whom, how every transaction is documented, and what evidence it leaves. Open, no signup, no account needed.",
+    "titulo": "Docs",
+    "entradilla": "Guides, steps and answers: what we sell and to whom, how you pay and receive, how a store gets paid, and how a system or an AI agent connects. All open, no account needed, and every guide with its own link.",
     "indice": "On this page",
-    "volver": "Documentation",
+    "volver": "Docs",
+    "abrir": "Open",
+    "buscador": {
+      "etiqueta": "Search the Docs",
+      "placeholder": "Search a guide, a step, a price… (⌘K)",
+      "limpiar": "Clear search",
+      "resultados": "Results",
+      "sinResultados": "Nothing for “{consulta}”. Try another word or check the help center."
+    },
+    "barra": {
+      "etiqueta": "Docs sections",
+      "inicio": "Docs home",
+      "indice": "Docs index"
+    },
+    "secciones": {
+      "empezar": {
+        "titulo": "Start here",
+        "entradilla": "What Mercatren is, how it works and who is behind it."
+      },
+      "compradores": {
+        "titulo": "For shoppers",
+        "entradilla": "How you pay, where you pick up or how it ships, and what to do if something goes wrong."
+      },
+      "comercios": {
+        "titulo": "For stores",
+        "entradilla": "Selling on Mercatren, getting paid, withdrawing your money and keeping your store up to date."
+      },
+      "desarrolladores": {
+        "titulo": "For developers and AI agents",
+        "entradilla": "The API, the MCP server, the skills and how to get access."
+      },
+      "legal": {
+        "titulo": "Legal",
+        "entradilla": "The rules of the service and what we do with data."
+      }
+    },
+    "enlaces": {
+      "comoFunciona": {
+        "nombre": "How Mercatren works",
+        "resumen": "The short version for anyone about to buy or publish a catalog: the steps, the timing and the payment methods."
+      },
+      "modelo": {
+        "nombre": "Business model and contractual structure",
+        "resumen": "The full document: what Mercatren sells and to whom, the purchase and resale with its two invoices, and the audit trail."
+      },
+      "transparencia": {
+        "nombre": "Transparency",
+        "resumen": "Who we are, the limits of the service, the controls we apply and how long we keep records."
+      },
+      "nosotros": {
+        "nombre": "About us",
+        "resumen": "The company behind Mercatren, where it is registered and why it exists."
+      },
+      "entrega": {
+        "nombre": "Delivery and pickup",
+        "resumen": "Where each product is picked up in Venezuela, how it ships in the United States and how long it takes."
+      },
+      "devoluciones": {
+        "nombre": "Returns",
+        "resumen": "When you can return, how to open a return and what happens next."
+      },
+      "ayuda": {
+        "nombre": "Help center",
+        "resumen": "The most common questions about buying, paying, receiving and selling."
+      },
+      "vender": {
+        "nombre": "Sell on Mercatren",
+        "resumen": "What you need, how to open your store and how your money reaches you."
+      },
+      "comisiones": {
+        "nombre": "How the price is built",
+        "resumen": "You set the price you sell to us at; we publish the final price. Here is the math."
+      },
+      "openapi": {
+        "nombre": "API (OpenAPI 3.1)",
+        "resumen": "Public catalog, search, health, and the partner API to create payment links and sync catalogs."
+      },
+      "mcp": {
+        "nombre": "MCP server",
+        "resumen": "The card of the read-only MCP server: search products, view product and store pages."
+      },
+      "skills": {
+        "nombre": "Agent skills",
+        "resumen": "How to buy on Mercatren and how to get paid through Mercatren, in the agentskills.io format."
+      },
+      "authMd": {
+        "nombre": "auth.md: how to get access",
+        "resumen": "What is public, what needs a store token and how to request one."
+      },
+      "llms": {
+        "nombre": "llms.txt",
+        "resumen": "The site summary for AI assistants."
+      },
+      "terminos": {
+        "nombre": "Terms and conditions",
+        "resumen": "The rules of the service: what we sell, how you pay, how it is delivered and what happens if something fails."
+      },
+      "privacidad": {
+        "nombre": "Privacy",
+        "resumen": "What data we keep, what for and for how long."
+      }
+    },
     "version": "Version",
     "actualizado": "Updated",
     "leer": "Read the document",
@@ -3032,7 +3133,7 @@
     "volver": "Back to the blog",
     "verTambien": "See also",
     "publicado": "Published {fecha}",
-    "documentacion": "Documentation",
+    "documentacion": "Docs",
     "novedad": "News"
   },
   "factura": {

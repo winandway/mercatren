@@ -1,19 +1,16 @@
-import {
-  ArrowRight,
-  BookOpen,
-  FileText,
-  Route,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, ExternalLink, FileText } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
+import { BuscadorDocs } from "@/components/docs/buscador-docs";
+import { iconoDeSeccion } from "@/components/docs/barra-docs";
 import { articulosPorTipo } from "@/contenido/articulos";
 import { MODELO_EN } from "@/contenido/docs/modelo.en";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { entradasDeDocs, porSeccion, SECCIONES } from "@/lib/docs/indice";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 
 export function generateStaticParams() {
@@ -29,7 +26,6 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "docs" });
-
   return {
     title: t("titulo"),
     description: t("entradilla"),
@@ -45,10 +41,12 @@ export async function generateMetadata({
 }
 
 /**
- * El indice de la documentacion publica.
- *
- * Es la puerta que se abre de un clic cuando alguien pide "ensename como
- * funciona esto": sin cuenta, sin registro y sin buscar dentro del panel.
+ * LA PORTADA DE DOCS (23 ago 2026): buscador grande arriba, y debajo cada
+ * sección con su ícono, su línea de entrada y sus guías en tarjetas — título y
+ * resumen, cada una con su enlace fijo para poder pasárselo a alguien como
+ * soporte. Estilo Wikipedia: nada vive solo dentro de esta página; todo es su
+ * propia página. El documento del modelo de negocio va destacado en «Empieza
+ * aquí», que es el que se le enseña a un banco.
  */
 export default async function PaginaDocs({
   params,
@@ -57,162 +55,118 @@ export default async function PaginaDocs({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-
   const t = await getTranslations("docs");
-  /* Las guías: los artículos de documentación, que se listan solos. Antes el
-     índice era una lista a mano y el tutorial del W-8BEN-E —y el de crédito,
-     que ya existía— no salían en ningún lado salvo por enlace directo. */
-  const guias = articulosPorTipo(locale, "documentacion");
   const doc = locale === "en" ? MODELO_EN : MODELO_ES;
-
-  const otros = [
-    {
-      href: "/como-funciona" as const,
-      icono: Route,
-      nombre: t("documentos.comoFunciona.nombre"),
-      resumen: t("documentos.comoFunciona.resumen"),
-      etiqueta: t("documentos.comoFunciona.etiqueta"),
-    },
-    {
-      href: "/transparencia" as const,
-      icono: ShieldCheck,
-      nombre: t("documentos.transparencia.nombre"),
-      resumen: t("documentos.transparencia.resumen"),
-      etiqueta: t("documentos.transparencia.etiqueta"),
-    },
-  ];
+  const entradas = entradasDeDocs(
+    articulosPorTipo(locale, "documentacion"),
+    (clave, campo) => t(`enlaces.${clave}.${campo}`),
+  );
+  const grupos = porSeccion(entradas);
 
   return (
     <>
-      <header className="bg-riel-900 text-white">
-        <div className="mx-auto max-w-5xl px-4 py-14 sm:py-20">
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            {t("titulo")}
-          </h1>
-          <p className="mt-4 max-w-2xl leading-relaxed text-white/70">
-            {t("entradilla")}
-          </p>
+      <header>
+        <h1 className="text-3xl font-extrabold tracking-tight text-riel-900 sm:text-4xl">
+          {t("titulo")}
+        </h1>
+        <p className="mt-3 max-w-2xl leading-relaxed text-tinta-suave">
+          {t("entradilla")}
+        </p>
+        <div className="mt-6">
+          <BuscadorDocs entradas={entradas} grande />
         </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:py-14">
-        {/* El documento principal, destacado: es el que se ensena. */}
-        <article className="rounded-2xl border border-borde p-5 sm:p-7">
-          <p className="inline-flex items-center gap-2 rounded-full bg-carga-500/10 px-3 py-1 text-[11px] font-bold tracking-[0.08em] text-carga-600 uppercase">
-            <FileText className="h-3.5 w-3.5" aria-hidden />
-            {t("documentos.modelo.etiqueta")}
-          </p>
+      {/* El documento principal, destacado: es el que se enseña. */}
+      <article className="mt-10 rounded-2xl border border-riel-900/15 bg-riel-900 p-5 text-white sm:p-7">
+        <p className="inline-flex items-center gap-2 rounded-full bg-carga-500/20 px-3 py-1 text-[11px] font-bold tracking-[0.08em] text-carga-400 uppercase">
+          <FileText className="h-3.5 w-3.5" aria-hidden />
+          {t("documentos.modelo.etiqueta")}
+        </p>
+        <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-balance sm:text-3xl">
+          {doc.titulo}
+        </h2>
+        <p className="mt-3 max-w-3xl leading-relaxed text-white/75">
+          {doc.resumen}
+        </p>
+        <p className="mt-3 text-xs text-white/60">
+          {t("version")} {doc.version} · {t("actualizado")} {doc.actualizado}
+        </p>
+        <Link
+          href="/docs/modelo-de-negocio"
+          className="boton-principal mt-5 gap-2"
+        >
+          {t("leer")}
+          <ArrowRight className="h-4 w-4" aria-hidden />
+        </Link>
+      </article>
 
-          <h2 className="mt-4 text-2xl font-extrabold tracking-tight text-balance sm:text-3xl">
-            {doc.titulo}
-          </h2>
-          <p className="mt-3 max-w-3xl leading-relaxed text-tinta-suave">
-            {doc.resumen}
-          </p>
-
-          <p className="mt-4 text-xs text-tinta-suave">
-            {t("version")} {doc.version} · {t("actualizado")} {doc.actualizado}
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/docs/modelo-de-negocio"
-              className="boton-principal gap-2"
-            >
-              {t("leer")}
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            {/* La descarga del PDF está retirada: ese archivo dice «Windoce,
-                LLC» 54 veces y nombra a otra empresa como operadora de la
-                tienda. Se generó antes del cambio de sociedad y regenerarlo
-                pasa por el abogado. Ver la nota en `docs/modelo-de-negocio`. */}
-          </div>
-
-          {/* Lo que el documento contesta. Sirve de resumen y le da a Google
-              las preguntas con sus respuestas. */}
-          <dl className="mt-7 grid gap-4 border-t border-borde pt-6 md:grid-cols-3">
-            {doc.preguntas.map((p) => (
-              <div key={p.pregunta}>
-                <dt className="text-sm font-bold">{p.pregunta}</dt>
-                <dd className="mt-1 text-sm leading-snug text-tinta-suave">
-                  {p.respuesta}
-                </dd>
+      {SECCIONES.map((s) => {
+        const lista = grupos[s.id];
+        if (lista.length === 0) return null;
+        const Icono = iconoDeSeccion(s.icono);
+        return (
+          <section key={s.id} id={s.id} className="mt-12 scroll-mt-24">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-carga-500/10 text-carga-600">
+                <Icono className="h-5 w-5" aria-hidden />
+              </span>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-riel-900">
+                  {t(`secciones.${s.id}.titulo`)}
+                </h2>
+                <p className="mt-0.5 text-sm text-tinta-suave">
+                  {t(`secciones.${s.id}.entradilla`)}
+                </p>
               </div>
-            ))}
-          </dl>
-        </article>
-
-        {/* Los demas documentos publicos. */}
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {otros.map((d) => (
-            <Link
-              key={d.href}
-              href={d.href}
-              className="group rounded-2xl border border-borde p-5 transition-colors hover:border-carga-500"
-            >
-              <p className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.08em] text-tinta-suave uppercase">
-                <d.icono className="h-3.5 w-3.5" aria-hidden />
-                {d.etiqueta}
-              </p>
-              <h2 className="mt-3 font-bold group-hover:text-carga-600">
-                {d.nombre}
-              </h2>
-              <p className="mt-1.5 text-sm leading-snug text-tinta-suave">
-                {d.resumen}
-              </p>
-            </Link>
-          ))}
-        </div>
-
-        {/**
-         * LAS GUÍAS PARA COMERCIOS.
-         *
-         * Salen de `articulosPorTipo`, no de una lista escrita aquí: la
-         * próxima guía que se publique aparece sola. El dueño manda estos
-         * enlaces a los comercios, y un tutorial que solo existe por enlace
-         * directo no lo encuentra quien lo necesita después.
-         */}
-        {guias.length > 0 ? (
-          <section className="mt-10">
-            <p className="inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.08em] text-carga-600 uppercase">
-              <BookOpen className="h-3.5 w-3.5" aria-hidden />
-              {t("guias.etiqueta")}
-            </p>
-            <h2 className="mt-2 text-xl font-bold tracking-tight">
-              {t("guias.titulo")}
-            </h2>
-            <p className="mt-1 text-sm text-tinta-suave">
-              {t("guias.entradilla")}
-            </p>
-            <ul className="mt-4 grid gap-4 md:grid-cols-2">
-              {guias.map((g) => (
-                <li key={g.slug}>
-                  <Link
-                    href={`/docs/${g.slug}`}
-                    className="group block h-full rounded-2xl border border-borde p-5 transition-colors hover:border-carga-500"
-                  >
-                    <h3 className="font-bold group-hover:text-carga-600">
-                      {g.titulo}
+            </div>
+            <ul className="mt-5 grid gap-4 md:grid-cols-2">
+              {lista.map((e) => {
+                const cuerpo = (
+                  <>
+                    <h3 className="font-bold text-riel-900 group-hover:text-carga-600">
+                      {e.titulo}
+                      {e.externo ? (
+                        <ExternalLink
+                          className="ml-1.5 inline h-3.5 w-3.5 text-tinta-suave"
+                          aria-hidden
+                        />
+                      ) : null}
                     </h3>
                     <p className="mt-1.5 text-sm leading-snug text-tinta-suave">
-                      {g.resumen}
+                      {e.resumen}
                     </p>
                     <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-carga-600">
-                      {t("guias.leer")}
+                      {e.esGuia ? t("guias.leer") : t("abrir")}
                       <ArrowRight className="h-4 w-4" aria-hidden />
                     </span>
-                  </Link>
-                </li>
-              ))}
+                  </>
+                );
+                const clases =
+                  "group block h-full rounded-2xl border border-borde bg-white p-5 transition-colors hover:border-carga-500";
+                return (
+                  <li key={e.href}>
+                    {e.externo ? (
+                      <a href={e.href} className={clases}>
+                        {cuerpo}
+                      </a>
+                    ) : (
+                      <Link href={e.href} className={clases}>
+                        {cuerpo}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </section>
-        ) : null}
+        );
+      })}
 
-        <p className="mt-8 flex items-start gap-2 text-xs leading-relaxed text-tinta-suave">
-          <BanderaEEUU className="mt-0.5 h-4 w-4" />
-          {t("paraBancosTexto")}
-        </p>
-      </div>
+      <p className="mt-12 flex items-start gap-2 text-xs leading-relaxed text-tinta-suave">
+        <BanderaEEUU className="mt-0.5 h-4 w-4" />
+        {t("paraBancosTexto")}
+      </p>
     </>
   );
 }

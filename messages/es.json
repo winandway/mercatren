@@ -25,7 +25,7 @@
     "cerrar": "Cerrar",
     "comoFunciona": "Cómo funciona",
     "ayuda": "Ayuda",
-    "docs": "Documentación",
+    "docs": "Docs",
     "sinResultados": "No encontramos nada para «{texto}»",
     "verTodos": "Ver los {n} resultados",
     "verTienda": "Ver tienda",
@@ -106,7 +106,7 @@
       "privacidad": "Privacidad",
       "comoFunciona": "Cómo funciona",
       "transparencia": "Transparencia",
-      "docs": "Documentación",
+      "docs": "Docs",
       "nosotros": "Quiénes somos",
       "tiendas": "Todas las tiendas",
       "entrega": "Entrega y envío",
@@ -2567,10 +2567,111 @@
     }
   },
   "docs": {
-    "titulo": "Documentación",
-    "entradilla": "Los documentos públicos de Mercatren: qué vendemos y a quién, cómo se documenta cada operación y qué evidencia queda. Abiertos, sin registro y sin necesidad de entrar con una cuenta.",
+    "titulo": "Docs",
+    "entradilla": "Guías, pasos y respuestas: qué vendemos y a quién, cómo se paga y se entrega, cómo cobra un comercio y cómo se conecta un sistema o un agente de IA. Todo abierto, sin cuenta, y cada guía con su propio enlace.",
     "indice": "En esta página",
-    "volver": "Documentación",
+    "volver": "Docs",
+    "abrir": "Abrir",
+    "buscador": {
+      "etiqueta": "Buscar en Docs",
+      "placeholder": "Busca una guía, un paso, un precio… (⌘K)",
+      "limpiar": "Borrar la búsqueda",
+      "resultados": "Resultados",
+      "sinResultados": "Nada para «{consulta}». Prueba con otra palabra o mira el centro de ayuda."
+    },
+    "barra": {
+      "etiqueta": "Secciones de Docs",
+      "inicio": "Inicio de Docs",
+      "indice": "Índice de Docs"
+    },
+    "secciones": {
+      "empezar": {
+        "titulo": "Empieza aquí",
+        "entradilla": "Qué es Mercatren, cómo funciona y quién está detrás."
+      },
+      "compradores": {
+        "titulo": "Para compradores",
+        "entradilla": "Cómo se paga, dónde se retira o cómo llega, y qué hacer si algo sale mal."
+      },
+      "comercios": {
+        "titulo": "Para comercios",
+        "entradilla": "Vender en Mercatren, cobrar, retirar tu dinero y llevar tu tienda al día."
+      },
+      "desarrolladores": {
+        "titulo": "Para desarrolladores y agentes de IA",
+        "entradilla": "La API, el servidor MCP, los skills y cómo se consigue acceso."
+      },
+      "legal": {
+        "titulo": "Legal",
+        "entradilla": "Las reglas del servicio y qué hacemos con los datos."
+      }
+    },
+    "enlaces": {
+      "comoFunciona": {
+        "nombre": "Cómo funciona Mercatren",
+        "resumen": "La versión corta para quien va a comprar o a publicar su catálogo: los pasos, los tiempos y las formas de pago."
+      },
+      "modelo": {
+        "nombre": "Modelo de negocio y estructura contractual",
+        "resumen": "El documento completo: qué vende Mercatren y a quién, la compraventa con sus dos facturas y la trazabilidad."
+      },
+      "transparencia": {
+        "nombre": "Transparencia",
+        "resumen": "Quiénes somos, qué límites tiene el servicio, qué controles aplicamos y cuánto tiempo guardamos los registros."
+      },
+      "nosotros": {
+        "nombre": "Quiénes somos",
+        "resumen": "La empresa detrás de Mercatren, dónde está registrada y por qué existe."
+      },
+      "entrega": {
+        "nombre": "Entrega y retiro",
+        "resumen": "Dónde se retira cada producto en Venezuela, cómo llega en Estados Unidos y cuánto tarda."
+      },
+      "devoluciones": {
+        "nombre": "Devoluciones",
+        "resumen": "Cuándo se puede devolver, cómo se abre el trámite y qué pasa después."
+      },
+      "ayuda": {
+        "nombre": "Centro de ayuda",
+        "resumen": "Las preguntas más comunes sobre comprar, pagar, recibir y vender."
+      },
+      "vender": {
+        "nombre": "Vender en Mercatren",
+        "resumen": "Qué necesitas, cómo abres tu tienda y cómo te llega tu dinero."
+      },
+      "comisiones": {
+        "nombre": "Cómo se forma el precio",
+        "resumen": "Tú pones el precio al que nos vendes; nosotros publicamos el precio final. Así se calcula."
+      },
+      "openapi": {
+        "nombre": "API (OpenAPI 3.1)",
+        "resumen": "Catálogo público, búsqueda, salud y la API de socios para cobrar por enlace y sincronizar catálogos."
+      },
+      "mcp": {
+        "nombre": "Servidor MCP",
+        "resumen": "La tarjeta del servidor MCP de solo lectura: buscar productos, ver fichas y comercios."
+      },
+      "skills": {
+        "nombre": "Skills para agentes",
+        "resumen": "Cómo comprar en Mercatren y cómo cobrar por Mercatren, en el formato de agentskills.io."
+      },
+      "authMd": {
+        "nombre": "auth.md: cómo se consigue acceso",
+        "resumen": "Qué es público, qué lleva token de tienda y cómo se pide."
+      },
+      "llms": {
+        "nombre": "llms.txt",
+        "resumen": "El resumen del sitio para asistentes de IA."
+      },
+      "terminos": {
+        "nombre": "Términos y condiciones",
+        "resumen": "Las reglas del servicio: qué vendemos, cómo se paga, cómo se entrega y qué pasa si algo falla."
+      },
+      "privacidad": {
+        "nombre": "Privacidad",
+        "resumen": "Qué datos guardamos, para qué y por cuánto tiempo."
+      }
+    },
     "version": "Versión",
     "actualizado": "Actualizado",
     "leer": "Leer el documento",
@@ -3032,7 +3133,7 @@
     "volver": "Volver al blog",
     "verTambien": "Ver también",
     "publicado": "Publicado el {fecha}",
-    "documentacion": "Documentación",
+    "documentacion": "Docs",
     "novedad": "Novedad"
   },
   "factura": {

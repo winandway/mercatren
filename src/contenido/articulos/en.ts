@@ -1,4 +1,5 @@
 import type { Articulo } from "./tipos";
+import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
@@ -855,6 +856,199 @@ export const ARTICULOS_EN: Articulo[] = [
         texto: "Full model document (PDF)",
         href: "/docs/mercatren-ventas-a-credito.pdf",
       },
+    ],
+  },
+  {
+    slug: "cobrar-por-enlace",
+    tipo: "documentacion",
+    titulo: "Payment links: the complete guide for your store",
+    resumen:
+      "How to create a payment link from your panel, what the payer sees (card, or Zelle from $200), how to forward it to whoever actually pays, and how to refund, cancel or revive it.",
+    fecha: "2026-08-23",
+    temas: ["comercios", "cobros", "zelle", "tarjeta", "enlace de cobro"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "A payment link is a payment page with your reference and your amount. You send it by email or WhatsApp to whoever will pay —your customer or their relative in the United States— and when they pay, the charge shows as paid in your panel.",
+      },
+      { tipo: "subtitulo", texto: "Where it lives" },
+      {
+        tipo: "parrafo",
+        texto:
+          "In your panel: Sales → Payments → the “Payment links” tab. There you find the form to create one and the list of the ones you already created, with their status.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/1-panel-enlaces-de-cobro.png",
+        alt: "The “Request a payment” form in the Mercatren panel, with amount, reference, email and the freight and handling charges.",
+        pie: "Sales → Payments → Payment links.",
+      },
+      { tipo: "subtitulo", texto: "How to create one, step by step" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Amount",
+            texto: "What the goods cost, in dollars, with decimals (45.90).",
+          },
+          {
+            titulo: "Reference",
+            texto:
+              "YOUR invoice number. It is what shows up in reconciliation and on the payer's statement.",
+          },
+          {
+            titulo: "Payer's email",
+            texto:
+              "Your customer, or the person paying on their behalf. The link goes to that email.",
+          },
+          {
+            titulo: "Freight and handling (optional)",
+            texto:
+              "Two separate lines, each with its own explanation: transport, and handling (loading, carrying upstairs, packaging). That way the invoice never says the goods cost more than they did.",
+          },
+          {
+            titulo: "Days valid",
+            texto:
+              "Seven by default, up to fifteen. If it expires, you revive it with the same reference and the same link.",
+          },
+          {
+            titulo: "Create",
+            texto:
+              "The email goes out by itself. You also see the link on screen to copy it and send it by WhatsApp.",
+          },
+        ],
+      },
+      { tipo: "subtitulo", texto: "What the payer sees" },
+      {
+        tipo: "parrafo",
+        texto:
+          "A page with the breakdown (goods, freight, handling), your name and two ways to pay: card, or Zelle when the amount is $200 or more. With Zelle they are asked to write the reconciliation number in the transfer note: that number justifies the money leaving their account and arriving in ours.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/2-pagina-de-pago.png",
+        alt: "The payment page of a payment link with the breakdown of goods, freight and handling, and the payment methods.",
+        pie: "The page the payer receives.",
+      },
+      {
+        tipo: "imagen",
+        src: "/blog/cobra-por-enlace-sin-programar-nada/3-pagar-por-zelle.png",
+        alt: `The three steps to pay by Zelle: the account in the name of ${SOCIEDAD.nombre}, the reconciliation number and the receipt screenshot.`,
+        pie: "Paying by Zelle: three steps in a thread.",
+      },
+      { tipo: "subtitulo", texto: "Forward, refund, cancel, revive" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Forward: the “Resend” button sends the same link again, with the same reference. No second charge is created.",
+          "Refund: only card payments, from the charge's menu, with a mandatory reason. A Zelle payment cannot be reversed: it is returned with a new transfer made by a person.",
+          "Cancel: an open or expired link is switched off and can no longer be paid. A paid one cannot be cancelled.",
+          "Revive: an expired link is reactivated keeping reference and link; the email you already sent works again.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Does your system issue the invoices?",
+        texto:
+          "It can create the links on its own, without touching the panel: the partner API takes amount, reference and email and returns the link. It is described in the OpenAPI spec and in the developer guide.",
+      },
+    ],
+    enlaces: [
+      { texto: "API and AI agents", href: "/docs/api-y-agentes-de-ia" },
+      { texto: "How the price is built", href: "/vender/comisiones" },
+    ],
+  },
+  {
+    slug: "api-y-agentes-de-ia",
+    tipo: "documentacion",
+    titulo: "API and AI agents: how to connect to Mercatren",
+    resumen:
+      "What is open without credentials (catalog, search, Markdown, MCP server), what needs a store token (payment links and catalog sync) and how to request access.",
+    fecha: "2026-08-23",
+    temas: ["desarrolladores", "api", "agentes", "mcp", "openapi"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "Reading the catalog is public. Creating payment links and syncing catalogs needs a store token issued by the team. There is no OAuth server, and we don't publish one that doesn't exist.",
+      },
+      { tipo: "subtitulo", texto: "What is public" },
+      {
+        tipo: "tabla",
+        encabezados: ["What", "Where", "What for"],
+        filas: [
+          [
+            "Catalog in batches",
+            "GET /datos/catalogo?pagina=1&todas=1",
+            "Published products, 24 per batch; q= searches by words (with synonyms).",
+          ],
+          [
+            "Suggestions",
+            "GET /datos/buscar?q=",
+            "Products and stores that match while typing.",
+          ],
+          [
+            "MCP server",
+            "POST /datos/mcp",
+            "JSON-RPC 2.0, Streamable HTTP: buscar_productos, ver_producto, listar_tiendas, ver_tienda.",
+          ],
+          [
+            "Markdown for agents",
+            "any page with Accept: text/markdown",
+            "The product, store, article or home page in Markdown, with x-markdown-tokens.",
+          ],
+          [
+            "Health",
+            "GET /datos/salud",
+            "ok, and whether the database answers.",
+          ],
+          [
+            "OpenAPI 3.1",
+            "/datos/openapi.json",
+            "The spec for all of the above and for the partner API.",
+          ],
+        ],
+      },
+      { tipo: "subtitulo", texto: "How it is discovered" },
+      {
+        tipo: "lista",
+        puntos: [
+          "/.well-known/api-catalog — the API catalog (RFC 9727).",
+          "/.well-known/mcp/server-card.json — the MCP server card.",
+          "/.well-known/agent-skills/index.json — the skills: “buy on Mercatren” and “get paid through Mercatren”, with their SHA-256.",
+          "/.well-known/ai-catalog.json — the ARD manifest.",
+          "/auth.md and /.well-known/oauth-protected-resource — how to get access and which resource is protected.",
+          "/llms.txt — the summary for assistants.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Try the MCP in thirty seconds" },
+      {
+        tipo: "parrafo",
+        texto:
+          'POST to /datos/mcp with {"jsonrpc":"2.0","id":1,"method":"tools/list"} and you get the four tools. Then {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"buscar_productos","arguments":{"consulta":"bicicleta"}}} and you get the results with title, price, store and link.',
+      },
+      { tipo: "subtitulo", texto: "The partner API (with token)" },
+      {
+        tipo: "parrafo",
+        texto: `With Authorization: Bearer <store token>, a system creates payment links (POST /datos/socios/cobro), checks their status (GET /datos/socios/cobro?referencia=), reactivates and cancels them, pushes its catalog (POST /datos/socios/productos) and reads what changed here (GET /datos/socios/cambios?desde=). The token is issued by the team when the store is linked: write to ${CORREO_CONTACTO} with the store name and the intended use. A partner platform gets each store's token with its partner key at POST /datos/socios/vincular.`,
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Keep it safe",
+        texto: `The token lives on the server, never in a browser or a public repository. To rotate or revoke it, write to ${CORREO_CONTACTO}.`,
+      },
+    ],
+    enlaces: [
+      { texto: "OpenAPI 3.1", href: "/datos/openapi.json" },
+      { texto: "auth.md", href: "/auth.md" },
+      { texto: "Payment links: the guide", href: "/docs/cobrar-por-enlace" },
     ],
   },
 ];
