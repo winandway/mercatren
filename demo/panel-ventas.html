@@ -158,6 +158,11 @@
 const TIENDA = { nombre: "Tienda Aurora", ciudad: "", pais: "US", slug: "tienda-aurora" };
 const HOY = new Date(2026, 7, 22); // 22 ago 2026 (mes 0-based)
 const COMISION = 0.03, STRIPE_PCT = 0.029, STRIPE_FIJO = 0.30;
+/* LA MISMA REGLA QUE EL SISTEMA: Zelle solo desde $200. Por debajo, validar
+   la captura cuesta más de lo que deja el margen. El demo la APLICA al
+   calcular —una venta marcada «zelle» por menos de $200 pasa a tarjeta— para
+   que nunca enseñe lo que el sistema no permite, aunque alguien toque la lista. */
+const ZELLE_MINIMO = 200;
 
 /* Productos REALES de nuestras tiendas de Estados Unidos (nombre y precio
    publicado, tal como salen en el catálogo). Ni uno de otros comercios. */
@@ -223,7 +228,7 @@ const P = {
 /* Ventas de agosto. [día, comprador, método, estado, renglones[[producto, cantidad]]] */
 const VENTAS = [
   [1,"Jessica M.","tarjeta","entregado",[["biciJuvenil",1]]],
-  [1,"Carlos R.","zelle","entregado",[["lamparaTecho",1],["alarmaCO",1]]],
+  [1,"Carlos R.","zelle","entregado",[["lamparaTecho",1],["lamparaCuadros",1],["alarmaCO",1]]],
   [2,"Emily T.","tarjeta","entregado",[["maletas2",1],["bolsoCruzado",1]]],
   [2,"Oscar V.","tarjeta","entregado",[["biciJuvenil",2]]],
   [3,"Luis A.","tarjeta","entregado",[["rampa",1],["decoPerros",1]]],
@@ -234,7 +239,7 @@ const VENTAS = [
   [6,"Nicole R.","tarjeta","entregado",[["sillaSalon",1],["organizador",1]]],
   [7,"Rosa V.","tarjeta","entregado",[["organizador",1],["perfumeNicho",1],["locion",1]]],
   [8,"Brian S.","tarjeta","entregado",[["dronS6",1],["dronE99",1],["bateria",1]]],
-  [9,"Gabriela L.","zelle","entregado",[["maletas4",1]]],
+  [9,"Gabriela L.","zelle","entregado",[["maletas4",1],["bolsoCruzado",1]]],
   [9,"Hugo M.","zelle","entregado",[["gabinete",1],["lamparaSemi",1]]],
   [10,"Rafael C.","tarjeta","entregado",[["soporteMotor",1],["luzCapo",1],["bombillaDRL",2]]],
   [11,"Daniela B.","tarjeta","entregado",[["biciNinos",1]]],
@@ -243,19 +248,19 @@ const VENTAS = [
   [13,"Sarah W.","tarjeta","entregado",[["lamparaCuadros",1],["lamparaBano",1]]],
   [13,"Valeria G.","tarjeta","entregado",[["maletas4",1],["maleta3en1",1]]],
   [14,"Ernesto N.","tarjeta","entregado",[["destilador",1],["ozono",1]]],
-  [15,"Sofía E.","zelle","entregado",[["triciclo",1],["caballo",1]]],
+  [15,"Sofía E.","zelle","entregado",[["triciclo",1],["caballo",1],["cocheEmpuje",1]]],
   [15,"Isabel N.","tarjeta","entregado",[["helados",1],["horno",1]]],
   [16,"Ramón I.","tarjeta","entregado",[["guantes",1],["zapatosSend",1],["linternaFrontal",1]]],
   [16,"Diego F.","tarjeta","entregado",[["biciNinos",1],["triciclo",1]]],
   [17,"Patricia W.","tarjeta","entregado",[["maleta3en1",1]]],
-  [18,"Julio K.","zelle","enviado",[["mecedora",1],["cocheEmpuje",1]]],
+  [18,"Julio K.","zelle","enviado",[["mecedora",1],["cocheEmpuje",1],["supermercado",1]]],
   [19,"Beatriz O.","tarjeta","enviado",[["padfolio",1],["estucheTablet",1],["fundaPadfolio",1]]],
   [19,"Camila J.","zelle","enviado",[["convertidor",1],["lamparaTecho",1]]],
   [20,"Kevin H.","tarjeta","enviado",[["supermercado",1],["jugueteMotor",1]]],
-  [21,"Ana C.","zelle","pagado",[["barrera",1],["manta",1]]],
+  [21,"Ana C.","tarjeta","pagado",[["barrera",1],["manta",1]]],
   [21,"Mariela S.","tarjeta","pagado",[["micXLR",1],["micKaraoke",1],["miniCamara",1]]],
   [22,"Gustavo P.","tarjeta","pagado",[["laminadora",1],["laminadora4",1],["calentadorTazas",1]]],
-  [22,"Laura D.","zelle","pagado",[["chaqueta",1],["conjunto",1],["camiseta",1],["vestido",1]]],
+  [22,"Laura D.","tarjeta","pagado",[["chaqueta",1],["conjunto",1],["camiseta",1],["vestido",1]]],
 ];
 
 /* Retiros ya hechos (el equipo los transfirió) */
@@ -281,7 +286,7 @@ const TXT = {
     cinta:"Demostración · datos de ejemplo",
     tablero:{t:"Tablero",s:"Cómo va tu tienda: lo que vendiste, lo que tienes por cobrar y lo que te falta por hacer.",hoy:"Vendido hoy",hoyP:"{n} ventas",mes:"Vendido este mes",mesP:"{n} ventas · agosto 2026",com:"Comisión de Mercatren",comP:"Lo que se te descontó este mes",disp:"Disponible para retirar",dispP:"Tuyo, esperando a que lo pidas",tePag:"Te pagamos",tePagP:"Este mes · {n} retiros",entr:"Entregadas",entrP:"Este mes",esperando:"Lo que está esperando",e1:"Mis cobros en revisión",e2:"Ventas pagadas que debo despachar",e3:"Mis retiros en trámite",e4:"Contracargos abiertos",ultimas:"Últimas ventas",verOrd:"Ver las órdenes →"},
     ordenes:{t:"Órdenes",s:"Todo lo que te han comprado. Toca una venta para ver qué llevaba.",buscar:"Número, comprador o producto",total:"{n} ventas este mes · {m}",metodo:{tarjeta:"Tarjeta",zelle:"Zelle"},estado:{entregado:"Entregada",enviado:"Enviada",pagado:"Pagada · por despachar"},x:"× ",subtotal:"Subtotal",comision:"Comisión de Mercatren (3 %)",neto:"Te queda",pasos:["Comprada","Pagada","Enviada","Entregada","En tu dinero"]},
-    cobros:{t:"Cobros",s:"Todo el dinero que entra, sin importar con qué se pagó: tarjeta, Zelle y los enlaces de cobro.",tabs:["Tarjeta","Zelle","Enlaces de cobro"],tarjetaS:"Cobros con tarjeta confirmados al instante por el procesador.",zelleS:"Transferencias Zelle validadas por el equipo contra el banco.",enlacesS:"Cobros que pediste desde tu panel: le mandas el enlace a quien va a pagar y paga con tarjeta o Zelle.",ref:"Ref.",enlaceEstado:{pagado:"Pagado",abierto:"Esperando el pago",vencido:"Vencido"},vence:"Vence el {d} ago",pedir:"Pedir un cobro",aprobado:"Aprobado"},
+    cobros:{t:"Cobros",s:"Todo el dinero que entra, sin importar con qué se pagó: tarjeta, Zelle y los enlaces de cobro.",tabs:["Tarjeta","Zelle","Enlaces de cobro"],tarjetaS:"Cobros con tarjeta confirmados al instante por el procesador.",zelleS:"Transferencias Zelle —disponibles desde $200— validadas por el equipo contra el banco.",enlacesS:"Cobros que pediste desde tu panel: le mandas el enlace a quien va a pagar y paga con tarjeta o Zelle.",ref:"Ref.",enlaceEstado:{pagado:"Pagado",abierto:"Esperando el pago",vencido:"Vencido"},vence:"Vence el {d} ago",pedir:"Pedir un cobro",aprobado:"Aprobado"},
     dinero:{t:"Mi dinero",s:"Lo que te pagaron, lo que se descontó y lo que tienes disponible.",pagaron:"Te pagaron",pagaronP:"Lo que pagaron tus compradores",proc:"Se llevó el procesador",procP:"2.9 % + $0.30 por cobro con tarjeta",com:"Comisión de Mercatren",comP:"3 % del precio publicado",quedo:"Te quedó",quedoP:"Acreditado a tu favor",disp:"Disponible para retirar",dispP:"Después de lo que ya sacaste",mov:"Movimientos",acred:"Venta acreditada",retiro:"Retiro",solic:"Retiro pedido (apartado)",pedirRetiro:"Pedir un retiro"},
     retiros:{t:"Retiros",s:"Tu dinero disponible y lo que ya pediste sacar. Pides cuánto y a dónde; el equipo hace la transferencia y aquí queda la constancia.",disp:"Disponible para retirar",pedido:"Pedido, esperando transferencia",pend:"Pendiente total",buscar:"Referencia bancaria",n:"{n} retiros",pedir:"Pedir un retiro",estado:{pagado:"Pagado",solicitado:"Solicitado",cancelado:"Cancelado"},via:{ach:"Transferencia ACH",wire:"Transferencia internacional (wire)",comercio:"A otro comercio de Mercatren"},comprobante:"Ver el comprobante",f:{como:"¿Cómo lo quieres recibir?",banco:"A mi banco",bancoS:"ACH en Estados Unidos o wire fuera",otro:"A otro comercio de Mercatren",otroS:"Traspaso interno, sin banco",pais:"País del banco",titular:"Titular de la cuenta",bancoN:"Banco",cuenta:"Número de cuenta",ruta:"Número de ruta (ACH)",rutaA:"9 dígitos. Chase da uno para ACH y otro para wire: usa el de ACH.",tipo:"Tipo de cuenta",ahorros:"Ahorros",corriente:"Corriente",doc:"Documento del titular",clabe:"CLABE",clabeA:"18 dígitos",iban:"IBAN",swift:"SWIFT / BIC",monto:"¿Cuánto quieres sacar?",montoA:"En dólares. Puedes pedir hasta {m}.",todo:"Todo lo disponible",desg:"De dónde sale este dinero",d1:"Lo que pagaron tus compradores",d2:"Lo que se llevó el procesador",d3:"Lo que se llevó Mercatren (3 %)",d4:"Lo que te quedó",d5:"Ya retirado",d6:"Disponible ahora",enviar:"Pedir el retiro",cancelar:"Cancelar",ok:"Listo. Tu retiro quedó pedido y el monto se apartó. El equipo hace la transferencia y te avisamos por correo.",mas:"No puedes pedir más de lo disponible.",cero:"Escribe un monto."}},
     facturas:{t:"Mis facturas a Mercatren",s:"Por cada venta, Mercatren te compra la mercancía y te emite una orden de compra. Tú le facturas contra esa orden.",oc:"Orden de compra",por:"por la venta",estado:{facturada:"Facturada",emitida:"Falta tu factura"},subir:"Subir mi factura",monto:"Lo que te paga Mercatren"},
@@ -293,7 +298,7 @@ const TXT = {
     cinta:"Demo · sample data",
     tablero:{t:"Dashboard",s:"How your store is doing: what you sold, what you have coming, and what still needs doing.",hoy:"Sold today",hoyP:"{n} sales",mes:"Sold this month",mesP:"{n} sales · August 2026",com:"Mercatren commission",comP:"Deducted this month",disp:"Available to withdraw",dispP:"Yours, waiting for you to request it",tePag:"We paid you",tePagP:"This month · {n} withdrawals",entr:"Delivered",entrP:"This month",esperando:"What is waiting",e1:"My payments in review",e2:"Paid sales I still have to ship",e3:"My withdrawals in progress",e4:"Open chargebacks",ultimas:"Latest sales",verOrd:"See orders →"},
     ordenes:{t:"Orders",s:"Everything bought from you. Tap a sale to see what it included.",buscar:"Number, buyer or product",total:"{n} sales this month · {m}",metodo:{tarjeta:"Card",zelle:"Zelle"},estado:{entregado:"Delivered",enviado:"Shipped",pagado:"Paid · to ship"},x:"× ",subtotal:"Subtotal",comision:"Mercatren commission (3%)",neto:"You keep",pasos:["Ordered","Paid","Shipped","Delivered","In your money"]},
-    cobros:{t:"Payments",s:"All money coming in, however it was paid: card, Zelle and payment links.",tabs:["Card","Zelle","Payment links"],tarjetaS:"Card payments confirmed instantly by the processor.",zelleS:"Zelle transfers validated by the team against the bank.",enlacesS:"Payments you requested from your panel: you send the link to whoever pays, and they pay by card or Zelle.",ref:"Ref.",enlaceEstado:{pagado:"Paid",abierto:"Awaiting payment",vencido:"Expired"},vence:"Expires Aug {d}",pedir:"Request a payment",aprobado:"Approved"},
+    cobros:{t:"Payments",s:"All money coming in, however it was paid: card, Zelle and payment links.",tabs:["Card","Zelle","Payment links"],tarjetaS:"Card payments confirmed instantly by the processor.",zelleS:"Zelle transfers — available from $200 — validated by the team against the bank.",enlacesS:"Payments you requested from your panel: you send the link to whoever pays, and they pay by card or Zelle.",ref:"Ref.",enlaceEstado:{pagado:"Paid",abierto:"Awaiting payment",vencido:"Expired"},vence:"Expires Aug {d}",pedir:"Request a payment",aprobado:"Approved"},
     dinero:{t:"My money",s:"What you were paid, what was deducted, and what you have available.",pagaron:"You were paid",pagaronP:"What your buyers paid",proc:"Processor took",procP:"2.9% + $0.30 per card payment",com:"Mercatren commission",comP:"3% of the listed price",quedo:"You kept",quedoP:"Credited to you",disp:"Available to withdraw",dispP:"After what you already took out",mov:"Activity",acred:"Sale credited",retiro:"Withdrawal",solic:"Withdrawal requested (set aside)",pedirRetiro:"Request a withdrawal"},
     retiros:{t:"Withdrawals",s:"Your available money and what you already asked to take out. You say how much and where; the team sends the transfer and the record stays here.",disp:"Available to withdraw",pedido:"Requested, awaiting transfer",pend:"Total pending",buscar:"Bank reference",n:"{n} withdrawals",pedir:"Request a withdrawal",estado:{pagado:"Paid",solicitado:"Requested",cancelado:"Canceled"},via:{ach:"ACH transfer",wire:"International wire",comercio:"To another Mercatren merchant"},comprobante:"View receipt",f:{como:"How do you want to receive it?",banco:"To my bank",bancoS:"ACH in the U.S. or wire abroad",otro:"To another Mercatren merchant",otroS:"Internal transfer, no bank",pais:"Bank country",titular:"Account holder",bancoN:"Bank",cuenta:"Account number",ruta:"Routing number (ACH)",rutaA:"9 digits. Chase has one for ACH and another for wire: use the ACH one.",tipo:"Account type",ahorros:"Savings",corriente:"Checking",doc:"Holder's ID",clabe:"CLABE",clabeA:"18 digits",iban:"IBAN",swift:"SWIFT / BIC",monto:"How much do you want to take out?",montoA:"In dollars. You can request up to {m}.",todo:"Everything available",desg:"Where this money comes from",d1:"What your buyers paid",d2:"What the processor took",d3:"What Mercatren took (3%)",d4:"What you kept",d5:"Already withdrawn",d6:"Available now",enviar:"Request withdrawal",cancelar:"Cancel",ok:"Done. Your withdrawal is requested and the amount is set aside. The team sends the transfer and we'll email you.",mas:"You can't request more than what's available.",cero:"Enter an amount."}},
     facturas:{t:"My invoices to Mercatren",s:"For each sale, Mercatren buys the goods from you and issues a purchase order. You invoice against that order.",oc:"Purchase order",por:"for sale",estado:{facturada:"Invoiced",emitida:"Your invoice is missing"},subir:"Upload my invoice",monto:"What Mercatren pays you"},
@@ -311,13 +316,15 @@ const ordenes = VENTAS.map((v,i)=>{
   const [dia, comprador, metodo, estado, renglones] = v;
   const items = renglones.map(([k,q])=>({nombre:P[k][0],precio:P[k][1],cant:q,total:r2(P[k][1]*q)}));
   const bruto = r2(items.reduce((s,x)=>s+x.total,0));
+  /* Zelle solo desde $200 — como en el sistema. Lo que no llega, va por tarjeta. */
+  const metodoReal = (metodo==="zelle" && bruto < ZELLE_MINIMO) ? "tarjeta" : metodo;
   const comision = r2(bruto*COMISION);
-  const stripe = metodo==="tarjeta" ? r2(bruto*STRIPE_PCT+STRIPE_FIJO) : 0;
+  const stripe = metodoReal==="tarjeta" ? r2(bruto*STRIPE_PCT+STRIPE_FIJO) : 0;
   const neto = r2(bruto-comision-stripe);
   const numero = "MT-"+String(1180+i).padStart(6,"0");
   const oc = "MT-OC-"+String(412+i).padStart(6,"0");
-  const ref = metodo==="tarjeta" ? "pi_3R"+(7100+i*37).toString(36).toUpperCase()+"x" : "Z-"+(88210+i*13);
-  return {dia,comprador,metodo,estado,items,bruto,comision,stripe,neto,numero,oc,ref};
+  const ref = metodoReal==="tarjeta" ? "pi_3R"+(7100+i*37).toString(36).toUpperCase()+"x" : "Z-"+(88210+i*13);
+  return {dia,comprador,metodo:metodoReal,estado,items,bruto,comision,stripe,neto,numero,oc,ref};
 });
 let retiros = RETIROS.map(r=>({...r}));
 const tot = () => {
