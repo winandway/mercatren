@@ -1,4 +1,7 @@
 import type { Articulo, BloqueArticulo } from "@/contenido/articulos/tipos";
+import type { Bloque } from "@/contenido/docs/tipos";
+import type { PaginaContenido } from "@/contenido/paginas/tipos";
+import { SOCIEDAD } from "@/lib/sociedad";
 
 /**
  * MARKDOWN PARA AGENTES: la misma página, sin el ruido del HTML.
@@ -230,4 +233,150 @@ export function listaDeProductosAMarkdown(
         `- [${p.titulo}](${p.url}) — ${p.precio} · [${p.tienda}](${p.tiendaUrl})${p.pais === "US" ? " · se despacha en Estados Unidos" : ""}`,
     )
     .join("\n");
+}
+
+/**
+ * Una página de contenido (`src/contenido/paginas/*`: nosotros, ayuda, vender,
+ * entrega, devoluciones, términos, privacidad), sección por sección. Sirve
+ * porque en el borde el worker no puede pedirse su propio HTML.
+ */
+export function paginaAMarkdown(
+  p: PaginaContenido,
+  base: string,
+  ruta: string,
+): string {
+  const partes: string[] = [`# ${p.titulo}`, "", p.entradilla, ""];
+  if (p.vigencia) partes.push(`*${p.vigencia}*`, "");
+  for (const s of p.secciones) {
+    partes.push(`## ${s.numero ? `${s.numero}. ` : ""}${s.titulo}`, "");
+    for (const b of s.bloques) partes.push(bloqueDeContenidoAMarkdown(b), "");
+  }
+  if (p.cierre) partes.push(p.cierre, "");
+  if (p.accion)
+    partes.push(
+      `**${p.accion.titulo}** ${p.accion.texto} [${p.accion.boton}](${absoluta(p.accion.href, base)})`,
+      "",
+    );
+  partes.push(`Fuente: ${absoluta(ruta, base)}`);
+  return partes
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function bloqueDeContenidoAMarkdown(b: Bloque): string {
+  switch (b.tipo) {
+    case "parrafo":
+      return b.texto;
+    case "subtitulo":
+      return `### ${b.texto}`;
+    case "lista":
+      return b.puntos
+        .map((x) => `- ${x.titulo ? `**${x.titulo}** ` : ""}${x.texto}`)
+        .join("\n");
+    case "aviso":
+      return [`> **${b.titulo}**`, ...b.parrafos.map((t) => `> ${t}`)].join(
+        "\n",
+      );
+    case "dosColumnas":
+      return [
+        `**${b.izquierda.titulo}**`,
+        ...b.izquierda.puntos.map((x) => `- ${x}`),
+        "",
+        `**${b.derecha.titulo}**`,
+        ...b.derecha.puntos.map((x) => `- ${x}`),
+      ].join("\n");
+    case "tabla": {
+      const cab = `| ${b.encabezados.join(" | ")} |`;
+      const sep = `| ${b.encabezados.map(() => "---").join(" | ")} |`;
+      return [
+        cab,
+        sep,
+        ...b.filas.map((f) => `| ${f.join(" | ")} |`),
+        b.nota ? `\n_${b.nota}_` : "",
+      ].join("\n");
+    }
+    case "pasos":
+      return b.pasos
+        .map(
+          (x) =>
+            `${x.numero}. **${x.titulo}** (${x.etiqueta}) — ${x.parrafos.join(" ")}`,
+        )
+        .join("\n");
+    case "cifras":
+      return b.items.map((x) => `- **${x.valor}** — ${x.texto}`).join("\n");
+    case "fases":
+      return b.fases
+        .map(
+          (f) =>
+            `- **${f.titulo}** ${f.ocurre}${f.evidencia.length ? `\n  - ${f.evidencia.join("\n  - ")}` : ""}`,
+        )
+        .join("\n");
+    default:
+      return "";
+  }
+}
+
+/**
+ * Un namespace de `messages/*.json` (cómo funciona, transparencia) convertido
+ * a Markdown por la forma de sus claves: `titulo` → encabezado, `texto` y
+ * `entradilla` → párrafo, listas → viñetas, y cada objeto anidado es una
+ * sección. No es una plantilla exacta de la página, pero trae TODO su texto en
+ * el orden en que se escribió, que es lo que un agente necesita.
+ */
+export function mensajesAMarkdown(
+  titulo: string,
+  ns: unknown,
+  base: string,
+  ruta: string,
+): string {
+  const lineas: string[] = [`# ${titulo}`, ""];
+  const recorrer = (v: unknown, nivel: number) => {
+    if (typeof v === "string") {
+      lineas.push(v, "");
+      return;
+    }
+    if (Array.isArray(v)) {
+      for (const x of v) {
+        if (typeof x === "string") lineas.push(`- ${x}`);
+        else if (x && typeof x === "object") {
+          const o = x as Record<string, unknown>;
+          const cab = [o.titulo, o.nombre, o.metodo].find(
+            (t) => typeof t === "string",
+          ) as string | undefined;
+          const resto = Object.entries(o)
+            .filter(
+              ([k, val]) =>
+                typeof val === "string" &&
+                !["titulo", "nombre", "metodo"].includes(k),
+            )
+            .map(([, val]) => val as string);
+          lineas.push(`- ${cab ? `**${cab}** ` : ""}${resto.join(" ")}`);
+        }
+      }
+      lineas.push("");
+      return;
+    }
+    if (v && typeof v === "object") {
+      for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+        if (k === "titulo" && typeof val === "string") {
+          if (nivel > 0)
+            lineas.push(`${"#".repeat(Math.min(6, nivel + 1))} ${val}`, "");
+          continue;
+        }
+        if (/^(boton|ver[A-Z]|enlace|cta)/.test(k)) continue;
+        recorrer(val, nivel + 1);
+      }
+    }
+  };
+  recorrer(ns, 0);
+  lineas.push(`Fuente: ${absoluta(ruta, base)}`);
+  /* Los textos llevan «SOCIEDAD» y «ESTADO» y se sustituyen al cargar
+     (src/i18n/request.ts); aquí se leen del JSON crudo, así que se sustituyen igual. */
+  return lineas
+    .join("\n")
+    .replaceAll("«SOCIEDAD»", SOCIEDAD.nombre)
+    .replaceAll("«ESTADO»", SOCIEDAD.estado)
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }

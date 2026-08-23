@@ -2,9 +2,29 @@ import {
   articuloAMarkdown,
   htmlAMarkdown,
   listaDeProductosAMarkdown,
+  mensajesAMarkdown,
+  paginaAMarkdown,
   tokensAprox,
   type ProductoEnMarkdown,
 } from "@/lib/agentes/markdown";
+import { AYUDA_EN, AYUDA_ES } from "@/contenido/paginas/ayuda";
+import {
+  DEVOLUCIONES_EN,
+  DEVOLUCIONES_ES,
+} from "@/contenido/paginas/devoluciones";
+import { ENTREGA_EN, ENTREGA_ES } from "@/contenido/paginas/entrega";
+import { NOSOTROS_EN, NOSOTROS_ES } from "@/contenido/paginas/nosotros";
+import { PRIVACIDAD_EN, PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
+import { TERMINOS_EN, TERMINOS_ES } from "@/contenido/paginas/terminos";
+import type { PaginaContenido } from "@/contenido/paginas/tipos";
+import {
+  COMISIONES_EN,
+  COMISIONES_ES,
+  VENDER_EN,
+  VENDER_ES,
+} from "@/contenido/paginas/vender";
+import mensajesEn from "../../../../messages/en.json";
+import mensajesEs from "../../../../messages/es.json";
 import { origenDe } from "@/lib/agentes/origen";
 import { recursosDe } from "@/lib/agentes/recursos";
 import { serviciosMcp } from "@/lib/agentes/servicios";
@@ -21,6 +41,24 @@ import { SITIO } from "@/lib/sitio";
 import { SOCIEDAD } from "@/lib/sociedad";
 
 export const dynamic = "force-dynamic";
+
+/** Las páginas cuyo contenido vive en `src/contenido/paginas/`. */
+const PAGINAS: Record<string, { es: PaginaContenido; en: PaginaContenido }> = {
+  nosotros: { es: NOSOTROS_ES, en: NOSOTROS_EN },
+  ayuda: { es: AYUDA_ES, en: AYUDA_EN },
+  vender: { es: VENDER_ES, en: VENDER_EN },
+  "vender/comisiones": { es: COMISIONES_ES, en: COMISIONES_EN },
+  entrega: { es: ENTREGA_ES, en: ENTREGA_EN },
+  devoluciones: { es: DEVOLUCIONES_ES, en: DEVOLUCIONES_EN },
+  terminos: { es: TERMINOS_ES, en: TERMINOS_EN },
+  privacidad: { es: PRIVACIDAD_ES, en: PRIVACIDAD_EN },
+};
+
+/** Las páginas cuyo texto vive en un namespace de `messages/*.json`. */
+const NAMESPACES: Record<string, string> = {
+  "como-funciona": "comoFunciona",
+  transparencia: "transparencia",
+};
 
 /**
  * MARKDOWN PARA AGENTES.
@@ -198,6 +236,30 @@ export async function GET(peticion: Request) {
     } else if ((resto[0] === "docs" || resto[0] === "blog") && resto[1]) {
       const a = buscarArticulo(locale, resto[1]);
       if (a) md = articuloAMarkdown(a, base, locale);
+    } else if (PAGINAS[resto.join("/")]) {
+      /* Las páginas de contenido, DESDE SU CONTENIDO: en el borde el worker no
+         puede pedirse su propio HTML (medido el 23 ago 2026: devolvía solo el
+         título). */
+      const par = PAGINAS[resto.join("/")]!;
+      md = paginaAMarkdown(
+        locale === "en" ? par.en : par.es,
+        base,
+        `/${locale}/${resto.join("/")}`,
+      );
+    } else if (NAMESPACES[resto.join("/")]) {
+      const ns = NAMESPACES[resto.join("/")]!;
+      const m = (locale === "en" ? mensajesEn : mensajesEs) as Record<
+        string,
+        { titulo?: string } & Record<string, unknown>
+      >;
+      const datos = m[ns];
+      if (datos)
+        md = mensajesAMarkdown(
+          datos.titulo ?? ns,
+          datos,
+          base,
+          `/${locale}/${resto.join("/")}`,
+        );
     } else if ((resto[0] === "docs" || resto[0] === "blog") && !resto[1]) {
       const tipo = resto[0] === "blog" ? "novedad" : "documentacion";
       const lista = articulosPorTipo(locale, tipo);

@@ -10,6 +10,8 @@ import {
 import {
   articuloAMarkdown,
   htmlAMarkdown,
+  mensajesAMarkdown,
+  paginaAMarkdown,
   tokensAprox,
 } from "@/lib/agentes/markdown";
 import {
@@ -18,6 +20,8 @@ import {
   type ServiciosMcp,
 } from "@/lib/agentes/mcp";
 import { openapiDeMercatren } from "@/lib/agentes/openapi";
+import { NOSOTROS_ES } from "@/contenido/paginas/nosotros";
+import es from "../../messages/es.json";
 import { recursosDe, sha256Hex } from "@/lib/agentes/recursos";
 import { indiceDeSkills, SKILLS, textoDeSkill } from "@/lib/agentes/skills";
 
@@ -350,6 +354,22 @@ describe("el Markdown para agentes", () => {
     expect(md).toContain("![Alt](https://mercatren.com/blog/x.png)");
     expect(md).toContain("| A | B |");
     expect(md).toContain("Fuente: https://mercatren.com/es/blog/nota");
+  });
+
+  it("las páginas de contenido salen de su contenido, no de un fetch al propio worker (que el borde no permite)", () => {
+    const md = paginaAMarkdown(NOSOTROS_ES, BASE, "/es/nosotros");
+    expect(md.startsWith(`# ${NOSOTROS_ES.titulo}`)).toBe(true);
+    expect(md).toContain(`## ${NOSOTROS_ES.secciones[0]!.titulo}`);
+    expect(md).toContain("Fuente: https://mercatren.com/es/nosotros");
+    const cf = mensajesAMarkdown(
+      es.comoFunciona.titulo,
+      es.comoFunciona,
+      BASE,
+      "/es/como-funciona",
+    );
+    expect(cf).toContain(`# ${es.comoFunciona.titulo}`);
+    expect(cf).toContain(es.comoFunciona.entradilla);
+    expect(cf.length).toBeGreaterThan(800);
   });
 
   it("los tokens se estiman a cuatro caracteres por token", () => {
