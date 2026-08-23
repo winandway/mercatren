@@ -2207,6 +2207,14 @@ su dinero. Vive en `public/demo/panel-ventas.html` y se presenta desde
   bicicletas y lámparas de la misma lista, con envío a domicilio por DHL.
   **Antes de entregar un demo se barre el archivo con `grep`** buscando el
   vocabulario del caso que NO es.
+- **El demo APLICA la regla de Zelle desde $200, igual que el sistema.** Lo
+  encontró el dueño grabando el video por tercera vez: en Cobros → Zelle salían
+  ventas de $39 y $101 «pagadas por Zelle». No se corrigió solo en los datos:
+  `ZELLE_MINIMO = 200` en el propio demo y una venta marcada «zelle» por menos
+  pasa a tarjeta al calcular, así que no puede volver a contradecirse aunque
+  alguien toque la lista. `tests/unit/demo-panel.test.ts` lee el HTML y se pone
+  rojo si vuelve a pasar, si el vocabulario de ferretería reaparece o si se cae
+  el `noindex`.
 - **Los totales se CALCULAN a partir de la lista de ventas** (vendido, comisión,
   procesador, te quedó, disponible). Así cuadran al centavo y el retiro de
   prueba mueve «disponible» a «pedido» de verdad.
