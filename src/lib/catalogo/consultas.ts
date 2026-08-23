@@ -1,12 +1,26 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, gt, sql, type SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  ne,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 
 import {
   DEPARTAMENTOS,
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
-import { intercalarPorTienda } from "@/lib/catalogo/intercalar";
+import {
+  intercalarPorTienda,
+  PRODUCTOS_POR_RONDA,
+} from "@/lib/catalogo/intercalar";
 import { recordado } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
@@ -443,6 +457,98 @@ export async function obtenerProductoPorSlug(mercado: Mercado, slug: string) {
 }
 
 /** Categorias que de verdad tienen algo que mostrar. */
+/**
+ * LO QUE VA AL PIE DE LA FICHA: PRODUCTOS SIMILARES.
+ *
+ * Lo pidió el dueño: «no es posible que yo abra un producto y abajo no
+ * aparezca un producto más que diga similares». Primero los de la MISMA
+ * CATEGORÍA (de cualquier tienda), después los de la MISMA TIENDA, nunca el
+ * propio producto, y lo más nuevo antes. Respeta el mercado y la zona igual
+ * que el resto del catálogo: no hay un camino aparte que se pueda quedar
+ * atrás.
+ */
+export async function productosSimilares(
+  mercado: Mercado,
+  de: { productoId: string; categoriaId: string | null; tiendaId: string },
+  zona?: string[],
+  limite = 10,
+): Promise<ProductoLista[]> {
+  const db = getDb();
+
+  const parecido = de.categoriaId
+    ? or(
+        eq(productos.categoriaId, de.categoriaId),
+        eq(productos.tiendaId, de.tiendaId),
+      )
+    : eq(productos.tiendaId, de.tiendaId);
+
+  const donde = and(
+    visibleAqui(mercado),
+    gt(productos.precioCentavos, 0),
+    ne(productos.id, de.productoId),
+    parecido,
+    zona?.length ? enZona(zona) : undefined,
+  );
+
+  const filas = await db
+    .select({
+      id: productos.id,
+      slug: productos.slug,
+      tituloEs: productos.tituloEs,
+      tituloEn: productos.tituloEn,
+      precioCentavos: productos.precioCentavos,
+      precioAntesCentavos: productos.precioAntesCentavos,
+      moneda: productos.moneda,
+      existencias: productos.existencias,
+      controlaExistencias: productos.controlaExistencias,
+      unidad: productos.unidad,
+      marca: productos.marca,
+      destacado: productos.destacado,
+      creadoEn: productos.creadoEn,
+      tiendaId: tiendas.id,
+      tiendaNombre: tiendas.nombre,
+      tiendaSlug: tiendas.slug,
+      tiendaPais: tiendas.paisOrigen,
+      fotoUrl: PRIMERA_FOTO.url,
+      fotoClave: PRIMERA_FOTO.clave,
+      fotoAlt: PRIMERA_FOTO.alt,
+    })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(donde)
+    .orderBy(
+      /* Misma categoría antes que misma tienda: lo parecido pesa más que lo
+         vecino. Y dentro de cada grupo, lo más nuevo primero. */
+      de.categoriaId
+        ? sql`CASE WHEN ${productos.categoriaId} = ${de.categoriaId} THEN 0 ELSE 1 END`
+        : sql`0`,
+      desc(productos.creadoEn),
+      productos.id,
+    )
+    .limit(Math.min(24, Math.max(1, limite)));
+
+  return filas.map((f): ProductoLista => ({
+    id: f.id,
+    slug: f.slug,
+    tituloEs: f.tituloEs,
+    tituloEn: f.tituloEn,
+    precioCentavos: f.precioCentavos,
+    precioAntesCentavos: f.precioAntesCentavos,
+    moneda: f.moneda,
+    existencias: f.existencias,
+    controlaExistencias: f.controlaExistencias,
+    unidad: f.unidad,
+    marca: f.marca,
+    destacado: f.destacado,
+    creadoEn: f.creadoEn,
+    tiendaNombre: f.tiendaNombre,
+    tiendaSlug: f.tiendaSlug,
+    tiendaPais: f.tiendaPais,
+    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
+    imagenAlt: f.fotoAlt,
+  }));
+}
+
 export async function listarCategoriasConProductos(mercado: Mercado) {
   const db = getDb();
 
@@ -890,10 +996,44 @@ export async function parrillaDeProductos(
      * El corte de novedad se calcula al vuelo, sin columna ni cron: a los
      * siete días la ventaja se apaga sola.
      */
+    /**
+     * RONDAS POR TIENDA (22 ago 2026): LOS 2 MÁS NUEVOS DE CADA TIENDA, LUEGO
+     * LOS 2 SIGUIENTES, Y ASÍ.
+     *
+     * El barajado anterior (semilla + ventaja a lo recién llegado) era justo
+     * como mecánica, pero ciego a la PROPORCIÓN: la ferretería tiene 622
+     * productos recientes contra 78 de nuestras tiendas, así que «lo nuevo»
+     * era 90 % ferretería y la portada arrancaba con veintidós de la misma
+     * tienda seguidos. El intercalado posterior (tope de dos seguidos) no
+     * puede arreglar proporciones: solo separa lo que ya vino amontonado.
+     *
+     * Lo que pidió el dueño es otro algoritmo: «de cada tienda dos, tres
+     * productos, revueltos, y las que están subiendo productos nuevos,
+     * primero». Eso se hace EN LA CONSULTA, con funciones de ventana:
+     *
+     *   1. `ronda`: el puesto de cada producto dentro de su tienda, del más
+     *      nuevo al más viejo, en bloques de PRODUCTOS_POR_RONDA. Ronda 0 son
+     *      los dos más nuevos de CADA tienda; ronda 1 los dos siguientes…
+     *      Así la primera pantalla enseña muchas tiendas, no una.
+     *   2. Dentro de la ronda, primero las tiendas con NOVEDADES (algún
+     *      producto de los últimos días): subir productos te pone delante.
+     *   3. Y después, las tiendas se BARAJAN con la semilla de la visita —
+     *      el dueño ya dijo una vez que un puesto fijo «mata la gracia»—,
+     *      así que el orden de tiendas cambia entre visitas y es estable
+     *      dentro de una (la parrilla infinita pide más con la misma
+     *      semilla).
+     *
+     * `tiendas.rowid` y `productos.rowid` van escritos a mano: Drizzle no
+     * conoce la columna interna de SQLite, y con el JOIN hay que cualificar.
+     * El divisor va como literal (`sql.raw`), no como parámetro: un parámetro
+     * numérico puede llegar como REAL y la división dejaría de ser entera.
+     */
     .orderBy(
-      sql`CASE WHEN ${productos.creadoEn} > ${desdeCuandoEsNuevo}
-        THEN ((productos.rowid * ${semilla}) % 104729) / 10
-        ELSE ((productos.rowid * ${semilla}) % 104729) END`,
+      sql`((ROW_NUMBER() OVER (PARTITION BY ${productos.tiendaId} ORDER BY ${productos.creadoEn} DESC, productos.rowid DESC) - 1) / ${sql.raw(String(PRODUCTOS_POR_RONDA))})`,
+      sql`CASE WHEN MAX(${productos.creadoEn}) OVER (PARTITION BY ${productos.tiendaId}) > ${desdeCuandoEsNuevo} THEN 0 ELSE 1 END`,
+      sql`(tiendas.rowid * ${semilla}) % 104729`,
+      productos.tiendaId,
+      desc(productos.creadoEn),
       productos.id,
     )
     .limit(porPagina)

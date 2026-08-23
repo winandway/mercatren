@@ -2149,8 +2149,8 @@
       "verFoto": "Ver la foto en grande",
       "foto": "Foto {n} de {total}",
       "cerrarFoto": "Cerrar la foto",
-      "anterior": "Foto anterior",
-      "siguiente": "Foto siguiente",
+      "anterior": "Anterior",
+      "siguiente": "Siguiente",
       "volverCatalogo": "Volver al catálogo",
       "noEncontrado": "No encontramos este producto",
       "noEncontradoTexto": "Puede que ya no esté a la venta.",
@@ -2194,7 +2194,11 @@
       "soloCompradores": "Solo opinan quienes compraron aquí.",
       "pausaTitulo": "Tienda en mantenimiento",
       "pausaTexto": "Estamos afinando los envíos de esta tienda y por ahora no podemos recibir pedidos. Vuelve pronto: falta poco.",
-      "pausaEquipo": "Estás comprando con una cuenta del equipo. Para el público esta tienda sigue en mantenimiento."
+      "pausaEquipo": "Estás comprando con una cuenta del equipo. Para el público esta tienda sigue en mantenimiento.",
+      "volver": "Volver",
+      "volverATienda": "Volver a {tienda}",
+      "similares": "Productos similares",
+      "masDeTienda": "Ver más de {tienda}"
     },
     "paginacion": {
       "anterior": "Anterior",
@@ -3045,5 +3049,12 @@
     },
     "devuelto": "Este cobro se pagó y el dinero ya se devolvió.",
     "devueltoQueHacer": "Verás el reembolso en la misma tarjeta con la que pagaste, normalmente en 5 a 10 días hábiles. No tienes que hacer nada."
+  },
+  "afinidad": {
+    "porque": "Porque estuviste mirando",
+    "titulo": "Más de {categoria}",
+    "verTodo": "Ver todo",
+    "anterior": "Anterior",
+    "siguiente": "Siguiente"
   }
 }

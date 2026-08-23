@@ -1,4 +1,4 @@
-import { parrillaDeProductos } from "@/lib/catalogo/consultas";
+import { listarProductos, parrillaDeProductos } from "@/lib/catalogo/consultas";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
@@ -35,6 +35,31 @@ export async function GET(peticion: Request) {
     const visibles = zona ? ciudadesVisiblesDesde(zona.slug) : undefined;
 
     const mercado = await mercadoDeLaPeticion();
+
+    /**
+     * POR CATEGORÍA: lo usa la banda «más de lo que estabas mirando» de la
+     * portada. Misma lógica de mercado y de zona que la parrilla; solo cambia
+     * qué se pide. `limite` acotado: esto alimenta una fila, no una página.
+     */
+    const categoria = url.searchParams.get("categoria")?.trim() || null;
+    if (categoria) {
+      const limite = Math.min(
+        24,
+        Math.max(4, Number(url.searchParams.get("limite")) || 12),
+      );
+      const r = await listarProductos(mercado, {
+        categoria,
+        pagina,
+        porPagina: limite,
+        zona: visibles,
+      });
+      return Response.json({
+        productos: r.productos,
+        pagina: r.pagina,
+        paginas: r.paginas,
+      });
+    }
+
     const tanda = await parrillaDeProductos(
       mercado,
       semilla,

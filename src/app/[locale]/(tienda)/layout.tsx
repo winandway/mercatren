@@ -1,5 +1,6 @@
 import { Encabezado } from "@/components/layout/encabezado";
 import { PiePagina } from "@/components/layout/pie-pagina";
+import { RastroDeNavegacion } from "@/components/navegacion/rastro-de-navegacion";
 
 /**
  * Todo lo que ve el publico: catalogo, producto, carrito, ayuda.
@@ -12,6 +13,10 @@ export default function LayoutTienda({
 }) {
   return (
     <>
+      {/* Anota la página anterior por pestaña: la flecha «← Volver» de la
+          ficha lo necesita porque en las navegaciones de cliente el referrer
+          no se actualiza. */}
+      <RastroDeNavegacion />
       <Encabezado />
       <main className="flex-1">{children}</main>
       <PiePagina />

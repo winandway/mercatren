@@ -2236,6 +2236,75 @@ su dinero. Vive en `public/demo/panel-ventas.html` y se presenta desde
   de servir el estático primero, una ruta que redirige al `.html` haría un
   bucle con el 307 de Cloudflare.
 
+## LA PORTADA POR RONDAS, LA FLECHA QUE VUELVE A LA TIENDA, LOS SIMILARES Y «LO QUE ESTABAS MIRANDO» (23 ago 2026)
+
+Lo pidió el dueño con cuatro puntos y una condición: _«vamos a hacerlo bien
+hecho esta vez»_.
+
+**1. La flecha de la ficha sacaba de la tienda.** Era un `← Volver al catálogo`
+fijo (`href="/catalogo"`): quien recorría una tienda, abría un producto y tocaba
+la flecha caía en el catálogo entero y tenía que buscar su tienda otra vez.
+Ahora `VolverDeLaFicha` + `src/lib/catalogo/volver.ts` (puro, con pruebas):
+vuelve atrás si venía del propio sitio, y si llegó de fuera (WhatsApp, Google)
+va a **la tienda del producto**. Nunca al catálogo —hay prueba—.
+
+- **`document.referrer` NO sirve dentro del sitio.** Next navega sin recargar y
+  el referrer se queda con el de la primera carga (vacío si se entró por enlace
+  directo). Medido: tienda → producto por clic, y `referrer: ""`. Por eso existe
+  el **rastro de navegación** (`src/lib/navegacion/rastro.ts`, en
+  `sessionStorage`: página actual y anterior, anotado por `<RastroDeNavegacion/>`
+  en el layout de la tienda). La flecha mira primero el rastro y solo después el
+  referrer. `rutaAnteriorA()` sirve ANTES y DESPUÉS de que el efecto anote la
+  página actual, porque el primer dibujo ocurre antes del efecto — prueba.
+- **El texto cambia y el `href` no:** «Volver» si hay atrás, «Volver a {tienda}»
+  si no; el enlace es siempre la tienda, así sirve sin JavaScript y Google lo
+  lee como lo que es.
+- **Se lee con `useSyncExternalStore`, no con un `setState` en un efecto.** El
+  lint lo rechaza, y con razón: es un segundo renderizado en cascada.
+
+**2. La portada era de una sola tienda.** Medido en producción: los primeros 22
+productos eran de la ferretería. No era el orden — «lo nuevo» (≤ 7 días) eran
+622 de Bley contra 78 de Estados Unidos, y ni el barajado con semilla ni el
+intercalado pueden arreglar una proporción así. Ahora la consulta ordena por
+**RONDAS de tienda** con funciones de ventana de SQLite: ronda 0 = los 2 más
+nuevos de cada tienda, ronda 1 = los 2 siguientes…
+(`ROW_NUMBER() OVER (PARTITION BY tienda)`), y dentro de la ronda **primero las
+tiendas con novedades** (`MAX(creado_en) OVER (PARTITION BY tienda) > corte`),
+barajadas con la semilla para que la portada siga «moviéndose» entre visitas.
+
+- `PRODUCTOS_POR_RONDA` vive en `intercalar.ts`, junto a `MAXIMO_SEGUIDOS`, y
+  `tests/unit/portada-rondas.test.ts` exige que sigan iguales: la ronda y el
+  intercalado cuentan la misma historia.
+- **El divisor de la ronda va como `sql.raw` literal.** Un parámetro numérico
+  puede llegar como REAL y la división dejaría de ser entera: todas las rondas
+  serían distintas y el orden, ruido.
+- La base local tiene una sola tienda: la proporción se mide en producción.
+
+**3. Similares al pie de la ficha.** `productosSimilares()`: misma categoría
+primero, luego misma tienda, **nunca el propio producto**, con el mercado y la
+zona de siempre. Cierra con «Ver más de {tienda}».
+
+**4. «Porque estuviste mirando».** Si la persona abre dos fichas de la misma
+categoría, la portada enseña «Más de {categoría}»; si se pasa a otra cosa
+(zapatos), la banda la sigue. `src/lib/catalogo/afinidad.ts` (puro, pruebas):
+manda la categoría de las dos últimas fichas si coinciden; si no, la más
+reciente que se repita en las últimas ocho; **una visita sola no es una
+intención**. El historial vive en el navegador (`zustand persist`,
+`mercatren-vistos`) y no se manda al servidor. `para-ti.tsx` pide por
+`/datos/catalogo?categoria=` —la misma puerta de la parrilla, con mercado y
+zona— y quita lo ya visto; con menos de tres no dibuja nada. La afinidad se
+**deriva** con `useMemo` y lo cargado va atado a la categoría que lo pidió:
+nada que «limpiar» en un efecto.
+
+**OJO AL PROBAR ESTO EN EL NAVEGADOR DEL PANEL INTEGRADO.** React 19.2 revela
+los límites de Suspense en un `requestAnimationFrame`; si la pestaña está
+`hidden` (el panel no está al frente), la ficha en carga fría **no termina de
+hidratar** —quedan `template[id^="B:"]` en el DOM, el botón del carrito sin
+fibra de React— y los efectos (anotar la visita) no corren. Costó una hora
+creer que era el store. No es un fallo del sitio: se comprueba con Playwright,
+que abre la pestaña visible — `e2e/ficha-y-portada.spec.ts`, en celular y en
+escritorio, sin textos escritos a mano.
+
 ## Ventas a crédito del comercio a su cliente (6 ago 2026)
 
 Aprobado por el abogado. El documento que se aprobó está en

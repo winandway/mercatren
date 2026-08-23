@@ -34,6 +34,16 @@
 export const MAXIMO_SEGUIDOS = 2;
 
 /**
+ * Cuántos productos de una misma tienda entran en cada RONDA de la portada
+ * (ronda 0 = los dos más nuevos de cada tienda, ronda 1 = los dos siguientes…).
+ * Es el mismo número que `MAXIMO_SEGUIDOS` a propósito: la ronda y el
+ * intercalado cuentan la misma historia, y una prueba exige que sigan iguales.
+ * Vive aquí, en el módulo puro, para que se pueda importar desde una prueba
+ * sin arrastrar la base de datos.
+ */
+export const PRODUCTOS_POR_RONDA = MAXIMO_SEGUIDOS;
+
+/**
  * Reparte una lista ya ordenada para que no haya rachas de la misma tienda.
  *
  * `grupoDe` dice a qué tienda pertenece cada uno. Se agrupa por TIENDA y no

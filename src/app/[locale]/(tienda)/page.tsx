@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { ParaTi } from "@/components/catalogo/para-ti";
 import { ParrillaInfinita } from "@/components/catalogo/parrilla-infinita";
 import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
 import { Link } from "@/i18n/navigation";
@@ -247,6 +248,14 @@ export default async function PaginaInicio({
             </Link>
           </div>
         ) : null}
+
+        {/**
+         * «MÁS DE LO QUE ESTABAS MIRANDO»: sigue el interés de la persona
+         * (dos fichas de la misma categoría → más de esa categoría). Vive en
+         * el navegador y no dibuja nada hasta que hay señal: la portada sin
+         * historial se ve exactamente igual que antes.
+         */}
+        <ParaTi idioma={idioma} />
 
         {/**
          * LAS BANDAS: un departamento, sus productos, el siguiente.

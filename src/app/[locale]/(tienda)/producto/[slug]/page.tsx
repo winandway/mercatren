@@ -24,13 +24,20 @@ import {
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
 import { EntregaEstadosUnidos } from "@/components/catalogo/entrega-estados-unidos";
 import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
+import { FilaProductos } from "@/components/catalogo/fila-productos";
+import { RegistrarVisita } from "@/components/catalogo/registrar-visita";
+import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { VolverDeLaFicha } from "@/components/catalogo/volver-de-la-ficha";
 import { preguntasDe } from "@/lib/preguntas/consultas";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
 import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
-import { obtenerProductoPorSlug } from "@/lib/catalogo/consultas";
+import {
+  obtenerProductoPorSlug,
+  productosSimilares,
+} from "@/lib/catalogo/consultas";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
-import { zonaPorSlug } from "@/lib/entrega/zonas";
+import { ciudadesVisiblesDesde, zonaPorSlug } from "@/lib/entrega/zonas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import {
   comoJsonLd,
@@ -132,6 +139,19 @@ export default async function PaginaProducto({
 
   // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
   const zona = await zonaDelCliente();
+
+  /* Los similares respetan la misma zona que el catálogo: si la portada está
+     filtrada por Caracas, aquí no aparece mercancía que no se pueda retirar. */
+  const similares = await productosSimilares(
+    await mercadoDeLaPeticion(),
+    {
+      productoId: ficha.producto.id,
+      categoriaId: ficha.producto.categoriaId ?? null,
+      tiendaId: ficha.tiendaId,
+    },
+    zona ? ciudadesVisiblesDesde(zona.slug) : undefined,
+    10,
+  ).catch(() => []);
 
   /* Las tallas, los colores y las medidas. Un producto sin variantes trae la
      lista vacía y la ficha se ve exactamente como se ha visto hasta hoy. */
@@ -290,12 +310,25 @@ export default async function PaginaProducto({
         dangerouslySetInnerHTML={{ __html: comoJsonLd([paraGoogle, migas]) }}
       />
 
-      <Link
-        href="/catalogo"
-        className="text-sm font-medium text-tinta-suave hover:text-riel-900"
-      >
-        ← {t("volverCatalogo")}
-      </Link>
+      {/* A donde la persona venía (la tienda, una búsqueda), o a la tienda del
+          producto si llegó de fuera. Antes era «Volver al catálogo» fijo y
+          sacaba de la tienda a quien la estaba recorriendo. */}
+      <VolverDeLaFicha
+        tienda={ficha.tiendaNombre}
+        tiendaSlug={ficha.tiendaSlug}
+      />
+      <RegistrarVisita
+        slug={ficha.producto.slug}
+        categoriaSlug={ficha.categoriaSlug ?? null}
+        categoriaNombre={
+          (idioma === "en"
+            ? ficha.categoriaNombreEn
+            : ficha.categoriaNombreEs) ??
+          ficha.categoriaNombreEs ??
+          null
+        }
+        tiendaSlug={ficha.tiendaSlug}
+      />
 
       <div className="mt-5 grid gap-8 md:grid-cols-2">
         <GaleriaProducto fotos={ficha.imagenes} titulo={titulo} />
@@ -571,6 +604,37 @@ export default async function PaginaProducto({
       {/* Va DESPUES de la descripcion: quien todavia duda ya la leyo, y es ahi
           donde aparece la pregunta que decide la compra. */}
       <PreguntasProducto preguntas={preguntas} />
+
+      {/**
+       * LOS SIMILARES, AL PIE. Lo pidió el dueño: «no es posible que yo abra
+       * un producto y abajo no aparezca un producto más que diga similares».
+       * Misma categoría primero, después la misma tienda, nunca este mismo.
+       * Si no hay ninguno (una tienda de un solo producto), no se dibuja nada:
+       * un título con una fila vacía debajo se lee como un error.
+       */}
+      {similares.length > 0 ? (
+        <section className="mt-10" aria-label={t("similares")}>
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <h2 className="text-lg font-bold">{t("similares")}</h2>
+            <Link
+              href={`/tienda/${ficha.tiendaSlug}`}
+              className="text-sm font-semibold text-riel-900 hover:text-carga-600"
+            >
+              {t("masDeTienda", { tienda: ficha.tiendaNombre })} →
+            </Link>
+          </div>
+          <FilaProductos
+            etiquetaAnterior={t("anterior")}
+            etiquetaSiguiente={t("siguiente")}
+          >
+            {similares.map((p) => (
+              <div key={p.id} className="w-44 shrink-0 snap-start sm:w-52">
+                <TarjetaProducto producto={p} idioma={idioma} />
+              </div>
+            ))}
+          </FilaProductos>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -2149,8 +2149,8 @@
       "verFoto": "View the photo larger",
       "foto": "Photo {n} of {total}",
       "cerrarFoto": "Close photo",
-      "anterior": "Previous photo",
-      "siguiente": "Next photo",
+      "anterior": "Previous",
+      "siguiente": "Next",
       "volverCatalogo": "Back to catalog",
       "noEncontrado": "We couldn't find this product",
       "noEncontradoTexto": "It may no longer be for sale.",
@@ -2194,7 +2194,11 @@
       "soloCompradores": "Only buyers here can review.",
       "pausaTitulo": "Store under maintenance",
       "pausaTexto": "We're fine-tuning shipping for this store, so we can't take orders just yet. Check back soon — it won't be long.",
-      "pausaEquipo": "You're buying with a team account. For the public, this store is still under maintenance."
+      "pausaEquipo": "You're buying with a team account. For the public, this store is still under maintenance.",
+      "volver": "Back",
+      "volverATienda": "Back to {tienda}",
+      "similares": "Similar products",
+      "masDeTienda": "More from {tienda}"
     },
     "paginacion": {
       "anterior": "Previous",
@@ -3045,5 +3049,12 @@
     },
     "devuelto": "This payment was made and has been refunded.",
     "devueltoQueHacer": "You will see the refund on the same card you paid with, usually within 5 to 10 business days. Nothing else to do."
+  },
+  "afinidad": {
+    "porque": "Because you were browsing",
+    "titulo": "More {categoria}",
+    "verTodo": "See all",
+    "anterior": "Previous",
+    "siguiente": "Next"
   }
 }
