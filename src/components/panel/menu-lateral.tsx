@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Clapperboard,
   ArrowUpRight,
   BookOpen,
   CreditCard,
@@ -87,6 +88,10 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       // Su propia tienda: la marca, la ficha y los datos de la empresa.
       { href: "/panel/mi-tienda", clave: "miTienda", Icono: Store },
       { href: "/panel/productos", clave: "misProductos", Icono: Package },
+      /* LOS SHORTS DEL COMERCIO (23 ago 2026): su tienda por dentro, en video.
+         Va en «Mi negocio» y no en «Equipo» porque es del comercio: lo graba
+         él, sale en su tienda y con su nombre. */
+      { href: "/panel/videos", clave: "misVideos", Icono: Clapperboard },
       // Cada comercio ve SUS clientes; el equipo, todos.
       { href: "/panel/clientes", clave: "clientes", Icono: Users },
       /* A quién le fía y cuánto le deben. El crédito lo da el comercio con su

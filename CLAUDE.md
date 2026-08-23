@@ -3154,6 +3154,54 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## LOS SHORTS DE MERCATREN: CADA COMERCIO ENSEÑA SU TIENDA EN VIDEO (23 ago 2026)
+
+Lo pidió el dueño con la referencia delante (la hilera de Shorts de YouTube):
+_«cada video es la tienda mostrando por dentro cómo es… si alguien entra en un
+video, le da siguiente y siguiente, como TikTok… y un botón donde dice entra en
+mi tienda»_. Y una condición: **que subirlo sea fácil de verdad**.
+
+**Cómo está armado.** Tabla nueva `videos_tienda` (no columnas), el archivo en
+nuestro bucket servido por `/media`, y cuatro sitios donde sale: hileras en la
+portada entre los bloques de productos, la ficha de cada tienda, `/videos` con
+todos, y **la página propia de cada video** (`/video/<slug>`) con su
+`VideoObject`, su entrada en el mapa del sitio y su tarjeta social. Las reglas
+puras están en `src/lib/videos/reglas.ts` (10 pruebas).
+
+**El tope son 3 MINUTOS y se rechaza EN EL NAVEGADOR**, antes de subir un byte:
+el navegador ya conoce la duración en cuanto lee los metadatos. Hacer esperar
+cinco minutos una subida para después decir «muy largo» es la forma más cara de
+perder a un comercio. El servidor lo vuelve a comprobar (un formulario se salta
+con la consola).
+
+Cinco cosas que costaron y no se tocan:
+
+1. **La CSP bloqueaba la vista previa.** Faltaba `media-src ... blob:`: el
+   navegador lee el archivo del disco como blob para medir la duración y sacar
+   la portada, y sin eso el formulario decía «no pudimos leer la duración» con
+   un video perfecto delante. Medido el 23 ago 2026.
+2. **El archivo se le pasa a R2 TAL CUAL (es un `Blob`).** `archivo.stream()` a
+   secas falla con «Provided readable stream must have a known length», y
+   `FixedLengthStream` **no existe** en el runtime de `next dev`. Con el Blob,
+   R2 sabe el tamaño y no hay que cargar los megabytes en memoria.
+3. **`/media` sirve los videos por RANGOS** (206 + `Content-Range`, y
+   `Accept-Ranges` siempre). Sin eso el navegador se baja el archivo entero
+   antes del primer fotograma y la barra de tiempo no deja saltar — que es
+   exactamente lo que hace que una hilera se sienta rota.
+4. **La portada la saca el navegador del propio video** (fotograma del segundo
+   1, a WebP). Sin portada, una hilera de ocho videos son ocho recuadros negros.
+5. **El visor vive en el grupo de rutas `(visor)`**, sin encabezado ni pie: con
+   la barra del sitio encima deja de ser pantalla completa y el botón «Entra en
+   mi tienda» se sale de la pantalla del teléfono. La URL no cambia.
+
+**El tope de peso son 100 MB** porque es lo que aguanta el cuerpo de una
+petición en la plataforma; un video vertical de un minuto pesa 20–60 MB. La
+barra de avance es real (`XMLHttpRequest` contra `/upload/video`): una acción de
+servidor no informa del progreso, y sin barra la gente cree que se colgó.
+
+**Las hileras nunca abren ni cierran la portada** y no se dibujan con menos de
+tres videos: tres recuadros sueltos parecen un error, no una sección.
+
 ## DOCS: SE LLAMA «DOCS», SE VE COMO LA DE YADOMINIOS Y CADA GUÍA ES SU PÁGINA (23 ago 2026)
 
 Regla global del dueño (está en el CLAUDE global): la sección se llama **«Docs»** —

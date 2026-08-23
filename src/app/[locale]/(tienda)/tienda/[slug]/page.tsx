@@ -12,6 +12,7 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
+import { videosDeTienda } from "@/lib/videos/consultas";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
@@ -19,6 +20,7 @@ import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
 import { almacenDeLaTienda } from "@/lib/destino/almacenes";
 import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { HileraVideos } from "@/components/videos/hilera-videos";
 import { bannersPara } from "@/lib/banners/consultas";
 import { intercalarBanners } from "@/lib/banners/reglas";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
@@ -171,6 +173,15 @@ export default async function PaginaTienda({
   /* Cómo despacha. Un comercio sin fila devuelve "sin definir", que NO es lo
      mismo que "no envía": es que todavía no lo dijo, y así se enseña. */
   const envio = await politicaDeEnvio(tienda.id);
+  /* LOS VIDEOS DE ESTE COMERCIO (23 ago 2026): van arriba de sus productos.
+     Quien entra desde un Short quiere ver más de esa persona; y quien llega
+     de Google ve la tienda por dentro antes de decidir. */
+  const videosDelComercio = await videosDeTienda(
+    await mercadoDeLaPeticion(),
+    tienda.slug,
+    locale === "en" ? "en" : "es",
+    12,
+  );
   const colorElegido = await colorGuardado(tienda.id);
 
   /* EL SELLO VERDE SOLO LO LLEVA QUIEN LO GANÓ.
@@ -680,6 +691,12 @@ export default async function PaginaTienda({
             </div>
           ) : null}
         </div>
+
+        {videosDelComercio.length > 0 ? (
+          <div className="mt-8">
+            <HileraVideos videos={videosDelComercio} verTodos={false} />
+          </div>
+        ) : null}
 
         <section className="mt-8 pb-4">
           <h2 className="mb-4 text-lg font-bold">{t("productos")}</h2>

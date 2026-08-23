@@ -48,6 +48,7 @@ const SECCIONES = [
       { clave: "comoFunciona", href: "/como-funciona" },
       { clave: "docs", href: "/docs" },
       { clave: "blog", href: "/blog" },
+      { clave: "videos", href: "/videos" },
       { clave: "transparencia", href: "/transparencia" },
       { clave: "terminos", href: "/terminos" },
       { clave: "privacidad", href: "/privacidad" },

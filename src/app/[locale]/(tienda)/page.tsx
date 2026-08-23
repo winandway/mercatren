@@ -9,6 +9,7 @@ import {
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ParaTi } from "@/components/catalogo/para-ti";
+import { HileraVideos } from "@/components/videos/hilera-videos";
 import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { ParrillaInfinita } from "@/components/catalogo/parrilla-infinita";
 import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
@@ -16,6 +17,7 @@ import { Link } from "@/i18n/navigation";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { obtenerPortada } from "@/lib/catalogo/consultas";
 import { nuevaSemilla } from "@/lib/catalogo/semilla";
+import { videosParaHileras } from "@/lib/videos/consultas";
 import { bannersPara } from "@/lib/banners/consultas";
 import { intercalarBanners } from "@/lib/banners/reglas";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
@@ -103,6 +105,15 @@ export default async function PaginaInicio({
      CJ, luego el resto), y los otros 24 arrancan la parrilla infinita del
      final, que sigue pidiendo desde la página 3. `paginas` se recalcula en
      tandas de 24, que es como las sirve /datos/catalogo. */
+  /* LOS SHORTS (23 ago 2026): hileras de videos entre los bloques de
+     productos, como en YouTube. Si la base falla o hay menos de tres videos,
+     la portada se ve exactamente como antes: `HileraVideos` no dibuja nada. */
+  const videosDeLaPortada = await videosParaHileras(
+    mercado,
+    idioma,
+    semilla,
+    24,
+  );
   const deTodasLasTiendas = parrilla.productos.slice(0, 24);
   const restoDeLaParrilla = parrilla.productos.slice(24);
   const paginasDe24 = Math.max(1, Math.ceil(parrilla.total / 24));
@@ -306,6 +317,12 @@ export default async function PaginaInicio({
           </section>
         ) : null}
 
+        {/* La primera hilera de Shorts, justo después del primer bloque de
+            productos: la persona ya vio mercancía y aquí ve quién la vende. */}
+        {videosDeLaPortada.length >= 3 ? (
+          <HileraVideos videos={videosDeLaPortada.slice(0, 8)} />
+        ) : null}
+
         <ParaTi idioma={idioma} />
 
         {/**
@@ -337,6 +354,12 @@ export default async function PaginaInicio({
                   <TarjetaProducto producto={producto} idioma={idioma} />
                 </li>
               ))}
+
+              {/* Y otra hilera a mitad de las bandas: quien bajó hasta aquí está
+            navegando, que es cuando mejor engancha un video. */}
+              {videosDeLaPortada.length >= 6 ? (
+                <HileraVideos videos={videosDeLaPortada.slice(8, 16)} />
+              ) : null}
             </ul>
           </section>
         ))}

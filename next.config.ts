@@ -53,6 +53,13 @@ const CSP = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
+  /* LOS VIDEOS DE LOS COMERCIOS (23 ago 2026). `'self'` sirve los publicados
+     (van por /media), y `blob:` es imprescindible para la VISTA PREVIA al
+     subir: el navegador lee el archivo del disco como blob para medir su
+     duración y sacarle la portada. Sin `blob:` la CSP lo bloquea y el
+     formulario dice «no pudimos leer la duración» con un video perfecto
+     delante — medido el 23 ago 2026. */
+  "media-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",

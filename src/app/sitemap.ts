@@ -81,6 +81,7 @@ const FIJAS: [
   ["/docs/modelo-de-negocio", 0.9, "monthly"],
   ["/docs", 0.8, "monthly"],
   ["/blog", 0.8, "weekly"],
+  ["/videos", 0.8, "daily"],
   ["/vender", 0.8, "monthly"],
   ["/como-funciona", 0.7, "monthly"],
   ["/nosotros", 0.7, "monthly"],
@@ -111,6 +112,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
      están todos; `entrada()` ya escribe las dos versiones de idioma. */
   for (const articulo of articulosDe("es")) {
     paginas.push(entrada(base, rutaDeArticulo(articulo), 0.7, "monthly"));
+  }
+
+  /* LOS SHORTS: cada video es su propia página y entra al mapa. Es lo que
+     hace que Google los indexe uno por uno; su `VideoObject` va en la página. */
+  try {
+    const { videosParaMapa } = await import("@/lib/videos/consultas");
+    for (const v of await videosParaMapa(mercado.codigo)) {
+      const e = entrada(base, `/video/${v.slug}`, 0.6, "monthly");
+      paginas.push({ ...e, lastModified: v.actualizadoEn ?? new Date() });
+    }
+  } catch {
+    /* Sin videos el mapa sale igual: más vale un mapa corto que ninguno. */
   }
 
   // El catalogo se suma si la base responde. Si no responde, el mapa sale

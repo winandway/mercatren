@@ -35,7 +35,8 @@
     "panel": "Panel",
     "crearCuenta": "Crear cuenta",
     "tiendas": "Tiendas",
-    "blog": "Blog"
+    "blog": "Blog",
+    "videos": "Shorts"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
@@ -111,7 +112,8 @@
       "tiendas": "Todas las tiendas",
       "entrega": "Entrega y envío",
       "devoluciones": "Devoluciones",
-      "blog": "Blog"
+      "blog": "Blog",
+      "videos": "Shorts"
     },
     "lema": "Compra en Estados Unidos, entrega donde la necesites.",
     "descripcion": "Mercatren es un servicio operado por «SOCIEDAD» («ESTADO», Estados Unidos). Vendemos productos por cuenta propia y los entregamos en la dirección que designa el comprador. Cada operación queda documentada de punta a punta.",
@@ -351,6 +353,7 @@
       "configuracion": "Configuración",
       "miTienda": "Mi tienda",
       "misProductos": "Mis productos",
+      "misVideos": "Mis videos",
       "usuarios": "Cuentas",
       "validacionComercio": "En revisión",
       "retiros": "Retiros",
@@ -1051,6 +1054,19 @@
     "mensajes": {
       "guardado": "Guardado.",
       "noSePudoGuardar": "No se pudo guardar",
+      "guardadoCorto": "Guardado.",
+      "videos": {
+        "elige": "Elige el video que quieres subir.",
+        "sinRed": "No se pudo subir el video. Revisa tu conexión y vuelve a intentarlo.",
+        "sinDuracion": "No pudimos leer la duración del video. Vuelve a elegirlo, por favor.",
+        "noEsVideo": "Ese archivo no es un video que podamos leer. Graba con la cámara del teléfono y sube el archivo tal cual.",
+        "muyLargo": "El video dura más de {minutos} minutos. Grábalo más corto: los que funcionan duran entre 20 y 60 segundos.",
+        "muyCorto": "El video es demasiado corto. Que dure al menos 3 segundos.",
+        "muyPesado": "El video pesa más de {mb} MB. Grábalo más corto o en menor calidad.",
+        "sinTitulo": "Ponle un título al video: es lo que va a leer quien lo vea.",
+        "publicado": "¡Listo! Tu video ya está publicado.",
+        "borrado": "Video borrado."
+      },
       "sinPermiso": "No tienes permiso para esto.",
       "sinPermisoAprobar": "No tienes permiso para aprobar pagos.",
       "sinPermisoRechazar": "No tienes permiso para rechazar pagos.",
@@ -1543,6 +1559,53 @@
         "vistaPrevia": "Así se ve",
         "guardar": "Guardar banner",
         "guardando": "Guardando…"
+      }
+    },
+    "videos": {
+      "etiqueta": "Shorts",
+      "titulo": "Mis videos",
+      "entradilla": "Graba tu tienda por dentro con el teléfono y súbelo aquí. Tus videos salen en la portada de Mercatren, en tu tienda, y cada uno tiene su propio enlace para compartir.",
+      "guia": {
+        "paso1": {
+          "titulo": "Grábalo de pie",
+          "texto": "Con el teléfono vertical, como un video de TikTok. Buena luz y sin música: que se te oiga a ti."
+        },
+        "paso2": {
+          "titulo": "Enseña y cuenta",
+          "texto": "Camina por tu tienda, muestra tres o cuatro productos y di qué son, para qué sirven y cuánto valen."
+        },
+        "paso3": {
+          "titulo": "Corto y al grano",
+          "texto": "Entre 20 y 60 segundos funciona mejor. El tope son 3 minutos. Cierra invitando: «entra en mi tienda en Mercatren»."
+        }
+      },
+      "suelta": "Elige el video que grabaste",
+      "limites": "Vertical, hasta {minutos} minutos y {mb} MB. MP4 o el video tal cual sale de tu teléfono.",
+      "elegir": "Elegir video",
+      "elegirOtro": "Elegir otro video",
+      "duracion": "Duración",
+      "vertical": "vertical ✓",
+      "horizontal": "horizontal",
+      "mejorVertical": "Este video está acostado. Se va a ver con bordes negros: si puedes, grábalo con el teléfono de pie.",
+      "tituloEs": "Título del video",
+      "tituloAyuda": "Lo que se lee debajo del video. Ej.: «Así es mi ferretería por dentro».",
+      "tituloEn": "Título en inglés (opcional)",
+      "tituloEnAyuda": "Si lo dejas vacío se usa el español.",
+      "descripcionEs": "De qué habla el video (opcional)",
+      "descripcionAyuda": "Dos líneas: qué se ve y qué vendes. Ayuda a que Google lo encuentre.",
+      "publicar": "Publicar mi video",
+      "subiendo": "Subiendo… {pct}%",
+      "misVideos": "Mis videos publicados",
+      "vacio": "Todavía no subiste ningún video. El primero es el que más se ve.",
+      "sinTienda": "Esta cuenta no tiene un comercio asociado, así que no puede subir videos.",
+      "vistas": "{n, plural, one {# vista} other {# vistas}}",
+      "verPublicado": "Ver publicado",
+      "masOpciones": "Más opciones",
+      "borrar": "Borrar este video",
+      "seguroBorrar": "¿Seguro que quieres borrar «{titulo}»? No se puede deshacer.",
+      "estados": {
+        "oculto": "Oculto",
+        "borrador": "Borrador"
       }
     },
     "diccionario": {
@@ -3241,6 +3304,29 @@
     },
     "devuelto": "Este cobro se pagó y el dinero ya se devolvió.",
     "devueltoQueHacer": "Verás el reembolso en la misma tarjeta con la que pagaste, normalmente en 5 a 10 días hábiles. No tienes que hacer nada."
+  },
+  "videos": {
+    "hilera": {
+      "etiqueta": "Shorts",
+      "titulo": "Los comercios te enseñan su tienda",
+      "verTodos": "Ver todos",
+      "anterior": "Ver anteriores",
+      "siguiente": "Ver siguientes"
+    },
+    "visor": {
+      "entraEnMiTienda": "Entra en mi tienda",
+      "silenciar": "Quitar el sonido",
+      "conSonido": "Poner sonido"
+    },
+    "pagina": {
+      "titulo": "Shorts de Mercatren",
+      "entradilla": "Los comercios enseñando su tienda por dentro: lo que venden, cómo lo tienen y quién está detrás del mostrador.",
+      "vacio": "Todavía no hay videos publicados."
+    },
+    "tienda": {
+      "titulo": "Videos de esta tienda",
+      "verTodos": "Ver todos"
+    }
   },
   "afinidad": {
     "porque": "Porque estuviste mirando",

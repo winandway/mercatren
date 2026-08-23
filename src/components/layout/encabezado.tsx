@@ -204,6 +204,7 @@ export async function Encabezado() {
               { href: "/vender", texto: t("vender") },
               { href: "/como-funciona", texto: t("comoFunciona") },
               { href: "/docs", texto: t("docs") },
+              { href: "/videos", texto: t("videos") },
               { href: "/blog", texto: t("blog") },
               { href: "/ayuda", texto: t("ayuda") },
               { href: "/pedidos", texto: t("pedidos") },
@@ -237,6 +238,15 @@ export async function Encabezado() {
             className="celda-encabezado hidden shrink-0 md:block"
           >
             {t("ayuda")}
+          </Link>
+          {/* LOS SHORTS: los comercios enseñando su tienda por dentro. Va en
+              la barra porque es el gancho — se entra a mirar y se sale
+              comprando. */}
+          <Link
+            href="/videos"
+            className="celda-encabezado hidden shrink-0 md:block"
+          >
+            {t("videos")}
           </Link>
           {/* EL BLOG, en la barra y no solo escondido en el menú "Todo". Cada
               nota que se publica suma para Google, y una sección que nadie ve

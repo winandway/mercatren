@@ -29,6 +29,15 @@ function esPrivado(ruta: string) {
   return MEDIA_PRIVADOS.some((prefijo) => ruta.startsWith(prefijo));
 }
 
+export async function HEAD(
+  peticion: Request,
+  ctx: { params: Promise<{ clave: string[] }> },
+) {
+  /* Algunos reproductores preguntan primero con HEAD por el tamaño. */
+  const r = await GET(peticion, ctx);
+  return new Response(null, { status: r.status, headers: r.headers });
+}
+
 export async function GET(
   _peticion: Request,
   { params }: { params: Promise<{ clave: string[] }> },
@@ -47,6 +56,56 @@ export async function GET(
   }
 
   const { env } = getCloudflareContext();
+
+  /**
+   * ══ LOS VIDEOS SE SIRVEN POR RANGOS (23 ago 2026) ══
+   *
+   * Un video no se descarga entero para empezar a verse: el reproductor pide
+   * el primer trozo, y para saltar al minuto uno pide otro. Sin `Range`, el
+   * navegador tiene que bajarse los 40 MB antes de mostrar el primer
+   * fotograma y la barra de tiempo no deja saltar — que es exactamente lo que
+   * hace que una hilera de Shorts se sienta rota.
+   *
+   * R2 sabe leer un rango del objeto, así que el trozo se pide al bucket y se
+   * contesta 206 con `Content-Range`. `Accept-Ranges: bytes` va siempre: es lo
+   * que le dice al reproductor que puede pedir trozos.
+   */
+  const esVideo = /\.(mp4|mov|webm|m4v|3gp)$/i.test(ruta);
+  const rango = _peticion.headers.get("range");
+  if (esVideo && rango) {
+    const m = /bytes=(\d*)-(\d*)/.exec(rango);
+    if (m) {
+      const cabecera = await env.BUCKET.head(ruta);
+      if (!cabecera) return new Response("No encontrado", { status: 404 });
+      const total = cabecera.size;
+      const desde = m[1] ? Number(m[1]) : 0;
+      const hasta = m[2] ? Math.min(Number(m[2]), total - 1) : total - 1;
+      if (Number.isNaN(desde) || desde >= total || hasta < desde) {
+        return new Response("Rango fuera de sitio", {
+          status: 416,
+          headers: { "content-range": `bytes */${total}` },
+        });
+      }
+      const trozo = await env.BUCKET.get(ruta, {
+        range: { offset: desde, length: hasta - desde + 1 },
+      });
+      if (!trozo) return new Response("No encontrado", { status: 404 });
+      return new Response(await trozo.arrayBuffer(), {
+        status: 206,
+        headers: {
+          "content-type": cabecera.httpMetadata?.contentType ?? "video/mp4",
+          "content-range": `bytes ${desde}-${hasta}/${total}`,
+          "content-length": String(hasta - desde + 1),
+          "accept-ranges": "bytes",
+          etag: cabecera.httpEtag,
+          "cache-control": esPrivado(ruta)
+            ? "private, max-age=0, must-revalidate"
+            : "public, max-age=31536000, immutable",
+        },
+      });
+    }
+  }
+
   const archivo = await env.BUCKET.get(ruta);
 
   if (!archivo) return new Response("No encontrado", { status: 404 });
@@ -60,6 +119,9 @@ export async function GET(
     "cache-control": esPrivado(ruta)
       ? "private, max-age=0, must-revalidate"
       : "public, max-age=31536000, immutable",
+    /* Le dice al reproductor que puede pedir trozos: sin esto no hay saltos
+       en la barra de tiempo ni arranque rápido. */
+    "accept-ranges": "bytes",
   });
 
   // Se manda el contenido completo, no el flujo tal cual: el flujo que

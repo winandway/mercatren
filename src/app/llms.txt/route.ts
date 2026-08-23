@@ -113,6 +113,11 @@ ${listaComercios}
 - [Cómo empezar](${SITIO.url}/es/vender/empezar)
 - [Qué cuesta](${SITIO.url}/es/vender/comisiones)
 
+## Videos de los comercios (Shorts)
+
+- [Todos los Shorts](${SITIO.url}/es/videos) — los comercios enseñando su tienda por dentro.
+- Cada video tiene su propia página: \`${SITIO.url}/es/video/<slug>\`, con su \`VideoObject\`.
+
 ## Para agentes de IA
 
 - [Servidor MCP (solo lectura: buscar productos, ver fichas y comercios)](${SITIO.url}/datos/mcp) — tarjeta en ${SITIO.url}/.well-known/mcp/server-card.json

@@ -35,7 +35,8 @@
     "panel": "Panel",
     "crearCuenta": "Create account",
     "tiendas": "Stores",
-    "blog": "Blog"
+    "blog": "Blog",
+    "videos": "Shorts"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., delivered where you need it",
@@ -111,7 +112,8 @@
       "tiendas": "All stores",
       "entrega": "Pickup and delivery",
       "devoluciones": "Returns",
-      "blog": "Blog"
+      "blog": "Blog",
+      "videos": "Shorts"
     },
     "lema": "Shop in the U.S., delivered where you need it.",
     "descripcion": "Mercatren is a service operated by «SOCIEDAD» («ESTADO», United States). We sell products for our own account and deliver them to the address the buyer designates. Every transaction is documented end to end.",
@@ -351,6 +353,7 @@
       "configuracion": "Settings",
       "miTienda": "My store",
       "misProductos": "My products",
+      "misVideos": "My videos",
       "usuarios": "Accounts",
       "validacionComercio": "Under review",
       "retiros": "Withdrawals",
@@ -1051,6 +1054,19 @@
     "mensajes": {
       "guardado": "Saved.",
       "noSePudoGuardar": "Could not save",
+      "guardadoCorto": "Saved.",
+      "videos": {
+        "elige": "Choose the video you want to upload.",
+        "sinRed": "We couldn't upload the video. Check your connection and try again.",
+        "sinDuracion": "We couldn't read the video's length. Please pick the file again.",
+        "noEsVideo": "That file isn't a video we can read. Record with your phone's camera and upload the file as is.",
+        "muyLargo": "The video is longer than {minutos} minutes. Record a shorter one: the ones that work run 20 to 60 seconds.",
+        "muyCorto": "The video is too short. Make it at least 3 seconds.",
+        "muyPesado": "The video is larger than {mb} MB. Record a shorter one or at lower quality.",
+        "sinTitulo": "Give the video a title: it's what people will read.",
+        "publicado": "Done! Your video is live.",
+        "borrado": "Video deleted."
+      },
       "sinPermiso": "You don't have permission for this.",
       "sinPermisoAprobar": "You don't have permission to approve payments.",
       "sinPermisoRechazar": "You don't have permission to reject payments.",
@@ -1543,6 +1559,53 @@
         "vistaPrevia": "Preview",
         "guardar": "Save banner",
         "guardando": "Saving…"
+      }
+    },
+    "videos": {
+      "etiqueta": "Shorts",
+      "titulo": "My videos",
+      "entradilla": "Record your store with your phone and upload it here. Your videos show on the Mercatren home page, on your store page, and each one gets its own link to share.",
+      "guia": {
+        "paso1": {
+          "titulo": "Hold the phone upright",
+          "texto": "Vertical, like a TikTok video. Good light and no music: let people hear you."
+        },
+        "paso2": {
+          "titulo": "Show and tell",
+          "texto": "Walk through your store, show three or four products and say what they are, what they're for and what they cost."
+        },
+        "paso3": {
+          "titulo": "Short and to the point",
+          "texto": "20 to 60 seconds works best. The cap is 3 minutes. Close with an invitation: “visit my store on Mercatren”."
+        }
+      },
+      "suelta": "Choose the video you recorded",
+      "limites": "Vertical, up to {minutos} minutes and {mb} MB. MP4 or the file straight from your phone.",
+      "elegir": "Choose video",
+      "elegirOtro": "Choose another video",
+      "duracion": "Length",
+      "vertical": "vertical ✓",
+      "horizontal": "horizontal",
+      "mejorVertical": "This video is sideways. It will show with black bars: if you can, record it holding the phone upright.",
+      "tituloEs": "Video title",
+      "tituloAyuda": "What people read under the video. E.g. “A look inside my hardware store”.",
+      "tituloEn": "English title (optional)",
+      "tituloEnAyuda": "Leave it empty and we'll use the Spanish one.",
+      "descripcionEs": "What the video is about (optional)",
+      "descripcionAyuda": "Two lines: what you show and what you sell. It helps Google find it.",
+      "publicar": "Publish my video",
+      "subiendo": "Uploading… {pct}%",
+      "misVideos": "My published videos",
+      "vacio": "You haven't uploaded a video yet. The first one gets the most views.",
+      "sinTienda": "This account has no store attached, so it can't upload videos.",
+      "vistas": "{n, plural, one {# view} other {# views}}",
+      "verPublicado": "View published",
+      "masOpciones": "More options",
+      "borrar": "Delete this video",
+      "seguroBorrar": "Delete “{titulo}”? This can't be undone.",
+      "estados": {
+        "oculto": "Hidden",
+        "borrador": "Draft"
       }
     },
     "diccionario": {
@@ -3241,6 +3304,29 @@
     },
     "devuelto": "This payment was made and has been refunded.",
     "devueltoQueHacer": "You will see the refund on the same card you paid with, usually within 5 to 10 business days. Nothing else to do."
+  },
+  "videos": {
+    "hilera": {
+      "etiqueta": "Shorts",
+      "titulo": "Stores showing you around",
+      "verTodos": "See all",
+      "anterior": "Previous",
+      "siguiente": "Next"
+    },
+    "visor": {
+      "entraEnMiTienda": "Visit my store",
+      "silenciar": "Mute",
+      "conSonido": "Unmute"
+    },
+    "pagina": {
+      "titulo": "Mercatren Shorts",
+      "entradilla": "Stores showing you around: what they sell, how they keep it and who is behind the counter.",
+      "vacio": "No videos published yet."
+    },
+    "tienda": {
+      "titulo": "Videos from this store",
+      "verTodos": "See all"
+    }
   },
   "afinidad": {
     "porque": "Because you were browsing",

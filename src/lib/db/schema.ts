@@ -2845,3 +2845,63 @@ export const banners = sqliteTable(
     index("idx_banners_tienda").on(t.tiendaId),
   ],
 );
+
+/**
+ * LOS VIDEOS DE CADA TIENDA (23 ago 2026): los Shorts de Mercatren.
+ *
+ * El comercio graba su tienda por dentro con el teléfono, en vertical, y lo
+ * sube desde su panel. Esos videos salen en hileras en la portada —como los
+ * Shorts de YouTube, entre bloques de productos—, en la ficha de su tienda, y
+ * cada uno tiene SU PROPIA PÁGINA indexable (`/video/<slug>`) con su
+ * `VideoObject` y su entrada en el mapa del sitio.
+ *
+ * Tabla NUEVA, no columnas: así llega sola a producción con `schema.sql`. El
+ * archivo vive en nuestro bucket (`clave`, se sirve por `/media`) y la portada
+ * también (`portadaClave`): sin portada, la hilera se ve como cinco recuadros
+ * negros. El tope de duración son 3 minutos y se guarda en segundos para poder
+ * enseñarlo y para el dato estructurado.
+ */
+export const videosTienda = sqliteTable(
+  "videos_tienda",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id")
+      .notNull()
+      .references(() => tiendas.id, { onDelete: "cascade" }),
+    /** La dirección pública del video: /video/<slug>. No se cambia una vez publicado. */
+    slug: text("slug").notNull().unique(),
+    tituloEs: text("titulo_es").notNull(),
+    tituloEn: text("titulo_en"),
+    descripcionEs: text("descripcion_es"),
+    descripcionEn: text("descripcion_en"),
+    /** El archivo en el bucket. Se sirve por /media con soporte de rangos. */
+    clave: text("clave").notNull(),
+    /** La portada (un fotograma). La saca el navegador del propio video al subirlo. */
+    portadaClave: text("portada_clave"),
+    duracionSegundos: integer("duracion_segundos").notNull().default(0),
+    anchoPx: integer("ancho_px"),
+    altoPx: integer("alto_px"),
+    pesoBytes: integer("peso_bytes").notNull().default(0),
+    /** Un producto concreto, si el video habla de uno. Opcional. */
+    productoId: text("producto_id").references(() => productos.id, {
+      onDelete: "set null",
+    }),
+    /** publicado | borrador | oculto (lo esconde el equipo). */
+    estado: text("estado").notNull().default("publicado"),
+    /** Cuántas veces se abrió su página o se reprodujo en el visor. */
+    vistas: integer("vistas").notNull().default(0),
+    /** El país (mercado) donde sale, igual que el catálogo. */
+    mercado: text("mercado").notNull().default("US"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_videos_tienda").on(t.tiendaId),
+    index("idx_videos_estado_mercado").on(t.estado, t.mercado),
+    index("idx_videos_creado").on(t.creadoEn),
+  ],
+);
