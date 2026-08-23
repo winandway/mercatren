@@ -264,11 +264,13 @@ const RETIROS = [
   { id:"r2", dia:17, monto:900.00,  estado:"pagado", via:"ach", cuenta:"Cuenta terminada en 4417", ref:"ACH · a nombre de la empresa" },
 ];
 
-/* Cobros por enlace (pedidos desde el mostrador) */
+/* Cobros por enlace: el comercio los pide desde su panel cuando el que paga no
+   es quien compró, o cuando vende fuera de la tienda. Los conceptos salen de
+   LOS MISMOS productos de arriba — nada que no venda esta tienda. */
 const ENLACES = [
-  { ref:"F-00871", dia:20, monto:186.40, correo:"hijo.en.miami@…", estado:"pagado", metodo:"tarjeta", concepto:"Abono materiales obra 2° piso" },
-  { ref:"F-00879", dia:22, monto:640.00, correo:"socio.usa@…", estado:"abierto", vence:29, concepto:"10 sacos de cemento + flete" },
-  { ref:"F-00852", dia:8, monto:95.00, correo:"cliente@…", estado:"vencido", concepto:"Repuesto llave de paso" },
+  { ref:"F-00871", dia:20, monto:186.40, correo:"cliente.ny@…", estado:"pagado", metodo:"tarjeta", concepto:"Set de 2 maletas ABS + envío a domicilio (DHL)" },
+  { ref:"F-00879", dia:22, monto:640.00, correo:"compras.tx@…", estado:"abierto", vence:29, concepto:"2 bicicletas de montaña juvenil 24\" + envío nacional DHL" },
+  { ref:"F-00852", dia:8, monto:95.00, correo:"maria.fl@…", estado:"vencido", concepto:"Lámpara inalámbrica para cuadros + envío" },
 ];
 
 /* ── i18n ── */
