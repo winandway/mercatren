@@ -115,6 +115,45 @@ export function authMd(base?: string) {
 - Catálogo de la API (RFC 9727): ${r.catalogoApi}
 - Skills: ${r.skills}
 - Contacto: ${r.contacto}
+
+---
+
+# auth.md (English)
+
+## Audience
+
+AI agents and merchant systems that want to read the Mercatren catalog (no credentials needed) or use the partner API (payment links and catalog sync) on behalf of a store that exists on Mercatren.
+
+## Registration
+
+- **Public reads need no registration.** \`${r.catalogo}\`, \`${r.buscar}\`, the MCP server \`${r.mcp}\` and Markdown pages (\`Accept: text/markdown\`) are open.
+- **A store (merchant) registers** at ${r.vender} and creates its store. Its API token is provisioned by the Mercatren team when the store is linked to the merchant's system: email **${r.contacto}** with the store name and the intended use (payments, catalog, or both).
+- **A partner platform** (a system operating many stores) provisions store tokens with its partner key: \`POST ${r.base}/datos/socios/vincular\` with \`{ "externo_id", "nombre", "slug_existente" }\` returns the store token.
+- There is no self-service, automated agent registration endpoint and **no OAuth/OIDC authorization server**; the protected resource metadata at ${r.recursoProtegido} lists no authorization servers on purpose.
+
+## Credentials
+
+- Type: **Bearer token** (store token or partner key), sent as \`Authorization: Bearer <token>\` on every request to \`${r.base}/datos/socios/*\`.
+- Scope: a store token only reaches that store's payment links and catalog; a partner key only links stores.
+- Storage: keep it server-side, never in a browser or a public repository.
+
+## Supported methods
+
+| Identity | Credential | Method |
+| --- | --- | --- |
+| Store (merchant) | Store token | \`Authorization: Bearer\` header |
+| Partner platform | Partner key | \`Authorization: Bearer\` header, then \`POST /datos/socios/vincular\` |
+| Shopper | Site session (cookie) | Sign in at ${r.base}/en/entrar |
+
+## Revocation and rotation
+
+Tokens are revoked by unlinking the store. To revoke or rotate a token, email ${r.contacto}.
+
+## References
+
+- OpenAPI: ${r.openapi}
+- Protected resource metadata (RFC 9728): ${r.recursoProtegido}
+- Skills: ${r.skills}
 `;
 }
 
