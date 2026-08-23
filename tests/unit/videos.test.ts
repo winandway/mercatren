@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { readFileSync } from "node:fs";
+
 import {
   DURACION_MAXIMA_SEGUNDOS,
   duracionCorta,
@@ -141,5 +143,60 @@ describe("las hileras en la portada", () => {
     const r = repartirHileras([1, 2, 3], [video(1), video(2), video(3)], 12, 4);
     expect(r).toEqual([{ tipo: "productos", items: [1, 2, 3] }]);
     expect(repartirHileras([], [video(1)], 12, 4)).toEqual([]);
+  });
+});
+
+/**
+ * QUE SE PUEDA ESCUCHAR (24 ago 2026). El dueño subió videos y no sonaban: la
+ * vista previa llevaba `muted` y la lista del panel era una miniatura sin
+ * reproductor. Aquí no hay autoplay —la persona pulsa play—, así que el
+ * navegador no obliga a silenciar nada.
+ */
+describe("los videos se pueden escuchar", () => {
+  const subir = readFileSync(
+    "src/components/panel/videos/subir-video.tsx",
+    "utf8",
+  );
+  const previa = subir.slice(
+    subir.indexOf("src={elegido.vistaPrevia}") - 200,
+    subir.indexOf("src={elegido.vistaPrevia}") + 400,
+  );
+
+  it("la vista previa al subir NO va silenciada y trae los controles", () => {
+    expect(previa).toContain("controls");
+    expect(
+      previa,
+      "volvió el `muted` que dejaba la vista previa sin sonido",
+    ).not.toMatch(/^\s*muted$/m);
+  });
+
+  it("y se le dice a la persona que le dé play", () => {
+    expect(subir).toContain('t("dalePlay")');
+  });
+
+  it("la lista del panel abre un reproductor de verdad, no una miniatura muda", () => {
+    const lista = readFileSync(
+      "src/app/[locale]/panel/videos/page.tsx",
+      "utf8",
+    );
+    expect(lista).toContain("<ReproductorVideo");
+    const reproductor = readFileSync(
+      "src/components/panel/videos/reproductor-video.tsx",
+      "utf8",
+    );
+    expect(reproductor).toContain("controls");
+    expect(reproductor).not.toMatch(/^\s*muted$/m);
+    /* Y se puede salir: equis, Escape y clic fuera. */
+    expect(reproductor).toContain('e.key === "Escape"');
+    expect(reproductor).toContain("setAbierto(false)");
+  });
+
+  it("el visor público arranca en silencio PERO con su botón de sonido, que es lo que exige el navegador", () => {
+    const visor = readFileSync(
+      "src/components/videos/visor-videos.tsx",
+      "utf8",
+    );
+    expect(visor).toContain("muted={!sonido}");
+    expect(visor).toContain('t("visor.conSonido")');
   });
 });

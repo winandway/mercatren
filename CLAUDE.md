@@ -3199,6 +3199,17 @@ petición en la plataforma; un video vertical de un minuto pesa 20–60 MB. La
 barra de avance es real (`XMLHttpRequest` contra `/upload/video`): una acción de
 servidor no informa del progreso, y sin barra la gente cree que se colgó.
 
+**Y SE TIENEN QUE PODER ESCUCHAR (24 ago 2026).** El dueño subió sus primeros
+videos y no sonaban: la vista previa llevaba `muted` —justo cuando uno quiere
+comprobar qué eligió y qué está diciendo— y la lista «Mis videos publicados»
+era una miniatura sin reproductor, así que entre tres videos parecidos no había
+forma de saber cuál era cuál. Ahora la vista previa suena (no hay autoplay: la
+persona pulsa play, y ahí el navegador no obliga a silenciar) y la miniatura de
+la lista abre el video en grande con los controles del navegador, que se cierra
+con la equis, con Escape o tocando fuera. **En el visor público sí arranca en
+silencio y con su botón**, porque ahí sí hay autoplay y el navegador lo exige.
+`tests/unit/videos.test.ts` se pone rojo si vuelve el `muted`.
+
 **Las hileras nunca abren ni cierran la portada** y no se dibujan con menos de
 tres videos: tres recuadros sueltos parecen un error, no una sección.
 

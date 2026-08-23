@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AccionesVideo } from "@/components/panel/videos/acciones-video";
+import { ReproductorVideo } from "@/components/panel/videos/reproductor-video";
 import { SubirVideo } from "@/components/panel/videos/subir-video";
 import { Link } from "@/i18n/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { fechaCorta } from "@/lib/fechas";
+import { RUTA_MEDIA } from "@/lib/rutas";
 import { duracionCorta } from "@/lib/videos/reglas";
 import { videosDelPanel } from "@/lib/videos/consultas";
 
@@ -78,16 +80,15 @@ export default async function PaginaVideosDelPanel({
                   key={v.id}
                   className="flex items-start gap-4 rounded-xl border border-borde bg-white p-3"
                 >
-                  <div className="h-24 w-16 shrink-0 overflow-hidden rounded-lg bg-riel-900">
-                    {portada ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={portada}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : null}
-                  </div>
+                  {/* Se toca la miniatura y el video se abre en grande, con
+                      sonido y con los controles del navegador: es la única
+                      forma de saber cuál es cuál entre videos parecidos. */}
+                  <ReproductorVideo
+                    url={`${RUTA_MEDIA}/${v.clave}`}
+                    portadaUrl={portada}
+                    titulo={v.tituloEs}
+                    duracionSegundos={v.duracionSegundos}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-riel-900">{v.tituloEs}</p>
                     <p className="mt-0.5 text-sm text-tinta-suave">

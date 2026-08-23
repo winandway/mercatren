@@ -209,14 +209,21 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:text-left">
             <video
               src={elegido.vistaPrevia}
-              muted
               playsInline
               controls
+              /* CON SONIDO, a propósito (24 ago 2026). Estaba `muted` y el
+                 comercio le daba play y no oía nada — justo cuando uno quiere
+                 comprobar qué video eligió y qué está diciendo. Aquí no hay
+                 autoplay (la persona pulsa play), así que el navegador no
+                 obliga a silenciarlo. */
               className="h-56 w-auto rounded-lg bg-black"
             />
             <div className="min-w-0">
               <p className="text-sm font-bold text-riel-900">
                 {elegido.archivo.name}
+              </p>
+              <p className="mt-1 text-sm font-medium text-carga-600">
+                {t("dalePlay")}
               </p>
               <p className="mt-1 text-sm text-tinta-suave">
                 {t("duracion")}:{" "}
