@@ -1604,6 +1604,13 @@
       "vistas": "{n, plural, one {# view} other {# views}}",
       "verPublicado": "View published",
       "masOpciones": "More options",
+      "editar": "Edit title and details",
+      "editarTitulo": "Edit video",
+      "editarAyuda": "Change the title, the text or the language. The video, its link and its views stay as they are.",
+      "guardarCambios": "Save changes",
+      "cancelar": "Cancel",
+      "ocultar": "Hide from the site",
+      "mostrar": "Publish again",
       "borrar": "Delete this video",
       "seguroBorrar": "Delete “{titulo}”? This can't be undone.",
       "estados": {

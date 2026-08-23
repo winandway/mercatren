@@ -1604,6 +1604,13 @@
       "vistas": "{n, plural, one {# vista} other {# vistas}}",
       "verPublicado": "Ver publicado",
       "masOpciones": "Más opciones",
+      "editar": "Editar título y datos",
+      "editarTitulo": "Editar el video",
+      "editarAyuda": "Cambia el título, el texto o el idioma. El video, su enlace y sus vistas se quedan como están.",
+      "guardarCambios": "Guardar cambios",
+      "cancelar": "Cancelar",
+      "ocultar": "Ocultar del sitio",
+      "mostrar": "Volver a publicar",
       "borrar": "Borrar este video",
       "seguroBorrar": "¿Seguro que quieres borrar «{titulo}»? No se puede deshacer.",
       "estados": {

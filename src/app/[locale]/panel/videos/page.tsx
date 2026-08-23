@@ -117,7 +117,13 @@ export default async function PaginaVideosDelPanel({
                       ) : null}
                     </p>
                   </div>
-                  <AccionesVideo id={v.id} titulo={v.tituloEs} />
+                  <AccionesVideo
+                    id={v.id}
+                    titulo={v.tituloEs}
+                    tituloEn={v.tituloEn}
+                    descripcion={v.descripcionEs}
+                    oculto={v.estado !== "publicado"}
+                  />
                 </li>
               );
             })}

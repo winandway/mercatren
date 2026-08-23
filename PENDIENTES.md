@@ -14,7 +14,7 @@
 > 🔴 urgente · 🟠 importante · 🟡 cuando se pueda
 > 👤 solo lo puede hacer Richard · 💻 es código
 
-Última revisión: **23 de agosto de 2026**.
+Última revisión: **24 de agosto de 2026**.
 
 ---
 
@@ -194,6 +194,58 @@ Las fases 1 a 4 del plan multi-país están hechas. Para operar de verdad falta:
 - [ ] 🟡 💻 **El copy propio de cada plaza.** Hoy se hereda el de Venezuela.
 
 ---
+
+# BLOQUE 6c · LOS SHORTS, SEGUNDA VUELTA (24 ago 2026)
+
+Lo que pidió el dueño después de subir sus primeros videos y navegarlos.
+
+- [ ] 🟠 💻 **Probar sin salir de la hilera.** Hoy tocar una tarjeta abre la
+      página del video. Lo que quiere: pasar el mouse (o tocar) y que ESE video
+      se reproduzca ahí mismo, chiquito, para ir catando uno por uno; y **una
+      flechita de expandir** abajo del propio video para abrirlo solo cuando le
+      interese. _«No cuando le dé play se va ahí, porque luego tengo que
+      regresar; tardaría mucho en decidir cuál quiero.»_
+- [ ] 🟠 💻 **El visor abierto NO tiene que ser pantalla completa a lo bruto.**
+      Que se abra «normalito», con los menús a los lados —como los Shorts de
+      YouTube en escritorio— para poder seguir navegando. En el celular sí a
+      pantalla completa. (Hoy vive en el grupo `(visor)` sin encabezado: hay
+      que hacerlo depender del ancho, no del grupo de rutas.)
+- [ ] 🟠 💻 **Corazones, comentarios y compartir**, en la columna de la derecha
+      del video, estilo TikTok/Shorts. El corazón es lo primero: tabla propia,
+      una vez por persona, y el número a la vista. Compartir con el enlace del
+      video (que ya existe y es indexable). Comentarios: decidir antes si los
+      modera el comercio o el equipo — un comentario abierto en una tienda es
+      soporte y es riesgo, no solo una función.
+
+# BLOQUE 6b · QUE EL SITIO VUELE (rendimiento y caché)
+
+Lo pidió el dueño el 24 ago 2026 con dos capturas: _«se queda como tres
+segundos así esa pantalla»_ (la tienda dibujando esqueletos grises) y _«algunos
+videos se quedan pegados cuando le das play»_. No es un capricho de acabado:
+tres segundos en blanco en la ficha de una tienda es la persona que se va.
+
+- [ ] 🟠 💻 **Medir primero, con números.** Ficha de tienda, portada y ficha de
+      producto en el sitio publicado: qué tarda el servidor (TTFB), qué tarda
+      la base y qué tarda el borde. Sin esa medición cualquier arreglo es
+      adivinar. Hoy `/es` y las fichas van con `no-store`.
+- [ ] 🟠 💻 **La tienda tarda porque hace muchas consultas en fila** (tienda,
+      productos, envío, color, verificación, videos, banners…). Juntar las que
+      se puedan en un `Promise.all` y recordar un minuto lo que no cambia
+      (color, política de envío, verificación), con la llave por mercado como
+      manda `muro-cache`.
+- [ ] 🟠 💻 **Caché en el borde para lo público.** Portada, fichas de tienda y
+      de producto pueden servirse con `s-maxage` corto y `stale-while-revalidate`
+      sin mentirle a nadie: el precio y las existencias se releen al comprar.
+      Ojo con lo que lleva sesión y con el filtro por ciudad (va en cookie).
+- [ ] 🟠 💻 **Los videos que se quedan pegados al dar play.** `/media` ya sirve
+      por rangos (206), pero el archivo sale del bucket a través del worker en
+      cada trozo. Dos caminos a medir: cachear el objeto en el borde
+      (`cache-control` ya es `immutable`, falta que el borde lo guarde) o
+      publicar el bucket por su propio dominio. También: `preload="none"` en lo
+      que no se está viendo y arrancar el siguiente video un poco antes.
+- [ ] 🟡 💻 **El esqueleto gris que dura tres segundos.** Con la caché puesta
+      casi desaparece; lo que quede se arregla enseñando ya lo que se sabe
+      (nombre, portada, primeros productos) y dejando cargar lo de abajo.
 
 # BLOQUE 7 · DEUDA TÉCNICA ESCRITA
 

@@ -8,6 +8,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { Campo } from "@/components/ui/campo";
@@ -49,6 +50,7 @@ type Elegido = {
 export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
   const t = useTranslations("panel.videos");
   const tm = useTranslations("panel.mensajes.videos");
+  const router = useRouter();
   const [elegido, setElegido] = useState<Elegido | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [avance, setAvance] = useState<number | null>(null);
@@ -176,6 +178,9 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
     setElegido(null);
     formulario.current?.reset();
     if (entrada.current) entrada.current.value = "";
+    /* La lista de abajo la dibuja el servidor: sin este refresco, el comercio
+       publica y no ve su video hasta que recarga a mano. */
+    router.refresh();
   }
 
   return (
@@ -314,6 +319,8 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
         nombre="descripcionEs"
         etiqueta={t("descripcionEs")}
         ayuda={t("descripcionAyuda")}
+        area
+        filas={3}
       />
 
       {error ? (

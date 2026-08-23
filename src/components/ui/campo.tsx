@@ -35,6 +35,7 @@ export function Campo({
   marcador,
   ayuda,
   valor,
+  valorInicial,
   onChange,
   requerido = false,
   area = false,
@@ -49,6 +50,13 @@ export function Campo({
   ayuda?: string;
   /** Con `valor` + `onChange` la maneja el formulario; sin ellos, se maneja sola. */
   valor?: string;
+  /**
+   * Lo que ya estaba guardado, para un formulario que EDITA algo (el título de
+   * un video, por ejemplo). No es lo mismo que `valor`: aquí la casilla sigue
+   * manejándose sola y viajando con el FormData; esto solo dice con qué
+   * arranca. Sin esto, editar obligaba a reescribirlo todo desde cero.
+   */
+  valorInicial?: string;
   onChange?: (valor: string) => void;
   requerido?: boolean;
   area?: boolean;
@@ -76,7 +84,7 @@ export function Campo({
      manda `valor`, y en los que se envían con FormData la casilla se apaña
      sola. Sin esto habría que reescribir cada formulario del sitio para
      cambiarle la casilla. */
-  const [propio, setPropio] = useState("");
+  const [propio, setPropio] = useState(valorInicial ?? "");
   const controlado = valor !== undefined;
   const actual = controlado ? valor : propio;
 
