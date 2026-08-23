@@ -223,6 +223,18 @@ const P = {
   conjunto:["Conjunto de camisa holgada y pantalón para mujer",11.08],
   camiseta:["Camiseta de mujer, manga larga, cuello solapa, corte holgado",8.11],
   vestido:["Vestido camisero casual de verano suelto de color sólido",6.79],
+  /* Los baratos: para enseñar que con tarjeta se compra desde un dólar, sin el
+     mínimo que piden en Venezuela. También de nuestras tiendas. */
+  pegatinas:["Pegatinas reflectantes y luminosas para coche, moto y bici",1.09],
+  carteraFibra:["Cartera delgada de piel sintética y fibra de carbono",1.20],
+  aceite:["Aceite esencial perfumado",1.24],
+  fundaTarjeta:["Funda para tarjeta con cordón, diseño de planta verde",1.30],
+  brilloLabial:["Brillo labial líquido brillante, resistente al agua",1.50],
+  pizarra3d:["Juguete educativo, pizarra de dibujo 3D con 8 efectos de luz",2.81],
+  labialMate:["Labial mate PHOFAY",3.13],
+  camisetaHombre:["Camiseta estampada de manga corta para hombre",4.34],
+  bolsoCadena:["Bolso cruzado de mujer, diseño de caja con cadena y cinta",4.45],
+  luzCiervo:["Luz nocturna de ciervo animado, recargable USB",6.74],
 };
 
 /* Ventas de agosto. [día, comprador, método, estado, renglones[[producto, cantidad]]] */
@@ -261,6 +273,18 @@ const VENTAS = [
   [21,"Mariela S.","tarjeta","pagado",[["micXLR",1],["micKaraoke",1],["miniCamara",1]]],
   [22,"Gustavo P.","tarjeta","pagado",[["laminadora",1],["laminadora4",1],["calentadorTazas",1]]],
   [22,"Laura D.","tarjeta","pagado",[["chaqueta",1],["conjunto",1],["camiseta",1],["vestido",1]]],
+  /* Las compras chiquitas: una sola unidad, con tarjeta, desde un dólar. Van
+     revueltas entre las grandes por la fecha. */
+  [2,"Tom H.","tarjeta","entregado",[["pegatinas",1]]],
+  [3,"Lucía P.","tarjeta","entregado",[["aceite",1]]],
+  [5,"Kevin O.","tarjeta","entregado",[["carteraFibra",1]]],
+  [7,"Amanda R.","tarjeta","entregado",[["brilloLabial",1]]],
+  [9,"Jorge M.","tarjeta","entregado",[["fundaTarjeta",1]]],
+  [11,"Megan S.","tarjeta","entregado",[["pizarra3d",1]]],
+  [13,"Pablo V.","tarjeta","entregado",[["labialMate",1]]],
+  [16,"Ashley K.","tarjeta","entregado",[["camisetaHombre",1]]],
+  [19,"Ricardo L.","tarjeta","enviado",[["bolsoCadena",1]]],
+  [21,"Emma W.","tarjeta","pagado",[["luzCiervo",1]]],
 ];
 
 /* Retiros ya hechos (el equipo los transfirió) */
