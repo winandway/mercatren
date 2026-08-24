@@ -156,6 +156,18 @@ CREATE TABLE IF NOT EXISTS `cobros_zelle` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_cobros_zelle_cobro` ON `cobros_zelle` (`cobro_id`);
+CREATE TABLE IF NOT EXISTS `comentarios_video` (
+	`id` text PRIMARY KEY NOT NULL,
+	`video_id` text NOT NULL,
+	`usuario_id` text NOT NULL,
+	`texto` text NOT NULL,
+	`estado` text DEFAULT 'publicado' NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`video_id`) REFERENCES `videos_tienda`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_comentarios_video` ON `comentarios_video` (`video_id`,`estado`);
 CREATE TABLE IF NOT EXISTS `comprobantes_retiro` (
 	`id` text PRIMARY KEY NOT NULL,
 	`retiro_id` text NOT NULL,
@@ -439,6 +451,16 @@ CREATE TABLE IF NOT EXISTS `lineas_factura` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_lineas_factura` ON `lineas_factura` (`factura_id`);
+CREATE TABLE IF NOT EXISTS `me_gusta_video` (
+	`video_id` text NOT NULL,
+	`usuario_id` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	PRIMARY KEY(`video_id`, `usuario_id`),
+	FOREIGN KEY (`video_id`) REFERENCES `videos_tienda`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_me_gusta_video` ON `me_gusta_video` (`video_id`);
 CREATE TABLE IF NOT EXISTS `medidas_producto` (
 	`producto_id` text PRIMARY KEY NOT NULL,
 	`peso_gramos` integer,
@@ -940,11 +962,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787522917, 1787522917)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787529611, 1787529611)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787522917)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787529611)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
