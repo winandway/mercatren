@@ -3154,6 +3154,55 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## NADIE ESPERA A QUE LO APRUEBEN: EL ALTA ES INMEDIATA (24 ago 2026)
+
+Al dueño le llegó un correo del sistema pidiéndole entrar a «verificar» a
+Brillox Steel — un comercio cuya tienda **ya estaba activa y publicada** desde
+el momento del registro. Sus palabras: _«no puede ser que una persona esté
+esperando que uno entre y verifique… En Amazon no están esperando para
+verificarlo, se registran y ya. Solo cuando un usuario comete una infracción es
+que uno actúa»_.
+
+**La tienda nacía activa desde el 15 de agosto** (ver la sección de arriba).
+Lo que se quedó atrás nueve días fueron los TEXTOS y el CORREO, y nadie lo
+notó porque nada se ponía rojo:
+
+| Dónde                     | Decía                                                                              | Dice                                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Correo al equipo          | «Comercio nuevo **por aprobar**» · «espera aprobación» · botón «Revisar y aprobar» | «Comercio nuevo» · «su tienda ya está activa y publicada — no hay nada que aprobar» · botón «Ver su tienda» |
+| Al comercio, tras el alta | «el equipo de Mercatren **lo va a revisar**»                                       | «¡Listo! Tu tienda ya está publicada y cualquiera puede verla»                                              |
+| Ficha sin publicar        | «la estamos revisando… te avisamos»                                                | «ahora mismo no está publicada… escríbenos y la activamos»                                                  |
+| Panel → Comercios         | «Pendiente de aprobar» · «Aprobar y dejarlo vender»                                | «Sin publicar» · «Publicar esta tienda»                                                                     |
+
+**Un correo que manda a hacer una tarea que no existe es peor que no mandarlo:
+enseña a ignorar los correos del sistema**, y entre ellos van los de dinero.
+
+**LA CONFIRMACIÓN DEL ALTA SE LEE, YA NO SE PASA DE LARGO.** El formulario
+redirigía solo al panel: el comercio enviaba y aterrizaba en otra pantalla sin
+llegar a leer nada. Ahora se queda con el mensaje y **los dos caminos que de
+verdad siguen**: «Cargar mis productos» y «Ver mi tienda» (con su enlace real,
+que ahora `solicitarComercio` devuelve en `slug`).
+
+**Y AL CREAR LA CUENTA SE DICE QUÉ PUEDE HACER CON ELLA.** Lo pidió el dueño:
+_«que sea claro si él está creando una cuenta para comprar, que le diga: con
+esta cuenta puedes comprar y también puedes vender»_. El subtítulo lo decía
+—en gris, de 14 px, debajo del título—, o sea que no lo decía. Ahora son dos
+tarjetas con ícono: **Para comprar** y **Para vender, con la misma cuenta**, y
+la segunda cierra con lo que hoy importa: _se publica al momento, no hay que
+esperar a que nadie te apruebe_. Son dos y no una lista porque la pregunta que
+trae la persona es «¿esta cuenta es la mía?», y verlas al lado la responde sin
+leer una palabra de más. El correo de bienvenida dice lo mismo.
+
+**El candado: `tests/unit/alta-sin-aprobacion.test.ts`** se pone rojo si el
+alta vuelve a insertar `pendiente`, si el correo vuelve a hablar de aprobar, si
+un texto del público le promete a un comercio una revisión, o si la pantalla de
+registro deja de explicar las dos cosas. Sin él, esto se vuelve a desincronizar
+en el próximo cambio — que es exactamente lo que pasó.
+
+**Lo que NO desaparece:** el botón para publicar una tienda sigue en Panel →
+Comercios, porque `pendiente` y `borrador` siguen existiendo — es lo que queda
+al **suspender** a alguien. El control no se quitó: cambió de momento.
+
 ## EL VIDEO SE COMPRIME EN EL NAVEGADOR, COMO LAS FOTOS (24 ago 2026)
 
 El dueño seguía viendo los videos «arranca, se corta, arranca» en varios

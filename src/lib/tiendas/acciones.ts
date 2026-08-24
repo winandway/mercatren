@@ -245,7 +245,7 @@ function aSlug(nombre: string) {
 export async function solicitarComercio(
   _previo: unknown,
   datos: FormData,
-): Promise<{ ok: boolean; mensaje: string }> {
+): Promise<{ ok: boolean; mensaje: string; slug?: string }> {
   const t = await mensajes();
   const usuario = await obtenerUsuario().catch(() => null);
 
@@ -368,15 +368,19 @@ export async function solicitarComercio(
 
   revalidatePath("/[locale]/panel", "layout");
 
-  // Al equipo: hay una tienda esperando aprobación. Nunca es requisito.
+  /* Al equipo, para enterarse — NO para aprobar nada. El aviso dice que la
+     tienda ya está activa: pedirle al equipo que «verifique» a alguien que ya
+     está vendiendo es una tarea que no existe, y de las que enseñan a ignorar
+     los correos del sistema. Nunca es requisito: si el correo falla, el alta
+     ya está hecha. */
   try {
     const { correoAvisoComercioNuevo } = await import("@/lib/correo/correos");
-    await correoAvisoComercioNuevo(d);
+    await correoAvisoComercioNuevo({ ...d, slug });
   } catch (e) {
     console.error("[comercio] alta creada; aviso interno fallido:", e);
   }
 
-  return { ok: true, mensaje: t("comercioEnRevision") };
+  return { ok: true, mensaje: t("comercioListo"), slug };
 }
 
 /**

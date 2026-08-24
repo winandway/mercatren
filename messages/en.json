@@ -310,7 +310,7 @@
     "claveAyuda": "At least 10 characters.",
     "registrarse": "Create account",
     "tituloRegistro": "Create your account",
-    "subtituloRegistro": "One account to buy and, if you want, to sell.",
+    "subtituloRegistro": "One account to buy and to sell.",
     "errorRegistro": "We couldn't create the account. That email may already be registered.",
     "volverEntrar": "Already have an account · Sign in",
     "seguridad": {
@@ -336,7 +336,17 @@
     "errorCorreoInvalido": "That email does not look valid. Check it.",
     "aceptoTerminos": "I have read and accept the <terminos>terms and conditions</terminos> and the <privacidad>privacy policy</privacidad>.",
     "errorAceptaTerminos": "To create an account you need to accept the terms and conditions.",
-    "errorDemasiadosIntentos": "Too many attempts in a row. Wait a few minutes and try again."
+    "errorDemasiadosIntentos": "Too many attempts in a row. Wait a few minutes and try again.",
+    "conTuCuenta": {
+      "comprar": {
+        "titulo": "To buy",
+        "texto": "Buy from any store in the catalog, pay from the United States and track every order through delivery."
+      },
+      "vender": {
+        "titulo": "To sell, with the same account",
+        "texto": "Open your store whenever you want. It goes live right away — no waiting for anyone to approve you."
+      }
+    }
   },
   "panel": {
     "titulo": "Admin",
@@ -459,7 +469,7 @@
         "activa": "Active",
         "borrador": "Being set up",
         "suspendida": "Suspended",
-        "pendiente": "Pending approval"
+        "pendiente": "Not published"
       },
       "vacio": "No merchants registered yet.",
       "verPagos": "View their payments",
@@ -1149,7 +1159,6 @@
       "faltaCiudad": "Enter the city.",
       "faltaPais": "Choose the account's country.",
       "yaTienesComercio": "This account already has a store registered.",
-      "comercioEnRevision": "Done. Your store is registered and the Mercatren team will review it.",
       "comercioAprobado": "Store approved. They can start selling.",
       "soloComercio": "Sign in with your merchant account to request a withdrawal.",
       "faltaMonto": "Enter how much you want to withdraw.",
@@ -1269,7 +1278,8 @@
       "estadoInvalido": "Choose your state from the list.",
       "codigoPostalInvalido": "A ZIP code is 5 digits. For example: 33101",
       "formularioFiscalFalta": "Before you can be paid, complete your tax form under “My store”. It takes five minutes and only needs doing once every three years.",
-      "formularioFiscalVencido": "Your tax form has expired. Sign it again under “My store” and you can request your withdrawal right away."
+      "formularioFiscalVencido": "Your tax form has expired. Sign it again under “My store” and you can request your withdrawal right away.",
+      "comercioListo": "All set! Your store is live and anyone can see it. Nothing to wait for — you can start adding products right now."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1319,7 +1329,7 @@
         "inactivo": "Inactive",
         "demostracion": "Demo"
       },
-      "aprobarComercio": "Approve and let them sell",
+      "aprobarComercio": "Publish this store",
       "esperaAprobacion": "This store is awaiting approval",
       "esperaAprobacionTexto": "They signed up with their details and can't sell yet. Review them before approving.",
       "cambiarCorreo": {
@@ -2682,8 +2692,8 @@
     "masDelComercio": "More about this merchant",
     "mensajeWhatsapp": "Hi, I'm writing from Mercatren.com. I'm interested in your products and would like more information.",
     "noPublica": {
-      "borrador": "This is your store and it's still a draft — only you can see it. Finish setting it up in My store and submit it for review to go public.",
-      "pendiente": "This is your store and it isn't public yet — we're reviewing it. Only you and the Mercatren team can see it. We'll let you know as soon as it goes live.",
+      "borrador": "This is your store and it's a draft — only you can see it. Finish setting it up in My store and publish it whenever you want.",
+      "pendiente": "This is your store and it isn't published right now — only you and the Mercatren team can see it. Get in touch and we'll activate it.",
       "suspendida": "This store isn't visible to the public right now. Get in touch and we'll look into it with you."
     }
   },
@@ -2843,11 +2853,12 @@
     },
     "bienvenida": {
       "asunto": "Your Mercatren account is ready",
-      "previo": "You can now shop and track your orders.",
+      "previo": "You can start buying. And selling, with this same account.",
       "titulo": "Welcome to Mercatren",
       "parrafos": [
-        "Your account is set up. You can shop from the merchants in our catalog, pay from the United States, and follow every order through delivery.",
-        "Every payment is documented: who bought, what they bought, and when it was delivered."
+        "Your account is active. Use it to buy from any store in the catalog, pay from the United States and track every order through delivery.",
+        "Want to sell? With this same account you can open your store whenever you want, and it goes live right away — no waiting for anyone to approve you.",
+        "Every payment is documented: who bought, what they bought and when it was delivered."
       ],
       "boton": "Go to Mercatren"
     },
@@ -3128,6 +3139,10 @@
       "paisAyuda": "Colombia",
       "telefonoAyuda": "+57 300 123 4567",
       "porQueLosDatos": "We ask for this because every sale is invoiced under your company's name and stays documented. Without it we can't open your store."
+    },
+    "listo": {
+      "cargarProductos": "Add my products",
+      "verMiTienda": "View my store"
     }
   },
   "clave": {

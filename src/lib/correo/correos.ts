@@ -470,15 +470,18 @@ export async function correoAvisoComercioNuevo(d: {
   telefono: string;
   ciudad: string;
   paisOrigen: string;
+  slug?: string;
 }) {
   return correoAvisoAlEquipo({
-    asunto: `Comercio nuevo por aprobar: ${d.nombre}`,
+    asunto: `Comercio nuevo: ${d.nombre}`,
     lineas: [
-      `${d.nombre} (${d.razonSocial}) acaba de registrarse y espera aprobación.`,
+      `${d.nombre} (${d.razonSocial}) acaba de registrarse. Su tienda ya está activa y publicada — no hay nada que aprobar.`,
       `Contacto: ${d.correoContacto} · ${d.telefono} · ${d.ciudad}, ${d.paisOrigen}.`,
     ],
-    url: "https://mercatren.com/es/panel/usuarios",
-    boton: "Revisar y aprobar",
+    url: d.slug
+      ? `https://mercatren.com/es/tienda/${d.slug}`
+      : "https://mercatren.com/es/panel/tiendas",
+    boton: d.slug ? "Ver su tienda" : "Ver los comercios",
   });
 }
 
@@ -500,9 +503,9 @@ export async function correoAvisoCuentaNueva(d: {
   return correoAvisoAlEquipo({
     asunto: `Cuenta nueva: ${d.name}`,
     lineas: [
-      `${d.name} acaba de crear una cuenta en Mercatren.`,
+      `${d.name} acaba de crear una cuenta en Mercatren. Su cuenta está activa al 100%: puede comprar de inmediato.`,
       `Correo: ${d.email}`,
-      "Todavía no ha dado de alta ningún comercio. Si es un vendedor, hasta que no lo haga no puede cargar productos.",
+      "Si quiere vender, con esta misma cuenta da de alta su tienda y queda publicada sola.",
     ],
     url: "https://mercatren.com/es/panel/usuarios",
     boton: "Ver los usuarios",

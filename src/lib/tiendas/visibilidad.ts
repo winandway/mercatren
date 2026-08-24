@@ -3,10 +3,15 @@
  *
  * ══ EL FALLO QUE ESTO ARREGLA (14 ago 2026) ══
  *
- * Una tienda nueva nace en `pendiente`: la revisa el equipo antes de que salga
- * al público. Pero la ficha pública solo enseñaba las `activa`, así que el
- * comercio creaba su tienda, subía su logo y su portada, tocaba «ver mi
- * tienda»… y se encontraba un **404 de su propia tienda**.
+ * Entonces una tienda nueva nacía en `pendiente` —la revisaba el equipo antes
+ * de que saliera al público— y la ficha pública solo enseñaba las `activa`,
+ * así que el comercio creaba su tienda, subía su logo y su portada, tocaba
+ * «ver mi tienda»… y se encontraba un **404 de su propia tienda**.
+ *
+ * Desde el 15 ago 2026 las tiendas nacen ACTIVAS y ese caso ya no ocurre al
+ * registrarse. Esto sigue haciendo falta para las que se suspenden y para las
+ * que quedaron en borrador: el dueño tiene que poder ver la suya y entender
+ * por qué no sale.
  *
  * Visto desde su silla, eso no se lee como «está en revisión»: se lee como que
  * el sitio perdió su trabajo. Y lo primero que uno piensa es que la culpa fue
@@ -78,8 +83,8 @@ export function avisoDeFichaNoPublica(
  * ¿Los buscadores pueden indexar esta ficha?
  *
  * Nunca una que no sea pública, aunque su dueño la esté mirando. Si Google la
- * guarda mientras está en revisión, después queda en sus resultados una tienda
- * que quizá no se aprobó nunca.
+ * guarda mientras está sin publicar, después queda en sus resultados una
+ * tienda que a lo mejor se suspendió por algo.
  */
 export function seIndexa(estado: string | null | undefined): boolean {
   return esPublica(estado);

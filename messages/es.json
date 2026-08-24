@@ -310,7 +310,7 @@
     "claveAyuda": "Mínimo 10 caracteres.",
     "registrarse": "Crear cuenta",
     "tituloRegistro": "Crear tu cuenta",
-    "subtituloRegistro": "Con una sola cuenta compras y, si quieres, vendes.",
+    "subtituloRegistro": "Una sola cuenta para comprar y para vender.",
     "errorRegistro": "No se pudo crear la cuenta. Puede que ese correo ya esté registrado.",
     "volverEntrar": "Ya tengo cuenta · Iniciar sesión",
     "seguridad": {
@@ -336,7 +336,17 @@
     "errorCorreoInvalido": "Ese correo no parece válido. Revísalo.",
     "aceptoTerminos": "He leído y acepto los <terminos>términos y condiciones</terminos> y la <privacidad>política de privacidad</privacidad>.",
     "errorAceptaTerminos": "Para crear la cuenta tienes que aceptar los términos y condiciones.",
-    "errorDemasiadosIntentos": "Demasiados intentos seguidos. Espera unos minutos y vuelve a probar."
+    "errorDemasiadosIntentos": "Demasiados intentos seguidos. Espera unos minutos y vuelve a probar.",
+    "conTuCuenta": {
+      "comprar": {
+        "titulo": "Para comprar",
+        "texto": "Compra en cualquier comercio del catálogo, paga desde Estados Unidos y sigue tus pedidos hasta la entrega."
+      },
+      "vender": {
+        "titulo": "Para vender, con la misma cuenta",
+        "texto": "Abre tu tienda cuando quieras. Se publica al momento: no hay que esperar a que nadie te apruebe."
+      }
+    }
   },
   "panel": {
     "titulo": "Administración",
@@ -459,7 +469,7 @@
         "activa": "Activo",
         "borrador": "En preparación",
         "suspendida": "Suspendido",
-        "pendiente": "Pendiente de aprobar"
+        "pendiente": "Sin publicar"
       },
       "vacio": "Todavía no hay comercios registrados.",
       "verPagos": "Ver sus pagos",
@@ -1149,7 +1159,6 @@
       "faltaCiudad": "Escribe la ciudad.",
       "faltaPais": "Elige el país de la cuenta.",
       "yaTienesComercio": "Ya tienes un comercio registrado con esta cuenta.",
-      "comercioEnRevision": "Listo. Tu comercio quedó registrado y el equipo de Mercatren lo va a revisar.",
       "comercioAprobado": "Comercio aprobado. Ya puede vender.",
       "soloComercio": "Entra con tu cuenta de comercio para pedir un retiro.",
       "faltaMonto": "Escribe cuánto quieres retirar.",
@@ -1269,7 +1278,8 @@
       "estadoInvalido": "Elige tu estado de la lista.",
       "codigoPostalInvalido": "El código postal son 5 dígitos. Por ejemplo: 33101",
       "formularioFiscalFalta": "Antes de cobrar, completa tu formulario fiscal en «Mi tienda». Son cinco minutos y solo se hace una vez cada tres años.",
-      "formularioFiscalVencido": "Tu formulario fiscal venció. Vuelve a firmarlo en «Mi tienda» y podrás pedir tu retiro enseguida."
+      "formularioFiscalVencido": "Tu formulario fiscal venció. Vuelve a firmarlo en «Mi tienda» y podrás pedir tu retiro enseguida.",
+      "comercioListo": "¡Listo! Tu tienda ya está publicada y cualquiera puede verla. No hay nada que esperar: ya puedes cargar tus productos."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1319,7 +1329,7 @@
         "inactivo": "Inactivo",
         "demostracion": "Demostración"
       },
-      "aprobarComercio": "Aprobar y dejarlo vender",
+      "aprobarComercio": "Publicar esta tienda",
       "esperaAprobacion": "Este comercio espera aprobación",
       "esperaAprobacionTexto": "Se dio de alta con sus datos y todavía no puede vender. Revísalos antes de aprobarlo.",
       "cambiarCorreo": {
@@ -2682,8 +2692,8 @@
     "masDelComercio": "Más de este comercio",
     "mensajeWhatsapp": "Hola, te escribo desde Mercatren.com. Estoy interesado en tus productos y quiero más información.",
     "noPublica": {
-      "borrador": "Esta es tu tienda y todavía está en borrador: solo la ves tú. Termina de completarla en Mi tienda y envíala a revisión para que salga al público.",
-      "pendiente": "Esta es tu tienda y todavía no es pública: la estamos revisando. Solo la ves tú y el equipo de Mercatren. Te avisamos en cuanto quede activa.",
+      "borrador": "Esta es tu tienda y está en borrador: solo la ves tú. Termina de completarla en Mi tienda y publícala cuando quieras.",
+      "pendiente": "Esta es tu tienda y ahora mismo no está publicada: solo la ves tú y el equipo de Mercatren. Escríbenos y la activamos.",
       "suspendida": "Esta tienda no está visible para el público ahora mismo. Escríbenos y lo revisamos contigo."
     }
   },
@@ -2843,10 +2853,11 @@
     },
     "bienvenida": {
       "asunto": "Tu cuenta en Mercatren quedó lista",
-      "previo": "Ya puedes comprar y seguir tus pedidos.",
+      "previo": "Ya puedes comprar. Y si quieres vender, con esta misma cuenta.",
       "titulo": "Bienvenido a Mercatren",
       "parrafos": [
-        "Tu cuenta quedó creada. Desde ella puedes comprar en los comercios del catálogo, pagar desde Estados Unidos y seguir cada pedido hasta la entrega.",
+        "Tu cuenta ya está activa. Desde ella puedes comprar en los comercios del catálogo, pagar desde Estados Unidos y seguir cada pedido hasta la entrega.",
+        "¿Quieres vender? Con esta misma cuenta abres tu tienda cuando quieras, y se publica al momento: no tienes que esperar a que nadie te apruebe.",
         "Todo pago queda documentado: quién compró, qué compró y cuándo se entregó."
       ],
       "boton": "Entrar a Mercatren"
@@ -3128,6 +3139,10 @@
       "paisAyuda": "Colombia",
       "telefonoAyuda": "+57 300 123 4567",
       "porQueLosDatos": "Pedimos estos datos porque cada venta se factura a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda."
+    },
+    "listo": {
+      "cargarProductos": "Cargar mis productos",
+      "verMiTienda": "Ver mi tienda"
     }
   },
   "clave": {

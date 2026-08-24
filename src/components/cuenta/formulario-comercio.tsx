@@ -129,15 +129,43 @@ export function FormularioComercio({
       } catch {
         /* da igual */
       }
-      window.location.assign(`/${idioma}/panel`);
     }
-  }, [estado?.ok, idioma]);
+  }, [estado?.ok]);
 
+  /**
+   * LA CONFIRMACIÓN SE LEE, NO SE PASA DE LARGO (24 ago 2026).
+   *
+   * Antes esto redirigía solo al panel: el comercio mandaba el formulario y
+   * aterrizaba en una pantalla cualquiera sin haber leído nunca que su tienda
+   * ya estaba publicada. Encima el texto decía «el equipo lo va a revisar»,
+   * que era mentira desde el 15 de agosto — las tiendas nacen activas.
+   *
+   * Ahora se queda, lo dice, y le da los dos caminos que de verdad siguen:
+   * ver su tienda o empezar a cargar productos.
+   */
   if (estado?.ok) {
     return (
-      <p className="rounded-xl bg-emerald-50 px-4 py-6 text-center text-sm font-medium text-emerald-900">
-        {estado.mensaje}
-      </p>
+      <div className="rounded-xl bg-emerald-50 px-4 py-6 text-center">
+        <p className="text-base font-semibold text-emerald-900">
+          {estado.mensaje}
+        </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <a
+            href={`/${idioma}/panel/productos`}
+            className="inline-flex items-center justify-center rounded-lg bg-carga-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-carga-600"
+          >
+            {t("listo.cargarProductos")}
+          </a>
+          {estado.slug ? (
+            <a
+              href={`/${idioma}/tienda/${estado.slug}`}
+              className="inline-flex items-center justify-center rounded-lg border border-emerald-300 px-5 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+            >
+              {t("listo.verMiTienda")}
+            </a>
+          ) : null}
+        </div>
+      </div>
     );
   }
 
