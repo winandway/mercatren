@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  ArrowLeft,
   ChevronDown,
   ChevronUp,
   Maximize2,
   Minimize2,
   Pause,
   Play,
+  Search,
   Store,
   Volume2,
   VolumeX,
@@ -16,8 +18,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AccionesSocial } from "@/components/videos/acciones-social";
 import { Link } from "@/i18n/navigation";
+import { registrarVistaDeVideo } from "@/lib/videos/social-acciones";
 import type { ComentarioPublico } from "@/lib/videos/social";
-import type { VideoPublico } from "@/lib/videos/reglas";
+import { formatearVistas, type VideoPublico } from "@/lib/videos/reglas";
 import { cn } from "@/lib/utils";
 
 export type VideoConSocial = VideoPublico & {
@@ -161,6 +164,30 @@ export function VisorVideos({
     }
   }
 
+  /* ══ EL CONTADOR DE VISTAS (24 ago 2026) ══
+
+     Se cuenta cuando la persona lo MIRÓ: dos segundos con el video delante,
+     como hacen las plataformas de verdad — al que pasa de largo no se le
+     cuenta nada. Una vez por video y por sesión del navegador
+     (`sessionStorage`), y el número sube en pantalla al momento. */
+  const [vistasExtra, setVistasExtra] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const v = videos[actual];
+    if (!v) return;
+    const reloj = setTimeout(() => {
+      const llave = `mt-vista-${v.id}`;
+      try {
+        if (sessionStorage.getItem(llave)) return;
+        sessionStorage.setItem(llave, "1");
+      } catch {
+        /* sin almacenamiento (modo privado estricto), se cuenta igual */
+      }
+      setVistasExtra((x) => ({ ...x, [v.id]: 1 }));
+      void registrarVistaDeVideo(v.id);
+    }, 2000);
+    return () => clearTimeout(reloj);
+  }, [actual, videos]);
+
   const video = videos[actual];
 
   return (
@@ -190,16 +217,25 @@ export function VisorVideos({
                 : "h-[100svh] sm:h-[min(80svh,720px)] sm:rounded-2xl",
             )}
           >
+            {/* ══ LA VENTANA DE PRECARGA (24 ago 2026) ══
+
+                Es lo que quita el tirón al pasar de video, y lo que aguanta
+                diez mil: el `src` solo se monta CERCA del que se mira (uno
+                atrás, dos adelante) — al montarse, el navegador lo busca solo.
+                El actual y el siguiente van con `preload="auto"` (el
+                siguiente ya está descargado cuando llega el dedo, que es la
+                técnica del reproductor de Beellon); el resto, ni un byte:
+                queda la portada. Al alejarse, el navegador suelta el buffer. */}
             <video
               ref={(el) => registrar(el, i)}
               data-indice={i}
               data-slug={v.slug}
-              src={v.url}
+              src={i >= actual - 1 && i <= actual + 2 ? v.url : undefined}
               poster={v.portadaUrl ?? undefined}
               playsInline
               loop
               muted={!sonido}
-              preload={i <= actual + 1 ? "metadata" : "none"}
+              preload={i <= actual + 1 ? "auto" : "metadata"}
               onClick={alternarPausa}
               className={cn(
                 "h-full w-full object-contain",
@@ -208,9 +244,23 @@ export function VisorVideos({
             />
 
             {/* Arriba: pausa y sonido a la izquierda; expandir a la derecha —
-                igual que en YouTube Shorts. */}
+                igual que en YouTube Shorts. En el teléfono, donde el
+                encabezado del sitio no existe, delante van la flecha de
+                volver y la lupa: lo pidió el dueño con la captura delante —
+                el buscador completo sobraba y tapaba el botón de la tienda. */}
             <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3">
               <div className="pointer-events-auto flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.history.length > 1) window.history.back();
+                    else window.location.assign(`/${idioma}/videos`);
+                  }}
+                  aria-label={t("visor.volver")}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 sm:hidden"
+                >
+                  <ArrowLeft className="h-4 w-4" aria-hidden />
+                </button>
                 <button
                   type="button"
                   onClick={alternarPausa}
@@ -241,20 +291,29 @@ export function VisorVideos({
                   )}
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={alternarExpandido}
-                aria-label={
-                  expandido ? t("visor.reducir") : t("visor.expandir")
-                }
-                className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70"
-              >
-                {expandido ? (
-                  <Minimize2 className="h-4 w-4" aria-hidden />
-                ) : (
-                  <Maximize2 className="h-4 w-4" aria-hidden />
-                )}
-              </button>
+              <div className="pointer-events-auto flex items-center gap-2">
+                <Link
+                  href="/catalogo"
+                  aria-label={t("visor.buscar")}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70 sm:hidden"
+                >
+                  <Search className="h-4 w-4" aria-hidden />
+                </Link>
+                <button
+                  type="button"
+                  onClick={alternarExpandido}
+                  aria-label={
+                    expandido ? t("visor.reducir") : t("visor.expandir")
+                  }
+                  className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70"
+                >
+                  {expandido ? (
+                    <Minimize2 className="h-4 w-4" aria-hidden />
+                  ) : (
+                    <Maximize2 className="h-4 w-4" aria-hidden />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Abajo: quién lo subió, el título y el botón que lleva a su tienda. */}
@@ -291,6 +350,10 @@ export function VisorVideos({
                 videoId={v.id}
                 slug={v.slug}
                 titulo={v.titulo}
+                vistas={formatearVistas(
+                  v.vistas + (vistasExtra[v.id] ?? 0),
+                  idioma,
+                )}
                 corazonesIniciales={v.corazones}
                 meGustaInicial={v.meGusta}
                 comentariosIniciales={v.comentarios}
@@ -310,6 +373,10 @@ export function VisorVideos({
               videoId={video.id}
               slug={video.slug}
               titulo={video.titulo}
+              vistas={formatearVistas(
+                video.vistas + (vistasExtra[video.id] ?? 0),
+                idioma,
+              )}
               corazonesIniciales={video.corazones}
               meGustaInicial={video.meGusta}
               comentariosIniciales={video.comentarios}

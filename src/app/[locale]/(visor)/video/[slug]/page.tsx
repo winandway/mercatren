@@ -15,11 +15,7 @@ import { comentariosDe, resumenSocialDe } from "@/lib/videos/social";
 import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
-import {
-  siguientesEnElVisor,
-  sumarVista,
-  videoPorSlug,
-} from "@/lib/videos/consultas";
+import { siguientesEnElVisor, videoPorSlug } from "@/lib/videos/consultas";
 import { personalizarVideos } from "@/lib/videos/personalizar";
 import { duracionIso } from "@/lib/videos/reglas";
 
@@ -97,12 +93,11 @@ export default async function PaginaVideo({
      comercios se adelantan. Reordena, no filtra. */
   const siguientes = await personalizarVideos(siguientesSinOrdenar);
 
-  /* Una vista más. En su propio try: contar nunca puede tumbar la página. */
-  try {
-    await sumarVista(v.id);
-  } catch {
-    /* si falla, no pasa nada */
-  }
+  /* Aquí YA NO se suma la vista. Se sumaba al cargar la página y eso contaba
+     recargas y robots; ahora la cuenta el visor cuando la persona lo miró de
+     verdad (2 segundos delante) — y una página cargada dos veces no infla
+     nada. Dejar los dos caminos era contar doble: lo destapó la propia
+     prueba (+3 en una sola visita). */
 
   /* Lo social: corazones y comentarios. Quien no entró ve los números igual
      —son públicos—; lo que cambia es si el corazón sale marcado. */

@@ -32,6 +32,7 @@ const video = (n: number): VideoPublico => ({
   tiendaNombre: "Tienda",
   tiendaSlug: "tienda",
   tiendaId: "tienda",
+  vistas: 0,
   creadoEn: null,
 });
 
@@ -233,15 +234,19 @@ describe("los Shorts, como en YouTube", () => {
     expect(tarjeta).toContain('preload="none"');
   });
 
-  it("la página del video vive DENTRO del layout de la tienda: los menús se quedan a los lados", () => {
+  it("la página del video vive en el grupo (visor): menús en escritorio, inmersivo en teléfono", () => {
+    /* Historia en dos actos: primero el grupo sin encabezado se tragaba la
+       pantalla en escritorio (se quitó); después el encabezado completo tapó
+       el botón de la tienda en el teléfono (24 ago 2026, captura del dueño).
+       La forma final es el grupo CON encabezado — oculto solo en teléfono. */
     expect(
       existsSync(
-        join(process.cwd(), "src/app/[locale]/(tienda)/video/[slug]/page.tsx"),
+        join(process.cwd(), "src/app/[locale]/(visor)/video/[slug]/page.tsx"),
       ),
     ).toBe(true);
     expect(
-      existsSync(join(process.cwd(), "src/app/[locale]/(visor)")),
-      "volvió el grupo (visor) sin encabezado: el reproductor se tragaba la pantalla",
+      existsSync(join(process.cwd(), "src/app/[locale]/(tienda)/video")),
+      "la página del video no puede estar duplicada en los dos grupos",
     ).toBe(false);
   });
 
@@ -286,5 +291,60 @@ describe("los Shorts, como en YouTube", () => {
     const acciones = readFileSync("src/lib/videos/social-acciones.ts", "utf8");
     expect(acciones).toContain('set({ estado: "oculto" })');
     expect(acciones).not.toContain("delete(comentariosVideo)");
+  });
+});
+
+describe("el contador de vistas y el reproductor profesional (24 ago 2026)", () => {
+  it("formatea como las redes: corto y en el idioma de quien mira", async () => {
+    const { formatearVistas } = await import("@/lib/videos/reglas");
+    expect(formatearVistas(0, "es")).toBe("0");
+    expect(formatearVistas(999, "es")).toBe("999");
+    /* En miles ya se abrevia — el texto exacto lo decide Intl, aquí solo se
+       exige que NO salga el número largo. */
+    expect(formatearVistas(1234, "es")).not.toBe("1234");
+    expect(formatearVistas(1234, "en")).toMatch(/K/);
+    expect(formatearVistas(-5, "es")).toBe("0");
+  });
+
+  it("la vista se cuenta al MIRAR (2 segundos), una vez por sesión", async () => {
+    const { readFileSync } = await import("node:fs");
+    const visor = readFileSync(
+      "src/components/videos/visor-videos.tsx",
+      "utf8",
+    );
+    expect(visor).toContain("}, 2000);");
+    expect(visor).toContain("sessionStorage.getItem(llave)");
+    expect(visor).toContain("registrarVistaDeVideo");
+  });
+
+  it("la ventana de precarga: src solo cerca, auto para el actual y el siguiente", async () => {
+    const { readFileSync } = await import("node:fs");
+    const visor = readFileSync(
+      "src/components/videos/visor-videos.tsx",
+      "utf8",
+    );
+    /* Es lo que quita el tirón al pasar de video Y lo que aguanta diez mil:
+       lejos del que se mira no se descarga ni un byte. */
+    expect(visor).toContain(
+      "i >= actual - 1 && i <= actual + 2 ? v.url : undefined",
+    );
+    expect(visor).toContain('preload={i <= actual + 1 ? "auto" : "metadata"}');
+  });
+
+  it("en el teléfono el visor es la pantalla: el encabezado queda para escritorio", async () => {
+    const { readFileSync } = await import("node:fs");
+    const layout = readFileSync("src/app/[locale]/(visor)/layout.tsx", "utf8");
+    /* El dueño lo pidió con la captura delante: el buscador tapaba el botón
+       de la tienda. Oculto en el teléfono, intacto en escritorio. */
+    expect(layout).toContain('<div className="hidden sm:block">');
+    expect(layout).toContain("<Encabezado />");
+    /* Y el rastro se queda: la flecha de volver lo necesita. */
+    expect(layout).toContain("<RastroDeNavegacion />");
+  });
+
+  it("contar una vista comprueba que el video esté publicado", async () => {
+    const { readFileSync } = await import("node:fs");
+    const acciones = readFileSync("src/lib/videos/social-acciones.ts", "utf8");
+    expect(acciones).toContain('eq(videosTienda.estado, "publicado")');
   });
 });

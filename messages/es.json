@@ -3370,7 +3370,9 @@
       "siguiente": "Video siguiente",
       "entraEnMiTienda": "Entra en mi tienda",
       "silenciar": "Quitar el sonido",
-      "conSonido": "Poner sonido"
+      "conSonido": "Poner sonido",
+      "volver": "Volver",
+      "buscar": "Buscar en Mercatren"
     },
     "pagina": {
       "titulo": "Shorts de Mercatren",
@@ -3388,7 +3390,8 @@
       "sinComentarios": "Todavía no hay comentarios. Sé el primero.",
       "borrar": "Quitar este comentario",
       "cerrar": "Cerrar",
-      "reglas": "El comercio dueño del video y el equipo de Mercatren pueden quitar comentarios."
+      "reglas": "El comercio dueño del video y el equipo de Mercatren pueden quitar comentarios.",
+      "vistas": "Vistas"
     },
     "tienda": {
       "titulo": "Videos de esta tienda",

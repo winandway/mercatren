@@ -118,6 +118,10 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [x] ✅ **El corazón anota y «lo tuyo primero»** (24 ago): señales de compra
       y corazones reordenan las hileras de videos para quien entró. Reordena,
       no filtra.
+- [x] ✅ **El visor inmersivo en el teléfono + vistas + precarga** (24 ago):
+      pantalla completa como TikTok con volver y lupa, el botón de la tienda a
+      la vista, contador de vistas real (2 s mirando) y el siguiente video
+      precargado — sin tirón entre videos.
 - [ ] 🟡 💻 **Las señales también en las bandas de PRODUCTOS de la portada**
       (después de la caché, reordenar sin filtrar — igual que los videos).
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el

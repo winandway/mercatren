@@ -104,8 +104,25 @@ export type VideoPublico = {
   tiendaSlug: string;
   /** Para cruzar con las señales del usuario (recomendar/): no se dibuja. */
   tiendaId: string;
+  /** Cuántas veces se ha visto. Se cuenta al mirarlo de verdad, no al cargar. */
+  vistas: number;
   creadoEn: string | null;
 };
+
+/**
+ * EL NÚMERO DE VISTAS, CORTO: «1,2 mil» y no «1234».
+ *
+ * Es el formato de todas las redes de video, y no es estética: un número
+ * largo al lado del corazón no se lee de un vistazo. Se usa el formateador
+ * del navegador (compact), que ya sabe cómo se abrevia en cada idioma.
+ */
+export function formatearVistas(vistas: number, idioma: string): string {
+  if (!Number.isFinite(vistas) || vistas < 0) return "0";
+  return new Intl.NumberFormat(idioma === "en" ? "en-US" : "es", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(vistas);
+}
 
 /**
  * CUÁNTOS VIDEOS TRAE UNA HILERA y cada cuántos productos aparece.

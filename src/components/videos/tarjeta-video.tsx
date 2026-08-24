@@ -1,10 +1,15 @@
 "use client";
 
-import { Heart, Play } from "lucide-react";
+import { Eye, Heart, Play } from "lucide-react";
+import { useLocale } from "next-intl";
 import { useRef, useState } from "react";
 
 import { Link } from "@/i18n/navigation";
-import { duracionCorta, type VideoPublico } from "@/lib/videos/reglas";
+import {
+  duracionCorta,
+  formatearVistas,
+  type VideoPublico,
+} from "@/lib/videos/reglas";
 
 /**
  * LA TARJETA DE UN SHORT EN LA HILERA, COMO EN YOUTUBE.
@@ -32,6 +37,7 @@ export function TarjetaVideo({
   video: VideoPublico;
   corazones?: number;
 }) {
+  const idioma = useLocale();
   const [mirando, setMirando] = useState(false);
   const reproductor = useRef<HTMLVideoElement>(null);
 
@@ -95,10 +101,20 @@ export function TarjetaVideo({
             {duracionCorta(video.duracionSegundos)}
           </span>
         ) : null}
-        {corazones > 0 ? (
-          <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-1 rounded bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-            <Heart className="h-3 w-3 fill-current" aria-hidden />
-            {corazones}
+        {corazones > 0 || video.vistas > 0 ? (
+          <span className="absolute bottom-1.5 left-1.5 inline-flex items-center gap-2 rounded bg-black/70 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+            {video.vistas > 0 ? (
+              <span className="inline-flex items-center gap-1">
+                <Eye className="h-3 w-3" aria-hidden />
+                {formatearVistas(video.vistas, idioma)}
+              </span>
+            ) : null}
+            {corazones > 0 ? (
+              <span className="inline-flex items-center gap-1">
+                <Heart className="h-3 w-3 fill-current" aria-hidden />
+                {corazones}
+              </span>
+            ) : null}
           </span>
         ) : null}
       </div>

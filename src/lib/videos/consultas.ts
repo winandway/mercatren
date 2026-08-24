@@ -30,6 +30,7 @@ const COLUMNAS = {
   tiendaNombre: tiendas.nombre,
   tiendaSlug: tiendas.slug,
   tiendaId: videosTienda.tiendaId,
+  vistas: videosTienda.vistas,
 };
 
 type Fila = {
@@ -46,6 +47,7 @@ type Fila = {
   tiendaNombre: string;
   tiendaSlug: string;
   tiendaId: string;
+  vistas: number;
 };
 
 function aPublico(f: Fila, idioma: "es" | "en"): VideoPublico {
@@ -63,6 +65,7 @@ function aPublico(f: Fila, idioma: "es" | "en"): VideoPublico {
     tiendaNombre: f.tiendaNombre,
     tiendaSlug: f.tiendaSlug,
     tiendaId: f.tiendaId,
+    vistas: f.vistas,
     creadoEn: f.creadoEn ? f.creadoEn.toISOString() : null,
   };
 }
@@ -237,14 +240,6 @@ export async function videosDelPanel(tiendaId: string) {
     .from(videosTienda)
     .where(eq(videosTienda.tiendaId, tiendaId))
     .orderBy(desc(videosTienda.creadoEn));
-}
-
-/** Una vista más. Nunca tumba la página: va en su propio try donde se llama. */
-export async function sumarVista(id: string) {
-  await getDb()
-    .update(videosTienda)
-    .set({ vistas: sql`${videosTienda.vistas} + 1` })
-    .where(eq(videosTienda.id, id));
 }
 
 /** La semilla del día: estable, para que la lista se pueda recordar. */

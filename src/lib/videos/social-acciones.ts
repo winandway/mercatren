@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
@@ -179,4 +179,25 @@ export async function ocultarComentario(
     .where(eq(comentariosVideo.id, id));
   revalidatePath("/[locale]/video/[slug]", "page");
   return { ok: true };
+}
+
+/**
+ * UNA VISTA MÁS — contada cuando la persona lo MIRÓ, no cuando la página
+ * cargó. El visor la dispara a los 2 segundos de tener el video delante, una
+ * vez por video y por sesión del navegador (la guardia vive allá). Aquí solo
+ * se comprueba que el video exista y esté publicado: un id inventado desde la
+ * consola no infla nada. Sin sesión también cuenta — las vistas son de todos.
+ */
+export async function registrarVistaDeVideo(videoId: string): Promise<void> {
+  try {
+    const db = getDb();
+    await db
+      .update(videosTienda)
+      .set({ vistas: sql`${videosTienda.vistas} + 1` })
+      .where(
+        and(eq(videosTienda.id, videoId), eq(videosTienda.estado, "publicado")),
+      );
+  } catch {
+    /* Contar jamás puede romper nada. */
+  }
 }

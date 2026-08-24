@@ -2,6 +2,7 @@
 
 import {
   Check,
+  Eye,
   Heart,
   Link2,
   MessageCircle,
@@ -48,6 +49,7 @@ export function AccionesSocial({
   comentariosIniciales,
   comentarios,
   vertical = true,
+  vistas,
 }: {
   videoId: string;
   slug: string;
@@ -57,6 +59,8 @@ export function AccionesSocial({
   comentariosIniciales: number;
   comentarios: ComentarioPublico[];
   vertical?: boolean;
+  /** Las vistas ya formateadas («1,2 mil»). Solo el visor las pasa. */
+  vistas?: string;
 }) {
   const t = useTranslations("videos.social");
   const router = useRouter();
@@ -147,6 +151,20 @@ export function AccionesSocial({
           vertical ? "flex-col" : "flex-row items-center",
         )}
       >
+        {/* El ojo con las vistas es un INDICADOR, no un botón: cuenta lo que
+            ya pasó. Solo se dibuja si el visor lo pasa. */}
+        {typeof vistas === "string" ? (
+          <div
+            className="flex flex-col items-center gap-1 text-white"
+            aria-label={t("vistas")}
+          >
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/40 backdrop-blur">
+              <Eye className="h-6 w-6" aria-hidden />
+            </span>
+            <span className="text-xs font-semibold tabular-nums">{vistas}</span>
+          </div>
+        ) : null}
+
         <button
           type="button"
           onClick={tocarCorazon}

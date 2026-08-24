@@ -3154,6 +3154,45 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## EL VISOR INMERSIVO EN EL TELÉFONO, LA VENTANA DE PRECARGA Y LAS VISTAS (24 ago 2026)
+
+Lo pidió el dueño con la captura delante: en el celular el encabezado completo
+—logo, buscador, ciudad, menú— se comía media pantalla y **el botón «Entra en
+mi tienda» quedaba escondido debajo**. Y autorizó expresamente leer el
+reproductor de su proyecto Beellon (`reel-viewer.tsx`, solo lectura) como
+referencia de lo que ya le funcionó.
+
+**1. En el teléfono, el video ES la pantalla.** La página del video volvió al
+grupo de rutas `(visor)`, pero esta vez CON el encabezado — envuelto en
+`hidden sm:block`: escritorio intacto (menús a los lados, como se decidió),
+teléfono inmersivo como TikTok. Flotando sobre el video van la flecha de
+volver (atrás si hay historia; `/videos` si se llegó por enlace) y la **lupa**
+que lleva al catálogo — el buscador completo sobraba ahí. La URL no cambia.
+La prueba vieja que exigía «nada de grupo (visor)» se reescribió contando la
+historia en dos actos: sin encabezado se tragaba el escritorio; completo
+tapaba el botón en el teléfono. La forma final es el grupo con el encabezado
+oculto solo en teléfono.
+
+**2. La ventana de precarga es lo que quita el tirón Y lo que aguanta diez
+mil videos.** El `src` solo se monta cerca del que se mira (uno atrás, dos
+adelante) — al montarse, el navegador lo busca solo; al alejarse, suelta el
+buffer. El actual y el siguiente van con `preload="auto"` (el siguiente ya
+está descargado cuando llega el dedo — la técnica del reproductor de
+Beellon); el resto ni un byte: queda la portada. Antes era `metadata` para
+todos, y por eso «había una milésima» entre video y video.
+
+**3. Las vistas se cuentan al MIRAR, no al cargar.** La columna `vistas`
+existía y se sumaba al cargar la página — contaba recargas y robots, y no se
+enseñaba en ningún lado. Ahora la cuenta el visor a los **2 segundos** de
+tener el video delante, una vez por video y por sesión del navegador, vía
+`registrarVistaDeVideo` (única puerta; comprueba `estado = 'publicado'` para
+que un id inventado desde la consola no infle nada). `sumarVista` se retiró:
+dejar los dos caminos era contar doble — lo destapó la propia prueba (+3 en
+una visita). Comprobado después: dos cargas y una mirada real = exactamente
+una vista. Se enseña con el ojo en la columna social y en la insignia de la
+tarjeta, formateada con `formatearVistas` (Intl compact: «1,2 mil», no
+«1234») en el idioma de quien mira.
+
 ## EL CORAZÓN QUE NO ANOTABA, EL ESPACIADOR Y EL ALGORITMO DE «LO TUYO PRIMERO» (24 ago 2026)
 
 Tres cosas que destapó el dueño usando los videos desde su iPhone, y las tres
