@@ -444,6 +444,28 @@ export async function aprobarPago(id: string): Promise<Resultado> {
           url: "https://mercatren.com/es/panel/cobros/enlaces",
           boton: "Ver los enlaces de cobro",
         });
+
+        /* Y al SISTEMA del comercio, si dejó una dirección: hizo la factura
+           allá y quiere marcarla cobrada sin estar preguntando. En su propio
+           try — el pago ya está aprobado. */
+        try {
+          const { avisarAlComercio } =
+            await import("@/lib/cobros/aviso-al-comercio");
+          await avisarAlComercio({
+            tiendaId: cobro.tiendaId,
+            referencia: cobro.referencia,
+            metodo: "zelle",
+            montoCentavos: cobro.montoCentavos,
+            netoCentavos: acreditado,
+            moneda: "USD",
+            pagoId: pago.id,
+          });
+        } catch (fallo) {
+          console.error(
+            "[zelle] no se pudo avisar al sistema del comercio:",
+            fallo,
+          );
+        }
       }
     }
   } catch (fallo) {

@@ -2968,3 +2968,31 @@ export const comentariosVideo = sqliteTable(
   },
   (t) => [index("idx_comentarios_video").on(t.videoId, t.estado)],
 );
+
+/**
+ * EL AVISO AL SISTEMA DEL COMERCIO CUANDO ENTRA UN PAGO (24 ago 2026).
+ *
+ * Se lo prometimos al comercio piloto: su sistema hace la factura, crea el
+ * cobro por enlace y **quiere enterarse solo** cuando el cliente paga, sin
+ * estar preguntando cada minuto por `/datos/socios/cobro`.
+ *
+ * Tabla nueva, una fila por tienda. El `secreto` firma cada envío (HMAC-SHA256
+ * en la cabecera `X-Mercatren-Firma`): sin firma, cualquiera que adivine la
+ * dirección del comercio podría decirle que le pagaron. `ultimoError` guarda
+ * el motivo del último fallo para que el comercio lo vea en su panel — un
+ * aviso que falla en silencio es peor que no tenerlo.
+ */
+export const webhooksTienda = sqliteTable("webhooks_tienda", {
+  tiendaId: text("tienda_id")
+    .primaryKey()
+    .references(() => tiendas.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  secreto: text("secreto").notNull(),
+  activo: integer("activo", { mode: "boolean" }).notNull().default(true),
+  ultimoIntentoEn: integer("ultimo_intento_en", { mode: "timestamp" }),
+  ultimoOkEn: integer("ultimo_ok_en", { mode: "timestamp" }),
+  ultimoError: text("ultimo_error"),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

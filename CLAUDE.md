@@ -3154,6 +3154,36 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## «AVÍSAME CUANDO ENTRE UN PAGO»: EL WEBHOOK AL SISTEMA DEL COMERCIO (24 ago 2026)
+
+Estaba prometido al comercio piloto desde la sesión de los cobros por enlace:
+su sistema hace la factura, crea el cobro y **quiere enterarse solo** cuando el
+cliente paga, sin estar preguntando cada minuto por `/datos/socios/cobro`.
+
+- Tabla nueva `webhooks_tienda` (una fila por tienda: dirección, secreto,
+  activo, último intento, último ok, último error).
+- Se dispara **al acreditar**, en los dos caminos: tarjeta
+  (`cobros/acciones.ts`) y Zelle aprobado (`zelle/acciones.ts`). Va **al final
+  y en su propio try**: el cobro ya está acreditado y un servidor ajeno que no
+  conteste no puede deshacerlo.
+- **Va firmado** (HMAC-SHA256 del cuerpo, cabecera `x-mercatren-firma`) con un
+  secreto que se enseña UNA vez al crearlo. Sin firma, cualquiera que averigüe
+  la dirección del comercio podría decirle que le pagaron y su sistema marcaría
+  la factura cobrada. La firma vive en `src/lib/cobros/firma.ts`, **sin
+  `server-only`**, para poder probarla (lo mismo que hace el otro lado).
+- **La dirección tiene que ser `https`**: por ahí viaja el importe de una venta.
+- **El resultado se anota siempre**, salga bien o mal, y el comercio ve en su
+  panel la fecha del último aviso entregado y el motivo del último fallo. Un
+  aviso que falla en silencio es peor que no tenerlo: el comercio cree que su
+  sistema está al día y no lo está.
+- **Hay un botón de probar** que manda un aviso de mentira (referencia
+  `PRUEBA-MERCATREN`) y dice qué contestó. Sin eso, el comercio se entera de
+  que su dirección está mal el día que pierde un pago.
+- Sin dirección configurada no se hace nada, y eso **no** es un error.
+
+Se configura en **Panel → Mi tienda → «Avísame cuando entre un pago»**, al lado
+de la sincronización del catálogo: las dos son la conexión con su sistema.
+
 ## UN CARRITO NO PUEDE MEZCLAR DESTINOS (24 ago 2026)
 
 Estaba escrito como pendiente desde el 15 de agosto y era una venta que se

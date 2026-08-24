@@ -107,9 +107,9 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       figura como _importer of record_.
 - [ ] 🟠 👤 **Comparar contra otros dos o tres proveedores** antes de casarse
       con CJ.
-- [ ] 🟠 💻 **Las tallas y colores en la ficha.** Hoy cada producto se publica
-      como una sola cosa y **el comprador nunca elige**: la variante la escoge
-      el sistema. Mandar la talla equivocada es una devolución.
+- [x] ✅ **Las tallas y colores en la ficha** (`selector-variante.tsx`, ya
+      conectado en la ficha del producto). Quedaba escrito como pendiente y ya
+      estaba hecho: comprobado el 24 ago 2026.
 - [x] ✅ **Un carrito no puede mezclar destinos.** Candado en `crearPedido`
       (decidido con la base) y aviso en el carrito con «vaciar y llevarme este».
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el
@@ -163,8 +163,9 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 # BLOQUE 5 · COBROS Y FACTURACIÓN
 
-- [ ] 🟠 💻 **El webhook de salida al sistema del comercio** cuando entra un
-      pago, con `referencia_deuda`. Prometido a la sesión de Bley.
+- [x] ✅ **El webhook de salida al sistema del comercio** cuando entra un pago,
+      firmado, con su botón de probar y el último error a la vista. Se
+      configura en Mi tienda.
 - [ ] 🟠 💻 **El flete y el manejo en el checkout de la tienda**, no solo en el
       cobro por enlace. Hoy un comprador del catálogo no puede pagar un flete
       acordado aparte.
@@ -217,10 +218,20 @@ Las fases 1 a 4 del plan multi-país están hechas. Para operar de verdad falta:
 - [x] ✅ **Segunda vuelta: la caché pasó al BORDE** (`recordadoEnElBorde`), que
       es lo que sobrevive a un worker frío — la de memoria sola seguía dando
       picos de dos segundos en producción.
-- [ ] 🟡 💻 **Tercera vuelta, si hace falta:** volver a medir con la caché de
-      borde puesta y, si la portada sigue por encima del segundo, servir la
-      página desde el borde (ojo con la cookie de ciudad) o publicar el bucket
-      por su propio dominio.
+- [ ] 🟠 💻 **Tercera vuelta: el ARRANQUE EN FRÍO, que es lo que queda.**
+      Medido en producción CON la caché de borde puesta (24 ago 2026, seis
+      lecturas por página): la portada sigue dando 2,7 · 3,3 · 1,7 · 3,0 · 1,8 ·
+      0,39 s, y la ficha de una tienda 2,0 · 0,20 · 2,7 · 0,21 · 3,0 · 0,38 s.
+      **Ese patrón —o rápido o lentísimo, sin término medio— no es la base: es
+      el worker arrancando.** Las consultas ya no son el problema; el
+      `_worker.js` pesa 12,3 MB sin comprimir (ver la nota del 17 ago) y eso es
+      lo que hay que atacar. Dos caminos, y hay que medir antes de elegir:
+      (a) cachear la RESPUESTA de las páginas públicas en el borde **solo
+      cuando la petición no trae cookies** —que es el caso de Google y del
+      enlace compartido, donde más duele— y seguir sirviendo dinámico a quien
+      tiene ciudad elegida o sesión; (b) adelgazar el bundle. Lo que NO se hace
+      es cachear a ciegas una página que depende de la cookie de ciudad: eso
+      sería enseñarle a alguien el catálogo de otra ciudad.
 
 # BLOQUE 7 · DEUDA TÉCNICA ESCRITA
 

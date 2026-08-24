@@ -245,6 +245,24 @@ export async function acreditarCobro(
   } catch (fallo) {
     console.error("[cobro] acreditado; el aviso no salio:", fallo);
   }
+
+  /* Y se le avisa a SU SISTEMA, si dejó una dirección. Va al final y en su
+     propio try: el cobro ya está acreditado y un servidor ajeno que no
+     conteste no puede deshacerlo. */
+  try {
+    const { avisarAlComercio } = await import("@/lib/cobros/aviso-al-comercio");
+    await avisarAlComercio({
+      tiendaId: cobro.tiendaId,
+      referencia: cobro.referencia,
+      metodo: "tarjeta",
+      montoCentavos: cobro.montoCentavos,
+      netoCentavos: neto,
+      moneda: "USD",
+      pagoId: intentoId,
+    });
+  } catch (fallo) {
+    console.error("[cobro] no se pudo avisar al sistema del comercio:", fallo);
+  }
 }
 
 /**

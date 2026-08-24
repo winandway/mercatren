@@ -1,17 +1,18 @@
-import { eq } from "drizzle-orm";
-import { ExternalLink, FileText, RefreshCw } from "lucide-react";
+import { eq, sql } from "drizzle-orm";
+import { ExternalLink, FileText, RefreshCw, Webhook } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FormularioFiscal } from "@/components/panel/formulario-fiscal";
 import { FormularioMiTienda } from "@/components/panel/formulario-mi-tienda";
 import { FormularioEnvio } from "@/components/panel/envios/formulario-envio";
 import { SelectorColor } from "@/components/panel/marca/selector-color";
+import { AvisoDePagos } from "@/components/panel/aviso-de-pagos";
 import { SincronizarCatalogo } from "@/components/panel/sincronizar-catalogo";
 import { Link } from "@/i18n/navigation";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { saludDeSincronizacion } from "@/lib/catalogo/salud-sincronizacion";
 import { getDb } from "@/lib/db";
-import { fuentesCatalogo, tiendas } from "@/lib/db/schema";
+import { fuentesCatalogo, tiendas, webhooksTienda } from "@/lib/db/schema";
 import type { Idioma } from "@/lib/dinero";
 import { fechaCorta, fechaHora } from "@/lib/fechas";
 import { situacionFiscal } from "@/lib/fiscal/acciones";
@@ -41,6 +42,7 @@ export default async function PaginaMiTienda({
 
   const t = await getTranslations("panel.miTienda");
   const ts = await getTranslations("panel.sincronizacion");
+  const tap = await getTranslations("panel.avisoPagos");
   const tf = await getTranslations("panel.fiscal");
   const alcance = await obtenerAlcance();
   const { comercio } = await searchParams;
@@ -100,6 +102,21 @@ export default async function PaginaMiTienda({
     .where(eq(fuentesCatalogo.tiendaId, tienda.id))
     .limit(1);
 
+  /* «Avísame cuando entre un pago»: la dirección del sistema del comercio.
+     Se lee el estado, jamás el secreto — traerlo al navegador lo dejaría
+     escrito en el HTML de la página. */
+  const [avisoPagos] = await getDb()
+    .select({
+      url: webhooksTienda.url,
+      activo: webhooksTienda.activo,
+      ultimoOkEn: webhooksTienda.ultimoOkEn,
+      ultimoError: webhooksTienda.ultimoError,
+      tieneSecreto: sql<number>`CASE WHEN ${webhooksTienda.secreto} <> '' THEN 1 ELSE 0 END`,
+    })
+    .from(webhooksTienda)
+    .where(eq(webhooksTienda.tiendaId, tienda.id))
+    .limit(1);
+
   const enBucket = (clave: string | null) =>
     clave ? `${RUTA_MEDIA}/${clave}` : null;
 
@@ -151,12 +168,16 @@ export default async function PaginaMiTienda({
               {tf("estado.porVencer", { dias: situacion.dias })}
             </p>
           ) : (
-            <p className="mt-2 text-sm font-semibold text-carga-700">
-              {tf(situacion.estado === "vencido" ? "estado.vencido" : "estado.falta")}
+            <p className="text-carga-700 mt-2 text-sm font-semibold">
+              {tf(
+                situacion.estado === "vencido"
+                  ? "estado.vencido"
+                  : "estado.falta",
+              )}
             </p>
           )}
 
-          <p className="mt-1 text-sm text-riel-600">{tf("explicacion")}</p>
+          <p className="text-riel-600 mt-1 text-sm">{tf("explicacion")}</p>
 
           {situacion.estado === "al_dia" ||
           situacion.estado === "por_vencer" ? (
@@ -215,6 +236,28 @@ export default async function PaginaMiTienda({
           </div>
         </section>
       ) : null}
+
+      {/* AVÍSAME CUANDO ENTRE UN PAGO. Va aquí, al lado de la sincronización:
+          las dos son la conexión con el sistema del comercio. */}
+      <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+        <h2 className="flex items-center gap-2 font-bold">
+          <Webhook className="h-4 w-4 text-carga-500" aria-hidden />
+          {tap("titulo")}
+        </h2>
+        <div className="mt-3">
+          <AvisoDePagos
+            url={avisoPagos?.url ?? null}
+            activo={avisoPagos?.activo ?? true}
+            tieneSecreto={Boolean(avisoPagos?.tieneSecreto)}
+            ultimoOk={
+              avisoPagos?.ultimoOkEn
+                ? fechaHora(avisoPagos.ultimoOkEn, locale as Idioma)
+                : null
+            }
+            ultimoError={avisoPagos?.ultimoError ?? null}
+          />
+        </div>
+      </section>
 
       <FormularioMiTienda
         tienda={{

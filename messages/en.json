@@ -993,6 +993,21 @@
       "fallidas": "{n} couldn't be fetched",
       "todasNuestras": "Every catalog photo is already on Mercatren."
     },
+    "avisoPagos": {
+      "titulo": "Tell me when a payment arrives",
+      "entradilla": "If your system issues the invoices, this tells it you've been paid: leave the address and we send a signed notification the moment the money lands. No more polling.",
+      "url": "Your system's address",
+      "urlAyuda": "It must start with https://. Give it to your developer: that's where the notification lands.",
+      "activo": "Send notifications",
+      "guardar": "Save",
+      "probar": "Send a test notification",
+      "probando": "Sending…",
+      "secretoTitulo": "Save this secret now",
+      "secretoTexto": "Your developer uses it to check the notification really comes from Mercatren. It won't be shown again.",
+      "secretoGuardado": "The secret is already saved. If you lost it, write to us and we'll issue a new one.",
+      "ultimoOk": "Last notification delivered: {cuando}",
+      "ultimoError": "Last failure: {motivo}"
+    },
     "sincronizacion": {
       "titulo": "Sync my catalog",
       "texto": "If you already keep your catalog in another system, publish the export file there and put its address here. Mercatren reads it and updates prices and stock without you entering anything by hand.",
@@ -1055,6 +1070,12 @@
       "guardado": "Saved.",
       "noSePudoGuardar": "Could not save",
       "guardadoCorto": "Saved.",
+      "avisoPagos": {
+        "urlInvalida": "The address must start with https:// — a sale amount travels through it.",
+        "apagado": "Notifications off. Your secret is kept in case you turn them back on.",
+        "pruebaOk": "The test notification arrived and your system answered correctly.",
+        "falloLaPrueba": "Your system didn't accept the notification: {motivo}"
+      },
       "videos": {
         "entraParaCorazon": "Sign in to like this video.",
         "entraParaComentar": "Sign in to comment.",

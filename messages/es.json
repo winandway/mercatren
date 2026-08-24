@@ -993,6 +993,21 @@
       "fallidas": "{n} no se pudieron traer",
       "todasNuestras": "Todas las fotos del catálogo ya están en Mercatren."
     },
+    "avisoPagos": {
+      "titulo": "Avísame cuando entre un pago",
+      "entradilla": "Si tu sistema hace las facturas, aquí le decimos que ya te pagaron: dejas la dirección y te mandamos un aviso firmado en cuanto entra el dinero. Así no tienes que estar preguntando.",
+      "url": "Dirección de tu sistema",
+      "urlAyuda": "Tiene que empezar por https://. Se la das a tu programador: ahí le llega el aviso.",
+      "activo": "Mandar los avisos",
+      "guardar": "Guardar",
+      "probar": "Mandar un aviso de prueba",
+      "probando": "Mandando…",
+      "secretoTitulo": "Guarda este secreto ahora",
+      "secretoTexto": "Con él tu programador comprueba que el aviso viene de Mercatren y no de otro. No se vuelve a mostrar.",
+      "secretoGuardado": "El secreto ya está guardado. Si lo perdiste, escríbenos y te damos uno nuevo.",
+      "ultimoOk": "Último aviso entregado: {cuando}",
+      "ultimoError": "Último fallo: {motivo}"
+    },
     "sincronizacion": {
       "titulo": "Sincronizar mi catálogo",
       "texto": "Si ya llevas tu catálogo en otro sistema, publica ahí el archivo de exportación y pon su dirección aquí. Mercatren lo lee y actualiza precios y existencias sin que cargues nada a mano.",
@@ -1055,6 +1070,12 @@
       "guardado": "Guardado.",
       "noSePudoGuardar": "No se pudo guardar",
       "guardadoCorto": "Guardado.",
+      "avisoPagos": {
+        "urlInvalida": "La dirección tiene que empezar por https:// — por ahí viaja el importe de una venta.",
+        "apagado": "Aviso apagado. Tu secreto se guarda por si lo vuelves a encender.",
+        "pruebaOk": "El aviso de prueba llegó y tu sistema contestó bien.",
+        "falloLaPrueba": "Tu sistema no aceptó el aviso: {motivo}"
+      },
       "videos": {
         "entraParaCorazon": "Entra con tu cuenta para dar corazón.",
         "entraParaComentar": "Entra con tu cuenta para comentar.",
