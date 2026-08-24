@@ -1089,7 +1089,9 @@
         "muyPesado": "El video pesa más de {mb} MB. Grábalo más corto o en menor calidad.",
         "sinTitulo": "Ponle un título al video: es lo que va a leer quien lo vea.",
         "publicado": "¡Listo! Tu video ya está publicado.",
-        "borrado": "Video borrado."
+        "borrado": "Video borrado.",
+        "yaEstaLiviano": "Ese video ya está liviano: no hace falta aligerarlo.",
+        "aligerado": "Listo: el video quedó liviano y ahora carga al toque."
       },
       "sinPermiso": "No tienes permiso para esto.",
       "sinPermisoAprobar": "No tienes permiso para aprobar pagos.",
@@ -1641,6 +1643,14 @@
       "estados": {
         "oculto": "Oculto",
         "borrador": "Borrador"
+      },
+      "optimizando": "Preparando el video para que cargue rápido… {pct}%",
+      "aligerando": {
+        "boton": "Aligerar este video",
+        "bajando": "Bajando el video…",
+        "comprimiendo": "Comprimiendo… {pct}%",
+        "subiendo": "Guardando el liviano…",
+        "noSePudo": "Este navegador no pudo comprimirlo. Inténtalo desde Chrome en una computadora."
       }
     },
     "diccionario": {

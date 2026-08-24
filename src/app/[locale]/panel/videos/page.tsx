@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AccionesVideo } from "@/components/panel/videos/acciones-video";
+import { AligerarVideo } from "@/components/panel/videos/aligerar-video";
 import { ReproductorVideo } from "@/components/panel/videos/reproductor-video";
 import { SubirVideo } from "@/components/panel/videos/subir-video";
 import { Link } from "@/i18n/navigation";
@@ -117,6 +118,12 @@ export default async function PaginaVideosDelPanel({
                       ) : null}
                     </p>
                   </div>
+                  <AligerarVideo
+                    videoId={v.id}
+                    url={`${RUTA_MEDIA}/${v.clave}`}
+                    pesoBytes={v.pesoBytes}
+                    duracionSegundos={v.duracionSegundos}
+                  />
                   <AccionesVideo
                     id={v.id}
                     titulo={v.tituloEs}

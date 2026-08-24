@@ -3154,6 +3154,61 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## EL VIDEO SE COMPRIME EN EL NAVEGADOR, COMO LAS FOTOS (24 ago 2026)
+
+El dueño seguía viendo los videos «arranca, se corta, arranca» en varios
+navegadores, y pidió investigar cómo lo hace YouTube y qué ofrece Cloudflare.
+Medido en producción antes de tocar nada: el primer video real era un **`.mov`
+de iPhone de 61,8 MB por 34 segundos = 14,5 Mbps**, cuando YouTube le sirve a
+un espectador de 720p unos 3 Mbps — el video pedía cinco veces el caudal de
+una conexión normal. Y el índice (`moov`) venía AL FINAL del archivo: dos
+viajes antes del primer cuadro. **El borde no era el problema** (entregaba a
+4–7 MB/s): el problema era el archivo.
+
+**`src/lib/videos/comprimir-video.ts`** (con `mediabunny`, cargada con import
+dinámico): H.264, lado mayor a 1280, 30 cuadros, ~2,8 Mbps + AAC 128k, y el
+índice ADELANTE (`fastStart: "in-memory"`). Comprobado con un clon del caso
+real (13 MB · 60 fps · 14 Mbps · moov al final) subido por el panel con un
+navegador de verdad: quedó en **2,74 MB, 2,84 Mbps, moov en el byte 32**.
+
+Las reglas, las mismas de las fotos, con pruebas (6 con el conversor simulado
+
+- las de `haceFaltaComprimir`):
+
+1. **Si comprimir falla, se sube el original.** Un navegador sin WebCodecs no
+   puede dejar a un comercio sin publicar.
+2. **Lo ya eficiente no se toca**: un `.mp4` bajo el umbral (3,5 Mbps) se sube
+   tal cual. Un `.mov` liviano sí pasa — solo para reempaquetarlo con el
+   índice adelante (las pistas se copian, no se recodifican).
+3. **Nunca se agranda** y **nunca se empeora**: si el resultado sale más
+   pesado que el original, gana el original.
+4. **La barra tiene dos fases** («Preparando el video…» y «Subiendo…»): sin
+   la primera, la espera de la compresión parece un cuelgue.
+
+**Y «Aligerar este video»** (Panel → Videos) arregla los que ya estaban
+subidos sin volver a grabar: baja el video, lo encoge con el MISMO compresor
+en el navegador, y lo devuelve por la misma puerta (`/upload/video` con
+`videoId`). Tres cosas de ahí que no se tocan:
+
+- **La clave del archivo es NUEVA, jamás se pisa la vieja**: el video viejo
+  vive un año en la caché del borde con `immutable` — pisarlo dejaría a media
+  clientela viendo el pesado por meses. El objeto viejo se borra después.
+- **Solo puede ACHICAR**: un archivo igual o más pesado no reemplaza nada.
+- **El botón solo sale en los videos pesados** (sobre el umbral): en uno
+  liviano sería un mueble.
+
+**Ojo con el dev server tras un `npm install`:** el runtime queda con las
+conexiones envenenadas («Attempted to use poisoned stub») y TODO da 500,
+incluido el login. Se cura reiniciando `npm run dev`. Y **la base local con el
+servidor encendido esconde las filas nuevas** (WAL): para leerla con
+`sqlite3`, apagar el servidor primero.
+
+**El siguiente escalón, si el sitio crece, es Cloudflare Stream** (streaming
+adaptativo real, como YouTube: varias calidades y el reproductor elige según
+la conexión). Cuesta $5 por 1.000 minutos almacenados y $1 por 1.000 minutos
+entregados. Es decisión de gasto del dueño y NO hace falta hoy: con el
+compresor quedamos en el rango de bitrate que YouTube sirve.
+
 ## EL VISOR INMERSIVO EN EL TELÉFONO, LA VENTANA DE PRECARGA Y LAS VISTAS (24 ago 2026)
 
 Lo pidió el dueño con la captura delante: en el celular el encabezado completo

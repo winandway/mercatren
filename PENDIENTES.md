@@ -122,6 +122,15 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       pantalla completa como TikTok con volver y lupa, el botón de la tienda a
       la vista, contador de vistas real (2 s mirando) y el siguiente video
       precargado — sin tirón entre videos.
+- [x] ✅ **Los videos se comprimen en el navegador al subir** (24 ago): de
+      14,5 Mbps a ~2,8 (el rango de YouTube), con el índice adelante. Y el
+      botón «Aligerar» para los ya subidos.
+- [ ] 👤 **Aligerar los videos ya publicados**: entrar a Panel → Videos desde
+      una computadora con Chrome y pulsar «Aligerar este video» en cada video
+      pesado (botón ámbar). Uno por uno, esperando a que diga «Listo».
+- [ ] 🟡 💰 **Cloudflare Stream si el sitio crece** (streaming adaptativo como
+      YouTube): $5/1.000 min almacenados + $1/1.000 min entregados. Decisión
+      de gasto del dueño; hoy no hace falta.
 - [ ] 🟡 💻 **Las señales también en las bandas de PRODUCTOS de la portada**
       (después de la caché, reordenar sin filtrar — igual que los videos).
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el

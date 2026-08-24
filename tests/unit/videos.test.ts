@@ -348,3 +348,39 @@ describe("el contador de vistas y el reproductor profesional (24 ago 2026)", () 
     expect(acciones).toContain('eq(videosTienda.estado, "publicado")');
   });
 });
+
+describe("el video se encoge en el navegador antes de subirse (24 ago 2026)", () => {
+  it("haceFaltaComprimir: pesado sí, liviano en mp4 no, liviano en mov sí (por el índice)", async () => {
+    const { haceFaltaComprimir, UMBRAL_BITS_POR_SEGUNDO } =
+      await import("@/lib/videos/comprimir-video");
+    /* El caso real medido: 61,8 MB por 34 s = 14,5 Mbps. */
+    expect(haceFaltaComprimir(61_803_614, 34, "video.mov")).toBe(true);
+    /* Un mp4 ya eficiente se sube tal cual. */
+    expect(haceFaltaComprimir(10_000_000, 30, "video.mp4")).toBe(false);
+    /* Un mov liviano se reempaqueta igual: el índice viene al final. */
+    expect(haceFaltaComprimir(10_000_000, 30, "video.mov")).toBe(true);
+    expect(UMBRAL_BITS_POR_SEGUNDO).toBe(3_500_000);
+  });
+
+  it("las reglas de las fotos, en el código: fallo → original, nunca agrandar, carga diferida", async () => {
+    const { readFileSync } = await import("node:fs");
+    const fuente = readFileSync("src/lib/videos/comprimir-video.ts", "utf8");
+    expect(fuente).toContain('await import("mediabunny")');
+    expect(fuente).toContain("return { archivo, comprimido: false };");
+    /* Si salió más pesado, gana el original. */
+    expect(fuente).toContain("buffer.byteLength >= archivo.size");
+    /* Y el índice adelante, que es lo que hace que arranque al toque. */
+    expect(fuente).toContain('fastStart: "in-memory"');
+  });
+
+  it("aligerar un video ya subido usa clave NUEVA: el viejo vive un año en la caché del borde", async () => {
+    const { readFileSync } = await import("node:fs");
+    const acciones = readFileSync("src/lib/videos/acciones.ts", "utf8");
+    const i = acciones.indexOf("reemplazarArchivoDeVideo");
+    expect(i).toBeGreaterThan(0);
+    const trozo = acciones.slice(i);
+    expect(trozo).toContain("nanoid()");
+    expect(trozo).toContain("archivo.size >= video.pesoBytes");
+    expect(trozo).toContain("BUCKET.delete(video.clave)");
+  });
+});

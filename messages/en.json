@@ -1089,7 +1089,9 @@
         "muyPesado": "The video is larger than {mb} MB. Record a shorter one or at lower quality.",
         "sinTitulo": "Give the video a title: it's what people will read.",
         "publicado": "Done! Your video is live.",
-        "borrado": "Video deleted."
+        "borrado": "Video deleted.",
+        "yaEstaLiviano": "That video is already light: nothing to optimize.",
+        "aligerado": "Done: the video is now light and loads instantly."
       },
       "sinPermiso": "You don't have permission for this.",
       "sinPermisoAprobar": "You don't have permission to approve payments.",
@@ -1641,6 +1643,14 @@
       "estados": {
         "oculto": "Hidden",
         "borrador": "Draft"
+      },
+      "optimizando": "Optimizing your video so it loads fast… {pct}%",
+      "aligerando": {
+        "boton": "Optimize this video",
+        "bajando": "Downloading…",
+        "comprimiendo": "Compressing… {pct}%",
+        "subiendo": "Saving the light version…",
+        "noSePudo": "This browser couldn't compress it. Try from Chrome on a computer."
       }
     },
     "diccionario": {

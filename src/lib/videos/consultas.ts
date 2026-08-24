@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 
-import { recordado, recordadoEnElBorde } from "@/lib/cachecito";
+import { recordadoEnElBorde } from "@/lib/cachecito";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { getDb } from "@/lib/db";
 import { tiendas, videosTienda } from "@/lib/db/schema";

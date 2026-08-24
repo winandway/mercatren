@@ -1,4 +1,7 @@
-import { subirVideoDeTienda } from "@/lib/videos/acciones";
+import {
+  reemplazarArchivoDeVideo,
+  subirVideoDeTienda,
+} from "@/lib/videos/acciones";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +20,11 @@ export const dynamic = "force-dynamic";
 export async function POST(peticion: Request) {
   try {
     const formulario = await peticion.formData();
-    const r = await subirVideoDeTienda(formulario);
+    /* Con `videoId` es un reemplazo (aligerar un video ya subido); sin él,
+       una subida nueva. La misma puerta porque las dos necesitan la barra. */
+    const r = formulario.get("videoId")
+      ? await reemplazarArchivoDeVideo(formulario)
+      : await subirVideoDeTienda(formulario);
     return Response.json(r, { status: r.ok ? 200 : 400 });
   } catch (e) {
     console.error("[upload/video] no se pudo procesar:", e);

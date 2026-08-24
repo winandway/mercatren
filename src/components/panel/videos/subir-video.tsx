@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { Campo } from "@/components/ui/campo";
+import { comprimirVideo } from "@/lib/videos/comprimir-video";
 import {
   DURACION_MAXIMA_SEGUNDOS,
   DURACION_MINIMA_SEGUNDOS,
@@ -54,6 +55,7 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
   const [elegido, setElegido] = useState<Elegido | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [avance, setAvance] = useState<number | null>(null);
+  const [optimizando, setOptimizando] = useState<number | null>(null);
   const [listo, setListo] = useState<string | null>(null);
   const entrada = useRef<HTMLInputElement>(null);
   const formulario = useRef<HTMLFormElement>(null);
@@ -152,11 +154,27 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
       return;
     }
     const datos = new FormData(e.currentTarget);
-    datos.set("video", elegido.archivo);
+
+    /* ══ PRIMERO SE ENCOGE, DESPUÉS SE SUBE (24 ago 2026) ══
+
+       Un video de teléfono sale a 10-15 Mbps y el que lo mira con una
+       conexión normal lo ve cortarse. Aquí se baja al perfil de las redes
+       (720p · 30 cuadros · ~2,8 Mbps) con el índice adelante. Si comprimir
+       falla, se sube el original — igual que las fotos. */
+    setError(null);
+    setOptimizando(0);
+    const resultado = await comprimirVideo(
+      elegido.archivo,
+      elegido.duracion,
+      (p) => setOptimizando(Math.round(p * 100)),
+    );
+    setOptimizando(null);
+
+    datos.set("video", resultado.archivo);
     if (elegido.portada) datos.set("portada", elegido.portada);
     datos.set("duracionSegundos", String(Math.round(elegido.duracion)));
-    datos.set("anchoPx", String(elegido.ancho));
-    datos.set("altoPx", String(elegido.alto));
+    datos.set("anchoPx", String(resultado.ancho ?? elegido.ancho));
+    datos.set("altoPx", String(resultado.alto ?? elegido.alto));
     if (tiendaId) datos.set("tiendaId", tiendaId);
 
     setError(null);
@@ -342,17 +360,19 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
         </p>
       ) : null}
 
-      {avance !== null ? (
+      {optimizando !== null || avance !== null ? (
         <div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
             <div
               className="h-full rounded-full bg-carga-500 transition-[width]"
-              style={{ width: `${avance}%` }}
+              style={{ width: `${optimizando ?? avance ?? 0}%` }}
             />
           </div>
           <p className="mt-1.5 flex items-center gap-2 text-sm text-tinta-suave">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            {t("subiendo", { pct: avance })}
+            {optimizando !== null
+              ? t("optimizando", { pct: optimizando })
+              : t("subiendo", { pct: avance ?? 0 })}
           </p>
         </div>
       ) : (

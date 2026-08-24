@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
@@ -278,4 +278,94 @@ export async function borrarVideo(id: string): Promise<ResultadoVideo> {
   revalidatePath("/[locale]", "page");
   revalidatePath("/[locale]/tienda/[slug]", "page");
   return { ok: true, mensaje: t("videos.borrado"), slug: actual.slug };
+}
+
+/**
+ * ALIGERAR UN VIDEO YA SUBIDO (24 ago 2026).
+ *
+ * Los primeros videos del sitio subieron TAL CUAL salieron del teléfono
+ * —61,8 MB por 34 segundos, medido— porque la compresión al subir no
+ * existía todavía. Este es el camino para arreglarlos sin volver a grabar:
+ * el panel baja el video, lo encoge EN EL NAVEGADOR con el mismo compresor
+ * de la subida, y lo trae de vuelta aquí.
+ *
+ * - **La clave es NUEVA, no se pisa la vieja.** El video viejo está en la
+ *   caché del borde con un año de vida e `immutable`: pisarlo dejaría a
+ *   media clientela viendo el pesado por meses. Clave nueva = URL nueva =
+ *   caché limpia. El objeto viejo se borra después de guardar el nuevo.
+ * - **Solo el dueño del video (o el equipo).** La tienda sale del alcance de
+ *   la sesión, y el video tiene que ser suyo.
+ * - La página del video no cambia: el slug es el mismo, solo cambia el
+ *   archivo que sirve `/media`.
+ */
+export async function reemplazarArchivoDeVideo(
+  formulario: FormData,
+): Promise<ResultadoVideo> {
+  const t = await mensajes();
+  const tienda = await tiendaDeLaSesion(formulario);
+  if (!tienda) return { ok: false, mensaje: t("cuentaSinComercio") };
+
+  const videoId = String(formulario.get("videoId") ?? "").trim();
+  const archivo = formulario.get("video");
+  if (!videoId || !(archivo instanceof File) || archivo.size === 0) {
+    return { ok: false, mensaje: t("revisaLosDatos") };
+  }
+
+  const db = getDb();
+  const [video] = await db
+    .select({
+      id: videosTienda.id,
+      clave: videosTienda.clave,
+      pesoBytes: videosTienda.pesoBytes,
+    })
+    .from(videosTienda)
+    .where(
+      and(eq(videosTienda.id, videoId), eq(videosTienda.tiendaId, tienda.id)),
+    )
+    .limit(1);
+  if (!video) return { ok: false, mensaje: t("revisaLosDatos") };
+
+  /* Aligerar solo puede ACHICAR: un archivo igual o más pesado que el que
+     está no reemplaza nada. */
+  if (archivo.size >= video.pesoBytes) {
+    return { ok: false, mensaje: t("videos.yaEstaLiviano") };
+  }
+
+  const clave = `videos/${tienda.id}/${nanoid()}.${extensionDeVideo(archivo.type)}`;
+  try {
+    const { env } = getCloudflareContext();
+    await env.BUCKET.put(clave, archivo, {
+      httpMetadata: {
+        contentType: archivo.type,
+        cacheControl: "public, max-age=31536000, immutable",
+      },
+    });
+    await db
+      .update(videosTienda)
+      .set({
+        clave,
+        pesoBytes: archivo.size,
+        anchoPx:
+          Math.round(Number(formulario.get("anchoPx")) || 0) || undefined,
+        altoPx: Math.round(Number(formulario.get("altoPx")) || 0) || undefined,
+        actualizadoEn: new Date(),
+      })
+      .where(eq(videosTienda.id, videoId));
+    /* El objeto viejo, al final y sin drama: si borrar falla, queda un
+       archivo huérfano en el bucket — molesto, no dañino. */
+    try {
+      await env.BUCKET.delete(video.clave);
+    } catch {
+      /* huérfano anotado en el log de arriba si hiciera falta */
+    }
+  } catch (e) {
+    console.error("[videos] no se pudo aligerar:", e);
+    return {
+      ok: false,
+      mensaje: `${t("noSePudoGuardar")}: ${e instanceof Error ? e.message : String(e)}`,
+    };
+  }
+
+  revalidatePath("/[locale]/panel/videos", "page");
+  return { ok: true, mensaje: t("videos.aligerado"), slug: "" };
 }
