@@ -23,7 +23,7 @@ import {
   intercalarPorTienda,
   PRODUCTOS_POR_RONDA,
 } from "@/lib/catalogo/intercalar";
-import { recordado } from "@/lib/cachecito";
+import { recordado, recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
 import { condicionDeBusqueda } from "./buscar";
@@ -1051,7 +1051,7 @@ export async function parrillaDeProductos(
    * La llave lleva el mercado y la ciudad, como manda `muro-cache`.
    */
   if (pagina === 1) {
-    const base = await recordado(
+    const base = await recordadoEnElBorde(
       `portada-parrilla-${mercado.codigo}-${(zona ?? []).join(",")}-${porPagina}`,
       60_000,
       () => parrillaSinCache(mercado, semillaDelDia(), 1, porPagina, zona),
@@ -1274,7 +1274,7 @@ export async function bandasDeDepartamentos(
    * que no se recordara nunca. Lo que se mueve entre visitas es el orden de la
    * parrilla de abajo, que sí la usa.
    */
-  return recordado(
+  return recordadoEnElBorde(
     `portada-bandas-${mercado.codigo}-${idioma}-${(zona ?? []).join(",")}-${cuantasBandas}x${porBanda}`,
     60_000,
     () =>

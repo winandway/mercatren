@@ -23,6 +23,13 @@ export type LineaCarrito = {
   imagenUrl: string | null;
   tiendaNombre: string;
   tiendaSlug: string;
+  /**
+   * De dónde sale la mercancía: `US` se despacha, cualquier otra cosa se
+   * retira en el comercio. Es lo que impide mezclar destinos en un carrito.
+   * Opcional porque los carritos guardados antes de esto no lo tienen; lo que
+   * no se sabe, no decide (ver `src/lib/destino/carrito.ts`).
+   */
+  tiendaPais?: string | null;
   unidad: string | null;
   /** Tope de unidades cuando el comercio lleva inventario. */
   maximo: number | null;
@@ -35,6 +42,13 @@ type EstadoCarrito = {
   cambiarCantidad: (productoId: string, cantidad: number) => void;
   quitar: (productoId: string) => void;
   vaciar: () => void;
+  /** Tira lo que hay y deja solo esta línea: para cuando se cambia de destino. */
+  reemplazarPor: (
+    linea: Omit<LineaCarrito, "cantidad">,
+    cantidad?: number,
+  ) => void;
+  /** Quita varias líneas de una (las del destino que se descarta). */
+  quitarVarias: (productoIds: string[]) => void;
 };
 
 function acotar(cantidad: number, maximo: number | null) {
@@ -91,6 +105,18 @@ export const useCarrito = create<EstadoCarrito>()(
         })),
 
       vaciar: () => set({ lineas: [] }),
+
+      reemplazarPor: (linea, cantidad = 1) =>
+        set(() => ({
+          lineas: [{ ...linea, cantidad: acotar(cantidad, linea.maximo) }],
+        })),
+
+      quitarVarias: (productoIds) =>
+        set((estado) => ({
+          lineas: estado.lineas.filter(
+            (l) => !productoIds.includes(l.productoId),
+          ),
+        })),
     }),
     { name: "mercatren-carrito", version: 1 },
   ),

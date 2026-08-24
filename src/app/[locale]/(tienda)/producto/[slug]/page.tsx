@@ -526,6 +526,8 @@ export default async function PaginaProducto({
                   imagenUrl: ficha.imagenes[0]?.url ?? null,
                   tiendaNombre: ficha.tiendaNombre,
                   tiendaSlug: ficha.tiendaSlug,
+                  /* De dónde sale: impide mezclar destinos en el carrito. */
+                  tiendaPais: ficha.tiendaPais,
                   unidad: producto.unidad,
                 }}
               />
@@ -544,6 +546,8 @@ export default async function PaginaProducto({
                   imagenUrl: ficha.imagenes[0]?.url ?? null,
                   tiendaNombre: ficha.tiendaNombre,
                   tiendaSlug: ficha.tiendaSlug,
+                  /* De dónde sale: impide mezclar destinos en el carrito. */
+                  tiendaPais: ficha.tiendaPais,
                   unidad: producto.unidad,
                   maximo: producto.controlaExistencias
                     ? producto.existencias

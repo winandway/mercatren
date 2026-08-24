@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { SelectorCantidad } from "@/components/catalogo/selector-cantidad";
+import { AvisoDestino } from "@/components/carrito/aviso-destino";
 import { useCarrito, type LineaCarrito } from "@/lib/carrito/store";
+import { sePuedeAgregar } from "@/lib/destino/carrito";
+import type { Destino } from "@/lib/destino/reglas";
 import { cn } from "@/lib/utils";
 import { ventaPausada } from "@/lib/ventas/pausa";
 
@@ -31,11 +34,18 @@ export function BotonAgregar({
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
+  const lineas = useCarrito((estado) => estado.lineas);
+  const reemplazarPor = useCarrito((estado) => estado.reemplazarPor);
   /* En la mayorista se arranca en el mínimo, no en 1: si el desplegable
      empieza en uno, el comprador pide una unidad de algo que solo se vende por
      docena y se entera al final — o no se entera. */
   const [cantidad, setCantidad] = useState(minimo);
   const [agregado, setAgregado] = useState(false);
+  /* Si lo que se quiere meter se entrega en el otro país, se avisa ANTES en
+     vez de dejar que el checkout lo rechace. */
+  const [choque, setChoque] = useState<{ hay: Destino; entra: Destino } | null>(
+    null,
+  );
 
   /**
    * EL CARTEL DE MANTENIMIENTO VA DONDE ESTABA EL BOTÓN.
@@ -91,6 +101,11 @@ export function BotonAgregar({
         <button
           type="button"
           onClick={() => {
+            const puede = sePuedeAgregar(lineas, linea);
+            if (!puede.ok) {
+              setChoque({ hay: puede.hay, entra: puede.entra });
+              return;
+            }
             agregar(linea, cantidad);
             setAgregado(true);
             window.setTimeout(() => setAgregado(false), 2000);
@@ -110,6 +125,20 @@ export function BotonAgregar({
           {t("agregar")}
         </button>
       </div>
+
+      {choque ? (
+        <AvisoDestino
+          hay={choque.hay}
+          entra={choque.entra}
+          onVaciarYAgregar={() => {
+            reemplazarPor(linea, cantidad);
+            setChoque(null);
+            setAgregado(true);
+            window.setTimeout(() => setAgregado(false), 2000);
+          }}
+          onCancelar={() => setChoque(null)}
+        />
+      ) : null}
     </div>
   );
 }

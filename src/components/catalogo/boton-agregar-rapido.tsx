@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { useCarrito, type LineaCarrito } from "@/lib/carrito/store";
+import { sePuedeAgregar } from "@/lib/destino/carrito";
 import { cn } from "@/lib/utils";
 import { ventaPausada } from "@/lib/ventas/pausa";
 
@@ -34,6 +35,7 @@ export function BotonAgregarRapido({
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
+  const lineas = useCarrito((estado) => estado.lineas);
   const [agregado, setAgregado] = useState(false);
 
   /* En pausa NO se dibuja el botón de agregar rápido, y tampoco un cartel: en
@@ -52,6 +54,17 @@ export function BotonAgregarRapido({
         // La tarjeta es un enlace: sin esto, agregar abriría el producto.
         e.preventDefault();
         e.stopPropagation();
+        /* Si se entrega en el otro país no se mete y se manda a la ficha,
+           donde el aviso cabe y se puede explicar. En una parrilla de cien
+           tarjetas no hay sitio para un cuadro amarillo. */
+        if (!sePuedeAgregar(lineas, linea).ok) {
+          /* La tarjeta ES un enlace a la ficha: se deja pasar el clic en vez
+             de meterlo en el carrito. */
+          window.location.assign(
+            `/${document.documentElement.lang || "es"}/producto/${linea.slug}`,
+          );
+          return;
+        }
         agregar(linea, 1);
         setAgregado(true);
         // Vuelve al "+" solo: el aviso es para confirmar el toque, no para

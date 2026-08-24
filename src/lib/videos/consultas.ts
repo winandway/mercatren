@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 
-import { recordado } from "@/lib/cachecito";
+import { recordado, recordadoEnElBorde } from "@/lib/cachecito";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { getDb } from "@/lib/db";
 import { tiendas, videosTienda } from "@/lib/db/schema";
@@ -87,7 +87,7 @@ export async function videosParaHileras(
      rato y la portada la pedía en cada visita. La llave lleva el MERCADO
      (regla del proyecto) y el idioma; la semilla no, porque cambia por visita
      — el orden se mueve rotando la lista ya traída. */
-  const lista = await recordado(
+  const lista = await recordadoEnElBorde(
     `videos-hilera-${mercado.codigo}-${idioma}-${limite}`,
     60_000,
     () => videosSinCache(mercado, idioma, limite),

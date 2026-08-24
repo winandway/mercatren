@@ -170,6 +170,8 @@ export function TarjetaProducto({
               imagenUrl: producto.imagenUrl,
               tiendaNombre: producto.tiendaNombre,
               tiendaSlug: producto.tiendaSlug,
+              /* De dónde sale: impide mezclar destinos en el carrito. */
+              tiendaPais: producto.tiendaPais,
               unidad: producto.unidad,
               maximo: producto.controlaExistencias
                 ? producto.existencias

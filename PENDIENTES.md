@@ -110,10 +110,8 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟠 💻 **Las tallas y colores en la ficha.** Hoy cada producto se publica
       como una sola cosa y **el comprador nunca elige**: la variante la escoge
       el sistema. Mandar la talla equivocada es una devolución.
-- [ ] 🟠 💻 **Un carrito no puede mezclar destinos.** Lo de EE. UU. se entrega
-      allá y lo de Venezuela se retira allá. `cabenJuntos()` existe en
-      `src/lib/destino/reglas.ts` y **no está puesto en el carrito ni en el
-      checkout**.
+- [x] ✅ **Un carrito no puede mezclar destinos.** Candado en `crearPedido`
+      (decidido con la base) y aviso en el carrito con «vaciar y llevarme este».
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el
       procedimiento (la dirección no se publica, sale al abrir el trámite).
 - [ ] 🟡 💻 **Medir el envío con las compras reales.** Hoy el respaldo son
@@ -216,10 +214,13 @@ Las fases 1 a 4 del plan multi-país están hechas. Para operar de verdad falta:
 - [x] ✅ **La ficha de tienda hace sus cinco consultas a la vez.**
 - [x] ✅ **`/media` guarda lo público en la caché del borde** (los videos ya no
       salen del bucket por el worker en cada trozo).
-- [ ] 🟡 💻 **Segunda vuelta, si hace falta:** medir otra vez en producción con
-      la caché puesta y, si la portada sigue por encima del segundo, servirla
-      desde el borde con `s-maxage` corto (ojo con la cookie de ciudad) o
-      publicar el bucket por su propio dominio.
+- [x] ✅ **Segunda vuelta: la caché pasó al BORDE** (`recordadoEnElBorde`), que
+      es lo que sobrevive a un worker frío — la de memoria sola seguía dando
+      picos de dos segundos en producción.
+- [ ] 🟡 💻 **Tercera vuelta, si hace falta:** volver a medir con la caché de
+      borde puesta y, si la portada sigue por encima del segundo, servir la
+      página desde el borde (ojo con la cookie de ciudad) o publicar el bucket
+      por su propio dominio.
 
 # BLOQUE 7 · DEUDA TÉCNICA ESCRITA
 

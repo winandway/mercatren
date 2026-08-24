@@ -1122,6 +1122,7 @@
       "faltaIdentificacion": "Tax ID is missing (EIN, RIF or equivalent).",
       "faltaTelefono": "Enter a contact phone number.",
       "faltaDireccion": "The delivery address is incomplete. Check the street, city, state and ZIP code.",
+      "destinosMezclados": "One order can't mix products delivered in the United States with products picked up in Venezuela: they are different deliveries. Keep only one of the two in your cart and place the other order separately.",
       "faltaCiudad": "Enter the city.",
       "faltaPais": "Choose the account's country.",
       "yaTienesComercio": "This account already has a store registered.",
@@ -2378,6 +2379,19 @@
     "sinResultadosVerTodo": "Browse the full catalog"
   },
   "carrito": {
+    "destino": {
+      "titulo": "This is delivered somewhere else",
+      "texto": "Your cart already has something that {hay}, and this one {entra}. They are different deliveries and can't go in the same order.",
+      "vaciarYAgregar": "Empty the cart and take this one",
+      "dejarComoEsta": "Leave my cart as it is",
+      "lugar": {
+        "US": "ships within the United States",
+        "VE": "is picked up in Venezuela"
+      },
+      "mezclado": "Your cart mixes products delivered in the United States with products picked up in Venezuela. Keep only one of the two to check out.",
+      "quitarLosDeEEUU": "Remove the US ones",
+      "quitarLosDeVenezuela": "Remove the Venezuela ones"
+    },
     "titulo": "Your cart",
     "vacio": "Your cart is empty",
     "vacioTexto": "Anything you add will show up here.",

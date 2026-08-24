@@ -3154,6 +3154,34 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## UN CARRITO NO PUEDE MEZCLAR DESTINOS (24 ago 2026)
+
+Estaba escrito como pendiente desde el 15 de agosto y era una venta que se
+cobra y no se puede entregar: lo de Estados Unidos se despacha a una dirección
+de allá y lo de Venezuela se retira en el comercio. **No hay una sola entrega
+que sirva para los dos**, y el checkout ni siquiera pide los mismos datos.
+
+Lo que pasaba: bastaba con que UN producto fuera de Estados Unidos para que el
+pedido entero se marcara «US», y a la mercancía venezolana se le pedía estado y
+código postal de allá.
+
+- **El candado está en el servidor** (`crearPedido`), decidido con lo leído de
+  la BASE —de qué tienda es cada producto—, no con lo que diga el navegador.
+- **El aviso está en el carrito**, para que la persona se entere ANTES de
+  llenar el checkout: al agregar algo del otro destino sale un cuadro con la
+  salida a mano —«vaciar el carrito y llevarme este»—, porque decir «no se
+  puede» y dejarlo ahí es mandarlo a vaciar el carrito a mano.
+- **Un carrito guardado ANTES de esto no tiene el país** de cada línea. Lo que
+  no se sabe, no decide: no se bloquea a nadie por un carrito viejo (el
+  servidor lo vuelve a mirar). Si el guardado YA venía mezclado, la pantalla lo
+  dice y ofrece quitar unos u otros.
+- **En la parrilla el botón rápido no discute**: si no cabe, lleva a la ficha,
+  donde el aviso cabe y se puede explicar. Cien cuadros amarillos en una
+  parrilla se leen como que el sitio está roto.
+
+`src/lib/destino/carrito.ts` es puro y tiene 8 pruebas; `crearPedido` tiene la
+suya.
+
 ## QUE EL SITIO VUELE: LA CACHÉ DE LA PORTADA Y DE LOS VIDEOS (24 ago 2026)
 
 Medido en producción antes de tocar nada: **la portada tardaba ~2 s en cada
@@ -3161,7 +3189,7 @@ visita** y la ficha de una tienda saltaba entre 0,25 s y **2,8 s**. El dueño lo
 vio como es: _«se queda como tres segundos así esa pantalla»_, con el rectángulo
 gris delante.
 
-- **Las bandas de la portada se recuerdan un minuto** (`recordado`): son SEIS
+- **Las bandas de la portada se recuerdan un minuto** (en el BORDE, ver abajo): son SEIS
   consultas con funciones de ventana y el resultado es idéntico para todo el
   que entre desde la misma ciudad en ese rato.
 - **La primera tanda de la parrilla también**, con una diferencia que importa:
@@ -3182,6 +3210,13 @@ gris delante.
   en trozos y cada trozo pasaba por el worker: por eso «algunos videos se
   quedan pegados al darles play». Lo privado (comprobantes, facturas del
   proveedor) **nunca** entra en una caché compartida.
+
+**Y LA CACHÉ TIENE QUE SER LA DEL BORDE, NO LA DE MEMORIA.** La primera
+versión guardaba en la memoria del worker y en producción **siguió dando picos
+de dos segundos**: cada visita puede caer en un worker distinto o recién
+arrancado. `recordadoEnElBorde` (en `src/lib/cachecito.ts`) usa `caches.default`
+—que sí se comparte— con la memoria como primer nivel. Si la caché del borde no
+existe (en `next dev` no está), se sigue como siempre.
 
 Medido en local después: la portada pasó de 0,94 s a 0,09 s con la caché
 caliente, y la ficha de tienda de 0,67 s a 0,11 s.

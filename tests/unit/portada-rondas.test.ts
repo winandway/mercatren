@@ -200,7 +200,7 @@ describe("la caché de la portada", () => {
       fuente.indexOf("export async function parrillaDeProductos"),
       fuente.indexOf("function rotarComienzo"),
     );
-    expect(parrilla).toContain("recordado(");
+    expect(parrilla).toContain("recordadoEnElBorde(");
     expect(parrilla).toContain("semillaDelDia()");
     expect(parrilla).toContain("rotarComienzo(base.productos, semilla)");
     /* La llave lleva el mercado y la ciudad: sin eso, un dominio serviría el
@@ -223,6 +223,10 @@ describe("la caché de la portada", () => {
 
   it("las bandas y los videos de la portada también se recuerdan, con el mercado en la llave", () => {
     expect(fuente).toContain("portada-bandas-${mercado.codigo}");
+    expect(
+      fuente,
+      "la caché tiene que ser la del BORDE: la de memoria no sobrevive a un worker frío",
+    ).toContain("recordadoEnElBorde(");
     const videos = readFileSync("src/lib/videos/consultas.ts", "utf8");
     expect(videos).toContain("videos-hilera-${mercado.codigo}");
   });

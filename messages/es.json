@@ -1122,6 +1122,7 @@
       "faltaIdentificacion": "Falta la identificación fiscal (RIF, EIN o equivalente).",
       "faltaTelefono": "Escribe un teléfono de contacto.",
       "faltaDireccion": "Falta la dirección de entrega. Revisa que estén la calle, la ciudad, el estado y el código postal.",
+      "destinosMezclados": "En un mismo pedido no se puede mezclar lo que se entrega en Estados Unidos con lo que se retira en Venezuela: son entregas distintas. Deja en el carrito solo uno de los dos y haz el otro pedido aparte.",
       "faltaCiudad": "Escribe la ciudad.",
       "faltaPais": "Elige el país de la cuenta.",
       "yaTienesComercio": "Ya tienes un comercio registrado con esta cuenta.",
@@ -2378,6 +2379,19 @@
     "sinResultadosVerTodo": "Ver todo el catálogo"
   },
   "carrito": {
+    "destino": {
+      "titulo": "Esto se entrega en otro lugar",
+      "texto": "En tu carrito ya hay algo que {hay}, y esto {entra}. Son entregas distintas y no pueden ir en el mismo pedido.",
+      "vaciarYAgregar": "Vaciar el carrito y llevarme este",
+      "dejarComoEsta": "Dejar el carrito como está",
+      "lugar": {
+        "US": "se entrega en Estados Unidos",
+        "VE": "se retira en Venezuela"
+      },
+      "mezclado": "Tu carrito tiene cosas que se entregan en Estados Unidos y cosas que se retiran en Venezuela. Deja solo unas u otras para poder pagar.",
+      "quitarLosDeEEUU": "Quitar lo de Estados Unidos",
+      "quitarLosDeVenezuela": "Quitar lo de Venezuela"
+    },
     "titulo": "Tu carrito",
     "vacio": "Tu carrito está vacío",
     "vacioTexto": "Cuando agregues productos van a aparecer aquí.",

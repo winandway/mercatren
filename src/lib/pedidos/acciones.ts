@@ -193,11 +193,28 @@ export async function crearPedido(
    * Se decide con lo que ya se leyó de la BASE (de qué tienda es cada
    * producto), no con lo que diga el navegador.
    */
-  const destinoDelPedido: Destino = encontrados.some(
-    (p) => (p.tiendaPais ?? "").trim().toUpperCase() === "US",
-  )
-    ? "US"
-    : "VE";
+  /**
+   * ══ UN PEDIDO NO PUEDE MEZCLAR DESTINOS (24 ago 2026) ══
+   *
+   * Lo de Estados Unidos se despacha a una dirección de allá y lo de Venezuela
+   * se retira en el comercio: **no hay una sola entrega que sirva para los
+   * dos**. Antes bastaba con que UNO fuera de Estados Unidos para marcar el
+   * pedido entero como «US», y a la mercancía venezolana se le pedía estado y
+   * código postal de allá. Esa venta se cobra y no se puede entregar.
+   *
+   * Se decide con lo que ya se leyó de la BASE, no con lo que diga el
+   * navegador: el aviso del carrito es cortesía; este es el candado.
+   */
+  const destinos = new Set(
+    encontrados.map((p) =>
+      (p.tiendaPais ?? "").trim().toUpperCase() === "US" ? "US" : "VE",
+    ),
+  );
+  if (destinos.size > 1) {
+    return { ok: false, mensaje: t("destinosMezclados") };
+  }
+
+  const destinoDelPedido: Destino = destinos.has("US") ? "US" : "VE";
 
   const faltan = faltantesDeEntrega(destinoDelPedido, {
     nombre: entrega.nombre,

@@ -1,12 +1,19 @@
 "use client";
 
-import { ImageOff, MoreVertical, ShoppingCart, Trash2 } from "lucide-react";
+import {
+  ImageOff,
+  MoreVertical,
+  ShoppingCart,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useSyncExternalStore } from "react";
 
 import { SelectorCantidad } from "@/components/catalogo/selector-cantidad";
 import { Link } from "@/i18n/navigation";
 import { contarUnidades, sumarCarrito, useCarrito } from "@/lib/carrito/store";
+import { carritoMezclado, lineasDeOtroDestino } from "@/lib/destino/carrito";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
 /**
@@ -17,9 +24,13 @@ import { formatearPrecio, type Idioma } from "@/lib/dinero";
  * lo que tiene guardado.
  */
 export function ListaCarrito() {
+  /* Un carrito guardado ANTES de la regla puede mezclar destinos: se avisa y
+     se le da el botón para dejar solo unos u otros. Sin esto, el checkout lo
+     rechazaría y la persona no sabría por qué. */
   const t = useTranslations("carrito");
   const idioma = useLocale() as Idioma;
-  const { lineas, cambiarCantidad, quitar, vaciar } = useCarrito();
+  const { lineas, cambiarCantidad, quitar, vaciar, quitarVarias } =
+    useCarrito();
   const [pidiendoVaciar, setPidiendoVaciar] = useState(false);
   const [menuAbierto, setMenuAbierto] = useState(false);
 
@@ -51,9 +62,44 @@ export function ListaCarrito() {
 
   const total = sumarCarrito(lineas);
 
+  const mezclado = carritoMezclado(lineas);
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <div>
+        {mezclado ? (
+          <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-sm text-amber-900">
+            <p className="flex items-start gap-2 font-semibold">
+              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              {t("destino.mezclado")}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 pl-6">
+              <button
+                type="button"
+                onClick={() =>
+                  quitarVarias(
+                    lineasDeOtroDestino(lineas, "VE").map((l) => l.productoId),
+                  )
+                }
+                className="rounded-lg bg-amber-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-amber-800"
+              >
+                {t("destino.quitarLosDeEEUU")}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  quitarVarias(
+                    lineasDeOtroDestino(lineas, "US").map((l) => l.productoId),
+                  )
+                }
+                className="rounded-lg border border-amber-300 px-3 py-1.5 text-sm font-semibold hover:bg-amber-100"
+              >
+                {t("destino.quitarLosDeVenezuela")}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-medium">
             {t("articulos", { n: contarUnidades(lineas) })}
