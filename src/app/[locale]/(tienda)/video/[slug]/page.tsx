@@ -20,6 +20,7 @@ import {
   sumarVista,
   videoPorSlug,
 } from "@/lib/videos/consultas";
+import { personalizarVideos } from "@/lib/videos/personalizar";
 import { duracionIso } from "@/lib/videos/reglas";
 
 export const dynamic = "force-dynamic";
@@ -86,12 +87,15 @@ export default async function PaginaVideo({
   const v = await traer(locale, slug);
   if (!v) notFound();
 
-  const siguientes = await siguientesEnElVisor(
+  const siguientesSinOrdenar = await siguientesEnElVisor(
     await mercadoDeLaPeticion(),
     idioma,
     { id: v.id, tiendaSlug: v.tiendaSlug },
     12,
   );
+  /* El «siguiente y siguiente» también sabe quién mira: los videos de sus
+     comercios se adelantan. Reordena, no filtra. */
+  const siguientes = await personalizarVideos(siguientesSinOrdenar);
 
   /* Una vista más. En su propio try: contar nunca puede tumbar la página. */
   try {

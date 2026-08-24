@@ -3154,6 +3154,59 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## EL CORAZÓN QUE NO ANOTABA, EL ESPACIADOR Y EL ALGORITMO DE «LO TUYO PRIMERO» (24 ago 2026)
+
+Tres cosas que destapó el dueño usando los videos desde su iPhone, y las tres
+tenían causa distinta:
+
+**1. El corazón «no anotaba» y la pantalla se rodaba.** El navegador enfoca el
+botón al tocarlo y, dentro de un contenedor con scroll-snap, ese enfoque
+arrastra la pantalla al siguiente video — el toque se iba en el movimiento.
+`onPointerDown` con `preventDefault` en los tres botones de la columna (lo que
+hacen las apps de video). Y el aviso de «entra para dar me gusta» estaba
+DETRÁS del video (14rem, pegado a la columna): ahora sale centrado, encima de
+todo, con el botón de entrar que vuelve al mismo video.
+
+**2. El espaciador no escribía y «enviar no funciona».** Dos causas:
+
+- El visor intercepta el espacio para pausar (como YouTube) — pero YouTube lo
+  apaga cuando el foco está en una casilla y aquí no: el `preventDefault` se
+  comía los espacios del comentario. El manejador ahora ignora INPUT,
+  TEXTAREA, contentEditable y todo lo que esté dentro de un `role="dialog"`.
+- **Safari de iOS hace ZOOM solo al enfocar una casilla con letra menor de
+  16 px**, y la pantalla queda recortada por la derecha: el botón de enviar y
+  la equis quedaban FUERA. La captura del dueño lo enseña tal cual. El arreglo
+  es global y SIN capa en `globals.css` (lo sin capa le gana a las utilidades
+  de Tailwind): en pantallas de teléfono, `input/select/textarea` con
+  `font-size: max(16px, 1em)`. Vale para todos los formularios del sitio, no
+  solo este — un fallo se arregla para todos.
+
+**3. El algoritmo: las señales de quien ya entró** (`src/lib/recomendar/`).
+`senales.ts` (server) junta lo que la persona HIZO: **comprar pesa el doble
+que un corazón**, y de ahí salen sus tiendas y categorías afines (se recalcula
+de los hechos, cache de 1 minuto por usuario, jamás un perfil guardado).
+`ordenar.ts` (puro, con pruebas) las aplica. Hoy está puesto en los videos:
+las hileras de la portada, `/videos` y el «siguiente y siguiente» del visor.
+
+Cinco reglas de ahí que no se tocan:
+
+1. **REORDENA, NUNCA FILTRA.** Un comercio nuevo sin corazones ni ventas tiene
+   que poder salir igual. Personalizar hasta tapar a los chicos sería deshacer
+   las rondas del 23 de agosto con otro nombre.
+2. **Nunca más de 2 afines seguidos** (`MAXIMO_AFINES_SEGUIDOS`), intercalados
+   con el resto — que conserva su orden.
+3. **El video con MI corazón va de primero** entre los afines: es la señal más
+   directa que existe.
+4. **La personalización va DESPUÉS de la caché del borde, en memoria.** Meter
+   al usuario en la llave de la caché la volvería inútil (una entrada por
+   persona). Sin sesión no se toca nada; si algo falla, la lista de siempre.
+5. **Comprobado con dos sesiones**: anónimo ve el orden con semilla; el
+   cliente que dio corazón ve ese video de primero.
+
+Lo que falta del algoritmo (roadmap): aplicar las mismas señales a las bandas
+de PRODUCTOS de la portada (misma regla: después de la caché, reordenar sin
+filtrar) y sumar la señal de «lo vio entero» cuando haya medición de vistas.
+
 ## «AVÍSAME CUANDO ENTRE UN PAGO»: EL WEBHOOK AL SISTEMA DEL COMERCIO (24 ago 2026)
 
 Estaba prometido al comercio piloto desde la sesión de los cobros por enlace:

@@ -6,6 +6,7 @@ import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { nuevaSemilla } from "@/lib/catalogo/semilla";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 import { videosParaHileras } from "@/lib/videos/consultas";
+import { personalizarVideos } from "@/lib/videos/personalizar";
 import { resumenSocialDe } from "@/lib/videos/social";
 
 export const dynamic = "force-dynamic";
@@ -41,12 +42,13 @@ export default async function PaginaVideos({
   setRequestLocale(locale);
   const t = await getTranslations("videos");
   const idioma = locale === "en" ? "en" : "es";
-  const videos = await videosParaHileras(
+  const videosSinOrdenar = await videosParaHileras(
     await mercadoDeLaPeticion(),
     idioma,
     nuevaSemilla(),
     60,
   );
+  const videos = await personalizarVideos(videosSinOrdenar);
   /* Los corazones de cada uno, en una sola consulta. Si falla, la parrilla se
      dibuja igual sin números. */
   const social = await resumenSocialDe(

@@ -125,6 +125,16 @@ export function AccionesSocial({
     setCuantos((n) => n + 1);
   }
 
+  /**
+   * ══ EL BOTÓN NO PUEDE MOVER LA PANTALLA (24 ago 2026) ══
+   *
+   * En el celular, al tocar el corazón el video «se rodaba»: el navegador
+   * enfoca el botón y, dentro de un contenedor con scroll-snap, eso arrastra
+   * la pantalla al siguiente video. Se evita quitándole el foco al pulsar,
+   * que es lo que hacen las apps de video con su columna de acciones.
+   */
+  const sinMoverLaPantalla = (e: React.PointerEvent) => e.preventDefault();
+
   const boton = "flex flex-col items-center gap-1 text-white";
   const circulo =
     "inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/45 backdrop-blur transition-colors hover:bg-black/65";
@@ -143,6 +153,7 @@ export function AccionesSocial({
           className={boton}
           aria-pressed={meGusta}
           aria-label={t("corazon")}
+          onPointerDown={sinMoverLaPantalla}
         >
           <span
             className={cn(
@@ -166,6 +177,7 @@ export function AccionesSocial({
           className={boton}
           aria-expanded={abiertos}
           aria-label={t("comentarios")}
+          onPointerDown={sinMoverLaPantalla}
         >
           <span className={circulo}>
             <MessageCircle className="h-5 w-5" aria-hidden />
@@ -178,6 +190,7 @@ export function AccionesSocial({
           onClick={compartir}
           className={boton}
           aria-label={t("compartir")}
+          onPointerDown={sinMoverLaPantalla}
         >
           <span className={circulo}>
             {copiado ? (
@@ -192,21 +205,29 @@ export function AccionesSocial({
         </button>
       </div>
 
+      {/**
+       * EL AVISO VA CENTRADO Y ENCIMA DE TODO.
+       *
+       * Estaba al lado de los botones, con 14rem de ancho: en el celular
+       * quedaba detrás del video y el dueño tocaba el corazón y «no pasaba
+       * nada». Si hace falta entrar, el botón para entrar es lo primero.
+       */}
       {aviso ? (
-        <p
+        <div
           role="alert"
-          className="mt-3 max-w-[14rem] rounded-lg bg-black/70 px-3 py-2 text-xs text-white"
+          onClick={() => setAviso(null)}
+          className="fixed inset-x-0 bottom-24 z-[60] mx-auto w-[min(22rem,92vw)] rounded-xl bg-riel-900 px-4 py-3 text-center text-sm text-white shadow-2xl sm:bottom-10"
         >
-          {aviso}{" "}
+          <p>{aviso}</p>
           {hayQueEntrar ? (
             <Link
-              href="/entrar"
-              className="font-semibold text-carga-400 underline"
+              href={`/entrar?destino=${encodeURIComponent(`/video/${slug}`)}`}
+              className="mt-2 inline-block rounded-lg bg-carga-500 px-4 py-2 font-bold text-riel-950"
             >
               {t("entrar")}
             </Link>
           ) : null}
-        </p>
+        </div>
       ) : null}
 
       {abiertos ? (

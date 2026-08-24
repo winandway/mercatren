@@ -31,6 +31,7 @@ const video = (n: number): VideoPublico => ({
   duracionSegundos: 30,
   tiendaNombre: "Tienda",
   tiendaSlug: "tienda",
+  tiendaId: "tienda",
   creadoEn: null,
 });
 

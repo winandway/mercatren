@@ -29,6 +29,7 @@ const COLUMNAS = {
   creadoEn: videosTienda.creadoEn,
   tiendaNombre: tiendas.nombre,
   tiendaSlug: tiendas.slug,
+  tiendaId: videosTienda.tiendaId,
 };
 
 type Fila = {
@@ -44,6 +45,7 @@ type Fila = {
   creadoEn: Date | null;
   tiendaNombre: string;
   tiendaSlug: string;
+  tiendaId: string;
 };
 
 function aPublico(f: Fila, idioma: "es" | "en"): VideoPublico {
@@ -60,6 +62,7 @@ function aPublico(f: Fila, idioma: "es" | "en"): VideoPublico {
     duracionSegundos: f.duracionSegundos,
     tiendaNombre: f.tiendaNombre,
     tiendaSlug: f.tiendaSlug,
+    tiendaId: f.tiendaId,
     creadoEn: f.creadoEn ? f.creadoEn.toISOString() : null,
   };
 }

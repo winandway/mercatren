@@ -230,3 +230,22 @@
     animation: none;
   }
 }
+
+/* ══ EL iPHONE NO PUEDE HACER ZOOM SOLO AL TOCAR UNA CASILLA (24 ago 2026) ══
+
+   Safari en iOS, al enfocar una casilla con letra menor de 16 px, HACE ZOOM a
+   la página entera para agrandarla — y la pantalla queda recortada por la
+   derecha: el dueño escribía un comentario en un video y ni el botón de
+   enviar ni la equis de cerrar se veían («no funciona enviar mensaje»).
+
+   La regla va SIN capa (@layer) a propósito: lo sin capa le gana a las
+   utilidades de Tailwind, así un `text-sm` en una casilla no puede volver a
+   disparar el zoom. Solo en pantallas de teléfono: en escritorio no existe el
+   problema y la letra chica de los filtros del panel se queda como está. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}

@@ -98,6 +98,22 @@ export function VisorVideos({
 
   useEffect(() => {
     const teclas = (e: KeyboardEvent) => {
+      /* ══ SI LA PERSONA ESTÁ ESCRIBIENDO, LAS TECLAS SON SUYAS (24 ago 2026) ══
+
+         El espacio pausa el video, como en YouTube — pero YouTube lo apaga
+         cuando el foco está en una casilla. Aquí no se apagaba: quien escribía
+         un comentario pulsaba espacio y el `preventDefault` se lo comía. El
+         dueño lo vivió tal cual: «no funciona el espaciador». */
+      const destino = e.target as HTMLElement | null;
+      if (
+        destino &&
+        (destino.tagName === "INPUT" ||
+          destino.tagName === "TEXTAREA" ||
+          destino.isContentEditable ||
+          destino.closest('[role="dialog"]'))
+      ) {
+        return;
+      }
       if (e.key === "ArrowDown") {
         e.preventDefault();
         irA(actual + 1);

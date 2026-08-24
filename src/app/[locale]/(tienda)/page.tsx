@@ -18,6 +18,7 @@ import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { obtenerPortada } from "@/lib/catalogo/consultas";
 import { nuevaSemilla } from "@/lib/catalogo/semilla";
 import { videosParaHileras } from "@/lib/videos/consultas";
+import { personalizarVideos } from "@/lib/videos/personalizar";
 import { bannersPara } from "@/lib/banners/consultas";
 import { intercalarBanners } from "@/lib/banners/reglas";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
@@ -108,12 +109,15 @@ export default async function PaginaInicio({
   /* LOS SHORTS (23 ago 2026): hileras de videos entre los bloques de
      productos, como en YouTube. Si la base falla o hay menos de tres videos,
      la portada se ve exactamente como antes: `HileraVideos` no dibuja nada. */
-  const videosDeLaPortada = await videosParaHileras(
+  const videosSinOrdenar = await videosParaHileras(
     mercado,
     idioma,
     semilla,
     24,
   );
+  /* La lista de la caché es igual para todos; el orden de ESTA persona
+     (sus corazones, sus compras) se aplica después y en memoria. */
+  const videosDeLaPortada = await personalizarVideos(videosSinOrdenar);
   const deTodasLasTiendas = parrilla.productos.slice(0, 24);
   const restoDeLaParrilla = parrilla.productos.slice(24);
   const paginasDe24 = Math.max(1, Math.ceil(parrilla.total / 24));

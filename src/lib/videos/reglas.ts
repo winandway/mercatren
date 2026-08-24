@@ -102,6 +102,8 @@ export type VideoPublico = {
   duracionSegundos: number;
   tiendaNombre: string;
   tiendaSlug: string;
+  /** Para cruzar con las señales del usuario (recomendar/): no se dibuja. */
+  tiendaId: string;
   creadoEn: string | null;
 };
 

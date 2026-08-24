@@ -112,6 +112,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       estaba hecho: comprobado el 24 ago 2026.
 - [x] ✅ **Un carrito no puede mezclar destinos.** Candado en `crearPedido`
       (decidido con la base) y aviso en el carrito con «vaciar y llevarme este».
+- [x] ✅ **El espaciador y el enviar en los comentarios de los videos** (24
+      ago): el visor se comía el espacio y el zoom de iOS sacaba el botón de
+      la pantalla. Arreglado para todos los formularios del sitio.
+- [x] ✅ **El corazón anota y «lo tuyo primero»** (24 ago): señales de compra
+      y corazones reordenan las hileras de videos para quien entró. Reordena,
+      no filtra.
+- [ ] 🟡 💻 **Las señales también en las bandas de PRODUCTOS de la portada**
+      (después de la caché, reordenar sin filtrar — igual que los videos).
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el
       procedimiento (la dirección no se publica, sale al abrir el trámite).
 - [ ] 🟡 💻 **Medir el envío con las compras reales.** Hoy el respaldo son
