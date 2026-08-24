@@ -3199,6 +3199,35 @@ petición en la plataforma; un video vertical de un minuto pesa 20–60 MB. La
 barra de avance es real (`XMLHttpRequest` contra `/upload/video`): una acción de
 servidor no informa del progreso, y sin barra la gente cree que se colgó.
 
+**SE COMPORTAN COMO CUALQUIER RED DE VIDEOS (24 ago 2026).** Palabras del
+dueño: _«no inventes la rueda, hágalo igual como funcionan las redes sociales»_.
+Tres niveles, y **los tres los elige la persona**:
+
+1. **En la hilera**, el mouse encima mueve el video dentro de la tarjeta (en
+   silencio, en bucle) y al quitarlo vuelve la portada. Así se catan seis
+   videos en diez segundos sin salir de la página. `preload="none"` hasta que
+   el mouse entra: ocho videos precargando se comen la conexión de un teléfono.
+2. **El clic abre la página del video CON LOS MENÚS DEL SITIO A LOS LADOS** —el
+   reproductor centrado, la columna de corazón / comentarios / compartir a la
+   derecha, y arriba del video pausa y sonido a la izquierda y expandir a la
+   derecha—. Por eso la página volvió al layout `(tienda)`: el grupo `(visor)`
+   sin encabezado se tragaba la pantalla y obligaba a volver atrás.
+3. **La pantalla completa solo con el botón de expandir**, y es la del
+   navegador (`requestFullscreen`), no un CSS que la imite: así el teléfono
+   esconde su barra y el botón de volver funciona. El estado se lee de
+   `fullscreenchange`, que también cubre salir con Escape.
+
+**Corazones, comentarios y compartir** (tablas `me_gusta_video` y
+`comentarios_video`, nuevas): el corazón es uno por persona (la llave primaria
+es la pareja video+persona) y **el número sube en la pantalla antes de que
+conteste el servidor**, corrigiéndose si dice que no — esperar el viaje de red
+se siente roto. Quien no entró ve los botones igual y al tocarlos se le invita
+a entrar: esconderlos sería esconder que existen. Compartir usa el menú del
+sistema (`navigator.share`) en el teléfono y copia el enlace en escritorio.
+**Un comentario se OCULTA, nunca se borra** (`estado = 'oculto'`): si mañana
+hay una discusión sobre lo que alguien escribió, el rastro tiene que existir.
+Lo pueden ocultar quien lo escribió, el comercio dueño del video y el equipo.
+
 **Y SE TIENEN QUE PODER ESCUCHAR (24 ago 2026).** El dueño subió sus primeros
 videos y no sonaban: la vista previa llevaba `muted` —justo cuando uno quiere
 comprobar qué eligió y qué está diciendo— y la lista «Mis videos publicados»

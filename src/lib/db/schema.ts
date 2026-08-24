@@ -11,6 +11,7 @@
 
 import { sql } from "drizzle-orm";
 import {
+  primaryKey,
   index,
   integer,
   real,
@@ -2904,4 +2905,66 @@ export const videosTienda = sqliteTable(
     index("idx_videos_estado_mercado").on(t.estado, t.mercado),
     index("idx_videos_creado").on(t.creadoEn),
   ],
+);
+
+/**
+ * LOS CORAZONES DE UN VIDEO (24 ago 2026).
+ *
+ * Uno por persona y por video: la llave primaria es la pareja, así que dar dos
+ * veces no suma dos. Se guarda quién para poder quitarlo (el corazón se toca
+ * otra vez y se va) y para que nadie infle el número con recargas.
+ *
+ * Hace falta sesión: un contador que cualquiera puede subir desde una ventana
+ * de incógnito no significa nada, y aquí el número se le enseña al comercio
+ * como señal de qué video funciona.
+ */
+export const meGustaVideo = sqliteTable(
+  "me_gusta_video",
+  {
+    videoId: text("video_id")
+      .notNull()
+      .references(() => videosTienda.id, { onDelete: "cascade" }),
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.videoId, t.usuarioId] }),
+    index("idx_me_gusta_video").on(t.videoId),
+  ],
+);
+
+/**
+ * LOS COMENTARIOS DE UN VIDEO.
+ *
+ * Con sesión, siempre: un comentario anónimo en la tienda de un comercio es
+ * spam y es soporte. Se publican de una —esperar moderación mata la
+ * conversación— y **el comercio dueño del video y el equipo pueden ocultarlos**
+ * (`estado = 'oculto'`), que es la moderación que de verdad se usa. Quien lo
+ * escribió puede borrar el suyo.
+ *
+ * No se borra la fila al ocultar: si mañana hay una discusión sobre lo que
+ * alguien escribió, el rastro tiene que existir.
+ */
+export const comentariosVideo = sqliteTable(
+  "comentarios_video",
+  {
+    id: text("id").primaryKey(),
+    videoId: text("video_id")
+      .notNull()
+      .references(() => videosTienda.id, { onDelete: "cascade" }),
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    texto: text("texto").notNull(),
+    /** publicado | oculto */
+    estado: text("estado").notNull().default("publicado"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_comentarios_video").on(t.videoId, t.estado)],
 );

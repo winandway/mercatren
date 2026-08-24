@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import {
   DURACION_MAXIMA_SEGUNDOS,
@@ -198,5 +199,91 @@ describe("los videos se pueden escuchar", () => {
     );
     expect(visor).toContain("muted={!sonido}");
     expect(visor).toContain('t("visor.conSonido")');
+  });
+});
+
+/**
+ * LOS SHORTS SE COMPORTAN COMO EN CUALQUIER RED DE VIDEOS (24 ago 2026).
+ *
+ * Palabras del dueño: *«no inventes la rueda, hágalo igual como funcionan las
+ * redes sociales»*. Tres niveles y los tres los elige la persona: el mouse
+ * encima mueve el video en la hilera, el clic abre el reproductor con los
+ * menús del sitio, y solo el botón de expandir lleva a pantalla completa.
+ */
+describe("los Shorts, como en YouTube", () => {
+  const tarjeta = readFileSync(
+    "src/components/videos/tarjeta-video.tsx",
+    "utf8",
+  );
+  const visor = readFileSync("src/components/videos/visor-videos.tsx", "utf8");
+  const social = readFileSync(
+    "src/components/videos/acciones-social.tsx",
+    "utf8",
+  );
+
+  it("la tarjeta reproduce al pasar el mouse y se detiene al quitarlo, en silencio", () => {
+    expect(tarjeta).toContain("onMouseEnter");
+    expect(tarjeta).toContain("onMouseLeave");
+    /* Y también con el teclado: quien navega con tabulador ve lo mismo. */
+    expect(tarjeta).toContain("onFocus");
+    expect(tarjeta).toContain("muted");
+    /* Nada se precarga hasta que el mouse entra: ocho videos a la vez se comen
+       la conexión de un teléfono. */
+    expect(tarjeta).toContain('preload="none"');
+  });
+
+  it("la página del video vive DENTRO del layout de la tienda: los menús se quedan a los lados", () => {
+    expect(
+      existsSync(
+        join(process.cwd(), "src/app/[locale]/(tienda)/video/[slug]/page.tsx"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(join(process.cwd(), "src/app/[locale]/(visor)")),
+      "volvió el grupo (visor) sin encabezado: el reproductor se tragaba la pantalla",
+    ).toBe(false);
+  });
+
+  it("la pantalla completa es la del navegador y SOLO con el botón de expandir", () => {
+    expect(visor).toContain("requestFullscreen");
+    expect(visor).toContain("exitFullscreen");
+    expect(visor).toContain('t("visor.expandir")');
+    /* Y el estado se lee del navegador, no de una variable que se puede
+       desincronizar (salir con Escape también cierra). */
+    expect(visor).toContain("fullscreenchange");
+  });
+
+  it("hay pausa, sonido y flechas de anterior y siguiente", () => {
+    for (const clave of [
+      "visor.pausar",
+      "visor.reanudar",
+      "visor.conSonido",
+      "visor.anterior",
+      "visor.siguiente",
+    ]) {
+      expect(visor, `falta ${clave}`).toContain(`t("${clave}")`);
+    }
+  });
+
+  it("corazón, comentarios y compartir, con el número que sube al momento", () => {
+    expect(social).toContain("alternarCorazon");
+    expect(social).toContain("comentarVideo");
+    expect(social).toContain("navigator.share");
+    /* El corazón se pinta antes de que conteste el servidor y se corrige si
+       dice que no: esperar el viaje de red se siente roto. */
+    expect(social).toContain("setCorazones(antes.corazones)");
+  });
+
+  it("y quien no entró ve el botón igual, con la invitación a entrar", () => {
+    expect(social).toContain("hayQueEntrar");
+    const acciones = readFileSync("src/lib/videos/social-acciones.ts", "utf8");
+    expect(acciones).toContain('t("videos.entraParaCorazon")');
+    expect(acciones).toContain('t("videos.entraParaComentar")');
+  });
+
+  it("un comentario se oculta, no se borra: el rastro tiene que existir", () => {
+    const acciones = readFileSync("src/lib/videos/social-acciones.ts", "utf8");
+    expect(acciones).toContain('set({ estado: "oculto" })');
+    expect(acciones).not.toContain("delete(comentariosVideo)");
   });
 });

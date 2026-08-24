@@ -1056,6 +1056,9 @@
       "noSePudoGuardar": "No se pudo guardar",
       "guardadoCorto": "Guardado.",
       "videos": {
+        "entraParaCorazon": "Entra con tu cuenta para dar corazón.",
+        "entraParaComentar": "Entra con tu cuenta para comentar.",
+        "comentarioVacio": "Escribe algo antes de enviar.",
         "elige": "Elige el video que quieres subir.",
         "sinRed": "No se pudo subir el video. Revisa tu conexión y vuelve a intentarlo.",
         "sinDuracion": "No pudimos leer la duración del video. Vuelve a elegirlo, por favor.",
@@ -3324,6 +3327,12 @@
       "siguiente": "Ver siguientes"
     },
     "visor": {
+      "pausar": "Pausar",
+      "reanudar": "Reproducir",
+      "expandir": "Pantalla completa",
+      "reducir": "Salir de pantalla completa",
+      "anterior": "Video anterior",
+      "siguiente": "Video siguiente",
       "entraEnMiTienda": "Entra en mi tienda",
       "silenciar": "Quitar el sonido",
       "conSonido": "Poner sonido"
@@ -3332,6 +3341,19 @@
       "titulo": "Shorts de Mercatren",
       "entradilla": "Los comercios enseñando su tienda por dentro: lo que venden, cómo lo tienen y quién está detrás del mostrador.",
       "vacio": "Todavía no hay videos publicados."
+    },
+    "social": {
+      "corazon": "Me gusta",
+      "comentarios": "Comentarios",
+      "compartir": "Compartir",
+      "copiado": "Copiado",
+      "entrar": "Entrar",
+      "escribe": "Escribe un comentario…",
+      "enviar": "Enviar",
+      "sinComentarios": "Todavía no hay comentarios. Sé el primero.",
+      "borrar": "Quitar este comentario",
+      "cerrar": "Cerrar",
+      "reglas": "El comercio dueño del video y el equipo de Mercatren pueden quitar comentarios."
     },
     "tienda": {
       "titulo": "Videos de esta tienda",

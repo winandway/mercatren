@@ -2,7 +2,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 
-import { VisorVideos } from "@/components/videos/visor-videos";
+import {
+  VisorVideos,
+  type VideoConSocial,
+} from "@/components/videos/visor-videos";
+import {
+  esEquipoInterno,
+  obtenerAlcance,
+  obtenerUsuario,
+} from "@/lib/autorizacion";
+import { comentariosDe, resumenSocialDe } from "@/lib/videos/social";
 import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
@@ -91,6 +100,30 @@ export default async function PaginaVideo({
     /* si falla, no pasa nada */
   }
 
+  /* Lo social: corazones y comentarios. Quien no entró ve los números igual
+     —son públicos—; lo que cambia es si el corazón sale marcado. */
+  const usuario = await obtenerUsuario().catch(() => null);
+  const alcance = await obtenerAlcance().catch(() => null);
+  const [social, comentarios] = await Promise.all([
+    resumenSocialDe(
+      [v.id, ...siguientes.map((s) => s.id)],
+      usuario?.id ?? null,
+    ),
+    comentariosDe(v.id, {
+      id: usuario?.id ?? null,
+      esEquipo: await esEquipoInterno().catch(() => false),
+      tiendaId: alcance?.tipo === "tienda" ? alcance.tiendaId : null,
+    }),
+  ]);
+  const conSocial = (
+    x: typeof v | (typeof siguientes)[number],
+  ): VideoConSocial => ({
+    ...x,
+    corazones: social.get(x.id)?.corazones ?? 0,
+    meGusta: social.get(x.id)?.meGusta ?? false,
+    comentarios: social.get(x.id)?.comentarios ?? 0,
+  });
+
   const paraGoogle = {
     "@context": "https://schema.org",
     "@type": "VideoObject",
@@ -119,7 +152,11 @@ export default async function PaginaVideo({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: comoJsonLd(paraGoogle) }}
       />
-      <VisorVideos videos={[v, ...siguientes]} idioma={locale} />
+      <VisorVideos
+        videos={[conSocial(v), ...siguientes.map(conSocial)]}
+        idioma={locale}
+        comentariosDelPrimero={comentarios}
+      />
     </>
   );
 }

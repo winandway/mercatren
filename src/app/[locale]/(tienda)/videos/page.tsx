@@ -6,6 +6,7 @@ import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { nuevaSemilla } from "@/lib/catalogo/semilla";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 import { videosParaHileras } from "@/lib/videos/consultas";
+import { resumenSocialDe } from "@/lib/videos/social";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,12 @@ export default async function PaginaVideos({
     nuevaSemilla(),
     60,
   );
+  /* Los corazones de cada uno, en una sola consulta. Si falla, la parrilla se
+     dibuja igual sin números. */
+  const social = await resumenSocialDe(
+    videos.map((v) => v.id),
+    null,
+  ).catch(() => new Map());
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8">
@@ -64,7 +71,10 @@ export default async function PaginaVideos({
         <ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
           {videos.map((v) => (
             <li key={v.id} className="[&>a]:w-full">
-              <TarjetaVideo video={v} />
+              <TarjetaVideo
+                video={v}
+                corazones={social.get(v.id)?.corazones ?? 0}
+              />
             </li>
           ))}
         </ul>

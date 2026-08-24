@@ -195,27 +195,16 @@ Las fases 1 a 4 del plan multi-país están hechas. Para operar de verdad falta:
 
 ---
 
-# BLOQUE 6c · LOS SHORTS, SEGUNDA VUELTA (24 ago 2026)
+# BLOQUE 6c · LOS SHORTS, SEGUNDA VUELTA — ✅ HECHO (24 ago 2026)
 
-Lo que pidió el dueño después de subir sus primeros videos y navegarlos.
-
-- [ ] 🟠 💻 **Probar sin salir de la hilera.** Hoy tocar una tarjeta abre la
-      página del video. Lo que quiere: pasar el mouse (o tocar) y que ESE video
-      se reproduzca ahí mismo, chiquito, para ir catando uno por uno; y **una
-      flechita de expandir** abajo del propio video para abrirlo solo cuando le
-      interese. _«No cuando le dé play se va ahí, porque luego tengo que
-      regresar; tardaría mucho en decidir cuál quiero.»_
-- [ ] 🟠 💻 **El visor abierto NO tiene que ser pantalla completa a lo bruto.**
-      Que se abra «normalito», con los menús a los lados —como los Shorts de
-      YouTube en escritorio— para poder seguir navegando. En el celular sí a
-      pantalla completa. (Hoy vive en el grupo `(visor)` sin encabezado: hay
-      que hacerlo depender del ancho, no del grupo de rutas.)
-- [ ] 🟠 💻 **Corazones, comentarios y compartir**, en la columna de la derecha
-      del video, estilo TikTok/Shorts. El corazón es lo primero: tabla propia,
-      una vez por persona, y el número a la vista. Compartir con el enlace del
-      video (que ya existe y es indexable). Comentarios: decidir antes si los
-      modera el comercio o el equipo — un comentario abierto en una tienda es
-      soporte y es riesgo, no solo una función.
+- [x] ✅ **Probar sin salir de la hilera.** El mouse encima mueve el video en la
+      tarjeta; al quitarlo vuelve la portada.
+- [x] ✅ **El clic abre el reproductor con los menús a los lados** (volvió al
+      layout de la tienda), y **la pantalla completa solo con el botón de
+      expandir** — la del navegador, no un CSS que la imite.
+- [x] ✅ **Corazones, comentarios y compartir**, en la columna de la derecha.
+      Uno por persona, el número sube al momento, y los comentarios se ocultan
+      (no se borran) por quien los escribió, el comercio o el equipo.
 
 # BLOQUE 6b · QUE EL SITIO VUELE (rendimiento y caché)
 

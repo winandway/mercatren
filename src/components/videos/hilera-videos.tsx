@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { FilaProductos } from "@/components/catalogo/fila-productos";
 import { TarjetaVideo } from "@/components/videos/tarjeta-video";
 import { Link } from "@/i18n/navigation";
+import { resumenSocialDe } from "@/lib/videos/social";
 import type { VideoPublico } from "@/lib/videos/reglas";
 
 /**
@@ -21,6 +22,13 @@ export async function HileraVideos({
 }) {
   if (videos.length === 0) return null;
   const t = await getTranslations("videos");
+  /* Los corazones salen en la esquina de cada tarjeta: es la señal de qué
+     video está funcionando, y al comercio le dice cuál repetir. Si falla, la
+     hilera se dibuja igual sin números. */
+  const social = await resumenSocialDe(
+    videos.map((v) => v.id),
+    null,
+  ).catch(() => new Map());
 
   return (
     <section
@@ -52,7 +60,11 @@ export async function HileraVideos({
         etiquetaSiguiente={t("hilera.siguiente")}
       >
         {videos.map((v) => (
-          <TarjetaVideo key={v.id} video={v} />
+          <TarjetaVideo
+            key={v.id}
+            video={v}
+            corazones={social.get(v.id)?.corazones ?? 0}
+          />
         ))}
       </FilaProductos>
     </section>

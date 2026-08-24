@@ -1056,6 +1056,9 @@
       "noSePudoGuardar": "Could not save",
       "guardadoCorto": "Saved.",
       "videos": {
+        "entraParaCorazon": "Sign in to like this video.",
+        "entraParaComentar": "Sign in to comment.",
+        "comentarioVacio": "Write something before sending.",
         "elige": "Choose the video you want to upload.",
         "sinRed": "We couldn't upload the video. Check your connection and try again.",
         "sinDuracion": "We couldn't read the video's length. Please pick the file again.",
@@ -3324,6 +3327,12 @@
       "siguiente": "Next"
     },
     "visor": {
+      "pausar": "Pause",
+      "reanudar": "Play",
+      "expandir": "Full screen",
+      "reducir": "Exit full screen",
+      "anterior": "Previous video",
+      "siguiente": "Next video",
       "entraEnMiTienda": "Visit my store",
       "silenciar": "Mute",
       "conSonido": "Unmute"
@@ -3332,6 +3341,19 @@
       "titulo": "Mercatren Shorts",
       "entradilla": "Stores showing you around: what they sell, how they keep it and who is behind the counter.",
       "vacio": "No videos published yet."
+    },
+    "social": {
+      "corazon": "Like",
+      "comentarios": "Comments",
+      "compartir": "Share",
+      "copiado": "Copied",
+      "entrar": "Sign in",
+      "escribe": "Write a comment…",
+      "enviar": "Send",
+      "sinComentarios": "No comments yet. Be the first.",
+      "borrar": "Remove this comment",
+      "cerrar": "Close",
+      "reglas": "The store that owns the video and the Mercatren team can remove comments."
     },
     "tienda": {
       "titulo": "Videos from this store",
