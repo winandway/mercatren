@@ -949,6 +949,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS `videos_tienda_slug_unique` ON `videos_tienda`
 CREATE INDEX IF NOT EXISTS `idx_videos_tienda` ON `videos_tienda` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_videos_estado_mercado` ON `videos_tienda` (`estado`,`mercado`);
 CREATE INDEX IF NOT EXISTS `idx_videos_creado` ON `videos_tienda` (`creado_en`);
+CREATE TABLE IF NOT EXISTS `webhooks_tienda` (
+	`tienda_id` text PRIMARY KEY NOT NULL,
+	`url` text NOT NULL,
+	`secreto` text NOT NULL,
+	`activo` integer DEFAULT true NOT NULL,
+	`ultimo_intento_en` integer,
+	`ultimo_ok_en` integer,
+	`ultimo_error` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 	`tienda_id` text PRIMARY KEY NOT NULL,
 	`habilitado` integer DEFAULT false NOT NULL,
@@ -962,11 +974,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787529611, 1787529611)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787532945, 1787532945)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787529611)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787532945)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
