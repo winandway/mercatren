@@ -3154,6 +3154,38 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## QUE EL SITIO VUELE: LA CACHÉ DE LA PORTADA Y DE LOS VIDEOS (24 ago 2026)
+
+Medido en producción antes de tocar nada: **la portada tardaba ~2 s en cada
+visita** y la ficha de una tienda saltaba entre 0,25 s y **2,8 s**. El dueño lo
+vio como es: _«se queda como tres segundos así esa pantalla»_, con el rectángulo
+gris delante.
+
+- **Las bandas de la portada se recuerdan un minuto** (`recordado`): son SEIS
+  consultas con funciones de ventana y el resultado es idéntico para todo el
+  que entre desde la misma ciudad en ese rato.
+- **La primera tanda de la parrilla también**, con una diferencia que importa:
+  se guarda con el orden del DÍA y se **rota en memoria** con la semilla de la
+  visita, así la portada sigue moviéndose entre visitas sin volver a consultar.
+  **La rotación mueve por dónde empieza, en bloques del tamaño de una ronda —
+  jamás reordena por familia.** La primera versión ordenaba por familia y
+  agrupaba todos los productos de cada tienda: deshacía las rondas enteras. Lo
+  destapó la propia medición y hay una prueba que se pone roja si vuelve.
+- **Los videos de las hileras, igual.** Las páginas siguientes de la parrilla
+  infinita NO se recuerdan: las pide poca gente y llevan su propia semilla.
+- **Toda llave lleva el mercado y la ciudad**, como exige `muro-cache`: sin eso
+  un dominio serviría el catálogo de otro.
+- **La ficha de tienda hace sus cinco consultas a la vez** (envío, videos,
+  color, verificación, banners). Ninguna depende de otra; iban en fila y la
+  ficha tardaba la suma.
+- **`/media` guarda lo público en la caché del borde.** Un video sale del bucket
+  en trozos y cada trozo pasaba por el worker: por eso «algunos videos se
+  quedan pegados al darles play». Lo privado (comprobantes, facturas del
+  proveedor) **nunca** entra en una caché compartida.
+
+Medido en local después: la portada pasó de 0,94 s a 0,09 s con la caché
+caliente, y la ficha de tienda de 0,67 s a 0,11 s.
+
 ## LOS SHORTS DE MERCATREN: CADA COMERCIO ENSEÑA SU TIENDA EN VIDEO (23 ago 2026)
 
 Lo pidió el dueño con la referencia delante (la hilera de Shorts de YouTube):

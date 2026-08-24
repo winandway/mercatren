@@ -58,6 +58,28 @@ export async function GET(
   const { env } = getCloudflareContext();
 
   /**
+   * ══ LO PÚBLICO SE GUARDA EN EL BORDE (24 ago 2026) ══
+   *
+   * Un video sale del bucket en trozos, y cada trozo pasaba por el worker: por
+   * eso «algunos videos se quedan pegados al darles play». Guardando la
+   * respuesta en la caché del borde, el segundo espectador —y el mismo, al
+   * saltar en la barra— la recibe sin tocar ni el worker ni R2.
+   *
+   * Solo lo PÚBLICO: los comprobantes y las facturas del proveedor jamás se
+   * guardan en una caché compartida. Y si la caché no existe (en local no
+   * está), se sigue como siempre.
+   */
+  const cacheDelBorde = !esPrivado(ruta)
+    ? (globalThis as { caches?: { default?: Cache } }).caches?.default
+    : undefined;
+  if (cacheDelBorde) {
+    const guardada = await cacheDelBorde
+      .match(_peticion)
+      .catch(() => undefined);
+    if (guardada) return guardada;
+  }
+
+  /**
    * ══ LOS VIDEOS SE SIRVEN POR RANGOS (23 ago 2026) ══
    *
    * Un video no se descarga entero para empezar a verse: el reproductor pide
@@ -127,7 +149,15 @@ export async function GET(
   // Se manda el contenido completo, no el flujo tal cual: el flujo que
   // devuelve el bucket no viaja bien por todos los entornos donde corre esto.
   // Son imagenes de pocos megabytes, asi que no compensa complicarlo.
-  return new Response(await archivo.arrayBuffer(), { headers: cabeceras });
+  const respuesta = new Response(await archivo.arrayBuffer(), {
+    headers: cabeceras,
+  });
+  /* Y se deja en el borde para la próxima. `waitUntil` no está garantizado
+     aquí, así que se guarda una copia sin esperar a que termine. */
+  if (cacheDelBorde) {
+    void cacheDelBorde.put(_peticion, respuesta.clone()).catch(() => {});
+  }
+  return respuesta;
 }
 
 /**

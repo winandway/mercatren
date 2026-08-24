@@ -64,13 +64,12 @@ describe("el orden por rondas de vendedor", () => {
 
   it("la parrilla Y las bandas usan el mismo orden, y ninguna baraja con RANDOM() a secas", () => {
     const parrilla = tramo(
-      "export async function parrillaDeProductos",
+      "async function parrillaSinCache",
       "export type BandaDeDepartamento",
     );
-    const bandas = tramo(
-      "export async function bandasDeDepartamentos",
-      "\n}\n",
-    );
+    /* Desde que las bandas se recuerdan un minuto (24 ago 2026), la consulta
+       vive en `bandasSinCache`: la exportada solo envuelve con la caché. */
+    const bandas = tramo("async function bandasSinCache", "\n}\n");
     expect(parrilla).toContain("orderBy(...ordenPorRondas(semilla))");
     expect(bandas).toContain("orderBy(...ordenPorRondas(semilla))");
     expect(fuente).not.toContain("ABS(RANDOM())");
@@ -78,13 +77,12 @@ describe("el orden por rondas de vendedor", () => {
 
   it("el intercalado posterior va por FAMILIA (familiaDe), no por tienda", () => {
     const parrilla = tramo(
-      "export async function parrillaDeProductos",
+      "async function parrillaSinCache",
       "export type BandaDeDepartamento",
     );
-    const bandas = tramo(
-      "export async function bandasDeDepartamentos",
-      "\n}\n",
-    );
+    /* Desde que las bandas se recuerdan un minuto (24 ago 2026), la consulta
+       vive en `bandasSinCache`: la exportada solo envuelve con la caché. */
+    const bandas = tramo("async function bandasSinCache", "\n}\n");
     expect(parrilla).toContain("familiaDe,");
     expect(bandas).toContain("familiaDe,");
   });
@@ -183,5 +181,49 @@ describe("dónde se retira: sin depósito, la tienda", () => {
     expect(bloque).toContain('t("sinLugar")');
     /* lo de Estados Unidos no se retira: se despacha */
     expect(bloque).toContain(`=== "US") return null`);
+  });
+});
+
+/**
+ * LA CACHÉ DE LA PORTADA NO PUEDE ROMPER EL ORDEN (24 ago 2026).
+ *
+ * La primera tanda se recuerda un minuto y se ROTA en memoria con la semilla
+ * de la visita. La rotación mueve por dónde empieza; jamás agrupa por tienda
+ * —eso sería deshacer las rondas—. La primera versión ordenaba por familia y
+ * hacía justo eso: lo destapó la medición.
+ */
+describe("la caché de la portada", () => {
+  const fuente = readFileSync("src/lib/catalogo/consultas.ts", "utf8");
+
+  it("la primera tanda se recuerda con la semilla del día y se rota con la de la visita", () => {
+    const parrilla = fuente.slice(
+      fuente.indexOf("export async function parrillaDeProductos"),
+      fuente.indexOf("function rotarComienzo"),
+    );
+    expect(parrilla).toContain("recordado(");
+    expect(parrilla).toContain("semillaDelDia()");
+    expect(parrilla).toContain("rotarComienzo(base.productos, semilla)");
+    /* La llave lleva el mercado y la ciudad: sin eso, un dominio serviría el
+       catálogo de otro y una ciudad el de la de al lado. */
+    expect(parrilla).toContain("${mercado.codigo}");
+    expect(parrilla).toContain('(zona ?? []).join(",")');
+  });
+
+  it("la rotación NO reordena por familia: solo mueve el comienzo", () => {
+    const rotar = fuente.slice(
+      fuente.indexOf("function rotarComienzo"),
+      fuente.indexOf("async function parrillaSinCache"),
+    );
+    expect(rotar).toContain("slice(giro)");
+    expect(
+      rotar,
+      "volvió el sort por familia, que agrupa los productos de cada tienda",
+    ).not.toContain(".sort(");
+  });
+
+  it("las bandas y los videos de la portada también se recuerdan, con el mercado en la llave", () => {
+    expect(fuente).toContain("portada-bandas-${mercado.codigo}");
+    const videos = readFileSync("src/lib/videos/consultas.ts", "utf8");
+    expect(videos).toContain("videos-hilera-${mercado.codigo}");
   });
 });

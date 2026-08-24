@@ -1038,6 +1038,61 @@ export async function parrillaDeProductos(
   porPagina = 24,
   zona?: string[],
 ) {
+  /**
+   * LA PRIMERA TANDA SE RECUERDA UN MINUTO (24 ago 2026).
+   *
+   * Es la que abre la portada —la que pagaba TODO el mundo— y la consulta
+   * lleva funciones de ventana sobre el catálogo entero. Se guarda con el
+   * orden del DÍA (semilla estable) y se ROTA EN MEMORIA con la semilla de la
+   * visita, así la portada sigue moviéndose entre visitas sin volver a
+   * consultar. Las páginas siguientes (la parrilla infinita) no se recuerdan:
+   * las pide poca gente y con su propia semilla.
+   *
+   * La llave lleva el mercado y la ciudad, como manda `muro-cache`.
+   */
+  if (pagina === 1) {
+    const base = await recordado(
+      `portada-parrilla-${mercado.codigo}-${(zona ?? []).join(",")}-${porPagina}`,
+      60_000,
+      () => parrillaSinCache(mercado, semillaDelDia(), 1, porPagina, zona),
+    );
+    return { ...base, productos: rotarComienzo(base.productos, semilla) };
+  }
+  return parrillaSinCache(mercado, semilla, pagina, porPagina, zona);
+}
+
+/**
+ * Mueve el COMIENZO de la lista sin tocar su patrón.
+ *
+ * La lista ya viene intercalada (nunca más de dos de la misma familia
+ * seguidos), y ese patrón es cíclico: rotándola en bloques del tamaño de una
+ * ronda, una visita abre con una tienda y otra con otra, y el intercalado
+ * sigue intacto.
+ *
+ * **NO se puede reordenar por familia**: agruparía todos los productos de cada
+ * tienda uno detrás de otro, que es exactamente el problema que las rondas
+ * vinieron a arreglar. (Lo escribí así primero y lo destapó la propia
+ * medición.)
+ */
+function rotarComienzo(
+  productos: ProductoLista[],
+  semilla: number,
+): ProductoLista[] {
+  if (productos.length < 3) return productos;
+  const bloques = Math.floor(productos.length / PRODUCTOS_POR_RONDA);
+  if (bloques < 2) return productos;
+  const giro = (Math.abs(Math.trunc(semilla)) % bloques) * PRODUCTOS_POR_RONDA;
+  if (giro === 0) return productos;
+  return [...productos.slice(giro), ...productos.slice(0, giro)];
+}
+
+async function parrillaSinCache(
+  mercado: Mercado,
+  semilla: number,
+  pagina: number,
+  porPagina: number,
+  zona?: string[],
+) {
   const db = getDb();
   const foto = fotoDeTurno(semilla);
 
@@ -1207,6 +1262,33 @@ export async function bandasDeDepartamentos(
   porBanda = 21,
   zona?: string[],
   semilla: number = semillaDelDia(),
+): Promise<BandaDeDepartamento[]> {
+  /**
+   * SE RECUERDAN UN MINUTO (24 ago 2026). Son SEIS consultas con funciones de
+   * ventana, y el resultado es el mismo para todo el que entre desde la misma
+   * ciudad en ese minuto: la portada tardaba dos segundos en producción y esto
+   * es la mitad del trabajo. La llave lleva el MERCADO (regla del proyecto: un
+   * dominio no puede servir el catálogo de otro), el idioma y la ciudad.
+   *
+   * La semilla NO entra en la llave a propósito: cambia en cada visita y haría
+   * que no se recordara nunca. Lo que se mueve entre visitas es el orden de la
+   * parrilla de abajo, que sí la usa.
+   */
+  return recordado(
+    `portada-bandas-${mercado.codigo}-${idioma}-${(zona ?? []).join(",")}-${cuantasBandas}x${porBanda}`,
+    60_000,
+    () =>
+      bandasSinCache(mercado, idioma, cuantasBandas, porBanda, zona, semilla),
+  );
+}
+
+async function bandasSinCache(
+  mercado: Mercado,
+  idioma: string,
+  cuantasBandas: number,
+  porBanda: number,
+  zona: string[] | undefined,
+  semilla: number,
 ): Promise<BandaDeDepartamento[]> {
   const conProductos = (
     await listarDepartamentosDePortada(mercado, idioma, zona)

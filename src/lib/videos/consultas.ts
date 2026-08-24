@@ -1,5 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 
+import { recordado } from "@/lib/cachecito";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { getDb } from "@/lib/db";
 import { tiendas, videosTienda } from "@/lib/db/schema";
@@ -82,6 +83,25 @@ export async function videosParaHileras(
   semilla: number,
   limite = 24,
 ): Promise<VideoPublico[]> {
+  /* Se recuerdan un minuto: la lista es la misma para todo el que entre en ese
+     rato y la portada la pedía en cada visita. La llave lleva el MERCADO
+     (regla del proyecto) y el idioma; la semilla no, porque cambia por visita
+     — el orden se mueve rotando la lista ya traída. */
+  const lista = await recordado(
+    `videos-hilera-${mercado.codigo}-${idioma}-${limite}`,
+    60_000,
+    () => videosSinCache(mercado, idioma, limite),
+  );
+  if (lista.length < 2) return lista;
+  const giro = Math.abs(Math.trunc(semilla)) % lista.length;
+  return [...lista.slice(giro), ...lista.slice(0, giro)];
+}
+
+async function videosSinCache(
+  mercado: Mercado,
+  idioma: "es" | "en",
+  limite: number,
+): Promise<VideoPublico[]> {
   try {
     const filas = (await getDb()
       .select(COLUMNAS)
@@ -89,10 +109,12 @@ export async function videosParaHileras(
       .innerJoin(tiendas, eq(tiendas.id, videosTienda.tiendaId))
       .where(visibles(mercado))
       /* Los dos más nuevos de cada tienda primero (misma idea que las rondas
-         del catálogo), y las tiendas barajadas con la semilla de la visita. */
+         del catálogo). El orden de las tiendas se decide con la semilla DEL
+         DÍA para que la lista se pueda recordar; lo que cambia entre visitas
+         es por dónde empieza, y eso se hace rotando la lista ya traída. */
       .orderBy(
         sql`((ROW_NUMBER() OVER (PARTITION BY ${videosTienda.tiendaId} ORDER BY ${videosTienda.creadoEn} DESC) - 1) / 2)`,
-        sql`(tiendas.rowid * ${semilla}) % 104729`,
+        sql`(tiendas.rowid * ${sql.raw(String(semillaDelDia()))}) % 104729`,
         desc(videosTienda.creadoEn),
       )
       .limit(limite)) as Fila[];
@@ -220,4 +242,9 @@ export async function sumarVista(id: string) {
     .update(videosTienda)
     .set({ vistas: sql`${videosTienda.vistas} + 1` })
     .where(eq(videosTienda.id, id));
+}
+
+/** La semilla del día: estable, para que la lista se pueda recordar. */
+function semillaDelDia(): number {
+  return (Math.floor(Date.now() / 86_400_000) % 99_999) + 1;
 }

@@ -206,35 +206,20 @@ Las fases 1 a 4 del plan multi-país están hechas. Para operar de verdad falta:
       Uno por persona, el número sube al momento, y los comentarios se ocultan
       (no se borran) por quien los escribió, el comercio o el equipo.
 
-# BLOQUE 6b · QUE EL SITIO VUELE (rendimiento y caché)
+# BLOQUE 6b · QUE EL SITIO VUELE — ✅ LA PRIMERA VUELTA, HECHA (24 ago 2026)
 
-Lo pidió el dueño el 24 ago 2026 con dos capturas: _«se queda como tres
-segundos así esa pantalla»_ (la tienda dibujando esqueletos grises) y _«algunos
-videos se quedan pegados cuando le das play»_. No es un capricho de acabado:
-tres segundos en blanco en la ficha de una tienda es la persona que se va.
-
-- [ ] 🟠 💻 **Medir primero, con números.** Ficha de tienda, portada y ficha de
-      producto en el sitio publicado: qué tarda el servidor (TTFB), qué tarda
-      la base y qué tarda el borde. Sin esa medición cualquier arreglo es
-      adivinar. Hoy `/es` y las fichas van con `no-store`.
-- [ ] 🟠 💻 **La tienda tarda porque hace muchas consultas en fila** (tienda,
-      productos, envío, color, verificación, videos, banners…). Juntar las que
-      se puedan en un `Promise.all` y recordar un minuto lo que no cambia
-      (color, política de envío, verificación), con la llave por mercado como
-      manda `muro-cache`.
-- [ ] 🟠 💻 **Caché en el borde para lo público.** Portada, fichas de tienda y
-      de producto pueden servirse con `s-maxage` corto y `stale-while-revalidate`
-      sin mentirle a nadie: el precio y las existencias se releen al comprar.
-      Ojo con lo que lleva sesión y con el filtro por ciudad (va en cookie).
-- [ ] 🟠 💻 **Los videos que se quedan pegados al dar play.** `/media` ya sirve
-      por rangos (206), pero el archivo sale del bucket a través del worker en
-      cada trozo. Dos caminos a medir: cachear el objeto en el borde
-      (`cache-control` ya es `immutable`, falta que el borde lo guarde) o
-      publicar el bucket por su propio dominio. También: `preload="none"` en lo
-      que no se está viendo y arrancar el siguiente video un poco antes.
-- [ ] 🟡 💻 **El esqueleto gris que dura tres segundos.** Con la caché puesta
-      casi desaparece; lo que quede se arregla enseñando ya lo que se sabe
-      (nombre, portada, primeros productos) y dejando cargar lo de abajo.
+- [x] ✅ **Medido primero, con números** (portada ~2 s; ficha de tienda hasta
+      2,8 s en producción).
+- [x] ✅ **Bandas, primera tanda de la parrilla y videos de las hileras se
+      recuerdan un minuto**, con el mercado y la ciudad en la llave. La portada
+      sigue moviéndose porque la lista se rota en memoria.
+- [x] ✅ **La ficha de tienda hace sus cinco consultas a la vez.**
+- [x] ✅ **`/media` guarda lo público en la caché del borde** (los videos ya no
+      salen del bucket por el worker en cada trozo).
+- [ ] 🟡 💻 **Segunda vuelta, si hace falta:** medir otra vez en producción con
+      la caché puesta y, si la portada sigue por encima del segundo, servirla
+      desde el borde con `s-maxage` corto (ojo con la cookie de ciudad) o
+      publicar el bucket por su propio dominio.
 
 # BLOQUE 7 · DEUDA TÉCNICA ESCRITA
 

@@ -170,33 +170,42 @@ export default async function PaginaTienda({
 
   const avisoNoPublica = avisoDeFichaNoPublica(tienda.estado);
 
-  /* Cómo despacha. Un comercio sin fila devuelve "sin definir", que NO es lo
-     mismo que "no envía": es que todavía no lo dijo, y así se enseña. */
-  const envio = await politicaDeEnvio(tienda.id);
-  /* LOS VIDEOS DE ESTE COMERCIO (23 ago 2026): van arriba de sus productos.
-     Quien entra desde un Short quiere ver más de esa persona; y quien llega
-     de Google ve la tienda por dentro antes de decidir. */
-  const videosDelComercio = await videosDeTienda(
-    await mercadoDeLaPeticion(),
-    tienda.slug,
-    locale === "en" ? "en" : "es",
-    12,
-  );
-  const colorElegido = await colorGuardado(tienda.id);
-
-  /* EL SELLO VERDE SOLO LO LLEVA QUIEN LO GANÓ.
-     Antes se dibujaba siempre, a toda tienda. Con el registro abierto —donde
-     cualquiera abre tienda y vende desde el primer minuto— eso significaba
-     regalarle nuestro respaldo al primero que viniera a estafar. */
-  const conSello = luceElSello(await verificacionDe(tienda.id));
-  /* Los banners de la casa para esta parrilla: los de «todas las tiendas» y
-     los clavados a ESTA tienda. Sin banners activos no cambia nada. */
-  const bannersTienda = await bannersPara(
-    await mercadoDeLaPeticion(),
-    "tienda",
-    idioma,
-    tienda.id,
-  );
+  /**
+   * LAS CINCO CONSULTAS DE LA FICHA, A LA VEZ (24 ago 2026).
+   *
+   * Iban una detrás de otra y cada una es un viaje a la base: la ficha
+   * tardaba hasta 2,8 segundos en producción y la persona miraba un rectángulo
+   * gris. Ninguna depende de otra, así que van juntas y la ficha tarda lo que
+   * tarde la más lenta, no la suma.
+   *
+   * Cada una se cae sola: sin política de envío se enseña «aún no lo dijo»,
+   * sin videos no hay hilera, sin sello no hay sello. Un tropiezo de la base
+   * no puede dejar la tienda en blanco.
+   */
+  const mercadoDeLaFicha = await mercadoDeLaPeticion();
+  const [envio, videosDelComercio, colorElegido, verificacion, bannersTienda] =
+    await Promise.all([
+      /* Cómo despacha. Un comercio sin fila devuelve "sin definir", que NO es
+         lo mismo que "no envía": es que todavía no lo dijo, y así se enseña. */
+      politicaDeEnvio(tienda.id),
+      /* LOS VIDEOS DE ESTE COMERCIO (23 ago 2026): van arriba de sus
+         productos. Quien entra desde un Short quiere ver más de esa persona. */
+      videosDeTienda(
+        mercadoDeLaFicha,
+        tienda.slug,
+        locale === "en" ? "en" : "es",
+        12,
+      ),
+      colorGuardado(tienda.id),
+      /* EL SELLO VERDE SOLO LO LLEVA QUIEN LO GANÓ. Antes se dibujaba a toda
+         tienda, y con el registro abierto eso era regalarle nuestro respaldo
+         al primero que viniera a estafar. */
+      verificacionDe(tienda.id),
+      /* Los banners de la casa para esta parrilla: los de «todas las tiendas»
+         y los clavados a ESTA tienda. */
+      bannersPara(mercadoDeLaFicha, "tienda", idioma, tienda.id),
+    ]);
+  const conSello = luceElSello(verificacion);
   const cobertura =
     idioma === "en"
       ? (envio.coberturaEn ?? envio.coberturaEs)
