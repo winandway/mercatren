@@ -135,6 +135,17 @@ describe("los candados del enlace con PIN", () => {
     expect(videos).toContain("opciones?.comoEquipo");
   });
 
+  it("el subidor deja ELEGIR del carrete, no solo grabar", () => {
+    const subidor = readFileSync(
+      "src/components/secciones/subidor-movil.tsx",
+      "utf8",
+    );
+    /* `capture="environment"` abre la cámara directo y esconde la fototeca:
+       con quince videos ya grabados, la herramienta no servía para nada. */
+    expect(subidor).toContain('accept="video/*"');
+    expect(subidor).not.toContain('capture="environment"');
+  });
+
   it("la página del enlace NUNCA se indexa", () => {
     const pagina = readFileSync(
       "src/app/[locale]/subir/[llave]/page.tsx",

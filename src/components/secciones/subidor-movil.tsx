@@ -203,7 +203,14 @@ export function SubidorMovil({
             ref={entrada}
             type="file"
             accept="video/*"
-            capture="environment"
+            /* ══ SIN EL ATRIBUTO `capture`, Y ES LO QUE ARREGLA EL CASO REAL ══
+
+               Con `capture` puesto, el teléfono abre la cámara DIRECTO y
+               esconde el carrete: el dueño tenía quince videos ya grabados y
+               la herramienta solo le dejaba grabar uno nuevo. Sin el
+               atributo, iOS y Android enseñan el menú completo —«Fototeca»,
+               «Grabar video», «Elegir archivo»— y las dos cosas caben. El
+               botón ya decía «Grabar o elegir un video»; ahora es verdad. */
             onChange={alElegir}
             disabled={trabajando}
             className="sr-only"
