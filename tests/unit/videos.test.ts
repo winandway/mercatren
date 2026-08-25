@@ -384,3 +384,138 @@ describe("el video se encoge en el navegador antes de subirse (24 ago 2026)", ()
     expect(trozo).toContain("BUCKET.delete(video.clave)");
   });
 });
+
+describe("los videos se mezclan entre todos (25 ago 2026)", () => {
+  it("el visor ya NO pone primero todos los de la misma tienda", async () => {
+    const { readFileSync } = await import("node:fs");
+    const consultas = readFileSync("src/lib/videos/consultas.ts", "utf8");
+    /* Eso era exactamente el fallo: abrías un video de la ferretería y los
+       diez siguientes eran de la ferretería. */
+    expect(consultas).not.toContain(
+      "CASE WHEN ${tiendas.slug} = ${actual.tiendaSlug}",
+    );
+    /* Y las dos consultas —hileras y visor— reparten por rondas de tienda. */
+    expect(
+      consultas.match(
+        /ROW_NUMBER\(\) OVER \(PARTITION BY \$\{videosTienda\.tiendaId\}/g,
+      )?.length,
+    ).toBe(2);
+  });
+
+  it("las dos listas se reparten entre tiendas después de consultar", async () => {
+    const { readFileSync } = await import("node:fs");
+    const consultas = readFileSync("src/lib/videos/consultas.ts", "utf8");
+    expect(consultas.match(/repartirEntreTiendas\(/g)?.length).toBe(2);
+  });
+
+  it("la ronda del SQL y el intercalado cuentan LO MISMO", async () => {
+    const { VIDEOS_POR_RONDA } = await import("@/lib/videos/reglas");
+    const { MAXIMO_SEGUIDOS } = await import("@/lib/catalogo/intercalar");
+    /* Si uno dijera 2 y el otro 3, el intercalado desharía lo que hizo la
+       ronda y volverían las rachas. */
+    expect(VIDEOS_POR_RONDA).toBe(MAXIMO_SEGUIDOS);
+  });
+
+  it("con cinco videos de cada comercio, nunca salen más de dos seguidos", async () => {
+    const { repartirEntreTiendas } = await import("@/lib/videos/reglas");
+    /* El caso que describió el dueño: un comercio sube cinco de golpe. */
+    const lista = [
+      ...Array.from({ length: 5 }, (_, i) => ({
+        id: `a${i}`,
+        tienda: "ferreteria",
+      })),
+      ...Array.from({ length: 5 }, (_, i) => ({
+        id: `b${i}`,
+        tienda: "mercatren",
+      })),
+      ...Array.from({ length: 5 }, (_, i) => ({
+        id: `c${i}`,
+        tienda: "megayes",
+      })),
+    ];
+    const mezclado = repartirEntreTiendas(lista, (v) => v.tienda, 7);
+
+    let seguidos = 1;
+    let peor = 1;
+    for (let i = 1; i < mezclado.length; i++) {
+      seguidos =
+        mezclado[i]!.tienda === mezclado[i - 1]!.tienda ? seguidos + 1 : 1;
+      peor = Math.max(peor, seguidos);
+    }
+    expect(peor).toBeLessThanOrEqual(2);
+    /* Y están TODOS: mezclar no puede perder el video de nadie. */
+    expect(mezclado).toHaveLength(15);
+    expect(new Set(mezclado.map((v) => v.id)).size).toBe(15);
+  });
+});
+
+describe("el reparto entre tiendas, en detalle", () => {
+  const conTiendas = (cuantos: Record<string, number>) =>
+    Object.entries(cuantos).flatMap(([t, n]) =>
+      Array.from({ length: n }, (_, i) => ({ id: `${t}${i}`, t })),
+    );
+  const peorRacha = (lista: { t: string }[]) => {
+    let seguidos = 1;
+    let peor = 1;
+    for (let i = 1; i < lista.length; i++) {
+      seguidos = lista[i]!.t === lista[i - 1]!.t ? seguidos + 1 : 1;
+      peor = Math.max(peor, seguidos);
+    }
+    return peor;
+  };
+
+  it("el comercio que sube su PRIMER video sale en la primera vuelta", async () => {
+    const { repartirEntreTiendas } = await import("@/lib/videos/reglas");
+    /* Es la mitad del asunto: sin esto, quien sube uno queda sepultado bajo
+       los cincuenta del que lleva meses y no aparece nunca. */
+    const lista = conTiendas({ viejo: 50, nuevo: 1 });
+    const r = repartirEntreTiendas(lista, (v) => v.t, 3);
+    const donde = r.findIndex((v) => v.t === "nuevo");
+    expect(donde).toBeGreaterThanOrEqual(0);
+    expect(donde).toBeLessThanOrEqual(2);
+  });
+
+  it("dentro de cada comercio se conserva el orden que traía", async () => {
+    const { repartirEntreTiendas } = await import("@/lib/videos/reglas");
+    const lista = conTiendas({ A: 4, B: 4 });
+    const r = repartirEntreTiendas(lista, (v) => v.t, 5);
+    expect(r.filter((v) => v.t === "A").map((v) => v.id)).toEqual([
+      "A0",
+      "A1",
+      "A2",
+      "A3",
+    ]);
+  });
+
+  it("cuando un comercio se queda sin videos, el resto sigue de corrido", async () => {
+    const { repartirEntreTiendas } = await import("@/lib/videos/reglas");
+    /* La garantía NO es «nunca más de dos»: es «nunca más de dos mientras
+       quede de otro». Dejar huecos para cumplir la racha sería enseñar menos
+       videos de los que hay. */
+    const r = repartirEntreTiendas(conTiendas({ A: 8, B: 1 }), (v) => v.t, 1);
+    expect(r).toHaveLength(9);
+    expect(new Set(r.map((v) => v.id)).size).toBe(9);
+  });
+
+  it("con un solo comercio no toca nada, y con lista corta tampoco", async () => {
+    const { repartirEntreTiendas } = await import("@/lib/videos/reglas");
+    const solo = conTiendas({ A: 5 });
+    expect(repartirEntreTiendas(solo, (v) => v.t, 1)).toEqual(solo);
+    const corta = conTiendas({ A: 1, B: 1 });
+    expect(repartirEntreTiendas(corta, (v) => v.t, 1)).toEqual(corta);
+  });
+
+  it("la semilla cambia qué comercio abre, sin perder la garantía", async () => {
+    const { repartirEntreTiendas } = await import("@/lib/videos/reglas");
+    const lista = conTiendas({ ferreteria: 5, mercatren: 5, megayes: 5 });
+    const aperturas = new Set<string>();
+    for (const semilla of [1, 2, 3, 7, 11, 42, 99]) {
+      const r = repartirEntreTiendas(lista, (v) => v.t, semilla);
+      expect(peorRacha(r), `semilla ${semilla}`).toBeLessThanOrEqual(2);
+      expect(r).toHaveLength(15);
+      aperturas.add(r[0]!.t);
+    }
+    /* Si siempre abriera el mismo, la portada se vería igual cada día. */
+    expect(aperturas.size).toBeGreaterThan(1);
+  });
+});

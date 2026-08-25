@@ -1,6 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 
 import { recordadoEnElBorde } from "@/lib/cachecito";
+import { repartirEntreTiendas, VIDEOS_POR_RONDA } from "@/lib/videos/reglas";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { getDb } from "@/lib/db";
 import { tiendas, videosTienda } from "@/lib/db/schema";
@@ -119,12 +120,16 @@ async function videosSinCache(
          DÍA para que la lista se pueda recordar; lo que cambia entre visitas
          es por dónde empieza, y eso se hace rotando la lista ya traída. */
       .orderBy(
-        sql`((ROW_NUMBER() OVER (PARTITION BY ${videosTienda.tiendaId} ORDER BY ${videosTienda.creadoEn} DESC) - 1) / 2)`,
+        sql`((ROW_NUMBER() OVER (PARTITION BY ${videosTienda.tiendaId} ORDER BY ${videosTienda.creadoEn} DESC) - 1) / ${sql.raw(String(VIDEOS_POR_RONDA))})`,
         sql`(tiendas.rowid * ${sql.raw(String(semillaDelDia()))}) % 104729`,
         desc(videosTienda.creadoEn),
       )
       .limit(limite)) as Fila[];
-    return filas.map((f) => aPublico(f, idioma));
+    return repartirEntreTiendas(
+      filas.map((f) => aPublico(f, idioma)),
+      (v) => v.tiendaId,
+      semillaDelDia(),
+    );
   } catch (e) {
     console.error("[videos] no se pudieron leer para la portada:", e);
     return [];
@@ -190,12 +195,31 @@ export async function siguientesEnElVisor(
       .from(videosTienda)
       .innerJoin(tiendas, eq(tiendas.id, videosTienda.tiendaId))
       .where(and(visibles(mercado), sql`${videosTienda.id} <> ${actual.id}`))
+      /* ══ EL «SIGUIENTE Y SIGUIENTE» ERA DE UNA SOLA TIENDA (25 ago 2026) ══
+
+         Antes esto ordenaba `CASE WHEN tienda = la del actual THEN 0`, o sea
+         que ponía TODOS los videos de ese comercio primero: abrías uno de la
+         ferretería y los diez siguientes eran de la ferretería. Con dos
+         comercios no se nota; con veinte, quien entra a mirar ve siempre a la
+         misma persona y se va.
+
+         Ahora se reparte por rondas —los más nuevos de CADA tienda primero—,
+         igual que el catálogo, y las tiendas se barajan con la semilla del
+         día para que no mande siempre la misma. */
       .orderBy(
-        sql`CASE WHEN ${tiendas.slug} = ${actual.tiendaSlug} THEN 0 ELSE 1 END`,
+        sql`((ROW_NUMBER() OVER (PARTITION BY ${videosTienda.tiendaId} ORDER BY ${videosTienda.creadoEn} DESC) - 1) / ${sql.raw(String(VIDEOS_POR_RONDA))})`,
+        sql`(tiendas.rowid * ${sql.raw(String(semillaDelDia()))}) % 104729`,
         desc(videosTienda.creadoEn),
       )
       .limit(limite)) as Fila[];
-    return filas.map((f) => aPublico(f, idioma));
+    /* Y se intercala DESPUÉS de consultar: el SQL reparte por rondas, pero
+       dentro de una ronda pueden quedar dos del mismo comercio pegados al
+       corte. Esto lo cose sin rehacer el orden. */
+    return repartirEntreTiendas(
+      filas.map((f) => aPublico(f, idioma)),
+      (v) => v.tiendaId,
+      semillaDelDia(),
+    );
   } catch (e) {
     console.error("[videos] no se pudieron leer los siguientes:", e);
     return [];

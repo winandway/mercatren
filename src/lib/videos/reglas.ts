@@ -172,3 +172,120 @@ export function repartirHileras<T>(
   }
   return trozos;
 }
+
+/**
+ * CUÁNTOS VIDEOS SEGUIDOS PUEDE PONER UNA MISMA TIENDA (25 ago 2026).
+ *
+ * Lo pidió el dueño en cuanto empezaron a entrar videos de verdad: «que no
+ * salgan 5 videos seguidos de una sola persona, sino que se mezclen entre
+ * todos». Con dos comercios no se nota; con veinte, quien entra a mirar ve
+ * siempre a la misma persona y se va — y el comercio que sube su primer video
+ * no aparece nunca.
+ *
+ * Es el mismo número que `MAXIMO_SEGUIDOS` del catálogo a propósito: la ronda
+ * del SQL y el intercalado de después tienen que contar lo mismo, o uno
+ * deshace lo que hizo el otro.
+ */
+export const VIDEOS_POR_RONDA = 2;
+
+/**
+ * REPARTIR LOS VIDEOS ENTRE TODOS LOS COMERCIOS (25 ago 2026).
+ *
+ * Lo pidió el dueño en cuanto entraron videos de verdad: «que no salgan 5
+ * videos seguidos de una sola persona, sino que se mezclen entre todos».
+ *
+ * ══ POR QUÉ NO SE USA `intercalarPorTienda` DEL CATÁLOGO ══
+ *
+ * Aquella respeta el orden que traía la lista y solo salta de tienda cuando
+ * la racha se pasa: sirve para el catálogo, donde el SQL ya reparte por
+ * rondas. Medido con una lista agrupada (cinco de cada comercio seguidos)
+ * devuelve `A A B A A B A B B C B C C C C` — **cuatro seguidos, y el tercer
+ * comercio no aparece hasta la novena posición**. Es justo el fallo que hay
+ * que evitar.
+ *
+ * Esto es un reparto por turnos: se toma de cada comercio por vuelta, hasta
+ * `VIDEOS_POR_RONDA` cada vez. Así el que sube su primer video sale en la
+ * primera vuelta, al lado del que lleva cincuenta.
+ *
+ * ══ LO QUE SE CONSERVA ══
+ *
+ * - **Dentro de cada comercio, el orden que traía** (lo más nuevo primero).
+ * - **Están todos**: repartir no puede perder el video de nadie.
+ * - **El orden ENTRE comercios lo decide la semilla**, no el alfabeto ni el
+ *   id: si no, la misma tienda abriría la lista siempre.
+ * - **Cuando un comercio se queda sin videos, el resto sigue de corrido.** No
+ *   se dejan huecos: es preferible una racha al final que una parrilla con
+ *   menos videos de los que hay.
+ */
+export function repartirEntreTiendas<T>(
+  lista: T[],
+  tiendaDe: (item: T) => string,
+  semilla = 0,
+  porVuelta = VIDEOS_POR_RONDA,
+): T[] {
+  if (lista.length < 3) return lista;
+
+  const colas = new Map<string, T[]>();
+  for (const item of lista) {
+    const tienda = tiendaDe(item);
+    const cola = colas.get(tienda);
+    if (cola) cola.push(item);
+    else colas.set(tienda, [item]);
+  }
+  if (colas.size < 2) return lista;
+
+  /* El orden de las tiendas: se baraja con la semilla para que no abra
+     siempre la misma. Es determinista — la misma semilla da el mismo orden,
+     que es lo que permite recordar la lista. */
+  const tiendas = [...colas.keys()].sort((a, b) => {
+    const pa = huella(a, semilla);
+    const pb = huella(b, semilla);
+    return pa === pb ? a.localeCompare(b) : pa - pb;
+  });
+
+  const salida: T[] = [];
+  while (salida.length < lista.length) {
+    let sacoAlguno = false;
+    for (const tienda of tiendas) {
+      const cola = colas.get(tienda);
+      if (!cola || cola.length === 0) continue;
+      for (let i = 0; i < porVuelta && cola.length > 0; i++) {
+        salida.push(cola.shift() as T);
+      }
+      sacoAlguno = true;
+    }
+    /* Nadie tenía nada: se acabó. Sin esto, una cola vacía haría un bucle
+       infinito y la portada se quedaría en blanco. */
+    if (!sacoAlguno) break;
+  }
+  return salida;
+}
+
+/**
+ * Un número estable a partir del nombre de la tienda y la semilla.
+ *
+ * ══ POR QUÉ TANTA MEZCLA PARA ALGO TAN CHICO ══
+ *
+ * Los dos intentos simples fallaron, y los dos se vieron probándolo:
+ *
+ * 1. Sumar la semilla al empezar: el orden acababa decidiéndolo el nombre y
+ *    las tiendas salían siempre alfabéticas.
+ * 2. Multiplicar por la semilla al final: los hashes de dos nombres parecidos
+ *    quedan casi consecutivos, y multiplicarlos por un número pequeño
+ *    **conserva el orden** — con semillas del día normales, nunca cambiaba.
+ *
+ * Lo que sí baraja es mezclar los BITS (FNV-1a y luego el mezclador de
+ * splitmix32): dos entradas parecidas dan resultados sin relación. Sigue
+ * siendo determinista, que es lo que permite recordar la lista un minuto.
+ */
+function huella(texto: string, semilla: number): number {
+  let n = 2_166_136_261;
+  for (let i = 0; i < texto.length; i++) {
+    n = Math.imul(n ^ texto.charCodeAt(i), 16_777_619);
+  }
+  let x =
+    (n ^ Math.imul(Math.abs(Math.trunc(semilla)) + 1, 2_654_435_761)) >>> 0;
+  x = Math.imul(x ^ (x >>> 16), 2_246_822_507) >>> 0;
+  x = Math.imul(x ^ (x >>> 13), 3_266_489_909) >>> 0;
+  return (x ^ (x >>> 16)) >>> 0;
+}

@@ -3154,6 +3154,52 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## LOS VIDEOS SE MEZCLAN ENTRE TODOS LOS COMERCIOS (25 ago 2026)
+
+Lo pidió el dueño en cuanto entraron videos de verdad: _«que no salgan 5
+videos seguidos de una sola persona, sino que se mezclen entre todos»_.
+
+**EL FALLO GORDO ESTABA EN EL VISOR.** `siguientesEnElVisor` ordenaba
+`CASE WHEN tienda = la del actual THEN 0 ELSE 1`: abrías un video de la
+ferretería y **los siguientes eran todos de la ferretería**. Medido con tres
+comercios de cinco videos cada uno, el orden viejo daba `F F F F 2 3 2 3…` y
+el nuevo `2 3 F 2 3 F…`. Con dos comercios no se nota; con veinte, quien entra
+a mirar ve siempre a la misma persona y se va.
+
+**`repartirEntreTiendas()`** (`videos/reglas.ts`, puro, con pruebas) reparte
+por turnos: hasta `VIDEOS_POR_RONDA` (2) de cada comercio por vuelta. Va en
+las hileras/parrilla **y** en el «siguiente y siguiente» del visor, y el SQL
+además pide por rondas para que el `LIMIT` traiga variedad y no los primeros
+sesenta de un solo comercio.
+
+**NO se reusó `intercalarPorTienda` del catálogo, y se vio probándolo.**
+Aquella respeta el orden que traía la lista y solo salta cuando la racha se
+pasa — con una lista agrupada (cinco de cada comercio seguidos) devuelve
+`A A B A A B A B B C B C C C C`: **cuatro seguidos, y el tercer comercio no
+aparece hasta la novena posición**. Sirve para el catálogo, donde el SQL ya
+reparte; aquí no.
+
+Cinco reglas que no se tocan:
+
+1. **El que sube su PRIMER video sale en la primera vuelta**, al lado del que
+   lleva cincuenta. Es la mitad del asunto: sin eso, el comercio nuevo queda
+   sepultado y no aparece nunca.
+2. **Dentro de cada comercio se conserva el orden** (lo más nuevo primero).
+3. **Están todos**: repartir no puede perder el video de nadie.
+4. **Cuando un comercio se queda sin videos, el resto sigue de corrido.** La
+   garantía no es «nunca más de dos», es «nunca más de dos mientras quede de
+   otro» — dejar huecos sería enseñar menos videos de los que hay.
+5. **La semilla MEZCLA BITS, no suma ni multiplica.** Los dos intentos simples
+   fallaron y los dos se vieron probándolos: sumar la semilla al empezar dejaba
+   el orden alfabético, y multiplicarla al final **conserva el orden** cuando
+   los hashes quedan casi consecutivos — con semillas del día normales, nunca
+   cambiaba. Con FNV-1a + el mezclador de splitmix32 sí baraja, y sigue siendo
+   determinista (que es lo que permite recordar la lista un minuto).
+
+Comprobado en el navegador con tres comercios de cinco videos: parrilla
+`3 2 F 3 2 2 F F 3 3 2 2 F F 3` y visor `3 2 2 F F 3 3 2 2 F F 3 3` — racha
+máxima 2 en los dos, sin perder ninguno.
+
 ## LAS SECCIONES DE VIDEO DE MERCATREN Y EL ENLACE CON PIN (24 ago 2026)
 
 Lo pidió el dueño: una sección propia, **«Tu Próximo Producto Ganador»**, con
