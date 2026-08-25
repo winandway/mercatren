@@ -27,6 +27,9 @@ export type VideoConSocial = VideoPublico & {
   corazones: number;
   meGusta: boolean;
   comentarios: number;
+  /** Si el video es de una sección de Mercatren, su nombre. */
+  seccionNombre?: string | null;
+  seccionSlug?: string | null;
 };
 
 /**
@@ -60,6 +63,7 @@ export function VisorVideos({
   comentariosDelPrimero?: ComentarioPublico[];
 }) {
   const t = useTranslations("videos");
+  const tSec = useTranslations("secciones");
   const [sonido, setSonido] = useState(false);
   const [actual, setActual] = useState(0);
   const [pausado, setPausado] = useState(false);
@@ -319,11 +323,21 @@ export function VisorVideos({
             {/* Abajo: quién lo subió, el título y el botón que lleva a su tienda. */}
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pb-6">
               <div className="mx-auto max-w-lg">
+                {/* ══ UN VIDEO DE SECCIÓN NO LLEVA A NINGUNA TIENDA ══
+
+                    Es lo que define una sección de Mercatren: la
+                    recomendación es nuestra y neutra. En cuanto empuja a un
+                    comercio concreto deja de ser recomendación y pasa a ser
+                    publicidad de ese comercio — y quien la mira lo nota. */}
                 <Link
-                  href={`/tienda/${v.tiendaSlug}`}
+                  href={
+                    v.seccionSlug
+                      ? `/seccion/${v.seccionSlug}`
+                      : `/tienda/${v.tiendaSlug}`
+                  }
                   className="pointer-events-auto text-sm font-semibold text-white/85 hover:text-white"
                 >
-                  {v.tiendaNombre}
+                  {v.seccionNombre || v.tiendaNombre}
                 </Link>
                 <p className="mt-1 text-base font-bold text-white">
                   {v.titulo}
@@ -334,11 +348,13 @@ export function VisorVideos({
                   </p>
                 ) : null}
                 <Link
-                  href={`/tienda/${v.tiendaSlug}`}
+                  href={v.seccionSlug ? "/catalogo" : `/tienda/${v.tiendaSlug}`}
                   className="pointer-events-auto mt-3 inline-flex items-center gap-2 rounded-full bg-carga-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-carga-600"
                 >
                   <Store className="h-4 w-4" aria-hidden />
-                  {t("visor.entraEnMiTienda")}
+                  {v.seccionSlug
+                    ? tSec("verEnMercatren")
+                    : t("visor.entraEnMiTienda")}
                 </Link>
               </div>
             </div>

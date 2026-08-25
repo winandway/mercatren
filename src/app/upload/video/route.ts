@@ -1,5 +1,6 @@
 import {
   reemplazarArchivoDeVideo,
+  subirVideoDeSeccion,
   subirVideoDeTienda,
 } from "@/lib/videos/acciones";
 
@@ -22,9 +23,14 @@ export async function POST(peticion: Request) {
     const formulario = await peticion.formData();
     /* Con `videoId` es un reemplazo (aligerar un video ya subido); sin él,
        una subida nueva. La misma puerta porque las dos necesitan la barra. */
+    /* Tres caminos por la misma puerta, porque los tres necesitan la barra de
+       avance: reemplazar un archivo (aligerar), subir a una sección de
+       Mercatren desde su enlace con PIN, o la subida normal de un comercio. */
     const r = formulario.get("videoId")
       ? await reemplazarArchivoDeVideo(formulario)
-      : await subirVideoDeTienda(formulario);
+      : formulario.get("llave")
+        ? await subirVideoDeSeccion(formulario)
+        : await subirVideoDeTienda(formulario);
     return Response.json(r, { status: r.ok ? 200 : 400 });
   } catch (e) {
     console.error("[upload/video] no se pudo procesar:", e);

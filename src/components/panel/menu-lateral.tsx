@@ -166,6 +166,15 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         Icono: Megaphone,
         soloInterno: true,
       },
+      /* LOS CANALES DE VIDEO DE MERCATREN («Tu Próximo Producto Ganador» y
+         los que vengan). Cada uno tiene su enlace con PIN para subir desde el
+         celular, y esas llaves solo las ve el equipo. */
+      {
+        href: "/panel/secciones",
+        clave: "secciones",
+        Icono: Clapperboard,
+        soloInterno: true,
+      },
     ],
   },
 ];

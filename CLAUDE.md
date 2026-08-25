@@ -3154,6 +3154,73 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## LAS SECCIONES DE VIDEO DE MERCATREN Y EL ENLACE CON PIN (24 ago 2026)
+
+Lo pidió el dueño: una sección propia, **«Tu Próximo Producto Ganador»**, con
+videos que graba él en los almacenes que trabajan con nosotros recomendando
+productos que se están vendiendo. Tiene quince listos y va a haber muchas
+secciones más.
+
+**LO QUE LAS DEFINE ES QUE SON NEUTRAS.** Un video de sección **no lleva a la
+tienda de nadie**: lleva al catálogo de Mercatren. No es cortesía — es lo que
+hace que la recomendación valga. En cuanto un video de «producto ganador»
+empuja a un comercio concreto deja de ser una recomendación y pasa a ser
+publicidad pagada de ese comercio, y quien la mira lo nota. La regla vive en
+`destinoDelVideo()` (`secciones/reglas.ts`, puro, con pruebas) y no en un `if`
+suelto dentro del visor.
+
+**Cómo está armado.** Dos tablas nuevas —`secciones_video` y el puente
+`videos_de_seccion`— y **ni una línea duplicada del visor**: el video sigue
+siendo un video normal en `videos_tienda`, así que hereda el visor, los
+corazones, los comentarios, la compresión en el navegador, las vistas y la
+ventana de precarga. La tienda contenedora (`tienda-mercatren-secciones`) se
+crea sola la primera vez, como la del catálogo de EE. UU.: `tienda_id` es
+obligatorio y tiene llave foránea, así que un video de Mercatren necesita una
+tienda igual que uno de un comercio — pero **no se enseña como tienda**.
+
+**EL ENLACE ES LA HERRAMIENTA.** `/subir/<llave>` se abre en el celular y
+**es** la aplicación de subida: sin cuenta, sin login, sin panel. Se manda por
+WhatsApp al teléfono con el que se va a grabar. Dos capas: la llave (24 bytes
+al azar) y un **PIN de cuatro dígitos**.
+
+Ocho cosas que no se tocan:
+
+1. **El PIN se comprueba en el SERVIDOR**, con el mismo límite de intentos del
+   login. Cuatro dígitos son diez mil combinaciones: sin límite, una máquina
+   las prueba todas — y detrás hay una puerta que sube archivos.
+2. **Se guarda con PBKDF2 y su sal**, nunca en claro, y la comparación no
+   corta al primer dígito distinto: el tiempo que tardara en decir «no»
+   revelaría cuántos acertó.
+3. **A una llave que no existe se le da 404**, igual que a cualquier dirección
+   inventada. Un «esa sección no existe» convertiría el enlace en un detector
+   de llaves válidas.
+4. **PINES obvios rechazados** (`1234`, `0000`, `4321`…). Con `1234` puesto,
+   la segunda capa no existe.
+5. **El pase se recuerda 30 días en ESE teléfono**, en cookie `httpOnly`, y
+   **muere solo si se cambia el PIN**. Subir quince videos tecleando el PIN
+   cada vez es un castigo, no una herramienta.
+6. **La página del enlace NUNCA se indexa.** Si Google guardara una de estas
+   direcciones, la llave dejaría de ser un secreto para siempre.
+7. **`comoEquipo` va explícita y por defecto en `false`** en la subida: si
+   alguien la olvida, la puerta se queda cerrada; al revés, el olvido la
+   abriría — que es el fallo caro.
+8. **Crear secciones y ver sus llaves es solo de `esSoporteDeVerdad()`**: con
+   el disfraz de «ver su panel» no se crean canales de Mercatren.
+
+**Y UN FALLO DE REACT 19 QUE DESTAPÓ ESTA PANTALLA, y que vale para todo el
+proyecto:** un `<form action={fn}>` **se resetea después de cada acción,
+también cuando falla**. Escribir el nombre, las dos descripciones y el PIN,
+equivocarse en el PIN y perderlo todo es exactamente la queja que dio origen a
+`FormularioPersistente`. El formulario va con `onSubmit` + `preventDefault` +
+`new FormData(...)` a mano, y solo se limpia al guardar bien. Comprobado en
+pantalla: con el PIN malo, lo escrito se queda.
+
+Comprobado de punta a punta: soporte crea la sección (rechazando `1234`), el
+enlace se copia, se abre en un iPhone simulado, un PIN malo se rechaza, el
+bueno entra, el video se comprime y se sube, el subidor queda listo para el
+siguiente con «Llevas 1 subidos», y la página pública `/seccion/<slug>`
+responde 200 sin sesión con el video dentro.
+
 ## NADIE ESPERA A QUE LO APRUEBEN: EL ALTA ES INMEDIATA (24 ago 2026)
 
 Al dueño le llegó un correo del sistema pidiéndole entrar a «verificar» a

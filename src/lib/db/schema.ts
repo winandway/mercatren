@@ -2996,3 +2996,90 @@ export const webhooksTienda = sqliteTable("webhooks_tienda", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * LAS SECCIONES DE VIDEO DE MERCATREN (24 ago 2026).
+ *
+ * La primera es «Tu Próximo Producto Ganador»: el dueño va a los almacenes que
+ * trabajan con nosotros y graba recomendaciones de productos que pueden
+ * venderse bien. Habrá muchas más.
+ *
+ * ══ SON NEUTRAS, Y ESO ES LO QUE LAS DEFINE ══
+ *
+ * Un video de una sección **no lleva a la tienda de nadie**: lleva a
+ * Mercatren. No es cortesía — es lo que hace que la recomendación valga. En
+ * cuanto un video de «producto ganador» empuja a un comercio concreto deja de
+ * ser una recomendación y pasa a ser publicidad pagada de ese comercio, y el
+ * que la mira lo nota.
+ *
+ * ══ EL ENLACE QUE ES LA HERRAMIENTA ══
+ *
+ * `llaveSubida` es un secreto largo e inadivinable: con él se arma
+ * `/subir/<llave>`, que se abre en el celular y **es** la herramienta de
+ * subida — sin cuenta, sin login, desde un almacén y con una mano. El `pin`
+ * de cuatro dígitos es la segunda capa, y se comprueba SIEMPRE en el
+ * servidor: un PIN validado en el navegador no es un PIN.
+ *
+ * El PIN se guarda derivado con PBKDF2 y su propia sal, nunca en claro. Con
+ * solo diez mil combinaciones posibles, lo que de verdad lo protege es el
+ * límite de intentos — pero guardarlo en claro sería regalar la llave a
+ * cualquiera que lea una copia de la base.
+ */
+export const seccionesVideo = sqliteTable(
+  "secciones_video",
+  {
+    id: text("id").primaryKey(),
+    /** La dirección pública: /seccion/<slug>. No se cambia una vez publicada. */
+    slug: text("slug").notNull().unique(),
+    nombreEs: text("nombre_es").notNull(),
+    nombreEn: text("nombre_en"),
+    descripcionEs: text("descripcion_es"),
+    descripcionEn: text("descripcion_en"),
+    /** El secreto del enlace de subida. Largo a propósito: es la llave. */
+    llaveSubida: text("llave_subida").notNull().unique(),
+    /** PBKDF2 del PIN de 4 dígitos, en hexadecimal. */
+    pinHash: text("pin_hash"),
+    pinSal: text("pin_sal"),
+    /** `publicada` o `borrador`. */
+    estado: text("estado").notNull().default("publicada"),
+    mercado: text("mercado").notNull().default("US"),
+    /** Menor primero, para ordenar las secciones entre sí. */
+    orden: integer("orden").notNull().default(0),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_secciones_video_mercado").on(t.mercado, t.estado)],
+);
+
+/**
+ * QUÉ VIDEO PERTENECE A QUÉ SECCIÓN.
+ *
+ * Tabla puente y NO una columna en `videos_tienda`, por las dos razones de
+ * siempre: `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS` y una columna
+ * nueva no llegaría sola a producción; y así el video sigue siendo un video
+ * normal —con su visor, sus corazones, sus comentarios, su compresión y sus
+ * vistas— sin duplicar ni una línea de todo eso.
+ */
+export const videosDeSeccion = sqliteTable(
+  "videos_de_seccion",
+  {
+    seccionId: text("seccion_id")
+      .notNull()
+      .references(() => seccionesVideo.id, { onDelete: "cascade" }),
+    videoId: text("video_id")
+      .notNull()
+      .references(() => videosTienda.id, { onDelete: "cascade" }),
+    orden: integer("orden").notNull().default(0),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.seccionId, t.videoId] }),
+    index("idx_videos_de_seccion").on(t.videoId),
+  ],
+);

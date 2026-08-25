@@ -131,6 +131,12 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 💰 **Cloudflare Stream si el sitio crece** (streaming adaptativo como
       YouTube): $5/1.000 min almacenados + $1/1.000 min entregados. Decisión
       de gasto del dueño; hoy no hace falta.
+- [x] ✅ **Sección «Tu Próximo Producto Ganador»** (24 ago): videos neutros de
+      Mercatren que llevan al catálogo, con su página propia y su enlace con
+      PIN para subir desde el celular.
+- [ ] 👤 **Crear la sección en producción y subir los 15 videos**: Panel →
+      Secciones de video → Nueva sección, copiar el enlace, mandárselo por
+      WhatsApp al teléfono con el que se graba.
 - [ ] 🟡 💻 **Las señales también en las bandas de PRODUCTOS de la portada**
       (después de la caché, reordenar sin filtrar — igual que los videos).
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el

@@ -13,6 +13,7 @@ import { useRef, useState } from "react";
 
 import { Campo } from "@/components/ui/campo";
 import { comprimirVideo } from "@/lib/videos/comprimir-video";
+import { subirConAvance } from "@/lib/videos/subir-con-avance";
 import {
   DURACION_MAXIMA_SEGUNDOS,
   DURACION_MINIMA_SEGUNDOS,
@@ -387,33 +388,4 @@ export function SubirVideo({ tiendaId }: { tiendaId?: string }) {
       )}
     </form>
   );
-}
-
-function subirConAvance(
-  datos: FormData,
-  avanzar: (pct: number) => void,
-  errorDeRed: string,
-): Promise<
-  { ok: true; mensaje: string; slug: string } | { ok: false; mensaje: string }
-> {
-  return new Promise((resolver, fallar) => {
-    const peticion = new XMLHttpRequest();
-    peticion.open("POST", "/upload/video");
-    peticion.upload.onprogress = (e) => {
-      if (e.lengthComputable) avanzar(Math.round((e.loaded / e.total) * 100));
-    };
-    peticion.onload = () => {
-      try {
-        resolver(JSON.parse(peticion.responseText));
-      } catch {
-        fallar(
-          new Error(
-            peticion.responseText.slice(0, 200) || `HTTP ${peticion.status}`,
-          ),
-        );
-      }
-    };
-    peticion.onerror = () => fallar(new Error(errorDeRed));
-    peticion.send(datos);
-  });
 }

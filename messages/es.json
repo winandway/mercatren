@@ -380,7 +380,8 @@
       "ordenesCompraComercio": "Mis facturas a Mercatren",
       "catalogoUsa": "Catálogo de EE. UU.",
       "tiendasUsa": "Tiendas USA",
-      "proveedor": "Pedidos al proveedor"
+      "proveedor": "Pedidos al proveedor",
+      "secciones": "Secciones de video"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1279,7 +1280,15 @@
       "codigoPostalInvalido": "El código postal son 5 dígitos. Por ejemplo: 33101",
       "formularioFiscalFalta": "Antes de cobrar, completa tu formulario fiscal en «Mi tienda». Son cinco minutos y solo se hace una vez cada tres años.",
       "formularioFiscalVencido": "Tu formulario fiscal venció. Vuelve a firmarlo en «Mi tienda» y podrás pedir tu retiro enseguida.",
-      "comercioListo": "¡Listo! Tu tienda ya está publicada y cualquiera puede verla. No hay nada que esperar: ya puedes cargar tus productos."
+      "comercioListo": "¡Listo! Tu tienda ya está publicada y cualquiera puede verla. No hay nada que esperar: ya puedes cargar tus productos.",
+      "secciones": {
+        "pinFormato": "El PIN son exactamente 4 dígitos.",
+        "pinObvio": "Ese PIN es de los primeros que prueba cualquiera. Elige otro.",
+        "pinMalo": "Ese PIN no es. Vuelve a intentarlo.",
+        "pinOk": "Listo.",
+        "pinHaceFalta": "Primero escribe el PIN.",
+        "demasiadosIntentos": "Demasiados intentos seguidos. Espera unos minutos."
+      }
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2308,6 +2317,27 @@
       "motivoEjemplo": "Por ejemplo: llegó una pieza rota",
       "confirmar": "Sí, devolver",
       "cancelar": "No, dejar así"
+    },
+    "secciones": {
+      "titulo": "Secciones de video",
+      "entradilla": "Los canales de video de Mercatren. Cada uno tiene su enlace con PIN para subir desde el celular.",
+      "nueva": "Nueva sección",
+      "nombreEs": "Nombre en español",
+      "nombreEn": "Nombre en inglés",
+      "nombreEjemplo": "Tu Próximo Producto Ganador",
+      "descripcionEs": "De qué va, en español",
+      "descripcionEn": "De qué va, en inglés",
+      "pin": "PIN de 4 dígitos",
+      "pinAyuda": "Es el que se escribe al abrir el enlace en el celular.",
+      "crear": "Crear la sección",
+      "ninguna": "Todavía no hay ninguna sección.",
+      "cuantos": "{n} videos",
+      "direccionPublica": "Dirección pública:",
+      "enlaceParaSubir": "Enlace para subir desde el celular (mándatelo por WhatsApp)",
+      "copiar": "Copiar el enlace",
+      "copiado": "Copiado",
+      "pinNuevo": "PIN nuevo",
+      "cambiarPin": "Cambiar"
     }
   },
   "catalogo": {
@@ -3429,5 +3459,32 @@
     "verTodo": "Ver todo",
     "anterior": "Anterior",
     "siguiente": "Siguiente"
+  },
+  "secciones": {
+    "etiqueta": "Sección de Mercatren",
+    "pidePin": "Escribe el PIN de 4 dígitos para subir videos.",
+    "digito": "Dígito {n}",
+    "comprobando": "Comprobando…",
+    "pinMalo": "Ese PIN no es. Vuelve a intentarlo.",
+    "pinOk": "Listo.",
+    "pinFormato": "El PIN son exactamente 4 dígitos.",
+    "pinObvio": "Ese PIN es de los primeros que prueba cualquiera. Elige otro.",
+    "pinHaceFalta": "Primero escribe el PIN.",
+    "demasiadosIntentos": "Demasiados intentos seguidos. Espera unos minutos.",
+    "elegirVideo": "Grabar o elegir un video",
+    "cambiarVideo": "Cambiar el video",
+    "duracionesSugeridas": "15 segundos, 30 o 1 minuto. Máximo 3 minutos.",
+    "tituloDelVideo": "¿De qué habla el video?",
+    "tituloEjemplo": "Ej.: Organizadores de closet que se están vendiendo",
+    "publicarVideo": "Publicar este video",
+    "faltaTitulo": "Escribe de qué habla el video.",
+    "noSePudoLeer": "No pudimos leer ese archivo. Prueba con otro video.",
+    "muyLargo": "Ese video pasa de {minutos} minutos. Graba uno más corto.",
+    "sinRed": "Se cortó la conexión. Vuelve a intentarlo.",
+    "llevasSubidos": "Llevas {n} subidos",
+    "todaviaVacia": "Todavía no hay videos en esta sección.",
+    "verEnMercatren": "Ver en Mercatren",
+    "optimizando": "Preparando el video para que cargue rápido… {pct}%",
+    "subiendo": "Subiendo… {pct}%"
   }
 }

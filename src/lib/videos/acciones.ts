@@ -10,6 +10,7 @@ import { getDb } from "@/lib/db";
 import { tiendas, videosTienda } from "@/lib/db/schema";
 import { mercadoActual } from "@/lib/mercado/actual";
 import { mensajes } from "@/lib/mensajes";
+import { SOCIEDAD } from "@/lib/sociedad";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
 import {
   DURACION_MAXIMA_SEGUNDOS,
@@ -36,7 +37,25 @@ export type ResultadoVideo =
 
 async function tiendaDeLaSesion(
   formulario: FormData,
+  opciones?: { comoEquipo?: boolean },
 ): Promise<{ id: string; slug: string } | null> {
+  /* ══ LA SUBIDA POR ENLACE NO TIENE SESIÓN, Y ES A PROPÓSITO ══
+
+     Quien sube desde `/subir/<llave>` ya demostró quién es con la llave y el
+     PIN, comprobados en el servidor antes de llegar aquí. La opción va
+     EXPLÍCITA y por defecto en `false`: si alguien la olvida, la puerta se
+     queda cerrada; al revés, el olvido la abriría — que es el fallo caro. */
+  if (opciones?.comoEquipo) {
+    const id = String(formulario.get("tiendaId") ?? "").trim();
+    if (!id) return null;
+    const [t] = await getDb()
+      .select({ id: tiendas.id, slug: tiendas.slug })
+      .from(tiendas)
+      .where(eq(tiendas.id, id))
+      .limit(1);
+    return t ?? null;
+  }
+
   const alcance = await obtenerAlcance().catch(() => null);
   if (!alcance) return null;
   const db = getDb();
@@ -61,9 +80,10 @@ async function tiendaDeLaSesion(
 
 export async function subirVideoDeTienda(
   formulario: FormData,
+  opciones?: { comoEquipo?: boolean },
 ): Promise<ResultadoVideo> {
   const t = await mensajes();
-  const tienda = await tiendaDeLaSesion(formulario);
+  const tienda = await tiendaDeLaSesion(formulario, opciones);
   if (!tienda) return { ok: false, mensaje: t("cuentaSinComercio") };
 
   const archivo = formulario.get("video");
@@ -368,4 +388,106 @@ export async function reemplazarArchivoDeVideo(
 
   revalidatePath("/[locale]/panel/videos", "page");
   return { ok: true, mensaje: t("videos.aligerado"), slug: "" };
+}
+
+/**
+ * SUBIR UN VIDEO DESDE EL ENLACE DE UNA SECCIÓN (24 ago 2026).
+ *
+ * Sin sesión y sin cuenta: la llave del enlace y el PIN son la autorización.
+ * Por eso lo primero que hace es comprobar el pase — el resto del camino es
+ * exactamente el mismo que el de un comercio (tope de tres minutos, peso,
+ * título, el archivo tal cual a R2), porque duplicarlo garantizaría que un día
+ * uno de los dos se quede sin un arreglo del otro.
+ *
+ * El video cuelga de la tienda interna de Mercatren, que es quien lo publica;
+ * lo que le da su identidad es la SECCIÓN, y de eso se encarga la fila en
+ * `videos_de_seccion`.
+ */
+export async function subirVideoDeSeccion(
+  formulario: FormData,
+): Promise<ResultadoVideo> {
+  const t = await mensajes();
+  const llave = String(formulario.get("llave") ?? "").trim();
+  if (!llave) return { ok: false, mensaje: t("sinPermiso") };
+
+  const { tienePase } = await import("@/lib/secciones/acciones");
+  if (!(await tienePase(llave))) {
+    return { ok: false, mensaje: t("secciones.pinHaceFalta") };
+  }
+
+  const { seccionesVideo, videosDeSeccion } = await import("@/lib/db/schema");
+  const db = getDb();
+  const [seccion] = await db
+    .select({ id: seccionesVideo.id, mercado: seccionesVideo.mercado })
+    .from(seccionesVideo)
+    .where(eq(seccionesVideo.llaveSubida, llave))
+    .limit(1);
+  if (!seccion) return { ok: false, mensaje: t("sinPermiso") };
+
+  /* La tienda contenedora se crea la primera vez, con su billetera, igual que
+     la del catálogo de Estados Unidos. */
+  const tiendaId = await tiendaEditorial();
+  formulario.set("tiendaId", tiendaId);
+
+  const r = await subirVideoDeTienda(formulario, { comoEquipo: true });
+  if (!r.ok) return r;
+
+  /* Y se cuelga de la sección. Si esto fallara, el video quedaría publicado
+     pero fuera de su sección: se avisa en vez de callar. */
+  try {
+    const [video] = await db
+      .select({ id: videosTienda.id })
+      .from(videosTienda)
+      .where(eq(videosTienda.slug, r.slug))
+      .limit(1);
+    if (video) {
+      await db.insert(videosDeSeccion).values({
+        seccionId: seccion.id,
+        videoId: video.id,
+        creadoEn: new Date(),
+      });
+    }
+  } catch (e) {
+    console.error("[seccion] video subido pero no se pudo colgar:", e);
+    return { ok: false, mensaje: t("noSePudoGuardar") };
+  }
+
+  revalidatePath("/[locale]/seccion/[slug]", "page");
+  revalidatePath("/[locale]/videos", "page");
+  return r;
+}
+
+/**
+ * LA TIENDA INTERNA QUE CONTIENE LOS VIDEOS EDITORIALES.
+ *
+ * `videos_tienda.tienda_id` es obligatorio y tiene llave foránea, así que un
+ * video de Mercatren necesita una tienda igual que uno de un comercio. Se crea
+ * sola la primera vez —como la del catálogo de Estados Unidos— y **no se
+ * enseña como tienda**: quien mira un video de sección ve el nombre de la
+ * sección y un botón que lleva al catálogo, nunca a esta ficha.
+ */
+async function tiendaEditorial(): Promise<string> {
+  const db = getDb();
+  const id = "tienda-mercatren-secciones";
+  const [existe] = await db
+    .select({ id: tiendas.id })
+    .from(tiendas)
+    .where(eq(tiendas.id, id))
+    .limit(1);
+  if (existe) return id;
+
+  const { billeteras } = await import("@/lib/db/schema");
+  const mercado = await mercadoActual();
+  await db.insert(tiendas).values({
+    id,
+    slug: "mercatren-secciones",
+    nombre: SOCIEDAD.nombre,
+    estado: "activa",
+    mercado: mercado.codigo,
+  });
+  await db
+    .insert(billeteras)
+    .values({ id: `billetera-${nanoid(10)}`, tiendaId: id })
+    .onConflictDoNothing();
+  return id;
 }

@@ -114,14 +114,29 @@ export default async function PaginaVideo({
       tiendaId: alcance?.tipo === "tienda" ? alcance.tiendaId : null,
     }),
   ]);
+  /* De qué sección es cada uno, si lo es: el visor cambia el nombre y el
+     botón, que en una sección lleva a Mercatren y no a una tienda. */
+  const { seccionDeCadaVideo } = await import("@/lib/secciones/consultas");
+  const secciones = await seccionDeCadaVideo([
+    v.id,
+    ...siguientes.map((s) => s.id),
+  ]).catch(() => new Map());
+
   const conSocial = (
     x: typeof v | (typeof siguientes)[number],
-  ): VideoConSocial => ({
-    ...x,
-    corazones: social.get(x.id)?.corazones ?? 0,
-    meGusta: social.get(x.id)?.meGusta ?? false,
-    comentarios: social.get(x.id)?.comentarios ?? 0,
-  });
+  ): VideoConSocial => {
+    const sec = secciones.get(x.id);
+    return {
+      ...x,
+      corazones: social.get(x.id)?.corazones ?? 0,
+      meGusta: social.get(x.id)?.meGusta ?? false,
+      comentarios: social.get(x.id)?.comentarios ?? 0,
+      seccionSlug: sec?.slug ?? null,
+      seccionNombre: sec
+        ? (idioma === "en" ? sec.nombreEn : null)?.trim() || sec.nombreEs
+        : null,
+    };
+  };
 
   const paraGoogle = {
     "@context": "https://schema.org",

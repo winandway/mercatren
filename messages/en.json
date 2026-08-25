@@ -380,7 +380,8 @@
       "ordenesCompraComercio": "My invoices to Mercatren",
       "catalogoUsa": "U.S. catalog",
       "tiendasUsa": "US stores",
-      "proveedor": "Supplier orders"
+      "proveedor": "Supplier orders",
+      "secciones": "Video sections"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1279,7 +1280,15 @@
       "codigoPostalInvalido": "A ZIP code is 5 digits. For example: 33101",
       "formularioFiscalFalta": "Before you can be paid, complete your tax form under “My store”. It takes five minutes and only needs doing once every three years.",
       "formularioFiscalVencido": "Your tax form has expired. Sign it again under “My store” and you can request your withdrawal right away.",
-      "comercioListo": "All set! Your store is live and anyone can see it. Nothing to wait for — you can start adding products right now."
+      "comercioListo": "All set! Your store is live and anyone can see it. Nothing to wait for — you can start adding products right now.",
+      "secciones": {
+        "pinFormato": "The PIN is exactly 4 digits.",
+        "pinObvio": "That PIN is one of the first anyone tries. Pick another.",
+        "pinMalo": "That's not the PIN. Try again.",
+        "pinOk": "Done.",
+        "pinHaceFalta": "Enter the PIN first.",
+        "demasiadosIntentos": "Too many tries in a row. Wait a few minutes."
+      }
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2308,6 +2317,27 @@
       "motivoEjemplo": "For example: one item arrived broken",
       "confirmar": "Yes, refund",
       "cancelar": "No, leave it"
+    },
+    "secciones": {
+      "titulo": "Video sections",
+      "entradilla": "Mercatren's video channels. Each one has its own PIN-protected link to upload from a phone.",
+      "nueva": "New section",
+      "nombreEs": "Name in Spanish",
+      "nombreEn": "Name in English",
+      "nombreEjemplo": "Your Next Winning Product",
+      "descripcionEs": "What it's about, in Spanish",
+      "descripcionEn": "What it's about, in English",
+      "pin": "4-digit PIN",
+      "pinAyuda": "This is what you type when opening the link on the phone.",
+      "crear": "Create the section",
+      "ninguna": "No sections yet.",
+      "cuantos": "{n} videos",
+      "direccionPublica": "Public address:",
+      "enlaceParaSubir": "Link to upload from a phone (send it to yourself on WhatsApp)",
+      "copiar": "Copy the link",
+      "copiado": "Copied",
+      "pinNuevo": "New PIN",
+      "cambiarPin": "Change"
     }
   },
   "catalogo": {
@@ -3429,5 +3459,32 @@
     "verTodo": "See all",
     "anterior": "Previous",
     "siguiente": "Next"
+  },
+  "secciones": {
+    "etiqueta": "Mercatren section",
+    "pidePin": "Enter the 4-digit PIN to upload videos.",
+    "digito": "Digit {n}",
+    "comprobando": "Checking…",
+    "pinMalo": "That's not the PIN. Try again.",
+    "pinOk": "Done.",
+    "pinFormato": "The PIN is exactly 4 digits.",
+    "pinObvio": "That PIN is one of the first anyone tries. Pick another.",
+    "pinHaceFalta": "Enter the PIN first.",
+    "demasiadosIntentos": "Too many tries in a row. Wait a few minutes.",
+    "elegirVideo": "Record or choose a video",
+    "cambiarVideo": "Change video",
+    "duracionesSugeridas": "15 seconds, 30 or 1 minute. 3 minutes max.",
+    "tituloDelVideo": "What's the video about?",
+    "tituloEjemplo": "E.g.: Closet organizers that are selling well",
+    "publicarVideo": "Publish this video",
+    "faltaTitulo": "Write what the video is about.",
+    "noSePudoLeer": "We couldn't read that file. Try another video.",
+    "muyLargo": "That video is longer than {minutos} minutes. Record a shorter one.",
+    "sinRed": "The connection dropped. Try again.",
+    "llevasSubidos": "{n} uploaded so far",
+    "todaviaVacia": "No videos in this section yet.",
+    "verEnMercatren": "See it on Mercatren",
+    "optimizando": "Optimizing your video so it loads fast… {pct}%",
+    "subiendo": "Uploading… {pct}%"
   }
 }
