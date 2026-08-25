@@ -244,7 +244,8 @@ export async function Encabezado() {
               comprando. */}
           <Link
             href="/videos"
-            className="celda-encabezado hidden shrink-0 md:block"
+            translate="no"
+            className="celda-encabezado notranslate hidden shrink-0 md:block"
           >
             {t("videos")}
           </Link>

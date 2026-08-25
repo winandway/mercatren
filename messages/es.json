@@ -3451,6 +3451,32 @@
     "tienda": {
       "titulo": "Videos de esta tienda",
       "verTodos": "Ver todos"
+    },
+    "hileras": {
+      "descubre": {
+        "etiqueta": "Shorts",
+        "titulo": "Descubre en video lo que se está vendiendo"
+      },
+      "porDentro": {
+        "etiqueta": "Shorts",
+        "titulo": "Las tiendas por dentro, contadas por sus dueños"
+      },
+      "masVistos": {
+        "etiqueta": "Shorts",
+        "titulo": "Lo más visto esta semana"
+      },
+      "masGustan": {
+        "etiqueta": "Shorts",
+        "titulo": "Los que más gustan"
+      },
+      "recienLlegados": {
+        "etiqueta": "Shorts",
+        "titulo": "Recién subidos"
+      },
+      "productosGanadores": {
+        "etiqueta": "Shorts",
+        "titulo": "Productos que se están vendiendo"
+      }
     }
   },
   "afinidad": {

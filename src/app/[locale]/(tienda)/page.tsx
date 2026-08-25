@@ -10,6 +10,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ParaTi } from "@/components/catalogo/para-ti";
 import { HileraVideos } from "@/components/videos/hilera-videos";
+import { HILERAS, ordenarParaHilera, valeLaPena } from "@/lib/videos/hileras";
+import { resumenSocialDe } from "@/lib/videos/social";
 import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { ParrillaInfinita } from "@/components/catalogo/parrilla-infinita";
 import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
@@ -118,6 +120,37 @@ export default async function PaginaInicio({
   /* La lista de la caché es igual para todos; el orden de ESTA persona
      (sus corazones, sus compras) se aplica después y en memoria. */
   const videosDeLaPortada = await personalizarVideos(videosSinOrdenar);
+
+  /* ══ VARIAS HILERAS, CADA UNA CON SU TÍTULO Y SU BARAJA ══
+
+     Lo pidió el dueño: «tenemos que repetir los mismos videos, pero los
+     barajeamos diferente… eso es lo que hacen las redes sociales». Con
+     cincuenta videos, tres hileras seguidas con el mismo orden se leen como
+     un error; con órdenes distintos, cada una se siente una sección nueva. */
+  const corazonesDeLaPortada = await resumenSocialDe(
+    videosDeLaPortada.map((v) => v.id),
+    null,
+  ).catch(() => new Map<string, { corazones: number }>());
+  const corazonesDe = (id: string) =>
+    corazonesDeLaPortada.get(id)?.corazones ?? 0;
+  const corazonesTotales = videosDeLaPortada.reduce(
+    (suma, v) => suma + corazonesDe(v.id),
+    0,
+  );
+  const hilerasDeVideos = HILERAS.filter((clave) =>
+    valeLaPena(videosDeLaPortada, clave, corazonesTotales),
+  ).map((clave, i) => ({
+    clave,
+    videos: ordenarParaHilera(
+      videosDeLaPortada,
+      clave,
+      corazonesDe,
+      /* La semilla de la visita, desplazada por hilera: dos hileras
+         seguidas nunca barajan igual, y dentro de la misma visita el orden
+         no cambia al navegar. */
+      semilla + i * 7919,
+    ).slice(0, 12),
+  }));
   const deTodasLasTiendas = parrilla.productos.slice(0, 24);
   const restoDeLaParrilla = parrilla.productos.slice(24);
   const paginasDe24 = Math.max(1, Math.ceil(parrilla.total / 24));
@@ -323,8 +356,11 @@ export default async function PaginaInicio({
 
         {/* La primera hilera de Shorts, justo después del primer bloque de
             productos: la persona ya vio mercancía y aquí ve quién la vende. */}
-        {videosDeLaPortada.length >= 3 ? (
-          <HileraVideos videos={videosDeLaPortada.slice(0, 8)} />
+        {hilerasDeVideos[0] ? (
+          <HileraVideos
+            videos={hilerasDeVideos[0].videos}
+            hilera={hilerasDeVideos[0].clave}
+          />
         ) : null}
 
         <ParaTi idioma={idioma} />
@@ -358,13 +394,25 @@ export default async function PaginaInicio({
                   <TarjetaProducto producto={producto} idioma={idioma} />
                 </li>
               ))}
-
-              {/* Y otra hilera a mitad de las bandas: quien bajó hasta aquí está
-            navegando, que es cuando mejor engancha un video. */}
-              {videosDeLaPortada.length >= 6 ? (
-                <HileraVideos videos={videosDeLaPortada.slice(8, 16)} />
-              ) : null}
             </ul>
+
+            {/* ══ ESTA HILERA ESTABA DENTRO DEL `<ul>` (25 ago 2026) ══
+
+                Como hija de un grid ocupaba UNA celda: el título salía en
+                vertical, una palabra por línea, y el resto de la fila en
+                blanco. Se veía roto en la portada y en la parrilla infinita.
+                Va fuera de la lista, que es su sitio: una hilera no es un
+                producto.
+
+                Y cada una lleva SU título y SU baraja: el dueño lo pidió con
+                el ejemplo de las redes — los mismos videos, ordenados
+                distinto, se sienten secciones nuevas. */}
+            {hilerasDeVideos[indice + 1] ? (
+              <HileraVideos
+                videos={hilerasDeVideos[indice + 1]!.videos}
+                hilera={hilerasDeVideos[indice + 1]!.clave}
+              />
+            ) : null}
           </section>
         ))}
 

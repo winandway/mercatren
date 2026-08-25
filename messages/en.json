@@ -3451,6 +3451,32 @@
     "tienda": {
       "titulo": "Videos from this store",
       "verTodos": "See all"
+    },
+    "hileras": {
+      "descubre": {
+        "etiqueta": "Shorts",
+        "titulo": "See what's selling, in video"
+      },
+      "porDentro": {
+        "etiqueta": "Shorts",
+        "titulo": "Inside the stores, told by their owners"
+      },
+      "masVistos": {
+        "etiqueta": "Shorts",
+        "titulo": "Most watched this week"
+      },
+      "masGustan": {
+        "etiqueta": "Shorts",
+        "titulo": "Crowd favorites"
+      },
+      "recienLlegados": {
+        "etiqueta": "Shorts",
+        "titulo": "Just uploaded"
+      },
+      "productosGanadores": {
+        "etiqueta": "Shorts",
+        "titulo": "Products that are selling"
+      }
     }
   },
   "afinidad": {

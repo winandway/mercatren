@@ -3154,6 +3154,52 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## «SHORTS» NO SE TRADUCE, Y LA HILERA SE COLAPSABA (25 ago 2026)
+
+Tres cosas que destapó el dueño mirando su propia portada en el escritorio.
+
+**1. El traductor del navegador convertía «Shorts» en «BERMUDAS».** La prenda
+de ropa, en la etiqueta de la hilera, en el menú y en el título de la sección,
+para todo el que llegara con la traducción automática puesta. Sus palabras:
+_«esa palabra no tiene traducción, significa video corto en inglés y YouTube
+lo llamó así»_. Se arregla con **`translate="no"` Y la clase `notranslate`**:
+hacen falta las dos —el atributo estándar y la clase que mira Google— o alguno
+lo traduce igual. `tests/unit/shorts-no-se-traduce.test.ts` exige las dos en
+los tres sitios donde se dibuja, y que la palabra sea idéntica en `es` y `en`.
+
+**2. LA SEGUNDA HILERA ESTABA DENTRO DEL `<ul>` DE PRODUCTOS.** Como hija de
+un grid ocupaba **una sola celda**: el título salía en vertical, una palabra
+por línea, y el resto de la fila en blanco. El dueño lo marcó con una equis
+roja sobre la captura. Va fuera de la lista, que es su sitio — una hilera no
+es un producto. La prueba empareja los bloques `<ul>…</ul>` y falla si alguna
+vuelve a caer dentro; **hay que emparejarlos**, porque un patrón «ul …
+HileraVideos … /ul» da falso positivo: el `</ul>` que encuentra puede ser el
+de la siguiente sección, con la hilera legítimamente en medio.
+
+**3. Varias hileras, cada una con su título y su baraja** (`videos/hileras.ts`,
+puro, con pruebas). Lo pidió con el ejemplo de las redes: _«tenemos que
+repetir los mismos videos, pero los barajeamos diferente»_. Seis títulos —
+Descubre · Las tiendas por dentro · Lo más visto · Recién subidos · Los que
+más gustan · Productos que se están vendiendo— y cada una ordena la MISMA
+lista con una semilla distinta (la de la visita, desplazada por hilera).
+
+Tres reglas de ahí que no se tocan:
+
+1. **No se promete lo que no se mide.** «Lo más visto» y «Los que más gustan»
+   ordenan de verdad por vistas y por corazones, que son datos que tenemos.
+   Los demás títulos hablan de lo que hay, no de una métrica inventada: poner
+   «Tendencias» sobre una lista al azar es mentirle a quien mira, y se nota a
+   la segunda visita.
+2. **Una hilera cuyo dato está en cero NO se dibuja.** «Lo más visto» sin una
+   sola vista no dice nada. Con menos de tres videos tampoco: tres recuadros
+   sueltos se leen como un error, no como una sección.
+3. **El orden de una hilera no cambia entre dibujos.** Si cambiara, la hilera
+   «bailaría» al navegar por el sitio.
+
+Comprobado en escritorio (1440 px) y en celular (390 px): las hileras ocupan
+el ancho completo en los dos, con sus títulos distintos y los videos
+repartidos entre comercios.
+
 ## LOS VIDEOS SE MEZCLAN ENTRE TODOS LOS COMERCIOS (25 ago 2026)
 
 Lo pidió el dueño en cuanto entraron videos de verdad: _«que no salgan 5

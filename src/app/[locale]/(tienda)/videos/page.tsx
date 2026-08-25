@@ -68,7 +68,12 @@ export default async function PaginaVideos({
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8">
-      <h1 className="text-2xl font-extrabold tracking-tight text-riel-900 sm:text-3xl">
+      {/* «Shorts» no se traduce: el traductor del navegador lo pasaba a
+          «Bermudas». Ver la nota en `hilera-videos.tsx`. */}
+      <h1
+        translate="no"
+        className="notranslate text-2xl font-extrabold tracking-tight text-riel-900 sm:text-3xl"
+      >
         {t("pagina.titulo")}
       </h1>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-tinta-suave">
