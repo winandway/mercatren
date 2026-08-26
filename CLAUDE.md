@@ -3154,6 +3154,28 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## COBRAR NO PUEDE DEPENDER DE CUADRAR PRODUCTOS (26 ago 2026)
+
+El dueño abrió la calculadora **como Soporte**, escribió $7.475, eligió
+transferencia… y no había nada más: ni resultado ni botón. La pantalla decía
+«Todavía no tienes productos publicados con precio» y ahí se acababa.
+
+Dos cosas mal, las dos de la misma raíz — pensar que el desglose por producto
+era el camino principal:
+
+**1. El botón de cobrar vivía DENTRO del resultado del cuadre.** Sin productos
+seleccionados —o sin productos a secas, como le pasa a una cuenta del equipo—
+no había forma de cobrar. Y el caso real es justo ese: _«cobro $7.475
+exactos»_, con el desglose como algo opcional. Ahora el bloque de cobro está
+fuera y **aparece en cuanto hay monto**: si además cuadró productos se cobra
+ese total, y si no, el monto escrito.
+
+**2. El equipo solo podía elegir comercio escribiendo `?comercio=` en la
+dirección.** Quien no lo sabía veía la pantalla vacía y sin forma de
+arreglarlo. Ahora hay un desplegable con los comercios, y si no se ha elegido
+ninguno **se avisa ANTES** de pedir el correo y la factura: dejarle llenar
+todo para rechazarlo al final es hacerle escribir para nada.
+
 ## EL ENLACE OFRECÍA TARJETA CUANDO EL COMERCIO LA HABÍA QUITADO (26 ago 2026)
 
 Lo destapó el dueño en la primera prueba real: eligió **«Transferencia o

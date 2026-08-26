@@ -2403,7 +2403,10 @@
       "ofrecera": {
         "transferencia": "solo transferencia y Zelle. Tu cliente NO podrá pagar con tarjeta, así no te descuentan la comisión del procesador.",
         "tarjeta": "solo tarjeta."
-      }
+      },
+      "porQueComercio": "¿Por qué comercio estás cuadrando?",
+      "eligeComercio": "Elige un comercio…",
+      "eligeComercioPrimero": "Elige arriba de qué comercio es esta factura para poder cobrarla."
     }
   },
   "catalogo": {

@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalculadoraFactura } from "@/components/panel/facturar/calculadora-factura";
 import { COMISION_ZELLE_PB } from "@/lib/dinero";
 import type { Idioma } from "@/lib/dinero";
+import { esEquipoInterno } from "@/lib/autorizacion";
+import { listarComercios } from "@/lib/zelle/consultas";
 import { productosParaCuadrar } from "@/lib/productos/consultas";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +37,18 @@ export default async function PaginaCalculadora({
      una factura que no se puede cobrar. */
   const { tiendaId, productos } = await productosParaCuadrar(comercio);
 
+  /* El equipo cuadra POR un comercio. Antes solo se podía con `?comercio=` en
+     la dirección: quien no sabía escribirla veía la pantalla vacía y sin
+     forma de arreglarlo — que es justo lo que le pasó al dueño. */
+  const esEquipo = await esEquipoInterno().catch(() => false);
+  const comercios = esEquipo
+    ? (await listarComercios().catch(() => [])).map((c) => ({
+        id: c.id,
+        slug: c.slug,
+        nombre: c.nombre,
+      }))
+    : [];
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold tracking-tight">{t("titulo")}</h1>
@@ -42,6 +56,8 @@ export default async function PaginaCalculadora({
         idioma={locale as Idioma}
         comisionPuntosBase={COMISION_ZELLE_PB}
         tiendaId={tiendaId}
+        comercios={comercios}
+        comercioElegido={comercio}
         productos={productos}
       />
     </div>

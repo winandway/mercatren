@@ -40,12 +40,17 @@ export function CalculadoraFactura({
   idioma,
   comisionPuntosBase,
   tiendaId,
+  comercios = [],
+  comercioElegido,
 }: {
   productos: ProductoParaCuadrar[];
   idioma: Idioma;
   comisionPuntosBase: number;
   /** De qué comercio es. Lo necesita el cobro: espera el id, no el slug. */
   tiendaId: string | null;
+  /** Los comercios entre los que puede elegir el equipo. Vacío para un vendedor. */
+  comercios?: { id: string; slug: string; nombre: string }[];
+  comercioElegido?: string;
 }) {
   const t = useTranslations("panel.calculadora");
   const [elegidos, setElegidos] = useState<Set<string>>(new Set());
@@ -89,6 +94,34 @@ export function CalculadoraFactura({
 
   return (
     <div className="space-y-6">
+      {/* ══ POR QUÉ COMERCIO SE CUADRA (solo el equipo lo ve) ══
+          Sin esto había que escribir `?comercio=` en la dirección, y quien no
+          lo sabía se quedaba con la pantalla vacía. */}
+      {comercios.length > 0 ? (
+        <label className="block rounded-xl border border-carga-500/30 bg-carga-500/5 p-4">
+          <span className="text-sm font-bold text-riel-900">
+            {t("porQueComercio")}
+          </span>
+          <select
+            defaultValue={comercioElegido ?? ""}
+            onChange={(e) => {
+              const slug = e.target.value;
+              window.location.assign(
+                slug ? `?comercio=${encodeURIComponent(slug)}` : "?",
+              );
+            }}
+            className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:max-w-md sm:text-sm"
+          >
+            <option value="">{t("eligeComercio")}</option>
+            {comercios.map((c) => (
+              <option key={c.id} value={c.slug}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
       <p className="flex items-start gap-2 text-sm leading-relaxed text-tinta-suave">
         <Calculator
           className="mt-0.5 h-4 w-4 shrink-0 text-carga-600"
@@ -311,20 +344,40 @@ export function CalculadoraFactura({
               </dd>
             </div>
           </dl>
-
-          {/* ══ Y AQUÍ SE COBRA, SIN IR A OTRA PANTALLA ══
-
-              Antes esto era un texto que decía «puedes crear un enlace de
-              cobro en Cobros → Enlaces de cobro»: mandaba a reescribir el
-              monto que se acababa de calcular. El cálculo sin el cobro es
-              media herramienta. */}
-          <CobrarLoCuadrado
-            totalCentavos={cuadre.totalCentavos}
-            montoTexto={formatearPrecio(cuadre.totalCentavos, idioma)}
-            metodo={metodo}
-            tiendaId={tiendaId}
-          />
         </div>
+      ) : null}
+
+      {/**
+       * ══ EL COBRO NO DEPENDE DE CUADRAR PRODUCTOS (26 ago 2026) ══
+       *
+       * Estaba dentro del resultado, así que sin productos seleccionados
+       * —o sin productos a secas, como le pasa a una cuenta del equipo— la
+       * pantalla se quedaba en el monto escrito y **no había forma de
+       * cobrar**. El dueño se topó con eso con la factura delante.
+       *
+       * El desglose por producto es opcional: lo que siempre hace falta es
+       * el monto. Si además cuadró productos, se cobra ese total; si no, el
+       * monto que escribió.
+       */}
+      {/* Sin comercio elegido no se puede cobrar, y se dice AQUÍ: dejarle
+          llenar correo y factura para rechazarlo al final es hacerle escribir
+          para nada. */}
+      {objetivoCentavos > 0 && !tiendaId && comercios.length > 0 ? (
+        <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+          {t("eligeComercioPrimero")}
+        </p>
+      ) : null}
+
+      {objetivoCentavos > 0 && (tiendaId || comercios.length === 0) ? (
+        <CobrarLoCuadrado
+          totalCentavos={cuadre ? cuadre.totalCentavos : objetivoCentavos}
+          montoTexto={formatearPrecio(
+            cuadre ? cuadre.totalCentavos : objetivoCentavos,
+            idioma,
+          )}
+          metodo={metodo}
+          tiendaId={tiendaId}
+        />
       ) : null}
     </div>
   );

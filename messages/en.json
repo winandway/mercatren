@@ -2403,7 +2403,10 @@
       "ofrecera": {
         "transferencia": "bank transfer and Zelle only. Your customer will NOT be able to pay by card, so no processor fee is deducted.",
         "tarjeta": "card only."
-      }
+      },
+      "porQueComercio": "Which store are you matching for?",
+      "eligeComercio": "Choose a store…",
+      "eligeComercioPrimero": "Choose which store this invoice belongs to, above, to be able to charge it."
     }
   },
   "catalogo": {
