@@ -1,41 +1,47 @@
 /**
- * LA PAUSA DE LAS VENTAS DE ESTADOS UNIDOS.
+ * LA PAUSA DE LAS VENTAS DE ESTADOS UNIDOS — LEVANTADA EL 26 AGO 2026.
  *
- * ══ POR QUÉ EXISTE ══
+ * ══ QUÉ PASÓ ══
  *
- * El catálogo de Estados Unidos está publicado y se puede navegar, pero
- * **todavía no se puede despachar**: la billetera del proveedor está en cero y
- * la pieza que le manda la orden no está construida. Un comprador que pagara
- * hoy se quedaría con el cobro hecho y sin mercancía — y eso no es un error de
- * programación, es un contracargo y un cliente perdido.
+ * Se puso el 15 ago 2026 por un motivo concreto y correcto: el catálogo de
+ * Estados Unidos estaba publicado pero **no se podía despachar** — la billetera
+ * del proveedor estaba en cero y la pieza que le manda la orden no existía. Un
+ * comprador que pagara ese día se quedaba con el cobro hecho y sin mercancía, y
+ * eso no es un error de programación: es un contracargo y un cliente perdido.
  *
- * Decisión del dueño el 15 ago 2026, y es la correcta: **antes de vender lo que
- * no se puede entregar, se pone el cartel de mantenimiento.** Primero se prueba
- * el proveedor con compras propias, se mide cuánto tarda, cómo llega y qué
- * papel trae dentro de la caja; después se abre la venta.
+ * Las dos cosas que faltaban ya están:
  *
- * ══ QUÉ SE PAUSA Y QUÉ NO ══
+ * 1. **El pedido al proveedor se crea solo** (16 ago 2026, `src/lib/cj/pedidos.ts`):
+ *    entra la venta, se abre el pedido en CJ con la dirección del comprador y
+ *    queda el botón de pagarlo con tarjeta. Probado de punta a punta con la
+ *    MT-000004, incluido el arreglo del `variantSku` del 18 ago.
+ * 2. **El dinero llegó a Payoneer** para cargar la cuenta de CJ (26 ago 2026,
+ *    confirmado por el dueño).
+ *
+ * ══ CÓMO SE VUELVE A PONER ══
+ *
+ * `EN_PAUSA = true` y un push. Toda la mecánica se queda montada a propósito:
+ * el día que el proveedor falle, que se agote un almacén o que haya que parar
+ * una plaza, la tienda se cierra en un minuto **sin apagar las fichas** — que
+ * es lo que tiraría a la basura el posicionamiento que ya está corriendo.
+ *
+ * Sigue siendo constante y no variable de entorno: cerrar o abrir la venta de
+ * un país es una decisión que pasa por una publicación mirada, no por alguien
+ * tocando un panel a las dos de la mañana.
+ *
+ * ══ QUÉ PAUSA Y QUÉ NO, CUANDO ESTÁ PUESTA ══
  *
  * **Solo la COMPRA, y solo de los productos de Estados Unidos.** El catálogo se
- * sigue viendo, se busca, se navega y Google lo sigue leyendo: apagar las
- * fichas tiraría a la basura el trabajo de posicionamiento que ya está
- * corriendo, y volver a levantarlas después cuesta semanas de indexación.
+ * sigue viendo, se busca, se navega y Google lo sigue leyendo.
  *
- * Venezuela **no se toca**. Ahí hay comercios reales despachando de verdad, y
- * su venta no tiene por qué pagar por una prueba que es nuestra.
- *
- * ══ CÓMO SE QUITA ══
- *
- * Una línea: `EN_PAUSA = false`, y un push. Va como constante y no como
- * variable de entorno a propósito — el día que se levante hay que probar que
- * de verdad se puede despachar, y eso pasa por una publicación mirada, no por
- * alguien tocando un panel a las dos de la mañana.
+ * Venezuela **no se toca nunca**. Ahí hay comercios reales despachando de
+ * verdad, y su venta no tiene por qué pagar por una prueba que es nuestra.
  */
 
 /** Mientras esté en `true`, los productos de Estados Unidos no se venden. */
-export const EN_PAUSA = true;
+export const EN_PAUSA = false;
 
-/** El país cuyas ventas están detenidas. */
+/** El país cuyas ventas se detienen al encender la pausa. */
 export const PAIS_EN_PAUSA = "US";
 
 /**

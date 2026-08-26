@@ -1400,10 +1400,23 @@ reiniciaba: la instantánea del error enseñaba la casilla del correo vacía y l
 de la contraseña llena. Ahora se comprueba que lo escrito quedó, y si no, se
 vuelve a escribir.
 
-## LAS VENTAS DE ESTADOS UNIDOS, EN PAUSA (15 ago 2026)
+## LAS VENTAS DE ESTADOS UNIDOS: LA PAUSA SE LEVANTÓ (26 ago 2026)
 
-Decisión del dueño, y es la correcta: **antes de vender lo que no se puede
-entregar, se pone el cartel de mantenimiento.** El catálogo de EE. UU. está
+**`EN_PAUSA = false`.** Las dos cosas que faltaban el 15 de agosto ya están: el
+**pedido al proveedor se crea solo** desde el 16 de agosto (`src/lib/cj/pedidos.ts`,
+probado de punta a punta con la MT-000004 y el arreglo del `variantSku` del 18)
+y **el dinero llegó a Payoneer** para cargar la cuenta de CJ. Toda la mecánica
+de la pausa se queda montada: el día que haya que cerrar la plaza —proveedor
+caído, almacén agotado— se cierra con una línea **sin apagar las fichas**, que
+es lo que tiraría el posicionamiento que ya está corriendo.
+
+Lo de abajo se conserva porque explica **cómo se comporta la pausa cuando está
+puesta**, y esas reglas siguen valiendo tal cual.
+
+---
+
+Decisión del dueño el 15 ago 2026, y era la correcta: **antes de vender lo que
+no se puede entregar, se pone el cartel de mantenimiento.** El catálogo de EE. UU. está
 publicado y navegable, pero la billetera del proveedor está en cero y la pieza
 que le manda la orden **no está construida** — comprobado: no existe ni una
 llamada a `createOrder` en todo el código. Un comprador que pagara hoy se

@@ -93,10 +93,16 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ---
 
-# BLOQUE 3 · LAS VENTAS DE ESTADOS UNIDOS (EN PAUSA)
+# BLOQUE 3 · LAS VENTAS DE ESTADOS UNIDOS (ABIERTAS DESDE EL 26 AGO 2026)
 
-**La pausa se quita con una línea** (`EN_PAUSA = false` en
-`src/lib/ventas/pausa.ts`) — pero no antes de esto:
+**LA PAUSA SE LEVANTÓ** (`EN_PAUSA = false` en `src/lib/ventas/pausa.ts`). Se
+puso el 15 de agosto porque no se podía despachar; las dos cosas que faltaban
+ya están: el pedido al proveedor se crea solo desde el 16 de agosto y el dinero
+llegó a Payoneer para cargar CJ. **Se vuelve a poner con una línea** el día que
+haga falta cerrar la plaza, sin apagar las fichas.
+
+Lo que sigue pendiente NO frena la venta, pero hay que medirlo con las primeras
+compras reales:
 
 - [ ] 🔴 👤 **Comprar 2–3 productos de prueba y medir**: desde qué almacén sale
       (EE. UU. o China cambia el plazo de 5 a 20 días, y la ficha ya promete
