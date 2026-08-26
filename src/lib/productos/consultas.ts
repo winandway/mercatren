@@ -236,7 +236,10 @@ export async function obtenerMiProducto(id: string) {
  */
 export async function productosParaCuadrar(comercioPedido?: string) {
   const tiendaId = await tiendaDelAlcance(comercioPedido);
-  if (!tiendaId) return [];
+  /* Se devuelve también el ID de la tienda: el cobro que se crea desde la
+     calculadora lo necesita —espera el id, no el slug— y resolverlo aquí
+     evita repetir la lógica de alcance en la pantalla. */
+  if (!tiendaId) return { tiendaId: null, productos: [] };
 
   const filas = await getDb()
     .select({
@@ -255,5 +258,5 @@ export async function productosParaCuadrar(comercioPedido?: string) {
     .orderBy(desc(productos.precioCentavos))
     .limit(300);
 
-  return filas;
+  return { tiendaId, productos: filas };
 }

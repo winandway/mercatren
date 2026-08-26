@@ -3154,6 +3154,35 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## DE LA CALCULADORA AL COBRO, SIN CAMBIAR DE PANTALLA (26 ago 2026)
+
+La calculadora terminaba con un texto que decía «puedes crear un enlace de
+cobro en Cobros → Enlaces de cobro»: mandaba a otra pantalla a **reescribir el
+monto que se acababa de calcular**. Palabras del dueño: _«yo esperaba que
+abajo hubiese un botón donde le dijera cobrar, me pidiera el correo del
+cliente y me generara el link para enviárselo por WhatsApp»_. Tenía razón — el
+cálculo sin el cobro es media herramienta.
+
+**`CobrarLoCuadrado`**: un botón «Cobrar $2.860,71» al final del resultado que
+abre tres casillas —correo, número de factura, nombre— y devuelve el enlace
+con sus botones de **copiar** y de **WhatsApp** (con el mensaje ya escrito).
+
+Tres cosas que no se tocan:
+
+1. **El monto NO se puede editar ahí.** Es el que acaba de cuadrar; una
+   casilla editable invita a corregirlo a mano y a romper el cuadre. Si quiere
+   otro, cambia el objetivo arriba.
+2. **El método viaja tal cual se eligió arriba.** Si calculó para cobrar por
+   transferencia, el enlace no ofrece tarjeta — dejarla abierta le regala el
+   2,9% + $0.30 al procesador.
+3. **`crearCobroDesdePanel` espera el ID de la tienda, no el slug.** Lo
+   resuelve `productosParaCuadrar`, que ya pasa por el alcance: repetir esa
+   lógica en la pantalla es como se acaba creando un cobro para el comercio
+   equivocado.
+
+Comprobado de punta a punta: cuadra exacto, se generan las casillas, sale el
+enlace real y los dos botones.
+
 ## LA FUGA DEL PROCESADOR EN LOS COBROS POR ENLACE (26 ago 2026)
 
 **Lo vio el dueño antes que nadie**, mirando la calculadora: _«si solamente se

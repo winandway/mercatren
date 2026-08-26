@@ -33,7 +33,7 @@ export default async function PaginaCalculadora({
 
   /* Solo los publicados y con precio: cuadrar con un borrador sin precio da
      una factura que no se puede cobrar. */
-  const productos = await productosParaCuadrar(comercio);
+  const { tiendaId, productos } = await productosParaCuadrar(comercio);
 
   return (
     <div className="space-y-6">
@@ -41,6 +41,7 @@ export default async function PaginaCalculadora({
       <CalculadoraFactura
         idioma={locale as Idioma}
         comisionPuntosBase={COMISION_ZELLE_PB}
+        tiendaId={tiendaId}
         productos={productos}
       />
     </div>

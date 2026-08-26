@@ -14,6 +14,7 @@ import {
   repartoDelCobro,
   type MetodoDeCobro,
 } from "@/lib/cobros/reparto";
+import { CobrarLoCuadrado } from "@/components/panel/facturar/cobrar-lo-cuadrado";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
 /**
@@ -38,10 +39,13 @@ export function CalculadoraFactura({
   productos,
   idioma,
   comisionPuntosBase,
+  tiendaId,
 }: {
   productos: ProductoParaCuadrar[];
   idioma: Idioma;
   comisionPuntosBase: number;
+  /** De qué comercio es. Lo necesita el cobro: espera el id, no el slug. */
+  tiendaId: string | null;
 }) {
   const t = useTranslations("panel.calculadora");
   const [elegidos, setElegidos] = useState<Set<string>>(new Set());
@@ -295,9 +299,18 @@ export function CalculadoraFactura({
             </div>
           </dl>
 
-          <p className="mt-4 text-xs leading-relaxed text-tinta-suave">
-            {t("siguiente")}
-          </p>
+          {/* ══ Y AQUÍ SE COBRA, SIN IR A OTRA PANTALLA ══
+
+              Antes esto era un texto que decía «puedes crear un enlace de
+              cobro en Cobros → Enlaces de cobro»: mandaba a reescribir el
+              monto que se acababa de calcular. El cálculo sin el cobro es
+              media herramienta. */}
+          <CobrarLoCuadrado
+            totalCentavos={cuadre.totalCentavos}
+            montoTexto={formatearPrecio(cuadre.totalCentavos, idioma)}
+            metodo={metodo}
+            tiendaId={tiendaId}
+          />
         </div>
       ) : null}
     </div>

@@ -2387,7 +2387,19 @@
       },
       "avisoTarjeta": "By card, the processor takes {monto} more. If you can, ask them to pay by transfer.",
       "avisoSinTarjeta": "No processor involved: only the Mercatren fee is deducted.",
-      "procesador": "Card processor (2.9% + $0.30)"
+      "procesador": "Card processor (2.9% + $0.30)",
+      "cobrarEsto": "Charge {monto}",
+      "cobrarTitulo": "Charge {monto} — to whom?",
+      "correoCliente": "Customer's email",
+      "numeroFactura": "Your invoice number",
+      "nombreCliente": "Customer's name (optional)",
+      "generarEnlace": "Create the payment link",
+      "enlaceListo": "Done! This is the link for your customer",
+      "copiarEnlace": "Copy the link",
+      "copiado": "Copied",
+      "porWhatsApp": "Send on WhatsApp",
+      "tambienPorCorreo": "We also emailed it to them.",
+      "mensajeWhatsApp": "Hi, here's the link to pay invoice {referencia}: {url}"
     }
   },
   "catalogo": {

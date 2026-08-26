@@ -2387,7 +2387,19 @@
       },
       "avisoTarjeta": "Con tarjeta, el procesador se lleva {monto} más. Si puedes, pídele que pague por transferencia.",
       "avisoSinTarjeta": "Sin procesador de por medio: solo se descuenta la comisión de Mercatren.",
-      "procesador": "Procesador de tarjeta (2.9% + $0.30)"
+      "procesador": "Procesador de tarjeta (2.9% + $0.30)",
+      "cobrarEsto": "Cobrar {monto}",
+      "cobrarTitulo": "Cobrar {monto} — ¿a quién?",
+      "correoCliente": "Correo del cliente",
+      "numeroFactura": "Número de tu factura",
+      "nombreCliente": "Nombre del cliente (opcional)",
+      "generarEnlace": "Generar el enlace de cobro",
+      "enlaceListo": "¡Listo! Este es el enlace para tu cliente",
+      "copiarEnlace": "Copiar el enlace",
+      "copiado": "Copiado",
+      "porWhatsApp": "Mandar por WhatsApp",
+      "tambienPorCorreo": "También se lo mandamos por correo.",
+      "mensajeWhatsApp": "Hola, aquí está el enlace para pagar la factura {referencia}: {url}"
     }
   },
   "catalogo": {
