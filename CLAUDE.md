@@ -3154,6 +3154,43 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## EL NÚMERO DE FACTURA NO SE ADIVINA: SALE DE UNA SERIE (26 ago 2026)
+
+Salió un cobro con la referencia **`MT-100010`**. El dueño lo cazó en el acto:
+_«las facturas, por lo general, nunca comienzan por un millón… y que yo sepa,
+no llevamos un millón de facturas todavía»_. Y remató con lo que importa:
+_«estamos en Estados Unidos, tenemos Xerox, estamos haciendo conciliación
+bancaria. Esto es serio»_.
+
+**La función hacía exactamente lo que decía, y esa era la falla.**
+`siguienteReferencia()` proponía el número sumándole uno al ÚLTIMO que hubiera
+escrito el comercio. Alguien tecleó `MT-100009` con prisa —copiado de un
+número de PEDIDO, `MT-000009`, con un dedo de más— y el sistema siguió por
+ahí: `MT-100010`, y de ahí para arriba, para siempre.
+
+**Un correlativo no puede salir de adivinar sobre un texto que alguien
+escribió a mano.** Sale de una serie en la base, que es lo que este proyecto ya
+hacía para las facturas de venta desde el 7 de agosto —`UPDATE … ultimo + 1
+RETURNING`, atómico, sin saltos y sin repetidos— y que aquí no se estaba
+usando. Ahora los cobros tienen la suya: **`SERIES.cobroEnlace`, prefijo
+`MT-C-`**.
+
+Cuatro cosas que no se tocan:
+
+1. **El prefijo es distinto al del pedido.** `MT-C-000001` no se puede
+   confundir con `MT-000009`, que es justo lo que se copió aquella vez.
+2. **Se PROPONE sin consumir** (`proponerNumero`). Si el número se gastara al
+   dibujar la pantalla, abrir la calculadora y cerrarla dejaría un hueco — y un
+   hueco que nadie sabe explicar es lo primero que mira una revisión. El de
+   verdad se toma al crear, atómicamente.
+3. **Si el comercio escribe el suyo, se respeta y la serie no se gasta.**
+   `VIG-02497` es su talonario y su lado del rastro; no nos toca cambiárselo.
+   La serie solo entra cuando la referencia lleva nuestro prefijo o viene
+   vacía.
+4. **`siguienteReferencia()` se retiró y no se vuelve a escribir.** Queda el
+   porqué escrito en `partes.ts` y una prueba que se pone roja si reaparece:
+   el fallo no era la implementación, era la idea.
+
 ## COBRAR UNA FACTURA EN VARIAS PARTES (26 ago 2026)
 
 **El caso que lo pidió:** una factura de $7.475 y un cliente cuyo banco le

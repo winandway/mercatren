@@ -77,28 +77,19 @@ export function repartirEnPartes(
   });
 }
 
-/**
- * EL SIGUIENTE NÚMERO DE FACTURA, A PARTIR DEL ÚLTIMO DEL COMERCIO.
+/*
+ * ══ AQUÍ VIVÍA `siguienteReferencia()`, Y SE RETIRÓ (26 ago 2026) ══
  *
- * El dueño lo pidió después de copiar un número a mano: _«la idea es que el
- * sistema genere el número de factura pertinente, el que vendría»_.
+ * Proponía el número sumándole uno al ÚLTIMO que hubiera escrito el comercio.
+ * Alguien tecleó `MT-100009` con prisa y el sistema siguió por ahí:
+ * `MT-100010`. El dueño lo cazó — «las facturas no comienzan por un millón».
  *
- * **Se respeta la numeración del comercio, no se le impone la nuestra.** Si su
- * último cobro fue `VIG-02497`, el siguiente es `VIG-02498`; si fue `F-00123`,
- * `F-00124`. Se toma el ÚLTIMO grupo de dígitos y se le suma uno, conservando
- * los ceros a la izquierda — que es como numera cualquier talonario.
+ * El fallo no era la función, que hacía exactamente lo que decía: era la idea.
+ * Un correlativo no puede salir de adivinar sobre un texto que alguien
+ * escribió a mano, porque un dedazo se propaga para siempre. Sale de una serie
+ * en la base (`SERIES.cobroEnlace`), atómica, sin saltos y sin repetidos —
+ * como las facturas de venta desde el 7 de agosto.
  *
- * Si el último tiene sufijo de parte —`F-00123 (2/3)`— se ignora: el siguiente
- * es de la factura siguiente, no de la parte siguiente.
+ * No se vuelve a escribir. Si hace falta proponer un número, es
+ * `proponerNumero()`; si hace falta tomarlo, `siguienteNumero()`.
  */
-export function siguienteReferencia(ultima: string | null | undefined): string {
-  const limpia = (ultima ?? "").replace(/\s*\(\d+\/\d+\)\s*$/, "").trim();
-  if (!limpia) return "F-00001";
-
-  const encontrado = limpia.match(/^(.*?)(\d+)(\D*)$/);
-  if (!encontrado) return `${limpia}-2`;
-
-  const [, antes, digitos, despues] = encontrado;
-  const siguiente = String(Number(digitos) + 1).padStart(digitos!.length, "0");
-  return `${antes}${siguiente}${despues}`;
-}

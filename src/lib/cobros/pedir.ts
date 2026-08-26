@@ -27,6 +27,8 @@ import {
 } from "@/lib/db/schema";
 import { metodosDesdeFormulario } from "@/lib/cobros/reparto";
 import { cuantasPartes, repartirEnPartes } from "@/lib/cobros/partes";
+import { SERIES } from "@/lib/facturas/numeracion";
+import { siguienteNumero } from "@/lib/facturas/serie";
 import { aCentavos } from "@/lib/retiros/monto";
 import { SITIO } from "@/lib/sitio";
 
@@ -221,10 +223,31 @@ export async function crearCobroDesdePanel(
    * Con una sola parte, `repartirEnPartes` devuelve el cobro de siempre con
    * su referencia intacta: los cobros que ya existen no cambian en nada.
    */
+  /**
+   * ══ EL NÚMERO SALE DE LA SERIE, NO DE ADIVINAR SOBRE UN TEXTO ══
+   *
+   * Antes se proponía sumándole uno al último que hubiera escrito el
+   * comercio. Alguien tecleó `MT-100009` con prisa y el sistema siguió por
+   * ahí — `MT-100010`, y de ahí para arriba. Un dedazo se propagaba para
+   * siempre.
+   *
+   * Ahora: si la referencia lleva NUESTRO prefijo (o viene vacía), el número
+   * lo da la serie, que es atómica y consecutiva. Si el comercio escribió el
+   * suyo —`VIG-02497`, de su propio talonario— se respeta tal cual: es su
+   * lado del rastro y no nos toca cambiárselo.
+   */
+  let referenciaFinal = peticion.referencia!;
+  if (
+    !referenciaFinal.trim() ||
+    referenciaFinal.trim().startsWith(SERIES.cobroEnlace.prefijo)
+  ) {
+    referenciaFinal = await siguienteNumero(db, SERIES.cobroEnlace);
+  }
+
   const reparto = repartirEnPartes(
     peticion.montoCentavos!,
     cuantasPartes(datos.get("partes")),
-    peticion.referencia!,
+    referenciaFinal,
   );
   const grupo = `grupo-${nanoid(12)}`;
   const creadas = reparto.map((parte) => ({

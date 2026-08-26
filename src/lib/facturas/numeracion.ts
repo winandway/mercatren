@@ -25,6 +25,23 @@
 export const SERIES = {
   facturaVenta: { id: "factura_venta", prefijo: "MT-F-" },
   ordenCompra: { id: "orden_compra", prefijo: "MT-OC-" },
+  /**
+   * LOS COBROS POR ENLACE (26 ago 2026).
+   *
+   * Su número se proponía sumándole uno al ÚLTIMO que hubiera escrito el
+   * comercio. Alguien tecleó `MT-100009` con prisa y el sistema siguió por
+   * ahí: `MT-100010`, y de ahí para arriba. El dueño lo cazó: _«las facturas
+   * no comienzan por un millón… los números tienen que ser consecutivos»_.
+   *
+   * Un correlativo no puede salir de adivinar sobre un texto que alguien
+   * escribió a mano: un dedazo se propaga para siempre. Sale de una serie en
+   * la base, como las facturas de venta y las órdenes de compra — atómica, sin
+   * saltos y sin repetidos.
+   *
+   * Prefijo propio: `MT-C-` no se confunde con el número de PEDIDO
+   * (`MT-000009`), que es lo que se copió aquella vez.
+   */
+  cobroEnlace: { id: "cobro_enlace", prefijo: "MT-C-" },
 } as const;
 
 export type Serie = (typeof SERIES)[keyof typeof SERIES];

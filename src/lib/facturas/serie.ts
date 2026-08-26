@@ -46,3 +46,26 @@ export async function siguienteNumero(
 
   return formatearNumero(serie.prefijo, fila.ultimo);
 }
+
+/**
+ * MIRAR el siguiente número SIN consumirlo.
+ *
+ * Sirve para proponerlo en un formulario: si se consumiera al dibujar la
+ * pantalla, abrir la calculadora y cerrarla dejaría un hueco en la
+ * numeración — y un hueco que nadie sabe explicar es justo lo que mira una
+ * revisión.
+ *
+ * Es una lectura, así que puede quedar desfasada si otro crea un cobro en
+ * medio. Da igual: al crear se toma el de verdad, atómicamente.
+ */
+export async function proponerNumero(
+  db: ReturnType<typeof getDb>,
+  serie: Serie,
+): Promise<string> {
+  const [fila] = await db
+    .select({ ultimo: seriesDocumento.ultimo })
+    .from(seriesDocumento)
+    .where(eq(seriesDocumento.id, serie.id))
+    .limit(1);
+  return formatearNumero(serie.prefijo, (fila?.ultimo ?? 0) + 1);
+}

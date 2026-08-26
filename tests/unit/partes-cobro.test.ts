@@ -4,7 +4,6 @@ import {
   cuantasPartes,
   MAXIMO_PARTES,
   repartirEnPartes,
-  siguienteReferencia,
 } from "@/lib/cobros/partes";
 
 /**
@@ -56,24 +55,39 @@ describe("repartir el monto", () => {
   });
 });
 
-describe("el siguiente número de factura", () => {
-  it("respeta la numeración del comercio, no impone la nuestra", () => {
-    expect(siguienteReferencia("VIG-02497")).toBe("VIG-02498");
-    expect(siguienteReferencia("F-00123")).toBe("F-00124");
-    /* Los ceros a la izquierda se conservan: así numera un talonario. */
-    expect(siguienteReferencia("F-00009")).toBe("F-00010");
+describe("el número de factura NO se adivina sobre un texto (26 ago 2026)", () => {
+  it("`siguienteReferencia` está retirada: era la idea equivocada", async () => {
+    const partes = await import("@/lib/cobros/partes");
+    /* Proponía el número sumándole uno al último que alguien hubiera escrito
+       a mano. Un `MT-100009` tecleado con prisa se propagaba para siempre. */
+    expect("siguienteReferencia" in partes).toBe(false);
   });
 
-  it("ignora el sufijo de parte: el siguiente es de la factura siguiente", () => {
-    expect(siguienteReferencia("F-00123 (2/3)")).toBe("F-00124");
+  it("los cobros tienen su propia serie, con prefijo distinto al de pedidos", async () => {
+    const { SERIES } = await import("@/lib/facturas/numeracion");
+    expect(SERIES.cobroEnlace.id).toBe("cobro_enlace");
+    /* `MT-C-` no se confunde con el número de PEDIDO (`MT-000009`), que es lo
+       que se copió aquella vez. */
+    expect(SERIES.cobroEnlace.prefijo).toBe("MT-C-");
+    for (const otra of [SERIES.facturaVenta, SERIES.ordenCompra]) {
+      expect(otra.prefijo).not.toBe(SERIES.cobroEnlace.prefijo);
+    }
   });
 
-  it("sin ninguna anterior, propone la primera", () => {
-    expect(siguienteReferencia(null)).toBe("F-00001");
-    expect(siguienteReferencia("")).toBe("F-00001");
+  it("y el número sale consecutivo, con seis dígitos", async () => {
+    const { formatearNumero, SERIES } =
+      await import("@/lib/facturas/numeracion");
+    expect(formatearNumero(SERIES.cobroEnlace.prefijo, 1)).toBe("MT-C-000001");
+    expect(formatearNumero(SERIES.cobroEnlace.prefijo, 10)).toBe("MT-C-000010");
+    /* Nunca empieza por un millón, que es lo que se vio en pantalla. */
+    expect(formatearNumero(SERIES.cobroEnlace.prefijo, 1)).not.toContain("100");
   });
 
-  it("y con una referencia sin números, no revienta", () => {
-    expect(siguienteReferencia("FACTURA")).toBe("FACTURA-2");
+  it("al crear, se toma de la serie salvo que el comercio ponga el suyo", async () => {
+    const { readFileSync } = await import("node:fs");
+    const fuente = readFileSync("src/lib/cobros/pedir.ts", "utf8");
+    expect(fuente).toContain("siguienteNumero(db, SERIES.cobroEnlace)");
+    /* Si escribió `VIG-02497` —su propio talonario— se respeta tal cual. */
+    expect(fuente).toContain("startsWith(SERIES.cobroEnlace.prefijo)");
   });
 });
