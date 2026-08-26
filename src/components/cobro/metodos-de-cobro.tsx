@@ -27,6 +27,7 @@ export function MetodosDeCobro({
   montoTexto,
   zelle,
   transferencia,
+  aceptaTarjeta,
 }: {
   enlace: string;
   montoTexto: string;
@@ -48,16 +49,42 @@ export function MetodosDeCobro({
     datos: DatosDeTransferencia;
     concepto: string;
   } | null;
+  /**
+   * ¿Este cobro acepta tarjeta?
+   *
+   * El comercio lo decide al crearlo. Si calculó la factura para cobrar por
+   * transferencia, la tarjeta le come el 2,9% + $0.30 — y por eso puede
+   * quitarla. Por defecto sí, que es como se comportan los cobros de antes.
+   */
+  aceptaTarjeta?: boolean;
 }) {
   const t = useTranslations("cobro");
   const [metodo, setMetodo] = useState<"tarjeta" | "zelle" | "transferencia">(
-    "tarjeta",
+    aceptaTarjeta === false
+      ? transferencia
+        ? "transferencia"
+        : "zelle"
+      : "tarjeta",
   );
+
+  const conTarjeta = aceptaTarjeta !== false;
 
   /* Sin ninguna alternativa, ni se dibuja el selector: un «elige método» con
      una sola opción es una pantalla de más. */
   if (!zelle && !transferencia) {
     return <PagarCobro enlace={enlace} montoTexto={montoTexto} />;
+  }
+  /* Y al revés: si el comercio quitó la tarjeta y solo queda una forma, se
+     enseña directa sin obligar a elegir. */
+  if (!conTarjeta && transferencia && !zelle) {
+    return (
+      <PagarConTransferencia
+        enlace={enlace}
+        datos={transferencia.datos}
+        concepto={transferencia.concepto}
+        montoTexto={montoTexto}
+      />
+    );
   }
 
   return (
@@ -88,7 +115,7 @@ export function MetodosDeCobro({
           /* Solo los que de verdad están disponibles para este cobro. */
           .filter(
             (m) =>
-              m.clave === "tarjeta" ||
+              (m.clave === "tarjeta" && conTarjeta) ||
               (m.clave === "zelle" && zelle) ||
               (m.clave === "transferencia" && transferencia),
           )

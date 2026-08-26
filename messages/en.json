@@ -2306,7 +2306,23 @@
       "masFlete": " + {monto} freight",
       "masManejo": " + {monto} handling",
       "otroCorreo": "Send it to another email",
-      "reenviar": "Resend"
+      "reenviar": "Resend",
+      "metodosTitulo": "How can your customer pay?",
+      "metodosAyuda": "Cards cost 2.9% + $0.30 on top of the Mercatren fee. If your invoice is priced for a bank transfer, uncheck the card option.",
+      "metodos": {
+        "transferencia": {
+          "titulo": "Bank transfer (ACH)",
+          "detalle": "No processor fee. We verify it against the bank."
+        },
+        "zelle": {
+          "titulo": "Zelle",
+          "detalle": "No processor fee. From $200."
+        },
+        "tarjeta": {
+          "titulo": "Card",
+          "detalle": "Confirms instantly, but the processor charges 2.9% + $0.30."
+        }
+      }
     },
     "devolverCobro": {
       "boton": "Refund",
@@ -2363,7 +2379,15 @@
       "pagaElCliente": "Customer pays",
       "margen": "Mercatren fee ({pct}%)",
       "recibeElComercio": "You get",
-      "siguiente": "With these quantities you can build the order, or create a payment link for the amount above in Payments → Payment links."
+      "siguiente": "With these quantities you can build the order, or create a payment link for the amount above in Payments → Payment links.",
+      "porDondePaga": "How will your customer pay?",
+      "metodo": {
+        "transferencia": "Bank transfer or Zelle",
+        "tarjeta": "By card"
+      },
+      "avisoTarjeta": "By card, the processor takes {monto} more. If you can, ask them to pay by transfer.",
+      "avisoSinTarjeta": "No processor involved: only the Mercatren fee is deducted.",
+      "procesador": "Card processor (2.9% + $0.30)"
     }
   },
   "catalogo": {

@@ -3083,3 +3083,34 @@ export const videosDeSeccion = sqliteTable(
     index("idx_videos_de_seccion").on(t.videoId),
   ],
 );
+
+/**
+ * QUÉ MÉTODOS ACEPTA UN COBRO POR ENLACE (26 ago 2026).
+ *
+ * Lo pidió el dueño al ver la cuenta: con tarjeta, Stripe se lleva 2,9% +
+ * $0.30 además del margen de Mercatren, y en una factura de siete mil dólares
+ * son más de doscientos. Sus palabras: _«si le ponemos el link con todos los
+ * pagos… y no darle la opción de pagar con tarjeta, porque si paga con
+ * tarjeta pierde»_.
+ *
+ * Así que el comercio decide, al crear el cobro, qué métodos ofrece. Con la
+ * factura ya calculada para transferencia, dejar la tarjeta abierta es
+ * regalar el margen.
+ *
+ * **Tabla puente y no una columna**, como manda la regla del proyecto:
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS` y una columna nueva no
+ * llegaría sola a producción. Y **sin filas se aceptan todos**, que es como
+ * se comportan los cobros que ya existen: nadie se queda sin poder cobrar por
+ * un cambio de esquema.
+ */
+export const metodosDelCobro = sqliteTable(
+  "metodos_del_cobro",
+  {
+    cobroId: text("cobro_id")
+      .notNull()
+      .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+    /** `tarjeta`, `zelle` o `transferencia`. */
+    metodo: text("metodo").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.cobroId, t.metodo] })],
+);

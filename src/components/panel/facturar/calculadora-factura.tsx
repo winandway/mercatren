@@ -6,10 +6,14 @@ import { useMemo, useState } from "react";
 
 import {
   cuadrarFactura,
-  cuantoCobrarParaRecibir,
-  lasDosCifras,
   type ProductoParaCuadrar,
 } from "@/lib/facturar/cuadrar";
+import {
+  cuantoCobrarPara,
+  loQueCuestaLaTarjeta,
+  repartoDelCobro,
+  type MetodoDeCobro,
+} from "@/lib/cobros/reparto";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
 /**
@@ -43,6 +47,15 @@ export function CalculadoraFactura({
   const [elegidos, setElegidos] = useState<Set<string>>(new Set());
   const [monto, setMonto] = useState("");
   const [modo, setModo] = useState<"paga" | "recibe">("paga");
+  /**
+   * ══ POR DÓNDE VA A PAGAR, Y POR QUÉ CAMBIA TODO ══
+   *
+   * Lo vio el dueño: con tarjeta, Stripe se lleva 2,9% + $0.30 ADEMÁS del 3%
+   * de Mercatren. En una factura de $7.475 son más de doscientos dólares de
+   * diferencia para el comercio. Calcular sin decir por dónde entra el dinero
+   * es dar un número que no se va a cumplir.
+   */
+  const [metodo, setMetodo] = useState<MetodoDeCobro>("transferencia");
 
   const objetivoCentavos = useMemo(() => {
     const limpio = monto.replace(/[^0-9.,]/g, "").replace(",", ".");
@@ -51,9 +64,9 @@ export function CalculadoraFactura({
     const enCentavos = Math.round(n * 100);
     /* «Quiero recibir X limpios» se convierte a «hay que cobrar Y». */
     return modo === "recibe"
-      ? cuantoCobrarParaRecibir(enCentavos, comisionPuntosBase)
+      ? cuantoCobrarPara(enCentavos, metodo)
       : enCentavos;
-  }, [monto, modo, comisionPuntosBase]);
+  }, [monto, modo, metodo]);
 
   const seleccion = useMemo(
     () => productos.filter((p) => elegidos.has(p.id)),
@@ -68,9 +81,7 @@ export function CalculadoraFactura({
     [seleccion, objetivoCentavos],
   );
 
-  const cifras = cuadre
-    ? lasDosCifras(cuadre.totalCentavos, comisionPuntosBase)
-    : null;
+  const cifras = cuadre ? repartoDelCobro(cuadre.totalCentavos, metodo) : null;
 
   return (
     <div className="space-y-6">
@@ -126,6 +137,41 @@ export function CalculadoraFactura({
             })}
           </p>
         ) : null}
+
+        {/* ══ POR DÓNDE VA A PAGAR ══
+            Sin esto el número no se cumple: con tarjeta, Stripe se lleva
+            2,9% + $0.30 además del margen de Mercatren. */}
+        <div className="mt-4 border-t border-borde pt-4">
+          <p className="text-sm font-medium">{t("porDondePaga")}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(["transferencia", "tarjeta"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMetodo(m)}
+                className={`rounded-lg px-3 py-2 text-sm font-semibold ${
+                  metodo === m
+                    ? "bg-carga-500 text-white"
+                    : "border border-borde text-tinta-suave hover:bg-slate-50"
+                }`}
+              >
+                {t(`metodo.${m}`)}
+              </button>
+            ))}
+          </div>
+          {objetivoCentavos > 0 ? (
+            <p className="mt-2 text-xs leading-relaxed text-tinta-suave">
+              {metodo === "tarjeta"
+                ? t("avisoTarjeta", {
+                    monto: formatearPrecio(
+                      loQueCuestaLaTarjeta(objetivoCentavos),
+                      idioma,
+                    ),
+                  })
+                : t("avisoSinTarjeta")}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {/* 2. Los productos que entran en la factura */}
@@ -225,6 +271,14 @@ export function CalculadoraFactura({
                 {formatearPrecio(cifras.pagaElCliente, idioma)}
               </dd>
             </div>
+            {cifras.procesador > 0 ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-tinta-suave">{t("procesador")}</dt>
+                <dd className="tabular-nums">
+                  −{formatearPrecio(cifras.procesador, idioma)}
+                </dd>
+              </div>
+            ) : null}
             <div className="flex justify-between gap-3">
               <dt className="text-tinta-suave">
                 {t("margen", { pct: comisionPuntosBase / 100 })}

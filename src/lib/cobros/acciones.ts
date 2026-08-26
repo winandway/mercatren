@@ -12,7 +12,6 @@ import {
   movimientosBilletera,
   tiendas,
 } from "@/lib/db/schema";
-import { calcularComisionCentavos, COMISION_TARJETA_PB } from "@/lib/dinero";
 import { getStripe, stripeConfigurado } from "@/lib/stripe";
 import { sufijoDelExtracto } from "@/lib/pagos/descriptor";
 
@@ -154,13 +153,24 @@ export async function acreditarCobro(
   const cobro = marcado[0];
   if (!cobro) return;
 
-  /* Al comercio le toca el neto: el monto menos el margen de Mercatren. El
-     costo del procesador ya está dentro de lo que cobró Stripe. */
-  const comision = calcularComisionCentavos(
-    cobro.montoCentavos,
-    COMISION_TARJETA_PB,
-  );
-  const neto = cobro.montoCentavos - comision;
+  /**
+   * ══ EL REPARTO, AHORA CON EL COSTO DEL PROCESADOR (26 ago 2026) ══
+   *
+   * Aquí había una fuga de dinero. El comentario anterior decía que «el costo
+   * del procesador ya está dentro de lo que cobró Stripe» —cierto— pero
+   * después le acreditaba al comercio el monto MENOS SOLO el 3%, así que ese
+   * costo salía del margen de Mercatren. Medido con facturas reales: en una
+   * de $7.475 el margen se quedaba en **$7,17 de $224,25**, y por debajo de
+   * unos once dólares el cobro daba pérdida.
+   *
+   * Lo vio el dueño: «si el cliente le da la gana de pagar con tarjeta,
+   * salimos peleando nosotros». Ahora el reparto va por método —el mismo que
+   * usa el catálogo desde el 7 de agosto— y esto es el camino de la TARJETA:
+   * Stripe primero, el margen después, el resto del comercio.
+   */
+  const { repartoDelCobro } = await import("@/lib/cobros/reparto");
+  const reparto = repartoDelCobro(cobro.montoCentavos, "tarjeta");
+  const neto = reparto.recibeElComercio;
 
   let [billetera] = await db
     .select({ id: billeteras.id, saldoCentavos: billeteras.saldoCentavos })
@@ -367,8 +377,6 @@ export async function subirComprobanteDeCobro(
     const { RUTA_MEDIA } = await import("@/lib/rutas");
     const { huellaDelArchivo } = await import("@/lib/zelle/alertas");
     const { conceptoDelPago } = await import("@/lib/pedidos/concepto");
-    const { calcularComisionCentavos, COMISION_ZELLE_PB } =
-      await import("@/lib/dinero");
     const { pagosZelle, cobrosZelle } = await import("@/lib/db/schema");
 
     const extension =
@@ -379,10 +387,15 @@ export async function subirComprobanteDeCobro(
       httpMetadata: { contentType: captura.type },
     });
 
-    const comisionCentavos = calcularComisionCentavos(
+    /* El mismo reparto que la tarjeta, por el camino SIN procesador: aquí no
+       interviene nadie entre el banco y la cuenta, así que el comercio se
+       queda con el monto menos el 3% y nada más. Va por la misma función para
+       que el día que cambie el margen no haya dos sitios que actualizar. */
+    const { repartoDelCobro } = await import("@/lib/cobros/reparto");
+    const comisionCentavos = repartoDelCobro(
       cobro.montoCentavos,
-      COMISION_ZELLE_PB,
-    );
+      "zelle",
+    ).margen;
 
     const ahora = new Date();
     const pagoId = nanoid();

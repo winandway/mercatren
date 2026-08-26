@@ -108,6 +108,11 @@ export type PeticionDeCobro = {
   /** A quién se le cobra. */
   correo: string;
   nombre?: string;
+  /**
+   * Qué métodos acepta este cobro. **Vacío o ausente significa TODOS**, que
+   * es como se comportan los cobros creados antes de que esto existiera.
+   */
+  metodos?: string[];
 };
 
 /**

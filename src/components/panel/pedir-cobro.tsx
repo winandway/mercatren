@@ -157,6 +157,55 @@ export function PedirCobro({
           </div>
         </div>
 
+        {/**
+         * ══ QUÉ MÉTODOS ACEPTA ESTE COBRO (26 ago 2026) ══
+         *
+         * Lo pidió el dueño con la cuenta hecha: con tarjeta, Stripe se lleva
+         * 2,9% + $0.30 ADEMÁS del 3% de Mercatren — en una factura de siete
+         * mil dólares, más de doscientos. Si el comercio calculó su factura
+         * para cobrar por transferencia, dejar la tarjeta abierta es regalar
+         * ese dinero.
+         *
+         * Las tres van marcadas por defecto: quitar una es una decisión, y la
+         * que se toma sin querer no puede ser la que deje al cliente sin
+         * poder pagar.
+         */}
+        <fieldset className="mt-4 rounded-xl border border-borde p-4">
+          <legend className="px-1 text-sm font-bold">
+            {t("metodosTitulo")}
+          </legend>
+          <p className="text-xs leading-relaxed text-tinta-suave">
+            {t("metodosAyuda")}
+          </p>
+          <div className="mt-3 space-y-2">
+            {(
+              [
+                { valor: "transferencia", clave: "transferencia" },
+                { valor: "zelle", clave: "zelle" },
+                { valor: "tarjeta", clave: "tarjeta" },
+              ] as const
+            ).map(({ valor, clave }) => (
+              <label key={valor} className="flex items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  name="metodos"
+                  value={valor}
+                  defaultChecked
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">
+                    {t(`metodos.${clave}.titulo`)}
+                  </span>
+                  <span className="block text-xs leading-snug text-tinta-suave">
+                    {t(`metodos.${clave}.detalle`)}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <Cargos />
 
         <details className="mt-4">

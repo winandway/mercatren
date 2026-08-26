@@ -25,6 +25,7 @@ import {
   tiendas,
   user,
 } from "@/lib/db/schema";
+import { metodosDesdeFormulario } from "@/lib/cobros/reparto";
 import { aCentavos } from "@/lib/retiros/monto";
 import { SITIO } from "@/lib/sitio";
 
@@ -148,6 +149,9 @@ export async function crearCobroDesdePanel(
     referencia: texto("referencia"),
     correo: texto("correo").toLowerCase(),
     nombre: texto("nombre") || undefined,
+    /* Las casillas marcadas. Sin ninguna, se aceptan todos: un formulario a
+       medio marcar no puede dejar una factura que nadie pueda pagar. */
+    metodos: metodosDesdeFormulario(datos.getAll("metodos")),
   };
 
   /* La lista COMPLETA de lo que está mal, no el primer fallo: quien llena esto
@@ -207,6 +211,25 @@ export async function crearCobroDesdePanel(
       venceEn: vence,
       creadoEn: ahora,
     });
+
+    /**
+     * QUÉ MÉTODOS ACEPTA ESTE COBRO (26 ago 2026).
+     *
+     * Lo pidió el dueño con la cuenta hecha: con tarjeta, Stripe se lleva
+     * 2,9% + $0.30 además del margen, y en una factura de siete mil dólares
+     * son más de doscientos. Si el comercio calculó su factura para cobrar
+     * por transferencia, dejar la tarjeta abierta es regalar ese dinero.
+     *
+     * **Lista vacía significa «todos»**: es como se comportan los cobros que
+     * ya existían, y así un formulario sin marcar no deja una factura que
+     * nadie puede pagar.
+     */
+    if (peticion.metodos && peticion.metodos.length > 0) {
+      const { metodosDelCobro } = await import("@/lib/db/schema");
+      await db
+        .insert(metodosDelCobro)
+        .values(peticion.metodos.map((metodo) => ({ cobroId: id, metodo })));
+    }
   } catch (fallo) {
     /* Repetir la referencia es el error más común, y hay que poder decirlo:
        un «no se pudo» a secas deja al comercio adivinando con el cliente

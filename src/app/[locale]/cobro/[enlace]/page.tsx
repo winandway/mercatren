@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AvisoNavegador } from "@/components/cobro/aviso-navegador";
 import { MetodosDeCobro } from "@/components/cobro/metodos-de-cobro";
+import { aceptaMetodo } from "@/lib/cobros/reparto";
 import { comoSePago } from "@/lib/cobros/como-se-pago";
 import { estadoParaMostrar, sePuedePagar } from "@/lib/cobros/reglas";
 import { queSeEnsena } from "@/lib/cobros/presentacion";
@@ -188,6 +189,23 @@ export default async function PaginaDeCobro({
     concepto: string;
   } | null = null;
   let enRevision = false;
+
+  /**
+   * QUÉ MÉTODOS ACEPTA ESTE COBRO.
+   *
+   * El comercio lo eligió al crearlo: si calculó su factura para cobrar por
+   * transferencia, dejar la tarjeta abierta le regala el 2,9% + $0.30 a
+   * Stripe. **Sin filas se aceptan todos**, que es como se comportan los
+   * cobros creados antes de que esto existiera.
+   */
+  const { metodosDelCobro } = await import("@/lib/db/schema");
+  const metodosAceptados = await getDb()
+    .select({ metodo: metodosDelCobro.metodo })
+    .from(metodosDelCobro)
+    .where(eq(metodosDelCobro.cobroId, cobro.id))
+    .then((f) => f.map((x) => x.metodo))
+    .catch(() => [] as string[]);
+
   if (pagable) {
     const { zelleDelCobro, comprobantePendienteDeCobro } =
       await import("@/lib/cobros/consultas");
@@ -205,6 +223,7 @@ export default async function PaginaDeCobro({
         getCloudflareContext().env.ZELLE_NOMBRE_RECEPTOR ?? null;
       zelle = { receptor: decision.receptor, concepto, nombreReceptor };
     }
+    if (!aceptaMetodo(metodosAceptados, "zelle")) zelle = null;
 
     /* ══ LA TRANSFERENCIA ACH DIRECTA (26 ago 2026) ══
 
@@ -236,7 +255,10 @@ export default async function PaginaDeCobro({
         cobro.montoCentavos,
         minimo,
       );
-      if (posible.disponible) {
+      if (
+        posible.disponible &&
+        aceptaMetodo(metodosAceptados, "transferencia")
+      ) {
         transferencia = { datos: posible.datos, concepto };
       }
     }
@@ -448,6 +470,7 @@ export default async function PaginaDeCobro({
               )}
               zelle={zelle}
               transferencia={transferencia}
+              aceptaTarjeta={aceptaMetodo(metodosAceptados, "tarjeta")}
             />
           )}
         </div>

@@ -2306,7 +2306,23 @@
       "masFlete": " + {monto} de flete",
       "masManejo": " + {monto} de manejo",
       "otroCorreo": "Mandárselo a otro correo",
-      "reenviar": "Reenviar"
+      "reenviar": "Reenviar",
+      "metodosTitulo": "¿Cómo puede pagar tu cliente?",
+      "metodosAyuda": "La tarjeta cobra 2.9% + $0.30 aparte de la comisión de Mercatren. Si tu factura está calculada para cobrar por transferencia, quítale la tarjeta.",
+      "metodos": {
+        "transferencia": {
+          "titulo": "Transferencia (ACH)",
+          "detalle": "Sin comisión del procesador. Lo verificamos contra el banco."
+        },
+        "zelle": {
+          "titulo": "Zelle",
+          "detalle": "Sin comisión del procesador. Desde $200."
+        },
+        "tarjeta": {
+          "titulo": "Tarjeta",
+          "detalle": "Se confirma al instante, pero el procesador cobra 2.9% + $0.30."
+        }
+      }
     },
     "devolverCobro": {
       "boton": "Devolver el dinero",
@@ -2363,7 +2379,15 @@
       "pagaElCliente": "Paga el cliente",
       "margen": "Comisión de Mercatren ({pct}%)",
       "recibeElComercio": "Te queda a ti",
-      "siguiente": "Con estas cantidades puedes armar el pedido, o crear un enlace de cobro por el monto de arriba en Cobros → Enlaces de cobro."
+      "siguiente": "Con estas cantidades puedes armar el pedido, o crear un enlace de cobro por el monto de arriba en Cobros → Enlaces de cobro.",
+      "porDondePaga": "¿Por dónde va a pagar tu cliente?",
+      "metodo": {
+        "transferencia": "Transferencia o Zelle",
+        "tarjeta": "Con tarjeta"
+      },
+      "avisoTarjeta": "Con tarjeta, el procesador se lleva {monto} más. Si puedes, pídele que pague por transferencia.",
+      "avisoSinTarjeta": "Sin procesador de por medio: solo se descuenta la comisión de Mercatren.",
+      "procesador": "Procesador de tarjeta (2.9% + $0.30)"
     }
   },
   "catalogo": {

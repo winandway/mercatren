@@ -232,6 +232,13 @@
       "when": 1787623486402,
       "tag": "0032_jazzy_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1787766398935,
+      "tag": "0033_awesome_vindicator",
+      "breakpoints": true
     }
   ]
 }

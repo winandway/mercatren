@@ -3154,6 +3154,51 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## LA FUGA DEL PROCESADOR EN LOS COBROS POR ENLACE (26 ago 2026)
+
+**Lo vio el dueño antes que nadie**, mirando la calculadora: _«si solamente se
+agregó el 3% para nosotros y al cliente le da la gana de pagar con tarjeta,
+salimos peleando nosotros»_. Tenía razón, y era peor de lo que parecía.
+
+`acreditarCobro` le descontaba al comercio **solo el 3% de Mercatren**, sin
+mirar por dónde entró el dinero. Con tarjeta, Stripe se lleva además 2,9% +
+$0.30 — y ese costo salía del margen. Medido con las facturas reales:
+
+| Cobro con tarjeta | Stripe  | Al comercio | Margen REAL de Mercatren |
+| ----------------- | ------- | ----------- | ------------------------ |
+| $2.860,71         | $83,26  | $2.774,89   | **$2,56**                |
+| $7.475,00         | $217,08 | $7.250,75   | **$7,17**                |
+| $10,00            | $0,59   | $9,70       | **−$0,29** ← pérdida     |
+
+En la factura de siete mil dólares el margen se quedaba en siete, y **por
+debajo de unos once dólares cada cobro daba pérdida**. Llevaba así desde que
+existe el cobro por enlace.
+
+**`src/lib/cobros/reparto.ts`** (puro, 12 pruebas) reparte por método: el
+procesador primero, el margen después, el resto del comercio. Las dos ramas
+—tarjeta y Zelle— pasan por la misma función, y `tests/unit/reparto-cobro.test.ts`
+exige que las tres partes **sumen siempre el monto exacto** y que no vuelva a
+aparecer un `calcularComisionCentavos` suelto en la acreditación.
+
+Cuatro cosas que no se tocan:
+
+1. **Reusa las fórmulas del catálogo** (`precioConAjusteCentavos` y
+   `precioZelleCentavos`), que estaban resueltas desde el 7 de agosto. Dos
+   fórmulas para lo mismo se separan al primer arreglo.
+2. **Nunca se le acredita un negativo al comercio.** Con un cobro de un dólar
+   el fijo de $0.30 se come más que el margen; un neto negativo escrito en una
+   billetera es una deuda que nadie contrajo.
+3. **La calculadora pregunta por dónde va a pagar**, y enseña el procesador en
+   su propio renglón. Comprobado en pantalla con la factura real: los mismos
+   $2.860,71 dejan **$2.774,89 por transferencia y $2.691,63 con tarjeta**.
+   Calcular sin decir el método es dar un número que no se va a cumplir.
+4. **El comercio elige qué métodos acepta el enlace** (tabla `metodos_del_cobro`,
+   tabla y no columna). Si calculó su factura para cobrar por transferencia,
+   dejar la tarjeta abierta le regala el 2,9% + $0.30. **Sin filas se aceptan
+   todos**, que es como se comportan los cobros de antes: un cambio de esquema
+   no puede dejar a nadie sin poder cobrar. Y si solo queda un método, el
+   enlace lo enseña directo sin obligar a elegir.
+
 ## TRANSFERENCIA ACH DIRECTA EN EL COBRO POR ENLACE (26 ago 2026)
 
 Lo pidió el dueño con la cuenta hecha: una factura de siete mil dólares con
