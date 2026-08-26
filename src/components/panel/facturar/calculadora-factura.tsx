@@ -14,6 +14,7 @@ import {
   repartoDelCobro,
   type MetodoDeCobro,
 } from "@/lib/cobros/reparto";
+import { BuscadorDeComercio } from "@/components/panel/facturar/buscador-de-comercio";
 import { CobrarLoCuadrado } from "@/components/panel/facturar/cobrar-lo-cuadrado";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
@@ -42,6 +43,7 @@ export function CalculadoraFactura({
   tiendaId,
   comercios = [],
   comercioElegido,
+  referenciaSugerida,
 }: {
   productos: ProductoParaCuadrar[];
   idioma: Idioma;
@@ -51,6 +53,8 @@ export function CalculadoraFactura({
   /** Los comercios entre los que puede elegir el equipo. Vacío para un vendedor. */
   comercios?: { id: string; slug: string; nombre: string }[];
   comercioElegido?: string;
+  /** El siguiente número de la numeración del comercio, ya calculado. */
+  referenciaSugerida?: string;
 }) {
   const t = useTranslations("panel.calculadora");
   const [elegidos, setElegidos] = useState<Set<string>>(new Set());
@@ -98,28 +102,10 @@ export function CalculadoraFactura({
           Sin esto había que escribir `?comercio=` en la dirección, y quien no
           lo sabía se quedaba con la pantalla vacía. */}
       {comercios.length > 0 ? (
-        <label className="block rounded-xl border border-carga-500/30 bg-carga-500/5 p-4">
-          <span className="text-sm font-bold text-riel-900">
-            {t("porQueComercio")}
-          </span>
-          <select
-            defaultValue={comercioElegido ?? ""}
-            onChange={(e) => {
-              const slug = e.target.value;
-              window.location.assign(
-                slug ? `?comercio=${encodeURIComponent(slug)}` : "?",
-              );
-            }}
-            className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:max-w-md sm:text-sm"
-          >
-            <option value="">{t("eligeComercio")}</option>
-            {comercios.map((c) => (
-              <option key={c.id} value={c.slug}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
+        <BuscadorDeComercio
+          comercios={comercios}
+          elegido={comercios.find((c) => c.slug === comercioElegido) ?? null}
+        />
       ) : null}
 
       <p className="flex items-start gap-2 text-sm leading-relaxed text-tinta-suave">
@@ -377,6 +363,7 @@ export function CalculadoraFactura({
           )}
           metodo={metodo}
           tiendaId={tiendaId}
+          referenciaSugerida={referenciaSugerida}
         />
       ) : null}
     </div>

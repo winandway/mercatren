@@ -198,6 +198,20 @@ export default async function PaginaDeCobro({
    * Stripe. **Sin filas se aceptan todos**, que es como se comportan los
    * cobros creados antes de que esto existiera.
    */
+  /* Si esta factura se cobra en partes, cuál es esta. Sin fila es un cobro
+     normal, que es lo que han sido siempre. */
+  const { partesDelCobro } = await import("@/lib/db/schema");
+  const [parte] = await getDb()
+    .select({
+      numero: partesDelCobro.numero,
+      total: partesDelCobro.total,
+      totalFacturaCentavos: partesDelCobro.totalFacturaCentavos,
+    })
+    .from(partesDelCobro)
+    .where(eq(partesDelCobro.cobroId, cobro.id))
+    .limit(1)
+    .catch(() => []);
+
   const { metodosDelCobro } = await import("@/lib/db/schema");
   const metodosAceptados = await getDb()
     .select({ metodo: metodosDelCobro.metodo })
@@ -288,9 +302,33 @@ export default async function PaginaDeCobro({
           {t("titulo")}
         </h1>
 
-        <p className="mt-6 text-4xl font-extrabold tabular-nums">
+        {/* ══ QUÉ PARTE ES, SI LA FACTURA SE COBRA EN ABONOS ══
+
+            Sin esto, quien recibe el segundo enlace ve un monto que no es el
+            de su factura y no entiende qué está pagando — o cree que le
+            cobran dos veces. Se dice antes del monto, que es lo primero que
+            mira. */}
+        {parte && parte.total > 1 ? (
+          <p className="text-carga-700 mt-6 inline-flex items-center gap-2 rounded-full bg-carga-500/10 px-3 py-1.5 text-sm font-bold">
+            {t("parteDe", { n: parte.numero, total: parte.total })}
+          </p>
+        ) : null}
+
+        <p className="mt-2 text-4xl font-extrabold tabular-nums">
           {formatearPrecio(cobro.montoCentavos, idioma, cobro.moneda)}
         </p>
+
+        {parte && parte.total > 1 ? (
+          <p className="mt-1 text-sm text-tinta-suave">
+            {t("deUnTotalDe", {
+              monto: formatearPrecio(
+                parte.totalFacturaCentavos,
+                idioma,
+                cobro.moneda,
+              ),
+            })}
+          </p>
+        ) : null}
 
         <dl className="mt-4 space-y-1 text-sm">
           <div className="flex justify-between gap-3">

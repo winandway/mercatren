@@ -2405,8 +2405,16 @@
         "tarjeta": "solo tarjeta."
       },
       "porQueComercio": "¿Por qué comercio estás cuadrando?",
-      "eligeComercio": "Elige un comercio…",
-      "eligeComercioPrimero": "Elige arriba de qué comercio es esta factura para poder cobrarla."
+      "eligeComercioPrimero": "Elige arriba de qué comercio es esta factura para poder cobrarla.",
+      "enCuantasPartes": "¿En cuántas partes puede pagarla tu cliente?",
+      "avisoUnaParte": "Un solo pago. Si tu cliente tiene tope diario en su banco, divídela.",
+      "avisoPartes": "Se crearán {n} cobros de unos {monto} cada uno, con su propio enlace y su propio número. Tu cliente paga uno hoy y el siguiente cuando pueda.",
+      "enlacesListos": "¡Listo! {n} enlaces, uno por cada parte",
+      "parteDe": "Parte {n} de {total}",
+      "comoMandarLasPartes": "Mándale el primero ahora. Los demás se los mandas cuando le vuelva el cupo en su banco: cada uno vale por sí solo.",
+      "buscaComercio": "Escribe el nombre del comercio…",
+      "ningunComercio": "Ningún comercio con ese nombre.",
+      "quitarComercio": "Quitar el comercio"
     }
   },
   "catalogo": {
@@ -3493,7 +3501,9 @@
     "achSubirComprobante": "Elegir el comprobante",
     "achReferencia": "Número de referencia del banco (si lo tienes)",
     "achEnviar": "Ya transferí, enviar comprobante",
-    "sinMetodoDisponible": "Este cobro está configurado para pagarse por transferencia o Zelle, pero ahora mismo ninguno está disponible. Escríbele al comercio para que te mande uno nuevo."
+    "sinMetodoDisponible": "Este cobro está configurado para pagarse por transferencia o Zelle, pero ahora mismo ninguno está disponible. Escríbele al comercio para que te mande uno nuevo.",
+    "parteDe": "Parte {n} de {total}",
+    "deUnTotalDe": "de un total de {monto}"
   },
   "videos": {
     "hilera": {

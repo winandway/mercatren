@@ -3114,3 +3114,31 @@ export const metodosDelCobro = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.cobroId, t.metodo] })],
 );
+
+/**
+ * LAS PARTES DE UNA FACTURA COBRADA EN VARIOS ABONOS (26 ago 2026).
+ *
+ * Una factura de $7.475 y un cliente con cupo de $2.500 al día en su banco:
+ * con un solo cobro no puede pagarla. Se parte en N cobros normales —cada uno
+ * con su enlace, su número de conciliación y su comprobante— y esta tabla es
+ * la que sabe que son de la misma factura.
+ *
+ * **Tabla y no columnas**, como manda la regla: `schema.sql` solo trae
+ * `CREATE TABLE IF NOT EXISTS` y una columna nueva no llegaría sola a
+ * producción. Sin fila, un cobro es lo que siempre fue: uno solo.
+ */
+export const partesDelCobro = sqliteTable(
+  "partes_del_cobro",
+  {
+    cobroId: text("cobro_id")
+      .primaryKey()
+      .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+    /** Une las partes de la misma factura. */
+    grupo: text("grupo").notNull(),
+    numero: integer("numero").notNull(),
+    total: integer("total").notNull(),
+    /** El total de la factura entera, para poder enseñarlo en cada parte. */
+    totalFacturaCentavos: integer("total_factura_centavos").notNull(),
+  },
+  (t) => [index("idx_partes_del_cobro_grupo").on(t.grupo)],
+);

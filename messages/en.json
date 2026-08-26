@@ -2405,8 +2405,16 @@
         "tarjeta": "card only."
       },
       "porQueComercio": "Which store are you matching for?",
-      "eligeComercio": "Choose a store…",
-      "eligeComercioPrimero": "Choose which store this invoice belongs to, above, to be able to charge it."
+      "eligeComercioPrimero": "Choose which store this invoice belongs to, above, to be able to charge it.",
+      "enCuantasPartes": "In how many parts can your customer pay it?",
+      "avisoUnaParte": "One single payment. If your customer has a daily bank limit, split it.",
+      "avisoPartes": "We'll create {n} charges of about {monto} each, with their own link and number. Your customer pays one today and the next when they can.",
+      "enlacesListos": "Done! {n} links, one per part",
+      "parteDe": "Part {n} of {total}",
+      "comoMandarLasPartes": "Send the first one now. Send the rest when their bank limit resets: each one stands on its own.",
+      "buscaComercio": "Type the store's name…",
+      "ningunComercio": "No store with that name.",
+      "quitarComercio": "Remove store"
     }
   },
   "catalogo": {
@@ -3493,7 +3501,9 @@
     "achSubirComprobante": "Choose the receipt",
     "achReferencia": "Bank reference number (if you have it)",
     "achEnviar": "I transferred, send receipt",
-    "sinMetodoDisponible": "This charge is set up to be paid by bank transfer or Zelle, but neither is available right now. Contact the store so they can send you a new one."
+    "sinMetodoDisponible": "This charge is set up to be paid by bank transfer or Zelle, but neither is available right now. Contact the store so they can send you a new one.",
+    "parteDe": "Part {n} of {total}",
+    "deUnTotalDe": "out of a total of {monto}"
   },
   "videos": {
     "hilera": {

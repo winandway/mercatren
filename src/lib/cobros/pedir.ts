@@ -26,6 +26,7 @@ import {
   user,
 } from "@/lib/db/schema";
 import { metodosDesdeFormulario } from "@/lib/cobros/reparto";
+import { cuantasPartes, repartirEnPartes } from "@/lib/cobros/partes";
 import { aCentavos } from "@/lib/retiros/monto";
 import { SITIO } from "@/lib/sitio";
 
@@ -55,8 +56,23 @@ import { SITIO } from "@/lib/sitio";
  * dinero entra y sale en la misma pantalla de código.
  */
 
+export type ParteCreada = {
+  numero: number;
+  total: number;
+  referencia: string;
+  montoCentavos: number;
+  url: string;
+};
+
 export type ResultadoCobro =
-  | { ok: true; url: string; referencia: string }
+  | {
+      ok: true;
+      /** La PRIMERA parte (o el cobro entero si no se dividió). */
+      url: string;
+      referencia: string;
+      /** Todas las partes, en orden. Una sola cuando no se dividió. */
+      partes: ParteCreada[];
+    }
   | { ok: false; mensaje: string; campos?: string[] };
 
 export async function crearCobroDesdePanel(
@@ -190,27 +206,68 @@ export async function crearCobroDesdePanel(
   }
 
   const ahora = new Date();
-  const enlace = generarEnlace();
-  const id = `cobro-${nanoid(14)}`;
   const dias = texto("dias");
   const vence = venceEn(ahora, dias ? Number(dias) : undefined);
   const concepto = texto("concepto");
 
+  /**
+   * ══ LA FACTURA EN VARIAS PARTES (26 ago 2026) ══
+   *
+   * Una factura de $7.475 y un cliente con cupo de $2.500 al día en su banco:
+   * con un solo cobro no puede pagarla. Se parte en N cobros normales, cada
+   * uno con su enlace, su número de conciliación y su comprobante — todo eso
+   * ya funcionaba; lo único nuevo es repartir el monto y numerarlas.
+   *
+   * Con una sola parte, `repartirEnPartes` devuelve el cobro de siempre con
+   * su referencia intacta: los cobros que ya existen no cambian en nada.
+   */
+  const reparto = repartirEnPartes(
+    peticion.montoCentavos!,
+    cuantasPartes(datos.get("partes")),
+    peticion.referencia!,
+  );
+  const grupo = `grupo-${nanoid(12)}`;
+  const creadas = reparto.map((parte) => ({
+    ...parte,
+    id: `cobro-${nanoid(14)}`,
+    enlace: generarEnlace(),
+  }));
+  const primera = creadas[0]!;
+  const id = primera.id;
+  const enlace = primera.enlace;
+
   try {
-    await db.insert(cobrosSolicitados).values({
-      id,
-      tiendaId: tienda.id,
-      enlace,
-      referencia: peticion.referencia!,
-      montoCentavos: peticion.montoCentavos!,
-      estado: "abierto",
-      clienteId,
-      contactoCorreo: peticion.correo!,
-      contactoNombre: peticion.nombre ?? null,
-      concepto: concepto ? concepto.slice(0, 300) : null,
-      venceEn: vence,
-      creadoEn: ahora,
-    });
+    for (const parte of creadas) {
+      await db.insert(cobrosSolicitados).values({
+        id: parte.id,
+        tiendaId: tienda.id,
+        enlace: parte.enlace,
+        referencia: parte.referencia,
+        montoCentavos: parte.montoCentavos,
+        estado: "abierto",
+        clienteId,
+        contactoCorreo: peticion.correo!,
+        contactoNombre: peticion.nombre ?? null,
+        concepto: concepto ? concepto.slice(0, 300) : null,
+        venceEn: vence,
+        creadoEn: ahora,
+      });
+    }
+
+    /* Qué parte es cada una, para poder enseñarlo en su página de pago. Solo
+       cuando de verdad se dividió: un cobro de una parte es un cobro normal. */
+    if (creadas.length > 1) {
+      const { partesDelCobro } = await import("@/lib/db/schema");
+      await db.insert(partesDelCobro).values(
+        creadas.map((parte) => ({
+          cobroId: parte.id,
+          grupo,
+          numero: parte.numero,
+          total: parte.total,
+          totalFacturaCentavos: peticion.montoCentavos!,
+        })),
+      );
+    }
 
     /**
      * QUÉ MÉTODOS ACEPTA ESTE COBRO (26 ago 2026).
@@ -228,7 +285,11 @@ export async function crearCobroDesdePanel(
       const { metodosDelCobro } = await import("@/lib/db/schema");
       await db
         .insert(metodosDelCobro)
-        .values(peticion.metodos.map((metodo) => ({ cobroId: id, metodo })));
+        .values(
+          creadas.flatMap((parte) =>
+            peticion.metodos!.map((metodo) => ({ cobroId: parte.id, metodo })),
+          ),
+        );
     }
   } catch (fallo) {
     /* Repetir la referencia es el error más común, y hay que poder decirlo:
@@ -296,8 +357,10 @@ export async function crearCobroDesdePanel(
       {
         comercio: tienda.nombre,
         nombrarComercio: modo !== "solo_mercatren",
-        referencia: peticion.referencia!,
-        montoCentavos: peticion.montoCentavos!,
+        /* De la PRIMERA parte: es la que tiene que pagar ahora. Las demás
+           las manda el comercio cuando al cliente le vuelva el cupo. */
+        referencia: primera.referencia,
+        montoCentavos: primera.montoCentavos,
         url,
       },
     );
@@ -306,7 +369,20 @@ export async function crearCobroDesdePanel(
   }
 
   revalidatePath("/[locale]/panel/cobros/enlaces", "page");
-  return { ok: true, url, referencia: peticion.referencia! };
+  return {
+    ok: true,
+    url,
+    referencia: primera.referencia,
+    /* Todas las partes, para que el comercio pueda mandarlas cuando toque:
+       la primera hoy y la siguiente cuando al cliente le vuelva el cupo. */
+    partes: creadas.map((parte) => ({
+      numero: parte.numero,
+      total: parte.total,
+      referencia: parte.referencia,
+      montoCentavos: parte.montoCentavos,
+      url: `${SITIO.url}/es/cobro/${parte.enlace}`,
+    })),
+  };
 }
 
 /**

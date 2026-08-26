@@ -5,6 +5,7 @@ import { COMISION_ZELLE_PB } from "@/lib/dinero";
 import type { Idioma } from "@/lib/dinero";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { listarComercios } from "@/lib/zelle/consultas";
+import { siguienteReferencia } from "@/lib/cobros/partes";
 import { productosParaCuadrar } from "@/lib/productos/consultas";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,23 @@ export default async function PaginaCalculadora({
   /* El equipo cuadra POR un comercio. Antes solo se podía con `?comercio=` en
      la dirección: quien no sabía escribirla veía la pantalla vacía y sin
      forma de arreglarlo — que es justo lo que le pasó al dueño. */
+  /* El siguiente número de SU numeración, no de la nuestra: si su último
+     cobro fue VIG-02497, se le propone VIG-02498. Copiar uno a mano es como
+     se acaban repitiendo referencias. */
+  let referenciaSugerida = "F-00001";
+  if (tiendaId) {
+    const { cobrosSolicitados } = await import("@/lib/db/schema");
+    const { desc, eq } = await import("drizzle-orm");
+    const { getDb } = await import("@/lib/db");
+    const [ultimo] = await getDb()
+      .select({ referencia: cobrosSolicitados.referencia })
+      .from(cobrosSolicitados)
+      .where(eq(cobrosSolicitados.tiendaId, tiendaId))
+      .orderBy(desc(cobrosSolicitados.creadoEn))
+      .limit(1);
+    referenciaSugerida = siguienteReferencia(ultimo?.referencia);
+  }
+
   const esEquipo = await esEquipoInterno().catch(() => false);
   const comercios = esEquipo
     ? (await listarComercios().catch(() => [])).map((c) => ({
@@ -58,6 +76,7 @@ export default async function PaginaCalculadora({
         tiendaId={tiendaId}
         comercios={comercios}
         comercioElegido={comercio}
+        referenciaSugerida={referenciaSugerida}
         productos={productos}
       />
     </div>

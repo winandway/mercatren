@@ -3154,6 +3154,54 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## COBRAR UNA FACTURA EN VARIAS PARTES (26 ago 2026)
+
+**El caso que lo pidió:** una factura de $7.475 y un cliente cuyo banco le
+deja mandar $2.500 por Zelle al día. Con un solo cobro no puede pagarla — manda
+lo que le deja el banco, se queda a medias, y el comercio no sabe si eso fue un
+abono o un error. Palabras del dueño: _«si se divide en tres partes, póngale
+que la primera la logra enviar… pero la segunda, ¿cómo va a ser si no tiene más
+cupo?»_.
+
+**Una factura en N partes son N cobros normales**, cada uno con su enlace, su
+número de conciliación, su comprobante y su validación. Todo eso ya
+funcionaba: lo único nuevo es repartir el monto y numerarlas
+(`src/lib/cobros/partes.ts`, puro, 8 pruebas; tabla `partes_del_cobro`).
+
+**POR QUÉ ASÍ Y NO CON «PAGOS PARCIALES» DE UN SOLO COBRO:** un cobro a medio
+pagar no se puede conciliar contra el banco. Llega una transferencia y nadie
+sabe si es el abono de esta factura o el pago entero de otra. Con partes, cada
+una tiene su propio número —`F-00123 (2/3)`— y cuadra sola. Es lo que
+convierte tres pagos sueltos en tres asientos.
+
+Cuatro reglas que no se tocan:
+
+1. **Las partes SIEMPRE suman el total exacto.** $7.475 entre 3 da 2.491,67 +
+   2.491,67 + 2.491,66; el resto se reparte de a un centavo entre las
+   primeras, no todo junto en la última. Un centavo que no cuadra en una
+   conciliación bancaria cuesta una llamada.
+2. **Con UNA parte, nada cambia.** La referencia se queda intacta y no se
+   escribe fila en `partes_del_cobro`: los cobros que ya existen se comportan
+   igual que siempre.
+3. **El correo sale solo de la PRIMERA parte** — es la que hay que pagar
+   ahora. Las demás las manda el comercio cuando al cliente le vuelva el cupo,
+   con los enlaces que le quedan en pantalla.
+4. **La página del cobro dice qué parte es** («Parte 2 de 3 · $2.491,67 · de
+   un total de $7.475»). Sin eso, quien recibe el segundo enlace ve un monto
+   que no es el de su factura y cree que le cobran dos veces.
+
+**Y dos cosas más que salieron del mismo repaso:**
+
+- **El número de factura se propone solo**, respetando la numeración DEL
+  COMERCIO: si su último cobro fue `VIG-02497`, el siguiente es `VIG-02498`
+  (`siguienteReferencia`, conserva los ceros a la izquierda y descarta el
+  sufijo de parte). El dueño lo pidió después de copiar uno a mano: _«si no
+  tiene el número de factura generado, va a estar feo»_.
+- **El selector de comercios pasó a BUSCADOR.** Era un `<select>` con todos:
+  _«no tiene tres mil clientes… ¿dónde lo voy a buscar? Es mejor un
+  buscador»_. Filtra mientras se escribe, sin acentos ni mayúsculas, enseña
+  como mucho ocho, y al elegir se convierte en **una etiqueta con su equis**.
+
 ## COBRAR NO PUEDE DEPENDER DE CUADRAR PRODUCTOS (26 ago 2026)
 
 El dueño abrió la calculadora **como Soporte**, escribió $7.475, eligió
