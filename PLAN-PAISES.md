@@ -397,11 +397,90 @@ El módulo es, en orden:
 4. Un reporte trimestral en el panel con lo cobrado, para llenar el F129 sin
    sumar a mano.
 
-**DOS COSAS SIN CONFIRMAR, y hay que preguntárselas al contador ANTES de
-programar la calculadora**: si el tope de USD 500 se mide solo sobre la
-mercancía o incluye flete y seguro; y qué compone la base del 19 % — el precio
-de venta publicado, o mercancía + flete + seguro. Programar eso a ojo es
-declarar de menos o cobrarle de más al comprador.
+### LAS DOS DUDAS, RESUELTAS EN LA FUENTE (26 ago 2026)
+
+Quedaban dos cosas sin confirmar y **ya no hacen falta preguntárselas a nadie**:
+están escritas en la normativa. Fuentes leídas enteras, no resúmenes:
+**Circular SII N°39 del 30 abr 2025** (apartados 3.4 y 3.6.4) y **Resolución
+Exenta SII N°93 de 2025** (nota 1 y nota 6). Se conservan en el repo el porqué
+y la cita, porque de esto sale un número que se le cobra a una persona.
+
+**1 · El tope de USD 500 INCLUYE flete, seguro y embalaje — y se mide POR
+ARTÍCULO, no por envío ni por pedido.** Es la parte que más se presta a error, y
+la que más nos favorece.
+
+> «Se entenderá que un bien corporal mueble es de "bajo valor" cuando el precio
+> del artículo o ítem, **individualmente considerado**, no excede de USD 500.
+> Dicho tope **incluye los cargos asociados a la compra del bien, tales como su
+> envío, seguro o empaque adicional**, cobrados al comprador por cada ítem o
+> artículo individualmente considerado, dentro del precio de compra del bien.»
+> — Resolución Ex. SII N°93 de 2025, nota 1
+
+De ahí salen cuatro reglas que van al código tal cual:
+
+- **Un carrito de tres artículos de USD 200 cada uno pasa**, aunque sume 600. El
+  techo es de cada artículo, no del pedido.
+- **Si el flete no se cobra por artículo, se PRORRATEA** entre los artículos de
+  la compra. Lo dice la misma nota. Nuestro precio de EE. UU. ya lleva el flete
+  dentro por producto, así que encaja solo.
+- **Los descuentos restan** para el cómputo del tope; **los regalos no suman**.
+- **A partir de USD 500,01** ese artículo deja de ser de bajo valor: paga IVA
+  **más arancel** en la aduana y lo asume quien recibe. En Chile no se publica.
+
+**2 · La base del 19 % es el MISMO total: precio + todo cargo accesorio.**
+
+> «El valor de la operación en la venta de bienes situados en el extranjero,
+> para efectos de la base imponible del IVA, **incluye todo cargo accesorio que
+> sea cobrado al comprador en la operación**. Por ende […] se incluyen dentro de
+> la base imponible el valor del transporte, seguros, etc.»
+> — Circular SII N°39 de 2025, apartado 3.6.4
+
+O sea: **la cifra que se compara contra las 500 y la cifra sobre la que se
+aplica el 19 % son la misma.** Una sola función, un solo número. Y el IVA se
+**recarga** al comprador (se le suma), no se entiende incluido en el precio.
+
+**3 · El tipo de cambio: el del Banco Central del día en que se devenga el
+impuesto, que es el día en que se le carga el pago a la tarjeta.**
+
+> «Para determinar la paridad cambiaria […] se estará al tipo de cambio
+> publicado por el Banco Central a la fecha del devengo del impuesto; esto es,
+> a la fecha del recargo en el medio de pago del tarjetahabiente comprador.»
+> — Circular SII N°39 de 2025, apartado 3.4
+
+Esto importa porque Chile vende en pesos y el techo está en dólares: el tope se
+evalúa convirtiendo con ESA tasa, ese día. No con una tasa guardada de ayer.
+
+### LO QUE NADIE HABÍA MIRADO: SIN ESTO, EL PAQUETE PAGA DOS VECES
+
+Cobrar el 19 % no basta. Para que el paquete entre **sin IVA y sin arancel** en
+la aduana hay que **demostrar que ya se cobró**, y eso tiene forma exacta. Es la
+**Resolución Ex. SII N°103 de 2025**, la que aplica a un vendedor remoto
+extranjero inscrito en el régimen simplificado — que es nuestro caso. (La 141 es
+para plataformas con domicilio en Chile; esa NO es la nuestra.)
+
+**Por CADA envío**, y a través del operador logístico, hay que entregarle al
+Servicio Nacional de Aduanas cuatro datos:
+
+| #   | Dato                                                         | El nuestro    |
+| --- | ------------------------------------------------------------ | ------------- |
+| a   | Nombre comercial o legal del vendedor remoto                 | Mercatren LLC |
+| b   | **Número de usuario del régimen simplificado**               | `59330700K`   |
+| c   | Marca de que el IVA fue efectivamente recargado al comprador | por envío     |
+| d   | Identificador único del envío, para su trazabilidad          | por envío     |
+
+Y una regla que condiciona la operación entera:
+
+> «**No se podrán agrupar en un mismo envío** ítems o artículos a los cuales se
+> ha recargado el IVA **con ítems o artículos a los cuales no** se les ha
+> recargado dicho impuesto en su venta remota.»
+> — Resolución Ex. SII N°103 de 2025, resolutivo 1°
+
+**ESTO ES LO QUE HAY QUE PREGUNTARLE A CJ ANTES DE ABRIR CHILE**, y no es una
+pregunta de programación: ¿su operador logístico transmite esos cuatro datos al
+SNA? Si no los transmite, cobramos el 19 %, lo declaramos, **y al comprador se
+lo vuelven a cobrar en la aduana**. Paga dos veces, y la culpa se la lleva
+Mercatren. Un consolidado de CJ que mezcle mercancía con IVA y sin IVA rompe
+además la regla de arriba.
 
 ## Cómo se trabaja (no es opcional)
 
