@@ -3405,7 +3405,8 @@
       "sin_captura": "Elige la captura de tu transferencia.",
       "captura_invalida": "La captura tiene que ser una imagen (JPG, PNG o WEBP).",
       "captura_pesada": "La imagen pesa demasiado. Máximo 8 MB.",
-      "no_se_pudo": "No pudimos guardar tu comprobante. Inténtalo otra vez."
+      "no_se_pudo": "No pudimos guardar tu comprobante. Inténtalo otra vez.",
+      "generico": "No pudimos guardar el comprobante. Vuelve a intentarlo."
     },
     "quienCobraSolo": "El pago lo recibe y lo factura Mercatren.",
     "canceladoPorComercio": "{comercio} canceló este cobro.",
@@ -3432,7 +3433,23 @@
       "desconocido": "Confirmado"
     },
     "devuelto": "Este cobro se pagó y el dinero ya se devolvió.",
-    "devueltoQueHacer": "Verás el reembolso en la misma tarjeta con la que pagaste, normalmente en 5 a 10 días hábiles. No tienes que hacer nada."
+    "devueltoQueHacer": "Verás el reembolso en la misma tarjeta con la que pagaste, normalmente en 5 a 10 días hábiles. No tienes que hacer nada.",
+    "metodoTransferencia": "Transferencia (ACH)",
+    "metodoTransferenciaDetalle": "Desde tu banco. Sin comisión.",
+    "achComoFunciona": "Haces la transferencia desde tu banco a la cuenta de Mercatren y subes el comprobante. Una persona lo verifica contra el banco, normalmente el mismo día hábil.",
+    "achPaso1": "1 · Los datos de la cuenta",
+    "achBeneficiario": "A nombre de",
+    "achBanco": "Banco",
+    "achRuta": "Número de ruta (ACH)",
+    "achCuenta": "Número de cuenta",
+    "achPaso2": "2 · Manda este monto exacto",
+    "achMontoAyuda": "Si tu banco te cobra algo por la transferencia, súmalo aparte.",
+    "achPaso3": "3 · Escribe esto en la nota de la transferencia",
+    "achConceptoAyuda": "Sin este número no podemos saber qué factura estás pagando, y verificarla se vuelve muy lento. A ti te justifica la salida de tu cuenta y a nosotros la entrada en la nuestra.",
+    "achPaso4": "4 · Sube el comprobante",
+    "achSubirComprobante": "Elegir el comprobante",
+    "achReferencia": "Número de referencia del banco (si lo tienes)",
+    "achEnviar": "Ya transferí, enviar comprobante"
   },
   "videos": {
     "hilera": {

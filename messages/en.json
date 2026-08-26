@@ -3405,7 +3405,8 @@
       "sin_captura": "Choose the screenshot of your transfer.",
       "captura_invalida": "The screenshot must be an image (JPG, PNG, or WEBP).",
       "captura_pesada": "The image is too large. Maximum 8 MB.",
-      "no_se_pudo": "We couldn't save your proof of payment. Please try again."
+      "no_se_pudo": "We couldn't save your proof of payment. Please try again.",
+      "generico": "We couldn't save the receipt. Try again."
     },
     "quienCobraSolo": "Mercatren receives and invoices this payment.",
     "canceladoPorComercio": "{comercio} canceled this payment request.",
@@ -3432,7 +3433,23 @@
       "desconocido": "Confirmed"
     },
     "devuelto": "This payment was made and has been refunded.",
-    "devueltoQueHacer": "You will see the refund on the same card you paid with, usually within 5 to 10 business days. Nothing else to do."
+    "devueltoQueHacer": "You will see the refund on the same card you paid with, usually within 5 to 10 business days. Nothing else to do.",
+    "metodoTransferencia": "Bank transfer (ACH)",
+    "metodoTransferenciaDetalle": "From your bank. No fee.",
+    "achComoFunciona": "You transfer from your bank to Mercatren's account and upload the receipt. A person checks it against the bank, usually the same business day.",
+    "achPaso1": "1 · Account details",
+    "achBeneficiario": "Account name",
+    "achBanco": "Bank",
+    "achRuta": "Routing number (ACH)",
+    "achCuenta": "Account number",
+    "achPaso2": "2 · Send this exact amount",
+    "achMontoAyuda": "If your bank charges you for the transfer, add it separately.",
+    "achPaso3": "3 · Put this in the transfer memo",
+    "achConceptoAyuda": "Without this number we can't tell which invoice you're paying, and verifying it gets very slow. It documents the debit on your side and the credit on ours.",
+    "achPaso4": "4 · Upload the receipt",
+    "achSubirComprobante": "Choose the receipt",
+    "achReferencia": "Bank reference number (if you have it)",
+    "achEnviar": "I transferred, send receipt"
   },
   "videos": {
     "hilera": {

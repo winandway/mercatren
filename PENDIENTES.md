@@ -137,6 +137,13 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 👤 **Crear la sección en producción y subir los 15 videos**: Panel →
       Secciones de video → Nueva sección, copiar el enlace, mandárselo por
       WhatsApp al teléfono con el que se graba.
+- [x] ✅ **Transferencia ACH directa en el cobro por enlace** (26 ago): tres
+      métodos —tarjeta, Zelle y ACH—, misma cola de validación.
+- [ ] 🔴 👤 **Apuntar las variables de pago a Mercatren LLC.** Comprobado el 26
+      ago: `PAGO_BENEFICIARIO`, `PAGO_BANCO`, `PAGO_CUENTA` y `PAGO_RUTA_ACH`
+      todavía traen los datos de Windoce, LLC en Bank of America. Con ACH
+      encendido, una factura entera se iría a la cuenta equivocada. Se cambian
+      en el panel de YaDominios Cloud → Variables de entorno.
 - [ ] 🟡 💻 **Las señales también en las bandas de PRODUCTOS de la portada**
       (después de la caché, reordenar sin filtrar — igual que los videos).
 - [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el

@@ -183,6 +183,10 @@ export default async function PaginaDeCobro({
     concepto: string;
     nombreReceptor: string | null;
   } | null = null;
+  let transferencia: {
+    datos: import("@/lib/cobros/transferencia").DatosDeTransferencia;
+    concepto: string;
+  } | null = null;
   let enRevision = false;
   if (pagable) {
     const { zelleDelCobro, comprobantePendienteDeCobro } =
@@ -201,6 +205,42 @@ export default async function PaginaDeCobro({
         getCloudflareContext().env.ZELLE_NOMBRE_RECEPTOR ?? null;
       zelle = { receptor: decision.receptor, concepto, nombreReceptor };
     }
+
+    /* ══ LA TRANSFERENCIA ACH DIRECTA (26 ago 2026) ══
+
+       Una factura de siete mil dólares con tarjeta deja más de $200 en
+       comisiones del procesador; por ACH a la cuenta de Mercatren LLC, cero.
+       Los datos salen de las variables del entorno —el código no tiene ni un
+       número de cuenta escrito— y si falta cualquiera de los cuatro, el
+       método no se ofrece: media instrucción bancaria manda el dinero a otra
+       parte o lo deja sin salir.
+
+       Se cobra por el mismo mínimo que Zelle porque cuesta lo mismo: las dos
+       las valida una persona contra el banco. */
+    if (concepto) {
+      const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+      const { decidirTransferencia } =
+        await import("@/lib/cobros/transferencia");
+      const { env } = getCloudflareContext();
+      const { ZELLE_MINIMO_CENTAVOS } = await import("@/lib/dinero");
+      const minimo = decision.disponible
+        ? decision.minimoCentavos
+        : ZELLE_MINIMO_CENTAVOS;
+      const posible = decidirTransferencia(
+        {
+          beneficiario: env.PAGO_BENEFICIARIO,
+          banco: env.PAGO_BANCO,
+          cuenta: env.PAGO_CUENTA,
+          rutaAch: env.PAGO_RUTA_ACH,
+        },
+        cobro.montoCentavos,
+        minimo,
+      );
+      if (posible.disponible) {
+        transferencia = { datos: posible.datos, concepto };
+      }
+    }
+
     enRevision = await comprobantePendienteDeCobro(cobro.id).catch(() => false);
   }
 
@@ -407,6 +447,7 @@ export default async function PaginaDeCobro({
                 cobro.moneda,
               )}
               zelle={zelle}
+              transferencia={transferencia}
             />
           )}
         </div>

@@ -3154,6 +3154,54 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## TRANSFERENCIA ACH DIRECTA EN EL COBRO POR ENLACE (26 ago 2026)
+
+Lo pidió el dueño con la cuenta hecha: una factura de siete mil dólares con
+tarjeta deja **más de $200 en comisiones del procesador**; por ACH directo a
+la cuenta de Mercatren LLC, **cero**. Ahora la página de un cobro por enlace
+ofrece tres métodos: tarjeta, Zelle y transferencia.
+
+**LO QUE HAY QUE ENTENDER DE ESTE MÉTODO:** una transferencia a nuestro banco
+**no pasa por Stripe**, así que el sistema NO se entera solo de que llegó. Es
+el mismo camino que Zelle —comprobante, validación humana contra el banco,
+acreditación— y por eso reusa `subirComprobanteDeCobro`, la misma cola y el
+mismo número de conciliación. No se duplicó nada.
+
+`src/lib/cobros/transferencia.ts` (puro, 8 pruebas). Cuatro reglas:
+
+1. **Los CUATRO datos o ninguno** (beneficiario, banco, cuenta, ruta ACH).
+   Enseñar una cuenta sin su número de ruta —o al revés— es mandar a alguien
+   al banco con media instrucción: ese dinero se va a otra parte o se queda
+   sin salir.
+2. **Se lee `PAGO_RUTA_ACH`, jamás `PAGO_RUTA_WIRE`.** Chase da un número de
+   ruta para ACH y otro distinto para wire; con el de wire, la transferencia
+   rebota. Hay una prueba que se pone roja si alguien lee la de wire aquí.
+3. **El mismo mínimo que Zelle**, porque cuesta lo mismo: las dos las valida
+   una persona. Por debajo, ese trabajo se come el margen entero y la tarjeta
+   es el método correcto aunque cobre comisión.
+4. **Ni un número de cuenta en el código** — todo sale de las variables del
+   entorno, y una prueba busca cualquier secuencia de nueve dígitos o más en
+   los tres archivos del método. El repositorio es público.
+
+**Cada dato con su propio botón de copiar**, y es deliberado: así se llena el
+formulario del banco, una casilla cada vez. Un bloque con los cuatro juntos
+obliga a seleccionar a mano trozo por trozo, y ahí es donde se cuela un dígito
+de menos en un número de cuenta con siete mil dólares dentro.
+
+**Y NO SE PUEDE PAGAR EN PARTES, a propósito.** Un cobro tiene un monto y al
+aprobarlo se cierra; no hay pagos parciales por ningún método. Es lo que
+pidió el dueño y es lo correcto: media factura pagada es una factura que
+nadie sabe si está cobrada.
+
+**⚠️ ANTES DE ENCENDER ESTO EN PRODUCCIÓN, COMPROBAR A QUÉ CUENTA APUNTAN LAS
+VARIABLES.** Comprobado en local el 26 ago 2026: `PAGO_BENEFICIARIO`,
+`PAGO_BANCO`, `PAGO_CUENTA` y `PAGO_RUTA_ACH` todavía traen los datos de
+**Windoce, LLC en Bank of America** — la sociedad anterior. Ya estaba anotado
+como pendiente en la cabecera de este archivo desde el 19 de agosto, y ahora
+importa el doble: esas mismas variables las enseña la página del pedido, y con
+ACH encendido el dinero de una factura entera se iría a la cuenta equivocada.
+Se cambian en el panel de YaDominios Cloud, no en el código.
+
 ## CUADRAR UNA FACTURA CON CANTIDADES ENTERAS (26 ago 2026)
 
 Un comercio tenía que cobrar **$7,475.00 exactos** y vende tubo estructural a

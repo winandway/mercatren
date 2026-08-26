@@ -1,10 +1,12 @@
 "use client";
 
-import { CreditCard, Landmark } from "lucide-react";
+import { Building2, CreditCard, Landmark } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { PagarCobro } from "@/components/cobro/pagar-cobro";
+import { PagarConTransferencia } from "@/components/cobro/pagar-con-transferencia";
+import type { DatosDeTransferencia } from "@/lib/cobros/transferencia";
 import { PagarConZelle } from "@/components/cobro/pagar-con-zelle";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +26,7 @@ export function MetodosDeCobro({
   enlace,
   montoTexto,
   zelle,
+  transferencia,
 }: {
   enlace: string;
   montoTexto: string;
@@ -32,11 +35,28 @@ export function MetodosDeCobro({
     concepto: string;
     nombreReceptor: string | null;
   } | null;
+  /**
+   * TRANSFERENCIA ACH DIRECTA A LA CUENTA DE MERCATREN LLC.
+   *
+   * Lo pidió el dueño por una razón de dinero: una factura de siete mil
+   * dólares con tarjeta deja **más de $200 en comisiones del procesador**;
+   * por ACH directo, cero. Va con sus datos ya resueltos —de las variables
+   * del entorno— o `null` si no están cargados: el código no inventa ni un
+   * número de cuenta.
+   */
+  transferencia: {
+    datos: DatosDeTransferencia;
+    concepto: string;
+  } | null;
 }) {
   const t = useTranslations("cobro");
-  const [metodo, setMetodo] = useState<"tarjeta" | "zelle">("tarjeta");
+  const [metodo, setMetodo] = useState<"tarjeta" | "zelle" | "transferencia">(
+    "tarjeta",
+  );
 
-  if (!zelle) {
+  /* Sin ninguna alternativa, ni se dibuja el selector: un «elige método» con
+     una sola opción es una pantalla de más. */
+  if (!zelle && !transferencia) {
     return <PagarCobro enlace={enlace} montoTexto={montoTexto} />;
   }
 
@@ -58,35 +78,56 @@ export function MetodosDeCobro({
             detalle: t("metodoZelleDetalle"),
             Icono: Landmark,
           },
-        ].map(({ clave, titulo, detalle, Icono }) => (
-          <button
-            key={clave}
-            type="button"
-            role="radio"
-            aria-checked={metodo === clave}
-            onClick={() => setMetodo(clave)}
-            className={cn(
-              "rounded-xl border p-3 text-left transition-colors",
-              metodo === clave
-                ? "border-carga-500 bg-carga-500/5 ring-2 ring-carga-500/30"
-                : "border-borde hover:border-carga-500/50",
-            )}
-          >
-            <span className="flex items-center gap-2 text-sm font-bold">
-              <Icono className="h-4 w-4 text-carga-500" aria-hidden />
-              {titulo}
-            </span>
-            <span className="mt-0.5 block text-xs leading-snug text-tinta-suave">
-              {detalle}
-            </span>
-          </button>
-        ))}
+          {
+            clave: "transferencia" as const,
+            titulo: t("metodoTransferencia"),
+            detalle: t("metodoTransferenciaDetalle"),
+            Icono: Building2,
+          },
+        ]
+          /* Solo los que de verdad están disponibles para este cobro. */
+          .filter(
+            (m) =>
+              m.clave === "tarjeta" ||
+              (m.clave === "zelle" && zelle) ||
+              (m.clave === "transferencia" && transferencia),
+          )
+          .map(({ clave, titulo, detalle, Icono }) => (
+            <button
+              key={clave}
+              type="button"
+              role="radio"
+              aria-checked={metodo === clave}
+              onClick={() => setMetodo(clave)}
+              className={cn(
+                "rounded-xl border p-3 text-left transition-colors",
+                metodo === clave
+                  ? "border-carga-500 bg-carga-500/5 ring-2 ring-carga-500/30"
+                  : "border-borde hover:border-carga-500/50",
+              )}
+            >
+              <span className="flex items-center gap-2 text-sm font-bold">
+                <Icono className="h-4 w-4 text-carga-500" aria-hidden />
+                {titulo}
+              </span>
+              <span className="mt-0.5 block text-xs leading-snug text-tinta-suave">
+                {detalle}
+              </span>
+            </button>
+          ))}
       </div>
 
       <div className="mt-4">
         {metodo === "tarjeta" ? (
           <PagarCobro enlace={enlace} montoTexto={montoTexto} />
-        ) : (
+        ) : metodo === "transferencia" && transferencia ? (
+          <PagarConTransferencia
+            enlace={enlace}
+            datos={transferencia.datos}
+            concepto={transferencia.concepto}
+            montoTexto={montoTexto}
+          />
+        ) : zelle ? (
           <PagarConZelle
             enlace={enlace}
             receptor={zelle.receptor}
@@ -94,7 +135,7 @@ export function MetodosDeCobro({
             concepto={zelle.concepto}
             montoTexto={montoTexto}
           />
-        )}
+        ) : null}
       </div>
     </div>
   );
