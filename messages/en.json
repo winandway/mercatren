@@ -2385,8 +2385,7 @@
         "transferencia": "Bank transfer or Zelle",
         "tarjeta": "By card"
       },
-      "avisoTarjeta": "By card, the processor takes {monto} more. If you can, ask them to pay by transfer.",
-      "avisoSinTarjeta": "No processor involved: only the Mercatren fee is deducted.",
+      "avisoTarjeta": "The processor takes {monto} out of what you receive.",
       "procesador": "Card processor (2.9% + $0.30)",
       "cobrarEsto": "Charge {monto}",
       "cobrarTitulo": "Charge {monto} — to whom?",
@@ -2399,7 +2398,12 @@
       "copiado": "Copied",
       "porWhatsApp": "Send on WhatsApp",
       "tambienPorCorreo": "We also emailed it to them.",
-      "mensajeWhatsApp": "Hi, here's the link to pay invoice {referencia}: {url}"
+      "mensajeWhatsApp": "Hi, here's the link to pay invoice {referencia}: {url}",
+      "elEnlaceOfrecera": "The link you create will offer:",
+      "ofrecera": {
+        "transferencia": "bank transfer and Zelle only. Your customer will NOT be able to pay by card, so no processor fee is deducted.",
+        "tarjeta": "card only."
+      }
     }
   },
   "catalogo": {
@@ -3485,7 +3489,8 @@
     "achPaso4": "4 · Upload the receipt",
     "achSubirComprobante": "Choose the receipt",
     "achReferencia": "Bank reference number (if you have it)",
-    "achEnviar": "I transferred, send receipt"
+    "achEnviar": "I transferred, send receipt",
+    "sinMetodoDisponible": "This charge is set up to be paid by bank transfer or Zelle, but neither is available right now. Contact the store so they can send you a new one."
   },
   "videos": {
     "hilera": {

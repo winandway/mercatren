@@ -124,9 +124,19 @@ export function CobrarLoCuadrado({
         const formulario = e.currentTarget;
         const datos = new FormData(formulario);
         /* El monto va en dólares con dos decimales, que es lo que espera
-           `crearCobroDesdePanel`; el método, tal cual se eligió arriba. */
+           `crearCobroDesdePanel`.
+
+           ══ EL BOTÓN DICE «TRANSFERENCIA O ZELLE»: SON DOS ══
+
+           Mandaba solo `transferencia`, así que un cobro calculado en ese
+           botón le quitaba Zelle al cliente sin que nadie lo pidiera. Se
+           mandan los dos, que es lo que dice el botón. */
         datos.set("monto", (totalCentavos / 100).toFixed(2));
-        datos.set("metodos", metodo);
+        for (const m of metodo === "tarjeta"
+          ? ["tarjeta"]
+          : ["transferencia", "zelle"]) {
+          datos.append("metodos", m);
+        }
         if (tiendaId) datos.set("tiendaId", tiendaId);
         setEnviando(true);
         setError(null);

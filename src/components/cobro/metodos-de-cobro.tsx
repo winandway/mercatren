@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, CreditCard, Landmark } from "lucide-react";
+import { Building2, CreditCard, Landmark, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -69,9 +69,33 @@ export function MetodosDeCobro({
 
   const conTarjeta = aceptaTarjeta !== false;
 
-  /* Sin ninguna alternativa, ni se dibuja el selector: un «elige método» con
-     una sola opción es una pantalla de más. */
+  /**
+   * ══ SI EL COMERCIO QUITÓ LA TARJETA, NO SE CAE A LA TARJETA ══
+   *
+   * Aquí había un fallo de dinero. El comercio calculaba su factura para
+   * cobrar por transferencia —sin el 2,9% + $0.30 del procesador—, quitaba la
+   * tarjeta del enlace… y si la transferencia no estaba disponible (los datos
+   * del banco sin configurar, o el monto por debajo del mínimo), esta línea
+   * le ofrecía **tarjeta igual**, en silencio. Justo lo que quería evitar, y
+   * con la factura ya calculada sin ese costo.
+   *
+   * Ahora se dice lo que pasa y no se cobra por un método que el comercio
+   * descartó: un enlace que no se puede pagar se arregla con una llamada; un
+   * cobro por el método equivocado se arregla devolviendo el dinero.
+   */
   if (!zelle && !transferencia) {
+    if (!conTarjeta) {
+      return (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+          <p className="flex items-start gap-2 text-sm font-semibold text-amber-900">
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            {t("sinMetodoDisponible")}
+          </p>
+        </div>
+      );
+    }
+    /* Con la tarjeta permitida y nada más disponible, se enseña directa: un
+       «elige método» con una sola opción es una pantalla de más. */
     return <PagarCobro enlace={enlace} montoTexto={montoTexto} />;
   }
   /* Y al revés: si el comercio quitó la tarjeta y solo queda una forma, se

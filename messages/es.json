@@ -2385,8 +2385,7 @@
         "transferencia": "Transferencia o Zelle",
         "tarjeta": "Con tarjeta"
       },
-      "avisoTarjeta": "Con tarjeta, el procesador se lleva {monto} más. Si puedes, pídele que pague por transferencia.",
-      "avisoSinTarjeta": "Sin procesador de por medio: solo se descuenta la comisión de Mercatren.",
+      "avisoTarjeta": "El procesador se lleva {monto} de lo que recibes.",
       "procesador": "Procesador de tarjeta (2.9% + $0.30)",
       "cobrarEsto": "Cobrar {monto}",
       "cobrarTitulo": "Cobrar {monto} — ¿a quién?",
@@ -2399,7 +2398,12 @@
       "copiado": "Copiado",
       "porWhatsApp": "Mandar por WhatsApp",
       "tambienPorCorreo": "También se lo mandamos por correo.",
-      "mensajeWhatsApp": "Hola, aquí está el enlace para pagar la factura {referencia}: {url}"
+      "mensajeWhatsApp": "Hola, aquí está el enlace para pagar la factura {referencia}: {url}",
+      "elEnlaceOfrecera": "El enlace que generes ofrecerá:",
+      "ofrecera": {
+        "transferencia": "solo transferencia y Zelle. Tu cliente NO podrá pagar con tarjeta, así no te descuentan la comisión del procesador.",
+        "tarjeta": "solo tarjeta."
+      }
     }
   },
   "catalogo": {
@@ -3485,7 +3489,8 @@
     "achPaso4": "4 · Sube el comprobante",
     "achSubirComprobante": "Elegir el comprobante",
     "achReferencia": "Número de referencia del banco (si lo tienes)",
-    "achEnviar": "Ya transferí, enviar comprobante"
+    "achEnviar": "Ya transferí, enviar comprobante",
+    "sinMetodoDisponible": "Este cobro está configurado para pagarse por transferencia o Zelle, pero ahora mismo ninguno está disponible. Escríbele al comercio para que te mande uno nuevo."
   },
   "videos": {
     "hilera": {

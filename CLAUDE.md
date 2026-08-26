@@ -3154,6 +3154,41 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## EL ENLACE OFRECÍA TARJETA CUANDO EL COMERCIO LA HABÍA QUITADO (26 ago 2026)
+
+Lo destapó el dueño en la primera prueba real: eligió **«Transferencia o
+Zelle»** en la calculadora, generó el enlace, lo abrió, y le salió **Tarjeta,
+Amazon Pay y Cash App Pay**. Exactamente lo contrario de lo que pidió. Y con
+la factura ya calculada SIN el 2,9% + $0.30 del procesador.
+
+Eran dos fallos encadenados, los dos de dinero:
+
+**1. El enlace caía a la tarjeta en silencio.** `MetodosDeCobro` hacía
+`if (!zelle && !transferencia) return <PagarCobro/>` — o sea, sin ninguna
+alternativa disponible enseñaba la tarjeta, **aunque el comercio la hubiera
+quitado**. Y la transferencia no estaba disponible porque en producción faltan
+los datos del banco (ver la advertencia del 26 ago en la sección de ACH). El
+comercio hace todo bien y el sistema le cobra por el método que descartó.
+
+Ahora, si la tarjeta está excluida y no queda ningún método, **se avisa**: _«Este
+cobro está configurado para pagarse por transferencia o Zelle, pero ahora mismo
+ninguno está disponible»_. Un enlace que no se puede pagar se arregla con una
+llamada; un cobro por el método equivocado se arregla devolviendo el dinero.
+
+**2. El botón decía «Transferencia o Zelle» y mandaba solo `transferencia`.**
+Así que ese cobro le quitaba Zelle al cliente sin que nadie lo pidiera. Se
+mandan los dos, que es lo que dice el botón.
+
+**Y la queja de fondo era otra, y también tenía razón:** _«no pones claras las
+cosas»_. Nada en la pantalla decía que ese selector decidía los métodos del
+enlace — parecía servir solo para el cálculo. Ahora, debajo del selector, en
+su propia caja y con el color del método: **«El enlace que generes ofrecerá:
+solo transferencia y Zelle. Tu cliente NO podrá pagar con tarjeta…»**.
+
+`tests/unit/reparto-cobro.test.ts` fija las tres cosas, incluido que el aviso
+va ANTES del `return <PagarCobro` — si alguien reordena esas líneas, vuelve el
+fallo.
+
 ## DE LA CALCULADORA AL COBRO, SIN CAMBIAR DE PANTALLA (26 ago 2026)
 
 La calculadora terminaba con un texto que decía «puedes crear un enlace de

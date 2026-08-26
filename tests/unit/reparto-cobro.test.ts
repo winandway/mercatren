@@ -141,3 +141,44 @@ describe("qué métodos acepta un cobro", () => {
     expect(pagina).toContain("metodosDelCobro.cobroId");
   });
 });
+
+describe("el enlace NUNCA cae a un método que el comercio descartó (26 ago 2026)", () => {
+  it("sin métodos disponibles y con la tarjeta quitada, se avisa: no se cobra con tarjeta", () => {
+    const fuente = readFileSync(
+      "src/components/cobro/metodos-de-cobro.tsx",
+      "utf8",
+    );
+    /* El fallo: el comercio calculaba su factura para transferencia —sin el
+       2,9% + $0.30—, quitaba la tarjeta, y si la transferencia no estaba
+       disponible el enlace le ofrecía tarjeta igual, en silencio. */
+    expect(fuente).toContain("if (!conTarjeta) {");
+    expect(fuente).toContain("sinMetodoDisponible");
+    /* Y el orden importa: el aviso va ANTES del `return <PagarCobro`. */
+    const sinMetodos = fuente.indexOf("if (!zelle && !transferencia)");
+    const avisa = fuente.indexOf("if (!conTarjeta) {", sinMetodos);
+    const caeATarjeta = fuente.indexOf("return <PagarCobro", sinMetodos);
+    expect(avisa).toBeGreaterThan(sinMetodos);
+    expect(avisa).toBeLessThan(caeATarjeta);
+  });
+
+  it("«Transferencia o Zelle» manda los DOS métodos, no uno", () => {
+    const fuente = readFileSync(
+      "src/components/panel/facturar/cobrar-lo-cuadrado.tsx",
+      "utf8",
+    );
+    /* El botón dice «Transferencia o Zelle»: mandar solo `transferencia` le
+       quitaba Zelle al cliente sin que nadie lo pidiera. */
+    expect(fuente).toContain('["transferencia", "zelle"]');
+  });
+
+  it("y la calculadora dice qué va a ofrecer el enlace", () => {
+    const fuente = readFileSync(
+      "src/components/panel/facturar/calculadora-factura.tsx",
+      "utf8",
+    );
+    /* «No pones claras las cosas»: el botón decidía los métodos del cobro y
+       no lo decía en ninguna parte. */
+    expect(fuente).toContain("elEnlaceOfrecera");
+    expect(fuente).toContain("ofrecera.${metodo}");
+  });
+});

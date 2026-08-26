@@ -163,18 +163,31 @@ export function CalculadoraFactura({
               </button>
             ))}
           </div>
-          {objetivoCentavos > 0 ? (
-            <p className="mt-2 text-xs leading-relaxed text-tinta-suave">
-              {metodo === "tarjeta"
-                ? t("avisoTarjeta", {
-                    monto: formatearPrecio(
-                      loQueCuestaLaTarjeta(objetivoCentavos),
-                      idioma,
-                    ),
-                  })
-                : t("avisoSinTarjeta")}
-            </p>
-          ) : null}
+          {/* ══ QUÉ VA A PASAR CON EL ENLACE, DICHO SIN LETRA CHICA ══
+
+              El dueño eligió «Transferencia o Zelle», generó el enlace y le
+              salió tarjeta: no había forma de saber que ese botón decidía los
+              métodos del cobro. Sus palabras: «no pones claras las cosas».
+              Ahora lo dice, en su propia caja y con el color del método. */}
+          <p
+            className={`mt-3 rounded-lg px-3 py-2 text-xs leading-relaxed ${
+              metodo === "tarjeta"
+                ? "bg-amber-50 text-amber-900"
+                : "bg-precio-50 text-precio-800"
+            }`}
+          >
+            <span className="font-bold">{t("elEnlaceOfrecera")}</span>{" "}
+            {t(`ofrecera.${metodo}`)}
+            {objetivoCentavos > 0 && metodo === "tarjeta"
+              ? " " +
+                t("avisoTarjeta", {
+                  monto: formatearPrecio(
+                    loQueCuestaLaTarjeta(objetivoCentavos),
+                    idioma,
+                  ),
+                })
+              : null}
+          </p>
         </div>
       </div>
 
