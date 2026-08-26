@@ -3154,6 +3154,54 @@ actualmente sin indexar» de Search Console —fichas de dos líneas que Google 
 considera suficientes—, porque es justo lo que cita un asistente de IA, y porque
 responde la objeción antes de que mate la venta.
 
+## CUADRAR UNA FACTURA CON CANTIDADES ENTERAS (26 ago 2026)
+
+Un comercio tenía que cobrar **$7,475.00 exactos** y vende tubo estructural a
+$199.05: 7475 / 199.05 = **37,55 unidades**. Se puso a probar cantidades a
+mano desde el celular —catorce tubos, veinte tubos— y preguntó, con esas
+palabras, «¿va agregando un tubo uno por uno?».
+
+**LO PRIMERO, QUE NO ES CÓDIGO:** para una factura de monto acordado **no hay
+que cuadrar nada** — el cobro por enlace ya cobra el monto exacto que se
+escriba, y el margen se descuenta de ahí (`acreditarCobro`: `neto = monto −
+comisión`). Se pone $7,475, el cliente paga $7,475 y al comercio se le
+acreditan $7,250.75. La calculadora hace falta solo cuando el comercio quiere
+que la factura enseñe el **desglose por producto**.
+
+**`src/lib/facturar/cuadrar.ts`** (puro, 9 pruebas) + Panel → Ventas →
+Cuadrar factura.
+
+Cuatro cosas que no se tocan:
+
+1. **Se busca el importe alcanzable MÁS CERCANO, no solo el exacto.** Casi
+   nunca existe el exacto: con $199.05 y $191.61 no hay ninguna combinación
+   que dé $7,475 (el máximo común divisor de los precios no divide al
+   objetivo). La primera versión, al no encontrarlo, caía a un llenado voraz
+   que devolvía **$7,556.46 — $81 de más**; recorriendo la misma tabla en
+   busca del más cercano sale `26 × $199.05 + 12 × $191.61 = $7,474.62`, **38
+   centavos**. La tabla ya estaba calculada: era mirarla entera en vez de una
+   sola casilla.
+2. **Todo en centavos enteros y con programación dinámica.** Es el problema
+   del cambio de moneda; con coma flotante, «cuadra exacto» dejaría de ser
+   verdad por un centavo.
+3. **LAS DOS CIFRAS SIEMPRE A LA VISTA**, y de ahí venía toda la confusión: el
+   comercio decía «$7,475 con el 3% dentro» y a la vez «$2,775 menos el 3%»,
+   que son cosas distintas. La pantalla enseña siempre _paga el cliente_ y _te
+   queda a ti_, y deja elegir cuál de las dos es el objetivo
+   (`cuantoCobrarParaRecibir` redondea hacia ARRIBA: hacia abajo llegaría un
+   centavo de menos, y en una pantalla de dinero eso es una llamada).
+4. **Se elige qué productos entran.** Una factura es de tubos O de láminas de
+   zinc, nunca del catálogo mezclado — que es justo cómo estaba partida la
+   factura real ($7,475 de tubos y $2,775 de zinc).
+
+**El equipo puede cuadrar POR el comercio** con `?comercio=slug`, como el
+resto del panel: era lo que el dueño quería hacer desde su computadora
+mientras el comercio trabaja desde el celular.
+
+`productosParaCuadrar()` es una consulta aparte y no `listarMisProductos`:
+esa pagina de 24 en 24, y un producto que se quedó en la página 2 es un
+producto con el que no se puede cuadrar.
+
 ## «SHORTS» NO SE TRADUCE, Y LA HILERA SE COLAPSABA (25 ago 2026)
 
 Tres cosas que destapó el dueño mirando su propia portada en el escritorio.

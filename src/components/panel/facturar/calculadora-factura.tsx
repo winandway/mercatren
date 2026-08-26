@@ -1,0 +1,251 @@
+"use client";
+
+import { Calculator, Check, CircleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
+
+import {
+  cuadrarFactura,
+  cuantoCobrarParaRecibir,
+  lasDosCifras,
+  type ProductoParaCuadrar,
+} from "@/lib/facturar/cuadrar";
+import { formatearPrecio, type Idioma } from "@/lib/dinero";
+
+/**
+ * LA CALCULADORA DE FACTURA (26 ago 2026).
+ *
+ * Un comercio vende tubo a $199.05 y tiene que cobrar $7,475.00 exactos.
+ * 7475 / 199.05 = 37,55 unidades: no da entero, y se puso a probar a mano —
+ * catorce tubos, veinte tubos— desde el celular. Esto lo resuelve de un
+ * vistazo.
+ *
+ * ══ LO QUE HACE QUE SEA ÚTIL Y NO OTRO FORMULARIO ══
+ *
+ * 1. **Se elige qué productos entran.** Una factura es de tubos O de láminas
+ *    de zinc, no de todo el catálogo mezclado.
+ * 2. **Las dos cifras SIEMPRE a la vista.** De ahí venía la confusión: el
+ *    comercio decía «$7,475 con el 3% dentro» y «$2,775 menos el 3%», que son
+ *    cosas distintas. Aquí se ven las dos y no hay que adivinar.
+ * 3. **Se dice si cuadró EXACTO o cuánto falta.** Un «casi» sin número no
+ *    sirve para nada cuando lo que está en juego es una factura.
+ */
+export function CalculadoraFactura({
+  productos,
+  idioma,
+  comisionPuntosBase,
+}: {
+  productos: ProductoParaCuadrar[];
+  idioma: Idioma;
+  comisionPuntosBase: number;
+}) {
+  const t = useTranslations("panel.calculadora");
+  const [elegidos, setElegidos] = useState<Set<string>>(new Set());
+  const [monto, setMonto] = useState("");
+  const [modo, setModo] = useState<"paga" | "recibe">("paga");
+
+  const objetivoCentavos = useMemo(() => {
+    const limpio = monto.replace(/[^0-9.,]/g, "").replace(",", ".");
+    const n = Number.parseFloat(limpio);
+    if (!Number.isFinite(n) || n <= 0) return 0;
+    const enCentavos = Math.round(n * 100);
+    /* «Quiero recibir X limpios» se convierte a «hay que cobrar Y». */
+    return modo === "recibe"
+      ? cuantoCobrarParaRecibir(enCentavos, comisionPuntosBase)
+      : enCentavos;
+  }, [monto, modo, comisionPuntosBase]);
+
+  const seleccion = useMemo(
+    () => productos.filter((p) => elegidos.has(p.id)),
+    [productos, elegidos],
+  );
+
+  const cuadre = useMemo(
+    () =>
+      seleccion.length > 0 && objetivoCentavos > 0
+        ? cuadrarFactura(seleccion, objetivoCentavos)
+        : null,
+    [seleccion, objetivoCentavos],
+  );
+
+  const cifras = cuadre
+    ? lasDosCifras(cuadre.totalCentavos, comisionPuntosBase)
+    : null;
+
+  return (
+    <div className="space-y-6">
+      <p className="flex items-start gap-2 text-sm leading-relaxed text-tinta-suave">
+        <Calculator
+          className="mt-0.5 h-4 w-4 shrink-0 text-carga-600"
+          aria-hidden
+        />
+        {t("entradilla")}
+      </p>
+
+      {/* 1. El monto */}
+      <div className="rounded-xl border border-borde bg-white p-4 sm:p-5">
+        <p className="text-sm font-bold text-riel-900">{t("paso1")}</p>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {(["paga", "recibe"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setModo(m)}
+              className={`rounded-lg px-3 py-2 text-sm font-semibold ${
+                modo === m
+                  ? "bg-riel-900 text-white"
+                  : "border border-borde text-tinta-suave hover:bg-slate-50"
+              }`}
+            >
+              {t(`modo.${m}`)}
+            </button>
+          ))}
+        </div>
+
+        <label className="mt-3 block">
+          <span className="text-sm text-tinta-suave">
+            {t(`etiqueta.${modo}`)}
+          </span>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-lg font-bold text-tinta-suave">$</span>
+            <input
+              value={monto}
+              onChange={(e) => setMonto(e.target.value)}
+              inputMode="decimal"
+              placeholder="7475.00"
+              className="w-40 rounded-lg border border-slate-300 px-3 py-2.5 text-lg font-bold tabular-nums outline-none focus:border-carga-500"
+            />
+          </div>
+        </label>
+
+        {modo === "recibe" && objetivoCentavos > 0 ? (
+          <p className="mt-2 text-sm text-tinta-suave">
+            {t("hayQueCobrar", {
+              monto: formatearPrecio(objetivoCentavos, idioma),
+            })}
+          </p>
+        ) : null}
+      </div>
+
+      {/* 2. Los productos que entran en la factura */}
+      <div className="rounded-xl border border-borde bg-white p-4 sm:p-5">
+        <p className="text-sm font-bold text-riel-900">{t("paso2")}</p>
+        <p className="mt-1 text-sm text-tinta-suave">{t("paso2Ayuda")}</p>
+
+        {productos.length === 0 ? (
+          <p className="mt-3 text-sm text-tinta-suave">{t("sinProductos")}</p>
+        ) : (
+          <ul className="mt-3 max-h-72 space-y-1.5 overflow-y-auto">
+            {productos.map((p) => (
+              <li key={p.id}>
+                <label className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={elegidos.has(p.id)}
+                    onChange={(e) => {
+                      const copia = new Set(elegidos);
+                      if (e.target.checked) copia.add(p.id);
+                      else copia.delete(p.id);
+                      setElegidos(copia);
+                    }}
+                    className="h-4 w-4 shrink-0"
+                  />
+                  <span className="min-w-0 flex-1 truncate text-sm">
+                    {p.titulo}
+                  </span>
+                  <span className="shrink-0 text-sm font-semibold tabular-nums">
+                    {formatearPrecio(p.precioCentavos, idioma)}
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* 3. El resultado */}
+      {cuadre && cifras ? (
+        <div
+          className={`rounded-xl border p-4 sm:p-5 ${
+            cuadre.exacto
+              ? "border-precio-300 bg-precio-50"
+              : "border-amber-300 bg-amber-50"
+          }`}
+        >
+          <p
+            className={`flex items-center gap-2 text-sm font-bold ${
+              cuadre.exacto ? "text-precio-800" : "text-amber-900"
+            }`}
+          >
+            {cuadre.exacto ? (
+              <Check className="h-4 w-4" aria-hidden />
+            ) : (
+              <CircleAlert className="h-4 w-4" aria-hidden />
+            )}
+            {cuadre.exacto
+              ? t("cuadroExacto")
+              : t("noCuadra", {
+                  diferencia: formatearPrecio(
+                    Math.abs(cuadre.diferenciaCentavos),
+                    idioma,
+                  ),
+                  senal:
+                    cuadre.diferenciaCentavos > 0 ? t("sobra") : t("falta"),
+                })}
+          </p>
+
+          <table className="mt-4 w-full text-sm">
+            <tbody>
+              {cuadre.lineas.map((l) => (
+                <tr key={l.id} className="border-b border-black/5">
+                  <td className="py-2 pr-2">
+                    <span className="font-bold tabular-nums">{l.cantidad}</span>
+                    <span className="text-tinta-suave"> × </span>
+                    <span className="tabular-nums">
+                      {formatearPrecio(l.precioCentavos, idioma)}
+                    </span>
+                    <span className="block text-xs text-tinta-suave">
+                      {l.titulo}
+                    </span>
+                  </td>
+                  <td className="py-2 text-right font-semibold tabular-nums">
+                    {formatearPrecio(l.subtotalCentavos, idioma)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* LAS DOS CIFRAS, siempre las dos: es donde estaba la confusión. */}
+          <dl className="mt-4 space-y-1.5 border-t border-black/10 pt-3 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-tinta-suave">{t("pagaElCliente")}</dt>
+              <dd className="text-lg font-bold tabular-nums">
+                {formatearPrecio(cifras.pagaElCliente, idioma)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-tinta-suave">
+                {t("margen", { pct: comisionPuntosBase / 100 })}
+              </dt>
+              <dd className="tabular-nums">
+                −{formatearPrecio(cifras.margen, idioma)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="font-semibold">{t("recibeElComercio")}</dt>
+              <dd className="text-precio-700 text-lg font-bold tabular-nums">
+                {formatearPrecio(cifras.recibeElComercio, idioma)}
+              </dd>
+            </div>
+          </dl>
+
+          <p className="mt-4 text-xs leading-relaxed text-tinta-suave">
+            {t("siguiente")}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}

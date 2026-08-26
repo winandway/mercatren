@@ -381,7 +381,8 @@
       "catalogoUsa": "Catálogo de EE. UU.",
       "tiendasUsa": "Tiendas USA",
       "proveedor": "Pedidos al proveedor",
-      "secciones": "Secciones de video"
+      "secciones": "Secciones de video",
+      "calculadora": "Cuadrar factura"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -2338,6 +2339,31 @@
       "copiado": "Copiado",
       "pinNuevo": "PIN nuevo",
       "cambiarPin": "Cambiar"
+    },
+    "calculadora": {
+      "titulo": "Cuadrar una factura",
+      "entradilla": "¿Tienes que cobrar un monto exacto y no sabes cuántas unidades poner? Escribe el monto, elige los productos y te decimos las cantidades.",
+      "paso1": "1 · ¿Cuánto tienes que cobrar?",
+      "modo": {
+        "paga": "Es lo que paga el cliente",
+        "recibe": "Es lo que quiero recibir"
+      },
+      "etiqueta": {
+        "paga": "Monto de la factura",
+        "recibe": "Lo que quieres que te llegue"
+      },
+      "hayQueCobrar": "Para que te lleguen esos, hay que cobrar {monto}.",
+      "paso2": "2 · ¿Con qué productos?",
+      "paso2Ayuda": "Marca solo los que van en esta factura. Los tubos y las láminas de zinc, por ejemplo, van en facturas distintas.",
+      "sinProductos": "Todavía no tienes productos publicados con precio.",
+      "cuadroExacto": "¡Cuadra exacto!",
+      "noCuadra": "Lo más cerca que se llega: {senal} {diferencia}.",
+      "sobra": "sobran",
+      "falta": "faltan",
+      "pagaElCliente": "Paga el cliente",
+      "margen": "Comisión de Mercatren ({pct}%)",
+      "recibeElComercio": "Te queda a ti",
+      "siguiente": "Con estas cantidades puedes armar el pedido, o crear un enlace de cobro por el monto de arriba en Cobros → Enlaces de cobro."
     }
   },
   "catalogo": {

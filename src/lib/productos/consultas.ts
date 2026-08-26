@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gt, sql, type SQL } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { condicionDeBusqueda } from "@/lib/catalogo/buscar";
@@ -220,4 +220,40 @@ export async function obtenerMiProducto(id: string) {
       esNuestra: Boolean(f.clave),
     })),
   };
+}
+
+/**
+ * TODOS LOS PRODUCTOS CON PRECIO, PARA CUADRAR UNA FACTURA (26 ago 2026).
+ *
+ * `listarMisProductos` pagina de 24 en 24, que es lo correcto para una lista
+ * que se navega. Aquí no sirve: la calculadora tiene que ver el catálogo
+ * entero para poder combinar cantidades, y un producto que se quedó en la
+ * página 2 es un producto con el que el comercio no puede cuadrar.
+ *
+ * Se nombran las columnas una por una —nunca `.select()` a secas— y se topa
+ * en 300: por encima de eso la lista de casillas deja de ser usable, y quien
+ * tiene tantos productos cuadra buscando, no leyendo.
+ */
+export async function productosParaCuadrar(comercioPedido?: string) {
+  const tiendaId = await tiendaDelAlcance(comercioPedido);
+  if (!tiendaId) return [];
+
+  const filas = await getDb()
+    .select({
+      id: productos.id,
+      titulo: productos.tituloEs,
+      precioCentavos: productos.precioCentavos,
+    })
+    .from(productos)
+    .where(
+      and(
+        eq(productos.tiendaId, tiendaId),
+        eq(productos.estado, "publicado"),
+        gt(productos.precioCentavos, 0),
+      ),
+    )
+    .orderBy(desc(productos.precioCentavos))
+    .limit(300);
+
+  return filas;
 }

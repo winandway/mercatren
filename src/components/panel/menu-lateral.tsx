@@ -9,6 +9,7 @@ import {
   Flag,
   Languages,
   LayoutDashboard,
+  Calculator,
   Megaphone,
   Menu,
   Package,
@@ -64,6 +65,14 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
          enlaces de cobro. Antes solo había Zelle, y la tarjeta —el método de
          la primera venta real— no aparecía en ninguna pantalla. */
       { href: "/panel/cobros", clave: "cobros", Icono: Receipt },
+      /* CUADRAR UNA FACTURA: cuántas unidades dan un monto exacto. Nació de
+         un comercio con una factura de $7.475 y tubos de $199,05 que estaba
+         probando cantidades a mano desde el celular. */
+      {
+        href: "/panel/calculadora",
+        clave: "calculadora",
+        Icono: Calculator,
+      },
       { href: "/panel/validacion", clave: "validacion", Icono: ShieldCheck },
     ],
   },

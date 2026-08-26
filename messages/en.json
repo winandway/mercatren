@@ -381,7 +381,8 @@
       "catalogoUsa": "U.S. catalog",
       "tiendasUsa": "US stores",
       "proveedor": "Supplier orders",
-      "secciones": "Video sections"
+      "secciones": "Video sections",
+      "calculadora": "Match invoice"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -2338,6 +2339,31 @@
       "copiado": "Copied",
       "pinNuevo": "New PIN",
       "cambiarPin": "Change"
+    },
+    "calculadora": {
+      "titulo": "Match an invoice",
+      "entradilla": "Need to charge an exact amount and don't know how many units? Enter the amount, pick the products and we'll give you the quantities.",
+      "paso1": "1 · How much do you need to charge?",
+      "modo": {
+        "paga": "That's what the customer pays",
+        "recibe": "That's what I want to receive"
+      },
+      "etiqueta": {
+        "paga": "Invoice amount",
+        "recibe": "What you want to get"
+      },
+      "hayQueCobrar": "To get that, you need to charge {monto}.",
+      "paso2": "2 · With which products?",
+      "paso2Ayuda": "Check only the ones in this invoice. Tubing and zinc sheets, for instance, go on separate invoices.",
+      "sinProductos": "You don't have published products with a price yet.",
+      "cuadroExacto": "It matches exactly!",
+      "noCuadra": "Closest we get: {senal} {diferencia}.",
+      "sobra": "over by",
+      "falta": "short by",
+      "pagaElCliente": "Customer pays",
+      "margen": "Mercatren fee ({pct}%)",
+      "recibeElComercio": "You get",
+      "siguiente": "With these quantities you can build the order, or create a payment link for the amount above in Payments → Payment links."
     }
   },
   "catalogo": {
