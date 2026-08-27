@@ -282,6 +282,75 @@ export async function correoReciboDeCobro(
 }
 
 /**
+ * 4b-bis. Al pagador: EL MONTO NO ERA EL QUE DECÍA LA FACTURA.
+ *
+ * ══ POR QUÉ ESTE CORREO EXISTE (27 ago 2026) ══
+ *
+ * Un cobro de $2.774,04 recibió una transferencia de $500,00: quien pagaba se
+ * equivocó de monto. Se le acredita al comercio lo que de verdad entró, pero
+ * **quien pagó tiene que enterarse por nosotros, no por una llamada del
+ * comercio dos semanas después**. Si no, la conversación empieza con «me
+ * cobraron mal» y termina en el banco: el primer paso de un contracargo.
+ *
+ * ══ TRES COSAS QUE NO SE TOCAN ══
+ *
+ * 1. **Van los DOS montos, juntos.** El de la factura y el que llegó. Con uno
+ *    solo, quien lee no entiende qué pasó ni cuánto falta.
+ * 2. **Se enlaza la captura que él mismo mandó.** No se le pide que confíe: se
+ *    le enseña. «Usted mismo puede ver que ese fue el pago» es lo que cierra
+ *    la discusión antes de que empiece.
+ * 3. **No se culpa a nadie.** Dice qué pasó y qué falta, sin señalar. Un correo
+ *    que acusa a quien acaba de mandar dinero es como se pierde un cliente que
+ *    solo se equivocó tecleando.
+ */
+export async function correoMontoCorregido(
+  d: Destinatario,
+  cobro: {
+    comercio: string;
+    referencia: string;
+    /** Lo que pedía la factura. */
+    montoFacturaCentavos: number;
+    /** Lo que de verdad entró. */
+    montoRecibidoCentavos: number;
+    /** Lo que falta, ya calculado: 0 si quedó cubierta. */
+    faltaCentavos: number;
+    /** La página del cobro, donde se ve la captura. */
+    url: string;
+  },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const factura = formatearPrecio(cobro.montoFacturaCentavos, idioma);
+  const recibido = formatearPrecio(cobro.montoRecibidoCentavos, idioma);
+  const falta = formatearPrecio(cobro.faltaCentavos, idioma);
+
+  return enviar(d, {
+    asunto: t("montoCorregido.asunto", { referencia: cobro.referencia }),
+    previo: t("montoCorregido.previo", { recibido }),
+    saludo,
+    titulo: t("montoCorregido.titulo"),
+    parrafos: [
+      t("montoCorregido.explicacion", { factura, recibido }),
+      ...(cobro.faltaCentavos > 0
+        ? [t("montoCorregido.loQueFalta", { falta })]
+        : []),
+      t("montoCorregido.laCaptura"),
+    ],
+    datos: [
+      { etiqueta: t("enlaceDeCobro.comercio"), valor: cobro.comercio },
+      { etiqueta: t("enlaceDeCobro.referencia"), valor: cobro.referencia },
+      { etiqueta: t("montoCorregido.deLaFactura"), valor: factura },
+      { etiqueta: t("montoCorregido.recibido"), valor: recibido },
+      ...(cobro.faltaCentavos > 0
+        ? [{ etiqueta: t("montoCorregido.falta"), valor: falta }]
+        : []),
+    ],
+    boton: { texto: t("montoCorregido.boton"), url: cobro.url },
+    motivo,
+    contacto,
+  });
+}
+
+/**
  * 4c. Al pagador de un cobro: recibimos tu captura, la revisa una persona.
  *
  * Sin este correo, quien sube la captura se queda mirando una pantalla que

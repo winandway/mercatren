@@ -39,17 +39,25 @@ export async function HEAD(
 }
 
 export async function GET(
-  _peticion: Request,
+  peticion: Request,
   { params }: { params: Promise<{ clave: string[] }> },
 ) {
   const { clave } = await params;
   const ruta = clave.join("/");
 
+  /* El enlace secreto de un cobro, si viene. Es lo único que deja a quien pagó
+     ver su propia captura sin tener cuenta aquí. Ver `esSuPropioComprobante`. */
+  const enlaceDeCobro = new URL(peticion.url).searchParams.get("cobro");
+
   if (ruta.includes("..")) {
     return new Response("No encontrado", { status: 404 });
   }
 
-  if (esPrivado(ruta) && !(await puedeVerlo(ruta))) {
+  if (
+    esPrivado(ruta) &&
+    !(await esSuPropioComprobante(ruta, enlaceDeCobro)) &&
+    !(await puedeVerlo(ruta))
+  ) {
     // Se responde "no existe" en vez de "no puedes": asi no se confirma
     // siquiera que el archivo esta ahi.
     return new Response("No encontrado", { status: 404 });
@@ -73,9 +81,7 @@ export async function GET(
     ? (globalThis as { caches?: { default?: Cache } }).caches?.default
     : undefined;
   if (cacheDelBorde) {
-    const guardada = await cacheDelBorde
-      .match(_peticion)
-      .catch(() => undefined);
+    const guardada = await cacheDelBorde.match(peticion).catch(() => undefined);
     if (guardada) return guardada;
   }
 
@@ -93,7 +99,7 @@ export async function GET(
    * que le dice al reproductor que puede pedir trozos.
    */
   const esVideo = /\.(mp4|mov|webm|m4v|3gp)$/i.test(ruta);
-  const rango = _peticion.headers.get("range");
+  const rango = peticion.headers.get("range");
   if (esVideo && rango) {
     const m = /bytes=(\d*)-(\d*)/.exec(rango);
     if (m) {
@@ -155,7 +161,7 @@ export async function GET(
   /* Y se deja en el borde para la próxima. `waitUntil` no está garantizado
      aquí, así que se guarda una copia sin esperar a que termine. */
   if (cacheDelBorde) {
-    void cacheDelBorde.put(_peticion, respuesta.clone()).catch(() => {});
+    void cacheDelBorde.put(peticion, respuesta.clone()).catch(() => {});
   }
   return respuesta;
 }
@@ -169,6 +175,58 @@ export async function GET(
  *   comprobantes/<id del pedido>/<archivo>      → el dueno de ese pedido
  *   facturas-compra/<id de la tienda>/<archivo> → esa tienda
  */
+/**
+ * QUIEN PAGÓ PUEDE VER SU PROPIA CAPTURA, SIN TENER CUENTA AQUÍ.
+ *
+ * ══ EL CASO QUE LA PIDIÓ (27 ago 2026) ══
+ *
+ * Un cobro de $2.774,04 recibió $500,00 porque quien pagaba se equivocó de
+ * monto. Se le acredita al comercio lo que entró, y a quien pagó le sale un
+ * correo diciéndoselo — pero ese correo no sirve de nada si termina en «confía
+ * en nosotros». Tiene que poder VER la captura que él mismo mandó.
+ *
+ * ══ POR QUÉ ES SEGURO ══
+ *
+ * El permiso no lo da una sesión: lo da **el mismo secreto que ya tiene**. El
+ * enlace del cobro son 24 bytes al azar que solo viajaron en su correo, y aquí
+ * se comprueba que ese enlace corresponda **exactamente** al cobro cuyo id está
+ * en la ruta del archivo (`comprobantes/<id del cobro>/<archivo>`). Sin el
+ * enlace correcto no se abre nada, y con él solo se abre lo suyo.
+ *
+ * ══ TRES CANDADOS ══
+ *
+ * 1. **Solo `comprobantes/`.** Las facturas del proveedor llevan el costo real
+ *    de la mercancía; ningún enlace de cobro las abre.
+ * 2. **Se compara el id COMPLETO**, no un prefijo: dos ids distintos que
+ *    empiecen igual no se pueden confundir.
+ * 3. **Falla hacia «no»**, como el resto de esta ruta. Un error técnico jamás
+ *    puede terminar abriendo un comprobante.
+ */
+async function esSuPropioComprobante(
+  ruta: string,
+  enlace: string | null,
+): Promise<boolean> {
+  if (!enlace) return false;
+  if (!ruta.startsWith("comprobantes/")) return false;
+
+  const duenno = ruta.split("/")[1];
+  if (!duenno) return false;
+
+  try {
+    const { cobrosSolicitados } = await import("@/lib/db/schema");
+    const [cobro] = await getDb()
+      .select({ id: cobrosSolicitados.id })
+      .from(cobrosSolicitados)
+      .where(eq(cobrosSolicitados.enlace, enlace))
+      .limit(1);
+
+    return Boolean(cobro) && cobro!.id === duenno;
+  } catch (e) {
+    console.error("[media] no se pudo comprobar el enlace del cobro:", e);
+    return false;
+  }
+}
+
 async function puedeVerlo(ruta: string) {
   // TODO LO DE AQUI FALLA HACIA "NO". Si algo revienta —la sesion no se puede
   // leer, la base no responde— la respuesta es que no, y arriba se contesta

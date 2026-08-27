@@ -2415,6 +2415,25 @@
       "buscaComercio": "Escribe el nombre del comercio…",
       "ningunComercio": "Ningún comercio con ese nombre.",
       "quitarComercio": "Quitar el comercio"
+    },
+    "correccion": {
+      "sinPermiso": "No tienes permiso para corregir un pago.",
+      "yaRevisado": "Ese pago ya se revisó: su dinero ya se movió. Si hay que arreglarlo, es una devolución.",
+      "montoInvalido": "Escribe el monto que de verdad entró. Si no entró nada, rechaza el pago con su motivo.",
+      "montoIgual": "Ese es el mismo monto que ya tiene el pago. No hay nada que corregir.",
+      "montoMayorQueElDeclarado": "No se puede corregir hacia arriba. Si pagaron de más, eso se devuelve, no se acredita.",
+      "sinMotivo": "Escribe qué pasó, con una frase completa. Alguien va a leer esto dentro de seis meses.",
+      "listo": "Listo. El pago quedó por el monto real y sigue pendiente de aprobar.",
+      "titulo": "¿El monto no es el correcto?",
+      "ayuda": "Si la captura dice otra cantidad, corrígela ANTES de aprobar: al aprobar se le acredita al comercio este monto.",
+      "montoReal": "El monto que de verdad entró",
+      "motivo": "¿Qué pasó?",
+      "motivoEjemplo": "Ej: transfirió 500 en vez de 2.774, comprobado en el banco",
+      "corregir": "Corregir el monto",
+      "seCorrigio": "Monto corregido",
+      "decia": "Decía",
+      "quedaDebiendo": "La factura queda abierta por la diferencia.",
+      "facturaQuedaAbierta": "⚠️ La factura pedía {monto} y queda ABIERTA por la diferencia."
     }
   },
   "catalogo": {
@@ -3142,6 +3161,18 @@
         "Recibimos la captura de tu transferencia. Una persona de nuestro equipo la compara contra el banco, normalmente el mismo día hábil.",
         "En cuanto quede confirmada te llega tu recibo por este mismo correo, y el comercio queda avisado. No tienes que hacer nada más."
       ]
+    },
+    "montoCorregido": {
+      "asunto": "Ajustamos el monto de tu pago · {referencia}",
+      "previo": "Recibimos {recibido}. Aquí está el detalle.",
+      "titulo": "Ajustamos el monto de tu pago",
+      "explicacion": "Tu factura era por {factura} y la transferencia que recibimos fue por {recibido}. Registramos exactamente lo que entró, ni un centavo más ni uno menos.",
+      "loQueFalta": "Para completar la factura quedan {falta}. El comercio se pondrá en contacto contigo para acordar cómo lo terminas de pagar.",
+      "laCaptura": "No hace falta que nos creas: en el enlace de abajo puedes ver el comprobante que se subió, tal como llegó.",
+      "deLaFactura": "La factura era por",
+      "recibido": "Recibimos",
+      "falta": "Queda por pagar",
+      "boton": "Ver el comprobante"
     }
   },
   "misPedidos": {
@@ -3503,7 +3534,12 @@
     "achEnviar": "Ya transferí, enviar comprobante",
     "sinMetodoDisponible": "Este cobro está configurado para pagarse por transferencia o Zelle, pero ahora mismo ninguno está disponible. Escríbele al comercio para que te mande uno nuevo.",
     "parteDe": "Parte {n} de {total}",
-    "deUnTotalDe": "de un total de {monto}"
+    "deUnTotalDe": "de un total de {monto}",
+    "corregidoTitulo": "Ajustamos el monto de este pago",
+    "corregidoFactura": "La factura era por",
+    "corregidoRecibido": "Recibimos",
+    "corregidoFalta": "Queda por pagar",
+    "corregidoLaCaptura": "Este es el comprobante que se subió"
   },
   "videos": {
     "hilera": {

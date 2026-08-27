@@ -148,6 +148,48 @@ export default async function PaginaDeCobro({
     .catch(() => []);
 
   /**
+   * ¿SE LE CORRIGIÓ EL MONTO A ESTE COBRO?
+   *
+   * ══ POR QUÉ SE LE ENSEÑA A QUIEN PAGÓ (27 ago 2026) ══
+   *
+   * Un cobro de $2.774,04 recibió una transferencia de $500,00 porque quien
+   * pagaba se equivocó de monto. Se le acredita al comercio lo que entró y sale
+   * un correo diciéndolo — pero ese correo no sirve si termina en «confía en
+   * nosotros». Aquí ve **su propia captura**, la que él mismo mandó, y los dos
+   * montos al lado.
+   *
+   * La captura se abre con `?cobro=<enlace>`: el permiso lo da el mismo secreto
+   * que ya tiene en su correo, no una sesión. Ver `esSuPropioComprobante` en la
+   * ruta de `/media`.
+   *
+   * En su propio `catch`: la tabla es nueva y una base que todavía no la tenga
+   * no puede tumbar la página donde alguien está a punto de pagar.
+   */
+  const correccion = await (async () => {
+    try {
+      const { correccionesPago, cobrosZelle, pagosZelle } =
+        await import("@/lib/db/schema");
+      const [fila] = await getDb()
+        .select({
+          montoDeclaradoCentavos: correccionesPago.montoDeclaradoCentavos,
+          montoRealCentavos: correccionesPago.montoRealCentavos,
+          reciboUrl: pagosZelle.reciboUrl,
+          estadoPago: pagosZelle.estado,
+        })
+        .from(correccionesPago)
+        .innerJoin(pagosZelle, eq(pagosZelle.id, correccionesPago.pagoZelleId))
+        .innerJoin(cobrosZelle, eq(cobrosZelle.pagoZelleId, pagosZelle.id))
+        .where(eq(cobrosZelle.cobroId, cobro.id))
+        .limit(1);
+      /* Solo si el pago se APROBÓ. Un monto corregido que todavía nadie
+         revisó no es un hecho: enseñarlo haría creer que ya se resolvió. */
+      return fila && fila.estadoPago === "aprobado" ? fila : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  /**
    * ¿SE ABRIÓ DESDE WHATSAPP?
    *
    * Ahí dentro **el pago con la cuenta del banco no aparece**, y no es un
@@ -392,6 +434,72 @@ export default async function PaginaDeCobro({
          */}
         {dentroDeApp && estado === "abierto" ? (
           <AvisoNavegador url={urlDelCobro} app={nombreApp} />
+        ) : null}
+
+        {/* EL MONTO SE CORRIGIÓ: los dos números y la captura, arriba del todo.
+            Quien abre esto después de que le dijeran que su pago no cubrió la
+            factura viene con una pregunta: «¿cuánto llegó de verdad?». Se
+            contesta antes que nada, y con la prueba al lado. */}
+        {correccion ? (
+          <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4">
+            <p className="text-base font-extrabold text-amber-900">
+              {t("corregidoTitulo")}
+            </p>
+            <dl className="mt-3 space-y-1.5 text-sm">
+              <div className="flex justify-between gap-3">
+                <dt className="text-amber-900">{t("corregidoFactura")}</dt>
+                <dd className="font-semibold text-amber-900 tabular-nums">
+                  {formatearPrecio(
+                    correccion.montoDeclaradoCentavos,
+                    idioma,
+                    cobro.moneda,
+                  )}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt className="text-amber-900">{t("corregidoRecibido")}</dt>
+                <dd className="font-extrabold text-amber-900 tabular-nums">
+                  {formatearPrecio(
+                    correccion.montoRealCentavos,
+                    idioma,
+                    cobro.moneda,
+                  )}
+                </dd>
+              </div>
+              {correccion.montoRealCentavos <
+              correccion.montoDeclaradoCentavos ? (
+                <div className="flex justify-between gap-3 border-t border-amber-300 pt-1.5">
+                  <dt className="font-bold text-amber-900">
+                    {t("corregidoFalta")}
+                  </dt>
+                  <dd className="font-extrabold text-amber-900 tabular-nums">
+                    {formatearPrecio(
+                      correccion.montoDeclaradoCentavos -
+                        correccion.montoRealCentavos,
+                      idioma,
+                      cobro.moneda,
+                    )}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+
+            {/* LA CAPTURA, no una promesa de que existe. El permiso lo da el
+                mismo enlace secreto que trae en su correo. */}
+            {correccion.reciboUrl ? (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-amber-900">
+                  {t("corregidoLaCaptura")}
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`${correccion.reciboUrl}?cobro=${enlace}`}
+                  alt={t("corregidoLaCaptura")}
+                  className="mt-2 w-full max-w-sm rounded-lg border border-amber-300 bg-white"
+                />
+              </div>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="mt-6">

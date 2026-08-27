@@ -2129,6 +2129,55 @@ export const valoraciones = sqliteTable(
  * cobro puede acumular VARIOS intentos (uno rechazado, otro corregido), por
  * eso la llave primaria es el pago, no el cobro.
  */
+/**
+ * CUANDO EL PAGO NO ES POR LO QUE DECÍA: LA CORRECCIÓN, ESCRITA.
+ *
+ * ══ EL CASO QUE LA PIDIÓ (27 ago 2026) ══
+ *
+ * Un cobro de $2.774,04 recibió una transferencia de **$500,00**: quien pagaba
+ * se equivocó de monto. La captura era legítima —el dinero entró de verdad—
+ * pero por quinientos dólares, no por dos mil setecientos.
+ *
+ * Y aprobarlo tal cual **le habría acreditado al comercio los $2.690,82 del
+ * monto declarado**, porque el neto se calcula al subir la captura, a partir
+ * de lo que PIDE el cobro y no de lo que LLEGÓ. Son $2.190 regalados de la
+ * cuenta de Mercatren, en un solo clic, sin que ninguna pantalla dijera nada.
+ *
+ * ══ POR QUÉ UNA TABLA Y NO UNA COLUMNA ══
+ *
+ * Por la regla de siempre: `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`,
+ * así que una columna nueva no llega sola a producción. Y porque aquí hace
+ * falta el rastro completo, no solo el número final: **qué decía el pago, qué
+ * entró de verdad, por qué, quién lo corrigió y cuándo.** Un monto cambiado sin
+ * autor ni motivo es exactamente lo que no se puede defender el día que alguien
+ * pregunte —el comercio, el pagador o una revisión.
+ *
+ * El monto vivo sigue estando en `pagos_zelle`: esta tabla es el porqué.
+ */
+export const correccionesPago = sqliteTable(
+  "correcciones_pago",
+  {
+    id: text("id").primaryKey(),
+    pagoZelleId: text("pago_zelle_id")
+      .notNull()
+      .references(() => pagosZelle.id, { onDelete: "cascade" }),
+    /** Lo que el pago decía antes de tocarlo. */
+    montoDeclaradoCentavos: integer("monto_declarado_centavos").notNull(),
+    /** Lo que de verdad entró, según la captura y el banco. */
+    montoRealCentavos: integer("monto_real_centavos").notNull(),
+    /** Obligatorio. Sin motivo, esto es un número cambiado a mano. */
+    motivo: text("motivo").notNull(),
+    /** Quién lo corrigió. Se guarda el nombre, no solo el id: las cuentas
+        cambian de dueño y este rastro tiene que seguir leyéndose en un año. */
+    corregidoPor: text("corregido_por"),
+    corregidoPorNombre: text("corregido_por_nombre"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_correcciones_pago").on(t.pagoZelleId)],
+);
+
 export const cobrosZelle = sqliteTable(
   "cobros_zelle",
   {

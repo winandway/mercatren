@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { AccionesValidacion } from "@/components/panel/zelle/acciones-validacion";
+import { CorregirMonto } from "@/components/panel/zelle/corregir-monto";
 import { AlertasDelComprobante } from "@/components/panel/zelle/alertas-comprobante";
 import type { Alerta } from "@/lib/zelle/alertas";
 import { VisorComprobante } from "@/components/panel/zelle/visor-comprobante";
@@ -291,7 +292,13 @@ function TarjetaPago({
       <AlertasDelComprobante alertas={alertas} />
 
       {conAcciones && pago.estado === "pendiente" ? (
-        <AccionesValidacion pagoId={pago.id} />
+        <>
+          {/* CORREGIR VA ANTES DE APROBAR, y no es un detalle de orden: al
+              aprobar se le acredita al comercio el monto que esté aquí. Debajo
+              del botón, esto se lee cuando ya se decidió. */}
+          <CorregirMonto pagoId={pago.id} montoCentavos={pago.montoCentavos} />
+          <AccionesValidacion pagoId={pago.id} />
+        </>
       ) : null}
     </article>
   );

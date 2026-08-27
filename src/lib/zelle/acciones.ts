@@ -118,6 +118,9 @@ export async function aprobarPago(id: string): Promise<Resultado> {
       tiendaId: pagosZelle.tiendaId,
       pedidoId: pagosZelle.pedidoId,
       netoCentavos: pagosZelle.netoCentavos,
+      /* HACE FALTA PARA SABER SI LA FACTURA QUEDÓ CUBIERTA. Sin esto, un pago
+         corregido a la baja cerraba igual un cobro que sigue debiendo. */
+      montoCentavos: pagosZelle.montoCentavos,
       codigoConfirmacion: pagosZelle.codigoConfirmacion,
     })
     .from(pagosZelle)
@@ -393,22 +396,63 @@ export async function aprobarPago(id: string): Promise<Resultado> {
     if (puente) {
       /* `estado = 'abierto'` DENTRO del WHERE: si el cobro ya se pagó por
          otro camino (tarjeta mientras la captura esperaba), no se pisa. */
-      const cerrado = await db
-        .update(cobrosSolicitados)
-        .set({ estado: "pagado", pagadoEn: ahora, pagoId: pago.id })
-        .where(
-          and(
-            eq(cobrosSolicitados.id, puente.cobroId),
-            eq(cobrosSolicitados.estado, "abierto"),
-          ),
-        )
-        .returning({
-          referencia: cobrosSolicitados.referencia,
-          montoCentavos: cobrosSolicitados.montoCentavos,
-          contactoCorreo: cobrosSolicitados.contactoCorreo,
-          contactoNombre: cobrosSolicitados.contactoNombre,
-          tiendaId: cobrosSolicitados.tiendaId,
-        });
+      /**
+       * ══ UN COBRO QUE RECIBIÓ DE MENOS NO SE CIERRA (27 ago 2026) ══
+       *
+       * Pasó de verdad: un cobro de $2.774,04 recibió $500,00 porque quien
+       * pagaba se equivocó de monto. El validador corrige el pago a lo que de
+       * verdad entró, y al comercio se le acredita eso — pero **la factura
+       * sigue debiendo**. Cerrarla diría que está pagada y el comercio dejaría
+       * de reclamar un dinero que sí le deben.
+       *
+       * Se compara contra el monto del pago YA CORREGIDO, que es lo único que
+       * describe lo que entró en la cuenta.
+       */
+      const [factura] = await db
+        .select({ montoCentavos: cobrosSolicitados.montoCentavos })
+        .from(cobrosSolicitados)
+        .where(eq(cobrosSolicitados.id, puente.cobroId))
+        .limit(1);
+
+      const { alcanzaParaCerrar } =
+        await import("@/lib/zelle/reglas-correccion");
+      const cubreLaFactura =
+        !factura ||
+        alcanzaParaCerrar(pago.montoCentavos, factura.montoCentavos);
+
+      const cerrado = cubreLaFactura
+        ? await db
+            .update(cobrosSolicitados)
+            .set({ estado: "pagado", pagadoEn: ahora, pagoId: pago.id })
+            .where(
+              and(
+                eq(cobrosSolicitados.id, puente.cobroId),
+                eq(cobrosSolicitados.estado, "abierto"),
+              ),
+            )
+            .returning({
+              referencia: cobrosSolicitados.referencia,
+              montoCentavos: cobrosSolicitados.montoCentavos,
+              contactoCorreo: cobrosSolicitados.contactoCorreo,
+              contactoNombre: cobrosSolicitados.contactoNombre,
+              tiendaId: cobrosSolicitados.tiendaId,
+              enlace: cobrosSolicitados.enlace,
+            })
+        : /* Se quedó abierta: el comercio cobró una parte y le siguen
+             debiendo. Igual hay que avisarle al pagador y al equipo, así que
+             se leen los mismos datos sin tocar el estado. */
+          await db
+            .select({
+              referencia: cobrosSolicitados.referencia,
+              montoCentavos: cobrosSolicitados.montoCentavos,
+              contactoCorreo: cobrosSolicitados.contactoCorreo,
+              contactoNombre: cobrosSolicitados.contactoNombre,
+              tiendaId: cobrosSolicitados.tiendaId,
+              enlace: cobrosSolicitados.enlace,
+            })
+            .from(cobrosSolicitados)
+            .where(eq(cobrosSolicitados.id, puente.cobroId))
+            .limit(1);
 
       const cobro = cerrado[0];
       if (cobro) {
@@ -421,25 +465,76 @@ export async function aprobarPago(id: string): Promise<Resultado> {
             .where(eq(tiendas.id, cobro.tiendaId))
             .limit(1);
 
-          await correos.correoReciboDeCobro(
-            {
-              email: cobro.contactoCorreo,
-              name: cobro.contactoNombre ?? "",
-              idioma: "es",
-            },
-            {
-              comercio: duennoCobro?.nombre ?? "",
-              referencia: cobro.referencia,
-              montoCentavos: cobro.montoCentavos,
-            },
-          );
+          /**
+           * ══ SI SE CORRIGIÓ EL MONTO, EL CORREO ES OTRO (27 ago 2026) ══
+           *
+           * Mandar el recibo de siempre con el monto de la factura sería
+           * decirle a quien pagó que su factura quedó cubierta, cuando entró
+           * una parte. Se entera por una llamada del comercio dos semanas
+           * después, y esa conversación empieza con «me cobraron mal» y
+           * termina en el banco.
+           *
+           * El correo corregido lleva los DOS montos y el enlace a su propia
+           * captura: no se le pide que confíe, se le enseña.
+           */
+          const { correccionesPago } = await import("@/lib/db/schema");
+          const [correccion] = await db
+            .select({ id: correccionesPago.id })
+            .from(correccionesPago)
+            .where(eq(correccionesPago.pagoZelleId, pago.id))
+            .limit(1);
+
+          if (correccion) {
+            const { SITIO } = await import("@/lib/sitio");
+            await correos.correoMontoCorregido(
+              {
+                email: cobro.contactoCorreo,
+                name: cobro.contactoNombre ?? "",
+                idioma: "es",
+              },
+              {
+                comercio: duennoCobro?.nombre ?? "",
+                referencia: cobro.referencia,
+                montoFacturaCentavos: cobro.montoCentavos,
+                montoRecibidoCentavos: pago.montoCentavos,
+                faltaCentavos: Math.max(
+                  0,
+                  cobro.montoCentavos - pago.montoCentavos,
+                ),
+                url: `${SITIO.url}/es/cobro/${cobro.enlace}`,
+              },
+            );
+          } else {
+            await correos.correoReciboDeCobro(
+              {
+                email: cobro.contactoCorreo,
+                name: cobro.contactoNombre ?? "",
+                idioma: "es",
+              },
+              {
+                comercio: duennoCobro?.nombre ?? "",
+                referencia: cobro.referencia,
+                montoCentavos: cobro.montoCentavos,
+              },
+            );
+          }
         }
 
         await correos.correoAvisoAlEquipo({
           asunto: `Cobro por enlace pagado por Zelle · ${cobro.referencia}`,
           lineas: [
-            `Cobro ${cobro.referencia} · ${(cobro.montoCentavos / 100).toFixed(2)} USD · Zelle`,
+            /* EL MONTO QUE ENTRÓ, no el que pedía la factura: si se corrigió,
+               decir el de la factura le haría creer al equipo que se cobró
+               completa. */
+            `Cobro ${cobro.referencia} · ${(pago.montoCentavos / 100).toFixed(2)} USD · Zelle`,
             `Neto al comercio: ${(acreditado / 100).toFixed(2)} USD`,
+            ...(pago.montoCentavos < cobro.montoCentavos
+              ? [
+                  t("panel.correccion.facturaQuedaAbierta", {
+                    monto: `${(cobro.montoCentavos / 100).toFixed(2)} USD`,
+                  }),
+                ]
+              : []),
           ],
           url: "https://mercatren.com/es/panel/cobros/enlaces",
           boton: "Ver los enlaces de cobro",

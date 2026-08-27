@@ -2415,6 +2415,25 @@
       "buscaComercio": "Type the store's name…",
       "ningunComercio": "No store with that name.",
       "quitarComercio": "Remove store"
+    },
+    "correccion": {
+      "sinPermiso": "You don't have permission to correct a payment.",
+      "yaRevisado": "That payment was already reviewed and the money has moved. Fixing it now means a refund.",
+      "montoInvalido": "Enter the amount that actually came in. If nothing came in, reject the payment with a reason.",
+      "montoIgual": "That's the same amount the payment already has. There's nothing to correct.",
+      "montoMayorQueElDeclarado": "You can't correct upward. If they overpaid, that gets refunded, not credited.",
+      "sinMotivo": "Write what happened, in a full sentence. Someone will read this six months from now.",
+      "listo": "Done. The payment now shows the real amount and is still pending approval.",
+      "titulo": "Is the amount wrong?",
+      "ayuda": "If the receipt shows a different figure, fix it BEFORE approving: approving credits this amount to the merchant.",
+      "montoReal": "The amount that actually came in",
+      "motivo": "What happened?",
+      "motivoEjemplo": "e.g. transferred 500 instead of 2,774, verified with the bank",
+      "corregir": "Correct the amount",
+      "seCorrigio": "Amount corrected",
+      "decia": "It said",
+      "quedaDebiendo": "The invoice stays open for the difference.",
+      "facturaQuedaAbierta": "⚠️ The invoice was for {monto} and stays OPEN for the difference."
     }
   },
   "catalogo": {
@@ -3142,6 +3161,18 @@
         "We received the screenshot of your transfer. A member of our team checks it against the bank, usually the same business day.",
         "As soon as it's confirmed you'll get your receipt in this same inbox, and the store will be notified. There's nothing else you need to do."
       ]
+    },
+    "montoCorregido": {
+      "asunto": "We adjusted your payment amount · {referencia}",
+      "previo": "We received {recibido}. Here are the details.",
+      "titulo": "We adjusted your payment amount",
+      "explicacion": "Your invoice was for {factura} and the transfer we received was for {recibido}. We recorded exactly what came in — not a cent more, not a cent less.",
+      "loQueFalta": "{falta} is still outstanding on this invoice. The merchant will reach out to arrange the rest.",
+      "laCaptura": "You don't have to take our word for it: the link below shows the receipt exactly as it was uploaded.",
+      "deLaFactura": "Invoice amount",
+      "recibido": "Amount received",
+      "falta": "Still outstanding",
+      "boton": "View the receipt"
     }
   },
   "misPedidos": {
@@ -3503,7 +3534,12 @@
     "achEnviar": "I transferred, send receipt",
     "sinMetodoDisponible": "This charge is set up to be paid by bank transfer or Zelle, but neither is available right now. Contact the store so they can send you a new one.",
     "parteDe": "Part {n} of {total}",
-    "deUnTotalDe": "out of a total of {monto}"
+    "deUnTotalDe": "out of a total of {monto}",
+    "corregidoTitulo": "We adjusted the amount of this payment",
+    "corregidoFactura": "Invoice amount",
+    "corregidoRecibido": "Amount received",
+    "corregidoFalta": "Still outstanding",
+    "corregidoLaCaptura": "This is the receipt that was uploaded"
   },
   "videos": {
     "hilera": {
