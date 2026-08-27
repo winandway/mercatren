@@ -1293,6 +1293,26 @@ destino. Cinco cosas que no se tocan:
    carritos: el de allá sigue pidiendo quién retira y su ciudad, sin
    dirección.
 
+## EL CIRCUITO DE EE. UU. YA SE PAGA SOLO CON EL SALDO (27 ago 2026)
+
+El dueño cargó la cuenta de CJ (Payoneer → CJ, $150 comprobados en su panel) y
+pidió el circuito completo en automático: el cliente paga → el pedido se crea
+en CJ → **se paga solo del saldo** → CJ despacha. `pagarConSaldo` en
+`src/lib/cj/pedidos.ts`, con 5 candados comprobados en rojo.
+
+- **`payBalanceV2` con `shipmentOrderId`**, después de crear el pedido.
+- **El pedido se sigue creando con `payType: 1`**: el enlace de tarjeta es el
+  RESPALDO. Si el saldo no alcanza —o CJ contesta cualquier cosa— queda
+  `por_pagar` con su enlace y el motivo exacto, que es el flujo que ya
+  funcionaba. El automático es una capa encima, no un reemplazo.
+- **El estado se re-comprueba dentro del UPDATE**: si una persona pagó con
+  tarjeta en la ventana, no se paga dos veces.
+- **`pagadoPorId: null`**: lo pagó el sistema, sin autor, como los hitos.
+- **El correo dice cómo quedó**: «PAGADO con el saldo» o «paga con tarjeta»
+  con el motivo. Un correo que pide pagar lo ya pagado enseña a ignorarlos.
+- El riesgo está acotado por diseño: el saldo es PREPAGO — lo máximo que puede
+  salir mal es lo cargado, nunca una deuda.
+
 ## LA PRIMERA COMPRA PAGADA MURIÓ POR UN SKU (18 ago 2026)
 
 MT-000004 se pagó de verdad y CJ la rechazó con **«No variants found for

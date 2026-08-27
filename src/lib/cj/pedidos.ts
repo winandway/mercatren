@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
@@ -14,6 +14,7 @@ import {
   type VarianteElegida,
 } from "@/lib/cj/variantes";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
+import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
 import {
   itemsPedido,
@@ -682,6 +683,22 @@ export async function comprarAlProveedor(
     console.error("[cj] compra creada; no se anotaron los renglones:", fallo);
   }
 
+  /**
+   * ══ EL PAGO AUTOMÁTICO CON EL SALDO (27 ago 2026) ══
+   *
+   * En su propio try, después de que la compra ya está creada y anotada: un
+   * fallo aquí deja el pedido `por_pagar` con su enlace de tarjeta, que es
+   * exactamente el flujo que ya funcionaba. Nunca puede dejarlo peor.
+   */
+  let pagoAutomatico: { pagado: boolean; motivo?: string } = { pagado: false };
+  if (datos.orderId) {
+    try {
+      pagoAutomatico = await pagarConSaldo(db, id, datos.orderId);
+    } catch (fallo) {
+      console.error("[cj] el pago con saldo reventó; queda el enlace:", fallo);
+    }
+  }
+
   /* El aviso va después de guardar y en su propio try: si el correo falla, la
      compra ya está creada y el enlace vive en el panel. */
   try {
@@ -695,7 +712,11 @@ export async function comprarAlProveedor(
     const aOjo = aComprar.filter((r) => r.variante.ambigua);
 
     await correoAvisoAlEquipo({
-      asunto: `Pagar al proveedor · ${pedido.numero}`,
+      /* El asunto dice la verdad de cómo quedó: un correo que pide pagar lo
+         que ya se pagó enseña a ignorar los correos del sistema. */
+      asunto: pagoAutomatico.pagado
+        ? `Pedido al proveedor PAGADO con el saldo · ${pedido.numero}`
+        : `Pagar al proveedor · ${pedido.numero}`,
       lineas: [
         `${pedido.numero} · ${aComprar.length} producto(s)${costo !== null ? ` · ${(costo / 100).toFixed(2)} USD` : ""}`,
         /* El flete, a la vista. Hoy entra como CERO al calcular el precio de
@@ -722,18 +743,106 @@ export async function comprarAlProveedor(
           (r) =>
             `Ojo: de «${r.titulo ?? "un producto"}» había ${r.variante.deCuantas} variantes y se pidió «${r.variante.nombre ?? r.variante.vid}». Compruébalo antes de pagar.`,
         ),
-        urlPago
-          ? "Toca el botón, paga con tarjeta y CJ despacha. No hace falta saldo."
-          : "CJ no devolvió enlace de pago. Hay que abrirlo en su panel.",
+        pagoAutomatico.pagado
+          ? "Se pagó solo con el saldo de CJ. No hay que hacer nada: CJ despacha."
+          : pagoAutomatico.motivo
+            ? `El pago con saldo no salió (${pagoAutomatico.motivo.slice(0, 120)}). Toca el botón y paga con tarjeta.`
+            : urlPago
+              ? "Toca el botón, paga con tarjeta y CJ despacha. No hace falta saldo."
+              : "CJ no devolvió enlace de pago. Hay que abrirlo en su panel.",
       ],
-      url: urlPago ?? `${SITIO.url}/es/panel/proveedor`,
-      boton: urlPago ? "Pagar este pedido" : "Ver en el panel",
+      url: pagoAutomatico.pagado
+        ? `${SITIO.url}/es/panel/proveedor`
+        : (urlPago ?? `${SITIO.url}/es/panel/proveedor`),
+      boton: pagoAutomatico.pagado
+        ? "Ver en el panel"
+        : urlPago
+          ? "Pagar este pedido"
+          : "Ver en el panel",
     });
   } catch (fallo) {
     console.error("[cj] compra creada; el aviso no salio:", fallo);
   }
 
   return { ok: true, id, urlPago, externoId: datos.orderId ?? null };
+}
+
+/**
+ * PAGAR EL PEDIDO CON EL SALDO DE CJ, SIN QUE NADIE TOQUE UN BOTÓN.
+ *
+ * ══ POR QUÉ AHORA SÍ (27 ago 2026) ══
+ *
+ * Hasta hoy el pago era un acto humano a la fuerza: la cuenta de CJ estaba en
+ * cero y su API no puede cobrar una tarjeta guardada. Eso cambió — **el saldo
+ * está cargado** (Payoneer → CJ, comprobado en su panel) y el dueño pidió el
+ * circuito completo en automático: el cliente paga, el pedido se crea, y se
+ * paga solo del saldo. El saldo es PREPAGO: lo máximo que puede salir mal es
+ * lo que haya cargado, nunca una deuda sorpresa — la regla de la casa.
+ *
+ * ══ EL ENLACE DE TARJETA NO SE VA: ES EL RESPALDO ══
+ *
+ * El pedido se sigue creando con `payType: 1`, que devuelve `cjPayUrl`. Si el
+ * saldo no alcanza —o CJ contesta cualquier cosa— el pedido queda `por_pagar`
+ * con su enlace y su motivo exacto, que es el flujo que ya funcionaba. El
+ * automático es una capa encima, no un reemplazo: fallar aquí NUNCA puede
+ * dejar la compra peor de lo que estaba.
+ *
+ * ══ SIN AUTOR, A PROPÓSITO ══
+ *
+ * `pagadoPorId` queda en null: lo pagó el sistema. Ponerle el nombre de una
+ * persona sería atribuirle algo que no hizo — la misma regla de los hitos.
+ */
+async function pagarConSaldo(
+  db: Db,
+  id: string,
+  externoId: string,
+): Promise<{ pagado: boolean; motivo?: string }> {
+  const respuesta = await llamarCj<Record<string, unknown>>(
+    "/shopping/pay/payBalanceV2",
+    { metodo: "POST", cuerpo: { shipmentOrderId: externoId } },
+  );
+
+  if (!respuesta.ok) {
+    /* El motivo se guarda ENTERO y diciendo que la tarjeta sigue sirviendo:
+       un «ultimo_error» al lado de un enlace de pago válido hace dudar de si
+       se puede pagar — por eso el texto lo aclara él mismo. */
+    await db
+      .update(pedidosProveedor)
+      .set({
+        ultimoError:
+          `El pago con saldo no salió: ${respuesta.motivo}. ` +
+          `El enlace de tarjeta sigue funcionando.`.slice(0, 300),
+        actualizadoEn: new Date(),
+      })
+      .where(
+        and(
+          eq(pedidosProveedor.id, id),
+          eq(pedidosProveedor.estado, "por_pagar"),
+        ),
+      )
+      .catch(() => undefined);
+    return { pagado: false, motivo: respuesta.motivo };
+  }
+
+  /* El estado se re-comprueba DENTRO del update: si una persona pagó con
+     tarjeta en la ventana entre crear y cobrar el saldo, no se pisa. */
+  await db
+    .update(pedidosProveedor)
+    .set({
+      estado: "pagado",
+      pagadoEn: new Date(),
+      pagadoPorId: null,
+      ultimoError: null,
+      actualizadoEn: new Date(),
+    })
+    .where(
+      and(
+        eq(pedidosProveedor.id, id),
+        eq(pedidosProveedor.estado, "por_pagar"),
+      ),
+    );
+
+  return { pagado: true };
 }
 
 /**
