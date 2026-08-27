@@ -230,6 +230,19 @@ export default async function PaginaDeCobro({
   /* El tope de Zelle que se pasó este cobro, si se pasó. */
   let topeZelle: number | null = null;
 
+  let transferenciaAlterna: {
+    datos: import("@/lib/cobros/transferencia").DatosDeTransferencia;
+    concepto: string;
+  } | null = null;
+
+  let wire: {
+    datos: import("@/lib/cobros/wire").DatosDeWire;
+    concepto: string;
+    montoTexto: string;
+    facturaTexto: string;
+    costoTexto: string;
+  } | null = null;
+
   let transferencia: {
     datos: import("@/lib/cobros/transferencia").DatosDeTransferencia;
     concepto: string;
@@ -308,6 +321,20 @@ export default async function PaginaDeCobro({
         await import("@/lib/cobros/transferencia");
       const { env } = getCloudflareContext();
       const { ZELLE_MINIMO_CENTAVOS } = await import("@/lib/dinero");
+
+      /* EL COSTO DE RECIBIR EL CABLE, editable desde el panel: el banco lo
+         cambia sin avisarnos. Si no hay fila, `decidirWire` cae a su respaldo
+         de $30 — nunca a cero, que sería regalar el cable. */
+      const { configuracion } = await import("@/lib/db/schema");
+      const [filaCosto] = await getDb()
+        .select({ valor: configuracion.valor })
+        .from(configuracion)
+        .where(eq(configuracion.clave, "wire_costo_centavos"))
+        .limit(1)
+        .catch(() => []);
+      const costoWireCentavos = filaCosto
+        ? Number.parseInt(filaCosto.valor, 10)
+        : null;
       const minimo = decision.disponible
         ? decision.minimoCentavos
         : ZELLE_MINIMO_CENTAVOS;
@@ -326,6 +353,66 @@ export default async function PaginaDeCobro({
         aceptaMetodo(metodosAceptados, "transferencia")
       ) {
         transferencia = { datos: posible.datos, concepto };
+
+        /* LA SEGUNDA CUENTA. Solo se ofrece si la primera se ofrece: enseñar
+           la alterna sola sería enseñar la de repuesto sin la principal. */
+        const alterna = decidirTransferencia(
+          {
+            beneficiario: env.PAGO_ALT_BENEFICIARIO,
+            banco: env.PAGO_ALT_BANCO,
+            cuenta: env.PAGO_ALT_CUENTA,
+            rutaAch: env.PAGO_ALT_RUTA_ACH,
+          },
+          cobro.montoCentavos,
+          minimo,
+        );
+        if (alterna.disponible) {
+          transferenciaAlterna = { datos: alterna.datos, concepto };
+        }
+      }
+
+      /* ══ EL CABLE (WIRE) ══
+
+         Va con la ruta de WIRE, que en Chase es OTRA distinta de la de ACH, y
+         con su costo sumado al monto y desglosado en pantalla. Entra dentro
+         del permiso de «transferencia»: para el comercio que eligió cobrar
+         por transferencia, el cable es esa misma vía — lo que cambia es la
+         velocidad y que tiene costo. */
+      const { decidirWire } = await import("@/lib/cobros/wire");
+      const posibleWire = decidirWire(
+        {
+          beneficiario: env.PAGO_BENEFICIARIO,
+          banco: env.PAGO_BANCO,
+          cuenta: env.PAGO_CUENTA,
+          rutaWire: env.PAGO_RUTA_WIRE,
+        },
+        cobro.montoCentavos,
+        minimo,
+        costoWireCentavos ?? undefined,
+      );
+      if (
+        posibleWire.disponible &&
+        aceptaMetodo(metodosAceptados, "transferencia")
+      ) {
+        wire = {
+          datos: posibleWire.datos,
+          concepto,
+          montoTexto: formatearPrecio(
+            posibleWire.totalATransferirCentavos,
+            idioma,
+            cobro.moneda,
+          ),
+          facturaTexto: formatearPrecio(
+            cobro.montoCentavos,
+            idioma,
+            cobro.moneda,
+          ),
+          costoTexto: formatearPrecio(
+            posibleWire.costoCentavos,
+            idioma,
+            cobro.moneda,
+          ),
+        };
       }
     }
 
@@ -638,6 +725,8 @@ export default async function PaginaDeCobro({
                 )}
                 zelle={zelle}
                 transferencia={transferencia}
+                transferenciaAlterna={transferenciaAlterna}
+                wire={wire}
                 aceptaTarjeta={aceptaMetodo(metodosAceptados, "tarjeta")}
               />
             </div>

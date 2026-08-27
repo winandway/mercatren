@@ -3581,7 +3581,9 @@
     "wireComoFunciona": "You send the wire from your bank and upload the receipt. A person verifies it against our account, usually the same business day.",
     "cualCuenta": "Which account would you rather transfer to?",
     "cuentaPrincipal": "Recommended",
-    "cuentaAlterna": "If your bank gives you trouble with the other one"
+    "cuentaAlterna": "If your bank gives you trouble with the other one",
+    "metodoWire": "Wire",
+    "metodoWireDetalle": "Arrives same day · has a fee"
   },
   "videos": {
     "hilera": {

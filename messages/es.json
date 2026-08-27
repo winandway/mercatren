@@ -3581,7 +3581,9 @@
     "wireComoFunciona": "Mandas el cable desde tu banco y subes el comprobante. Una persona lo verifica contra nuestra cuenta, normalmente el mismo día hábil.",
     "cualCuenta": "¿A cuál cuenta prefieres transferir?",
     "cuentaPrincipal": "Recomendada",
-    "cuentaAlterna": "Si tu banco te da problemas con la otra"
+    "cuentaAlterna": "Si tu banco te da problemas con la otra",
+    "metodoWire": "Cable (wire)",
+    "metodoWireDetalle": "Llega el mismo día · tiene costo"
   },
   "videos": {
     "hilera": {

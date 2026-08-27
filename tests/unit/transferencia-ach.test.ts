@@ -81,10 +81,26 @@ describe("los candados del método", () => {
       "utf8",
     );
     /* Chase da un número de ruta para ACH y otro distinto para wire; con el
-       de wire, la transferencia rebota. */
-    expect(pagina).toContain("PAGO_RUTA_ACH");
-    const bloque = pagina.slice(pagina.indexOf("decidirTransferencia"));
-    expect(bloque).not.toContain("PAGO_RUTA_WIRE");
+       de wire, la transferencia rebota.
+
+       ══ EL CANDADO CAMBIÓ DE FORMA EL 27 AGO 2026 ══
+
+       Antes decía «esta página no puede nombrar PAGO_RUTA_WIRE», y valía
+       mientras la página solo ofrecía ACH. Al agregar el cable dejó de valer:
+       la página **tiene** que leer las dos, cada una en su sitio. Aflojarlo a
+       secas habría dejado la trampa sin vigilancia, así que ahora se comprueba
+       lo que de verdad importa — que **la llamada de ACH lleve la ruta de ACH
+       y la del cable la de wire**, y ninguna la de la otra. */
+    const bloqueAch = pagina.slice(
+      pagina.indexOf("decidirTransferencia("),
+      pagina.indexOf("decidirWire("),
+    );
+    expect(bloqueAch).toContain("PAGO_RUTA_ACH");
+    expect(bloqueAch).not.toContain("PAGO_RUTA_WIRE");
+
+    const bloqueWire = pagina.slice(pagina.indexOf("decidirWire("));
+    expect(bloqueWire).toContain("PAGO_RUTA_WIRE");
+    expect(bloqueWire).not.toContain("rutaAch");
   });
 
   it("va a la MISMA cola de validación que Zelle: no se duplica nada", () => {
