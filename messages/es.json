@@ -2415,7 +2415,8 @@
         "transferencia": "transferencia bancaria (ACH, con dos cuentas para elegir), cable (wire) y Zelle. Tu cliente NO podrá pagar con tarjeta, así no te descuentan la comisión del procesador.",
         "tarjeta": "solo el pago con tarjeta. Se confirma al instante, y el procesador descuenta su comisión.",
         "transferenciaSinZelle": "transferencia bancaria (ACH, con dos cuentas para elegir) y cable (wire). ⚠️ Zelle NO va a salir en este enlace: el monto pasa del máximo de {tope} que los bancos dejan mandar por Zelle. Tu cliente NO podrá pagar con tarjeta.",
-        "transferenciaZelleBajo": "transferencia bancaria (ACH) y cable (wire). Zelle sale a partir de {minimo}. Tu cliente NO podrá pagar con tarjeta."
+        "transferenciaZelleBajo": "transferencia bancaria (ACH) y cable (wire). Zelle sale a partir de {minimo}. Tu cliente NO podrá pagar con tarjeta.",
+        "sugerenciaPartes": "💡 ¿Tu cliente quiere abonar por Zelle? Al generar el enlace, divide la factura en {n} partes (quedan de {parte} cada una) y Zelle sí sale en cada parte."
       },
       "porQueComercio": "¿Por qué comercio estás cuadrando?",
       "eligeComercioPrimero": "Elige arriba de qué comercio es esta factura para poder cobrarla.",

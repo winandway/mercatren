@@ -217,6 +217,27 @@ export function CalculadoraFactura({
               : objetivoCentavos > zelleLimites.maximoCentavos
                 ? t("ofrecera.transferenciaSinZelle", {
                     tope: formatearPrecio(zelleLimites.maximoCentavos, idioma),
+                  }) +
+                  " " +
+                  /* ══ LA SALIDA, NO SOLO EL LÍMITE ══
+                     Decir «Zelle no sale» y callarse deja al comercio sin
+                     camino. La salida ya existe: las PARTES. Cada parte es su
+                     propio enlace y evalúa Zelle por SU monto — dividida en
+                     suficientes partes, Zelle sale en cada una. Se le dice
+                     cuántas hacen falta, calculado, no «divídela en varias». */
+                  t("ofrecera.sugerenciaPartes", {
+                    n: Math.ceil(
+                      objetivoCentavos / zelleLimites.maximoCentavos,
+                    ),
+                    parte: formatearPrecio(
+                      Math.ceil(
+                        objetivoCentavos /
+                          Math.ceil(
+                            objetivoCentavos / zelleLimites.maximoCentavos,
+                          ),
+                      ),
+                      idioma,
+                    ),
                   })
                 : objetivoCentavos > 0 &&
                     objetivoCentavos < zelleLimites.minimoCentavos

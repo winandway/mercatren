@@ -2415,7 +2415,8 @@
         "transferencia": "bank transfer (ACH, with two accounts to choose from), wire, and Zelle. Your customer will NOT be able to pay by card, so no processor fee comes out of your side.",
         "tarjeta": "card payment only. It confirms instantly, and the processor takes its fee.",
         "transferenciaSinZelle": "bank transfer (ACH, with two accounts to choose from) and wire. ⚠️ Zelle will NOT appear on this link: the amount exceeds the {tope} maximum banks allow over Zelle. Your customer will NOT be able to pay by card.",
-        "transferenciaZelleBajo": "bank transfer (ACH) and wire. Zelle appears starting at {minimo}. Your customer will NOT be able to pay by card."
+        "transferenciaZelleBajo": "bank transfer (ACH) and wire. Zelle appears starting at {minimo}. Your customer will NOT be able to pay by card.",
+        "sugerenciaPartes": "💡 Does your customer want to pay by Zelle? When generating the link, split the invoice into {n} parts ({parte} each) and Zelle will appear on every part."
       },
       "porQueComercio": "Which store are you matching for?",
       "eligeComercioPrimero": "Choose which store this invoice belongs to, above, to be able to charge it.",
