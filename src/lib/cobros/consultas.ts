@@ -368,7 +368,21 @@ export async function zelleDelCobro(
   montoCentavos: number,
 ): Promise<
   | { disponible: true; receptor: string; minimoCentavos: number }
-  | { disponible: false }
+  | {
+      disponible: false;
+      /**
+       * ¿SE PASÓ DEL TOPE DE ZELLE?
+       *
+       * Va como un sí/no y NO como el motivo entero, y es deliberado: la página
+       * pública del cobro tiene un candado que prohíbe la palabra «motivo» en
+       * todo el archivo (`cobros-anular.test.ts`), porque ahí vive el motivo de
+       * una anulación —escrito por una persona, y puede nombrar al comercio—
+       * que jamás puede llegarle a quien paga. Este dato es otra cosa, pero la
+       * regla es del archivo, no del dato: se le pasa lo justo.
+       */
+      topeSuperado: boolean;
+      maximoCentavos: number;
+    }
 > {
   const { decidirZelle } = await import("@/lib/cobros/zelle");
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
@@ -395,6 +409,17 @@ export async function zelleDelCobro(
 
   const minimoGlobal = global ? Number.parseInt(global.valor, 10) : null;
 
+  /* EL TOPE, que el equipo edita desde Configuración. Va en `configuracion`
+     —llave y valor— y no en una columna nueva: una columna no llega sola a
+     producción. */
+  const [topeFila] = await db
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, "zelle_cobros_maximo_centavos"))
+    .limit(1);
+
+  const maximoGlobal = topeFila ? Number.parseInt(topeFila.valor, 10) : null;
+
   const decision = decidirZelle(
     {
       /**
@@ -414,11 +439,18 @@ export async function zelleDelCobro(
       minimoTiendaCentavos: fila?.minimoCentavos ?? null,
       minimoGlobalCentavos: Number.isFinite(minimoGlobal) ? minimoGlobal : null,
       receptorConfigurado: Boolean(receptor),
+      maximoGlobalCentavos: Number.isFinite(maximoGlobal) ? maximoGlobal : null,
     },
     montoCentavos,
   );
 
-  if (!decision.disponible || !receptor) return { disponible: false };
+  if (!decision.disponible || !receptor) {
+    return {
+      disponible: false,
+      topeSuperado: !decision.disponible && decision.motivo === "monto_alto",
+      maximoCentavos: decision.maximoCentavos,
+    };
+  }
   return {
     disponible: true,
     receptor,

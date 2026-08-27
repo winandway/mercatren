@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { AvisoNavegador } from "@/components/cobro/aviso-navegador";
+import { AvisoTopeZelle } from "@/components/cobro/aviso-tope-zelle";
 import { MetodosDeCobro } from "@/components/cobro/metodos-de-cobro";
 import { aceptaMetodo } from "@/lib/cobros/reparto";
 import { comoSePago } from "@/lib/cobros/como-se-pago";
@@ -226,6 +227,9 @@ export default async function PaginaDeCobro({
     concepto: string;
     nombreReceptor: string | null;
   } | null = null;
+  /* El tope de Zelle que se pasó este cobro, si se pasó. */
+  let topeZelle: number | null = null;
+
   let transferencia: {
     datos: import("@/lib/cobros/transferencia").DatosDeTransferencia;
     concepto: string;
@@ -278,6 +282,12 @@ export default async function PaginaDeCobro({
       const nombreReceptor =
         getCloudflareContext().env.ZELLE_NOMBRE_RECEPTOR ?? null;
       zelle = { receptor: decision.receptor, concepto, nombreReceptor };
+    }
+    /* ══ EL MONTO SE PASA DEL TOPE DE ZELLE (27 ago 2026) ══
+       No se calla: quien paga tiene que saber que el límite es de SU banco y
+       que la transferencia sí le sirve. Ver `AvisoTopeZelle`. */
+    if (!decision.disponible && decision.topeSuperado) {
+      topeZelle = decision.maximoCentavos;
     }
     if (!aceptaMetodo(metodosAceptados, "zelle")) zelle = null;
 
@@ -607,17 +617,30 @@ export default async function PaginaDeCobro({
               {t("zEnRevision")}
             </p>
           ) : (
-            <MetodosDeCobro
-              enlace={enlace}
-              montoTexto={formatearPrecio(
-                cobro.montoCentavos,
-                idioma,
-                cobro.moneda,
-              )}
-              zelle={zelle}
-              transferencia={transferencia}
-              aceptaTarjeta={aceptaMetodo(metodosAceptados, "tarjeta")}
-            />
+            <div className="space-y-4">
+              {/* EL AVISO VA ANTES DE LOS MÉTODOS, no debajo. Quien ya eligió
+                  tarjeta porque era lo único que veía no vuelve a subir a leer
+                  por qué le falta Zelle. */}
+              {topeZelle !== null ? (
+                <AvisoTopeZelle
+                  topeTexto={formatearPrecio(topeZelle, idioma, cobro.moneda)}
+                  hayTransferencia={Boolean(transferencia)}
+                  urlDocumentacion={`/${locale}/docs/limites-de-zelle`}
+                />
+              ) : null}
+
+              <MetodosDeCobro
+                enlace={enlace}
+                montoTexto={formatearPrecio(
+                  cobro.montoCentavos,
+                  idioma,
+                  cobro.moneda,
+                )}
+                zelle={zelle}
+                transferencia={transferencia}
+                aceptaTarjeta={aceptaMetodo(metodosAceptados, "tarjeta")}
+              />
+            </div>
           )}
         </div>
 

@@ -329,6 +329,7 @@ export default async function PaginaConfiguracion({
           <div className="mt-4">
             <ZelleCobros
               minimoGlobalCentavos={zelleCobros.minimoGlobalCentavos}
+              maximoGlobalCentavos={zelleCobros.maximoGlobalCentavos}
               respaldoCentavos={ZELLE_MINIMO_CENTAVOS}
               tiendas={zelleCobros.tiendas}
             />
@@ -504,7 +505,7 @@ export default async function PaginaConfiguracion({
           <Languages className="h-4 w-4 text-carga-500" aria-hidden />
           {tt("titulo")}
         </h2>
-        <p className="mt-1 text-sm text-riel-600">{tt("explicacion")}</p>
+        <p className="text-riel-600 mt-1 text-sm">{tt("explicacion")}</p>
         <div className="mt-3">
           <TraducirCatalogo
             pendientes={traductor.sinTraducir}
@@ -521,7 +522,7 @@ export default async function PaginaConfiguracion({
           <FileText className="h-4 w-4 text-carga-500" aria-hidden />
           {td("titulo")}
         </h2>
-        <p className="mt-1 text-sm text-riel-600">{td("explicacion")}</p>
+        <p className="text-riel-600 mt-1 text-sm">{td("explicacion")}</p>
         <div className="mt-3">
           <TraerDescripciones
             pendientes={sinDescripcion}
@@ -537,7 +538,7 @@ export default async function PaginaConfiguracion({
           <Calculator className="h-4 w-4 text-carga-500" aria-hidden />
           {tx("titulo")}
         </h2>
-        <p className="mt-1 text-sm text-riel-600">{tx("explicacion")}</p>
+        <p className="text-riel-600 mt-1 text-sm">{tx("explicacion")}</p>
         <div className="mt-3">
           <Exportar que="asiento" />
         </div>
@@ -549,7 +550,7 @@ export default async function PaginaConfiguracion({
           <DollarSign className="h-4 w-4 text-carga-500" aria-hidden />
           {tp("titulo")}
         </h2>
-        <p className="mt-1 text-sm text-riel-600">{tPrecios("explicacion")}</p>
+        <p className="text-riel-600 mt-1 text-sm">{tPrecios("explicacion")}</p>
         <div className="mt-3">
           <RecalcularPrecios pendientes={sinEnvio} />
         </div>

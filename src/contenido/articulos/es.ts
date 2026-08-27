@@ -14,6 +14,77 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "limites-de-zelle",
+    tipo: "documentacion",
+    titulo: "Los límites de Zelle al pagarle a Mercatren",
+    resumen:
+      "Por qué a veces tu banco no te deja mandar el monto completo por Zelle, cuánto es el máximo hoy, y cuál es la vía que sí funciona para una factura grande.",
+    fecha: "2026-08-27",
+    temas: ["pagos", "zelle", "transferencia", "compradores"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Esto es temporal",
+        texto: `Esta página está escrita el jueves 27 de agosto de 2026 y describe una situación TEMPORAL. La cuenta de ${SOCIEDAD.nombre} es nueva, y los bancos limitan los primeros envíos a un destinatario que no conocen. Si estás leyendo esto dentro de dos o tres meses, es muy probable que ya no aplique: el límite sube solo a medida que la cuenta madura y que tú nos vas pagando.`,
+      },
+      { tipo: "subtitulo", texto: "Qué pasa exactamente" },
+      {
+        tipo: "parrafo",
+        texto: `Cuando vas a mandarle un Zelle a ${SOCIEDAD.nombre}, tu banco te enseña el máximo que te deja mandarle HOY a ese destinatario. Ahora mismo, para una cuenta que nos paga por primera vez, ese máximo ronda los mil dólares.`,
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "No es un límite que ponga Mercatren. Es de tu banco, y lo decide él en cada envío. Chase, por ejemplo, lo explica con estas palabras en la propia pantalla del pago:",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Lo que dice tu banco",
+        texto:
+          "«Tu límite de envío de pagos es flexible. A medida que estableces el historial de pagos de Zelle con un nuevo destinatario, tu límite diario para enviarle dinero puede aumentar.»",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Por eso, cuando una factura pasa del máximo, Mercatren directamente no te ofrece Zelle: sería mandarte a una pantalla donde no vas a poder terminar. Y lo que suele pasar en ese caso es peor que no poder pagar — mandas lo que te dejan, la factura queda a medias, y hay que corregirla a mano.",
+      },
+      { tipo: "subtitulo", texto: "Qué hacer con una factura grande" },
+      {
+        tipo: "parrafo",
+        texto: `Usa la TRANSFERENCIA BANCARIA (ACH). No tiene ese límite, la mayoría de los bancos no te cobra nada por hacerla, y el dinero llega a la misma cuenta de ${SOCIEDAD.nombre}. En la página de tu cobro te salen los cuatro datos que te pide el banco, cada uno con su botón de copiar.`,
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Transferencia bancaria (ACH): sin ese límite y sin comisión. Es la recomendada para montos altos.",
+          "Tarjeta: tampoco tiene ese límite. Se confirma sola, en el momento.",
+          "Zelle: para montos por debajo del máximo. Lo confirma una persona, normalmente el mismo día hábil.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "El número de conciliación",
+        texto:
+          "Si pagas por transferencia o por Zelle, escribe el número de conciliación que te damos en la página del cobro. Ese número es lo que ata tu transferencia con tu factura: a ti te justifica la salida de tu cuenta y a nosotros la entrada en la nuestra.",
+      },
+      { tipo: "subtitulo", texto: "¿Y si ya mandé de menos?" },
+      {
+        tipo: "parrafo",
+        texto:
+          "No se pierde nada. Registramos exactamente lo que entró y te llega un correo con los dos montos —el de la factura y el que recibimos— y con el enlace para ver el comprobante que subiste, tal como llegó. La factura queda abierta por la diferencia y el comercio se pone en contacto contigo para terminarla.",
+      },
+      {
+        tipo: "boton",
+        texto: "Los límites de Zelle en Chase",
+        href: "https://www.chase.com/business/support/banking/online-banking/zelle",
+        externo: true,
+      },
+    ],
+  },
+  {
     slug: "la-portada-abre-con-todas-las-tiendas",
     tipo: "novedad",
     titulo:

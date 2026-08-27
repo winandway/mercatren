@@ -986,7 +986,9 @@
         "minimoPropioAyuda": "Empty = uses the general one. Zero = no minimum.",
         "sinTiendas": "No store uses the payment API yet.",
         "encendido": "Enabled",
-        "apagado": "No Zelle (card only)"
+        "apagado": "No Zelle (card only)",
+        "maximoGlobal": "Maximum per charge (Zelle)",
+        "maximoGlobalAyuda": "Above this amount the link does NOT offer Zelle and points to transfer or card instead. This isn't our limit: it's the one the payer's bank places on a new recipient, and it rises on its own over time. Defaults to {respaldo}."
       },
       "cobroEnlace": {
         "titulo": "Can we charge by payment link?",
@@ -3539,7 +3541,17 @@
     "corregidoFactura": "Invoice amount",
     "corregidoRecibido": "Amount received",
     "corregidoFalta": "Still outstanding",
-    "corregidoLaCaptura": "This is the receipt that was uploaded"
+    "corregidoLaCaptura": "This is the receipt that was uploaded",
+    "topeZelle": {
+      "titulo": "This amount can't be paid with Zelle (the maximum is {tope})",
+      "usaTransferencia": "Pay it by bank transfer (ACH) or by card. A transfer has no such limit and carries no fee.",
+      "usaTarjeta": "Pay it by card. There's no such limit there.",
+      "porQue": "Why?",
+      "explicacion": "This isn't our limit: it's the one your bank places on a new recipient. «SOCIEDAD» is a newly opened account, so your first transfers to it are capped.",
+      "loQueDiceElBanco": "“Your payment sending limit is flexible. As you establish a Zelle payment history with a new recipient, your daily limit for sending them money may increase.”",
+      "esTemporal": "It's temporary. As you pay us, your bank raises the cap on its own.",
+      "leerMas": "Read more about Zelle limits"
+    }
   },
   "videos": {
     "hilera": {

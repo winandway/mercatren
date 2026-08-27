@@ -30,6 +30,19 @@ type Resultado = { ok: boolean; mensaje: string };
 
 const LLAVE_MINIMO_GLOBAL = "zelle_cobros_minimo_centavos";
 
+/**
+ * EL TOPE GENERAL DE ZELLE.
+ *
+ * No es una regla nuestra: es la que el banco de quien paga le pone a un
+ * destinatario nuevo. Por eso vive en `configuracion` —llave y valor— y no en
+ * una columna por tienda: es el mismo para todos los comercios y **cambia con
+ * el tiempo**, porque el límite sube solo a medida que la cuenta madura.
+ *
+ * Se edita desde el panel justamente para no depender de una publicación el día
+ * que el banco lo suba.
+ */
+const LLAVE_MAXIMO_GLOBAL = "zelle_cobros_maximo_centavos";
+
 function aCentavos(texto: string): number | null {
   const limpio = texto.trim().replace(",", ".");
   if (!limpio) return null;
@@ -59,6 +72,36 @@ export async function guardarMinimoGlobalZelle(
   await db
     .insert(configuracion)
     .values({ clave: LLAVE_MINIMO_GLOBAL, valor: String(centavos) })
+    .onConflictDoUpdate({
+      target: configuracion.clave,
+      set: { valor: String(centavos) },
+    });
+
+  revalidatePath("/[locale]/panel/configuracion", "page");
+  return { ok: true, mensaje: t("zelleCobros.guardado") };
+}
+
+/** El tope general: por encima de él, el enlace no ofrece Zelle. */
+export async function guardarMaximoGlobalZelle(
+  formulario: FormData,
+): Promise<Resultado> {
+  const t = await mensajes();
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, mensaje: t("sinPermiso") };
+  }
+
+  const centavos = aCentavos(String(formulario.get("maximo") ?? ""));
+  /* CERO NO VALE, y no es un detalle: un tope en cero apagaría Zelle para todo
+     el mundo sin que ninguna pantalla dijera por qué, y Zelle es la forma de
+     pago de esta clientela. */
+  if (centavos === null || Number.isNaN(centavos) || centavos <= 0) {
+    return { ok: false, mensaje: t("zelleCobros.montoInvalido") };
+  }
+
+  const db = getDb();
+  await db
+    .insert(configuracion)
+    .values({ clave: LLAVE_MAXIMO_GLOBAL, valor: String(centavos) })
     .onConflictDoUpdate({
       target: configuracion.clave,
       set: { valor: String(centavos) },
@@ -117,6 +160,7 @@ export async function guardarZelleDeTienda(
 /** Lo que la pantalla necesita para dibujar la sección. */
 export async function estadoZelleCobros(): Promise<{
   minimoGlobalCentavos: number | null;
+  maximoGlobalCentavos: number | null;
   tiendas: Array<{
     tiendaId: string;
     nombre: string;
@@ -133,6 +177,12 @@ export async function estadoZelleCobros(): Promise<{
     .select({ valor: configuracion.valor })
     .from(configuracion)
     .where(eq(configuracion.clave, LLAVE_MINIMO_GLOBAL))
+    .limit(1);
+
+  const [tope] = await db
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, LLAVE_MAXIMO_GLOBAL))
     .limit(1);
 
   /* Las tiendas que usan la API de cobros (las vinculadas), no las 25 del
@@ -155,9 +205,11 @@ export async function estadoZelleCobros(): Promise<{
 
   const porTienda = new Map(config.map((c) => [c.tiendaId, c]));
   const minimoGlobal = global ? Number.parseInt(global.valor, 10) : null;
+  const maximoGlobal = tope ? Number.parseInt(tope.valor, 10) : null;
 
   return {
     minimoGlobalCentavos: Number.isFinite(minimoGlobal) ? minimoGlobal : null,
+    maximoGlobalCentavos: Number.isFinite(maximoGlobal) ? maximoGlobal : null,
     tiendas: vinculadas.map((v) => ({
       tiendaId: v.tiendaId,
       nombre: v.nombre,

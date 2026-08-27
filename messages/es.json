@@ -986,7 +986,9 @@
         "minimoPropioAyuda": "Vacío = usa el general. Cero = sin mínimo.",
         "sinTiendas": "Ninguna tienda usa todavía la API de cobros.",
         "encendido": "Activado",
-        "apagado": "Sin Zelle (solo tarjeta)"
+        "apagado": "Sin Zelle (solo tarjeta)",
+        "maximoGlobal": "Máximo por cobro (Zelle)",
+        "maximoGlobalAyuda": "Por encima de este monto, el enlace NO ofrece Zelle y manda a la transferencia o a la tarjeta. No es un límite nuestro: es el que el banco de quien paga le pone a un destinatario nuevo, y sube solo con el tiempo. Por defecto {respaldo}."
       },
       "cobroEnlace": {
         "titulo": "¿Se puede cobrar por enlace?",
@@ -3539,7 +3541,17 @@
     "corregidoFactura": "La factura era por",
     "corregidoRecibido": "Recibimos",
     "corregidoFalta": "Queda por pagar",
-    "corregidoLaCaptura": "Este es el comprobante que se subió"
+    "corregidoLaCaptura": "Este es el comprobante que se subió",
+    "topeZelle": {
+      "titulo": "Este monto no se puede pagar por Zelle (el máximo es {tope})",
+      "usaTransferencia": "Págalo con transferencia bancaria (ACH) o con tarjeta. La transferencia no tiene ese límite y no cobra comisión.",
+      "usaTarjeta": "Págalo con tarjeta. Ahí no hay ese límite.",
+      "porQue": "¿Por qué?",
+      "explicacion": "No es un límite nuestro: es el que tu banco le pone a un destinatario nuevo. «SOCIEDAD» es una cuenta recién abierta, así que las primeras transferencias que le hagas van topadas.",
+      "loQueDiceElBanco": "«Tu límite de envío de pagos es flexible. A medida que estableces el historial de pagos de Zelle con un nuevo destinatario, tu límite diario para enviarle dinero puede aumentar.»",
+      "esTemporal": "Es temporal. A medida que nos pagues, tu banco te va subiendo el tope solo.",
+      "leerMas": "Leer más sobre los límites de Zelle"
+    }
   },
   "videos": {
     "hilera": {

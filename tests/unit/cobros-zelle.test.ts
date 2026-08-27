@@ -130,3 +130,70 @@ describe("SIN FILA, ZELLE ESTÁ DISPONIBLE: el equipo lo APAGA (21 ago 2026)", (
     });
   });
 });
+
+/**
+ * EL TOPE DE ZELLE (27 ago 2026).
+ *
+ * Un cobro de $2.774,04 se ofreció por Zelle y quien pagaba solo pudo mandar
+ * $500: su banco se lo cortó en la pantalla del envío. Ofrecerlo por encima del
+ * tope manda a alguien a una pantalla donde no puede terminar.
+ */
+describe("el tope de Zelle", () => {
+  const base = {
+    habilitada: true,
+    minimoTiendaCentavos: null,
+    minimoGlobalCentavos: null,
+    receptorConfigurado: true,
+  };
+
+  it("EL CASO REAL: $2.774,04 no se ofrece por Zelle", () => {
+    const d = decidirZelle({ ...base, maximoGlobalCentavos: null }, 277_404);
+    expect(d.disponible).toBe(false);
+    if (d.disponible) return;
+    expect(d.motivo).toBe("monto_alto");
+    expect(d.maximoCentavos).toBe(100_000);
+  });
+
+  it("justo en el tope SÍ se ofrece", () => {
+    /* $1.000,00 exactos es lo que el banco deja: cortarlo un centavo antes
+       sería quitarle a alguien un pago que sí puede hacer. */
+    expect(
+      decidirZelle({ ...base, maximoGlobalCentavos: null }, 100_000).disponible,
+    ).toBe(true);
+  });
+
+  it("un centavo por encima ya no", () => {
+    const d = decidirZelle({ ...base, maximoGlobalCentavos: null }, 100_001);
+    expect(d.disponible).toBe(false);
+    if (!d.disponible) expect(d.motivo).toBe("monto_alto");
+  });
+
+  it("EL TOPE ES EDITABLE desde el panel, sin tocar código", () => {
+    /* El límite del banco es dinámico y sube con el historial: dentro de unos
+       meses esto va a estorbar más que ayudar. */
+    const d = decidirZelle({ ...base, maximoGlobalCentavos: 500_000 }, 277_404);
+    expect(d.disponible).toBe(true);
+    expect(d.maximoCentavos).toBe(500_000);
+  });
+
+  it("UN TOPE EN CERO NO APAGA ZELLE PARA TODO EL MUNDO", () => {
+    /* Sería el fallo más caro de esta pieza: Zelle es la forma de pago de esta
+       clientela y se quedaría apagada sin que ninguna pantalla dijera por qué. */
+    for (const malo of [0, -1, Number.NaN]) {
+      const d = decidirZelle({ ...base, maximoGlobalCentavos: malo }, 50_000);
+      expect(d.disponible).toBe(true);
+      expect(d.maximoCentavos).toBe(100_000);
+    }
+  });
+
+  it("el mínimo manda antes que el tope", () => {
+    /* Los otros motivos se arreglan de este lado; «monto_alto» solo se
+       arregla cobrando por otra vía, así que va de último. */
+    const d = decidirZelle(
+      { ...base, minimoGlobalCentavos: 20_000, maximoGlobalCentavos: 10_000 },
+      5_000,
+    );
+    expect(d.disponible).toBe(false);
+    if (!d.disponible) expect(d.motivo).toBe("monto_bajo");
+  });
+});

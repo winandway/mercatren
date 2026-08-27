@@ -267,6 +267,36 @@ export const COMISION_ZELLE_PB = 300;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
 /**
+ * EL TOPE DE ZELLE: $1.000 (27 ago 2026).
+ *
+ * ══ NO ES UNA REGLA NUESTRA: ES LA DEL BANCO DE QUIEN PAGA ══
+ *
+ * Un cobro de $2.774,04 se ofreció por Zelle y quien pagaba **solo pudo mandar
+ * $500**. Su banco se lo cortó en la pantalla del envío: «El límite de hoy para
+ * este destinatario es de $1,000.00». Mercatren LLC es un destinatario NUEVO
+ * para cada cliente, y los bancos limitan los primeros envíos a un destinatario
+ * que no conocen.
+ *
+ * Ofrecer Zelle por encima de eso es mandar a alguien a una pantalla donde no
+ * puede terminar lo que empezó. Y lo que pasa después es peor que perder la
+ * venta: manda lo que le dejan, la factura queda a medias, y hay que corregir
+ * el pago a mano.
+ *
+ * ══ ES TEMPORAL, Y POR ESO SE PUEDE CAMBIAR SIN TOCAR CÓDIGO ══
+ *
+ * Chase lo dice: el límite es **dinámico** y lo decide en cada envío según
+ * varios factores, incluido el destinatario. A medida que un cliente le manda
+ * dinero a Mercatren, su tope sube. Dentro de unos meses esto va a estorbar
+ * más que ayudar.
+ *
+ * Por eso el número de verdad vive en `configuracion.zelle_cobros_maximo_centavos`
+ * y se edita desde el panel. Esta constante es solo el respaldo del primer día.
+ * Y va en `configuracion` —tabla de llave y valor— y no en una columna nueva:
+ * una columna no llega sola a producción.
+ */
+export const ZELLE_MAXIMO_CENTAVOS = 100_000;
+
+/**
  * QUÉ PORCENTAJE SE LE DESCUENTA AL COMERCIO, SEGÚN CÓMO SE PAGÓ.
  *
  * ══ EL FALLO QUE ARREGLA (10 ago 2026) ══

@@ -5,10 +5,12 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
 import {
+  guardarMaximoGlobalZelle,
   guardarMinimoGlobalZelle,
   guardarZelleDeTienda,
 } from "@/lib/cobros/zelle-admin";
 import { useRouter } from "@/i18n/navigation";
+import { ZELLE_MAXIMO_CENTAVOS } from "@/lib/dinero";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,10 +23,12 @@ import { cn } from "@/lib/utils";
  */
 export function ZelleCobros({
   minimoGlobalCentavos,
+  maximoGlobalCentavos,
   respaldoCentavos,
   tiendas,
 }: {
   minimoGlobalCentavos: number | null;
+  maximoGlobalCentavos: number | null;
   /** El mínimo del catálogo, que manda cuando no hay nada configurado. */
   respaldoCentavos: number;
   tiendas: Array<{
@@ -40,6 +44,7 @@ export function ZelleCobros({
     <div className="space-y-4">
       <FormularioGlobal
         minimoGlobalCentavos={minimoGlobalCentavos}
+        maximoGlobalCentavos={maximoGlobalCentavos}
         respaldoCentavos={respaldoCentavos}
       />
 
@@ -58,9 +63,99 @@ export function ZelleCobros({
 
 function FormularioGlobal({
   minimoGlobalCentavos,
+  maximoGlobalCentavos,
   respaldoCentavos,
 }: {
   minimoGlobalCentavos: number | null;
+  maximoGlobalCentavos: number | null;
+  respaldoCentavos: number;
+}) {
+  const t = useTranslations("panel.configuracion.zelleCobros");
+  const router = useRouter();
+  const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(
+    null,
+  );
+  const [guardando, iniciar] = useTransition();
+
+  return (
+    <>
+      <form
+        action={(datos) =>
+          iniciar(async () => {
+            const r = await guardarMinimoGlobalZelle(datos);
+            setAviso({ ok: r.ok, texto: r.mensaje });
+            router.refresh();
+          })
+        }
+        className="flex flex-wrap items-end gap-3 rounded-lg bg-slate-50 p-3"
+      >
+        <label className="block">
+          <span className="text-sm font-semibold">{t("minimoGlobal")}</span>
+          <input
+            type="text"
+            name="minimo"
+            inputMode="decimal"
+            defaultValue={
+              minimoGlobalCentavos !== null
+                ? (minimoGlobalCentavos / 100).toFixed(2)
+                : ""
+            }
+            placeholder={(respaldoCentavos / 100).toFixed(2)}
+            className="mt-1 w-36 rounded-lg border border-borde px-3 py-2 text-sm outline-none focus:border-carga-500"
+          />
+        </label>
+
+        <button
+          type="submit"
+          disabled={guardando}
+          className="inline-flex items-center gap-2 rounded-lg border border-borde px-4 py-2 text-sm font-semibold hover:border-carga-500 disabled:opacity-60"
+        >
+          {guardando ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <Save className="h-4 w-4" aria-hidden />
+          )}
+          {t("guardar")}
+        </button>
+
+        <p className="w-full text-xs text-tinta-suave">
+          {t("minimoGlobalAyuda", {
+            respaldo: `$${(respaldoCentavos / 100).toFixed(2)}`,
+          })}
+        </p>
+
+        {aviso ? (
+          <p
+            role="status"
+            className={cn(
+              "w-full text-sm font-medium",
+              aviso.ok ? "text-precio-600" : "text-red-700",
+            )}
+          >
+            {aviso.texto}
+          </p>
+        ) : null}
+      </form>
+      {/* ══ EL TOPE, EN SU PROPIO FORMULARIO (27 ago 2026) ══
+
+          Va aparte del mínimo a propósito: guardar uno no puede pisar el otro,
+          y son dos decisiones distintas. El mínimo es NUESTRO —por debajo de
+          él, validar la captura cuesta más de lo que deja el margen—. El tope
+          NO: es el que el banco de quien paga le pone a un destinatario nuevo,
+          y sube solo con el tiempo. Por eso se edita aquí y no en el código. */}
+      <FormularioTope
+        maximoGlobalCentavos={maximoGlobalCentavos}
+        respaldoCentavos={ZELLE_MAXIMO_CENTAVOS}
+      />
+    </>
+  );
+}
+
+function FormularioTope({
+  maximoGlobalCentavos,
+  respaldoCentavos,
+}: {
+  maximoGlobalCentavos: number | null;
   respaldoCentavos: number;
 }) {
   const t = useTranslations("panel.configuracion.zelleCobros");
@@ -74,33 +169,33 @@ function FormularioGlobal({
     <form
       action={(datos) =>
         iniciar(async () => {
-          const r = await guardarMinimoGlobalZelle(datos);
+          const r = await guardarMaximoGlobalZelle(datos);
           setAviso({ ok: r.ok, texto: r.mensaje });
           router.refresh();
         })
       }
-      className="flex flex-wrap items-end gap-3 rounded-lg bg-slate-50 p-3"
+      className="mt-3 flex flex-wrap items-end gap-3 rounded-lg bg-amber-50 p-3"
     >
       <label className="block">
-        <span className="text-sm font-semibold">{t("minimoGlobal")}</span>
+        <span className="text-sm font-semibold">{t("maximoGlobal")}</span>
         <input
           type="text"
-          name="minimo"
+          name="maximo"
           inputMode="decimal"
           defaultValue={
-            minimoGlobalCentavos !== null
-              ? (minimoGlobalCentavos / 100).toFixed(2)
+            maximoGlobalCentavos !== null
+              ? (maximoGlobalCentavos / 100).toFixed(2)
               : ""
           }
           placeholder={(respaldoCentavos / 100).toFixed(2)}
-          className="mt-1 w-36 rounded-lg border border-borde px-3 py-2 text-sm outline-none focus:border-carga-500"
+          className="mt-1 w-36 rounded-lg border border-amber-300 px-3 py-2 text-sm outline-none focus:border-carga-500"
         />
       </label>
 
       <button
         type="submit"
         disabled={guardando}
-        className="inline-flex items-center gap-2 rounded-lg border border-borde px-4 py-2 text-sm font-semibold hover:border-carga-500 disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-semibold hover:border-carga-500 disabled:opacity-60"
       >
         {guardando ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -110,8 +205,8 @@ function FormularioGlobal({
         {t("guardar")}
       </button>
 
-      <p className="w-full text-xs text-tinta-suave">
-        {t("minimoGlobalAyuda", {
+      <p className="w-full text-xs text-amber-900">
+        {t("maximoGlobalAyuda", {
           respaldo: `$${(respaldoCentavos / 100).toFixed(2)}`,
         })}
       </p>

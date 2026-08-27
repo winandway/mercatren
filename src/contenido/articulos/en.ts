@@ -14,6 +14,77 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "limites-de-zelle",
+    tipo: "documentacion",
+    titulo: "Zelle limits when paying Mercatren",
+    resumen:
+      "Why your bank sometimes won't let you send the full amount over Zelle, what today's maximum is, and which method does work for a large invoice.",
+    fecha: "2026-08-27",
+    temas: ["pagos", "zelle", "transferencia", "compradores"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "This is temporary",
+        texto: `This page was written on Thursday, August 27, 2026 and describes a TEMPORARY situation. The ${SOCIEDAD.nombre} account is new, and banks cap the first payments to a recipient they don't know yet. If you're reading this two or three months from now, it very likely no longer applies: the limit rises on its own as the account matures and as you keep paying us.`,
+      },
+      { tipo: "subtitulo", texto: "What's actually happening" },
+      {
+        tipo: "parrafo",
+        texto: `When you go to send a Zelle payment to ${SOCIEDAD.nombre}, your bank shows you the most it will let you send that recipient TODAY. Right now, for an account paying us for the first time, that maximum is around one thousand dollars.`,
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "This isn't a limit Mercatren sets. It's your bank's, and it decides it on every transfer. Chase, for instance, puts it this way right on the payment screen:",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "What your bank says",
+        texto:
+          "“Your payment sending limit is flexible. As you establish a Zelle payment history with a new recipient, your daily limit for sending them money may increase.”",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "So when an invoice goes over that maximum, Mercatren simply doesn't offer Zelle: it would be sending you to a screen where you can't finish. And what usually happens then is worse than not being able to pay — you send what you're allowed, the invoice ends up half paid, and it has to be corrected by hand.",
+      },
+      { tipo: "subtitulo", texto: "What to do with a large invoice" },
+      {
+        tipo: "parrafo",
+        texto: `Use a BANK TRANSFER (ACH). It has no such limit, most banks charge nothing for it, and the money lands in the same ${SOCIEDAD.nombre} account. Your payment page shows the four details your bank asks for, each with its own copy button.`,
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Bank transfer (ACH): no such limit and no fee. This is the recommended one for large amounts.",
+          "Card: no such limit either. It confirms instantly.",
+          "Zelle: for amounts below the maximum. A person confirms it, usually the same business day.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "The reconciliation number",
+        texto:
+          "If you pay by transfer or by Zelle, include the reconciliation number shown on your payment page. That number is what ties your transfer to your invoice: it documents the money leaving your account and arriving in ours.",
+      },
+      { tipo: "subtitulo", texto: "What if I already sent less?" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Nothing is lost. We record exactly what came in and you get an email with both amounts — the invoice and what we received — plus a link to view the receipt you uploaded, exactly as it arrived. The invoice stays open for the difference and the merchant will reach out to finish it.",
+      },
+      {
+        tipo: "boton",
+        texto: "Zelle limits at Chase",
+        href: "https://www.chase.com/business/support/banking/online-banking/zelle",
+        externo: true,
+      },
+    ],
+  },
+  {
     slug: "la-portada-abre-con-todas-las-tiendas",
     tipo: "novedad",
     titulo:
