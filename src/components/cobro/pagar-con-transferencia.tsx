@@ -118,6 +118,14 @@ export function PagarConTransferencia({
                   {copiado === cual ? t("zCopiado") : t("zCopiar")}
                 </button>
               </dd>
+              {/* LA ADVERTENCIA VA PEGADA A LA RUTA, no en un pie de página.
+                  Chase da un número para ACH y otro para wire; el que copia
+                  está mirando ESTA línea, no el final de la pantalla. */}
+              {cual === "ruta" ? (
+                <p className="mt-1 text-xs leading-relaxed text-amber-800">
+                  {t("achRutaAyuda")}
+                </p>
+              ) : null}
             </div>
           ))}
         </dl>
