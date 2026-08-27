@@ -93,6 +93,29 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ---
 
+# BLOQUE 3-CL · ABRIR CHILE Y COLOMBIA (arrancado el 27 ago 2026)
+
+**El equipo NO puede cargar productos para Chile todavía**: hoy todo lo que se
+agrega desde el panel cae en mercatren.com. El orden de construcción, y qué
+desbloquea cada pieza:
+
+- [x] ✅ 💻 **El precio de Chile** (`destino/precio-chile.ts`, puro, 7 pruebas):
+      costo CJ + flete → 30 % + procesador → tope de USD 500 ANTES del IVA →
+      pesos enteros CON el 19 % dentro. Una tasa rota se niega a calcular.
+- [ ] 🔴 💻 **La tasa del dólar** en `configuracion.dolar_clp_centesimas`,
+      editable en Panel → Configuración.
+- [ ] 🔴 💻 **El catálogo de CJ por mercado**: con el selector del panel en
+      Chile, «Agregar» crea el producto en `tienda-cl-<rubro>` con precio CLP.
+      ESTO es lo que deja al equipo empezar a cargar.
+- [ ] 🔴 💻 **El checkout chileno**: cobro en CLP por Stripe, el IVA anotado en
+      `impuestosCentavos` (sale del precio, no se suma), dirección con regiones
+      de Chile, y SOLO tarjeta (Zelle/ACH son cuentas de EE. UU.).
+- [ ] 🟠 💻 **El reporte del F129**: lo cobrado de IVA por trimestre, en USD.
+- [ ] 🟠 👤 **Turnstile**: agregar mercatren.cl a los dominios del widget.
+- [ ] 🟡 💻 **Colombia**: hereda todo; cambia moneda (COP) y NO lleva IVA
+      nuestro en la venta (no hay régimen registrado allá). Va después de que
+      Chile venda.
+
 # BLOQUE 3 · LAS VENTAS DE ESTADOS UNIDOS (ABIERTAS DESDE EL 26 AGO 2026)
 
 **LA PAUSA SE LEVANTÓ** (`EN_PAUSA = false` en `src/lib/ventas/pausa.ts`). Se
