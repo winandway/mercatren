@@ -69,6 +69,22 @@ export const esquemaEntorno = z.object({
   PAGO_CUENTA: z.string().optional(),
   PAGO_RUTA_ACH: z.string().optional(),
   PAGO_RUTA_WIRE: z.string().optional(),
+  /**
+   * LA SEGUNDA CUENTA QUE RECIBE ACH (27 ago 2026).
+   *
+   * Mercatren tiene dos bancos vivos. Ofrecer los dos le da salida a quien
+   * paga cuando su banco le pone problemas con uno — y no es raro: hay bancos
+   * que bloquean o retrasan un ACH a un destinatario nuevo.
+   *
+   * Van como cuatro variables sueltas y no como un JSON dentro de una: así
+   * cada una se pega en su casilla, se ve cuál falta, y ninguna termina con
+   * medio dato dentro. Si falta cualquiera de las cuatro, la segunda cuenta
+   * simplemente no se ofrece y la primera sigue igual.
+   */
+  PAGO_ALT_BENEFICIARIO: z.string().optional(),
+  PAGO_ALT_BANCO: z.string().optional(),
+  PAGO_ALT_CUENTA: z.string().optional(),
+  PAGO_ALT_RUTA_ACH: z.string().optional(),
   PAGO_SOPORTE_TELEFONO: z.string().optional(),
   PAGO_SOPORTE_CORREO: z.string().email().optional(),
 
