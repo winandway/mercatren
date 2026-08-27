@@ -995,6 +995,15 @@
         "listo": "Yes. Card payments are ready for a real test.",
         "noListo": "No. Something's missing and it would fail in front of the payer.",
         "todoPuesto": "Everything needed is loaded: card, Zelle and email."
+      },
+      "transferenciaAch": {
+        "titulo": "ACH transfer on payment links",
+        "lista": "Being offered",
+        "faltan": "Not offered: something is missing",
+        "cargada": "Loaded",
+        "sinCargar": "Not loaded",
+        "titularDistinto": "The account holder on file doesn't match {sociedad}. Check it: it's the name whoever transfers will see.",
+        "ayuda": "All four must be set or the method isn't offered: half a set of bank details sends the money somewhere else. The account and routing numbers are deliberately not shown here. Set them in YaDominios Cloud → the site → Environment variables, then republish. Note: Chase gives one routing number for ACH and a different one for wire — this is the ACH one."
       }
     },
     "fotos": {

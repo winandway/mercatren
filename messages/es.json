@@ -995,6 +995,15 @@
         "listo": "Sí. El cobro con tarjeta está listo para una prueba real.",
         "noListo": "No. Falta algo y fallaría delante del pagador.",
         "todoPuesto": "Todo lo que hace falta está cargado: tarjeta, Zelle y correo."
+      },
+      "transferenciaAch": {
+        "titulo": "Transferencia ACH en los enlaces de cobro",
+        "lista": "Se está ofreciendo",
+        "faltan": "No se ofrece: falta cargar algo",
+        "cargada": "Cargada",
+        "sinCargar": "Sin cargar",
+        "titularDistinto": "El titular cargado no coincide con {sociedad}. Míralo: es el nombre que ve quien va a transferir.",
+        "ayuda": "Las cuatro tienen que estar, o el método no se ofrece: media instrucción bancaria manda el dinero a otra parte. El número de cuenta y la ruta NO se muestran aquí a propósito. Se cargan en YaDominios Cloud → el sitio → Variables de entorno, y después se republica. Ojo: Chase da una ruta para ACH y otra distinta para wire — aquí va la de ACH."
       }
     },
     "fotos": {

@@ -43,6 +43,8 @@ import { contarSinEnvio } from "@/lib/destino/recalcular-us";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
+import { estadoTransferencia } from "@/lib/cobros/transferencia-admin";
+import { SOCIEDAD } from "@/lib/sociedad";
 import { estadoZelleCobros } from "@/lib/cobros/zelle-admin";
 import { REQUISITOS, revisarCobroPorEnlace } from "@/lib/cobros/listo";
 import { ZELLE_MINIMO_CENTAVOS } from "@/lib/dinero";
@@ -122,6 +124,9 @@ export default async function PaginaConfiguracion({
 
   // Zelle en los enlaces de cobro: solo se dibuja para el rol soporte.
   const zelleCobros = await estadoZelleCobros().catch(() => null);
+  /* En su propio catch: un fallo leyendo el entorno no puede tumbar la pantalla
+     entera de Configuración. */
+  const transferencia = await estadoTransferencia().catch(() => null);
 
   const { env } = getCloudflareContext();
   const puesta = (clave: string) =>
@@ -316,6 +321,88 @@ export default async function PaginaConfiguracion({
         </p>
         <SaludCatalogos filas={catalogos} />
       </section>
+
+      {/**
+       * ¿ESTÁ LISTA LA TRANSFERENCIA ACH?
+       *
+       * La transferencia solo se ofrece si están las CUATRO variables, y si
+       * falta una desaparece del enlace sin decirlo en ninguna parte. Aquí se
+       * ve de un vistazo, sin enseñar ni un dígito de la cuenta.
+       */}
+      {transferencia ? (
+        <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <Landmark className="h-4 w-4 text-carga-500" aria-hidden />
+            {t("transferenciaAch.titulo")}
+          </h2>
+          <p
+            className={`mt-2 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-bold ${
+              transferencia.lista
+                ? "bg-emerald-50 text-emerald-900"
+                : "bg-amber-50 text-amber-900"
+            }`}
+          >
+            {transferencia.lista
+              ? t("transferenciaAch.lista")
+              : t("transferenciaAch.faltan")}
+          </p>
+
+          <dl className="mt-4 space-y-2 text-sm">
+            <div className="flex flex-wrap justify-between gap-2 border-b border-slate-100 pb-2">
+              <dt className="font-mono text-xs text-tinta-suave">
+                PAGO_BENEFICIARIO
+              </dt>
+              <dd
+                className={
+                  transferencia.titularCoincide
+                    ? ""
+                    : "font-bold text-amber-800"
+                }
+              >
+                {transferencia.beneficiario ?? t("transferenciaAch.sinCargar")}
+              </dd>
+            </div>
+            <div className="flex flex-wrap justify-between gap-2 border-b border-slate-100 pb-2">
+              <dt className="font-mono text-xs text-tinta-suave">PAGO_BANCO</dt>
+              <dd>{transferencia.banco ?? t("transferenciaAch.sinCargar")}</dd>
+            </div>
+            {/* De estas dos NUNCA sale el valor: con los últimos dígitos y el
+                banco, alguien con la mitad del dato tiene más de lo que debe. */}
+            <div className="flex flex-wrap justify-between gap-2 border-b border-slate-100 pb-2">
+              <dt className="font-mono text-xs text-tinta-suave">
+                PAGO_CUENTA
+              </dt>
+              <dd>
+                {transferencia.cuentaCargada
+                  ? t("transferenciaAch.cargada")
+                  : t("transferenciaAch.sinCargar")}
+              </dd>
+            </div>
+            <div className="flex flex-wrap justify-between gap-2">
+              <dt className="font-mono text-xs text-tinta-suave">
+                PAGO_RUTA_ACH
+              </dt>
+              <dd>
+                {transferencia.rutaAchCargada
+                  ? t("transferenciaAch.cargada")
+                  : t("transferenciaAch.sinCargar")}
+              </dd>
+            </div>
+          </dl>
+
+          {!transferencia.titularCoincide && transferencia.beneficiario ? (
+            <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              {t("transferenciaAch.titularDistinto", {
+                sociedad: SOCIEDAD.nombre,
+              })}
+            </p>
+          ) : null}
+
+          <p className="mt-3 text-xs text-tinta-suave">
+            {t("transferenciaAch.ayuda")}
+          </p>
+        </section>
+      ) : null}
 
       {zelleCobros ? (
         <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">

@@ -3442,10 +3442,23 @@ aprobarlo se cierra; no hay pagos parciales por ningún método. Es lo que
 pidió el dueño y es lo correcto: media factura pagada es una factura que
 nadie sabe si está cobrada.
 
-**⚠️ ANTES DE ENCENDER ESTO EN PRODUCCIÓN, COMPROBAR A QUÉ CUENTA APUNTAN LAS
-VARIABLES.** Comprobado en local el 26 ago 2026: `PAGO_BENEFICIARIO`,
-`PAGO_BANCO`, `PAGO_CUENTA` y `PAGO_RUTA_ACH` todavía traen los datos de
-**Windoce, LLC en Bank of America** — la sociedad anterior. Ya estaba anotado
+**LO QUE DICE `.dev.vars` NO ES LO QUE DICE PRODUCCIÓN, Y CONFUNDIRLOS YA
+COSTÓ UNA EQUIVOCACIÓN (27 ago 2026).** En el archivo LOCAL de la máquina de
+trabajo, `PAGO_BENEFICIARIO` y `PAGO_BANCO` traen «Windoce LLC / Bank of
+America» — la sociedad anterior. Eso se anotó aquí el 26 de agosto con las
+palabras «comprobado en local», y al día siguiente se repitió como si fuera de
+producción. El dueño lo desmintió mirando su panel, y tenía razón.
+
+**Producción es otro sitio y desde aquí no se lee.** Las variables viven en el
+panel de YaDominios Cloud. Cualquier afirmación sobre lo que hay ahí es una
+suposición, salvo que la enseñe una pantalla.
+
+Por eso existe **Panel → Configuración → «Transferencia ACH en los enlaces de
+cobro»** (`src/lib/cobros/transferencia-admin.ts`): dice si el método se está
+ofreciendo, enseña el titular y el banco enteros —no son secretos: los ve quien
+va a pagar, y son los dos que delatarían un nombre viejo— y de la cuenta y la
+ruta dice **solo si están cargadas, nunca el valor**. Con los últimos dígitos y
+el banco, alguien con la mitad del dato tiene más de lo que debería. Ya estaba anotado
 como pendiente en la cabecera de este archivo desde el 19 de agosto, y ahora
 importa el doble: esas mismas variables las enseña la página del pedido, y con
 ACH encendido el dinero de una factura entera se iría a la cuenta equivocada.
