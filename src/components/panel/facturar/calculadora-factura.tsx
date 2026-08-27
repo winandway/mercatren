@@ -156,7 +156,7 @@ export function CalculadoraFactura({
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
               inputMode="decimal"
-              placeholder="7475.00"
+              placeholder="0.00"
               className="w-40 rounded-lg border border-slate-300 px-3 py-2.5 text-lg font-bold tabular-nums outline-none focus:border-carga-500"
             />
           </div>

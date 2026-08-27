@@ -2441,7 +2441,7 @@
       "ayuda": "If the receipt shows a different figure, fix it BEFORE approving: approving credits this amount to the merchant.",
       "montoReal": "The amount that actually came in",
       "motivo": "What happened?",
-      "motivoEjemplo": "e.g. transferred 500 instead of 2,774, verified with the bank",
+      "motivoEjemplo": "e.g. transferred 100 instead of 1,000 — verified with the bank",
       "corregir": "Correct the amount",
       "seCorrigio": "Amount corrected",
       "decia": "It said",

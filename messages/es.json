@@ -2441,7 +2441,7 @@
       "ayuda": "Si la captura dice otra cantidad, corrígela ANTES de aprobar: al aprobar se le acredita al comercio este monto.",
       "montoReal": "El monto que de verdad entró",
       "motivo": "¿Qué pasó?",
-      "motivoEjemplo": "Ej: transfirió 500 en vez de 2.774, comprobado en el banco",
+      "motivoEjemplo": "Ej: transfirió 100 en vez de 1,000 — comprobado en el banco",
       "corregir": "Corregir el monto",
       "seCorrigio": "Monto corregido",
       "decia": "Decía",
