@@ -2428,7 +2428,11 @@
       "comoMandarLasPartes": "Send the first one now. Send the rest when their bank limit resets: each one stands on its own.",
       "buscaComercio": "Type the store's name…",
       "ningunComercio": "No store with that name.",
-      "quitarComercio": "Remove store"
+      "quitarComercio": "Remove store",
+      "cualMontoTitulo": "The match isn't exact: which amount do you charge?",
+      "cualMontoAyuda": "Whole units of those products can't reach your amount. Choose whether to charge what you typed (invoice without a breakdown) or the total of the units.",
+      "montoEscrito": "What you typed — the exact amount",
+      "montoCuadrado": "What the breakdown units add up to"
     },
     "correccion": {
       "sinPermiso": "You don't have permission to correct a payment.",

@@ -78,6 +78,19 @@ export function CalculadoraFactura({
    * es dar un número que no se va a cumplir.
    */
   const [metodo, setMetodo] = useState<MetodoDeCobro>("transferencia");
+  /**
+   * ══ CUANDO LO CUADRADO NO ES LO ESCRITO, EL COMERCIO ELIGE (27 ago 2026) ══
+   *
+   * Pasó de verdad: escribió $2,274, marcó dos tubos, y con esos precios no
+   * existe combinación entera que dé exacto — lo más cercano era $2,299.32.
+   * La pantalla decidió SOLA cobrar lo cuadrado, y el botón decía «Cobrar
+   * $2,299.32» sin que nadie hubiera pedido cobrar de más. En una pantalla de
+   * dinero, cambiar el monto sin preguntar es un fallo aunque la cuenta esté
+   * bien hecha.
+   *
+   * Con cuadre EXACTO no hay nada que elegir y no se pregunta.
+   */
+  const [cobrarQue, setCobrarQue] = useState<"escrito" | "cuadrado">("escrito");
 
   const objetivoCentavos = useMemo(() => {
     const limpio = monto.replace(/[^0-9.,]/g, "").replace(",", ".");
@@ -405,18 +418,76 @@ export function CalculadoraFactura({
         </p>
       ) : null}
 
-      {objetivoCentavos > 0 && (tiendaId || comercios.length === 0) ? (
-        <CobrarLoCuadrado
-          totalCentavos={cuadre ? cuadre.totalCentavos : objetivoCentavos}
-          montoTexto={formatearPrecio(
-            cuadre ? cuadre.totalCentavos : objetivoCentavos,
-            idioma,
-          )}
-          metodo={metodo}
-          tiendaId={tiendaId}
-          referenciaSugerida={referenciaSugerida}
-        />
-      ) : null}
+      {objetivoCentavos > 0 && (tiendaId || comercios.length === 0)
+        ? (() => {
+            const difieren =
+              cuadre !== null && cuadre.totalCentavos !== objetivoCentavos;
+            const aCobrar = !cuadre
+              ? objetivoCentavos
+              : difieren && cobrarQue === "escrito"
+                ? objetivoCentavos
+                : cuadre.totalCentavos;
+            return (
+              <>
+                {difieren ? (
+                  <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+                    <p className="text-sm font-bold text-amber-900">
+                      {t("cualMontoTitulo")}
+                    </p>
+                    <p className="mt-0.5 text-xs text-amber-900">
+                      {t("cualMontoAyuda")}
+                    </p>
+                    <div
+                      className="mt-2 flex flex-wrap gap-2"
+                      role="radiogroup"
+                    >
+                      {[
+                        {
+                          clave: "escrito" as const,
+                          titulo: formatearPrecio(objetivoCentavos, idioma),
+                          detalle: t("montoEscrito"),
+                        },
+                        {
+                          clave: "cuadrado" as const,
+                          titulo: formatearPrecio(cuadre.totalCentavos, idioma),
+                          detalle: t("montoCuadrado"),
+                        },
+                      ].map((o) => (
+                        <button
+                          key={o.clave}
+                          type="button"
+                          role="radio"
+                          aria-checked={cobrarQue === o.clave}
+                          onClick={() => setCobrarQue(o.clave)}
+                          className={`rounded-lg border px-3 py-2 text-left text-sm ${
+                            cobrarQue === o.clave
+                              ? "border-carga-500 bg-white font-bold ring-2 ring-carga-500/30"
+                              : "border-amber-300 bg-white/60"
+                          }`}
+                        >
+                          <span className="block tabular-nums">{o.titulo}</span>
+                          <span className="block text-xs font-normal text-tinta-suave">
+                            {o.detalle}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                <CobrarLoCuadrado
+                  /* La llave reinicia el formulario si cambia el monto: sin
+                     ella, el botón seguiría diciendo la cifra anterior. */
+                  key={aCobrar}
+                  totalCentavos={aCobrar}
+                  montoTexto={formatearPrecio(aCobrar, idioma)}
+                  metodo={metodo}
+                  tiendaId={tiendaId}
+                  referenciaSugerida={referenciaSugerida}
+                />
+              </>
+            );
+          })()
+        : null}
     </div>
   );
 }

@@ -2428,7 +2428,11 @@
       "comoMandarLasPartes": "Mándale el primero ahora. Los demás se los mandas cuando le vuelva el cupo en su banco: cada uno vale por sí solo.",
       "buscaComercio": "Escribe el nombre del comercio…",
       "ningunComercio": "Ningún comercio con ese nombre.",
-      "quitarComercio": "Quitar el comercio"
+      "quitarComercio": "Quitar el comercio",
+      "cualMontoTitulo": "El cuadre no da exacto: ¿cuál monto cobras?",
+      "cualMontoAyuda": "Con unidades enteras de esos productos no se llega a tu monto. Elige si cobras lo que escribiste (la factura va sin desglose) o el total de las unidades.",
+      "montoEscrito": "Lo que escribiste — el monto exacto",
+      "montoCuadrado": "Lo que suman las unidades del desglose"
     },
     "correccion": {
       "sinPermiso": "No tienes permiso para corregir un pago.",
