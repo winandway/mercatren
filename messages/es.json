@@ -2393,7 +2393,7 @@
       "siguiente": "Con estas cantidades puedes armar el pedido, o crear un enlace de cobro por el monto de arriba en Cobros → Enlaces de cobro.",
       "porDondePaga": "¿Por dónde va a pagar tu cliente?",
       "metodo": {
-        "transferencia": "Transferencia o Zelle",
+        "transferencia": "Transferencia, cable o Zelle",
         "tarjeta": "Con tarjeta"
       },
       "avisoTarjeta": "El procesador se lleva {monto} de lo que recibes.",
@@ -2412,8 +2412,10 @@
       "mensajeWhatsApp": "Hola, aquí está el enlace para pagar la factura {referencia}: {url}",
       "elEnlaceOfrecera": "El enlace que generes ofrecerá:",
       "ofrecera": {
-        "transferencia": "solo transferencia y Zelle. Tu cliente NO podrá pagar con tarjeta, así no te descuentan la comisión del procesador.",
-        "tarjeta": "solo tarjeta."
+        "transferencia": "transferencia bancaria (ACH, con dos cuentas para elegir), cable (wire) y Zelle. Tu cliente NO podrá pagar con tarjeta, así no te descuentan la comisión del procesador.",
+        "tarjeta": "solo el pago con tarjeta. Se confirma al instante, y el procesador descuenta su comisión.",
+        "transferenciaSinZelle": "transferencia bancaria (ACH, con dos cuentas para elegir) y cable (wire). ⚠️ Zelle NO va a salir en este enlace: el monto pasa del máximo de {tope} que los bancos dejan mandar por Zelle. Tu cliente NO podrá pagar con tarjeta.",
+        "transferenciaZelleBajo": "transferencia bancaria (ACH) y cable (wire). Zelle sale a partir de {minimo}. Tu cliente NO podrá pagar con tarjeta."
       },
       "porQueComercio": "¿Por qué comercio estás cuadrando?",
       "eligeComercioPrimero": "Elige arriba de qué comercio es esta factura para poder cobrarla.",

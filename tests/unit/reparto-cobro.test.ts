@@ -177,8 +177,16 @@ describe("el enlace NUNCA cae a un método que el comercio descartó (26 ago 202
       "utf8",
     );
     /* «No pones claras las cosas»: el botón decidía los métodos del cobro y
-       no lo decía en ninguna parte. */
+       no lo decía en ninguna parte.
+
+       El candado cambió de forma el 27 ago 2026: antes exigía la clave única
+       `ofrecera.${metodo}`, pero eso prometía Zelle en montos donde el enlace
+       no lo ofrece. Ahora el aviso depende del monto contra el tope, y lo que
+       se exige es que las TRES variantes de transferencia sigan ahí — la que
+       falte deja al comercio prometiendo un método que no sale. */
     expect(fuente).toContain("elEnlaceOfrecera");
-    expect(fuente).toContain("ofrecera.${metodo}");
+    expect(fuente).toContain("ofrecera.transferenciaSinZelle");
+    expect(fuente).toContain("ofrecera.transferenciaZelleBajo");
+    expect(fuente).toContain("zelleLimites.maximoCentavos");
   });
 });

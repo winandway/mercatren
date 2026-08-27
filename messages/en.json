@@ -2393,7 +2393,7 @@
       "siguiente": "With these quantities you can build the order, or create a payment link for the amount above in Payments → Payment links.",
       "porDondePaga": "How will your customer pay?",
       "metodo": {
-        "transferencia": "Bank transfer or Zelle",
+        "transferencia": "Transfer, wire, or Zelle",
         "tarjeta": "By card"
       },
       "avisoTarjeta": "The processor takes {monto} out of what you receive.",
@@ -2412,8 +2412,10 @@
       "mensajeWhatsApp": "Hi, here's the link to pay invoice {referencia}: {url}",
       "elEnlaceOfrecera": "The link you create will offer:",
       "ofrecera": {
-        "transferencia": "bank transfer and Zelle only. Your customer will NOT be able to pay by card, so no processor fee is deducted.",
-        "tarjeta": "card only."
+        "transferencia": "bank transfer (ACH, with two accounts to choose from), wire, and Zelle. Your customer will NOT be able to pay by card, so no processor fee comes out of your side.",
+        "tarjeta": "card payment only. It confirms instantly, and the processor takes its fee.",
+        "transferenciaSinZelle": "bank transfer (ACH, with two accounts to choose from) and wire. ⚠️ Zelle will NOT appear on this link: the amount exceeds the {tope} maximum banks allow over Zelle. Your customer will NOT be able to pay by card.",
+        "transferenciaZelleBajo": "bank transfer (ACH) and wire. Zelle appears starting at {minimo}. Your customer will NOT be able to pay by card."
       },
       "porQueComercio": "Which store are you matching for?",
       "eligeComercioPrimero": "Choose which store this invoice belongs to, above, to be able to charge it.",

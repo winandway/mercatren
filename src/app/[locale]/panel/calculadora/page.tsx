@@ -61,10 +61,45 @@ export default async function PaginaCalculadora({
       }))
     : [];
 
+  /* ══ LO QUE ZELLE DE VERDAD VA A PERMITIR EN EL ENLACE (27 ago 2026) ══
+
+     La calculadora prometía «transferencia y Zelle» para cualquier monto, y
+     con $7.475 eso es falso: el enlace no ofrece Zelle por encima del tope.
+     Prometer un método que no va a salir es exactamente la queja del dueño
+     («no pones claras las cosas»), así que el mínimo y el tope viajan al
+     componente y el aviso los dice según el monto escrito. Se leen con las
+     MISMAS funciones que usa el enlace — dos cuentas distintas de la misma
+     regla se desincronizan a la primera edición del panel. */
+  const { minimoAplicable, maximoAplicable } =
+    await import("@/lib/cobros/zelle");
+  const { configuracion } = await import("@/lib/db/schema");
+  const { eq } = await import("drizzle-orm");
+  const db = getDb();
+  const leer = async (clave: string) => {
+    const [fila] = await db
+      .select({ valor: configuracion.valor })
+      .from(configuracion)
+      .where(eq(configuracion.clave, clave))
+      .limit(1)
+      .catch(() => []);
+    const n = fila ? Number.parseInt(fila.valor, 10) : Number.NaN;
+    return Number.isFinite(n) ? n : null;
+  };
+  const zelleLimites = {
+    minimoCentavos: minimoAplicable({
+      minimoTiendaCentavos: null,
+      minimoGlobalCentavos: await leer("zelle_cobros_minimo_centavos"),
+    }),
+    maximoCentavos: maximoAplicable({
+      maximoGlobalCentavos: await leer("zelle_cobros_maximo_centavos"),
+    }),
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold tracking-tight">{t("titulo")}</h1>
       <CalculadoraFactura
+        zelleLimites={zelleLimites}
         idioma={locale as Idioma}
         comisionPuntosBase={COMISION_ZELLE_PB}
         tiendaId={tiendaId}

@@ -37,6 +37,7 @@ import { formatearPrecio, type Idioma } from "@/lib/dinero";
  *    sirve para nada cuando lo que está en juego es una factura.
  */
 export function CalculadoraFactura({
+  zelleLimites,
   productos,
   idioma,
   comisionPuntosBase,
@@ -55,6 +56,14 @@ export function CalculadoraFactura({
   comercioElegido?: string;
   /** El siguiente número de la numeración del comercio, ya calculado. */
   referenciaSugerida?: string;
+  /**
+   * EL MÍNIMO Y EL TOPE DE ZELLE, leídos con las mismas funciones del enlace.
+   *
+   * Sin esto la calculadora prometía «transferencia y Zelle» para cualquier
+   * monto — y con $7.475 era falso: por encima del tope el enlace no ofrece
+   * Zelle. Prometer un método que no va a salir es la queja exacta del dueño.
+   */
+  zelleLimites: { minimoCentavos: number; maximoCentavos: number };
 }) {
   const t = useTranslations("panel.calculadora");
   const [elegidos, setElegidos] = useState<Set<string>>(new Set());
@@ -196,7 +205,28 @@ export function CalculadoraFactura({
             }`}
           >
             <span className="font-bold">{t("elEnlaceOfrecera")}</span>{" "}
-            {t(`ofrecera.${metodo}`)}
+            {/* ══ SE DICE LO QUE EL ENLACE VA A OFRECER DE VERDAD ══
+
+                Para «transferencia» eso depende del MONTO: Zelle solo sale
+                entre el mínimo y el tope del banco. Decía «transferencia y
+                Zelle» a secas, y con $7.475 era mentira — el cliente abría el
+                enlace y Zelle no estaba. El comercio tiene que saberlo AL
+                GENERAR, no por el reclamo de su cliente. */}
+            {metodo === "tarjeta"
+              ? t("ofrecera.tarjeta")
+              : objetivoCentavos > zelleLimites.maximoCentavos
+                ? t("ofrecera.transferenciaSinZelle", {
+                    tope: formatearPrecio(zelleLimites.maximoCentavos, idioma),
+                  })
+                : objetivoCentavos > 0 &&
+                    objetivoCentavos < zelleLimites.minimoCentavos
+                  ? t("ofrecera.transferenciaZelleBajo", {
+                      minimo: formatearPrecio(
+                        zelleLimites.minimoCentavos,
+                        idioma,
+                      ),
+                    })
+                  : t("ofrecera.transferencia")}
             {objetivoCentavos > 0 && metodo === "tarjeta"
               ? " " +
                 t("avisoTarjeta", {
