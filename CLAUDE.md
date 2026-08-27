@@ -2644,6 +2644,26 @@ Unidos, a quien le reenviaron el correo— abre y paga con tarjeta o por Zelle.
 `VITE_` termina dentro del sitio publicado—, `src/lib/cobrarPorMercatren.ts` lo
 llama, y `src/components/CobrarPorMercatren.tsx` es el botón.
 
+**Y desde el 27 ago 2026 ese botón se comparte por WhatsApp** (fase 1 de lo
+que pidió el dueño). Lo construye la sesión de Bley, no esta; aquí queda
+escrito para saber cómo se comporta el otro lado:
+
+- **Mercatren no cambia nada.** `POST /datos/socios/cobro` ya devuelve `url` y
+  `enlace` en la misma respuesta desde el primer día; Bley solo tenía el botón
+  de copiar. El de WhatsApp se arma con esa misma `url`.
+- **El teléfono lo pone Bley**, que sí lo tiene (`cliente_telefono`). Nosotros
+  no lo pedimos en el cobro por enlace y **no hace falta pedirlo**: quien paga
+  muchas veces no es quien compró, así que el número lo confirma la cajera.
+- **El texto del mensaje es el mismo que usa nuestro panel**
+  (`panel.calculadora.mensajeWhatsApp`), con el nombre del comercio delante.
+  Si algún día cambia aquí, cambia allá: son dos copias y hay que saberlo.
+- **Fase 2 (SMS) y 2A (WhatsApp por Twilio) están investigadas y NO
+  construidas.** El SMS a Venezuela es entregable pero el remitente se pierde
+  —solo Digitel admite pre-registro, y sin él Twilio sobrescribe el
+  identificador con un short code al azar—, así que un enlace de pago llegaría
+  desde un número desconocido. WhatsApp por Twilio sí soporta Venezuela. La
+  decisión de gasto es del dueño y no se enciende nada sin su sí.
+
 **No se tocó `metodo_pago`, a propósito.** Ese enum alimenta el cierre de caja:
 meter ahí un cobro que va en camino descuadraría el cierre del día con dinero
 que nadie recibió. Cómo se contabiliza esa venta cuando el pago llega es una
