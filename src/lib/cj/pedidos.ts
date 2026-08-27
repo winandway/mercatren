@@ -13,6 +13,7 @@ import {
   type VarianteCj,
   type VarianteElegida,
 } from "@/lib/cj/variantes";
+import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
 import { getDb } from "@/lib/db";
 import {
   itemsPedido,
@@ -386,6 +387,21 @@ export async function comprarAlProveedor(
   }>;
 
   /**
+   * EL DESTINO SE RESUELVE ANTES QUE NADA.
+   *
+   * Si el país no está en la tabla, la compra no sale y queda en el panel con
+   * su motivo — nunca cae en Estados Unidos por descarte, que sería mandar la
+   * mercancía al otro lado del mundo y enterarse por el reclamo.
+   */
+  const destino = destinoDeEnvio(pedido.pais || entrega.pais);
+  if (!destino) {
+    return {
+      ok: false,
+      motivo: `Todavía no despachamos a «${pedido.pais || entrega.pais}». Ese pedido hay que resolverlo a mano.`,
+    };
+  }
+
+  /**
    * SIN DIRECCIÓN NO SE COMPRA, Y SE DICE CUÁL FALTA.
    *
    * El checkout de hoy está hecho para el retiro en depósito de Venezuela y
@@ -523,8 +539,14 @@ export async function comprarAlProveedor(
         /* NUESTRO número de pedido: es lo que permite atar su pedido con el
            nuestro cuando haya que reclamar algo semanas después. */
         orderNumber: pedido.numero,
-        shippingCountryCode: "US",
-        shippingCountry: pedido.pais || entrega.pais || "United States",
+        /* EL PAÍS SALE DEL PEDIDO, NO DE UN LITERAL (26 ago 2026).
+           Iba «US» escrito a mano, y con eso el primer pedido chileno se
+           despacha al país equivocado con el comprador ya cobrado. Y `taxId`
+           lleva el número del régimen simplificado del SII, que es lo que
+           evita que a ese paquete le cobren el IVA otra vez en la aduana. */
+        shippingCountryCode: destino.codigo,
+        shippingCountry: destino.nombre,
+        taxId: destino.taxId,
         /**
          * EL ESTADO, DE VERDAD (18 ago 2026).
          *
