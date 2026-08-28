@@ -30,10 +30,15 @@ describe("el destino de un producto", () => {
     expect(destinoDeLaTienda("  US  ")).toBe("US");
   });
 
-  it("lo que no es Estados Unidos se entrega en Venezuela", () => {
-    /* Es de donde despachan todos los comercios de hoy. Un país nuevo no puede
-       colarse en el catálogo de EE. UU. por descuido. */
-    expect(destinoDeLaTienda("CO")).toBe("VE");
+  it("lo desconocido se entrega en Venezuela; CL y CO ya son plazas propias", () => {
+    /* Venezuela es de donde despachan todos los comercios de hoy: lo que no
+       sea una plaza de despacho propio cae ahí, nunca en EE. UU. por
+       descuido. CL y CO dejaron de ser «desconocido» el 27 ago 2026, cuando
+       mercatren.cl y .com.co empezaron a despachar a domicilio. */
+    expect(destinoDeLaTienda("CL")).toBe("CL");
+    expect(destinoDeLaTienda("CO")).toBe("CO");
+    expect(destinoDeLaTienda("VE")).toBe("VE");
+    expect(destinoDeLaTienda("XX")).toBe("VE");
     expect(destinoDeLaTienda(null)).toBe("VE");
     expect(destinoDeLaTienda("")).toBe("VE");
   });

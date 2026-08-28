@@ -154,15 +154,16 @@ function enZona(ciudades: string[]) {
      * ══ LO QUE SE ENTREGA EN ESTADOS UNIDOS NO SE FILTRA POR CIUDAD ══
      *
      * Este filtro contesta «¿dónde lo retiro?», y esa pregunta solo existe en
-     * Venezuela. Un producto de Estados Unidos no se retira en ningún lado: se
-     * despacha a la dirección del comprador, en 2 a 5 días.
+     * Venezuela. Lo que se DESPACHA —EE. UU., y desde el 27 ago 2026 también
+     * Chile y Colombia— no se retira en ningún lado: va a la dirección del
+     * comprador, así que la zona no lo puede esconder.
      *
      * Sin esta línea quedaban invisibles: la tienda de Estados Unidos no tiene
      * depósito ni una ciudad venezolana, así que las dos condiciones de arriba
      * le daban falso y **los 78 productos no salían en la portada** aunque el
      * catálogo estuviera montado y publicado.
      */
-    OR UPPER(TRIM(COALESCE(${tiendas.paisOrigen}, ''))) = 'US'
+    OR UPPER(TRIM(COALESCE(${tiendas.paisOrigen}, ''))) IN ('US', 'CL', 'CO')
   )`;
 }
 

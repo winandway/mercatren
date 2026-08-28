@@ -27,21 +27,56 @@ import { elegirVariante, variantesDeCj } from "./variantes";
  * `envio-us.ts`, que es puro y está probado. Aquí solo se pregunta.
  */
 
-/** El código postal de referencia: el domicilio de Mercatren LLC en Michigan. */
-const ZIP_REFERENCIA = "48377";
-const ESTADO_REFERENCIA = "MI";
+import { plazaDelMercado, type Plaza } from "@/lib/cj/plazas";
+import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 
-export async function fleteDeProducto(pid: string): Promise<EnvioDelProducto> {
+/**
+ * ══ EL FLETE SE COTIZA AL PAÍS DE LA PLAZA (27 ago 2026) ══
+ *
+ * Iba «US» escrito a mano en el destino de la cotización. Para mercatren.cl
+ * eso metía en el precio un flete doméstico de EE. UU. cuando el paquete
+ * viaja a Chile — varias veces más caro. El destino sale de la plaza, y el
+ * RESPALDO también: $3.50 para un envío internacional regalaría el margen en
+ * cada venta, por eso cada plaza trae el suyo (nunca cero).
+ */
+export async function fleteDeProducto(
+  pid: string,
+  plaza: Plaza = plazaDelMercado(mercadoPorCodigo("US")),
+): Promise<EnvioDelProducto> {
   const variantes = await pedirVariantes(pid);
-  if (!variantes) return envioAUsar({});
+  if (!variantes) return respaldoDe(plaza);
 
   /* La MÁS BARATA, que es exactamente la que se le cobra al comprador: al
      importar, un precio en rango se publica por el mínimo. Cotizar otra sería
      meter en el precio un envío que no corresponde al producto vendido. */
   const elegida = elegirVariante(variantes);
-  if (!elegida?.vid) return envioAUsar({});
+  if (!elegida?.vid) return respaldoDe(plaza);
 
-  return envioAUsar(await cotizar(elegida.vid));
+  const cotizacion = await cotizar(elegida.vid, plaza);
+  /* En EE. UU. el respaldo histórico vive en `envio-us.ts`; en las demás
+     plazas, el de la plaza. La regla es la misma: cotizado si llegó, estimado
+     conservador si no, cero jamás. */
+  if (plaza.mercado === "US") return envioAUsar(cotizacion);
+  return cotizacion.costoCentavos && cotizacion.costoCentavos > 0
+    ? {
+        costoCentavos: cotizacion.costoCentavos,
+        origen: "cotizado",
+        transporte: cotizacion.transporte ?? null,
+      }
+    : {
+        costoCentavos: plaza.envioEstimadoUsdCentavos,
+        origen: "estimado",
+        transporte: null,
+      };
+}
+
+function respaldoDe(plaza: Plaza): EnvioDelProducto {
+  if (plaza.mercado === "US") return envioAUsar({});
+  return {
+    costoCentavos: plaza.envioEstimadoUsdCentavos,
+    origen: "estimado",
+    transporte: null,
+  };
 }
 
 async function pedirVariantes(pid: string) {
@@ -58,15 +93,17 @@ async function pedirVariantes(pid: string) {
   return variantes.length > 0 ? variantes : null;
 }
 
-async function cotizar(vid: string) {
+async function cotizar(vid: string, plaza: Plaza) {
   const respuesta = await llamarCj<unknown>("/logistic/freightCalculate", {
     metodo: "POST",
     cuerpo: {
+      /* El origen sigue siendo el almacén de EE. UU.: es de donde despacha
+         CJ para nuestras tres plazas. El DESTINO es el que cambia. */
       startCountryCode: "US",
-      endCountryCode: "US",
+      endCountryCode: plaza.paisEntrega,
       products: [{ quantity: 1, vid }],
-      zip: ZIP_REFERENCIA,
-      province: ESTADO_REFERENCIA,
+      zip: plaza.cotizacion.zip,
+      province: plaza.cotizacion.provincia,
     },
   }).catch(() => ({ ok: false as const, motivo: "no contestó" }));
 

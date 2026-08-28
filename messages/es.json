@@ -85,7 +85,9 @@
     "deTodasLasTiendasTexto": "Un poco de cada comercio, distinto cada vez que entras.",
     "masVariados": "Más productos",
     "masVariadosTexto": "De todo un poco, distinto cada vez que entras.",
-    "verTodasLasTiendas": "Ver todas las tiendas"
+    "verTodasLasTiendas": "Ver todas las tiendas",
+    "tituloHeroMercado": "Compra en línea con entrega en {pais}",
+    "subtituloHeroMercado": "Elige tu producto, paga en pesos y dinos dónde entregarlo. El precio que ves es el precio final, con el envío incluido."
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",
@@ -1004,6 +1006,17 @@
         "sinCargar": "Sin cargar",
         "titularDistinto": "El titular cargado no coincide con {sociedad}. Míralo: es el nombre que ve quien va a transferir.",
         "ayuda": "Las cuatro tienen que estar, o el método no se ofrece: media instrucción bancaria manda el dinero a otra parte. El número de cuenta y la ruta NO se muestran aquí a propósito. Se cargan en YaDominios Cloud → el sitio → Variables de entorno, y después se republica. Ojo: Chase da una ruta para ACH y otra distinta para wire — aquí va la de ACH."
+      },
+      "tasasTitulo": "La tasa del dólar (Chile y Colombia)",
+      "tasasTexto": "Pesos por dólar, la del Banco Central del día. Es la que convierte los costos de CJ al precio en pesos de mercatren.cl y mercatren.com.co. Sin tasa, el catálogo de ese país no puede fijar precios.",
+      "f129": {
+        "titulo": "IVA de Chile · resumen para el F129",
+        "texto": "Lo cobrado de IVA chileno por trimestre, sumado de cada venta. Se declara dentro de los 20 días del cierre del trimestre, en USD: la conversión la cierra el contador con la tasa que corresponda. Sin ventas en el período, el SII no pide declaración.",
+        "sinVentas": "Sin ventas chilenas todavía: no hay nada que declarar.",
+        "trimestre": "Trimestre",
+        "pedidos": "Ventas",
+        "ventasNetas": "Ventas netas (sin IVA)",
+        "iva": "IVA cobrado"
       }
     },
     "fotos": {
@@ -1196,7 +1209,7 @@
       "pedidoEnviado": "Pedido marcado como enviado.",
       "pedidoEntregado": "Pedido marcado como entregado.",
       "ajusteAplicado": "Listo. Se aplicó el ajuste a {n} productos; el precio de cada comercio quedó guardado.",
-      "metodoNoDisponible": "Esa forma de pago todavía no está disponible.",
+      "metodoNoDisponible": "Ese método de pago no está disponible para este destino. Paga con tarjeta.",
       "zelleDesde200": "Zelle está disponible en compras desde $200. Para este monto, paga con tarjeta.",
       "variantesGuardadas": "Tallas y colores guardados.",
       "medidasGuardadas": "Medidas guardadas.",
@@ -2103,7 +2116,8 @@
       "repartirTexto": "Mueve a la tienda de su rubro los productos que ya estaban cargados en la tienda general. Conserva su dirección, sus fotos y su precio. Se puede pulsar las veces que haga falta.",
       "repartirBoton": "Repartir por rubro",
       "vaAlMayorista": "Va a la tienda Mayorista: se vende de a {minimo} unidades.",
-      "dejaElLote": "El lote deja {monto}."
+      "dejaElLote": "El lote deja {monto}.",
+      "plazaDestino": "⚠️ El selector del panel está en otro país: lo que agregues entra a {dominio}, con el precio en {moneda}. Para el catálogo de EE. UU., cambia el selector de arriba a Estados Unidos."
     },
     "tiendasUsa": {
       "titulo": "Tiendas de Estados Unidos",
@@ -2452,6 +2466,18 @@
       "decia": "Decía",
       "quedaDebiendo": "La factura queda abierta por la diferencia.",
       "facturaQuedaAbierta": "⚠️ La factura pedía {monto} y queda ABIERTA por la diferencia."
+    },
+    "tasas": {
+      "pais": {
+        "CL": "Chile · pesos chilenos por dólar",
+        "CO": "Colombia · pesos colombianos por dólar"
+      },
+      "guardar": "Guardar",
+      "sinCargar": "Todavía no se ha cargado. El catálogo de este país no puede fijar precios sin ella.",
+      "actualizada": "Última actualización: {fecha}",
+      "paisInvalido": "Ese país no maneja tasa.",
+      "tasaInvalida": "Esa tasa no parece un tipo de cambio. Escríbela como la publica el Banco Central, por ejemplo 967.42.",
+      "guardada": "Tasa guardada."
     }
   },
   "catalogo": {
@@ -2548,7 +2574,14 @@
       "volver": "Volver",
       "volverATienda": "Volver a {tienda}",
       "similares": "Productos similares",
-      "masDeTienda": "Ver más de {tienda}"
+      "masDeTienda": "Ver más de {tienda}",
+      "despacho": {
+        "tituloCL": "Entrega a domicilio en todo Chile",
+        "textoCL": "El precio que ves es el final: el envío y el IVA ya van incluidos. Lo despachamos a la dirección que nos digas.",
+        "tituloCO": "Entrega a domicilio en toda Colombia",
+        "textoCO": "El precio que ves es el final: el envío ya va incluido. Lo despachamos a la dirección que nos digas.",
+        "plazo": "Llega en {minimo} a {maximo} días hábiles"
+      }
     },
     "paginacion": {
       "anterior": "Anterior",
@@ -2626,7 +2659,11 @@
       "codigoPostal": "Código postal",
       "codigoPostalPlaceholder": "33101",
       "tituloEnvio": "¿A dónde lo enviamos?",
-      "nombreEnvio": "Nombre de quien recibe"
+      "nombreEnvio": "Nombre de quien recibe",
+      "estadoCL": "Región",
+      "estadoCO": "Departamento",
+      "estadoPlaceholderCL": "Elige tu región",
+      "estadoPlaceholderCO": "Elige tu departamento"
     },
     "pago": {
       "titulo": "¿Cómo vas a pagar?",

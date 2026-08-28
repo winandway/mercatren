@@ -43,6 +43,8 @@ export async function crearIntentoDePago(
       id: pedidos.id,
       numero: pedidos.numero,
       totalCentavos: pedidos.totalCentavos,
+      /* La moneda viaja al intento: CLP y COP se cobran tal cual. */
+      moneda: pedidos.moneda,
       estado: pedidos.estado,
       clienteId: pedidos.clienteId,
       metodoPago: pedidos.metodoPago,
@@ -128,9 +130,18 @@ export async function crearIntentoDePago(
 
   const desglose = await desglosarPedido(pedido.id);
 
+  /**
+   * ══ LA MONEDA ES LA DEL PEDIDO (27 ago 2026) ══
+   *
+   * mercatren.cl vende en pesos chilenos y .com.co en colombianos. Cobrar
+   * «usd» fijo a un pedido de 96.742 CLP habría intentado cobrar NOVENTA Y
+   * SEIS MIL DÓLARES: el monto guardado está en la unidad menor de SU moneda,
+   * y CLP/COP no tienen centavos — para Stripe también son «zero-decimal»,
+   * así que el número viaja tal cual, sin convertir nada.
+   */
   const intento = await stripe.paymentIntents.create({
     amount: pedido.totalCentavos,
-    currency: "usd",
+    currency: (pedido.moneda ?? "USD").toLowerCase(),
     automatic_payment_methods: { enabled: true },
     metadata: {
       // El webhook lee estos dos para saber qué pedido acreditar.

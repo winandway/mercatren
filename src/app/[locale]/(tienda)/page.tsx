@@ -236,11 +236,18 @@ export default async function PaginaInicio({
         />
 
         <div className="mx-auto max-w-[1500px] px-4 py-8 sm:py-12">
+          {/* EL HERO HABLA DEL PAÍS DEL DOMINIO (27 ago 2026). «Compra en
+              Estados Unidos» en mercatren.cl le dice al chileno que esta
+              tienda no es para él — en la primera línea que lee. */}
           <h1 className="max-w-2xl text-xl font-extrabold tracking-tight text-balance sm:text-3xl">
-            {t("tituloHero")}
+            {esMercadoPrincipal(mercado)
+              ? t("tituloHero")
+              : t("tituloHeroMercado", { pais: mercado.nombre })}
           </h1>
           <p className="mt-2 hidden max-w-xl text-sm text-white/80 sm:block">
-            {t("subtituloHero")}
+            {esMercadoPrincipal(mercado)
+              ? t("subtituloHero")
+              : t("subtituloHeroMercado")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2.5">
             <Link href="/catalogo" className="boton-principal">

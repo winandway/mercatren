@@ -58,6 +58,23 @@ export type DestinoDeEnvio = {
 const PAISES: Record<string, string> = {
   US: "United States",
   CL: "Chile",
+  CO: "Colombia",
+};
+
+/**
+ * LOS PEDIDOS VIEJOS GUARDAN EL NOMBRE, NO EL CÓDIGO.
+ *
+ * `paisDestino` decía «United States» hasta el 27 ago 2026, y esas filas
+ * existen y se siguen comprando. Sin esta tabla, un reintento sobre un pedido
+ * de ayer fallaría con «no despachamos a United States» — el fallo estuvo
+ * unas horas en el código y lo destapó releer quién escribe el campo.
+ */
+const NOMBRES_VIEJOS: Record<string, string> = {
+  "UNITED STATES": "US",
+  "ESTADOS UNIDOS": "US",
+  VENEZUELA: "VE",
+  CHILE: "CL",
+  COLOMBIA: "CO",
 };
 
 /**
@@ -71,7 +88,8 @@ const PAISES: Record<string, string> = {
 export function destinoDeEnvio(
   paisDestino: string | null | undefined,
 ): DestinoDeEnvio | null {
-  const codigo = (paisDestino ?? "").trim().toUpperCase() || "US";
+  const crudo = (paisDestino ?? "").trim().toUpperCase() || "US";
+  const codigo = NOMBRES_VIEJOS[crudo] ?? crudo;
   const nombre = PAISES[codigo];
   if (!nombre) return null;
 

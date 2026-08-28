@@ -31,6 +31,14 @@ import {
 } from "@/lib/cj/mayorista";
 import { DEPARTAMENTOS } from "@/lib/catalogo/departamentos";
 import { desglosarUs } from "@/lib/destino/precio-us";
+import { desglosarChile } from "@/lib/destino/precio-chile";
+import { desglosarColombia } from "@/lib/destino/precio-colombia";
+import {
+  descripcionDePlaza,
+  plazaDelMercado,
+  type Plaza,
+} from "@/lib/cj/plazas";
+import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 import { fleteDeProducto } from "@/lib/cj/flete";
 
 /**
@@ -81,33 +89,55 @@ type Resultado = { ok: boolean; mensaje: string };
  * producto queda hecha, y de ahí en adelante solo se lee.
  */
 async function tiendaDeEstadosUnidos(propietarioId: string): Promise<string> {
+  return tiendaGeneralDePlaza(
+    plazaDelMercado(mercadoPorCodigo("US")),
+    propietarioId,
+  );
+}
+
+/**
+ * LA TIENDA GENERAL DE UNA PLAZA, creada la primera vez que hace falta.
+ *
+ * Es la misma mecánica de siempre, con la plaza decidiendo id, mercado,
+ * moneda de la vitrina y ficha. `mercado` va explícito: sin él, la tienda
+ * chilena nacería con el default `US` y sus productos no saldrían nunca en
+ * mercatren.cl — invisibles sin un solo error en ninguna pantalla.
+ */
+async function tiendaGeneralDePlaza(
+  plaza: Plaza,
+  propietarioId: string,
+): Promise<string> {
   const db = getDb();
+  const general = plaza.tiendaGeneral;
 
   const [existente] = await db
     .select({ id: tiendas.id })
     .from(tiendas)
-    .where(eq(tiendas.id, TIENDA_US.id))
+    .where(eq(tiendas.id, general.id))
     .limit(1);
 
   if (existente) return existente.id;
 
   const ahora = new Date();
+  const ficha = descripcionDePlaza(
+    plaza,
+    { es: "Productos", en: "Products" },
+    SOCIEDAD.nombre,
+  );
 
   await db.insert(tiendas).values({
-    id: TIENDA_US.id,
-    slug: TIENDA_US.slug,
-    nombre: TIENDA_US.nombre,
+    id: general.id,
+    slug: general.slug,
+    nombre: general.nombre,
     propietarioId,
-    paisOrigen: "US",
+    paisOrigen: plaza.paisEntrega,
+    mercado: plaza.mercado,
     estado: "activa",
     /* El margen de este catálogo es el de EE. UU., no el 3 % del mercado
        venezolano: aquí Mercatren compra, despacha y asume la devolución. */
     comisionPuntosBase: COMISION_US_PB,
-    /* El nombre sale de la constante, nunca escrito a mano: el día que la
-       sociedad cambie, esta ficha cambia con ella. Hay una prueba que lo
-       exige. */
-    descripcionEs: `Productos con entrega en Estados Unidos en 2 a 5 días hábiles, con el envío incluido en el precio. Los vende y factura ${SOCIEDAD.nombre}.`,
-    descripcionEn: `Products delivered anywhere in the United States in 2 to 5 business days, shipping included in the price. Sold and invoiced by ${SOCIEDAD.nombre}.`,
+    descripcionEs: ficha.es,
+    descripcionEn: ficha.en,
     creadoEn: ahora,
     actualizadoEn: ahora,
   });
@@ -115,10 +145,10 @@ async function tiendaDeEstadosUnidos(propietarioId: string): Promise<string> {
   /* Su billetera, como cualquier otra tienda: el resto del sistema la espera. */
   await db
     .insert(billeteras)
-    .values({ id: `billetera-${nanoid(10)}`, tiendaId: TIENDA_US.id })
+    .values({ id: `billetera-${nanoid(10)}`, tiendaId: general.id })
     .catch(() => undefined);
 
-  return TIENDA_US.id;
+  return general.id;
 }
 
 /**
@@ -237,15 +267,24 @@ async function tiendaMayorista(propietarioId: string): Promise<string> {
 async function tiendaDelRubro(
   departamento: string | null,
   propietarioId: string,
+  plaza: Plaza = plazaDelMercado(mercadoPorCodigo("US")),
 ): Promise<string> {
   if (!departamento || !esDepartamentoReal(departamento)) {
     /* Sin departamento reconocido se queda en la general: perder mercancía por
        no tener dónde ponerla es peor que tenerla un tiempo en la genérica. */
-    return tiendaDeEstadosUnidos(propietarioId);
+    return tiendaGeneralDePlaza(plaza, propietarioId);
   }
 
   const db = getDb();
-  const { id, slug } = tiendaDeRubro(departamento);
+  /* La pareja id/slug sale de los prefijos de la plaza: `tienda-cl-motos`
+     vive en mercatren.cl y `tienda-us-motos` en mercatren.com, sin chocar. */
+  const { id, slug } =
+    plaza.mercado === "US"
+      ? tiendaDeRubro(departamento)
+      : {
+          id: `${plaza.prefijoTienda}${departamento}`,
+          slug: `${plaza.prefijoSlug}${departamento}`,
+        };
 
   const [existente] = await db
     .select({ id: tiendas.id })
@@ -257,26 +296,33 @@ async function tiendaDelRubro(
 
   /* La general tiene que existir igual: es el respaldo de todo lo que no
      encaje, y de ella cuelga la fuente `cj`. */
-  await tiendaDeEstadosUnidos(propietarioId);
+  await tiendaGeneralDePlaza(plaza, propietarioId);
 
   const ahora = new Date();
   const nombreEs = nombrePropuesto(departamento, "es");
   const nombreEn = nombrePropuesto(departamento, "en");
+  /* QUIÉN VENDE Y FACTURA VA ESCRITO. Con esta línea son marcas de la casa
+     —como las marcas propias de cualquier cadena— y es normal. Sin ella son
+     vendedores inventados, y eso es tergiversación: causa de suspensión y de
+     contracargos que el comprador gana. La ficha sale de la plaza, que NO
+     promete plazo fuera de EE. UU.: el real lo dirán las compras de prueba. */
+  const ficha = descripcionDePlaza(
+    plaza,
+    { es: nombreEs, en: nombreEn },
+    SOCIEDAD.nombre,
+  );
 
   await db.insert(tiendas).values({
     id,
     slug,
     nombre: nombreEs,
     propietarioId,
-    paisOrigen: "US",
+    paisOrigen: plaza.paisEntrega,
+    mercado: plaza.mercado,
     estado: "activa",
     comisionPuntosBase: COMISION_US_PB,
-    /* QUIÉN VENDE Y FACTURA VA ESCRITO. Con esta línea son marcas de la casa
-       —como las marcas propias de cualquier cadena— y es normal. Sin ella son
-       vendedores inventados, y eso es tergiversación: causa de suspensión en
-       Merchant Center y de contracargos que el comprador gana. */
-    descripcionEs: `${nombreEs} con entrega en Estados Unidos en 2 a 5 días hábiles y el envío incluido en el precio. Vendido y facturado por ${SOCIEDAD.nombre}.`,
-    descripcionEn: `${nombreEn} delivered anywhere in the United States in 2 to 5 business days, shipping included in the price. Sold and invoiced by ${SOCIEDAD.nombre}.`,
+    descripcionEs: ficha.es,
+    descripcionEn: ficha.en,
     creadoEn: ahora,
     actualizadoEn: ahora,
   });
@@ -353,8 +399,19 @@ export async function agregarProductoDeCj(
     return { ok: false, mensaje: "Ese producto llegó incompleto de CJ." };
   }
 
+  /**
+   * ══ LA PLAZA LA DECIDE EL SELECTOR DEL PANEL (27 ago 2026) ══
+   *
+   * Con el selector en Chile, el producto entra a mercatren.cl con precio en
+   * pesos; en Colombia, a .com.co. Es el mismo botón de siempre — el equipo
+   * no aprende nada nuevo, y la pantalla dice a dónde va ANTES de pulsar.
+   */
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const plaza = plazaDelMercado(await mercadoDelPanel());
+
   try {
     return await guardarProducto({
+      plaza,
       propietarioId: usuario.id,
       externoId,
       nombre,
@@ -382,6 +439,7 @@ export async function agregarProductoDeCj(
 }
 
 async function guardarProducto({
+  plaza,
   propietarioId,
   externoId,
   nombre,
@@ -391,6 +449,7 @@ async function guardarProducto({
   existencias,
   departamento,
 }: {
+  plaza: Plaza;
   propietarioId: string;
   externoId: string;
   nombre: string;
@@ -417,26 +476,74 @@ async function guardarProducto({
    * Si CJ no cotiza, `envioAUsar` devuelve un estimado y lo marca como tal.
    * **Nunca cero**: cero es exactamente el fallo que esto cierra.
    */
-  const envio = await fleteDeProducto(externoId);
-  const precioPrevio = desglosarUs(costoCentavos, envio.costoCentavos);
+  const envio = await fleteDeProducto(externoId, plaza);
 
   /**
-   * EL MARGEN MANDA SOBRE EL RUBRO.
+   * ══ EL PRECIO SE FIJA SEGÚN LA PLAZA (27 ago 2026) ══
    *
-   * Un producto que deja menos de dos dólares suelto va a la mayorista, se
-   * venda lo que se venda: ahí una sola devolución convierte la venta en
-   * pérdida. En la mayorista se vende de a diez y deja de ser ese riesgo.
+   * EE. UU. publica en dólares con la fórmula de siempre. Chile y Colombia
+   * convierten a pesos con la tasa del día — y si la tasa no está cargada,
+   * AQUÍ SE DETIENE con el motivo claro: publicar con una tasa vieja o
+   * inventada pone el catálogo entero al precio equivocado, en silencio.
+   *
+   * Y en Chile, lo que pasa del régimen de USD 500 NO SE PUBLICA: en la
+   * aduana le cobrarían IVA más arancel de sorpresa al comprador.
    */
-  const tiendaId = vaAlMayorista(precioPrevio.margenCentavos)
-    ? await tiendaMayorista(propietarioId)
-    : await tiendaDelRubro(departamento, propietarioId);
+  let precioPublicadoCentavos: number;
+  let margenParaMayorista: number | null = null;
+
+  if (plaza.mercado === "US") {
+    const d = desglosarUs(costoCentavos, envio.costoCentavos);
+    precioPublicadoCentavos = d.publicadoCentavos;
+    margenParaMayorista = d.margenCentavos;
+  } else {
+    const { tasaVigente } = await import("@/lib/mercado/tasas");
+    const tasa = await tasaVigente(plaza.mercado === "CL" ? "CL" : "CO");
+    if (tasa === null) {
+      return {
+        ok: false,
+        mensaje: `Falta la tasa del dólar de ${plaza.mercado === "CL" ? "Chile" : "Colombia"}. Cárgala en Configuración → La tasa del dólar, y vuelve a intentar.`,
+      };
+    }
+    if (plaza.mercado === "CL") {
+      const d = desglosarChile(costoCentavos, envio.costoCentavos, tasa);
+      if (!d) {
+        return { ok: false, mensaje: "No se pudo calcular el precio chileno." };
+      }
+      if (d.superaTope) {
+        return {
+          ok: false,
+          mensaje: `Este producto pasa del régimen de USD 500 (base $${(d.baseUsdCentavos / 100).toFixed(2)}): en Chile la aduana le cobraría IVA más arancel de sorpresa al comprador. No se publica en Chile.`,
+        };
+      }
+      precioPublicadoCentavos = d.publicadoClp;
+    } else {
+      const d = desglosarColombia(costoCentavos, envio.costoCentavos, tasa);
+      if (!d) {
+        return {
+          ok: false,
+          mensaje: "No se pudo calcular el precio colombiano.",
+        };
+      }
+      precioPublicadoCentavos = d.publicadoCop;
+    }
+  }
+
+  /**
+   * EL MARGEN MANDA SOBRE EL RUBRO — SOLO EN EE. UU.
+   *
+   * La mayorista es una tienda de mercatren.com: mandarle un producto chileno
+   * lo haría desaparecer de .cl. En las otras plazas el rubro manda siempre.
+   */
+  const tiendaId =
+    margenParaMayorista !== null && vaAlMayorista(margenParaMayorista)
+      ? await tiendaMayorista(propietarioId)
+      : await tiendaDelRubro(departamento, propietarioId, plaza);
 
   /* La fuente ANTES del producto: `productos.fuente_id` apunta a ella y la base
-     rechaza el producto si todavía no existe. Cuelga de la tienda general, que
-     `tiendaDelRubro` se encarga de dejar creada. */
+     rechaza el producto si todavía no existe. Cuelga de la tienda general de
+     EE. UU., que existe desde el primer día. */
   await fuenteDeCj(TIENDA_US_GENERAL);
-
-  const precio = precioPrevio;
 
   const [yaEsta] = await db
     .select({ id: productos.id })
@@ -453,7 +560,7 @@ async function guardarProducto({
     await db
       .update(productos)
       .set({
-        precioCentavos: precio.publicadoCentavos,
+        precioCentavos: precioPublicadoCentavos,
         precioBaseCentavos: costoCentavos,
         existencias,
         categoriaId: idDeDepartamento(departamento),
@@ -484,9 +591,11 @@ async function guardarProducto({
        revisarla — NO se inventa una traducción automática. */
     tituloEs: nombre,
     tituloEn: nombre,
-    precioCentavos: precio.publicadoCentavos,
+    precioCentavos: precioPublicadoCentavos,
     precioBaseCentavos: costoCentavos,
-    moneda: "USD",
+    /* La moneda de la plaza. En CLP y COP el número guardado YA son pesos
+       enteros: `mercado/moneda.ts` sabe que su divisor es 1. */
+    moneda: plaza.moneda,
     existencias,
     controlaExistencias: true,
     categoriaId: idDeDepartamento(departamento),

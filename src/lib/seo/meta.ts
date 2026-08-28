@@ -144,7 +144,13 @@ export function metaDeProducto(d: DatosDeProducto): {
   keywords: string[];
 } {
   const titulo = titularNormal(d.titulo);
-  const esUs = (d.paisOrigen ?? "").trim().toUpperCase() === "US";
+  const pais = (d.paisOrigen ?? "").trim().toUpperCase();
+  const esUs = pais === "US";
+  /* Chile y Colombia también se DESPACHAN (27 ago 2026): decir «retíralo en
+     Mercatren · Chile» era mentirle al chileno en el resultado de Google, y
+     ofrecerle Zelle —una red entre bancos de EE. UU.— peor. */
+  const esCl = pais === "CL";
+  const esCo = pais === "CO";
   const en = d.idioma === "en";
 
   /* Título: producto + comercio; si no cabe, solo el producto. */
@@ -158,16 +164,29 @@ export function metaDeProducto(d: DatosDeProducto): {
     ? en
       ? "Free shipping across the United States, delivered in 2–5 days."
       : "Envío gratis a todo Estados Unidos, llega en 2 a 5 días."
-    : en
-      ? `Pick it up at ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`
-      : `Retíralo en ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`;
+    : esCl
+      ? en
+        ? "Delivered to your door anywhere in Chile, shipping and VAT included."
+        : "Entrega a domicilio en todo Chile, con envío e IVA incluidos."
+      : esCo
+        ? en
+          ? "Delivered to your door anywhere in Colombia, shipping included."
+          : "Entrega a domicilio en toda Colombia, con el envío incluido."
+        : en
+          ? `Pick it up at ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`
+          : `Retíralo en ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`;
   const precio = en
     ? `${titulo}${d.marca ? ` by ${d.marca}` : ""} for ${d.precio}.`
     : `${titulo}${d.marca ? ` de ${d.marca}` : ""} por ${d.precio}.`;
   const propia = primeraFrase(d.descripcion, 80);
-  const pago = en
-    ? "Pay by card or Zelle from the US on Mercatren."
-    : "Paga con tarjeta o Zelle desde Estados Unidos en Mercatren.";
+  const pago =
+    esCl || esCo
+      ? en
+        ? "Pay by card on Mercatren."
+        : "Paga con tarjeta en Mercatren."
+      : en
+        ? "Pay by card or Zelle from the US on Mercatren."
+        : "Paga con tarjeta o Zelle desde Estados Unidos en Mercatren.";
   const partes = [precio, propia, donde, pago].filter((p): p is string =>
     Boolean(p),
   );

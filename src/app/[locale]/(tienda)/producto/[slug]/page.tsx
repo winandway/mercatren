@@ -22,6 +22,7 @@ import {
   variantesDe,
 } from "@/lib/productos/variantes";
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
+import { EntregaDespacho } from "@/components/catalogo/entrega-despacho";
 import { EntregaEstadosUnidos } from "@/components/catalogo/entrega-estados-unidos";
 import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
 import { FilaProductos } from "@/components/catalogo/fila-productos";
@@ -128,7 +129,11 @@ export async function generateMetadata({
       type: "website",
       title: meta.title,
       description: meta.description,
-      url: `${SITIO.url}/${locale}/producto/${slug}`,
+      /* RELATIVA a propósito: Next la resuelve contra `metadataBase`, que ya
+         es del dominio del mercado. Con `SITIO.url` fija, la ficha de
+         mercatren.cl declaraba og:url de mercatren.com — dos dominios
+         disputándose la misma página ante los indexadores. */
+      url: `/${locale}/producto/${slug}`,
       images: imagen ? [imagen] : undefined,
     },
     twitter: {
@@ -420,6 +425,10 @@ export default async function PaginaProducto({
           {/* SI SE ENTREGA EN ESTADOS UNIDOS: envío gratis, plazo, el mapa
               del almacén y la salida del casillero para quien está fuera. No
               se dibuja nada de esto en un producto venezolano. */}
+          {/* Y SI SE DESPACHA EN CHILE O COLOMBIA, su propia franja: cómo
+              llega es la primera pregunta de cualquiera, y sin esto la ficha
+              de esas plazas no decía nada. */}
+          <EntregaDespacho paisOrigen={ficha.tiendaPais} />
           <EntregaEstadosUnidos
             parte="aviso"
             paisOrigen={ficha.tiendaPais}

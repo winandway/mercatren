@@ -14,7 +14,7 @@ import {
   olvidarBorrador,
 } from "@/components/ui/formulario-persistente";
 import { Campo } from "@/components/ui/campo";
-import { camposDeEntrega, ESTADOS_US } from "@/lib/destino/direccion";
+import { camposDeEntrega, listaDeEstados } from "@/lib/destino/direccion";
 import { Link, useRouter } from "@/i18n/navigation";
 import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
 import {
@@ -66,7 +66,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   const [envio, setEnvio] = useState<{
     despachan: boolean;
     costoCentavos: number;
-    destino: "US" | "VE";
+    destino: import("@/lib/destino/reglas").Destino;
   }>({ despachan: false, costoCentavos: 0, destino: "VE" });
 
   /* Se pregunta al montar y cada vez que cambia el carrito. Si falla, se queda
@@ -150,7 +150,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   );
   /* En Estados Unidos siempre se despacha: lo decide el destino del carrito,
      que sale de la base. */
-  const soloEnvio = envio.destino === "US";
+  /* EE. UU., Chile y Colombia SOLO se despachan: no hay mostrador donde
+     retirar. El retiro es de Venezuela. */
+  const soloEnvio = envio.destino !== "VE";
   const formaReal = soloEnvio ? "envio" : forma;
 
   const esZelle = metodo === "zelle";
@@ -289,13 +291,21 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                 que la pantalla y el candado no se pueden desincronizar. */}
             {camposDeEntrega(envio.destino).map((campo) =>
               campo.nombre === "estado" ? (
-                /* El estado, de una LISTA. Escrito a mano llegan «Florida»,
-                   «florida» y «MI» pensando en la ciudad — y CJ compara el
-                   código de dos letras contra su tabla: lo que no reconoce, lo
-                   rechaza. */
+                /* El estado/región/departamento, de una LISTA por destino.
+                   Escrito a mano llegan «Florida», «florida» y «MI» pensando
+                   en la ciudad — y el transportista compara contra su tabla:
+                   lo que no reconoce, lo rechaza. La lista sale de
+                   `listaDeEstados`, una por país, no un `if` por pantalla. */
                 <div key={campo.nombre}>
                   <label htmlFor="estado" className="block text-sm font-medium">
-                    {t("entrega.estado")}
+                    {/* «Estado» en EE. UU., «Región» en Chile, «Departamento»
+                        en Colombia: la palabra equivocada hace dudar a quien
+                        llena de si la página es para su país. */}
+                    {envio.destino === "CL"
+                      ? t("entrega.estadoCL")
+                      : envio.destino === "CO"
+                        ? t("entrega.estadoCO")
+                        : t("entrega.estado")}
                   </label>
                   <select
                     id="estado"
@@ -306,9 +316,13 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                     className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
                   >
                     <option value="" disabled>
-                      {t("entrega.estadoPlaceholder")}
+                      {envio.destino === "CL"
+                        ? t("entrega.estadoPlaceholderCL")
+                        : envio.destino === "CO"
+                          ? t("entrega.estadoPlaceholderCO")
+                          : t("entrega.estadoPlaceholder")}
                     </option>
-                    {ESTADOS_US.map((e) => (
+                    {(listaDeEstados(envio.destino) ?? []).map((e) => (
                       <option key={e.codigo} value={e.codigo}>
                         {e.nombre}
                       </option>
@@ -361,7 +375,16 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                  motivo a la vista. El servidor lo vuelve a comprobar. */
               const zelleCorto =
                 m.valor === "zelle" && total < ZELLE_MINIMO_CENTAVOS;
-              const disponible = m.disponible && !zelleCorto;
+              /* ══ ZELLE ES DE ESTADOS UNIDOS (27 ago 2026) ══
+                 Un comprador chileno o colombiano no tiene Zelle: es una red
+                 entre bancos de EE. UU. Ofrecérselo es el mismo error del
+                 método que no sale — elige, no puede terminar, y la compra se
+                 pierde ahí. En .cl y .com.co la tarjeta es el único método. */
+              const zelleFuera =
+                m.valor === "zelle" &&
+                envio.destino !== "VE" &&
+                envio.destino !== "US";
+              const disponible = m.disponible && !zelleCorto && !zelleFuera;
               return (
                 <li key={m.valor}>
                   <label

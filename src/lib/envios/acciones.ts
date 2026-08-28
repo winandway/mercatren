@@ -118,7 +118,7 @@ export async function opcionesDeEntrega(
 ): Promise<{
   despachan: boolean;
   costoCentavos: number;
-  destino: "US" | "VE";
+  destino: import("@/lib/destino/reglas").Destino;
 }> {
   /**
    * TAMBIÉN DEVUELVE EL DESTINO (18 ago 2026).
@@ -155,15 +155,16 @@ export async function opcionesDeEntrega(
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .where(inArray(productos.id, ids));
 
-  /* Basta UN producto de Estados Unidos para que el pedido se despache allá y
-     haga falta la dirección completa. Es la misma regla que aplica el
-     servidor al crear el pedido; si las dos se separan, la pantalla pediría
-     una cosa y el servidor exigiría otra. */
-  const destino: "US" | "VE" = encontrados.some(
-    (p) => (p.tiendaPais ?? "").trim().toUpperCase() === "US",
-  )
-    ? "US"
-    : "VE";
+  /* LA MISMA REGLA que aplica el servidor al crear el pedido
+     (`destinoDeLaTienda`): si las dos se separan, la pantalla pediría una
+     cosa y el servidor exigiría otra. Un carrito no mezcla destinos — el
+     candado vive en crearPedido—, así que el primero que no sea Venezuela
+     manda. */
+  const { destinoDeLaTienda } = await import("@/lib/destino/reglas");
+  const destino =
+    encontrados
+      .map((p) => destinoDeLaTienda(p.tiendaPais))
+      .find((d) => d !== "VE") ?? ("VE" as const);
 
   const subtotalPorTienda = new Map<string, number>();
   for (const linea of lineas) {

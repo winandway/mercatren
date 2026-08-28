@@ -39,6 +39,21 @@ describe("a qué país se le pide el despacho a CJ", () => {
     expect(destinoDeEnvio("Us")?.codigo).toBe("US");
   });
 
+  it("LOS PEDIDOS VIEJOS GUARDAN EL NOMBRE Y SIGUEN FUNCIONANDO", () => {
+    /* «United States» fue lo que se guardó en paisDestino hasta el 27 ago
+       2026. Un reintento sobre un pedido de ayer no puede fallar por eso. */
+    expect(destinoDeEnvio("United States")?.codigo).toBe("US");
+    expect(destinoDeEnvio("UNITED STATES")?.codigo).toBe("US");
+  });
+
+  it("Colombia también viaja, sin número fiscal", () => {
+    expect(destinoDeEnvio("CO")).toEqual({
+      codigo: "CO",
+      nombre: "Colombia",
+      taxId: "",
+    });
+  });
+
   it("UN PAÍS DESCONOCIDO NO CAE EN ESTADOS UNIDOS: devuelve null", () => {
     /* Un respaldo silencioso aquí es mandar mercancía al otro lado del mundo
        y enterarse por el reclamo del comprador. */

@@ -47,6 +47,13 @@ export default async function PaginaCatalogoUsa({
 
   const configurado = cjConfigurado();
 
+  /* A qué plaza va lo que se agregue: lo decide el selector de país del panel
+     (arriba a la derecha). Se dice ANTES de buscar, en grande y con color,
+     porque agregar cien productos a la plaza equivocada es una tarde perdida. */
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const { plazaDelMercado } = await import("@/lib/cj/plazas");
+  const plaza = plazaDelMercado(await mercadoDelPanel());
+
   return (
     <div className="space-y-6">
       <header>
@@ -55,6 +62,16 @@ export default async function PaginaCatalogoUsa({
           {t("titulo")}
         </h1>
         <p className="mt-1 max-w-3xl text-sm text-tinta-suave">{t("texto")}</p>
+
+        {plaza.mercado !== "US" ? (
+          <p className="mt-3 rounded-lg border border-carga-500/40 bg-carga-500/10 px-3 py-2 text-sm font-bold text-riel-900">
+            {t("plazaDestino", {
+              dominio:
+                plaza.mercado === "CL" ? "mercatren.cl" : "mercatren.com.co",
+              moneda: plaza.moneda,
+            })}
+          </p>
+        ) : null}
 
         {/* DÓNDE VER LO QUE SE LLEVA AGREGADO. Sin estos dos enlaces, el
             catálogo se arma a ciegas: se eligen veinte productos y no hay

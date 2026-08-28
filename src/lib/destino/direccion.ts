@@ -115,9 +115,17 @@ const ESTADOS_UNIDOS: CampoDeEntrega[] = [
   },
 ];
 
+/**
+ * Chile y Colombia piden LO MISMO que EE. UU.: quién recibe, calle, ciudad,
+ * región/departamento de una lista, y código postal. La lista cambia por
+ * país (abajo), los campos no — por eso comparten la tabla de EE. UU. en vez
+ * de copiarla: una copia por país se desincroniza al primer arreglo.
+ */
 const POR_DESTINO: Record<Destino, CampoDeEntrega[]> = {
   VE: VENEZUELA,
   US: ESTADOS_UNIDOS,
+  CL: ESTADOS_UNIDOS,
+  CO: ESTADOS_UNIDOS,
 };
 
 /** Las casillas que hay que dibujar para este destino. */
@@ -224,4 +232,89 @@ export function esEstadoUS(valor: string | null | undefined): boolean {
  */
 export function esCodigoPostalUS(valor: string | null | undefined): boolean {
   return /^\d{5}(-\d{4})?$/.test((valor ?? "").trim());
+}
+
+/**
+ * LAS REGIONES DE CHILE, de una lista y jamás escritas a mano.
+ *
+ * ══ SE MANDA EL NOMBRE COMPLETO Y SIN ACENTOS, no una sigla ══
+ *
+ * Con EE. UU. se manda «FL» porque esa ES la tabla de los transportistas de
+ * allá. Para Chile no existe una tabla de siglas estándar: «RM» no le dice
+ * nada a un courier. Se manda el nombre oficial de la región, sin acentos —
+ * los acentos son la primera causa de un texto que «no coincide» en el
+ * sistema de un transportista. Si CJ rechaza alguno, su mensaje sale entero
+ * en el panel y se corrige aquí, en una lista, no en mil pedidos.
+ */
+export const REGIONES_CL: ReadonlyArray<{ codigo: string; nombre: string }> = [
+  { codigo: "Arica y Parinacota", nombre: "Arica y Parinacota" },
+  { codigo: "Tarapaca", nombre: "Tarapacá" },
+  { codigo: "Antofagasta", nombre: "Antofagasta" },
+  { codigo: "Atacama", nombre: "Atacama" },
+  { codigo: "Coquimbo", nombre: "Coquimbo" },
+  { codigo: "Valparaiso", nombre: "Valparaíso" },
+  { codigo: "Region Metropolitana", nombre: "Región Metropolitana (Santiago)" },
+  { codigo: "O'Higgins", nombre: "O'Higgins" },
+  { codigo: "Maule", nombre: "Maule" },
+  { codigo: "Nuble", nombre: "Ñuble" },
+  { codigo: "Biobio", nombre: "Biobío" },
+  { codigo: "La Araucania", nombre: "La Araucanía" },
+  { codigo: "Los Rios", nombre: "Los Ríos" },
+  { codigo: "Los Lagos", nombre: "Los Lagos" },
+  { codigo: "Aysen", nombre: "Aysén" },
+  { codigo: "Magallanes", nombre: "Magallanes" },
+];
+
+/** Los departamentos de Colombia, misma regla que las regiones chilenas. */
+export const DEPARTAMENTOS_CO: ReadonlyArray<{
+  codigo: string;
+  nombre: string;
+}> = [
+  { codigo: "Amazonas", nombre: "Amazonas" },
+  { codigo: "Antioquia", nombre: "Antioquia" },
+  { codigo: "Arauca", nombre: "Arauca" },
+  { codigo: "Atlantico", nombre: "Atlántico" },
+  { codigo: "Bogota DC", nombre: "Bogotá D.C." },
+  { codigo: "Bolivar", nombre: "Bolívar" },
+  { codigo: "Boyaca", nombre: "Boyacá" },
+  { codigo: "Caldas", nombre: "Caldas" },
+  { codigo: "Caqueta", nombre: "Caquetá" },
+  { codigo: "Casanare", nombre: "Casanare" },
+  { codigo: "Cauca", nombre: "Cauca" },
+  { codigo: "Cesar", nombre: "Cesar" },
+  { codigo: "Choco", nombre: "Chocó" },
+  { codigo: "Cordoba", nombre: "Córdoba" },
+  { codigo: "Cundinamarca", nombre: "Cundinamarca" },
+  { codigo: "Guainia", nombre: "Guainía" },
+  { codigo: "Guaviare", nombre: "Guaviare" },
+  { codigo: "Huila", nombre: "Huila" },
+  { codigo: "La Guajira", nombre: "La Guajira" },
+  { codigo: "Magdalena", nombre: "Magdalena" },
+  { codigo: "Meta", nombre: "Meta" },
+  { codigo: "Narino", nombre: "Nariño" },
+  { codigo: "Norte de Santander", nombre: "Norte de Santander" },
+  { codigo: "Putumayo", nombre: "Putumayo" },
+  { codigo: "Quindio", nombre: "Quindío" },
+  { codigo: "Risaralda", nombre: "Risaralda" },
+  { codigo: "San Andres y Providencia", nombre: "San Andrés y Providencia" },
+  { codigo: "Santander", nombre: "Santander" },
+  { codigo: "Sucre", nombre: "Sucre" },
+  { codigo: "Tolima", nombre: "Tolima" },
+  { codigo: "Valle del Cauca", nombre: "Valle del Cauca" },
+  { codigo: "Vaupes", nombre: "Vaupés" },
+  { codigo: "Vichada", nombre: "Vichada" },
+];
+
+/**
+ * La lista de estados/regiones/departamentos de un destino, o null si ese
+ * destino escribe la ciudad libre (Venezuela). El checkout dibuja el `select`
+ * con lo que salga de aquí: UNA función, no un `if` por país en la pantalla.
+ */
+export function listaDeEstados(
+  destino: Destino,
+): ReadonlyArray<{ codigo: string; nombre: string }> | null {
+  if (destino === "US") return ESTADOS_US;
+  if (destino === "CL") return REGIONES_CL;
+  if (destino === "CO") return DEPARTAMENTOS_CO;
+  return null;
 }

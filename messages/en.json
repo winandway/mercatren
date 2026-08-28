@@ -85,7 +85,9 @@
     "deTodasLasTiendasTexto": "A little from each store, different every time you visit.",
     "masVariados": "More products",
     "masVariadosTexto": "A bit of everything, different every time you visit.",
-    "verTodasLasTiendas": "See all stores"
+    "verTodasLasTiendas": "See all stores",
+    "tituloHeroMercado": "Shop online, delivered in {pais}",
+    "subtituloHeroMercado": "Pick your product, pay in pesos, and tell us where to deliver it. The price you see is the final price, shipping included."
   },
   "piePagina": {
     "derechos": "All rights reserved.",
@@ -1004,6 +1006,17 @@
         "sinCargar": "Not loaded",
         "titularDistinto": "The account holder on file doesn't match {sociedad}. Check it: it's the name whoever transfers will see.",
         "ayuda": "All four must be set or the method isn't offered: half a set of bank details sends the money somewhere else. The account and routing numbers are deliberately not shown here. Set them in YaDominios Cloud → the site → Environment variables, then republish. Note: Chase gives one routing number for ACH and a different one for wire — this is the ACH one."
+      },
+      "tasasTitulo": "Dollar exchange rate (Chile and Colombia)",
+      "tasasTexto": "Pesos per dollar, the central bank's rate for the day. It converts CJ costs into peso prices on mercatren.cl and mercatren.com.co. Without a rate, that country's catalog can't set prices.",
+      "f129": {
+        "titulo": "Chile VAT · F129 summary",
+        "texto": "Chilean VAT collected per quarter, added up from each sale. It's filed within 20 days of quarter close, in USD: the accountant closes the conversion with the applicable rate. With no sales in the period, the SII requires no filing.",
+        "sinVentas": "No Chilean sales yet: nothing to file.",
+        "trimestre": "Quarter",
+        "pedidos": "Sales",
+        "ventasNetas": "Net sales (before VAT)",
+        "iva": "VAT collected"
       }
     },
     "fotos": {
@@ -1196,7 +1209,7 @@
       "pedidoEnviado": "Order marked as shipped.",
       "pedidoEntregado": "Order marked as delivered.",
       "ajusteAplicado": "Done. The adjustment was applied to {n} products; each merchant’s own price was preserved.",
-      "metodoNoDisponible": "That payment method is not available yet.",
+      "metodoNoDisponible": "That payment method is not available for this destination. Pay by card.",
       "zelleDesde200": "Zelle is available for purchases of $200 or more. For this amount, please pay by card.",
       "variantesGuardadas": "Sizes and colors saved.",
       "medidasGuardadas": "Dimensions saved.",
@@ -2103,7 +2116,8 @@
       "repartirTexto": "Moves products already in the general store into the store for their category. Keeps their address, photos, and price. Safe to run as many times as you need.",
       "repartirBoton": "Sort by category",
       "vaAlMayorista": "Goes to the Wholesale store: sold in lots of {minimo}.",
-      "dejaElLote": "The lot leaves {monto}."
+      "dejaElLote": "The lot leaves {monto}.",
+      "plazaDestino": "⚠️ The panel selector is on another country: whatever you add goes to {dominio}, priced in {moneda}. For the U.S. catalog, switch the selector above back to United States."
     },
     "tiendasUsa": {
       "titulo": "United States stores",
@@ -2452,6 +2466,18 @@
       "decia": "It said",
       "quedaDebiendo": "The invoice stays open for the difference.",
       "facturaQuedaAbierta": "⚠️ The invoice was for {monto} and stays OPEN for the difference."
+    },
+    "tasas": {
+      "pais": {
+        "CL": "Chile · Chilean pesos per dollar",
+        "CO": "Colombia · Colombian pesos per dollar"
+      },
+      "guardar": "Save",
+      "sinCargar": "Not set yet. This country's catalog can't price products without it.",
+      "actualizada": "Last updated: {fecha}",
+      "paisInvalido": "That country has no exchange rate here.",
+      "tasaInvalida": "That doesn't look like an exchange rate. Write it as the central bank publishes it, e.g. 967.42.",
+      "guardada": "Rate saved."
     }
   },
   "catalogo": {
@@ -2548,7 +2574,14 @@
       "volver": "Back",
       "volverATienda": "Back to {tienda}",
       "similares": "Similar products",
-      "masDeTienda": "More from {tienda}"
+      "masDeTienda": "More from {tienda}",
+      "despacho": {
+        "tituloCL": "Delivered to your door anywhere in Chile",
+        "textoCL": "The price you see is the final price: shipping and VAT are included. We ship it to the address you give us.",
+        "tituloCO": "Delivered to your door anywhere in Colombia",
+        "textoCO": "The price you see is the final price: shipping is included. We ship it to the address you give us.",
+        "plazo": "Arrives in {minimo} to {maximo} business days"
+      }
     },
     "paginacion": {
       "anterior": "Previous",
@@ -2626,7 +2659,11 @@
       "codigoPostal": "ZIP code",
       "codigoPostalPlaceholder": "33101",
       "tituloEnvio": "Where do we ship it?",
-      "nombreEnvio": "Name of who receives it"
+      "nombreEnvio": "Name of who receives it",
+      "estadoCL": "Region",
+      "estadoCO": "Department",
+      "estadoPlaceholderCL": "Choose your region",
+      "estadoPlaceholderCO": "Choose your department"
     },
     "pago": {
       "titulo": "How are you paying?",

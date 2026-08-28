@@ -44,6 +44,9 @@ import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
 import { estadoTransferencia } from "@/lib/cobros/transferencia-admin";
+import { resumenF129 } from "@/lib/impuestos/f129";
+import { leerTasas } from "@/lib/mercado/tasas";
+import { TasasDelDolar } from "@/components/panel/tasas-del-dolar";
 import { SOCIEDAD } from "@/lib/sociedad";
 import { estadoZelleCobros } from "@/lib/cobros/zelle-admin";
 import { REQUISITOS, revisarCobroPorEnlace } from "@/lib/cobros/listo";
@@ -127,6 +130,8 @@ export default async function PaginaConfiguracion({
   /* En su propio catch: un fallo leyendo el entorno no puede tumbar la pantalla
      entera de Configuración. */
   const transferencia = await estadoTransferencia().catch(() => null);
+  const tasas = await leerTasas().catch(() => null);
+  const f129 = await resumenF129().catch(() => null);
 
   const { env } = getCloudflareContext();
   const puesta = (clave: string) =>
@@ -304,6 +309,82 @@ export default async function PaginaConfiguracion({
         </p>
         <ProbarCj />
       </section>
+
+      {/**
+       * EL F129 DE CHILE: lo cobrado de IVA por trimestre.
+       *
+       * Se declara dentro de los 20 días del cierre del trimestre, en USD.
+       * Este es el papel de trabajo: el total en pesos por trimestre, con la
+       * conversión como referencia — el número final lo cierra el contador
+       * con el tipo de cambio que corresponda. Sin ventas no se declara nada,
+       * y eso también se ve aquí.
+       */}
+      {f129 !== null ? (
+        <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <Landmark className="h-4 w-4 text-carga-500" aria-hidden />
+            {t("f129.titulo")}
+          </h2>
+          <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+            {t("f129.texto")}
+          </p>
+          {f129.length === 0 ? (
+            <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-900">
+              {t("f129.sinVentas")}
+            </p>
+          ) : (
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[28rem] text-sm">
+                <thead>
+                  <tr className="border-b border-borde text-left text-xs text-tinta-suave">
+                    <th className="py-2 pr-3">{t("f129.trimestre")}</th>
+                    <th className="py-2 pr-3">{t("f129.pedidos")}</th>
+                    <th className="py-2 pr-3">{t("f129.ventasNetas")}</th>
+                    <th className="py-2">{t("f129.iva")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {f129.map((tr) => (
+                    <tr key={tr.clave} className="border-b border-slate-100">
+                      <td className="py-2 pr-3 font-bold">{tr.clave}</td>
+                      <td className="py-2 pr-3 tabular-nums">{tr.pedidos}</td>
+                      <td className="py-2 pr-3 tabular-nums">
+                        {tr.ventasNetasClp.toLocaleString("es-CL")} CLP
+                      </td>
+                      <td className="py-2 font-bold tabular-nums">
+                        {tr.ivaClp.toLocaleString("es-CL")} CLP
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ) : null}
+
+      {/**
+       * LA TASA DEL DÓLAR DE CADA PAÍS.
+       *
+       * Es lo que convierte el costo en dólares de CJ al precio en pesos de
+       * mercatren.cl y .com.co. Sin tasa cargada, el catálogo de ese país no
+       * puede fijar precios — y una vieja los fija con un dólar que ya no
+       * existe, por eso la fecha va al lado.
+       */}
+      {tasas ? (
+        <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
+          <h2 className="flex items-center gap-2 font-bold">
+            <Landmark className="h-4 w-4 text-carga-500" aria-hidden />
+            {t("tasasTitulo")}
+          </h2>
+          <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+            {t("tasasTexto")}
+          </p>
+          <div className="mt-4">
+            <TasasDelDolar tasas={tasas} />
+          </div>
+        </section>
+      ) : null}
 
       {/**
        * LOS CATÁLOGOS DE LOS COMERCIOS.

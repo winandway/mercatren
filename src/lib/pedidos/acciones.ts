@@ -28,6 +28,7 @@ import {
   ZELLE_MINIMO_CENTAVOS,
 } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
+import { nombreDelPais } from "@/lib/destino/reglas";
 import { carritoPausado } from "@/lib/ventas/pausa";
 import {
   esCodigoPostalUS,
@@ -205,16 +206,15 @@ export async function crearPedido(
    * Se decide con lo que ya se leyó de la BASE, no con lo que diga el
    * navegador: el aviso del carrito es cortesía; este es el candado.
    */
+  const { destinoDeLaTienda } = await import("@/lib/destino/reglas");
   const destinos = new Set(
-    encontrados.map((p) =>
-      (p.tiendaPais ?? "").trim().toUpperCase() === "US" ? "US" : "VE",
-    ),
+    encontrados.map((p) => destinoDeLaTienda(p.tiendaPais)),
   );
   if (destinos.size > 1) {
     return { ok: false, mensaje: t("destinosMezclados") };
   }
 
-  const destinoDelPedido: Destino = destinos.has("US") ? "US" : "VE";
+  const destinoDelPedido: Destino = destinos.values().next().value ?? "VE";
 
   const faltan = faltantesDeEntrega(destinoDelPedido, {
     nombre: entrega.nombre,
@@ -238,6 +238,16 @@ export async function crearPedido(
     }
     if (!esCodigoPostalUS(entrega.codigoPostal)) {
       return { ok: false, mensaje: t("codigoPostalInvalido") };
+    }
+  }
+
+  if (destinoDelPedido === "CL" || destinoDelPedido === "CO") {
+    /* La región/departamento tiene que venir de SU lista: el candado está en
+       el servidor como siempre — el `select` del navegador es cortesía. */
+    const { listaDeEstados } = await import("@/lib/destino/direccion");
+    const lista = listaDeEstados(destinoDelPedido) ?? [];
+    if (!lista.some((e) => e.codigo === entrega.estado?.trim())) {
+      return { ok: false, mensaje: t("estadoInvalido") };
     }
   }
 
@@ -383,6 +393,18 @@ export async function crearPedido(
   }
 
   // Zelle es para montos grandes: por debajo de $200 el pago va con tarjeta.
+  /* EL CANDADO DEL MÉTODO, en el servidor como siempre: Zelle es una red
+     entre bancos de EE. UU. y un pedido chileno o colombiano no puede
+     pagarse por ahí — el botón escondido en la pantalla se lo salta
+     cualquiera con la consola abierta. */
+  if (
+    metodoPago === "zelle" &&
+    destinoDelPedido !== "VE" &&
+    destinoDelPedido !== "US"
+  ) {
+    return { ok: false, mensaje: t("metodoNoDisponible") };
+  }
+
   if (metodoPago === "zelle" && subtotal < ZELLE_MINIMO_CENTAVOS) {
     return { ok: false, mensaje: t("zelleDesde200") };
   }
@@ -426,8 +448,27 @@ export async function crearPedido(
   const numero = await siguienteNumero(db);
   const ahora = new Date();
 
-  // Los impuestos siguen en cero: están pendientes del contador (fase 3 de
-  // PLAN.md). El envío ya no: sale de la política de cada comercio.
+  /**
+   * ══ EL IVA CHILENO, ANOTADO (27 ago 2026) ══
+   *
+   * En mercatren.cl el precio publicado YA lleva el 19 % dentro — como
+   * cualquier tienda chilena—, así que aquí **no se suma nada al total**: se
+   * DESGLOSA. `impuestosCentavos` guarda la parte del total que es IVA, que
+   * es lo que después se declara en el F129. Mercatren LLC está inscrita en
+   * el régimen simplificado del SII (usuario 59330700K) y ese registro
+   * OBLIGA a declarar lo cobrado: un pedido chileno sin el IVA anotado es un
+   * trimestre que se declara a mano, buscando pedido por pedido.
+   *
+   * En los demás mercados sigue en cero, que es la verdad de hoy.
+   */
+  const { impuestoDelMercado, desglosarDesdeBruto } =
+    await import("@/lib/impuestos/chile");
+  const mercadoDeLaCompra = await mercadoActual();
+  const reglaIva = impuestoDelMercado(mercadoDeLaCompra);
+  const ivaCentavos = reglaIva
+    ? desglosarDesdeBruto(total, reglaIva).impuesto
+    : 0;
+
   await db.batch([
     db.insert(pedidos).values({
       id: pedidoId,
@@ -436,32 +477,37 @@ export async function crearPedido(
       estado: "pendiente_pago",
       subtotalCentavos: subtotal,
       envioCentavos,
-      impuestosCentavos: 0,
+      impuestosCentavos: ivaCentavos,
       totalCentavos: total,
       moneda: encontrados[0]?.moneda ?? "USD",
       /* El dominio por el que entró la compra. No se deduce de la tienda:
          es un hecho de esta venta y tiene que sobrevivir a que el comercio
          cambie de vitrina. */
-      mercado: (await mercadoActual()).codigo,
+      mercado: mercadoDeLaCompra.codigo,
       metodoPago,
       /* En Venezuela se retira en depósito y basta con quién y su ciudad; a
          Estados Unidos se despacha, y entonces la dirección completa ES el
          pedido: sin ella el proveedor no puede sacar la caja. */
       direccionEntrega: {
         nombre: entrega.nombre,
-        pais:
-          entrega.pais ??
-          (destinoDelPedido === "US" ? "United States" : "Venezuela"),
+        pais: entrega.pais ?? nombreDelPais(destinoDelPedido),
         ciudad: entrega.ciudad,
         direccion: entrega.direccion ?? "",
         direccion2: entrega.direccion2 ?? null,
-        estado: entrega.estado?.trim().toUpperCase() ?? null,
+        /* En EE. UU. el estado es un código de dos letras y va en mayúscula;
+           en Chile y Colombia es el NOMBRE de la lista y se guarda tal cual —
+           «REGION METROPOLITANA» gritado ya no coincidiría con la tabla del
+           transportista. */
+        estado:
+          destinoDelPedido === "US"
+            ? (entrega.estado?.trim().toUpperCase() ?? null)
+            : (entrega.estado?.trim() ?? null),
         codigoPostal: entrega.codigoPostal?.trim() ?? null,
         referencia: entrega.referencia ?? null,
       },
-      paisDestino:
-        entrega.pais ??
-        (destinoDelPedido === "US" ? "United States" : "Venezuela"),
+      /* El CÓDIGO del destino, no el nombre: es lo que `destinoDeEnvio` y el
+         pedido a CJ comparan. El nombre bonito vive en la dirección. */
+      paisDestino: destinoDelPedido,
       telefonoContacto: entrega.telefono,
       notasCliente: entrega.notas ?? null,
       creadoEn: ahora,

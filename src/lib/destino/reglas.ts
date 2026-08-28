@@ -35,8 +35,14 @@
  * tienda por tienda.
  */
 
-/** Los destinos que existen hoy. */
-export const DESTINOS = ["US", "VE"] as const;
+/**
+ * Los destinos que existen hoy.
+ *
+ * CL y CO entraron el 27 ago 2026 con las plazas de mercatren.cl y
+ * mercatren.com.co: allá también se despacha a domicilio, con sus propios
+ * campos de dirección (regiones en Chile, departamentos en Colombia).
+ */
+export const DESTINOS = ["US", "VE", "CL", "CO"] as const;
 export type Destino = (typeof DESTINOS)[number];
 
 /**
@@ -74,7 +80,12 @@ export function destinoElegido(guardado: string | null | undefined): Destino {
 export function destinoDeLaTienda(
   paisOrigen: string | null | undefined,
 ): Destino {
-  return (paisOrigen ?? "").trim().toUpperCase() === "US" ? "US" : "VE";
+  const pais = (paisOrigen ?? "").trim().toUpperCase();
+  /* Chile y Colombia son plazas de despacho propio, como EE. UU. Lo que no
+     sea ninguna de las tres se entrega en Venezuela, que es de donde
+     despachan todos los comercios de hoy. */
+  if (pais === "US" || pais === "CL" || pais === "CO") return pais;
+  return "VE";
 }
 
 /**
@@ -112,8 +123,20 @@ export const PLAZO: Record<Destino, { minimo: number; maximo: number }> = {
   /* Venezuela lo pone cada comercio en su política de envío; aquí no se
      promete un plazo que no es nuestro. */
   VE: { minimo: 0, maximo: 0 },
+  /* Chile y Colombia: envío internacional de CJ. El rango es CONSERVADOR a
+     propósito — prometer «2 a 5» sin haberlo medido es un reclamo por venta.
+     Se ajusta con lo que midan las compras de prueba, no antes. */
+  CL: { minimo: 10, maximo: 25 },
+  CO: { minimo: 10, maximo: 25 },
 };
 
 export function tienePlazoPropio(destino: Destino): boolean {
   return PLAZO[destino].maximo > 0;
+}
+
+/** El nombre del país de un destino, para la dirección que lee una persona. */
+export function nombreDelPais(destino: Destino): string {
+  return { US: "United States", VE: "Venezuela", CL: "Chile", CO: "Colombia" }[
+    destino
+  ];
 }
