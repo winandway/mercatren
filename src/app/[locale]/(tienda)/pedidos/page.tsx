@@ -121,7 +121,11 @@ export default async function PaginaMisPedidos({
                   </div>
 
                   <p className="text-lg font-extrabold tabular-nums">
-                    {formatearPrecio(pedido.totalCentavos, idioma)}
+                    {formatearPrecio(
+                      pedido.totalCentavos,
+                      idioma,
+                      pedido.moneda,
+                    )}
                   </p>
                 </div>
 

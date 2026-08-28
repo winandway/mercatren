@@ -59,13 +59,13 @@ export default async function PaginaProveedor({
           sinComprar={sinComprar.map((v) => ({
             id: v.id,
             numero: v.numero,
-            montoTexto: formatearPrecio(v.totalCentavos, idioma),
+            montoTexto: formatearPrecio(v.totalCentavos, idioma, v.moneda),
           }))}
           compras={compras.map((c) => ({
             ...c,
             costoTexto:
               c.costoCentavos !== null
-                ? formatearPrecio(c.costoCentavos, idioma)
+                ? formatearPrecio(c.costoCentavos, idioma, "USD")
                 : null,
           }))}
         />

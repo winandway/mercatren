@@ -155,7 +155,7 @@ export async function listarComprasAlProveedor(
  * está esperando una caja que nadie ha pedido.
  */
 export async function ventasSinComprar(): Promise<
-  Array<{ id: string; numero: string; totalCentavos: number }>
+  Array<{ id: string; numero: string; totalCentavos: number; moneda: string }>
 > {
   try {
     await exigirEquipoInterno();
@@ -172,6 +172,7 @@ export async function ventasSinComprar(): Promise<
       id: pedidos.id,
       numero: pedidos.numero,
       totalCentavos: pedidos.totalCentavos,
+      moneda: pedidos.moneda,
     })
     .from(pedidos)
     .innerJoin(itemsPedido, eq(itemsPedido.pedidoId, pedidos.id))

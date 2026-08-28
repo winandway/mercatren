@@ -178,7 +178,7 @@ export function CalculadoraFactura({
         {modo === "recibe" && objetivoCentavos > 0 ? (
           <p className="mt-2 text-sm text-tinta-suave">
             {t("hayQueCobrar", {
-              monto: formatearPrecio(objetivoCentavos, idioma),
+              monto: formatearPrecio(objetivoCentavos, idioma, "USD"),
             })}
           </p>
         ) : null}
@@ -229,7 +229,11 @@ export function CalculadoraFactura({
               ? t("ofrecera.tarjeta")
               : objetivoCentavos > zelleLimites.maximoCentavos
                 ? t("ofrecera.transferenciaSinZelle", {
-                    tope: formatearPrecio(zelleLimites.maximoCentavos, idioma),
+                    tope: formatearPrecio(
+                      zelleLimites.maximoCentavos,
+                      idioma,
+                      "USD",
+                    ),
                   }) +
                   " " +
                   /* ══ LA SALIDA, NO SOLO EL LÍMITE ══
@@ -250,6 +254,7 @@ export function CalculadoraFactura({
                           ),
                       ),
                       idioma,
+                      "USD",
                     ),
                   })
                 : objetivoCentavos > 0 &&
@@ -258,6 +263,7 @@ export function CalculadoraFactura({
                       minimo: formatearPrecio(
                         zelleLimites.minimoCentavos,
                         idioma,
+                        "USD",
                       ),
                     })
                   : t("ofrecera.transferencia")}
@@ -267,6 +273,7 @@ export function CalculadoraFactura({
                   monto: formatearPrecio(
                     loQueCuestaLaTarjeta(objetivoCentavos),
                     idioma,
+                    "USD",
                   ),
                 })
               : null}
@@ -301,7 +308,7 @@ export function CalculadoraFactura({
                     {p.titulo}
                   </span>
                   <span className="shrink-0 text-sm font-semibold tabular-nums">
-                    {formatearPrecio(p.precioCentavos, idioma)}
+                    {formatearPrecio(p.precioCentavos, idioma, "USD")}
                   </span>
                 </label>
               </li>
@@ -335,6 +342,7 @@ export function CalculadoraFactura({
                   diferencia: formatearPrecio(
                     Math.abs(cuadre.diferenciaCentavos),
                     idioma,
+                    "USD",
                   ),
                   senal:
                     cuadre.diferenciaCentavos > 0 ? t("sobra") : t("falta"),
@@ -349,14 +357,14 @@ export function CalculadoraFactura({
                     <span className="font-bold tabular-nums">{l.cantidad}</span>
                     <span className="text-tinta-suave"> × </span>
                     <span className="tabular-nums">
-                      {formatearPrecio(l.precioCentavos, idioma)}
+                      {formatearPrecio(l.precioCentavos, idioma, "USD")}
                     </span>
                     <span className="block text-xs text-tinta-suave">
                       {l.titulo}
                     </span>
                   </td>
                   <td className="py-2 text-right font-semibold tabular-nums">
-                    {formatearPrecio(l.subtotalCentavos, idioma)}
+                    {formatearPrecio(l.subtotalCentavos, idioma, "USD")}
                   </td>
                 </tr>
               ))}
@@ -368,14 +376,14 @@ export function CalculadoraFactura({
             <div className="flex justify-between gap-3">
               <dt className="text-tinta-suave">{t("pagaElCliente")}</dt>
               <dd className="text-lg font-bold tabular-nums">
-                {formatearPrecio(cifras.pagaElCliente, idioma)}
+                {formatearPrecio(cifras.pagaElCliente, idioma, "USD")}
               </dd>
             </div>
             {cifras.procesador > 0 ? (
               <div className="flex justify-between gap-3">
                 <dt className="text-tinta-suave">{t("procesador")}</dt>
                 <dd className="tabular-nums">
-                  −{formatearPrecio(cifras.procesador, idioma)}
+                  −{formatearPrecio(cifras.procesador, idioma, "USD")}
                 </dd>
               </div>
             ) : null}
@@ -384,13 +392,13 @@ export function CalculadoraFactura({
                 {t("margen", { pct: comisionPuntosBase / 100 })}
               </dt>
               <dd className="tabular-nums">
-                −{formatearPrecio(cifras.margen, idioma)}
+                −{formatearPrecio(cifras.margen, idioma, "USD")}
               </dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt className="font-semibold">{t("recibeElComercio")}</dt>
               <dd className="text-precio-700 text-lg font-bold tabular-nums">
-                {formatearPrecio(cifras.recibeElComercio, idioma)}
+                {formatearPrecio(cifras.recibeElComercio, idioma, "USD")}
               </dd>
             </div>
           </dl>
@@ -444,12 +452,20 @@ export function CalculadoraFactura({
                       {[
                         {
                           clave: "escrito" as const,
-                          titulo: formatearPrecio(objetivoCentavos, idioma),
+                          titulo: formatearPrecio(
+                            objetivoCentavos,
+                            idioma,
+                            "USD",
+                          ),
                           detalle: t("montoEscrito"),
                         },
                         {
                           clave: "cuadrado" as const,
-                          titulo: formatearPrecio(cuadre.totalCentavos, idioma),
+                          titulo: formatearPrecio(
+                            cuadre.totalCentavos,
+                            idioma,
+                            "USD",
+                          ),
                           detalle: t("montoCuadrado"),
                         },
                       ].map((o) => (
@@ -479,7 +495,7 @@ export function CalculadoraFactura({
                      ella, el botón seguiría diciendo la cifra anterior. */
                   key={aCobrar}
                   totalCentavos={aCobrar}
-                  montoTexto={formatearPrecio(aCobrar, idioma)}
+                  montoTexto={formatearPrecio(aCobrar, idioma, "USD")}
                   metodo={metodo}
                   tiendaId={tiendaId}
                   referenciaSugerida={referenciaSugerida}

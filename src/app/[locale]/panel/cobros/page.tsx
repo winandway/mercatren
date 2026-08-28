@@ -19,6 +19,8 @@ import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { cn } from "@/lib/utils";
+import { mercadoDelPanel } from "@/lib/mercado/panel";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +61,7 @@ export default async function PaginaCobrosTarjeta({
 
   const filtros = await searchParams;
   const t = await getTranslations("panel.cobros");
+  const monedaMirada = monedaDelMercado(await mercadoDelPanel());
   const esEquipo = await esEquipoInterno();
 
   const [resumen, listado, disputas] = await Promise.all([
@@ -120,7 +123,11 @@ export default async function PaginaCobrosTarjeta({
           tono="principal"
           Icono={CheckCircle2}
           titulo={t("tarjetas.cobrado")}
-          valor={formatearPrecio(resumen.montoConfirmadoCentavos, idioma)}
+          valor={formatearPrecio(
+            resumen.montoConfirmadoCentavos,
+            idioma,
+            monedaMirada,
+          )}
           pie={t("tarjetas.cobradoPie", { n: resumen.confirmados })}
         />
         <TarjetaMetrica
@@ -142,7 +149,11 @@ export default async function PaginaCobrosTarjeta({
           titulo={t("tarjetas.contracargos")}
           valor={String(resumen.disputasAbiertas)}
           pie={t("tarjetas.contracargosPie", {
-            monto: formatearPrecio(resumen.montoDisputadoCentavos, idioma),
+            monto: formatearPrecio(
+              resumen.montoDisputadoCentavos,
+              idioma,
+              monedaMirada,
+            ),
           })}
         />
       </section>

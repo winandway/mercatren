@@ -207,11 +207,15 @@ export default async function PaginaPedido({
                 <span className="line-clamp-2">{r.titulo}</span>
                 <span className="text-xs text-tinta-suave">
                   {r.cantidad} ×{" "}
-                  {formatearPrecio(r.precioUnitarioCentavos, idioma)}
+                  {formatearPrecio(
+                    r.precioUnitarioCentavos,
+                    idioma,
+                    pedido.moneda,
+                  )}
                 </span>
               </span>
               <span className="shrink-0 text-sm font-semibold tabular-nums">
-                {formatearPrecio(r.subtotalCentavos, idioma)}
+                {formatearPrecio(r.subtotalCentavos, idioma, pedido.moneda)}
               </span>
             </li>
           ))}

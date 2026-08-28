@@ -61,6 +61,9 @@ export function ListaCarrito() {
   }
 
   const total = sumarCarrito(lineas);
+  /* Un carrito no mezcla destinos, así que tampoco mezcla monedas: la del
+     carrito es la de su primera línea. Vacío no dibuja totales. */
+  const monedaDelCarrito = lineas[0]?.moneda ?? "USD";
 
   const mezclado = carritoMezclado(lineas);
 
@@ -239,7 +242,7 @@ export function ListaCarrito() {
           <div className="flex justify-between gap-3">
             <dt className="text-tinta-suave">{t("subtotal")}</dt>
             <dd className="font-medium tabular-nums">
-              {formatearPrecio(total, idioma)}
+              {formatearPrecio(total, idioma, monedaDelCarrito)}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
@@ -250,7 +253,9 @@ export function ListaCarrito() {
           </div>
           <div className="flex justify-between gap-3 border-t border-borde pt-2 text-base font-bold">
             <dt>{t("total")}</dt>
-            <dd className="tabular-nums">{formatearPrecio(total, idioma)}</dd>
+            <dd className="tabular-nums">
+              {formatearPrecio(total, idioma, monedaDelCarrito)}
+            </dd>
           </div>
         </dl>
 

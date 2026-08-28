@@ -41,7 +41,7 @@ export function AlertasDelComprobante({ alertas }: { alertas: Alerta[] }) {
         const datos = Object.fromEntries(
           Object.entries(a.datos ?? {}).map(([clave, valor]) =>
             typeof valor === "number" && clave.startsWith("del")
-              ? [clave, formatearPrecio(valor, idioma)]
+              ? [clave, formatearPrecio(valor, idioma, "USD")]
               : [clave, valor],
           ),
         );

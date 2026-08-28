@@ -187,7 +187,7 @@ export default async function PaginaMisProductos({
                 </p>
                 <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-tinta-suave">
                   <span className="font-semibold text-tinta tabular-nums">
-                    {formatearPrecio(p.precioCentavos, idioma)}
+                    {formatearPrecio(p.precioCentavos, idioma, p.moneda)}
                   </span>
                   <span className="tabular-nums">
                     {p.controlaExistencias

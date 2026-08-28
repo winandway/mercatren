@@ -98,7 +98,7 @@ export default async function PaginaPagosZelle({
           titulo={t(
             interno ? "tarjetas.ingresos" : "tarjetas.ingresosComercio",
           )}
-          valor={formatearPrecio(entradas.montoAprobadoCentavos, idioma)}
+          valor={formatearPrecio(entradas.montoAprobadoCentavos, idioma, "USD")}
           pie={t(
             interno ? "tarjetas.ingresosPie" : "tarjetas.ingresosPieComercio",
             { n: entradas.aprobados },
@@ -109,7 +109,7 @@ export default async function PaginaPagosZelle({
           titulo={t(
             interno ? "tarjetas.comision" : "tarjetas.comisionComercio",
           )}
-          valor={formatearPrecio(entradas.comisionCentavos, idioma)}
+          valor={formatearPrecio(entradas.comisionCentavos, idioma, "USD")}
           pie={t(
             interno ? "tarjetas.comisionPie" : "tarjetas.comisionPieComercio",
           )}
@@ -117,7 +117,7 @@ export default async function PaginaPagosZelle({
         <TarjetaMetrica
           Icono={Wallet}
           titulo={t(interno ? "tarjetas.neto" : "tarjetas.netoComercio")}
-          valor={formatearPrecio(entradas.netoCentavos, idioma)}
+          valor={formatearPrecio(entradas.netoCentavos, idioma, "USD")}
           pie={t(interno ? "tarjetas.netoPie" : "tarjetas.netoPieComercio")}
         />
         {/* «Comercios activos: 1» no le dice nada a un comercio. */}
@@ -139,7 +139,11 @@ export default async function PaginaPagosZelle({
               ? "tarjetas.pendientesPie"
               : "tarjetas.pendientesPieComercio",
             {
-              monto: formatearPrecio(entradas.montoPendienteCentavos, idioma),
+              monto: formatearPrecio(
+                entradas.montoPendienteCentavos,
+                idioma,
+                "USD",
+              ),
             },
           )}
         />
@@ -194,6 +198,7 @@ export default async function PaginaPagosZelle({
                 monto: formatearPrecio(
                   listado.sumaFiltrada.montoCentavos,
                   idioma,
+                  "USD",
                 ),
               })}
             </p>

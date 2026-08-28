@@ -170,13 +170,13 @@ export default async function FichaDeUsuario({
               <div className="rounded-lg bg-slate-50 px-4 py-3">
                 <dt className="text-xs text-tinta-suave">{t("bruto")}</dt>
                 <dd className="mt-0.5 text-lg font-bold tabular-nums">
-                  {formatearPrecio(resumen.brutoCentavos, idioma)}
+                  {formatearPrecio(resumen.brutoCentavos, idioma, "USD")}
                 </dd>
               </div>
               <div className="rounded-lg bg-slate-50 px-4 py-3">
                 <dt className="text-xs text-tinta-suave">{t("neto")}</dt>
                 <dd className="mt-0.5 text-lg font-bold tabular-nums">
-                  {formatearPrecio(resumen.netoCentavos, idioma)}
+                  {formatearPrecio(resumen.netoCentavos, idioma, "USD")}
                 </dd>
               </div>
             </dl>

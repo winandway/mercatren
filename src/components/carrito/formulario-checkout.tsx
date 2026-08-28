@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/formulario-persistente";
 import { Campo } from "@/components/ui/campo";
 import { camposDeEntrega, listaDeEstados } from "@/lib/destino/direccion";
+import { metodosDelDestino } from "@/lib/destino/metodos";
 import { Link, useRouter } from "@/i18n/navigation";
 import { sumarCarrito, useCarrito } from "@/lib/carrito/store";
 import {
@@ -155,7 +156,21 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   const soloEnvio = envio.destino !== "VE";
   const formaReal = soloEnvio ? "envio" : forma;
 
-  const esZelle = metodo === "zelle";
+  /* ══ SOLO TARJETA FUERA DE EE. UU. Y VENEZUELA (28 ago 2026) ══
+     Decisión del dueño: «Mercatren de Chile no usa Zelle. Pura tarjeta y ya
+     está. Colombia también.» La regla vive en metodosDelDestino() — aquí los
+     métodos que no existen en el país NO SE DIBUJAN (ni en gris), y si el
+     estado traía «zelle» de antes de conocerse el destino, se corrige solo.
+     El candado de verdad sigue en el servidor (crearPedido). */
+  /* La moneda del carrito: no se mezclan destinos, no se mezclan monedas. */
+  const monedaDelCarrito = lineas[0]?.moneda ?? "USD";
+  const ofrecidos = metodosDelDestino(envio.destino);
+  const metodosVisibles = METODOS.filter((m) => ofrecidos.includes(m.valor));
+  const metodoReal = ofrecidos.includes(metodo as (typeof ofrecidos)[number])
+    ? metodo
+    : "stripe";
+
+  const esZelle = metodoReal === "zelle";
   /* El envío solo se cobra si lo eligió Y hay quien despache. */
   const costoEnvio = formaReal === "envio" ? envio.costoCentavos : 0;
   const totalAMostrar = (esZelle ? totalZelle : total) + costoEnvio;
@@ -184,7 +199,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           referencia: texto("referencia"),
           notas: texto("notas"),
         },
-        metodoPago: metodo as "zelle" | "stripe",
+        metodoPago: metodoReal as "zelle" | "stripe",
         formaEntrega: formaReal,
         lineas: lineas.map((l) => ({
           productoId: l.productoId,
@@ -260,7 +275,11 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                     <span className="block text-xs text-tinta-suave">
                       {opcion === "retiro"
                         ? te("opcionRetiroTexto")
-                        : formatearPrecio(envio.costoCentavos, idioma)}
+                        : formatearPrecio(
+                            envio.costoCentavos,
+                            idioma,
+                            monedaDelCarrito,
+                          )}
                     </span>
                   </span>
                 </label>
@@ -370,27 +389,18 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           <h2 className="text-lg font-bold">{t("pago.titulo")}</h2>
 
           <ul className="mt-4 space-y-2">
-            {METODOS.map((m) => {
+            {metodosVisibles.map((m) => {
               /* Zelle es para montos grandes: bajo $200 se deshabilita con el
                  motivo a la vista. El servidor lo vuelve a comprobar. */
               const zelleCorto =
                 m.valor === "zelle" && total < ZELLE_MINIMO_CENTAVOS;
-              /* ══ ZELLE ES DE ESTADOS UNIDOS (27 ago 2026) ══
-                 Un comprador chileno o colombiano no tiene Zelle: es una red
-                 entre bancos de EE. UU. Ofrecérselo es el mismo error del
-                 método que no sale — elige, no puede terminar, y la compra se
-                 pierde ahí. En .cl y .com.co la tarjeta es el único método. */
-              const zelleFuera =
-                m.valor === "zelle" &&
-                envio.destino !== "VE" &&
-                envio.destino !== "US";
-              const disponible = m.disponible && !zelleCorto && !zelleFuera;
+              const disponible = m.disponible && !zelleCorto;
               return (
                 <li key={m.valor}>
                   <label
                     className={cn(
                       "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
-                      metodo === m.valor
+                      metodoReal === m.valor
                         ? "border-carga-500 bg-carga-500/5"
                         : "border-borde hover:border-riel-700",
                       !disponible && "cursor-not-allowed opacity-60",
@@ -400,7 +410,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                       type="radio"
                       name="metodo"
                       value={m.valor}
-                      checked={metodo === m.valor}
+                      checked={metodoReal === m.valor}
                       disabled={!disponible}
                       onChange={() => setMetodo(m.valor)}
                       className="mt-1 accent-carga-500"
@@ -440,7 +450,11 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                 {l.cantidad} × {l.titulo}
               </span>
               <span className="shrink-0 tabular-nums">
-                {formatearPrecio(l.precioCentavos * l.cantidad, idioma)}
+                {formatearPrecio(
+                  l.precioCentavos * l.cantidad,
+                  idioma,
+                  l.moneda,
+                )}
               </span>
             </li>
           ))}
@@ -450,7 +464,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
           <p className="mt-2 flex justify-between text-xs text-tinta-suave">
             <span>{te("lineaEnvio")}</span>
             <span className="tabular-nums">
-              {formatearPrecio(costoEnvio, idioma)}
+              {formatearPrecio(costoEnvio, idioma, monedaDelCarrito)}
             </span>
           </p>
         ) : null}
@@ -458,14 +472,14 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
         <p className="mt-3 flex justify-between border-t border-borde pt-3 text-base font-bold">
           <span>{tc("total")}</span>
           <span className="tabular-nums">
-            {formatearPrecio(totalAMostrar, idioma)}
+            {formatearPrecio(totalAMostrar, idioma, monedaDelCarrito)}
           </span>
         </p>
 
         {esZelle && ahorroZelle > 0 ? (
           <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
             {t("pago.ahorroZelle", {
-              monto: formatearPrecio(ahorroZelle, idioma),
+              monto: formatearPrecio(ahorroZelle, idioma, monedaDelCarrito),
             })}
           </p>
         ) : null}

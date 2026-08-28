@@ -18,17 +18,17 @@ import {
 
 describe("formatearPrecio", () => {
   it("muestra los centavos como precio en dolares", () => {
-    expect(formatearPrecio(129900)).toBe("$1,299.00");
+    expect(formatearPrecio(129900, "es", "USD")).toBe("$1,299.00");
   });
 
   it("no pierde el centavo suelto", () => {
-    expect(formatearPrecio(1)).toBe("$0.01");
-    expect(formatearPrecio(999)).toBe("$9.99");
+    expect(formatearPrecio(1, "es", "USD")).toBe("$0.01");
+    expect(formatearPrecio(999, "es", "USD")).toBe("$9.99");
   });
 
   it("usa el mismo formato de Estados Unidos en los dos idiomas", () => {
-    expect(formatearPrecio(250000, "en")).toBe("$2,500.00");
-    expect(formatearPrecio(250000, "es")).toBe("$2,500.00");
+    expect(formatearPrecio(250000, "en", "USD")).toBe("$2,500.00");
+    expect(formatearPrecio(250000, "es", "USD")).toBe("$2,500.00");
   });
 });
 

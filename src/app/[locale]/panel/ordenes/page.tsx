@@ -24,6 +24,8 @@ import { cn } from "@/lib/utils";
 import { listarComercios, listarPagos } from "@/lib/zelle/consultas";
 import { lineasDePagos } from "@/lib/zelle/lineas";
 import { aPagoVista } from "@/lib/zelle/vista";
+import { mercadoDelPanel } from "@/lib/mercado/panel";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +66,10 @@ export default async function PaginaOrdenes({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.ordenes");
+  /* La moneda de los TOTALES es la del país mirado en el selector: la vista
+     ya viene filtrada por él, así que no mezcla monedas. Cada fila usa la
+     suya propia. */
+  const monedaMirada = monedaDelMercado(await mercadoDelPanel());
 
   /* El rol REAL de la sesión, no el alcance: con «Ver su panel» el alcance es
      el de un comercio, y el botón de entrega no puede aparecer ahí. */
@@ -258,7 +264,7 @@ export default async function PaginaOrdenes({
                     </div>
 
                     <p className="text-lg font-extrabold tabular-nums">
-                      {formatearPrecio(p.montoCentavos, idioma)}
+                      {formatearPrecio(p.montoCentavos, idioma, p.moneda)}
                     </p>
                   </div>
 
@@ -324,7 +330,11 @@ export default async function PaginaOrdenes({
             {tt("seccion")}
             <span className="ml-2 font-normal text-tinta-suave">
               {tt("cuantas", { n: ventas.total })} ·{" "}
-              {formatearPrecio(ventas.sumaFiltrada.montoCentavos, idioma)}
+              {formatearPrecio(
+                ventas.sumaFiltrada.montoCentavos,
+                idioma,
+                monedaMirada,
+              )}
             </span>
           </summary>
 

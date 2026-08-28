@@ -82,6 +82,7 @@ export async function listarMisProductos(filtros: FiltrosMisProductos = {}) {
       tituloEs: productos.tituloEs,
       sku: productos.sku,
       precioCentavos: productos.precioCentavos,
+      moneda: productos.moneda,
       existencias: productos.existencias,
       controlaExistencias: productos.controlaExistencias,
       unidad: productos.unidad,

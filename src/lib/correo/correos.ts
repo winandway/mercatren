@@ -97,6 +97,8 @@ type DatosPedido = {
   totalCentavos: number;
   /** Lo que se cobró de envío. Cero o ausente = se retira en el local. */
   envioCentavos?: number;
+  /** La moneda del pedido: un correo chileno enseña pesos, no dólares. */
+  moneda?: string;
 };
 
 /**
@@ -128,13 +130,21 @@ export async function correoGraciasCompra(
         ? [
             {
               etiqueta: t("comun.envio"),
-              valor: formatearPrecio(pedido.envioCentavos, idioma),
+              valor: formatearPrecio(
+                pedido.envioCentavos,
+                idioma,
+                pedido.moneda ?? "USD",
+              ),
             },
           ]
         : []),
       {
         etiqueta: t("comun.total"),
-        valor: formatearPrecio(pedido.totalCentavos, idioma),
+        valor: formatearPrecio(
+          pedido.totalCentavos,
+          idioma,
+          pedido.moneda ?? "USD",
+        ),
       },
       ...puntos.map((p, i) => ({
         etiqueta:
@@ -180,7 +190,11 @@ export async function correoComprobanteRecibido(
       { etiqueta: t("comun.pedido"), valor: pedido.numero },
       {
         etiqueta: t("comun.monto"),
-        valor: formatearPrecio(pedido.totalCentavos, idioma),
+        valor: formatearPrecio(
+          pedido.totalCentavos,
+          idioma,
+          pedido.moneda ?? "USD",
+        ),
       },
     ],
     boton: {
@@ -225,7 +239,7 @@ export async function correoEnlaceDeCobro(
       ? t("enlaceDeCobro.asunto", { comercio: cobro.comercio })
       : t("enlaceDeCobro.asuntoSolo"),
     previo: t("enlaceDeCobro.previo", {
-      monto: formatearPrecio(cobro.montoCentavos, idioma),
+      monto: formatearPrecio(cobro.montoCentavos, idioma, "USD"),
     }),
     saludo,
     titulo: nombrar
@@ -241,7 +255,7 @@ export async function correoEnlaceDeCobro(
       { etiqueta: t("enlaceDeCobro.referencia"), valor: cobro.referencia },
       {
         etiqueta: t("comun.monto"),
-        valor: formatearPrecio(cobro.montoCentavos, idioma),
+        valor: formatearPrecio(cobro.montoCentavos, idioma, "USD"),
       },
     ],
     boton: { texto: t("enlaceDeCobro.boton"), url: cobro.url },
@@ -263,7 +277,7 @@ export async function correoReciboDeCobro(
   cobro: { comercio: string; referencia: string; montoCentavos: number },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(cobro.montoCentavos, idioma);
+  const monto = formatearPrecio(cobro.montoCentavos, idioma, "USD");
 
   return enviar(d, {
     asunto: t("reciboDeCobro.asunto", { comercio: cobro.comercio }),
@@ -319,9 +333,9 @@ export async function correoMontoCorregido(
   },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const factura = formatearPrecio(cobro.montoFacturaCentavos, idioma);
-  const recibido = formatearPrecio(cobro.montoRecibidoCentavos, idioma);
-  const falta = formatearPrecio(cobro.faltaCentavos, idioma);
+  const factura = formatearPrecio(cobro.montoFacturaCentavos, idioma, "USD");
+  const recibido = formatearPrecio(cobro.montoRecibidoCentavos, idioma, "USD");
+  const falta = formatearPrecio(cobro.faltaCentavos, idioma, "USD");
 
   return enviar(d, {
     asunto: t("montoCorregido.asunto", { referencia: cobro.referencia }),
@@ -361,7 +375,7 @@ export async function correoComprobanteDeCobroRecibido(
   cobro: { referencia: string; montoCentavos: number },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(cobro.montoCentavos, idioma);
+  const monto = formatearPrecio(cobro.montoCentavos, idioma, "USD");
 
   return enviar(d, {
     asunto: t("comprobanteCobro.asunto", { referencia: cobro.referencia }),
@@ -399,13 +413,21 @@ export async function correoCompraAprobada(
         ? [
             {
               etiqueta: t("comun.envio"),
-              valor: formatearPrecio(pedido.envioCentavos, idioma),
+              valor: formatearPrecio(
+                pedido.envioCentavos,
+                idioma,
+                pedido.moneda ?? "USD",
+              ),
             },
           ]
         : []),
       {
         etiqueta: t("comun.total"),
-        valor: formatearPrecio(pedido.totalCentavos, idioma),
+        valor: formatearPrecio(
+          pedido.totalCentavos,
+          idioma,
+          pedido.moneda ?? "USD",
+        ),
       },
     ],
     boton: {
@@ -451,7 +473,7 @@ export async function correoVentaAcreditada(
   venta: { montoCentavos: number; referencia?: string | null },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(venta.montoCentavos, idioma);
+  const monto = formatearPrecio(venta.montoCentavos, idioma, "USD");
 
   return enviar(d, {
     asunto: t("ventaAcreditada.asunto", { monto }),
@@ -610,7 +632,7 @@ export async function correoAvisoRetiroSolicitado(d: {
   forma: string;
 }) {
   const t = await getTranslations({ locale: "es", namespace: "correos" });
-  const monto = formatearPrecio(d.montoCentavos, "es");
+  const monto = formatearPrecio(d.montoCentavos, "es", "USD");
 
   return correoAvisoAlEquipo({
     asunto: t("retiroSolicitado.asunto", { monto, comercio: d.comercio }),
@@ -629,7 +651,7 @@ export async function correoRetiroPagado(
   retiro: { montoCentavos: number; referencia?: string | null },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(retiro.montoCentavos, idioma);
+  const monto = formatearPrecio(retiro.montoCentavos, idioma, "USD");
 
   return enviar(d, {
     asunto: t("retiroPagado.asunto", { monto }),
@@ -662,7 +684,7 @@ export async function correoRetiroRechazado(
   motivoRechazo: string,
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(retiro.montoCentavos, idioma);
+  const monto = formatearPrecio(retiro.montoCentavos, idioma, "USD");
 
   return enviar(d, {
     asunto: t("retiroRechazado.asunto", { monto }),
@@ -763,13 +785,21 @@ export async function correoPedidoEntregado(
         ? [
             {
               etiqueta: t("comun.envio"),
-              valor: formatearPrecio(pedido.envioCentavos, idioma),
+              valor: formatearPrecio(
+                pedido.envioCentavos,
+                idioma,
+                pedido.moneda ?? "USD",
+              ),
             },
           ]
         : []),
       {
         etiqueta: t("comun.total"),
-        valor: formatearPrecio(pedido.totalCentavos, idioma),
+        valor: formatearPrecio(
+          pedido.totalCentavos,
+          idioma,
+          pedido.moneda ?? "USD",
+        ),
       },
     ],
     resaltado: { texto: t("pedidoEntregado.aviso"), tono: "bien" },

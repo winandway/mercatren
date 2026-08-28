@@ -2806,9 +2806,14 @@ punta a punta. Lo que hay que saber al tocar esto:
 - **El IVA chileno se DESGLOSA del precio** (`impuestosCentavos`), no se suma,
   y el resumen del F129 por trimestre vive en Configuración. Se declara en
   USD dentro de los 20 días del cierre; sin ventas no se declara.
-- **Zelle no existe fuera de EE. UU./VE** — candado en el checkout Y en
-  `crearPedido`. La transferencia ACH tampoco se ofrece allá (la página del
-  cobro por enlace es otra historia y no cambió).
+- **CHILE Y COLOMBIA SON PURA TARJETA — decisión del dueño, 28 ago 2026.**
+  Sus palabras: «Mercatren de Chile no usa Zelle. Va a ser pura tarjeta y ya
+  está. Colombia también.» Zelle no existe fuera de EE. UU./VE: la regla vive
+  en `src/lib/destino/metodos.ts` (pura, con pruebas), el checkout **ni lo
+  dibuja** (antes salía en gris — para un chileno es ruido de otro país) y
+  `crearPedido` lo rechaza en el servidor. La transferencia ACH tampoco se
+  ofrece allá (la página del cobro por enlace es otra historia y no cambió).
+  `tests/unit/metodos-por-destino.test.ts` fija las tres capas.
 - **`paisDestino` guarda ahora el CÓDIGO** («CL»), pero los pedidos viejos
   tienen el nombre («United States»): `destinoDeEnvio` entiende los dos. Sin
   esa tabla, el reintento de una compra de ayer fallaba.

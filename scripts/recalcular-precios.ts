@@ -113,10 +113,14 @@ console.log(`  cambian de precio:   ${cambios.length}`);
 console.log(`  ya estaban bien:     ${yaCorrectos}`);
 console.log(`  sin precio base:     ${sinBase} (no se tocan)`);
 console.log("");
-console.log(`Suma publicada antes:  ${formatearPrecio(sumaAntes)}`);
-console.log(`Suma publicada después:${formatearPrecio(sumaDespues)}`);
 console.log(
-  `Diferencia:            ${formatearPrecio(sumaDespues - sumaAntes)}`,
+  `Suma publicada antes:  ${formatearPrecio(sumaAntes, "es", "USD")}`,
+);
+console.log(
+  `Suma publicada después:${formatearPrecio(sumaDespues, "es", "USD")}`,
+);
+console.log(
+  `Diferencia:            ${formatearPrecio(sumaDespues - sumaAntes, "es", "USD")}`,
 );
 console.log("");
 console.log(`Escrito en ${SALIDA}`);

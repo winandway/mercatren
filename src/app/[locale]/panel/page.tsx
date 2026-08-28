@@ -276,6 +276,7 @@ export default async function PaginaResumen({
                 monto: formatearPrecio(
                   resumen.entradas.montoAprobadoCentavos,
                   idioma,
+                  "USD",
                 ),
               },
             )}

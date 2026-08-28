@@ -45,9 +45,11 @@
        DESTINOS, su PLAZO honesto (conservador hasta medirlo), sus campos de
        dirección y su lista de estados/regiones/departamentos (nombre
        completo sin acentos fuera de EE. UU.).
-6. [ ] **Checkout**: solo envío, solo los métodos que el comprador de allá
-       puede usar (Zelle/ACH son de EE. UU.), Stripe en la moneda del pedido,
-       y el impuesto anotado en `impuestosCentavos` si aplica.
+6. [ ] **Checkout**: solo envío y **SOLO TARJETA** (decisión del dueño,
+       28 ago 2026: fuera de EE. UU./VE los demás métodos NI SE DIBUJAN —
+       la regla vive en `src/lib/destino/metodos.ts` y el servidor la
+       repite en `crearPedido`), Stripe en la moneda del pedido, y el
+       impuesto anotado en `impuestosCentavos` si aplica.
 7. [ ] **Pedido a CJ** (`cj/destino-fiscal.ts`): el país en la tabla, el
        `taxId` si el régimen lo exige, y el almacén correcto de origen.
 8. [ ] **Textos de la vitrina**: hero y subtítulo del país, pie sin
@@ -90,20 +92,20 @@
 
 ## Los países, contra esta lista
 
-| Casilla                            | US  | CL      | CO                 | RO (próximo) |
-| ---------------------------------- | --- | ------- | ------------------ | ------------ |
-| Mercado + plaza + almacén          | ✅  | ✅      | ✅                 | —            |
-| Precio con pruebas                 | ✅  | ✅      | ✅                 | —            |
-| Tasa automática                    | n/a | ✅      | ✅                 | —            |
-| Destino + dirección                | ✅  | ✅      | ✅                 | —            |
-| Checkout (moneda/métodos/impuesto) | ✅  | ✅      | ✅                 | —            |
-| Pedido a CJ (país/taxId/almacén)   | ✅  | ✅      | ✅                 | —            |
-| Textos + og + meta + franja        | ✅  | ✅      | ✅                 | —            |
-| Panel por selector                 | ✅  | ✅      | ✅                 | —            |
-| Código público MT                  | ✅  | ✅      | ✅                 | —            |
-| Reporte fiscal                     | n/a | ✅ F129 | n/a                | —            |
-| Bandera en el encabezado           | n/a | ✅      | ✅                 | —            |
-| Video del hero del país            | n/a | ✅      | ✅                 | —            |
-| 👤 Turnstile del dominio           | ✅  | ⬜      | ⬜                 | —            |
-| 👤 Compra de prueba                | ⬜  | ⬜      | ⬜                 | —            |
-| 👤 Impuestos con contador          | n/a | ✅ SII  | ⬜ decisión aduana | ⬜ IVA UE    |
+| Casilla                             | US  | CL      | CO                 | RO (próximo) |
+| ----------------------------------- | --- | ------- | ------------------ | ------------ |
+| Mercado + plaza + almacén           | ✅  | ✅      | ✅                 | —            |
+| Precio con pruebas                  | ✅  | ✅      | ✅                 | —            |
+| Tasa automática                     | n/a | ✅      | ✅                 | —            |
+| Destino + dirección                 | ✅  | ✅      | ✅                 | —            |
+| Checkout (moneda/SOLO tarjeta/imp.) | ✅  | ✅      | ✅                 | —            |
+| Pedido a CJ (país/taxId/almacén)    | ✅  | ✅      | ✅                 | —            |
+| Textos + og + meta + franja         | ✅  | ✅      | ✅                 | —            |
+| Panel por selector                  | ✅  | ✅      | ✅                 | —            |
+| Código público MT                   | ✅  | ✅      | ✅                 | —            |
+| Reporte fiscal                      | n/a | ✅ F129 | n/a                | —            |
+| Bandera en el encabezado            | n/a | ✅      | ✅                 | —            |
+| Video del hero del país             | n/a | ✅      | ✅                 | —            |
+| 👤 Turnstile del dominio            | ✅  | ⬜      | ⬜                 | —            |
+| 👤 Compra de prueba                 | ⬜  | ⬜      | ⬜                 | —            |
+| 👤 Impuestos con contador           | n/a | ✅ SII  | ⬜ decisión aduana | ⬜ IVA UE    |

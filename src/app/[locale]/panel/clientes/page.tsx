@@ -8,6 +8,8 @@ import { obtenerAlcance } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 import { listarClientes } from "@/lib/pedidos/consultas";
+import { mercadoDelPanel } from "@/lib/mercado/panel";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,7 @@ export default async function PaginaClientes({
   const idioma = locale as Idioma;
 
   const t = await getTranslations("panel.clientes");
+  const monedaMirada = monedaDelMercado(await mercadoDelPanel());
   const tm = await getTranslations("panel.menu");
   const { comercio, q } = await searchParams;
   const busqueda = (q ?? "").trim().slice(0, 80);
@@ -105,7 +108,7 @@ export default async function PaginaClientes({
 
               <p className="shrink-0 text-right">
                 <span className="block text-lg font-extrabold tabular-nums">
-                  {formatearPrecio(c.gastadoCentavos, idioma)}
+                  {formatearPrecio(c.gastadoCentavos, idioma, monedaMirada)}
                 </span>
                 <span className="block text-[12px] text-tinta-suave">
                   {t("columna.gastado")}

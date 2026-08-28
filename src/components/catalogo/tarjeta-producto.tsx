@@ -141,7 +141,11 @@ export function TarjetaProducto({
 
         {producto.precioAntesCentavos ? (
           <p className="text-xs text-tinta-suave tabular-nums line-through">
-            {formatearPrecio(producto.precioAntesCentavos, idioma)}
+            {formatearPrecio(
+              producto.precioAntesCentavos,
+              idioma,
+              producto.moneda,
+            )}
           </p>
         ) : null}
 

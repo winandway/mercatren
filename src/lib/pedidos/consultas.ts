@@ -120,6 +120,7 @@ export async function listarPedidosDelPanel(filtros: FiltrosPedidos = {}) {
       clienteNombre: user.name,
       clienteCorreo: user.email,
       montoCentavos: subtotal,
+      moneda: pedidos.moneda,
       articulos,
       estadoPago: sql<
         string | null

@@ -41,7 +41,7 @@ export async function DesgloseDelCobro({
   // Sin ventas no se dibuja: una tabla de ceros no explica nada.
   if (total.brutoCentavos <= 0) return null;
 
-  const dinero = (c: number) => formatearPrecio(c, idioma);
+  const dinero = (c: number) => formatearPrecio(c, idioma, "USD");
 
   const renglones = [
     { clave: "procesador", valor: total.procesadorCentavos, resta: true },

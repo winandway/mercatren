@@ -89,17 +89,23 @@ export function CalculadoraPrecio() {
           <dl className="mt-4 max-w-lg text-sm">
             <div className="flex justify-between gap-4 py-1.5">
               <dt className="text-tinta-suave">{t("base")}</dt>
-              <dd className="tabular-nums">{formatearPrecio(base, idioma)}</dd>
+              <dd className="tabular-nums">
+                {formatearPrecio(base, idioma, "USD")}
+              </dd>
             </div>
             <div className="flex justify-between gap-4 py-1.5">
               <dt className="text-tinta-suave">
                 {t("procesador", {
                   pct: pct(PROCESADOR_PORCENTAJE_PB),
-                  fijo: formatearPrecio(PROCESADOR_FIJO_CENTAVOS, idioma),
+                  fijo: formatearPrecio(
+                    PROCESADOR_FIJO_CENTAVOS,
+                    idioma,
+                    "USD",
+                  ),
                 })}
               </dt>
               <dd className="tabular-nums">
-                {formatearPrecio(procesador, idioma)}
+                {formatearPrecio(procesador, idioma, "USD")}
               </dd>
             </div>
             <div className="flex justify-between gap-4 py-1.5">
@@ -107,14 +113,14 @@ export function CalculadoraPrecio() {
                 {t("margen", { pct: pct(COMISION_TARJETA_PB) })}
               </dt>
               <dd className="tabular-nums">
-                {formatearPrecio(margen, idioma)}
+                {formatearPrecio(margen, idioma, "USD")}
               </dd>
             </div>
 
             <div className="mt-2 flex justify-between gap-4 border-t border-borde pt-3">
               <dt className="font-bold">{t("publicado")}</dt>
               <dd className="text-lg font-extrabold tabular-nums">
-                {formatearPrecio(publicado, idioma)}
+                {formatearPrecio(publicado, idioma, "USD")}
               </dd>
             </div>
 
@@ -123,7 +129,7 @@ export function CalculadoraPrecio() {
             <div className="mt-2 flex justify-between gap-4 rounded-lg bg-emerald-50 px-3 py-2 text-emerald-900">
               <dt className="font-semibold">{t("alProveedor")}</dt>
               <dd className="font-bold tabular-nums">
-                {formatearPrecio(alProveedor, idioma)}
+                {formatearPrecio(alProveedor, idioma, "USD")}
               </dd>
             </div>
           </dl>
@@ -133,10 +139,10 @@ export function CalculadoraPrecio() {
             <p className="font-semibold">{t("ojoTitulo")}</p>
             <p className="mt-1 leading-relaxed">
               {t("ojoTexto", {
-                sumado: formatearPrecio(ingenuo, idioma),
-                queda: formatearPrecio(ingenuoAlProveedor, idioma),
-                falta: formatearPrecio(Math.max(0, faltante), idioma),
-                correcto: formatearPrecio(publicado, idioma),
+                sumado: formatearPrecio(ingenuo, idioma, "USD"),
+                queda: formatearPrecio(ingenuoAlProveedor, idioma, "USD"),
+                falta: formatearPrecio(Math.max(0, faltante), idioma, "USD"),
+                correcto: formatearPrecio(publicado, idioma, "USD"),
               })}
             </p>
           </div>

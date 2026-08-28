@@ -294,7 +294,7 @@ export function Buscador({ idioma }: { idioma: Idioma }) {
 
               <span className="shrink-0 text-right">
                 <span className="block text-sm font-bold tabular-nums">
-                  {formatearPrecio(p.precioCentavos, idioma)}
+                  {formatearPrecio(p.precioCentavos, idioma, p.moneda)}
                 </span>
                 {p.agotado ? (
                   <span className="block text-[11px] text-tinta-suave">

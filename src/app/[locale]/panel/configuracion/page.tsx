@@ -654,13 +654,13 @@ export default async function PaginaConfiguracion({
                         ) : null}
                       </td>
                       <td className="py-2 pr-3 text-right tabular-nums">
-                        {formatearPrecio(d.baseCentavos, idioma)}
+                        {formatearPrecio(d.baseCentavos, idioma, "USD")}
                       </td>
                       <td className="py-2 pr-3 text-right tabular-nums">
-                        {formatearPrecio(d.publicadoCentavos, idioma)}
+                        {formatearPrecio(d.publicadoCentavos, idioma, "USD")}
                       </td>
                       <td className="py-2 text-right font-semibold tabular-nums">
-                        {formatearPrecio(d.deberiaCentavos, idioma)}
+                        {formatearPrecio(d.deberiaCentavos, idioma, "USD")}
                       </td>
                     </tr>
                   ))}

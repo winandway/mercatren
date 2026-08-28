@@ -27,10 +27,22 @@ export type Idioma = "es" | "en";
  *
  * Para el dólar el resultado es idéntico al de antes.
  */
+/**
+ * ══ LA MONEDA ES OBLIGATORIA (28 ago 2026) ══
+ *
+ * Tenía `moneda = "USD"` por defecto, y ese default era una trampa: 108
+ * llamadas repartidas por el sitio la omitían, y un pedido chileno de
+ * $19.990 CLP salía como «$199.90» en el checkout, la ficha, los correos y
+ * el panel — los pesos divididos entre 100 como si fueran dólares. Se vio
+ * en pantalla probando el checkout de Chile. Sin default, el compilador
+ * obliga a decidir la moneda en CADA llamada: donde el dato la trae, se
+ * pasa la del dato; donde el dominio es dólares por diseño (Zelle,
+ * retiros, billetera), se escribe "USD" a conciencia.
+ */
 export function formatearPrecio(
   centavos: number,
-  idioma: Idioma = "es",
-  moneda = "USD",
+  idioma: Idioma,
+  moneda: string,
 ) {
   return new Intl.NumberFormat(idioma === "es" ? "es-US" : "en-US", {
     style: "currency",

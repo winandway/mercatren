@@ -62,7 +62,11 @@ export async function acreditarPagoConTarjeta(
     .update(pedidos)
     .set({ estado: "pagado", actualizadoEn: ahora })
     .where(and(eq(pedidos.id, pedidoId), eq(pedidos.estado, "pendiente_pago")))
-    .returning({ numero: pedidos.numero, clienteId: pedidos.clienteId });
+    .returning({
+      numero: pedidos.numero,
+      clienteId: pedidos.clienteId,
+      moneda: pedidos.moneda,
+    });
 
   if (marcado.length === 0) return;
   const pedido = marcado[0];
@@ -196,6 +200,7 @@ export async function acreditarPagoConTarjeta(
       await correoCompraAprobada(cliente, {
         numero: pedido.numero,
         totalCentavos: montoCentavos,
+        moneda: pedido.moneda ?? "USD",
       });
     }
 

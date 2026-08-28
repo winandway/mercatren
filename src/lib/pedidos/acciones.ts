@@ -538,7 +538,12 @@ export async function crearPedido(
     { email: usuario.email, name: usuario.name, idioma: usuario.idioma },
     /* EL TOTAL, NO EL SUBTOTAL. Mandaba el subtotal, y desde que hay envío eso
        le enseña al comprador MENOS de lo que va a pagar. */
-    { numero, totalCentavos: total, envioCentavos },
+    {
+      numero,
+      totalCentavos: total,
+      envioCentavos,
+      moneda: encontrados[0]?.moneda ?? "USD",
+    },
     lineasDeRetiro(await puntosDeRetiro(pedidoId)),
   );
 
@@ -604,6 +609,7 @@ export async function listarPedidosPropios() {
       numero: pedidos.numero,
       estado: pedidos.estado,
       totalCentavos: pedidos.totalCentavos,
+      moneda: pedidos.moneda,
       creadoEn: pedidos.creadoEn,
       articulos: sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id})`,
       estadoPago: sql<

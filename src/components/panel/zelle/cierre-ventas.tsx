@@ -121,13 +121,13 @@ export function CierreVentas({
                   {f.pagos}
                 </td>
                 <td className="px-4 py-2.5 text-right font-semibold tabular-nums">
-                  {formatearPrecio(f.montoCentavos, idioma)}
+                  {formatearPrecio(f.montoCentavos, idioma, "USD")}
                 </td>
                 <td className="px-4 py-2.5 text-right text-tinta-suave tabular-nums">
-                  {formatearPrecio(f.comisionCentavos, idioma)}
+                  {formatearPrecio(f.comisionCentavos, idioma, "USD")}
                 </td>
                 <td className="px-4 py-2.5 text-right tabular-nums">
-                  {formatearPrecio(f.netoCentavos, idioma)}
+                  {formatearPrecio(f.netoCentavos, idioma, "USD")}
                 </td>
               </tr>
             ))}
@@ -139,13 +139,13 @@ export function CierreVentas({
                 {total.pagos}
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">
-                {formatearPrecio(total.monto, idioma)}
+                {formatearPrecio(total.monto, idioma, "USD")}
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">
-                {formatearPrecio(total.comision, idioma)}
+                {formatearPrecio(total.comision, idioma, "USD")}
               </td>
               <td className="px-4 py-2.5 text-right tabular-nums">
-                {formatearPrecio(total.neto, idioma)}
+                {formatearPrecio(total.neto, idioma, "USD")}
               </td>
             </tr>
           </tfoot>

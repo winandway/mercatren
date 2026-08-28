@@ -420,6 +420,7 @@ export default async function PaginaProducto({
                 total: formatearPrecio(
                   producto.precioCentavos * minimoDeCompra,
                   idioma,
+                  producto.moneda,
                 ),
               })}
             </p>
@@ -491,10 +492,16 @@ export default async function PaginaProducto({
               <p className="mt-1 text-sm">
                 <span className="text-tinta-suave tabular-nums line-through">
                   {t("antes")}{" "}
-                  {formatearPrecio(producto.precioAntesCentavos!, idioma)}
+                  {formatearPrecio(
+                    producto.precioAntesCentavos!,
+                    idioma,
+                    producto.moneda,
+                  )}
                 </span>{" "}
                 <span className="font-semibold text-precio-600">
-                  {t("ahorras", { monto: formatearPrecio(ahorro, idioma) })}
+                  {t("ahorras", {
+                    monto: formatearPrecio(ahorro, idioma, producto.moneda),
+                  })}
                 </span>
               </p>
             ) : null}

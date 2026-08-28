@@ -101,7 +101,7 @@ export default async function PaginaComercios({
                       {t("columnas.ingresos")}
                     </dt>
                     <dd className="font-semibold tabular-nums">
-                      {formatearPrecio(c.ingresosCentavos, idioma)}
+                      {formatearPrecio(c.ingresosCentavos, idioma, "USD")}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-3">
@@ -111,7 +111,7 @@ export default async function PaginaComercios({
                         className="h-3.5 w-3.5 text-tinta-suave"
                         aria-hidden
                       />
-                      {formatearPrecio(c.saldoCentavos, idioma)}
+                      {formatearPrecio(c.saldoCentavos, idioma, "USD")}
                     </dd>
                   </div>
                 </dl>
