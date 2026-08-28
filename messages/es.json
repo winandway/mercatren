@@ -1010,7 +1010,7 @@
         "ayuda": "Las cuatro tienen que estar, o el método no se ofrece: media instrucción bancaria manda el dinero a otra parte. El número de cuenta y la ruta NO se muestran aquí a propósito. Se cargan en YaDominios Cloud → el sitio → Variables de entorno, y después se republica. Ojo: Chase da una ruta para ACH y otra distinta para wire — aquí va la de ACH."
       },
       "tasasTitulo": "La tasa del dólar (Chile y Colombia)",
-      "tasasTexto": "Pesos por dólar, la del Banco Central del día. Es la que convierte los costos de CJ al precio en pesos de mercatren.cl y mercatren.com.co. Sin tasa, el catálogo de ese país no puede fijar precios.",
+      "tasasTexto": "La trae DolarApi sola y se refresca cada minuto y medio: nadie tiene que actualizarla a mano. Tú decides el ajuste que se le suma (% y monto fijo) y con eso se convierten los costos de CJ al precio en pesos de mercatren.cl y mercatren.com.co.",
       "f129": {
         "titulo": "IVA de Chile · resumen para el F129",
         "texto": "Lo cobrado de IVA chileno por trimestre, sumado de cada venta. Se declara dentro de los 20 días del cierre del trimestre, en USD: la conversión la cierra el contador con la tasa que corresponda. Sin ventas en el período, el SII no pide declaración.",
@@ -1315,6 +1315,16 @@
         "pinOk": "Listo.",
         "pinHaceFalta": "Primero escribe el PIN.",
         "demasiadosIntentos": "Demasiados intentos seguidos. Espera unos minutos."
+      },
+      "tasas": {
+        "paisInvalido": "Ese país no maneja tasa.",
+        "tasaInvalida": "Esa tasa no parece un tipo de cambio. Escríbela como la publica el banco, por ejemplo 967.42.",
+        "guardada": "Tasa guardada.",
+        "ajusteInvalido": "Ese ajuste se sale del rango cuerdo (±50% y ±1.000 pesos). Revisa el número.",
+        "ajusteGuardado": "Ajustes guardados. Aplican desde el próximo producto que se publique."
+      },
+      "configuracion": {
+        "sinPermiso": "Solo el equipo de soporte puede cambiar esto."
       }
     },
     "usuarios": {
@@ -2483,7 +2493,17 @@
       "actualizada": "Última actualización: {fecha}",
       "paisInvalido": "Ese país no maneja tasa.",
       "tasaInvalida": "Esa tasa no parece un tipo de cambio. Escríbela como la publica el Banco Central, por ejemplo 967.42.",
-      "guardada": "Tasa guardada."
+      "guardada": "Tasa guardada.",
+      "deLaApi": "DolarApi",
+      "seUsa": "Se usa:",
+      "enVivo": "En vivo · fuente: DolarApi (venta) · se refresca solo",
+      "guardadaDe": "⚠️ DolarApi no contesta: se usa la última tasa buena, del {fecha}. Vale 7 días.",
+      "sinTasa": "Sin tasa: DolarApi no contesta y la última guardada venció (7 días). El catálogo de este país no publica hasta que vuelva — o carga una tasa manual abajo como respaldo.",
+      "ajustePorciento": "Ajuste en %",
+      "ajusteFijo": "Ajuste fijo (pesos)",
+      "ajusteAyuda": "La tasa final = la de DolarApi + el % + el fijo. Se ajusta UNA vez y aplica a todo lo que se publique de ahí en adelante. Para subir 2% y 5 pesos: 2.00 y 5.00. También aceptan negativo.",
+      "ajusteInvalido": "Ese ajuste se sale del rango cuerdo (±50% y ±1.000 pesos). Revisa el número.",
+      "ajusteGuardado": "Ajustes guardados. Aplican desde el próximo producto que se publique."
     }
   },
   "catalogo": {

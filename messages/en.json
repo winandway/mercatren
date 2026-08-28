@@ -1010,7 +1010,7 @@
         "ayuda": "All four must be set or the method isn't offered: half a set of bank details sends the money somewhere else. The account and routing numbers are deliberately not shown here. Set them in YaDominios Cloud → the site → Environment variables, then republish. Note: Chase gives one routing number for ACH and a different one for wire — this is the ACH one."
       },
       "tasasTitulo": "Dollar exchange rate (Chile and Colombia)",
-      "tasasTexto": "Pesos per dollar, the central bank's rate for the day. It converts CJ costs into peso prices on mercatren.cl and mercatren.com.co. Without a rate, that country's catalog can't set prices.",
+      "tasasTexto": "DolarApi brings it in automatically, refreshing every minute and a half — nobody updates it by hand. You set the adjustment added on top (% and fixed amount), and that converts CJ costs into peso prices on mercatren.cl and mercatren.com.co.",
       "f129": {
         "titulo": "Chile VAT · F129 summary",
         "texto": "Chilean VAT collected per quarter, added up from each sale. It's filed within 20 days of quarter close, in USD: the accountant closes the conversion with the applicable rate. With no sales in the period, the SII requires no filing.",
@@ -1315,6 +1315,16 @@
         "pinOk": "Done.",
         "pinHaceFalta": "Enter the PIN first.",
         "demasiadosIntentos": "Too many tries in a row. Wait a few minutes."
+      },
+      "tasas": {
+        "paisInvalido": "That country has no exchange rate here.",
+        "tasaInvalida": "That doesn't look like an exchange rate. Write it as the bank publishes it, e.g. 967.42.",
+        "guardada": "Rate saved.",
+        "ajusteInvalido": "That adjustment is outside the sane range (±50% and ±1,000 pesos). Check the number.",
+        "ajusteGuardado": "Adjustments saved. They apply from the next product published."
+      },
+      "configuracion": {
+        "sinPermiso": "Only the support team can change this."
       }
     },
     "usuarios": {
@@ -2483,7 +2493,17 @@
       "actualizada": "Last updated: {fecha}",
       "paisInvalido": "That country has no exchange rate here.",
       "tasaInvalida": "That doesn't look like an exchange rate. Write it as the central bank publishes it, e.g. 967.42.",
-      "guardada": "Rate saved."
+      "guardada": "Rate saved.",
+      "deLaApi": "DolarApi",
+      "seUsa": "In use:",
+      "enVivo": "Live · source: DolarApi (sell rate) · refreshes on its own",
+      "guardadaDe": "⚠️ DolarApi isn't answering: using the last good rate, from {fecha}. Valid for 7 days.",
+      "sinTasa": "No rate: DolarApi isn't answering and the last saved one expired (7 days). This country's catalog won't publish until it's back — or set a manual fallback rate below.",
+      "ajustePorciento": "Adjustment in %",
+      "ajusteFijo": "Fixed adjustment (pesos)",
+      "ajusteAyuda": "Final rate = DolarApi + % + fixed. Set it ONCE and it applies to everything published from then on. To add 2% and 5 pesos: 2.00 and 5.00. Negatives work too.",
+      "ajusteInvalido": "That adjustment is outside the sane range (±50% and ±1,000 pesos). Check the number.",
+      "ajusteGuardado": "Adjustments saved. They apply from the next product published."
     }
   },
   "catalogo": {

@@ -121,8 +121,11 @@ motivo.
 
 **Lo que queda es 👤 del dueño, en este orden:**
 
-- [ ] 🔴 👤 **Cargar las tasas del día** (Configuración → La tasa del dólar):
-      la del Banco Central de Chile y la TRM de Colombia.
+- [x] ✅ 💻 **La tasa es AUTOMÁTICA desde el 28 ago** (DolarApi, la misma que
+      usa el dueño en sus otras apps): se refresca sola cada 90 segundos, con
+      la última buena guardada 7 días de respaldo y candado si todo falla.
+      El dueño solo decide el AJUSTE (% y monto fijo) en Configuración, una
+      vez — no hay nada que actualizar a diario.
 - [ ] 🔴 👤 **Turnstile**: agregar `mercatren.cl` y `mercatren.com.co` a los
       dominios del widget en Cloudflare, o el login desde allá queda sin
       escudo.

@@ -45,7 +45,7 @@ import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
 import { estadoTransferencia } from "@/lib/cobros/transferencia-admin";
 import { resumenF129 } from "@/lib/impuestos/f129";
-import { leerTasas } from "@/lib/mercado/tasas";
+import { estadoDeTasasAutomaticas } from "@/lib/mercado/tasas";
 import { TasasDelDolar } from "@/components/panel/tasas-del-dolar";
 import { SOCIEDAD } from "@/lib/sociedad";
 import { estadoZelleCobros } from "@/lib/cobros/zelle-admin";
@@ -130,7 +130,22 @@ export default async function PaginaConfiguracion({
   /* En su propio catch: un fallo leyendo el entorno no puede tumbar la pantalla
      entera de Configuración. */
   const transferencia = await estadoTransferencia().catch(() => null);
-  const tasas = await leerTasas().catch(() => null);
+  /* La tasa automática de cada país: DolarApi + los ajustes del dueño. */
+  const tasasCrudas = await estadoDeTasasAutomaticas().catch(() => null);
+  const tasas = tasasCrudas
+    ? (["CL", "CO"] as const).map((pais) => {
+        const r = tasasCrudas[pais];
+        return {
+          pais,
+          centesimas: r?.centesimas ?? null,
+          apiCentesimas: r?.apiCentesimas ?? null,
+          ajustePb: r?.ajustePb ?? 0,
+          ajusteFijoCentesimas: r?.ajusteFijoCentesimas ?? 0,
+          origen: r?.origen ?? null,
+          leidaEn: r?.leidaEn ? r.leidaEn.toISOString() : null,
+        };
+      })
+    : null;
   const f129 = await resumenF129().catch(() => null);
 
   const { env } = getCloudflareContext();

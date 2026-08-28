@@ -2754,9 +2754,16 @@ punta a punta. Lo que hay que saber al tocar esto:
   alguien vuelve a escribir un almacén a mano. EE. UU. sigue con su almacén
   local, que es lo que hace posible el «2 a 5 días».
 - **El selector del panel decide la plaza** del catálogo de CJ. La pantalla lo
-  avisa en naranja antes de pulsar. Sin la tasa del dólar cargada
-  (`Configuración → La tasa del dólar`, guardada en centésimas en
-  `configuracion.dolar_clp/cop_centesimas`), agregar se niega con el motivo.
+  avisa en naranja antes de pulsar.
+- **LA TASA DEL DÓLAR ES AUTOMÁTICA desde el 28 ago 2026**
+  (`mercado/tasa-automatica.ts`): la trae **DolarApi** (`cl.dolarapi.com` /
+  `co.dolarapi.com`, endpoints comprobados en vivo), se usa la **VENTA** (no
+  la compra: esa diferencia saldría del margen), con caché de 90 s, la última
+  buena guardada 7 días de respaldo, y rangos cuerdos que descartan un dato
+  roto. Encima van **los dos ajustes del dueño** (% primero, fijo después —
+  el orden está fijado por prueba), editables en Configuración. La casilla
+  manual quedó como respaldo del respaldo. Si todo falla, agregar se niega
+  con el motivo — nunca se publica con tasa vieja en silencio.
 - **El precio**: `precio-chile.ts` (30 % + procesador dentro, tope de USD 500
   medido ANTES del IVA, pesos enteros CON el 19 % dentro) y
   `precio-colombia.ts` (igual, sin IVA y sin tope — allá no hay régimen

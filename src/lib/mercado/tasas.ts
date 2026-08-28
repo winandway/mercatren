@@ -81,10 +81,21 @@ export async function leerTasas(): Promise<EstadoDeTasa[] | null> {
 }
 
 /**
- * La tasa vigente de un país, para quien calcula precios. Sin sesión: la usa
- * el importador del catálogo, que ya pasó por su propio permiso.
+ * La tasa vigente de un país, para quien calcula precios.
+ *
+ * ══ DESDE EL 28 AGO 2026 ES AUTOMÁTICA ══
+ *
+ * Sale de DolarApi más los ajustes del panel (`tasa-automatica.ts`). La
+ * casilla manual quedó como RESPALDO DEL RESPALDO: solo manda si la API no
+ * contesta y la última guardada ya venció — así el equipo nunca queda
+ * completamente sin poder publicar, pero el camino normal no depende de que
+ * nadie escriba nada.
  */
 export async function tasaVigente(pais: PaisConTasa): Promise<number | null> {
+  const { tasaAutomatica } = await import("@/lib/mercado/tasa-automatica");
+  const automatica = await tasaAutomatica(pais);
+  if (automatica) return automatica.centesimas;
+
   const db = getDb();
   const [fila] = await db
     .select({ valor: configuracion.valor })
@@ -95,17 +106,90 @@ export async function tasaVigente(pais: PaisConTasa): Promise<number | null> {
   return Number.isFinite(n) && n >= TASA_MINIMA_CENTESIMAS ? n : null;
 }
 
+/**
+ * GUARDAR LOS AJUSTES DEL DUEÑO: el porcentaje y el monto fijo que se le
+ * suman a la tasa de la API. Los dos aceptan negativo a propósito — bajar la
+ * tasa también es una decisión suya— pero dentro de un rango cuerdo: ±50 % y
+ * ±1.000 pesos. Fuera de eso es un dedo de más, no un ajuste.
+ */
+export async function guardarAjustesDeTasa(
+  formulario: FormData,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, mensaje: t("configuracion.sinPermiso") };
+  }
+
+  const pais = String(formulario.get("pais") ?? "") as PaisConTasa;
+  if (!(pais in LLAVES)) {
+    return { ok: false, mensaje: t("tasas.paisInvalido") };
+  }
+
+  const porcentaje = Number(
+    String(formulario.get("porcentaje") ?? "0").replace(",", "."),
+  );
+  const fijo = Number(String(formulario.get("fijo") ?? "0").replace(",", "."));
+  const pb = Math.round(porcentaje * 100);
+  const fijoCentesimas = Math.round(fijo * 100);
+
+  if (
+    !Number.isFinite(pb) ||
+    !Number.isFinite(fijoCentesimas) ||
+    Math.abs(pb) > 5_000 ||
+    Math.abs(fijoCentesimas) > 100_000
+  ) {
+    return { ok: false, mensaje: t("tasas.ajusteInvalido") };
+  }
+
+  const { LLAVE_AJUSTE_PB, LLAVE_AJUSTE_FIJO, olvidarTasaEnMemoria } =
+    await import("@/lib/mercado/tasa-automatica");
+  const db = getDb();
+  await db.batch([
+    db
+      .insert(configuracion)
+      .values({ clave: LLAVE_AJUSTE_PB[pais], valor: String(pb) })
+      .onConflictDoUpdate({
+        target: configuracion.clave,
+        set: { valor: String(pb) },
+      }),
+    db
+      .insert(configuracion)
+      .values({ clave: LLAVE_AJUSTE_FIJO[pais], valor: String(fijoCentesimas) })
+      .onConflictDoUpdate({
+        target: configuracion.clave,
+        set: { valor: String(fijoCentesimas) },
+      }),
+  ]);
+
+  /* Sin esto, la caché de 90 segundos seguía enseñando —y USANDO— los
+     ajustes viejos después de guardar: lo destapó la prueba en pantalla. */
+  olvidarTasaEnMemoria(pais);
+
+  return { ok: true, mensaje: t("tasas.ajusteGuardado") };
+}
+
+/** El estado completo de la tasa automática de cada país, para Configuración. */
+export async function estadoDeTasasAutomaticas() {
+  if (!(await esSoporteDeVerdad())) return null;
+  const { tasaAutomatica } = await import("@/lib/mercado/tasa-automatica");
+  const [cl, co] = await Promise.all([
+    tasaAutomatica("CL"),
+    tasaAutomatica("CO"),
+  ]);
+  return { CL: cl, CO: co };
+}
+
 export async function guardarTasa(
   formulario: FormData,
 ): Promise<{ ok: boolean; mensaje: string }> {
   const t = await mensajes();
   if (!(await esSoporteDeVerdad())) {
-    return { ok: false, mensaje: t("panel.configuracion.sinPermiso") };
+    return { ok: false, mensaje: t("configuracion.sinPermiso") };
   }
 
   const pais = String(formulario.get("pais") ?? "") as PaisConTasa;
   if (!(pais in LLAVES)) {
-    return { ok: false, mensaje: t("panel.tasas.paisInvalido") };
+    return { ok: false, mensaje: t("tasas.paisInvalido") };
   }
 
   /* Se escribe como se lee del Banco Central: «967.42». La coma también se
@@ -123,7 +207,7 @@ export async function guardarTasa(
        otro dedo de más. El tope corta el error simétrico al del piso. */
     centesimas > 10_000_000
   ) {
-    return { ok: false, mensaje: t("panel.tasas.tasaInvalida") };
+    return { ok: false, mensaje: t("tasas.tasaInvalida") };
   }
 
   const db = getDb();
@@ -146,5 +230,5 @@ export async function guardarTasa(
   ]);
 
   revalidatePath("/[locale]/panel/configuracion", "page");
-  return { ok: true, mensaje: t("panel.tasas.guardada") };
+  return { ok: true, mensaje: t("tasas.guardada") };
 }
