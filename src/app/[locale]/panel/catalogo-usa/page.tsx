@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { BuscadorCj } from "@/components/panel/cj/buscador";
 import { RepartirCatalogo } from "@/components/panel/cj/repartir";
 import { Link } from "@/i18n/navigation";
-import { TIENDA_US } from "@/lib/cj/constantes";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { buscarEnCj } from "@/lib/cj/catalogo";
 import { cjConfigurado } from "@/lib/cj/cliente";
@@ -41,7 +40,20 @@ export default async function PaginaCatalogoUsa({
      que es el central y el que surte al dropshipping de Latinoamérica. */
   const { mercadoDelPanel } = await import("@/lib/mercado/panel");
   const { plazaDelMercado } = await import("@/lib/cj/plazas");
+  const { mercadoPorCodigo } = await import("@/lib/mercado/mercados");
   const plaza = plazaDelMercado(await mercadoDelPanel());
+
+  /* ══ LOS BOTONES APUNTAN A LA TIENDA DE LA PLAZA (28 ago 2026) ══
+     «Ver lo que llevo agregado» iba fijo a la tienda de EE. UU.: con el
+     selector en Chile, el dueño cayó en los 234 productos en dólares del
+     catálogo americano y creyó que se habían publicado por accidente. La
+     tienda pública de CL/CO vive en SU dominio, así que ese enlace es
+     absoluto. */
+  const tiendaDePlaza = plaza.tiendaGeneral.slug;
+  const vitrinaDePlaza =
+    plaza.mercado === "US"
+      ? `/tienda/${tiendaDePlaza}`
+      : `https://${mercadoPorCodigo(plaza.mercado).dominio}/es/tienda/${tiendaDePlaza}`;
   const almacen = plaza.almacen;
 
   /* La búsqueda corre en el servidor: la llave de CJ no puede viajar al
@@ -89,7 +101,7 @@ export default async function PaginaCatalogoUsa({
           <Link
             href={{
               pathname: "/panel/productos",
-              query: { comercio: TIENDA_US.slug },
+              query: { comercio: tiendaDePlaza },
             }}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-slate-50"
           >
@@ -97,7 +109,7 @@ export default async function PaginaCatalogoUsa({
             {t("verMisProductos")}
           </Link>
           <Link
-            href={`/tienda/${TIENDA_US.slug}`}
+            href={vitrinaDePlaza}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-slate-50"

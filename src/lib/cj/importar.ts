@@ -679,13 +679,18 @@ export async function repartirCatalogoUs(): Promise<{
   const usuario = await obtenerUsuario();
   if (!usuario) return { ok: false, mensaje: "Hace falta una sesión." };
 
+  /* La plaza del selector: con el panel en Chile se reparte la general
+     chilena entre sus rubros, no la americana. */
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const plaza = plazaDelMercado(await mercadoDelPanel());
+
   try {
     const db = getDb();
 
     const pendientes = await db
       .select({ id: productos.id, categoriaId: productos.categoriaId })
       .from(productos)
-      .where(eq(productos.tiendaId, TIENDA_US_GENERAL));
+      .where(eq(productos.tiendaId, plaza.tiendaGeneral.id));
 
     let movidos = 0;
     let sinRubro = 0;
@@ -702,8 +707,8 @@ export async function repartirCatalogoUs(): Promise<{
         continue;
       }
 
-      const destino = await tiendaDelRubro(departamento, usuario.id);
-      if (destino === TIENDA_US_GENERAL) {
+      const destino = await tiendaDelRubro(departamento, usuario.id, plaza);
+      if (destino === plaza.tiendaGeneral.id) {
         sinRubro += 1;
         continue;
       }
