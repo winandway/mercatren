@@ -59,7 +59,19 @@ export type FiltrosPagos = {
 async function filtroDeComercio(comercioPedido?: string) {
   const alcance = await obtenerAlcance();
   const tiendaId = comercioEfectivo(alcance, comercioPedido);
-  return tiendaId ? eq(pagosZelle.tiendaId, tiendaId) : undefined;
+  if (tiendaId) return eq(pagosZelle.tiendaId, tiendaId);
+
+  /* EL PAÍS DEL SELECTOR (28 ago 2026). Esta es la puerta única de todas las
+     consultas de Zelle —el resumen, la lista, la cola de validación—, así que
+     un solo filtro aquí las alinea todas con el país que el panel mira. Los
+     pagos del histórico sin tienda no se pierden: cuelgan de tiendas del
+     mercado principal. */
+  const mercadoMirado = await mercadoDelPanel();
+  /* Un pago SIN comercio asignado (pedido de varios comercios, lo reparte el
+     equipo) tiene tienda nula: el EXISTS a secas lo escondería de la cola en
+     TODOS los países, y un comprobante que nadie ve es dinero esperando. Se
+     enseña siempre, que resolverlo es justo el trabajo del equipo. */
+  return sql`(${pagosZelle.tiendaId} IS NULL OR EXISTS (SELECT 1 FROM tiendas t2 WHERE t2.id = ${pagosZelle.tiendaId} AND t2.mercado = ${mercadoMirado.codigo}))`;
 }
 
 /** Tarjetas de arriba: el estado del negocio de un vistazo. */

@@ -1,5 +1,6 @@
 import { and, eq, gt, sql } from "drizzle-orm";
 
+import { codigoVisible } from "@/lib/catalogo/codigo";
 import { getDbAsync, schema } from "@/lib/db";
 import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
@@ -204,7 +205,11 @@ export async function GET() {
         `<g:price>${precio(p.precioCentavos, p.moneda)}</g:price>`,
         "<g:condition>new</g:condition>",
         p.marca ? `<g:brand>${escapar(p.marca)}</g:brand>` : "",
-        p.sku ? `<g:mpn>${escapar(p.sku)}</g:mpn>` : "",
+        /* El mpn del feed también es público (se ve en la ficha de Google
+           Shopping): va el código NUESTRO, no el del proveedor. */
+        p.sku
+          ? `<g:mpn>${escapar(codigoVisible(p.sku, "US") ?? p.sku)}</g:mpn>`
+          : "",
         /* CASI NADA DEL CATÁLOGO TIENE CÓDIGO DE BARRAS. Un tubo de PVC
            cortado en una ferretería no tiene GTIN. Sin esta línea, Google
            rechaza cientos de productos por "faltan identificadores". */

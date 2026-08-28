@@ -79,6 +79,31 @@ export type ListadoTarjeta = {
   sumaConfirmadaCentavos: number;
 };
 
+/**
+ * ══ EL PAÍS DEL SELECTOR APLICA TAMBIÉN A LOS COBROS (28 ago 2026) ══
+ *
+ * Misma regla que Órdenes: solo para el equipo con alcance total (sin tienda
+ * elegida). Un cobro con tarjeta se cuelga de su pedido, que ya sabe su
+ * mercado; un enlace de cobro, de su tienda.
+ */
+async function paisMiradoEnPedidos(
+  tiendaId: string | null,
+): Promise<SQL | undefined> {
+  if (tiendaId) return undefined;
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const codigo = (await mercadoDelPanel()).codigo;
+  return sql`EXISTS (SELECT 1 FROM pedidos p2 WHERE p2.id = ${pagos.pedidoId} AND p2.mercado = ${codigo})`;
+}
+
+async function paisMiradoEnTiendas(
+  tiendaId: string | null,
+): Promise<SQL | undefined> {
+  if (tiendaId) return undefined;
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const codigo = (await mercadoDelPanel()).codigo;
+  return eq(tiendas.mercado, codigo);
+}
+
 export async function listarCobrosConTarjeta(
   filtros: {
     estado?: string;
@@ -104,6 +129,9 @@ export async function listarCobrosConTarjeta(
       sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pagos.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`,
     );
   }
+
+  const porPais = await paisMiradoEnPedidos(tiendaId);
+  if (porPais) condiciones.push(porPais);
 
   const donde = and(...condiciones);
 
@@ -194,9 +222,12 @@ export async function resumenDeTarjeta(
   const db = getDb();
   const tiendaId = await tiendaDelAlcance(comercio);
 
+  const porPaisResumen = await paisMiradoEnPedidos(tiendaId);
   const alcance = tiendaId
     ? sql`AND EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pagos.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
-    : sql``;
+    : porPaisResumen
+      ? sql`AND ${porPaisResumen}`
+      : sql``;
 
   const monto = tiendaId
     ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pagos.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
@@ -271,9 +302,12 @@ export async function listarDisputas(
 
   /* El mismo candado que en el resumen: un comercio ve los contracargos de
      SUS ventas y de ninguna otra. */
+  const codigoPais = tiendaId
+    ? null
+    : (await (await import("@/lib/mercado/panel")).mercadoDelPanel()).codigo;
   const soloSuyas = tiendaId
     ? sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${disputas.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
-    : undefined;
+    : sql`EXISTS (SELECT 1 FROM pedidos p2 WHERE p2.id = ${disputas.pedidoId} AND p2.mercado = ${codigoPais})`;
 
   return db
     .select({
@@ -325,7 +359,9 @@ export async function listarEnlacesDeCobro(
   const db = getDb();
   const tiendaId = await tiendaDelAlcance(comercio);
 
-  const donde = tiendaId ? eq(cobrosSolicitados.tiendaId, tiendaId) : undefined;
+  const donde = tiendaId
+    ? eq(cobrosSolicitados.tiendaId, tiendaId)
+    : await paisMiradoEnTiendas(null);
 
   return db
     .select({

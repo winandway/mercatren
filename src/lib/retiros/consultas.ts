@@ -169,6 +169,11 @@ export async function listarRetiros(opciones?: {
   const condiciones = [];
   if (alcance.tipo === "tienda") {
     condiciones.push(eq(retiros.tiendaId, alcance.tiendaId));
+  } else {
+    /* EL PAÍS DEL SELECTOR (28 ago 2026): con el panel en Chile, la cola de
+       retiros es la de los comercios chilenos. Misma regla que Órdenes. */
+    const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+    condiciones.push(eq(tiendas.mercado, (await mercadoDelPanel()).codigo));
   }
   if (opciones?.estados?.length) {
     condiciones.push(inArray(retiros.estado, opciones.estados));
@@ -289,11 +294,18 @@ export async function contarRetirosPendientes(): Promise<number> {
   const alcance = await obtenerAlcance();
   if (alcance.tipo !== "todos") return 0;
 
+  /* La insignia del menú cuenta lo del PAÍS mirado: un «3» en el menú con la
+     lista en cero (porque los tres retiros son de otro país) hace buscar un
+     fallo donde no lo hay. */
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const codigo = (await mercadoDelPanel()).codigo;
+
   const db = getDb();
   const filas = await db
     .select({ id: retiros.id })
     .from(retiros)
-    .where(eq(retiros.estado, "solicitado"));
+    .innerJoin(tiendas, eq(tiendas.id, retiros.tiendaId))
+    .where(and(eq(retiros.estado, "solicitado"), eq(tiendas.mercado, codigo)));
 
   return filas.length;
 }

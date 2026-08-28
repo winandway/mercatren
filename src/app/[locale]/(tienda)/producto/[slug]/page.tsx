@@ -303,7 +303,10 @@ export default async function PaginaProducto({
       moneda: producto.moneda,
       existencias: producto.existencias,
       controlaExistencias: producto.controlaExistencias,
-      sku: producto.sku,
+      /* El código PÚBLICO, no el del proveedor: este JSON lo lee Google y
+         cualquiera con «ver código fuente». El de CJ es el mismo camino para
+         saltarse la tienda que ya se quitó de la ficha. */
+      sku: codigoVisible(producto.sku, ficha.tiendaPais),
       marca: producto.marca,
       categoria: categoriaNombre,
       /* ABSOLUTAS, SIEMPRE. Las fotos de nuestro bucket se sirven por

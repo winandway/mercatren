@@ -88,8 +88,10 @@ const PLAZAS: Record<string, Plaza> = {
     paisEntrega: "CL",
     almacen: "CN",
     envioEstimadoUsdCentavos: 1_200,
-    /* Santiago, Región Metropolitana: donde vive la mayoría de la clientela. */
-    cotizacion: { zip: "8320000", provincia: "RM" },
+    /* Santiago: donde vive la mayoría de la clientela. El nombre COMPLETO y
+       sin acentos, la misma regla de las regiones del checkout — «RM» no está
+       en la tabla de ningún courier. */
+    cotizacion: { zip: "8320000", provincia: "Region Metropolitana" },
   },
   CO: {
     mercado: "CO",
@@ -104,8 +106,8 @@ const PLAZAS: Record<string, Plaza> = {
     paisEntrega: "CO",
     almacen: "CN",
     envioEstimadoUsdCentavos: 1_200,
-    /* Bogotá. */
-    cotizacion: { zip: "110111", provincia: "DC" },
+    /* Bogotá, con el nombre completo de su lista del checkout. */
+    cotizacion: { zip: "110111", provincia: "Bogota DC" },
   },
 };
 

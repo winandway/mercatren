@@ -29,6 +29,26 @@ import { rastroDelPago, type Rastro } from "@/lib/pagos/rastro";
  */
 
 /** La tienda que toca, segun quien pregunta. */
+/**
+ * ══ EL PAÍS DEL SELECTOR APLICA A TODO EL PANEL DEL EQUIPO (28 ago 2026) ══
+ *
+ * El selector de país existía desde el 17 de agosto y solo lo obedecían
+ * Zelle y el catálogo: con el panel en Chile, Órdenes y Clientes seguían
+ * enseñando los tres países revueltos. Lo pidió el dueño con estas palabras:
+ * «cuando yo selecciono, se debe de limpiar todo ese país donde estoy».
+ *
+ * La regla, calcada de `listarComercios`: **solo cuando quien mira es el
+ * equipo con alcance total**. Un comercio ya está acotado a su tienda —
+ * filtrarlo además por país lo haría desaparecer de su propia lista el día
+ * que se le cambie de vitrina. Y si el equipo eligió un comercio concreto
+ * (`?comercio=`), esa elección explícita manda sobre el país.
+ */
+async function paisMirado(tiendaId: string | null): Promise<SQL | undefined> {
+  if (tiendaId) return undefined;
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  return eq(pedidos.mercado, (await mercadoDelPanel()).codigo);
+}
+
 async function tiendaDelAlcance(comercioPedido?: string) {
   const alcance = await obtenerAlcance();
   if (alcance.tipo === "tienda") return alcance.tiendaId;
@@ -71,6 +91,9 @@ export async function listarPedidosDelPanel(filtros: FiltrosPedidos = {}) {
       sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})`,
     );
   }
+
+  const porPais = await paisMirado(tiendaId);
+  if (porPais) condiciones.push(porPais);
 
   const donde = condiciones.length ? and(...condiciones) : undefined;
 
@@ -145,7 +168,7 @@ export async function contarPedidosPorEstado(comercioPedido?: string) {
 
   const donde = tiendaId
     ? sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})`
-    : undefined;
+    : await paisMirado(null);
 
   const filas = await db
     .select({ estado: pedidos.estado, n: sql<number>`COUNT(*)` })
@@ -185,7 +208,7 @@ export async function listarClientes(
 
   const donde = tiendaId
     ? sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})`
-    : undefined;
+    : await paisMirado(null);
 
   const filas = await db
     .select({

@@ -94,11 +94,19 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     ? sql`AND ${itemsPedido.tiendaId} = ${tiendaId}`
     : sql``;
 
+  let codigoPais: string | null = null;
   const suyo: SQL[] = [];
   if (tiendaId) {
     suyo.push(
       sql`EXISTS (SELECT 1 FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})`,
     );
+  } else {
+    /* EL PAÍS DEL SELECTOR (28 ago 2026): el tablero del equipo cuenta el
+       país que está mirando. Sin esto, con el panel en Chile los números de
+       «hoy» seguían siendo los de las tres vitrinas revueltas. */
+    const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+    codigoPais = (await mercadoDelPanel()).codigo;
+    suyo.push(eq(pedidos.mercado, codigoPais));
   }
 
   const subtotal = sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} ${deLaTienda})`;
@@ -137,7 +145,12 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
             eq(pagosZelle.estado, "pendiente"),
             eq(pagosZelle.tiendaId, tiendaId),
           )
-        : eq(pagosZelle.estado, "pendiente"),
+        : codigoPais
+          ? and(
+              eq(pagosZelle.estado, "pendiente"),
+              sql`EXISTS (SELECT 1 FROM tiendas t2 WHERE t2.id = ${pagosZelle.tiendaId} AND t2.mercado = ${codigoPais})`,
+            )
+          : eq(pagosZelle.estado, "pendiente"),
     )
     .catch(() => [{ n: 0 }]);
 
@@ -161,7 +174,12 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     .where(
       tiendaId
         ? and(eq(retiros.estado, "solicitado"), eq(retiros.tiendaId, tiendaId))
-        : eq(retiros.estado, "solicitado"),
+        : codigoPais
+          ? and(
+              eq(retiros.estado, "solicitado"),
+              sql`EXISTS (SELECT 1 FROM tiendas t2 WHERE t2.id = ${retiros.tiendaId} AND t2.mercado = ${codigoPais})`,
+            )
+          : eq(retiros.estado, "solicitado"),
     )
     .catch(() => [{ n: 0 }]);
 

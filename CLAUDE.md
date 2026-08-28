@@ -2736,6 +2736,29 @@ distintas: código, datos y **caché**.
 Turnstile con mercatren.cl entre sus dominios, procesador de pagos chileno,
 geografía del país, proveedores (Dropi) y el copy propio de esa plaza.
 
+## UN PAÍS SE ABRE CON LA LISTA COMPLETA, NUNCA POR PIEZAS (REGLA — 28 ago 2026)
+
+> La dictó el dueño después de encontrar él mismo los huecos de Chile ficha
+> por ficha: «tengo que estarte diciendo qué es lo que tenemos que hacer».
+
+**`ABRIR-UN-PAIS.md` es la lista, y es obligatoria.** Dominio nuevo = recorrer
+esa lista ENTERA (decisiones del dueño, las 11 piezas de código, y las
+comprobaciones) antes de dar el país por abierto. Al agregar una pieza nueva
+al traje de un país —una pantalla del panel, un texto de vitrina, un método de
+pago— se agrega TAMBIÉN a esa lista, o el próximo país nace sin ella.
+
+Dos reglas que salieron de los huecos reales de Chile:
+
+- **Toda consulta nueva del panel del equipo nace filtrando por
+  `mercadoDelPanel()`** cuando el alcance es total. El selector de país que
+  solo obedecen algunas pantallas es peor que no tenerlo: hace creer que se
+  está mirando un país cuando se mira la mezcla.
+- **El código del proveedor jamás sale al público** — ni en la ficha, ni en el
+  JSON-LD, ni en el feed (`catalogo/codigo.ts`): es el camino para saltarse
+  la tienda. `MT-<números>` en EE. UU. (formato ya indexado), `MT-CL-…` /
+  `MT-CO-…` en las plazas nuevas. El de un comercio venezolano es suyo y no
+  se toca.
+
 ## CHILE Y COLOMBIA: EL CÓDIGO COMPLETO EN UN DÍA (27 ago 2026)
 
 El dueño pidió piloto automático y las dos plazas quedaron construidas de

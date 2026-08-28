@@ -43,3 +43,20 @@ describe("el código que se enseña en la ficha", () => {
     expect(codigoVisible("   ", "US")).toBeNull();
   });
 });
+
+describe("las plazas nuevas también se disfrazan (28 ago 2026)", () => {
+  it("EL CÓDIGO CHILENO LLEVA SU PAÍS: CJFU2936798 → MT-CL-2936798", () => {
+    /* Lo encontró el dueño en mercatren.cl: la ficha chilena enseñaba el
+       código de CJ crudo — el camino directo para saltarse la tienda. */
+    expect(codigoVisible("CJFU2936798", "CL")).toBe("MT-CL-2936798");
+    expect(codigoVisible("CJNS0533400", "CO")).toBe("MT-CO-0533400");
+  });
+
+  it("el de EE. UU. conserva su formato ya publicado, sin país", () => {
+    expect(codigoVisible("CJCS2493466", "US")).toBe("MT-2493466");
+  });
+
+  it("el de un comercio venezolano sigue siendo SUYO, intacto", () => {
+    expect(codigoVisible("TUBO-160-3MM", "VE")).toBe("TUBO-160-3MM");
+  });
+});

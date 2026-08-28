@@ -36,6 +36,16 @@ export const PREFIJO_MERCATREN = "MT-";
  * Se quitan las letras del principio —las siglas del proveedor— y se deja lo
  * que identifica de verdad. Si el código no empieza por letras, se devuelve
  * como está: los de los comercios venezolanos son suyos y no se tocan.
+ *
+ * ══ EL 28 AGO 2026 SE CERRÓ PARA TODAS LAS PLAZAS ══
+ *
+ * Comparaba contra «US» a secas, así que la ficha chilena enseñaba
+ * `CJFU2936798` crudo — lo encontró el dueño en mercatren.cl. La regla de
+ * verdad es la de siempre: **lo que viene del proveedor se disfraza; lo de un
+ * comercio venezolano es suyo y no se toca**. Y en Chile y Colombia el código
+ * lleva su país (`MT-CL-2936798`): con tres vitrinas, un código sin país no
+ * dice de cuál catálogo es. El de EE. UU. se queda `MT-2493466`, que es el
+ * formato ya publicado e indexado — cambiárselo ahora sería churn sin ganancia.
  */
 export function codigoVisible(
   sku: string | null | undefined,
@@ -44,13 +54,12 @@ export function codigoVisible(
   const limpio = (sku ?? "").trim();
   if (!limpio) return null;
 
-  /* Solo se disfraza el catálogo de Estados Unidos, que es el que viene del
-     proveedor. El código de un comercio venezolano es SUYO: cambiárselo le
-     rompería la referencia que usa en su propio sistema. */
-  if (
-    paisOrigen !== undefined &&
-    (paisOrigen ?? "").trim().toUpperCase() !== "US"
-  ) {
+  const pais = (paisOrigen ?? "").trim().toUpperCase();
+  const esDeProveedor = pais === "US" || pais === "CL" || pais === "CO";
+
+  /* El código de un comercio venezolano es SUYO: cambiárselo le rompería la
+     referencia que usa en su propio sistema. */
+  if (paisOrigen !== undefined && !esDeProveedor) {
     return limpio;
   }
 
@@ -63,5 +72,6 @@ export function codigoVisible(
      devuelve entero. Mejor un código feo que ninguno. */
   if (!soloNumeros) return limpio;
 
-  return `${PREFIJO_MERCATREN}${soloNumeros}`;
+  const marcaPais = pais === "CL" || pais === "CO" ? `${pais}-` : "";
+  return `${PREFIJO_MERCATREN}${marcaPais}${soloNumeros}`;
 }
