@@ -28,6 +28,7 @@ import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
 import { mercadoActual } from "@/lib/mercado/actual";
 import { esMercadoPrincipal } from "@/lib/mercado/mercados";
+import { videoDePortada } from "@/lib/mercado/portada";
 import { cn } from "@/lib/utils";
 
 /**
@@ -66,6 +67,7 @@ export default async function PaginaInicio({
   setRequestLocale(locale);
   const idioma = locale as Idioma;
   const mercado = await mercadoActual();
+  const videoDelHero = videoDePortada(mercado.codigo);
 
   const t = await getTranslations("inicio");
   const tEntrega = await getTranslations("entrega");
@@ -179,7 +181,24 @@ export default async function PaginaInicio({
     !visibles
   ) {
     return (
-      <section className="bg-riel-900 text-white">
+      <section className="relative isolate overflow-hidden bg-riel-900 text-white">
+        {/* El mismo video del país que lleva el hero normal: «Mercatren llega
+            a Chile» con Santiago detrás cuenta más que un fondo plano. */}
+        <video
+          className="absolute inset-0 -z-10 h-full w-full object-cover opacity-80"
+          src={videoDelHero.video}
+          poster={videoDelHero.poster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-riel-900 via-riel-900/70 to-riel-900/10"
+        />
         <div className="mx-auto max-w-[1500px] px-4 py-16 sm:py-24">
           <h1 className="max-w-2xl text-2xl font-extrabold tracking-tight text-balance sm:text-4xl">
             {t("mercadoNuevoTitulo", { pais: mercado.nombre })}
@@ -212,10 +231,13 @@ export default async function PaginaInicio({
        * y no descarga los 600 KB.
        */}
       <section className="relative isolate overflow-hidden bg-riel-900 text-white">
+        {/* EL VIDEO ES DEL PAÍS DEL DOMINIO (28 ago 2026): Santiago con los
+            Andes en mercatren.cl, Bogotá en mercatren.com.co, la cinta de
+            cajas en el resto. La tabla vive en src/lib/mercado/portada.ts. */}
         <video
           className="absolute inset-0 -z-10 h-full w-full object-cover opacity-80"
-          src="/video/portada.mp4"
-          poster="/video/portada.jpg"
+          src={videoDelHero.video}
+          poster={videoDelHero.poster}
           autoPlay
           muted
           loop

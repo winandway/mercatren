@@ -7,6 +7,7 @@ import { MenuTodo } from "@/components/layout/menu-todo";
 import { ContadorCarrito } from "@/components/layout/contador-carrito";
 import { SelectorCiudad } from "@/components/layout/selector-ciudad";
 import { SelectorIdioma } from "@/components/layout/selector-idioma";
+import { BanderaDelMercado } from "@/components/marca/bandera-pais";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
@@ -74,10 +75,14 @@ export async function Encabezado() {
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 sm:px-4">
           <Link
             href="/"
-            className="celda-encabezado flex items-center"
+            className="celda-encabezado flex items-center gap-2"
             aria-label="Mercatren"
           >
             <Logo className="h-7 sm:h-9" prioridad />
+            {/* La banderita del país del dominio (28 ago 2026): en
+                mercatren.cl se ve la de Chile al lado del logo; el dominio
+                principal va limpio. Pedido del dueño. */}
+            <BanderaDelMercado mercado={mercado} />
           </Link>
 
           {/* DÓNDE ESTÁ QUIEN COMPRA. Antes aquí había un texto fijo que

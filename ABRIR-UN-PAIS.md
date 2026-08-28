@@ -63,6 +63,17 @@
         el del proveedor — en ficha, JSON-LD y feed.
 11. [ ] **Reporte fiscal** si el régimen lo pide (el F129 chileno es el
         molde).
+12. [ ] **La banderita del país en el encabezado**
+        (`src/components/marca/bandera-pais.tsx`): SVG dibujado a mano —
+        nunca emoji, no se dibuja en Windows — al lado del logo, con el
+        nombre del país. El principal va limpio. Sin bandera dibujada el
+        encabezado sale limpio, nunca roto.
+13. [ ] **El video del hero del país** (`src/lib/mercado/portada.ts` +
+        `public/video/portada-<pais>.mp4/.jpg`): algo inconfundible de ese
+        país (Santiago con los Andes, Bogotá y su ladrillo), del MISMO
+        perfil del genérico — 960×540, ~12 s, mudo, `faststart`, bajo 1 MB
+        (el candado lo mide). Fuente con licencia libre sin atribución
+        (Pexels). Sin video propio, el genérico es el respaldo.
 
 ## C · Cómo se comprueba (no es opcional)
 
@@ -91,6 +102,8 @@
 | Panel por selector                 | ✅  | ✅      | ✅                 | —            |
 | Código público MT                  | ✅  | ✅      | ✅                 | —            |
 | Reporte fiscal                     | n/a | ✅ F129 | n/a                | —            |
+| Bandera en el encabezado           | n/a | ✅      | ✅                 | —            |
+| Video del hero del país            | n/a | ✅      | ✅                 | —            |
 | 👤 Turnstile del dominio           | ✅  | ⬜      | ⬜                 | —            |
 | 👤 Compra de prueba                | ⬜  | ⬜      | ⬜                 | —            |
 | 👤 Impuestos con contador          | n/a | ✅ SII  | ⬜ decisión aduana | ⬜ IVA UE    |
