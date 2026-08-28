@@ -180,7 +180,10 @@ describe("dónde se retira: sin depósito, la tienda", () => {
     expect(bloque).toContain('t("comoReclamar")');
     expect(bloque).toContain('t("sinLugar")');
     /* lo de Estados Unidos no se retira: se despacha */
-    expect(bloque).toContain(`=== "US") return null`);
+    /* El candado cambió de forma el 28 ago 2026: comparar contra «US» dejaba
+       pasar el fallo en chileno — «Envío a toda Venezuela» en una ficha de
+       mercatren.cl. La regla es la de siempre: solo Venezuela retira. */
+    expect(bloque).toContain(`!== "VE") return null`);
   });
 });
 

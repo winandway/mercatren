@@ -2,6 +2,8 @@ import { PackageCheck, Truck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { destinoDeLaTienda, PLAZO } from "@/lib/destino/reglas";
+import { impuestoDelMercado, topeEnMonedaLocal } from "@/lib/impuestos/chile";
+import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 
 /**
  * LA FRANJA DE ENTREGA DE CHILE Y COLOMBIA.
@@ -29,6 +31,36 @@ export async function EntregaDespacho({
   const t = await getTranslations("catalogo.producto.despacho");
   const plazo = PLAZO[destino];
 
+  /**
+   * ══ EN CHILE SE EXPLICA EL IVA Y LA ADUANA, CON EL TOPE EN PESOS ══
+   *
+   * Lo pidió el dueño con la ficha delante: el comprador chileno tiene que
+   * entender POR QUÉ su paquete entra sin cobros — el 19 % ya viene dentro
+   * del precio y Mercatren lo declara al SII, así que la aduana no le cobra
+   * nada al recibir. Y el tope del régimen (USD 500) se dice en SUS pesos,
+   * convertido con la tasa del día: un número en dólares en una tienda
+   * chilena obliga a cada persona a hacer la cuenta.
+   *
+   * En su propio try: si la tasa no está, la franja sale sin el número del
+   * tope — nunca se cae la ficha por un dato decorativo.
+   */
+  let topePesos: string | null = null;
+  if (destino === "CL") {
+    try {
+      const { tasaAutomatica } = await import("@/lib/mercado/tasa-automatica");
+      const tasa = await tasaAutomatica("CL");
+      const regla = impuestoDelMercado(mercadoPorCodigo("CL"));
+      if (tasa && regla) {
+        topePesos = topeEnMonedaLocal(
+          regla,
+          tasa.centesimas / 100,
+        ).toLocaleString("es-CL");
+      }
+    } catch {
+      /* Sin tasa, la franja sale sin la cifra. */
+    }
+  }
+
   return (
     <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5">
       <p className="flex items-center gap-2 text-sm font-bold text-emerald-900">
@@ -42,6 +74,13 @@ export async function EntregaDespacho({
         <PackageCheck className="h-4 w-4 shrink-0" aria-hidden />
         {t("plazo", { minimo: plazo.minimo, maximo: plazo.maximo })}
       </p>
+      {destino === "CL" ? (
+        <p className="mt-2 border-t border-emerald-200 pt-2 text-xs leading-relaxed text-emerald-900/80">
+          {topePesos
+            ? t("aduanaCLConTope", { tope: topePesos })
+            : t("aduanaCL")}
+        </p>
+      ) : null}
     </div>
   );
 }

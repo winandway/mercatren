@@ -2606,7 +2606,9 @@
         "textoCL": "The price you see is the final price: shipping and VAT are included. We ship it to the address you give us.",
         "tituloCO": "Delivered to your door anywhere in Colombia",
         "textoCO": "The price you see is the final price: shipping is included. We ship it to the address you give us.",
-        "plazo": "Arrives in {minimo} to {maximo} business days"
+        "plazo": "Arrives in {minimo} to {maximo} business days",
+        "aduanaCL": "No customs surprises: the 19% VAT is already in the price and Mercatren files it directly with Chile's SII (remote-sale regime, Law 21.713). Your package enters Chile with no extra charges on delivery.",
+        "aduanaCLConTope": "No customs surprises: the 19% VAT is already in the price and Mercatren files it directly with Chile's SII (remote-sale regime, Law 21.713). Your package enters Chile with no extra charges on delivery. The regime covers items up to USD 500 (about ${tope} CLP today) — everything published on mercatren.cl is within that limit."
       }
     },
     "paginacion": {

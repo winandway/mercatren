@@ -2606,7 +2606,9 @@
         "textoCL": "El precio que ves es el final: el envío y el IVA ya van incluidos. Lo despachamos a la dirección que nos digas.",
         "tituloCO": "Entrega a domicilio en toda Colombia",
         "textoCO": "El precio que ves es el final: el envío ya va incluido. Lo despachamos a la dirección que nos digas.",
-        "plazo": "Llega en {minimo} a {maximo} días hábiles"
+        "plazo": "Llega en {minimo} a {maximo} días hábiles",
+        "aduanaCL": "Sin sorpresas en la aduana: el IVA del 19% ya está dentro del precio y Mercatren lo declara directamente al SII (régimen de venta remota, Ley 21.713). Tu paquete entra a Chile sin cobros adicionales al recibirlo.",
+        "aduanaCLConTope": "Sin sorpresas en la aduana: el IVA del 19% ya está dentro del precio y Mercatren lo declara directamente al SII (régimen de venta remota, Ley 21.713). Tu paquete entra a Chile sin cobros adicionales al recibirlo. Este régimen cubre artículos de hasta USD 500 (unos ${tope} CLP hoy) — todo lo publicado en mercatren.cl está dentro de ese límite."
       }
     },
     "paginacion": {

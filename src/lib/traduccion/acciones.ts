@@ -4,11 +4,7 @@ import { and, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import {
-  intentosDescripcion,
-  productos,
-  tiendas,
-} from "@/lib/db/schema";
+import { intentosDescripcion, productos, tiendas } from "@/lib/db/schema";
 
 import { descripcionDeCj } from "@/lib/cj/descripcion";
 
@@ -18,6 +14,22 @@ import {
   traductorConfigurado,
 } from "./modelo";
 import { faltaTraducir, POR_TANDA, type PeticionDeTraduccion } from "./reglas";
+
+/**
+ * ══ EL TRADUCTOR TRABAJA SOBRE EL CATÁLOGO DEL PAÍS ELEGIDO (28 ago 2026) ══
+ *
+ * Iba clavado a `paisOrigen = "US"`, así que los productos chilenos —también
+ * guardados con el título de CJ en inglés— no entraban nunca a la cola. Con el
+ * selector del panel en Chile se traduce lo de Chile, y el traductor no se
+ * mete en otra plaza. Las CUATRO consultas de este archivo pasan por aquí:
+ * si una se quedara en «US», el conteo de pendientes hablaría de un catálogo
+ * y el botón traduciría otro.
+ */
+async function paisDelCatalogoDelPanel(): Promise<string> {
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const { plazaDelMercado } = await import("@/lib/cj/plazas");
+  return plazaDelMercado(await mercadoDelPanel()).paisEntrega;
+}
 
 /**
  * TRADUCIR EL CATÁLOGO DE ESTADOS UNIDOS, POR TANDAS.
@@ -73,6 +85,16 @@ export async function traducirCatalogoUs(): Promise<ResultadoTraduccion> {
     };
   }
 
+  /**
+   * ══ EL TRADUCTOR TRABAJA SOBRE EL CATÁLOGO DEL PAÍS ELEGIDO (28 ago 2026) ══
+   *
+   * Iba clavado a `paisOrigen = "US"`, así que los productos chilenos —también
+   * guardados con el título de CJ en inglés— no entraban nunca a la cola. Lo
+   * pidió el dueño con la ficha delante: con el selector del panel en Chile se
+   * traduce lo de Chile, y el traductor no se mete en otra plaza.
+   */
+  const paisDelCatalogo = await paisDelCatalogoDelPanel();
+
   const db = getDb();
 
   /* SOLO LAS COLUMNAS QUE HACEN FALTA, NUNCA LA TABLA ENTERA.
@@ -88,7 +110,10 @@ export async function traducirCatalogoUs(): Promise<ResultadoTraduccion> {
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .where(
-      and(eq(tiendas.paisOrigen, "US"), isNotNull(productos.tituloEn)),
+      and(
+        eq(tiendas.paisOrigen, paisDelCatalogo),
+        isNotNull(productos.tituloEn),
+      ),
     );
 
   const pendientes = candidatos.filter(faltaTraducir);
@@ -138,6 +163,7 @@ export async function contarSinTraducir(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
 
   const db = getDb();
+  const paisDelCatalogo = await paisDelCatalogoDelPanel();
   const filas = await db
     .select({
       id: productos.id,
@@ -146,7 +172,12 @@ export async function contarSinTraducir(): Promise<number> {
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(and(eq(tiendas.paisOrigen, "US"), isNotNull(productos.tituloEn)));
+    .where(
+      and(
+        eq(tiendas.paisOrigen, paisDelCatalogo),
+        isNotNull(productos.tituloEn),
+      ),
+    );
 
   return filas.filter(faltaTraducir).length;
 }
@@ -214,6 +245,7 @@ export async function probarTraductor(): Promise<PruebaDeTraduccion> {
   let original = MUESTRA;
   let deMuestra = true;
   try {
+    const paisDelCatalogo = await paisDelCatalogoDelPanel();
     const filas = await getDb()
       .select({
         id: productos.id,
@@ -222,7 +254,12 @@ export async function probarTraductor(): Promise<PruebaDeTraduccion> {
       })
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(and(eq(tiendas.paisOrigen, "US"), isNotNull(productos.tituloEn)));
+      .where(
+        and(
+          eq(tiendas.paisOrigen, paisDelCatalogo),
+          isNotNull(productos.tituloEn),
+        ),
+      );
 
     const pendiente = filas.filter(faltaTraducir)[0];
     if (pendiente?.tituloEn?.trim()) {
@@ -297,7 +334,13 @@ export type ResultadoDescripciones = {
 
 export async function traerDescripciones(): Promise<ResultadoDescripciones> {
   if (!(await esSoporteDeVerdad())) {
-    return { ok: false, escritas: 0, sinDatos: 0, restantes: 0, motivo: "no-autorizado" };
+    return {
+      ok: false,
+      escritas: 0,
+      sinDatos: 0,
+      restantes: 0,
+      motivo: "no-autorizado",
+    };
   }
   if (!traductorConfigurado()) {
     return {
@@ -311,6 +354,7 @@ export async function traerDescripciones(): Promise<ResultadoDescripciones> {
   }
 
   const db = getDb();
+  const paisDelCatalogo = await paisDelCatalogoDelPanel();
   const pendientes = await pendientesDeDescripcion(db);
 
   if (pendientes.length === 0) {
@@ -401,6 +445,7 @@ export async function traerDescripciones(): Promise<ResultadoDescripciones> {
  * la cola solos, sin tener que tocar la base a mano.
  */
 async function pendientesDeDescripcion(db: ReturnType<typeof getDb>) {
+  const paisDelCatalogo = await paisDelCatalogoDelPanel();
   return db
     .select({ id: productos.id, externoId: productos.externoId })
     .from(productos)
@@ -411,7 +456,7 @@ async function pendientesDeDescripcion(db: ReturnType<typeof getDb>) {
     )
     .where(
       and(
-        eq(tiendas.paisOrigen, "US"),
+        eq(tiendas.paisOrigen, paisDelCatalogo),
         isNotNull(productos.externoId),
         isNull(intentosDescripcion.productoId),
         or(

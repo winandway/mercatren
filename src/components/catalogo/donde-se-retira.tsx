@@ -1,6 +1,7 @@
 import { BadgeCheck, MapPin, TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { destinoDeLaTienda } from "@/lib/destino/reglas";
 import { porcentajeVisible, type ModoEnvio } from "@/lib/envios/politica";
 import {
   distanciaDeRetiro,
@@ -74,7 +75,12 @@ export async function DondeSeRetira({
   /** Cómo despacha el comercio de ESTE producto. */
   envio: { modo: ModoEnvio; porcentajePuntosBase: number };
 }) {
-  if ((paisOrigen ?? "").trim().toUpperCase() === "US") return null;
+  /* Este bloque contesta «¿dónde lo retiro?», y esa pregunta solo existe en
+     Venezuela. Lo que se DESPACHA —EE. UU., Chile, Colombia— no se retira en
+     ningún lado, y aquí salía «Envío a toda Venezuela · aún no especificado»
+     en una ficha de mercatren.cl: el mismo fallo del 15 de agosto con otro
+     disfraz. La regla vive en `destinoDeLaTienda`, no en otro `=== "US"`. */
+  if (destinoDeLaTienda(paisOrigen) !== "VE") return null;
 
   const t = await getTranslations("entrega");
   const te = await getTranslations("envio");
