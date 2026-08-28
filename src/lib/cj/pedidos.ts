@@ -440,14 +440,16 @@ export async function comprarAlProveedor(
    * deja la calle opcional. Mandarle a CJ un pedido sin calle es pagar por un
    * paquete que no llega a ninguna parte — y eso no se recupera.
    */
-  /* El estado y el código postal entran en la lista de lo que falta: sin
-     estado CJ rechaza el pedido, y sin código postal el transportista entrega
-     a ciegas. Antes ni se miraban porque no existían en el formulario. */
+  /* El estado entra en la lista de lo que falta: sin él CJ rechaza el
+     pedido. El código postal solo se exige en EE. UU. — su doc lo declara
+     opcional (`shippingZip`) y en Chile/Colombia casi nadie se lo sabe;
+     exigirlo aquí dejaría la compra pagada y sin poder comprarse al
+     proveedor por un dato que CJ ni pide. */
   const faltan = [
     !entrega.nombre && "el nombre de quien recibe",
     !entrega.direccion && "la dirección",
     !entrega.estado && "el estado",
-    !entrega.codigoPostal && "el código postal",
+    destino.codigo === "US" && !entrega.codigoPostal && "el código postal",
     !entrega.ciudad && "la ciudad",
   ].filter(Boolean);
 

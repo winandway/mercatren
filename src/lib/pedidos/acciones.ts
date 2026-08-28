@@ -244,10 +244,17 @@ export async function crearPedido(
   if (destinoDelPedido === "CL" || destinoDelPedido === "CO") {
     /* La región/departamento tiene que venir de SU lista: el candado está en
        el servidor como siempre — el `select` del navegador es cortesía. */
-    const { listaDeEstados } = await import("@/lib/destino/direccion");
+    const { listaDeEstados, esCodigoPostalDe } =
+      await import("@/lib/destino/direccion");
     const lista = listaDeEstados(destinoDelPedido) ?? [];
     if (!lista.some((e) => e.codigo === entrega.estado?.trim())) {
       return { ok: false, mensaje: t("estadoInvalido") };
+    }
+    /* El código postal allá es OPCIONAL (casi nadie se lo sabe y CJ no lo
+       exige) — pero si lo escribió, tiene que estar bien: uno equivocado es
+       un reenvío que CJ cobra completo. */
+    if (!esCodigoPostalDe(destinoDelPedido, entrega.codigoPostal)) {
+      return { ok: false, mensaje: t("codigoPostalInvalido") };
     }
   }
 

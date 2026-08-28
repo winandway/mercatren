@@ -2691,7 +2691,11 @@
       "estadoCL": "Region",
       "estadoCO": "Department",
       "estadoPlaceholderCL": "Choose your region",
-      "estadoPlaceholderCO": "Choose your department"
+      "estadoPlaceholderCO": "Choose your department",
+      "formatoDireccionCL": "Street and number, plus unit if applicable. Example: Av. Providencia 1234, Depto 56.",
+      "formatoDireccionCO": "Write it the way it's used locally. Example: Calle 45 # 26-85, Torre 2, Apto 301, Barrio El Prado.",
+      "codigoPostalAyudaCL": "7 digits. If you don't know it, leave it blank — your order will arrive with your address and comuna.",
+      "codigoPostalAyudaCO": "6 digits. If you don't know it, leave it blank — your order will arrive with your address and city."
     },
     "pago": {
       "titulo": "How are you paying?",

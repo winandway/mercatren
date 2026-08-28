@@ -45,6 +45,14 @@
        DESTINOS, su PLAZO honesto (conservador hasta medirlo), sus campos de
        dirección y su lista de estados/regiones/departamentos (nombre
        completo sin acentos fuera de EE. UU.).
+       5b. [ ] **La dirección, contra lo que exige CJ** (su doc de createOrderV3:
+       país, provincia y ciudad obligatorios; `shippingZip` OPCIONAL):
+       región/departamento de LISTA con nombre completo sin acentos, código
+       postal opcional donde la gente no se lo sabe (CL 7 dígitos, CO 6 —
+       formato validado SI lo escriben), y la ayuda con el formato de
+       dirección local bajo la casilla («Calle 45 # 26-85…» en Colombia).
+       El filtro del campo dirección admite # - / . , — la nomenclatura
+       colombiana entera.
 6. [ ] **Checkout**: solo envío y **SOLO TARJETA** (decisión del dueño,
        28 ago 2026: fuera de EE. UU./VE los demás métodos NI SE DIBUJAN —
        la regla vive en `src/lib/destino/metodos.ts` y el servidor la

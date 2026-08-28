@@ -370,6 +370,32 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                     marcador={t(`entrega.${campo.nombre}Placeholder`)}
                     requerido={campo.obligatorio}
                   />
+                  {/* LA DIRECCIÓN CLARA, CON EL FORMATO DEL PAÍS (28 ago
+                      2026). Lo pidió el dueño: «sobre todo Colombia, las
+                      direcciones son muy enredadas». La ayuda enseña el
+                      formato local — el colombiano escribe «Calle 45 # 26-85»
+                      y esa nomenclatura ES la dirección: se guía, no se
+                      corrige. En EE. UU. no hace falta. */}
+                  {campo.nombre === "direccion" &&
+                  (envio.destino === "CL" || envio.destino === "CO") ? (
+                    <p className="mt-1 text-xs text-tinta-suave">
+                      {t(
+                        envio.destino === "CL"
+                          ? "entrega.formatoDireccionCL"
+                          : "entrega.formatoDireccionCO",
+                      )}
+                    </p>
+                  ) : null}
+                  {campo.nombre === "codigoPostal" &&
+                  (envio.destino === "CL" || envio.destino === "CO") ? (
+                    <p className="mt-1 text-xs text-tinta-suave">
+                      {t(
+                        envio.destino === "CL"
+                          ? "entrega.codigoPostalAyudaCL"
+                          : "entrega.codigoPostalAyudaCO",
+                      )}
+                    </p>
+                  ) : null}
                 </div>
               ),
             )}

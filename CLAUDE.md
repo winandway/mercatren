@@ -2795,6 +2795,13 @@ punta a punta. Lo que hay que saber al tocar esto:
 - **La conversión se escribió mal a la primera** (dividía por 1.000.000 en vez
   de 10.000) y la atrapó la cuenta a mano: $100 a 967,42 = 96.742 pesos. La
   prueba la fija.
+- **EL CÓDIGO POSTAL DE CL/CO ES OPCIONAL (28 ago 2026)**: la doc de CJ
+  declara `shippingZip` opcional y allá casi nadie se lo sabe — obligarlo era
+  una pared en el checkout, y uno inventado es peor (CJ cobra el reenvío
+  completo por código postal errado). Si lo escriben se valida el formato
+  (CL 7 dígitos, CO 6, `esCodigoPostalDe`). En EE. UU. sigue obligatorio.
+  Bajo la dirección va la ayuda con el formato local («Calle 45 # 26-85,
+  Torre 2, Apto 301» en Colombia) y el filtro del campo admite `#`.
 - **`destinoDeLaTienda` conoce CL y CO**, y `DESTINOS` son cuatro. Las
   regiones/departamentos van con NOMBRE COMPLETO SIN ACENTOS («Region
   Metropolitana»), elegidos de lista: a un courier «RM» no le dice nada, y en

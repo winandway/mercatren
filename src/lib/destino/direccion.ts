@@ -116,16 +116,34 @@ const ESTADOS_UNIDOS: CampoDeEntrega[] = [
 ];
 
 /**
- * Chile y Colombia piden LO MISMO que EE. UU.: quién recibe, calle, ciudad,
- * región/departamento de una lista, y código postal. La lista cambia por
- * país (abajo), los campos no — por eso comparten la tabla de EE. UU. en vez
- * de copiarla: una copia por país se desincroniza al primer arreglo.
+ * CHILE Y COLOMBIA: los mismos campos que EE. UU., PERO EL CÓDIGO POSTAL ES
+ * OPCIONAL (28 ago 2026).
+ *
+ * Dos razones, las dos comprobadas:
+ *
+ * 1. **CJ no lo exige.** Su documentación oficial (createOrderV3) marca
+ *    `shippingZip` como opcional, máximo 20 caracteres. Lo único obligatorio
+ *    de la geografía son país, provincia y ciudad.
+ * 2. **Allá casi nadie se lo sabe.** El código postal chileno son 7 dígitos
+ *    que no salen en ningún recibo, y el colombiano son 6 que casi nadie
+ *    usa: la casilla obligatoria era una PARED en el punto exacto donde el
+ *    comprador no puede seguir — y peor, invitaba a inventarlo. La política
+ *    de CJ cobra el reenvío COMPLETO por un código postal equivocado: un
+ *    código inventado cuesta más caro que uno vacío.
+ *
+ * En EE. UU. sigue obligatorio: allá todo el mundo se lo sabe y el correo
+ * lo necesita. Si el chileno SÍ lo escribe, se comprueba el formato
+ * (`esCodigoPostalDe`) — mal escrito es un paquete perdido.
  */
+const CONO_SUR: CampoDeEntrega[] = ESTADOS_UNIDOS.map((c) =>
+  c.nombre === "codigoPostal" ? { ...c, obligatorio: false } : c,
+);
+
 const POR_DESTINO: Record<Destino, CampoDeEntrega[]> = {
   VE: VENEZUELA,
   US: ESTADOS_UNIDOS,
-  CL: ESTADOS_UNIDOS,
-  CO: ESTADOS_UNIDOS,
+  CL: CONO_SUR,
+  CO: CONO_SUR,
 };
 
 /** Las casillas que hay que dibujar para este destino. */
@@ -232,6 +250,30 @@ export function esEstadoUS(valor: string | null | undefined): boolean {
  */
 export function esCodigoPostalUS(valor: string | null | undefined): boolean {
   return /^\d{5}(-\d{4})?$/.test((valor ?? "").trim());
+}
+
+/**
+ * ¿El código postal está bien PARA ESE PAÍS?
+ *
+ * - EE. UU.: obligatorio, 5 dígitos (o 5+4).
+ * - Chile: opcional; si viene, son 7 dígitos.
+ * - Colombia: opcional; si viene, son 6 dígitos.
+ *
+ * El vacío solo vale donde el campo es opcional: la obligatoriedad la decide
+ * la tabla de campos, y aquí se decide el FORMATO de lo escrito. Un código
+ * mal escrito es peor que ninguno — CJ cobra el reenvío completo por código
+ * postal equivocado.
+ */
+export function esCodigoPostalDe(
+  destino: Destino,
+  valor: string | null | undefined,
+): boolean {
+  const v = (valor ?? "").trim();
+  if (destino === "US") return esCodigoPostalUS(v);
+  if (v === "") return true;
+  if (destino === "CL") return /^\d{7}$/.test(v);
+  if (destino === "CO") return /^\d{6}$/.test(v);
+  return true;
 }
 
 /**
