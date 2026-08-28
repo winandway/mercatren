@@ -93,28 +93,40 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ---
 
-# BLOQUE 3-CL · ABRIR CHILE Y COLOMBIA (arrancado el 27 ago 2026)
+# BLOQUE 3-CL · ABRIR CHILE Y COLOMBIA — EL CÓDIGO ESTÁ COMPLETO (27 ago 2026)
 
-**El equipo NO puede cargar productos para Chile todavía**: hoy todo lo que se
-agrega desde el panel cae en mercatren.com. El orden de construcción, y qué
-desbloquea cada pieza:
+**EL EQUIPO YA PUEDE CARGAR PRODUCTOS PARA CHILE Y COLOMBIA**: selector del
+panel en el país → Panel → Catálogo (el de CJ) → Agregar. El producto entra a
+`mercatren.cl` / `.com.co` en pesos, con el flete de su país y —en Chile— el
+IVA dentro y el tope de USD 500 vigilado. **Requisito previo: cargar la tasa
+del dólar en Configuración → La tasa del dólar**, o el botón se niega con ese
+motivo.
 
-- [x] ✅ 💻 **El precio de Chile** (`destino/precio-chile.ts`, puro, 7 pruebas):
-      costo CJ + flete → 30 % + procesador → tope de USD 500 ANTES del IVA →
-      pesos enteros CON el 19 % dentro. Una tasa rota se niega a calcular.
-- [ ] 🔴 💻 **La tasa del dólar** en `configuracion.dolar_clp_centesimas`,
-      editable en Panel → Configuración.
-- [ ] 🔴 💻 **El catálogo de CJ por mercado**: con el selector del panel en
-      Chile, «Agregar» crea el producto en `tienda-cl-<rubro>` con precio CLP.
-      ESTO es lo que deja al equipo empezar a cargar.
-- [ ] 🔴 💻 **El checkout chileno**: cobro en CLP por Stripe, el IVA anotado en
-      `impuestosCentavos` (sale del precio, no se suma), dirección con regiones
-      de Chile, y SOLO tarjeta (Zelle/ACH son cuentas de EE. UU.).
-- [ ] 🟠 💻 **El reporte del F129**: lo cobrado de IVA por trimestre, en USD.
-- [ ] 🟠 👤 **Turnstile**: agregar mercatren.cl a los dominios del widget.
-- [ ] 🟡 💻 **Colombia**: hereda todo; cambia moneda (COP) y NO lleva IVA
-      nuestro en la venta (no hay régimen registrado allá). Va después de que
-      Chile venda.
+- [x] ✅ 💻 Precio de Chile y de Colombia (pesos enteros; CL con IVA y tope)
+- [x] ✅ 💻 Tasas CLP/COP editables con fecha de actualización
+- [x] ✅ 💻 Catálogo de CJ por plaza, con aviso de destino antes de pulsar
+- [x] ✅ 💻 Flete cotizado al país (respaldo propio, nunca cero)
+- [x] ✅ 💻 Checkout: regiones/departamentos de lista, solo envío, SOLO
+      tarjeta, Stripe cobra en la moneda del pedido, IVA anotado
+- [x] ✅ 💻 F129 por trimestre en Configuración
+- [x] ✅ 💻 Textos, hero, meta, og y franja de entrega por país
+
+**Lo que queda es 👤 del dueño, en este orden:**
+
+- [ ] 🔴 👤 **Cargar las tasas del día** (Configuración → La tasa del dólar):
+      la del Banco Central de Chile y la TRM de Colombia.
+- [ ] 🔴 👤 **Turnstile**: agregar `mercatren.cl` y `mercatren.com.co` a los
+      dominios del widget en Cloudflare, o el login desde allá queda sin
+      escudo.
+- [ ] 🔴 👤 **Decisión de negocio (Colombia)**: ¿quién asume lo que la aduana
+      colombiana le cobre al comprador al recibir? Sin régimen tipo SII, el
+      paquete puede llegar con cobro. Definirlo ANTES de publicar la primera
+      ficha, porque decide qué promete la página.
+- [ ] 🔴 👤 **Compra de prueba chilena** con lo primero que se cargue:
+      comprobar que el paquete entra SIN cobro en la aduana (esa es LA prueba
+      del circuito del SII y de que el courier de CJ transmite los 4 datos al
+      SNA) y medir el plazo real, que la ficha hoy promete en 10–25 días.
+- [ ] 🟠 👤 Compra de prueba colombiana, con la misma vara.
 
 # BLOQUE 3 · LAS VENTAS DE ESTADOS UNIDOS (ABIERTAS DESDE EL 26 AGO 2026)
 

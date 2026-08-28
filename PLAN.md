@@ -12,5 +12,5 @@
 - [x] Paso 10: los textos de `.cl` y `.com.co` — título, portada y pie dejan de decir «Estados Unidos» y «dólares» en esos dominios
 - [x] Paso 11: la tarjeta social por mercado — YA EXISTÍA del 17 ago (generador + layout); comprobado que los archivos están en public/
 - [x] Paso 12: el reporte del F129 en Panel → Configuración — lo cobrado de IVA chileno por trimestre, en USD
-- [ ] Paso 13: verificación completa (`npm run verify`), prueba en navegador de las pantallas tocadas, push, build en verde y propagación comprobada en el borde
-- [ ] Paso 14: PENDIENTES.md y CLAUDE.md al día, con lo del dueño (Turnstile, compras de prueba, decisión de aduana en CO) claramente de último
+- [x] Paso 13: verificación completa (`npm run verify`), prueba en navegador de las pantallas tocadas, push, build en verde y propagación comprobada en el borde
+- [x] Paso 14: PENDIENTES.md y CLAUDE.md al día, con lo del dueño (Turnstile, compras de prueba, decisión de aduana en CO) claramente de último

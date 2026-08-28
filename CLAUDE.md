@@ -2736,6 +2736,53 @@ distintas: código, datos y **caché**.
 Turnstile con mercatren.cl entre sus dominios, procesador de pagos chileno,
 geografía del país, proveedores (Dropi) y el copy propio de esa plaza.
 
+## CHILE Y COLOMBIA: EL CÓDIGO COMPLETO EN UN DÍA (27 ago 2026)
+
+El dueño pidió piloto automático y las dos plazas quedaron construidas de
+punta a punta. Lo que hay que saber al tocar esto:
+
+- **`src/lib/cj/plazas.ts` es la tabla que manda**: por mercado, la tienda
+  general, los prefijos (`tienda-cl-`/`tienda-co-`), la moneda, el país de
+  entrega, el RESPALDO de flete (nunca cero, y nunca el doméstico de EE. UU.
+  para un envío internacional) y la referencia de cotización. Un país nuevo es
+  una entrada aquí, no `if` repartidos.
+- **El selector del panel decide la plaza** del catálogo de CJ. La pantalla lo
+  avisa en naranja antes de pulsar. Sin la tasa del dólar cargada
+  (`Configuración → La tasa del dólar`, guardada en centésimas en
+  `configuracion.dolar_clp/cop_centesimas`), agregar se niega con el motivo.
+- **El precio**: `precio-chile.ts` (30 % + procesador dentro, tope de USD 500
+  medido ANTES del IVA, pesos enteros CON el 19 % dentro) y
+  `precio-colombia.ts` (igual, sin IVA y sin tope — allá no hay régimen
+  registrado; los impuestos de entrada los decide la aduana y ES DECISIÓN DE
+  NEGOCIO pendiente quién los asume).
+- **La conversión se escribió mal a la primera** (dividía por 1.000.000 en vez
+  de 10.000) y la atrapó la cuenta a mano: $100 a 967,42 = 96.742 pesos. La
+  prueba la fija.
+- **`destinoDeLaTienda` conoce CL y CO**, y `DESTINOS` son cuatro. Las
+  regiones/departamentos van con NOMBRE COMPLETO SIN ACENTOS («Region
+  Metropolitana»), elegidos de lista: a un courier «RM» no le dice nada, y en
+  EE. UU. sí se manda el código porque esa ES su tabla. El estado NO se
+  grita en mayúsculas fuera de EE. UU.
+- **Stripe cobra en la moneda del pedido.** Cobrar `usd` fijo a 96.742 CLP
+  habría intentado cobrar noventa y seis mil dólares: CLP y COP son
+  «zero-decimal» para Stripe y el número viaja tal cual.
+- **El IVA chileno se DESGLOSA del precio** (`impuestosCentavos`), no se suma,
+  y el resumen del F129 por trimestre vive en Configuración. Se declara en
+  USD dentro de los 20 días del cierre; sin ventas no se declara.
+- **Zelle no existe fuera de EE. UU./VE** — candado en el checkout Y en
+  `crearPedido`. La transferencia ACH tampoco se ofrece allá (la página del
+  cobro por enlace es otra historia y no cambió).
+- **`paisDestino` guarda ahora el CÓDIGO** («CL»), pero los pedidos viejos
+  tienen el nombre («United States»): `destinoDeEnvio` entiende los dos. Sin
+  esa tabla, el reintento de una compra de ayer fallaba.
+- **La zona no esconde lo que se despacha**: `enZona` acepta US/CL/CO. Fue
+  exactamente el fallo de los 78 productos invisibles del 15 de agosto, a
+  punto de repetirse en chileno.
+- **Para probar en local**: `curl -H "Host: mercatren.cl" localhost:3000/es`.
+  El navegador del panel no puede fingir el Host; el curl sí, y el diccionario
+  de next-intl viaja entero en la página — para lo visible, mirar el `<h1>`,
+  no un grep a secas.
+
 ## LA PUBLICACIÓN SE CAYÓ POR EL PESO DEL WORKER (17 ago 2026)
 
 YaDominios Cloud rechaza la publicación: «Tu `_worker.js` pesa 12.3 MB y es
