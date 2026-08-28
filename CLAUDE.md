@@ -2746,6 +2746,13 @@ punta a punta. Lo que hay que saber al tocar esto:
   entrega, el RESPALDO de flete (nunca cero, y nunca el doméstico de EE. UU.
   para un envío internacional) y la referencia de cotización. Un país nuevo es
   una entrada aquí, no `if` repartidos.
+- **CHILE Y COLOMBIA SE SURTEN DEL ALMACÉN DE CHINA** (decisión del dueño,
+  27 ago 2026): es el central, el que alimenta a todo el dropshipping hacia
+  Latinoamérica, con el catálogo completo. El campo `almacen` de la plaza
+  manda en TRES sitios a la vez —la búsqueda del catálogo, las variantes/flete
+  y el `fromCountryCode` del pedido— y hay un candado que se pone rojo si
+  alguien vuelve a escribir un almacén a mano. EE. UU. sigue con su almacén
+  local, que es lo que hace posible el «2 a 5 días».
 - **El selector del panel decide la plaza** del catálogo de CJ. La pantalla lo
   avisa en naranja antes de pulsar. Sin la tasa del dólar cargada
   (`Configuración → La tasa del dólar`, guardada en centésimas en

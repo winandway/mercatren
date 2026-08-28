@@ -38,6 +38,20 @@ export type Plaza = {
   moneda: "USD" | "CLP" | "COP";
   /** A qué país se despacha (es lo que viaja a CJ y decide el checkout). */
   paisEntrega: "US" | "CL" | "CO";
+  /**
+   * DE QUÉ ALMACÉN DE CJ SE SURTE ESTA PLAZA.
+   *
+   * Decisión del dueño (27 ago 2026): **Chile y Colombia se surten desde el
+   * almacén de CHINA** — es como trabaja todo el dropshipping hacia
+   * Latinoamérica, con un catálogo varias veces más grande. EE. UU. sigue con
+   * su almacén local, que es lo que hace posible el «2 a 5 días».
+   *
+   * Este campo manda en TRES sitios a la vez —la búsqueda del catálogo, la
+   * cotización del flete y el `fromCountryCode` del pedido— porque tenerlo
+   * escrito tres veces es como uno de los tres se queda en «US» y el pedido
+   * chileno intenta salir de un almacén donde el producto no está.
+   */
+  almacen: "US" | "CN";
   /** El respaldo del flete cuando CJ no cotiza. NUNCA cero. */
   envioEstimadoUsdCentavos: number;
   /** Referencia para cotizar flete: una dirección real del país. */
@@ -56,6 +70,7 @@ const PLAZAS: Record<string, Plaza> = {
     prefijoSlug: "us-",
     moneda: "USD",
     paisEntrega: "US",
+    almacen: "US",
     envioEstimadoUsdCentavos: 350,
     /* El domicilio de Mercatren LLC en Michigan, como siempre. */
     cotizacion: { zip: "48377", provincia: "MI" },
@@ -71,6 +86,7 @@ const PLAZAS: Record<string, Plaza> = {
     prefijoSlug: "cl-",
     moneda: "CLP",
     paisEntrega: "CL",
+    almacen: "CN",
     envioEstimadoUsdCentavos: 1_200,
     /* Santiago, Región Metropolitana: donde vive la mayoría de la clientela. */
     cotizacion: { zip: "8320000", provincia: "RM" },
@@ -86,6 +102,7 @@ const PLAZAS: Record<string, Plaza> = {
     prefijoSlug: "co-",
     moneda: "COP",
     paisEntrega: "CO",
+    almacen: "CN",
     envioEstimadoUsdCentavos: 1_200,
     /* Bogotá. */
     cotizacion: { zip: "110111", provincia: "DC" },
@@ -125,4 +142,16 @@ export function descripcionDePlaza(
     es: `${nombre.es} con entrega en Estados Unidos en 2 a 5 días hábiles y el envío incluido en el precio. Vendido y facturado por ${sociedad}.`,
     en: `${nombre.en} delivered anywhere in the United States in 2 to 5 business days, shipping included in the price. Sold and invoiced by ${sociedad}.`,
   };
+}
+
+/**
+ * El almacén del que sale un envío según su país de ENTREGA.
+ *
+ * Los códigos de mercado y de país de entrega coinciden en nuestras tres
+ * plazas, así que la plaza se busca directo. Lo desconocido cae en EE. UU.,
+ * como todo en este módulo.
+ */
+export function almacenDeEntrega(paisEntrega: string): "US" | "CN" {
+  const plaza = PLAZAS[paisEntrega.trim().toUpperCase()];
+  return plaza?.almacen ?? "US";
 }

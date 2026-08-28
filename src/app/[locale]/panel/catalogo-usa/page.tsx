@@ -34,6 +34,16 @@ export default async function PaginaCatalogoUsa({
 
   const t = await getTranslations("panel.catalogoUsa");
 
+  /* A qué plaza va lo que se agregue: lo decide el selector de país del panel
+     (arriba a la derecha). Se dice ANTES de buscar, en grande y con color, y
+     además decide EL ALMACÉN donde se busca: EE. UU. busca en su almacén
+     local; Chile y Colombia en el de CHINA (decisión del dueño, 27 ago 2026),
+     que es el central y el que surte al dropshipping de Latinoamérica. */
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const { plazaDelMercado } = await import("@/lib/cj/plazas");
+  const plaza = plazaDelMercado(await mercadoDelPanel());
+  const almacen = plaza.almacen;
+
   /* La búsqueda corre en el servidor: la llave de CJ no puede viajar al
      navegador ni dentro de una respuesta. */
   async function buscar(filtros: { texto?: string; pagina?: number }) {
@@ -42,26 +52,25 @@ export default async function PaginaCatalogoUsa({
       const te = await getTranslations("panel.catalogoUsa");
       return { ok: false as const, motivo: te("soloEquipo") };
     }
-    return buscarEnCj(filtros);
+    return buscarEnCj(filtros, almacen);
   }
 
   const configurado = cjConfigurado();
-
-  /* A qué plaza va lo que se agregue: lo decide el selector de país del panel
-     (arriba a la derecha). Se dice ANTES de buscar, en grande y con color,
-     porque agregar cien productos a la plaza equivocada es una tarde perdida. */
-  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
-  const { plazaDelMercado } = await import("@/lib/cj/plazas");
-  const plaza = plazaDelMercado(await mercadoDelPanel());
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
           <Flag className="h-5 w-5 text-carga-500" aria-hidden />
-          {t("titulo")}
+          {plaza.mercado === "US"
+            ? t("titulo")
+            : t("tituloPlaza", {
+                pais: plaza.mercado === "CL" ? "Chile" : "Colombia",
+              })}
         </h1>
-        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">{t("texto")}</p>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+          {plaza.mercado === "US" ? t("texto") : t("textoPlaza")}
+        </p>
 
         {plaza.mercado !== "US" ? (
           <p className="mt-3 rounded-lg border border-carga-500/40 bg-carga-500/10 px-3 py-2 text-sm font-bold text-riel-900">

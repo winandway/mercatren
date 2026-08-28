@@ -43,7 +43,7 @@ export async function fleteDeProducto(
   pid: string,
   plaza: Plaza = plazaDelMercado(mercadoPorCodigo("US")),
 ): Promise<EnvioDelProducto> {
-  const variantes = await pedirVariantes(pid);
+  const variantes = await pedirVariantes(pid, plaza.almacen);
   if (!variantes) return respaldoDe(plaza);
 
   /* La MÁS BARATA, que es exactamente la que se le cobra al comprador: al
@@ -79,10 +79,12 @@ function respaldoDe(plaza: Plaza): EnvioDelProducto {
   };
 }
 
-async function pedirVariantes(pid: string) {
+async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
+  /* Las existencias se miran en el almacén del que va a salir la caja: la
+     variante puede estar surtida en China y agotada en EE. UU., o al revés. */
   const parametros = new URLSearchParams({ pid }).toString();
   const respuesta = await llamarCj<unknown>(
-    `/product/variant/query?${parametros}&countryCode=US`,
+    `/product/variant/query?${parametros}&countryCode=${almacen}`,
   ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
 
   if (!respuesta.ok) {
@@ -97,9 +99,10 @@ async function cotizar(vid: string, plaza: Plaza) {
   const respuesta = await llamarCj<unknown>("/logistic/freightCalculate", {
     metodo: "POST",
     cuerpo: {
-      /* El origen sigue siendo el almacén de EE. UU.: es de donde despacha
-         CJ para nuestras tres plazas. El DESTINO es el que cambia. */
-      startCountryCode: "US",
+      /* DESDE el almacén de la plaza HASTA su país: Chile y Colombia se
+         surten de China (decisión del dueño, 27 ago 2026); EE. UU. de su
+         almacén local. */
+      startCountryCode: plaza.almacen,
       endCountryCode: plaza.paisEntrega,
       products: [{ quantity: 1, vid }],
       zip: plaza.cotizacion.zip,

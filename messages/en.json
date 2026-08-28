@@ -2117,7 +2117,9 @@
       "repartirBoton": "Sort by category",
       "vaAlMayorista": "Goes to the Wholesale store: sold in lots of {minimo}.",
       "dejaElLote": "The lot leaves {monto}.",
-      "plazaDestino": "⚠️ The panel selector is on another country: whatever you add goes to {dominio}, priced in {moneda}. For the U.S. catalog, switch the selector above back to United States."
+      "plazaDestino": "✅ You're loading the {dominio} catalog: whatever you add is published there priced in {moneda}, sourced from the China warehouse. For the U.S. catalog, switch the selector above back to United States.",
+      "tituloPlaza": "{pais} catalog",
+      "textoPlaza": "Search CJ Dropshipping and choose what to sell. The search runs against the CHINA warehouse — the central one, with the full catalog — and whatever you add is published right away to this country's store, in pesos, with international shipping inside the price."
     },
     "tiendasUsa": {
       "titulo": "United States stores",

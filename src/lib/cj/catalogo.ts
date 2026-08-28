@@ -97,6 +97,13 @@ export type ResultadoBusqueda =
 
 export async function buscarEnCj(
   filtros: BusquedaCj = {},
+  /**
+   * EL ALMACÉN LO DECIDE LA PLAZA (27 ago 2026). Con el selector del panel en
+   * Chile o Colombia se busca en el almacén de CHINA — decisión del dueño: es
+   * como trabaja el dropshipping hacia Latinoamérica y el catálogo es varias
+   * veces más grande. En EE. UU. sigue el almacén local del «2 a 5 días».
+   */
+  almacen: "US" | "CN" = "US",
 ): Promise<ResultadoBusqueda> {
   const pagina = Math.max(1, Math.floor(filtros.pagina ?? 1));
   const porPagina = Math.min(100, Math.max(1, filtros.porPagina ?? 24));
@@ -104,8 +111,8 @@ export async function buscarEnCj(
   const parametros = new URLSearchParams({
     page: String(pagina),
     size: String(porPagina),
-    /* EL FILTRO QUE NO SE TOCA. Ver el comentario de arriba. */
-    countryCode: "US",
+    /* El almacén de la plaza. Ver el parámetro de arriba. */
+    countryCode: almacen,
   });
 
   /**

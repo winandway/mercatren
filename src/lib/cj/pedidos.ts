@@ -104,8 +104,15 @@ function aCentavos(valor: number | string | undefined): number | null {
  */
 const TRANSPORTE_RESPALDO = "USPS+";
 
-/** Desde dónde despacha. El almacén de EE. UU. es el que hace el plazo corto. */
-const DESDE = "US";
+/**
+ * DESDE DÓNDE DESPACHA CADA PEDIDO: EL ALMACÉN DE SU PLAZA (27 ago 2026).
+ *
+ * Era la constante `DESDE = "US"` para todo. Con Chile y Colombia surtidos
+ * desde el almacén de CHINA (decisión del dueño), el origen se resuelve por
+ * pedido con `almacenDeEntrega(destino)`: variantes, flete y `fromCountryCode`
+ * usan EL MISMO valor — tenerlo en tres sitios es como uno se queda en «US» y
+ * el pedido chileno intenta salir de un almacén donde el producto no está.
+ */
 
 /**
  * Le pregunta a CJ qué variantes tiene un producto y elige cuál se compra.
@@ -120,6 +127,9 @@ const DESDE = "US";
 async function leerVariantes(
   pid: string | null,
   productSku: string | null,
+  /* «Only variants with inventory in that country will be returned»: se mira
+     el almacén del que va a salir la caja. */
+  almacen: "US" | "CN" = "US",
 ): Promise<VarianteCj[]> {
   const parametros = pid?.trim()
     ? `pid=${encodeURIComponent(pid.trim())}`
@@ -147,7 +157,7 @@ async function leerVariantes(
    * catálogo de tallas que se ofrece incluye las que no se pueden comprar.
    */
   const respuesta = await llamarCj<unknown>(
-    `/product/variant/query?${parametros}&countryCode=${DESDE}`,
+    `/product/variant/query?${parametros}&countryCode=${almacen}`,
   );
 
   if (!respuesta.ok) {
@@ -163,8 +173,9 @@ async function resolverVariante(
   productSku: string | null,
   /** El `vid` que una persona ya eligió en el panel. Manda sobre el automático. */
   vidElegido?: string,
+  almacen: "US" | "CN" = "US",
 ): Promise<VarianteElegida | null> {
-  const variantes = await leerVariantes(pid, productSku);
+  const variantes = await leerVariantes(pid, productSku, almacen);
   return elegirVariante(variantes, vidElegido);
 }
 
@@ -193,6 +204,19 @@ export async function variantesParaElegir(
 
   const db = getDb();
 
+  /* Las tallas que se ofrecen son las del almacén del que va a salir ESTA
+     venta: enseñar el surtido de EE. UU. para un pedido chileno ofrecería
+     tallas que en China no están. */
+  const [cabecera] = await db
+    .select({ pais: pedidos.paisDestino })
+    .from(pedidos)
+    .where(eq(pedidos.id, pedidoId))
+    .limit(1);
+  const { almacenDeEntrega } = await import("@/lib/cj/plazas");
+  const almacenDeLaVenta = almacenDeEntrega(
+    destinoDeEnvio(cabecera?.pais)?.codigo ?? "US",
+  );
+
   const renglones = await db
     .select({
       productoId: productos.id,
@@ -211,7 +235,7 @@ export async function variantesParaElegir(
   for (const r of renglones) {
     if (!r.externoId && !r.sku) continue;
 
-    const variantes = await leerVariantes(r.externoId, r.sku);
+    const variantes = await leerVariantes(r.externoId, r.sku, almacenDeLaVenta);
 
     /* Se ordenan igual que las elige el sistema —por precio y luego por SKU—
        para que la primera de la lista sea exactamente la que saldría sola. Si
@@ -268,12 +292,13 @@ async function transporteReal(
     estado?: string | null;
     codigoPostal?: string | null;
   },
+  ruta: { desde: "US" | "CN"; hasta: string },
 ): Promise<{ nombre: string; costoCentavos: number | null }> {
   const respuesta = await llamarCj<unknown>("/logistic/freightCalculate", {
     metodo: "POST",
     cuerpo: {
-      startCountryCode: DESDE,
-      endCountryCode: "US",
+      startCountryCode: ruta.desde,
+      endCountryCode: ruta.hasta,
       products: variantes.map((v) => ({ quantity: v.cantidad, vid: v.vid })),
       zip: entrega.codigoPostal ?? undefined,
       province: entrega.estado ?? undefined,
@@ -402,6 +427,12 @@ export async function comprarAlProveedor(
     };
   }
 
+  /* De qué almacén sale ESTE pedido: EE. UU. de su almacén local; Chile y
+     Colombia, de China. El mismo valor manda en variantes, flete y
+     `fromCountryCode`. */
+  const { almacenDeEntrega } = await import("@/lib/cj/plazas");
+  const almacen = almacenDeEntrega(destino.codigo);
+
   /**
    * SIN DIRECCIÓN NO SE COMPRA, Y SE DICE CUÁL FALTA.
    *
@@ -470,6 +501,7 @@ export async function comprarAlProveedor(
       r.externoId,
       r.sku,
       elegidas?.[r.productoId],
+      almacen,
     );
 
     if (!variante) {
@@ -509,6 +541,7 @@ export async function comprarAlProveedor(
   const transporte = await transporteReal(
     aComprar.map((r) => ({ vid: r.variante.vid, cantidad: r.cantidad })),
     entrega,
+    { desde: almacen, hasta: destino.codigo },
   );
 
   /**
@@ -567,7 +600,7 @@ export async function comprarAlProveedor(
         shippingCustomerName: entrega.nombre!,
         shippingPhone: pedido.telefono || "",
         logisticName: transporte.nombre,
-        fromCountryCode: DESDE,
+        fromCountryCode: almacen,
         payType: 1,
         /**
          * VA EL `vid`, QUE ES LO ÚNICO SIN AMBIGÜEDAD.

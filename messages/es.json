@@ -2117,7 +2117,9 @@
       "repartirBoton": "Repartir por rubro",
       "vaAlMayorista": "Va a la tienda Mayorista: se vende de a {minimo} unidades.",
       "dejaElLote": "El lote deja {monto}.",
-      "plazaDestino": "⚠️ El selector del panel está en otro país: lo que agregues entra a {dominio}, con el precio en {moneda}. Para el catálogo de EE. UU., cambia el selector de arriba a Estados Unidos."
+      "plazaDestino": "✅ Estás cargando el catálogo de {dominio}: lo que agregues se publica allá con el precio en {moneda}, surtido desde el almacén de China. Para el catálogo de EE. UU., cambia el selector de arriba a Estados Unidos.",
+      "tituloPlaza": "Catálogo de {pais}",
+      "textoPlaza": "Busca en CJ Dropshipping y elige qué vender. Se busca en el almacén de CHINA — el central, con el catálogo completo — y lo que agregues se publica de una en la tienda de este país, en pesos y con el envío internacional dentro del precio."
     },
     "tiendasUsa": {
       "titulo": "Tiendas de Estados Unidos",

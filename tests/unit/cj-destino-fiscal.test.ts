@@ -76,3 +76,26 @@ describe("el candado: el país no puede volver a escribirse a mano", () => {
     expect(fuente).toContain("taxId: destino.taxId");
   });
 });
+
+describe("el almacén de cada plaza (China para CL/CO)", () => {
+  it("CL y CO se surten de China; EE. UU. de su almacén local", async () => {
+    const { almacenDeEntrega } = await import("@/lib/cj/plazas");
+    expect(almacenDeEntrega("US")).toBe("US");
+    expect(almacenDeEntrega("CL")).toBe("CN");
+    expect(almacenDeEntrega("CO")).toBe("CN");
+    /* Lo desconocido cae en EE. UU., nunca revienta. */
+    expect(almacenDeEntrega("VE")).toBe("US");
+  });
+
+  it("EL PEDIDO NO LLEVA NI UN ALMACÉN ESCRITO A MANO", () => {
+    /* Era `DESDE = "US"` para todo: un pedido chileno habría intentado salir
+       de un almacén donde el producto no está. El origen se resuelve por
+       pedido y manda en variantes, flete y fromCountryCode a la vez. */
+    const fuente = readFileSync("src/lib/cj/pedidos.ts", "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "");
+    expect(fuente).not.toMatch(/fromCountryCode:\s*["']/);
+    expect(fuente).toContain("fromCountryCode: almacen");
+    expect(fuente).not.toMatch(/startCountryCode:\s*["']/);
+  });
+});
