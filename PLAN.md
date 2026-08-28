@@ -5,4 +5,4 @@
 - [x] Paso 3: arreglar TODAS las consultas del paso 2 que ignoren el selector — con el panel en Chile se ven los clientes, cobros, órdenes y números de Chile, limpios
 - [x] Paso 4: escribir `ABRIR-UN-PAIS.md` — la lista completa y ordenada de lo que lleva abrir un país (código, configuración y lo del dueño), y la REGLA en CLAUDE.md: dominio nuevo = recorrer esa lista entera, sin que el dueño tenga que pedir pieza por pieza
 - [x] Paso 5: pasar Colombia por esa lista casilla por casilla y cerrar cualquier hueco que le falte frente a Chile
-- [ ] Paso 6: verificación completa, prueba en pantalla, push, build en verde y propagación comprobada en el borde
+- [x] Paso 6: verificación completa, prueba en pantalla, push, build en verde y propagación comprobada en el borde
