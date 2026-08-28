@@ -1,16 +1,8 @@
-# Plan: abrir Chile y Colombia (todo lo de código; lo del dueño queda de último en PENDIENTES)
+# Plan: el traje completo de un país — auditoría, código propio y réplica a Colombia
 
-- [x] Paso 1: la tasa del dólar CLP y COP editable en Panel → Configuración (`dolar_clp_centesimas`, `dolar_cop_centesimas`), con guardas contra tasas rotas
-- [x] Paso 2: las tiendas por rubro de Chile y Colombia (`tienda-cl-<rubro>`, `tienda-co-<rubro>`) con su mercado correcto, calcadas de las de EE. UU.
-- [x] Paso 3: el catálogo de CJ por mercado — con el selector del panel en Chile/Colombia, «Agregar» crea el producto en la tienda de ese país con precio en su moneda, y rechaza con aviso lo que pase de USD 500 (solo Chile)
-- [x] Paso 4: el flete CJ→CL / CJ→CO cotizado al publicar, con respaldo que nunca es cero
-- [x] Paso 5: el precio de Colombia (`precio-colombia.ts`): misma fórmula, COP entero, sin IVA nuestro
-- [x] Paso 6: la dirección chilena y colombiana en el checkout (regiones de Chile y departamentos de Colombia elegidos de lista) en `destino/direccion.ts`
-- [x] Paso 7: el checkout cobra en la moneda del pedido (CLP/COP por Stripe) y anota el IVA chileno en `impuestosCentavos` (sale del precio, no se suma)
-- [x] Paso 8: en el checkout de CL/CO solo tarjeta — sin Zelle ni ACH, que son cuentas de EE. UU.
-- [x] Paso 9: el candado del destino en el pedido a CJ para CL/CO (país + taxId ya viajan; agregar CO a la tabla de destinos)
-- [x] Paso 10: los textos de `.cl` y `.com.co` — título, portada y pie dejan de decir «Estados Unidos» y «dólares» en esos dominios
-- [x] Paso 11: la tarjeta social por mercado — YA EXISTÍA del 17 ago (generador + layout); comprobado que los archivos están en public/
-- [x] Paso 12: el reporte del F129 en Panel → Configuración — lo cobrado de IVA chileno por trimestre, en USD
-- [x] Paso 13: verificación completa (`npm run verify`), prueba en navegador de las pantallas tocadas, push, build en verde y propagación comprobada en el borde
-- [x] Paso 14: PENDIENTES.md y CLAUDE.md al día, con lo del dueño (Turnstile, compras de prueba, decisión de aduana en CO) claramente de último
+- [ ] Paso 1: el código público del producto es NUESTRO (`MT-<país>-XXXXXX`), no el de CJ — en la ficha, en los dos idiomas y en todas las plazas; el SKU de CJ queda solo para el equipo y los pedidos al proveedor
+- [ ] Paso 2: auditoría REAL del alcance por país en el panel — listar cada consulta del panel del equipo y comprobar si filtra por el selector de país (órdenes, cobros en sus tres pestañas, compradores, retiros, tablero, productos, comercios)
+- [ ] Paso 3: arreglar TODAS las consultas del paso 2 que ignoren el selector — con el panel en Chile se ven los clientes, cobros, órdenes y números de Chile, limpios
+- [ ] Paso 4: escribir `ABRIR-UN-PAIS.md` — la lista completa y ordenada de lo que lleva abrir un país (código, configuración y lo del dueño), y la REGLA en CLAUDE.md: dominio nuevo = recorrer esa lista entera, sin que el dueño tenga que pedir pieza por pieza
+- [ ] Paso 5: pasar Colombia por esa lista casilla por casilla y cerrar cualquier hueco que le falte frente a Chile
+- [ ] Paso 6: verificación completa, prueba en pantalla, push, build en verde y propagación comprobada en el borde
