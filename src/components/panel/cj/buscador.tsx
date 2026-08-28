@@ -71,9 +71,14 @@ function nombreDeDepartamento(slug: string | null, idioma: string) {
 export function BuscadorCj({
   buscar,
   idioma,
+  almacen = "US",
 }: {
   buscar: (filtros: { texto?: string; pagina?: number }) => Promise<Respuesta>;
   idioma: string;
+  /** De qué almacén vienen los resultados, para que los avisos digan la
+      verdad: «almacén en Estados Unidos» debajo de una búsqueda que corre
+      contra China es exactamente cómo se pierde quien está cargando. */
+  almacen?: "US" | "CN";
 }) {
   const t = useTranslations("panel.catalogoUsa");
   const [texto, setTexto] = useState("");
@@ -147,7 +152,9 @@ export function BuscadorCj({
         </button>
       </form>
 
-      <p className="text-xs text-tinta-suave">{t("aviso")}</p>
+      <p className="text-xs text-tinta-suave">
+        {almacen === "CN" ? t("avisoCn") : t("aviso")}
+      </p>
 
       {resultado && !resultado.ok ? (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900">
@@ -157,7 +164,7 @@ export function BuscadorCj({
 
       {resultado?.ok && resultado.productos.length === 0 ? (
         <div className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-tinta-suave">
-          <p>{t("nada")}</p>
+          <p>{almacen === "CN" ? t("nadaCn") : t("nada")}</p>
           {/* POR QUÉ está vacía. Sin esto, «CJ no devolvió nada» y «devolvió y
               se descartó todo» se ven idénticas, y la siguiente vez hay que
               adivinar dónde mirar. */}

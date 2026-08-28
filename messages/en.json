@@ -384,7 +384,9 @@
       "tiendasUsa": "US stores",
       "proveedor": "Supplier orders",
       "secciones": "Video sections",
-      "calculadora": "Match invoice"
+      "calculadora": "Match invoice",
+      "catalogoCl": "Chile catalog",
+      "catalogoCo": "Colombia catalog"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -2119,7 +2121,9 @@
       "dejaElLote": "The lot leaves {monto}.",
       "plazaDestino": "✅ You're loading the {dominio} catalog: whatever you add is published there priced in {moneda}, sourced from the China warehouse. For the U.S. catalog, switch the selector above back to United States.",
       "tituloPlaza": "{pais} catalog",
-      "textoPlaza": "Search CJ Dropshipping and choose what to sell. The search runs against the CHINA warehouse — the central one, with the full catalog — and whatever you add is published right away to this country's store, in pesos, with international shipping inside the price."
+      "textoPlaza": "Search CJ Dropshipping and choose what to sell. The search runs against the CHINA warehouse — the central one, with the full catalog — and whatever you add is published right away to this country's store, in pesos, with international shipping inside the price.",
+      "avisoCn": "We search products with stock in the China warehouse — the central one, which supplies Chile and Colombia. The price you see is the minimum: international shipping is quoted when publishing and may raise it.",
+      "nadaCn": "Nothing in stock in the China warehouse for that search. Try another word, in English."
     },
     "tiendasUsa": {
       "titulo": "United States stores",

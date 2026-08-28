@@ -384,7 +384,9 @@
       "tiendasUsa": "Tiendas USA",
       "proveedor": "Pedidos al proveedor",
       "secciones": "Secciones de video",
-      "calculadora": "Cuadrar factura"
+      "calculadora": "Cuadrar factura",
+      "catalogoCl": "Catálogo de Chile",
+      "catalogoCo": "Catálogo de Colombia"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -2119,7 +2121,9 @@
       "dejaElLote": "El lote deja {monto}.",
       "plazaDestino": "✅ Estás cargando el catálogo de {dominio}: lo que agregues se publica allá con el precio en {moneda}, surtido desde el almacén de China. Para el catálogo de EE. UU., cambia el selector de arriba a Estados Unidos.",
       "tituloPlaza": "Catálogo de {pais}",
-      "textoPlaza": "Busca en CJ Dropshipping y elige qué vender. Se busca en el almacén de CHINA — el central, con el catálogo completo — y lo que agregues se publica de una en la tienda de este país, en pesos y con el envío internacional dentro del precio."
+      "textoPlaza": "Busca en CJ Dropshipping y elige qué vender. Se busca en el almacén de CHINA — el central, con el catálogo completo — y lo que agregues se publica de una en la tienda de este país, en pesos y con el envío internacional dentro del precio.",
+      "avisoCn": "Se buscan productos con existencias en el almacén de China, que es el central y surte a Chile y Colombia. El precio que ves es el mínimo: el envío internacional se cotiza al publicar y puede subirlo.",
+      "nadaCn": "Nada con existencias en el almacén de China para esa búsqueda. Prueba con otra palabra, en inglés."
     },
     "tiendasUsa": {
       "titulo": "Tiendas de Estados Unidos",

@@ -193,6 +193,7 @@ export function MenuLateral({
   porRetirar = 0,
   esInterno = false,
   nombre = "",
+  paisDelPanel = "US",
 }: {
   porValidar?: number;
   /** Retiros esperando a que alguien haga la transferencia. */
@@ -200,6 +201,14 @@ export function MenuLateral({
   /** El equipo de Mercatren ve la operacion completa; un comercio, solo la suya. */
   esInterno?: boolean;
   nombre?: string;
+  /**
+   * EL MENÚ DICE EL CATÁLOGO DEL PAÍS ELEGIDO (27 ago 2026).
+   *
+   * Con el selector en Chile, la página se titulaba «Catálogo de Chile» y el
+   * menú seguía diciendo «Catálogo de EE. UU.»: el dueño buscó dónde entrar y
+   * se perdió con razón — dos letreros distintos para la misma puerta.
+   */
+  paisDelPanel?: string;
 }) {
   const t = useTranslations("panel");
   const pathname = usePathname();
@@ -254,9 +263,19 @@ export function MenuLateral({
                        ahí sin tener que entrar a averiguarlo. */
                     ordenesCompra: "ordenesCompraComercio",
                   };
-                  const etiqueta = !esInterno
+                  let etiqueta = !esInterno
                     ? (PARA_EL_COMERCIO[clave] ?? clave)
                     : clave;
+                  /* EL CATÁLOGO SE LLAMA COMO EL PAÍS ELEGIDO. Con el
+                     selector en Chile, la página decía «Catálogo de Chile» y
+                     este menú «Catálogo de EE. UU.»: dos letreros distintos
+                     para la misma puerta — el dueño se perdió con razón. */
+                  if (clave === "catalogoUsa" && paisDelPanel === "CL") {
+                    etiqueta = "catalogoCl";
+                  }
+                  if (clave === "catalogoUsa" && paisDelPanel === "CO") {
+                    etiqueta = "catalogoCo";
+                  }
                   /* Coincidencia por tramo completo, no por prefijo de texto:
                      con `startsWith` a secas, «/panel/ordenes-compra» dejaba
                      encendida también a «/panel/ordenes» y el menú marcaba dos

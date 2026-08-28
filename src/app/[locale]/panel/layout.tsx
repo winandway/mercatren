@@ -150,6 +150,7 @@ export default async function LayoutPanel({
              del modo es ver EXACTAMENTE lo que ve el comercio. */
           esInterno={interno && !observado}
           nombre={usuario?.name ?? ""}
+          paisDelPanel={mercado.codigo}
         />
         <div className="lg:pl-64">
           {/* EL SELECTOR DE PAÍS, solo para Soporte. Va arriba del contenido y
