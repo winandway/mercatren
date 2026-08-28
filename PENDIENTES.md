@@ -93,6 +93,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ---
 
+# BLOQUE 3-RO · LA EXPANSIÓN POR ALMACENES DE CJ (plan del 27 ago 2026)
+
+**El plan completo vive en `PLAN-ALMACENES-CJ.md`** — los 17 almacenes por
+continente, cómo se surten Chile y Colombia (no hay almacén sudamericano: se
+mide US vs China vs México con la sonda de flete), y el orden de expansión.
+**Próximo objetivo decidido por el dueño: RUMANÍA.** Antes de programar nada:
+dominio mercatren.ro, IVA de la UE con el contador, y la decisión del idioma.
+
 # BLOQUE 3-CL · ABRIR CHILE Y COLOMBIA — EL CÓDIGO ESTÁ COMPLETO (27 ago 2026)
 
 **EL EQUIPO YA PUEDE CARGAR PRODUCTOS PARA CHILE Y COLOMBIA**: selector del
