@@ -310,6 +310,61 @@ retira.
 
 ---
 
+## SEO multi-país: mercatren.cl y mercatren.com.co (30 ago 2026)
+
+**Cada dominio es una propiedad APARTE en Search Console.** Que mercatren.com
+esté verificado no cubre a los otros dos: para Google son sitios distintos, y
+así es como se quiere — cada país posiciona con su dominio local (.cl para
+Chile, .com.co para Colombia), que es la señal geográfica más fuerte que
+existe.
+
+### Los datos de cada propiedad
+
+| Dominio          | Propiedad en GSC            | Sitemap que se envía                   |
+| ---------------- | --------------------------- | -------------------------------------- |
+| mercatren.cl     | Dominio: `mercatren.cl`     | `https://mercatren.cl/sitemap.xml`     |
+| mercatren.com.co | Dominio: `mercatren.com.co` | `https://mercatren.com.co/sitemap.xml` |
+
+La verificación de tipo «Dominio» se hace con un registro TXT en el DNS de
+cada dominio (el valor lo da Google en pantalla al agregar la propiedad;
+empieza por `google-site-verification=`). El DNS vive en Cloudflare.
+
+### Qué sirve cada dominio (comprobado el 30 ago 2026)
+
+- **Sitemap por mercado**: cada dominio lista SOLO su catálogo, con sus URLs
+  y hreflang es/en. El de .cl traía 2.678 productos y el .com.co 2.256.
+- **robots.txt por dominio** (`src/lib/seo/robots.ts` recibe la base): cada
+  uno declara SU `Host`, SU `Sitemap` y SU `Agentmap`. Antes los tres
+  apuntaban al del .com — corregido y con candado
+  (`tests/unit/seo-por-dominio.test.ts`).
+- **Título y descripción con palabras clave del país** (`marca.lemaMercado` y
+  `marca.descripcionMercado`): «Compra online con entrega a domicilio en todo
+  Chile/Colombia», con «paga con tarjeta en pesos», «precio final», «envío e
+  impuestos incluidos», «sin cobros sorpresa de aduana». El «Muy pronto» de
+  antes no posicionaba nada.
+- **llms.txt por dominio**: cada plaza le cuenta a las IA (ChatGPT, Claude,
+  Gemini) SU historia — país, tarjeta en moneda local, IVA dentro (CL),
+  catálogo y tiendas del mercado. El MCP/OpenAPI/Markdown ya servían con el
+  dominio del pedido.
+
+### Las palabras clave por plaza
+
+- **Chile**: compra online Chile · entrega a domicilio · pagar en pesos
+  chilenos · precio final con IVA incluido · sin cobros de aduana · tienda
+  online Chile.
+- **Colombia**: compra online Colombia · entrega a domicilio · pagar en pesos
+  colombianos · precio final · tienda online Colombia.
+- El término de marca de la casa («comercio electrónico transfronterizo con
+  liquidación doméstica») es del .com; las plazas venden en lenguaje de
+  comprador, no de banco.
+
+### Después de verificar (por cada dominio)
+
+1. Sitemaps → pegar el del dominio → Enviar.
+2. Inspección de URL → `https://<dominio>/es` → Solicitar indexación (y la
+   `/en`).
+3. A los días, mirar Cobertura: las fichas entran solas desde el sitemap.
+
 ## Google Merchant Center
 
 **Cuenta 5835487683 · Mercatren · Estados Unidos · español**

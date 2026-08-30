@@ -2,7 +2,11 @@
   "marca": {
     "nombre": "Mercatren",
     "lema": "Cross-border buying and selling",
-    "lemaMercadoNuevo": "Coming soon to {pais}: local stores and products delivered in your country"
+    "lemaMercadoNuevo": "Coming soon to {pais}: local stores and products delivered in your country",
+    "lemaMercado": "Shop online with home delivery across {pais}",
+    "descripcionMercado": "Online store with home delivery across {pais}. Pay by card in {moneda} — the price you see is final: shipping and taxes included, no surprise customs fees. Tech, home, sports, beauty, and more.",
+    "monedaCLP": "Chilean pesos",
+    "monedaCOP": "Colombian pesos"
   },
   "encabezado": {
     "buscarPlaceholder": "Search products, stores and brands",

@@ -2,7 +2,11 @@
   "marca": {
     "nombre": "Mercatren",
     "lema": "Compra en Estados Unidos, entrega donde la necesites",
-    "lemaMercadoNuevo": "Muy pronto en {pais}: comercios y productos que se entregan en tu país"
+    "lemaMercadoNuevo": "Muy pronto en {pais}: comercios y productos que se entregan en tu país",
+    "lemaMercado": "Compra online con entrega a domicilio en todo {pais}",
+    "descripcionMercado": "Tienda online con entrega a domicilio en todo {pais}. Paga con tarjeta en {moneda} y el precio que ves es el final: envío e impuestos incluidos, sin cobros sorpresa de aduana. Tecnología, hogar, deporte, belleza y más.",
+    "monedaCLP": "pesos chilenos",
+    "monedaCOP": "pesos colombianos"
   },
   "encabezado": {
     "buscarPlaceholder": "Buscar productos, tiendas y marcas",

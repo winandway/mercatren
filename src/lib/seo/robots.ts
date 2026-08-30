@@ -119,7 +119,15 @@ export function reglasRobots(): Regla[] {
 }
 
 /** El archivo tal cual lo lee un robot. */
-export function robotsTxt(): string {
+/**
+ * ══ EL ROBOTS ES DEL DOMINIO QUE LO PIDE (30 ago 2026) ══
+ *
+ * Estaba clavado a mercatren.com: el robots.txt de mercatren.cl le decía a
+ * Google «Sitemap: https://mercatren.com/sitemap.xml» — el mapa de OTRO
+ * dominio. Cada dominio declara SU host, SU mapa y SU llms.txt; sin la base
+ * se cae al principal, que es lo que había.
+ */
+export function robotsTxt(base: string = SITIO.url): string {
   const bloques = reglasRobots().map(({ agente, cerrado }) =>
     [
       `User-agent: ${agente}`,
@@ -132,16 +140,16 @@ export function robotsTxt(): string {
   );
 
   return [
-    "# Mercatren — mercatren.com",
+    `# Mercatren — ${base.replace("https://", "")}`,
     "# Que pueden hacer las IA con este contenido: https://contentsignals.org/",
-    "# Para agentes y asistentes: https://mercatren.com/llms.txt",
+    `# Para agentes y asistentes: ${base}/llms.txt`,
     "",
     bloques.join("\n\n"),
     "",
-    `Host: ${SITIO.url}`,
-    `Sitemap: ${SITIO.url}/sitemap.xml`,
+    `Host: ${base}`,
+    `Sitemap: ${base}/sitemap.xml`,
     /* ARD (§6.1): dónde está el manifiesto de capacidades para agentes. */
-    `Agentmap: ${SITIO.url}/.well-known/ai-catalog.json`,
+    `Agentmap: ${base}/.well-known/ai-catalog.json`,
     "",
   ].join("\n");
 }

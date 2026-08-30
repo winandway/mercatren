@@ -56,9 +56,19 @@ export async function generateMetadata({
   const mercado = await mercadoActual();
   const principal = esMercadoPrincipal(mercado);
   const marca = principal ? t("nombre") : marcaDelMercado(mercado);
+  /* ══ EL TÍTULO VENDE, NO ANUNCIA (30 ago 2026) ══
+     Decía «Muy pronto en Chile…» con la tienda ya vendiendo miles de
+     productos: un título de espera no posiciona nada. Ahora lleva lo que la
+     gente de allá teclea — «compra online», «entrega a domicilio» — y la
+     descripción remata con la promesa diferencial: precio final en su
+     moneda, envío e impuestos incluidos, sin sorpresa de aduana. */
+  const monedaLocal = mercado.codigo === "CL" ? t("monedaCLP") : t("monedaCOP");
   const lema = principal
     ? t("lema")
-    : t("lemaMercadoNuevo", { pais: mercado.nombre });
+    : t("lemaMercado", { pais: mercado.nombre });
+  const descripcion = principal
+    ? t("lema")
+    : t("descripcionMercado", { pais: mercado.nombre, moneda: monedaLocal });
   const titulo = `${marca} — ${lema}`;
   /* La IMAGEN de la tarjeta también es del mercado: el principal conserva su
      logotipo con «.com» dibujado; los demás llevan el logo oficial sin
@@ -73,7 +83,7 @@ export async function generateMetadata({
       default: titulo,
       template: `%s | ${marca}`,
     },
-    description: lema,
+    description: descripcion,
     applicationName: marca,
     manifest: "/manifest.webmanifest",
     alternates: {
@@ -87,7 +97,7 @@ export async function generateMetadata({
       type: "website",
       siteName: marca,
       title: titulo,
-      description: lema,
+      description: descripcion,
       url: `/${locale}`,
       locale:
         locale === "es" ? `es_${principal ? "US" : mercado.codigo}` : "en_US",
@@ -103,7 +113,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: titulo,
-      description: lema,
+      description: descripcion,
       images: [tarjeta],
     },
     appleWebApp: {
