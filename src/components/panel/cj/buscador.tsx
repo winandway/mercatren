@@ -81,7 +81,13 @@ export function BuscadorCj({
   almacen?: "US" | "CN";
 }) {
   const t = useTranslations("panel.catalogoUsa");
-  const [texto, setTexto] = useState("");
+  /* Si la URL trae ?q=, el buscador arranca con ese término: es el puente
+     desde «Búsquedas por foto» — lo que un cliente buscó y no había, listo
+     para surtirse de CJ con un clic. */
+  const [texto, setTexto] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("q") ?? "";
+  });
   const [pagina, setPagina] = useState(1);
   const [resultado, setResultado] = useState<Respuesta | null>(null);
   const [buscando, iniciarBusqueda] = useTransition();

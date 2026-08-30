@@ -2533,7 +2533,8 @@
       "esperaAviso": "{correo} espera el aviso — pega el enlace de la ficha cuando el producto esté publicado:",
       "yaAvisado": "Avisado a {correo}.",
       "verEnlace": "Ver el enlace",
-      "avisar": "Avisar"
+      "avisar": "Avisar",
+      "buscarloEnCj": "Buscarlo en CJ: «{termino}»"
     }
   },
   "catalogo": {
@@ -3819,6 +3820,8 @@
     "correo": "Tu correo",
     "avisenme": "Avísenme cuando lo tengan",
     "otraFoto": "Buscar con otra foto",
-    "noDisponible": "La búsqueda por foto no está disponible en este momento. Usa el buscador de arriba."
+    "noDisponible": "La búsqueda por foto no está disponible en este momento. Usa el buscador de arriba.",
+    "cerrar": "Cerrar",
+    "ahoraNo": "Ahora no"
   }
 }

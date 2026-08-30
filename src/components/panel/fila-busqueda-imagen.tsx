@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, MailCheck, Send } from "lucide-react";
+import { Loader2, MailCheck, SearchCheck, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { avisarProductoEncontrado } from "@/lib/busqueda-imagen/acciones";
@@ -35,6 +35,7 @@ export function FilaBusquedaImagen({ busqueda }: { busqueda: Busqueda }) {
       return JSON.parse(busqueda.mirada ?? "{}") as {
         descripcion?: string;
         es?: string[];
+        en?: string[];
         mejorTermino?: string | null;
         error?: string;
       };
@@ -42,6 +43,9 @@ export function FilaBusquedaImagen({ busqueda }: { busqueda: Busqueda }) {
       return {};
     }
   })();
+  /* El término en INGLÉS para CJ: sus títulos están en inglés y el buscador
+     del proveedor no entiende español. */
+  const terminoCj = mirada.en?.[0] ?? mirada.mejorTermino ?? "";
 
   function avisar() {
     iniciar(async () => {
@@ -74,6 +78,16 @@ export function FilaBusquedaImagen({ busqueda }: { busqueda: Busqueda }) {
           {t("resultados", { n: busqueda.resultados })}
           {mirada.es?.length ? ` · ${mirada.es.join(" · ")}` : ""}
         </p>
+
+        {terminoCj ? (
+          <a
+            href={`/es/panel/catalogo-usa?q=${encodeURIComponent(terminoCj)}`}
+            className="text-carga-700 mt-1.5 inline-flex items-center gap-1 text-xs font-semibold underline"
+          >
+            <SearchCheck className="h-3.5 w-3.5" aria-hidden />
+            {t("buscarloEnCj", { termino: terminoCj })}
+          </a>
+        ) : null}
 
         {busqueda.correo ? (
           avisado ? (

@@ -129,27 +129,23 @@ export async function buscarPorImagen(
   const candidatos = [...mirada.es, ...mirada.en];
   let mejorTermino: string | null = null;
   let total = 0;
-  /* Se JUNTAN los primeros términos que den algo (dedup por id): un solo
-     término se queda corto — la foto de una engrasadora encuentra más
-     casando «engrasadora» + «bomba de grasa» que cualquiera solo. */
-  const vistos = new Set<string>();
+  /* ══ SOLO EL TÉRMINO MÁS ESPECÍFICO QUE DÉ ALGO (30 ago 2026) ══
+     La primera versión juntaba los primeros TRES términos con resultados, y
+     el dueño lo cazó con su engrasadora: «herramienta manual» — el término
+     genérico — le puso una brocha de maquillaje al lado. Un resultado
+     preciso vale más que doce revueltos: se enseñan los del mejor término y
+     los demás términos quedan como enlaces, para que el CLIENTE decida si
+     abre la búsqueda ancha. */
   const encontradosFoto: ProductoEncontrado[] = [];
-  let terminosConAlgo = 0;
   for (const termino of candidatos) {
-    if (terminosConAlgo >= 3 || encontradosFoto.length >= 12) break;
     const { productos: pagina1, total: n } = await listarProductos(mercado, {
       busqueda: termino,
       pagina: 1,
     });
     if (n === 0) continue;
-    terminosConAlgo += 1;
-    if (!mejorTermino) {
-      mejorTermino = termino;
-      total = n;
-    }
-    for (const p of pagina1) {
-      if (vistos.has(p.id) || encontradosFoto.length >= 12) continue;
-      vistos.add(p.id);
+    mejorTermino = termino;
+    total = n;
+    for (const p of pagina1.slice(0, 12)) {
       encontradosFoto.push({
         id: p.id,
         slug: p.slug,
@@ -160,6 +156,7 @@ export async function buscarPorImagen(
         imagenUrl: p.imagenUrl,
       });
     }
+    break;
   }
 
   await db.insert(busquedasImagen).values({

@@ -32,6 +32,10 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
   const [correo, setCorreo] = useState("");
   const [avisoCorreo, setAvisoCorreo] = useState<string | null>(null);
   const [correoListo, setCorreoListo] = useState(false);
+  /* La miniatura de SU foto para el aviso: se dibuja del archivo local
+     (objectURL), sin pedirle nada al servidor — la subida es privada. */
+  const [fotoLocal, setFotoLocal] = useState<string | null>(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
 
   if (!disponible) {
     return (
@@ -46,6 +50,10 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
     setResultado(null);
     setAvisoCorreo(null);
     setCorreoListo(false);
+    setFotoLocal((previa) => {
+      if (previa) URL.revokeObjectURL(previa);
+      return URL.createObjectURL(archivo);
+    });
     iniciar(async () => {
       let listo: File = archivo;
       try {
@@ -58,6 +66,11 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
       datos.set("foto", listo);
       const r = await buscarPorImagen(datos);
       setResultado(r);
+      /* ══ EL POP-UP DEL CORREO (30 ago 2026) ══ Pedido del dueño: si no
+         hay nada, sale el aviso EN GRANDE con la foto que él subió al lado
+         — esa búsqueda no se puede perder: es la lista de compras del
+         catálogo. */
+      if (r.ok && r.productos.length === 0) setModalAbierto(true);
     });
   }
 
@@ -103,6 +116,71 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {resultado.mensaje}
         </p>
+      ) : null}
+
+      {modalAbierto && resultado?.ok ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("sinNada")}
+        >
+          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
+            <div className="flex items-start gap-4">
+              {fotoLocal ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- es el
+                   archivo local del cliente, un objectURL. */
+                <img
+                  src={fotoLocal}
+                  alt=""
+                  className="h-24 w-24 shrink-0 rounded-lg border border-borde object-cover"
+                />
+              ) : null}
+              <div className="min-w-0">
+                <p className="font-bold">{t("sinNada")}</p>
+                <p className="mt-1 text-sm text-tinta-suave">
+                  {t("sinNadaTexto")}
+                </p>
+              </div>
+            </div>
+            {correoListo ? (
+              <p className="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-800">
+                <MailCheck className="h-4 w-4 shrink-0" aria-hidden />
+                {avisoCorreo}
+              </p>
+            ) : (
+              <div className="mt-4 space-y-2">
+                <input
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
+                  placeholder={t("correo")}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={dejarCorreo}
+                  disabled={pendiente || !correo.trim()}
+                  className="boton-principal w-full"
+                >
+                  {t("avisenme")}
+                </button>
+                {avisoCorreo ? (
+                  <p className="text-sm text-red-700">{avisoCorreo}</p>
+                ) : null}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setModalAbierto(false)}
+              className="mt-3 w-full text-center text-sm text-tinta-suave underline"
+            >
+              {correoListo ? t("cerrar") : t("ahoraNo")}
+            </button>
+          </div>
+        </div>
       ) : null}
 
       {resultado?.ok ? (

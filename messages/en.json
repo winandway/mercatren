@@ -2533,7 +2533,8 @@
       "esperaAviso": "{correo} is waiting — paste the product page link once it's published:",
       "yaAvisado": "Notified {correo}.",
       "verEnlace": "See the link",
-      "avisar": "Notify"
+      "avisar": "Notify",
+      "buscarloEnCj": "Find it on CJ: “{termino}”"
     }
   },
   "catalogo": {
@@ -3819,6 +3820,8 @@
     "correo": "Your email",
     "avisenme": "Notify me when you have it",
     "otraFoto": "Search with another photo",
-    "noDisponible": "Photo search isn't available right now. Use the search bar above."
+    "noDisponible": "Photo search isn't available right now. Use the search bar above.",
+    "cerrar": "Close",
+    "ahoraNo": "Not now"
   }
 }
