@@ -13,6 +13,7 @@ type Busqueda = {
   mirada: string | null;
   resultados: number;
   correo: string | null;
+  nombre: string | null;
   estado: string;
   enlaceAvisado: string | null;
   fecha: string;
@@ -108,7 +109,11 @@ export function FilaBusquedaImagen({ busqueda }: { busqueda: Busqueda }) {
           ) : (
             <div className="mt-2">
               <p className="text-sm font-semibold text-amber-800">
-                {t("esperaAviso", { correo: busqueda.correo })}
+                {t("esperaAviso", {
+                  correo: busqueda.nombre
+                    ? `${busqueda.nombre} · ${busqueda.correo}`
+                    : busqueda.correo,
+                })}
               </p>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 <input

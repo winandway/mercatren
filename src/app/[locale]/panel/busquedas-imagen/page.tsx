@@ -48,6 +48,7 @@ export default async function PaginaBusquedasImagen({
                 mirada: f.mirada,
                 resultados: f.resultados,
                 correo: f.correo,
+                nombre: f.nombre ?? null,
                 estado: f.estado ?? "pendiente",
                 enlaceAvisado: f.enlaceAvisado,
                 fecha: fechaHora(f.creadoEn, locale) ?? "",

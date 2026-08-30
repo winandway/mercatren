@@ -1144,6 +1144,24 @@ export const busquedasImagen = sqliteTable(
 );
 
 /**
+ * EL CONTACTO DE UNA BÚSQUEDA POR FOTO (30 ago 2026).
+ *
+ * Nombre y correo del cliente que quiere el aviso. Es tabla aparte — y no la
+ * columna `nombre` en `busquedas_imagen` — por la regla de siempre:
+ * `schema.sql` solo trae CREATE TABLE IF NOT EXISTS y esa tabla ya vive en
+ * producción, así que una columna nueva no llegaría sola. Una tabla sí.
+ */
+export const contactosBusqueda = sqliteTable("contactos_busqueda", {
+  /** Una búsqueda tiene UN contacto: la llave es la propia búsqueda. */
+  busquedaId: text("busqueda_id").primaryKey(),
+  nombre: text("nombre"),
+  correo: text("correo").notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+/**
  * LO QUE LE FUE PASANDO A UN PEDIDO, Y QUIEN LO HIZO.
  *
  * `pedidos.estado` dice donde esta hoy y `actualizado_en` cuando se movio por

@@ -3816,12 +3816,15 @@
     "resultados": "See the {n} results for “{termino}”",
     "otrosTerminos": "Or search by:",
     "sinNada": "We don't have that product yet",
-    "sinNadaTexto": "Leave your email and our team will keep looking. As soon as we have it, you'll get the direct link.",
+    "sinNadaTexto": "But it may be in one of our warehouses. Leave your name and email and we'll contact you as soon as we have it.",
     "correo": "Your email",
     "avisenme": "Notify me when you have it",
     "otraFoto": "Search with another photo",
     "noDisponible": "Photo search isn't available right now. Use the search bar above.",
     "cerrar": "Close",
-    "ahoraNo": "Not now"
+    "ahoraNo": "Not now",
+    "nombre": "Your name",
+    "ningunoEs": "None of these the one you're looking for?",
+    "ningunoEsTexto": "We don't have that product, but it may be in one of our warehouses. Leave your name and email and we'll contact you as soon as we have it."
   }
 }

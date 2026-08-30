@@ -30,6 +30,7 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
     null,
   );
   const [correo, setCorreo] = useState("");
+  const [nombre, setNombre] = useState("");
   const [avisoCorreo, setAvisoCorreo] = useState<string | null>(null);
   const [correoListo, setCorreoListo] = useState(false);
   /* La miniatura de SU foto para el aviso: se dibuja del archivo local
@@ -78,11 +79,51 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
     if (!resultado?.ok) return;
     const id = resultado.busquedaId;
     iniciar(async () => {
-      const r = await dejarCorreoDeBusqueda(id, correo, idioma);
+      const r = await dejarCorreoDeBusqueda(id, correo, idioma, nombre);
       setAvisoCorreo(r.mensaje);
       if (r.ok) setCorreoListo(true);
     });
   }
+
+  /* El mismo formulario en los dos sitios: el modal del cero y el bloque
+     que SIEMPRE acompaña los resultados parecidos. */
+  const formularioContacto = correoListo ? (
+    <p className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-800">
+      <MailCheck className="h-4 w-4 shrink-0" aria-hidden />
+      {avisoCorreo}
+    </p>
+  ) : (
+    <div className="mt-3 space-y-2">
+      <input
+        type="text"
+        autoComplete="name"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        placeholder={t("nombre")}
+        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:text-sm"
+      />
+      <input
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        value={correo}
+        onChange={(e) => setCorreo(e.target.value)}
+        placeholder={t("correo")}
+        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:text-sm"
+      />
+      <button
+        type="button"
+        onClick={dejarCorreo}
+        disabled={pendiente || !correo.trim()}
+        className="boton-principal w-full"
+      >
+        {t("avisenme")}
+      </button>
+      {avisoCorreo ? (
+        <p className="text-sm text-red-700">{avisoCorreo}</p>
+      ) : null}
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -143,35 +184,7 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
                 </p>
               </div>
             </div>
-            {correoListo ? (
-              <p className="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-800">
-                <MailCheck className="h-4 w-4 shrink-0" aria-hidden />
-                {avisoCorreo}
-              </p>
-            ) : (
-              <div className="mt-4 space-y-2">
-                <input
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                  placeholder={t("correo")}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={dejarCorreo}
-                  disabled={pendiente || !correo.trim()}
-                  className="boton-principal w-full"
-                >
-                  {t("avisenme")}
-                </button>
-                {avisoCorreo ? (
-                  <p className="text-sm text-red-700">{avisoCorreo}</p>
-                ) : null}
-              </div>
-            )}
+            {formularioContacto}
             <button
               type="button"
               onClick={() => setModalAbierto(false)}
@@ -269,6 +282,31 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
                     ))}
                 </p>
               ) : null}
+              {/* ══ LA OPCIÓN DEL AVISO, SIEMPRE (30 ago 2026) ══ Pedido
+                  del dueño con sus monitores KRK delante: los parecidos
+                  están bien, pero si NINGUNO es el suyo, la búsqueda no se
+                  puede perder. Con la foto que él subió al lado, nombre y
+                  correo — queda en el historial del equipo. */}
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                <div className="flex items-start gap-3">
+                  {fotoLocal ? (
+                    /* eslint-disable-next-line @next/next/no-img-element -- el
+                       archivo local del cliente, un objectURL. */
+                    <img
+                      src={fotoLocal}
+                      alt=""
+                      className="h-16 w-16 shrink-0 rounded-lg border border-amber-200 object-cover"
+                    />
+                  ) : null}
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold">{t("ningunoEs")}</p>
+                    <p className="mt-0.5 text-sm text-tinta-suave">
+                      {t("ningunoEsTexto")}
+                    </p>
+                  </div>
+                </div>
+                {formularioContacto}
+              </div>
             </div>
           ) : (
             <div className="mt-3">
@@ -276,35 +314,7 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
               <p className="mt-1 text-sm text-tinta-suave">
                 {t("sinNadaTexto")}
               </p>
-              {correoListo ? (
-                <p className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-800">
-                  <MailCheck className="h-4 w-4 shrink-0" aria-hidden />
-                  {avisoCorreo}
-                </p>
-              ) : (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <input
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={correo}
-                    onChange={(e) => setCorreo(e.target.value)}
-                    placeholder={t("correo")}
-                    className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2.5 text-base outline-none focus:border-carga-500 sm:text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={dejarCorreo}
-                    disabled={pendiente || !correo.trim()}
-                    className="boton-principal shrink-0"
-                  >
-                    {t("avisenme")}
-                  </button>
-                </div>
-              )}
-              {avisoCorreo && !correoListo ? (
-                <p className="mt-2 text-sm text-red-700">{avisoCorreo}</p>
-              ) : null}
+              {formularioContacto}
             </div>
           )}
         </div>

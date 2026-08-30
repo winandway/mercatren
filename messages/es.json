@@ -3816,12 +3816,15 @@
     "resultados": "Ver los {n} resultados de «{termino}»",
     "otrosTerminos": "O busca por:",
     "sinNada": "Todavía no tenemos ese producto",
-    "sinNadaTexto": "Deja tu correo y nuestro equipo lo sigue buscando. Cuando lo tengamos, te llega el enlace directo.",
+    "sinNadaTexto": "Pero posiblemente lo hay en alguna de nuestras bodegas. Deja tu nombre y tu correo y cuando lo tengamos te contactaremos.",
     "correo": "Tu correo",
     "avisenme": "Avísenme cuando lo tengan",
     "otraFoto": "Buscar con otra foto",
     "noDisponible": "La búsqueda por foto no está disponible en este momento. Usa el buscador de arriba.",
     "cerrar": "Cerrar",
-    "ahoraNo": "Ahora no"
+    "ahoraNo": "Ahora no",
+    "nombre": "Tu nombre",
+    "ningunoEs": "¿Ninguno es el que buscabas?",
+    "ningunoEsTexto": "No tenemos ese producto, pero posiblemente lo hay en alguna de nuestras bodegas. Deja tu nombre y tu correo y cuando lo tengamos te contactaremos."
   }
 }

@@ -10,7 +10,7 @@ import { esEnlaceDeProductoNuestro } from "@/lib/busqueda-imagen/parsear";
 import { listarProductos } from "@/lib/catalogo/consultas";
 import { correoProductoEncontrado } from "@/lib/correo/correos";
 import { getDb } from "@/lib/db";
-import { busquedasImagen } from "@/lib/db/schema";
+import { busquedasImagen, contactosBusqueda } from "@/lib/db/schema";
 import { mercadoActual } from "@/lib/mercado/actual";
 import { mensajes } from "@/lib/mensajes";
 import { correoAceptable } from "@/lib/validacion/correo-servidor";
@@ -189,6 +189,9 @@ export async function dejarCorreoDeBusqueda(
   busquedaId: string,
   correo: string,
   idioma: string,
+  /* El nombre es opcional: obligarlo perdería avisos por un dato que solo
+     sirve para el saludo. Vive en su propia tabla (contactos_busqueda). */
+  nombre?: string,
 ): Promise<{ ok: boolean; mensaje: string }> {
   const t = await mensajes();
   const revisado = z.string().trim().toLowerCase().email().safeParse(correo);
@@ -208,6 +211,14 @@ export async function dejarCorreoDeBusqueda(
   if (actualizado.length === 0) {
     return { ok: false, mensaje: t("fotoBusquedaNoExiste") };
   }
+  const nombreLimpio = (nombre ?? "").trim().slice(0, 80) || null;
+  await db
+    .insert(contactosBusqueda)
+    .values({ busquedaId, nombre: nombreLimpio, correo: revisado.data })
+    .onConflictDoUpdate({
+      target: contactosBusqueda.busquedaId,
+      set: { nombre: nombreLimpio, correo: revisado.data },
+    });
   return { ok: true, mensaje: t("fotoCorreoGuardado") };
 }
 
@@ -245,10 +256,14 @@ export async function avisarProductoEncontrado(
     return { ok: false, mensaje: t("fotoYaAvisado") };
   }
 
+  const [contacto] = await db
+    .select({ nombre: contactosBusqueda.nombre })
+    .from(contactosBusqueda)
+    .where(eq(contactosBusqueda.busquedaId, busquedaId));
   const envio = await correoProductoEncontrado(
     {
       email: fila.correo,
-      name: fila.correo,
+      name: contacto?.nombre ?? fila.correo,
       idioma: fila.idioma as "es" | "en",
     },
     limpio,
@@ -269,8 +284,23 @@ export async function avisarProductoEncontrado(
 export async function listarBusquedasPorImagen() {
   await exigirEquipoInterno();
   return getDb()
-    .select()
+    .select({
+      id: busquedasImagen.id,
+      mercado: busquedasImagen.mercado,
+      imagenClave: busquedasImagen.imagenClave,
+      mirada: busquedasImagen.mirada,
+      resultados: busquedasImagen.resultados,
+      correo: busquedasImagen.correo,
+      estado: busquedasImagen.estado,
+      enlaceAvisado: busquedasImagen.enlaceAvisado,
+      creadoEn: busquedasImagen.creadoEn,
+      nombre: contactosBusqueda.nombre,
+    })
     .from(busquedasImagen)
+    .leftJoin(
+      contactosBusqueda,
+      eq(contactosBusqueda.busquedaId, busquedasImagen.id),
+    )
     .orderBy(desc(busquedasImagen.creadoEn))
     .limit(200);
 }

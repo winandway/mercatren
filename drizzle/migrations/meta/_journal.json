@@ -267,6 +267,13 @@
       "when": 1788106060323,
       "tag": "0037_spooky_thing",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1788114348024,
+      "tag": "0038_flowery_talkback",
+      "breakpoints": true
     }
   ]
 }
