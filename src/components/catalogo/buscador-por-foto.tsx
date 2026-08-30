@@ -9,6 +9,7 @@ import {
   dejarCorreoDeBusqueda,
   type ResultadoBusquedaPorFoto,
 } from "@/lib/busqueda-imagen/acciones";
+import { formatearPrecio } from "@/lib/dinero";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { Link } from "@/i18n/navigation";
 
@@ -115,8 +116,54 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
             </p>
           ) : null}
 
-          {resultado.total > 0 && resultado.mejorTermino ? (
+          {resultado.productos.length > 0 && resultado.mejorTermino ? (
             <div className="mt-3 space-y-3">
+              {/* LAS FOTOS DE LO ENCONTRADO, AHÍ MISMO (30 ago 2026). El
+                  dueño probó con la captura de un producto nuestro y la
+                  página solo daba un botón: «debería de aparecer imágenes
+                  allí». Como Google Lens: se ve lo hallado sin salir. */}
+              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {resultado.productos.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/producto/${p.slug}`}
+                      className="block overflow-hidden rounded-lg border border-borde bg-white transition-shadow hover:shadow-md"
+                    >
+                      {p.imagenUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element --
+                           fotos de comercios en dominios que no se conocen
+                           de antemano; la parrilla del catálogo hace igual. */
+                        <img
+                          src={p.imagenUrl}
+                          alt={
+                            idioma === "en"
+                              ? (p.tituloEn ?? p.tituloEs)
+                              : p.tituloEs
+                          }
+                          className="aspect-square w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="aspect-square w-full bg-slate-100" />
+                      )}
+                      <div className="p-2">
+                        <p className="line-clamp-2 text-xs font-medium">
+                          {idioma === "en"
+                            ? (p.tituloEn ?? p.tituloEs)
+                            : p.tituloEs}
+                        </p>
+                        <p className="mt-0.5 text-sm font-bold tabular-nums">
+                          {formatearPrecio(
+                            p.precioCentavos,
+                            idioma as "es" | "en",
+                            p.moneda,
+                          )}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
               <Link
                 href={`/catalogo?q=${encodeURIComponent(resultado.mejorTermino)}`}
                 className="boton-principal flex items-center justify-center gap-2"

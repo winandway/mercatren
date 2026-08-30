@@ -34,6 +34,16 @@ const TAMANO_MAXIMO = 3 * 1024 * 1024;
 /** Tope por IP por hora: el ojo cuesta dinero y un robot no compra nada. */
 const BUSQUEDAS_POR_HORA = 20;
 
+export type ProductoEncontrado = {
+  id: string;
+  slug: string;
+  tituloEs: string;
+  tituloEn: string | null;
+  precioCentavos: number;
+  moneda: string;
+  imagenUrl: string | null;
+};
+
 export type ResultadoBusquedaPorFoto =
   | {
       ok: true;
@@ -42,6 +52,11 @@ export type ResultadoBusquedaPorFoto =
       terminos: string[];
       mejorTermino: string | null;
       total: number;
+      /** LOS PRODUCTOS CON SU FOTO, ahí mismo (30 ago 2026). El dueño probó
+          con una captura de un producto nuestro y la página solo daba un
+          botón: «debería de aparecer imágenes allí». Como Google Lens: la
+          parrilla va en la propia página. */
+      productos: ProductoEncontrado[];
     }
   | { ok: false; mensaje: string };
 
@@ -114,15 +129,36 @@ export async function buscarPorImagen(
   const candidatos = [...mirada.es, ...mirada.en];
   let mejorTermino: string | null = null;
   let total = 0;
+  /* Se JUNTAN los primeros términos que den algo (dedup por id): un solo
+     término se queda corto — la foto de una engrasadora encuentra más
+     casando «engrasadora» + «bomba de grasa» que cualquiera solo. */
+  const vistos = new Set<string>();
+  const encontradosFoto: ProductoEncontrado[] = [];
+  let terminosConAlgo = 0;
   for (const termino of candidatos) {
-    const { total: n } = await listarProductos(mercado, {
+    if (terminosConAlgo >= 3 || encontradosFoto.length >= 12) break;
+    const { productos: pagina1, total: n } = await listarProductos(mercado, {
       busqueda: termino,
       pagina: 1,
     });
-    if (n > 0) {
+    if (n === 0) continue;
+    terminosConAlgo += 1;
+    if (!mejorTermino) {
       mejorTermino = termino;
       total = n;
-      break;
+    }
+    for (const p of pagina1) {
+      if (vistos.has(p.id) || encontradosFoto.length >= 12) continue;
+      vistos.add(p.id);
+      encontradosFoto.push({
+        id: p.id,
+        slug: p.slug,
+        tituloEs: p.tituloEs,
+        tituloEn: p.tituloEn ?? null,
+        precioCentavos: p.precioCentavos,
+        moneda: p.moneda,
+        imagenUrl: p.imagenUrl,
+      });
     }
   }
 
@@ -136,7 +172,7 @@ export async function buscarPorImagen(
       en: mirada.en,
       mejorTermino,
     }),
-    resultados: total,
+    resultados: Math.max(total, encontradosFoto.length),
     ip,
   });
 
@@ -147,6 +183,7 @@ export async function buscarPorImagen(
     terminos: candidatos.slice(0, 6),
     mejorTermino,
     total,
+    productos: encontradosFoto,
   };
 }
 
