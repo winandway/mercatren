@@ -23,6 +23,7 @@ import {
   Users,
   Wallet,
   X,
+  Camera,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -161,6 +162,12 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       /* CÓMO SE HABLA DE MERCATREN. Material interno: enseña las palabras que
          describen una figura jurídica que no es la nuestra, y por qué. Es del
          equipo, no de los proveedores. */
+      {
+        /* Las fotos con las que buscan los clientes: la demanda sin cubrir. */
+        href: "/panel/busquedas-imagen",
+        clave: "busquedasImagen",
+        Icono: Camera,
+      },
       {
         href: "/panel/diccionario",
         clave: "diccionario",

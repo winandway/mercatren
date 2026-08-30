@@ -1,11 +1,18 @@
 "use client";
 
-import { ImageOff, Loader2, Search, Store, TrendingUp } from "lucide-react";
+import {
+  Camera,
+  ImageOff,
+  Loader2,
+  Search,
+  Store,
+  TrendingUp,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { cn } from "@/lib/utils";
 
@@ -231,6 +238,16 @@ export function Buscador({ idioma }: { idioma: Idioma }) {
           autoComplete="off"
           className="min-w-0 flex-1 px-3 text-sm text-tinta outline-none placeholder:text-tinta-suave"
         />
+        {/* LA CÁMARA (30 ago 2026): buscar con una foto. Vive DENTRO de la
+            caja del buscador — es otra forma de buscar, no otra sección. */}
+        <Link
+          href="/buscar-con-foto"
+          aria-label={t("buscarConFoto")}
+          title={t("buscarConFoto")}
+          className="flex w-10 shrink-0 items-center justify-center text-tinta-suave transition-colors hover:text-tinta"
+        >
+          <Camera className="h-5 w-5" aria-hidden />
+        </Link>
         <button
           type="submit"
           aria-label={t("buscar")}

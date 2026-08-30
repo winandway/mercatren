@@ -69,18 +69,11 @@ export function MenuCuenta({
         aria-label={t("cuentaYListas")}
         className="celda-encabezado flex shrink-0 items-center gap-1 text-left text-xs"
       >
-        {/* En el celular solo cabe el icono; en pantalla grande, el saludo. */}
-        <UserRound className="h-5 w-5 sm:hidden" aria-hidden />
-        <span className="hidden min-w-0 sm:block">
-          <span className="block max-w-32 truncate text-white/70">
-            {`${t("hola")} ${nombre.split(" ")[0]}`}
-          </span>
-          <span className="block text-sm font-bold">{t("cuentaYListas")}</span>
-        </span>
-        <ChevronDown
-          className="hidden h-3 w-3 shrink-0 opacity-70 sm:block"
-          aria-hidden
-        />
+        {/* Compacto en TODAS las pantallas (30 ago 2026): el saludo de dos
+            líneas le quitaba ancho al buscador, que es el protagonista. El
+            nombre sale dentro del menú al abrirlo. */}
+        <UserRound className="h-5 w-5" aria-hidden />
+        <ChevronDown className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
       </button>
 
       {abierto ? (

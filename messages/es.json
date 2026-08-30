@@ -40,7 +40,8 @@
     "crearCuenta": "Crear cuenta",
     "tiendas": "Tiendas",
     "blog": "Blog",
-    "videos": "Shorts"
+    "videos": "Shorts",
+    "buscarConFoto": "Buscar con una foto"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
@@ -390,7 +391,8 @@
       "secciones": "Secciones de video",
       "calculadora": "Cuadrar factura",
       "catalogoCl": "Catálogo de Chile",
-      "catalogoCo": "Catálogo de Colombia"
+      "catalogoCo": "Catálogo de Colombia",
+      "busquedasImagen": "Búsquedas por foto"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1329,7 +1331,19 @@
       },
       "configuracion": {
         "sinPermiso": "Solo el equipo de soporte puede cambiar esto."
-      }
+      },
+      "fotoFalta": "Elige una foto primero.",
+      "fotoInvalida": "La foto tiene que ser JPG, PNG o WebP y pesar menos de 3 MB.",
+      "fotoMuchasBusquedas": "Hiciste muchas búsquedas seguidas. Espera un rato y vuelve a intentar.",
+      "fotoNoSePudoSubir": "No pudimos recibir la foto. Intenta otra vez.",
+      "fotoNoSePudoLeer": "No pudimos entender la foto. Prueba con una donde el producto se vea claro y de cerca.",
+      "fotoBusquedaNoExiste": "Esa búsqueda ya no existe.",
+      "fotoCorreoGuardado": "¡Listo! Te escribimos cuando lo tengamos.",
+      "fotoEnlaceInvalido": "El enlace tiene que ser una ficha de producto de Mercatren, completa (https://...).",
+      "fotoSinCorreo": "Esta búsqueda no tiene correo: el cliente no lo dejó.",
+      "fotoYaAvisado": "A este cliente ya se le avisó.",
+      "fotoCorreoNoSalio": "El correo no salió. Revisa el envío en Configuración y vuelve a intentar.",
+      "fotoAvisado": "Aviso enviado: el cliente ya tiene el enlace."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1567,7 +1581,8 @@
       "copiada": "Copiada",
       "comprobarCobro": "Comprobar el cobro",
       "noSePudoComprobar": "No se pudo comprobar. Vuelve a intentarlo.",
-      "entregaDelComercio": "La entrega la marca el comercio que vendió, no Mercatren."
+      "entregaDelComercio": "La entrega la marca el comercio que vendió, no Mercatren.",
+      "bitacoraPago": "Bitácora del pago"
     },
     "banners": {
       "etiqueta": "Publicidad de la casa",
@@ -2508,6 +2523,17 @@
       "ajusteAyuda": "La tasa final = la de DolarApi + el % + el fijo. Se ajusta UNA vez y aplica a todo lo que se publique de ahí en adelante. Para subir 2% y 5 pesos: 2.00 y 5.00. También aceptan negativo.",
       "ajusteInvalido": "Ese ajuste se sale del rango cuerdo (±50% y ±1.000 pesos). Revisa el número.",
       "ajusteGuardado": "Ajustes guardados. Aplican desde el próximo producto que se publique."
+    },
+    "busquedasImagen": {
+      "titulo": "Búsquedas por foto",
+      "texto": "Cada foto con la que un cliente buscó: lo que se entendió, cuántos resultados dio, y quién espera el aviso. Lo que buscan y no tenemos es la lista de compras del catálogo.",
+      "vacio": "Todavía nadie ha buscado con una foto.",
+      "fotoDeBusqueda": "La foto que subió el cliente",
+      "resultados": "{n} resultados",
+      "esperaAviso": "{correo} espera el aviso — pega el enlace de la ficha cuando el producto esté publicado:",
+      "yaAvisado": "Avisado a {correo}.",
+      "verEnlace": "Ver el enlace",
+      "avisar": "Avisar"
     }
   },
   "catalogo": {
@@ -3264,6 +3290,16 @@
       "recibido": "Recibimos",
       "falta": "Queda por pagar",
       "boton": "Ver el comprobante"
+    },
+    "productoEncontrado": {
+      "asunto": "¡Lo encontramos! El producto que buscaste ya está en Mercatren",
+      "previo": "El producto de tu foto ya está disponible",
+      "titulo": "El producto que buscaste ya está",
+      "parrafos": [
+        "Hace unos días buscaste un producto con una foto y todavía no lo teníamos. Nuestro equipo lo siguió buscando — y ya está publicado.",
+        "Tócalo aquí abajo para verlo. Si ya no lo necesitas, ignora este correo y listo."
+      ],
+      "boton": "Ver el producto"
     }
   },
   "misPedidos": {
@@ -3769,5 +3805,20 @@
     "verEnMercatren": "Ver en Mercatren",
     "optimizando": "Preparando el video para que cargue rápido… {pct}%",
     "subiendo": "Subiendo… {pct}%"
+  },
+  "buscarConFoto": {
+    "titulo": "Busca con una foto",
+    "texto": "Sube la foto de lo que andas buscando y lo encontramos en el catálogo.",
+    "subir": "Elegir la foto",
+    "buscando": "Mirando la foto…",
+    "vimos": "En la foto vimos:",
+    "resultados": "Ver los {n} resultados de «{termino}»",
+    "otrosTerminos": "O busca por:",
+    "sinNada": "Todavía no tenemos ese producto",
+    "sinNadaTexto": "Deja tu correo y nuestro equipo lo sigue buscando. Cuando lo tengamos, te llega el enlace directo.",
+    "correo": "Tu correo",
+    "avisenme": "Avísenme cuando lo tengan",
+    "otraFoto": "Buscar con otra foto",
+    "noDisponible": "La búsqueda por foto no está disponible en este momento. Usa el buscador de arriba."
   }
 }

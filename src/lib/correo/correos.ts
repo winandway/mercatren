@@ -102,6 +102,30 @@ type DatosPedido = {
 };
 
 /**
+ * El producto que buscaste con una foto YA ESTÁ (30 ago 2026).
+ *
+ * Sale cuando el equipo encuentra el producto que un cliente buscó por foto
+ * y no existía. El enlace lo pegó una persona del equipo y viene validado
+ * como nuestro — jamás un link ajeno con nuestra firma.
+ */
+export async function correoProductoEncontrado(
+  d: Destinatario,
+  enlace: string,
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  return enviar(d, {
+    asunto: t("productoEncontrado.asunto"),
+    previo: t("productoEncontrado.previo"),
+    saludo,
+    titulo: t("productoEncontrado.titulo"),
+    parrafos: t.raw("productoEncontrado.parrafos") as string[],
+    boton: { texto: t("productoEncontrado.boton"), url: enlace },
+    motivo,
+    contacto,
+  });
+}
+
+/**
  * 3. Pedido creado: gracias por su compra + el paso que falta + dónde se
  * retira.
  *

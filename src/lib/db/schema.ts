@@ -1075,6 +1075,75 @@ export const disputas = sqliteTable(
 );
 
 /**
+ * LA BITÁCORA DEL PAGO (30 ago 2026).
+ *
+ * La pidió el dueño con la MT-000010 delante: una compra colombiana quedó
+ * «esperando el pago» y nadie podía decir POR QUÉ — ¿el cliente no quiso, la
+ * tarjeta rebotó, el sistema falló? Aquí queda cada paso del cobro con su
+ * motivo, para leer por qué una venta no se completó y qué mejorar.
+ *
+ * Tabla nueva y no columnas, como manda la regla: llega sola a producción
+ * con `schema.sql`. Escribirla NUNCA puede tumbar un cobro — todo pasa por
+ * `anotarEnBitacora`, que se traga sus propios errores.
+ */
+export const bitacoraPagos = sqliteTable(
+  "bitacora_pagos",
+  {
+    id: text("id").primaryKey(),
+    pedidoId: text("pedido_id").notNull(),
+    /** stripe · zelle · billetera */
+    metodo: text("metodo").notNull(),
+    /** El paso del circuito: intento_creado, intento_rechazado,
+        pago_confirmado, pago_fallido, acreditado, conciliado… */
+    paso: text("paso").notNull(),
+    /** El motivo ENTERO (el mensaje de Stripe tal cual, la referencia). Es
+        solo del equipo: un «no se pudo» a secas obliga a adivinar. */
+    detalle: text("detalle"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_bitacora_pagos_pedido").on(t.pedidoId)],
+);
+
+/**
+ * LAS BÚSQUEDAS POR FOTO (30 ago 2026).
+ *
+ * Cada foto que un cliente sube buscando un producto queda aquí: la imagen
+ * (privada, en el bucket), lo que el ojo entendió, cuántos resultados dio, y
+ * — si no había nada — el correo que dejó para que le avisemos. Es el radar
+ * de la demanda: lo que la gente busca y NO tenemos es la lista de compras
+ * del catálogo.
+ */
+export const busquedasImagen = sqliteTable(
+  "busquedas_imagen",
+  {
+    id: text("id").primaryKey(),
+    mercado: text("mercado").notNull(),
+    /** La clave de la foto en el bucket (`busquedas/...`). Privada. */
+    imagenClave: text("imagen_clave").notNull(),
+    /** Lo que el ojo entendió: términos ES/EN y la descripción, como JSON. */
+    mirada: text("mirada"),
+    resultados: integer("resultados").notNull().default(0),
+    /** El correo del cliente que quiere el aviso. NULL = no lo dejó. */
+    correo: text("correo"),
+    idioma: text("idioma").notNull().default("es"),
+    /** pendiente = sin resolver · avisado = ya se le mandó su producto. */
+    estado: text("estado").notNull().default("pendiente"),
+    /** El enlace del producto que se le mandó, para el rastro. */
+    enlaceAvisado: text("enlace_avisado"),
+    ip: text("ip"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_busquedas_imagen_estado").on(t.estado),
+    index("idx_busquedas_imagen_creado").on(t.creadoEn),
+  ],
+);
+
+/**
  * LO QUE LE FUE PASANDO A UN PEDIDO, Y QUIEN LO HIZO.
  *
  * `pedidos.estado` dice donde esta hoy y `actualizado_en` cuando se movio por

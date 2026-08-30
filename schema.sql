@@ -90,6 +90,32 @@ CREATE TABLE IF NOT EXISTS `billeteras` (
 
 CREATE UNIQUE INDEX IF NOT EXISTS `billeteras_tienda_id_unique` ON `billeteras` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_billeteras_tienda` ON `billeteras` (`tienda_id`);
+CREATE TABLE IF NOT EXISTS `bitacora_pagos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`metodo` text NOT NULL,
+	`paso` text NOT NULL,
+	`detalle` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS `idx_bitacora_pagos_pedido` ON `bitacora_pagos` (`pedido_id`);
+CREATE TABLE IF NOT EXISTS `busquedas_imagen` (
+	`id` text PRIMARY KEY NOT NULL,
+	`mercado` text NOT NULL,
+	`imagen_clave` text NOT NULL,
+	`mirada` text,
+	`resultados` integer DEFAULT 0 NOT NULL,
+	`correo` text,
+	`idioma` text DEFAULT 'es' NOT NULL,
+	`estado` text DEFAULT 'pendiente' NOT NULL,
+	`enlace_avisado` text,
+	`ip` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS `idx_busquedas_imagen_estado` ON `busquedas_imagen` (`estado`);
+CREATE INDEX IF NOT EXISTS `idx_busquedas_imagen_creado` ON `busquedas_imagen` (`creado_en`);
 CREATE TABLE IF NOT EXISTS `cargos_cobro` (
 	`id` text PRIMARY KEY NOT NULL,
 	`cobro_id` text NOT NULL,
@@ -1035,11 +1061,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1787841145, 1787841145)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1788106060, 1788106060)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1787841145)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1788106060)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──

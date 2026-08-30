@@ -10,6 +10,8 @@ import { itemsPedido, pagos, pedidos } from "@/lib/db/schema";
 import { COMISION_TARJETA_PB, calcularComisionCentavos } from "@/lib/dinero";
 import { getStripe, stripeConfigurado } from "@/lib/stripe";
 import { sufijoDelExtracto } from "@/lib/pagos/descriptor";
+import { montoParaStripe } from "@/lib/stripe/monedas";
+import { anotarEnBitacora } from "@/lib/pagos/bitacora";
 
 /**
  * El intento de pago con tarjeta de un pedido.
@@ -86,7 +88,8 @@ export async function crearIntentoDePago(
 
     if (
       intento?.client_secret &&
-      intento.amount === pedido.totalCentavos &&
+      intento.amount ===
+        montoParaStripe(pedido.totalCentavos, pedido.moneda ?? "USD") &&
       (intento.status === "requires_payment_method" ||
         intento.status === "requires_confirmation" ||
         intento.status === "requires_action")
@@ -135,33 +138,56 @@ export async function crearIntentoDePago(
    *
    * mercatren.cl vende en pesos chilenos y .com.co en colombianos. Cobrar
    * «usd» fijo a un pedido de 96.742 CLP habría intentado cobrar NOVENTA Y
-   * SEIS MIL DÓLARES: el monto guardado está en la unidad menor de SU moneda,
-   * y CLP/COP no tienen centavos — para Stripe también son «zero-decimal»,
-   * así que el número viaja tal cual, sin convertir nada.
+   * SEIS MIL DÓLARES. Y el monto pasa por la ADUANA de `montoParaStripe`:
+   * la suposición de que CLP y COP eran iguales para Stripe dejó la
+   * MT-000010 imposible de pagar — Stripe trata el peso colombiano CON dos
+   * decimales, y 65423 tal cual le llegó como 654,23 pesos.
    */
-  const intento = await stripe.paymentIntents.create({
-    amount: pedido.totalCentavos,
-    currency: (pedido.moneda ?? "USD").toLowerCase(),
-    automatic_payment_methods: { enabled: true },
-    metadata: {
-      // El webhook lee estos dos para saber qué pedido acreditar.
+  /* ══ EL CREATE VA EN SU TRY, Y EL MOTIVO A LA BITÁCORA (30 ago 2026) ══
+     La MT-000010 murió aquí sin dejar rastro: Stripe rechazó el intento
+     (654,23 COP, bajo su mínimo) y la acción reventó con un error genérico.
+     Ahora el rechazo queda ESCRITO con el mensaje entero de Stripe y el
+     comprador recibe un aviso honesto en vez de una pantalla rota. */
+  let intento: import("stripe").Stripe.PaymentIntent | undefined;
+  try {
+    const intento = await stripe.paymentIntents.create({
+      amount: montoParaStripe(pedido.totalCentavos, pedido.moneda ?? "USD"),
+      currency: (pedido.moneda ?? "USD").toLowerCase(),
+      automatic_payment_methods: { enabled: true },
+      metadata: {
+        // El webhook lee estos dos para saber qué pedido acreditar.
+        pedidoId: pedido.id,
+        numero: pedido.numero,
+        // Y estos tres son para la contabilidad. Ver el comentario de abajo.
+        ingreso_bruto_centavos: String(pedido.totalCentavos),
+        costo_mercancia_centavos: String(desglose.costoMercanciaCentavos),
+        margen_bruto_centavos: String(desglose.margenBrutoCentavos),
+      },
+      description: `Mercatren · ${pedido.numero}`,
+      /* Lo que el comprador ve en su estado de cuenta, junto al prefijo de la
+         cuenta: `MERCATREN* MT-000003`. Va el número del pedido y no la marca
+         otra vez, que es lo único que le deja saber DE CUÁL compra se trata tres
+         semanas después. Un cargo que no se reconoce se reclama, y cada
+         contracargo cuesta la venta, la comisión y la multa. */
+      statement_descriptor_suffix: sufijoDelExtracto(pedido.numero),
+    });
+    await anotarEnBitacora({
       pedidoId: pedido.id,
-      numero: pedido.numero,
-      // Y estos tres son para la contabilidad. Ver el comentario de abajo.
-      ingreso_bruto_centavos: String(pedido.totalCentavos),
-      costo_mercancia_centavos: String(desglose.costoMercanciaCentavos),
-      margen_bruto_centavos: String(desglose.margenBrutoCentavos),
-    },
-    description: `Mercatren · ${pedido.numero}`,
-    /* Lo que el comprador ve en su estado de cuenta, junto al prefijo de la
-       cuenta: `MERCATREN* MT-000003`. Va el número del pedido y no la marca
-       otra vez, que es lo único que le deja saber DE CUÁL compra se trata tres
-       semanas después. Un cargo que no se reconoce se reclama, y cada
-       contracargo cuesta la venta, la comisión y la multa. */
-    statement_descriptor_suffix: sufijoDelExtracto(pedido.numero),
-  });
+      metodo: "stripe",
+      paso: "intento_creado",
+      detalle: `${intento.id} · ${pedido.totalCentavos} ${pedido.moneda ?? "USD"} (amount ${intento.amount} ${intento.currency})`,
+    });
+  } catch (fallo) {
+    await anotarEnBitacora({
+      pedidoId: pedido.id,
+      metodo: "stripe",
+      paso: "intento_rechazado",
+      detalle: fallo instanceof Error ? fallo.message : String(fallo),
+    });
+    return { ok: false };
+  }
 
-  if (!intento.client_secret) return { ok: false };
+  if (!intento?.client_secret) return { ok: false };
 
   await db.insert(pagos).values({
     id: `pago-${nanoid(12)}`,

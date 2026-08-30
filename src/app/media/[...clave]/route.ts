@@ -276,6 +276,11 @@ async function puedeVerlo(ruta: string) {
        `pedidos` y podría dejar pasar a alguien por parecido de id. */
     if (ruta.startsWith("facturas-proveedor/")) return false;
 
+    /* LA FOTO DE UNA BÚSQUEDA ES SOLO DEL EQUIPO (30 ago 2026). La subió un
+       visitante buscando un producto — enseñársela a cualquiera sería
+       publicar la foto de un desconocido. El equipo ya salió por arriba. */
+    if (ruta.startsWith("busquedas/")) return false;
+
     /* La factura de compra: solo el comercio que la subió. Se comprueba
        contra el alcance de la sesión, no contra la ruta — así un vendedor no
        puede leer la de otro cambiando el enlace a mano. */

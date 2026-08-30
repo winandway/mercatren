@@ -7,6 +7,7 @@ import { SITIO } from "@/lib/sitio";
 import { getDb } from "@/lib/db";
 import { divisorDe } from "@/lib/mercado/moneda";
 import { anotarHito } from "@/lib/pedidos/hitos";
+import { anotarEnBitacora } from "@/lib/pagos/bitacora";
 import {
   billeteras,
   itemsPedido,
@@ -70,6 +71,12 @@ export async function acreditarPagoConTarjeta(
     });
 
   if (marcado.length === 0) return;
+  await anotarEnBitacora({
+    pedidoId,
+    metodo: "stripe",
+    paso: "acreditado",
+    detalle: intentoId,
+  });
   const pedido = marcado[0];
 
   await db

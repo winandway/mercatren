@@ -16,12 +16,12 @@ import { Link } from "@/i18n/navigation";
 import { esEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import { puedeMarcarEntrega } from "@/lib/pedidos/quien-entrega";
 import { getDb } from "@/lib/db";
-import { disputas } from "@/lib/db/schema";
+import { bitacoraPagos, disputas } from "@/lib/db/schema";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { parDeFacturas } from "@/lib/facturas/par";
 import { hitosDe } from "@/lib/pedidos/hitos";
 import { listarPruebasDeEntrega } from "@/lib/pedidos/prueba-entrega";
-import { fechaCorta } from "@/lib/fechas";
+import { fechaCorta, fechaHora } from "@/lib/fechas";
 import { obtenerPedidoDelPanel } from "@/lib/pedidos/consultas";
 import { cn } from "@/lib/utils";
 
@@ -86,7 +86,7 @@ export default async function PaginaPedidoDelPanel({
   /* Todo lo de apoyo, junto: el papeleo y el historial solo los ve el equipo;
      una disputa la ve también el comercio, porque le afecta directamente al
      dinero que ya tiene acreditado. */
-  const [documentos, hitos, disputa] = await Promise.all([
+  const [documentos, hitos, disputa, bitacora] = await Promise.all([
     esEquipo
       ? parDeFacturas(pedido.id)
       : Promise.resolve({ venta: null, ordenes: [] }),
@@ -106,6 +106,19 @@ export default async function PaginaPedidoDelPanel({
       .where(eq(disputas.pedidoId, pedido.id))
       .limit(1)
       .catch(() => []),
+    /* La bitácora del pago: SOLO el equipo. Trae el motivo crudo de Stripe
+       y ahí adentro no hay nada que un comercio deba leer. */
+    esEquipo
+      ? db
+          .select({
+            paso: bitacoraPagos.paso,
+            detalle: bitacoraPagos.detalle,
+            creadoEn: bitacoraPagos.creadoEn,
+          })
+          .from(bitacoraPagos)
+          .where(eq(bitacoraPagos.pedidoId, pedido.id))
+          .orderBy(bitacoraPagos.creadoEn)
+      : Promise.resolve([]),
   ]);
 
   const t = await getTranslations("panel.pedido");
@@ -264,6 +277,41 @@ export default async function PaginaPedidoDelPanel({
         idioma={idioma}
       />
       <LineaDeTiempo hitos={hitos} idioma={idioma} />
+
+      {/* ══ LA BITÁCORA DEL PAGO (30 ago 2026) ══ Solo el equipo. La pidió
+          el dueño con la MT-000010 sin pagar y nadie sabiendo por qué: cada
+          paso del cobro con su motivo ENTERO — el mensaje de Stripe tal
+          cual. «Si avisa mal, no tiene valor.» */}
+      {esEquipo && bitacora.length > 0 ? (
+        <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <h2 className="border-b border-slate-100 px-5 py-3 font-bold">
+            {t("bitacoraPago")}
+          </h2>
+          <ul className="divide-y divide-slate-100 text-sm">
+            {bitacora.map((b, i) => (
+              <li key={i} className="flex flex-wrap gap-x-3 px-5 py-2.5">
+                <span className="font-mono text-xs text-tinta-suave tabular-nums">
+                  {fechaHora(b.creadoEn, idioma)}
+                </span>
+                <span
+                  className={
+                    b.paso.includes("rechazado") || b.paso.includes("fallido")
+                      ? "font-semibold text-red-700"
+                      : "font-semibold"
+                  }
+                >
+                  {b.paso}
+                </span>
+                {b.detalle ? (
+                  <span className="min-w-0 break-all text-tinta-suave">
+                    {b.detalle}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {/* QUÉ LLEVA. */}
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">

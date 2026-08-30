@@ -15,6 +15,7 @@ import {
   revisar,
 } from "@/lib/validacion/acciones";
 import { nanoid } from "nanoid";
+import { montoParaStripe } from "@/lib/stripe/monedas";
 
 /**
  * DEVOLVERLE EL DINERO AL COMPRADOR, DESDE EL PANEL.
@@ -80,6 +81,7 @@ export async function devolverPago(formulario: FormData): Promise<Resultado> {
       numero: pedidos.numero,
       estado: pedidos.estado,
       totalCentavos: pedidos.totalCentavos,
+      moneda: pedidos.moneda,
       metodoPago: pedidos.metodoPago,
     })
     .from(pedidos)
@@ -141,7 +143,9 @@ export async function devolverPago(formulario: FormData): Promise<Resultado> {
     const stripe = getStripe();
     await stripe.refunds.create({
       payment_intent: cobro.referencia,
-      amount: centavos,
+      /* La aduana también al devolver: un reembolso parcial de 20.000 COP
+         mandado crudo devolvería 200 pesos. */
+      amount: montoParaStripe(centavos, pedido.moneda ?? "USD"),
       metadata: {
         pedido: pedido.numero,
         motivo: revisadoMotivo.datos.slice(0, 400),

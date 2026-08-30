@@ -6,6 +6,8 @@ import { getDb } from "@/lib/db";
 import { pagos } from "@/lib/db/schema";
 import { getStripe } from "@/lib/stripe";
 import { acreditarPagoConTarjeta } from "@/lib/stripe/acreditar";
+import { montoDesdeStripe } from "@/lib/stripe/monedas";
+import { anotarEnBitacora } from "@/lib/pagos/bitacora";
 
 /**
  * El aviso de Stripe cuando un pago con tarjeta se completó.
@@ -53,11 +55,42 @@ export async function POST(peticion: Request) {
     return new Response("firma invalida", { status: 400 });
   }
 
+  /* ══ EL PAGO FALLIDO SE ESCUCHA Y SE ANOTA (30 ago 2026) ══
+     Hasta hoy este webhook solo procesaba el éxito: una tarjeta rebotada
+     (fondos, banco, 3DS abandonado) no dejaba NINGÚN rastro y la pregunta
+     «¿por qué no compró?» no tenía dónde mirarse. El motivo de Stripe queda
+     entero en la bitácora del pedido. */
+  if (evento.type === "payment_intent.payment_failed") {
+    const intento = evento.data.object;
+    const pedidoId = intento.metadata?.pedidoId;
+    if (pedidoId) {
+      const error = intento.last_payment_error;
+      await anotarEnBitacora({
+        pedidoId,
+        metodo: "stripe",
+        paso: "pago_fallido",
+        detalle: [error?.code, error?.decline_code, error?.message]
+          .filter(Boolean)
+          .join(" · "),
+      });
+    }
+  }
+
   if (evento.type === "payment_intent.succeeded") {
     const intento = evento.data.object;
     const pedidoId = intento.metadata?.pedidoId;
     if (pedidoId) {
-      await acreditarPagoConTarjeta(pedidoId, intento.id, intento.amount);
+      await anotarEnBitacora({
+        pedidoId,
+        metodo: "stripe",
+        paso: "pago_confirmado",
+        detalle: `${intento.id} · webhook`,
+      });
+      await acreditarPagoConTarjeta(
+        pedidoId,
+        intento.id,
+        montoDesdeStripe(intento.amount, intento.currency),
+      );
     }
 
     /* Los cobros que pide un comercio desde SU sistema traen `cobroId` en vez

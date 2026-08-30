@@ -127,40 +127,21 @@ export async function Encabezado() {
               trabajaEnElPanel={trabajaEnElPanel}
             />
           ) : (
-            /**
-             * ENTRAR TIENE QUE VERSE EN EL CELULAR.
-             *
-             * Estaba en `hidden sm:block`, así que en un teléfono no había
-             * NINGUNA forma de entrar ni de crear cuenta desde el encabezado —
-             * y el teléfono es por donde entra casi todo el mundo. Ahora en
-             * pantalla chica sale el icono, y en grande el texto de siempre.
-             */
+            /* ══ EL BUSCADOR ES EL PROTAGONISTA DE VERDAD (30 ago 2026) ══
+               Pedido del dueño: los bloques «Hola, Iniciar sesión» y «Hola,
+               Devoluciones y pedidos» se comían el ancho del buscador en
+               todas las pantallas. Entrar queda como UN ícono (el camino
+               completo sigue en el menú hamburguesa y dentro de la cuenta), y
+               el de pedidos se fue de la barra: ya vive en los dos menús. */
             <Link
               href="/entrar"
               aria-label={t("identificate")}
-              className="celda-encabezado flex shrink-0 items-center gap-1.5 text-xs"
+              title={t("identificate")}
+              className="celda-encabezado flex shrink-0 items-center"
             >
-              <UserRound className="h-5 w-5 sm:hidden" aria-hidden />
-              <span className="hidden sm:block">
-                <span className="block max-w-32 truncate text-white/70">
-                  {t("hola")}
-                </span>
-                <span className="block text-sm font-bold">
-                  {t("identificate")}
-                </span>
-              </span>
+              <UserRound className="h-5 w-5" aria-hidden />
             </Link>
           )}
-
-          {/* Los pedidos ya viven en el menu y en la cuenta: aqui solo se
-              muestran cuando la pantalla da de sobra. */}
-          <Link
-            href="/pedidos"
-            className="celda-encabezado hidden text-xs xl:block"
-          >
-            <span className="block text-white/70">{t("hola")}</span>
-            <span className="block text-sm font-bold">{t("pedidos")}</span>
-          </Link>
 
           <ContadorCarrito />
         </div>

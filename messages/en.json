@@ -40,7 +40,8 @@
     "crearCuenta": "Create account",
     "tiendas": "Stores",
     "blog": "Blog",
-    "videos": "Shorts"
+    "videos": "Shorts",
+    "buscarConFoto": "Search with a photo"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., delivered where you need it",
@@ -390,7 +391,8 @@
       "secciones": "Video sections",
       "calculadora": "Match invoice",
       "catalogoCl": "Chile catalog",
-      "catalogoCo": "Colombia catalog"
+      "catalogoCo": "Colombia catalog",
+      "busquedasImagen": "Photo searches"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1329,7 +1331,19 @@
       },
       "configuracion": {
         "sinPermiso": "Only the support team can change this."
-      }
+      },
+      "fotoFalta": "Choose a photo first.",
+      "fotoInvalida": "The photo must be JPG, PNG, or WebP and under 3 MB.",
+      "fotoMuchasBusquedas": "Too many searches in a row. Wait a bit and try again.",
+      "fotoNoSePudoSubir": "We couldn't receive the photo. Try again.",
+      "fotoNoSePudoLeer": "We couldn't read the photo. Try one where the product is clear and close up.",
+      "fotoBusquedaNoExiste": "That search no longer exists.",
+      "fotoCorreoGuardado": "Done! We'll email you as soon as we have it.",
+      "fotoEnlaceInvalido": "The link must be a full Mercatren product page (https://...).",
+      "fotoSinCorreo": "This search has no email: the customer didn't leave one.",
+      "fotoYaAvisado": "This customer was already notified.",
+      "fotoCorreoNoSalio": "The email didn't go out. Check sending in Settings and try again.",
+      "fotoAvisado": "Notification sent: the customer has the link."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1567,7 +1581,8 @@
       "copiada": "Copied",
       "comprobarCobro": "Check the charge",
       "noSePudoComprobar": "Couldn't check. Try again.",
-      "entregaDelComercio": "The merchant who sold it marks the delivery, not Mercatren."
+      "entregaDelComercio": "The merchant who sold it marks the delivery, not Mercatren.",
+      "bitacoraPago": "Payment log"
     },
     "banners": {
       "etiqueta": "House advertising",
@@ -2508,6 +2523,17 @@
       "ajusteAyuda": "Final rate = DolarApi + % + fixed. Set it ONCE and it applies to everything published from then on. To add 2% and 5 pesos: 2.00 and 5.00. Negatives work too.",
       "ajusteInvalido": "That adjustment is outside the sane range (±50% and ±1,000 pesos). Check the number.",
       "ajusteGuardado": "Adjustments saved. They apply from the next product published."
+    },
+    "busquedasImagen": {
+      "titulo": "Photo searches",
+      "texto": "Every photo a customer searched with: what we understood, how many results it gave, and who's waiting to hear back. What people search for and we don't have is the catalog's shopping list.",
+      "vacio": "No one has searched with a photo yet.",
+      "fotoDeBusqueda": "The photo the customer uploaded",
+      "resultados": "{n} results",
+      "esperaAviso": "{correo} is waiting — paste the product page link once it's published:",
+      "yaAvisado": "Notified {correo}.",
+      "verEnlace": "See the link",
+      "avisar": "Notify"
     }
   },
   "catalogo": {
@@ -3264,6 +3290,16 @@
       "recibido": "Amount received",
       "falta": "Still outstanding",
       "boton": "View the receipt"
+    },
+    "productoEncontrado": {
+      "asunto": "Found it! The product you searched for is now on Mercatren",
+      "previo": "The product from your photo is now available",
+      "titulo": "The product you searched for is here",
+      "parrafos": [
+        "A few days ago you searched for a product with a photo and we didn't have it yet. Our team kept looking — and it's now published.",
+        "Tap below to see it. If you no longer need it, just ignore this email."
+      ],
+      "boton": "See the product"
     }
   },
   "misPedidos": {
@@ -3769,5 +3805,20 @@
     "verEnMercatren": "See it on Mercatren",
     "optimizando": "Optimizing your video so it loads fast… {pct}%",
     "subiendo": "Uploading… {pct}%"
+  },
+  "buscarConFoto": {
+    "titulo": "Search with a photo",
+    "texto": "Upload a photo of what you're looking for and we'll find it in the catalog.",
+    "subir": "Choose a photo",
+    "buscando": "Looking at the photo…",
+    "vimos": "In the photo we saw:",
+    "resultados": "See the {n} results for “{termino}”",
+    "otrosTerminos": "Or search by:",
+    "sinNada": "We don't have that product yet",
+    "sinNadaTexto": "Leave your email and our team will keep looking. As soon as we have it, you'll get the direct link.",
+    "correo": "Your email",
+    "avisenme": "Notify me when you have it",
+    "otraFoto": "Search with another photo",
+    "noDisponible": "Photo search isn't available right now. Use the search bar above."
   }
 }

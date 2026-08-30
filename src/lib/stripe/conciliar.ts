@@ -9,6 +9,7 @@ import { mensajes } from "@/lib/mensajes";
 import { getStripe, stripeConfigurado } from "@/lib/stripe";
 import { acreditarPagoConTarjeta } from "@/lib/stripe/acreditar";
 import { cobroConfirmado } from "@/lib/stripe/estado-intento";
+import { montoDesdeStripe } from "@/lib/stripe/monedas";
 
 /**
  * EL RESPALDO PARA QUE UN COBRO CON TARJETA NO SE PIERDA.
@@ -106,7 +107,13 @@ export async function conciliarPedido(
 
     if (!cobroConfirmado(enStripe.status)) return { estado: "sin_cambios" };
 
-    await acreditarPagoConTarjeta(pedido.id, enStripe.id, enStripe.amount);
+    /* El amount de Stripe pasa por la aduana: en COP viene con dos decimales
+       y el interno va en pesos enteros. */
+    await acreditarPagoConTarjeta(
+      pedido.id,
+      enStripe.id,
+      montoDesdeStripe(enStripe.amount, enStripe.currency),
+    );
     return { estado: "acreditado" };
   } catch (fallo) {
     console.error("[stripe] no se pudo conciliar", numero, fallo);
