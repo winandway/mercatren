@@ -281,6 +281,13 @@
       "when": 1788116855571,
       "tag": "0039_known_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1788128322434,
+      "tag": "0040_sturdy_bloodstorm",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
@@ -545,11 +545,24 @@ async function guardarProducto({
      EE. UU., que existe desde el primer día. */
   await fuenteDeCj(TIENDA_US_GENERAL);
 
+  /* ══ SE BUSCA POR EXTERNO **Y POR SLUG** (30 ago 2026) ══
+     El único de la base cubre (tienda, externo) y TAMBIÉN (tienda, slug).
+     Un producto guardado antes con otro formato de externo — o movido por
+     «Repartir por rubro» — esquivaba la comprobación por externo y el
+     insert reventaba contra el único del slug, con el SQL entero en la
+     cara del panel. Si está por cualquiera de los dos, se ACTUALIZA. */
+  const slugCalculado = slugDe(nombre, externoId);
   const [yaEsta] = await db
     .select({ id: productos.id })
     .from(productos)
     .where(
-      and(eq(productos.tiendaId, tiendaId), eq(productos.externoId, externoId)),
+      and(
+        eq(productos.tiendaId, tiendaId),
+        or(
+          eq(productos.externoId, externoId),
+          eq(productos.slug, slugCalculado),
+        ),
+      ),
     )
     .limit(1);
 
@@ -563,6 +576,7 @@ async function guardarProducto({
         precioCentavos: precioPublicadoCentavos,
         precioBaseCentavos: costoCentavos,
         existencias,
+        externoId,
         categoriaId: idDeDepartamento(departamento),
         /* Volver a pulsar el botón también lo publica, y es a propósito: es lo
            que arregla los que se agregaron cuando nacían en borrador, sin
@@ -584,7 +598,7 @@ async function guardarProducto({
   await db.insert(productos).values({
     id,
     tiendaId,
-    slug: slugDe(nombre, externoId),
+    slug: slugCalculado,
     sku: sku || null,
     /* El título llega en inglés porque así viene de CJ. Se guarda en los dos
        campos para que la ficha no salga vacía en español, y se corrige al

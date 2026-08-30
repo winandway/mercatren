@@ -1179,6 +1179,39 @@ export const embeddingsProducto = sqliteTable(
   (t) => [index("idx_embeddings_producto_mercado").on(t.mercado)],
 );
 
+/**
+ * EL TRÁFICO DE PERSONAS (30 ago 2026).
+ *
+ * Una fila por página vista de una PERSONA (los robots se filtran antes:
+ * el pulso exige JavaScript y el User-Agent se revisa igual). Sin cookies y
+ * sin datos personales — el visitante es un hash anónimo que rota cada día
+ * (IP + navegador + fecha), el patrón de Plausible/Umami. El país lo pone
+ * Cloudflare en la petición. `segundos` se completa al salir de la página.
+ */
+export const visitas = sqliteTable(
+  "visitas",
+  {
+    id: text("id").primaryKey(),
+    /** Hash anónimo del día: cuenta únicos sin identificar a nadie. */
+    visitante: text("visitante").notNull(),
+    mercado: text("mercado").notNull(),
+    pais: text("pais"),
+    ruta: text("ruta").notNull(),
+    /** De dónde llegó (dominio del referer), solo en la primera página. */
+    referido: text("referido"),
+    /** Cuánto estuvo en la página. 0 = aún abierta o salió sin avisar. */
+    segundos: integer("segundos").notNull().default(0),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_visitas_creado").on(t.creadoEn),
+    index("idx_visitas_mercado").on(t.mercado),
+    index("idx_visitas_visitante").on(t.visitante),
+  ],
+);
+
 export const contactosBusqueda = sqliteTable("contactos_busqueda", {
   /** Una búsqueda tiene UN contacto: la llave es la propia búsqueda. */
   busquedaId: text("busqueda_id").primaryKey(),

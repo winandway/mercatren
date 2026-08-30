@@ -392,7 +392,8 @@
       "calculadora": "Cuadrar factura",
       "catalogoCl": "Catálogo de Chile",
       "catalogoCo": "Catálogo de Colombia",
-      "busquedasImagen": "Búsquedas por foto"
+      "busquedasImagen": "Búsquedas por foto",
+      "trafico": "Tráfico"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -2544,6 +2545,23 @@
       "conError": "{n} con error (se ven en la base)",
       "boton": "Indexar el catálogo",
       "indexando": "Indexando… {hechos} en esta pasada, quedan {quedan}"
+    },
+    "trafico": {
+      "titulo": "Tráfico",
+      "texto": "Solo personas — los robots no cuentan. De dónde llegan, qué miran y cuánto se quedan. Sin cookies y sin datos personales.",
+      "enVivo": "{n, plural, =0 {Nadie navegando en este momento} =1 {1 persona navegando AHORA} other {# personas navegando AHORA}}",
+      "hoy": "Visitantes hoy",
+      "semana": "Visitantes · 7 días",
+      "mes": "Visitantes · 30 días",
+      "duracion": "Tiempo medio por página",
+      "duracionPie": "minutos:segundos",
+      "porPais": "Por país (30 días)",
+      "paginasTop": "Páginas más vistas (30 días)",
+      "porDia": "Día por día",
+      "referidos": "De dónde llegan (referidos)",
+      "paginasVistas": "{n} páginas vistas",
+      "visitantesY": "{visitantes} personas · {visitas} vistas",
+      "sinDatos": "Todavía no hay datos: se llenan solos con cada visita."
     }
   },
   "catalogo": {

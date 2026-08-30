@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Activity,
   Clapperboard,
   ArrowUpRight,
   BookOpen,
@@ -167,6 +168,12 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/busquedas-imagen",
         clave: "busquedasImagen",
         Icono: Camera,
+      },
+      {
+        /* Solo personas, cero robots: visitas, países, en vivo. */
+        href: "/panel/trafico",
+        clave: "trafico",
+        Icono: Activity,
       },
       {
         href: "/panel/diccionario",

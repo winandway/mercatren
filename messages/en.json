@@ -392,7 +392,8 @@
       "calculadora": "Match invoice",
       "catalogoCl": "Chile catalog",
       "catalogoCo": "Colombia catalog",
-      "busquedasImagen": "Photo searches"
+      "busquedasImagen": "Photo searches",
+      "trafico": "Traffic"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -2544,6 +2545,23 @@
       "conError": "{n} with errors",
       "boton": "Index the catalog",
       "indexando": "Indexing… {hechos} this run, {quedan} left"
+    },
+    "trafico": {
+      "titulo": "Traffic",
+      "texto": "People only — bots don't count. Where they come from, what they view, and how long they stay. No cookies, no personal data.",
+      "enVivo": "{n, plural, =0 {No one browsing right now} =1 {1 person browsing NOW} other {# people browsing NOW}}",
+      "hoy": "Visitors today",
+      "semana": "Visitors · 7 days",
+      "mes": "Visitors · 30 days",
+      "duracion": "Avg. time per page",
+      "duracionPie": "minutes:seconds",
+      "porPais": "By country (30 days)",
+      "paginasTop": "Most viewed pages (30 days)",
+      "porDia": "Day by day",
+      "referidos": "Where they come from (referrers)",
+      "paginasVistas": "{n} page views",
+      "visitantesY": "{visitantes} people · {visitas} views",
+      "sinDatos": "No data yet — it fills up on its own with every visit."
     }
   },
   "catalogo": {
