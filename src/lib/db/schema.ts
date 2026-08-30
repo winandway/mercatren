@@ -11,6 +11,7 @@
 
 import { sql } from "drizzle-orm";
 import {
+  blob,
   primaryKey,
   index,
   integer,
@@ -1151,6 +1152,33 @@ export const busquedasImagen = sqliteTable(
  * `schema.sql` solo trae CREATE TABLE IF NOT EXISTS y esa tabla ya vive en
  * producción, así que una columna nueva no llegaría sola. Una tabla sí.
  */
+/**
+ * LOS VECTORES DEL BUSCADOR VISUAL (30 ago 2026).
+ *
+ * Un vector por producto: la foto principal pasada por `gemini-embedding-2`
+ * (256 dimensiones, float32 little-endian en el BLOB). Buscar por foto es
+ * comparar el vector de la foto del cliente contra estos — como lo hacen
+ * todos los buscadores de imagen serios. El índice se carga en memoria por
+ * mercado y se recuerda unos minutos.
+ */
+export const embeddingsProducto = sqliteTable(
+  "embeddings_producto",
+  {
+    productoId: text("producto_id").primaryKey(),
+    mercado: text("mercado").notNull(),
+    vector: blob("vector", { mode: "buffer" }).notNull(),
+    dimension: integer("dimension").notNull(),
+    modelo: text("modelo").notNull(),
+    /** Si la foto no se pudo vectorizar, el motivo queda aquí y el producto
+        no vuelve a la cola hasta que alguien lo mire. */
+    error: text("error"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_embeddings_producto_mercado").on(t.mercado)],
+);
+
 export const contactosBusqueda = sqliteTable("contactos_busqueda", {
   /** Una búsqueda tiene UN contacto: la llave es la propia búsqueda. */
   busquedaId: text("busqueda_id").primaryKey(),

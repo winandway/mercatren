@@ -2535,6 +2535,14 @@
       "verEnlace": "See the link",
       "avisar": "Notify",
       "buscarloEnCj": "Find it on CJ: “{termino}”"
+    },
+    "busquedaVisual": {
+      "titulo": "Visual catalog search",
+      "texto": "Turns each product photo into its visual fingerprint (with our AI) so photo search compares IMAGE against IMAGE, not just words. You can stop and resume; new products are picked up on the next pass.",
+      "estado": "{indexados} of {publicados} products indexed",
+      "conError": "{n} with errors",
+      "boton": "Index the catalog",
+      "indexando": "Indexing… {hechos} this run, {quedan} left"
     }
   },
   "catalogo": {
@@ -2640,7 +2648,8 @@
         "plazo": "Arrives in {minimo} to {maximo} business days",
         "aduanaCL": "No customs surprises: the 19% VAT is already in the price and Mercatren files it directly with Chile's SII (remote-sale regime, Law 21.713). Your package enters Chile with no extra charges on delivery.",
         "aduanaCLConTope": "No customs surprises: the 19% VAT is already in the price and Mercatren files it directly with Chile's SII (remote-sale regime, Law 21.713). Your package enters Chile with no extra charges on delivery. The regime covers items up to USD 500 (about ${tope} CLP today) — everything published on mercatren.cl is within that limit."
-      }
+      },
+      "mayorista": "Wholesale"
     },
     "paginacion": {
       "anterior": "Previous",
@@ -3825,6 +3834,7 @@
     "ahoraNo": "Not now",
     "nombre": "Your name",
     "ningunoEs": "None of these the one you're looking for?",
-    "ningunoEsTexto": "We don't have that product, but it may be in one of our warehouses. Leave your name and email and we'll contact you as soon as we have it."
+    "ningunoEsTexto": "We don't have that product, but it may be in one of our warehouses. Leave your name and email and we'll contact you as soon as we have it.",
+    "sinResultadosExtra": "Try another photo where the product is clear and close up."
   }
 }

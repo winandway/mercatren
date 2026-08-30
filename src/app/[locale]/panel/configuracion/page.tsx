@@ -32,8 +32,10 @@ import { ProbarTraductor } from "@/components/panel/probar-traductor";
 import { TraerDescripciones } from "@/components/panel/traer-descripciones";
 import { RecalcularPrecios } from "@/components/panel/recalcular-precios";
 import { TraducirCatalogo } from "@/components/panel/traducir-catalogo";
+import { IndexarBusquedaVisual } from "@/components/panel/indexar-busqueda-visual";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
+import { estadoDelIndice } from "@/lib/busqueda-imagen/indexador";
 import {
   contarSinDescripcion,
   estadoDelTraductor,
@@ -116,6 +118,11 @@ export default async function PaginaConfiguracion({
     desalineados: [],
   }));
   const fotosPendientes = await contarFotosPendientes();
+  const indiceVisual = await estadoDelIndice().catch(() => ({
+    indexados: 0,
+    publicados: 0,
+    conError: 0,
+  }));
   const traductor = await estadoDelTraductor();
   const sinDescripcion = await contarSinDescripcion();
   const motivosDescripcion = await motivosDeFallo();
@@ -679,6 +686,11 @@ export default async function PaginaConfiguracion({
         </h2>
         <div className="mt-3">
           <TraerFotos pendientes={fotosPendientes} />
+          <IndexarBusquedaVisual
+            indexados={indiceVisual.indexados}
+            publicados={indiceVisual.publicados}
+            conError={indiceVisual.conError}
+          />
         </div>
       </section>
 

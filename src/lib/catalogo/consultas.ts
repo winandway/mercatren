@@ -762,7 +762,13 @@ export async function listarComerciosDestacados(mercado: Mercado) {
     // En el filtro se queda SOLO lo que es de la tienda.
     .where(tiendaVisibleEn(mercado))
     .groupBy(tiendas.id, tiendas.slug, tiendas.nombre)
-    .orderBy(desc(count(productos.id)));
+    /* LA MAYORISTA VA PRIMERA (30 ago 2026, pedido del dueño): es la tienda
+       con prioridad de la casa y el directorio la enseña de entrada. El
+       resto sigue por tamaño de catálogo, como siempre. */
+    .orderBy(
+      sql`CASE WHEN ${tiendas.slug} = 'us-mayorista' THEN 0 ELSE 1 END`,
+      desc(count(productos.id)),
+    );
 
   return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
 }

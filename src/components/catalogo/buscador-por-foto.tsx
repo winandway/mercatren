@@ -36,7 +36,6 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
   /* La miniatura de SU foto para el aviso: se dibuja del archivo local
      (objectURL), sin pedirle nada al servidor — la subida es privada. */
   const [fotoLocal, setFotoLocal] = useState<string | null>(null);
-  const [modalAbierto, setModalAbierto] = useState(false);
 
   if (!disponible) {
     return (
@@ -67,11 +66,6 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
       datos.set("foto", listo);
       const r = await buscarPorImagen(datos);
       setResultado(r);
-      /* ══ EL POP-UP DEL CORREO (30 ago 2026) ══ Pedido del dueño: si no
-         hay nada, sale el aviso EN GRANDE con la foto que él subió al lado
-         — esa búsqueda no se puede perder: es la lista de compras del
-         catálogo. */
-      if (r.ok && r.productos.length === 0) setModalAbierto(true);
     });
   }
 
@@ -134,66 +128,35 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
         className="hidden"
         onChange={(e) => elegir(e.target.files?.[0])}
       />
-      <button
-        type="button"
-        onClick={() => entrada.current?.click()}
-        disabled={pendiente}
-        className="boton-principal flex w-full items-center justify-center gap-2 py-3"
-      >
-        {pendiente ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-            {t("buscando")}
-          </>
-        ) : (
-          <>
-            <Camera className="h-5 w-5" aria-hidden />
-            {resultado ? t("otraFoto") : t("subir")}
-          </>
-        )}
-      </button>
+      {/* ══ EL ORDEN LO DICTÓ EL DUEÑO (30 ago 2026) ══ Con resultado en
+          pantalla, arriba va EL FORMULARIO, no otro botón de buscar: «el
+          cliente buscó, no lo hay y continuó — tiene que estar de primero».
+          El botón de otra foto baja al final. */}
+      {!resultado || !resultado.ok ? (
+        <button
+          type="button"
+          onClick={() => entrada.current?.click()}
+          disabled={pendiente}
+          className="boton-principal flex w-full items-center justify-center gap-2 py-3"
+        >
+          {pendiente ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              {t("buscando")}
+            </>
+          ) : (
+            <>
+              <Camera className="h-5 w-5" aria-hidden />
+              {t("subir")}
+            </>
+          )}
+        </button>
+      ) : null}
 
       {resultado && !resultado.ok ? (
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {resultado.mensaje}
         </p>
-      ) : null}
-
-      {modalAbierto && resultado?.ok ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("sinNada")}
-        >
-          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl">
-            <div className="flex items-start gap-4">
-              {fotoLocal ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- es el
-                   archivo local del cliente, un objectURL. */
-                <img
-                  src={fotoLocal}
-                  alt=""
-                  className="h-24 w-24 shrink-0 rounded-lg border border-borde object-cover"
-                />
-              ) : null}
-              <div className="min-w-0">
-                <p className="font-bold">{t("sinNada")}</p>
-                <p className="mt-1 text-sm text-tinta-suave">
-                  {t("sinNadaTexto")}
-                </p>
-              </div>
-            </div>
-            {formularioContacto}
-            <button
-              type="button"
-              onClick={() => setModalAbierto(false)}
-              className="mt-3 w-full text-center text-sm text-tinta-suave underline"
-            >
-              {correoListo ? t("cerrar") : t("ahoraNo")}
-            </button>
-          </div>
-        </div>
       ) : null}
 
       {resultado?.ok ? (
@@ -206,6 +169,34 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
               </span>
             </p>
           ) : null}
+
+          {/* ══ EL FORMULARIO VA DE PRIMERO (30 ago 2026) ══ «El cliente
+              buscó, no lo hay y continuó — no va a hacer scroll»: el aviso
+              con su foto, nombre y correo arriba; los parecidos, debajo. */}
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+            <div className="flex items-start gap-3">
+              {fotoLocal ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- el
+                   archivo local del cliente, un objectURL. */
+                <img
+                  src={fotoLocal}
+                  alt=""
+                  className="h-16 w-16 shrink-0 rounded-lg border border-amber-200 object-cover"
+                />
+              ) : null}
+              <div className="min-w-0">
+                <p className="text-sm font-bold">
+                  {resultado.productos.length > 0
+                    ? t("ningunoEs")
+                    : t("sinNada")}
+                </p>
+                <p className="mt-0.5 text-sm text-tinta-suave">
+                  {t("ningunoEsTexto")}
+                </p>
+              </div>
+            </div>
+            {formularioContacto}
+          </div>
 
           {resultado.productos.length > 0 && resultado.mejorTermino ? (
             <div className="mt-3 space-y-3">
@@ -282,42 +273,34 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
                     ))}
                 </p>
               ) : null}
-              {/* ══ LA OPCIÓN DEL AVISO, SIEMPRE (30 ago 2026) ══ Pedido
-                  del dueño con sus monitores KRK delante: los parecidos
-                  están bien, pero si NINGUNO es el suyo, la búsqueda no se
-                  puede perder. Con la foto que él subió al lado, nombre y
-                  correo — queda en el historial del equipo. */}
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                <div className="flex items-start gap-3">
-                  {fotoLocal ? (
-                    /* eslint-disable-next-line @next/next/no-img-element -- el
-                       archivo local del cliente, un objectURL. */
-                    <img
-                      src={fotoLocal}
-                      alt=""
-                      className="h-16 w-16 shrink-0 rounded-lg border border-amber-200 object-cover"
-                    />
-                  ) : null}
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold">{t("ningunoEs")}</p>
-                    <p className="mt-0.5 text-sm text-tinta-suave">
-                      {t("ningunoEsTexto")}
-                    </p>
-                  </div>
-                </div>
-                {formularioContacto}
-              </div>
             </div>
           ) : (
-            <div className="mt-3">
-              <p className="font-bold">{t("sinNada")}</p>
-              <p className="mt-1 text-sm text-tinta-suave">
-                {t("sinNadaTexto")}
-              </p>
-              {formularioContacto}
-            </div>
+            <p className="mt-3 text-sm text-tinta-suave">
+              {t("sinResultadosExtra")}
+            </p>
           )}
         </div>
+      ) : null}
+
+      {resultado?.ok ? (
+        <button
+          type="button"
+          onClick={() => entrada.current?.click()}
+          disabled={pendiente}
+          className="boton-principal flex w-full items-center justify-center gap-2 py-3"
+        >
+          {pendiente ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+              {t("buscando")}
+            </>
+          ) : (
+            <>
+              <Camera className="h-5 w-5" aria-hidden />
+              {t("otraFoto")}
+            </>
+          )}
+        </button>
       ) : null}
     </div>
   );

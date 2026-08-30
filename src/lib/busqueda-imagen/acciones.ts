@@ -1,16 +1,26 @@
 "use server";
 
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
 import { exigirEquipoInterno } from "@/lib/autorizacion";
+import { embeddingDeImagen } from "@/lib/busqueda-imagen/embeddings";
 import { mirarImagen } from "@/lib/busqueda-imagen/mirar";
+import { bytesAVector, masParecidos } from "@/lib/busqueda-imagen/similitud";
 import { esEnlaceDeProductoNuestro } from "@/lib/busqueda-imagen/parsear";
-import { listarProductos } from "@/lib/catalogo/consultas";
+import { direccionImagen, listarProductos } from "@/lib/catalogo/consultas";
 import { correoProductoEncontrado } from "@/lib/correo/correos";
 import { getDb } from "@/lib/db";
-import { busquedasImagen, contactosBusqueda } from "@/lib/db/schema";
+import {
+  busquedasImagen,
+  contactosBusqueda,
+  embeddingsProducto,
+  imagenesProducto,
+  productos,
+} from "@/lib/db/schema";
+
+import { recordado } from "@/lib/cachecito";
 import { mercadoActual } from "@/lib/mercado/actual";
 import { mensajes } from "@/lib/mensajes";
 import { correoAceptable } from "@/lib/validacion/correo-servidor";
@@ -123,6 +133,79 @@ export async function buscarPorImagen(
     return { ok: false, mensaje: t("fotoNoSePudoLeer") };
   }
 
+  /* ══ EL MATCH POR IMAGEN, PRIMERO (30 ago 2026) ══
+     Como los buscadores de imagen de verdad: el vector de la foto del
+     cliente contra los vectores del catálogo (gemini-embedding-2, coseno).
+     Los términos de texto quedan de RESPALDO — para los productos que aún
+     no se indexaron y para los chips de la pantalla. */
+  let visuales: ProductoEncontrado[] = [];
+  try {
+    const consulta = await embeddingDeImagen(bytes, archivo.type);
+    if (consulta.ok) {
+      const indiceDelMercado = await recordado(
+        `indice-visual-${mercado.codigo}`,
+        10 * 60_000,
+        async () => {
+          const filas = await db
+            .select({
+              id: embeddingsProducto.productoId,
+              vector: embeddingsProducto.vector,
+            })
+            .from(embeddingsProducto)
+            .where(
+              sql`${embeddingsProducto.mercado} = ${mercado.codigo} AND ${embeddingsProducto.dimension} > 0`,
+            );
+          return filas.map((f) => ({
+            id: f.id,
+            vector: bytesAVector(new Uint8Array(f.vector as Buffer)),
+          }));
+        },
+      );
+      const vecinos = masParecidos(consulta.vector, indiceDelMercado, 12);
+      if (vecinos.length > 0) {
+        const porId = new Map(vecinos.map((v, i) => [v.id, i]));
+        const filas = await db
+          .select({
+            id: productos.id,
+            slug: productos.slug,
+            tituloEs: productos.tituloEs,
+            tituloEn: productos.tituloEn,
+            precioCentavos: productos.precioCentavos,
+            moneda: productos.moneda,
+            fotoUrl: sql<
+              string | null
+            >`(SELECT url FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY orden, id LIMIT 1)`,
+            fotoClave: sql<
+              string | null
+            >`(SELECT clave FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY orden, id LIMIT 1)`,
+          })
+          .from(productos)
+          .where(
+            and(
+              inArray(
+                productos.id,
+                vecinos.map((v) => v.id),
+              ),
+              eq(productos.estado, "publicado"),
+            ),
+          );
+        visuales = filas
+          .sort((a, b) => (porId.get(a.id) ?? 99) - (porId.get(b.id) ?? 99))
+          .map((p) => ({
+            id: p.id,
+            slug: p.slug,
+            tituloEs: p.tituloEs,
+            tituloEn: p.tituloEn ?? null,
+            precioCentavos: p.precioCentavos,
+            moneda: p.moneda,
+            imagenUrl: direccionImagen({ url: p.fotoUrl, clave: p.fotoClave }),
+          }));
+      }
+    }
+  } catch {
+    /* El índice visual nunca tumba la búsqueda: sin él quedan los términos. */
+  }
+
   /* Se prueban los términos DEL MÁS ESPECÍFICO AL MÁS GENERAL contra el
      mismo motor del catálogo (sinónimos y mercado incluidos): el primero
      que dé resultados es el que se le enseña al cliente. */
@@ -168,8 +251,9 @@ export async function buscarPorImagen(
       es: mirada.es,
       en: mirada.en,
       mejorTermino,
+      visual: visuales.length,
     }),
-    resultados: Math.max(total, encontradosFoto.length),
+    resultados: Math.max(total, encontradosFoto.length, visuales.length),
     ip,
   });
 
@@ -179,8 +263,9 @@ export async function buscarPorImagen(
     descripcion: mirada.descripcion,
     terminos: candidatos.slice(0, 6),
     mejorTermino,
-    total,
-    productos: encontradosFoto,
+    total: visuales.length > 0 ? Math.max(total, visuales.length) : total,
+    /* El match visual manda; el textual es el respaldo de lo no indexado. */
+    productos: visuales.length > 0 ? visuales : encontradosFoto,
   };
 }
 

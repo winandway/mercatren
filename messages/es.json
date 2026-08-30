@@ -2535,6 +2535,14 @@
       "verEnlace": "Ver el enlace",
       "avisar": "Avisar",
       "buscarloEnCj": "Buscarlo en CJ: «{termino}»"
+    },
+    "busquedaVisual": {
+      "titulo": "Búsqueda visual del catálogo",
+      "texto": "Convierte la foto de cada producto en su huella visual (con la IA de la casa) para que la búsqueda por foto compare IMAGEN contra IMAGEN, no solo palabras. Se puede parar y retomar; los productos nuevos entran en la próxima pasada.",
+      "estado": "{indexados} de {publicados} productos indexados",
+      "conError": "{n} con error (se ven en la base)",
+      "boton": "Indexar el catálogo",
+      "indexando": "Indexando… {hechos} en esta pasada, quedan {quedan}"
     }
   },
   "catalogo": {
@@ -2640,7 +2648,8 @@
         "plazo": "Llega en {minimo} a {maximo} días hábiles",
         "aduanaCL": "Sin sorpresas en la aduana: el IVA del 19% ya está dentro del precio y Mercatren lo declara directamente al SII (régimen de venta remota, Ley 21.713). Tu paquete entra a Chile sin cobros adicionales al recibirlo.",
         "aduanaCLConTope": "Sin sorpresas en la aduana: el IVA del 19% ya está dentro del precio y Mercatren lo declara directamente al SII (régimen de venta remota, Ley 21.713). Tu paquete entra a Chile sin cobros adicionales al recibirlo. Este régimen cubre artículos de hasta USD 500 (unos ${tope} CLP hoy) — todo lo publicado en mercatren.cl está dentro de ese límite."
-      }
+      },
+      "mayorista": "Mayorista"
     },
     "paginacion": {
       "anterior": "Anterior",
@@ -3825,6 +3834,7 @@
     "ahoraNo": "Ahora no",
     "nombre": "Tu nombre",
     "ningunoEs": "¿Ninguno es el que buscabas?",
-    "ningunoEsTexto": "No tenemos ese producto, pero posiblemente lo hay en alguna de nuestras bodegas. Deja tu nombre y tu correo y cuando lo tengamos te contactaremos."
+    "ningunoEsTexto": "No tenemos ese producto, pero posiblemente lo hay en alguna de nuestras bodegas. Deja tu nombre y tu correo y cuando lo tengamos te contactaremos.",
+    "sinResultadosExtra": "Prueba con otra foto donde el producto se vea claro y de cerca."
   }
 }

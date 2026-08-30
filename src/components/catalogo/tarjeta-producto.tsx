@@ -108,6 +108,17 @@ export function TarjetaProducto({
           </span>
         ) : null}
 
+        {/* ══ EL SELLO DE LA MAYORISTA (30 ago 2026) ══ Pedido del dueño:
+            la tienda mayorista «con un color diferente, que se entienda».
+            Violeta — no choca con el rojo del descuento, el verde de Nuevo
+            ni la bandera — y abajo a la derecha, la esquina libre. Solo la
+            excepción se marca, como siempre. */}
+        {producto.tiendaSlug === "us-mayorista" ? (
+          <span className="absolute right-1.5 bottom-1.5 rounded-md bg-violet-700 px-1.5 py-0.5 text-[11px] font-bold text-white">
+            {t("mayorista")}
+          </span>
+        ) : null}
+
         {agotado ? (
           <span className="absolute inset-x-0 bottom-0 rounded-b-lg bg-riel-900/90 py-1 text-center text-[11px] font-semibold text-white">
             {t("sinExistencias")}
