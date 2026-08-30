@@ -24,6 +24,7 @@ import {
   type MetodoDePago,
 } from "@/lib/pedidos/pasos";
 import { cn } from "@/lib/utils";
+import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
 
 export const dynamic = "force-dynamic";
 
@@ -245,7 +246,13 @@ export default async function PaginaPedido({
       {/* CÓMO LO VA A RECIBIR. Es lo que más pregunta quien acaba de pagar, y
           hasta hoy no se lo decía ninguna pantalla. */}
       <p className="mt-4 flex items-start gap-2 rounded-xl bg-slate-50 px-4 py-3 text-sm">
-        {pedido.envioCentavos > 0 ? (
+        {/* ══ EL DESTINO DECIDE, NO EL COSTO (30 ago 2026) ══ Fuera de
+            Venezuela SIEMPRE se despacha — y el envío va DENTRO del precio,
+            así que «envioCentavos > 0» le decía «lo retiras en el local» a
+            una compra de EE. UU. con la dirección de entrega debajo. La
+            MT-000011 lo destapó. */}
+        {pedido.envioCentavos > 0 ||
+        destinoDeEnvio(pedido.paisDestino) !== null ? (
           <>
             <Truck
               className="mt-0.5 h-4 w-4 shrink-0 text-tinta-suave"

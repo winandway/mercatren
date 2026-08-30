@@ -150,7 +150,11 @@ export async function crearIntentoDePago(
      comprador recibe un aviso honesto en vez de una pantalla rota. */
   let intento: import("stripe").Stripe.PaymentIntent | undefined;
   try {
-    const intento = await stripe.paymentIntents.create({
+    /* ASIGNACIÓN, NO const: un const aquí SOMBREA la variable de afuera — el
+       intento se creaba bien en Stripe y la función igual devolvía «falló».
+       Fue el fallo de la MT-000011 (30 ago 2026): toda compra con tarjeta
+       rota una noche entera por una palabra. */
+    intento = await stripe.paymentIntents.create({
       amount: montoParaStripe(pedido.totalCentavos, pedido.moneda ?? "USD"),
       currency: (pedido.moneda ?? "USD").toLowerCase(),
       automatic_payment_methods: { enabled: true },

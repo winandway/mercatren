@@ -66,8 +66,12 @@ export function PagoTarjeta({ numero }: { numero: string }) {
 
   if (error) {
     return (
+      /* ══ AQUÍ EL CLIENTE NO METIÓ NINGUNA TARJETA (30 ago 2026) ══ Este
+         error es NUESTRO — el cobro no se pudo abrir — y el texto viejo le
+         decía «revisa los datos de tu tarjeta» a alguien que nunca la
+         escribió. El motivo real queda en la bitácora del pedido. */
       <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
-        {t("noSePudo")}
+        {t("noSePudoAbrir")}
       </p>
     );
   }

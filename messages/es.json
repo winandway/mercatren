@@ -1725,7 +1725,8 @@
         "bajando": "Bajando el video…",
         "comprimiendo": "Comprimiendo… {pct}%",
         "subiendo": "Guardando el liviano…",
-        "noSePudo": "Este navegador no pudo comprimirlo. Inténtalo desde Chrome en una computadora."
+        "noSePudo": "Este navegador no pudo comprimirlo. Inténtalo desde Chrome en una computadora.",
+        "noSePudoAbrir": "No pudimos iniciar el cobro — no es un problema de tu tarjeta. Recarga la página en un momento; si sigue igual, escríbenos y lo resolvemos."
       }
     },
     "diccionario": {
@@ -3134,7 +3135,9 @@
       ],
       "siguiente": "Siguiente paso: haz el pago por Zelle y sube la captura en la página de tu pedido. Los datos exactos están ahí.",
       "boton": "Ver mi pedido y pagar",
-      "siguienteEnvio": "Siguiente paso: haz el pago y sube la captura en la página de tu pedido. Cuando quede confirmado, el comercio te escribe para coordinar la entrega."
+      "siguienteEnvio": "Siguiente paso: haz el pago y sube la captura en la página de tu pedido. Cuando quede confirmado, el comercio te escribe para coordinar la entrega.",
+      "previoTarjeta": "Falta un paso: el pago con tarjeta.",
+      "siguienteTarjeta": "Siguiente paso: entra a la página de tu pedido y paga con tu tarjeta. El pago es inmediato y tu pedido arranca al momento."
     },
     "comprobanteRecibido": {
       "asunto": "Recibimos tu comprobante del pedido {numero}",

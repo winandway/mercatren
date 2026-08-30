@@ -1725,7 +1725,8 @@
         "bajando": "Downloading…",
         "comprimiendo": "Compressing… {pct}%",
         "subiendo": "Saving the light version…",
-        "noSePudo": "This browser couldn't compress it. Try from Chrome on a computer."
+        "noSePudo": "This browser couldn't compress it. Try from Chrome on a computer.",
+        "noSePudoAbrir": "We couldn't start the charge — it's not your card. Reload the page in a moment; if it persists, write to us and we'll sort it out."
       }
     },
     "diccionario": {
@@ -3134,7 +3135,9 @@
       ],
       "siguiente": "Next step: send the Zelle payment and upload the screenshot on your order page. The exact details are there.",
       "boton": "View my order and pay",
-      "siguienteEnvio": "Next step: make the payment and upload the receipt on your order page. Once it clears, the merchant will reach out to arrange delivery."
+      "siguienteEnvio": "Next step: make the payment and upload the receipt on your order page. Once it clears, the merchant will reach out to arrange delivery.",
+      "previoTarjeta": "One step left: card payment.",
+      "siguienteTarjeta": "Next step: open your order page and pay with your card. Payment is instant and your order gets moving right away."
     },
     "comprobanteRecibido": {
       "asunto": "We received your receipt for order {numero}",

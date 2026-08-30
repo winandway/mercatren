@@ -550,6 +550,12 @@ export async function crearPedido(
       totalCentavos: total,
       envioCentavos,
       moneda: encontrados[0]?.moneda ?? "USD",
+      metodoPago,
+      /* Fuera de Venezuela SIEMPRE se despacha; en Venezuela, según lo que
+         eligió. El correo usa esto para no hablar de retiro a quien recibe
+         en su casa. */
+      seDespacha:
+        destinoDelPedido !== "VE" || revisado.data.formaEntrega === "envio",
     },
     lineasDeRetiro(await puntosDeRetiro(pedidoId)),
   );

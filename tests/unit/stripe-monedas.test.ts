@@ -59,3 +59,17 @@ describe("la aduana de montos con Stripe", () => {
     expect(webhook).toContain("anotarEnBitacora");
   });
 });
+
+describe("el intento de pago no se sombrea a sí mismo", () => {
+  it("EL CREATE ASIGNA LA VARIABLE DE AFUERA, jamás un const interior", () => {
+    /* El 30 ago 2026 un `const intento` DENTRO del try sombreó la variable
+       exterior: el cobro se creaba perfecto en Stripe y la función devolvía
+       «falló» — toda compra con tarjeta rota una noche (MT-000011), con el
+       cliente leyendo «revisa tu tarjeta» sin haberla escrito. */
+    const fuente = readFileSync("src/lib/stripe/acciones.ts", "utf-8");
+    expect(fuente).toContain("intento = await stripe.paymentIntents.create(");
+    expect(fuente).not.toContain(
+      "const intento = await stripe.paymentIntents.create(",
+    );
+  });
+});

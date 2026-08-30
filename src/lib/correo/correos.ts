@@ -99,6 +99,10 @@ type DatosPedido = {
   envioCentavos?: number;
   /** La moneda del pedido: un correo chileno enseña pesos, no dólares. */
   moneda?: string;
+  /** Cómo va a pagar: el siguiente paso del correo depende de ESTO. */
+  metodoPago?: string | null;
+  /** true = se despacha a una dirección; false = se retira en el comercio. */
+  seDespacha?: boolean;
 };
 
 /**
@@ -142,7 +146,10 @@ export async function correoGraciasCompra(
 
   return enviar(d, {
     asunto: t("graciasCompra.asunto", { numero: pedido.numero }),
-    previo: t("graciasCompra.previo"),
+    previo:
+      pedido.metodoPago === "zelle"
+        ? t("graciasCompra.previo")
+        : t("graciasCompra.previoTarjeta"),
     saludo,
     titulo: t("graciasCompra.titulo"),
     parrafos: t.raw("graciasCompra.parrafos") as string[],
@@ -170,7 +177,9 @@ export async function correoGraciasCompra(
           pedido.moneda ?? "USD",
         ),
       },
-      ...puntos.map((p, i) => ({
+      /* Los puntos de retiro solo si de verdad se retira: en una compra que
+         se DESPACHA, «dónde retirarlo» confunde — nadie retira nada. */
+      ...(pedido.seDespacha ? [] : puntos).map((p, i) => ({
         etiqueta:
           puntos.length > 1
             ? `${t("pedidoListo.dondeRetirar")} ${i + 1}`
@@ -181,11 +190,18 @@ export async function correoGraciasCompra(
     /* QUÉ PASA DESPUÉS, según cómo lo vaya a recibir. Antes decía siempre
        "haz el pago por Zelle y sube la captura"; a quien pidió envío le
        faltaba lo que más pregunta, que es quién se lo lleva y cuándo. */
+    /* ══ EL SIGUIENTE PASO ES EL DEL MÉTODO (30 ago 2026) ══
+       Decidía por «¿cobró envío aparte?» — y una compra con TARJETA de una
+       tienda de EE. UU. (envío dentro del precio) recibía «haz el pago por
+       Zelle y sube la captura». La MT-000011 lo destapó: el método del
+       pedido manda, siempre. */
     resaltado: {
       texto:
-        pedido.envioCentavos && pedido.envioCentavos > 0
-          ? t("graciasCompra.siguienteEnvio")
-          : t("graciasCompra.siguiente"),
+        pedido.metodoPago === "zelle"
+          ? pedido.seDespacha
+            ? t("graciasCompra.siguienteEnvio")
+            : t("graciasCompra.siguiente")
+          : t("graciasCompra.siguienteTarjeta"),
       tono: "neutro",
     },
     boton: {
