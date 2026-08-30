@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/formulario-persistente";
 import { guardarMedidas, guardarVariantes } from "@/lib/productos/acciones";
 import type { MedidasVista, VarianteVista } from "@/lib/productos/variantes";
+import { divisorDe } from "@/lib/mercado/moneda";
 
 /**
  * TALLAS, COLORES Y MEDIDAS, en el formulario del comercio.
@@ -34,14 +35,21 @@ export function VariantesYMedidas({
   productoId,
   variantes,
   medidas,
+  moneda = "USD",
 }: {
   productoId: string;
   variantes: VarianteVista[];
   medidas: MedidasVista | null;
+  /** La moneda del producto: pesos enteros en CL/CO, dólares en el resto. */
+  moneda?: string;
 }) {
   return (
     <div className="space-y-6">
-      <BloqueVariantes productoId={productoId} iniciales={variantes} />
+      <BloqueVariantes
+        productoId={productoId}
+        iniciales={variantes}
+        moneda={moneda}
+      />
       <BloqueMedidas productoId={productoId} iniciales={medidas} />
     </div>
   );
@@ -58,13 +66,17 @@ type Fila = {
   sku: string;
 };
 
-function deVariante(v: VarianteVista): Fila {
+function deVariante(v: VarianteVista, moneda: string): Fila {
   return {
     talla: v.talla ?? "",
     color: v.color ?? "",
     colorHex: v.colorHex ?? "",
     // Se enseña SU precio, no el publicado: es lo que él escribió.
-    precio: v.precioBaseCentavos ? (v.precioBaseCentavos / 100).toFixed(2) : "",
+    precio: v.precioBaseCentavos
+      ? (v.precioBaseCentavos / divisorDe(moneda)).toFixed(
+          divisorDe(moneda) === 1 ? 0 : 2,
+        )
+      : "",
     stock: String(v.existencias ?? 0),
     sku: v.sku ?? "",
   };
@@ -82,13 +94,15 @@ const FILA_VACIA: Fila = {
 function BloqueVariantes({
   productoId,
   iniciales,
+  moneda,
 }: {
   productoId: string;
   iniciales: VarianteVista[];
+  moneda: string;
 }) {
   const t = useTranslations("panel.variantes");
   const [filas, setFilas] = useState<Fila[]>(
-    iniciales.length > 0 ? iniciales.map(deVariante) : [],
+    iniciales.length > 0 ? iniciales.map((v) => deVariante(v, moneda)) : [],
   );
   const [guardando, setGuardando] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);

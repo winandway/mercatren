@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { divisorDe } from "@/lib/mercado/moneda";
 
 /**
  * WEBMCP: las acciones del sitio, anunciadas al agente del NAVEGADOR.
@@ -54,7 +55,7 @@ export function WebMcp({ locale }: { locale: string }) {
           };
           return (d.productos ?? []).map((p) => ({
             titulo: (locale === "en" ? p.tituloEn : null) ?? p.tituloEs,
-            precio: `${(p.precioCentavos / 100).toFixed(2)} ${p.moneda}`,
+            precio: `${(p.precioCentavos / divisorDe(p.moneda)).toFixed(divisorDe(p.moneda) === 1 ? 0 : 2)} ${p.moneda}`,
             comercio: p.tiendaNombre,
             entrega:
               p.tiendaPais === "US"

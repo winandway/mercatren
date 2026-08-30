@@ -4,6 +4,7 @@ import { codigoVisible } from "@/lib/catalogo/codigo";
 import { getDbAsync, schema } from "@/lib/db";
 import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
+import { divisorDe } from "@/lib/mercado/moneda";
 
 /**
  * EL CATÁLOGO PARA GOOGLE SHOPPING.
@@ -47,7 +48,11 @@ function escapar(texto: string): string {
 
 /** Centavos enteros → "12.34 USD", que es lo que Google espera. */
 function precio(centavos: number, moneda: string): string {
-  return `${(centavos / 100).toFixed(2)} ${moneda}`;
+  /* Merchant Center espera el precio en la unidad de la moneda: «654.23
+     USD» pero «65423 COP» — el peso no tiene centavos. El ÷100 fijo mandaría
+     los productos de una plaza de pesos a un centésimo de su precio. */
+  const divisor = divisorDe(moneda);
+  return `${(centavos / divisor).toFixed(divisor === 1 ? 0 : 2)} ${moneda}`;
 }
 
 /** El tope de Google para el atributo `id`. */

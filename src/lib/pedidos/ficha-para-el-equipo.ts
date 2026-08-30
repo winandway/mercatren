@@ -1,5 +1,9 @@
 import "server-only";
 
+export { lineasDeLaVenta } from "@/lib/pedidos/lineas-de-la-venta";
+export type { FichaDeVenta } from "@/lib/pedidos/lineas-de-la-venta";
+import type { FichaDeVenta } from "@/lib/pedidos/lineas-de-la-venta";
+
 import { eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
@@ -42,32 +46,6 @@ import {
  * mucho peor.
  */
 
-export type FichaDeVenta = {
-  numero: string;
-  totalCentavos: number;
-  metodoPago: string | null;
-  /** `pi_…` de Stripe o el código de confirmación del banco. */
-  referencia: string | null;
-  comprador: { nombre: string; correo: string } | null;
-  entrega: string | null;
-  /** El teléfono con el que se le habla al comprador por este pedido. */
-  telefono: string | null;
-  /** Un renglón por comercio, con lo que se le compró y lo que se le paga. */
-  comercios: Array<{
-    nombre: string;
-    /** Quién responde por la entrega: el dueño de la cuenta del comercio. */
-    responsable: string | null;
-    brutoCentavos: number;
-    comisionCentavos: number;
-    netoCentavos: number;
-    articulos: Array<{ titulo: string; cantidad: number; centavos: number }>;
-  }>;
-  /** La factura de venta al comprador, si ya se emitió. */
-  facturaNumero: string | null;
-  /** Las órdenes de compra a los comercios, si ya se emitieron. */
-  ordenesNumero: string[];
-};
-
 /**
  * La dirección se guarda como JSON para no perder el histórico: si el cliente
  * la cambia mañana, el pedido viejo conserva a dónde se mandó de verdad. Aquí
@@ -93,6 +71,7 @@ export async function fichaDeVenta(
       id: pedidos.id,
       numero: pedidos.numero,
       totalCentavos: pedidos.totalCentavos,
+      moneda: pedidos.moneda,
       metodoPago: pedidos.metodoPago,
       clienteId: pedidos.clienteId,
       direccion: pedidos.direccionEntrega,
@@ -203,6 +182,7 @@ export async function fichaDeVenta(
   return {
     numero: pedido.numero,
     totalCentavos: Number(pedido.totalCentavos ?? 0),
+    moneda: pedido.moneda ?? "USD",
     metodoPago: pedido.metodoPago ?? null,
     referencia: cobro?.referencia ?? null,
     comprador: comprador
@@ -217,11 +197,6 @@ export async function fichaDeVenta(
 }
 
 /** Cómo se llama cada método en un correo que lee una persona. */
-const NOMBRE_DEL_METODO: Record<string, string> = {
-  stripe: "Tarjeta",
-  zelle: "Zelle",
-  billetera: "Saldo en Mercatren",
-};
 
 /**
  * La ficha convertida en las líneas del correo.
@@ -229,38 +204,3 @@ const NOMBRE_DEL_METODO: Record<string, string> = {
  * Va aquí y no en la plantilla del correo para que los dos disparadores —el
  * cobro con tarjeta y la aprobación de un Zelle— manden exactamente lo mismo.
  */
-export function lineasDeLaVenta(f: FichaDeVenta): string[] {
-  const usd = (c: number) => `${(c / 100).toFixed(2)} USD`;
-  const lineas: string[] = [];
-
-  lineas.push(
-    `Pedido ${f.numero} · ${NOMBRE_DEL_METODO[f.metodoPago ?? ""] ?? "Sin método"} · Total ${usd(f.totalCentavos)}`,
-  );
-
-  if (f.referencia) lineas.push(`Referencia del cobro: ${f.referencia}`);
-
-  if (f.comprador) {
-    lineas.push(`Compró: ${f.comprador.nombre} · ${f.comprador.correo}`);
-  }
-
-  if (f.entrega) lineas.push(`Entregar a: ${f.entrega}`);
-  if (f.telefono) lineas.push(`Teléfono: ${f.telefono}`);
-
-  for (const c of f.comercios) {
-    lineas.push(`— ${c.nombre} —`);
-    if (c.responsable) lineas.push(`Entrega: ${c.responsable}`);
-    for (const a of c.articulos) {
-      lineas.push(`${a.cantidad} × ${a.titulo} — ${usd(a.centavos)}`);
-    }
-    lineas.push(
-      `Vendido ${usd(c.brutoCentavos)} · comisión de Mercatren ${usd(c.comisionCentavos)} · se le paga ${usd(c.netoCentavos)}`,
-    );
-  }
-
-  if (f.facturaNumero) lineas.push(`Factura de venta: ${f.facturaNumero}`);
-  if (f.ordenesNumero.length) {
-    lineas.push(`Orden de compra: ${f.ordenesNumero.join(", ")}`);
-  }
-
-  return lineas;
-}

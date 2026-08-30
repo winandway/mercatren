@@ -69,6 +69,7 @@ export default async function PaginaEditarProducto({
           poder guardar el título de un tubo de PVC sería absurdo. */}
       <VariantesYMedidas
         productoId={datos.producto.id}
+        moneda={datos.producto.moneda ?? "USD"}
         variantes={variantes}
         medidas={medidas}
       />

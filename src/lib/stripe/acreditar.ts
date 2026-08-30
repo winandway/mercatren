@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 import { SITIO } from "@/lib/sitio";
 import { getDb } from "@/lib/db";
+import { divisorDe } from "@/lib/mercado/moneda";
 import { anotarHito } from "@/lib/pedidos/hitos";
 import {
   billeteras,
@@ -250,7 +251,7 @@ export async function acreditarPagoConTarjeta(
         ? lineasDeLaVenta(ficha)
         : [
             `Entró un cobro con tarjeta del pedido ${pedido.numero}.`,
-            `Total: ${(montoCentavos / 100).toFixed(2)} USD.`,
+            `Total: ${(montoCentavos / divisorDe(pedido.moneda ?? "USD")).toFixed(divisorDe(pedido.moneda ?? "USD") === 1 ? 0 : 2)} ${pedido.moneda ?? "USD"}.`,
           ],
       url: `${SITIO.url}/es/panel/ordenes/${pedido.numero}`,
       boton: "Ver el pedido",

@@ -8,6 +8,8 @@ import { z } from "zod";
 import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
+import { mercadoPorCodigo } from "@/lib/mercado/mercados";
+import { divisorDe, monedaDelMercado } from "@/lib/mercado/moneda";
 import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { mensajes } from "@/lib/mensajes";
 import {
@@ -15,6 +17,7 @@ import {
   imagenesProducto,
   medidasProducto,
   productos,
+  tiendas,
   variantesProducto,
 } from "@/lib/db/schema";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
@@ -78,12 +81,21 @@ function construirEsquema(t: Textos) {
 export type ResultadoProducto =
   { ok: true; mensaje: string; id: string } | { ok: false; mensaje: string };
 
-/** De lo que escribe una persona ("12,50") a centavos enteros. */
-function aCentavos(texto: string | undefined) {
+/**
+ * De lo que escribe una persona a la unidad menor DE SU MONEDA.
+ *
+ * ══ EL ×100 FIJO ERA UNA BOMBA (30 ago 2026) ══
+ * El peso chileno y el colombiano no tienen centavos (divisor 1): un
+ * producto de 19.990 CLP se enseñaba como «199.90» en la casilla, y si
+ * alguien lo «corregía» escribiendo los pesos reales, se guardaba un precio
+ * CIEN VECES más alto. El divisor sale de la moneda, aquí y en `aTexto` del
+ * formulario — los dos lados de la misma casilla.
+ */
+function aCentavos(texto: string | undefined, moneda: string = "USD") {
   if (!texto?.trim()) return null;
   const numero = Number(texto.replace(",", "."));
   if (!Number.isFinite(numero) || numero < 0) return null;
-  return Math.round(numero * 100);
+  return Math.round(numero * divisorDe(moneda));
 }
 
 /** Direccion legible sacada del titulo. */
@@ -196,7 +208,15 @@ export async function guardarProducto(
    * automáticamente. Él no tiene que subir nada a mano — y no debe: si lo
    * sube él y el sistema vuelve a ajustar, el cliente paga el fee dos veces.
    */
-  const precioBaseCentavos = aCentavos(d.precio);
+  /* La moneda del producto es la de la vitrina de su tienda: pesos en las
+     plazas de Chile y Colombia, dólares en el resto. */
+  const [vitrina] = await db
+    .select({ mercado: tiendas.mercado })
+    .from(tiendas)
+    .where(eq(tiendas.id, tiendaId));
+  const moneda = monedaDelMercado(mercadoPorCodigo(vitrina?.mercado));
+
+  const precioBaseCentavos = aCentavos(d.precio, moneda);
   if (precioBaseCentavos === null || precioBaseCentavos <= 0) {
     return { ok: false, mensaje: t("precioMayorQueCero") };
   }
@@ -263,10 +283,13 @@ export async function guardarProducto(
     unidad: d.unidad?.trim() || null,
     precioCentavos,
     precioBaseCentavos,
+    /* La moneda de la vitrina, escrita en el producto: sin esto, uno creado
+       a mano en una plaza de pesos nacería diciendo USD. */
+    moneda,
     // El "antes" también se ajusta: comparar un tachado sin ajuste contra un
     // precio con ajuste haría ver rebajas más chicas de lo que son.
     precioAntesCentavos: (() => {
-      const antes = aCentavos(d.precioAntes);
+      const antes = aCentavos(d.precioAntes, moneda);
       return antes && antes > 0 ? precioConAjusteCentavos(antes) : null;
     })(),
     existencias: Number.isFinite(existencias) ? Math.max(0, existencias) : 0,
@@ -564,6 +587,13 @@ export async function guardarVariantes(
   if (!productoId) return { ok: false, mensaje: t("productoNoExiste") };
 
   const permiso = await productoPropio(productoId);
+  /* El precio de una variante se escribe en la moneda del producto: pesos
+     enteros en las plazas, dólares con centavos en el resto. */
+  const [conMoneda] = await getDb()
+    .select({ moneda: productos.moneda })
+    .from(productos)
+    .where(eq(productos.id, productoId));
+  const monedaDeVariantes = conMoneda?.moneda ?? "USD";
   if (!permiso.ok) {
     return {
       ok: false,
@@ -600,7 +630,9 @@ export async function guardarVariantes(
     if (vistas.has(clave)) continue;
     vistas.add(clave);
 
-    const base = Math.round((numeroOpcional(precios[i]) ?? 0) * 100);
+    const base = Math.round(
+      (numeroOpcional(precios[i]) ?? 0) * divisorDe(monedaDeVariantes),
+    );
     filas.push({
       id: nanoid(),
       productoId,
@@ -643,6 +675,13 @@ export async function guardarMedidas(
   if (!productoId) return { ok: false, mensaje: t("productoNoExiste") };
 
   const permiso = await productoPropio(productoId);
+  /* El precio de una variante se escribe en la moneda del producto: pesos
+     enteros en las plazas, dólares con centavos en el resto. */
+  const [conMoneda] = await getDb()
+    .select({ moneda: productos.moneda })
+    .from(productos)
+    .where(eq(productos.id, productoId));
+  const monedaDeVariantes = conMoneda?.moneda ?? "USD";
   if (!permiso.ok) {
     return {
       ok: false,

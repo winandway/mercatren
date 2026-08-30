@@ -14,6 +14,7 @@ import {
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
 import { baseDesdePublicado } from "@/lib/dinero";
+import { divisorDe } from "@/lib/mercado/moneda";
 import { ESTADOS } from "@/lib/entrega/zonas";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { pesoLegible, PESO_MAXIMO_ENVIO } from "@/lib/imagenes/medidas";
@@ -39,6 +40,8 @@ type Producto = {
    */
   precioBaseCentavos?: number | null;
   precioAntesCentavos: number | null;
+  /** La moneda de la vitrina: CLP/COP en las plazas, USD en el resto. */
+  moneda?: string | null;
   existencias: number;
   controlaExistencias: boolean;
   estado: string;
@@ -48,10 +51,17 @@ type Producto = {
   depositoZona?: string | null;
 };
 
-/** De centavos a lo que se escribe en la casilla. */
-function aTexto(centavos: number | null | undefined) {
+/**
+ * De la unidad menor a lo que se escribe en la casilla, POR MONEDA.
+ *
+ * Un producto chileno de 19.990 pesos se enseñaba como «199.90» (÷100 fijo):
+ * quien lo «corregía» escribiendo los pesos reales guardaba un precio cien
+ * veces más alto. CLP y COP no tienen centavos — divisor 1, sin decimales.
+ */
+function aTexto(centavos: number | null | undefined, moneda: string = "USD") {
   if (centavos === null || centavos === undefined) return "";
-  return (centavos / 100).toFixed(2);
+  const divisor = divisorDe(moneda);
+  return (centavos / divisor).toFixed(divisor === 1 ? 0 : 2);
 }
 
 function Campo({
@@ -328,6 +338,7 @@ export function FormularioProducto({
                   ? aTexto(
                       producto.precioBaseCentavos ??
                         baseDesdePublicado(producto.precioCentavos),
+                      producto.moneda ?? "USD",
                     )
                   : ""
               }
@@ -339,7 +350,10 @@ export function FormularioProducto({
               etiqueta={t("precioAntes")}
               valor={
                 producto?.precioAntesCentavos
-                  ? aTexto(baseDesdePublicado(producto.precioAntesCentavos))
+                  ? aTexto(
+                      baseDesdePublicado(producto.precioAntesCentavos),
+                      producto.moneda ?? "USD",
+                    )
                   : ""
               }
               placeholder="0.00"
