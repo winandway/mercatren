@@ -79,7 +79,9 @@ function respaldoDe(plaza: Plaza): EnvioDelProducto {
   };
 }
 
-async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
+/** Las variantes de un producto en el almacén de su plaza. Se exporta para
+    que el importador las guarde como tallas: la misma llamada, una sola vez. */
+export async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
   /* Las existencias se miran en el almacén del que va a salir la caja: la
      variante puede estar surtida en China y agotada en EE. UU., o al revés. */
   const parametros = new URLSearchParams({ pid }).toString();

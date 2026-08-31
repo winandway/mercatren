@@ -13,6 +13,7 @@ import {
   productos,
   tiendas,
   enviosProducto,
+  variantesProducto,
 } from "@/lib/db/schema";
 import { COMISION_US_PB } from "@/lib/dinero";
 import { SOCIEDAD } from "@/lib/sociedad";
@@ -589,8 +590,20 @@ async function guardarProducto({
       .where(eq(productos.id, yaEsta.id));
 
     await guardarEnvio(yaEsta.id, envio, ahora);
+    /* Las tallas se refrescan al reagregar: es lo que arregla los productos
+       de ropa que entraron sin ninguna. */
+    const tallas = await guardarTallas(
+      yaEsta.id,
+      externoId,
+      plaza.almacen,
+      precioPublicadoCentavos,
+      ahora,
+    );
 
-    return { ok: true, mensaje: `Actualizado: ${nombre.slice(0, 60)}` };
+    return {
+      ok: true,
+      mensaje: `Actualizado: ${nombre.slice(0, 60)}${tallas > 0 ? ` · ${tallas} tallas` : ""}`,
+    };
   }
 
   const id = `prod-${nanoid(12)}`;
@@ -651,9 +664,21 @@ async function guardarProducto({
   }
 
   await guardarEnvio(id, envio, ahora);
+  /* LAS TALLAS, en el mismo acto de agregar: sin esto la ropa se publicaba
+     sin talla y el sistema le compraba a CJ «la más barata» (30 ago 2026). */
+  const tallas = await guardarTallas(
+    id,
+    externoId,
+    plaza.almacen,
+    precioPublicadoCentavos,
+    ahora,
+  );
 
   revalidatePath("/[locale]/panel", "layout");
-  return { ok: true, mensaje: `Agregado: ${nombre.slice(0, 60)}` };
+  return {
+    ok: true,
+    mensaje: `Agregado: ${nombre.slice(0, 60)}${tallas > 0 ? ` · ${tallas} tallas` : ""}`,
+  };
 }
 
 /**
@@ -790,5 +815,76 @@ async function guardarEnvio(
       });
   } catch (fallo) {
     console.error("[cj] no se pudo guardar el flete de", productoId, fallo);
+  }
+}
+
+/**
+ * ══ LAS TALLAS DEL PRODUCTO (30 ago 2026) ══
+ *
+ * Lo cazó el dueño: la ropa entraba SIN TALLA y el comprador no podía
+ * elegirla — el sistema le compraba a CJ «la más barata». El circuito de
+ * variantes ya existía entero (ficha, carrito, pedido, compra al
+ * proveedor); lo que faltaba era este eslabón: traerlas al importar.
+ *
+ * Nunca tumba el guardado: si CJ no contesta, el producto queda igual y las
+ * tallas entran en la próxima pasada.
+ */
+async function guardarTallas(
+  productoId: string,
+  pid: string | null,
+  almacen: "US" | "CN",
+  precioPublicadoCentavos: number,
+  ahora: Date,
+): Promise<number> {
+  if (!pid) return 0;
+  try {
+    const { pedirVariantes } = await import("@/lib/cj/flete");
+    const { variantesDeCj, nombreDeVariante } =
+      await import("@/lib/cj/variantes");
+    const { partirVariante, valeLaPenaGuardar } =
+      await import("@/lib/cj/tallas");
+
+    const crudas = await pedirVariantes(pid, almacen);
+    if (!crudas) return 0;
+    const lista = variantesDeCj(crudas);
+    const opciones = lista.map((v) => partirVariante(nombreDeVariante(v)));
+    if (!valeLaPenaGuardar(opciones)) return 0;
+
+    const db = getDb();
+    const filas = lista
+      .map((v, i) => ({ v, o: opciones[i]! }))
+      .filter(({ o }) => o.talla !== null || o.color !== null)
+      .map(({ v, o }, i) => ({
+        id: `var-${nanoid(12)}`,
+        productoId,
+        talla: o.talla,
+        color: o.color,
+        colorHex: null,
+        sku: v.variantSku?.trim() || null,
+        /* El precio de la variante NO cambia lo que paga el cliente: el
+           publicado ya lleva su margen y su flete. Guardarlo distinto haría
+           que dos tallas del mismo producto costaran distinto sin que nadie
+           lo decidiera. */
+        precioBaseCentavos: 0,
+        precioCentavos: precioPublicadoCentavos,
+        existencias: 0,
+        controlaExistencias: false,
+        orden: i,
+        activo: true,
+        creadoEn: ahora,
+        actualizadoEn: ahora,
+      }));
+    if (filas.length === 0) return 0;
+
+    /* Se reemplazan: CJ es la fuente de verdad de sus tallas, y una talla
+       que allá se agotó no puede seguir ofreciéndose aquí. */
+    await db
+      .delete(variantesProducto)
+      .where(eq(variantesProducto.productoId, productoId));
+    await db.insert(variantesProducto).values(filas).onConflictDoNothing();
+    return filas.length;
+  } catch {
+    /* Las tallas nunca tumban el guardado del producto. */
+    return 0;
   }
 }

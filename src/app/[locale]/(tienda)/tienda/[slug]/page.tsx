@@ -1,5 +1,6 @@
 import {
   BadgeCheck,
+  Boxes,
   CalendarDays,
   ChevronDown,
   Clock,
@@ -38,6 +39,7 @@ import { metaDeTienda } from "@/lib/seo/meta";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 import { verificacionDe } from "@/lib/verificacion/consultas";
 import { luceElSello } from "@/lib/verificacion/estado";
+import { esMayorista, MINIMO_MAYORISTA } from "@/lib/cj/mayorista";
 import {
   avisoDeFichaNoPublica,
   puedeVerLaFicha,
@@ -376,6 +378,18 @@ export default async function PaginaTienda({
 
         <div className="relative mx-auto flex max-w-[1500px] flex-wrap gap-x-10 gap-y-6 px-4 pt-5 pb-12 sm:pt-9 sm:pb-16">
           <div className="min-w-[240px] flex-[1.3]">
+            {/* ══ LA MAYORISTA SE IDENTIFICA SOLA (30 ago 2026) ══ Pedido
+                del dueño: «que la tienda mayorista tenga una identificación
+                especial, un color especial». Va ARRIBA del nombre, en
+                violeta —el color que ya la marca en sus tarjetas del
+                catálogo—, y dice de una lo único que cambia para el
+                comprador: aquí se vende por lote. */}
+            {esMayorista(tienda.id) ? (
+              <p className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-3 py-1 text-xs font-bold text-white ring-2 ring-white/30">
+                <Boxes className="h-4 w-4" aria-hidden />
+                {t("mayoristaSello", { minimo: MINIMO_MAYORISTA })}
+              </p>
+            ) : null}
             <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
               {tienda.nombre}
             </h1>

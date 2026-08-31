@@ -2967,7 +2967,8 @@
       "borrador": "Esta es tu tienda y está en borrador: solo la ves tú. Termina de completarla en Mi tienda y publícala cuando quieras.",
       "pendiente": "Esta es tu tienda y ahora mismo no está publicada: solo la ves tú y el equipo de Mercatren. Escríbenos y la activamos.",
       "suspendida": "Esta tienda no está visible para el público ahora mismo. Escríbenos y lo revisamos contigo."
-    }
+    },
+    "mayoristaSello": "Tienda mayorista · mínimo {minimo} unidades"
   },
   "docs": {
     "titulo": "Docs",

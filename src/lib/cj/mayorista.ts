@@ -10,11 +10,12 @@ import { MARGEN_MINIMO_CENTAVOS } from "@/lib/destino/precio-us";
  * cubren ni el tiempo de atender al comprador. Hasta ahora la única salida era
  * no agregarlos — y son justo los baratos, que es lo que más se busca.
  *
- * ══ LA SALIDA: VENDERLOS DE A DIEZ ══
+ * ══ LA SALIDA: VENDERLOS POR LOTE ══
  *
- * Decisión del dueño (15 ago 2026). El mismo producto que deja $0.90 suelto
- * deja nueve dólares en un lote de diez, y una devolución sobre un lote pesa lo
- * mismo que sobre una venta: deja de ser el riesgo que era.
+ * Decisión del dueño (15 ago 2026; el mínimo bajó a SEIS el 30 ago 2026). El
+ * mismo producto que deja $0.90 suelto deja cinco o seis dólares en un lote,
+ * y una devolución sobre un lote pesa lo mismo que sobre una venta: deja de
+ * ser el riesgo que era.
  *
  * Y encaja con el consejo del casillero que ya está en la ficha: quien compra
  * diez unidades para llevárselas a su país por casillero **está haciendo
@@ -38,10 +39,16 @@ export const TIENDA_MAYORISTA = {
 /**
  * Cuántas unidades hay que llevar como mínimo.
  *
- * Una docena. Es lo que convierte un margen de un dólar en uno de doce, y es la
- * unidad de compra que la gente ya entiende sin que haya que explicarla.
+ * ══ SEIS, NO DOCE (decisión del dueño, 30 ago 2026) ══
+ *
+ * Sus palabras: «que comience desde 6 productos, ya no estaría causando
+ * pérdidas». Y la cuenta le da: con el margen mínimo de la casa, media
+ * docena ya cubre la atención y el riesgo de una devolución — que es todo
+ * lo que esta tienda vino a resolver. Doce era una barrera de entrada que
+ * espantaba al que compra para revender en su país por casillero, que es
+ * justo el cliente de esta tienda.
  */
-export const MINIMO_MAYORISTA = 12;
+export const MINIMO_MAYORISTA = 6;
 
 /** ¿Este producto va a la mayorista en vez de a la tienda de su rubro? */
 export function vaAlMayorista(margenCentavos: number): boolean {
@@ -56,7 +63,7 @@ export function esMayorista(tiendaId: string | null | undefined): boolean {
 /**
  * Cuántas unidades hay que llevar de un producto de esta tienda.
  *
- * Una para todo el catálogo normal; diez en la mayorista.
+ * Una para todo el catálogo normal; media docena en la mayorista.
  */
 export function cantidadMinima(tiendaId: string | null | undefined): number {
   return esMayorista(tiendaId) ? MINIMO_MAYORISTA : 1;
@@ -66,7 +73,7 @@ export function cantidadMinima(tiendaId: string | null | undefined): number {
  * Sube una cantidad al mínimo que corresponda.
  *
  * **Sube, nunca baja.** Quien pidió 25 se lleva 25; quien pidió 3 en la
- * mayorista se lleva 10 — nunca 3, y nunca un carrito que se vacía solo sin
+ * mayorista se lleva 6 — nunca 3, y nunca un carrito que se vacía solo sin
  * explicación, que es como se pierde una compra ya decidida.
  */
 export function ajustarCantidad(

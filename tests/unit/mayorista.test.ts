@@ -48,8 +48,10 @@ describe("la tienda mayorista", () => {
   it("la cantidad SUBE al mínimo, nunca baja", () => {
     /* Quien pidió 25 se lleva 25. Un carrito que recorta lo que la persona ya
        eligió es un carrito que pierde la compra. */
-    expect(ajustarCantidad(3, TIENDA_MAYORISTA.id)).toBe(12);
+    expect(ajustarCantidad(3, TIENDA_MAYORISTA.id)).toBe(6);
     expect(ajustarCantidad(25, TIENDA_MAYORISTA.id)).toBe(25);
+    expect(ajustarCantidad(6, TIENDA_MAYORISTA.id)).toBe(6);
+    /* Y quien pide MÁS del mínimo se lleva lo que pidió. */
     expect(ajustarCantidad(12, TIENDA_MAYORISTA.id)).toBe(12);
   });
 
@@ -57,7 +59,7 @@ describe("la tienda mayorista", () => {
     /* Del navegador puede llegar cualquier cosa. Cero, negativo o basura se
        convierten en el mínimo — nunca en un pedido de cero unidades. */
     for (const roto of [0, -5, NaN, 0.4]) {
-      expect(ajustarCantidad(roto, TIENDA_MAYORISTA.id)).toBe(12);
+      expect(ajustarCantidad(roto, TIENDA_MAYORISTA.id)).toBe(6);
       expect(ajustarCantidad(roto, "tienda-us-ropa-calzado")).toBe(1);
     }
   });
@@ -74,5 +76,16 @@ describe("la tienda mayorista", () => {
     expect(flaco.margenCentavos * MINIMO_MAYORISTA).toBeGreaterThan(
       MARGEN_MINIMO_CENTAVOS * 3,
     );
+  });
+});
+
+describe("el mínimo del lote", () => {
+  it("SON SEIS, no doce (decisión del dueño, 30 ago 2026)", () => {
+    /* «Que comience desde 6 productos, ya no estaría causando pérdidas.»
+       Doce era una barrera que espantaba al que compra para revender por
+       casillero — justo el cliente de esta tienda. */
+    expect(MINIMO_MAYORISTA).toBe(6);
+    expect(cantidadMinima(TIENDA_MAYORISTA.id)).toBe(6);
+    expect(cantidadMinima("tienda-us-ropa-calzado")).toBe(1);
   });
 });

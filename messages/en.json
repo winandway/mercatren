@@ -2967,7 +2967,8 @@
       "borrador": "This is your store and it's a draft — only you can see it. Finish setting it up in My store and publish it whenever you want.",
       "pendiente": "This is your store and it isn't published right now — only you and the Mercatren team can see it. Get in touch and we'll activate it.",
       "suspendida": "This store isn't visible to the public right now. Get in touch and we'll look into it with you."
-    }
+    },
+    "mayoristaSello": "Wholesale store · {minimo} units minimum"
   },
   "docs": {
     "titulo": "Docs",

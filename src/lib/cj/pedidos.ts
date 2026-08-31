@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
@@ -22,6 +22,8 @@ import {
   pedidosProveedor,
   productos,
   renglonesProveedor,
+  itemsVariante,
+  variantesProducto,
 } from "@/lib/db/schema";
 
 /**
@@ -471,6 +473,18 @@ export async function comprarAlProveedor(
       sku: productos.sku,
       titulo: productos.tituloEs,
       cantidad: itemsPedido.cantidad,
+      /* ══ LA TALLA QUE ELIGIÓ EL CLIENTE (30 ago 2026) ══
+         Si la pidió, es la que se le compra a CJ — su SKU de variante es
+         justo lo que CJ espera. Antes se elegía «la más barata» aunque el
+         comprador hubiera marcado su talla: le llegaba otra cosa. */
+      skuDeSuVariante: sql<string | null>`(
+        SELECT ${variantesProducto.sku}
+        FROM ${itemsVariante}
+        JOIN ${variantesProducto}
+          ON ${variantesProducto.id} = ${itemsVariante.varianteId}
+        WHERE ${itemsVariante.itemPedidoId} = ${itemsPedido.id}
+        LIMIT 1
+      )`,
     })
     .from(itemsPedido)
     .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
@@ -502,7 +516,9 @@ export async function comprarAlProveedor(
     const variante = await resolverVariante(
       r.externoId,
       r.sku,
-      elegidas?.[r.productoId],
+      /* Manda lo que el equipo eligió a mano; si no, LA TALLA DEL CLIENTE;
+         y solo si no hay ninguna, el automático. */
+      elegidas?.[r.productoId] ?? r.skuDeSuVariante ?? undefined,
       almacen,
     );
 
