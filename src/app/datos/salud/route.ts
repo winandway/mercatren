@@ -80,6 +80,49 @@ async function saludDelProveedor(): Promise<string> {
   }
 }
 
+/**
+ * ══ ¿ESTÁ ARMADO EL AVISO DE STRIPE? (31 ago 2026) ══
+ *
+ * De ese webhook depende que un cobro se acredite solo. Si nadie lo registró
+ * en el panel de Stripe —o está apagado, o sin el evento de pago, o falta el
+ * secreto para verificar su firma— los cobros entran al banco y los pedidos
+ * se quedan en «esperando el pago» SIN NINGÚN ERROR en ninguna pantalla.
+ * Es una consulta de SOLO LECTURA a Stripe; ni un carácter de la llave sale.
+ */
+async function avisoDeStripeArmado(
+  env: Record<string, string | undefined>,
+): Promise<string> {
+  try {
+    const clave = env.STRIPE_SECRET_KEY?.trim();
+    if (!clave) return "sin_llave";
+    const r = await fetch(
+      "https://api.stripe.com/v1/webhook_endpoints?limit=16",
+      { headers: { authorization: `Bearer ${clave}` } },
+    );
+    if (!r.ok) return "error";
+    const d = (await r.json().catch(() => null)) as {
+      data?: Array<{
+        url?: string;
+        status?: string;
+        enabled_events?: string[];
+      }>;
+    } | null;
+    const nuestro = (d?.data ?? []).find(
+      (w) => (w.url ?? "").includes("/datos/stripe") && w.status === "enabled",
+    );
+    if (!nuestro) return "falta";
+    const eventos = nuestro.enabled_events ?? [];
+    if (!eventos.includes("*") && !eventos.includes("payment_intent.succeeded"))
+      return "sin_evento";
+    /* Registrado y oyendo — pero sin el secreto la firma no se puede
+       verificar y la puerta rechaza todo con 400. */
+    if (!env.STRIPE_WEBHOOK_SECRET?.trim()) return "sin_secreto";
+    return "ok";
+  } catch {
+    return "error";
+  }
+}
+
 export async function GET() {
   const hora = new Date().toISOString();
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
@@ -88,7 +131,15 @@ export async function GET() {
   );
   try {
     await getDb().run(sql`SELECT 1`);
-    const proveedor = await saludDelProveedor();
+    const [proveedor, avisoStripe] = await Promise.all([
+      saludDelProveedor(),
+      avisoDeStripeArmado(
+        getCloudflareContext().env as unknown as Record<
+          string,
+          string | undefined
+        >,
+      ),
+    ]);
     return Response.json(
       {
         ok: true,
@@ -97,6 +148,7 @@ export async function GET() {
         base: "ok",
         metodos,
         proveedor,
+        avisoStripe,
         hora,
       },
       {

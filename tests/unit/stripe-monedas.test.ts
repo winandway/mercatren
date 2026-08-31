@@ -93,4 +93,20 @@ describe("la compra al proveedor deja rastro", () => {
     /* Ni un carácter del token sale del canario. */
     expect(fuente).not.toContain("CJ_API_KEY");
   });
+
+  it("y también si el AVISO de Stripe está armado (31 ago 2026)", () => {
+    /* Sin ese webhook, los cobros entran al banco y los pedidos se quedan
+       en «esperando el pago» sin un solo error en pantalla — la regla
+       global de pagos exige que el canario lo vigile. */
+    const fuente = readFileSync("src/app/datos/salud/route.ts", "utf-8");
+    expect(fuente).toContain("avisoDeStripeArmado");
+    expect(fuente).toContain("avisoStripe");
+    expect(fuente).toContain('"sin_secreto"');
+    expect(fuente).toContain('"sin_evento"');
+    /* Solo lectura: la lista de webhooks, jamás crear ni borrar nada. */
+    expect(fuente).toContain("webhook_endpoints?limit=16");
+    expect(fuente).not.toMatch(
+      /method:\s*"POST"[\s\S]{0,200}webhook_endpoints/,
+    );
+  });
 });

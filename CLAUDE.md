@@ -264,6 +264,16 @@ no texto de cara al público; renombrarlas es una migración aparte.
 
 ---
 
+## ANTES DE AFIRMAR QUE UN PAGO FUNCIONA: `VERIFICAR-PAGOS.md`
+
+**Regla global del 31 ago 2026** (dos clientes reales sin poder comprar):
+prohibido decir «listo» o mandar clientes a un circuito de pagos sin probarlo
+de punta a punta. `VERIFICAR-PAGOS.md` en la raíz dice qué método/moneda está
+PROBADO con fecha y evidencia, qué está construido sin probar (hoy: CL y CO
+con tarjeta tras el arreglo de COP), el rito de prueba, y los campos del
+canario (`/datos/salud`: `base`, `metodos`, `proveedor`, `avisoStripe`). Se
+actualiza en el mismo trabajo que toque cualquier pieza de cobro.
+
 ## LO QUE FALTA SE MIRA EN `PENDIENTES.md`
 
 **Cuando el dueño pregunte «¿qué tenemos pendiente?», se contesta desde
