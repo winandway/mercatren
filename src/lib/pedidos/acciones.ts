@@ -23,9 +23,7 @@ import {
 } from "@/lib/db/schema";
 import {
   baseDesdePublicado,
-  calcularComisionCentavos,
   precioZelleCentavos,
-  puntosBaseDelMetodo,
   ZELLE_MINIMO_CENTAVOS,
 } from "@/lib/dinero";
 import { esquemaPedido, type DatosPedido } from "@/lib/pedidos/esquemas";
@@ -381,14 +379,20 @@ export async function crearPedido(
       precioUnitarioCentavos: precioUnitario,
       cantidad,
       subtotalCentavos: subtotalLinea,
-      /* La comisión se guarda con la tarifa DEL MÉTODO, no con la de la
-         tienda a secas: con tarjeta es el 2%, que es el que ya viene dentro
-         del precio que pagó el comprador. Guardarla aquí es lo que hace que
-         la orden de compra y la billetera digan el mismo número. */
-      comisionCentavos: calcularComisionCentavos(
-        subtotalLinea,
-        puntosBaseDelMetodo(metodoPago, producto.comisionPuntosBase),
-      ),
+      /* ══ EL COMERCIO RECIBE SU PRECIO EXACTO (31 ago 2026 — auditoría) ══
+
+         La comisión del renglón es TODO lo que va por encima de la base:
+         nuestro margen y, con tarjeta, el fee del procesador. Antes se
+         guardaba solo el 3% del cobrado, y como el precio de tarjeta lleva
+         el 2.9% + $0.30 de Stripe DENTRO, ese fee terminaba acreditado al
+         comercio — regalado en cada venta con tarjeta, mientras Stripe nos
+         lo cobraba a nosotros. Es el mismo fallo que reparto.ts cerró en
+         los cobros por enlace el 26 ago, vivo aquí.
+
+         Con esta resta, el neto del comercio es EXACTAMENTE su base — lo
+         que el formulario le promete («escribe TU precio, lo que quieres
+         recibir») — por tarjeta y por Zelle igual. */
+      comisionCentavos: Math.max(0, subtotalLinea - base * cantidad),
     });
 
     /* Qué variante se vendió en esta línea. Sin este enlace, al confirmarse

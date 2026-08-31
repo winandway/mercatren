@@ -831,7 +831,8 @@
       "ciudadProducto": "¿En qué ciudad está esta mercancía?",
       "sinCiudad": "Elige la ciudad del depósito",
       "ciudadProductoAyuda": "Es donde el cliente va a retirarla. Sin ciudad, el producto no sale cuando alguien filtra por la suya.",
-      "preparandoFotos": "Preparando {n} foto(s) para que suban rápido…"
+      "preparandoFotos": "Preparando {n} foto(s) para que suban rápido…",
+      "previaPrecio": "Con este precio: el cliente paga {tarjeta} con tarjeta o {zelle} por Zelle — y tú recibes {base} exactos, pague como pague."
     },
     "ordenes": {
       "titulo": "Órdenes",

@@ -831,7 +831,8 @@
       "ciudadProducto": "What city is this merchandise in?",
       "sinCiudad": "Choose the warehouse city",
       "ciudadProductoAyuda": "It's where the buyer picks it up. Without a city, the product won't appear when someone filters by theirs.",
-      "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…"
+      "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…",
+      "previaPrecio": "With this price: the customer pays {tarjeta} by card or {zelle} via Zelle — and you receive exactly {base}, either way."
     },
     "ordenes": {
       "titulo": "Orders",

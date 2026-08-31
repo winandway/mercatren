@@ -13,7 +13,11 @@ import {
   DEPARTAMENTOS,
   nombreDepartamento,
 } from "@/lib/catalogo/departamentos";
-import { baseDesdePublicado } from "@/lib/dinero";
+import {
+  baseDesdePublicado,
+  precioConAjusteCentavos,
+  precioZelleCentavos,
+} from "@/lib/dinero";
 import { divisorDe } from "@/lib/mercado/moneda";
 import { ESTADOS } from "@/lib/entrega/zonas";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
@@ -74,6 +78,7 @@ function Campo({
   filas,
   obligatorio,
   modo,
+  alEscribir,
 }: {
   nombre: string;
   etiqueta: string;
@@ -85,6 +90,8 @@ function Campo({
   obligatorio?: boolean;
   /** Abre el teclado numerico en el telefono. */
   modo?: "decimal";
+  /** Para las casillas que otra pieza necesita mirar mientras se escribe. */
+  alEscribir?: (valor: string) => void;
 }) {
   const clases =
     "mt-1 w-full rounded-lg border border-borde px-3 py-2.5 text-sm outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30";
@@ -108,6 +115,7 @@ function Campo({
           defaultValue={valor ?? ""}
           placeholder={placeholder}
           required={obligatorio}
+          onChange={alEscribir ? (e) => alEscribir(e.target.value) : undefined}
           className={clases}
         />
       )}
@@ -140,6 +148,17 @@ export function FormularioProducto({
   const router = useRouter();
 
   const [guardando, setGuardando] = useState(false);
+  /* El precio tal como lo va tecleando, para la cuenta a la vista. Arranca
+     con el guardado, así la previa sale desde que se abre la ficha. */
+  const [precioEscrito, setPrecioEscrito] = useState(() =>
+    producto
+      ? aTexto(
+          producto.precioBaseCentavos ??
+            baseDesdePublicado(producto.precioCentavos),
+          producto.moneda ?? "USD",
+        )
+      : "",
+  );
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(
     null,
   );
@@ -327,23 +346,34 @@ export function FormularioProducto({
              * ajuste se sumaría encima del ajuste: el precio subiría en
              * cascada con cada edición.
              */}
-            <Campo
-              nombre="precio"
-              obligatorio
-              modo="decimal"
-              etiqueta={t("precio")}
-              ayuda={t("precioAyuda")}
-              valor={
-                producto
-                  ? aTexto(
-                      producto.precioBaseCentavos ??
-                        baseDesdePublicado(producto.precioCentavos),
-                      producto.moneda ?? "USD",
-                    )
-                  : ""
-              }
-              placeholder="0.00"
-            />
+            <div>
+              <Campo
+                nombre="precio"
+                obligatorio
+                modo="decimal"
+                etiqueta={t("precio")}
+                ayuda={t("precioAyuda")}
+                valor={
+                  producto
+                    ? aTexto(
+                        producto.precioBaseCentavos ??
+                          baseDesdePublicado(producto.precioCentavos),
+                        producto.moneda ?? "USD",
+                      )
+                    : ""
+                }
+                placeholder="0.00"
+                alEscribir={setPrecioEscrito}
+              />
+              {/* ══ LA CUENTA A LA VISTA (31 ago 2026 — auditoría) ══
+                  Un comercio real juró haber puesto un precio y la venta
+                  salió por otro: entre lo que él escribe, lo que publica la
+                  tarjeta y lo que cobra Zelle hay dos fórmulas que nadie ve.
+                  Ahora las TRES cifras salen debajo de la casilla mientras
+                  escribe: qué paga el cliente por cada método y qué recibe
+                  él — que es exactamente lo que escribió. */}
+              <VistaPreviaDelPrecio texto={precioEscrito} />
+            </div>
             <Campo
               nombre="precioAntes"
               modo="decimal"
@@ -670,5 +700,28 @@ export function FormularioProducto({
         </button>
       </div>
     </FormularioPersistente>
+  );
+}
+
+/** Las tres cifras del precio, en vivo: tarjeta, Zelle y lo que recibe él. */
+function VistaPreviaDelPrecio({ texto }: { texto: string }) {
+  const t = useTranslations("panel.producto");
+  const limpio = Number(String(texto).replace(",", "."));
+  if (!Number.isFinite(limpio) || limpio <= 0) return null;
+  /* La previa es de la vitrina de EE. UU. (las fórmulas de tarjeta y Zelle
+     son de esa plaza), así que la moneda es el dólar — pero el divisor sale
+     de la tabla igual, como manda la regla del 30 ago. */
+  const divisor = divisorDe("USD");
+  const base = Math.round(limpio * divisor);
+  const dolares = (c: number) =>
+    `$${(c / divisor).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return (
+    <p className="bg-carga-50 text-carga-900 mt-1.5 rounded-lg px-3 py-2 text-xs leading-relaxed">
+      {t("previaPrecio", {
+        tarjeta: dolares(precioConAjusteCentavos(base)),
+        zelle: dolares(precioZelleCentavos(base)),
+        base: dolares(base),
+      })}
+    </p>
   );
 }

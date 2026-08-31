@@ -56,3 +56,12 @@ está ciega**: se trata como emergencia, no como pendiente.
   en $0.00 (el router de Inversiones Multiservicios, con un cliente
   esperando). Ahora hereda el precio del producto en la ficha Y en
   `crearPedido`; candado en `tests/unit/variante-hereda-precio.test.ts`.
+- **31 ago** — auditoría de la calculadora (venta Starlink por Zelle): la
+  venta cuadró al centavo con la base guardada ($423 → Zelle $436.09 →
+  neto $423.01), pero destapó que en las ventas con tarjeta la comisión
+  guardada era solo el 3% y **el fee de Stripe se le regalaba al comercio**
+  (margen nuestro ≈ $0.15/venta). Ahora la comisión del renglón es
+  `subtotal − base`: el comercio recibe SU precio exacto por cualquier
+  método, y el margen + procesador quedan de nuestro lado — como dice el
+  modelo. El formulario del producto enseña las tres cifras en vivo.
+  Candado: `tests/unit/comision-del-renglon.test.ts`.
