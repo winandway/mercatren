@@ -126,9 +126,18 @@ function BloqueVariantes({
       datos.append("varianteStock", f.stock);
       datos.append("varianteSku", f.sku);
     }
-    const r = await guardarVariantes(datos);
-    setAviso(r.mensaje);
-    setGuardando(false);
+    /* El try/finally es el arreglo del SPINNER DE LA MUERTE (31 ago 2026):
+       si el servidor lanzaba —un corte de red, un despliegue en medio— el
+       botón se quedaba girando para siempre y sin mensaje. Un comercio con
+       un cliente delante estuvo así una tarde entera. */
+    try {
+      const r = await guardarVariantes(datos);
+      setAviso(r.mensaje);
+    } catch {
+      setAviso(t("noSePudoGuardar"));
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (
@@ -286,11 +295,16 @@ function BloqueMedidas({
     setGuardando(true);
     setAviso(null);
     datos.set("productoId", productoId);
-    const r = await guardarMedidas(datos);
-    /* Guardado de verdad: recién ahora se tira el borrador. */
-    if (r.ok) olvidarBorrador(`medidas:${productoId}`);
-    setAviso(r.mensaje);
-    setGuardando(false);
+    try {
+      const r = await guardarMedidas(datos);
+      /* Guardado de verdad: recién ahora se tira el borrador. */
+      if (r.ok) olvidarBorrador(`medidas:${productoId}`);
+      setAviso(r.mensaje);
+    } catch {
+      setAviso(t("noSePudoGuardar"));
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (

@@ -3,7 +3,8 @@ import "server-only";
 import { asc, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
-import { medidasProducto, variantesProducto } from "@/lib/db/schema";
+import { medidasProducto, productos, variantesProducto } from "@/lib/db/schema";
+import { precioDeVariante } from "@/lib/productos/heredar";
 
 /**
  * LAS VARIANTES Y LAS MEDIDAS DE UN PRODUCTO.
@@ -66,8 +67,13 @@ export async function variantesDe(
         existencias: variantesProducto.existencias,
         orden: variantesProducto.orden,
         activo: variantesProducto.activo,
+        /* El precio del PADRE, para la herencia: una variante guardada en
+           cero vale lo del producto, no cero (31 ago 2026 — el router a
+           $0.00 con un cliente delante). */
+        precioDelProducto: productos.precioCentavos,
       })
       .from(variantesProducto)
+      .innerJoin(productos, eq(productos.id, variantesProducto.productoId))
       .where(eq(variantesProducto.productoId, productoId))
       .orderBy(asc(variantesProducto.orden), asc(variantesProducto.id));
 
@@ -80,7 +86,7 @@ export async function variantesDe(
         colorHex: v.colorHex,
         sku: v.sku,
         precioBaseCentavos: v.precioBaseCentavos,
-        precioCentavos: v.precioCentavos,
+        precioCentavos: precioDeVariante(v.precioCentavos, v.precioDelProducto),
         existencias: v.existencias,
         orden: v.orden,
       }));

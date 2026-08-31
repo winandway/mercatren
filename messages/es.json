@@ -1344,7 +1344,8 @@
       "fotoSinCorreo": "Esta búsqueda no tiene correo: el cliente no lo dejó.",
       "fotoYaAvisado": "A este cliente ya se le avisó.",
       "fotoCorreoNoSalio": "El correo no salió. Revisa el envío en Configuración y vuelve a intentar.",
-      "fotoAvisado": "Aviso enviado: el cliente ya tiene el enlace."
+      "fotoAvisado": "Aviso enviado: el cliente ya tiene el enlace.",
+      "varianteRepetida": "«{nombre}» está repetida: son la misma combinación escrita dos veces (mayúsculas y minúsculas no la hacen distinta). Junta el stock en una sola fila y guarda de nuevo."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -1762,7 +1763,8 @@
       "ph": {
         "talla": "M",
         "color": "Azul"
-      }
+      },
+      "noSePudoGuardar": "No se pudo guardar. Revisa tu conexión y vuelve a intentarlo: lo que escribiste sigue en pantalla."
     },
     "medidas": {
       "titulo": "Peso y medidas",

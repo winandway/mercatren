@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { ajustarCantidad } from "@/lib/cj/mayorista";
+import { precioDeVariante } from "@/lib/productos/heredar";
 import { mercadoActual } from "@/lib/mercado/actual";
 import { revalidatePath } from "next/cache";
 
@@ -320,8 +321,10 @@ export async function crearPedido(
      * —productos viejos y los que llegaron por sincronización— se deduce del
      * publicado, que es justo para lo que existe `baseDesdePublicado`.
      */
+    /* Una variante guardada sin precio HEREDA el del producto: cobrarla en
+       cero era regalar la mercancía (31 ago 2026). */
     const publicado = variante
-      ? variante.precioCentavos
+      ? precioDeVariante(variante.precioCentavos, producto.precioCentavos)
       : producto.precioCentavos;
 
     const base =

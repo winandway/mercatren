@@ -52,3 +52,7 @@ está ciega**: se trata como emergencia, no como pendiente.
 - **31 ago** — el resultado de `comprarAlProveedor` se tiraba: venta cobrada y
   cero pedidos en CJ sin motivo visible. Ahora queda en la bitácora, y el
   panel ofrece elegir la talla y reintentar.
+- **31 ago** — una variante guardada con precio 0 se publicaba y se cobraba
+  en $0.00 (el router de Inversiones Multiservicios, con un cliente
+  esperando). Ahora hereda el precio del producto en la ficha Y en
+  `crearPedido`; candado en `tests/unit/variante-hereda-precio.test.ts`.

@@ -1344,7 +1344,8 @@
       "fotoSinCorreo": "This search has no email: the customer didn't leave one.",
       "fotoYaAvisado": "This customer was already notified.",
       "fotoCorreoNoSalio": "The email didn't go out. Check sending in Settings and try again.",
-      "fotoAvisado": "Notification sent: the customer has the link."
+      "fotoAvisado": "Notification sent: the customer has the link.",
+      "varianteRepetida": "“{nombre}” is duplicated: it’s the same combination written twice (upper and lower case don’t make it different). Merge the stock into a single row and save again."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1762,7 +1763,8 @@
       "ph": {
         "talla": "M",
         "color": "Blue"
-      }
+      },
+      "noSePudoGuardar": "We couldn’t save. Check your connection and try again — what you typed is still on screen."
     },
     "medidas": {
       "titulo": "Weight and dimensions",

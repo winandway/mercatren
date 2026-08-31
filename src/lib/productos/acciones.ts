@@ -8,6 +8,7 @@ import { z } from "zod";
 import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
+import { combinacionRepetida } from "@/lib/productos/heredar";
 import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 import { divisorDe, monedaDelMercado } from "@/lib/mercado/moneda";
 import { zonaPorSlug } from "@/lib/entrega/zonas";
@@ -616,7 +617,24 @@ export async function guardarVariantes(
   const skus = formulario.getAll("varianteSku");
 
   const filas: (typeof variantesProducto.$inferInsert)[] = [];
-  const vistas = new Set<string>();
+
+  /* ══ LA REPETIDA SE DICE CON NOMBRE, NO SE TRAGA (31 ago 2026) ══
+     Un comercio real cargó «Negro» y «NEGRO»: por texto exacto eran
+     "distintas", se guardaban las dos, y el stock quedaba partido entre dos
+     chips iguales en la ficha. Ahora la comparación ignora mayúsculas y el
+     guardado se niega DICIENDO cuál fila sobra, para que junte el stock en
+     una sola. Tragarse la fila en silencio era perder su inventario. */
+  const crudas = [];
+  for (let i = 0; i < tallas.length; i++) {
+    crudas.push({
+      talla: String(tallas[i] ?? "").trim() || null,
+      color: String(colores[i] ?? "").trim() || null,
+    });
+  }
+  const repetida = combinacionRepetida(crudas);
+  if (repetida) {
+    return { ok: false, mensaje: t("varianteRepetida", { nombre: repetida }) };
+  }
 
   for (let i = 0; i < tallas.length; i++) {
     const talla = String(tallas[i] ?? "").trim() || null;
@@ -624,11 +642,6 @@ export async function guardarVariantes(
 
     // Sin talla ni color no es una variante: es una fila que quedó vacía.
     if (!talla && !color) continue;
-
-    // La misma combinación dos veces dejaría al cliente sin saber cuál pidió.
-    const clave = `${talla ?? ""}|${color ?? ""}`;
-    if (vistas.has(clave)) continue;
-    vistas.add(clave);
 
     const base = Math.round(
       (numeroOpcional(precios[i]) ?? 0) * divisorDe(monedaDeVariantes),
