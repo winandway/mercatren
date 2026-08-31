@@ -73,3 +73,24 @@ describe("el intento de pago no se sombrea a sí mismo", () => {
     );
   });
 });
+
+describe("la compra al proveedor deja rastro", () => {
+  it("EL MOTIVO DEL FALLO SE ESCRIBE — no se tira (31 ago 2026)", () => {
+    /* El resultado de comprarAlProveedor se ignoraba: una venta cobrada en
+       Stripe y cero pedidos en CJ, sin saber por qué. Ahora el motivo
+       exacto queda en la bitácora del pedido, salga bien o mal. */
+    const fuente = readFileSync("src/lib/stripe/acreditar.ts", "utf-8");
+    expect(fuente).toContain("const compra = await comprarAlProveedor(");
+    expect(fuente).toContain("compra_proveedor_creada");
+    expect(fuente).toContain("compra_proveedor_fallo");
+    expect(fuente).toContain("detalle: compra.ok");
+  });
+
+  it("y el canario dice si la llave del proveedor sigue viva", () => {
+    const fuente = readFileSync("src/app/datos/salud/route.ts", "utf-8");
+    expect(fuente).toContain("saludDelProveedor");
+    expect(fuente).toContain("sin_llave");
+    /* Ni un carácter del token sale del canario. */
+    expect(fuente).not.toContain("CJ_API_KEY");
+  });
+});

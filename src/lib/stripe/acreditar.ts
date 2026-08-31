@@ -288,9 +288,29 @@ export async function acreditarPagoConTarjeta(
     const { esDeEstadosUnidos } = await import("@/lib/cj/pedidos");
     if (await esDeEstadosUnidos(pedidoId)) {
       const { comprarAlProveedor } = await import("@/lib/cj/pedidos");
-      await comprarAlProveedor(pedidoId);
+      const compra = await comprarAlProveedor(pedidoId);
+      /* ══ EL MOTIVO SE ESCRIBE, NO SE TIRA (31 ago 2026) ══
+         El resultado se ignoraba: si la compra fallaba con motivo —la llave
+         de CJ vencida, una talla sin existencia, la dirección incompleta—
+         ese motivo se perdía en el aire y del panel solo se veía que a CJ
+         no llegó nada, sin saber por qué. Lo cazó el dueño con una venta
+         cobrada en Stripe y cero pedidos en CJ. */
+      await anotarEnBitacora({
+        pedidoId,
+        metodo: "stripe",
+        paso: compra.ok ? "compra_proveedor_creada" : "compra_proveedor_fallo",
+        detalle: compra.ok
+          ? `CJ ${compra.externoId ?? compra.id}`
+          : compra.motivo,
+      });
     }
   } catch (e) {
+    await anotarEnBitacora({
+      pedidoId,
+      metodo: "stripe",
+      paso: "compra_proveedor_fallo",
+      detalle: e instanceof Error ? e.message : String(e),
+    });
     console.error("[stripe] acreditado; la compra al proveedor no salio:", e);
   }
 }

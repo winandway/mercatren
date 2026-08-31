@@ -53,6 +53,26 @@ function metodosArmados(env: Record<string, string | undefined>) {
   };
 }
 
+/**
+ * ══ EL PROVEEDOR TAMBIÉN ES UN CANARIO (31 ago 2026) ══
+ *
+ * Lo pidió la realidad: una venta cobrada en Stripe y CERO pedidos en CJ,
+ * sin forma de saber desde fuera si la llave del proveedor seguía viva. Su
+ * token CADUCA, y cuando caduca la compra al proveedor falla en silencio
+ * mientras las ventas siguen entrando. Aquí se dice en una palabra: `ok`,
+ * `sin_llave` o `error`. Ni un carácter del token sale de aquí.
+ */
+async function saludDelProveedor(): Promise<string> {
+  try {
+    const { cjConfigurado, llamarCj } = await import("@/lib/cj/cliente");
+    if (!cjConfigurado()) return "sin_llave";
+    const r = await llamarCj<unknown>("/product/list?pageNum=1&pageSize=1");
+    return r.ok ? "ok" : "error";
+  } catch {
+    return "error";
+  }
+}
+
 export async function GET() {
   const hora = new Date().toISOString();
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
@@ -61,6 +81,7 @@ export async function GET() {
   );
   try {
     await getDb().run(sql`SELECT 1`);
+    const proveedor = await saludDelProveedor();
     return Response.json(
       {
         ok: true,
@@ -68,6 +89,7 @@ export async function GET() {
         version: VERSION_AGENTES,
         base: "ok",
         metodos,
+        proveedor,
         hora,
       },
       {
