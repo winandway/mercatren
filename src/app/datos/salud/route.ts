@@ -50,6 +50,13 @@ function metodosArmados(env: Record<string, string | undefined>) {
       "PAGO_CUENTA",
       "PAGO_RUTA_WIRE",
     ),
+    /* ══ EL AVISO DE STRIPE (31 ago 2026) ══
+       Sin este secreto, el sitio NO SE ENTERA de los cobros: el dinero
+       entra en Stripe y el pedido se queda «esperando el pago» hasta que
+       alguien abre su página y se concilia a mano — y con él se queda sin
+       dispararse la compra al proveedor. Es la pieza que más silenciosa
+       falla de todo el circuito, y desde fuera no se veía. */
+    avisoDeStripe: hay("STRIPE_WEBHOOK_SECRET"),
   };
 }
 
