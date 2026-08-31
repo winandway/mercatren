@@ -3335,6 +3335,18 @@
         "Tócalo aquí abajo para verlo. Si ya no lo necesitas, ignora este correo y listo."
       ],
       "boton": "Ver el producto"
+    },
+    "transferenciaRecibida": {
+      "asunto": "Te llegó una transferencia de {monto}",
+      "previo": "Otro comercio de Mercatren te envió dinero.",
+      "titulo": "Te llegó una transferencia",
+      "parrafos": [
+        "«DEQUIEN» te envió dinero dentro de Mercatren y ya está acreditado a tu favor.",
+        "Puedes verlo en tu panel junto con el resto de lo tuyo, y pedir un retiro cuando quieras."
+      ],
+      "deQuien": "Te lo envió",
+      "aviso": "El monto ya aparece como disponible en tu panel.",
+      "boton": "Ver mi panel"
     }
   },
   "misPedidos": {

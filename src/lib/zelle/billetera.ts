@@ -121,6 +121,8 @@ export type PosicionBilletera = {
   retiradoCentavos: number;
   /** Cuántas veces ha retirado. */
   retiros: number;
+  /** Lo recibido de otros comercios de Mercatren, ya pagado. */
+  recibidoDeOtrosCentavos: number;
   mes: {
     brutoCentavos: number;
     comisionCentavos: number;
@@ -353,6 +355,28 @@ export async function obtenerPosicion(
     .from(retiros)
     .where(eq(retiros.tiendaId, tiendaId));
 
+  /**
+   * ══ LA QUINTA FUENTE: LO RECIBIDO DE OTRO COMERCIO (31 ago 2026) ══
+   *
+   * El retiro «a otro comercio de Mercatren» existía completo por el lado
+   * del que ENVÍA, y al pagarse solo se sumaba a un espejo que ninguna
+   * pantalla lee — el que RECIBÍA no veía un centavo ni podía retirarlo.
+   * La transferencia entra aquí, calculada de los hechos como todo lo
+   * demás: los retiros PAGADOS cuyo destino es esta tienda. Sin comisión:
+   * es dinero ya neto que solo cambió de bolsillo dentro del sistema.
+   */
+  const [recibido] = await db
+    .select({
+      total: sql<number>`COALESCE(SUM(CASE WHEN ${retiros.estado} = 'pagado' THEN ${retiros.montoCentavos} ELSE 0 END), 0)`,
+      ultimo: sql<
+        number | null
+      >`MAX(CASE WHEN ${retiros.estado} = 'pagado' THEN ${retiros.resueltoEn} ELSE NULL END)`,
+    })
+    .from(retiros)
+    .where(
+      and(eq(retiros.destinoTiendaId, tiendaId), eq(retiros.forma, "comercio")),
+    );
+
   /* Lo cobrado por Zelle en bruto, para el desglose de arriba. El neto ya se
      calcula aparte; aquí hace falta el bruto, que es sobre lo que se aplican
      los porcentajes. */
@@ -368,7 +392,11 @@ export async function obtenerPosicion(
   const netoEnlaces = Number(enlaces?.neto ?? 0);
   const comisionEnlaces = Number(enlaces?.bruto ?? 0) - netoEnlaces;
 
-  const neto = Number(datos?.netoHistorico ?? 0) + netoTarjeta + netoEnlaces;
+  const neto =
+    Number(datos?.netoHistorico ?? 0) +
+    netoTarjeta +
+    netoEnlaces +
+    Number(recibido?.total ?? 0);
   const retirado = Number(datos?.retirado ?? 0) + Number(pedidos?.pagado ?? 0);
   const enTramite = Number(pedidos?.enTramite ?? 0);
   const saldo = neto - retirado;
@@ -407,10 +435,12 @@ export async function obtenerPosicion(
     brutoTarjetaCentavos:
       Number(tarjeta?.bruto ?? 0) + Number(enlaces?.bruto ?? 0),
     brutoZelleCentavos: Number(brutoZelle?.total ?? 0),
+    recibidoDeOtrosCentavos: Number(recibido?.total ?? 0),
     ultimoMovimiento: ultimaFecha(
       datos?.ultimo ? Number(datos.ultimo) * 1000 : null,
       fechaEnMilisegundos(tarjeta?.ultimo ?? null),
       fechaEnMilisegundos(enlaces?.ultimo ?? null),
+      fechaEnMilisegundos(recibido?.ultimo ?? null),
     ),
   };
 }
@@ -440,7 +470,7 @@ export async function listarMovimientosReales(
 
   const db = getDb();
 
-  const [filas, salidas, conTarjeta, porEnlace] = await Promise.all([
+  const [filas, salidas, conTarjeta, porEnlace, recibidas] = await Promise.all([
     db
       .select({
         id: pagosZelle.id,
@@ -529,6 +559,28 @@ export async function listarMovimientosReales(
       )
       .orderBy(desc(cobrosSolicitados.pagadoEn))
       .limit(limite),
+
+    /* Las transferencias RECIBIDAS de otros comercios (31 ago 2026): los
+       retiros pagados cuyo destino es esta tienda. Con el nombre del que
+       envió — «me llegó plata» sin decir de quién no le sirve a nadie. */
+    db
+      .select({
+        id: retiros.id,
+        fecha: retiros.resueltoEn,
+        deQuien: tiendas.nombre,
+        monto: retiros.montoCentavos,
+      })
+      .from(retiros)
+      .innerJoin(tiendas, eq(tiendas.id, retiros.tiendaId))
+      .where(
+        and(
+          eq(retiros.destinoTiendaId, posicion.tiendaId),
+          eq(retiros.forma, "comercio"),
+          eq(retiros.estado, "pagado"),
+        ),
+      )
+      .orderBy(desc(retiros.resueltoEn))
+      .limit(limite),
   ]);
 
   const movimientos: MovimientoBilletera[] = [
@@ -572,6 +624,14 @@ export async function listarMovimientosReales(
          número que la cajera tiene delante en su propio sistema. */
       concepto: c.referencia,
       montoCentavos: Number(c.neto),
+      saldoResultanteCentavos: 0,
+    })),
+    ...recibidas.map((r) => ({
+      id: `recibido-${r.id}`,
+      fecha: r.fecha instanceof Date ? r.fecha.getTime() : null,
+      tipo: "entrada" as const,
+      concepto: `Transferencia de ${r.deQuien}`,
+      montoCentavos: Number(r.monto),
       saldoResultanteCentavos: 0,
     })),
   ]

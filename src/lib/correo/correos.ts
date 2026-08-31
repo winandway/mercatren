@@ -717,6 +717,38 @@ export async function correoRetiroPagado(
   });
 }
 
+/** Al comercio que RECIBE una transferencia de otro comercio (31 ago 2026).
+    Sin este aviso, la plata le entra a la billetera y nadie se lo dice: se
+    entera semanas después, o nunca — y quien le envió cree que no llegó. */
+export async function correoTransferenciaRecibida(
+  d: Destinatario,
+  datos: { montoCentavos: number; deQuien: string },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const monto = formatearPrecio(datos.montoCentavos, idioma, "USD");
+
+  return enviar(d, {
+    asunto: t("transferenciaRecibida.asunto", { monto }),
+    previo: t("transferenciaRecibida.previo"),
+    saludo,
+    titulo: t("transferenciaRecibida.titulo"),
+    parrafos: (t.raw("transferenciaRecibida.parrafos") as string[]).map((x) =>
+      x.replace("«DEQUIEN»", datos.deQuien),
+    ),
+    datos: [
+      { etiqueta: t("comun.monto"), valor: monto },
+      { etiqueta: t("transferenciaRecibida.deQuien"), valor: datos.deQuien },
+    ],
+    resaltado: { texto: t("transferenciaRecibida.aviso"), tono: "bien" },
+    boton: {
+      texto: t("transferenciaRecibida.boton"),
+      url: urlDe(idioma, "/panel/billetera"),
+    },
+    motivo,
+    contacto,
+  });
+}
+
 /** 12. Al comercio: no se pudo transferir, con el motivo. */
 export async function correoRetiroRechazado(
   d: Destinatario,

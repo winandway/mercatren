@@ -222,6 +222,12 @@ export async function pedirRetiro(
     if (d.destinoTiendaId === tiendaId) {
       return { ok: false, mensaje: t("destinoEsElMismo") };
     }
+    /* El candado del selector, repetido en el SERVIDOR: una vitrina de la
+       casa colada por consola dejaría el dinero en una billetera nuestra. */
+    const { esTiendaDeLaCasa } = await import("@/lib/retiros/casa");
+    if (esTiendaDeLaCasa(String(d.destinoTiendaId ?? ""))) {
+      return { ok: false, mensaje: t("comercioDestinoNoExiste") };
+    }
 
     const db = getDb();
     const [destino] = await db
@@ -398,6 +404,29 @@ export async function marcarRetiroPagado(
         saldoCentavos: sql`${billeteras.saldoCentavos} + ${retiro.montoCentavos}`,
       })
       .where(eq(billeteras.tiendaId, retiro.destinoTiendaId));
+
+    /* Y SE LE DICE AL QUE RECIBE (31 ago 2026): sin este aviso la plata
+       entra y nadie se lo cuenta — se enteraba semanas después, o nunca.
+       En su propio try: un correo caído no puede deshacer un pago hecho. */
+    try {
+      const { correoTransferenciaRecibida } =
+        await import("@/lib/correo/correos");
+      const { duennoDeTienda } = await import("@/lib/correo/contactos");
+      const [quienEnvio] = await db
+        .select({ nombre: tiendas.nombre })
+        .from(tiendas)
+        .where(eq(tiendas.id, retiro.tiendaId))
+        .limit(1);
+      const receptor = await duennoDeTienda(retiro.destinoTiendaId);
+      if (receptor) {
+        await correoTransferenciaRecibida(receptor, {
+          montoCentavos: retiro.montoCentavos,
+          deQuien: quienEnvio?.nombre ?? "Otro comercio",
+        });
+      }
+    } catch (e) {
+      console.error("[retiro] transferido; el aviso al receptor fallo:", e);
+    }
   }
 
   revalidatePath("/[locale]/panel", "layout");

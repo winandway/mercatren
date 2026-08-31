@@ -3335,6 +3335,18 @@
         "Tap below to see it. If you no longer need it, just ignore this email."
       ],
       "boton": "See the product"
+    },
+    "transferenciaRecibida": {
+      "asunto": "You received a transfer of {monto}",
+      "previo": "Another Mercatren merchant sent you money.",
+      "titulo": "You received a transfer",
+      "parrafos": [
+        "«DEQUIEN» sent you money within Mercatren, and it has already been credited to you.",
+        "You can see it in your dashboard along with the rest of your money, and request a withdrawal anytime."
+      ],
+      "deQuien": "Sent by",
+      "aviso": "The amount already shows as available in your dashboard.",
+      "boton": "View my dashboard"
     }
   },
   "misPedidos": {

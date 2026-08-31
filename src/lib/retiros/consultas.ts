@@ -1,5 +1,7 @@
 import "server-only";
 
+import { esTiendaDeLaCasa } from "@/lib/retiros/casa";
+
 import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
@@ -326,5 +328,12 @@ export async function comerciosDestino(
     .from(tiendas)
     .where(eq(tiendas.estado, "activa"));
 
-  return filas.filter((t) => t.id !== excepto);
+  /* Solo comercios de VERDAD: sin las vitrinas de la casa (31 ago 2026 —
+     antes salían «Sole & Thread», «Mercatren Mayorista» y compañía en el
+     selector, dos docenas de nombres internos donde elegir mal es perder
+     el dinero en una billetera nuestra), y ordenados por nombre para que
+     se pueda encontrar al destinatario sin leer la lista entera. */
+  return filas
+    .filter((t) => t.id !== excepto && !esTiendaDeLaCasa(t.id))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
