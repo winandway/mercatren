@@ -119,6 +119,9 @@ export async function opcionesDeEntrega(
   despachan: boolean;
   costoCentavos: number;
   destino: import("@/lib/destino/reglas").Destino;
+  /** ¿Este carrito puede pagarse por Zelle? Lo decide la política global
+      y el interruptor de cada tienda (cerrado por defecto, 2 sep 2026). */
+  zelleAbierto: boolean;
 }> {
   /**
    * TAMBIÉN DEVUELVE EL DESTINO (18 ago 2026).
@@ -132,7 +135,12 @@ export async function opcionesDeEntrega(
    * un viaje menos al servidor, y el dato sale de la BASE, que es donde vive
    * la verdad de a qué tienda pertenece cada producto.
    */
-  const vacio = { despachan: false, costoCentavos: 0, destino: "VE" as const };
+  const vacio = {
+    despachan: false,
+    costoCentavos: 0,
+    destino: "VE" as const,
+    zelleAbierto: false,
+  };
   if (lineas.length === 0) return vacio;
 
   const { eq, inArray } = await import("drizzle-orm");
@@ -191,5 +199,11 @@ export async function opcionesDeEntrega(
     costoCentavos += costoEnvioCentavos(politica, sub);
   }
 
-  return { despachan, costoCentavos, destino };
+  const { zelleAbiertoParaTiendas } =
+    await import("@/lib/cobros/politica-zelle");
+  const zelleAbierto = await zelleAbiertoParaTiendas([
+    ...subtotalPorTienda.keys(),
+  ]);
+
+  return { despachan, costoCentavos, destino, zelleAbierto };
 }

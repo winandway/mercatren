@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
+  esSoporteDeVerdad,
   exigirEquipoInterno,
   obtenerAlcance,
   obtenerUsuario,
@@ -606,4 +607,89 @@ export async function mandarRetiroAMercury(
   return r.ok
     ? { ok: true, mensaje: t("mandadoAMercury") }
     : { ok: false, mensaje: r.motivo };
+}
+
+/**
+ * ══ CERRAR EL SALDO DE UN COMERCIO PAGADO POR FUERA (2 sep 2026) ══
+ *
+ * El caso real: a un comercio se le pagó todo por Zelle desde el banco, a
+ * mano, por una emergencia suya — y su panel seguía diciendo que tenía
+ * dinero a su favor. El dueño: *«me lo deja listo de que yo hunda un botón
+ * y le descuenta todo el saldo que tenga, porque quedamos en cero»*.
+ *
+ * Lo que hace, en orden y sin borrar nada:
+ *  1. Sus retiros PEDIDOS (solicitados) pasan a pagados con la referencia.
+ *  2. Lo que quede disponible se registra como un retiro `externo` pagado,
+ *     con la referencia y la nota — el rastro de que salió, por dónde y
+ *     cuándo. Es el mismo patrón del cierre de Bley del 10 ago 2026.
+ * Solo el rol soporte de verdad, nunca con el disfraz de «ver su panel».
+ */
+export async function cerrarSaldoPorFuera(
+  formulario: FormData,
+): Promise<Resultado & { cerradoCentavos?: number }> {
+  const t = await mensajes();
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, mensaje: t("soloEquipo") };
+  }
+  const tiendaId = String(formulario.get("tienda") ?? "").trim();
+  const referencia = String(formulario.get("referencia") ?? "").trim();
+  const nota = String(formulario.get("nota") ?? "").trim();
+  if (!tiendaId || tiendaId.length > 80) {
+    return { ok: false, mensaje: t("productoNoExiste") };
+  }
+  if (referencia.length < 3 || referencia.length > 120) {
+    return { ok: false, mensaje: t("faltaReferenciaCierre") };
+  }
+
+  const db = getDb();
+  const usuario = await obtenerUsuario();
+  const ahora = new Date();
+
+  /* 1. Lo que pidió y aún no se marcó: pagado, con esta referencia. */
+  const pendientes = await db
+    .update(retiros)
+    .set({
+      estado: "pagado",
+      referencia,
+      resueltoPorId: usuario?.id ?? null,
+      resueltoEn: ahora,
+    })
+    .where(
+      and(eq(retiros.tiendaId, tiendaId), eq(retiros.estado, "solicitado")),
+    )
+    .returning({ id: retiros.id, monto: retiros.montoCentavos });
+
+  /* 2. Lo que queda a su favor, después de lo anterior. */
+  const { obtenerPosicion } = await import("@/lib/zelle/billetera");
+  const posicion = await obtenerPosicion(tiendaId);
+  const restante = Math.max(0, posicion?.saldoCentavos ?? 0);
+  if (restante > 0) {
+    await db.insert(retiros).values({
+      id: `cierre-${nanoid(12)}`,
+      tiendaId,
+      solicitadoPorId: usuario?.id ?? null,
+      montoCentavos: restante,
+      moneda: "USD",
+      estado: "pagado",
+      forma: "externo",
+      destino: null,
+      destinoTiendaId: null,
+      notaComercio: nota || null,
+      referencia,
+      resueltoPorId: usuario?.id ?? null,
+      resueltoEn: ahora,
+      creadoEn: ahora,
+    });
+  }
+
+  revalidatePath("/[locale]/panel", "layout");
+  const pagados = pendientes.reduce((s, r) => s + Number(r.monto), 0);
+  return {
+    ok: true,
+    cerradoCentavos: restante + pagados,
+    mensaje: t("saldoCerrado", {
+      monto: `$${((restante + pagados) / 100).toFixed(2)}`,
+      pedidos: pendientes.length,
+    }),
+  };
 }

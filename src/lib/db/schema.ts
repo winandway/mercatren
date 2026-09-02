@@ -718,7 +718,16 @@ export const retirosFee = sqliteTable(
 /* Retiros del comercio                                                       */
 /* -------------------------------------------------------------------------- */
 
-export const FORMAS_RETIRO = ["comercio", "zelle", "ach", "wire"] as const;
+/* «externo» (2 sep 2026): pagado POR FUERA del sistema y registrado aquí
+   para dejar el saldo en cero — nunca lo pide un comercio, lo anota el
+   equipo con la referencia del pago real. */
+export const FORMAS_RETIRO = [
+  "comercio",
+  "zelle",
+  "ach",
+  "wire",
+  "externo",
+] as const;
 
 export const ESTADOS_RETIRO = [
   "solicitado",

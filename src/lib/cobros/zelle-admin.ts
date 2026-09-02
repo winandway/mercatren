@@ -7,6 +7,12 @@ import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { configuracion, zelleCobrosTienda } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
+import {
+  LLAVE_POLITICA_ZELLE,
+  politicaZelleDe,
+  type PoliticaZelle,
+} from "@/lib/cobros/zelle";
+import { esTiendaDeLaCasa } from "@/lib/retiros/casa";
 
 /**
  * EL CONTROL DE ZELLE EN LOS ENLACES DE COBRO. Solo el rol `soporte`.
@@ -112,6 +118,28 @@ export async function guardarMaximoGlobalZelle(
 }
 
 /** El interruptor y el mínimo propio de UNA tienda. */
+/** El interruptor general (2 sep 2026): «cerrado» = solo tarjeta para todos. */
+export async function guardarPoliticaZelle(
+  formulario: FormData,
+): Promise<Resultado> {
+  const t = await mensajes();
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, mensaje: t("sinPermiso") };
+  }
+  const politica: PoliticaZelle =
+    formulario.get("politica") === "abierto" ? "abierto" : "cerrado";
+  const db = getDb();
+  await db
+    .insert(configuracion)
+    .values({ clave: LLAVE_POLITICA_ZELLE, valor: politica })
+    .onConflictDoUpdate({
+      target: configuracion.clave,
+      set: { valor: politica },
+    });
+  revalidatePath("/[locale]/panel/configuracion", "page");
+  return { ok: true, mensaje: t("zelleCobros.guardado") };
+}
+
 export async function guardarZelleDeTienda(
   formulario: FormData,
 ): Promise<Resultado> {
@@ -159,6 +187,7 @@ export async function guardarZelleDeTienda(
 
 /** Lo que la pantalla necesita para dibujar la sección. */
 export async function estadoZelleCobros(): Promise<{
+  politica: PoliticaZelle;
   minimoGlobalCentavos: number | null;
   maximoGlobalCentavos: number | null;
   tiendas: Array<{
@@ -185,15 +214,24 @@ export async function estadoZelleCobros(): Promise<{
     .where(eq(configuracion.clave, LLAVE_MAXIMO_GLOBAL))
     .limit(1);
 
-  /* Las tiendas que usan la API de cobros (las vinculadas), no las 25 del
-     catálogo: Zelle en el enlace solo existe para quien manda enlaces. */
-  const vinculadas = await db
-    .selectDistinct({
-      tiendaId: sociosTienda.tiendaId,
-      nombre: tiendas.nombre,
-    })
-    .from(sociosTienda)
-    .innerJoin(tiendas, eq(tiendas.id, sociosTienda.tiendaId));
+  const [politicaFila] = await db
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, LLAVE_POLITICA_ZELLE))
+    .limit(1);
+
+  /* TODOS los comercios de verdad (2 sep 2026), no solo los vinculados a la
+     API: con Zelle cerrado por defecto, el interruptor de cada tienda es la
+     única forma de dárselo a «una persona de confianza», y vale para sus
+     enlaces Y para sus pedidos. Las vitrinas de la casa no entran. */
+  const activas = await db
+    .select({ tiendaId: tiendas.id, nombre: tiendas.nombre })
+    .from(tiendas)
+    .where(eq(tiendas.estado, "activa"));
+  const vinculadas = activas
+    .filter((t) => !esTiendaDeLaCasa(t.tiendaId))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  void sociosTienda;
 
   const config = await db
     .select({
@@ -208,6 +246,7 @@ export async function estadoZelleCobros(): Promise<{
   const maximoGlobal = tope ? Number.parseInt(tope.valor, 10) : null;
 
   return {
+    politica: politicaZelleDe(politicaFila?.valor),
     minimoGlobalCentavos: Number.isFinite(minimoGlobal) ? minimoGlobal : null,
     maximoGlobalCentavos: Number.isFinite(maximoGlobal) ? maximoGlobal : null,
     tiendas: vinculadas.map((v) => ({

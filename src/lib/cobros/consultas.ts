@@ -1,5 +1,11 @@
 import "server-only";
 
+import {
+  LLAVE_POLITICA_ZELLE,
+  politicaZelleDe,
+  zelleHabilitadaPara,
+} from "@/lib/cobros/zelle";
+
 import { and, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
@@ -456,6 +462,13 @@ export async function zelleDelCobro(
 
   const maximoGlobal = topeFila ? Number.parseInt(topeFila.valor, 10) : null;
 
+  const [politicaFila] = await db
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, LLAVE_POLITICA_ZELLE))
+    .limit(1);
+  const politica = politicaZelleDe(politicaFila?.valor);
+
   const decision = decidirZelle(
     {
       /**
@@ -471,7 +484,14 @@ export async function zelleDelCobro(
        * deja el margen. El interruptor se queda para poder quitárselo a un
        * comercio concreto que dé problemas.
        */
-      habilitada: fila ? Boolean(fila.habilitado) : true,
+      /* ══ Y DESDE EL 2 SEP 2026, LA POLÍTICA GLOBAL MANDA ══ Decisión del
+         dueño: Zelle CERRADO para todos (solo tarjeta) salvo la tienda que
+         el equipo enciende a mano para una persona de confianza. Con la
+         política en «abierto» vuelve la regla de arriba. */
+      habilitada: zelleHabilitadaPara(
+        politica,
+        fila ? Boolean(fila.habilitado) : null,
+      ),
       minimoTiendaCentavos: fila?.minimoCentavos ?? null,
       minimoGlobalCentavos: Number.isFinite(minimoGlobal) ? minimoGlobal : null,
       receptorConfigurado: Boolean(receptor),

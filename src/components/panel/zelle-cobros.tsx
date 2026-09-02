@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 import {
   guardarMaximoGlobalZelle,
   guardarMinimoGlobalZelle,
+  guardarPoliticaZelle,
   guardarZelleDeTienda,
 } from "@/lib/cobros/zelle-admin";
 import { useRouter } from "@/i18n/navigation";
@@ -22,11 +23,13 @@ import { cn } from "@/lib/utils";
  * conversión a centavos es del servidor.
  */
 export function ZelleCobros({
+  politica,
   minimoGlobalCentavos,
   maximoGlobalCentavos,
   respaldoCentavos,
   tiendas,
 }: {
+  politica: "abierto" | "cerrado";
   minimoGlobalCentavos: number | null;
   maximoGlobalCentavos: number | null;
   /** El mínimo del catálogo, que manda cuando no hay nada configurado. */
@@ -42,6 +45,7 @@ export function ZelleCobros({
 
   return (
     <div className="space-y-4">
+      <InterruptorGeneral politica={politica} />
       <FormularioGlobal
         minimoGlobalCentavos={minimoGlobalCentavos}
         maximoGlobalCentavos={maximoGlobalCentavos}
@@ -57,6 +61,62 @@ export function ZelleCobros({
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+/**
+ * ══ EL INTERRUPTOR GENERAL (2 sep 2026) ══
+ * Cerrado = solo tarjeta para todos (enlaces y pedidos). Abierto = como
+ * antes. Con cerrado, la fila de cada tienda es la única forma de darle
+ * Zelle a una persona de confianza.
+ */
+function InterruptorGeneral({ politica }: { politica: "abierto" | "cerrado" }) {
+  const t = useTranslations("panel.configuracion.zelleCobros");
+  const router = useRouter();
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [guardando, iniciar] = useTransition();
+  const cerrado = politica === "cerrado";
+
+  function cambiar(a: "abierto" | "cerrado") {
+    iniciar(async () => {
+      const datos = new FormData();
+      datos.set("politica", a);
+      const r = await guardarPoliticaZelle(datos);
+      setAviso(r.mensaje);
+      router.refresh();
+    });
+  }
+
+  return (
+    <div
+      className={cn(
+        "rounded-lg border p-3",
+        cerrado
+          ? "border-emerald-300 bg-emerald-50"
+          : "border-amber-300 bg-amber-50",
+      )}
+    >
+      <p className="text-sm font-semibold">
+        {cerrado ? t("politicaCerrada") : t("politicaAbierta")}
+      </p>
+      <p className="mt-1 text-xs text-tinta-suave">{t("politicaTexto")}</p>
+      <button
+        type="button"
+        disabled={guardando}
+        onClick={() => cambiar(cerrado ? "abierto" : "cerrado")}
+        className="mt-2 inline-flex items-center gap-2 rounded-lg border border-borde bg-white px-3 py-2 text-sm font-semibold hover:border-carga-500 disabled:opacity-60"
+      >
+        {guardando ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+        ) : (
+          <Check className="h-4 w-4" aria-hidden />
+        )}
+        {cerrado ? t("abrirParaTodos") : t("cerrarParaTodos")}
+      </button>
+      {aviso ? (
+        <p className="mt-1.5 text-xs text-tinta-suave">{aviso}</p>
+      ) : null}
     </div>
   );
 }

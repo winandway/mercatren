@@ -68,7 +68,13 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
     despachan: boolean;
     costoCentavos: number;
     destino: import("@/lib/destino/reglas").Destino;
-  }>({ despachan: false, costoCentavos: 0, destino: "VE" });
+    zelleAbierto: boolean;
+  }>({
+    despachan: false,
+    costoCentavos: 0,
+    destino: "VE",
+    zelleAbierto: false,
+  });
 
   /* Se pregunta al montar y cada vez que cambia el carrito. Si falla, se queda
      en "no despachan": mejor no ofrecer un envío que ofrecerlo y no cumplirlo. */
@@ -164,7 +170,11 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
      El candado de verdad sigue en el servidor (crearPedido). */
   /* La moneda del carrito: no se mezclan destinos, no se mezclan monedas. */
   const monedaDelCarrito = lineas[0]?.moneda ?? "USD";
-  const ofrecidos = metodosDelDestino(envio.destino);
+  /* Y Zelle solo si la política (global + tienda) lo abre: ver
+     opcionesDeEntrega. Cerrado por defecto desde el 2 sep 2026. */
+  const ofrecidos = metodosDelDestino(envio.destino).filter(
+    (m) => m !== "zelle" || envio.zelleAbierto,
+  );
   const metodosVisibles = METODOS.filter((m) => ofrecidos.includes(m.valor));
   const metodoReal = ofrecidos.includes(metodo as (typeof ofrecidos)[number])
     ? metodo

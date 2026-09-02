@@ -504,6 +504,15 @@
         "falta": "Tax form not signed — cannot request withdrawals.",
         "vencido": "Tax form expired — cannot request withdrawals.",
         "porVencer": "Tax form expires in {dias} days."
+      },
+      "cerrarSaldo": {
+        "boton": "Close balance (paid outside)",
+        "titulo": "Close {nombre}'s balance: {monto}",
+        "texto": "For when they were already paid in full outside the system (Zelle from the bank, cash). Their pending withdrawals become paid and whatever remains in their favor is recorded as paid outside. Nothing is deleted: the trail keeps this reference.",
+        "referencia": "Reference of the real payment (required)",
+        "nota": "Note (optional): how and when they were paid",
+        "confirmar": "Set balance to zero",
+        "cancelar": "Cancel"
       }
     },
     "resumen": {
@@ -1000,7 +1009,12 @@
         "encendido": "Enabled",
         "apagado": "No Zelle (card only)",
         "maximoGlobal": "Maximum per charge (Zelle)",
-        "maximoGlobalAyuda": "Above this amount the link does NOT offer Zelle and points to transfer or card instead. This isn't our limit: it's the one the payer's bank places on a new recipient, and it rises on its own over time. Defaults to {respaldo}."
+        "maximoGlobalAyuda": "Above this amount the link does NOT offer Zelle and points to transfer or card instead. This isn't our limit: it's the one the payer's bank places on a new recipient, and it rises on its own over time. Defaults to {respaldo}.",
+        "politicaCerrada": "Zelle is CLOSED for everyone: card only on payment links and orders.",
+        "politicaAbierta": "Zelle is OPEN for all merchants (except those switched off below).",
+        "politicaTexto": "Zelle invites fake screenshots, misspelled emails and payments that take days to arrive. It stays closed by default; if a merchant will receive a payment from someone you trust, switch it on below for that merchant only, and it appears on their link and checkout.",
+        "abrirParaTodos": "Open Zelle for everyone",
+        "cerrarParaTodos": "Close Zelle for everyone (card only)"
       },
       "cobroEnlace": {
         "titulo": "Can we charge by payment link?",
@@ -1346,7 +1360,9 @@
       "fotoYaAvisado": "This customer was already notified.",
       "fotoCorreoNoSalio": "The email didn't go out. Check sending in Settings and try again.",
       "fotoAvisado": "Notification sent: the customer has the link.",
-      "varianteRepetida": "“{nombre}” is duplicated: it’s the same combination written twice (upper and lower case don’t make it different). Merge the stock into a single row and save again."
+      "varianteRepetida": "“{nombre}” is duplicated: it’s the same combination written twice (upper and lower case don’t make it different). Merge the stock into a single row and save again.",
+      "faltaReferenciaCierre": "Enter the reference of the real payment (at least 3 characters).",
+      "saldoCerrado": "Balance closed: {monto} recorded as paid ({pedidos} pending withdrawals marked)."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -1443,7 +1459,9 @@
         "ach": "ACH transfer",
         "achAyuda": "To your U.S. bank account. Arrives in 1 to 3 business days.",
         "wire": "Wire transfer",
-        "wireAyuda": "Same day, for larger amounts. Your bank may apply a charge."
+        "wireAyuda": "Same day, for larger amounts. Your bank may apply a charge.",
+        "externo": "Paid outside the system",
+        "externoAyuda": "Recorded by the team with the reference of the real payment."
       },
       "aQuienComercio": "Which merchant?",
       "eligeComercio": "Choose a merchant",

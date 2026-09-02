@@ -2,6 +2,7 @@ import { ArrowRight, FileWarning, Wallet } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonVerComo } from "@/components/panel/ver-como";
+import { CerrarSaldo } from "@/components/panel/cerrar-saldo";
 import { AprobarComercio } from "@/components/panel/aprobar-comercio";
 import { TokenIntegracion } from "@/components/panel/tiendas/token-integracion";
 import { BuscadorPanel } from "@/components/panel/buscador-panel";
@@ -180,6 +181,15 @@ export default async function PaginaComercios({
                 {esSoporte ? (
                   <div className="mt-4">
                     <BotonVerComo tiendaId={c.id} nombre={c.nombre} />
+                    <CerrarSaldo
+                      tiendaId={c.id}
+                      nombre={c.nombre}
+                      disponibleTexto={formatearPrecio(
+                        c.saldoCentavos ?? 0,
+                        idioma,
+                        "USD",
+                      )}
+                    />
                     {/**
                      * EL TOKEN VA PLEGADO, Y ES A PROPÓSITO.
                      *

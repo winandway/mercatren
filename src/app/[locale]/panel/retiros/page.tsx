@@ -1,6 +1,7 @@
 import {
   Archive,
   Building2,
+  HandCoins,
   Landmark,
   Paperclip,
   Store,
@@ -44,6 +45,8 @@ const ICONO = {
   zelle: Zap,
   ach: Landmark,
   wire: Building2,
+  /* Pagado por fuera del sistema y registrado por el equipo (2 sep 2026). */
+  externo: HandCoins,
 } as const;
 
 /* Los del sistema anterior no guardaron por qué vía salieron, y no se inventa

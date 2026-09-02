@@ -457,6 +457,18 @@ export async function crearPedido(
     return { ok: false, mensaje: t("zelleDesde200") };
   }
 
+  /* ══ ZELLE CERRADO POR DEFECTO (2 sep 2026) ══ La política global y el
+     interruptor de cada tienda deciden; el botón escondido en la pantalla
+     se lo salta cualquiera con la consola, así que se vuelve a mirar aquí. */
+  if (metodoPago === "zelle") {
+    const { zelleAbiertoParaTiendas } =
+      await import("@/lib/cobros/politica-zelle");
+    const tiendasDelPedido = [...new Set(encontrados.map((p) => p.tiendaId))];
+    if (!(await zelleAbiertoParaTiendas(tiendasDelPedido))) {
+      return { ok: false, mensaje: t("metodoNoDisponible") };
+    }
+  }
+
   if (subtotal <= 0) {
     return { ok: false, mensaje: t("pedidoSinMonto") };
   }

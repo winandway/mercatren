@@ -522,6 +522,7 @@ export default async function PaginaConfiguracion({
           </p>
           <div className="mt-4">
             <ZelleCobros
+              politica={zelleCobros.politica}
               minimoGlobalCentavos={zelleCobros.minimoGlobalCentavos}
               maximoGlobalCentavos={zelleCobros.maximoGlobalCentavos}
               respaldoCentavos={ZELLE_MINIMO_CENTAVOS}

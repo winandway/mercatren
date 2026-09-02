@@ -151,3 +151,38 @@ export function decidirZelle(
   }
   return { disponible: true, minimoCentavos, maximoCentavos };
 }
+
+/**
+ * ══ ZELLE CERRADO POR DEFECTO (2 sep 2026) ══
+ *
+ * Decisión del dueño, después de la captura falsa, el correo mal escrito
+ * y el Zelle que «dura siete días en el aire»: *«Zelle solo se presta para
+ * estafas… dejamos activado para todo el mundo solo tarjeta, y el toggle lo
+ * activo yo cuando sea una persona de confianza»*.
+ *
+ * La política global manda: con `cerrado` (el valor por defecto, y también
+ * cuando la llave no existe) NADIE tiene Zelle salvo la tienda que el
+ * equipo encendió a mano; con `abierto` vuelve la regla de antes (todas,
+ * menos las apagadas a mano).
+ */
+export type PoliticaZelle = "abierto" | "cerrado";
+
+export function politicaZelleDe(
+  valor: string | null | undefined,
+): PoliticaZelle {
+  return (valor ?? "").trim().toLowerCase() === "abierto"
+    ? "abierto"
+    : "cerrado";
+}
+
+export function zelleHabilitadaPara(
+  politica: PoliticaZelle,
+  habilitadoDeLaTienda: boolean | null | undefined,
+): boolean {
+  if (politica === "cerrado") return habilitadoDeLaTienda === true;
+  return habilitadoDeLaTienda === null || habilitadoDeLaTienda === undefined
+    ? true
+    : Boolean(habilitadoDeLaTienda);
+}
+
+export const LLAVE_POLITICA_ZELLE = "zelle_politica";

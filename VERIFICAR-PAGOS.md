@@ -107,3 +107,15 @@ está ciega**: se trata como emergencia, no como pendiente.
   para CL/CO:** selector del panel en ese país → Configuración → «Precios y
   envíos de …» → Recalcular → compra de prueba EN ESE DOMINIO con tarjeta →
   Pedidos al proveedor «Pagado» y saldo de CJ descontado.
+- **2 sep (noche) — ZELLE CERRADO POR DEFECTO.** Decisión del dueño tras la
+  captura falsa, el correo mal escrito y el pago que «dura siete días en el
+  aire»: solo tarjeta para todos, en los enlaces de cobro y en los pedidos.
+  Interruptor general en Configuración → «Zelle en los enlaces de cobro»
+  (llave `zelle_politica`, `cerrado` si no existe) y el interruptor de cada
+  tienda como excepción para una persona de confianza. Candado en los tres
+  sitios: enlace (`consultas.ts`), pantalla del checkout y `crearPedido`.
+  Prueba: `zelle-cerrado-por-defecto.test.ts`.
+- **2 sep (noche) — CERRAR EL SALDO PAGADO POR FUERA.** Panel → Comercios →
+  «Cerrar saldo (pagado por fuera)»: paga los retiros pedidos y registra lo
+  que quede como retiro `externo` con la referencia del pago real. No borra
+  nada. Solo soporte de verdad. Es el patrón del cierre de Bley del 10 ago.

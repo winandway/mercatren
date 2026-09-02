@@ -102,13 +102,17 @@ describe("SIN FILA, ZELLE ESTÁ DISPONIBLE: el equipo lo APAGA (21 ago 2026)", (
    * Lo que filtra lo que no compensa es el MÍNIMO, no el interruptor: por
    * debajo de él, validar la captura cuesta más de lo que deja el margen.
    */
-  it("la consulta trata «sin fila» como disponible", async () => {
+  it("la consulta trata «sin fila» según la POLÍTICA GLOBAL (cambio del 2 sep 2026)", async () => {
+    /* El 21 ago «sin fila» era disponible. El 2 sep el dueño cerró Zelle por
+       defecto — solo tarjeta — y ahora lo decide la política: con «abierto»
+       sigue valiendo la regla del 21 ago; con «cerrado» (el defecto) solo la
+       tienda encendida a mano. La regla vive en zelleHabilitadaPara. */
     const { readFileSync } = await import("node:fs");
     const fuente = readFileSync("src/lib/cobros/consultas.ts", "utf8");
-    expect(
-      fuente,
-      "volvió el defecto apagado: ningún comercio tendría Zelle en sus enlaces de cobro",
-    ).toContain("habilitada: fila ? Boolean(fila.habilitado) : true");
+    expect(fuente).toContain("habilitada: zelleHabilitadaPara(");
+    const { zelleHabilitadaPara } = await import("@/lib/cobros/zelle");
+    expect(zelleHabilitadaPara("abierto", null)).toBe(true);
+    expect(zelleHabilitadaPara("cerrado", null)).toBe(false);
   });
 
   it("y el interruptor sigue sirviendo para QUITÁRSELO a uno concreto", () => {
