@@ -69,6 +69,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ## Los cuatro datos que faltan para cerrar las respuestas al contador
 
+- 🔴 👤 **MT-000011 (camiseta, cliente real ya cobrado $7.95):** la talla no
+  tiene stock en ningún almacén de EE. UU. y desde China el costo supera lo
+  cobrado. Decisión de negocio: (a) cambiar el almacén a China en el panel de
+  CJ («Almacén de edición masiva» → China → Entregar) y asumir la diferencia
+  para completar la primera compra de prueba, avisando a la clienta del plazo
+  de 10–20 días; o (b) devolverle el dinero desde el pedido (tres puntos →
+  devolver) y descartar la compra. (2 sep 2026)
+
 - [ ] 👤 El **token de lectura de producción** (para decir qué factura salió a
       nombre de cuál sociedad y con qué fecha).
 - [ ] 👤 Si **`EMISOR_IDENTIFICACION` y `EMISOR_DIRECCION`** se cambiaron el 12
