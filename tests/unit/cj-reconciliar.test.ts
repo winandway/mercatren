@@ -91,8 +91,26 @@ describe("los candados en el código", () => {
       fuente.indexOf("export async function comoVaEnCj"),
     );
     expect(bloque).toContain("if (lectura.pagable) {");
-    expect(bloque).toContain(
-      "pagarConSaldo(db, a.id, idsParaPagar(a.detalle))",
+    /* Adoptado se CONFIRMA y luego se paga: sin confirmar rebota. */
+    expect(bloque).toContain("confirmarYPagarEnCj(db, a.id, a.numero)");
+  });
+
+  it("SE CONFIRMA ANTES DE PAGAR: CREATED → confirmOrder → UNPAID → payBalanceV2", () => {
+    /* Lo enseñó el panel de CJ: el pedido adoptado estaba en «Preparación
+       de pedidos», no en «En espera de pago». Sin confirmar, el saldo
+       rebota. */
+    const bloque = fuente.slice(
+      fuente.indexOf("export async function confirmarYPagarEnCj"),
+      fuente.indexOf("export async function comoVaEnCj"),
+    );
+    const confirma = bloque.indexOf('"/shopping/order/confirmOrder"');
+    const paga = bloque.indexOf("pagarConSaldo(db, id, idsParaPagar(detalle))");
+    expect(confirma).toBeGreaterThan(0);
+    expect(paga).toBeGreaterThan(confirma);
+    expect(bloque).toContain('metodo: "PATCH"');
+    expect(bloque).toContain("if (lectura.pagado) {");
+    expect(readFileSync("src/lib/cj/proveedor-acciones.ts", "utf-8")).toContain(
+      "export async function pagarConSaldoDesdePanel",
     );
   });
 });

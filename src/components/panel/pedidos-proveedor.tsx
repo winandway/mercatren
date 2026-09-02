@@ -8,6 +8,7 @@ import {
   FileText,
   Loader2,
   RefreshCw,
+  Wallet,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState, useTransition } from "react";
@@ -17,6 +18,7 @@ import {
   archivarFacturaDelProveedor,
   comprobarEnProveedor,
   descartarCompra,
+  pagarConSaldoDesdePanel,
   marcarCompraPagada,
   type CompraAlProveedor,
 } from "@/lib/cj/proveedor-acciones";
@@ -265,6 +267,28 @@ function FilaCompra({
             {t("sinEnlace")}
           </p>
           <div className="mt-2 flex flex-wrap items-start gap-2">
+            {/* ══ PAGAR CON EL SALDO, EN UN CLIC (1 sep 2026) ══
+                Confirma el pedido en CJ si hace falta y lo cobra del saldo.
+                Es lo que antes decía «ábrelo en su panel y págalo ahí». */}
+            <button
+              type="button"
+              disabled={marcando}
+              onClick={() =>
+                iniciar(async () => {
+                  const r = await pagarConSaldoDesdePanel(compra.id);
+                  setAviso(r.mensaje);
+                  router.refresh();
+                })
+              }
+              className="boton-principal gap-2 text-sm"
+            >
+              {marcando ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <Wallet className="h-4 w-4" aria-hidden />
+              )}
+              {t("pagarConSaldo")}
+            </button>
             {/**
              * AQUÍ NO VA UN «VOLVER A INTENTARLO», Y ES A PROPÓSITO.
              *

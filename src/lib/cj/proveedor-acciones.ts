@@ -359,6 +359,54 @@ export async function comprobarEnProveedor(id: string): Promise<Resultado> {
  * cancele en su panel; si no se cancela y aquí se vuelve a pedir, quedan **dos
  * pedidos del mismo producto**. Por eso el aviso de la pantalla lo dice antes.
  */
+/**
+ * PAGAR CON EL SALDO DESDE EL PANEL (1 sep 2026).
+ *
+ * Para las compras «por pagar» sin enlace —las adoptadas y las que quedaron
+ * atrapadas antes—: confirma el pedido en CJ si hace falta y lo cobra del
+ * saldo. Es el botón que convierte «ábrelo en su panel y págalo ahí» en un
+ * clic aquí.
+ */
+export async function pagarConSaldoDesdePanel(id: string): Promise<Resultado> {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const revisado = revisar(idDeRegistro, id);
+  if (!revisado.ok) return { ok: false, mensaje: "Esa compra no existe." };
+
+  const db = getDb();
+  const [fila] = await db
+    .select({
+      id: pedidosProveedor.id,
+      numero: pedidos.numero,
+      estado: pedidosProveedor.estado,
+    })
+    .from(pedidosProveedor)
+    .innerJoin(pedidos, eq(pedidos.id, pedidosProveedor.pedidoId))
+    .where(eq(pedidosProveedor.id, revisado.datos))
+    .limit(1);
+
+  if (!fila) return { ok: false, mensaje: "Esa compra no existe." };
+  if (fila.estado !== "por_pagar") {
+    return {
+      ok: false,
+      mensaje: `Esta compra está «${fila.estado}», no por pagar.`,
+    };
+  }
+
+  const { confirmarYPagarEnCj } = await import("@/lib/cj/pedidos");
+  const r = await confirmarYPagarEnCj(db, fila.id, fila.numero);
+
+  revalidatePath("/[locale]/panel/proveedor", "page");
+
+  return r.pagado
+    ? { ok: true, mensaje: "Pagado con el saldo de CJ. CJ despacha." }
+    : { ok: false, mensaje: r.motivo ?? "El pago con saldo no salió." };
+}
+
 export async function descartarCompra(id: string): Promise<Resultado> {
   try {
     await exigirEquipoInterno();

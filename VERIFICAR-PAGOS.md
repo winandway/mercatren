@@ -73,3 +73,9 @@ está ciega**: se trata como emergencia, no como pendiente.
   `shipmentOrderId`** (se le mandaba el `orderId` dentro de ese campo — por
   eso el saldo nunca bajó). Lo que CJ ya marca pagado no se paga otra vez.
   Candados: `tests/unit/cj-reconciliar.test.ts`, `cj-pago-saldo.test.ts`.
+- **1 sep (tarde)** — la MT-000011 adoptada quedó en CJ en «Preparación de
+  pedidos» (CREATED): **hay que CONFIRMAR el pedido (`confirmOrder`) para
+  que pase a UNPAID antes de cobrarlo del saldo**. Ni el pedido recién
+  creado ni el adoptado se confirmaban, y por eso `payBalanceV2` rebotaba
+  siempre. Ahora `confirmarYPagarEnCj` confirma → relee → paga, en el
+  circuito automático y en el botón «Pagar con el saldo de CJ» del panel.

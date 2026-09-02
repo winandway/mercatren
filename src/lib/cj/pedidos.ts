@@ -806,7 +806,9 @@ export async function comprarAlProveedor(
   const idsDePago = idsParaPagar(datos);
   if (idsDePago.length > 0) {
     try {
-      pagoAutomatico = await pagarConSaldo(db, id, idsDePago);
+      /* Recién creado está CREATED: hay que confirmarlo antes de cobrarlo
+         del saldo. Esta línea es la primera compra automática completa. */
+      pagoAutomatico = await confirmarYPagarEnCj(db, id, pedido.numero);
     } catch (fallo) {
       console.error("[cj] el pago con saldo reventó; queda el enlace:", fallo);
     }
@@ -1110,7 +1112,9 @@ async function adoptarPedidoExistente(
   let pago: { pagado: boolean; motivo?: string } = { pagado: lectura.pagado };
   if (lectura.pagable) {
     try {
-      pago = await pagarConSaldo(db, a.id, idsParaPagar(a.detalle));
+      /* Confirmar primero, pagar después: adoptado sin confirmar es
+         exactamente el estado en que rebotaba el saldo. */
+      pago = await confirmarYPagarEnCj(db, a.id, a.numero);
     } catch (fallo) {
       console.error("[cj] adoptado; el pago con saldo reventó:", fallo);
     }
@@ -1137,6 +1141,100 @@ async function adoptarPedidoExistente(
   }
 
   return { ok: true, id: a.id, urlPago: null, externoId, pagado: pago.pagado };
+}
+
+/**
+ * ══ CONFIRMAR Y PAGAR: EL PASO QUE FALTABA (1 sep 2026) ══
+ *
+ * Lo enseñó el panel de CJ con la MT-000011 adoptada: estaba en
+ * «Preparación de pedidos», no en «En espera de pago». En CJ un pedido nace
+ * CREATED y hay que CONFIRMARLO para que pase a UNPAID — solo entonces
+ * `payBalanceV2` acepta cobrarlo del saldo. Le pedíamos cobrar un pedido
+ * sin confirmar, y rebotaba. Comprobado en su doc: `confirmOrder` (PATCH,
+ * `orderId` en el cuerpo, acepta nuestro número) es lo que hace ese paso.
+ *
+ * Se lee el estado ANTES de tocar nada: lo que CJ ya cobró no se paga otra
+ * vez, y lo cancelado se dice. Después de confirmar se vuelve a leer el
+ * detalle, porque el `shipmentOrderId` que pide el pago nace al confirmar.
+ */
+export async function confirmarYPagarEnCj(
+  db: Db,
+  id: string,
+  numero: string,
+): Promise<{ pagado: boolean; motivo?: string }> {
+  let detalle = await buscarPedidoEnCj(numero);
+  if (!detalle) {
+    return {
+      pagado: false,
+      motivo: "CJ no encuentra el pedido con ese número.",
+    };
+  }
+
+  let lectura = leerEstadoDeCj(detalle.orderStatus);
+  if (lectura.cancelado) {
+    return {
+      pagado: false,
+      motivo: `CJ tiene este pedido CANCELADO (${detalle.orderStatus}).`,
+    };
+  }
+  if (lectura.pagado) {
+    await db
+      .update(pedidosProveedor)
+      .set({
+        estado: "pagado",
+        pagadoEn: new Date(),
+        pagadoPorId: null,
+        ultimoError: null,
+        actualizadoEn: new Date(),
+      })
+      .where(
+        and(
+          eq(pedidosProveedor.id, id),
+          eq(pedidosProveedor.estado, "por_pagar"),
+        ),
+      );
+    return { pagado: true };
+  }
+
+  const estado = (detalle.orderStatus ?? "").trim().toUpperCase();
+  if (estado === "CREATED" || estado === "IN_CART" || estado === "") {
+    const confirmacion = await llamarCj<unknown>(
+      "/shopping/order/confirmOrder",
+      { metodo: "PATCH", cuerpo: { orderId: detalle.orderId ?? numero } },
+    ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    if (!confirmacion.ok) {
+      const motivo = `No se pudo confirmar el pedido en CJ: ${confirmacion.motivo}`;
+      await db
+        .update(pedidosProveedor)
+        .set({ ultimoError: motivo.slice(0, 300), actualizadoEn: new Date() })
+        .where(eq(pedidosProveedor.id, id))
+        .catch(() => undefined);
+      return { pagado: false, motivo };
+    }
+    /* Confirmado: el shipmentOrderId nace aquí. Se vuelve a leer. */
+    detalle = (await buscarPedidoEnCj(numero)) ?? detalle;
+    lectura = leerEstadoDeCj(detalle.orderStatus);
+    if (lectura.pagado) {
+      await db
+        .update(pedidosProveedor)
+        .set({
+          estado: "pagado",
+          pagadoEn: new Date(),
+          pagadoPorId: null,
+          ultimoError: null,
+          actualizadoEn: new Date(),
+        })
+        .where(
+          and(
+            eq(pedidosProveedor.id, id),
+            eq(pedidosProveedor.estado, "por_pagar"),
+          ),
+        );
+      return { pagado: true };
+    }
+  }
+
+  return pagarConSaldo(db, id, idsParaPagar(detalle));
 }
 
 export async function comoVaEnCj(

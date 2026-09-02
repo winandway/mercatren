@@ -2216,7 +2216,7 @@
       "laMasBarata": "(the default)",
       "confirmarYComprar": "Place the order with this",
       "cancelar": "Cancel",
-      "sinEnlace": "The supplier created the order but returned no payment link. That link is only issued at creation and can't be recovered: open their dashboard and pay it there, searching for the number above. It can't be requested again without creating a second order.",
+      "sinEnlace": "The supplier has the order but no card link (it only provides that link at creation). Pay it with the balance from here: the system confirms it with CJ and charges the balance. It can NOT be re-requested without creating a second order.",
       "abrirPanelCj": "Open supplier dashboard",
       "comprobar": "Check its status",
       "descartar": "Discard and re-order",
@@ -2225,7 +2225,8 @@
       "verFactura": "View invoice",
       "facturaFalta": "The supplier invoice is still missing. It is the document that backs the cost of this merchandise.",
       "facturaNumero": "Invoice number (optional)",
-      "archivarFactura": "File the invoice"
+      "archivarFactura": "File the invoice",
+      "pagarConSaldo": "Pay with CJ balance"
     },
     "buscador": {
       "buscar": "Search",

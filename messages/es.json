@@ -2216,7 +2216,7 @@
       "laMasBarata": "(la que saldría sola)",
       "confirmarYComprar": "Crear el pedido con esto",
       "cancelar": "Cancelar",
-      "sinEnlace": "El proveedor creó el pedido pero no devolvió el enlace de pago. Ese enlace solo lo da al crear el pedido y no se puede recuperar: ábrelo en su panel y págalo ahí, buscando el número de arriba. NO se puede volver a pedir sin crear un segundo pedido.",
+      "sinEnlace": "El proveedor tiene el pedido pero sin enlace de tarjeta (ese enlace solo lo da al crear). Págalo con el saldo desde aquí: el sistema lo confirma en CJ y lo cobra del saldo. NO se puede volver a pedir sin crear un segundo pedido.",
       "abrirPanelCj": "Abrir el panel del proveedor",
       "comprobar": "Preguntar cómo va",
       "descartar": "Descartar y volver a pedir",
@@ -2225,7 +2225,8 @@
       "verFactura": "Ver la factura",
       "facturaFalta": "Falta archivar la factura del proveedor. Es el papel que respalda el costo de esta mercancía.",
       "facturaNumero": "Número de la factura (opcional)",
-      "archivarFactura": "Archivar la factura"
+      "archivarFactura": "Archivar la factura",
+      "pagarConSaldo": "Pagar con el saldo de CJ"
     },
     "buscador": {
       "buscar": "Buscar",

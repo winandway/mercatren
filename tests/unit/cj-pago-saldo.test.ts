@@ -15,7 +15,8 @@ describe("el pago automático con el saldo", () => {
        mandaba el orderId DENTRO de ese campo y el saldo nunca bajó. */
     expect(fuente).toContain("/shopping/pay/payBalanceV2");
     expect(fuente).toContain("cuerpo: { shipmentOrderId }");
-    expect(fuente).toContain("pagarConSaldo(db, id, idsDePago)");
+    /* Recién creado está CREATED: se confirma y luego se paga. */
+    expect(fuente).toContain("confirmarYPagarEnCj(db, id, pedido.numero)");
     expect(fuente).not.toContain("shipmentOrderId: externoId");
   });
 
@@ -47,7 +48,7 @@ describe("el pago automático con el saldo", () => {
 
   it("el intento va en su propio try: fallar no puede tumbar la compra", () => {
     expect(fuente).toMatch(
-      /try \{\s*\n\s*pagoAutomatico = await pagarConSaldo/,
+      /try \{[\s\S]{0,300}pagoAutomatico = await confirmarYPagarEnCj/,
     );
   });
 });
