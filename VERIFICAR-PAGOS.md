@@ -87,3 +87,15 @@ está ciega**: se trata como emergencia, no como pendiente.
   (`updateLogistics`) y se reintenta la confirmación una vez. Y «Descartar»
   borra el pedido en CJ (`deleteOrder`) antes de marcarlo aquí: si no, volver
   a pedir adoptaba el mismo pedido atascado. Candado: `cj-inventario.test.ts`.
+- **2 sep — EL RIESGO DE VENDER POR DEBAJO DEL COSTO.** La MT-000011 se
+  publicó a $7.95 con envío cotizado de $1.70 (GOFO+, repartidor regional
+  sin capacidad); CJ la cobró con USPS a $6.70 → costo $11.73. Y la talla
+  ya no tenía stock en ningún almacén de EE. UU. aunque aquí decía «15».
+  Cuatro candados: (1) el precio se cotiza con transportes NACIONALES
+  (`riesgo.ts` · `elegirCotizacion`); (2) el checkout le pregunta a CJ si
+  hay stock ANTES de cobrar (`existencias.ts` · `hayExistenciaEnCj`); (3)
+  la compra al proveedor NO se paga sola si pierde dinero — queda por pagar
+  con la cifra en rojo (`pierdeDinero`, margen mínimo $2); (4) el reloj
+  refresca el stock de CJ por tandas de 25 cada 15 min. Los productos ya
+  publicados con envío regional se recalculan desde Panel → Configuración →
+  Precios de Estados Unidos. Candado: `tests/unit/cj-riesgo.test.ts`.

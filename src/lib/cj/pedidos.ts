@@ -14,6 +14,8 @@ import {
   type VarianteElegida,
 } from "@/lib/cj/variantes";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
+import { pierdeDinero } from "@/lib/cj/riesgo";
+import { MARGEN_MINIMO_CENTAVOS } from "@/lib/destino/precio-us";
 import {
   candidatosDeCodigoCj,
   elegirLogisticaConStock,
@@ -525,6 +527,9 @@ export async function comprarAlProveedor(
       sku: productos.sku,
       titulo: productos.tituloEs,
       cantidad: itemsPedido.cantidad,
+      /* Lo que el cliente PAGÓ por este renglón: es contra lo que se mide
+         si la compra al proveedor pierde dinero. */
+      cobradoCentavos: itemsPedido.subtotalCentavos,
       /* ══ LA TALLA QUE ELIGIÓ EL CLIENTE (30 ago 2026) ══
          Si la pidió, es la que se le compra a CJ — su SKU de variante es
          justo lo que CJ espera. Antes se elegía «la más barata» aunque el
@@ -808,7 +813,31 @@ export async function comprarAlProveedor(
    */
   let pagoAutomatico: { pagado: boolean; motivo?: string } = { pagado: false };
   const idsDePago = idsParaPagar(datos);
-  if (idsDePago.length > 0) {
+
+  /* ══ EL CANDADO DE MARGEN (2 sep 2026) ══
+     `orderAmount` es lo que CJ va a cobrar, envío incluido. Si con eso la
+     venta no deja ni el margen mínimo, NO se paga sola: queda por pagar con
+     la pérdida escrita en rojo y lo decide una persona. La MT-000011 costó
+     $11.73 contra $7.95 cobrados — pagarla sola era perder $3.78 sin que
+     nadie lo viera. */
+  const cobrado = delProveedor.reduce(
+    (t, r) => t + Number(r.cobradoCentavos ?? 0),
+    0,
+  );
+  const riesgo = pierdeDinero(
+    aCentavos(datos.orderAmount),
+    cobrado,
+    MARGEN_MINIMO_CENTAVOS,
+  );
+  if (riesgo.pierde) {
+    const aviso = `ESTA VENTA PIERDE ${(-riesgo.diferenciaCentavos / 100).toFixed(2)} USD: CJ cobra ${(aCentavos(datos.orderAmount)! / 100).toFixed(2)} (producto + envío) y el cliente pagó ${(cobrado / 100).toFixed(2)}. No se pagó sola: decide a mano (pagar y asumir, o descartar y devolver).`;
+    await db
+      .update(pedidosProveedor)
+      .set({ ultimoError: aviso.slice(0, 300), actualizadoEn: ahora })
+      .where(eq(pedidosProveedor.id, id))
+      .catch(() => undefined);
+    pagoAutomatico = { pagado: false, motivo: aviso };
+  } else if (idsDePago.length > 0) {
     try {
       /* Recién creado está CREATED: hay que confirmarlo antes de cobrarlo
          del saldo. Esta línea es la primera compra automática completa. */
@@ -1117,7 +1146,28 @@ async function adoptarPedidoExistente(
   }
 
   let pago: { pagado: boolean; motivo?: string } = { pagado: lectura.pagado };
-  if (lectura.pagable) {
+  /* El candado de margen también aquí: lo que CJ dice que cuesta, contra lo
+     que el cliente pagó por los renglones de este pedido. */
+  const [cobradoFila] = await db
+    .select({
+      total: sql<number>`COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0)`,
+    })
+    .from(itemsPedido)
+    .where(eq(itemsPedido.pedidoId, a.pedidoId));
+  const riesgo = pierdeDinero(
+    aCentavos(a.detalle.orderAmount),
+    Number(cobradoFila?.total ?? 0),
+    MARGEN_MINIMO_CENTAVOS,
+  );
+  if (lectura.pagable && riesgo.pierde) {
+    const aviso = `ESTA VENTA PIERDE ${(-riesgo.diferenciaCentavos / 100).toFixed(2)} USD: CJ cobra ${(aCentavos(a.detalle.orderAmount)! / 100).toFixed(2)} y el cliente pagó ${(Number(cobradoFila?.total ?? 0) / 100).toFixed(2)}. No se pagó sola: decide a mano.`;
+    await db
+      .update(pedidosProveedor)
+      .set({ ultimoError: aviso.slice(0, 300), actualizadoEn: a.ahora })
+      .where(eq(pedidosProveedor.id, a.id))
+      .catch(() => undefined);
+    pago = { pagado: false, motivo: aviso };
+  } else if (lectura.pagable) {
     try {
       /* Confirmar primero, pagar después: adoptado sin confirmar es
          exactamente el estado en que rebotaba el saldo. */

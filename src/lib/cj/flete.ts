@@ -2,6 +2,8 @@ import "server-only";
 
 import { envioAUsar, type EnvioDelProducto } from "@/lib/destino/envio-us";
 
+import { elegirCotizacion } from "@/lib/cj/riesgo";
+
 import { llamarCj } from "./cliente";
 import { elegirVariante, variantesDeCj } from "./variantes";
 
@@ -121,15 +123,12 @@ async function cotizar(vid: string, plaza: Plaza) {
     Array.isArray(respuesta.datos) ? respuesta.datos : []
   ) as Array<{ logisticName?: string; logisticPrice?: number | string }>;
 
-  let mejor: { nombre: string; centavos: number } | null = null;
-  for (const o of opciones) {
-    const nombre = o.logisticName?.trim();
-    const precio = Number(o.logisticPrice);
-    if (!nombre || !Number.isFinite(precio) || precio <= 0) continue;
-    const centavos = Math.round(precio * 100);
-    if (!mejor || centavos < mejor.centavos) mejor = { nombre, centavos };
-  }
-
+  /* ══ NACIONALES, NO EL MÍNIMO A SECAS (2 sep 2026) ══
+     El más barato del listado era GOFO+/UniUni+ a $1.70 — regionales sin
+     capacidad en el almacén. Con ese envío dentro, la camiseta se publicó
+     a $7.95 y CJ la cobró con USPS a $6.70 de envío: $11.73 de costo.
+     El precio se fija con el transporte que de verdad va a salir. */
+  const mejor = elegirCotizacion(opciones);
   if (!mejor) return {};
   return { costoCentavos: mejor.centavos, transporte: mejor.nombre };
 }

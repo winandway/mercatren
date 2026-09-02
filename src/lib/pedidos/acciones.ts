@@ -3,6 +3,7 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { ajustarCantidad } from "@/lib/cj/mayorista";
 import { precioDeVariante } from "@/lib/productos/heredar";
 import { mercadoActual } from "@/lib/mercado/actual";
@@ -131,6 +132,9 @@ export async function crearPedido(
             precioCentavos: variantesProducto.precioCentavos,
             existencias: variantesProducto.existencias,
             activo: variantesProducto.activo,
+            /* El SKU de la variante de CJ: con él se le pregunta el stock
+               de ESA talla, no del producto entero. */
+            sku: variantesProducto.sku,
           })
           .from(variantesProducto)
           .where(inArray(variantesProducto.id, idsVariantes))
@@ -153,6 +157,9 @@ export async function crearPedido(
       tiendaEstado: tiendas.estado,
       tiendaPais: tiendas.paisOrigen,
       comisionPuntosBase: tiendas.comisionPuntosBase,
+      /* Para preguntarle a CJ si de verdad hay stock antes de cobrar. */
+      externoId: productos.externoId,
+      fuenteId: productos.fuenteId,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -364,6 +371,28 @@ export async function crearPedido(
           quedan: disponibles,
         }),
       };
+    }
+
+    /* ══ EL STOCK DE CJ SE PREGUNTA ANTES DE COBRAR (2 sep 2026) ══
+       La existencia guardada aquí es la del día que se importó; la
+       MT-000011 se cobró y en el almacén de EE. UU. ya no quedaba esa
+       talla. Se le pregunta a CJ en el momento: sin stock allá, no se
+       vende. Si CJ no contesta se deja pasar — el candado de margen y el
+       panel lo atrapan después, y una caída de CJ no puede cerrar la
+       tienda entera. */
+    if (producto.tiendaPais === "US" && producto.fuenteId === FUENTE_CJ) {
+      const { hayExistenciaEnCj } = await import("@/lib/cj/existencias");
+      const enCj = await hayExistenciaEnCj(
+        producto.externoId,
+        variante?.sku ?? null,
+        cantidad,
+      );
+      if (enCj === false) {
+        return {
+          ok: false,
+          mensaje: t("sinSuficiente", { producto: tituloLinea, quedan: 0 }),
+        };
+      }
     }
 
     // El precio sale de la base, NO del carrito.

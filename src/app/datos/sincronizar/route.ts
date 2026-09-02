@@ -109,11 +109,24 @@ async function sincronizarTodas(peticion: Request) {
     }
   }
 
+  /* ══ EL STOCK DE CJ, POR TANDAS (2 sep 2026) ══
+     En cada vuelta del reloj se miran 25 productos de CJ, del más viejo sin
+     revisar al más nuevo: en una hora el catálogo entero está al día y lo
+     agotado allá se ve agotado aquí. Un fallo no detiene a las fuentes. */
+  let cj: { mirados: number; agotados: number; fallidos: number } | null = null;
+  try {
+    const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
+    cj = await refrescarExistenciasCj(25);
+  } catch (fallo) {
+    console.error("[sincronizar] el stock de CJ no se pudo refrescar:", fallo);
+  }
+
   return Response.json({
     ok: true,
     fuentes: resultados.length,
     conFallo: resultados.filter((r) => !r.ok).length,
     resultados,
+    stockCj: cj,
   });
 }
 

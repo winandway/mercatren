@@ -1,9 +1,10 @@
 "use server";
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, like, or, sql } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { fleteDeProducto } from "@/lib/cj/flete";
+import { REGIONALES } from "@/lib/cj/riesgo";
 import { getDb } from "@/lib/db";
 import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
 import { desglosarUs } from "@/lib/destino/precio-us";
@@ -62,6 +63,17 @@ export async function recalcularPreciosUs(): Promise<ResultadoRecalculo> {
 
   const db = getDb();
 
+  /* ══ TAMBIÉN LOS QUE SE COTIZARON CON UN REGIONAL (2 sep 2026) ══
+     La MT-000011 se publicó con GOFO+ a $1.70 y CJ la cobró con USPS a
+     $6.70. Todo lo que tenga un repartidor regional en su fila de envío
+     vuelve a la cola y se recotiza con un transporte nacional. */
+  const toca = or(
+    isNull(enviosProducto.productoId),
+    ...REGIONALES.map((r) =>
+      like(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
+    ),
+  );
+
   /* Solo las columnas que hacen falta, nunca la tabla entera: pedir
      `productos` completo lista columnas que en producción pueden no existir
      todavía, y eso ya tumbó una pantalla el 5 ago 2026. */
@@ -74,9 +86,7 @@ export async function recalcularPreciosUs(): Promise<ResultadoRecalculo> {
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(
-      and(eq(tiendas.paisOrigen, "US"), isNull(enviosProducto.productoId)),
-    );
+    .where(and(eq(tiendas.paisOrigen, "US"), toca));
 
   if (pendientes.length === 0) {
     return { ok: true, recalculados: 0, restantes: 0 };
@@ -98,6 +108,13 @@ export async function recalcularPreciosUs(): Promise<ResultadoRecalculo> {
 
     try {
       const envio = await fleteDeProducto(p.externoId);
+
+      /* La fila vieja (la del regional) se va: una sola cotización por
+         producto, la de hoy. */
+      await db
+        .delete(enviosProducto)
+        .where(eq(enviosProducto.productoId, p.id))
+        .catch(() => undefined);
 
       await db.insert(enviosProducto).values({
         productoId: p.id,
@@ -157,7 +174,15 @@ export async function contarSinEnvio(): Promise<number> {
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
     .where(
-      and(eq(tiendas.paisOrigen, "US"), isNull(enviosProducto.productoId)),
+      and(
+        eq(tiendas.paisOrigen, "US"),
+        or(
+          isNull(enviosProducto.productoId),
+          ...REGIONALES.map((r) =>
+            like(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
+          ),
+        ),
+      ),
     );
 
   return filas.length;
