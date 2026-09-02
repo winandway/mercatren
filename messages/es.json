@@ -2258,7 +2258,9 @@
       "todoTraducido": "Todos los precios de Estados Unidos llevan el envío dentro.",
       "boton": "Recalcular los precios",
       "traduciendo": "Recalculando…",
-      "avance": "{hechas} de {total} recalculados"
+      "avance": "{hechas} de {total} recalculados",
+      "recotizarTodos": "Volver a cotizar los envíos de TODOS los productos",
+      "recotizarTexto": "Si CJ cambió sus tarifas o un transporte dejó de tener capacidad, aquí se vuelve a pedir el flete real de cada producto y se rearma su precio con el transporte que de verdad sale. Tarda unos minutos y se puede repetir cuando haga falta."
     },
     "descripciones": {
       "titulo": "Descripciones de los productos",

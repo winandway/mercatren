@@ -29,13 +29,17 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
   const avance = Math.max(0, pendientes - faltan);
   const porcentaje = Math.min(100, Math.round((avance / total) * 100));
 
-  async function arrancar() {
+  async function arrancar(todos = false) {
     setCorriendo(true);
     setError(null);
+    /* Recotizar TODO: se fija el instante de arranque y cada tanda toma lo
+       cotizado antes de él, así la corrida avanza y termina sola. */
+    const antesDe = todos ? Date.now() : undefined;
+    if (todos) setFaltan(1);
 
     let seguir = true;
     while (seguir) {
-      const r = await recalcularPreciosUs();
+      const r = await recalcularPreciosUs(antesDe ? { antesDe } : undefined);
 
       if (!r.ok) {
         setError(r.motivo ?? null);
@@ -54,11 +58,27 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
     setCorriendo(false);
   }
 
-  if (pendientes === 0) {
+  if (pendientes === 0 && !corriendo && hechas === 0) {
     return (
-      <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
-        {t("todoTraducido")}
-      </p>
+      <div>
+        <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
+          {t("todoTraducido")}
+        </p>
+        {/* ══ EL BOTÓN QUE FALTABA (2 sep 2026) ══ «¿Dónde se actualizan
+            los envíos de Estados Unidos?» — aquí, siempre, aunque la tarjeta
+            diga que no falta ninguno. Vuelve a pedirle a CJ el flete de
+            TODOS los productos y rearma el precio con el transporte que de
+            verdad sale. */}
+        <p className="mt-3 text-sm text-riel-700">{t("recotizarTexto")}</p>
+        <button
+          type="button"
+          onClick={() => arrancar(true)}
+          className="boton-principal mt-2 flex items-center gap-2"
+        >
+          <DollarSign className="h-4 w-4" aria-hidden />
+          {t("recotizarTodos")}
+        </button>
+      </div>
     );
   }
 
@@ -71,7 +91,7 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
       {corriendo || hechas > 0 ? (
         <div className="mt-2">
           <div
-            className="h-2 w-full overflow-hidden rounded-full bg-riel-100"
+            className="bg-riel-100 h-2 w-full overflow-hidden rounded-full"
             role="progressbar"
             aria-valuenow={porcentaje}
             aria-valuemin={0}
@@ -82,7 +102,7 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
               style={{ width: `${porcentaje}%` }}
             />
           </div>
-          <p className="mt-1 text-xs text-riel-600">
+          <p className="text-riel-600 mt-1 text-xs">
             {t("avance", { hechas, total: pendientes })}
           </p>
         </div>
@@ -100,7 +120,7 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
 
       <button
         type="button"
-        onClick={arrancar}
+        onClick={() => arrancar()}
         disabled={corriendo}
         className="mt-3 inline-flex items-center gap-2 rounded-lg bg-riel-800 px-3.5 py-2 text-sm font-semibold text-white hover:bg-riel-700 disabled:opacity-60"
       >

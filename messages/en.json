@@ -2258,7 +2258,9 @@
       "todoTraducido": "Every US price includes shipping.",
       "boton": "Recalculate prices",
       "traduciendo": "Recalculating…",
-      "avance": "{hechas} of {total} recalculated"
+      "avance": "{hechas} of {total} recalculated",
+      "recotizarTodos": "Re-quote shipping for ALL products",
+      "recotizarTexto": "If CJ changed its rates or a carrier lost capacity, this re-fetches the real freight for every product and rebuilds its price with the carrier that will actually ship. Takes a few minutes and can be repeated whenever needed."
     },
     "descripciones": {
       "titulo": "Product descriptions",

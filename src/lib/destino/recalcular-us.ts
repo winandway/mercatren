@@ -51,7 +51,17 @@ export type ResultadoRecalculo = {
   motivo?: string;
 };
 
-export async function recalcularPreciosUs(): Promise<ResultadoRecalculo> {
+export async function recalcularPreciosUs(
+  /**
+   * ══ VOLVER A COTIZAR TODO (2 sep 2026) ══
+   * Si llega `antesDe` (milisegundos), entran también los productos cuya
+   * cotización es anterior a ese instante — o sea, TODOS al pulsar el botón,
+   * y cada tanda va sacando los que ya se recotizaron en esta corrida. Es el
+   * sitio donde el dueño «actualiza los envíos de Estados Unidos» cuando la
+   * tarjeta ya dice que no falta ninguno.
+   */
+  opciones?: { antesDe?: number },
+): Promise<ResultadoRecalculo> {
   if (!(await esSoporteDeVerdad())) {
     return {
       ok: false,
@@ -67,11 +77,15 @@ export async function recalcularPreciosUs(): Promise<ResultadoRecalculo> {
      La MT-000011 se publicó con GOFO+ a $1.70 y CJ la cobró con USPS a
      $6.70. Todo lo que tenga un repartidor regional en su fila de envío
      vuelve a la cola y se recotiza con un transporte nacional. */
+  const antesDe = opciones?.antesDe;
   const toca = or(
     isNull(enviosProducto.productoId),
     ...REGIONALES.map((r) =>
       like(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
     ),
+    ...(antesDe
+      ? [sql`${enviosProducto.cotizadoEn} < ${Math.floor(antesDe / 1000)}`]
+      : []),
   );
 
   /* Solo las columnas que hacen falta, nunca la tabla entera: pedir

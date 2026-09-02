@@ -81,4 +81,16 @@ describe("los candados en el código", () => {
       readFileSync("src/app/datos/sincronizar/route.ts", "utf-8"),
     ).toContain("refrescarExistenciasCj(");
   });
+  it("el botón de recotizar TODOS los envíos existe aunque no falte ninguno", () => {
+    /* «¿Dónde se actualizan los envíos de Estados Unidos?» — con cero
+       pendientes la tarjeta solo decía «todo al día» y no había botón. */
+    const comp = readFileSync(
+      "src/components/panel/recalcular-precios.tsx",
+      "utf-8",
+    );
+    expect(comp).toContain('t("recotizarTodos")');
+    expect(comp).toContain("arrancar(true)");
+    const accion = readFileSync("src/lib/destino/recalcular-us.ts", "utf-8");
+    expect(accion).toContain("antesDe");
+  });
 });
