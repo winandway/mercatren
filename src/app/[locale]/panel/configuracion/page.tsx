@@ -47,6 +47,7 @@ import { auditarPrecios } from "@/lib/productos/auditoria";
 import { saludDeLosComercios } from "@/lib/socios/salud";
 import { estadoTransferencia } from "@/lib/cobros/transferencia-admin";
 import { resumenF129 } from "@/lib/impuestos/f129";
+import { mercadoDelPanel } from "@/lib/mercado/panel";
 import { estadoDeTasasAutomaticas } from "@/lib/mercado/tasas";
 import { TasasDelDolar } from "@/components/panel/tasas-del-dolar";
 import { SOCIEDAD } from "@/lib/sociedad";
@@ -127,6 +128,9 @@ export default async function PaginaConfiguracion({
   const sinDescripcion = await contarSinDescripcion();
   const motivosDescripcion = await motivosDeFallo();
   const sinEnvio = await contarSinEnvio();
+  /* La tarjeta de precios y envíos dice de qué país habla: la decide el
+     selector del panel, igual que el recálculo. */
+  const paisDelPanel = (await mercadoDelPanel()).nombre;
 
   /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
      quedan congelados y aquí no se veía NADA. Esta es la pantalla que faltaba. */
@@ -605,7 +609,9 @@ export default async function PaginaConfiguracion({
         {/* LA AUDITORÍA. Después de que un precio se inflara solo, "está todo
             bien" no puede ser la palabra de nadie: se abre y se comprueba. */}
         <div className="mt-6 border-t border-borde pt-5">
-          <h3 className="text-sm font-bold">{tPrecios("titulo")}</h3>
+          <h3 className="text-sm font-bold">
+            {tPrecios("titulo", { pais: paisDelPanel })}
+          </h3>
           <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
             {tp("texto")}
           </p>
@@ -743,7 +749,7 @@ export default async function PaginaConfiguracion({
       <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
         <h2 className="flex items-center gap-2 font-bold">
           <DollarSign className="h-4 w-4 text-carga-500" aria-hidden />
-          {tp("titulo")}
+          {tPrecios("titulo", { pais: paisDelPanel })}
         </h2>
         <p className="text-riel-600 mt-1 text-sm">{tPrecios("explicacion")}</p>
         <div className="mt-3">

@@ -2252,8 +2252,8 @@
       "noSeGuardo": "Esto fue solo una prueba: no se guardó ningún cambio."
     },
     "preciosUs": {
-      "titulo": "Precios de Estados Unidos",
-      "explicacion": "Los productos publicados antes del 19 de agosto llevan el precio calculado con el envío en cero, así que cada venta suya deja menos de lo que debería. Esto vuelve a cotizar el flete con CJ y corrige el precio. Lo ya corregido no se toca.",
+      "titulo": "Precios y envíos de {pais}",
+      "explicacion": "El precio publicado lleva el envío dentro. Esto vuelve a pedirle a CJ el flete de cada producto y rearma el precio con el transporte que de verdad sale — con la tasa del día en Chile y Colombia. Lo ya cotizado con un transporte nacional no se toca.",
       "pendientes": "{cantidad} productos tienen el precio armado sin envío.",
       "todoTraducido": "Todos los precios de Estados Unidos llevan el envío dentro.",
       "boton": "Recalcular los precios",

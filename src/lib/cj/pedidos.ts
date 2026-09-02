@@ -14,7 +14,8 @@ import {
   type VarianteElegida,
 } from "@/lib/cj/variantes";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
-import { pierdeDinero } from "@/lib/cj/riesgo";
+import { cobradoEnUsdCentavos, pierdeDinero } from "@/lib/cj/riesgo";
+import { tasaVigente } from "@/lib/mercado/tasas";
 import { MARGEN_MINIMO_CENTAVOS } from "@/lib/destino/precio-us";
 import {
   candidatosDeCodigoCj,
@@ -820,10 +821,20 @@ export async function comprarAlProveedor(
      la pérdida escrita en rojo y lo decide una persona. La MT-000011 costó
      $11.73 contra $7.95 cobrados — pagarla sola era perder $3.78 sin que
      nadie lo viera. */
-  const cobrado = delProveedor.reduce(
+  const cobradoBruto = delProveedor.reduce(
     (t, r) => t + Number(r.cobradoCentavos ?? 0),
     0,
   );
+  /* En CL/CO lo cobrado está en pesos: a dólares antes de comparar. Sin
+     tasa no se juzga (MAX_SAFE_INTEGER = nunca «pierde»). */
+  const cobrado =
+    cobradoEnUsdCentavos(
+      cobradoBruto,
+      destino.codigo === "US" ? "USD" : destino.codigo === "CL" ? "CLP" : "COP",
+      destino.codigo === "US"
+        ? null
+        : await tasaVigente(destino.codigo as "CL" | "CO"),
+    ) ?? Number.MAX_SAFE_INTEGER;
   const riesgo = pierdeDinero(
     aCentavos(datos.orderAmount),
     cobrado,
@@ -1151,16 +1162,26 @@ async function adoptarPedidoExistente(
   const [cobradoFila] = await db
     .select({
       total: sql<number>`COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0)`,
+      moneda: sql<string>`(SELECT moneda FROM ${pedidos} WHERE ${pedidos.id} = ${a.pedidoId})`,
     })
     .from(itemsPedido)
     .where(eq(itemsPedido.pedidoId, a.pedidoId));
+  const monedaDelPedido = (cobradoFila?.moneda ?? "USD").toUpperCase();
+  const cobradoUsd =
+    cobradoEnUsdCentavos(
+      Number(cobradoFila?.total ?? 0),
+      monedaDelPedido,
+      monedaDelPedido === "USD"
+        ? null
+        : await tasaVigente(monedaDelPedido === "CLP" ? "CL" : "CO"),
+    ) ?? Number.MAX_SAFE_INTEGER;
   const riesgo = pierdeDinero(
     aCentavos(a.detalle.orderAmount),
-    Number(cobradoFila?.total ?? 0),
+    cobradoUsd,
     MARGEN_MINIMO_CENTAVOS,
   );
   if (lectura.pagable && riesgo.pierde) {
-    const aviso = `ESTA VENTA PIERDE ${(-riesgo.diferenciaCentavos / 100).toFixed(2)} USD: CJ cobra ${(aCentavos(a.detalle.orderAmount)! / 100).toFixed(2)} y el cliente pagó ${(Number(cobradoFila?.total ?? 0) / 100).toFixed(2)}. No se pagó sola: decide a mano.`;
+    const aviso = `ESTA VENTA PIERDE ${(-riesgo.diferenciaCentavos / 100).toFixed(2)} USD: CJ cobra ${(aCentavos(a.detalle.orderAmount)! / 100).toFixed(2)} y el cliente pagó el equivalente a ${(cobradoUsd / 100).toFixed(2)} USD. No se pagó sola: decide a mano.`;
     await db
       .update(pedidosProveedor)
       .set({ ultimoError: aviso.slice(0, 300), actualizadoEn: a.ahora })

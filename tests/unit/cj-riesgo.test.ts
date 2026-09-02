@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  cobradoEnUsdCentavos,
   elegirCotizacion,
   esTransporteRegional,
   pierdeDinero,
@@ -92,5 +93,32 @@ describe("los candados en el código", () => {
     expect(comp).toContain("arrancar(true)");
     const accion = readFileSync("src/lib/destino/recalcular-us.ts", "utf-8");
     expect(accion).toContain("antesDe");
+  });
+});
+
+describe("lo cobrado en pesos se lleva a dólares antes de juzgar", () => {
+  it("96.742 pesos chilenos a 967,42 son 100 dólares exactos", () => {
+    expect(cobradoEnUsdCentavos(96_742, "CLP", 96_742)).toBe(10_000);
+  });
+  it("en dólares no se toca", () => {
+    expect(cobradoEnUsdCentavos(795, "USD", null)).toBe(795);
+  });
+  it("sin tasa NO se juzga (null), nunca con un número de otra moneda", () => {
+    expect(cobradoEnUsdCentavos(96_742, "CLP", null)).toBeNull();
+  });
+  it("el recálculo de precios obedece al país del panel y usa la fórmula de cada plaza", () => {
+    const fuente = readFileSync("src/lib/destino/recalcular-us.ts", "utf-8");
+    expect(fuente).toContain("plazaDelMercado(await mercadoDelPanel())");
+    expect(fuente).toContain("desglosarChile(");
+    expect(fuente).toContain("desglosarColombia(");
+    expect(fuente).toContain("fleteDeProducto(p.externoId, plaza)");
+    expect(fuente).not.toContain('eq(tiendas.paisOrigen, "US")');
+  });
+  it("el stock se pregunta en el almacén de la plaza (China para CL/CO)", () => {
+    const ex = readFileSync("src/lib/cj/existencias.ts", "utf-8");
+    expect(ex).toContain("countryCode=${almacen}");
+    expect(ex).toContain('inArray(tiendas.paisOrigen, ["US", "CL", "CO"])');
+    const co = readFileSync("src/lib/pedidos/acciones.ts", "utf-8");
+    expect(co).toContain('["US", "CL", "CO"].includes(producto.tiendaPais');
   });
 });

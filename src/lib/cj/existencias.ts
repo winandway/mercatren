@@ -1,9 +1,10 @@
 import "server-only";
 
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 
 import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
+import { almacenDeEntrega } from "@/lib/cj/plazas";
 import { variantesDeCj } from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
 import { productos, tiendas } from "@/lib/db/schema";
@@ -37,11 +38,12 @@ function stockDe(v: VarianteConStock): number {
   return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
-async function variantesConStockEnUs(
+async function variantesConStockEn(
   pid: string,
+  almacen: "US" | "CN",
 ): Promise<VarianteConStock[] | null> {
   const r = await llamarCj<unknown>(
-    `/product/variant/query?pid=${encodeURIComponent(pid)}&countryCode=US`,
+    `/product/variant/query?pid=${encodeURIComponent(pid)}&countryCode=${almacen}`,
   ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
   if (!r.ok) return null;
   return variantesDeCj(r.datos) as VarianteConStock[];
@@ -56,9 +58,11 @@ export async function hayExistenciaEnCj(
   pid: string | null | undefined,
   skuVariante: string | null,
   cantidad: number,
+  /** El almacén del que sale ESA plaza: EE. UU. para el .com, China para CL/CO. */
+  almacen: "US" | "CN" = "US",
 ): Promise<boolean | null> {
   if (!pid || !cjConfigurado()) return null;
-  const variantes = await variantesConStockEnUs(pid);
+  const variantes = await variantesConStockEn(pid, almacen);
   if (variantes === null) return null;
   const candidatas = skuVariante
     ? variantes.filter(
@@ -80,15 +84,21 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
 }> {
   if (!cjConfigurado()) return { mirados: 0, agotados: 0, fallidos: 0 };
   const db = getDb();
+  /* Las tres plazas: cada producto se mira en el almacén del que sale su
+     tienda (EE. UU. o China). */
   const cola = await db
-    .select({ id: productos.id, pid: productos.externoId })
+    .select({
+      id: productos.id,
+      pid: productos.externoId,
+      pais: tiendas.paisOrigen,
+    })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .where(
       and(
         eq(productos.fuenteId, FUENTE_CJ),
         eq(productos.estado, "publicado"),
-        eq(tiendas.paisOrigen, "US"),
+        inArray(tiendas.paisOrigen, ["US", "CL", "CO"]),
       ),
     )
     .orderBy(
@@ -102,7 +112,10 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
   let fallidos = 0;
   for (const p of cola) {
     if (!p.pid) continue;
-    const variantes = await variantesConStockEnUs(p.pid);
+    const variantes = await variantesConStockEn(
+      p.pid,
+      almacenDeEntrega(p.pais ?? "US"),
+    );
     if (variantes === null) {
       fallidos += 1;
       continue;

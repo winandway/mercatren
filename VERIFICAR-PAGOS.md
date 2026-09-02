@@ -99,3 +99,11 @@ está ciega**: se trata como emergencia, no como pendiente.
   refresca el stock de CJ por tandas de 25 cada 15 min. Los productos ya
   publicados con envío regional se recalculan desde Panel → Configuración →
   Precios de Estados Unidos. Candado: `tests/unit/cj-riesgo.test.ts`.
+- **2 sep (tarde)** — los cuatro candados valen para las TRES plazas: el
+  recálculo de precios obedece al selector del panel (Estados Unidos con su
+  fórmula; Chile y Colombia desde China con la suya y la tasa del día), el
+  stock se pregunta en el almacén de cada plaza (EE. UU. o China) y el
+  candado de margen convierte los pesos a dólares antes de juzgar. **Rito
+  para CL/CO:** selector del panel en ese país → Configuración → «Precios y
+  envíos de …» → Recalcular → compra de prueba EN ESE DOMINIO con tarjeta →
+  Pedidos al proveedor «Pagado» y saldo de CJ descontado.

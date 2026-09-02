@@ -380,12 +380,17 @@ export async function crearPedido(
        vende. Si CJ no contesta se deja pasar — el candado de margen y el
        panel lo atrapan después, y una caída de CJ no puede cerrar la
        tienda entera. */
-    if (producto.tiendaPais === "US" && producto.fuenteId === FUENTE_CJ) {
+    if (
+      producto.fuenteId === FUENTE_CJ &&
+      ["US", "CL", "CO"].includes(producto.tiendaPais ?? "")
+    ) {
       const { hayExistenciaEnCj } = await import("@/lib/cj/existencias");
+      const { almacenDeEntrega } = await import("@/lib/cj/plazas");
       const enCj = await hayExistenciaEnCj(
         producto.externoId,
         variante?.sku ?? null,
         cantidad,
+        almacenDeEntrega(producto.tiendaPais ?? "US"),
       );
       if (enCj === false) {
         return {

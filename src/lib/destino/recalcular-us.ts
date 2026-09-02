@@ -4,7 +4,12 @@ import { and, eq, isNull, like, or, sql } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { fleteDeProducto } from "@/lib/cj/flete";
+import { plazaDelMercado, type Plaza } from "@/lib/cj/plazas";
 import { REGIONALES } from "@/lib/cj/riesgo";
+import { desglosarChile } from "@/lib/destino/precio-chile";
+import { desglosarColombia } from "@/lib/destino/precio-colombia";
+import { mercadoDelPanel } from "@/lib/mercado/panel";
+import { tasaVigente } from "@/lib/mercado/tasas";
 import { getDb } from "@/lib/db";
 import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
 import { desglosarUs } from "@/lib/destino/precio-us";
@@ -56,9 +61,7 @@ export async function recalcularPreciosUs(
    * ══ VOLVER A COTIZAR TODO (2 sep 2026) ══
    * Si llega `antesDe` (milisegundos), entran también los productos cuya
    * cotización es anterior a ese instante — o sea, TODOS al pulsar el botón,
-   * y cada tanda va sacando los que ya se recotizaron en esta corrida. Es el
-   * sitio donde el dueño «actualiza los envíos de Estados Unidos» cuando la
-   * tarjeta ya dice que no falta ninguno.
+   * y cada tanda va sacando los que ya se recotizaron en esta corrida.
    */
   opciones?: { antesDe?: number },
 ): Promise<ResultadoRecalculo> {
@@ -68,6 +71,22 @@ export async function recalcularPreciosUs(
       recalculados: 0,
       restantes: 0,
       motivo: "no-autorizado",
+    };
+  }
+
+  /* ══ LA PLAZA LA DECIDE EL SELECTOR DEL PANEL (2 sep 2026) ══
+     Antes esto era solo de Estados Unidos. Chile y Colombia se cotizan
+     desde China con su propia fórmula (IVA y tope en Chile, sin ellos en
+     Colombia) y su tasa del día — la regla de «toda consulta del panel del
+     equipo obedece al selector de país». */
+  const plaza = plazaDelMercado(await mercadoDelPanel());
+  const tasa = plaza.mercado === "US" ? null : await tasaVigente(plaza.mercado);
+  if (plaza.mercado !== "US" && tasa === null) {
+    return {
+      ok: false,
+      recalculados: 0,
+      restantes: 0,
+      motivo: `Falta la tasa del dólar de ${plaza.mercado === "CL" ? "Chile" : "Colombia"}: cárgala en Configuración → La tasa del dólar.`,
     };
   }
 
@@ -100,7 +119,7 @@ export async function recalcularPreciosUs(
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(and(eq(tiendas.paisOrigen, "US"), toca));
+    .where(and(eq(tiendas.paisOrigen, plaza.paisEntrega), toca));
 
   if (pendientes.length === 0) {
     return { ok: true, recalculados: 0, restantes: 0 };
@@ -115,13 +134,13 @@ export async function recalcularPreciosUs(
          recalcular. Se deja constancia con el estimado para que no vuelva a
          entrar en esta cola cada vez — si no, la barra nunca llegaría al
          final y quien la mira creería que algo se colgó. */
-      await marcarEstimado(p.id, ahora);
+      await marcarEstimado(p.id, ahora, plaza);
       hechos += 1;
       continue;
     }
 
     try {
-      const envio = await fleteDeProducto(p.externoId);
+      const envio = await fleteDeProducto(p.externoId, plaza);
 
       /* La fila vieja (la del regional) se va: una sola cotización por
          producto, la de hoy. */
@@ -138,14 +157,27 @@ export async function recalcularPreciosUs(
         cotizadoEn: ahora,
       });
 
-      const precio = desglosarUs(p.costoCentavos, envio.costoCentavos);
-      await db
-        .update(productos)
-        .set({
-          precioCentavos: precio.publicadoCentavos,
-          actualizadoEn: ahora,
-        })
-        .where(eq(productos.id, p.id));
+      const publicado = precioPublicadoDe(
+        plaza,
+        p.costoCentavos,
+        envio.costoCentavos,
+        tasa,
+      );
+      /* Un producto que ya no cabe en la plaza (en Chile, el que pasa del
+         tope de USD 500 con el envío nuevo) conserva su precio y queda
+         escrito en el registro; no se publica un precio inventado. */
+      if (publicado !== null) {
+        await db
+          .update(productos)
+          .set({ precioCentavos: publicado, actualizadoEn: ahora })
+          .where(eq(productos.id, p.id));
+      } else {
+        console.error(
+          "[precio] sin precio calculable en la plaza",
+          plaza.mercado,
+          p.id,
+        );
+      }
 
       hechos += 1;
     } catch (fallo) {
@@ -163,12 +195,30 @@ export async function recalcularPreciosUs(
   };
 }
 
-async function marcarEstimado(productoId: string, ahora: Date) {
-  const { ENVIO_ESTIMADO_CENTAVOS } = await import("@/lib/destino/envio-us");
+/** El precio publicado de la plaza, o null si no se puede calcular. */
+function precioPublicadoDe(
+  plaza: Plaza,
+  costoCentavos: number,
+  envioCentavos: number,
+  tasa: number | null,
+): number | null {
+  if (plaza.mercado === "US") {
+    return desglosarUs(costoCentavos, envioCentavos).publicadoCentavos;
+  }
+  if (tasa === null) return null;
+  if (plaza.mercado === "CL") {
+    const d = desglosarChile(costoCentavos, envioCentavos, tasa);
+    return d && !d.superaTope ? d.publicadoClp : null;
+  }
+  const d = desglosarColombia(costoCentavos, envioCentavos, tasa);
+  return d ? d.publicadoCop : null;
+}
+
+async function marcarEstimado(productoId: string, ahora: Date, plaza: Plaza) {
   try {
     await getDb().insert(enviosProducto).values({
       productoId,
-      costoCentavos: ENVIO_ESTIMADO_CENTAVOS,
+      costoCentavos: plaza.envioEstimadoUsdCentavos,
       origen: "estimado",
       transporte: null,
       cotizadoEn: ahora,
@@ -181,6 +231,7 @@ async function marcarEstimado(productoId: string, ahora: Date) {
 /** Cuántos siguen con el precio armado sin envío. Para pintar la pantalla. */
 export async function contarSinEnvio(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
+  const plaza = plazaDelMercado(await mercadoDelPanel());
 
   const filas = await getDb()
     .select({ id: productos.id })
@@ -189,7 +240,7 @@ export async function contarSinEnvio(): Promise<number> {
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
     .where(
       and(
-        eq(tiendas.paisOrigen, "US"),
+        eq(tiendas.paisOrigen, plaza.paisEntrega),
         or(
           isNull(enviosProducto.productoId),
           ...REGIONALES.map((r) =>

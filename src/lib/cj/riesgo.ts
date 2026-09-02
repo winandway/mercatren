@@ -79,3 +79,29 @@ export function pierdeDinero(
     diferenciaCentavos: diferencia,
   };
 }
+
+/**
+ * Lo cobrado, EN CENTAVOS DE DÓLAR, para compararlo con lo que CJ cobra.
+ *
+ * En Chile y Colombia el cliente paga en pesos enteros y CJ cobra en
+ * dólares: comparar 96.742 pesos contra 1.173 centavos «no pierde nunca»
+ * y el candado queda ciego. La tasa viene en centésimas (967,42 → 96742).
+ * Sin tasa se devuelve null: mejor no juzgar que juzgar con un número
+ * de otra moneda.
+ */
+export function cobradoEnUsdCentavos(
+  cobradoCentavos: number,
+  moneda: string,
+  tasaCentesimas: number | null,
+): number | null {
+  if (moneda === "USD") return cobradoCentavos;
+  if (
+    tasaCentesimas === null ||
+    !Number.isFinite(tasaCentesimas) ||
+    tasaCentesimas <= 0
+  ) {
+    return null;
+  }
+  /* pesos → dólares = pesos ÷ (tasa/100); en centavos = × 100. */
+  return Math.round((cobradoCentavos * 10_000) / tasaCentesimas);
+}

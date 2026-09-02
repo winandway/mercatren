@@ -2252,8 +2252,8 @@
       "noSeGuardo": "This was only a test — nothing was saved."
     },
     "preciosUs": {
-      "titulo": "US pricing",
-      "explicacion": "Products published before August 19 were priced with shipping set to zero, so every sale earns less than it should. This re-quotes freight with CJ and fixes the price. Anything already fixed is left alone.",
+      "titulo": "Prices and shipping for {pais}",
+      "explicacion": "The published price includes shipping. This re-fetches each product's freight from CJ and rebuilds the price with the carrier that will actually ship — using today's exchange rate in Chile and Colombia. Items already quoted with a national carrier are left alone.",
       "pendientes": "{cantidad} products are priced without shipping.",
       "todoTraducido": "Every US price includes shipping.",
       "boton": "Recalculate prices",
