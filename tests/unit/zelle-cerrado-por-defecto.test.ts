@@ -80,8 +80,8 @@ describe("cerrar el saldo pagado por fuera", () => {
     expect(bloque).not.toContain(".delete(");
   });
   it("«externo» es una forma válida y tiene su texto en los dos idiomas", () => {
-    expect(readFileSync("src/lib/db/schema.ts", "utf-8")).toContain(
-      '"externo"] as const',
+    expect(readFileSync("src/lib/db/schema.ts", "utf-8")).toMatch(
+      /FORMAS_RETIRO = \[[\s\S]*?"externo"[\s\S]*?\] as const/,
     );
     for (const idioma of ["es", "en"]) {
       const d = JSON.parse(readFileSync(`messages/${idioma}.json`, "utf-8"));
