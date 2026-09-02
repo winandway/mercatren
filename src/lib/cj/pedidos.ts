@@ -14,6 +14,11 @@ import {
   type VarianteElegida,
 } from "@/lib/cj/variantes";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
+import {
+  esPedidoYaCreado,
+  idsParaPagar,
+  leerEstadoDeCj,
+} from "@/lib/cj/reconciliar";
 import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
 import {
@@ -72,6 +77,9 @@ import {
 /** Lo que CJ devuelve al crear un pedido. */
 type RespuestaPedidoCj = {
   orderId?: string;
+  /** El id del ENVÍO (pedido padre). Es el que pide `payBalanceV2` — no
+      `orderId`. Mandar el otro fue la razón de que el saldo nunca bajara. */
+  shipmentOrderId?: string;
   orderNumber?: string;
   cjPayUrl?: string;
   orderAmount?: number | string;
@@ -83,7 +91,14 @@ type RespuestaPedidoCj = {
 };
 
 export type ResultadoCompra =
-  | { ok: true; id: string; urlPago: string | null; externoId: string | null }
+  | {
+      ok: true;
+      id: string;
+      urlPago: string | null;
+      externoId: string | null;
+      /** Quedó pagado con el saldo (o CJ ya lo tenía cobrado). */
+      pagado?: boolean;
+    }
   | { ok: false; motivo: string };
 
 /** Dólares a centavos enteros, sin perder el centavo en coma flotante. */
@@ -403,6 +418,39 @@ export async function comprarAlProveedor(
 
   if (!pedido) return { ok: false, motivo: "Ese pedido no existe." };
 
+  /**
+   * UN REINTENTO REESCRIBE LA FILA QUE FALLÓ, NO APILA OTRA.
+   *
+   * Antes cada intento insertaba una fila nueva: tres reintentos dejaban tres
+   * renglones del mismo pedido en el panel, y ninguno decía cuál era el bueno.
+   * Con el id reutilizado, la cola enseña un solo estado por compra.
+   */
+  const reintento = Boolean(yaHay);
+  const id = yaHay?.id ?? `prov-${nanoid(12)}`;
+  const ahora = new Date();
+
+  /**
+   * ══ ANTES DE CREAR, SE PREGUNTA SI YA EXISTE (1 sep 2026) ══
+   *
+   * Es lo que tenía el circuito parado: la MT-000011 quedó «No se pudo
+   * crear», CJ la tenía creada de un intento anterior, y cada reintento
+   * chocaba con «Order exist, please do not duplicate create». Un pedido
+   * que CJ ya tiene con nuestro número se ADOPTA — id, costo, estado— y se
+   * paga; jamás se vuelve a crear. `getOrderDetail` acepta nuestro propio
+   * número (doc de CJ: «Custom order id, CJ order id»).
+   */
+  const existente = await buscarPedidoEnCj(pedido.numero);
+  if (existente) {
+    return adoptarPedidoExistente(db, {
+      id,
+      reintento,
+      pedidoId,
+      numero: pedido.numero,
+      detalle: existente,
+      ahora,
+    });
+  }
+
   const entrega = (pedido.entrega ?? {}) as Partial<{
     nombre: string;
     pais: string;
@@ -552,10 +600,6 @@ export async function comprarAlProveedor(
    * Con el id reutilizado, la cola enseña un solo estado por compra — que es lo
    * que hace falta para saber si hay que pagar o no.
    */
-  const reintento = Boolean(yaHay);
-  const id = yaHay?.id ?? `prov-${nanoid(12)}`;
-  const ahora = new Date();
-
   const transporte = await transporteReal(
     aComprar.map((r) => ({ vid: r.variante.vid, cantidad: r.cantidad })),
     entrega,
@@ -635,6 +679,23 @@ export async function comprarAlProveedor(
       },
     },
   );
+
+  if (!respuesta.ok && esPedidoYaCreado(respuesta.motivo)) {
+    /* «Ya existe» NO es un fallo: es la señal de adoptar lo que CJ tiene.
+       Si la comprobación previa no lo vio (un mal segundo de red), aquí va
+       la segunda oportunidad antes de marcar nada en rojo. */
+    const yaEnCj = await buscarPedidoEnCj(pedido.numero);
+    if (yaEnCj) {
+      return adoptarPedidoExistente(db, {
+        id,
+        reintento,
+        pedidoId,
+        numero: pedido.numero,
+        detalle: yaEnCj,
+        ahora,
+      });
+    }
+  }
 
   if (!respuesta.ok) {
     /* El fallo se GUARDA, no solo se devuelve: un pedido que no se pudo
@@ -742,9 +803,10 @@ export async function comprarAlProveedor(
    * exactamente el flujo que ya funcionaba. Nunca puede dejarlo peor.
    */
   let pagoAutomatico: { pagado: boolean; motivo?: string } = { pagado: false };
-  if (datos.orderId) {
+  const idsDePago = idsParaPagar(datos);
+  if (idsDePago.length > 0) {
     try {
-      pagoAutomatico = await pagarConSaldo(db, id, datos.orderId);
+      pagoAutomatico = await pagarConSaldo(db, id, idsDePago);
     } catch (fallo) {
       console.error("[cj] el pago con saldo reventó; queda el enlace:", fallo);
     }
@@ -815,7 +877,13 @@ export async function comprarAlProveedor(
     console.error("[cj] compra creada; el aviso no salio:", fallo);
   }
 
-  return { ok: true, id, urlPago, externoId: datos.orderId ?? null };
+  return {
+    ok: true,
+    id,
+    urlPago,
+    externoId: datos.orderId ?? null,
+    pagado: pagoAutomatico.pagado,
+  };
 }
 
 /**
@@ -846,12 +914,28 @@ export async function comprarAlProveedor(
 async function pagarConSaldo(
   db: Db,
   id: string,
-  externoId: string,
+  /**
+   * Los identificadores con los que intentar, en orden: el `shipmentOrderId`
+   * (el que pide `payBalanceV2`, doc y ejemplo de CJ) y de respaldo el
+   * `orderId`. Se mandaba solo el `orderId` DENTRO del campo
+   * `shipmentOrderId`, y por eso el saldo nunca se descontó (1 sep 2026).
+   */
+  candidatos: string[],
 ): Promise<{ pagado: boolean; motivo?: string }> {
-  const respuesta = await llamarCj<Record<string, unknown>>(
-    "/shopping/pay/payBalanceV2",
-    { metodo: "POST", cuerpo: { shipmentOrderId: externoId } },
-  );
+  let respuesta: Awaited<ReturnType<typeof llamarCj<Record<string, unknown>>>> =
+    { ok: false, motivo: "Sin identificador de pago." };
+  const motivos: string[] = [];
+  for (const shipmentOrderId of candidatos) {
+    respuesta = await llamarCj<Record<string, unknown>>(
+      "/shopping/pay/payBalanceV2",
+      { metodo: "POST", cuerpo: { shipmentOrderId } },
+    );
+    if (respuesta.ok) break;
+    motivos.push(`${shipmentOrderId}: ${respuesta.motivo}`);
+  }
+  if (!respuesta.ok && motivos.length > 0) {
+    respuesta = { ok: false, motivo: motivos.join(" · ") };
+  }
 
   if (!respuesta.ok) {
     /* El motivo se guarda ENTERO y diciendo que la tarjeta sigue sirviendo:
@@ -920,6 +1004,8 @@ async function pagarConSaldo(
  */
 type DetalleCj = {
   orderId?: string;
+  shipmentOrderId?: string;
+  cjOrderId?: string;
   orderNum?: string;
   orderStatus?: string;
   orderAmount?: number | string;
@@ -935,6 +1021,123 @@ export type ComoVaEnCj = {
   guia: string | null;
   transportista: string | null;
 };
+
+/**
+ * ¿CJ ya tiene un pedido con NUESTRO número? Devuelve su detalle o null.
+ *
+ * Un fallo de red o un «no existe» dan null: la respuesta a «¿existe?» es
+ * no cuando no se puede saber, y entonces se sigue el camino normal de
+ * crear — que, si de verdad existía, contesta «Order exist» y ahí se vuelve
+ * a preguntar.
+ */
+async function buscarPedidoEnCj(numero: string): Promise<DetalleCj | null> {
+  const respuesta = await llamarCj<DetalleCj>(
+    `/shopping/order/getOrderDetail?orderId=${encodeURIComponent(numero)}`,
+  ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+  if (!respuesta.ok) return null;
+  const d = respuesta.datos;
+  if (!d || (!d.orderId && !d.shipmentOrderId && !d.cjOrderId)) return null;
+  return d;
+}
+
+/**
+ * ADOPTAR UN PEDIDO QUE CJ YA TIENE (1 sep 2026).
+ *
+ * Se escribe la fila con lo que CJ dice —su id, su costo, su estado— y se
+ * paga con el saldo si está por pagar. Si CJ ya lo marca pagado, NO se paga
+ * otra vez: pagar dos veces es el error caro. Si lo canceló, se dice.
+ *
+ * `urlPago` queda en null a propósito: `cjPayUrl` solo llega al crear y no
+ * se recupera por consulta (comprobado en su doc). El saldo es el camino.
+ */
+async function adoptarPedidoExistente(
+  db: Db,
+  a: {
+    id: string;
+    reintento: boolean;
+    pedidoId: string;
+    numero: string;
+    detalle: DetalleCj;
+    ahora: Date;
+  },
+): Promise<ResultadoCompra> {
+  const lectura = leerEstadoDeCj(a.detalle.orderStatus);
+  const externoId =
+    a.detalle.orderId ??
+    a.detalle.cjOrderId ??
+    a.detalle.shipmentOrderId ??
+    null;
+
+  const fila = {
+    estado: lectura.cancelado
+      ? ("con_error" as const)
+      : lectura.pagado
+        ? ("pagado" as const)
+        : ("por_pagar" as const),
+    externoId,
+    externoNumero: a.detalle.orderNum ?? a.detalle.cjOrderId ?? null,
+    urlPago: null,
+    costoCentavos: aCentavos(a.detalle.orderAmount),
+    guia: a.detalle.trackNumber?.trim() || null,
+    transportista: a.detalle.logisticName?.trim() || null,
+    ultimoError: lectura.cancelado
+      ? `CJ tiene este pedido CANCELADO (${a.detalle.orderStatus}). Hay que revisarlo en su panel.`
+      : null,
+    pagadoEn: lectura.pagado ? a.ahora : null,
+    pagadoPorId: null,
+    actualizadoEn: a.ahora,
+  };
+
+  if (a.reintento) {
+    await db
+      .update(pedidosProveedor)
+      .set(fila)
+      .where(eq(pedidosProveedor.id, a.id));
+  } else {
+    await db.insert(pedidosProveedor).values({
+      id: a.id,
+      pedidoId: a.pedidoId,
+      proveedor: FUENTE_CJ,
+      creadoEn: a.ahora,
+      ...fila,
+    });
+  }
+
+  if (lectura.cancelado) {
+    return { ok: false, motivo: fila.ultimoError! };
+  }
+
+  let pago: { pagado: boolean; motivo?: string } = { pagado: lectura.pagado };
+  if (lectura.pagable) {
+    try {
+      pago = await pagarConSaldo(db, a.id, idsParaPagar(a.detalle));
+    } catch (fallo) {
+      console.error("[cj] adoptado; el pago con saldo reventó:", fallo);
+    }
+  }
+
+  try {
+    const { correoAvisoAlEquipo } = await import("@/lib/correo/correos");
+    const { SITIO } = await import("@/lib/sitio");
+    await correoAvisoAlEquipo({
+      asunto: pago.pagado
+        ? `Pedido al proveedor PAGADO con el saldo · ${a.numero}`
+        : `Pedido al proveedor por pagar · ${a.numero}`,
+      lineas: [
+        `${a.numero} ya existía en CJ (${a.detalle.orderStatus ?? "sin estado"}) y se adoptó en vez de crearlo otra vez.`,
+        pago.pagado
+          ? "Está pagado con el saldo de CJ. No hay que hacer nada: CJ despacha."
+          : `El pago con saldo no salió${pago.motivo ? ` (${pago.motivo.slice(0, 160)})` : ""}. Ábrelo en el panel de CJ y págalo ahí.`,
+      ],
+      url: `${SITIO.url}/es/panel/proveedor`,
+      boton: "Ver en el panel",
+    });
+  } catch (fallo) {
+    console.error("[cj] adoptado; el aviso no salio:", fallo);
+  }
+
+  return { ok: true, id: a.id, urlPago: null, externoId, pagado: pago.pagado };
+}
 
 export async function comoVaEnCj(
   numeroDePedido: string,

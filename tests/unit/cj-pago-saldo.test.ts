@@ -10,9 +10,13 @@ import { describe, expect, it } from "vitest";
 describe("el pago automático con el saldo", () => {
   const fuente = readFileSync("src/lib/cj/pedidos.ts", "utf8");
 
-  it("paga por payBalanceV2 con el id del pedido en CJ", () => {
+  it("paga por payBalanceV2 con el shipmentOrderId, y el orderId de respaldo", () => {
+    /* `payBalanceV2` pide el shipmentOrderId (doc y ejemplo de CJ). Se
+       mandaba el orderId DENTRO de ese campo y el saldo nunca bajó. */
     expect(fuente).toContain("/shopping/pay/payBalanceV2");
-    expect(fuente).toContain("shipmentOrderId: externoId");
+    expect(fuente).toContain("cuerpo: { shipmentOrderId }");
+    expect(fuente).toContain("pagarConSaldo(db, id, idsDePago)");
+    expect(fuente).not.toContain("shipmentOrderId: externoId");
   });
 
   it("EL ENLACE DE TARJETA SIGUE EXISTIENDO: el pedido se crea con payType 1", () => {

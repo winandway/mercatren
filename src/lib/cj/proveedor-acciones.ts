@@ -256,12 +256,16 @@ export async function comprarPedidoAlProveedor(
 
   revalidatePath("/[locale]/panel/proveedor", "page");
 
+  /* El mensaje dice cómo QUEDÓ, no cómo empezó: «no devolvió enlace» al
+     lado de un pedido pagado con el saldo enseña a desconfiar del panel. */
   return r.ok
     ? {
         ok: true,
-        mensaje: r.urlPago
-          ? "Pedido creado en el proveedor. Ya puedes pagarlo."
-          : "Pedido creado, pero el proveedor no devolvió enlace de pago.",
+        mensaje: r.pagado
+          ? "Pedido en el proveedor y PAGADO con el saldo. CJ despacha."
+          : r.urlPago
+            ? "Pedido creado en el proveedor. Ya puedes pagarlo."
+            : "Pedido en el proveedor, por pagar: el saldo no alcanzó o CJ no dio enlace. Ábrelo en su panel.",
       }
     : { ok: false, mensaje: r.motivo };
 }

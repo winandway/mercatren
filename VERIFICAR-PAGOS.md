@@ -65,3 +65,11 @@ está ciega**: se trata como emergencia, no como pendiente.
   método, y el margen + procesador quedan de nuestro lado — como dice el
   modelo. El formulario del producto enseña las tres cifras en vivo.
   Candado: `tests/unit/comision-del-renglon.test.ts`.
+- **1 sep** — la compra a CJ se quedaba en «No se pudo crear» con CJ
+  contestando «Order exist, please do not duplicate create»: el pedido
+  existía allá y aquí solo se sabía volver a crearlo. Ahora se pregunta por
+  nuestro número ANTES de crear y se ADOPTA lo que CJ ya tiene; «ya existe»
+  es la señal de adoptar, no un error; y **`payBalanceV2` recibe el
+  `shipmentOrderId`** (se le mandaba el `orderId` dentro de ese campo — por
+  eso el saldo nunca bajó). Lo que CJ ya marca pagado no se paga otra vez.
+  Candados: `tests/unit/cj-reconciliar.test.ts`, `cj-pago-saldo.test.ts`.
