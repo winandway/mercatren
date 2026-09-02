@@ -108,6 +108,14 @@ describe("los candados en el código", () => {
     expect(confirma).toBeGreaterThan(0);
     expect(paga).toBeGreaterThan(confirma);
     expect(bloque).toContain('metodo: "PATCH"');
+    /* La condición REAL, no un `if (false)`: el rojo comprobado del 1 sep
+       pasó en verde con la rama muerta porque solo se miraba el texto. */
+    const guarda = bloque.indexOf(
+      'estado === "CREATED" || estado === "IN_CART"',
+    );
+    expect(guarda).toBeGreaterThan(0);
+    expect(guarda).toBeLessThan(confirma);
+    expect(bloque).not.toContain("if (false)");
     expect(bloque).toContain("if (lectura.pagado) {");
     expect(readFileSync("src/lib/cj/proveedor-acciones.ts", "utf-8")).toContain(
       "export async function pagarConSaldoDesdePanel",
