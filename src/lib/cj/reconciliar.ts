@@ -77,3 +77,56 @@ export function idsParaPagar(datos: {
     .filter((v) => v.length > 0);
   return Array.from(new Set(candidatos));
 }
+
+/**
+ * ══ EL FALLO DE INVENTARIO AL CONFIRMAR (1 sep 2026) ══
+ *
+ * CJ se negó a confirmar la MT-000011: «The selected logistics is assigned
+ * to a warehouse with insufficient inventory… (Elk Grove Village, IL, US)».
+ * La variante SÍ tiene existencia en Estados Unidos —por eso pasó el filtro
+ * del `countryCode`— pero en OTRO almacén del país, y el transporte elegido
+ * (el más barato del `freightCalculate`) está atado al que no la tiene.
+ */
+export function esFalloDeInventario(
+  motivo: string | null | undefined,
+): boolean {
+  const m = (motivo ?? "").toLowerCase();
+  return (
+    m.includes("insufficient inventory") ||
+    m.includes("inventory has not arrived") ||
+    m.includes("change the logistics option") ||
+    m.includes("change to another warehouse")
+  );
+}
+
+export type OpcionLogisticaCj = {
+  id?: number | string;
+  logisticsName?: string;
+  postage?: number | string;
+  hasStock?: boolean | string | number;
+  arrivalTime?: string;
+  startCountry?: string;
+};
+
+/**
+ * De las opciones que CJ ofrece para un pedido YA creado, la más barata
+ * CON existencia. CJ es quien sabe qué almacén surte cada transporte; no
+ * se adivina de este lado.
+ */
+export function elegirLogisticaConStock(
+  opciones: readonly OpcionLogisticaCj[],
+): OpcionLogisticaCj | null {
+  const conStock = opciones.filter(
+    (o) =>
+      o.logisticsName?.trim() &&
+      (o.hasStock === true || o.hasStock === "true" || o.hasStock === 1),
+  );
+  if (conStock.length === 0) return null;
+  return [...conStock].sort((a, b) => {
+    const pa = Number(a.postage);
+    const pb = Number(b.postage);
+    if (!Number.isFinite(pa)) return 1;
+    if (!Number.isFinite(pb)) return -1;
+    return pa - pb;
+  })[0]!;
+}

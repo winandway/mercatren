@@ -15,9 +15,12 @@ import {
 } from "@/lib/cj/variantes";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
 import {
+  elegirLogisticaConStock,
+  esFalloDeInventario,
   esPedidoYaCreado,
   idsParaPagar,
   leerEstadoDeCj,
+  type OpcionLogisticaCj,
 } from "@/lib/cj/reconciliar";
 import type { Db } from "@/lib/db";
 import { getDb } from "@/lib/db";
@@ -1007,9 +1010,12 @@ async function pagarConSaldo(
 type DetalleCj = {
   orderId?: string;
   shipmentOrderId?: string;
+  /** El código SD…/DP… que piden getOrderLogisticsInfo y updateLogistics. */
   cjOrderId?: string;
   orderNum?: string;
   orderStatus?: string;
+  storageId?: string;
+  storageName?: string;
   orderAmount?: number | string;
   postageAmount?: number | string;
   logisticName?: string;
@@ -1157,6 +1163,64 @@ async function adoptarPedidoExistente(
  * vez, y lo cancelado se dice. Después de confirmar se vuelve a leer el
  * detalle, porque el `shipmentOrderId` que pide el pago nace al confirmar.
  */
+/**
+ * CAMBIAR EL TRANSPORTE A UNO CON STOCK, COMO DICE CJ (1 sep 2026).
+ *
+ * `getOrderLogisticsInfo` devuelve, para ESE pedido, cada transporte con su
+ * `hasStock`: CJ sabe qué almacén surte cada uno, nosotros no. Se toma el
+ * más barato con existencia y se aplica con `updateLogistics`. Devuelve el
+ * nombre del transporte nuevo, o el motivo de por qué no se pudo.
+ */
+async function repararTransporteEnCj(
+  codigoCj: string,
+): Promise<{ ok: true; transporte: string } | { ok: false; motivo: string }> {
+  const info = await llamarCj<
+    OpcionLogisticaCj[] | { list?: OpcionLogisticaCj[] }
+  >(
+    `/shopping/order/getOrderLogisticsInfo?orderCode=${encodeURIComponent(codigoCj)}`,
+  ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+  if (!info.ok) {
+    return { ok: false, motivo: `CJ no dio sus transportes: ${info.motivo}` };
+  }
+  const opciones = Array.isArray(info.datos)
+    ? info.datos
+    : (info.datos?.list ?? []);
+  const elegida = elegirLogisticaConStock(opciones);
+  if (!elegida) {
+    const vistas = opciones
+      .map(
+        (o) => `${o.logisticsName ?? "?"}${o.hasStock ? "" : " (sin stock)"}`,
+      )
+      .join(", ");
+    return {
+      ok: false,
+      motivo: `Ningún transporte de CJ tiene existencia para este pedido${vistas ? ` (${vistas})` : ""}. Hay que pedir otra talla o color, o esperar a que llegue inventario.`,
+    };
+  }
+
+  /* `from`: 1 = pedido completo (por defecto), 2 = carrito, 0 = incompleto.
+     El nuestro suele estar IN_CART; se prueba en ese orden y se guarda cada
+     motivo, sin adivinar cuál era. */
+  const motivos: string[] = [];
+  for (const from of [2, 1, 0]) {
+    const cambio = await llamarCj<unknown>("/shopping/order/updateLogistics", {
+      metodo: "POST",
+      cuerpo: {
+        id: elegida.id,
+        orderCode: codigoCj,
+        logisticsName: elegida.logisticsName,
+        from,
+      },
+    }).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    if (cambio.ok) return { ok: true, transporte: elegida.logisticsName! };
+    motivos.push(`from=${from}: ${cambio.motivo}`);
+  }
+  return {
+    ok: false,
+    motivo: `CJ no dejó cambiar el transporte a ${elegida.logisticsName}: ${motivos.join(" · ")}`,
+  };
+}
+
 export async function confirmarYPagarEnCj(
   db: Db,
   id: string,
@@ -1198,10 +1262,44 @@ export async function confirmarYPagarEnCj(
 
   const estado = (detalle.orderStatus ?? "").trim().toUpperCase();
   if (estado === "CREATED" || estado === "IN_CART" || estado === "") {
-    const confirmacion = await llamarCj<unknown>(
-      "/shopping/order/confirmOrder",
-      { metodo: "PATCH", cuerpo: { orderId: detalle.orderId ?? numero } },
-    ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    let confirmacion = await llamarCj<unknown>("/shopping/order/confirmOrder", {
+      metodo: "PATCH",
+      cuerpo: { orderId: detalle.orderId ?? numero },
+    }).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+
+    /* ══ INVENTARIO: SE CAMBIA EL TRANSPORTE Y SE REINTENTA UNA VEZ ══
+       Es la opción 1 del propio mensaje de CJ. Una sola vez: si tras el
+       cambio sigue negándose, el motivo va al panel y no se martilla. */
+    let transporteNuevo: string | null = null;
+    if (!confirmacion.ok && esFalloDeInventario(confirmacion.motivo)) {
+      const codigoCj = detalle.cjOrderId ?? detalle.orderId ?? null;
+      const reparacion = codigoCj
+        ? await repararTransporteEnCj(codigoCj)
+        : ({
+            ok: false,
+            motivo: "CJ no devolvió su código de pedido.",
+          } as const);
+      if (reparacion.ok) {
+        transporteNuevo = reparacion.transporte;
+        confirmacion = await llamarCj<unknown>("/shopping/order/confirmOrder", {
+          metodo: "PATCH",
+          cuerpo: { orderId: detalle.orderId ?? numero },
+        }).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+      } else {
+        confirmacion = {
+          ok: false,
+          motivo: `${confirmacion.motivo} — ${reparacion.motivo}`,
+        };
+      }
+    }
+    if (transporteNuevo) {
+      await db
+        .update(pedidosProveedor)
+        .set({ transportista: transporteNuevo, actualizadoEn: new Date() })
+        .where(eq(pedidosProveedor.id, id))
+        .catch(() => undefined);
+    }
+
     if (!confirmacion.ok) {
       const motivo = `No se pudo confirmar el pedido en CJ: ${confirmacion.motivo}`;
       await db

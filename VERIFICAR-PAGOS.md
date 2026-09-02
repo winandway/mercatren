@@ -79,3 +79,11 @@ está ciega**: se trata como emergencia, no como pendiente.
   creado ni el adoptado se confirmaban, y por eso `payBalanceV2` rebotaba
   siempre. Ahora `confirmarYPagarEnCj` confirma → relee → paga, en el
   circuito automático y en el botón «Pagar con el saldo de CJ» del panel.
+- **1 sep (noche)** — CJ se negó a confirmar la MT-000011 por INVENTARIO:
+  la talla tiene existencia en EE. UU. pero no en el almacén (Elk Grove
+  Village, IL) al que está atado el transporte más barato. Ahora, ante ese
+  fallo, se le pregunta a CJ qué transportes tienen stock para ESE pedido
+  (`getOrderLogisticsInfo` → `hasStock`), se cambia al más barato con stock
+  (`updateLogistics`) y se reintenta la confirmación una vez. Y «Descartar»
+  borra el pedido en CJ (`deleteOrder`) antes de marcarlo aquí: si no, volver
+  a pedir adoptaba el mismo pedido atascado. Candado: `cj-inventario.test.ts`.

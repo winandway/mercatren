@@ -419,6 +419,30 @@ export async function descartarCompra(id: string): Promise<Resultado> {
 
   const usuario = await obtenerUsuario();
 
+  /* ══ PRIMERO SE BORRA EN CJ (1 sep 2026) ══
+     Descartar solo aquí dejaba el pedido vivo allá: al «volver a pedir», la
+     adopción encontraba el MISMO pedido atascado y no se avanzaba nunca.
+     CJ deja borrar solo lo CREATED/IN_CART; si se niega, NO se descarta y
+     se dice por qué — descartar aquí lo que allá sigue vivo es peor. */
+  const [conCj] = await getDb()
+    .select({ externoId: pedidosProveedor.externoId })
+    .from(pedidosProveedor)
+    .where(eq(pedidosProveedor.id, revisado.datos))
+    .limit(1);
+  if (conCj?.externoId) {
+    const { llamarCj } = await import("@/lib/cj/cliente");
+    const borrado = await llamarCj<unknown>(
+      `/shopping/order/deleteOrder?orderId=${encodeURIComponent(conCj.externoId)}`,
+      { metodo: "DELETE" },
+    ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    if (!borrado.ok) {
+      return {
+        ok: false,
+        mensaje: `CJ no dejó borrar el pedido (${borrado.motivo}). No se descarta aquí para no dejar dos.`,
+      };
+    }
+  }
+
   /* `pagado` NO se descarta: si ya salió dinero, marcarla como fallida haría
      que alguien la volviera a pedir y a pagar. */
   const cambiadas = await getDb()
