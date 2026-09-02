@@ -14,6 +14,45 @@ const leer = (ruta: string) => readFileSync(ruta, "utf-8");
 describe("el servidor de la importación", () => {
   const fuente = leer("src/lib/cj/masivo-servidor.ts");
 
+  it("LA BASE DE LA NUBE ADMITE 100 VALORES POR SENTENCIA: las tandas entran de a pocas", () => {
+    /* La primera corrida real (2 sep 2026) murió con 20 categorías por
+       sentencia: 20 × 15 columnas = 300 valores. Se multiplica contra las
+       columnas REALES de la tabla, así que agregar una columna que rompa el
+       tope también se pone rojo. */
+    /* Las columnas se cuentan en `schema.sql` (lo que de verdad corre en la
+       nube), sin importar el esquema: importarlo arrastra medio proyecto a la
+       medición de cobertura. */
+    const ddl = leer("schema.sql");
+    const bloque =
+      /CREATE TABLE IF NOT EXISTS `tandas_importacion_cj` \(([\s\S]*?)\n\);/.exec(
+        ddl,
+      );
+    expect(bloque).not.toBeNull();
+    const columnas = bloque![1]!
+      .split("\n")
+      .filter((l) => /^\s*`[a-z_]+`\s/.test(l)).length;
+    expect(columnas).toBe(15);
+    const filas = Number(/FILAS_POR_INSERCION = (\d+)/.exec(fuente)?.[1]);
+    expect(filas).toBeGreaterThan(0);
+    expect(filas * columnas).toBeLessThanOrEqual(100);
+    /* Las DOS inserciones de tandas (categorías y bandas) pasan por el ayudante. */
+    expect(fuente.match(/await insertarTandas\(/g)?.length).toBe(2);
+    expect(fuente).not.toContain(
+      "db.insert(tandasImportacionCj).values(\n      tandas",
+    );
+    expect(fuente).not.toMatch(/slice\(i, i \+ 20\)/);
+  });
+
+  it("un arranque que falla a mitad no deja un trabajo fantasma que bloquee el botón", () => {
+    expect(fuente).toContain("No se pudieron guardar las categorías");
+    /* Tolerante al formato: lo que importa es que el trabajo se borre. */
+    expect(fuente).toMatch(
+      /db\s*\.delete\(importacionesCj\)\s*\.where\(eq\(importacionesCj\.id,\s*id\)\)/,
+    );
+    /* Y una viva sin tandas se retira sola al volver a pulsar. */
+    expect(fuente).toContain("Number(conTandas?.n ?? 0) === 0");
+  });
+
   it("UN ESTIMADO NUNCA PISA UNA COTIZACIÓN REAL", () => {
     expect(fuente).toContain('previo?.envioOrigen === "cotizado"');
     /* Lo nuevo entra marcado como estimado: es lo que el afinado busca. */

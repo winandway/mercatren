@@ -237,13 +237,25 @@ export async function arrancarImportacion(o: {
     )
     .limit(1);
   if (viva) {
-    return {
-      ok: false,
-      motivo:
-        viva.estado === "pausada"
-          ? "Hay una importación en pausa para esta plaza: retómala en vez de empezar otra."
-          : "Ya hay una importación en marcha para esta plaza.",
-    };
+    /* Una «viva» sin una sola tanda es el rastro de un arranque que falló a
+       mitad (pasó el 2 sep 2026: la fila del trabajo entró y las tandas
+       no). No es una importación: se retira y se deja empezar de nuevo, o
+       el botón quedaría bloqueado para siempre con «ya hay una en marcha». */
+    const [conTandas] = await db
+      .select({ n: sql<number>`count(*)` })
+      .from(tandasImportacionCj)
+      .where(eq(tandasImportacionCj.importacionId, viva.id));
+    if (Number(conTandas?.n ?? 0) === 0) {
+      await db.delete(importacionesCj).where(eq(importacionesCj.id, viva.id));
+    } else {
+      return {
+        ok: false,
+        motivo:
+          viva.estado === "pausada"
+            ? "Hay una importación en pausa para esta plaza: retómala en vez de empezar otra."
+            : "Ya hay una importación en marcha para esta plaza.",
+      };
+    }
   }
 
   if (plaza.mercado !== "US" && (await tasaVigente(plaza.mercado)) === null) {
@@ -319,17 +331,29 @@ export async function arrancarImportacion(o: {
     actualizadoEn: ahora,
   });
 
-  /* De a 20 filas por sentencia: D1 admite 100 parámetros por consulta. */
-  for (let i = 0; i < tandas.length; i += 20) {
-    await db.insert(tandasImportacionCj).values(
-      tandas.slice(i, i + 20).map((t) => ({
-        id: `tanda-${nanoid(10)}`,
+  try {
+    await insertarTandas(
+      db,
+      tandas.map((t) => ({
         importacionId: id,
         categoriaId: t.categoriaId,
         categoriaNombre: t.nombre,
-        estado: "pendiente" as const,
+        desdeCentavos: null,
+        hastaCentavos: null,
       })),
     );
+  } catch (fallo) {
+    /* Sin sus tandas el trabajo no sirve: se retira (las tandas que
+       hubieran entrado se van en cascada) y el motivo sale entero. */
+    await db
+      .delete(importacionesCj)
+      .where(eq(importacionesCj.id, id))
+      .catch(() => undefined);
+    const motivo = fallo instanceof Error ? fallo.message : String(fallo);
+    return {
+      ok: false,
+      motivo: `No se pudieron guardar las categorías: ${motivo.slice(0, 600)}`,
+    };
   }
 
   const estado = await leerEstado(db, id);
@@ -498,6 +522,56 @@ export async function reanudarImportacion(
 
 /* ═══════════════════════ Por dentro ═══════════════════════ */
 
+/**
+ * ══ LA BASE DE LA NUBE ADMITE 100 VALORES POR SENTENCIA (2 sep 2026) ══
+ *
+ * La primera corrida real murió aquí: «Failed query: insert into
+ * tandas_importacion_cj…» con 20 categorías por sentencia. Cada fila lleva
+ * las 15 columnas de la tabla (Drizzle escribe también las que tienen valor
+ * por defecto), así que 20 filas son 300 valores — el triple del tope de D1.
+ *
+ * Seis filas por sentencia (90 valores) y las sentencias juntas en un
+ * `batch`, que es un solo viaje y todo o nada. Hay una prueba que multiplica
+ * las columnas reales de la tabla por este número y exige que no pase de 100.
+ */
+export const FILAS_POR_INSERCION = 6;
+
+async function insertarTandas(
+  db: Db,
+  filas: Array<{
+    importacionId: string;
+    categoriaId: string | null;
+    categoriaNombre: string | null;
+    desdeCentavos: number | null;
+    hastaCentavos: number | null;
+  }>,
+) {
+  if (filas.length === 0) return;
+  const sentencias = [];
+  for (let i = 0; i < filas.length; i += FILAS_POR_INSERCION) {
+    sentencias.push(
+      db.insert(tandasImportacionCj).values(
+        filas.slice(i, i + FILAS_POR_INSERCION).map((f) => ({
+          id: `tanda-${nanoid(10)}`,
+          importacionId: f.importacionId,
+          categoriaId: f.categoriaId,
+          categoriaNombre: f.categoriaNombre,
+          desdeCentavos: f.desdeCentavos,
+          hastaCentavos: f.hastaCentavos,
+          estado: "pendiente" as const,
+        })),
+      ),
+    );
+  }
+  /* De a 25 sentencias por viaje: con 1.500 categorías son 250 sentencias,
+     y un batch gigante también tiene su tope. */
+  for (let i = 0; i < sentencias.length; i += 25) {
+    await db.batch(
+      sentencias.slice(i, i + 25) as unknown as Parameters<Db["batch"]>[0],
+    );
+  }
+}
+
 type Tanda = {
   id: string;
   categoriaId: string | null;
@@ -618,15 +692,14 @@ async function procesarTanda(
     if (siguiente === 1 && reglas.estaTopada(total)) {
       const bandas = reglas.bandasPara(tanda);
       if (bandas) {
-        await db.insert(tandasImportacionCj).values(
+        await insertarTandas(
+          db,
           bandas.map((b) => ({
-            id: `tanda-${nanoid(10)}`,
             importacionId: ctx.importacionId,
             categoriaId: tanda.categoriaId,
             categoriaNombre: tanda.categoriaNombre,
             desdeCentavos: b.desdeCentavos,
             hastaCentavos: b.hastaCentavos,
-            estado: "pendiente" as const,
           })),
         );
         await cerrarTanda(db, tanda.id, "partida", {

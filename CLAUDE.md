@@ -1402,6 +1402,16 @@ Cinco cosas que no se tocan:
    requests».
 5. **Solo el rol `soporte` de verdad** (`esSoporteDeVerdad`), y lo que entra
    por el formulario pasa por zod.
+6. **LA BASE DE LA NUBE ADMITE 100 VALORES POR SENTENCIA.** La primera corrida
+   real del dueño (2 sep 2026, noche) murió con «Failed query: insert into
+   tandas_importacion_cj…»: 20 categorías por sentencia × 15 columnas = 300
+   valores. Las tandas entran de a **6 por sentencia** (`FILAS_POR_INSERCION`,
+   `insertarTandas` en `masivo-servidor.ts`) juntadas en `batch`, y la
+   prueba multiplica contra las columnas reales de la tabla. Y si el arranque
+   falla a mitad, el trabajo se retira solo —o se retira al volver a pulsar
+   si quedó sin tandas—: sin eso el botón quedaba bloqueado con «ya hay una
+   en marcha» para siempre. Vale para cualquier inserción múltiple del
+   proyecto: `filas × columnas ≤ 100`.
 
 ### Lo que cambió alrededor para aguantar cien mil fichas
 
