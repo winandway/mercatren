@@ -66,12 +66,15 @@ describe("los candados en el código", () => {
     expect(bloque.split('"/shopping/order/confirmOrder"').length - 1).toBe(2);
   });
 
-  it("descartar BORRA el pedido en CJ antes de marcarlo aquí", () => {
+  it("descartar intenta BORRAR en CJ antes de marcarlo aquí, y cierra aquí aunque CJ se niegue", () => {
     const fuente = readFileSync("src/lib/cj/proveedor-acciones.ts", "utf-8");
     const borra = fuente.indexOf("/shopping/order/deleteOrder?orderId=");
     const marca = fuente.indexOf("Descartada por ${usuario?.name");
     expect(borra).toBeGreaterThan(0);
     expect(marca).toBeGreaterThan(borra);
+    /* «Order delete fail» no puede dejar al dueño atrapado. */
+    expect(fuente).toContain("CJ no dejó borrarlo allá");
+    expect(fuente).not.toContain("No se descarta aquí para no dejar dos");
   });
 });
 

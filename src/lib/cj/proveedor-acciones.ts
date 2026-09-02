@@ -424,6 +424,7 @@ export async function descartarCompra(id: string): Promise<Resultado> {
      adopción encontraba el MISMO pedido atascado y no se avanzaba nunca.
      CJ deja borrar solo lo CREATED/IN_CART; si se niega, NO se descarta y
      se dice por qué — descartar aquí lo que allá sigue vivo es peor. */
+  let notaCj = "";
   const [conCj] = await getDb()
     .select({ externoId: pedidosProveedor.externoId })
     .from(pedidosProveedor)
@@ -435,11 +436,13 @@ export async function descartarCompra(id: string): Promise<Resultado> {
       `/shopping/order/deleteOrder?orderId=${encodeURIComponent(conCj.externoId)}`,
       { metodo: "DELETE" },
     ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    /* Si CJ se niega a borrarlo (2 sep 2026: «Order delete fail»), la compra
+       se cierra AQUÍ igual, con el motivo escrito. Dejar al dueño atrapado
+       con un pedido que ni se paga ni se descarta es peor que un pedido sin
+       pagar dormido en CJ: allá nunca se cobra, y si algún día se vuelve a
+       pedir ESTE mismo número, la adopción lo encuentra antes de crear otro. */
     if (!borrado.ok) {
-      return {
-        ok: false,
-        mensaje: `CJ no dejó borrar el pedido (${borrado.motivo}). No se descarta aquí para no dejar dos.`,
-      };
+      notaCj = ` CJ no dejó borrarlo allá (${borrado.motivo}): queda sin pagar en su panel, no se cobra.`;
     }
   }
 
@@ -453,7 +456,7 @@ export async function descartarCompra(id: string): Promise<Resultado> {
          interno de la base —queda para siempre al lado de la compra— y lo que
          manda un cliente no puede acabar escrito en él tal cual. */
       ultimoError:
-        `Descartada por ${usuario?.name ?? "el equipo"} para volver a pedirla.`.slice(
+        `Descartada por ${usuario?.name ?? "el equipo"} para volver a pedirla.${notaCj}`.slice(
           0,
           300,
         ),
