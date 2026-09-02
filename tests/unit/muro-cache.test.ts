@@ -86,8 +86,16 @@ describe("ninguna ruta que dependa del país se hornea", () => {
   it("el mapa del sitio también", () => {
     /* Un sitemap horneado serviría las direcciones de un dominio desde el
        otro, y Google descarta entero un mapa de dominio cruzado. */
-    const codigo = fuente("src/app/sitemap.ts");
-    expect(codigo).toContain('export const dynamic = "force-dynamic"');
-    expect(codigo).toContain("mercadoActual");
+    /* Desde el 2 sep 2026 el mapa es un índice más sus trozos (ver
+       `lib/seo/mapa.ts`); los dos leen el dominio de la petición. */
+    for (const ruta of [
+      "src/app/sitemap.xml/route.ts",
+      "src/app/mapa/[parte]/route.ts",
+    ]) {
+      const codigo = fuente(ruta);
+      expect(codigo, ruta).toContain('export const dynamic = "force-dynamic"');
+      expect(codigo, ruta).toContain("mercadoActual");
+      expect(codigo, ruta).toContain("mercado.codigo");
+    }
   });
 });

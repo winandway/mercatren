@@ -6,13 +6,11 @@ import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { fleteDeProducto } from "@/lib/cj/flete";
 import { plazaDelMercado, type Plaza } from "@/lib/cj/plazas";
 import { REGIONALES } from "@/lib/cj/riesgo";
-import { desglosarChile } from "@/lib/destino/precio-chile";
-import { desglosarColombia } from "@/lib/destino/precio-colombia";
+import { precioPublicadoDe } from "@/lib/destino/precio-plaza";
 import { mercadoDelPanel } from "@/lib/mercado/panel";
 import { tasaVigente } from "@/lib/mercado/tasas";
 import { getDb } from "@/lib/db";
 import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
-import { desglosarUs } from "@/lib/destino/precio-us";
 
 /**
  * RECALCULAR EL PRECIO DE LOS PRODUCTOS QUE SE PUBLICARON SIN ENVÍO.
@@ -157,7 +155,7 @@ export async function recalcularPreciosUs(
         cotizadoEn: ahora,
       });
 
-      const publicado = precioPublicadoDe(
+      const precio = precioPublicadoDe(
         plaza,
         p.costoCentavos,
         envio.costoCentavos,
@@ -166,10 +164,13 @@ export async function recalcularPreciosUs(
       /* Un producto que ya no cabe en la plaza (en Chile, el que pasa del
          tope de USD 500 con el envío nuevo) conserva su precio y queda
          escrito en el registro; no se publica un precio inventado. */
-      if (publicado !== null) {
+      if (precio.ok) {
         await db
           .update(productos)
-          .set({ precioCentavos: publicado, actualizadoEn: ahora })
+          .set({
+            precioCentavos: precio.publicadoCentavos,
+            actualizadoEn: ahora,
+          })
           .where(eq(productos.id, p.id));
       } else {
         console.error(
@@ -193,25 +194,6 @@ export async function recalcularPreciosUs(
     recalculados: hechos,
     restantes: Math.max(0, pendientes.length - hechos),
   };
-}
-
-/** El precio publicado de la plaza, o null si no se puede calcular. */
-function precioPublicadoDe(
-  plaza: Plaza,
-  costoCentavos: number,
-  envioCentavos: number,
-  tasa: number | null,
-): number | null {
-  if (plaza.mercado === "US") {
-    return desglosarUs(costoCentavos, envioCentavos).publicadoCentavos;
-  }
-  if (tasa === null) return null;
-  if (plaza.mercado === "CL") {
-    const d = desglosarChile(costoCentavos, envioCentavos, tasa);
-    return d && !d.superaTope ? d.publicadoClp : null;
-  }
-  const d = desglosarColombia(costoCentavos, envioCentavos, tasa);
-  return d ? d.publicadoCop : null;
 }
 
 async function marcarEstimado(productoId: string, ahora: Date, plaza: Plaza) {

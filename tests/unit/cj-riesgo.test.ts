@@ -109,8 +109,13 @@ describe("lo cobrado en pesos se lleva a dólares antes de juzgar", () => {
   it("el recálculo de precios obedece al país del panel y usa la fórmula de cada plaza", () => {
     const fuente = readFileSync("src/lib/destino/recalcular-us.ts", "utf-8");
     expect(fuente).toContain("plazaDelMercado(await mercadoDelPanel())");
-    expect(fuente).toContain("desglosarChile(");
-    expect(fuente).toContain("desglosarColombia(");
+    /* La fórmula de cada plaza vive en UN solo sitio desde el 2 sep 2026
+       (`precio-plaza.ts`): el recálculo, el botón de a uno y la importación
+       masiva publican el mismo número. */
+    expect(fuente).toContain("precioPublicadoDe(");
+    const formula = readFileSync("src/lib/destino/precio-plaza.ts", "utf-8");
+    expect(formula).toContain("desglosarChile(");
+    expect(formula).toContain("desglosarColombia(");
     expect(fuente).toContain("fleteDeProducto(p.externoId, plaza)");
     expect(fuente).not.toContain('eq(tiendas.paisOrigen, "US")');
   });

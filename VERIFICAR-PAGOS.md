@@ -119,3 +119,12 @@ está ciega**: se trata como emergencia, no como pendiente.
   «Cerrar saldo (pagado por fuera)»: paga los retiros pedidos y registra lo
   que quede como retiro `externo` con la referencia del pago real. No borra
   nada. Solo soporte de verdad. Es el patrón del cierre de Bley del 10 ago.
+- **2 sep (noche) — TRAER EL ALMACÉN COMPLETO DE CJ.** No toca el cobro,
+  pero sí lo que se cobra: cien mil fichas publicadas con envío ESTIMADO
+  (percentil 70 de las cotizaciones reales por departamento, nunca cero) y
+  afinadas por detrás con el flete real. Los candados del 2 sep siguen
+  delante de cada venta: stock preguntado a CJ antes de cobrar y compra al
+  proveedor que no se paga sola si pierde. Un estimado nunca pisa una
+  cotización real. Pruebas: `cj-masivo.test.ts`, `cj-importacion-masiva.test.ts`,
+  `precio-plaza.test.ts`. **Sin probar contra CJ desde esta máquina** (no hay
+  llave local): la primera corrida real la mira el dueño en el panel.

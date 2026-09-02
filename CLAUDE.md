@@ -1323,6 +1323,111 @@ en CJ → **se paga solo del saldo** → CJ despacha. `pagarConSaldo` en
 - El riesgo está acotado por diseño: el saldo es PREPAGO — lo máximo que puede
   salir mal es lo cargado, nunca una deuda.
 
+## TRAER EL ALMACÉN COMPLETO DE CJ, DE UN GOLPE (2 sep 2026)
+
+Lo pidió el dueño con estas palabras: _«tocar un botón y que se agreguen
+todos los productos… todo el warehouse… lo máximo que se pueda meter de un
+solo golpe… con precios reales, envíos, todo bien»_. Y dijo «sí, de una» para
+las tres plazas: Estados Unidos, Colombia y Chile.
+
+**Panel → Catálogo de Estados Unidos (o de Chile / Colombia, según el
+selector) → «Traer el almacén completo de …»**, con tres filtros: stock
+mínimo (5), solo inventario verificado por CJ, y un tope de productos nuevos
+(0 = sin tope).
+
+### Por qué no se hace «de a uno» cien mil veces
+
+Agregar un producto cuesta TRES llamadas a CJ (variantes, flete, tallas) a
+UNA por segundo — su límite. Cien mil productos serían cuarenta días. La
+salida es la de las tiendas grandes: **publicar rápido con un estimado serio,
+y afinar por detrás.**
+
+1. **El listado de CJ (`listV2`) trae cien productos por llamada** con
+   precio, foto, stock, categoría y descripción (`features=enable_description,
+enable_category`). Con eso se crea la ficha, cae en su departamento y su
+   tienda por rubro (o en la mayorista, en EE. UU., si deja poco), y se
+   publica con el precio real de CJ **más un envío ESTIMADO por
+   departamento**: el percentil 70 de las cotizaciones reales que ya hay en
+   esa plaza (`tablaDeEstimados` en `src/lib/cj/masivo.ts`). Sin muestras,
+   el respaldo de la plaza. **Nunca cero.** La fila de `envios_producto`
+   queda marcada `estimado`.
+2. **El afinado (`src/lib/cj/afinar.ts`)** toma los productos con envío
+   estimado —**la ropa primero**, que sin talla no se vende bien— y por cada
+   uno hace DOS llamadas: las variantes (tallas y stock de hoy) y el flete
+   real de la más barata. Rearma el precio con la fórmula de su plaza. En
+   Chile, lo que con el flete real pasa del tope de USD 500 **se pasa a
+   borrador**. Lo corre el reloj (`/datos/sincronizar`, 40 por vuelta, 96
+   vueltas al día) y el botón «Afinar ahora».
+3. **Mientras tanto, los candados del 2 sep protegen la venta**: el checkout
+   le pregunta a CJ el stock antes de cobrar, y la compra al proveedor no se
+   paga sola si pierde dinero.
+4. **El traductor también corre desde el reloj** (`src/lib/traduccion/tanda.ts`):
+   3 tandas de títulos y 2 de descripciones por vuelta, mismo modelo y
+   mismas reglas que el botón. Lo pendiente se decide en SQL (español igual
+   al inglés), no cargando el catálogo entero.
+
+### Cómo avanza sin morirse a mitad
+
+`importaciones_cj` (un trabajo por plaza) y `tandas_importacion_cj` (una fila
+por categoría de CJ, y por banda de precio si hubo que partir). Quien tenga
+tiempo —el panel con la pestaña abierta, o el reloj cada 15 minutos—
+**RECLAMA** una tanda con un `UPDATE … RETURNING` condicionado, le pide
+páginas a CJ hasta agotar su presupuesto, y la suelta (vuelve a `pendiente`
+con su página guardada) o la marca `hecha`. Una tanda tomada hace más de 10
+minutos se considera abandonada. Dos trabajadores nunca procesan la misma
+página.
+
+**CJ no deja ver más de 6.000 resultados por consulta** (`totalRecords`
+máximo 6.000, documentado). La sonda inicial lo mide: si el almacén con esos
+filtros tiene menos, una sola tanda lo recorre entero; si no, se baja el
+árbol de categorías (`/product/getCategory`) y se recorre categoría por
+categoría; una categoría que también se tope se parte en **bandas de
+precio**. Una banda topada se recorre hasta donde CJ deje y queda anotado.
+
+Cinco cosas que no se tocan:
+
+1. **Un estimado NUNCA pisa una cotización real.** Un producto que ya estaba
+   en la plaza con flete cotizado conserva ese flete; solo se le refresca el
+   costo, el stock y la descripción. Y su estado no se toca: lo que alguien
+   retiró a mano no vuelve solo.
+2. **Las tres fórmulas de precio son UNA** (`src/lib/destino/precio-plaza.ts`,
+   pura): el botón de a uno, el recálculo y la importación masiva publican
+   el mismo número. Devuelve el motivo cuando no hay precio (sin tasa, sobre
+   el tope, sin precio).
+3. **Los ayudantes compartidos viven en `src/lib/cj/guardar.ts`
+   (`server-only`)**, no en `importar.ts`: de un archivo `"use server"` cada
+   exportación es una acción que cualquiera puede llamar desde el navegador.
+4. **Todo lo que le habla a CJ en bucle pasa por `src/lib/cj/ritmo.ts`**:
+   1,2 s entre llamadas y un reintento a los 2 s si contesta «too many
+   requests».
+5. **Solo el rol `soporte` de verdad** (`esSoporteDeVerdad`), y lo que entra
+   por el formulario pasa por zod.
+
+### Lo que cambió alrededor para aguantar cien mil fichas
+
+- **`/sitemap.xml` es un ÍNDICE** (`src/app/sitemap.xml/route.ts`) que
+  apunta a `/mapa/paginas.xml` y a `/mapa/productos-N.xml` de 40.000 fichas
+  (`src/lib/seo/mapa.ts`, puro). Google no admite más de 50.000 direcciones
+  por archivo y descartaría el mapa ENTERO. La dirección de Search Console
+  no cambia. **`src/app/sitemap.ts` no puede volver a existir**: chocaría en
+  la misma dirección (hay prueba).
+- **El feed de Google sale en flujo** (`ReadableStream`, de a 500 por id):
+  armar cien mil fichas en memoria de una pieza tumbaría la respuesta.
+- **Tiempos en el reloj:** importación hasta 120 s, afinado hasta 110 s,
+  traducción unas tandas. Caben en los 10 minutos del `--max-time`.
+
+Candados: `tests/unit/cj-masivo.test.ts` (reglas puras),
+`cj-importacion-masiva.test.ts` (lo que el servidor no puede dejar de hacer),
+`precio-plaza.test.ts`, `mapa-del-sitio.test.ts`.
+
+**Lo que NO se pudo probar desde aquí:** la llave de CJ no vive en esta
+máquina, así que la sonda real contra su almacén (cuántos productos devuelve
+con `verifiedWarehouse=1` y `startWarehouseInventory=5`, y si acepta el
+parámetro `features`) se ve la primera vez que el dueño pulse el botón en
+producción. Si CJ rechaza `features`, la página se repite sin él (se pierde
+la descripción, no la página). Si la sonda da cero, el panel lo dice y
+sugiere bajar el stock mínimo o quitar «verificado».
+
 ## LA PRIMERA COMPRA PAGADA MURIÓ POR UN SKU (18 ago 2026)
 
 MT-000004 se pagó de verdad y CJ la rechazó con **«No variants found for

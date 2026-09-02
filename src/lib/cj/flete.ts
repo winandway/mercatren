@@ -99,6 +99,18 @@ export async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
   return variantes.length > 0 ? variantes : null;
 }
 
+/**
+ * Cotizar UNA variante ya conocida. Lo usa el afinado de la importación
+ * masiva, que ya pidió las variantes para las tallas y no va a gastar otra
+ * llamada en volver a pedirlas.
+ */
+export async function cotizarFlete(
+  vid: string,
+  plaza: Plaza,
+): Promise<{ costoCentavos?: number; transporte?: string }> {
+  return cotizar(vid, plaza);
+}
+
 async function cotizar(vid: string, plaza: Plaza) {
   const respuesta = await llamarCj<unknown>("/logistic/freightCalculate", {
     metodo: "POST",

@@ -14,7 +14,7 @@
 > 🔴 urgente · 🟠 importante · 🟡 cuando se pueda
 > 👤 solo lo puede hacer Richard · 💻 es código
 
-Última revisión: **24 de agosto de 2026**.
+Última revisión: **2 de septiembre de 2026**.
 
 ---
 
@@ -102,6 +102,24 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 ---
 
 # BLOQUE 3-RO · LA EXPANSIÓN POR ALMACENES DE CJ (plan del 27 ago 2026)
+
+- [x] 💻 **«Traer el almacén completo» de CJ, por plaza (2 sep 2026).** Panel →
+      Catálogo de {plaza} → un botón trae TODO el almacén (EE. UU. para el
+      .com; China para Chile y Colombia) con filtros de stock mínimo,
+      inventario verificado y tope; publica con envío estimado por
+      departamento y el reloj afina flete, tallas y stock por detrás (unos
+      3.840 por día) y traduce títulos y descripciones. Detalle en
+      `CLAUDE.md` → «Traer el almacén completo de CJ».
+- [ ] 🔴 👤 **Pulsarlo en las tres plazas, y mirar la primera sonda.** Selector
+      en Estados Unidos → Catálogo → «Traer el almacén completo de Estados
+      Unidos» → Empezar; después Colombia y Chile (almacén de China: ponerle
+      tope, p. ej. 20.000, porque ese catálogo son millones). La primera
+      corrida real contra CJ se ve ahí: si la sonda da cero, el panel dice
+      qué filtro aflojar. **La llave de CJ no vive en la máquina de trabajo,
+      así que esto no se pudo probar contra CJ desde el código.**
+- [ ] 🟠 👤 **Search Console: nada que reenviar.** `/sitemap.xml` ahora es un
+      índice con trozos de 40.000 fichas; la dirección registrada sigue
+      valiendo. A los días, mirar en Sitemaps que aparezcan los trozos.
 
 **El plan completo vive en `PLAN-ALMACENES-CJ.md`** — los 17 almacenes por
 continente, cómo se surten Chile y Colombia (no hay almacén sudamericano: se

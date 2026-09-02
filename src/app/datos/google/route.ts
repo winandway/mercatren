@@ -1,4 +1,4 @@
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, asc, eq, gt, sql } from "drizzle-orm";
 
 import { codigoVisible } from "@/lib/catalogo/codigo";
 import { getDbAsync, schema } from "@/lib/db";
@@ -101,143 +101,174 @@ function recortar(texto: string, maximo: number): string {
   return (espacio > maximo * 0.6 ? corte.slice(0, espacio) : corte).trim();
 }
 
-export async function GET() {
-  let filas: {
-    slug: string;
-    titulo: string;
-    descripcion: string | null;
-    precioCentavos: number;
-    moneda: string;
-    existencias: number;
-    controla: boolean;
-    marca: string | null;
-    sku: string | null;
-    tienda: string;
-    foto: string | null;
-    fotoClave: string | null;
-  }[] = [];
+/**
+ * ══ EL ARCHIVO SALE EN FLUJO, NO DE UNA PIEZA (2 sep 2026) ══
+ *
+ * Con el almacén completo de CJ dentro son cien mil fichas: armar el XML
+ * entero en memoria antes de contestar se pasa de lo que un worker puede
+ * sostener, y Google recibiría un error en vez de un catálogo. Se lee la
+ * base de a 500 (por id, en orden estable) y cada trozo se manda según sale.
+ * Si la base falla a mitad, se cierra el archivo con lo que ya fue: un
+ * archivo corto es mejor que uno roto, y Google vuelve mañana.
+ */
+const POR_TANDA = 500;
 
-  try {
-    const db = await getDbAsync();
-    const { productos, tiendas, imagenesProducto } = schema;
+type FilaFeed = {
+  id: string;
+  slug: string;
+  titulo: string;
+  descripcion: string | null;
+  precioCentavos: number;
+  moneda: string;
+  existencias: number;
+  controla: boolean;
+  marca: string | null;
+  sku: string | null;
+  tienda: string;
+  foto: string | null;
+  fotoClave: string | null;
+};
 
-    filas = await db
-      .select({
-        slug: productos.slug,
-        titulo: productos.tituloEs,
-        descripcion: productos.descripcionEs,
-        precioCentavos: productos.precioCentavos,
-        moneda: productos.moneda,
-        existencias: productos.existencias,
-        controla: productos.controlaExistencias,
-        marca: productos.marca,
-        sku: productos.sku,
-        tienda: tiendas.nombre,
-        /* La primera foto. Si vino del sistema del comercio trae `url`; si se
-           subió a nuestro bucket, `clave` y se sirve por /media. */
-        foto: sql<
-          string | null
-        >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
-        fotoClave: sql<
-          string | null
-        >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
-      })
-      .from(productos)
-      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(
-        and(
-          eq(productos.estado, "publicado"),
-          eq(tiendas.estado, "activa"),
-          // Este archivo es el del Merchant Center de mercatren.com: solo su
-          // mercado. El de cada pais tendra el suyo (PLAN-PAISES.md).
-          eq(tiendas.mercado, MERCADO_PRINCIPAL.codigo),
-          /**
-           * Y SOLO LO QUE SE PUEDE ENTREGAR EN ESTADOS UNIDOS.
-           *
-           * `mercado` dice en que plaza se vende; `pais_origen` dice desde
-           * donde sale la mercancia. No son lo mismo, y confundirlos costaba
-           * caro: la ferreteria venezolana vende EN mercatren.com —mercado
-           * US— pero su mercancia se retira en Venezuela. Medido contra la
-           * base el 19 ago 2026, este archivo le mandaba a Google **622
-           * productos venezolanos** presentados como comprables y entregables
-           * en Estados Unidos. Ni uno lo era.
-           *
-           * Eso no es un detalle de catalogo: es el patron por el que
-           * Merchant Center suspende una cuenta, y una suspension se lleva por
-           * delante tambien lo que si estaba bien.
-           *
-           * El dia que Venezuela tenga su propio feed —o que Google acepte un
-           * envio internacional declarado— este filtro se abre a proposito y
-           * con su politica de envio detras. Hoy no la hay.
-           */
-          eq(tiendas.paisOrigen, "US"),
-          // Un producto sin precio no se le manda a Google: lo rechazaría, y
-          // con razón — no se puede comprar algo que no tiene precio.
-          gt(productos.precioCentavos, 0),
-        ),
-      );
-  } catch (e) {
-    console.error("[google] no se pudo armar el catálogo:", e);
-    // Un archivo vacío es mejor que un error: Google reintenta mañana en vez
-    // de marcar el archivo como roto.
-    filas = [];
-  }
-
-  const articulos = filas
-    .map((p) => {
-      const url = `${SITIO.url}/es/producto/${p.slug}`;
-      const foto = p.fotoClave
-        ? `${SITIO.url}/media/${p.fotoClave}`
-        : (p.foto ?? null);
-
-      /* Sin descripción propia se arma una honesta con lo que sí sabemos.
-         Google penaliza las fichas sin descripción. */
-      const descripcion = recortar(
-        p.descripcion ?? `${p.titulo}. Disponible en ${p.tienda}.`,
-        5000,
-      );
-
-      const hayStock = !p.controla || p.existencias > 0;
-
-      return [
-        "<item>",
-        `<g:id>${escapar(identificador(p.slug))}</g:id>`,
-        `<g:title>${escapar(recortar(p.titulo, 150))}</g:title>`,
-        `<g:description>${escapar(descripcion)}</g:description>`,
-        `<g:link>${escapar(url)}</g:link>`,
-        foto ? `<g:image_link>${escapar(foto)}</g:image_link>` : "",
-        `<g:availability>${hayStock ? "in_stock" : "out_of_stock"}</g:availability>`,
-        `<g:price>${precio(p.precioCentavos, p.moneda)}</g:price>`,
-        "<g:condition>new</g:condition>",
-        p.marca ? `<g:brand>${escapar(p.marca)}</g:brand>` : "",
-        /* El mpn del feed también es público (se ve en la ficha de Google
-           Shopping): va el código NUESTRO, no el del proveedor. */
-        p.sku
-          ? `<g:mpn>${escapar(codigoVisible(p.sku, "US") ?? p.sku)}</g:mpn>`
-          : "",
-        /* CASI NADA DEL CATÁLOGO TIENE CÓDIGO DE BARRAS. Un tubo de PVC
-           cortado en una ferretería no tiene GTIN. Sin esta línea, Google
-           rechaza cientos de productos por "faltan identificadores". */
-        "<g:identifier_exists>no</g:identifier_exists>",
-        `<g:product_type>${escapar(recortar(p.tienda, 100))}</g:product_type>`,
-        "</item>",
-      ]
-        .filter(Boolean)
-        .join("");
+async function tandaDesde(cursor: string): Promise<FilaFeed[]> {
+  const db = await getDbAsync();
+  const { productos, tiendas, imagenesProducto } = schema;
+  return db
+    .select({
+      id: productos.id,
+      slug: productos.slug,
+      titulo: productos.tituloEs,
+      descripcion: productos.descripcionEs,
+      precioCentavos: productos.precioCentavos,
+      moneda: productos.moneda,
+      existencias: productos.existencias,
+      controla: productos.controlaExistencias,
+      marca: productos.marca,
+      sku: productos.sku,
+      tienda: tiendas.nombre,
+      /* La primera foto. Si vino del sistema del comercio trae `url`; si se
+         subió a nuestro bucket, `clave` y se sirve por /media. */
+      foto: sql<
+        string | null
+      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+      fotoClave: sql<
+        string | null
+      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
     })
-    .join("\n");
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(
+      and(
+        eq(productos.estado, "publicado"),
+        eq(tiendas.estado, "activa"),
+        // Este archivo es el del Merchant Center de mercatren.com: solo su
+        // mercado. El de cada pais tendra el suyo (PLAN-PAISES.md).
+        eq(tiendas.mercado, MERCADO_PRINCIPAL.codigo),
+        /**
+         * Y SOLO LO QUE SE PUEDE ENTREGAR EN ESTADOS UNIDOS.
+         *
+         * `mercado` dice en que plaza se vende; `pais_origen` dice desde
+         * donde sale la mercancia. No son lo mismo, y confundirlos costaba
+         * caro: la ferreteria venezolana vende EN mercatren.com —mercado
+         * US— pero su mercancia se retira en Venezuela. Medido contra la
+         * base el 19 ago 2026, este archivo le mandaba a Google **622
+         * productos venezolanos** presentados como comprables y entregables
+         * en Estados Unidos. Ni uno lo era.
+         *
+         * Eso no es un detalle de catalogo: es el patron por el que
+         * Merchant Center suspende una cuenta, y una suspension se lleva por
+         * delante tambien lo que si estaba bien.
+         */
+        eq(tiendas.paisOrigen, "US"),
+        // Un producto sin precio no se le manda a Google: lo rechazaría, y
+        // con razón — no se puede comprar algo que no tiene precio.
+        gt(productos.precioCentavos, 0),
+        /* El cursor: la tanda siguiente empieza donde terminó la anterior. */
+        gt(productos.id, cursor),
+      ),
+    )
+    .orderBy(asc(productos.id))
+    .limit(POR_TANDA);
+}
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+function articulo(p: FilaFeed): string {
+  const url = `${SITIO.url}/es/producto/${p.slug}`;
+  const foto = p.fotoClave
+    ? `${SITIO.url}/media/${p.fotoClave}`
+    : (p.foto ?? null);
+
+  /* Sin descripción propia se arma una honesta con lo que sí sabemos.
+     Google penaliza las fichas sin descripción. */
+  const descripcion = recortar(
+    p.descripcion ?? `${p.titulo}. Disponible en ${p.tienda}.`,
+    5000,
+  );
+
+  const hayStock = !p.controla || p.existencias > 0;
+
+  return [
+    "<item>",
+    `<g:id>${escapar(identificador(p.slug))}</g:id>`,
+    `<g:title>${escapar(recortar(p.titulo, 150))}</g:title>`,
+    `<g:description>${escapar(descripcion)}</g:description>`,
+    `<g:link>${escapar(url)}</g:link>`,
+    foto ? `<g:image_link>${escapar(foto)}</g:image_link>` : "",
+    `<g:availability>${hayStock ? "in_stock" : "out_of_stock"}</g:availability>`,
+    `<g:price>${precio(p.precioCentavos, p.moneda)}</g:price>`,
+    "<g:condition>new</g:condition>",
+    p.marca ? `<g:brand>${escapar(p.marca)}</g:brand>` : "",
+    /* El mpn del feed también es público (se ve en la ficha de Google
+       Shopping): va el código NUESTRO, no el del proveedor. */
+    p.sku
+      ? `<g:mpn>${escapar(codigoVisible(p.sku, "US") ?? p.sku)}</g:mpn>`
+      : "",
+    /* CASI NADA DEL CATÁLOGO TIENE CÓDIGO DE BARRAS. Un tubo de PVC
+       cortado en una ferretería no tiene GTIN. Sin esta línea, Google
+       rechaza cientos de productos por "faltan identificadores". */
+    "<g:identifier_exists>no</g:identifier_exists>",
+    `<g:product_type>${escapar(recortar(p.tienda, 100))}</g:product_type>`,
+    "</item>",
+  ]
+    .filter(Boolean)
+    .join("");
+}
+
+export async function GET() {
+  const codificador = new TextEncoder();
+  const cabecera = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
 <channel>
 <title>${escapar(SITIO.nombre)}</title>
 <link>${escapar(SITIO.url)}</link>
 <description>Catálogo de ${escapar(SITIO.nombre)}</description>
-${articulos}
-</channel>
+`;
+  const pie = `</channel>
 </rss>`;
 
-  return new Response(xml, {
+  const flujo = new ReadableStream<Uint8Array>({
+    async start(control) {
+      control.enqueue(codificador.encode(cabecera));
+      let cursor = "";
+      try {
+        for (;;) {
+          const filas = await tandaDesde(cursor);
+          if (filas.length === 0) break;
+          control.enqueue(
+            codificador.encode(filas.map(articulo).join("\n") + "\n"),
+          );
+          if (filas.length < POR_TANDA) break;
+          cursor = filas[filas.length - 1]!.id;
+        }
+      } catch (e) {
+        console.error("[google] el catálogo se cortó a mitad:", e);
+        // Un archivo corto es mejor que un error: Google reintenta mañana en
+        // vez de marcar el archivo como roto.
+      }
+      control.enqueue(codificador.encode(pie));
+      control.close();
+    },
+  });
+
+  return new Response(flujo, {
     headers: {
       "content-type": "application/xml; charset=utf-8",
       // Google lo lee una vez al día; una hora de caché le ahorra trabajo a

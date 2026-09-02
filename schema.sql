@@ -460,6 +460,25 @@ CREATE TABLE IF NOT EXISTS `imagenes_producto` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_imagenes_producto` ON `imagenes_producto` (`producto_id`);
+CREATE TABLE IF NOT EXISTS `importaciones_cj` (
+	`id` text PRIMARY KEY NOT NULL,
+	`mercado` text NOT NULL,
+	`almacen` text NOT NULL,
+	`estado` text DEFAULT 'en_curso' NOT NULL,
+	`propietario_id` text NOT NULL,
+	`stock_minimo` integer DEFAULT 5 NOT NULL,
+	`solo_verificado` integer DEFAULT true NOT NULL,
+	`tope` integer DEFAULT 0 NOT NULL,
+	`agregados` integer DEFAULT 0 NOT NULL,
+	`actualizados` integer DEFAULT 0 NOT NULL,
+	`saltados` integer DEFAULT 0 NOT NULL,
+	`fallidos` integer DEFAULT 0 NOT NULL,
+	`ultimo_error` text,
+	`creado_en` integer NOT NULL,
+	`actualizado_en` integer NOT NULL,
+	`terminado_en` integer
+);
+
 CREATE TABLE IF NOT EXISTS `intentos_acceso` (
 	`llave` text PRIMARY KEY NOT NULL,
 	`intentos` integer DEFAULT 0 NOT NULL,
@@ -915,6 +934,26 @@ CREATE TABLE IF NOT EXISTS `socios_tienda` (
 	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
+CREATE TABLE IF NOT EXISTS `tandas_importacion_cj` (
+	`id` text PRIMARY KEY NOT NULL,
+	`importacion_id` text NOT NULL,
+	`categoria_id` text,
+	`categoria_nombre` text,
+	`desde_centavos` integer,
+	`hasta_centavos` integer,
+	`pagina` integer DEFAULT 0 NOT NULL,
+	`total_paginas` integer,
+	`total_registros` integer,
+	`estado` text DEFAULT 'pendiente' NOT NULL,
+	`agregados` integer DEFAULT 0 NOT NULL,
+	`actualizados` integer DEFAULT 0 NOT NULL,
+	`saltados` integer DEFAULT 0 NOT NULL,
+	`tomada_en` integer,
+	`ultimo_error` text,
+	FOREIGN KEY (`importacion_id`) REFERENCES `importaciones_cj`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_tandas_importacion` ON `tandas_importacion_cj` (`importacion_id`,`estado`);
 CREATE TABLE IF NOT EXISTS `tiendas` (
 	`id` text PRIMARY KEY NOT NULL,
 	`propietario_id` text,
@@ -1093,11 +1132,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1788128322, 1788128322)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1788383864, 1788383864)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1788128322)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1788383864)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──

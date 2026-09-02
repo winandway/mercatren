@@ -73,11 +73,14 @@ describe("partir la variante de CJ", () => {
 describe("el circuito de la talla, de punta a punta", () => {
   it("EL IMPORTADOR GUARDA LAS TALLAS al agregar y al reagregar", () => {
     const fuente = readFileSync("src/lib/cj/importar.ts", "utf-8");
-    expect(fuente).toContain("async function guardarTallas(");
+    /* Desde el 2 sep 2026 la función vive en `guardar.ts` (server-only,
+       compartida con la importación masiva) y el importador la llama. */
+    const guardar = readFileSync("src/lib/cj/guardar.ts", "utf-8");
+    expect(guardar).toContain("export async function guardarTallas(");
     /* Los dos caminos: producto nuevo y producto que ya estaba. */
     expect(fuente.match(/await guardarTallas\(/g)?.length).toBe(2);
     /* Nunca tumba el guardado del producto. */
-    expect(fuente).toContain("Las tallas nunca tumban el guardado");
+    expect(guardar).toContain("Las tallas nunca tumban el guardado");
   });
 
   it("LA COMPRA A CJ RESPETA LA TALLA QUE ELIGIÓ EL CLIENTE", () => {

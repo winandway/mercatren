@@ -44,6 +44,8 @@ const PAGINAS = [
  */
 const PARA_MAQUINAS = [
   "/sitemap.xml",
+  /* El mapa va partido desde el 2 sep 2026: el índice y su primer trozo. */
+  "/mapa/paginas.xml",
   "/robots.txt",
   // El catálogo que lee Google Merchant Center. Si esto deja de responder, los
   // productos se caen de Google y no se entera nadie.

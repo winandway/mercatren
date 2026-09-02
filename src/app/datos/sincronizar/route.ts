@@ -121,12 +121,55 @@ async function sincronizarTodas(peticion: Request) {
     console.error("[sincronizar] el stock de CJ no se pudo refrescar:", fallo);
   }
 
+  /* ══ LA IMPORTACIÓN MASIVA Y SU AFINADO (2 sep 2026) ══
+     Si hay un «traer el almacén completo» en marcha en alguna plaza, el reloj
+     lo empuja unos minutos; después afina —flete real, tallas y stock— los
+     productos que entraron con envío estimado; y al final traduce unas
+     tandas de títulos y descripciones. Los tres tienen su presupuesto de
+     tiempo: juntos caben de sobra en el `--max-time` del reloj (10 min) y
+     dejan margen a las fuentes de los comercios. Un fallo no detiene al
+     siguiente ni a lo de arriba. */
+  let importacionCj: unknown = null;
+  try {
+    const { avanzarImportacionesEnCurso } =
+      await import("@/lib/cj/masivo-servidor");
+    importacionCj = await avanzarImportacionesEnCurso(120_000);
+  } catch (fallo) {
+    console.error("[sincronizar] la importación masiva no avanzó:", fallo);
+  }
+
+  let afinadoCj: unknown = null;
+  try {
+    const { afinarImportados } = await import("@/lib/cj/afinar");
+    const { AFINADOS_POR_VUELTA } = await import("@/lib/cj/masivo");
+    afinadoCj = await afinarImportados({
+      limite: AFINADOS_POR_VUELTA,
+      presupuestoMs: 110_000,
+    });
+  } catch (fallo) {
+    console.error("[sincronizar] el afinado de CJ falló:", fallo);
+  }
+
+  let traduccion: unknown = null;
+  try {
+    const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
+    traduccion = await traducirDesdeElReloj({
+      tandasTitulos: 3,
+      tandasDescripciones: 2,
+    });
+  } catch (fallo) {
+    console.error("[sincronizar] la traducción del reloj falló:", fallo);
+  }
+
   return Response.json({
     ok: true,
     fuentes: resultados.length,
     conFallo: resultados.filter((r) => !r.ok).length,
     resultados,
     stockCj: cj,
+    importacionCj,
+    afinadoCj,
+    traduccion,
   });
 }
 

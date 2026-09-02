@@ -3348,3 +3348,110 @@ export const partesDelCobro = sqliteTable(
   },
   (t) => [index("idx_partes_del_cobro_grupo").on(t.grupo)],
 );
+
+/* -------------------------------------------------------------------------- */
+/* La importación masiva del catálogo de CJ (2 sep 2026)                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * UN TRABAJO DE «TRAER EL ALMACÉN COMPLETO» DE CJ, POR PLAZA.
+ *
+ * ══ POR QUÉ UNA TABLA Y NO UN CONTADOR EN MEMORIA ══
+ *
+ * Traer cien mil productos son horas de llamadas a CJ (una por segundo, es su
+ * límite). Ningún navegador ni petición vive tanto: el trabajo tiene que poder
+ * cortarse a mitad y retomarse desde donde iba, desde el panel O desde el
+ * reloj de `/datos/sincronizar`. Lo que decide por dónde va es el DATO, no un
+ * proceso que se pueda morir.
+ *
+ * ══ TABLA NUEVA, COMO MANDA LA REGLA ══
+ *
+ * `schema.sql` solo trae `CREATE TABLE IF NOT EXISTS`: una tabla llega sola a
+ * producción en la primera publicación; una columna nueva no.
+ */
+export const ESTADOS_IMPORTACION_CJ = [
+  "en_curso",
+  "pausada",
+  "terminada",
+] as const;
+
+export const importacionesCj = sqliteTable("importaciones_cj", {
+  id: text("id").primaryKey(),
+  /** La plaza: US, CL o CO. Una sola importación viva por plaza. */
+  mercado: text("mercado").notNull(),
+  /** El almacén de CJ del que se surte esa plaza (US o CN). */
+  almacen: text("almacen").notNull(),
+  estado: text("estado")
+    .$type<(typeof ESTADOS_IMPORTACION_CJ)[number]>()
+    .notNull()
+    .default("en_curso"),
+  /** Quién la arrancó: hace falta para crear las tiendas por rubro. */
+  propietarioId: text("propietario_id").notNull(),
+  /** Los filtros con los que se le preguntó a CJ. */
+  stockMinimo: integer("stock_minimo").notNull().default(5),
+  soloVerificado: integer("solo_verificado", { mode: "boolean" })
+    .notNull()
+    .default(true),
+  /** Hasta cuántos productos NUEVOS agregar. 0 = sin tope. */
+  tope: integer("tope").notNull().default(0),
+  agregados: integer("agregados").notNull().default(0),
+  actualizados: integer("actualizados").notNull().default(0),
+  saltados: integer("saltados").notNull().default(0),
+  fallidos: integer("fallidos").notNull().default(0),
+  /** Lo último que salió mal, entero, para que el panel lo enseñe. */
+  ultimoError: text("ultimo_error"),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" }).notNull(),
+  terminadoEn: integer("terminado_en", { mode: "timestamp" }),
+});
+
+/**
+ * CADA TANDA DE UNA IMPORTACIÓN: una categoría de CJ (y, si hizo falta
+ * partirla, una banda de precio dentro de ella).
+ *
+ * CJ no deja pasar de 6.000 resultados por consulta. Un almacén con más se
+ * recorre categoría por categoría, y una categoría que también pase de 6.000
+ * se parte en bandas de precio. Cada fila aquí es una consulta que se puede
+ * RECLAMAR (`estado` + `tomada_en`) por quien esté trabajando en ese momento
+ * —el panel o el reloj— sin que dos procesen la misma página dos veces.
+ */
+export const ESTADOS_TANDA_CJ = [
+  "pendiente",
+  "en_curso",
+  "hecha",
+  "partida",
+  "con_error",
+] as const;
+
+export const tandasImportacionCj = sqliteTable(
+  "tandas_importacion_cj",
+  {
+    id: text("id").primaryKey(),
+    importacionId: text("importacion_id")
+      .notNull()
+      .references(() => importacionesCj.id, { onDelete: "cascade" }),
+    /** La categoría de tercer nivel de CJ. NULL = todo el almacén de una vez. */
+    categoriaId: text("categoria_id"),
+    /** «Primer nivel > segundo > tercero», para el panel y el departamento. */
+    categoriaNombre: text("categoria_nombre"),
+    /** La banda de precio (centavos USD) cuando la categoría se partió. */
+    desdeCentavos: integer("desde_centavos"),
+    hastaCentavos: integer("hasta_centavos"),
+    /** La última página ya guardada; se sigue por la siguiente. */
+    pagina: integer("pagina").notNull().default(0),
+    totalPaginas: integer("total_paginas"),
+    totalRegistros: integer("total_registros"),
+    estado: text("estado")
+      .$type<(typeof ESTADOS_TANDA_CJ)[number]>()
+      .notNull()
+      .default("pendiente"),
+    agregados: integer("agregados").notNull().default(0),
+    actualizados: integer("actualizados").notNull().default(0),
+    saltados: integer("saltados").notNull().default(0),
+    /** Cuándo la tomó un trabajador. Una tomada hace más de 10 min se
+     *  considera abandonada y otro la puede reclamar. */
+    tomadaEn: integer("tomada_en", { mode: "timestamp" }),
+    ultimoError: text("ultimo_error"),
+  },
+  (t) => [index("idx_tandas_importacion").on(t.importacionId, t.estado)],
+);

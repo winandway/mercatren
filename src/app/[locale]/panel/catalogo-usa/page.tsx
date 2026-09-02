@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 
 import { BuscadorCj } from "@/components/panel/cj/buscador";
 import { RepartirCatalogo } from "@/components/panel/cj/repartir";
+import { ImportarMasivo } from "@/components/panel/cj/importar-masivo";
+import { estadoImportacionMasiva } from "@/lib/cj/masivo-acciones";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { buscarEnCj } from "@/lib/cj/catalogo";
@@ -68,6 +70,10 @@ export default async function PaginaCatalogoUsa({
   }
 
   const configurado = cjConfigurado();
+  /* La importación masiva es solo del rol soporte (publica miles de fichas
+     con precio): a quien no lo sea, `estadoImportacionMasiva` le devuelve
+     null y la tarjeta no se dibuja. */
+  const masivo = configurado ? await estadoImportacionMasiva() : null;
 
   return (
     <div className="space-y-6">
@@ -121,6 +127,8 @@ export default async function PaginaCatalogoUsa({
       </header>
 
       <RepartirCatalogo />
+
+      {masivo ? <ImportarMasivo inicial={masivo} almacen={almacen} /> : null}
 
       {configurado ? (
         <BuscadorCj buscar={buscar} idioma={locale} almacen={almacen} />

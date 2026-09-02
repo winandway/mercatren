@@ -4,6 +4,7 @@ import { and, asc, eq, inArray, sql } from "drizzle-orm";
 
 import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
+import { stockDeVariante } from "@/lib/cj/masivo";
 import { almacenDeEntrega } from "@/lib/cj/plazas";
 import { variantesDeCj } from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
@@ -33,10 +34,9 @@ type VarianteConStock = {
   stockNum?: number | string;
 };
 
-function stockDe(v: VarianteConStock): number {
-  const n = Number(v.variantStock ?? v.stockNum);
-  return Number.isFinite(n) && n > 0 ? n : 1;
-}
+/* La regla vive en `masivo.ts` (pura): el afinado de la importación masiva
+   cuenta el stock igual que aquí, y dos copias se separan al primer arreglo. */
+const stockDe = (v: VarianteConStock): number => stockDeVariante(v);
 
 async function variantesConStockEn(
   pid: string,

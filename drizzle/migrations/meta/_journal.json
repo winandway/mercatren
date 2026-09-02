@@ -288,6 +288,13 @@
       "when": 1788128322434,
       "tag": "0040_sturdy_bloodstorm",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1788383855987,
+      "tag": "0041_ambitious_wolfpack",
+      "breakpoints": true
     }
   ]
 }

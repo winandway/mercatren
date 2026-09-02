@@ -33,7 +33,8 @@ comando devuelve poco o nada, decirlo así — no concluir que no está indexado
 
 ```bash
 curl -s https://mercatren.com/datos/google | grep -c "<item>"      # productos
-curl -s https://mercatren.com/sitemap.xml | grep -c "<url>"        # direcciones
+curl -s https://mercatren.com/sitemap.xml | grep -c "<sitemap>"    # trozos del índice
+curl -s https://mercatren.com/mapa/productos-0.xml | grep -c "<url>" # fichas del primer trozo
 curl -s -o /dev/null -w "%{http_code}\n" https://mercatren.com/robots.txt
 ```
 
@@ -123,11 +124,22 @@ después de pedirle la nueva lectura del robots.txt.
 
 ## Qué hay montado, y por qué
 
-### El mapa del sitio (`src/app/sitemap.ts`)
+### El mapa del sitio (`src/app/sitemap.xml/route.ts` + `src/app/mapa/[parte]/route.ts`)
 
-Se arma solo con las páginas fijas + las tiendas activas + los productos
-publicados, cada uno con sus dos idiomas y `x-default`. **Página pública
-nueva = agregarla a la lista `FIJAS`**, o Google no la encuentra por aquí.
+**Desde el 2 sep 2026 `/sitemap.xml` es un ÍNDICE**, no una lista: apunta a
+`/mapa/paginas.xml` (lo fijo, el blog y la documentación, los videos y las
+tiendas con productos) y a `/mapa/productos-0.xml`, `productos-1.xml`… de
+40.000 fichas cada uno. Google no admite más de 50.000 direcciones ni 50 MB
+por archivo, y con el almacén completo de CJ dentro un solo archivo pasaba
+del tope y **se descartaba entero**. La dirección que tiene Search Console
+no cambia: un índice en `/sitemap.xml` es válido y Google entra solo a cada
+trozo.
+
+Cada dirección sigue llevando sus dos idiomas y `x-default`; el XML lo arma
+`src/lib/seo/mapa.ts` (puro, con pruebas). **Página pública nueva =
+agregarla a la lista `FIJAS` de ese archivo**, o Google no la encuentra por
+aquí. `src/app/sitemap.ts` no puede volver a existir: chocaría en la misma
+dirección (hay prueba).
 
 ### Las reglas para buscadores (`src/lib/seo/robots.ts`)
 
