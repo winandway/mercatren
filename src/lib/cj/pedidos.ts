@@ -15,6 +15,7 @@ import {
 } from "@/lib/cj/variantes";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
 import {
+  candidatosDeCodigoCj,
   elegirLogisticaConStock,
   esFalloDeInventario,
   esPedidoYaCreado,
@@ -1172,15 +1173,35 @@ async function adoptarPedidoExistente(
  * nombre del transporte nuevo, o el motivo de por qué no se pudo.
  */
 async function repararTransporteEnCj(
-  codigoCj: string,
+  detalle: DetalleCj,
+  numero: string,
 ): Promise<{ ok: true; transporte: string } | { ok: false; motivo: string }> {
-  const info = await llamarCj<
-    OpcionLogisticaCj[] | { list?: OpcionLogisticaCj[] }
-  >(
-    `/shopping/order/getOrderLogisticsInfo?orderCode=${encodeURIComponent(codigoCj)}`,
-  ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
-  if (!info.ok) {
-    return { ok: false, motivo: `CJ no dio sus transportes: ${info.motivo}` };
+  /* Se prueban todos los códigos posibles (SD…, shipment, el nuestro, el
+     numérico): en un pedido sin confirmar `cjOrderId` llega null. */
+  const candidatos = candidatosDeCodigoCj(detalle, numero);
+  let codigoCj: string | null = null;
+  let info:
+    | { ok: true; datos: OpcionLogisticaCj[] | { list?: OpcionLogisticaCj[] } }
+    | { ok: false; motivo: string } = { ok: false, motivo: "sin código" };
+  const intentos: string[] = [];
+  for (const candidato of candidatos) {
+    info = await llamarCj<OpcionLogisticaCj[] | { list?: OpcionLogisticaCj[] }>(
+      `/shopping/order/getOrderLogisticsInfo?orderCode=${encodeURIComponent(candidato)}`,
+    ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    if (info.ok) {
+      codigoCj = candidato;
+      break;
+    }
+    intentos.push(`${candidato} → ${info.motivo}`);
+  }
+  if (!info.ok || !codigoCj) {
+    /* Se deja escrito QUÉ devolvió CJ del pedido: es lo que permite arreglar
+       esto sin otro clic a ciegas. */
+    const visto = `orderId=${detalle.orderId ?? "∅"} · cjOrderId=${detalle.cjOrderId ?? "∅"} · shipment=${detalle.shipmentOrderId ?? "∅"} · estado=${detalle.orderStatus ?? "∅"} · almacén=${detalle.storageName ?? "∅"}`;
+    return {
+      ok: false,
+      motivo: `CJ no dio sus transportes con ningún código (${intentos.join(" | ")}). Detalle de CJ: ${visto}`,
+    };
   }
   const opciones = Array.isArray(info.datos)
     ? info.datos
@@ -1272,13 +1293,7 @@ export async function confirmarYPagarEnCj(
        cambio sigue negándose, el motivo va al panel y no se martilla. */
     let transporteNuevo: string | null = null;
     if (!confirmacion.ok && esFalloDeInventario(confirmacion.motivo)) {
-      const codigoCj = detalle.cjOrderId ?? detalle.orderId ?? null;
-      const reparacion = codigoCj
-        ? await repararTransporteEnCj(codigoCj)
-        : ({
-            ok: false,
-            motivo: "CJ no devolvió su código de pedido.",
-          } as const);
+      const reparacion = await repararTransporteEnCj(detalle, numero);
       if (reparacion.ok) {
         transporteNuevo = reparacion.transporte;
         confirmacion = await llamarCj<unknown>("/shopping/order/confirmOrder", {

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  candidatosDeCodigoCj,
   elegirLogisticaConStock,
   esFalloDeInventario,
 } from "@/lib/cj/reconciliar";
@@ -71,5 +72,35 @@ describe("los candados en el código", () => {
     const marca = fuente.indexOf("Descartada por ${usuario?.name");
     expect(borra).toBeGreaterThan(0);
     expect(marca).toBeGreaterThan(borra);
+  });
+});
+
+describe("el código con el que se le piden los transportes a CJ", () => {
+  it("prueba TODOS los identificadores, del SD… al numérico, sin repetir", () => {
+    /* En un pedido sin confirmar `cjOrderId` llega null (ejemplo de la doc)
+       y con el numérico CJ contesta «The CJ order does not exist». */
+    expect(
+      candidatosDeCodigoCj(
+        {
+          cjOrderId: null,
+          shipmentOrderId: "",
+          orderNum: "MT-000011",
+          orderId: "210823100016290555",
+        },
+        "MT-000011",
+      ),
+    ).toEqual(["MT-000011", "210823100016290555"]);
+    expect(
+      candidatosDeCodigoCj(
+        { cjOrderId: "SD26083100222", orderId: "1" },
+        "MT-1",
+      )[0],
+    ).toBe("SD26083100222");
+  });
+
+  it("y si ninguno sirve, deja escrito lo que CJ devolvió del pedido", () => {
+    const fuente = readFileSync("src/lib/cj/pedidos.ts", "utf-8");
+    expect(fuente).toContain("candidatosDeCodigoCj(detalle, numero)");
+    expect(fuente).toContain("Detalle de CJ: ${visto}");
   });
 });

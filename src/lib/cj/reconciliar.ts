@@ -130,3 +130,33 @@ export function elegirLogisticaConStock(
     return pa - pb;
   })[0]!;
 }
+
+/**
+ * CON QUÉ CÓDIGO PEDIRLE A CJ LOS TRANSPORTES DE UN PEDIDO (2 sep 2026).
+ *
+ * `getOrderLogisticsInfo` quiere el código SD…/DP… — pero en un pedido sin
+ * confirmar `getOrderDetail` devuelve `cjOrderId: null` (su propio ejemplo
+ * lo enseña), y con el id numérico contesta «The CJ order does not exist».
+ * Así que se prueban TODOS los identificadores que haya, del más probable
+ * al menos, y se anota cuál sirvió. Adivinar uno ya costó un clic.
+ */
+export function candidatosDeCodigoCj(
+  detalle: {
+    cjOrderId?: string | null;
+    shipmentOrderId?: string | null;
+    orderNum?: string | null;
+    orderId?: string | null;
+  },
+  numeroNuestro: string,
+): string[] {
+  const lista = [
+    detalle.cjOrderId,
+    detalle.shipmentOrderId,
+    numeroNuestro,
+    detalle.orderNum,
+    detalle.orderId,
+  ]
+    .map((v) => (v ?? "").toString().trim())
+    .filter((v) => v.length > 0);
+  return Array.from(new Set(lista));
+}
