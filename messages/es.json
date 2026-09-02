@@ -2308,7 +2308,8 @@
       "traduciendo": "Recalculando…",
       "avance": "{hechas} de {total} recalculados",
       "recotizarTodos": "Volver a cotizar los envíos de TODOS los productos",
-      "recotizarTexto": "Si CJ cambió sus tarifas o un transporte dejó de tener capacidad, aquí se vuelve a pedir el flete real de cada producto y se rearma su precio con el transporte que de verdad sale. Tarda unos minutos y se puede repetir cuando haga falta."
+      "recotizarTexto": "Si CJ cambió sus tarifas o un transporte dejó de tener capacidad, aquí se vuelve a pedir el flete real de cada producto y se rearma su precio con el transporte que de verdad sale. Tarda unos minutos y se puede repetir cuando haga falta.",
+      "noAvanza": "El recálculo dejó de avanzar: {restantes} productos no salen de la cola. Se detuvo para no girar en vano; avísale al equipo con esta pantalla."
     },
     "descripciones": {
       "titulo": "Descripciones de los productos",

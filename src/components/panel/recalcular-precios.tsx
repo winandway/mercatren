@@ -25,9 +25,10 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
   const [hechas, setHechas] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const total = pendientes || 1;
-  const avance = Math.max(0, pendientes - faltan);
-  const porcentaje = Math.min(100, Math.round((avance / total) * 100));
+  /* El total es lo hecho más lo que falta: con «volver a cotizar TODOS» la
+     cuenta inicial es cero y la pantalla decía «712 de 0». */
+  const total = Math.max(pendientes, hechas + faltan, 1);
+  const porcentaje = Math.min(100, Math.round((hechas / total) * 100));
 
   async function arrancar(todos = false) {
     setCorriendo(true);
@@ -38,6 +39,12 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
     if (todos) setFaltan(1);
 
     let seguir = true;
+    /* ══ EL VIGÍA DEL BUCLE (2 sep 2026) ══
+       «712 de 0 recalculados» en Colombia: cada tanda decía que hizo ocho y
+       los pendientes no bajaban nunca. Si tres tandas seguidas no reducen lo
+       que falta, se para y se dice, en vez de girar toda la noche. */
+    let menorRestante = Number.POSITIVE_INFINITY;
+    let sinAvance = 0;
     while (seguir) {
       const r = await recalcularPreciosUs(antesDe ? { antesDe } : undefined);
 
@@ -48,6 +55,17 @@ export function RecalcularPrecios({ pendientes }: { pendientes: number }) {
 
       setHechas((n) => n + r.recalculados);
       setFaltan(r.restantes);
+
+      if (r.restantes < menorRestante) {
+        menorRestante = r.restantes;
+        sinAvance = 0;
+      } else {
+        sinAvance += 1;
+      }
+      if (sinAvance >= 3) {
+        setError(t("noAvanza", { restantes: r.restantes }));
+        break;
+      }
 
       /* Se para cuando no queda nada Y TAMBIÉN cuando la tanda no avanzó: si
          el modelo devolviera basura para todos, `restantes` no bajaría nunca y

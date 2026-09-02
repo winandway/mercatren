@@ -2308,7 +2308,8 @@
       "traduciendo": "Recalculating…",
       "avance": "{hechas} of {total} recalculated",
       "recotizarTodos": "Re-quote shipping for ALL products",
-      "recotizarTexto": "If CJ changed its rates or a carrier lost capacity, this re-fetches the real freight for every product and rebuilds its price with the carrier that will actually ship. Takes a few minutes and can be repeated whenever needed."
+      "recotizarTexto": "If CJ changed its rates or a carrier lost capacity, this re-fetches the real freight for every product and rebuilds its price with the carrier that will actually ship. Takes a few minutes and can be repeated whenever needed.",
+      "noAvanza": "Recalculation stopped making progress: {restantes} products never leave the queue. It stopped instead of spinning forever; report this screen to the team."
     },
     "descripciones": {
       "titulo": "Product descriptions",

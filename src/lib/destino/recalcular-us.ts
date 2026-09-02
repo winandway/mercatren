@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, isNull, like, or, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, like, or, sql } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 import { fleteDeProducto } from "@/lib/cj/flete";
@@ -117,7 +117,17 @@ export async function recalcularPreciosUs(
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(and(eq(tiendas.paisOrigen, plaza.paisEntrega), toca));
+    .where(and(eq(tiendas.paisOrigen, plaza.paisEntrega), toca))
+    /* ══ LOS QUE NO SALEN DE LA COLA VAN AL FINAL (2 sep 2026) ══
+       Sin orden, la base devolvía siempre los mismos ocho primero; si esos
+       ocho no lograban salir de la cola, la tanda siguiente los volvía a
+       tomar y el recálculo giraba para siempre («712 de 0» en Colombia).
+       Primero lo que nunca se cotizó, después lo más viejo. */
+    .orderBy(
+      sql`${enviosProducto.cotizadoEn} is not null`,
+      asc(enviosProducto.cotizadoEn),
+      asc(productos.creadoEn),
+    );
 
   if (pendientes.length === 0) {
     return { ok: true, recalculados: 0, restantes: 0 };
@@ -127,33 +137,40 @@ export async function recalcularPreciosUs(
   const ahora = new Date();
 
   for (const p of pendientes.slice(0, POR_TANDA)) {
-    if (!p.externoId || !p.costoCentavos || p.costoCentavos <= 0) {
-      /* Sin id de origen no se puede cotizar, y sin costo no hay precio que
-         recalcular. Se deja constancia con el estimado para que no vuelva a
-         entrar en esta cola cada vez — si no, la barra nunca llegaría al
-         final y quien la mira creería que algo se colgó. */
-      await marcarEstimado(p.id, ahora, plaza);
-      hechos += 1;
-      continue;
-    }
-
     try {
+      if (!p.externoId || !p.costoCentavos || p.costoCentavos <= 0) {
+        /* Sin id de origen no se puede cotizar, y sin costo no hay precio que
+           recalcular. Se deja constancia con el estimado para que no vuelva a
+           entrar en esta cola cada vez — si no, la barra nunca llegaría al
+           final y quien la mira creería que algo se colgó. */
+        await marcarEstimado(p.id, ahora, plaza);
+        hechos += 1;
+        continue;
+      }
+
       const envio = await fleteDeProducto(p.externoId, plaza);
 
-      /* La fila vieja (la del regional) se va: una sola cotización por
-         producto, la de hoy. */
+      /* Una sola cotización por producto, la de hoy: se PISA la fila que
+         hubiera (regional, estimada o vieja). Borrar y volver a insertar
+         dejaba una ventana en la que el segundo paso fallaba en silencio. */
       await db
-        .delete(enviosProducto)
-        .where(eq(enviosProducto.productoId, p.id))
-        .catch(() => undefined);
-
-      await db.insert(enviosProducto).values({
-        productoId: p.id,
-        costoCentavos: envio.costoCentavos,
-        origen: envio.origen,
-        transporte: envio.transporte,
-        cotizadoEn: ahora,
-      });
+        .insert(enviosProducto)
+        .values({
+          productoId: p.id,
+          costoCentavos: envio.costoCentavos,
+          origen: envio.origen,
+          transporte: envio.transporte,
+          cotizadoEn: ahora,
+        })
+        .onConflictDoUpdate({
+          target: enviosProducto.productoId,
+          set: {
+            costoCentavos: envio.costoCentavos,
+            origen: envio.origen,
+            transporte: envio.transporte,
+            cotizadoEn: ahora,
+          },
+        });
 
       const precio = precioPublicadoDe(
         plaza,
@@ -196,18 +213,37 @@ export async function recalcularPreciosUs(
   };
 }
 
+/**
+ * ══ ESTO ERA EL BUCLE INFINITO DE COLOMBIA (2 sep 2026) ══
+ *
+ * Ocho productos sin costo base tenían YA una fila de envío. El `insert` a
+ * secas chocaba con la llave, el `catch` se lo tragaba, el producto se
+ * contaba como hecho y seguía en la cola — y la base lo devolvía otra vez de
+ * primero. «712 de 0 recalculados» con 624 pendientes que nunca bajaban.
+ *
+ * Ahora se PISA la fila (upsert): la fecha avanza y el producto sale de la
+ * cola de «volver a cotizar todo». Y el fallo, si lo hay, se relanza: un
+ * producto que no se puede marcar no se cuenta como hecho.
+ */
 async function marcarEstimado(productoId: string, ahora: Date, plaza: Plaza) {
-  try {
-    await getDb().insert(enviosProducto).values({
+  await getDb()
+    .insert(enviosProducto)
+    .values({
       productoId,
       costoCentavos: plaza.envioEstimadoUsdCentavos,
       origen: "estimado",
       transporte: null,
       cotizadoEn: ahora,
+    })
+    .onConflictDoUpdate({
+      target: enviosProducto.productoId,
+      set: {
+        costoCentavos: plaza.envioEstimadoUsdCentavos,
+        origen: "estimado",
+        transporte: null,
+        cotizadoEn: ahora,
+      },
     });
-  } catch (fallo) {
-    console.error("[precio-us] no se pudo marcar", productoId, fallo);
-  }
 }
 
 /** Cuántos siguen con el precio armado sin envío. Para pintar la pantalla. */
