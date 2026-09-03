@@ -54,7 +54,10 @@ describe("qué producto falta traducir", () => {
 describe("lo que devuelve el modelo se comprueba antes de guardarlo", () => {
   it("una traducción normal sirve", () => {
     expect(
-      traduccionUtil("26 Inch Mountain Bike", "Bicicleta de montaña 26 pulgadas"),
+      traduccionUtil(
+        "26 Inch Mountain Bike",
+        "Bicicleta de montaña 26 pulgadas",
+      ),
     ).toBe(true);
   });
 

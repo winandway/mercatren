@@ -50,7 +50,9 @@ describe("el modo callado no nombra a NADIE más que a Mercatren", () => {
   it("PERO la referencia se sigue viendo, y es imprescindible", () => {
     /* Sin nombre y sin referencia queda una pantalla que pide dinero sin decir
        por qué. Eso es exactamente como se ve una estafa. */
-    expect(queSeEnsena("solo_mercatren", COMERCIO).mostrarReferencia).toBe(true);
+    expect(queSeEnsena("solo_mercatren", COMERCIO).mostrarReferencia).toBe(
+      true,
+    );
     expect(queSeEnsena("comercio", COMERCIO).mostrarReferencia).toBe(true);
   });
 });

@@ -99,7 +99,9 @@ describe("el precio con envío dentro", () => {
 
   it("con el envío dentro, el comprador paga más y el margen se respeta", () => {
     const d = desglosarUs(COSTO, ENVIO_REAL);
-    expect(d.publicadoCentavos).toBeGreaterThan(desglosarUs(COSTO, 0).publicadoCentavos);
+    expect(d.publicadoCentavos).toBeGreaterThan(
+      desglosarUs(COSTO, 0).publicadoCentavos,
+    );
     expect(d.costoEnvioCentavos).toBe(ENVIO_REAL);
   });
 });

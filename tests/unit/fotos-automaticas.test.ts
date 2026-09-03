@@ -103,12 +103,14 @@ describe("cuándo una foto se da por perdida", () => {
 });
 
 describe("candados en el código", () => {
-  it("el reloj trae fotos en cada latido, después de la traducción", () => {
+  it("el reloj trae fotos ANTES del stock y la traducción: con el afinado delante no llegaban a correr", () => {
     const tick = leer("src/lib/reloj/tick.ts");
     expect(tick).toContain("traerFotosDesdeElReloj({");
-    expect(tick.indexOf("traerFotosDesdeElReloj(")).toBeGreaterThan(
-      tick.indexOf("traducirDesdeElReloj("),
+    expect(tick.indexOf("traerFotosDesdeElReloj(")).toBeLessThan(
+      tick.indexOf("refrescarExistenciasCj("),
     );
+    /* Y el afinado no se lleva el latido entero. */
+    expect(tick).toContain("Math.floor(queda() * 0.45)");
   });
 
   it("la tarjeta, la galería y el buscador NO enseñan una foto dada por perdida", () => {

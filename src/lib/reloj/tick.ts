@@ -169,7 +169,9 @@ export async function correrTick(
       const { afinarImportados } = await import("@/lib/cj/afinar");
       const r = await afinarImportados({
         limite: 6,
-        presupuestoMs: Math.floor(queda() * 0.7),
+        /* Medido el 3 sep 2026: con 0,7 el afinado se comía el latido entero
+           y el paso de las fotos no llegaba a correr nunca. */
+        presupuestoMs: Math.floor(queda() * 0.45),
       });
       if (r.afinados + r.fallidos + r.agotados > 0) {
         hizo.push(
@@ -198,34 +200,7 @@ export async function correrTick(
     await anotar("reloj/barrido", fallo);
   }
 
-  /* 4. El stock de CJ, un par por latido. */
-  try {
-    if (queda() > 4_000) {
-      const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
-      const r = await refrescarExistenciasCj(2);
-      if (r.mirados > 0) hizo.push(`stock: ${r.mirados} mirados`);
-    }
-  } catch (fallo) {
-    console.error("[tick] el stock falló:", fallo);
-    await anotar("reloj/stock", fallo);
-  }
-
-  /* 5. Una tanda de títulos al español. */
-  try {
-    if (queda() > 5_000) {
-      const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
-      const r = await traducirDesdeElReloj({
-        tandasTitulos: 1,
-        tandasDescripciones: 0,
-      });
-      if (r.titulos > 0) hizo.push(`traducción: ${r.titulos} títulos`);
-    }
-  } catch (fallo) {
-    console.error("[tick] la traducción falló:", fallo);
-    await anotar("reloj/traduccion", fallo);
-  }
-
-  /* 6. Las fotos que viven en el servidor de un comercio, a nuestro bucket:
+  /* 4. Las fotos que viven en el servidor de un comercio, a nuestro bucket:
      un par por latido, con tope por hora (ver `fotos-reglas.ts`). */
   try {
     if (queda() > 5_000) {
@@ -243,6 +218,33 @@ export async function correrTick(
   } catch (fallo) {
     console.error("[tick] las fotos fallaron:", fallo);
     await anotar("reloj/fotos", fallo);
+  }
+
+  /* 5. El stock de CJ, un par por latido. */
+  try {
+    if (queda() > 4_000) {
+      const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
+      const r = await refrescarExistenciasCj(2);
+      if (r.mirados > 0) hizo.push(`stock: ${r.mirados} mirados`);
+    }
+  } catch (fallo) {
+    console.error("[tick] el stock falló:", fallo);
+    await anotar("reloj/stock", fallo);
+  }
+
+  /* 6. Una tanda de títulos al español. */
+  try {
+    if (queda() > 5_000) {
+      const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
+      const r = await traducirDesdeElReloj({
+        tandasTitulos: 1,
+        tandasDescripciones: 0,
+      });
+      if (r.titulos > 0) hizo.push(`traducción: ${r.titulos} títulos`);
+    }
+  } catch (fallo) {
+    console.error("[tick] la traducción falló:", fallo);
+    await anotar("reloj/traduccion", fallo);
   }
 
   const r = { hizo, duracionMs: Date.now() - arranque };

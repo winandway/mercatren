@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { esTiendaDeLaCasa, llevaOrdenDeCompra } from "@/lib/facturas/de-la-casa";
+import {
+  esTiendaDeLaCasa,
+  llevaOrdenDeCompra,
+} from "@/lib/facturas/de-la-casa";
 
 /**
  * MT-OC-000003 salió a nombre de «Sole & Thread» con el estado «Falta tu
@@ -61,7 +64,9 @@ describe("el candado en el emisor", () => {
   it("emitir salta las tiendas de la casa", async () => {
     const { readFileSync } = await import("node:fs");
     const fuente = readFileSync("src/lib/facturas/emitir.ts", "utf8");
-    const bloque = fuente.slice(fuente.indexOf("async function emitirOrdenesDeCompra"));
+    const bloque = fuente.slice(
+      fuente.indexOf("async function emitirOrdenesDeCompra"),
+    );
     expect(
       bloque.slice(0, 1600),
       "el emisor volvió a crear órdenes de compra a nombre de tiendas nuestras",

@@ -130,9 +130,9 @@ describe("EL CANDADO: a quién se le puede pagar", () => {
   });
 
   it("al día, sí", () => {
-    expect(puedeCobrar({ estado: "al_dia", vence: new Date("2029-12-31") })).toBe(
-      true,
-    );
+    expect(
+      puedeCobrar({ estado: "al_dia", vence: new Date("2029-12-31") }),
+    ).toBe(true);
   });
 
   it("POR VENCER SÍ COBRA, y es deliberado", () => {
