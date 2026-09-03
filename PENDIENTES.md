@@ -400,6 +400,11 @@ caído.
 Al empezar algo nuevo que no esté aquí, se agrega antes de escribir la primera
 línea de código.
 
+- ✅ 💻 **Las fotos de los comercios se copian solas a nuestro bucket** (3 sep
+  2026): 10 por hora desde el reloj; las que el origen ya no tiene se dan por
+  perdidas, se esconden y el vigilante las nombra. Lo que queda es de los
+  comercios: reponer en su sistema las fotos que el vigilante liste como
+  perdidas.
 - 🔴 👤 **Richard: devolverle el dinero a la clienta de la camiseta (MT-000011 y
   MT-000013).** Pagó dos veces la misma camiseta y no se puede enviar: no tiene
   ninguna talla en el almacén de EE. UU. (el motivo ya lo dice el vigilante y

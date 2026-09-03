@@ -16,9 +16,5 @@
 
 /** El mismo texto, sin acentos, en minúsculas y sin espacios sobrantes. */
 export function normalizarTexto(texto: string) {
-  return texto
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
+  return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 }

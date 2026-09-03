@@ -238,13 +238,22 @@ export type ProductoLista = {
  *  - La ficha del producto no pasa por aquí: ahí se ven todas las fotos, en
  *    su orden. Esto es solo la tarjeta del listado.
  */
+/**
+ * UNA FOTO QUE EL ORIGEN YA NO TIENE NO SE ENSEÑA (3 sep 2026). `fotos_rotas`
+ * guarda las que el reloj intentó traer y se dieron por perdidas (404 del
+ * origen, o muchos intentos seguidos). Se compara también la dirección: si
+ * la sincronización trae una nueva, la foto vuelve sola. Va en la tarjeta,
+ * en la galería y en el buscador — las tres puertas por donde sale una foto.
+ */
+const SIN_FOTOS_ROTAS = sql`NOT EXISTS (SELECT 1 FROM fotos_rotas fr WHERE fr.imagen_id = imagenes_producto.id AND fr.definitiva = 1 AND fr.url = imagenes_producto.url)`;
+
 function fotoDeTurno(semilla: number) {
   const desplazamiento = sql.raw(String(Math.trunc(Math.abs(semilla)) || 0));
   const turno = sql`((ROW_NUMBER() OVER (ORDER BY ${imagenesProducto.orden}, imagenes_producto.rowid) + ${desplazamiento}) % COUNT(*) OVER ())`;
   const elegir = (columna: SQL) =>
     sql<
       string | null
-    >`(SELECT ${columna} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${turno} LIMIT 1)`;
+    >`(SELECT ${columna} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} AND ${SIN_FOTOS_ROTAS} ORDER BY ${turno} LIMIT 1)`;
   return {
     url: elegir(sql`${imagenesProducto.url}`),
     clave: elegir(sql`${imagenesProducto.clave}`),
@@ -468,7 +477,9 @@ export async function obtenerProductoPorSlug(mercado: Mercado, slug: string) {
   const fotos = await db
     .select()
     .from(imagenesProducto)
-    .where(eq(imagenesProducto.productoId, fila.producto.id))
+    .where(
+      and(eq(imagenesProducto.productoId, fila.producto.id), SIN_FOTOS_ROTAS),
+    )
     .orderBy(asc(imagenesProducto.orden));
 
   return {

@@ -4,6 +4,7 @@ import { ImageOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { BanderaDestino } from "@/components/catalogo/bandera-destino";
+import { FotoConRespaldo } from "@/components/catalogo/foto-con-respaldo";
 import { BotonAgregarRapido } from "@/components/catalogo/boton-agregar-rapido";
 import { PrecioTienda } from "@/components/catalogo/precio-tienda";
 import { Link } from "@/i18n/navigation";
@@ -66,11 +67,10 @@ export function TarjetaProducto({
     >
       <div className="relative aspect-square overflow-hidden rounded-lg">
         {producto.imagenUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
+          <FotoConRespaldo
             src={producto.imagenUrl}
             alt={producto.imagenAlt ?? titulo}
-            loading="lazy"
+            textoSinFoto={t("sinFoto")}
             className={cn(
               "h-full w-full object-contain transition-transform duration-300 group-hover:scale-105",
               agotado && "opacity-40",

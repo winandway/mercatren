@@ -1053,7 +1053,9 @@
       "parar": "Stop",
       "copiadas": "{n} copied",
       "fallidas": "{n} couldn't be fetched",
-      "todasNuestras": "Every catalog photo is already on Mercatren."
+      "todasNuestras": "Every catalog photo is already on Mercatren.",
+      "automatico": "They are copied automatically by the scheduler, up to {porHora} per hour, with no one pressing anything. This button only speeds it up.",
+      "rotas": "{n} no longer exist on the origin server and are no longer shown: the merchant needs to upload them again."
     },
     "avisoPagos": {
       "titulo": "Tell me when a payment arrives",

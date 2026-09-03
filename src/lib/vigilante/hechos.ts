@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { FotosVista } from "@/lib/vigilante/reglas";
+
 import {
   and,
   count,
@@ -275,6 +277,39 @@ export async function recogerHechos(): Promise<Hechos> {
   /* Los detalles: número y motivo de cada compra con problema, y los
      pedidos pagados sin compra. Van aparte para que un fallo aquí no deje
      sin conteo a lo de arriba. */
+  const fotos = await seguro<FotosVista>(
+    {
+      porTraer: 0,
+      rotas: 0,
+      sondaProbadas: 0,
+      sondaFallidas: 0,
+      sondaEjemplo: null,
+      detalleRotas: [],
+    },
+    async () => {
+      const {
+        contarFotosPorTraer,
+        contarFotosRotas,
+        detalleFotosRotas,
+        sondearFotosDeOrigen,
+      } = await import("@/lib/catalogo/fotos-automaticas");
+      const [porTraer, rotas, detalleRotas, sonda] = await Promise.all([
+        contarFotosPorTraer(),
+        contarFotosRotas(),
+        detalleFotosRotas(8),
+        sondearFotosDeOrigen(5),
+      ]);
+      return {
+        porTraer,
+        rotas,
+        sondaProbadas: sonda.probadas,
+        sondaFallidas: sonda.fallidas,
+        sondaEjemplo: sonda.ejemplo,
+        detalleRotas,
+      };
+    },
+  );
+
   const detalleCompras = await seguro<CompraVista[]>([], async () => {
     const filas = await db
       .select({
@@ -353,6 +388,7 @@ export async function recogerHechos(): Promise<Hechos> {
 
   return {
     ahoraMs,
+    fotos,
     latidoSincronizarMs,
     proveedor,
     avisoStripe,

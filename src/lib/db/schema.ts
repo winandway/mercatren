@@ -3503,3 +3503,27 @@ export const avisosVigilante = sqliteTable("avisos_vigilante", {
   titulo: text("titulo").notNull(),
   avisadoEn: integer("avisado_en", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * LAS FOTOS QUE NO SE PUDIERON TRAER DEL SERVIDOR DE ORIGEN (3 sep 2026).
+ *
+ * Una por imagen: cuántas veces se intentó, el motivo del último intento y
+ * si ya se dio por perdida (`definitiva`). Mientras no sea definitiva se
+ * vuelve a intentar —el servidor del comercio falla a ratos—; cuando lo es,
+ * el catálogo deja de enseñar esa foto y el vigilante la nombra. Si la
+ * sincronización trae una dirección nueva, la fila deja de coincidir y se
+ * limpia sola. Tabla y no columna: `schema.sql` solo crea tablas.
+ */
+export const fotosRotas = sqliteTable("fotos_rotas", {
+  imagenId: text("imagen_id").primaryKey(),
+  productoId: text("producto_id").notNull(),
+  url: text("url").notNull(),
+  motivo: text("motivo").notNull(),
+  intentos: integer("intentos").notNull().default(1),
+  definitiva: integer("definitiva", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  ultimoIntentoEn: integer("ultimo_intento_en", {
+    mode: "timestamp",
+  }).notNull(),
+});

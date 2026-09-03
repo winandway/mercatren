@@ -2,13 +2,13 @@
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq, isNotNull, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno } from "@/lib/autorizacion";
+import { copiarFotoAlBucket } from "@/lib/catalogo/copiar-foto";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
-import { imagenesProducto } from "@/lib/db/schema";
+import { fotosRotas, imagenesProducto } from "@/lib/db/schema";
 
 /**
  * Trae a nuestro almacenamiento las fotos que viven en el servidor del
@@ -38,15 +38,6 @@ export type ResultadoTanda = {
   faltan: number;
   mensaje?: string;
 };
-
-/** La extension segun lo que diga el servidor de origen. */
-function extensionDe(tipo: string | null) {
-  if (tipo?.includes("png")) return "png";
-  if (tipo?.includes("webp")) return "webp";
-  if (tipo?.includes("avif")) return "avif";
-  if (tipo?.includes("gif")) return "gif";
-  return "jpg";
-}
 
 /** Cuantas fotos siguen dependiendo del servidor de origen. */
 export async function contarFotosPendientes() {
@@ -102,27 +93,20 @@ export async function traerTandaDeFotos(): Promise<ResultadoTanda> {
   for (const foto of pendientes) {
     if (!foto.url) continue;
 
-    try {
-      const respuesta = await fetch(foto.url);
-      if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
-
-      const tipo = respuesta.headers.get("content-type");
-      const clave = `productos/${foto.productoId}/${nanoid()}.${extensionDe(tipo)}`;
-
-      await env.BUCKET.put(clave, await respuesta.arrayBuffer(), {
-        httpMetadata: { contentType: tipo ?? "image/jpeg" },
-      });
-
-      // La direccion vieja se borra en el mismo paso: mientras `url` siga
-      // puesta, la foto se sigue sirviendo desde el servidor de origen.
-      await db
-        .update(imagenesProducto)
-        .set({ clave, url: null })
-        .where(eq(imagenesProducto.id, foto.id));
-
+    /* El mismo copiador que usa el reloj (`copiar-foto.ts`): una sola pieza. */
+    const r = await copiarFotoAlBucket(env.BUCKET, {
+      id: foto.id,
+      productoId: foto.productoId,
+      url: foto.url,
+    });
+    if (r.ok) {
+      await db.delete(fotosRotas).where(eq(fotosRotas.imagenId, foto.id));
       copiadas++;
-    } catch (e) {
-      console.error(`[fotos] no se pudo traer ${foto.url}:`, e);
+    } else {
+      console.error(
+        `[fotos] no se pudo traer ${foto.url}:`,
+        r.status ?? r.error,
+      );
       fallidas++;
     }
   }

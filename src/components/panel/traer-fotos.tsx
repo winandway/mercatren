@@ -17,7 +17,17 @@ import { cn } from "@/lib/utils";
  * Se puede parar a mitad y retomar despues: cada tanda deja su trabajo hecho
  * en la base, no hay nada a medias.
  */
-export function TraerFotos({ pendientes }: { pendientes: number }) {
+export function TraerFotos({
+  pendientes,
+  porHora,
+  rotas,
+}: {
+  pendientes: number;
+  /** Cuántas trae el reloj por hora, para decirlo. */
+  porHora: number;
+  /** Las que el origen ya no tiene: se nombran, no se esconden. */
+  rotas: number;
+}) {
   const t = useTranslations("panel.fotos");
 
   const [faltan, setFaltan] = useState(pendientes);
@@ -58,17 +68,32 @@ export function TraerFotos({ pendientes }: { pendientes: number }) {
     setCorriendo(false);
   }
 
+  const avisoRotas =
+    rotas > 0 ? (
+      <p className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+        {t("rotas", { n: rotas })}
+      </p>
+    ) : null;
+
   if (pendientes === 0) {
     return (
-      <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
-        {t("todasNuestras")}
-      </p>
+      <div>
+        <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-900">
+          {t("todasNuestras")}
+        </p>
+        {avisoRotas}
+      </div>
     );
   }
 
   return (
     <div>
       <p className="text-sm text-tinta-suave">{t("texto")}</p>
+      <p className="mt-1 text-sm text-tinta-suave">
+        {t("automatico", { porHora })}
+      </p>
+      {avisoRotas}
 
       <div className="mt-3 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">

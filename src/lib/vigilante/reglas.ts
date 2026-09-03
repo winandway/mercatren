@@ -52,8 +52,23 @@ export type CompraVista = {
   haceMinutos: number;
 };
 
+/** Las fotos que viven en servidores ajenos y cómo les va (3 sep 2026). */
+export type FotosVista = {
+  /** Cuántas siguen dependiendo del servidor de un comercio. */
+  porTraer: number;
+  /** Cuántas se dieron por perdidas: el origen ya no las tiene. */
+  rotas: number;
+  /** La sonda: unas pocas direcciones de origen probadas ahora mismo. */
+  sondaProbadas: number;
+  sondaFallidas: number;
+  sondaEjemplo: string | null;
+  /** Las primeras rotas, con su producto, para el correo. */
+  detalleRotas: { producto: string; motivo: string }[];
+};
+
 export type Hechos = {
   ahoraMs: number;
+  fotos: FotosVista;
   /** Cuándo latió por última vez `/datos/sincronizar`. */
   latidoSincronizarMs: number | null;
   proveedor: string;
@@ -207,6 +222,30 @@ export function evaluar(h: Hechos): Alerta[] {
         detalle: `Los fallos pasajeros (CJ ocupado) se reintentan solos; los demás quedan aquí para mirarlos.${imp.ultimoError ? ` Último: ${imp.ultimoError}` : ""}`,
       });
     }
+  }
+
+  /* 3b. Las fotos de los comercios (3 sep 2026): si su servidor está
+     fallando AHORA la portada se ve rota, y eso se avisa aunque el copiado
+     ya esté en marcha; y las que el origen ya no tiene se nombran, porque
+     solo el comercio puede reponerlas. */
+  if (h.fotos.sondaFallidas > 0) {
+    alertas.push({
+      clave: "fotos-origen-fallando",
+      nivel: "ambar",
+      titulo: `El servidor de fotos de un comercio está fallando: ${h.fotos.sondaFallidas} de ${h.fotos.sondaProbadas} no cargan`,
+      detalle: `Mientras falle, esas fotos salen en blanco en la portada. Se están copiando solas a Mercatren (faltan ${h.fotos.porTraer}); cuando terminen, el servidor del comercio deja de importar.${h.fotos.sondaEjemplo ? ` Ejemplo: ${h.fotos.sondaEjemplo}.` : ""}`,
+    });
+  }
+  if (h.fotos.rotas > 0) {
+    const lista = h.fotos.detalleRotas
+      .map((f) => `«${f.producto}» (${f.motivo})`)
+      .join(" · ");
+    alertas.push({
+      clave: "fotos-rotas",
+      nivel: "ambar",
+      titulo: `${plural(h.fotos.rotas, "foto del catálogo ya no existe", "fotos del catálogo ya no existen")} en el servidor de origen`,
+      detalle: `Se dejaron de enseñar para que la ficha no salga rota. El comercio tiene que volver a subirlas en su sistema; al sincronizar, vuelven solas.${lista ? ` ${lista}` : ""}`,
+    });
   }
 
   /* 4. El catálogo: lo que no se puede vender bien. */

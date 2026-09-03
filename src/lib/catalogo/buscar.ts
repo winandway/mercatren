@@ -259,10 +259,10 @@ export async function sugerencias(
         tiendaSlug: tiendas.slug,
         fotoUrl: sql<
           string | null
-        >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+        >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} AND NOT EXISTS (SELECT 1 FROM fotos_rotas fr WHERE fr.imagen_id = imagenes_producto.id AND fr.definitiva = 1 AND fr.url = imagenes_producto.url) ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
         fotoClave: sql<
           string | null
-        >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+        >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} AND NOT EXISTS (SELECT 1 FROM fotos_rotas fr WHERE fr.imagen_id = imagenes_producto.id AND fr.definitiva = 1 AND fr.url = imagenes_producto.url) ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
       })
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))

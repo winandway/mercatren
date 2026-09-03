@@ -208,6 +208,23 @@ export async function correrTick(
     console.error("[tick] la traducción falló:", fallo);
   }
 
+  /* 6. Las fotos que viven en el servidor de un comercio, a nuestro bucket:
+     un par por latido, con tope por hora (ver `fotos-reglas.ts`). */
+  try {
+    if (queda() > 5_000) {
+      const { traerFotosDesdeElReloj } =
+        await import("@/lib/catalogo/fotos-automaticas");
+      const r = await traerFotosDesdeElReloj();
+      if (r.copiadas + r.fallidas > 0) {
+        hizo.push(
+          `fotos: ${r.copiadas} copiadas, ${r.fallidas} fallidas${r.rotas ? `, ${r.rotas} dadas por perdidas` : ""}, faltan ${r.faltan}`,
+        );
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] las fotos fallaron:", fallo);
+  }
+
   const r = { hizo, duracionMs: Date.now() - arranque };
   await anotarTick(origen, r, arranque);
   return r;

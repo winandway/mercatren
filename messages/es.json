@@ -1053,7 +1053,9 @@
       "parar": "Parar",
       "copiadas": "{n} copiadas",
       "fallidas": "{n} no se pudieron traer",
-      "todasNuestras": "Todas las fotos del catálogo ya están en Mercatren."
+      "todasNuestras": "Todas las fotos del catálogo ya están en Mercatren.",
+      "automatico": "Se copian solas desde el reloj, hasta {porHora} por hora, sin que nadie pulse nada. Este botón solo las adelanta.",
+      "rotas": "{n} no existen en el servidor de origen y ya no se muestran: el comercio tiene que volver a subirlas."
     },
     "avisoPagos": {
       "titulo": "Avísame cuando entre un pago",

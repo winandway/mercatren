@@ -53,7 +53,7 @@ describe("el reloj propio", () => {
     expect(tick).toContain("LLAVE_LATIDO_SINCRONIZAR");
   });
 
-  it("el latido hace lo importante por orden: vigilante, importación, afinado, barrido, stock, traducción", () => {
+  it("el latido hace lo importante por orden: vigilante, importación, afinado, barrido, stock, traducción, fotos", () => {
     const tick = leer("src/lib/reloj/tick.ts");
     const orden = [
       'correrVigilante("reloj")',
@@ -62,6 +62,7 @@ describe("el reloj propio", () => {
       "barrerNoVerificados()",
       "refrescarExistenciasCj(",
       "traducirDesdeElReloj({",
+      "traerFotosDesdeElReloj()",
     ];
     let desde = 0;
     for (const paso of orden) {

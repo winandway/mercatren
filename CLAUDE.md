@@ -1558,6 +1558,38 @@ una ruta en `app/__scheduled` cayó en la página 404 en producción.
 
 Candado: `tests/unit/reloj-propio.test.ts`.
 
+## LAS FOTOS DE LOS COMERCIOS SE TRAEN SOLAS, Y UNA ROTA NO SE ENSEÑA (3 sep 2026)
+
+El dueño mandó la portada con tres productos del comercio piloto sin foto
+(el título desparramado en el hueco). Medido después: las mismas
+direcciones contestaban 200. El servidor de fotos de ese comercio
+(`bley-cb-storage.blinxor.workers.dev`, un worker de plan gratuito) **falla
+a ratos** —cuando se pasa de su cuota diaria contesta error hasta
+medianoche—, y mientras tanto nuestra portada se veía rota. Sus palabras:
+«que las imágenes sean agregadas en nuestros servidores… unas 120 por día».
+
+- **El reloj copia las fotos solas** (`src/lib/catalogo/fotos-automaticas.ts`,
+  paso 6 de `tick.ts`): 2 por latido con tope de **10 por hora**
+  (`FOTOS_POR_HORA`; se cambia en `configuracion.fotos_por_hora`, 1–600).
+  La cuota se gasta por INTENTO, no por éxito: a un origen caído no se le
+  insiste. El botón de Configuración → Fotos del catálogo sigue existiendo
+  y solo adelanta; usa el mismo copiador (`copiar-foto.ts`).
+- **Una foto que falla se reintenta; solo se da por perdida con un 404/410
+  del origen o tras 6 intentos** (`fotos-reglas.ts`, puro, con pruebas).
+  Queda en la tabla **`fotos_rotas`** (tabla, no columna) con motivo e
+  intentos. Las perdidas **no se enseñan** en la tarjeta, la galería ni el
+  buscador (`SIN_FOTOS_ROTAS` en `consultas.ts` y el mismo filtro en
+  `buscar.ts`); se compara también la dirección, así que si la
+  sincronización trae una nueva, la foto vuelve sola.
+- **`<FotoConRespaldo>`** en la tarjeta y la galería: si el navegador no
+  logra cargar la foto, enseña «sin foto» en vez del título. Vale para
+  siempre: cada comercio nuevo llega con sus fotos en su servidor.
+- **El vigilante sondea 5 direcciones de origen en cada corrida** y avisa
+  en ámbar si fallan ahora (`fotos-origen-fallando`), nombra las perdidas
+  con su producto (`fotos-rotas`) y copia una tanda en su fase de actuar.
+- Candados: `tests/unit/fotos-automaticas.test.ts` y las tres pruebas
+  nuevas de `vigilante.test.ts`.
+
 ## EL IVA DEL COMERCIO VA DENTRO DE SU PRECIO, NUNCA COMO RENGLÓN (3 sep 2026)
 
 Lo pidió un comercio venezolano (Armando): «agreguen el IVA para cobrarlo y

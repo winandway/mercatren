@@ -24,6 +24,14 @@ const min = (n: number) => AHORA - n * 60_000;
 function todoBien(): Hechos {
   return {
     ahoraMs: AHORA,
+    fotos: {
+      porTraer: 0,
+      rotas: 0,
+      sondaProbadas: 0,
+      sondaFallidas: 0,
+      sondaEjemplo: null,
+      detalleRotas: [],
+    },
     latidoSincronizarMs: min(5),
     proveedor: "ok",
     avisoStripe: "ok",
@@ -47,6 +55,52 @@ function todoBien(): Hechos {
     sinTraducir: 3000,
   };
 }
+
+describe("las fotos de los comercios (3 sep 2026)", () => {
+  it("si el servidor de fotos de un comercio falla AHORA, avisa en ámbar y dice que se están copiando", () => {
+    const a = evaluar({
+      ...todoBien(),
+      fotos: {
+        porTraer: 120,
+        rotas: 0,
+        sondaProbadas: 5,
+        sondaFallidas: 3,
+        sondaEjemplo: "HTTP 429 en fotos.ejemplo.com",
+        detalleRotas: [],
+      },
+    });
+    expect(a).toHaveLength(1);
+    expect(a[0]?.clave).toBe("fotos-origen-fallando");
+    expect(a[0]?.nivel).toBe("ambar");
+    expect(a[0]?.detalle).toContain("faltan 120");
+    expect(a[0]?.detalle).toContain("HTTP 429");
+  });
+
+  it("las fotos que el origen ya no tiene se nombran con su producto", () => {
+    const a = evaluar({
+      ...todoBien(),
+      fotos: {
+        porTraer: 0,
+        rotas: 2,
+        sondaProbadas: 0,
+        sondaFallidas: 0,
+        sondaEjemplo: null,
+        detalleRotas: [
+          { producto: "Tirrap negro 4,8x400", motivo: "HTTP 404" },
+        ],
+      },
+    });
+    expect(a.map((x) => x.clave)).toEqual(["fotos-rotas"]);
+    expect(a[0]?.detalle).toContain("Tirrap negro 4,8x400");
+    expect(a[0]?.detalle).toContain("HTTP 404");
+  });
+
+  it("con muchas por traer pero el origen contestando, NO alerta: copiar es trabajo normal", () => {
+    expect(
+      evaluar({ ...todoBien(), fotos: { ...todoBien().fotos, porTraer: 700 } }),
+    ).toEqual([]);
+  });
+});
 
 describe("qué es una alerta", () => {
   it("con todo en orden no alerta nada — ni por títulos sin traducir, que es trabajo normal", () => {

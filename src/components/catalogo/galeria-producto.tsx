@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, ImageOff, X, ZoomIn } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
+import { FotoConRespaldo } from "@/components/catalogo/foto-con-respaldo";
 import { cn } from "@/lib/utils";
 
 export type FotoProducto = {
@@ -81,10 +82,12 @@ export function GaleriaProducto({
           aria-label={t("verFoto")}
           className="group relative block aspect-square w-full overflow-hidden rounded-xl border border-borde bg-white"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          {}
+          <FotoConRespaldo
             src={foto.url}
             alt={alt}
+            loading="eager"
+            textoSinFoto={t("sinFoto")}
             className="h-full w-full object-contain"
           />
           <span className="absolute right-3 bottom-3 inline-flex items-center gap-1 rounded-full bg-riel-950/75 px-2.5 py-1 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">

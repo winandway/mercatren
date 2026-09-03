@@ -69,6 +69,29 @@ async function actuar(): Promise<Accion[]> {
     console.error("[vigilante] el barrido falló:", fallo);
   }
 
+  /* 1b. Unas fotos de servidores ajenos a nuestro bucket, dentro de la
+     cuota de la hora: el reloj ya lo hace cada minuto, esto es por si el
+     reloj no late. */
+  try {
+    const { traerFotosDesdeElReloj } =
+      await import("@/lib/catalogo/fotos-automaticas");
+    const f = await traerFotosDesdeElReloj({ maximo: 4 });
+    acciones.push({
+      clave: "traer-fotos",
+      titulo: "Fotos copiadas a Mercatren desde el servidor del comercio",
+      cantidad: f.copiadas,
+    });
+    if (f.rotas > 0) {
+      acciones.push({
+        clave: "fotos-dadas-por-perdidas",
+        titulo: "Fotos dadas por perdidas (el origen ya no las tiene)",
+        cantidad: f.rotas,
+      });
+    }
+  } catch (fallo) {
+    console.error("[vigilante] las fotos fallaron:", fallo);
+  }
+
   /* 2. Las tandas de importación que fallaron por algo pasajero vuelven a
      la cola. Las de un fallo de verdad se quedan para que alguien las mire. */
   try {

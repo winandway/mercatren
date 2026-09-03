@@ -35,6 +35,10 @@ import { TraducirCatalogo } from "@/components/panel/traducir-catalogo";
 import { IndexarBusquedaVisual } from "@/components/panel/indexar-busqueda-visual";
 import { TraerFotos } from "@/components/panel/traer-fotos";
 import { contarFotosPendientes } from "@/lib/catalogo/traer-fotos";
+import {
+  contarFotosRotas,
+  fotosPorHoraVigente,
+} from "@/lib/catalogo/fotos-panel";
 import { estadoDelIndice } from "@/lib/busqueda-imagen/indexador";
 import {
   contarSinDescripcion,
@@ -119,6 +123,10 @@ export default async function PaginaConfiguracion({
     desalineados: [],
   }));
   const fotosPendientes = await contarFotosPendientes();
+  const [fotosRotas, fotosPorHora] = await Promise.all([
+    contarFotosRotas(),
+    fotosPorHoraVigente(),
+  ]);
   const indiceVisual = await estadoDelIndice().catch(() => ({
     indexados: 0,
     publicados: 0,
@@ -692,7 +700,11 @@ export default async function PaginaConfiguracion({
           {tf("titulo")}
         </h2>
         <div className="mt-3">
-          <TraerFotos pendientes={fotosPendientes} />
+          <TraerFotos
+            pendientes={fotosPendientes}
+            porHora={fotosPorHora}
+            rotas={fotosRotas}
+          />
           <IndexarBusquedaVisual
             indexados={indiceVisual.indexados}
             publicados={indiceVisual.publicados}
