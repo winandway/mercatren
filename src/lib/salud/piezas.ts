@@ -203,3 +203,27 @@ export async function origenDeLaClaveDeSesiones(
     return { origen: "error", huella: "" };
   }
 }
+
+/**
+ * ¿SE ESTÁN GUARDANDO LAS SESIONES? (3 sep 2026)
+ *
+ * Si `get-session` devuelve `null` siempre, hay dos culpables posibles: la
+ * firma de la cookie (la clave cambió) o que la fila de la sesión no esté en
+ * la base. Esto distingue: cuenta las sesiones creadas en la última hora.
+ * Cero con gente entrando significa que las escrituras no están llegando.
+ * No enseña ni un token ni un correo: solo un número.
+ */
+export async function sesionesRecientes(): Promise<number> {
+  try {
+    const { getDb, schema } = await import("@/lib/db");
+    const { gt, sql } = await import("drizzle-orm");
+    const haceUnaHora = new Date(Date.now() - 3_600_000);
+    const [f] = await getDb()
+      .select({ n: sql<number>`count(*)` })
+      .from(schema.session)
+      .where(gt(schema.session.createdAt, haceUnaHora));
+    return Number(f?.n ?? 0);
+  } catch {
+    return -1;
+  }
+}

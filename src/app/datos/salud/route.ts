@@ -8,6 +8,7 @@ import {
   resumenDelReloj,
   resumenDelVigilante,
   saludDelProveedor,
+  sesionesRecientes,
 } from "@/lib/salud/piezas";
 import { SITIO } from "@/lib/sitio";
 
@@ -75,24 +76,31 @@ export async function GET() {
   );
   try {
     await getDb().run(sql`SELECT 1`);
-    const [proveedor, avisoStripe, vigilante, reloj, sesiones] =
-      await Promise.all([
-        saludDelProveedor(),
-        avisoDeStripeArmado(
-          getCloudflareContext().env as unknown as Record<
-            string,
-            string | undefined
-          >,
-        ),
-        resumenDelVigilante(),
-        resumenDelReloj(),
-        origenDeLaClaveDeSesiones(
-          getCloudflareContext().env as unknown as Record<
-            string,
-            string | undefined
-          >,
-        ),
-      ]);
+    const [
+      proveedor,
+      avisoStripe,
+      vigilante,
+      reloj,
+      sesiones,
+      sesionesUltimaHora,
+    ] = await Promise.all([
+      saludDelProveedor(),
+      avisoDeStripeArmado(
+        getCloudflareContext().env as unknown as Record<
+          string,
+          string | undefined
+        >,
+      ),
+      resumenDelVigilante(),
+      resumenDelReloj(),
+      origenDeLaClaveDeSesiones(
+        getCloudflareContext().env as unknown as Record<
+          string,
+          string | undefined
+        >,
+      ),
+      sesionesRecientes(),
+    ]);
     return Response.json(
       {
         ok: true,
@@ -106,7 +114,7 @@ export async function GET() {
            es lo correcto; «base» funciona si esa fila se puede leer; «falta»
            o «error» significa que NADIE puede entrar, porque cada petición
            firmaría con una clave distinta. No enseña la clave. */
-        sesiones,
+        sesiones: { ...sesiones, ultimaHora: sesionesUltimaHora },
         /* El vigilante: hace cuánto corrió y cuántas alertas dejó. `null`
            si nunca corrió. */
         vigilante,
