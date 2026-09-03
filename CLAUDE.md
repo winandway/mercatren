@@ -1558,6 +1558,25 @@ una ruta en `app/__scheduled` cayó en la página 404 en producción.
 
 Candado: `tests/unit/reloj-propio.test.ts`.
 
+## EL IVA DEL COMERCIO VA DENTRO DE SU PRECIO, NUNCA COMO RENGLÓN (3 sep 2026)
+
+Lo pidió un comercio venezolano (Armando): «agreguen el IVA para cobrarlo y
+declararlo en mi país». No se puede, y no es un capricho: Mercatren LLC
+factura al comprador bajo las leyes de Estados Unidos y ahí un IVA
+venezolano no existe como renglón. El comercio le vende a Mercatren LLC
+(orden de compra) y esa es la venta que declara en su país.
+
+- **El precio que escribe el comercio es «lo que quiere recibir», con sus
+  impuestos ya dentro.** La ayuda del campo lo dice (`precioAyuda`, es/en).
+  No hay botón de IVA ni lo va a haber; Mercatren no agrega, no cobra aparte
+  ni declara impuestos de otro país.
+- **La guía pública es `/docs/impuestos-comercios-fuera-de-estados-unidos`**
+  (es/en, con capturas de `public/docs/impuestos/` sacadas con
+  `node scripts/capturas-docs-impuestos.mjs`), enlazada con la del W-8BEN-E
+  en los dos sentidos. Es la que se le manda al comercio.
+- La guía explica el modelo; **no da asesoría fiscal**: la tasa y el desglose
+  los decide su contador.
+
 ## LA PRIMERA COMPRA PAGADA MURIÓ POR UN SKU (18 ago 2026)
 
 MT-000004 se pagó de verdad y CJ la rechazó con **«No variants found for

@@ -720,6 +720,10 @@ export const ARTICULOS_EN: Articulo[] = [
     enlaces: [
       { texto: "Go to My store", href: "/panel/mi-tienda" },
       { texto: "How Mercatren works", href: "/como-funciona" },
+      {
+        texto: "Your country's VAT: why it goes inside the price",
+        href: "/docs/impuestos-comercios-fuera-de-estados-unidos",
+      },
     ],
   },
   {
@@ -1120,6 +1124,162 @@ export const ARTICULOS_EN: Articulo[] = [
       { texto: "OpenAPI 3.1", href: "/datos/openapi.json" },
       { texto: "auth.md", href: "/auth.md" },
       { texto: "Payment links: the guide", href: "/docs/cobrar-por-enlace" },
+    ],
+  },
+
+  {
+    slug: "impuestos-comercios-fuera-de-estados-unidos",
+    tipo: "documentacion",
+    titulo:
+      "Taxes outside the United States: VAT goes inside the price, and the tax form is signed once",
+    resumen:
+      "If your business is in Venezuela, Colombia, or any country outside the United States, here is what you need to know: who sells to whom, why VAT goes inside your price, how to break it down when the money arrives, and which form you sign to get paid. With screenshots from the dashboard.",
+    fecha: "2026-09-03",
+    temas: ["comercios", "fiscal", "IVA", "W-8BEN-E", "cobros", "retiros"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto: `${SOCIEDAD.nombre} is a U.S. company that BUYS the merchandise from you and pays you in dollars. Your country's taxes —VAT— are yours: they go INSIDE the price you enter, and you break them out there when the money arrives. Mercatren does not add them, does not charge them separately, and does not file them for you.`,
+      },
+      {
+        tipo: "subtitulo",
+        texto: "Who sells to whom (and why it matters for VAT)",
+      },
+      {
+        tipo: "parrafo",
+        texto: `Every Mercatren sale is two transactions, not one. The buyer in the United States pays ${SOCIEDAD.nombre} the published price. ${SOCIEDAD.nombre} buys that merchandise from you —it issues a purchase order in its own name— and you deliver it to the designated person in your country. You invoice ${SOCIEDAD.nombre}, not the person who picks it up.`,
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          `On paper, your customer is ${SOCIEDAD.nombre}: a company from ${SOCIEDAD.estado}, United States.`,
+          "The invoice to the buyer is issued by Mercatren under U.S. law. Your VAT does not exist there: it cannot appear as a line item, which is why there is no —and will be no— “charge VAT” button.",
+          "What you report in your country is YOUR sale to Mercatren, for the exact amount of each purchase order.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Why VAT goes inside the price" },
+      {
+        tipo: "parrafo",
+        texto:
+          "In your dashboard, the price you enter on each product is “what you want to receive.” The system adds its adjustment and publishes the total; you receive exactly what you entered. If your country requires VAT on what you sell, that VAT has to be inside that number: it is the only way it reaches you.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/impuestos/1-precio.png",
+        alt: "The price field in the product form of the Mercatren dashboard, with the hint saying the price already includes your country's taxes",
+        pie: "Dashboard → My products → the price. What you enter here is what we pay you, with your taxes already inside.",
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Don't charge it twice",
+        texto:
+          "Don't ask the buyer to pay VAT separately, and don't ask us to add it at the end: the price already carries it. And don't raise it yourself on top of the system's adjustment, which is also already inside.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: [
+          "What you enter as the price",
+          "What we pay you",
+          "How your accountant breaks it down (16 % VAT)",
+        ],
+        filas: [
+          ["$116.00", "$116.00", "Base $100.00 + VAT $16.00"],
+          ["$100.00", "$100.00", "Base $86.21 + VAT $13.79"],
+        ],
+        nota: "16 % is Venezuela's general rate today; the rate that applies to you is confirmed by your accountant. The math is the same with any rate.",
+      },
+      {
+        tipo: "subtitulo",
+        texto: "How to break it down when the money arrives",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Open the purchase order for each sale",
+            texto: `Dashboard → Money → “My invoices to Mercatren.” There, sale by sale, is the exact amount ${SOCIEDAD.nombre} buys from you. That is the number you report.`,
+          },
+          {
+            titulo: "Issue your invoice to Mercatren for that amount",
+            texto: `With your company's tax details —the same ones you entered in “My store”— and in the name of ${SOCIEDAD.nombre}. Your accountant splits base + VAT at the rate that applies to you.`,
+          },
+          {
+            titulo: "Request your payout whenever you want",
+            texto:
+              "What lands in your bank is that same money. If your accountant asks for the detail, Orders and Payments both have a button to download your sales to Excel.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/impuestos/2-datos-empresa.png",
+        alt: "The company details card in My store: legal name, tax ID, email, and address",
+        pie: "Dashboard → My store → Company details. This is where your details on every purchase order come from.",
+      },
+      { tipo: "subtitulo", texto: "The U.S. tax form (W-8BEN-E): signed once" },
+      {
+        tipo: "parrafo",
+        texto: `You are receiving money from a U.S. company. Without that form, ${SOCIEDAD.nombre} would have to withhold part of what it pays you; with it, you get paid in full. And since the merchandise is delivered in your country, that income is not taxed in the United States: the form is what puts it in writing. You fill it out in Spanish, inside your dashboard, and it is valid for three years. Without it you cannot request payouts.`,
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/1-mi-tienda.png",
+        alt: "The tax form card at the top of the My store screen in the Mercatren dashboard",
+        pie: "Dashboard → My store. The orange card at the top is the form.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/4-documento.png",
+        alt: "The signed W-8BEN-E document as it is stored in the merchant's profile",
+        pie: "This is how it is stored, with date and signature. It is not sent to any tax office.",
+      },
+      {
+        tipo: "boton",
+        texto: "How to fill out the W-8BEN-E step by step",
+        href: "/docs/formulario-fiscal-w8ben-e",
+      },
+      {
+        tipo: "aviso",
+        tono: "bien",
+        titulo: "That form is NOT a tax return",
+        texto:
+          "It does not go to the IRS or to your country's tax office. It is stored in your Mercatren profile in case a bank or an accountant asks for it. You are not filing anything in the United States by signing it.",
+      },
+      { tipo: "subtitulo", texto: "In short: what you do and what we do" },
+      {
+        tipo: "tabla",
+        encabezados: ["What", "Who"],
+        filas: [
+          ["Set each product's price with your taxes already inside", "You"],
+          [
+            "Charge the buyer in the United States and issue their invoice",
+            "Mercatren",
+          ],
+          [
+            `Buy the merchandise from you, with a purchase order in the name of ${SOCIEDAD.nombre}`,
+            "Mercatren",
+          ],
+          [
+            "Invoice Mercatren and report your sale in your country",
+            "You, with your accountant",
+          ],
+          ["Sign the W-8BEN-E", "You, once every three years"],
+          [
+            "Add, charge separately, or file your country's VAT",
+            "Nobody: it does not exist in Mercatren",
+          ],
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "This explains how Mercatren works; it is not tax advice",
+        texto:
+          "How you report in your country is up to your accountant, with your records. If they have questions about the model, send them this page or write to us.",
+      },
     ],
   },
 ];

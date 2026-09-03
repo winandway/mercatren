@@ -803,7 +803,7 @@
       "descripcionEn": "Description in English",
       "precio": "Price in dollars",
       "precioAntes": "Compare-at price (for sales)",
-      "precioAyuda": "Enter YOUR price — what you want to receive. The system automatically adds the processing adjustment and publishes the total. Do not raise it yourself, or the buyer would pay it twice.",
+      "precioAyuda": "Enter YOUR price — what you want to receive, with your country's taxes already included (VAT, if it applies to you): Mercatren neither adds nor deducts taxes. The system automatically adds the processing adjustment and publishes the total. Do not raise it yourself, or the buyer would pay it twice.",
       "inventario": {
         "titulo": "Inventory",
         "texto": "How much you have and how you sell it."

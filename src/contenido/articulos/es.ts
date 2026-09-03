@@ -721,6 +721,10 @@ export const ARTICULOS_ES: Articulo[] = [
     enlaces: [
       { texto: "Ir a Mi tienda", href: "/panel/mi-tienda" },
       { texto: "Cómo funciona Mercatren", href: "/como-funciona" },
+      {
+        texto: "El IVA de tu país: por qué va dentro del precio",
+        href: "/docs/impuestos-comercios-fuera-de-estados-unidos",
+      },
     ],
   },
   {
@@ -1118,6 +1122,172 @@ export const ARTICULOS_ES: Articulo[] = [
       { texto: "OpenAPI 3.1", href: "/datos/openapi.json" },
       { texto: "auth.md", href: "/auth.md" },
       { texto: "Cobrar por enlace: la guía", href: "/docs/cobrar-por-enlace" },
+    ],
+  },
+
+  {
+    slug: "impuestos-comercios-fuera-de-estados-unidos",
+    tipo: "documentacion",
+    titulo:
+      "Impuestos fuera de Estados Unidos: el IVA va dentro del precio y el formulario fiscal se firma una vez",
+    resumen:
+      "Si tu empresa está en Venezuela, Colombia o cualquier país fuera de Estados Unidos, esto es lo que tienes que saber: quién le vende a quién, por qué el IVA va dentro de tu precio, cómo lo desglosas cuando recibes el dinero y qué papel firmas para poder cobrar. Con capturas del panel.",
+    fecha: "2026-09-03",
+    temas: ["comercios", "fiscal", "IVA", "W-8BEN-E", "cobros", "retiros"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto: `${SOCIEDAD.nombre} es una empresa de Estados Unidos que te COMPRA la mercancía y te paga en dólares. Los impuestos de tu país —el IVA— son tuyos: van DENTRO del precio que escribes, y los desglosas allá cuando recibes el dinero. Mercatren no los agrega, no los cobra aparte y no los declara por ti.`,
+      },
+      {
+        tipo: "subtitulo",
+        texto: "Quién le vende a quién (y por qué importa para el IVA)",
+      },
+      {
+        tipo: "parrafo",
+        texto: `Cada venta en Mercatren son dos operaciones, no una. El comprador en Estados Unidos le paga a ${SOCIEDAD.nombre} el precio publicado. ${SOCIEDAD.nombre} te compra a ti esa mercancía —te emite una orden de compra a su nombre— y tú la entregas a la persona designada en tu país. Tú le facturas a ${SOCIEDAD.nombre}, no a quien retira.`,
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          `Tu cliente, en los papeles, es ${SOCIEDAD.nombre}: una empresa de ${SOCIEDAD.estado}, Estados Unidos.`,
+          "La factura al comprador la emite Mercatren bajo las leyes de Estados Unidos. Ahí tu IVA no existe: no se puede poner como un renglón, y por eso no hay —ni va a haber— un botón de «cobrar IVA».",
+          "Lo que tú declaras en tu país es TU venta a Mercatren, por el monto exacto de cada orden de compra.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Por qué el IVA va dentro del precio" },
+      {
+        tipo: "parrafo",
+        texto:
+          "En tu panel, el precio que escribes en cada producto es «lo que quieres recibir». El sistema le suma su ajuste y publica el total; a ti te llega exactamente lo que escribiste. Si tu país te exige IVA sobre lo que vendes, ese IVA tiene que estar dentro de ese número: es la única forma de que te llegue.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/impuestos/1-precio.png",
+        alt: "La casilla del precio en el formulario de producto del panel de Mercatren, con la ayuda que dice que el precio va con los impuestos del país ya dentro",
+        pie: "Panel → Mis productos → el precio. Lo que escribes aquí es lo que te pagamos, con tus impuestos ya dentro.",
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "No lo cobres dos veces",
+        texto:
+          "No le pidas al comprador que pague el IVA aparte, ni nos pidas que lo sumemos al final: el precio ya lo trae. Y no lo subas tú por encima del ajuste del sistema, que también ya está dentro.",
+      },
+      {
+        tipo: "tabla",
+        encabezados: [
+          "Lo que escribes como precio",
+          "Lo que te pagamos",
+          "Cómo lo desglosa tu contador (con IVA del 16 %)",
+        ],
+        filas: [
+          ["$116.00", "$116.00", "Base $100.00 + IVA $16.00"],
+          ["$100.00", "$100.00", "Base $86.21 + IVA $13.79"],
+        ],
+        nota: "El 16 % es la tasa general de Venezuela hoy; la que te aplica a ti la confirma tu contador. La cuenta es la misma con cualquier tasa.",
+      },
+      {
+        tipo: "subtitulo",
+        texto: "Cómo desglosarlo cuando te llega el dinero",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Abre la orden de compra de cada venta",
+            texto: `Panel → Dinero → «Mis facturas a Mercatren». Ahí está, venta por venta, el monto exacto que ${SOCIEDAD.nombre} te compra. Ese es el número que se declara.`,
+          },
+          {
+            titulo: "Emítele tu factura a Mercatren por ese monto",
+            texto: `Con los datos fiscales de tu empresa —los mismos que cargaste en «Mi tienda»— y a nombre de ${SOCIEDAD.nombre}. El desglose base + IVA lo hace tu contador con la tasa que te aplique.`,
+          },
+          {
+            titulo: "Pide tu retiro cuando quieras",
+            texto:
+              "Lo que recibes en el banco es ese mismo dinero. Si tu contador pide el detalle, en Órdenes y en Cobros hay un botón para descargar tus ventas en Excel.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/impuestos/2-datos-empresa.png",
+        alt: "La tarjeta de datos de la empresa en Mi tienda: razón social, identificación fiscal, correo y dirección",
+        pie: "Panel → Mi tienda → Datos de la empresa. De aquí salen tus datos en cada orden de compra.",
+      },
+      {
+        tipo: "subtitulo",
+        texto:
+          "El formulario fiscal de Estados Unidos (W-8BEN-E): se firma una vez",
+      },
+      {
+        tipo: "parrafo",
+        texto: `Estás recibiendo dinero de una empresa de Estados Unidos. Sin ese formulario, ${SOCIEDAD.nombre} tendría que retener una parte de lo que te paga; con él, te paga completo. Y como la mercancía se entrega en tu país, ese ingreso no paga impuestos en Estados Unidos: el formulario es lo que lo deja escrito. Se llena en español, dentro de tu panel, y vale tres años. Sin él no puedes pedir tus retiros.`,
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/1-mi-tienda.png",
+        alt: "La tarjeta del formulario fiscal, arriba de la pantalla Mi tienda del panel de Mercatren",
+        pie: "Panel → Mi tienda. La tarjeta naranja de arriba es el formulario.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/w8bene/4-documento.png",
+        alt: "El documento W-8BEN-E ya firmado, tal como queda guardado en la ficha del comercio",
+        pie: "Así queda guardado, con fecha y firma. No se manda a ninguna oficina de impuestos.",
+      },
+      {
+        tipo: "boton",
+        texto: "Cómo llenar el W-8BEN-E paso a paso",
+        href: "/docs/formulario-fiscal-w8ben-e",
+      },
+      {
+        tipo: "aviso",
+        tono: "bien",
+        titulo: "Ese formulario NO es una declaración de impuestos",
+        texto:
+          "No va al IRS ni a la oficina de impuestos de tu país. Se guarda en tu ficha de Mercatren por si un banco o un contador lo pide. Tú no estás declarando nada en Estados Unidos al firmarlo.",
+      },
+      {
+        tipo: "subtitulo",
+        texto: "En resumen: qué haces tú y qué hacemos nosotros",
+      },
+      {
+        tipo: "tabla",
+        encabezados: ["Qué", "Quién"],
+        filas: [
+          [
+            "Poner el precio de cada producto con tus impuestos ya dentro",
+            "Tú",
+          ],
+          [
+            "Cobrarle al comprador en Estados Unidos y emitirle su factura",
+            "Mercatren",
+          ],
+          [
+            `Comprarte la mercancía, con orden de compra a nombre de ${SOCIEDAD.nombre}`,
+            "Mercatren",
+          ],
+          [
+            "Facturarle a Mercatren y declarar tu venta en tu país",
+            "Tú, con tu contador",
+          ],
+          ["Firmar el W-8BEN-E", "Tú, una vez cada tres años"],
+          [
+            "Sumar, cobrar aparte o declarar el IVA de tu país",
+            "Nadie: no existe en Mercatren",
+          ],
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Esto explica cómo funciona Mercatren, no es asesoría fiscal",
+        texto:
+          "Cómo se declara en tu país lo decide tu contador con tus papeles. Si tiene dudas sobre el modelo, mándale esta página o escríbenos.",
+      },
     ],
   },
 ];

@@ -803,7 +803,7 @@
       "descripcionEn": "Descripción en inglés",
       "precio": "Precio en dólares",
       "precioAntes": "Precio antes (para ofertas)",
-      "precioAyuda": "Escribe TU precio, lo que quieres recibir. El sistema le suma solo el ajuste por procesamiento y publica el total: no lo subas tú, o el cliente lo pagaría dos veces.",
+      "precioAyuda": "Escribe TU precio, lo que quieres recibir, con los impuestos de tu país ya dentro (el IVA, si te aplica): Mercatren no agrega ni descuenta impuestos. El sistema le suma solo el ajuste por procesamiento y publica el total: no lo subas tú, o el cliente lo pagaría dos veces.",
       "inventario": {
         "titulo": "Inventario",
         "texto": "Cuánto tienes y cómo lo vendes."
