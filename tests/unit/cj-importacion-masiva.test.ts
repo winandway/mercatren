@@ -89,8 +89,18 @@ describe("el servidor de la importación", () => {
   it("todo lo que le habla a CJ respeta el ritmo de una por segundo", () => {
     expect(fuente).toContain("llamarCjConRitmo");
     expect(fuente).not.toMatch(/\bllamarCj\(/);
-    const afinar = leer("src/lib/cj/afinar.ts");
-    expect(afinar).toContain("await esperar(ESPERA_MS)");
+    /* Desde el 2 sep (noche) el afinado, el flete y el refresco de stock
+       usan el ritmo CON reintento: mientras la importación le habla a CJ,
+       seis de cada ocho afinados chocaban con «too many requests». */
+    for (const ruta of [
+      "src/lib/cj/afinar.ts",
+      "src/lib/cj/flete.ts",
+      "src/lib/cj/existencias.ts",
+    ]) {
+      const codigo = leer(ruta);
+      expect(codigo, ruta).toContain("llamarCjConRitmo");
+      expect(codigo, ruta).not.toMatch(/\bllamarCj\(/);
+    }
   });
 });
 

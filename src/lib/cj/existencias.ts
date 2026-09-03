@@ -2,7 +2,8 @@ import "server-only";
 
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
 
-import { llamarCj, cjConfigurado } from "@/lib/cj/cliente";
+import { cjConfigurado } from "@/lib/cj/cliente";
+import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { stockDeVariante } from "@/lib/cj/masivo";
 import { almacenDeEntrega } from "@/lib/cj/plazas";
@@ -42,9 +43,9 @@ async function variantesConStockEn(
   pid: string,
   almacen: "US" | "CN",
 ): Promise<VarianteConStock[] | null> {
-  const r = await llamarCj<unknown>(
+  const r = await llamarCjConRitmo<unknown>(
     `/product/variant/query?pid=${encodeURIComponent(pid)}&countryCode=${almacen}`,
-  ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+  );
   if (!r.ok) return null;
   return variantesDeCj(r.datos) as VarianteConStock[];
 }

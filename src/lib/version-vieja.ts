@@ -31,6 +31,8 @@
 
 /** La marca que impide recargar dos veces por lo mismo. */
 const MARCA = "mercatren:recargado-por-version-vieja";
+/** Dos recargas dentro de este rato son un bucle, no dos publicaciones. */
+export const BUCLE_MS = 60_000;
 
 /**
  * ¿Este fallo es «la acción ya no existe»?
@@ -64,13 +66,19 @@ export function recargarSiEsVersionVieja(fallo: unknown): boolean {
   if (!esVersionVieja(fallo)) return false;
 
   try {
-    if (window.sessionStorage.getItem(MARCA)) {
-      /* Ya se recargó una vez y sigue pasando: esto no es una versión vieja.
-         Se devuelve `false` para que el mensaje se vea y alguien lo mire. */
+    /* ══ LA MARCA CADUCA (2 sep 2026) ══ Era «para siempre»: bastaba una
+       recarga por una publicación de la tarde para que, a la publicación
+       siguiente, la misma pestaña enseñara el error en vez de recargar. El
+       dueño lo vio en rojo dos veces en una noche de cuatro publicaciones.
+       La marca solo tiene que evitar un BUCLE de recargas: si la anterior
+       fue hace menos de un minuto, esto no es versión vieja y se enseña; si
+       fue hace más, es otra publicación y se recarga otra vez. */
+    const anterior = Number(window.sessionStorage.getItem(MARCA));
+    if (Number.isFinite(anterior) && Date.now() - anterior < BUCLE_MS) {
       window.sessionStorage.removeItem(MARCA);
       return false;
     }
-    window.sessionStorage.setItem(MARCA, "1");
+    window.sessionStorage.setItem(MARCA, String(Date.now()));
   } catch {
     /* Sin sessionStorage —navegación privada, permisos— se recarga igual: es
        mejor una recarga de más que un botón que no responde. */

@@ -4,7 +4,7 @@ import { envioAUsar, type EnvioDelProducto } from "@/lib/destino/envio-us";
 
 import { elegirCotizacion } from "@/lib/cj/riesgo";
 
-import { llamarCj } from "./cliente";
+import { llamarCjConRitmo } from "./ritmo";
 import { elegirVariante, variantesDeCj } from "./variantes";
 
 /**
@@ -87,9 +87,12 @@ export async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
   /* Las existencias se miran en el almacén del que va a salir la caja: la
      variante puede estar surtida en China y agotada en EE. UU., o al revés. */
   const parametros = new URLSearchParams({ pid }).toString();
-  const respuesta = await llamarCj<unknown>(
+  /* Con ritmo y un reintento si CJ contesta «too many requests»: con la
+     importación masiva y el afinado hablándole a la vez, el choque es lo
+     normal, y sin reintento seis de cada ocho afinados fallaban (2 sep). */
+  const respuesta = await llamarCjConRitmo<unknown>(
     `/product/variant/query?${parametros}&countryCode=${almacen}`,
-  ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+  );
 
   if (!respuesta.ok) {
     console.error("[cj] no se pudieron pedir las variantes:", respuesta.motivo);
@@ -112,19 +115,22 @@ export async function cotizarFlete(
 }
 
 async function cotizar(vid: string, plaza: Plaza) {
-  const respuesta = await llamarCj<unknown>("/logistic/freightCalculate", {
-    metodo: "POST",
-    cuerpo: {
-      /* DESDE el almacén de la plaza HASTA su país: Chile y Colombia se
+  const respuesta = await llamarCjConRitmo<unknown>(
+    "/logistic/freightCalculate",
+    {
+      metodo: "POST",
+      cuerpo: {
+        /* DESDE el almacén de la plaza HASTA su país: Chile y Colombia se
          surten de China (decisión del dueño, 27 ago 2026); EE. UU. de su
          almacén local. */
-      startCountryCode: plaza.almacen,
-      endCountryCode: plaza.paisEntrega,
-      products: [{ quantity: 1, vid }],
-      zip: plaza.cotizacion.zip,
-      province: plaza.cotizacion.provincia,
+        startCountryCode: plaza.almacen,
+        endCountryCode: plaza.paisEntrega,
+        products: [{ quantity: 1, vid }],
+        zip: plaza.cotizacion.zip,
+        province: plaza.cotizacion.provincia,
+      },
     },
-  }).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+  );
 
   if (!respuesta.ok) {
     console.error("[cj] no se pudo cotizar el flete:", respuesta.motivo);

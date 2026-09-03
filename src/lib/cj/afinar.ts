@@ -2,14 +2,14 @@ import "server-only";
 
 import { and, asc, eq, inArray, isNull, like, or, sql } from "drizzle-orm";
 
-import { cjConfigurado, llamarCj } from "@/lib/cj/cliente";
+import { cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { cotizarFlete } from "@/lib/cj/flete";
 import { guardarTallas } from "@/lib/cj/guardar";
 import { DEPARTAMENTO_CON_TALLAS, stockDeVariante } from "@/lib/cj/masivo";
 import { plazaDelMercado, type Plaza } from "@/lib/cj/plazas";
 import { REGIONALES } from "@/lib/cj/riesgo";
-import { ESPERA_MS, esperar } from "@/lib/cj/ritmo";
+import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { elegirVariante, variantesDeCj } from "@/lib/cj/variantes";
 import { getDb, type Db } from "@/lib/db";
 import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
@@ -124,10 +124,11 @@ export async function afinarImportados(o: {
     }
 
     /* 1) Las variantes con stock en el almacén de la plaza. */
-    const r = await llamarCj<unknown>(
+    /* Con ritmo y reintento (el ritmo ya duerme por dentro): mientras la
+       importación masiva le habla a CJ, los choques son lo normal. */
+    const r = await llamarCjConRitmo<unknown>(
       `/product/variant/query?pid=${encodeURIComponent(p.pid)}&countryCode=${plaza.almacen}`,
-    ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
-    await esperar(ESPERA_MS);
+    );
     if (!r.ok) {
       cuenta.fallidos += 1;
       await posponer(db, p.id, ahora);
@@ -154,10 +155,10 @@ export async function afinarImportados(o: {
 
     /* 2) El flete de la más barata, que es la que se le cobra al comprador. */
     const elegida = elegirVariante(lista);
+    /* `cotizarFlete` ya lleva su ritmo dentro. */
     const cotizacion = elegida?.vid
       ? await cotizarFlete(elegida.vid, plaza)
       : {};
-    await esperar(ESPERA_MS);
     if (!(cotizacion.costoCentavos && cotizacion.costoCentavos > 0)) {
       cuenta.fallidos += 1;
       await posponer(db, p.id, ahora);
