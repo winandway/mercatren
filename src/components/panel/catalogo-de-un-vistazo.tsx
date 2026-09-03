@@ -19,8 +19,12 @@ import type { PlazaInventario } from "@/lib/vigilante/inventario";
  */
 export async function CatalogoDeUnVistazo({
   plazas,
+  haceMinutos,
 }: {
   plazas: PlazaInventario[];
+  /** De cuándo es la medición del vigilante. Un dato sin fecha se lee como
+   *  «ahora mismo», y este puede tener veinte minutos. */
+  haceMinutos: number;
 }) {
   const t = await getTranslations("panel.resumen.catalogo");
   const conAlgo = plazas.filter(
@@ -45,7 +49,7 @@ export async function CatalogoDeUnVistazo({
           href="/panel/vigilante"
           className="inline-flex items-center gap-1 text-xs font-semibold text-carga-600 hover:underline"
         >
-          {t("verDetalle")}
+          {t("medido", { n: haceMinutos })} · {t("verDetalle")}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>

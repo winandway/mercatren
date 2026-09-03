@@ -44,22 +44,18 @@ export default async function PaginaResumen({
   ]);
   const esComercio = !interno;
 
-  /* EL CATÁLOGO EN EL TABLERO (3 sep 2026): solo para el equipo — a un
-     comercio no le dice nada cuántos productos hay en Chile. */
-  const plazas = interno
+  /* EL CATÁLOGO EN EL TABLERO (3 sep 2026): solo para el equipo, y **leído
+     del último latido del vigilante**, nunca calculado aquí. Contar las
+     55.000 fichas en esta pantalla agotaba la petición, y con la petición
+     agotada la comprobación de sesión falla y el panel devuelve a la
+     persona a «entrar»: el dueño no pudo entrar a su propio panel. */
+  const inventario = interno
     ? await (async () => {
-        const { inventarioPorPlaza } =
+        const { inventarioDelUltimoLatido } =
           await import("@/lib/vigilante/inventario");
-        return inventarioPorPlaza().catch(async (fallo) => {
-          /* Que la contabilidad falle no puede tumbar el tablero, pero
-             tampoco puede desaparecer en silencio: queda en el historial
-             de fallos (Panel → Vigilante). */
-          const { registrarError } = await import("@/lib/errores/registro");
-          await registrarError("panel/inventario", fallo);
-          return [];
-        });
+        return inventarioDelUltimoLatido().catch(() => null);
       })()
-    : [];
+    : null;
 
   /**
    * Un comercio recién dado de alta entra a un panel con todo en cero y sin
@@ -170,7 +166,12 @@ export default async function PaginaResumen({
        * con muchas ventas y poca mercancía entregada, y eso es un problema que
        * hay que ver el día que pasa, no a fin de mes.
        */}
-      {plazas.length > 0 ? <CatalogoDeUnVistazo plazas={plazas} /> : null}
+      {inventario ? (
+        <CatalogoDeUnVistazo
+          plazas={inventario.plazas}
+          haceMinutos={inventario.haceMinutos}
+        />
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <TarjetaMetrica

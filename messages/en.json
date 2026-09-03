@@ -560,7 +560,8 @@
         "porResolver": "To resolve",
         "us": "United States",
         "cl": "Chile",
-        "co": "Colombia"
+        "co": "Colombia",
+        "medido": "measured {n} min ago"
       }
     },
     "enConstruccion": {

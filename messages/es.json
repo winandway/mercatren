@@ -560,7 +560,8 @@
         "porResolver": "Por resolver",
         "us": "Estados Unidos",
         "cl": "Chile",
-        "co": "Colombia"
+        "co": "Colombia",
+        "medido": "medido hace {n} min"
       }
     },
     "enConstruccion": {

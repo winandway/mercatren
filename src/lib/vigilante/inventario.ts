@@ -179,3 +179,51 @@ export async function inventarioPorTienda(
         : null,
     }));
 }
+
+/**
+ * ══ EL TABLERO NO HACE ESTA CUENTA: LA LEE (3 sep 2026) ══
+ *
+ * `inventarioPorPlaza()` recorre las ~55.000 fichas tres veces, y eso en el
+ * borde es caro. Puesto en el Tablero —la primera pantalla que abre
+ * cualquiera del equipo— agotaba la petición, y cuando eso pasa la
+ * comprobación de sesión del panel se cae y **devuelve a la persona a la
+ * pantalla de entrar**: se entra bien, y el panel te saca. Le pasó al dueño
+ * a los cuarenta minutos de publicarlo, y no pudo entrar a su propio panel.
+ *
+ * El vigilante ya hace esta cuenta cada 20 minutos y la guarda entera en su
+ * latido. El Tablero lee esa fila —una sola, por id— y dice de cuándo es.
+ * Un número de hace un rato es infinitamente mejor que un panel que expulsa.
+ */
+export type InventarioGuardado = {
+  plazas: PlazaInventario[];
+  /** Hace cuántos minutos se midió, para poder decirlo en pantalla. */
+  haceMinutos: number;
+};
+
+export async function inventarioDelUltimoLatido(): Promise<InventarioGuardado | null> {
+  const { latidosVigilante } = await import("@/lib/db/schema");
+  const { desc } = await import("drizzle-orm");
+  const [fila] = await getDb()
+    .select({
+      hechos: latidosVigilante.hechos,
+      corridoEn: latidosVigilante.corridoEn,
+    })
+    .from(latidosVigilante)
+    .orderBy(desc(latidosVigilante.corridoEn))
+    .limit(1);
+  if (!fila) return null;
+  try {
+    const hechos = JSON.parse(fila.hechos) as { plazas?: PlazaInventario[] };
+    const plazas = Array.isArray(hechos.plazas) ? hechos.plazas : [];
+    if (plazas.length === 0) return null;
+    return {
+      plazas,
+      haceMinutos: Math.max(
+        0,
+        Math.round((Date.now() - fila.corridoEn.getTime()) / 60_000),
+      ),
+    };
+  } catch {
+    return null;
+  }
+}
