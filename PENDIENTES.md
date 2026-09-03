@@ -399,3 +399,11 @@ caído.
 
 Al empezar algo nuevo que no esté aquí, se agrega antes de escribir la primera
 línea de código.
+
+- 🔴 👤 **Richard: devolverle el dinero a la clienta de la camiseta (MT-000011 y
+  MT-000013).** Pagó dos veces la misma camiseta y no se puede enviar: no tiene
+  ninguna talla en el almacén de EE. UU. (el motivo ya lo dice el vigilante y
+  el panel). Panel → Órdenes → cada pedido → tres puntos → Devolver. Y en
+  Pedidos al proveedor, descartar la MT-000011 (por_pagar, CJ la rechazó) y la
+  MT-000004 (la prueba del 18 ago). El candado del checkout ya es cerrado
+  (3 sep): sin confirmación de stock no se cobra.
