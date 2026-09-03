@@ -112,5 +112,10 @@ export const config = {
    * Se aplica a las paginas, pero NO a las rutas de servidor (/datos, /media,
    * /upload), ni a los archivos con extension, ni a los internos de Next.
    */
-  matcher: ["/((?!_next|datos|media|upload|sw.js|manifest.json|.*\\..*).*)"],
+  /* `__scheduled` es la puerta del reloj propio de la plataforma (3 sep
+     2026): sin esta exclusión el idioma la mandaría a /es/__scheduled y el
+     planificador recibiría una redirección en vez de la puerta. */
+  matcher: [
+    "/((?!_next|datos|media|upload|__scheduled|sw.js|manifest.json|.*\\..*).*)",
+  ],
 };

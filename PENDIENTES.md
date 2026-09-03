@@ -117,6 +117,11 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       corrida real contra CJ se ve ahí: si la sonda da cero, el panel dice
       qué filtro aflojar. **La llave de CJ no vive en la máquina de trabajo,
       así que esto no se pudo probar contra CJ desde el código.**
+- [x] 💻 **El reloj propio del sitio (3 sep 2026).** GitHub corría 5 veces al
+      día, no cada 15 min. Ahora YaDominios Cloud invoca `/__scheduled` cada
+      minuto y cada latido trabaja 25 s (importación, afinado, barrido, stock,
+      traducción, y el vigilante cada 20 min). GitHub queda de respaldo para
+      releer los catálogos de los comercios.
 - [x] 💻 **El vigilante (2 sep 2026).** Panel → Equipo → Vigilante y
       `.github/workflows/vigilante.yml` cada 20 min: mira el reloj, CJ, Stripe,
       importaciones, compras al proveedor, Zelle, retiros y catálogos; retira

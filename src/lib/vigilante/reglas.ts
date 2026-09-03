@@ -68,6 +68,9 @@ export const UMBRALES = {
   ventaSinCompraMin: 30,
   zelleHoras: 24,
   retiroHoras: 72,
+  /** Los catálogos de los comercios los relee el flujo de GitHub, que corre
+   *  unas cinco veces al día (medido el 2 sep 2026): más de esto sí es raro. */
+  fuentesHoras: 6,
   /** Una alerta roja se recuerda por correo a las 6 h; una ámbar al día. */
   avisoRojoHoras: 6,
   avisoAmbarHoras: 24,
@@ -247,7 +250,7 @@ export function evaluar(h: Hechos): Alerta[] {
       clave: "fuentes-atrasadas",
       nivel: "ambar",
       titulo: `${plural(h.fuentesAtrasadas.length, "catálogo de comercio", "catálogos de comercios")} sin releer`,
-      detalle: `Llevan más de una hora sin actualizarse: ${h.fuentesAtrasadas.join(", ")}. Su stock aquí puede no ser el de su mostrador.`,
+      detalle: `Llevan más de ${UMBRALES.fuentesHoras} horas sin releerse: ${h.fuentesAtrasadas.join(", ")}. Su stock aquí puede no ser el de su mostrador.`,
     });
   }
 

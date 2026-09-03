@@ -240,7 +240,10 @@ export async function recogerHechos(): Promise<Hechos> {
             ne(fuentesCatalogo.estado, "pausada"),
             or(
               isNull(fuentesCatalogo.ultimaSincronizacion),
-              lt(fuentesCatalogo.ultimaSincronizacion, hace(60)),
+              lt(
+                fuentesCatalogo.ultimaSincronizacion,
+                hace(UMBRALES.fuentesHoras * 60),
+              ),
             ),
           ),
         );

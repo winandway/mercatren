@@ -1503,6 +1503,39 @@ poder sobre el sistema; este sí.
 
 Candados: `tests/unit/vigilante.test.ts`.
 
+## EL RELOJ DE GITHUB NO CORRE CADA 15 MINUTOS: EL SITIO TIENE RELOJ PROPIO (3 sep 2026)
+
+Medido el 2 sep 2026 en el historial de `sincronizar-catalogos`: corrió a las
+11:30, 15:16, 18:48, 21:23 y 23:24 — **cinco veces al día**, no cada 15
+minutos. GitHub retrasa y salta los flujos programados cuando anda cargado, y
+de ese reloj dependían la importación de CJ, el afinado, el stock, la
+traducción y el vigilante. Era lo que el dueño sentía como «todo se para».
+
+**La salida es el reloj de la propia plataforma:** `triggers.crons` en
+`yadominios.json` y `GET /__scheduled` (`src/app/__scheduled/route.ts`), que
+YaDominios Cloud invoca en el minuto que toque con la cabecera `x-yad-cron`
+(documentado en su guía de publicación). Late **cada minuto**.
+
+- **Cada latido hace un trabajo ACOTADO de 25 segundos** (`src/lib/reloj/tick.ts`):
+  contesta enseguida y trabaja después con `ctx.waitUntil`, que Cloudflare
+  deja correr hasta 30 s tras la respuesta. Por orden: el vigilante si lleva
+  20 min sin correr (y ese latido es suyo), la importación en marcha, el
+  afinado, el barrido, un par de productos de stock y una tanda de títulos.
+- **El reclamo** (`reclamarTick`): un UPDATE condicionado sobre
+  `configuracion.sincronizar_ultimo_latido`; si otro latido la tomó hace
+  menos de 50 s, no se trabaja. Es lo que impide pisarse y lo que hace
+  inofensivo que cualquiera toque la puerta a mano.
+- **`__scheduled` va excluido del matcher del middleware**: sin eso el idioma
+  lo mandaría a `/es/__scheduled` y el planificador recibiría una
+  redirección.
+- **GitHub queda de RESPALDO** para lo que no cabe en 25 s: releer los
+  catálogos de los comercios (`sincronizar.yml`, cuando corra). Por eso el
+  vigilante tolera 6 h en esos catálogos, no 1.
+- Cómo se comprueba que late: `/datos/salud` → `vigilante.haceMinutos` se
+  reinicia cada ~20 min sin que nadie pulse nada.
+
+Candado: `tests/unit/reloj-propio.test.ts`.
+
 ## LA PRIMERA COMPRA PAGADA MURIÓ POR UN SKU (18 ago 2026)
 
 MT-000004 se pagó de verdad y CJ la rechazó con **«No variants found for
