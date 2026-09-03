@@ -45,7 +45,7 @@ async function latir(peticion: Request) {
     });
   }
 
-  const trabajo = correrTick().then(
+  const trabajo = correrTick("puerta").then(
     (r) =>
       console.log(
         "[tick]",

@@ -83,7 +83,31 @@ export type ResultadoTick = {
  * presupuesto. Cada pieza en su propio `catch`: que una falle no deja sin
  * hacer a las demás.
  */
+/** Dónde queda escrito el último latido completo, para verlo en el canario. */
+export const LLAVE_ULTIMO_TICK = "reloj_ultimo_tick";
+
+async function anotarTick(origen: string, r: ResultadoTick, arranque: number) {
+  try {
+    const valor = JSON.stringify({
+      en: arranque,
+      origen,
+      duracionMs: r.duracionMs,
+      hizo: r.hizo,
+    });
+    await getDb()
+      .insert(configuracion)
+      .values({ clave: LLAVE_ULTIMO_TICK, valor })
+      .onConflictDoUpdate({
+        target: configuracion.clave,
+        set: { valor },
+      });
+  } catch (fallo) {
+    console.error("[tick] no se pudo anotar el latido:", fallo);
+  }
+}
+
 export async function correrTick(
+  origen: "puerta" | "trafico" = "puerta",
   presupuestoMs = TICK_PRESUPUESTO_MS,
 ): Promise<ResultadoTick> {
   const arranque = Date.now();
@@ -103,7 +127,9 @@ export async function correrTick(
       const { correrVigilante } = await import("@/lib/vigilante/correr");
       const l = await correrVigilante("reloj");
       hizo.push(`vigilante: ${l.alertas.length} alertas`);
-      return { hizo, duracionMs: Date.now() - arranque };
+      const r = { hizo, duracionMs: Date.now() - arranque };
+      await anotarTick(origen, r, arranque);
+      return r;
     }
   } catch (fallo) {
     console.error("[tick] el vigilante falló:", fallo);
@@ -182,7 +208,9 @@ export async function correrTick(
     console.error("[tick] la traducción falló:", fallo);
   }
 
-  return { hizo, duracionMs: Date.now() - arranque };
+  const r = { hizo, duracionMs: Date.now() - arranque };
+  await anotarTick(origen, r, arranque);
+  return r;
 }
 
 /* ══ Y SI NINGÚN RELOJ LLAMA, LATE CON EL TRÁFICO (3 sep 2026) ══
@@ -209,7 +237,7 @@ export function latirConElTrafico(): void {
   ctx.waitUntil(
     (async () => {
       if (!(await reclamarTick(ahora))) return;
-      const r = await correrTick();
+      const r = await correrTick("trafico");
       console.log(
         "[tick·tráfico]",
         r.duracionMs,
