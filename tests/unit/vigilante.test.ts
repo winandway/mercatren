@@ -412,3 +412,17 @@ describe("el tablero del vigilante (3 sep 2026)", () => {
     expect(acc).toContain("esSoporteDeVerdad()");
   });
 });
+
+describe("CJ sin puntos de API (3 sep 2026)", () => {
+  it("«sin puntos» avisa en ámbar y NO se lee como que CJ está caído", () => {
+    const a = evaluar({ ...todoBien(), proveedor: "sin_puntos" });
+    expect(a.map((x) => x.clave)).toEqual(["cj-sin-puntos"]);
+    expect(a[0]?.nivel).toBe("ambar");
+    expect(a[0]?.detalle).toContain("No está caído");
+  });
+
+  it("un CJ de verdad caído sigue siendo rojo", () => {
+    const a = evaluar({ ...todoBien(), proveedor: "error" });
+    expect(a[0]?.nivel).toBe("rojo");
+  });
+});

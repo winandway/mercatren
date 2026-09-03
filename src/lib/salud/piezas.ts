@@ -21,7 +21,14 @@ export async function saludDelProveedor(): Promise<string> {
     const { cjConfigurado, llamarCj } = await import("@/lib/cj/cliente");
     if (!cjConfigurado()) return "sin_llave";
     const r = await llamarCj<unknown>("/product/list?pageNum=1&pageSize=1");
-    return r.ok ? "ok" : "error";
+    if (r.ok) return "ok";
+    /* «Sin puntos» no es «caído», y se arregla de otra forma: gastando menos
+       llamadas o comprándole más. Decir «error» mandaba a buscar una avería
+       que no existe (3 sep 2026). */
+    const { esSinPuntos } = await import("@/lib/cj/puntos");
+    return esSinPuntos(r.motivo) || /puntos de API/i.test(r.motivo)
+      ? "sin_puntos"
+      : "error";
   } catch {
     return "error";
   }

@@ -550,7 +550,18 @@
       "compradoComercio": "Te pagamos",
       "entregadas": "Entregadas",
       "clientesNuevos": "Clientes nuevos",
-      "esteMes": "Este mes"
+      "esteMes": "Este mes",
+      "catalogo": {
+        "titulo": "El catálogo, de un vistazo",
+        "verDetalle": "Ver el detalle",
+        "aLaVenta": "a la venta",
+        "enRevision": "En revisión",
+        "sinTraducir": "Título en inglés",
+        "porResolver": "Por resolver",
+        "us": "Estados Unidos",
+        "cl": "Chile",
+        "co": "Colombia"
+      }
     },
     "enConstruccion": {
       "titulo": "Sección en preparación",

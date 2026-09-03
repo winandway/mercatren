@@ -13,6 +13,7 @@ import {
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { PrimerosPasos } from "@/components/panel/primeros-pasos";
+import { CatalogoDeUnVistazo } from "@/components/panel/catalogo-de-un-vistazo";
 import { TarjetaMetrica } from "@/components/panel/tarjeta-metrica";
 import { Link } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
@@ -42,6 +43,23 @@ export default async function PaginaResumen({
     esEquipoInterno(),
   ]);
   const esComercio = !interno;
+
+  /* EL CATÁLOGO EN EL TABLERO (3 sep 2026): solo para el equipo — a un
+     comercio no le dice nada cuántos productos hay en Chile. */
+  const plazas = interno
+    ? await (async () => {
+        const { inventarioPorPlaza } =
+          await import("@/lib/vigilante/inventario");
+        return inventarioPorPlaza().catch(async (fallo) => {
+          /* Que la contabilidad falle no puede tumbar el tablero, pero
+             tampoco puede desaparecer en silencio: queda en el historial
+             de fallos (Panel → Vigilante). */
+          const { registrarError } = await import("@/lib/errores/registro");
+          await registrarError("panel/inventario", fallo);
+          return [];
+        });
+      })()
+    : [];
 
   /**
    * Un comercio recién dado de alta entra a un panel con todo en cero y sin
@@ -152,6 +170,8 @@ export default async function PaginaResumen({
        * con muchas ventas y poca mercancía entregada, y eso es un problema que
        * hay que ver el día que pasa, no a fin de mes.
        */}
+      {plazas.length > 0 ? <CatalogoDeUnVistazo plazas={plazas} /> : null}
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         <TarjetaMetrica
           Icono={ShoppingBag}

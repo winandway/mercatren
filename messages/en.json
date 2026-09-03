@@ -550,7 +550,18 @@
       "compradoComercio": "Paid to you",
       "entregadas": "Delivered",
       "clientesNuevos": "New customers",
-      "esteMes": "This month"
+      "esteMes": "This month",
+      "catalogo": {
+        "titulo": "Catalog at a glance",
+        "verDetalle": "See the detail",
+        "aLaVenta": "on sale",
+        "enRevision": "In review",
+        "sinTraducir": "English title",
+        "porResolver": "To resolve",
+        "us": "United States",
+        "cl": "Chile",
+        "co": "Colombia"
+      }
     },
     "enConstruccion": {
       "titulo": "Section being prepared",

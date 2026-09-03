@@ -274,6 +274,17 @@ con tarjeta tras el arreglo de COP), el rito de prueba, y los campos del
 canario (`/datos/salud`: `base`, `metodos`, `proveedor`, `avisoStripe`). Se
 actualiza en el mismo trabajo que toque cualquier pieza de cobro.
 
+## EL ORDEN DE TRABAJO ESTÁ EN `CRONOGRAMA.md`
+
+**Cuando el dueño pregunte «¿qué falta?» o «¿qué hago yo?», se contesta desde
+`CRONOGRAMA.md`**: la lista completa en orden de prioridad, marcando qué es
+suyo (👤) y qué es mío (💻), con «cómo saber que quedó» en cada punto. Lo
+pidió el 3 sep 2026: «no haces un roadmap de todo lo que tenemos pendiente,
+todo, absolutamente todo, y me vas pasando las cosas si le pones prioridad».
+
+`PENDIENTES.md` sigue siendo el índice largo por temas; el cronograma es el
+ORDEN. Al terminar algo se marca en los dos.
+
 ## LO QUE FALTA SE MIRA EN `PENDIENTES.md`
 
 **Cuando el dueño pregunte «¿qué tenemos pendiente?», se contesta desde

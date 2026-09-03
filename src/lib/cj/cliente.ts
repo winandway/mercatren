@@ -1,4 +1,11 @@
 import "server-only";
+import {
+  LLAVE_SIN_PUNTOS,
+  esSinPuntos,
+  esperarHasta,
+  minutosParaVolver,
+  sigueSinPuntos,
+} from "@/lib/cj/puntos";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq } from "drizzle-orm";
@@ -159,11 +166,48 @@ export async function tokenDeCj(): Promise<RespuestaCj<string>> {
   return pedirToken(llave);
 }
 
-/** Una llamada a CJ con el token ya puesto. */
+/** Anota hasta cuándo no vale la pena volver a llamar a CJ. Nunca lanza. */
+async function anotarSinPuntos(motivo: string | undefined): Promise<void> {
+  try {
+    const { getDb } = await import("@/lib/db");
+    const { configuracion } = await import("@/lib/db/schema");
+    const hasta = String(esperarHasta(Date.now()));
+    await getDb()
+      .insert(configuracion)
+      .values({ clave: LLAVE_SIN_PUNTOS, valor: hasta })
+      .onConflictDoUpdate({
+        target: configuracion.clave,
+        set: { valor: hasta },
+      });
+    console.error(`[cj] sin puntos de API: ${motivo ?? ""}`);
+  } catch (fallo) {
+    console.error("[cj] no se pudo anotar la pausa por puntos:", fallo);
+  }
+}
+
+/**
+ * Una llamada a CJ con el token ya puesto.
+ *
+ * ══ SI NO QUEDAN PUNTOS DEL DÍA, NI SE LLAMA (3 sep 2026) ══
+ *
+ * CJ reparte puntos de API por día y se acaban («Insufficient API points…
+ * Remaining: 0»). Pasó con la importación de 44.035 productos. Cada llamada
+ * de más devuelve el mismo error y se come el tiempo del reloj sin traer
+ * nada, así que se anota hasta cuándo esperar y mientras tanto se contesta
+ * con el motivo de verdad. Ver `puntos.ts`.
+ */
 export async function llamarCj<T>(
   ruta: string,
   opciones?: { metodo?: string; cuerpo?: unknown },
 ): Promise<RespuestaCj<T>> {
+  const pausa = await leerGuardado(LLAVE_SIN_PUNTOS);
+  if (sigueSinPuntos(pausa, Date.now())) {
+    return {
+      ok: false,
+      motivo: `CJ no tiene puntos de API para hoy. Vuelve a intentar en ${minutosParaVolver(pausa, Date.now())} min.`,
+    };
+  }
+
   const token = await tokenDeCj();
   if (!token.ok) return token;
 
@@ -190,6 +234,7 @@ export async function llamarCj<T>(
   };
 
   if (!respuesta.ok || cuerpo.result === false) {
+    if (esSinPuntos(cuerpo.message)) await anotarSinPuntos(cuerpo.message);
     return {
       ok: false,
       motivo: cuerpo.message ?? `CJ respondió ${respuesta.status}.`,

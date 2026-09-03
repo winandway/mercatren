@@ -178,7 +178,15 @@ export function evaluar(h: Hechos): Alerta[] {
   }
 
   /* 2. Las llaves de las que depende el dinero. */
-  if (h.proveedor !== "ok") {
+  if (h.proveedor === "sin_puntos") {
+    alertas.push({
+      clave: "cj-sin-puntos",
+      nivel: "ambar",
+      titulo: "CJ se quedó sin puntos de API por hoy",
+      detalle:
+        "No está caído: CJ da una cantidad de llamadas al día y se agotaron (pasó con la importación del almacén completo). Mientras tanto no se afinan precios ni se refresca el stock, y una compra al proveedor no se puede crear. Se renuevan solos; el sistema deja de llamar hasta entonces para no gastar el reloj. Para tener más puntos hay que comprarle más a CJ.",
+    });
+  } else if (h.proveedor !== "ok") {
     alertas.push({
       clave: "proveedor",
       nivel: "rojo",
