@@ -1,9 +1,10 @@
 import "server-only";
 
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
-import { latidosVigilante } from "@/lib/db/schema";
+import { configuracion, latidosVigilante } from "@/lib/db/schema";
+import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
 
 /**
  * LAS PIEZAS DEL CANARIO, COMPARTIDAS CON EL VIGILANTE.
@@ -89,6 +90,25 @@ export async function resumenDelVigilante(): Promise<{
       alertas: lista.length,
       rojas: lista.filter((a) => a.nivel === "rojo").length,
     };
+  } catch {
+    return null;
+  }
+}
+
+/** El último latido del reloj (propio o de GitHub), en minutos. `null` si
+ *  nunca latió. Es lo que permite ver desde fuera si el sitio se mueve solo. */
+export async function resumenDelReloj(): Promise<{
+  haceMinutos: number;
+} | null> {
+  try {
+    const [fila] = await getDb()
+      .select({ valor: configuracion.valor })
+      .from(configuracion)
+      .where(eq(configuracion.clave, LLAVE_LATIDO_SINCRONIZAR))
+      .limit(1);
+    const ms = Number(fila?.valor);
+    if (!Number.isFinite(ms) || ms <= 0) return null;
+    return { haceMinutos: Math.max(0, Math.round((Date.now() - ms) / 60_000)) };
   } catch {
     return null;
   }

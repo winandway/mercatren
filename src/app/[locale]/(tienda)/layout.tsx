@@ -3,6 +3,7 @@ import { PiePagina } from "@/components/layout/pie-pagina";
 import { WebMcp } from "@/components/agentes/webmcp";
 import { PulsoDeVisita } from "@/components/analitica/pulso-de-visita";
 import { RastroDeNavegacion } from "@/components/navegacion/rastro-de-navegacion";
+import { latirConElTrafico } from "@/lib/reloj/tick";
 
 /**
  * Todo lo que ve el publico: catalogo, producto, carrito, ayuda.
@@ -15,6 +16,8 @@ export default async function LayoutTienda({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
+  /* El sitio late con el tráfico (3 sep 2026): ver `lib/reloj/tick.ts`. */
+  latirConElTrafico();
   const { locale } = await params;
   return (
     <>

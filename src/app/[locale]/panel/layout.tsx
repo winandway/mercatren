@@ -32,6 +32,7 @@ import { comercioObservado } from "@/lib/soporte/ver-como";
 import { cn } from "@/lib/utils";
 import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
 import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
+import { latirConElTrafico } from "@/lib/reloj/tick";
 
 /** El panel lee la base en cada visita: nunca se genera de antemano. */
 export const dynamic = "force-dynamic";
@@ -57,6 +58,8 @@ export default async function LayoutPanel({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
+  /* El sitio late con el tráfico (3 sep 2026): ver `lib/reloj/tick.ts`. */
+  latirConElTrafico();
   const { locale } = await params;
   setRequestLocale(locale);
 

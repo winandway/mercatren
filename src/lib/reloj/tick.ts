@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { desc, eq, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
@@ -182,4 +183,39 @@ export async function correrTick(
   }
 
   return { hizo, duracionMs: Date.now() - arranque };
+}
+
+/* ══ Y SI NINGÚN RELOJ LLAMA, LATE CON EL TRÁFICO (3 sep 2026) ══
+   Cada visita pública o del panel puede dejar un latido en segundo plano:
+   si la marca lleva más de 50 s sin tomarse, se reclama y el trabajo corre
+   con `ctx.waitUntil` mientras la página ya se entregó. Con Google y los
+   compradores entrando a toda hora, el sitio se mueve solo aunque el reloj
+   de la plataforma o el de GitHub fallen. Un contador por instancia evita
+   siquiera mirar la base más de una vez por minuto. */
+let ultimoIntentoMs = 0;
+
+export function latirConElTrafico(): void {
+  const ahora = Date.now();
+  if (ahora - ultimoIntentoMs < 60_000) return;
+  ultimoIntentoMs = ahora;
+  type Contexto = { waitUntil: (p: Promise<unknown>) => void };
+  let ctx: Contexto | null = null;
+  try {
+    ctx = getCloudflareContext().ctx as unknown as Contexto;
+  } catch {
+    return; /* Sin contexto (un build, una prueba): no hay dónde latir. */
+  }
+  if (!ctx || typeof ctx.waitUntil !== "function") return;
+  ctx.waitUntil(
+    (async () => {
+      if (!(await reclamarTick(ahora))) return;
+      const r = await correrTick();
+      console.log(
+        "[tick·tráfico]",
+        r.duracionMs,
+        "ms:",
+        r.hizo.join(" · ") || "nada pendiente",
+      );
+    })().catch((fallo) => console.error("[tick·tráfico] falló:", fallo)),
+  );
 }

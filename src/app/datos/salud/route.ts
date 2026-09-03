@@ -4,6 +4,7 @@ import { VERSION_AGENTES } from "@/lib/agentes/recursos";
 import { getDb } from "@/lib/db";
 import {
   avisoDeStripeArmado,
+  resumenDelReloj,
   resumenDelVigilante,
   saludDelProveedor,
 } from "@/lib/salud/piezas";
@@ -73,7 +74,7 @@ export async function GET() {
   );
   try {
     await getDb().run(sql`SELECT 1`);
-    const [proveedor, avisoStripe, vigilante] = await Promise.all([
+    const [proveedor, avisoStripe, vigilante, reloj] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
         getCloudflareContext().env as unknown as Record<
@@ -82,6 +83,7 @@ export async function GET() {
         >,
       ),
       resumenDelVigilante(),
+      resumenDelReloj(),
     ]);
     return Response.json(
       {
@@ -95,6 +97,9 @@ export async function GET() {
         /* El vigilante: hace cuánto corrió y cuántas alertas dejó. `null`
            si nunca corrió. */
         vigilante,
+        /* El reloj: hace cuántos minutos latió. Si pasa de unos pocos, el
+           sitio no se está moviendo solo. */
+        reloj,
         hora,
       },
       {

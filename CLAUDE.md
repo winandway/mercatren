@@ -1533,8 +1533,15 @@ una ruta en `app/__scheduled` cayó en la página 404 en producción.
 - **GitHub queda de RESPALDO** para lo que no cabe en 25 s: releer los
   catálogos de los comercios (`sincronizar.yml`, cuando corra). Por eso el
   vigilante tolera 6 h en esos catálogos, no 1.
-- Cómo se comprueba que late: `/datos/salud` → `vigilante.haceMinutos` se
-  reinicia cada ~20 min sin que nadie pulse nada.
+- **Y si ningún reloj llama, late con el tráfico** (`latirConElTrafico` en
+  los layouts de la tienda y del panel): cada visita puede dejar un latido en
+  segundo plano con `ctx.waitUntil`, reclamando la misma marca. Con Google y
+  los compradores entrando a toda hora, el sitio se mueve solo aunque fallen
+  el reloj de la plataforma y el de GitHub. Un contador por instancia evita
+  mirar la base más de una vez por minuto.
+- Cómo se comprueba que late: `/datos/salud` → `reloj.haceMinutos` (el último
+  latido, de quien sea) y `vigilante.haceMinutos`, que se reinicia cada ~20
+  min sin que nadie pulse nada.
 
 Candado: `tests/unit/reloj-propio.test.ts`.
 

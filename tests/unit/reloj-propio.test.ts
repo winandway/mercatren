@@ -81,4 +81,17 @@ describe("el reloj propio", () => {
     /* Y no existe una carpeta app/__scheduled: Next no la serviría. */
     expect(existsSync("src/app/__scheduled")).toBe(false);
   });
+
+  it("y si ningún reloj llama, late con el tráfico desde los dos layouts", () => {
+    const tick = leer("src/lib/reloj/tick.ts");
+    expect(tick).toContain("export function latirConElTrafico()");
+    expect(tick).toContain("ctx.waitUntil(");
+    expect(tick).toContain("await reclamarTick(ahora)");
+    for (const ruta of [
+      "src/app/[locale]/(tienda)/layout.tsx",
+      "src/app/[locale]/panel/layout.tsx",
+    ]) {
+      expect(leer(ruta), ruta).toContain("latirConElTrafico();");
+    }
+  });
 });
