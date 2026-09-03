@@ -4,6 +4,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { and, asc, eq, isNotNull, sql } from "drizzle-orm";
 
 import { copiarFotoAlBucket } from "@/lib/catalogo/copiar-foto";
+import { FUENTE_CJ } from "@/lib/cj/constantes";
 import {
   FOTOS_POR_TICK,
   LLAVE_CUOTA_FOTOS,
@@ -167,18 +168,30 @@ export async function traerFotosDesdeElReloj(
       sql`not exists (select 1 from ${imagenesProducto} where ${imagenesProducto.id} = ${fotosRotas.imagenId})`,
     );
 
-  /* Primero las que nunca fallaron, después las que menos veces; y dentro
-     de eso, las más antiguas. Así un origen caído no monopoliza la cuota. */
+  /**
+   * EL ORDEN: PRIMERO LAS DE LOS COMERCIOS, DESPUÉS LAS DE CJ.
+   *
+   * Medido en producción el 3 sep 2026: 54.097 fotos dependen de un servidor
+   * ajeno, y casi todas son del catálogo de CJ — que las sirve desde su CDN
+   * y no se cae. Las que de verdad rompen la portada son las pocas cientos
+   * del comercio piloto, en un worker de plan gratuito. Sin este orden, esas
+   * pocas cientos esperarían meses detrás de las cincuenta mil de CJ.
+   *
+   * Después, las que nunca fallaron antes que las que ya fallaron: un origen
+   * caído no puede monopolizar la cuota de la hora.
+   */
   const pendientes = await db
     .select({
       id: imagenesProducto.id,
       productoId: imagenesProducto.productoId,
       url: imagenesProducto.url,
+      esDeCj: sql<number>`case when ${productos.fuenteId} = ${FUENTE_CJ} then 1 else 0 end`,
       intentos: sql<number>`coalesce((select ${fotosRotas.intentos} from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.url} = ${imagenesProducto.url}), 0)`,
     })
     .from(imagenesProducto)
+    .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
     .where(pendienteDeTraer)
-    .orderBy(sql`4`, sql`imagenes_producto.rowid`)
+    .orderBy(sql`4`, sql`5`, sql`imagenes_producto.rowid`)
     .limit(maximo);
 
   const { env } = getCloudflareContext();

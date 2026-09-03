@@ -149,6 +149,17 @@ describe("candados en el código", () => {
     );
   });
 
+  it("PRIMERO las fotos de los comercios, después las de CJ (su CDN no se cae)", () => {
+    const auto = leer("src/lib/catalogo/fotos-automaticas.ts");
+    expect(auto).toContain(
+      "case when ${productos.fuenteId} = ${FUENTE_CJ} then 1 else 0 end",
+    );
+    /* El orden: esDeCj (columna 4), intentos (5), y después la más vieja. */
+    expect(auto).toContain(
+      "orderBy(sql`4`, sql`5`, sql`imagenes_producto.rowid`)",
+    );
+  });
+
   it("la cuota se gasta por intento, no por éxito (a un origen caído no se le insiste)", () => {
     const auto = leer("src/lib/catalogo/fotos-automaticas.ts");
     expect(auto).toContain("const gastadas = copiadas + fallidas;");
