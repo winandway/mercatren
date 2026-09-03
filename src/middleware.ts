@@ -36,6 +36,18 @@ function quiereMarkdown(request: NextRequest): boolean {
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  /* ══ LA PUERTA DEL RELOJ PROPIO (3 sep 2026) ══ YaDominios Cloud invoca
+     `/__scheduled` en el minuto declarado en yadominios.json. Next trata las
+     carpetas que empiezan por guion bajo como privadas —una ruta ahí cae en
+     la página 404, medido en producción—, así que la puerta vive en
+     `/datos/reloj` y aquí se reescribe. Las cabeceras (`x-yad-cron`) viajan
+     tal cual. */
+  if (pathname === "/__scheduled") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/datos/reloj";
+    return NextResponse.rewrite(url);
+  }
+
   if (quiereMarkdown(request) && !ES_PANEL.test(pathname)) {
     const ruta = pathname + (request.nextUrl.search || "");
     const url = request.nextUrl.clone();
@@ -112,10 +124,7 @@ export const config = {
    * Se aplica a las paginas, pero NO a las rutas de servidor (/datos, /media,
    * /upload), ni a los archivos con extension, ni a los internos de Next.
    */
-  /* `__scheduled` es la puerta del reloj propio de la plataforma (3 sep
-     2026): sin esta exclusión el idioma la mandaría a /es/__scheduled y el
-     planificador recibiría una redirección en vez de la puerta. */
-  matcher: [
-    "/((?!_next|datos|media|upload|__scheduled|sw.js|manifest.json|.*\\..*).*)",
-  ],
+  /* `/__scheduled` SÍ entra: el middleware lo reescribe a /datos/reloj antes
+     de que el idioma lo toque. */
+  matcher: ["/((?!_next|datos|media|upload|sw.js|manifest.json|.*\\..*).*)"],
 };

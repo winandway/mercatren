@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
@@ -31,7 +31,7 @@ describe("el reloj propio", () => {
   });
 
   it("la puerta contesta primero y trabaja después, y no es pública", () => {
-    const ruta = leer("src/app/__scheduled/route.ts");
+    const ruta = leer("src/app/datos/reloj/route.ts");
     expect(ruta).toContain('peticion.headers.get("x-yad-cron")');
     expect(ruta).toContain(
       "autorizadoPorLlave(peticion, env.SINCRONIZAR_LLAVE)",
@@ -71,7 +71,14 @@ describe("el reloj propio", () => {
     }
   });
 
-  it("el middleware deja pasar /__scheduled sin ponerle idioma", () => {
-    expect(leer("src/middleware.ts")).toContain("__scheduled|");
+  it("el middleware reescribe /__scheduled a /datos/reloj ANTES del idioma (app/__scheduled sería privado y daría 404)", () => {
+    const mw = leer("src/middleware.ts");
+    expect(mw).toContain('pathname === "/__scheduled"');
+    expect(mw).toContain('url.pathname = "/datos/reloj"');
+    expect(mw.indexOf('pathname === "/__scheduled"')).toBeLessThan(
+      mw.indexOf("quiereMarkdown(request)"),
+    );
+    /* Y no existe una carpeta app/__scheduled: Next no la serviría. */
+    expect(existsSync("src/app/__scheduled")).toBe(false);
   });
 });

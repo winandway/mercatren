@@ -6,9 +6,12 @@ import { correrTick, reclamarTick } from "@/lib/reloj/tick";
 /**
  * LA PUERTA DEL RELOJ PROPIO (3 sep 2026). Ver `src/lib/reloj/tick.ts`.
  *
- * YaDominios Cloud la invoca en el minuto declarado en `yadominios.json`
- * (`triggers.crons`), con la cabecera `x-yad-cron`. También la puede tocar el
- * equipo con la llave del reloj, para probarla a mano.
+ * YaDominios Cloud invoca `/__scheduled` en el minuto declarado en
+ * `yadominios.json` (`triggers.crons`), con la cabecera `x-yad-cron`, y el
+ * middleware lo reescribe aquí: Next trata las carpetas que empiezan por
+ * guion bajo como privadas y una ruta en `app/__scheduled` caía en la página
+ * 404 (medido en producción). También la puede tocar el equipo con la llave
+ * del reloj, para probarla a mano.
  *
  * Contesta ENSEGUIDA y trabaja después (`ctx.waitUntil`): así el planificador
  * no espera y el trabajo tiene sus 25 segundos completos. Sin cabecera ni

@@ -1512,9 +1512,12 @@ de ese reloj dependían la importación de CJ, el afinado, el stock, la
 traducción y el vigilante. Era lo que el dueño sentía como «todo se para».
 
 **La salida es el reloj de la propia plataforma:** `triggers.crons` en
-`yadominios.json` y `GET /__scheduled` (`src/app/__scheduled/route.ts`), que
-YaDominios Cloud invoca en el minuto que toque con la cabecera `x-yad-cron`
-(documentado en su guía de publicación). Late **cada minuto**.
+`yadominios.json` y `GET /__scheduled`, que YaDominios Cloud invoca en el
+minuto que toque con la cabecera `x-yad-cron` (documentado en su guía de
+publicación). Late **cada minuto**. **OJO: la ruta vive en
+`src/app/datos/reloj/route.ts` y el middleware reescribe `/__scheduled` hacia
+ahí** — Next trata las carpetas que empiezan por guion bajo como privadas, y
+una ruta en `app/__scheduled` cayó en la página 404 en producción.
 
 - **Cada latido hace un trabajo ACOTADO de 25 segundos** (`src/lib/reloj/tick.ts`):
   contesta enseguida y trabaja después con `ctx.waitUntil`, que Cloudflare
@@ -1525,9 +1528,8 @@ YaDominios Cloud invoca en el minuto que toque con la cabecera `x-yad-cron`
   `configuracion.sincronizar_ultimo_latido`; si otro latido la tomó hace
   menos de 50 s, no se trabaja. Es lo que impide pisarse y lo que hace
   inofensivo que cualquiera toque la puerta a mano.
-- **`__scheduled` va excluido del matcher del middleware**: sin eso el idioma
-  lo mandaría a `/es/__scheduled` y el planificador recibiría una
-  redirección.
+- **`/__scheduled` SÍ pasa por el middleware**, que lo reescribe a
+  `/datos/reloj` antes de que el idioma lo toque.
 - **GitHub queda de RESPALDO** para lo que no cabe en 25 s: releer los
   catálogos de los comercios (`sincronizar.yml`, cuando corra). Por eso el
   vigilante tolera 6 h en esos catálogos, no 1.
