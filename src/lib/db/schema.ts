@@ -3527,3 +3527,28 @@ export const fotosRotas = sqliteTable("fotos_rotas", {
     mode: "timestamp",
   }).notNull(),
 });
+
+/**
+ * EL HISTORIAL DE FALLOS DEL SISTEMA (3 sep 2026).
+ *
+ * Lo pidió el dueño: «que haya un historial de bugs donde podamos ver todo
+ * eso y controlarlos, y que tú misma tengas acceso a él». Hasta hoy los
+ * fallos vivían en `console.error` — visibles solo en los registros de la
+ * plataforma, que él no mira y yo no puedo leer desde otra sesión.
+ *
+ * Se agrupan por `clave` (origen + el mensaje sin números ni ids): un fallo
+ * que ocurre mil veces es UNA fila con su contador, no mil filas. Sin eso,
+ * la tabla crece sin freno y el historial deja de leerse, que es justo lo
+ * que se quiere evitar.
+ */
+export const erroresSistema = sqliteTable("errores_sistema", {
+  clave: text("clave").primaryKey(),
+  origen: text("origen").notNull(),
+  mensaje: text("mensaje").notNull(),
+  detalle: text("detalle"),
+  veces: integer("veces").notNull().default(1),
+  primeraVezEn: integer("primera_vez_en", { mode: "timestamp" }).notNull(),
+  ultimaVezEn: integer("ultima_vez_en", { mode: "timestamp" }).notNull(),
+  /** Marcado a mano desde el panel cuando ya se arregló. */
+  resueltoEn: integer("resuelto_en", { mode: "timestamp" }),
+});

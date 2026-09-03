@@ -2657,7 +2657,48 @@
       "importacionLinea": "Importación de {plaza}: {estado} · {agregados} nuevos · {pendientes} tandas pendientes · {conError} con error",
       "historial": "Historial",
       "alertasN": "{n, plural, =0 {sin alertas} =1 {1 alerta} other {# alertas}}",
-      "accionesN": "{n, plural, =0 {sin acciones} =1 {1 cambio} other {# cambios}}"
+      "accionesN": "{n, plural, =0 {sin acciones} =1 {1 cambio} other {# cambios}}",
+      "empujones": {
+        "titulo": "Adelantar trabajo ahora",
+        "texto": "El reloj hace esto solo cada minuto. Estos botones lo adelantan mientras miras.",
+        "importar": "Seguir importando",
+        "afinar": "Afinar precios y tallas",
+        "traducir": "Traducir al español",
+        "fotos": "Traer fotos a Mercatren"
+      },
+      "inventario": {
+        "titulo": "Qué hay en cada plaza",
+        "texto": "Todo lo que entra pasa por los mismos pasos: se importa, se le cotiza el flete real, se traduce y recién entonces sale a la venta.",
+        "plaza": "Plaza",
+        "aLaVenta": "A la venta",
+        "enRevision": "En revisión",
+        "borradores": "Borradores",
+        "agotados": "Agotados",
+        "fleteReal": "Con flete cotizado",
+        "fleteEstimado": "Con flete estimado",
+        "sinFlete": "Sin flete",
+        "sinCosto": "Sin costo base",
+        "sinTraducir": "Título en inglés",
+        "sinDescripcion": "Sin descripción",
+        "fotosDeOrigen": "Fotos en servidor ajeno",
+        "tiendas": "Las tiendas de los comercios",
+        "tienda": "Tienda",
+        "pais": "País",
+        "estado": "Estado",
+        "sinFoto": "Sin foto",
+        "sincronizado": "Último catálogo leído",
+        "nunca": "nunca",
+        "sinTiendas": "Todavía no hay comercios con productos cargados."
+      },
+      "errores": {
+        "titulo": "Historial de fallos",
+        "texto": "Cada fallo del sistema queda aquí agrupado, con cuántas veces pasó. Si vuelve a pasar después de marcarlo resuelto, reaparece solo.",
+        "sinErrores": "Ningún fallo pendiente.",
+        "veces": "{n} veces",
+        "ultima": "última vez hace {min} min",
+        "resolver": "Ya lo arreglé",
+        "resolviendo": "Marcando…"
+      }
     }
   },
   "catalogo": {

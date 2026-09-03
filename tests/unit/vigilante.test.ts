@@ -336,3 +336,79 @@ describe("las piezas que no pueden faltar (leyendo el código)", () => {
     );
   });
 });
+
+describe("el correo lleva el conteo del catálogo (3 sep 2026)", () => {
+  it("dice cuántos hay a la venta, en revisión y por afinar en cada plaza", () => {
+    const { lineas } = textoDelCorreo(
+      [],
+      [],
+      [
+        {
+          mercado: "US",
+          publicados: 195,
+          enRevision: 43110,
+          porAfinar: 40000,
+          sinCostoBase: 0,
+        },
+        {
+          mercado: "CL",
+          publicados: 0,
+          enRevision: 0,
+          porAfinar: 0,
+          sinCostoBase: 0,
+        },
+      ],
+    );
+    const linea = lineas.find((l) => l.startsWith("Cómo va el catálogo"));
+    expect(linea).toContain("Estados Unidos 195 a la venta");
+    expect(linea).toContain("43110 en revisión");
+    /* Una plaza vacía no ensucia el correo. */
+    expect(linea).not.toContain("Chile");
+  });
+});
+
+describe("el tablero del vigilante (3 sep 2026)", () => {
+  const leer = (ruta: string) => readFileSync(ruta, "utf-8");
+
+  it("mide cada plaza con UNA consulta, no once", () => {
+    const inv = leer("src/lib/vigilante/inventario.ts");
+    /* Once cuentas sobre cincuenta mil fichas: en once consultas la
+       pantalla tarda. `sum(case when …)` las resuelve en una pasada. */
+    expect(inv.match(/sum\(case when/g)?.length).toBeGreaterThanOrEqual(9);
+    /* Y nunca la tabla entera: columnas nombradas (regla del proyecto). */
+    expect(inv).not.toMatch(/\.select\(\)\s*\n\s*\.from\(productos\)/);
+  });
+
+  it("el historial de fallos agrupa por firma, sin ids ni números", () => {
+    const reg = leer("src/lib/errores/registro.ts");
+    expect(reg).toContain('replace(/[0-9a-f]{8,}/g, "#")');
+    expect(reg).toContain('replace(/\\d+/g, "#")');
+    /* Anotar un fallo no puede fallar. */
+    expect(reg).toContain("catch (fallo) {");
+    /* Si vuelve a pasar, deja de estar resuelto. */
+    expect(reg).toContain("resueltoEn: null");
+  });
+
+  it("el reloj deja cada fallo en el historial, no solo en la consola", () => {
+    const tick = leer("src/lib/reloj/tick.ts");
+    for (const origen of [
+      "reloj/vigilante",
+      "reloj/importacion",
+      "reloj/afinado",
+      "reloj/barrido",
+      "reloj/stock",
+      "reloj/traduccion",
+      "reloj/fotos",
+    ]) {
+      expect(tick, origen).toContain(`anotar("${origen}"`);
+    }
+  });
+
+  it("los botones del tablero son solo de soporte de verdad", () => {
+    const acc = leer("src/lib/vigilante/acciones.ts");
+    expect(acc.match(/await soloSoporte\(\)/g)?.length).toBeGreaterThanOrEqual(
+      5,
+    );
+    expect(acc).toContain("esSoporteDeVerdad()");
+  });
+});

@@ -2657,7 +2657,48 @@
       "importacionLinea": "{plaza} import: {estado} · {agregados} new · {pendientes} batches pending · {conError} with errors",
       "historial": "History",
       "alertasN": "{n, plural, =0 {no alerts} =1 {1 alert} other {# alerts}}",
-      "accionesN": "{n, plural, =0 {no changes} =1 {1 change} other {# changes}}"
+      "accionesN": "{n, plural, =0 {no changes} =1 {1 change} other {# changes}}",
+      "empujones": {
+        "titulo": "Run work now",
+        "texto": "The scheduler does this on its own every minute. These buttons run it while you watch.",
+        "importar": "Keep importing",
+        "afinar": "Refine prices and sizes",
+        "traducir": "Translate to Spanish",
+        "fotos": "Copy photos to Mercatren"
+      },
+      "inventario": {
+        "titulo": "What each market has",
+        "texto": "Everything goes through the same steps: import, real shipping quote, translation, and only then it goes on sale.",
+        "plaza": "Market",
+        "aLaVenta": "On sale",
+        "enRevision": "In review",
+        "borradores": "Drafts",
+        "agotados": "Out of stock",
+        "fleteReal": "With quoted shipping",
+        "fleteEstimado": "With estimated shipping",
+        "sinFlete": "No shipping",
+        "sinCosto": "No base cost",
+        "sinTraducir": "English title",
+        "sinDescripcion": "No description",
+        "fotosDeOrigen": "Photos on outside server",
+        "tiendas": "Merchant stores",
+        "tienda": "Store",
+        "pais": "Country",
+        "estado": "Status",
+        "sinFoto": "No photo",
+        "sincronizado": "Catalog last read",
+        "nunca": "never",
+        "sinTiendas": "No merchants with products yet."
+      },
+      "errores": {
+        "titulo": "Failure history",
+        "texto": "Every system failure is grouped here with how many times it happened. If it happens again after you mark it fixed, it comes back on its own.",
+        "sinErrores": "No pending failures.",
+        "veces": "{n} times",
+        "ultima": "last time {min} min ago",
+        "resolver": "Fixed it",
+        "resolviendo": "Marking…"
+      }
     }
   },
   "catalogo": {

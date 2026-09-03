@@ -400,6 +400,10 @@ caído.
 Al empezar algo nuevo que no esté aquí, se agrega antes de escribir la primera
 línea de código.
 
+- ✅ 💻 **El tablero del vigilante con la contabilidad completa** (3 sep 2026):
+  qué hay en cada plaza, las tiendas de los comercios, botones para adelantar
+  trabajo, historial de fallos con «ya lo arreglé», y el conteo dentro del
+  correo.
 - ✅ 💻 **Las fotos de los comercios se copian solas a nuestro bucket** (3 sep
   2026): 10 por hora desde el reloj; las que el origen ya no tiene se dan por
   perdidas, se esconden y el vigilante las nombra. Lo que queda es de los

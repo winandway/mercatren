@@ -1558,6 +1558,35 @@ una ruta en `app/__scheduled` cayó en la página 404 en producción.
 
 Candado: `tests/unit/reloj-propio.test.ts`.
 
+## EL TABLERO DEL VIGILANTE Y EL HISTORIAL DE FALLOS (3 sep 2026)
+
+Palabras del dueño: «yo no sé cuántos productos hemos agregado, cuántos
+están traducidos, cuántos hay disponibles en Colombia, en Chile… el
+vigilante debe tener el control total de toda esa parte», y «que haya un
+historial de bugs donde podamos ver todo eso, y que tú misma tengas acceso
+a él».
+
+- **Panel → Equipo → Vigilante** abre con **«Adelantar trabajo ahora»**
+  (cuatro botones cortos: seguir importando, afinar, traducir, traer fotos
+  — lo mismo que hace el reloj, aquí y ahora, diciendo qué pasó), y debajo
+  **«Qué hay en cada plaza»**: por US/CL/CO, a la venta · en revisión ·
+  borradores · agotados · con flete cotizado · con flete estimado · sin
+  flete · título en inglés · sin descripción · fotos en servidor ajeno. Y
+  **las tiendas de los comercios** con lo suyo y cuándo se leyó su catálogo.
+  Vive en `src/lib/vigilante/inventario.ts`: **una consulta por plaza**, con
+  `sum(case when …)`, nunca once — con cincuenta mil fichas eso se nota.
+- **El correo del vigilante lleva ese conteo** («Cómo va el catálogo: …»),
+  no solo lo que está mal. Una plaza en cero no ensucia el correo.
+- **`errores_sistema` es el historial de fallos** (tabla, no columna):
+  `registrarError(origen, error)` en `src/lib/errores/registro.ts` agrupa
+  por firma —el mensaje sin ids ni números—, así que un fallo mil veces es
+  UNA fila con su contador. El reloj anota los siete pasos
+  (`reloj/vigilante`, `reloj/importacion`, `reloj/afinado`, `reloj/barrido`,
+  `reloj/stock`, `reloj/traduccion`, `reloj/fotos`). En pantalla, cada uno
+  con «Ya lo arreglé»; si vuelve a pasar, reaparece solo.
+- **Anotar un fallo nunca puede fallar**: todo va en su propio try y el
+  `console.error` se queda, que es lo que se ve en desarrollo.
+
 ## LAS FOTOS DE LOS COMERCIOS SE TRAEN SOLAS, Y UNA ROTA NO SE ENSEÑA (3 sep 2026)
 
 El dueño mandó la portada con tres productos del comercio piloto sin foto
@@ -1569,10 +1598,15 @@ medianoche—, y mientras tanto nuestra portada se veía rota. Sus palabras:
 «que las imágenes sean agregadas en nuestros servidores… unas 120 por día».
 
 - **El reloj copia las fotos solas** (`src/lib/catalogo/fotos-automaticas.ts`,
-  paso 6 de `tick.ts`): 2 por latido con tope de **10 por hora**
-  (`FOTOS_POR_HORA`; se cambia en `configuracion.fotos_por_hora`, 1–600).
-  La cuota se gasta por INTENTO, no por éxito: a un origen caído no se le
-  insiste. El botón de Configuración → Fotos del catálogo sigue existiendo
+  paso 6 de `tick.ts`): **120 por latido, de 8 en 8, con tope de 3.000 por
+  hora** (`configuracion.fotos_por_hora`, 1–20.000). El número sale del
+  límite real de la plataforma —1.000 subpeticiones por invocación, 2 por
+  foto— y de lo medido: 54.097 fotos dependían de un servidor ajeno, así
+  que a las 10 por hora del primer intento eran 225 días; así salen en
+  menos de un día. **Primero las de los comercios, después las de CJ**: casi
+  todas las 54 mil son de CJ, que las sirve desde su CDN y no se cae; las
+  que rompen la portada son las pocas cientos del comercio piloto. La cuota
+  se gasta por INTENTO, no por éxito: a un origen caído no se le insiste. El botón de Configuración → Fotos del catálogo sigue existiendo
   y solo adelanta; usa el mismo copiador (`copiar-foto.ts`).
 - **Una foto que falla se reintenta; solo se da por perdida con un 404/410
   del origen o tras 6 intentos** (`fotos-reglas.ts`, puro, con pruebas).

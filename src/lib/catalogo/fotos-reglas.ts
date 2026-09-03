@@ -26,12 +26,42 @@
  *    enseñan el recuadro de «sin foto» en vez del título desparramado.
  */
 
-/** Cuántas por hora, salvo que `configuracion.fotos_por_hora` diga otra. */
-export const FOTOS_POR_HORA = 10;
+/**
+ * ══ CUÁNTAS POR HORA, Y DE DÓNDE SALE EL NÚMERO (3 sep 2026) ══
+ *
+ * Empezó en 10 por hora, que es lo que pidió el dueño de primeras. Medido
+ * después en producción: **54.097 fotos** dependen de un servidor ajeno. A
+ * 10 por hora eran 225 días. Él mismo lo corrigió: «creo que se podrían
+ * hacer cien por hora o mucho más; calcúlalo tú misma».
+ *
+ * El cálculo, con los límites reales de la plataforma:
+ *
+ * | Límite                            | Cuánto        | Qué gasta una foto |
+ * | --------------------------------- | ------------- | ------------------ |
+ * | Subpeticiones por invocación      | 1.000         | 2 (traer + guardar)|
+ * | Tiempo tras la respuesta          | 30 s          | ~0,4 s con 8 a la vez |
+ * | Escrituras en la base             | por foto, 1   | 1 update           |
+ *
+ * Con 8 en paralelo y ~400 ms por foto, en los ~10 s que se le dan a este
+ * paso caben unas 200; se quedan en **120 por latido** (240 subpeticiones,
+ * lejos del tope) y **3.000 por hora**. Con el reloj latiendo, las 54.000
+ * salen en menos de un día, y el servidor del comercio recibe como mucho
+ * una petición cada segundo y pico — no se le tumba.
+ *
+ * Se cambia sin publicar en `configuracion.fotos_por_hora` (1 a 20.000).
+ */
+export const FOTOS_POR_HORA = 3_000;
 
-/** Cuántas por latido del reloj (late cada minuto; con esto la cuota de
- *  la hora se gasta en los primeros minutos y el resto de la hora descansa). */
-export const FOTOS_POR_TICK = 2;
+/** Cuántas por latido del reloj. Ver el cálculo de arriba. */
+export const FOTOS_POR_TICK = 120;
+
+/** Cuántas se traen a la vez. Más que esto no acelera —el cuello es la red
+ *  del origen— y sí puede tumbar el servidor del comercio. */
+export const FOTOS_A_LA_VEZ = 8;
+
+/** Lo que se le da a este paso dentro del latido: el resto es para la
+ *  importación, el afinado y lo demás. */
+export const FOTOS_PRESUPUESTO_MS = 10_000;
 
 /** Intentos fallidos seguidos antes de dar una foto por perdida. Con un
  *  intento por hora, son unas seis horas de un servidor caído. */
@@ -78,12 +108,12 @@ export function marcaDeCuota(
 
 /**
  * El tope por hora que manda: lo guardado en configuración si es un número
- * cuerdo (1 a 600), si no el de la casa. Cero o basura no apagan el copiado:
+ * cuerdo (1 a 20.000), si no el de la casa. Cero o basura no apagan el copiado:
  * apagarlo sin querer es como se queda un catálogo dependiendo de otro.
  */
 export function fotosPorHoraDe(guardado: string | null | undefined): number {
   const n = Number(guardado);
-  if (Number.isFinite(n) && n >= 1 && n <= 600) return Math.floor(n);
+  if (Number.isFinite(n) && n >= 1 && n <= 20_000) return Math.floor(n);
   return FOTOS_POR_HORA;
 }
 

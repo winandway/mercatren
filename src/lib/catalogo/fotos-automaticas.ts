@@ -6,7 +6,9 @@ import { and, asc, eq, isNotNull, sql } from "drizzle-orm";
 import { copiarFotoAlBucket } from "@/lib/catalogo/copiar-foto";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import {
+  FOTOS_A_LA_VEZ,
   FOTOS_POR_TICK,
+  FOTOS_PRESUPUESTO_MS,
   LLAVE_CUOTA_FOTOS,
   LLAVE_FOTOS_POR_HORA,
   cuotaDisponible,
@@ -148,7 +150,12 @@ export async function sondearFotosDeOrigen(
  * origen dijo 404, se dan por perdidas y dejan de enseñarse.
  */
 export async function traerFotosDesdeElReloj(
-  opciones: { maximo?: number; ahoraMs?: number } = {},
+  opciones: {
+    maximo?: number;
+    ahoraMs?: number;
+    /** Cuánto de este latido se le da a las fotos. */
+    presupuestoMs?: number;
+  } = {},
 ): Promise<ResultadoFotosReloj> {
   const db = getDb();
   const ahoraMs = opciones.ahoraMs ?? Date.now();
@@ -195,39 +202,59 @@ export async function traerFotosDesdeElReloj(
     .limit(maximo);
 
   const { env } = getCloudflareContext();
+  const hasta = ahoraMs + (opciones.presupuestoMs ?? FOTOS_PRESUPUESTO_MS);
   let copiadas = 0;
   let fallidas = 0;
   let rotas = 0;
 
-  for (const foto of pendientes) {
-    if (!foto.url) continue;
-    const r = await copiarFotoAlBucket(env.BUCKET, {
-      id: foto.id,
-      productoId: foto.productoId,
-      url: foto.url,
-    });
-    if (r.ok) {
-      copiadas++;
-      await db.delete(fotosRotas).where(eq(fotosRotas.imagenId, foto.id));
-      continue;
+  /* De ocho en ocho: el cuello es la red del origen, no nosotros. Más a la
+     vez no acelera y sí puede tumbar el servidor del comercio. */
+  for (let i = 0; i < pendientes.length; i += FOTOS_A_LA_VEZ) {
+    if (Date.now() > hasta) break;
+    const tanda = pendientes.slice(i, i + FOTOS_A_LA_VEZ);
+    const salidas = await Promise.all(
+      tanda.map(async (foto) => {
+        if (!foto.url) return null;
+        const r = await copiarFotoAlBucket(env.BUCKET, {
+          id: foto.id,
+          productoId: foto.productoId,
+          url: foto.url,
+        });
+        return { foto, r };
+      }),
+    );
+
+    for (const s of salidas) {
+      if (!s) continue;
+      const { foto, r } = s;
+      /* `url` ya no puede ser nula aquí (se filtró antes de pedirla), pero
+         el tipo de la columna sí lo admite: se ata a una constante para que
+         el compilador lo vea. */
+      const url = foto.url;
+      if (!url) continue;
+      if (r.ok) {
+        copiadas++;
+        await db.delete(fotosRotas).where(eq(fotosRotas.imagenId, foto.id));
+        continue;
+      }
+      fallidas++;
+      const intentos = Number(foto.intentos) + 1;
+      const definitiva = seDaPorRota(r.status, intentos);
+      if (definitiva) rotas++;
+      const fila = {
+        productoId: foto.productoId,
+        url,
+        motivo: motivoDe(r.status, r.error),
+        intentos,
+        definitiva,
+        ultimoIntentoEn: new Date(ahoraMs),
+      };
+      await db
+        .insert(fotosRotas)
+        .values({ imagenId: foto.id, ...fila })
+        .onConflictDoUpdate({ target: fotosRotas.imagenId, set: fila });
+      console.error(`[fotos] no se pudo traer ${url}: ${fila.motivo}`);
     }
-    fallidas++;
-    const intentos = Number(foto.intentos) + 1;
-    const definitiva = seDaPorRota(r.status, intentos);
-    if (definitiva) rotas++;
-    const fila = {
-      productoId: foto.productoId,
-      url: foto.url,
-      motivo: motivoDe(r.status, r.error),
-      intentos,
-      definitiva,
-      ultimoIntentoEn: new Date(ahoraMs),
-    };
-    await db
-      .insert(fotosRotas)
-      .values({ imagenId: foto.id, ...fila })
-      .onConflictDoUpdate({ target: fotosRotas.imagenId, set: fila });
-    console.error(`[fotos] no se pudo traer ${foto.url}: ${fila.motivo}`);
   }
 
   /* La cuota se gasta por intento, no por éxito: un origen caído también

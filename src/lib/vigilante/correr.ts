@@ -23,6 +23,7 @@ import {
   type Accion,
   type Alerta,
   type Hechos,
+  type PlazaVista,
 } from "./reglas";
 
 /**
@@ -145,6 +146,8 @@ async function avisar(
   alertas: Alerta[],
   acciones: Accion[],
   ahora: Date,
+  /** Para que el correo diga también cómo va el catálogo de cada plaza. */
+  plazas: readonly PlazaVista[],
 ): Promise<boolean> {
   if (alertas.length === 0) return false;
   const db = getDb();
@@ -167,7 +170,7 @@ async function avisar(
   );
   if (pendientes.length === 0) return false;
 
-  const { asunto, lineas } = textoDelCorreo(pendientes, acciones);
+  const { asunto, lineas } = textoDelCorreo(pendientes, acciones, plazas);
   try {
     await correoAvisoAlEquipo({
       asunto,
@@ -207,7 +210,7 @@ export async function correrVigilante(
   const hechos = await recogerHechos();
   const alertas = evaluar(hechos);
   const ahora = new Date();
-  const correoEnviado = await avisar(alertas, acciones, ahora);
+  const correoEnviado = await avisar(alertas, acciones, ahora, hechos.plazas);
 
   const db = getDb();
   const id = `lat-${nanoid(10)}`;

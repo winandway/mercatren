@@ -6,6 +6,7 @@ import {
   FOTOS_POR_HORA,
   FOTOS_POR_TICK,
   INTENTOS_PARA_DAR_POR_ROTA,
+  FOTOS_A_LA_VEZ,
   cuotaDisponible,
   esFalloDefinitivo,
   fotosPorHoraDe,
@@ -25,28 +26,38 @@ const leer = (ruta: string) => readFileSync(ruta, "utf-8");
 const AHORA = Date.parse("2026-09-03T15:20:00Z");
 
 describe("la cuota por hora", () => {
-  it("son 10 por hora y 2 por latido, como pidió el dueño («unas 10 por hora»)", () => {
-    expect(FOTOS_POR_HORA).toBe(10);
-    expect(FOTOS_POR_TICK).toBe(2);
-    /* Las 24 horas del reloj: 240 al día. Si algún día se quiere menos, es
-       `configuracion.fotos_por_hora`, no tocar la constante. */
-    expect(FOTOS_POR_HORA * 24).toBe(240);
+  it("la cuota sale de los límites de la plataforma, no de una corazonada", () => {
+    /* 2 subpeticiones por foto (traer + guardar) contra el tope de 1.000
+       por invocación: 120 por latido son 240, con margen de sobra. */
+    expect(FOTOS_POR_TICK * 2).toBeLessThan(1_000);
+    /* Y las 54.000 pendientes salen en menos de un día. */
+    expect(FOTOS_POR_HORA).toBe(3_000);
+    expect(Math.ceil(54_097 / FOTOS_POR_HORA)).toBeLessThanOrEqual(19);
+    /* De ocho en ocho: ni una a una (lento) ni todas de golpe (tumba al
+       servidor del comercio). */
+    expect(FOTOS_A_LA_VEZ).toBe(8);
   });
 
   it("sin marca, o con marca de otra hora, la cuota está entera", () => {
-    expect(cuotaDisponible(null, AHORA)).toBe(10);
-    expect(cuotaDisponible(`${horaDe(AHORA) - 1}:10`, AHORA)).toBe(10);
+    expect(cuotaDisponible(null, AHORA)).toBe(FOTOS_POR_HORA);
+    expect(cuotaDisponible(`${horaDe(AHORA) - 1}:10`, AHORA)).toBe(
+      FOTOS_POR_HORA,
+    );
   });
 
   it("dentro de la hora se descuenta lo gastado y nunca baja de cero", () => {
-    expect(cuotaDisponible(`${horaDe(AHORA)}:7`, AHORA)).toBe(3);
-    expect(cuotaDisponible(`${horaDe(AHORA)}:10`, AHORA)).toBe(0);
-    expect(cuotaDisponible(`${horaDe(AHORA)}:99`, AHORA)).toBe(0);
+    expect(cuotaDisponible(`${horaDe(AHORA)}:7`, AHORA)).toBe(
+      FOTOS_POR_HORA - 7,
+    );
+    expect(cuotaDisponible(`${horaDe(AHORA)}:${FOTOS_POR_HORA}`, AHORA)).toBe(
+      0,
+    );
+    expect(cuotaDisponible(`${horaDe(AHORA)}:999999`, AHORA)).toBe(0);
   });
 
   it("una marca rota no bloquea el reloj: ante la duda se trabaja", () => {
-    expect(cuotaDisponible("basura", AHORA)).toBe(10);
-    expect(cuotaDisponible("x:y", AHORA)).toBe(10);
+    expect(cuotaDisponible("basura", AHORA)).toBe(FOTOS_POR_HORA);
+    expect(cuotaDisponible("x:y", AHORA)).toBe(FOTOS_POR_HORA);
   });
 
   it("la marca nueva suma dentro de la hora y arranca de cero al cambiar de hora", () => {
@@ -64,6 +75,7 @@ describe("la cuota por hora", () => {
     expect(fotosPorHoraDe("0")).toBe(FOTOS_POR_HORA);
     expect(fotosPorHoraDe("hola")).toBe(FOTOS_POR_HORA);
     expect(fotosPorHoraDe("100000")).toBe(FOTOS_POR_HORA);
+    expect(fotosPorHoraDe("6000")).toBe(6000);
   });
 });
 
@@ -93,7 +105,7 @@ describe("cuándo una foto se da por perdida", () => {
 describe("candados en el código", () => {
   it("el reloj trae fotos en cada latido, después de la traducción", () => {
     const tick = leer("src/lib/reloj/tick.ts");
-    expect(tick).toContain("traerFotosDesdeElReloj()");
+    expect(tick).toContain("traerFotosDesdeElReloj({");
     expect(tick.indexOf("traerFotosDesdeElReloj(")).toBeGreaterThan(
       tick.indexOf("traducirDesdeElReloj("),
     );

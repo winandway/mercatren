@@ -3,8 +3,15 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { CorrerVigilante } from "@/components/panel/vigilante/correr";
+import { EmpujonesDelTablero } from "@/components/panel/vigilante/empujones";
+import { HistorialDeErrores } from "@/components/panel/vigilante/errores";
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
+import { historialDeErrores } from "@/lib/errores/registro";
 import { ultimosLatidos } from "@/lib/vigilante/correr";
+import {
+  inventarioPorPlaza,
+  inventarioPorTienda,
+} from "@/lib/vigilante/inventario";
 import {
   minutosDesde,
   nombreDePlaza,
@@ -27,7 +34,13 @@ export default async function PaginaVigilante({
   if (!(await esSoporteDeVerdad())) redirect(`/${locale}/panel`);
 
   const t = await getTranslations("panel.vigilante");
-  const latidos = await ultimosLatidos(12);
+  const [latidos, plazas, tiendasDeComercios, errores] = await Promise.all([
+    ultimosLatidos(12),
+    inventarioPorPlaza(),
+    inventarioPorTienda(),
+    historialDeErrores(30),
+  ]);
+  const ti = await getTranslations("panel.vigilante.inventario");
   const ultimo = latidos[0] ?? null;
   const ahoraMs = relojAhoraMs();
   const fecha = new Intl.DateTimeFormat(locale, {
@@ -49,6 +62,100 @@ export default async function PaginaVigilante({
         </div>
         <CorrerVigilante />
       </header>
+
+      <EmpujonesDelTablero />
+
+      {/* LA CONTABILIDAD DE CADA PLAZA. Lo pidió el dueño: «yo no sé cuántos
+          productos tenemos en Chile, en Colombia, en Estados Unidos, cuántos
+          están traducidos, cuántos tienen el envío resuelto». */}
+      <section className="rounded-xl border border-borde bg-white p-4">
+        <h2 className="text-sm font-semibold">{ti("titulo")}</h2>
+        <p className="mt-1 text-xs text-tinta-suave">{ti("texto")}</p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[52rem] text-left text-sm">
+            <thead className="text-xs text-tinta-suave">
+              <tr>
+                <th className="py-1 pr-3">{ti("plaza")}</th>
+                <th className="py-1 pr-3">{ti("aLaVenta")}</th>
+                <th className="py-1 pr-3">{ti("enRevision")}</th>
+                <th className="py-1 pr-3">{ti("borradores")}</th>
+                <th className="py-1 pr-3">{ti("agotados")}</th>
+                <th className="py-1 pr-3">{ti("fleteReal")}</th>
+                <th className="py-1 pr-3">{ti("fleteEstimado")}</th>
+                <th className="py-1 pr-3">{ti("sinFlete")}</th>
+                <th className="py-1 pr-3">{ti("sinTraducir")}</th>
+                <th className="py-1 pr-3">{ti("sinDescripcion")}</th>
+                <th className="py-1">{ti("fotosDeOrigen")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plazas.map((p) => (
+                <tr key={p.mercado} className="border-t border-borde">
+                  <td className="py-1.5 pr-3 font-semibold">
+                    {nombreDePlaza(p.mercado)}
+                  </td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.publicados}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.enRevision}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.borradores}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.agotados}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.conFleteReal}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">
+                    {p.conFleteEstimado}
+                  </td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.sinFlete}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">{p.sinTraducir}</td>
+                  <td className="py-1.5 pr-3 tabular-nums">
+                    {p.sinDescripcion}
+                  </td>
+                  <td className="py-1.5 tabular-nums">{p.fotosDeOrigen}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 className="mt-6 text-sm font-semibold">{ti("tiendas")}</h3>
+        {tiendasDeComercios.length === 0 ? (
+          <p className="mt-2 text-sm text-tinta-suave">{ti("sinTiendas")}</p>
+        ) : (
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full min-w-[42rem] text-left text-sm">
+              <thead className="text-xs text-tinta-suave">
+                <tr>
+                  <th className="py-1 pr-3">{ti("tienda")}</th>
+                  <th className="py-1 pr-3">{ti("pais")}</th>
+                  <th className="py-1 pr-3">{ti("estado")}</th>
+                  <th className="py-1 pr-3">{ti("aLaVenta")}</th>
+                  <th className="py-1 pr-3">{ti("borradores")}</th>
+                  <th className="py-1 pr-3">{ti("agotados")}</th>
+                  <th className="py-1 pr-3">{ti("sinFoto")}</th>
+                  <th className="py-1">{ti("sincronizado")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tiendasDeComercios.map((c) => (
+                  <tr key={c.id} className="border-t border-borde">
+                    <td className="py-1.5 pr-3 font-semibold">{c.nombre}</td>
+                    <td className="py-1.5 pr-3">{c.pais ?? "—"}</td>
+                    <td className="py-1.5 pr-3">{c.estado}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">{c.publicados}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">{c.borradores}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">{c.agotados}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">{c.sinFoto}</td>
+                    <td className="py-1.5">
+                      {c.sincronizadoEnMs
+                        ? fecha.format(c.sincronizadoEnMs)
+                        : ti("nunca")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <HistorialDeErrores errores={errores} ahoraMs={ahoraMs} />
 
       {!ultimo ? (
         <p className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-tinta-suave">

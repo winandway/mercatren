@@ -62,7 +62,7 @@ describe("el reloj propio", () => {
       "barrerNoVerificados()",
       "refrescarExistenciasCj(",
       "traducirDesdeElReloj({",
-      "traerFotosDesdeElReloj()",
+      "traerFotosDesdeElReloj({",
     ];
     let desde = 0;
     for (const paso of orden) {

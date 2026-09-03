@@ -106,6 +106,17 @@ async function anotarTick(origen: string, r: ResultadoTick, arranque: number) {
   }
 }
 
+/** Deja el fallo en el historial que se ve en Panel → Vigilante. Nunca
+ *  lanza: un fallo al anotar un fallo no puede tumbar el latido. */
+async function anotar(origen: string, fallo: unknown): Promise<void> {
+  try {
+    const { registrarError } = await import("@/lib/errores/registro");
+    await registrarError(origen, fallo);
+  } catch {
+    /* nada: ya se escribió en la consola */
+  }
+}
+
 export async function correrTick(
   origen: "puerta" | "trafico" = "puerta",
   presupuestoMs = TICK_PRESUPUESTO_MS,
@@ -133,6 +144,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] el vigilante falló:", fallo);
+    await anotar("reloj/vigilante", fallo);
   }
 
   /* 1. La importación masiva, si hay alguna en marcha. */
@@ -148,6 +160,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] la importación falló:", fallo);
+    await anotar("reloj/importacion", fallo);
   }
 
   /* 2. El afinado: flete real, tallas y stock de lo que está en revisión. */
@@ -166,6 +179,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] el afinado falló:", fallo);
+    await anotar("reloj/afinado", fallo);
   }
 
   /* 3. El barrido: nada de CJ a la venta sin el último filtro. */
@@ -181,6 +195,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] el barrido falló:", fallo);
+    await anotar("reloj/barrido", fallo);
   }
 
   /* 4. El stock de CJ, un par por latido. */
@@ -192,6 +207,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] el stock falló:", fallo);
+    await anotar("reloj/stock", fallo);
   }
 
   /* 5. Una tanda de títulos al español. */
@@ -206,6 +222,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] la traducción falló:", fallo);
+    await anotar("reloj/traduccion", fallo);
   }
 
   /* 6. Las fotos que viven en el servidor de un comercio, a nuestro bucket:
@@ -214,7 +231,9 @@ export async function correrTick(
     if (queda() > 5_000) {
       const { traerFotosDesdeElReloj } =
         await import("@/lib/catalogo/fotos-automaticas");
-      const r = await traerFotosDesdeElReloj();
+      const r = await traerFotosDesdeElReloj({
+        presupuestoMs: Math.min(10_000, Math.floor(queda() * 0.8)),
+      });
       if (r.copiadas + r.fallidas > 0) {
         hizo.push(
           `fotos: ${r.copiadas} copiadas, ${r.fallidas} fallidas${r.rotas ? `, ${r.rotas} dadas por perdidas` : ""}, faltan ${r.faltan}`,
@@ -223,6 +242,7 @@ export async function correrTick(
     }
   } catch (fallo) {
     console.error("[tick] las fotos fallaron:", fallo);
+    await anotar("reloj/fotos", fallo);
   }
 
   const r = { hizo, duracionMs: Date.now() - arranque };

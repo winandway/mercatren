@@ -333,6 +333,13 @@ export function hayQueAvisar(
 export function textoDelCorreo(
   alertas: Alerta[],
   acciones: Accion[],
+  /**
+   * EL CONTEO DE CADA PLAZA VA EN EL CORREO (3 sep 2026). Lo pidió el dueño:
+   * «que el vigilante me mande correos dando reportes de cuánto hay, cuánto
+   * no hay, qué hace falta». Sin esto, el correo solo hablaba de lo que
+   * estaba mal, y él seguía sin saber cuántos productos hay a la venta.
+   */
+  plazas: readonly PlazaVista[] = [],
 ): { asunto: string; lineas: string[] } {
   const rojas = alertas.filter((a) => a.nivel === "rojo").length;
   const asunto =
@@ -346,6 +353,19 @@ export function textoDelCorreo(
   if (hechas.length > 0) {
     lineas.push(
       `Lo que el vigilante ya hizo solo: ${hechas.map((x) => `${x.titulo} (${x.cantidad})`).join(" · ")}.`,
+    );
+  }
+  const conProductos = plazas.filter(
+    (p) => p.publicados + p.enRevision + p.porAfinar > 0,
+  );
+  if (conProductos.length > 0) {
+    lineas.push(
+      `Cómo va el catálogo: ${conProductos
+        .map(
+          (p) =>
+            `${nombreDePlaza(p.mercado)} ${p.publicados} a la venta, ${p.enRevision} en revisión, ${p.porAfinar} por afinar`,
+        )
+        .join(" · ")}.`,
     );
   }
   return { asunto, lineas };
