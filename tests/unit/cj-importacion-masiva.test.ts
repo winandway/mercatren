@@ -182,8 +182,8 @@ describe("una venta cobrada nunca se queda sin rastro en Pedidos al proveedor", 
       (tramo.match(/return falloVisible\(db, pedidoId,/g) ?? []).length,
     ).toBeGreaterThanOrEqual(4);
     /* Y el vigilante trae el motivo de la bitácora para lo que no dejó fila. */
-    expect(readFileSync("src/lib/vigilante/hechos.ts", "utf-8")).toContain(
-      'like(bitacoraPagos.paso, "compra_proveedor%")',
+    expect(readFileSync("src/lib/vigilante/hechos.ts", "utf-8")).toMatch(
+      /like\(\s*bitacoraPagos\.paso,\s*"compra_proveedor%",?\s*\)/,
     );
   });
 });
