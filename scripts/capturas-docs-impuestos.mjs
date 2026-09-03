@@ -53,10 +53,60 @@ const yTitulo = await page.evaluate(() => {
 });
 if (yTitulo === null)
   throw new Error("no encontré la sección Datos de la empresa");
+/* DATOS INVENTADOS EN LA CAPTURA, NUNCA LOS DEL COMERCIO (3 sep 2026).
+   La base local trae los datos reales del comercio piloto; una guía pública no
+   puede enseñar el RIF, el correo ni la dirección de un cliente. Se cambian en
+   el DOM justo antes de la foto — la base no se toca — por un comercio que no
+   existe, con el mismo formato (RIF J-8 dígitos-1, teléfono +58, ciudad). */
+const INVENTADOS = {
+  razonSocial: "Ferretería La Esquina C.A",
+  identificacionFiscal: "J-41265780-3",
+  correoContacto: "ventas@ferrelaesquina.com.ve",
+  telefono: "+58 414 5550123",
+  direccion: "Av. Principal, local 12, Valencia",
+  ciudad: "Valencia",
+};
+await page.evaluate((datos) => {
+  for (const [nombre, valor] of Object.entries(datos)) {
+    const lista = [...document.querySelectorAll(`input[name="${nombre}"]`)];
+    /* La casilla de la EMPRESA es la que está debajo del título; la del W-8
+       vive más arriba. Se toma la última. */
+    const casilla = lista.at(-1);
+    if (casilla) casilla.value = valor;
+  }
+}, INVENTADOS);
+
 await page.screenshot({
   path: `${OUT}/2-datos-empresa.png`,
   fullPage: true,
   clip: { x: 0, y: yTitulo - 16, width: 390, height: 620 },
 });
 console.log("✓ 2-datos-empresa.png");
+// 3) el documento W-8BEN-E firmado (para la guía del W-8): el nombre del
+//    comercio se reemplaza en el DOM por el inventado antes de la foto.
+await page.goto(`${BASE}/es/panel/mi-tienda/formulario-fiscal`, {
+  waitUntil: "networkidle",
+});
+const hayDocumento = await page.evaluate(() =>
+  /SUBSTITUTE/.test(document.body.innerText),
+);
+console.log("documento W-8 en pantalla:", hayDocumento);
+if (hayDocumento) {
+  await page.evaluate((nombre) => {
+    const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) {
+      if (/Ferremateriales Bley/i.test(n.nodeValue))
+        n.nodeValue = n.nodeValue.replace(
+          /Ferremateriales Bley C\.?A\.?/gi,
+          nombre,
+        );
+    }
+  }, "Ferretería La Esquina C.A");
+  await page.screenshot({
+    path: "public/docs/w8bene/4-documento.png",
+    clip: { x: 0, y: 0, width: 390, height: 844 },
+  });
+  console.log("✓ w8bene/4-documento.png (rehecha con nombre inventado)");
+}
 await navegador.close();
