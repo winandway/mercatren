@@ -49,8 +49,13 @@ export async function GET() {
        fijas. Más vale un mapa corto que ninguno. */
   }
 
+  /* Cuatro clases de mapa, cada una con lo suyo: así Google reporta por
+     separado páginas, tiendas, videos y fichas, y se ve de un vistazo dónde
+     falla la indexación. */
   const lista = [
     { loc: `${base}/mapa/paginas.xml` },
+    { loc: `${base}/mapa/tiendas.xml` },
+    { loc: `${base}/mapa/videos.xml` },
     ...Array.from({ length: partes }, (_, i) => ({
       loc: `${base}/mapa/productos-${i}.xml`,
     })),

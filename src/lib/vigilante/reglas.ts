@@ -42,6 +42,16 @@ export type PlazaVista = {
   sinCostoBase: number;
 };
 
+/** Una compra al proveedor o una venta con problema, CON su número y motivo:
+ *  un aviso que dice «2 compras con error» sin decir cuáles obliga a entrar
+ *  a buscar; uno que las nombra se resuelve desde el correo. */
+export type CompraVista = {
+  numero: string;
+  estado: string;
+  motivo: string | null;
+  haceMinutos: number;
+};
+
 export type Hechos = {
   ahoraMs: number;
   /** Cuándo latió por última vez `/datos/sincronizar`. */
@@ -55,6 +65,9 @@ export type Hechos = {
   comprasConError: number;
   comprasPorPagarViejas: number;
   ventasSinCompra: number;
+  /** Las primeras ocho de cada una, con número y motivo. */
+  detalleCompras?: CompraVista[];
+  detalleVentasSinCompra?: string[];
   zellePendientesViejos: number;
   retirosSinPagarViejos: number;
   fuentesAtrasadas: string[];
@@ -113,6 +126,17 @@ export function esFalloPasajero(motivo: string | null | undefined): boolean {
   return /too many requests|qps|no contest|timeout|timed out|fetch failed|network|503|502|ECONNRESET/i.test(
     motivo,
   );
+}
+
+function listaDeCompras(h: Hechos, estado: string): string {
+  const lista = (h.detalleCompras ?? []).filter((c) => c.estado === estado);
+  if (lista.length === 0) return "";
+  return ` ${lista
+    .map(
+      (c) =>
+        `${c.numero} (hace ${c.haceMinutos} min${c.motivo ? `: ${c.motivo.slice(0, 160)}` : ""})`,
+    )
+    .join(" · ")}`;
 }
 
 export function evaluar(h: Hechos): Alerta[] {
@@ -204,8 +228,7 @@ export function evaluar(h: Hechos): Alerta[] {
       clave: "compras-con-error",
       nivel: "rojo",
       titulo: `${plural(h.comprasConError, "compra al proveedor", "compras al proveedor")} con error`,
-      detalle:
-        "Son ventas ya cobradas cuyo pedido a CJ no se pudo crear o pagar. Panel → Pedidos al proveedor: el motivo exacto está en cada una.",
+      detalle: `Son ventas ya cobradas cuyo pedido a CJ no se pudo crear o pagar. Panel → Pedidos al proveedor.${listaDeCompras(h, "con_error")}`,
     });
   }
   if (h.comprasPorPagarViejas > 0) {
@@ -213,8 +236,7 @@ export function evaluar(h: Hechos): Alerta[] {
       clave: "compras-por-pagar",
       nivel: "rojo",
       titulo: `${plural(h.comprasPorPagarViejas, "compra al proveedor lleva", "compras al proveedor llevan")} más de ${UMBRALES.compraPorPagarMin / 60} horas sin pagar`,
-      detalle:
-        "El pago automático no salió (saldo, margen o CJ). Hay que pagarlas desde Panel → Pedidos al proveedor o el cliente no recibe su compra.",
+      detalle: `El pago automático no salió (margen, CJ o la cuenta del proveedor). Hay que pagarlas desde Panel → Pedidos al proveedor o el cliente no recibe su compra.${listaDeCompras(h, "por_pagar")}`,
     });
   }
   if (h.ventasSinCompra > 0) {
@@ -222,8 +244,7 @@ export function evaluar(h: Hechos): Alerta[] {
       clave: "ventas-sin-compra",
       nivel: "rojo",
       titulo: `${plural(h.ventasSinCompra, "venta pagada", "ventas pagadas")} de productos de CJ sin pedido al proveedor`,
-      detalle:
-        "El cliente ya pagó y no existe ningún pedido a CJ. Abrir cada pedido en Panel → Órdenes y usar «Comprar al proveedor».",
+      detalle: `El cliente ya pagó y no existe ningún pedido a CJ. Abrir cada pedido en Panel → Órdenes y usar «Comprar al proveedor».${h.detalleVentasSinCompra?.length ? ` Pedidos: ${h.detalleVentasSinCompra.join(", ")}.` : ""}`,
     });
   }
 

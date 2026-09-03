@@ -244,6 +244,49 @@ export async function videosParaMapa(mercadoCodigo: string) {
     );
 }
 
+/**
+ * Los videos para el MAPA DE VIDEOS de Google (3 sep 2026): portada,
+ * título, descripción, archivo, duración, vistas y fecha. `videosParaMapa`
+ * solo daba la dirección, y así Google no sabía que había un video detrás.
+ * Las direcciones salen relativas (`/media/...`): la ruta les pone el dominio
+ * de la petición, que es el que corresponde a cada país.
+ */
+export async function videosParaMapaCompleto(mercadoCodigo: string) {
+  const filas = await getDb()
+    .select({
+      slug: videosTienda.slug,
+      tituloEs: videosTienda.tituloEs,
+      descripcionEs: videosTienda.descripcionEs,
+      clave: videosTienda.clave,
+      portadaClave: videosTienda.portadaClave,
+      duracionSegundos: videosTienda.duracionSegundos,
+      vistas: videosTienda.vistas,
+      creadoEn: videosTienda.creadoEn,
+      actualizadoEn: videosTienda.actualizadoEn,
+      tiendaNombre: tiendas.nombre,
+    })
+    .from(videosTienda)
+    .innerJoin(tiendas, eq(tiendas.id, videosTienda.tiendaId))
+    .where(
+      and(
+        eq(videosTienda.estado, "publicado"),
+        eq(videosTienda.mercado, mercadoCodigo),
+        eq(tiendas.estado, "activa"),
+      ),
+    );
+  return filas.map((f) => ({
+    slug: f.slug,
+    titulo: f.tituloEs,
+    descripcion: f.descripcionEs?.trim() || `${f.tituloEs} — ${f.tiendaNombre}`,
+    archivo: `${RUTA_MEDIA}/${f.clave}`,
+    portada: direccionImagen({ url: null, clave: f.portadaClave }),
+    duracionSegundos: Number(f.duracionSegundos ?? 0),
+    vistas: Number(f.vistas ?? 0),
+    creadoEn: f.creadoEn,
+    actualizadoEn: f.actualizadoEn,
+  }));
+}
+
 /** Los de un comercio, para su panel (incluye borradores y ocultos). */
 export async function videosDelPanel(tiendaId: string) {
   return getDb()

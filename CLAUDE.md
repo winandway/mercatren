@@ -1416,8 +1416,11 @@ Cinco cosas que no se tocan:
 ### Lo que cambió alrededor para aguantar cien mil fichas
 
 - **`/sitemap.xml` es un ÍNDICE** (`src/app/sitemap.xml/route.ts`) que
-  apunta a `/mapa/paginas.xml` y a `/mapa/productos-N.xml` de 40.000 fichas
-  (`src/lib/seo/mapa.ts`, puro). Google no admite más de 50.000 direcciones
+  apunta a `/mapa/paginas.xml`, `/mapa/tiendas.xml`, `/mapa/videos.xml` (un
+  mapa de videos de Google con portada, título, archivo, duración y vistas —
+  3 sep 2026, lo pidió el dueño: los Shorts eran direcciones sueltas) y a
+  `/mapa/productos-N.xml` de 40.000 fichas, cada una con su foto
+  (`image:image`) y su `lastmod` real (`src/lib/seo/mapa.ts`, puro). Google no admite más de 50.000 direcciones
   por archivo y descartaría el mapa ENTERO. La dirección de Search Console
   no cambia. **`src/app/sitemap.ts` no puede volver a existir**: chocaría en
   la misma dirección (hay prueba).

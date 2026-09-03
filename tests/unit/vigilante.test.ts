@@ -131,6 +131,35 @@ describe("qué es una alerta", () => {
     ]);
   });
 
+  it("las alertas de dinero NOMBRAN los pedidos y el motivo de CJ", () => {
+    const a = evaluar({
+      ...todoBien(),
+      comprasConError: 1,
+      comprasPorPagarViejas: 1,
+      ventasSinCompra: 1,
+      detalleCompras: [
+        {
+          numero: "MT-000012",
+          estado: "con_error",
+          motivo: "insufficient inventory",
+          haceMinutos: 90,
+        },
+        {
+          numero: "MT-000013",
+          estado: "por_pagar",
+          motivo: null,
+          haceMinutos: 200,
+        },
+      ],
+      detalleVentasSinCompra: ["MT-000014"],
+    });
+    expect(a[0]!.detalle).toContain(
+      "MT-000012 (hace 90 min: insufficient inventory)",
+    );
+    expect(a[1]!.detalle).toContain("MT-000013 (hace 200 min)");
+    expect(a[2]!.detalle).toContain("Pedidos: MT-000014.");
+  });
+
   it("lo que espera a una persona (Zelle, retiros, catálogos, costo base) es ámbar", () => {
     const a = evaluar({
       ...todoBien(),

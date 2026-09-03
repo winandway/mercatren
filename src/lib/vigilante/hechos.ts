@@ -36,6 +36,7 @@ import { avisoDeStripeArmado, saludDelProveedor } from "@/lib/salud/piezas";
 import {
   LLAVE_LATIDO_SINCRONIZAR,
   UMBRALES,
+  type CompraVista,
   type Hechos,
   type ImportacionVista,
   type PlazaVista,
@@ -269,6 +270,63 @@ export async function recogerHechos(): Promise<Hechos> {
     }),
   ]);
 
+  /* Los detalles: número y motivo de cada compra con problema, y los
+     pedidos pagados sin compra. Van aparte para que un fallo aquí no deje
+     sin conteo a lo de arriba. */
+  const detalleCompras = await seguro<CompraVista[]>([], async () => {
+    const filas = await db
+      .select({
+        numero: pedidos.numero,
+        estado: pedidosProveedor.estado,
+        motivo: pedidosProveedor.ultimoError,
+        creadoEn: pedidosProveedor.creadoEn,
+      })
+      .from(pedidosProveedor)
+      .innerJoin(pedidos, eq(pedidos.id, pedidosProveedor.pedidoId))
+      .where(
+        or(
+          eq(pedidosProveedor.estado, "con_error"),
+          and(
+            eq(pedidosProveedor.estado, "por_pagar"),
+            lt(pedidosProveedor.creadoEn, hace(UMBRALES.compraPorPagarMin)),
+          ),
+        ),
+      )
+      .limit(8);
+    return filas.map((f) => ({
+      numero: f.numero,
+      estado: f.estado,
+      motivo: f.motivo,
+      haceMinutos: Math.max(
+        0,
+        Math.round((ahoraMs - f.creadoEn.getTime()) / 60_000),
+      ),
+    }));
+  });
+  const detalleVentasSinCompra = await seguro<string[]>([], async () => {
+    const conCj = db
+      .select({ id: itemsPedido.pedidoId })
+      .from(itemsPedido)
+      .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
+      .where(eq(productos.fuenteId, FUENTE_CJ));
+    const conCompra = db
+      .select({ id: pedidosProveedor.pedidoId })
+      .from(pedidosProveedor);
+    const filas = await db
+      .select({ numero: pedidos.numero })
+      .from(pedidos)
+      .where(
+        and(
+          inArray(pedidos.estado, ["pagado", "preparando"]),
+          lt(pedidos.creadoEn, hace(UMBRALES.ventaSinCompraMin)),
+          inArray(pedidos.id, conCj),
+          sql`${pedidos.id} not in ${conCompra}`,
+        ),
+      )
+      .limit(8);
+    return filas.map((f) => f.numero);
+  });
+
   return {
     ahoraMs,
     latidoSincronizarMs,
@@ -284,5 +342,7 @@ export async function recogerHechos(): Promise<Hechos> {
     retirosSinPagarViejos,
     fuentesAtrasadas,
     sinTraducir,
+    detalleCompras,
+    detalleVentasSinCompra,
   };
 }

@@ -126,10 +126,21 @@ después de pedirle la nueva lectura del robots.txt.
 
 ### El mapa del sitio (`src/app/sitemap.xml/route.ts` + `src/app/mapa/[parte]/route.ts`)
 
-**Desde el 2 sep 2026 `/sitemap.xml` es un ÍNDICE**, no una lista: apunta a
-`/mapa/paginas.xml` (lo fijo, el blog y la documentación, los videos y las
-tiendas con productos) y a `/mapa/productos-0.xml`, `productos-1.xml`… de
-40.000 fichas cada uno. Google no admite más de 50.000 direcciones ni 50 MB
+**Desde el 2 sep 2026 `/sitemap.xml` es un ÍNDICE**, no una lista, y desde
+el 3 sep apunta a CUATRO clases de mapa: `/mapa/paginas.xml` (lo fijo, el
+blog y la documentación), `/mapa/tiendas.xml` (solo las que tienen
+productos), `/mapa/videos.xml` (**un mapa de videos de Google de verdad**:
+portada, título, descripción, archivo, duración, vistas y fecha — antes los
+Shorts eran direcciones sueltas y Google no sabía que había un video) y
+`/mapa/productos-0.xml`, `productos-1.xml`… de 40.000 fichas cada uno,
+**cada ficha con su foto** (`image:image`, para Google Imágenes) y con su
+`lastmod` real.
+
+**Qué esperar en Search Console:** el índice se lee y cada mapa hijo aparece
+en «Sitemaps» con su propio conteo; Google los relee cada pocos días. Que el
+informe diga «pendiente» o muestre el conteo viejo unas horas después de
+enviarlo es normal — no hay nada que reenviar mientras la dirección sea
+`https://mercatren.com/sitemap.xml`. Google no admite más de 50.000 direcciones ni 50 MB
 por archivo, y con el almacén completo de CJ dentro un solo archivo pasaba
 del tope y **se descartaba entero**. La dirección que tiene Search Console
 no cambia: un índice en `/sitemap.xml` es válido y Google entra solo a cada
