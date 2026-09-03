@@ -1539,9 +1539,17 @@ una ruta en `app/__scheduled` cayó en la página 404 en producción.
   los compradores entrando a toda hora, el sitio se mueve solo aunque fallen
   el reloj de la plataforma y el de GitHub. Un contador por instancia evita
   mirar la base más de una vez por minuto.
-- Cómo se comprueba que late: `/datos/salud` → `reloj.haceMinutos` (el último
-  latido, de quien sea) y `vigilante.haceMinutos`, que se reinicia cada ~20
-  min sin que nadie pulse nada.
+- Cómo se comprueba que late: `/datos/salud` → `reloj.haceMinutos` (la marca)
+  y `reloj.ultimo` (el último latido que TERMINÓ: `origen` «puerta» = el
+  planificador de la plataforma, «trafico» = una visita; duración; qué hizo),
+  y `vigilante.haceMinutos`, que se reinicia cada ~20 min sin que nadie pulse.
+- **MEDIDO EL 3 SEP 2026 (22:15–22:20):** los latidos que terminan vienen
+  TODOS de «trafico» (23 s: importación 377→403/586, afinado, y el vigilante
+  a los 20 min). **Ningún latido vino de «puerta»**: el planificador de
+  YaDominios Cloud no está invocando `/__scheduled` aunque `triggers.crons`
+  viaja en el `yadominios.json` publicado. Es un asunto de ESA plataforma
+  (otra sesión, `PENDIENTES.md`); mientras tanto el sitio se mueve con el
+  tráfico y con GitHub de respaldo.
 
 Candado: `tests/unit/reloj-propio.test.ts`.
 

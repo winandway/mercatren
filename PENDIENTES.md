@@ -117,6 +117,15 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       corrida real contra CJ se ve ahí: si la sonda da cero, el panel dice
       qué filtro aflojar. **La llave de CJ no vive en la máquina de trabajo,
       así que esto no se pudo probar contra CJ desde el código.**
+- [ ] 🟠 💻 **(Sesión de YaDominios Cloud) El planificador no invoca
+      `/__scheduled`.** Mercatren declara `triggers.crons: ["* * * * *"]` en el
+      `yadominios.json` publicado y responde 202 a `GET /__scheduled` con la
+      cabecera `x-yad-cron` (probado a mano), pero en 20 minutos de
+      observación ningún latido vino del planificador (`/datos/salud` →
+      `reloj.ultimo.origen` nunca fue «puerta»). Mientras tanto Mercatren late
+      con el tráfico (cada visita deja un latido de 25 s) y GitHub queda de
+      respaldo. Revisar en la plataforma si los crons de `yadominios.json` se
+      registran al publicar desde una rama de build.
 - [x] 💻 **El reloj propio del sitio (3 sep 2026).** GitHub corría 5 veces al
       día, no cada 15 min. Ahora YaDominios Cloud invoca `/__scheduled` cada
       minuto y cada latido trabaja 25 s (importación, afinado, barrido, stock,
