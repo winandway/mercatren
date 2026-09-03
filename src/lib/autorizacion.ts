@@ -30,10 +30,37 @@ export const ROLES_PANEL: Rol[] = ["soporte", "validador", "vendedor"];
 /** Roles del equipo de Mercatren: ven la operacion completa. */
 export const ROLES_INTERNOS: Rol[] = ["soporte", "validador"];
 
-/** La sesion de esta peticion. Se consulta una sola vez por peticion. */
+/**
+ * La sesion de esta peticion. Se consulta una sola vez por peticion.
+ *
+ * ══ SI LEER LA SESION FALLA, NO PUEDE FALLAR EN SILENCIO (3 sep 2026) ══
+ *
+ * Cuando esto devuelve null, el layout del panel entiende «no ha entrado» y
+ * manda a la pantalla de entrar. Es lo correcto para quien no entro — y es
+ * exactamente lo que le pasa a quien SI entro si la lectura de la sesion
+ * revienta por un mal momento de la base o por una peticion agotada: pone su
+ * clave, entra, y el panel lo devuelve a la puerta, una y otra vez, sin un
+ * solo error en ninguna pantalla. Le paso al dueno el 3 de septiembre y
+ * costo media hora entender que no era su contrasena.
+ *
+ * El comportamiento no cambia —seguir adelante sin sesion es lo seguro—,
+ * pero el fallo queda escrito en el historial (Panel -> Vigilante), que es
+ * lo unico que permite distinguir «no entro» de «no lo dejaron entrar».
+ */
 export const obtenerSesion = cache(async () => {
-  const auth = await getAuth();
-  return auth.api.getSession({ headers: await headers() });
+  try {
+    const auth = await getAuth();
+    return await auth.api.getSession({ headers: await headers() });
+  } catch (fallo) {
+    console.error("[sesion] no se pudo leer la sesion:", fallo);
+    try {
+      const { registrarError } = await import("@/lib/errores/registro");
+      await registrarError("sesion/leer", fallo);
+    } catch {
+      /* Anotar el fallo no puede provocar otro. */
+    }
+    return null;
+  }
 });
 
 export const obtenerUsuario = cache(async () => {

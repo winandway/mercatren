@@ -38,3 +38,12 @@ describe("el tablero no cuenta el catálogo, lo lee", () => {
     ).toContain('t("medido", { n: haceMinutos })');
   });
 });
+
+describe("una sesión que no se puede leer deja rastro", () => {
+  it("no expulsa en silencio: el fallo queda en el historial", () => {
+    const auth = readFileSync("src/lib/autorizacion.ts", "utf-8");
+    expect(auth).toContain('registrarError("sesion/leer", fallo)');
+    /* Y se sigue devolviendo null: seguir sin sesión es lo seguro. */
+    expect(auth).toContain("return null;");
+  });
+});
