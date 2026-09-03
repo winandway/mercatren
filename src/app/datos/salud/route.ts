@@ -114,7 +114,7 @@ export async function GET() {
            es lo correcto; «base» funciona si esa fila se puede leer; «falta»
            o «error» significa que NADIE puede entrar, porque cada petición
            firmaría con una clave distinta. No enseña la clave. */
-        sesiones: { ...sesiones, ultimaHora: sesionesUltimaHora },
+        sesiones: { ...sesiones, ...sesionesUltimaHora },
         /* El vigilante: hace cuánto corrió y cuántas alertas dejó. `null`
            si nunca corrió. */
         vigilante,

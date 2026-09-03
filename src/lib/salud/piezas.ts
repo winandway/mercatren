@@ -213,17 +213,37 @@ export async function origenDeLaClaveDeSesiones(
  * Cero con gente entrando significa que las escrituras no están llegando.
  * No enseña ni un token ni un correo: solo un número.
  */
-export async function sesionesRecientes(): Promise<number> {
+export async function sesionesRecientes(): Promise<{
+  ultimaHora: number;
+  /** Cuándo vence la última sesión creada, en crudo y ya convertida. Si sale
+   *  en 1970 o en el año 58548, es un problema de unidades y la sesión nace
+   *  vencida: por eso `get-session` devolvería `null` siempre. */
+  ultimaExpiraEn: number | null;
+  ultimaCreadaEn: number | null;
+}> {
   try {
     const { getDb, schema } = await import("@/lib/db");
-    const { gt, sql } = await import("drizzle-orm");
+    const { desc, gt, sql } = await import("drizzle-orm");
     const haceUnaHora = new Date(Date.now() - 3_600_000);
     const [f] = await getDb()
       .select({ n: sql<number>`count(*)` })
       .from(schema.session)
       .where(gt(schema.session.createdAt, haceUnaHora));
-    return Number(f?.n ?? 0);
-  } catch {
-    return -1;
+    const [ultima] = await getDb()
+      .select({
+        expira: sql<number>`expires_at`,
+        creada: sql<number>`created_at`,
+      })
+      .from(schema.session)
+      .orderBy(desc(sql`created_at`))
+      .limit(1);
+    return {
+      ultimaHora: Number(f?.n ?? 0),
+      ultimaExpiraEn: ultima ? Number(ultima.expira) : null,
+      ultimaCreadaEn: ultima ? Number(ultima.creada) : null,
+    };
+  } catch (fallo) {
+    console.error("[salud] no se pudieron mirar las sesiones:", fallo);
+    return { ultimaHora: -1, ultimaExpiraEn: null, ultimaCreadaEn: null };
   }
 }
