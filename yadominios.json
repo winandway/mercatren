@@ -4,5 +4,8 @@
   "vars": {
     "NEXT_PUBLIC_SITIO_URL": "https://mercatren.com",
     "NEXT_PUBLIC_NOMBRE_SITIO": "Mercatren"
+  },
+  "triggers": {
+    "crons": ["* * * * *"]
   }
 }
