@@ -51,6 +51,7 @@ export const TRAMOS_SOLO_EQUIPO = [
   "catalogo-usa",
   "proveedor",
   "validacion",
+  "vigilante",
 ] as const;
 
 /**

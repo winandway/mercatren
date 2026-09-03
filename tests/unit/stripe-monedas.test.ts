@@ -87,7 +87,10 @@ describe("la compra al proveedor deja rastro", () => {
   });
 
   it("y el canario dice si la llave del proveedor sigue viva", () => {
-    const fuente = readFileSync("src/app/datos/salud/route.ts", "utf-8");
+    const fuente = [
+      readFileSync("src/app/datos/salud/route.ts", "utf-8"),
+      readFileSync("src/lib/salud/piezas.ts", "utf-8"),
+    ].join("\n");
     expect(fuente).toContain("saludDelProveedor");
     expect(fuente).toContain("sin_llave");
     /* Ni un carácter del token sale del canario. */
@@ -98,7 +101,10 @@ describe("la compra al proveedor deja rastro", () => {
     /* Sin ese webhook, los cobros entran al banco y los pedidos se quedan
        en «esperando el pago» sin un solo error en pantalla — la regla
        global de pagos exige que el canario lo vigile. */
-    const fuente = readFileSync("src/app/datos/salud/route.ts", "utf-8");
+    const fuente = [
+      readFileSync("src/app/datos/salud/route.ts", "utf-8"),
+      readFileSync("src/lib/salud/piezas.ts", "utf-8"),
+    ].join("\n");
     expect(fuente).toContain("avisoDeStripeArmado");
     expect(fuente).toContain("avisoStripe");
     expect(fuente).toContain('"sin_secreto"');

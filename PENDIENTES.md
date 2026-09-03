@@ -117,6 +117,17 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       corrida real contra CJ se ve ahí: si la sonda da cero, el panel dice
       qué filtro aflojar. **La llave de CJ no vive en la máquina de trabajo,
       así que esto no se pudo probar contra CJ desde el código.**
+- [x] 💻 **El vigilante (2 sep 2026).** Panel → Equipo → Vigilante y
+      `.github/workflows/vigilante.yml` cada 20 min: mira el reloj, CJ, Stripe,
+      importaciones, compras al proveedor, Zelle, retiros y catálogos; retira
+      de la venta lo de CJ sin flete real; avisa a soporte@ por correo.
+- [ ] 🟠 💻 **La pistola de códigos de barras en la tienda de EE. UU.** Los
+      clientes la piden y no aparece: el buscador de CJ con `countryCode=US`
+      no la devuelve. Con el almacén completo importado, buscar «barcode
+      scanner» en Panel → Mis productos (catálogo de EE. UU.) y, si sigue sin
+      estar, es que CJ no la tiene en su almacén de EE. UU.: la salida es
+      traerla de China para esa plaza (una tienda «desde China, 15–20 días»
+      con su propio plazo en la ficha) — decisión del dueño.
 - [ ] 🟠 👤 **Search Console: nada que reenviar.** `/sitemap.xml` ahora es un
       índice con trozos de 40.000 fichas; la dirección registrada sigue
       valiendo. A los días, mirar en Sitemaps que aparezcan los trozos.

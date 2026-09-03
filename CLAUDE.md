@@ -1438,6 +1438,71 @@ producción. Si CJ rechaza `features`, la página se repite sin él (se pierde
 la descripción, no la página). Si la sonda da cero, el panel lo dice y
 sugiere bajar el stock mínimo o quitar «verificado».
 
+## EL VIGILANTE, Y NADA DE CJ A LA VENTA SIN EL ÚLTIMO FILTRO (2 sep 2026)
+
+Dos cosas que pidió el dueño la misma noche, con el recálculo de Colombia
+pegado horas en «712 de 0» sin que nadie se enterara.
+
+### 1. «Los productos que no tengan claro el envío no deberían ponerse a la venta»
+
+Sus palabras: _«hasta que no pase el último filtro —precio correcto, tallas
+correctas, cálculo del envío correcto— no debería ponerse a la venta»_. Y
+tenía razón: la importación masiva publicaba con envío ESTIMADO, y 7.200
+fichas estuvieron a la venta así durante una hora.
+
+- **Estado nuevo `en_revision`** en `ESTADOS_PRODUCTO` (texto, sin
+  migración). No sale en la tienda, en Google ni en el mapa: todo lo público
+  filtra por `publicado`. En Panel → Mis productos tiene su pestaña.
+- **La importación masiva NACE en revisión.** El afinado (`afinar.ts`) lo
+  publica cuando tiene flete real cotizado, precio en regla y stock de hoy
+  —solo lo que estaba `en_revision`; un borrador de una persona no se toca—.
+  Sin stock se queda en revisión; el refresco de stock también mira lo que
+  está en revisión y el barrido lo publica cuando vuelva a haber.
+- **El barrido (`src/lib/cj/verificados.ts`)** corre en cada vuelta del reloj
+  y en cada corrida del vigilante: retira a revisión lo publicado de CJ que
+  no cumpla (sin fila de envío, envío estimado, transporte regional o sin
+  costo base) y publica lo que ya cumple. Idempotente.
+- El afinado toma también lo cotizado con repartidor regional, así el
+  botón «Recalcular» de Configuración deja de ser necesario para eso.
+- Candado: `tests/unit/en-revision.test.ts`.
+
+### 2. El vigilante (`src/lib/vigilante/`)
+
+_«Necesitamos un vigilante que tenga el control de todo, que tenga un
+reporte, que se le pueda preguntar, que en caso de haber algún problema
+mande un correo»._ El agente de chat que tenía «no hace nada» porque no tiene
+poder sobre el sistema; este sí.
+
+- **Corre solo cada 20 minutos** desde `.github/workflows/vigilante.yml`
+  (flujo APARTE del reloj de sincronización, para poder avisar si ESE reloj
+  se para) contra `POST /datos/vigilante`, con la misma `SINCRONIZAR_LLAVE`
+  (`src/lib/seguridad/llave-del-reloj.ts`, compartida con `/datos/sincronizar`).
+- **El orden es actuar → medir → alertar → avisar** (`correr.ts`, hay prueba):
+  primero arregla lo que puede solo (el barrido; devolver a la cola las
+  tandas de importación que fallaron por algo pasajero como «too many
+  requests»), después mide (`hechos.ts`, cada medida en su propio `catch`),
+  evalúa (`reglas.ts`, puro, con pruebas) y manda UN correo a
+  `soporte@mercatren.com` con las alertas que toque — una roja se recuerda a
+  las 6 h, una ámbar al día (`avisos_vigilante`), así el buzón no se llena
+  del mismo aviso y se sigue leyendo.
+- **Qué mira:** el latido del reloj (`configuracion.sincronizar_ultimo_latido`,
+  que `/datos/sincronizar` deja al terminar; más de 45 min sin latir es ROJO),
+  la conexión con CJ y el aviso de Stripe (rojo), importaciones quietas o con
+  errores, productos sin costo base, compras al proveedor con error o sin
+  pagar más de 2 h (rojo), ventas pagadas de CJ sin pedido al proveedor
+  (rojo), Zelle sin validar más de 24 h, retiros sin pagar más de 3 días,
+  catálogos de comercios sin releer más de 1 h. Cada corrida queda en
+  `latidos_vigilante` (30 días).
+- **La pantalla: Panel → Equipo → Vigilante** (solo `esSoporteDeVerdad`,
+  cerrada bajo «ver su panel»): última corrida, alertas, lo que hizo solo, lo
+  que midió por plaza, historial y «Correr ahora». Y el canario
+  (`/datos/salud`) dice `vigilante: { haceMinutos, alertas, rojas }`.
+- **Umbrales** en `UMBRALES` de `reglas.ts`; se cambian ahí y en su prueba.
+- El reloj de sincronización pasó a **cada 10 minutos** y el afinado a 240 s
+  por vuelta: con el almacén completo entrando, hacían falta más vueltas.
+
+Candados: `tests/unit/vigilante.test.ts`.
+
 ## LA PRIMERA COMPRA PAGADA MURIÓ POR UN SKU (18 ago 2026)
 
 MT-000004 se pagó de verdad y CJ la rechazó con **«No variants found for

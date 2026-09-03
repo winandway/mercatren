@@ -189,6 +189,14 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         Icono: Megaphone,
         soloInterno: true,
       },
+      /* EL VIGILANTE: qué está en marcha, qué arregló solo y qué necesita
+         una persona. Solo el equipo. */
+      {
+        href: "/panel/vigilante",
+        clave: "vigilante",
+        Icono: ShieldCheck,
+        soloInterno: true,
+      },
       /* LOS CANALES DE VIDEO DE MERCATREN («Tu Próximo Producto Ganador» y
          los que vengan). Cada uno tiene su enlace con PIN para subir desde el
          celular, y esas llaves solo las ve el equipo. */

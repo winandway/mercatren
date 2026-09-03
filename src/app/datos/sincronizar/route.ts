@@ -3,6 +3,8 @@ import { isNotNull, ne, and } from "drizzle-orm";
 
 import { sincronizarCatalogo } from "@/lib/catalogo/sincronizar";
 import { getDbAsync, schema } from "@/lib/db";
+import { igualesEnTiempoConstante } from "@/lib/seguridad/llave-del-reloj";
+import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
 
 /**
  * LA SINCRONIZACIÓN QUE CORRE SOLA.
@@ -35,16 +37,6 @@ import { getDbAsync, schema } from "@/lib/db";
  */
 
 export const dynamic = "force-dynamic";
-
-/** Se comparan en tiempo constante: comparar con `===` filtra la llave. */
-function igualesEnTiempoConstante(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diferencia = 0;
-  for (let i = 0; i < a.length; i++) {
-    diferencia |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return diferencia === 0;
-}
 
 async function sincronizarTodas(peticion: Request) {
   const { env } = getCloudflareContext();
@@ -144,10 +136,21 @@ async function sincronizarTodas(peticion: Request) {
     const { AFINADOS_POR_VUELTA } = await import("@/lib/cj/masivo");
     afinadoCj = await afinarImportados({
       limite: AFINADOS_POR_VUELTA,
-      presupuestoMs: 110_000,
+      presupuestoMs: 240_000,
     });
   } catch (fallo) {
     console.error("[sincronizar] el afinado de CJ falló:", fallo);
+  }
+
+  /* ══ NADA DE CJ A LA VENTA SIN EL ÚLTIMO FILTRO (2 sep 2026) ══
+     Después de afinar, el barrido retira lo publicado que no tenga flete
+     real y publica lo que ya lo tiene. Lo mismo hace el vigilante. */
+  let barridoCj: unknown = null;
+  try {
+    const { barrerNoVerificados } = await import("@/lib/cj/verificados");
+    barridoCj = await barrerNoVerificados();
+  } catch (fallo) {
+    console.error("[sincronizar] el barrido de CJ falló:", fallo);
   }
 
   let traduccion: unknown = null;
@@ -161,6 +164,20 @@ async function sincronizarTodas(peticion: Request) {
     console.error("[sincronizar] la traducción del reloj falló:", fallo);
   }
 
+  /* ══ EL LATIDO (2 sep 2026) ══ El vigilante mira esta marca: si el reloj
+     lleva más de 45 minutos sin dejarla, avisa por correo. */
+  try {
+    await db
+      .insert(schema.configuracion)
+      .values({ clave: LLAVE_LATIDO_SINCRONIZAR, valor: String(Date.now()) })
+      .onConflictDoUpdate({
+        target: schema.configuracion.clave,
+        set: { valor: String(Date.now()) },
+      });
+  } catch (fallo) {
+    console.error("[sincronizar] no se pudo dejar el latido:", fallo);
+  }
+
   return Response.json({
     ok: true,
     fuentes: resultados.length,
@@ -169,6 +186,7 @@ async function sincronizarTodas(peticion: Request) {
     stockCj: cj,
     importacionCj,
     afinadoCj,
+    barridoCj,
     traduccion,
   });
 }

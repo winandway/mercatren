@@ -128,3 +128,12 @@ está ciega**: se trata como emergencia, no como pendiente.
   cotización real. Pruebas: `cj-masivo.test.ts`, `cj-importacion-masiva.test.ts`,
   `precio-plaza.test.ts`. **Sin probar contra CJ desde esta máquina** (no hay
   llave local): la primera corrida real la mira el dueño en el panel.
+- **2 sep (noche, 2) — NADA DE CJ A LA VENTA SIN EL ÚLTIMO FILTRO, Y EL
+  VIGILANTE.** 7.200 fichas importadas estuvieron a la venta con envío
+  estimado durante una hora. Ahora lo importado nace `en_revision`, el
+  afinado lo publica solo con flete real cotizado, precio en regla y stock,
+  y el barrido (`verificados.ts`) retira lo que deje de cumplir. El
+  vigilante (`/datos/vigilante`, cada 20 min) mira además el reloj, CJ,
+  el aviso de Stripe, las compras al proveedor sin pagar o con error y las
+  ventas pagadas sin pedido — y avisa a soporte@ por correo. Pruebas:
+  `en-revision.test.ts`, `vigilante.test.ts`.

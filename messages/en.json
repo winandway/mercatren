@@ -393,7 +393,8 @@
       "catalogoCl": "Chile catalog",
       "catalogoCo": "Colombia catalog",
       "busquedasImagen": "Photo searches",
-      "trafico": "Traffic"
+      "trafico": "Traffic",
+      "vigilante": "Watchdog"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -765,7 +766,8 @@
         "todos": "All",
         "publicado": "Published",
         "borrador": "Drafts",
-        "agotado": "Out of stock"
+        "agotado": "Out of stock",
+        "en_revision": "Under review"
       },
       "columna": {
         "producto": "Product",
@@ -2617,6 +2619,42 @@
       "paginasVistas": "{n} page views",
       "visitantesY": "{visitantes} people · {visitas} views",
       "sinDatos": "No data yet — it fills up on its own with every visit."
+    },
+    "vigilante": {
+      "titulo": "Watchdog",
+      "texto": "Every 20 minutes it checks everything in motion: the CJ import, price and size refinement, supplier purchases, payments awaiting validation, withdrawals, merchant catalogs and the scheduler itself. It fixes what it can on its own and emails support when something needs a person.",
+      "correr": "Run now",
+      "corriendo": "Checking…",
+      "nuncaCorrio": "The watchdog hasn't run yet. Press “Run now” or wait for the scheduler.",
+      "ultimaCorrida": "Last run {hace} min ago ({origen}, took {segundos} s).",
+      "origenReloj": "from the scheduler",
+      "origenPanel": "from the panel",
+      "alertas": "What needs a person",
+      "sinAlertas": "Nothing pending: everything watched is in order.",
+      "acciones": "What it did on its own in the last run",
+      "hechos": "What it measured",
+      "plaza": "Marketplace",
+      "publicados": "On sale",
+      "enRevision": "Under review",
+      "porAfinar": "To refine",
+      "sinCostoBase": "No base cost",
+      "reloj": "Sync scheduler",
+      "haceMin": "ticked {min} min ago",
+      "nunca": "never ticked",
+      "proveedor": "CJ connection",
+      "avisoStripe": "Stripe webhook",
+      "importaciones": "Active imports",
+      "comprasConError": "Supplier purchases with errors",
+      "comprasPorPagar": "Unpaid purchases (over 2 h)",
+      "ventasSinCompra": "Paid sales with no CJ order",
+      "zellePendientes": "Zelle awaiting validation (over 24 h)",
+      "retirosSinPagar": "Unpaid withdrawals (over 3 days)",
+      "fuentesAtrasadas": "Merchant catalogs behind",
+      "sinTraducir": "Untranslated titles",
+      "importacionLinea": "{plaza} import: {estado} · {agregados} new · {pendientes} batches pending · {conError} with errors",
+      "historial": "History",
+      "alertasN": "{n, plural, =0 {no alerts} =1 {1 alert} other {# alerts}}",
+      "accionesN": "{n, plural, =0 {no changes} =1 {1 change} other {# changes}}"
     }
   },
   "catalogo": {

@@ -393,7 +393,8 @@
       "catalogoCl": "Catálogo de Chile",
       "catalogoCo": "Catálogo de Colombia",
       "busquedasImagen": "Búsquedas por foto",
-      "trafico": "Tráfico"
+      "trafico": "Tráfico",
+      "vigilante": "Vigilante"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -765,7 +766,8 @@
         "todos": "Todos",
         "publicado": "Publicados",
         "borrador": "Borradores",
-        "agotado": "Agotados"
+        "agotado": "Agotados",
+        "en_revision": "En revisión"
       },
       "columna": {
         "producto": "Producto",
@@ -2617,6 +2619,42 @@
       "paginasVistas": "{n} páginas vistas",
       "visitantesY": "{visitantes} personas · {visitas} vistas",
       "sinDatos": "Todavía no hay datos: se llenan solos con cada visita."
+    },
+    "vigilante": {
+      "titulo": "Vigilante",
+      "texto": "Cada 20 minutos revisa todo lo que está en marcha: la importación de CJ, el afinado de precios y tallas, las compras al proveedor, los pagos por validar, los retiros, los catálogos de los comercios y el propio reloj. Arregla solo lo que puede y manda un correo a soporte cuando algo necesita una persona.",
+      "correr": "Correr ahora",
+      "corriendo": "Revisando…",
+      "nuncaCorrio": "El vigilante todavía no ha corrido. Pulsa «Correr ahora» o espera al reloj.",
+      "ultimaCorrida": "Última corrida hace {hace} min ({origen}, tardó {segundos} s).",
+      "origenReloj": "desde el reloj",
+      "origenPanel": "desde el panel",
+      "alertas": "Lo que necesita una persona",
+      "sinAlertas": "Nada pendiente: todo lo vigilado está en orden.",
+      "acciones": "Lo que hizo solo en la última corrida",
+      "hechos": "Lo que midió",
+      "plaza": "Plaza",
+      "publicados": "A la venta",
+      "enRevision": "En revisión",
+      "porAfinar": "Por afinar",
+      "sinCostoBase": "Sin costo base",
+      "reloj": "Reloj de sincronización",
+      "haceMin": "latió hace {min} min",
+      "nunca": "nunca ha latido",
+      "proveedor": "Conexión con CJ",
+      "avisoStripe": "Aviso de Stripe",
+      "importaciones": "Importaciones vivas",
+      "comprasConError": "Compras al proveedor con error",
+      "comprasPorPagar": "Compras sin pagar (más de 2 h)",
+      "ventasSinCompra": "Ventas pagadas sin pedido a CJ",
+      "zellePendientes": "Zelle sin validar (más de 24 h)",
+      "retirosSinPagar": "Retiros sin pagar (más de 3 días)",
+      "fuentesAtrasadas": "Catálogos de comercios atrasados",
+      "sinTraducir": "Títulos sin traducir",
+      "importacionLinea": "Importación de {plaza}: {estado} · {agregados} nuevos · {pendientes} tandas pendientes · {conError} con error",
+      "historial": "Historial",
+      "alertasN": "{n, plural, =0 {sin alertas} =1 {1 alerta} other {# alertas}}",
+      "accionesN": "{n, plural, =0 {sin acciones} =1 {1 cambio} other {# cambios}}"
     }
   },
   "catalogo": {

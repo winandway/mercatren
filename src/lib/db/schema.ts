@@ -300,7 +300,19 @@ export const fuentesCatalogo = sqliteTable(
   (t) => [index("idx_fuentes_tienda").on(t.tiendaId)],
 );
 
-export const ESTADOS_PRODUCTO = ["borrador", "publicado", "agotado"] as const;
+/**
+ * `en_revision` (2 sep 2026): lo que trajo la importación masiva de CJ y
+ * todavía NO pasó el último filtro —flete real, tallas y stock de hoy—. No
+ * se ve en la tienda ni en Google; el afinado lo publica cuando cumple, y
+ * el vigilante devuelve aquí lo publicado que deje de cumplir. Decisión del
+ * dueño: «hasta que no pase el último filtro no debería ponerse a la venta».
+ */
+export const ESTADOS_PRODUCTO = [
+  "borrador",
+  "publicado",
+  "agotado",
+  "en_revision",
+] as const;
 
 export const productos = sqliteTable(
   "productos",
@@ -3455,3 +3467,39 @@ export const tandasImportacionCj = sqliteTable(
   },
   (t) => [index("idx_tandas_importacion").on(t.importacionId, t.estado)],
 );
+
+/* -------------------------------------------------------------------------- */
+/* El vigilante (2 sep 2026)                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * CADA CORRIDA DEL VIGILANTE: qué miró, qué hizo y qué alertó.
+ *
+ * El dueño lo pidió con estas palabras: «necesitamos un vigilante que tenga
+ * el control de todo, que tenga un reporte, que se le pueda preguntar, que en
+ * caso de haber algún problema mande un correo». Cada latido queda aquí para
+ * que el panel lo enseñe y para comparar una corrida con la anterior.
+ */
+export const latidosVigilante = sqliteTable("latidos_vigilante", {
+  id: text("id").primaryKey(),
+  corridoEn: integer("corrido_en", { mode: "timestamp" }).notNull(),
+  duracionMs: integer("duracion_ms").notNull().default(0),
+  /** Desde dónde corrió: `reloj` (GitHub) o `panel` (una persona). */
+  origen: text("origen").notNull().default("reloj"),
+  /** JSON con las alertas, las acciones que tomó y los hechos que midió. */
+  alertas: text("alertas").notNull().default("[]"),
+  acciones: text("acciones").notNull().default("[]"),
+  hechos: text("hechos").notNull().default("{}"),
+});
+
+/**
+ * CUÁNDO SE AVISÓ DE CADA ALERTA POR CORREO, para no repetir el mismo correo
+ * cada 20 minutos: una alerta roja se recuerda a las 6 horas, una ámbar al
+ * día. Un buzón lleno del mismo aviso es como se deja de leer el buzón.
+ */
+export const avisosVigilante = sqliteTable("avisos_vigilante", {
+  clave: text("clave").primaryKey(),
+  nivel: text("nivel").notNull(),
+  titulo: text("titulo").notNull(),
+  avisadoEn: integer("avisado_en", { mode: "timestamp" }).notNull(),
+});

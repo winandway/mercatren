@@ -1,0 +1,55 @@
+name: vigilante
+
+# EL VIGILANTE (2 sep 2026). Cada 20 minutos le pide al sitio que mire todo
+# lo que está en marcha —la importación de CJ, el afinado de precios, las
+# compras al proveedor, los pagos por validar, los retiros, los catálogos de
+# los comercios y el propio reloj de sincronización—, que arregle solo lo que
+# pueda (retirar de la venta lo que no tiene flete real, reintentar tandas
+# que fallaron por CJ ocupado) y que mande un correo al equipo cuando algo
+# necesita una persona. Va en su propio flujo, aparte del reloj de
+# sincronización, para poder avisar si ESE reloj se para.
+on:
+  schedule:
+    - cron: "7,27,47 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: vigilante
+  cancel-in-progress: false
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pedirle al sitio que vigile
+        env:
+          LLAVE: ${{ secrets.SINCRONIZAR_LLAVE }}
+        run: |
+          if [ -z "$LLAVE" ]; then
+            echo "::error::Falta el secreto SINCRONIZAR_LLAVE en el repositorio."
+            exit 1
+          fi
+
+          codigo=$(curl -s -o respuesta.json -w "%{http_code}" \
+            --max-time 300 \
+            -X POST "https://mercatren.com/datos/vigilante" \
+            -H "Authorization: Bearer $LLAVE")
+
+          echo "Respuesta HTTP: $codigo"
+          cat respuesta.json || true
+          echo
+
+          if [ "$codigo" = "503" ]; then
+            echo "::warning::Falta cargar SINCRONIZAR_LLAVE en YaDominios Cloud."
+            exit 0
+          fi
+
+          if [ "$codigo" != "200" ]; then
+            echo "::error::El sitio respondio $codigo."
+            exit 1
+          fi
+
+          # Las alertas rojas se ven también aquí, en el historial del flujo.
+          if grep -q '"nivel":"rojo"' respuesta.json; then
+            echo "::warning::Hay alertas rojas. El detalle esta arriba y en Panel -> Vigilante."
+          fi

@@ -991,7 +991,11 @@ async function guardarFichas(
              sería «agotado» para el comprador. El reloj lo pregunta después. */
           controlaExistencias: ficha.existencias !== null,
           categoriaId,
-          estado: "publicado" as const,
+          /* ══ NACE EN REVISIÓN, NO A LA VENTA (decisión del dueño, 2 sep
+             2026) ══ «hasta que no pase el último filtro no debería ponerse
+             a la venta». Lo publica el afinado cuando tiene flete real,
+             tallas y stock; el barrido devuelve aquí lo que deje de cumplir. */
+          estado: "en_revision" as const,
           fuenteId: FUENTE_CJ,
           externoId: ficha.externoId,
           sincronizadoEn: ficha.existencias !== null ? ahora : null,

@@ -41,7 +41,7 @@ async function tiendaDelAlcance(comercioPedido?: string) {
 
 export type FiltrosMisProductos = {
   busqueda?: string;
-  estado?: "borrador" | "publicado" | "agotado";
+  estado?: "borrador" | "publicado" | "agotado" | "en_revision";
   comercio?: string;
   pagina?: number;
 };
@@ -121,7 +121,8 @@ export async function listarMisProductos(filtros: FiltrosMisProductos = {}) {
 export async function contarPorEstado(comercioPedido?: string) {
   const db = getDb();
   const tiendaId = await tiendaDelAlcance(comercioPedido);
-  if (!tiendaId) return { publicado: 0, borrador: 0, agotado: 0, total: 0 };
+  if (!tiendaId)
+    return { publicado: 0, borrador: 0, agotado: 0, en_revision: 0, total: 0 };
 
   const filas = await db
     .select({ estado: productos.estado, n: sql<number>`COUNT(*)` })
@@ -129,7 +130,13 @@ export async function contarPorEstado(comercioPedido?: string) {
     .where(eq(productos.tiendaId, tiendaId))
     .groupBy(productos.estado);
 
-  const cuenta = { publicado: 0, borrador: 0, agotado: 0, total: 0 };
+  const cuenta = {
+    publicado: 0,
+    borrador: 0,
+    agotado: 0,
+    en_revision: 0,
+    total: 0,
+  };
   for (const f of filas) {
     const n = Number(f.n);
     cuenta[f.estado as keyof typeof cuenta] = n;

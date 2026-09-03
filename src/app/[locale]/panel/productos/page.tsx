@@ -80,6 +80,12 @@ export default async function PaginaMisProductos({
     { clave: "publicado", texto: t("estados.publicado"), n: conteo.publicado },
     { clave: "borrador", texto: t("estados.borrador"), n: conteo.borrador },
     { clave: "agotado", texto: t("estados.agotado"), n: conteo.agotado },
+    /* Lo que trajo la importación de CJ y espera el último filtro. */
+    {
+      clave: "en_revision",
+      texto: t("estados.en_revision"),
+      n: conteo.en_revision,
+    },
   ];
 
   return (

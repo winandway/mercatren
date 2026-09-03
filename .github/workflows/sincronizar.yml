@@ -19,7 +19,9 @@ on:
     # deposito y seguir a la venta aqui — el rato en que se puede vender algo
     # que ya no hay. Mas seguido no aporta: el comercio no carga productos cada
     # minuto, y cada corrida lee su servidor entero.
-    - cron: "*/15 * * * *"
+    # Cada 10 desde el 2 sep 2026: con el almacén completo de CJ entrando, el
+    # afinado de precios y tallas necesita más vueltas al día.
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 # UNA A LA VEZ. Dos sincronizaciones en paralelo sobre el mismo catalogo se

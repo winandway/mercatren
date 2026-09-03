@@ -97,7 +97,9 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
     .where(
       and(
         eq(productos.fuenteId, FUENTE_CJ),
-        eq(productos.estado, "publicado"),
+        /* También lo que está en revisión: cuando vuelva a tener stock, el
+           barrido del vigilante lo publica. */
+        inArray(productos.estado, ["publicado", "en_revision"]),
         inArray(tiendas.paisOrigen, ["US", "CL", "CO"]),
       ),
     )

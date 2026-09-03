@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, like, or, sql } from "drizzle-orm";
 
 import { cjConfigurado, llamarCj } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
@@ -8,6 +8,7 @@ import { cotizarFlete } from "@/lib/cj/flete";
 import { guardarTallas } from "@/lib/cj/guardar";
 import { DEPARTAMENTO_CON_TALLAS, stockDeVariante } from "@/lib/cj/masivo";
 import { plazaDelMercado, type Plaza } from "@/lib/cj/plazas";
+import { REGIONALES } from "@/lib/cj/riesgo";
 import { ESPERA_MS, esperar } from "@/lib/cj/ritmo";
 import { elegirVariante, variantesDeCj } from "@/lib/cj/variantes";
 import { getDb, type Db } from "@/lib/db";
@@ -46,9 +47,14 @@ function condicionDeCola(paises: string[]) {
   return and(
     eq(productos.fuenteId, FUENTE_CJ),
     inArray(tiendas.paisOrigen, paises),
+    /* Sin fila, estimado, o cotizado con un repartidor REGIONAL (los que ya
+       costaron una venta a pérdida): todo eso necesita el flete real. */
     or(
       isNull(enviosProducto.productoId),
       eq(enviosProducto.origen, "estimado"),
+      ...REGIONALES.map((r) =>
+        like(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
+      ),
     ),
   );
 }
@@ -192,8 +198,20 @@ export async function afinarImportados(o: {
         db
           .update(productos)
           .set({
+            /* ══ EL ÚLTIMO FILTRO (2 sep 2026) ══ Con flete real, precio en
+               regla y stock, lo que estaba en revisión pasa a la venta. Lo que
+               una persona dejó en borrador NO se toca. Sin stock se queda en
+               revisión: el refresco de stock lo vuelve a mirar y el barrido lo
+               publica cuando vuelva a haber. */
             ...(precio.ok
-              ? { precioCentavos: precio.publicadoCentavos }
+              ? {
+                  precioCentavos: precio.publicadoCentavos,
+                  ...(stock > 0
+                    ? {
+                        estado: sql`case when ${productos.estado} = 'en_revision' then 'publicado' else ${productos.estado} end`,
+                      }
+                    : {}),
+                }
               : { estado: "borrador" as const }),
             existencias: stock,
             controlaExistencias: true,
