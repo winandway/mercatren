@@ -4,6 +4,7 @@ import { VERSION_AGENTES } from "@/lib/agentes/recursos";
 import { getDb } from "@/lib/db";
 import {
   avisoDeStripeArmado,
+  origenDeLaClaveDeSesiones,
   resumenDelReloj,
   resumenDelVigilante,
   saludDelProveedor,
@@ -74,17 +75,24 @@ export async function GET() {
   );
   try {
     await getDb().run(sql`SELECT 1`);
-    const [proveedor, avisoStripe, vigilante, reloj] = await Promise.all([
-      saludDelProveedor(),
-      avisoDeStripeArmado(
-        getCloudflareContext().env as unknown as Record<
-          string,
-          string | undefined
-        >,
-      ),
-      resumenDelVigilante(),
-      resumenDelReloj(),
-    ]);
+    const [proveedor, avisoStripe, vigilante, reloj, sesiones] =
+      await Promise.all([
+        saludDelProveedor(),
+        avisoDeStripeArmado(
+          getCloudflareContext().env as unknown as Record<
+            string,
+            string | undefined
+          >,
+        ),
+        resumenDelVigilante(),
+        resumenDelReloj(),
+        origenDeLaClaveDeSesiones(
+          getCloudflareContext().env as unknown as Record<
+            string,
+            string | undefined
+          >,
+        ),
+      ]);
     return Response.json(
       {
         ok: true,
@@ -94,6 +102,11 @@ export async function GET() {
         metodos,
         proveedor,
         avisoStripe,
+        /* DE DÓNDE SALE LA CLAVE DE LAS SESIONES (3 sep 2026). «variable»
+           es lo correcto; «base» funciona si esa fila se puede leer; «falta»
+           o «error» significa que NADIE puede entrar, porque cada petición
+           firmaría con una clave distinta. No enseña la clave. */
+        sesiones,
         /* El vigilante: hace cuánto corrió y cuántas alertas dejó. `null`
            si nunca corrió. */
         vigilante,

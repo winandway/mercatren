@@ -158,3 +158,33 @@ export async function resumenDelReloj(): Promise<{
     return null;
   }
 }
+
+/**
+ * ¿DE DÓNDE SALE LA CLAVE CON LA QUE SE FIRMAN LAS SESIONES? (3 sep 2026)
+ *
+ * Nadie podía entrar —ni el dueño, ni un cliente recién registrado, ni con
+ * el enlace de recuperar la contraseña—: la cuenta se creaba, la cookie se
+ * emitía, y `get-session` devolvía `null` siempre. Con la clave viniendo de
+ * la base, si esa fila no se puede leer o escribir, **cada petición firma
+ * con una clave distinta** y ninguna sesión vale nunca.
+ *
+ * Esto lo dice sin enseñar ni un carácter de la clave: solo de dónde sale.
+ * Saber que existe no ayuda a nadie a falsificarla.
+ */
+export async function origenDeLaClaveDeSesiones(
+  env: Record<string, string | undefined>,
+): Promise<string> {
+  if (env.BETTER_AUTH_SECRET?.trim()) return "variable";
+  try {
+    const { getDb, schema } = await import("@/lib/db");
+    const { eq } = await import("drizzle-orm");
+    const [fila] = await getDb()
+      .select({ valor: schema.configuracion.valor })
+      .from(schema.configuracion)
+      .where(eq(schema.configuracion.clave, "auth_secret"))
+      .limit(1);
+    return fila?.valor ? "base" : "falta";
+  } catch {
+    return "error";
+  }
+}
