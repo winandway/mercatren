@@ -7,6 +7,7 @@ import {
   origenDeLaClaveDeSesiones,
   resumenDelReloj,
   resumenDelVigilante,
+  lecturaDeCuentas,
   saludDelProveedor,
   sesionesRecientes,
 } from "@/lib/salud/piezas";
@@ -83,6 +84,7 @@ export async function GET() {
       reloj,
       sesiones,
       sesionesUltimaHora,
+      cuentas,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -100,6 +102,7 @@ export async function GET() {
         >,
       ),
       sesionesRecientes(),
+      lecturaDeCuentas(),
     ]);
     return Response.json(
       {
@@ -114,7 +117,7 @@ export async function GET() {
            es lo correcto; «base» funciona si esa fila se puede leer; «falta»
            o «error» significa que NADIE puede entrar, porque cada petición
            firmaría con una clave distinta. No enseña la clave. */
-        sesiones: { ...sesiones, ...sesionesUltimaHora },
+        sesiones: { ...sesiones, ...sesionesUltimaHora, cuentas },
         /* El vigilante: hace cuánto corrió y cuántas alertas dejó. `null`
            si nunca corrió. */
         vigilante,

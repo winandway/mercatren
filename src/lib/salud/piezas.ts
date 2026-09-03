@@ -247,3 +247,46 @@ export async function sesionesRecientes(): Promise<{
     return { ultimaHora: -1, ultimaExpiraEn: null, ultimaCreadaEn: null };
   }
 }
+
+/**
+ * ¿SE PUEDEN LEER LAS FILAS DE SESIÓN Y DE CUENTA TAL COMO LAS PIDE EL
+ * SISTEMA DE CUENTAS? (3 sep 2026)
+ *
+ * Better Auth lee esas dos tablas con TODAS las columnas del esquema. Si la
+ * base de producción tiene una tabla más vieja —a la que le falta una
+ * columna—, el SELECT falla, el adaptador se lo traga y `get-session`
+ * devuelve `null` para todo el mundo: nadie puede entrar y no hay ni un
+ * error en ninguna pantalla. Esto ejecuta esa misma lectura y devuelve el
+ * motivo exacto. No enseña ni un dato de nadie: solo «ok» o el error.
+ */
+export async function lecturaDeCuentas(): Promise<Record<string, string>> {
+  const probar = async (nombre: string, hacer: () => Promise<unknown>) => {
+    try {
+      await hacer();
+      return "ok";
+    } catch (fallo) {
+      const m = fallo instanceof Error ? fallo.message : String(fallo);
+      return m.replace(/\s+/g, " ").slice(0, 160);
+    }
+  };
+  try {
+    const { getDb, schema } = await import("@/lib/db");
+    const db = getDb();
+    return {
+      session: await probar("session", () =>
+        db.select().from(schema.session).limit(1),
+      ),
+      user: await probar("user", () => db.select().from(schema.user).limit(1)),
+      account: await probar("account", () =>
+        db.select().from(schema.account).limit(1),
+      ),
+      verification: await probar("verification", () =>
+        db.select().from(schema.verification).limit(1),
+      ),
+    };
+  } catch (fallo) {
+    return {
+      todo: fallo instanceof Error ? fallo.message.slice(0, 160) : "error",
+    };
+  }
+}
