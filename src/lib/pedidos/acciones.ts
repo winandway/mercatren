@@ -377,9 +377,16 @@ export async function crearPedido(
        La existencia guardada aquí es la del día que se importó; la
        MT-000011 se cobró y en el almacén de EE. UU. ya no quedaba esa
        talla. Se le pregunta a CJ en el momento: sin stock allá, no se
-       vende. Si CJ no contesta se deja pasar — el candado de margen y el
-       panel lo atrapan después, y una caída de CJ no puede cerrar la
-       tienda entera. */
+       vende.
+
+       ══ Y SIN RESPUESTA DE CJ TAMPOCO (3 sep 2026) ══ Decía «si CJ no
+       contesta se deja pasar». Esa noche CJ no contestaba porque la
+       importación masiva le hablaba a la vez, y la MT-000013 se cobró por
+       una camiseta sin ninguna talla en el almacén: dos cobros a la misma
+       clienta por algo que no se puede enviar. Regla del dueño: nada se
+       vende sin tener todo confirmado. Sin confirmación, no se cobra y se
+       le pide al comprador que vuelva a intentar en un minuto — es mejor
+       una venta que espera que un reembolso. */
     if (
       producto.fuenteId === FUENTE_CJ &&
       ["US", "CL", "CO"].includes(producto.tiendaPais ?? "")
@@ -396,6 +403,12 @@ export async function crearPedido(
         return {
           ok: false,
           mensaje: t("sinSuficiente", { producto: tituloLinea, quedan: 0 }),
+        };
+      }
+      if (enCj === null) {
+        return {
+          ok: false,
+          mensaje: t("sinConfirmarStock", { producto: tituloLinea }),
         };
       }
     }

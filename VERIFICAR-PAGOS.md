@@ -137,3 +137,17 @@ está ciega**: se trata como emergencia, no como pendiente.
   el aviso de Stripe, las compras al proveedor sin pagar o con error y las
   ventas pagadas sin pedido — y avisa a soporte@ por correo. Pruebas:
   `en-revision.test.ts`, `vigilante.test.ts`.
+- **3 sep — MT-000013: SE COBRÓ UNA CAMISETA SIN STOCK EN EL ALMACÉN DE
+  EE. UU.** La misma clienta de la MT-000011 volvió a comprar la misma
+  camiseta; el candado de stock del checkout «deja pasar si CJ no contesta»,
+  y esa noche CJ no contestaba porque la importación masiva le hablaba a la
+  vez. La compra al proveedor se cortó antes de crear la fila («no tiene
+  ninguna talla ni color con existencia») y el motivo quedó solo en la
+  bitácora: para el panel era una venta sin compra sin decir por qué.
+  Arreglos: (1) el candado del checkout es CERRADO para productos de CJ —
+  sin confirmación de stock no se cobra, y la pantalla dice que se reintente
+  en un minuto; (2) todo fallo de la compra al proveedor deja su fila
+  `con_error` con el motivo (`falloVisible`); (3) el vigilante nombra cada
+  pedido con su motivo; (4) el refresco de stock mira PRIMERO lo publicado.
+  Las dos compras de la clienta (MT-000011 y MT-000013) hay que
+  devolvérselas: es dinero cobrado por algo que no se puede enviar.

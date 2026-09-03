@@ -1364,7 +1364,8 @@
       "fotoAvisado": "Aviso enviado: el cliente ya tiene el enlace.",
       "varianteRepetida": "«{nombre}» está repetida: son la misma combinación escrita dos veces (mayúsculas y minúsculas no la hacen distinta). Junta el stock en una sola fila y guarda de nuevo.",
       "faltaReferenciaCierre": "Escribe la referencia del pago real (mínimo 3 caracteres).",
-      "saldoCerrado": "Saldo cerrado: {monto} registrados como pagados ({pedidos} retiros pendientes marcados)."
+      "saldoCerrado": "Saldo cerrado: {monto} registrados como pagados ({pedidos} retiros pendientes marcados).",
+      "sinConfirmarStock": "No pudimos confirmar con el almacén la disponibilidad de «{producto}». No se cobró nada: inténtalo de nuevo en un minuto."
     },
     "usuarios": {
       "titulo": "Cuentas",

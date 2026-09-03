@@ -1359,8 +1359,10 @@ enable_category`). Con eso se crea la ficha, cae en su departamento y su
    borrador**. Lo corre el reloj (`/datos/sincronizar`, 40 por vuelta, 96
    vueltas al día) y el botón «Afinar ahora».
 3. **Mientras tanto, los candados del 2 sep protegen la venta**: el checkout
-   le pregunta a CJ el stock antes de cobrar, y la compra al proveedor no se
-   paga sola si pierde dinero.
+   le pregunta a CJ el stock antes de cobrar —**y desde el 3 sep, sin
+   respuesta de CJ NO se cobra** (la MT-000013 se cobró por una camiseta sin
+   talla en el almacén mientras CJ no contestaba por la importación)—, y la
+   compra al proveedor no se paga sola si pierde dinero.
 4. **El traductor también corre desde el reloj** (`src/lib/traduccion/tanda.ts`):
    3 tandas de títulos y 2 de descripciones por vuelta, mismo modelo y
    mismas reglas que el botón. Lo pendiente se decide en SQL (español igual

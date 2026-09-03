@@ -1364,7 +1364,8 @@
       "fotoAvisado": "Notification sent: the customer has the link.",
       "varianteRepetida": "“{nombre}” is duplicated: it’s the same combination written twice (upper and lower case don’t make it different). Merge the stock into a single row and save again.",
       "faltaReferenciaCierre": "Enter the reference of the real payment (at least 3 characters).",
-      "saldoCerrado": "Balance closed: {monto} recorded as paid ({pedidos} pending withdrawals marked)."
+      "saldoCerrado": "Balance closed: {monto} recorded as paid ({pedidos} pending withdrawals marked).",
+      "sinConfirmarStock": "We couldn't confirm the warehouse availability of “{producto}”. Nothing was charged: please try again in a minute."
     },
     "usuarios": {
       "titulo": "Accounts",

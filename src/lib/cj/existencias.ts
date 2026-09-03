@@ -104,7 +104,12 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
         inArray(tiendas.paisOrigen, ["US", "CL", "CO"]),
       ),
     )
+    /* Lo PUBLICADO primero (3 sep 2026): es lo que se puede comprar, y
+       con cuarenta mil fichas en revisión el turno de las doscientas a la
+       venta llegaba cada varios días. Lo que está en revisión lo refresca
+       el afinado al publicarlo. */
     .orderBy(
+      sql`case when ${productos.estado} = 'publicado' then 0 else 1 end`,
       sql`${productos.sincronizadoEn} IS NOT NULL`,
       asc(productos.sincronizadoEn),
     )
