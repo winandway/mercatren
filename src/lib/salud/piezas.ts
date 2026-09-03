@@ -173,8 +173,22 @@ export async function resumenDelReloj(): Promise<{
  */
 export async function origenDeLaClaveDeSesiones(
   env: Record<string, string | undefined>,
-): Promise<string> {
-  if (env.BETTER_AUTH_SECRET?.trim()) return "variable";
+): Promise<{ origen: string; huella: string }> {
+  const huellaDe = async (valor: string) => {
+    /* Ocho caracteres del SHA-256: sirven para comparar entre peticiones y
+       no permiten reconstruir nada. Si la huella CAMBIA entre dos llamadas,
+       cada petición está firmando con una clave distinta y por eso ninguna
+       sesión vale. */
+    const datos = new TextEncoder().encode(valor);
+    const hash = await crypto.subtle.digest("SHA-256", datos);
+    return Array.from(new Uint8Array(hash).slice(0, 4))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  };
+  const deLaVariable = env.BETTER_AUTH_SECRET?.trim();
+  if (deLaVariable) {
+    return { origen: "variable", huella: await huellaDe(deLaVariable) };
+  }
   try {
     const { getDb, schema } = await import("@/lib/db");
     const { eq } = await import("drizzle-orm");
@@ -183,8 +197,9 @@ export async function origenDeLaClaveDeSesiones(
       .from(schema.configuracion)
       .where(eq(schema.configuracion.clave, "auth_secret"))
       .limit(1);
-    return fila?.valor ? "base" : "falta";
+    if (!fila?.valor) return { origen: "falta", huella: "" };
+    return { origen: "base", huella: await huellaDe(fila.valor) };
   } catch {
-    return "error";
+    return { origen: "error", huella: "" };
   }
 }
