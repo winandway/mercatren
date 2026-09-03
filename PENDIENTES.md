@@ -412,3 +412,14 @@ línea de código.
   Pedidos al proveedor, descartar la MT-000011 (por_pagar, CJ la rechazó) y la
   MT-000004 (la prueba del 18 ago). El candado del checkout ya es cerrado
   (3 sep): sin confirmación de stock no se cobra.
+
+- 🟡 💻 **El traductor del catálogo devuelve JSON roto de vez en cuando y se
+  para** (visto el 3 sep 2026 en Panel → Configuración → Catálogo en español,
+  con 45.039 títulos en inglés y 698 traducidos). El mensaje: «El traductor no
+  devolvió JSON: { "t": [ { "id": "prod-BLLG3IcRj7IP", "titulo": "Ropa para
+  hombre" -}, …» — se cuela un guion suelto y el texto se corta, así que la
+  tanda entera se pierde en vez de rescatar lo que sí vino bien. Al fondo de la
+  cola por decisión del dueño: no frena ninguna venta, el catálogo se ve igual
+  en español o inglés, y el reloj sigue intentando tandas nuevas. Cuando se
+  toque: rescatar los objetos válidos aunque el JSON venga cortado, pedir menos
+  productos por tanda, y dejar el error con la tanda que falló para reintentarla.
