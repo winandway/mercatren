@@ -3,6 +3,7 @@ import "server-only";
 import {
   and,
   count,
+  desc,
   eq,
   inArray,
   isNull,
@@ -18,6 +19,7 @@ import { REGIONALES } from "@/lib/cj/riesgo";
 import { contarPublicadosSinVerificar } from "@/lib/cj/verificados";
 import { getDb } from "@/lib/db";
 import {
+  bitacoraPagos,
   configuracion,
   enviosProducto,
   fuentesCatalogo,
@@ -313,7 +315,7 @@ export async function recogerHechos(): Promise<Hechos> {
       .select({ id: pedidosProveedor.pedidoId })
       .from(pedidosProveedor);
     const filas = await db
-      .select({ numero: pedidos.numero })
+      .select({ id: pedidos.id, numero: pedidos.numero })
       .from(pedidos)
       .where(
         and(
@@ -324,7 +326,29 @@ export async function recogerHechos(): Promise<Hechos> {
         ),
       )
       .limit(8);
-    return filas.map((f) => f.numero);
+    /* Con el último motivo de la bitácora: es lo único que dice POR QUÉ una
+       venta cobrada no llegó a CJ cuando se cortó antes de crear la fila. */
+    const salida: string[] = [];
+    for (const f of filas) {
+      const [nota] = await db
+        .select({ detalle: bitacoraPagos.detalle })
+        .from(bitacoraPagos)
+        .where(
+          and(
+            eq(bitacoraPagos.pedidoId, f.id),
+            like(bitacoraPagos.paso, "compra_proveedor%"),
+          ),
+        )
+        .orderBy(desc(bitacoraPagos.creadoEn))
+        .limit(1)
+        .catch(() => []);
+      salida.push(
+        nota?.detalle
+          ? `${f.numero} (${nota.detalle.slice(0, 200)})`
+          : f.numero,
+      );
+    }
+    return salida;
   });
 
   return {

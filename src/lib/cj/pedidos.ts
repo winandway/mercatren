@@ -369,6 +369,51 @@ async function transporteReal(
  * se crea otra. Sin eso, dos clics seguidos —o un reintento— comprarían el
  * producto dos veces, y eso es dinero de verdad saliendo dos veces.
  */
+/**
+ * ══ UN FALLO ANTES DE LLEGAR A CJ TAMBIÉN DEJA FILA (3 sep 2026) ══
+ *
+ * La segunda compra de la camiseta (MT-000013) se cobró y NO apareció en
+ * Pedidos al proveedor: la compra se cortó antes de hablar con CJ (dirección,
+ * destino, variantes) y el motivo quedó solo en la bitácora, que nadie mira.
+ * Para el panel y para el vigilante era una venta sin compra, sin decir por
+ * qué. Ahora todo fallo posterior a cargar el pedido deja su fila `con_error`
+ * con el motivo entero: se ve en Pedidos al proveedor con «Volver a
+ * intentarlo», y el vigilante lo nombra en el correo.
+ */
+async function falloVisible(
+  db: ReturnType<typeof getDb>,
+  pedidoId: string,
+  motivo: string,
+): Promise<ResultadoCompra> {
+  const ahora = new Date();
+  try {
+    const [previa] = await db
+      .select({ id: pedidosProveedor.id, estado: pedidosProveedor.estado })
+      .from(pedidosProveedor)
+      .where(eq(pedidosProveedor.pedidoId, pedidoId))
+      .limit(1);
+    if (previa && previa.estado === "con_error") {
+      await db
+        .update(pedidosProveedor)
+        .set({ ultimoError: motivo.slice(0, 300), actualizadoEn: ahora })
+        .where(eq(pedidosProveedor.id, previa.id));
+    } else if (!previa) {
+      await db.insert(pedidosProveedor).values({
+        id: `pp-${nanoid(12)}`,
+        pedidoId,
+        proveedor: FUENTE_CJ,
+        estado: "con_error",
+        ultimoError: motivo.slice(0, 300),
+        creadoEn: ahora,
+        actualizadoEn: ahora,
+      });
+    }
+  } catch (fallo) {
+    console.error("[cj] no se pudo dejar el fallo visible:", fallo);
+  }
+  return { ok: false, motivo };
+}
+
 export async function comprarAlProveedor(
   pedidoId: string,
   /**
@@ -478,10 +523,11 @@ export async function comprarAlProveedor(
    */
   const destino = destinoDeEnvio(pedido.pais || entrega.pais);
   if (!destino) {
-    return {
-      ok: false,
-      motivo: `Todavía no despachamos a «${pedido.pais || entrega.pais}». Ese pedido hay que resolverlo a mano.`,
-    };
+    return falloVisible(
+      db,
+      pedidoId,
+      `Todavía no despachamos a «${pedido.pais || entrega.pais}». Ese pedido hay que resolverlo a mano.`,
+    );
   }
 
   /* De qué almacén sale ESTE pedido: EE. UU. de su almacén local; Chile y
@@ -511,10 +557,11 @@ export async function comprarAlProveedor(
   ].filter(Boolean);
 
   if (faltan.length > 0) {
-    return {
-      ok: false,
-      motivo: `A este pedido le falta ${faltan.join(", ")}. No se puede despachar así.`,
-    };
+    return falloVisible(
+      db,
+      pedidoId,
+      `A este pedido le falta ${faltan.join(", ")}. No se puede despachar así.`,
+    );
   }
 
   /* Solo los renglones que surte CJ: un pedido podría mezclar, y lo de
@@ -550,10 +597,11 @@ export async function comprarAlProveedor(
 
   const delProveedor = renglones.filter((r) => r.externoId ?? r.sku);
   if (delProveedor.length === 0) {
-    return {
-      ok: false,
-      motivo: "Este pedido no tiene productos del proveedor.",
-    };
+    return falloVisible(
+      db,
+      pedidoId,
+      "Este pedido no tiene productos del proveedor.",
+    );
   }
 
   /**
@@ -584,14 +632,15 @@ export async function comprarAlProveedor(
       /* Se corta el pedido ENTERO, no se compra lo que sí se pudo. Media
          compra deja al cliente con una caja incompleta y a nosotros pagando
          dos envíos; y no hay forma de saberlo mirando el panel. */
-      return {
-        ok: false,
-        /* El motivo nombra el ALMACÉN, no dice «no hay variantes» a secas: casi
+      /* El motivo nombra el ALMACÉN, no dice «no hay variantes» a secas: casi
            siempre el producto existe y lo que falta es existencia en Estados
            Unidos. Con el mensaje genérico uno va a buscar el producto y lo
            encuentra, y se queda sin entender nada. */
-        motivo: `«${r.titulo ?? r.sku ?? "Un producto"}» no tiene ninguna talla ni color con existencia en el almacén de Estados Unidos. Sin eso el pedido se crea pero CJ no deja pagarlo.`,
-      };
+      return falloVisible(
+        db,
+        pedidoId,
+        `«${r.titulo ?? r.sku ?? "Un producto"}» no tiene ninguna talla ni color con existencia en el almacén de Estados Unidos. Sin eso el pedido se crea pero CJ no deja pagarlo.`,
+      );
     }
 
     aComprar.push({

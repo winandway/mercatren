@@ -168,3 +168,22 @@ describe("las puertas del panel y el reloj", () => {
     expect(feed).toContain(".orderBy(asc(productos.id))");
   });
 });
+
+describe("una venta cobrada nunca se queda sin rastro en Pedidos al proveedor", () => {
+  it("todo fallo posterior a cargar el pedido deja su fila con_error (MT-000013, 3 sep 2026)", () => {
+    const fuente = readFileSync("src/lib/cj/pedidos.ts", "utf-8");
+    const ini = fuente.indexOf("export async function comprarAlProveedor(");
+    const fin = fuente.indexOf(".insert(pedidosProveedor)", ini);
+    const desde = fuente.indexOf('motivo: "Ese pedido no existe."', ini) + 40;
+    const tramo = fuente.slice(desde, fin);
+    /* Ninguna salida «a pelo» entre cargar el pedido y crear la fila. */
+    expect(tramo).not.toMatch(/return \{\s*ok: false,/);
+    expect(
+      (tramo.match(/return falloVisible\(db, pedidoId,/g) ?? []).length,
+    ).toBeGreaterThanOrEqual(4);
+    /* Y el vigilante trae el motivo de la bitácora para lo que no dejó fila. */
+    expect(readFileSync("src/lib/vigilante/hechos.ts", "utf-8")).toContain(
+      'like(bitacoraPagos.paso, "compra_proveedor%")',
+    );
+  });
+});
