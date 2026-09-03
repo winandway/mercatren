@@ -179,7 +179,7 @@ describe("una venta cobrada nunca se queda sin rastro en Pedidos al proveedor", 
     /* Ninguna salida «a pelo» entre cargar el pedido y crear la fila. */
     expect(tramo).not.toMatch(/return \{\s*ok: false,/);
     expect(
-      (tramo.match(/return falloVisible\(db, pedidoId,/g) ?? []).length,
+      (tramo.match(/return falloVisible\(\s*db,\s*pedidoId,/g) ?? []).length,
     ).toBeGreaterThanOrEqual(4);
     /* Y el vigilante trae el motivo de la bitácora para lo que no dejó fila. */
     expect(readFileSync("src/lib/vigilante/hechos.ts", "utf-8")).toMatch(
