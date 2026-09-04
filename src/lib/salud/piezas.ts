@@ -347,6 +347,36 @@ export async function pruebaDeLectura(): Promise<Record<string, string>> {
 
     const { getAuth } = await import("@/lib/auth");
     const auth = await getAuth();
+
+    /* ══ EL CICLO COMPLETO, DENTRO DEL SERVIDOR (3 sep 2026) ══
+       Se abre una cuenta efímera, se toma la cookie que el propio sistema
+       de cuentas emite —firmada como la de cualquiera— y se le pide leerla
+       en el acto. Si esto falla, el fallo está en el sistema de cuentas y
+       no en el navegador ni en el camino. */
+    let ciclo = "no probado";
+    try {
+      const correo = `diagnostico+${crypto.randomUUID().slice(0, 8)}@mercatren.com`;
+      const respuesta = (await auth.api.signUpEmail({
+        body: {
+          name: "Soporte Diagnóstico",
+          email: correo,
+          password: `diagnostico ${crypto.randomUUID()}`,
+        },
+        asResponse: true,
+      })) as Response;
+      const galleta = respuesta.headers.get("set-cookie") ?? "";
+      const soloPar = galleta.split(";")[0] ?? "";
+      const leida = await auth.api.getSession({
+        headers: new Headers({ cookie: soloPar }),
+      });
+      ciclo = leida?.session ? "ok" : `null (cookie de ${soloPar.length} car.)`;
+    } catch (fallo) {
+      ciclo =
+        fallo instanceof Error
+          ? fallo.message.replace(/\s+/g, " ").slice(0, 200)
+          : "error";
+    }
+
     const intentar = async (nombre: string) => {
       try {
         const r = await auth.api.getSession({
@@ -359,6 +389,7 @@ export async function pruebaDeLectura(): Promise<Record<string, string>> {
       }
     };
     return {
+      ciclo,
       conPrefijo: await intentar("__Secure-mercatren.session_token"),
       sinPrefijo: await intentar("mercatren.session_token"),
     };
