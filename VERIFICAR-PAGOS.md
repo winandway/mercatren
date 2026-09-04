@@ -13,9 +13,16 @@
 > checkout manda a «entra con tu cuenta». Le pasa a todo el mundo: al dueño en
 > el panel, a los clientes al comprar, y no se arregla recuperando la clave.
 >
-> **La prueba, en una línea** (manda dos cookies y el sitio recibe cero):
+> **LA PRUEBA, Y NO NECESITA NUESTRO CÓDIGO** — la cabecera `cookie` se
+> pierde, mientras las demás sí llegan:
 >
 > ```
+> curl -s -o /dev/null -w "%{redirect_url}\n" "https://mercatren.com/" -H "accept-language: es-VE"
+> → https://mercatren.com/es      ← la cabecera de idioma SÍ llega
+>
+> curl -s -o /dev/null -w "%{redirect_url}\n" "https://mercatren.com/" -H "cookie: NEXT_LOCALE=es"
+> → https://mercatren.com/en      ← la cookie NO llega (debería ir a /es)
+>
 > curl -s "https://mercatren.com/datos/salud" -H "cookie: a=1; b=2" | grep cookies
 > → "cookies":{"cuantas":0,"nombres":[]}
 > ```

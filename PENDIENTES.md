@@ -411,10 +411,11 @@ línea de código.
   perdidas.
 - 🔴 👤 **YaDominios Cloud se está comiendo las cookies: NADIE puede entrar ni
   comprar** (3 sep 2026). Comprobado: `curl -H "cookie: a=1" https://mercatren.com/datos/salud`
-  responde `"cookies":{"cuantas":0}`. El código de Mercatren está sano (dentro
-  del servidor el ciclo de sesión da «ok»). Se arregla en la sesión de
-  YaDominios Cloud, dejando pasar la cabecera `cookie`. Mientras tanto no se
-  puede vender.
+  responde `"cookies":{"cuantas":0}`, y `-H "cookie: NEXT_LOCALE=es"` en la
+  portada sigue mandando a `/en` mientras `-H "accept-language: es-VE"` sí
+  manda a `/es`: **las demás cabeceras llegan, la de cookies no**. El código
+  de Mercatren está sano (dentro del servidor el ciclo de sesión da «ok»). Se
+  arregla en la sesión de YaDominios Cloud. Mientras tanto no se puede vender.
 - 🔴 👤 **Richard: devolverle el dinero a la clienta de la camiseta (MT-000011 y
   MT-000013).** Pagó dos veces la misma camiseta y no se puede enviar: no tiene
   ninguna talla en el almacén de EE. UU. (el motivo ya lo dice el vigilante y
