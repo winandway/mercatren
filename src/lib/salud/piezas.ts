@@ -302,3 +302,50 @@ export async function lecturaDeCuentas(): Promise<Record<string, string>> {
     };
   }
 }
+
+/**
+ * LA PRUEBA DEFINITIVA: LEER UNA SESIÓN DENTRO DEL PROPIO SERVIDOR (3 sep 2026)
+ *
+ * `get-session` devolvía `null` para todo el mundo con la sesión bien
+ * guardada (token de 32, fechas correctas), la clave estable y las cuatro
+ * tablas legibles. Cuando todos los datos están bien y el resultado sigue
+ * mal, lo que falta es el ERROR, y el error vive dentro del sistema de
+ * cuentas: aquí se le pide que lea la última sesión de la base y se
+ * devuelve lo que conteste, excepción incluida.
+ *
+ * No sale ni un token ni un correo: solo «ok», «null» o el mensaje del fallo.
+ */
+export async function pruebaDeLectura(): Promise<Record<string, string>> {
+  try {
+    const { getDb, schema } = await import("@/lib/db");
+    const { desc, sql } = await import("drizzle-orm");
+    const [ultima] = await getDb()
+      .select({ token: schema.session.token })
+      .from(schema.session)
+      .orderBy(desc(sql`created_at`))
+      .limit(1);
+    if (!ultima?.token) return { estado: "sin sesiones que probar" };
+
+    const { getAuth } = await import("@/lib/auth");
+    const auth = await getAuth();
+    const intentar = async (nombre: string) => {
+      try {
+        const r = await auth.api.getSession({
+          headers: new Headers({ cookie: `${nombre}=${ultima.token}` }),
+        });
+        return r?.session ? "ok" : "null";
+      } catch (fallo) {
+        const m = fallo instanceof Error ? fallo.message : String(fallo);
+        return m.replace(/\s+/g, " ").slice(0, 200);
+      }
+    };
+    return {
+      conPrefijo: await intentar("__Secure-mercatren.session_token"),
+      sinPrefijo: await intentar("mercatren.session_token"),
+    };
+  } catch (fallo) {
+    return {
+      estado: fallo instanceof Error ? fallo.message.slice(0, 200) : "error",
+    };
+  }
+}
