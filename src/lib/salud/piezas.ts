@@ -173,7 +173,7 @@ export async function resumenDelReloj(): Promise<{
  */
 export async function origenDeLaClaveDeSesiones(
   env: Record<string, string | undefined>,
-): Promise<{ origen: string; huella: string }> {
+): Promise<{ origen: string; huella: string; usada: string }> {
   const huellaDe = async (valor: string) => {
     /* Ocho caracteres del SHA-256: sirven para comparar entre peticiones y
        no permiten reconstruir nada. Si la huella CAMBIA entre dos llamadas,
@@ -185,9 +185,28 @@ export async function origenDeLaClaveDeSesiones(
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   };
+  /* LA HUELLA DE LA CLAVE QUE DE VERDAD SE USA (3 sep 2026). Antes esto
+     miraba la fila de la base por su cuenta, y por eso decía «estable»
+     mientras las sesiones no valían: hay que preguntarle a la MISMA función
+     que arma el sistema de cuentas. */
+  let laQueSeUsa = "";
+  try {
+    const { secretoDeSesiones } = await import("@/lib/auth");
+    laQueSeUsa = await secretoDeSesiones(
+      env as unknown as Parameters<typeof secretoDeSesiones>[0],
+    );
+  } catch {
+    laQueSeUsa = "";
+  }
+  const usada = laQueSeUsa ? await huellaDe(laQueSeUsa) : "error";
+
   const deLaVariable = env.BETTER_AUTH_SECRET?.trim();
   if (deLaVariable) {
-    return { origen: "variable", huella: await huellaDe(deLaVariable) };
+    return {
+      origen: "variable",
+      huella: await huellaDe(deLaVariable),
+      usada,
+    };
   }
   try {
     const { getDb, schema } = await import("@/lib/db");
@@ -197,10 +216,10 @@ export async function origenDeLaClaveDeSesiones(
       .from(schema.configuracion)
       .where(eq(schema.configuracion.clave, "auth_secret"))
       .limit(1);
-    if (!fila?.valor) return { origen: "falta", huella: "" };
-    return { origen: "base", huella: await huellaDe(fila.valor) };
+    if (!fila?.valor) return { origen: "falta", huella: "", usada };
+    return { origen: "base", huella: await huellaDe(fila.valor), usada };
   } catch {
-    return { origen: "error", huella: "" };
+    return { origen: "error", huella: "", usada };
   }
 }
 

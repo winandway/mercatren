@@ -44,7 +44,7 @@ const LLAVE_SECRETO = "auth_secret";
  * El INSERT es "o ignora": si dos peticiones llegan a la vez, gana una sola y
  * las dos terminan usando la misma clave.
  */
-async function secretoDeSesiones(env: CloudflareEnv) {
+export async function secretoDeSesiones(env: CloudflareEnv) {
   if (env.BETTER_AUTH_SECRET) return env.BETTER_AUTH_SECRET;
 
   const db = getDb();
