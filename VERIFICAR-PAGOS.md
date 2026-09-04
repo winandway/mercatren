@@ -6,6 +6,31 @@
 > fecha y con qué compra), qué está construido sin probar, y cómo se prueba.
 > **Se actualiza en el mismo trabajo que toque cualquier pieza de cobro.**
 
+> ## 🔴 3 SEP 2026 · NADIE PUEDE COMPRAR: LA PLATAFORMA SE ESTÁ COMIENDO LAS COOKIES
+>
+> **La cuenta se crea, la contraseña es correcta, la sesión se guarda… y el
+> servidor NUNCA recibe la cookie.** Sin cookie no hay sesión, y sin sesión el
+> checkout manda a «entra con tu cuenta». Le pasa a todo el mundo: al dueño en
+> el panel, a los clientes al comprar, y no se arregla recuperando la clave.
+>
+> **La prueba, en una línea** (manda dos cookies y el sitio recibe cero):
+>
+> ```
+> curl -s "https://mercatren.com/datos/salud" -H "cookie: a=1; b=2" | grep cookies
+> → "cookies":{"cuantas":0,"nombres":[]}
+> ```
+>
+> **NO es del código de Mercatren**, y está comprobado: dentro del propio
+> servidor, crear una sesión y leerla en el acto funciona (`sesiones.prueba.ciclo:
+"ok"` en `/datos/salud`), la clave de firma es estable, el token se guarda con
+> sus 32 caracteres y sus fechas correctas, y las cuatro tablas de cuentas se
+> leen bien. En local, el mismo código funciona. Pasa en los tres dominios y
+> también en `mercatren.sitios.dev`.
+>
+> **Se arregla en YaDominios Cloud** (otra sesión): la capa que sirve el sitio
+> tiene que dejar pasar la cabecera `cookie` a las peticiones. **Hasta
+> entonces, PROHIBIDO mandar clientes a comprar.**
+
 ## El estado, método por método
 
 | Mercado          | Método                 | Estado                        | Evidencia                                                                                                                                                                                                                                                                          |

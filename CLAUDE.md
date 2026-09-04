@@ -264,6 +264,42 @@ no texto de cara al público; renombrarlas es una migración aparte.
 
 ---
 
+## SI NADIE PUEDE ENTRAR, MIRA SI LLEGAN LAS COOKIES (3 sep 2026)
+
+El dueño no podía entrar al panel «ni con contraseña ni con nada», y los
+clientes se registraban y al comprar los mandaba a entrar. Media hora de
+sospechas equivocadas (la clave de sesiones, el límite de intentos, el
+tablero pesado) hasta medir lo único que importaba:
+
+```
+curl -s "https://mercatren.com/datos/salud" -H "cookie: a=1; b=2"
+→ "cookies":{"cuantas":0,"nombres":[]}
+```
+
+**La plataforma estaba quitando la cabecera `cookie` de TODAS las
+peticiones.** Sin cookie no hay sesión, y en un sitio que se dibuja en el
+servidor eso no se puede mitigar desde el código: la sesión de una
+navegación normal viaja en la cookie y en ningún otro sitio.
+
+**El orden de comprobación cuando «no se puede entrar», de más barato a más
+caro** (todo vive en `/datos/salud`, sin sesión y sin enseñar secretos):
+
+1. `cookies.cuantas` — mandando una cookie de prueba. Cero = es el camino,
+   no el código. Es lo PRIMERO que hay que mirar.
+2. `sesiones.prueba.ciclo` — el servidor crea una sesión y la lee en el
+   acto. «ok» = el sistema de cuentas está sano.
+3. `sesiones.usada` y `sesiones.huella` — la huella de la clave de firma,
+   la que de verdad usa el sistema de cuentas. Si cambia entre dos
+   lecturas, cada petición firma distinto y ninguna sesión vale.
+4. `sesiones.cuentas` — que las cuatro tablas de cuentas se puedan leer;
+   una columna que falte en producción las tumba en silencio.
+5. `sesiones.ultimaHora`, `largoDelToken`, `ultimaExpiraEn` — que las
+   sesiones se estén guardando, con token de 32 y fecha en el futuro.
+
+**Ninguno de esos campos enseña un secreto**: son conteos, huellas de ocho
+caracteres y «ok». Y no se quitan: son los que convierten media hora de
+adivinar en una respuesta de un minuto.
+
 ## ANTES DE AFIRMAR QUE UN PAGO FUNCIONA: `VERIFICAR-PAGOS.md`
 
 **Regla global del 31 ago 2026** (dos clientes reales sin poder comprar):

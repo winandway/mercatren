@@ -409,6 +409,12 @@ línea de código.
   perdidas, se esconden y el vigilante las nombra. Lo que queda es de los
   comercios: reponer en su sistema las fotos que el vigilante liste como
   perdidas.
+- 🔴 👤 **YaDominios Cloud se está comiendo las cookies: NADIE puede entrar ni
+  comprar** (3 sep 2026). Comprobado: `curl -H "cookie: a=1" https://mercatren.com/datos/salud`
+  responde `"cookies":{"cuantas":0}`. El código de Mercatren está sano (dentro
+  del servidor el ciclo de sesión da «ok»). Se arregla en la sesión de
+  YaDominios Cloud, dejando pasar la cabecera `cookie`. Mientras tanto no se
+  puede vender.
 - 🔴 👤 **Richard: devolverle el dinero a la clienta de la camiseta (MT-000011 y
   MT-000013).** Pagó dos veces la misma camiseta y no se puede enviar: no tiene
   ninguna talla en el almacén de EE. UU. (el motivo ya lo dice el vigilante y
