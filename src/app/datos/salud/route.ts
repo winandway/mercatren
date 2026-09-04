@@ -78,6 +78,19 @@ export async function GET(peticion: Request) {
      el camino: si la plataforma se come la cabecera `cookie`, el sistema de
      cuentas no ve ninguna sesión y nadie puede entrar. Esto NO enseña el
      contenido: solo cuántas cookies llegaron y sus nombres. */
+  /* TRES FUENTES, PORQUE NO SON LA MISMA (3 sep 2026). La petición cruda,
+     las cabeceras de Next y su lector de cookies pueden diferir en este
+     adaptador: si una las ve y otra no, el fallo es de lectura y no de la
+     plataforma. */
+  let deLasCabecerasDeNext = "";
+  let cuantasDeNext = -1;
+  try {
+    const { cookies, headers } = await import("next/headers");
+    deLasCabecerasDeNext = (await headers()).get("cookie") ?? "";
+    cuantasDeNext = (await cookies()).getAll().length;
+  } catch {
+    cuantasDeNext = -2;
+  }
   const galletas = peticion.headers.get("cookie") ?? "";
   const nombresDeCookies = galletas
     ? galletas
