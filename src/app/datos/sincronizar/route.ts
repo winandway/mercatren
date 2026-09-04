@@ -39,6 +39,14 @@ import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
 export const dynamic = "force-dynamic";
 
 async function sincronizarTodas(peticion: Request) {
+  /* ══ `?solo=afinado` (4 sep 2026) ══
+     El robot de GitHub que trabaja en segundo plano llama en bucle durante
+     casi una hora; releer los catálogos de los comercios y traducir en cada
+     vuelta sería trabajo repetido y llamadas de más a sus servidores. Con
+     este parámetro se hace SOLO lo que hace falta repetir: afinar el flete y
+     las tallas de CJ, y el barrido que decide qué sale a la venta. */
+  const soloAfinado =
+    new URL(peticion.url).searchParams.get("solo") === "afinado";
   const { env } = getCloudflareContext();
   const llave = env.SINCRONIZAR_LLAVE?.trim();
 
@@ -64,17 +72,19 @@ async function sincronizarTodas(peticion: Request) {
 
   /* Solo las que publican un archivo y están activas. Una fuente apagada se
      apagó por algo — normalmente porque su archivo está roto. */
-  const fuentes = await db
-    .select({ id: fuentesCatalogo.id, nombre: fuentesCatalogo.nombre })
-    .from(fuentesCatalogo)
-    .where(
-      and(
-        isNotNull(fuentesCatalogo.url),
-        ne(fuentesCatalogo.url, ""),
-        ne(fuentesCatalogo.estado, "pausada"),
-      ),
-    )
-    .catch(() => []);
+  const fuentes = soloAfinado
+    ? []
+    : await db
+        .select({ id: fuentesCatalogo.id, nombre: fuentesCatalogo.nombre })
+        .from(fuentesCatalogo)
+        .where(
+          and(
+            isNotNull(fuentesCatalogo.url),
+            ne(fuentesCatalogo.url, ""),
+            ne(fuentesCatalogo.estado, "pausada"),
+          ),
+        )
+        .catch(() => []);
 
   const resultados: Array<{ fuente: string; ok: boolean; mensaje: string }> =
     [];
@@ -107,8 +117,10 @@ async function sincronizarTodas(peticion: Request) {
      agotado allá se ve agotado aquí. Un fallo no detiene a las fuentes. */
   let cj: { mirados: number; agotados: number; fallidos: number } | null = null;
   try {
-    const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
-    cj = await refrescarExistenciasCj(25);
+    if (!soloAfinado) {
+      const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
+      cj = await refrescarExistenciasCj(25);
+    }
   } catch (fallo) {
     console.error("[sincronizar] el stock de CJ no se pudo refrescar:", fallo);
   }
@@ -123,9 +135,11 @@ async function sincronizarTodas(peticion: Request) {
      siguiente ni a lo de arriba. */
   let importacionCj: unknown = null;
   try {
-    const { avanzarImportacionesEnCurso } =
-      await import("@/lib/cj/masivo-servidor");
-    importacionCj = await avanzarImportacionesEnCurso(120_000);
+    if (!soloAfinado) {
+      const { avanzarImportacionesEnCurso } =
+        await import("@/lib/cj/masivo-servidor");
+      importacionCj = await avanzarImportacionesEnCurso(120_000);
+    }
   } catch (fallo) {
     console.error("[sincronizar] la importación masiva no avanzó:", fallo);
   }
@@ -155,11 +169,13 @@ async function sincronizarTodas(peticion: Request) {
 
   let traduccion: unknown = null;
   try {
-    const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
-    traduccion = await traducirDesdeElReloj({
-      tandasTitulos: 3,
-      tandasDescripciones: 2,
-    });
+    if (!soloAfinado) {
+      const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
+      traduccion = await traducirDesdeElReloj({
+        tandasTitulos: 3,
+        tandasDescripciones: 2,
+      });
+    }
   } catch (fallo) {
     console.error("[sincronizar] la traducción del reloj falló:", fallo);
   }

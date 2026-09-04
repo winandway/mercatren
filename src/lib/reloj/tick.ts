@@ -173,7 +173,11 @@ export async function correrTick(
            y el paso de las fotos no llegaba a correr nunca. */
         presupuestoMs: Math.floor(queda() * 0.45),
       });
-      if (r.afinados + r.fallidos + r.agotados > 0) {
+      if (r.motivo) {
+        /* «CJ sin puntos» no es un fallo del sitio: se dice tal cual para
+           que la pantalla no lo lea como avería (4 sep 2026). */
+        hizo.push(`afinado en pausa: ${r.motivo}`);
+      } else if (r.afinados + r.fallidos + r.agotados > 0) {
         hizo.push(
           `afinado: ${r.afinados} ok, ${r.agotados} agotados, ${r.fallidos} fallidos, quedan ${r.restantes}`,
         );

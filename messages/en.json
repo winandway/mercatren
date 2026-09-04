@@ -2217,7 +2217,7 @@
         "seguir": "It moves faster while this screen stays open; if you close it, the scheduler keeps going on its own every 15 minutes.",
         "ultimoError": "Last notice",
         "afinarTitulo": "Refine prices, sizes and stock",
-        "afinarTexto": "{porAfinar} products still have an estimated shipping cost and {afinados} already have CJ's real freight. The scheduler refines about {porDia} per day, clothing first; you can get ahead here.",
+        "afinarTexto": "{porAfinar} products have an estimated shipping cost and {afinados} already have CJ's real freight. A robot refines them on its own, day and night, with nothing left open on your side; the pace is set by the API points CJ grants each day. You can speed it up here.",
         "afinar": "Refine now",
         "afinando": "Refining…",
         "afinadoResultado": "Refined {afinados} · out of stock {agotados} · failed {fallidos} · {restantes} left",

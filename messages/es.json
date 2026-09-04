@@ -2217,7 +2217,7 @@
         "seguir": "Mientras esta pantalla esté abierta avanza más rápido; si la cierras, el reloj sigue solo cada 15 minutos.",
         "ultimoError": "Último aviso",
         "afinarTitulo": "Afinar precios, tallas y stock",
-        "afinarTexto": "{porAfinar} productos tienen el envío estimado y {afinados} ya tienen el flete real de CJ. El reloj afina unos {porDia} por día, la ropa primero; aquí puedes adelantar.",
+        "afinarTexto": "{porAfinar} productos tienen el envío estimado y {afinados} ya tienen el flete real de CJ. Un robot los afina solo, día y noche, sin que tengas que dejar nada abierto; el ritmo lo marcan los puntos de API que CJ da por día. Aquí puedes adelantar.",
         "afinar": "Afinar ahora",
         "afinando": "Afinando…",
         "afinadoResultado": "Afinados {afinados} · agotados {agotados} · fallidos {fallidos} · quedan {restantes}",

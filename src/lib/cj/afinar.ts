@@ -68,6 +68,32 @@ export async function afinarImportados(o: {
   if (!cjConfigurado())
     return { ...vacio, motivo: "Falta la variable CJ_API_KEY." };
 
+  /* ══ SIN PUNTOS DE CJ NO SE AFINA, Y SE DICE (4 sep 2026) ══
+     CJ reparte una cantidad de llamadas al día y se agotan (pasó con la
+     importación del almacén completo). Sin puntos, cada producto de la cola
+     devuelve el mismo error: la pantalla decía «fallidos 6» y el dueño lo
+     leía como un fallo nuestro. Se corta antes de gastar el latido y se
+     dice cuándo vuelve, que es lo único que hay que saber. */
+  {
+    const { getDb: db0 } = await import("@/lib/db");
+    const { configuracion } = await import("@/lib/db/schema");
+    const { eq: igual } = await import("drizzle-orm");
+    const { LLAVE_SIN_PUNTOS, minutosParaVolver, sigueSinPuntos } =
+      await import("@/lib/cj/puntos");
+    const [fila] = await db0()
+      .select({ valor: configuracion.valor })
+      .from(configuracion)
+      .where(igual(configuracion.clave, LLAVE_SIN_PUNTOS))
+      .limit(1)
+      .catch(() => []);
+    if (sigueSinPuntos(fila?.valor, Date.now())) {
+      return {
+        ...vacio,
+        motivo: `CJ no tiene puntos de API para hoy. Sigue solo en ${minutosParaVolver(fila?.valor, Date.now())} min.`,
+      };
+    }
+  }
+
   const db = getDb();
   const paises = o.plaza ? [o.plaza.paisEntrega] : ["US", "CL", "CO"];
   const hasta = Date.now() + o.presupuestoMs;

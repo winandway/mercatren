@@ -1,0 +1,86 @@
+name: afinar-catalogo
+
+# ══ EL AFINADO TRABAJA SOLO, SIN LA COMPUTADORA DE NADIE (4 sep 2026) ══
+#
+# Lo pidió el dueño: «que quede trabajando en el fondo, que no tenga yo que
+# tener la computadora mía prendida o estar vigilando esto». El afinado —
+# pedirle a CJ el flete real, las tallas y el stock de cada producto para
+# poder publicarlo— son miles de vueltas, y hasta hoy solo avanzaba con el
+# reloj del sitio (que late con el tráfico) o con alguien mirando el panel.
+#
+# Esto corre en los servidores de GitHub. Cada corrida trabaja hasta 50
+# minutos seguidos llamando a la puerta del sitio, así que aunque GitHub
+# retrase el reloj —medido: unas cinco veces al día en vez de cada media
+# hora— cada corrida avanza cientos de productos.
+#
+# ══ SIN PUNTOS DE CJ SE PARA, Y NO MARCA ROJO ══
+#
+# CJ reparte una cantidad de llamadas al día y se agotan. Cuando pasa, el
+# sitio lo dice y este robot se detiene hasta la próxima corrida: insistir no
+# traería nada y llenaría el historial de rojos que no son fallos nuestros.
+# Un rojo que no es un problema enseña a ignorar los rojos.
+
+on:
+  schedule:
+    - cron: "5,35 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: afinar-catalogo
+  cancel-in-progress: false
+
+jobs:
+  afinar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Afinar en tandas hasta agotar el tiempo o los puntos de CJ
+        env:
+          LLAVE: ${{ secrets.SINCRONIZAR_LLAVE }}
+        run: |
+          if [ -z "$LLAVE" ]; then
+            echo "::error::Falta el secreto SINCRONIZAR_LLAVE."
+            exit 1
+          fi
+
+          leer() { python3 -c "import json,sys; d=json.load(open('respuesta.json')).get('afinadoCj') or {}; print(d.get(sys.argv[1], ''))" "$1"; }
+
+          fin=$(( $(date +%s) + 3000 ))
+          vuelta=0
+          total=0
+
+          while [ "$(date +%s)" -lt "$fin" ]; do
+            vuelta=$(( vuelta + 1 ))
+            codigo=$(curl -s -o respuesta.json -w "%{http_code}" --max-time 420 -X POST "https://mercatren.com/datos/sincronizar?solo=afinado" -H "authorization: Bearer $LLAVE" || echo "000")
+
+            if [ "$codigo" != "200" ]; then
+              echo "::warning::El sitio respondio $codigo en la vuelta $vuelta."
+              head -c 300 respuesta.json 2>/dev/null || true
+              sleep 30
+              continue
+            fi
+
+            motivo=$(leer motivo)
+            afinados=$(leer afinados)
+            agotados=$(leer agotados)
+            fallidos=$(leer fallidos)
+            quedan=$(leer restantes)
+            echo "vuelta $vuelta: afinados=$afinados agotados=$agotados fallidos=$fallidos quedan=$quedan"
+
+            if [ -n "$motivo" ]; then
+              echo "::notice::$motivo - este robot se detiene hasta la proxima corrida."
+              break
+            fi
+
+            hechos=$(( ${afinados:-0} + ${agotados:-0} ))
+            total=$(( total + hechos ))
+
+            if [ "${quedan:-0}" -eq 0 ]; then
+              echo "::notice::No queda nada por afinar."
+              break
+            fi
+
+            [ "$hechos" -eq 0 ] && sleep 20
+          done
+
+          echo "::notice::Afinados en esta corrida: $total (en $vuelta vueltas)."

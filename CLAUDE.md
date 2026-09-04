@@ -1490,6 +1490,29 @@ producción. Si CJ rechaza `features`, la página se repite sin él (se pierde
 la descripción, no la página). Si la sonda da cero, el panel lo dice y
 sugiere bajar el stock mínimo o quitar «verificado».
 
+## EL AFINADO CORRE SOLO, Y «SIN PUNTOS» NO ES UNA AVERÍA (4 sep 2026)
+
+El dueño pidió apagar su computadora e irse a dormir con el catálogo
+afinándose: «que quede trabajando en el fondo, que no tenga yo que tener la
+computadora mía prendida o estar vigilando esto». Y lo que veía como error
+—«fallidos 6»— era otra cosa: **CJ se había quedado sin puntos de API del
+día** (61.520 usados, 0 restantes, tras traer el almacén completo).
+
+- **`.github/workflows/afinar.yml`** corre en los servidores de GitHub a los
+  minutos 5 y 35 de cada hora y **trabaja en bucle hasta 50 minutos por
+  corrida** contra `POST /datos/sincronizar?solo=afinado`. Así, aunque GitHub
+  retrase los relojes (medido: unas cinco veces al día), cada corrida avanza
+  cientos de productos. `?solo=afinado` salta la relectura de catálogos, el
+  stock y la traducción: en un bucle serían llamadas repetidas a servidores
+  ajenos.
+- **Sin puntos de CJ el afinado corta ANTES de gastar la vuelta** y devuelve
+  el motivo con cuándo vuelve (`afinar.ts`); el reloj lo anota como «afinado
+  en pausa» y el robot de GitHub se detiene **sin marcar rojo** — un rojo que
+  no es un problema enseña a ignorar los rojos.
+- **El ritmo real lo marcan los puntos de CJ**, no nuestro reloj: el texto
+  del panel ya no promete «3.840 por día». Para tener más puntos, CJ pide
+  una sola cosa: comprarles más.
+
 ## EL VIGILANTE, Y NADA DE CJ A LA VENTA SIN EL ÚLTIMO FILTRO (2 sep 2026)
 
 Dos cosas que pidió el dueño la misma noche, con el recálculo de Colombia

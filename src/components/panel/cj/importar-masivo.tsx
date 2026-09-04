@@ -356,7 +356,7 @@ export function ImportarMasivo({
         <p className="mt-1 text-xs text-tinta-suave">
           {porAfinar === 0
             ? t("todoAfinado")
-            : t("afinarTexto", { porAfinar, afinados, porDia })}
+            : t("afinarTexto", { porAfinar, afinados })}
         </p>
         {porAfinar > 0 ? (
           <button
