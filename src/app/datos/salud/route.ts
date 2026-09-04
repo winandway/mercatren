@@ -70,8 +70,21 @@ function metodosArmados(env: Record<string, string | undefined>) {
   };
 }
 
-export async function GET() {
+export async function GET(peticion: Request) {
   const hora = new Date().toISOString();
+  /* ══ ¿LLEGAN LAS COOKIES AL SERVIDOR? (3 sep 2026) ══
+     Dentro del servidor, crear una sesión y leerla funciona. Desde fuera,
+     `get-session` devuelve `null` siempre. Lo único que queda en medio es
+     el camino: si la plataforma se come la cabecera `cookie`, el sistema de
+     cuentas no ve ninguna sesión y nadie puede entrar. Esto NO enseña el
+     contenido: solo cuántas cookies llegaron y sus nombres. */
+  const galletas = peticion.headers.get("cookie") ?? "";
+  const nombresDeCookies = galletas
+    ? galletas
+        .split(";")
+        .map((c) => c.split("=")[0]?.trim() ?? "")
+        .filter(Boolean)
+    : [];
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
   const metodos = metodosArmados(
     getCloudflareContext().env as unknown as Record<string, string | undefined>,
@@ -127,6 +140,10 @@ export async function GET() {
         /* El reloj: hace cuántos minutos latió. Si pasa de unos pocos, el
            sitio no se está moviendo solo. */
         reloj,
+        cookies: {
+          cuantas: nombresDeCookies.length,
+          nombres: nombresDeCookies,
+        },
         hora,
       },
       {
@@ -144,6 +161,10 @@ export async function GET() {
         servicio: SITIO.nombre,
         version: VERSION_AGENTES,
         base: "error",
+        cookies: {
+          cuantas: nombresDeCookies.length,
+          nombres: nombresDeCookies,
+        },
         hora,
       },
       {
