@@ -1499,10 +1499,15 @@ computadora mía prendida o estar vigilando esto». Y lo que veía como error
 día** (61.520 usados, 0 restantes, tras traer el almacén completo).
 
 - **`.github/workflows/afinar.yml`** corre en los servidores de GitHub a los
-  minutos 5 y 35 de cada hora y **trabaja en bucle hasta 50 minutos por
-  corrida** contra `POST /datos/sincronizar?solo=afinado`. Así, aunque GitHub
-  retrase los relojes (medido: unas cinco veces al día), cada corrida avanza
-  cientos de productos. `?solo=afinado` salta la relectura de catálogos, el
+  minutos 5 y 35 de cada hora y **trabaja en bucle hasta CINCO HORAS por
+  corrida** contra `POST /datos/sincronizar?solo=afinado`.
+  **Medido el 4 sep en las primeras 14 horas:** GitHub lo arrancó 4 veces
+  (04:16, 09:00, 13:24, 17:00) en vez de cada media hora, y la única corrida
+  que encontró puntos de CJ afinó **715 productos en 18 vueltas** — y se paró
+  por TIEMPO, no por falta de trabajo. Con cincuenta minutos por corrida, los
+  50.000 en cola eran 17 días; con cinco horas, cuatro arranques cubren el
+  día entero. GitHub deja seis horas por trabajo y se dejan 30 minutos de
+  margen para que el robot termine solo. `?solo=afinado` salta la relectura de catálogos, el
   stock y la traducción: en un bucle serían llamadas repetidas a servidores
   ajenos.
 - **Sin puntos de CJ el afinado corta ANTES de gastar la vuelta** y devuelve

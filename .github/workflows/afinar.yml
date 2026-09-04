@@ -8,10 +8,18 @@ name: afinar-catalogo
 # poder publicarlo— son miles de vueltas, y hasta hoy solo avanzaba con el
 # reloj del sitio (que late con el tráfico) o con alguien mirando el panel.
 #
-# Esto corre en los servidores de GitHub. Cada corrida trabaja hasta 50
-# minutos seguidos llamando a la puerta del sitio, así que aunque GitHub
-# retrase el reloj —medido: unas cinco veces al día en vez de cada media
-# hora— cada corrida avanza cientos de productos.
+# Esto corre en los servidores de GitHub. Cada corrida trabaja **hasta 5
+# horas seguidas** llamando a la puerta del sitio.
+#
+# ══ POR QUÉ CINCO HORAS Y NO CINCUENTA MINUTOS (4 sep 2026) ══
+#
+# Medido en las primeras 14 horas: GitHub arrancó el robot 4 veces (04:16,
+# 09:00, 13:24, 17:00), no cada media hora como pide el cron. La corrida que
+# encontró puntos de CJ afinó **715 productos en 18 vueltas** y se detuvo por
+# TIEMPO, no por falta de trabajo — con 50.000 en cola, eso son 17 días.
+# Estirando cada corrida a cinco horas, cuatro arranques cubren el día
+# entero. GitHub deja llegar a seis horas por trabajo; se dejan 30 minutos
+# de margen para que el robot termine solo y no lo corte la plataforma.
 #
 # ══ SIN PUNTOS DE CJ SE PARA, Y NO MARCA ROJO ══
 #
@@ -32,7 +40,7 @@ concurrency:
 jobs:
   afinar:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 330
     steps:
       - name: Afinar en tandas hasta agotar el tiempo o los puntos de CJ
         env:
@@ -45,7 +53,7 @@ jobs:
 
           leer() { python3 -c "import json,sys; d=json.load(open('respuesta.json')).get('afinadoCj') or {}; print(d.get(sys.argv[1], ''))" "$1"; }
 
-          fin=$(( $(date +%s) + 3000 ))
+          fin=$(( $(date +%s) + 18000 ))   # 5 horas
           vuelta=0
           total=0
 

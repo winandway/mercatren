@@ -22,9 +22,12 @@ describe("el robot que afina en segundo plano", () => {
     expect(flujo).toContain("runs-on: ubuntu-latest");
   });
 
-  it("trabaja en BUCLE casi una hora: GitHub retrasa los relojes y una sola vuelta no alcanza", () => {
-    expect(flujo).toContain("timeout-minutes: 55");
-    expect(flujo).toContain("+ 3000");
+  it("trabaja en BUCLE CINCO HORAS: GitHub arranca unas cuatro veces al día, no cada media hora", () => {
+    /* Medido el 4 sep: 4 arranques en 14 h, y la corrida con puntos de CJ
+       afinó 715 y se detuvo por tiempo. Con cinco horas por corrida, cuatro
+       arranques cubren el día. */
+    expect(flujo).toContain("timeout-minutes: 330");
+    expect(flujo).toContain("+ 18000");
     expect(flujo).toContain("while [");
   });
 
