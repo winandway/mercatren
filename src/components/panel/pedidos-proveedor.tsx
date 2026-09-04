@@ -17,6 +17,8 @@ import { ElegirVariantes } from "@/components/panel/elegir-variantes";
 import {
   archivarFacturaDelProveedor,
   comprobarEnProveedor,
+  cerrarCompraComoPrueba,
+  cerrarVentaSinCompra,
   descartarCompra,
   pagarConSaldoDesdePanel,
   marcarCompraPagada,
@@ -63,7 +65,14 @@ export function PedidosProveedor({
      los pinte: una función no cruza la frontera del servidor al navegador, y
      formatear en dos sitios distintos es como se acaban viendo dos cifras
      distintas del mismo dinero. */
-  sinComprar: Array<{ id: string; numero: string; montoTexto: string }>;
+  sinComprar: Array<{
+    id: string;
+    numero: string;
+    /* Al lado del botón de cerrar: sin esto no se distingue una prueba
+       nuestra de la venta de un cliente que sí espera su caja. */
+    correoComprador: string | null;
+    montoTexto: string;
+  }>;
   compras: Array<CompraAlProveedor & { costoTexto: string | null }>;
 }) {
   const t = useTranslations("panel.proveedor");
@@ -104,9 +113,17 @@ export function PedidosProveedor({
 function FilaSinComprar({
   venta,
 }: {
-  venta: { id: string; numero: string; montoTexto: string };
+  venta: {
+    id: string;
+    numero: string;
+    correoComprador: string | null;
+    montoTexto: string;
+  };
 }) {
   const t = useTranslations("panel.proveedor");
+  const router = useRouter();
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [cerrando, iniciar] = useTransition();
 
   return (
     <li className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5">
@@ -121,6 +138,50 @@ function FilaSinComprar({
           <ElegirVariantes pedidoId={venta.id} etiqueta={t("comprar")} />
         </span>
       </div>
+
+      {/**
+       * CERRAR UNA VENTA QUE FUE UNA PRUEBA (4 sep 2026).
+       *
+       * Esta cola es la que dispara la alerta ROJA de «venta pagada sin pedido
+       * al proveedor», cada seis horas, por correo. Una prueba del equipo no
+       * tiene a quién comprarle nada y se quedaba aquí para siempre.
+       *
+       * NO toca el pedido ni el cobro: solo saca la venta de esta cola. Y el
+       * correo del comprador va al lado, porque cerrar la de un cliente de
+       * verdad sería dejarlo esperando una caja que nadie va a pedir.
+       */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-amber-300/60 pt-2">
+        <span className="text-xs text-amber-900">
+          {t("comprador")}{" "}
+          <span className="font-semibold">
+            {venta.correoComprador ?? t("compradorDesconocido")}
+          </span>
+        </span>
+        <button
+          type="button"
+          disabled={cerrando}
+          onClick={() =>
+            iniciar(async () => {
+              if (!window.confirm(t("cerrarVentaConfirmar"))) return;
+              const r = await cerrarVentaSinCompra(venta.id);
+              setAviso(r.mensaje);
+              router.refresh();
+            })
+          }
+          className="ml-auto inline-flex items-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 hover:border-amber-600 disabled:opacity-60"
+        >
+          {cerrando ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+          ) : null}
+          {t("cerrarPrueba")}
+        </button>
+      </div>
+
+      {aviso ? (
+        <p role="status" className="mt-2 text-sm font-medium text-precio-600">
+          {aviso}
+        </p>
+      ) : null}
     </li>
   );
 }
@@ -356,6 +417,55 @@ function FilaCompra({
               <ExternalLink className="h-3.5 w-3.5" aria-hidden />
             </a>
           </div>
+        </div>
+      ) : null}
+
+      {/**
+       * CERRAR: FUE UNA PRUEBA (4 sep 2026).
+       *
+       * Lo pidió el dueño, harto de que el vigilante le mande el mismo correo
+       * cada seis horas por compras que son pruebas SUYAS, pagadas con su
+       * propia tarjeta: «no nos interesa devolver el dinero… queremos que
+       * quede ya cerrado».
+       *
+       * «Descartar» no servía: deja la compra en `con_error`, y ese estado
+       * TAMBIÉN alerta. El único que el vigilante calla es `cerrado`.
+       *
+       * VA FUERA DEL RECUADRO DE «SIN ENLACE», que era donde primero lo puse:
+       * ahí solo se veía en una de las tres situaciones que alertan. Aquí sale
+       * en las tres —por pagar con enlace, por pagar sin él, y con error—, que
+       * son exactamente las que mandan el correo.
+       *
+       * Y EL CORREO DEL COMPRADOR VA AL LADO DEL BOTÓN, no en otra pantalla:
+       * una prueba del equipo se cierra sin más; la de un cliente de verdad lo
+       * dejaría pagando algo que nunca llega.
+       */}
+      {porPagar || conError ? (
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-borde/60 pt-2">
+          <span className="text-xs text-tinta-suave">
+            {t("comprador")}{" "}
+            <span className="font-semibold">
+              {compra.correoComprador ?? t("compradorDesconocido")}
+            </span>
+          </span>
+          <button
+            type="button"
+            disabled={marcando}
+            onClick={() =>
+              iniciar(async () => {
+                if (!window.confirm(t("cerrarPruebaConfirmar"))) return;
+                const r = await cerrarCompraComoPrueba(compra.id);
+                setAviso(r.mensaje);
+                router.refresh();
+              })
+            }
+            className="ml-auto inline-flex items-center gap-2 rounded-lg border border-borde bg-white px-3 py-1.5 text-xs font-semibold text-tinta-suave hover:border-carga-500 disabled:opacity-60"
+          >
+            {marcando ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+            ) : null}
+            {t("cerrarPrueba")}
+          </button>
         </div>
       ) : null}
 

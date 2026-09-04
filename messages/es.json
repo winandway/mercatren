@@ -2291,7 +2291,12 @@
       "facturaFalta": "Falta archivar la factura del proveedor. Es el papel que respalda el costo de esta mercancía.",
       "facturaNumero": "Número de la factura (opcional)",
       "archivarFactura": "Archivar la factura",
-      "pagarConSaldo": "Pagar con el saldo de CJ"
+      "pagarConSaldo": "Pagar con el saldo de CJ",
+      "comprador": "Comprador:",
+      "compradorDesconocido": "sin correo",
+      "cerrarPrueba": "Cerrar: fue una prueba",
+      "cerrarPruebaConfirmar": "¿Cerrar esta compra como una prueba del equipo?\n\nSe marca como cerrada y deja de avisar. NO se devuelve dinero ni se cancela nada del lado del comprador.\n\nMira el correo del comprador antes de cerrar: si es un cliente de verdad, se quedaría pagando algo que nunca le llega.",
+      "cerrarVentaConfirmar": "¿Cerrar esta venta como una prueba del equipo?\n\nSale de la cola y deja de avisar; el pedido y el cobro se quedan como están. NO se devuelve dinero.\n\nMira el correo del comprador antes de cerrar: si es un cliente de verdad, nadie le va a pedir su mercancía."
     },
     "buscador": {
       "buscar": "Buscar",

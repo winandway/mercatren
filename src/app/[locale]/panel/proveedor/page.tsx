@@ -59,6 +59,7 @@ export default async function PaginaProveedor({
           sinComprar={sinComprar.map((v) => ({
             id: v.id,
             numero: v.numero,
+            correoComprador: v.correoComprador,
             montoTexto: formatearPrecio(v.totalCentavos, idioma, v.moneda),
           }))}
           compras={compras.map((c) => ({

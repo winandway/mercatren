@@ -2424,7 +2424,10 @@ export const ESTADOS_PEDIDO_PROVEEDOR = [
   "enviado",
   /** No se pudo crear en CJ. El motivo queda escrito. */
   "con_error",
-  /** Se resolvió por fuera (compra a mano, cancelación). */
+  /** Se resolvió por fuera (compra a mano, cancelación) o fue una prueba del
+   *  equipo. **Es el único estado que el vigilante NO alerta**: por eso
+   *  «Cerrar: fue una prueba» lo usa y «Descartar» —que deja `con_error`— no
+   *  callaba los correos. */
   "cerrado",
 ] as const;
 

@@ -1490,6 +1490,50 @@ producción. Si CJ rechaza `features`, la página se repite sin él (se pierde
 la descripción, no la página). Si la sonda da cero, el panel lo dice y
 sugiere bajar el stock mínimo o quitar «verificado».
 
+## UNA PRUEBA DEL EQUIPO SE CIERRA, NO SE DESCARTA (4 sep 2026)
+
+El dueño llevaba días recibiendo el mismo correo del vigilante cada seis horas
+por compras que son **pruebas suyas, pagadas con su propia tarjeta**. Sus
+palabras: _«no nos interesa devolver el dinero porque es nuestra propia
+tarjeta… queremos que esta mierda se borre de allí o que quede ya cerrado»_.
+
+**Y no era que faltara pulsar un botón: es que el botón que había no servía.**
+«Descartar y volver a pedir» deja la compra en `con_error`, y **ese estado
+también alerta** — por eso el correo volvía cada seis horas por la misma
+compra. El único estado que el vigilante no mira es `cerrado`, que existía en
+`ESTADOS_PEDIDO_PROVEEDOR` desde siempre **sin una sola acción que lo usara**.
+
+Dos botones, los dos en Panel → Pedidos al proveedor
+(`cerrarCompraComoPrueba` y `cerrarVentaSinCompra`):
+
+- **Una compra ya pedida** (`por_pagar` o `con_error`) pasa a `cerrado`, se le
+  borra el enlace de pago —para que nadie la pague por descuido— y queda el
+  motivo con el nombre de quien la cerró. De paso se intenta borrarla en CJ; si
+  CJ se niega, se cierra aquí igual y se dice: un pedido sin pagar allá no
+  cobra nada.
+- **Una venta que no llegó a tener compra** (la alerta roja «venta pagada sin
+  pedido al proveedor») recibe una fila `cerrado` con su motivo. **No toca el
+  pedido ni el cobro**: solo la saca de la cola.
+
+Cuatro cosas que no se tocan:
+
+1. **`pagado` y `enviado` NO se cierran.** Ahí ya salió dinero o mercancía, y
+   taparlo dejaría a un comprador esperando sin que nadie lo vea. El estado va
+   dentro del `WHERE`, y si el UPDATE no cambió nada se dice — un «listo» sobre
+   una compra pagada haría creer que se cerró algo que sigue vivo.
+2. **EL CORREO DEL COMPRADOR VA AL LADO DEL BOTÓN, en las dos listas.** La
+   MT-000013 era de una clienta de verdad; desde esta pantalla son todos
+   números de pedido parecidos, y cerrar el de un cliente lo deja pagando algo
+   que nunca llega.
+3. **El botón sale en las TRES situaciones que alertan** —por pagar con enlace,
+   por pagar sin él, y con error—, no dentro del recuadro de «sin enlace», que
+   fue donde primero lo puse y solo cubría una.
+4. **No devuelve dinero y lo dice antes de cerrar.** Es la instrucción textual
+   del dueño: la tarjeta es nuestra.
+
+Candado: `tests/unit/cerrar-prueba.test.ts`, comprobado en rojo (dejando cerrar
+una compra pagada, y dejando el botón en un solo caso).
+
 ## EL AFINADO CORRE SOLO, Y «SIN PUNTOS» NO ES UNA AVERÍA (4 sep 2026)
 
 El dueño pidió apagar su computadora e irse a dormir con el catálogo

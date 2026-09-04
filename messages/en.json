@@ -2291,7 +2291,12 @@
       "facturaFalta": "The supplier invoice is still missing. It is the document that backs the cost of this merchandise.",
       "facturaNumero": "Invoice number (optional)",
       "archivarFactura": "File the invoice",
-      "pagarConSaldo": "Pay with CJ balance"
+      "pagarConSaldo": "Pay with CJ balance",
+      "comprador": "Buyer:",
+      "compradorDesconocido": "no email",
+      "cerrarPrueba": "Close: this was a test",
+      "cerrarPruebaConfirmar": "Close this purchase as a team test?\n\nIt gets marked as closed and stops alerting. No money is refunded and nothing is canceled on the buyer's side.\n\nCheck the buyer's email first: if this is a real customer, they'd be left paying for something that never arrives.",
+      "cerrarVentaConfirmar": "Close this sale as a team test?\n\nIt leaves the queue and stops alerting; the order and the payment stay as they are. No money is refunded.\n\nCheck the buyer's email first: if this is a real customer, nobody will order their goods."
     },
     "buscador": {
       "buscar": "Search",

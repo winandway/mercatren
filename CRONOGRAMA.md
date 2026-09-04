@@ -24,16 +24,23 @@
 
 ## AHORA (esta semana)
 
-### 1. 🔴 👤 Devolverle el dinero a la clienta de la camiseta
+### 1. 🔴 👤 Cerrar las tres pruebas para que el bot deje de escribir
 
-**MT-000011 y MT-000013.** Pagó dos veces la misma camiseta y no se le puede
-enviar: no queda ninguna talla en el almacén de Estados Unidos.
+**MT-000004, MT-000011 y MT-000013.** Son pruebas del equipo pagadas con
+nuestra propia tarjeta, así que **no hay nada que devolver** — decisión tuya
+del 4 de septiembre. Lo único que falta es cerrarlas para que el vigilante deje
+de mandar el mismo correo cada seis horas.
 
-- Panel → Órdenes → cada pedido → tres puntos → **Devolver**.
-- En Pedidos al proveedor, **descartar** la MT-000011 y la MT-000004 (tu
-  prueba del 18 de agosto).
-- **Cómo saber que quedó:** los dos pedidos en «reembolsado» y el vigilante
-  deja de sacar esas dos alertas rojas.
+- Panel → **Pedidos al proveedor** → en cada una, **«Cerrar: fue una prueba»**.
+  El botón está a la derecha, y **al lado sale el correo del comprador**.
+- **MIRA ESE CORREO ANTES DE CERRAR.** Si alguna es de un cliente de verdad, no
+  la cierres: se quedaría pagando algo que nunca le llega, y eso se resuelve
+  devolviéndole el dinero (Órdenes → tres puntos → Devolver).
+- No devuelve dinero, no cancela nada del lado del comprador, y una compra ya
+  **pagada o enviada no se puede cerrar** — el sistema se niega.
+- **Cómo saber que quedó:** las tres salen en verde como «Cerrado», la lista de
+  «Ventas esperando» queda vacía, y en Panel → Vigilante las alertas rojas de
+  compras bajan a cero. El correo deja de llegar.
 
 ### 2. 🔴 👤 Comprar un producto de prueba en Estados Unidos
 

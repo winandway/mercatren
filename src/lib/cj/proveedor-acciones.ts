@@ -1,6 +1,7 @@
 "use server";
 
 import { and, desc, eq, inArray } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
@@ -10,6 +11,7 @@ import {
   pedidos,
   pedidosProveedor,
   renglonesProveedor,
+  user,
 } from "@/lib/db/schema";
 import { idDeRegistro, revisar } from "@/lib/validacion/acciones";
 
@@ -34,6 +36,9 @@ export type CompraAlProveedor = {
   guia: string | null;
   ultimoError: string | null;
   creadoEn: Date | null;
+  /** De quién es la venta. Va al lado del botón de cerrar: una prueba del
+   *  equipo se cierra sin más; la de un cliente de verdad, jamás. */
+  correoComprador: string | null;
   /** Qué se le pidió exactamente, con la variante elegida de cada renglón. */
   renglones: RenglonComprado[];
   /** La factura del proveedor, si ya se archivó. Es lo que respalda el costo. */
@@ -82,9 +87,15 @@ export async function listarComprasAlProveedor(
       guia: pedidosProveedor.guia,
       ultimoError: pedidosProveedor.ultimoError,
       creadoEn: pedidosProveedor.creadoEn,
+      /* DE QUIÉN ES ESTA COMPRA (4 sep 2026). Va al lado del botón de
+         cerrar: una prueba del equipo se cierra sin más, la de un cliente
+         de verdad lo dejaría pagando algo que nunca llega. Pantalla solo
+         del equipo interno. */
+      correoComprador: user.email,
     })
     .from(pedidosProveedor)
     .innerJoin(pedidos, eq(pedidos.id, pedidosProveedor.pedidoId))
+    .leftJoin(user, eq(user.id, pedidos.clienteId))
     .orderBy(desc(pedidosProveedor.creadoEn))
     .limit(limite)
     .catch(() => []);
@@ -155,7 +166,13 @@ export async function listarComprasAlProveedor(
  * está esperando una caja que nadie ha pedido.
  */
 export async function ventasSinComprar(): Promise<
-  Array<{ id: string; numero: string; totalCentavos: number; moneda: string }>
+  Array<{
+    id: string;
+    numero: string;
+    totalCentavos: number;
+    moneda: string;
+    correoComprador: string | null;
+  }>
 > {
   try {
     await exigirEquipoInterno();
@@ -173,11 +190,13 @@ export async function ventasSinComprar(): Promise<
       numero: pedidos.numero,
       totalCentavos: pedidos.totalCentavos,
       moneda: pedidos.moneda,
+      correoComprador: user.email,
     })
     .from(pedidos)
     .innerJoin(itemsPedido, eq(itemsPedido.pedidoId, pedidos.id))
     .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .leftJoin(user, eq(user.id, pedidos.clienteId))
     .where(
       and(
         inArray(pedidos.estado, ["pagado", "enviado"]),
@@ -601,4 +620,162 @@ export async function archivarFacturaDelProveedor(
 
   revalidatePath("/[locale]/panel/proveedor", "page");
   return { ok: true, mensaje: "Factura archivada." };
+}
+
+/**
+ * CERRAR UNA COMPRA QUE NO SE VA A PAGAR (4 sep 2026).
+ *
+ * ══ POR QUÉ HACÍA FALTA ══
+ *
+ * El dueño recibía el correo del vigilante cada seis horas por tres compras
+ * que eran **pruebas suyas, pagadas con su propia tarjeta**: no hay a quién
+ * devolverle nada y no se van a despachar. Sus palabras: «no nos interesa
+ * continuar con esto… queremos que quede ya cerrado. Estoy mamado de que el
+ * bot me mande mensaje de esto».
+ *
+ * «Descartar y volver a pedir» NO servía: deja la compra en `con_error`, y
+ * ese estado **también alerta** — el correo seguía llegando igual. El estado
+ * `cerrado` ya existía en el esquema («se resolvió por fuera») y no tenía
+ * ningún botón que lo usara.
+ *
+ * ══ CERRAR NO ES BORRAR, Y NO DEVUELVE UN CENTAVO ══
+ *
+ * La fila se queda con su motivo y su autor: el día que alguien pregunte por
+ * esa venta, ahí está. Y **no toca el cobro**: si hubiera que devolverle
+ * dinero a alguien, eso es una devolución y tiene su propio camino. Por eso
+ * la pantalla enseña el correo del comprador al lado del botón — cerrar la
+ * compra de un cliente de verdad lo dejaría pagando algo que nunca llega.
+ */
+export async function cerrarCompraComoPrueba(id: string): Promise<Resultado> {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const revisado = revisar(idDeRegistro, id);
+  if (!revisado.ok) return { ok: false, mensaje: "Esa compra no existe." };
+
+  const usuario = await obtenerUsuario();
+
+  /* Se intenta borrar en CJ para que no quede un pedido dormido en su panel.
+     Si CJ se niega, se cierra AQUÍ igual y se dice: un pedido sin pagar allá
+     no cobra nada, y dejar esto abierto de nuestro lado es lo que molesta. */
+  let notaCj = "";
+  const [conCj] = await getDb()
+    .select({ externoId: pedidosProveedor.externoId })
+    .from(pedidosProveedor)
+    .where(eq(pedidosProveedor.id, revisado.datos))
+    .limit(1);
+  if (conCj?.externoId) {
+    const { llamarCj } = await import("@/lib/cj/cliente");
+    const borrado = await llamarCj<unknown>(
+      `/shopping/order/deleteOrder?orderId=${encodeURIComponent(conCj.externoId)}`,
+      { metodo: "DELETE" },
+    ).catch(() => ({ ok: false as const, motivo: "no contestó" }));
+    if (!borrado.ok) {
+      notaCj = ` En CJ quedó sin pagar (${borrado.motivo}); ahí no se cobra nada.`;
+    }
+  }
+
+  /* `pagado` y `enviado` NO se cierran: ahí ya salió dinero o mercancía, y
+     taparlo dejaría al comprador esperando sin que nadie lo vea. */
+  const cambiadas = await getDb()
+    .update(pedidosProveedor)
+    .set({
+      estado: "cerrado",
+      ultimoError:
+        `Cerrada por ${usuario?.name ?? "el equipo"}: fue una prueba, no se compra ni se devuelve.${notaCj}`.slice(
+          0,
+          300,
+        ),
+      urlPago: null,
+      actualizadoEn: new Date(),
+    })
+    .where(
+      and(
+        eq(pedidosProveedor.id, revisado.datos),
+        inArray(pedidosProveedor.estado, ["por_pagar", "con_error"]),
+      ),
+    )
+    .returning({ id: pedidosProveedor.id })
+    .catch(() => []);
+
+  if (cambiadas.length === 0) {
+    return {
+      ok: false,
+      mensaje:
+        "Esa compra ya está pagada o enviada: no se puede cerrar como prueba.",
+    };
+  }
+
+  revalidatePath("/[locale]/panel/proveedor", "page");
+  return { ok: true, mensaje: `Cerrada.${notaCj}` };
+}
+
+/**
+ * CERRAR UNA VENTA QUE NO SE LE VA A COMPRAR AL PROVEEDOR (4 sep 2026).
+ *
+ * El vigilante avisa en rojo de toda venta pagada de CJ que no tenga pedido
+ * al proveedor. Con una prueba del equipo eso es un rojo eterno: nadie va a
+ * comprar nada y el aviso vuelve cada seis horas.
+ *
+ * Se cierra dejando la constancia donde el sistema la busca: **una fila de
+ * compra en estado `cerrado`**, con su motivo. Así sale de la cola y del
+ * correo sin tocar el pedido ni el cobro — el rastro de la venta se queda
+ * intacto, que es lo que hay que poder enseñar si alguien pregunta.
+ */
+export async function cerrarVentaSinCompra(
+  pedidoId: string,
+): Promise<Resultado> {
+  try {
+    await exigirEquipoInterno();
+  } catch {
+    return { ok: false, mensaje: "No tienes permiso para esto." };
+  }
+
+  const revisado = revisar(idDeRegistro, pedidoId);
+  if (!revisado.ok) return { ok: false, mensaje: "Ese pedido no existe." };
+
+  const db = getDb();
+  const usuario = await obtenerUsuario();
+
+  const [pedido] = await db
+    .select({ id: pedidos.id, numero: pedidos.numero })
+    .from(pedidos)
+    .where(eq(pedidos.id, revisado.datos))
+    .limit(1);
+  if (!pedido) return { ok: false, mensaje: "Ese pedido no existe." };
+
+  /* Si ya hay una compra viva para este pedido, esto no aplica: el camino es
+     cerrar ESA compra, no crear otra fila. */
+  const [yaHay] = await db
+    .select({ id: pedidosProveedor.id })
+    .from(pedidosProveedor)
+    .where(eq(pedidosProveedor.pedidoId, pedido.id))
+    .limit(1);
+  if (yaHay) {
+    return {
+      ok: false,
+      mensaje: "Ese pedido ya tiene una compra: ciérrala desde su tarjeta.",
+    };
+  }
+
+  const ahora = new Date();
+  await db.insert(pedidosProveedor).values({
+    id: nanoid(),
+    pedidoId: pedido.id,
+    proveedor: "cj",
+    estado: "cerrado",
+    ultimoError:
+      `Cerrada por ${usuario?.name ?? "el equipo"}: fue una prueba, no se le compra al proveedor.`.slice(
+        0,
+        300,
+      ),
+    creadoEn: ahora,
+    actualizadoEn: ahora,
+  });
+
+  revalidatePath("/[locale]/panel/proveedor", "page");
+  return { ok: true, mensaje: `${pedido.numero} cerrada.` };
 }
