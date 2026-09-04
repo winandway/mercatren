@@ -220,6 +220,7 @@ export async function sesionesRecientes(): Promise<{
    *  vencida: por eso `get-session` devolvería `null` siempre. */
   ultimaExpiraEn: number | null;
   ultimaCreadaEn: number | null;
+  largoDelToken: number | null;
 }> {
   try {
     const { getDb, schema } = await import("@/lib/db");
@@ -233,6 +234,11 @@ export async function sesionesRecientes(): Promise<{
       .select({
         expira: sql<number>`expires_at`,
         creada: sql<number>`created_at`,
+        /* El LARGO del token, nunca el token. Un token de sesión mide 32;
+           si mide más, se está guardando con la firma pegada y entonces la
+           búsqueda por token nunca lo encuentra: `get-session` daría `null`
+           para todo el mundo. */
+        largoToken: sql<number>`length(token)`,
       })
       .from(schema.session)
       .orderBy(desc(sql`created_at`))
@@ -241,10 +247,16 @@ export async function sesionesRecientes(): Promise<{
       ultimaHora: Number(f?.n ?? 0),
       ultimaExpiraEn: ultima ? Number(ultima.expira) : null,
       ultimaCreadaEn: ultima ? Number(ultima.creada) : null,
+      largoDelToken: ultima ? Number(ultima.largoToken) : null,
     };
   } catch (fallo) {
     console.error("[salud] no se pudieron mirar las sesiones:", fallo);
-    return { ultimaHora: -1, ultimaExpiraEn: null, ultimaCreadaEn: null };
+    return {
+      ultimaHora: -1,
+      ultimaExpiraEn: null,
+      ultimaCreadaEn: null,
+      largoDelToken: null,
+    };
   }
 }
 
