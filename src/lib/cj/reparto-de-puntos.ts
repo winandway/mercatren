@@ -62,7 +62,14 @@ export const COLA_QUE_MANDA = 500;
 export function cuantosDeStock(
   pendientesPorAfinar: number,
   minutoDelDia: number,
+  cjSinPuntos = false,
 ): number {
+  /* ══ SIN PUNTOS NO SE LLAMA A CJ, NI PARA EL STOCK (5 sep 2026) ══
+     Se vio en producción a la primera: con el afinado en pausa por falta de
+     puntos, el stock seguía pidiendo sus dos por latido — la MISMA API, sin
+     puntos, así que eran llamadas que fallan. Y al día siguiente los primeros
+     puntos del día se los llevaba el refresco en vez del afinado. */
+  if (cjSinPuntos) return 0;
   if (pendientesPorAfinar < COLA_QUE_MANDA) return STOCK_POR_LATIDO;
   /* Con cola: uno cada quince minutos. Son ~96 llamadas al día (960 puntos,
      un 1,5 % del presupuesto) en vez de 3.100. */

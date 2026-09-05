@@ -40,6 +40,30 @@ describe("el reparto de los puntos de CJ", () => {
     expect(enUnDia).toBeGreaterThan(0);
   });
 
+  it("CON CJ SIN PUNTOS NADIE LLAMA, ni el stock", () => {
+    /* Se vio en producción diez minutos después de publicar la primera
+       versión: el afinado decía «en pausa, CJ no tiene puntos» y el stock
+       seguía pidiendo sus dos por latido. Misma API, sin puntos: llamadas
+       que fallan, y al día siguiente los primeros puntos se los llevaba el
+       refresco en vez del afinado. */
+    expect(cuantosDeStock(0, 0, true)).toBe(0);
+    expect(cuantosDeStock(0, 7, true)).toBe(0);
+    expect(cuantosDeStock(44_850, 0, true)).toBe(0);
+  });
+
+  it("la pausa se toma del afinado, no se adivina", () => {
+    const tick = readFileSync("src/lib/reloj/tick.ts", "utf8");
+    /* Y `colaPorAfinar` se asigna FUERA de las ramas: dentro del `else if`
+       se quedaba en null cada vez que el afinado no llegaba a correr. */
+    expect(tick).toContain("cjEnPausa = true");
+    expect(tick).toMatch(/cuantosDeStock\([\s\S]{0,120}cjEnPausa,?\s*\)/);
+    const dentroDelElseIf = tick.slice(
+      tick.indexOf("} else if (r.afinados"),
+      tick.indexOf("colaPorAfinar = r.restantes"),
+    );
+    expect(dentroDelElseIf).toContain("}");
+  });
+
   it("sin cola, el stock vuelve a su ritmo normal", () => {
     /* Cuando ya no hay nada esperando a publicarse, los puntos son suyos. */
     expect(cuantosDeStock(0, 7)).toBe(STOCK_POR_LATIDO);

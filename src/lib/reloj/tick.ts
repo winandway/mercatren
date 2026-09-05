@@ -166,6 +166,8 @@ export async function correrTick(
   /* Cuántos esperan su envío real. Lo llena el afinado; si no llegó a correr
      se queda en null y el stock se comporta como siempre. */
   let colaPorAfinar: number | null = null;
+  /** CJ se quedó sin puntos: nadie más le habla en este latido. */
+  let cjEnPausa = false;
 
   /* 2. El afinado: flete real, tallas y stock de lo que está en revisión. */
   try {
@@ -181,13 +183,19 @@ export async function correrTick(
         /* «CJ sin puntos» no es un fallo del sitio: se dice tal cual para
            que la pantalla no lo lea como avería (4 sep 2026). */
         hizo.push(`afinado en pausa: ${r.motivo}`);
+        /* Y el stock tampoco llama: es la misma API y los mismos puntos. */
+        cjEnPausa = true;
       } else if (r.afinados + r.fallidos + r.agotados > 0) {
         hizo.push(
           `afinado: ${r.afinados} ok, ${r.agotados} agotados, ${r.fallidos} fallidos, quedan ${r.restantes}`,
         );
       }
       /* Lo que queda por afinar decide si el stock puede gastar puntos de CJ
-         en este latido: los dos usan la misma llamada de 10 puntos. */
+         en este latido: los dos usan la misma llamada de 10 puntos.
+         Se asigna FUERA de las ramas de arriba: en la primera versión vivía
+         dentro del `else if`, así que con el afinado en pausa se quedaba en
+         null y el stock gastaba a manos llenas — justo cuando no quedaba
+         nada que gastar. Se vio en producción a los diez minutos. */
       colaPorAfinar = r.restantes ?? colaPorAfinar;
     }
   } catch (fallo) {
@@ -242,6 +250,7 @@ export async function correrTick(
       const cuantos = cuantosDeStock(
         colaPorAfinar ?? 0,
         ahora.getUTCHours() * 60 + ahora.getUTCMinutes(),
+        cjEnPausa,
       );
       if (cuantos > 0) {
         const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
