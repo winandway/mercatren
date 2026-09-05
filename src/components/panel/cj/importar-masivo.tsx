@@ -20,12 +20,8 @@ import {
   reanudarImportacionMasiva,
   type EstadoMasivo,
 } from "@/lib/cj/masivo-acciones";
-import {
-  AFINADOS_POR_VUELTA,
-  STOCK_MINIMO_POR_DEFECTO,
-  VUELTAS_POR_DIA,
-  porcentajeDe,
-} from "@/lib/cj/masivo";
+import { STOCK_MINIMO_POR_DEFECTO, porcentajeDe } from "@/lib/cj/masivo";
+import { productosPorDia } from "@/lib/cj/reparto-de-puntos";
 import type { EstadoImportacion } from "@/lib/cj/masivo-servidor";
 import { recargarSiEsVersionVieja } from "@/lib/version-vieja";
 
@@ -62,7 +58,12 @@ export function ImportarMasivo({
      importación gastaría el doble de llamadas a CJ por nada. */
   const bucleVivo = useRef(false);
 
-  const porDia = AFINADOS_POR_VUELTA * VUELTAS_POR_DIA;
+  /* EL RITMO LO MARCA CJ, NO NUESTRO RELOJ (5 sep 2026). Antes decía
+     40 × 96 vueltas = 3.840 al día, y eso es lo que aguanta nuestro reloj —
+     que va sobrado. El techo real son los puntos que CJ da: 50.000 al día
+     entre los 20 que cuesta afinar un producto. Prometer 3.840 hizo que el
+     dueño mirara el conteo cuatro días seguidos creyendo que algo se rompió. */
+  const porDia = productosPorDia();
 
   async function bucle(id: string) {
     if (bucleVivo.current) return;

@@ -84,3 +84,47 @@ export function minutosParaVolver(
   if (!Number.isFinite(hasta) || hasta <= ahoraMs) return 0;
   return Math.ceil((hasta - ahoraMs) / 60_000);
 }
+
+/**
+ * LA LLAVE DONDE SE ANOTA CÓMO FUE LA ÚLTIMA LLAMADA DE VERDAD (5 sep 2026).
+ *
+ * ══ EL HALLAZGO ══
+ *
+ * `saludDelProveedor()` preguntaba «¿CJ está vivo?» con `/product/list`, que
+ * **cuesta 50 PUNTOS** — dos productos y medio afinados, cada vez. Y la
+ * llamaban el vigilante cada 20 minutos (3.600 puntos al día) y **CADA
+ * visita a `/datos/salud`, que es una página pública**. Midiendo el catálogo
+ * ese mismo día yo mismo la consulté sesenta veces: tres mil puntos del
+ * dueño gastados en preguntar, no en publicar.
+ *
+ * ══ LA SALIDA ══
+ *
+ * El sistema le habla a CJ todo el día —el afinado, el stock, una compra—.
+ * Cada una de esas llamadas ya sabe si CJ contestó. Se anota el resultado y
+ * la sonda LEE eso: **cero puntos, y encima es un dato más honesto**, porque
+ * dice cómo le fue a una llamada del trabajo real y no a una de prueba.
+ */
+export const LLAVE_ULTIMA_LLAMADA = "cj_ultima_llamada";
+
+/** Cuánto vale lo anotado antes de considerarlo viejo: 30 minutos. */
+export const FRESCURA_MS = 30 * 60 * 1000;
+
+export type UltimaLlamada = { ok: boolean; enMs: number };
+
+/** Lee lo anotado. Devuelve null si no hay nada o si ya está viejo. */
+export function leerUltimaLlamada(
+  guardado: string | null | undefined,
+  ahoraMs: number,
+): UltimaLlamada | null {
+  if (!guardado) return null;
+  try {
+    const d = JSON.parse(guardado) as Partial<UltimaLlamada>;
+    if (typeof d.ok !== "boolean" || typeof d.enMs !== "number") return null;
+    /* Un dato de hace horas no dice cómo está CJ AHORA. Se descarta y la
+       sonda contesta «sin datos» en vez de inventar un «ok» viejo. */
+    if (ahoraMs - d.enMs > FRESCURA_MS) return null;
+    return { ok: d.ok, enMs: d.enMs };
+  } catch {
+    return null;
+  }
+}

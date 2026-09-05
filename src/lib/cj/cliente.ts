@@ -235,11 +235,45 @@ export async function llamarCj<T>(
 
   if (!respuesta.ok || cuerpo.result === false) {
     if (esSinPuntos(cuerpo.message)) await anotarSinPuntos(cuerpo.message);
+    await anotarComoFue(false);
     return {
       ok: false,
       motivo: cuerpo.message ?? `CJ respondió ${respuesta.status}.`,
     };
   }
 
+  await anotarComoFue(true);
   return { ok: true, datos: cuerpo.data as T };
+}
+
+/**
+ * CÓMO LE FUE A ESTA LLAMADA, PARA NO TENER QUE PREGUNTARLO (5 sep 2026).
+ *
+ * La sonda de salud gastaba **50 puntos** en un `/product/list` solo para
+ * saber si CJ está vivo — y la llamaba el vigilante cada 20 minutos Y cada
+ * visita a `/datos/salud`, que es pública. Eran miles de puntos al día en
+ * preguntar en vez de publicar.
+ *
+ * El sistema ya le habla a CJ todo el día. Se anota el resultado aquí y la
+ * sonda lo lee: cero puntos, y encima más honesto — dice cómo le fue a una
+ * llamada del trabajo de verdad, no a una de prueba.
+ *
+ * Nunca lanza ni frena la llamada: es un apunte al margen.
+ */
+async function anotarComoFue(ok: boolean): Promise<void> {
+  try {
+    const { getDb } = await import("@/lib/db");
+    const { configuracion } = await import("@/lib/db/schema");
+    const { LLAVE_ULTIMA_LLAMADA } = await import("@/lib/cj/puntos");
+    const valor = JSON.stringify({ ok, enMs: Date.now() });
+    await getDb()
+      .insert(configuracion)
+      .values({ clave: LLAVE_ULTIMA_LLAMADA, valor })
+      .onConflictDoUpdate({
+        target: configuracion.clave,
+        set: { valor },
+      });
+  } catch {
+    /* Un apunte que falla no puede tumbar una compra ni un afinado. */
+  }
 }

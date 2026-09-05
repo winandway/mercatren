@@ -18,17 +18,39 @@ import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
 /** La llave de CJ está viva: `ok`, `sin_llave` o `error`. */
 export async function saludDelProveedor(): Promise<string> {
   try {
-    const { cjConfigurado, llamarCj } = await import("@/lib/cj/cliente");
+    const { cjConfigurado } = await import("@/lib/cj/cliente");
     if (!cjConfigurado()) return "sin_llave";
-    const r = await llamarCj<unknown>("/product/list?pageNum=1&pageSize=1");
-    if (r.ok) return "ok";
+
+    const { getDb } = await import("@/lib/db");
+    const { configuracion } = await import("@/lib/db/schema");
+    const { inArray } = await import("drizzle-orm");
+    const {
+      LLAVE_SIN_PUNTOS,
+      LLAVE_ULTIMA_LLAMADA,
+      leerUltimaLlamada,
+      sigueSinPuntos,
+    } = await import("@/lib/cj/puntos");
+
+    const filas = await getDb()
+      .select({ clave: configuracion.clave, valor: configuracion.valor })
+      .from(configuracion)
+      /* `inArray`, NO `eq(a) || eq(b)`: en JavaScript ese `||` devuelve el
+         PRIMER operando —que es un objeto y siempre es verdadero—, así que la
+         segunda condición se pierde y la consulta filtra solo por una. */
+      .where(
+        inArray(configuracion.clave, [LLAVE_SIN_PUNTOS, LLAVE_ULTIMA_LLAMADA]),
+      )
+      .catch(() => []);
+    const de = (c: string) => filas.find((f) => f.clave === c)?.valor ?? null;
+
     /* «Sin puntos» no es «caído», y se arregla de otra forma: gastando menos
        llamadas o comprándole más. Decir «error» mandaba a buscar una avería
        que no existe (3 sep 2026). */
-    const { esSinPuntos } = await import("@/lib/cj/puntos");
-    return esSinPuntos(r.motivo) || /puntos de API/i.test(r.motivo)
-      ? "sin_puntos"
-      : "error";
+    if (sigueSinPuntos(de(LLAVE_SIN_PUNTOS), Date.now())) return "sin_puntos";
+
+    const ultima = leerUltimaLlamada(de(LLAVE_ULTIMA_LLAMADA), Date.now());
+    if (!ultima) return "sin_datos";
+    return ultima.ok ? "ok" : "error";
   } catch {
     return "error";
   }

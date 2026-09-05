@@ -82,3 +82,33 @@ export function puntosLiberadosAlDia(latidosPorDia: number): number {
   const despues = Math.round((latidosPorDia / MINUTOS_ENTRE_STOCK) * 1);
   return Math.max(0, (antes - despues) * 10);
 }
+
+/* ══ LA FÓRMULA DE CJ, QUE ES LA QUE MARCA EL RITMO DE VERDAD ══
+   Su documentación: 50.000 puntos al día para todos, más 100 por cada dólar
+   comprado (el mes MAYOR de los últimos tres). Afinar cuesta 20 (las tallas
+   10 + el flete 10), y no se puede bajar: el listado no trae variantes y no
+   se pueden pedir varias de una vez.
+
+   Comprobado contra la realidad el 4 sep 2026: con ~$135 cargados el afinado
+   hizo 3.178 productos, y 63.500 / 20 = 3.175. */
+
+/** Los puntos que CJ regala cada día, sin comprar nada. */
+export const PUNTOS_BASE_AL_DIA = 50_000;
+/** Puntos extra por cada dólar comprado, según su tabla. */
+export const PUNTOS_POR_DOLAR = 100;
+/** Lo que cuesta afinar un producto: variantes (10) + flete (10). */
+export const PUNTOS_POR_PRODUCTO = 20;
+
+/**
+ * Cuántos productos se pueden afinar al día.
+ *
+ * Es el número honesto para el panel. El anterior —40 por vuelta × 96 vueltas
+ * = 3.840— salía de NUESTRO reloj, que va sobrado: quien pone el techo es CJ.
+ * Prometer una cifra que no se cumple hace que el dueño mire el conteo cuatro
+ * días seguidos preguntándose qué está roto.
+ */
+export function productosPorDia(dolaresComprados = 0): number {
+  const puntos =
+    PUNTOS_BASE_AL_DIA + Math.max(0, dolaresComprados) * PUNTOS_POR_DOLAR;
+  return Math.floor(puntos / PUNTOS_POR_PRODUCTO);
+}
