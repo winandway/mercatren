@@ -74,10 +74,16 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
   con stock, de qué almacén salen y qué transportes hay. Botón «Comprar de
   verdad a CJ» que crea, confirma —cambiando el transporte si el almacén no
   tiene stock— y paga del saldo. No toca Stripe ni las tablas de ventas.
-- 🔴 👤 **SIN PROBAR hasta que se pulse:** una compra `PRUEBA-…` tiene que
-  salir «pagado» y el saldo de CJ bajar. Es la pieza que las tres compras
-  fallidas nunca llegaron a ejercitar (el arreglo del transporte es del 2 sep;
-  MT-000011 falló el 31 ago).
+- ✅ 💻 **PAGADO (5 sep, 20:37):** `PRUEBA-20260905184139` se pagó del saldo
+  de CJ desde la puerta `/datos/probar-compra` (GitHub, sin sesión): saldo
+  $150,00 → $138,60. La llamada correcta es `payBalance {orderId}` (v1);
+  `payBalanceV2` era la equivocada para un pedido de un envío. Módulo y
+  circuito automático llevan el arreglo; el vigilante reintenta las compras
+  «por pagar» (MT-000014 es la primera).
+- 🔴 💻 **Falta la compra completa desde la puerta** (`comprar`: crear + pagar
+  en una) y después 👤 **una venta real con tarjeta** que se pague sola.
+- ✅ 💻 **La sonda de salud ya no crea cuentas** «Soporte Diagnóstico» por
+  visita (eran los correos de «Cuenta nueva» cada rato); barre las que dejó.
 - 💻 **HECHO · los puntos de CJ ya no se desperdician:** el refresco de stock
   cede mientras haya cola (~31.000 puntos/día) y la sonda de salud dejó de
   gastar 50 puntos por visita a `/datos/salud`. El presupuesto del día se ve

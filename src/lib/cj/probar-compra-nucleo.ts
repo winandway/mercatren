@@ -42,7 +42,12 @@ import { mercadoPorCodigo } from "@/lib/mercado/mercados";
  * Va aparte porque un archivo `"use server"` solo puede exportar acciones, y
  * porque la puerta sin sesión no puede depender de la sesión de nadie.
  *
- * ══ EL CAMINO DE PAGO ES EL DOCUMENTADO POR CJ, EN CUATRO PASOS ══
+ * ══ EL CAMINO DE PAGO: payBalance POR orderId PRIMERO; EL CARRITO, DE RESPALDO ══
+ *
+ * MEDIDO EL 5 SEP 2026: `payBalance` (v1) con el `orderId` numérico de CJ pagó
+ * PRUEBA-20260905184139 y el saldo bajó de $150.00 a $138.60. Es el camino
+ * de un pedido con un solo envío (su doc 2.2). El de cuatro pasos de abajo es
+ * el de los pedidos padre con varios sub-pedidos, y queda de respaldo:
  *
  * Tres compras de prueba con Stripe y una sin Stripe murieron en el pago, y
  * la causa estaba en su documentación (secciones 1.3, 1.4, 1.5 y 2.3) y en
@@ -394,6 +399,14 @@ type Pago =
       shipmentOrderId: string | null;
     };
 
+/** Solo CREATED / IN_CART se confirman: con `payType: 1` el pedido nace
+    UNPAID y confirmarlo rebota («only order in CREATED or IN_CART status can
+    be confirmed»). */
+function hayQueConfirmar(orderStatus: string | null | undefined): boolean {
+  const s = (orderStatus ?? "").trim().toUpperCase();
+  return s === "CREATED" || s === "IN_CART";
+}
+
 async function pagarPedidoEnCj(entrada: {
   numero: string;
   detalle: DetalleCj | null;
@@ -407,6 +420,7 @@ async function pagarPedidoEnCj(entrada: {
   let detalle = entrada.detalle;
   let n = entrada.desde;
   let shipment: string | null = null;
+  let pagado: { como: string; crudo: unknown } | null = null;
 
   const idsDelPedido = Array.from(
     new Set(
@@ -436,215 +450,288 @@ async function pagarPedidoEnCj(entrada: {
     ),
   );
 
-  /* 1 · addCart. Si CJ lo rechaza (ya estaba en el carrito, o ya es UNPAID)
-     se anota y se sigue: lo que de verdad hace falta es el paso 2. */
-  const motivosCarrito: string[] = [];
-  let idEnCarrito: string | null = null;
-  let crudoCarrito: unknown;
-  for (const id of idsDelPedido) {
-    const r = await llamarCjConRitmo<{
-      successCount?: number;
-      addSuccessOrders?: string[];
-      interceptOrders?: Array<Intercepcion | string> | null;
-    }>("/shopping/order/addCart", {
-      metodo: "POST",
-      cuerpo: { cjOrderIdList: [id] },
-    });
-    if (r.ok) {
-      idEnCarrito = id;
-      crudoCarrito = r.datos;
-      break;
+  /* 0 · Confirmar SOLO si está CREATED / IN_CART, reparando el transporte si
+     el almacén no tiene stock (el arreglo del 2 sep). */
+  if (hayQueConfirmar(detalle?.orderStatus)) {
+    const confirmarPedido = () =>
+      llamarCjConRitmo<unknown>("/shopping/order/confirmOrder", {
+        metodo: "PATCH",
+        cuerpo: { orderId: limpio(detalle?.orderId) || numero },
+      });
+    let c = await confirmarPedido();
+    if (!c.ok && esFalloDeInventario(c.motivo) && detalle) {
+      const transporte = await repararTransporte(detalle, numero, pasos, n++);
+      if (transporte) c = await confirmarPedido();
     }
-    motivosCarrito.push(`${id}: ${r.motivo}`);
-  }
-  pasos.push(
-    paso(
-      n++,
-      "Meter el pedido al carrito de CJ (addCart)",
-      idEnCarrito ? "ok" : "aviso",
-      idEnCarrito
-        ? `Aceptado con ${idEnCarrito}.`
-        : `CJ no lo metió al carrito (${motivosCarrito.join(" · ")}). Puede que ya estuviera: se sigue.`,
-      idEnCarrito ? crudoCarrito : motivosCarrito,
-    ),
-  );
-
-  /* 2 · addCartConfirm → shipmentsId. Se prueba primero con el id que el
-     carrito aceptó, y después con los demás. */
-  const confirmar = async (): Promise<
-    { ok: true; datos: ConfirmacionCarrito } | { ok: false; motivo: string }
-  > => {
-    const orden = idEnCarrito
-      ? [idEnCarrito, ...idsDelPedido.filter((i) => i !== idEnCarrito)]
-      : idsDelPedido;
-    const motivos: string[] = [];
-    for (const id of orden) {
-      const r = await llamarCjConRitmo<ConfirmacionCarrito>(
-        "/shopping/order/addCartConfirm",
-        { metodo: "POST", cuerpo: { cjOrderIdList: [id] } },
-      );
-      if (r.ok) return { ok: true, datos: r.datos ?? {} };
-      motivos.push(`${id}: ${r.motivo}`);
-    }
-    return { ok: false, motivo: motivos.join(" · ") || "sin identificador" };
-  };
-  const motivoDe = (
-    c: Awaited<ReturnType<typeof confirmar>>,
-  ): string | null => {
-    if (!c.ok) return c.motivo;
-    if (c.datos.submitSuccess === false) {
-      return razones(c.datos.interceptOrders) || "submitSuccess=false";
-    }
-    return null;
-  };
-
-  let confirmacion = await confirmar();
-  let motivoConfirmacion = motivoDe(confirmacion);
-  if (
-    motivoConfirmacion &&
-    esFalloDeInventario(motivoConfirmacion) &&
-    detalle
-  ) {
-    /* ══ AQUÍ ES DONDE MURIERON LAS TRES COMPRAS ══ */
-    const transporte = await repararTransporte(detalle, numero, pasos, n++);
-    if (transporte) {
-      confirmacion = await confirmar();
-      motivoConfirmacion = motivoDe(confirmacion);
-    }
-  }
-  if (confirmacion.ok && !motivoConfirmacion) {
-    shipment = limpio(confirmacion.datos.shipmentsId) || null;
-  }
-  pasos.push(
-    paso(
-      n++,
-      "Confirmar el carrito (addCartConfirm)",
-      confirmacion.ok && !motivoConfirmacion ? "ok" : "aviso",
-      confirmacion.ok && !motivoConfirmacion
-        ? `Confirmado. shipmentsId = ${shipment ?? "∅ (vacío)"}.`
-        : `CJ no confirmó: ${motivoConfirmacion}.`,
-      confirmacion.ok ? confirmacion.datos : motivoConfirmacion,
-    ),
-  );
-
-  /* El número del envío: lo que CJ dio al confirmar, o lo que dio al crear.
-     Si no hay, NO se llama a payBalanceV2 con otro id: eso es exactamente lo
-     que devolvía «Order not found» y «pay fail». */
-  shipment =
-    shipment ||
-    limpio(entrada.shipmentDeCreacion) ||
-    limpio(detalle?.shipmentOrderId) ||
-    null;
-  if (!shipment) {
-    const motivo = `CJ no entregó el shipmentOrderId (el número del envío que pide payBalanceV2): ni al confirmar el carrito${
-      motivoConfirmacion ? ` (${motivoConfirmacion})` : ""
-    }, ni al crear el pedido, ni en su detalle. Sin ese número no hay con qué pagar.`;
-    pasos.push(
-      paso(n++, "El número del envío (shipmentOrderId)", "fallo", motivo),
-    );
-    return {
-      ok: false,
-      donde: "shipment",
-      motivo,
-      ids: idsVistos(),
-      shipmentOrderId: null,
-    };
-  }
-  pasos.push(
-    paso(
-      n++,
-      "El número del envío (shipmentOrderId)",
-      "ok",
-      `${shipment} ${
-        confirmacion.ok && limpio(confirmacion.datos.shipmentsId)
-          ? "(lo dio addCartConfirm)"
-          : "(lo dio la creación del pedido)"
-      }`,
-    ),
-  );
-
-  /* 3 · saveGenerateParentOrder → payId e importe real. */
-  const padre = await llamarCjConRitmo<PedidoPadre>(
-    "/shopping/order/saveGenerateParentOrder",
-    { metodo: "POST", cuerpo: { shipmentOrderId: shipment } },
-  );
-  let payId: string | null = null;
-  if (padre.ok) {
-    payId = limpio(padre.datos?.payId) || null;
-    const info = padre.datos?.paymentInformation;
-    const intercepcion = razones(padre.datos?.interceptOrders);
-    const sinCuadrar = padre.datos?.unMatchOrderCodes ?? [];
-    const paso3Ok = padre.datos?.submitSuccess !== false && !intercepcion;
     pasos.push(
       paso(
         n++,
-        "Generar el pedido padre (saveGenerateParentOrder)",
-        paso3Ok ? "ok" : "fallo",
-        paso3Ok
-          ? `payId ${payId ?? "∅"} · a pagar $${info?.actualPayment ?? info?.payableAmount ?? padre.datos?.orderMoney ?? "?"} (producto ${info?.orderProductAmount ?? "?"}, flete ${info?.freight ?? "?"})${
-              sinCuadrar.length
-                ? ` · sin cuadrar: ${sinCuadrar.join(", ")}`
-                : ""
-            }`
-          : `CJ no lo dejó pasar: ${intercepcion || "submitSuccess=false"}${
-              sinCuadrar.length
-                ? ` · sin cuadrar: ${sinCuadrar.join(", ")}`
-                : ""
-            }`,
-        padre.datos,
+        "Confirmar el pedido (confirmOrder)",
+        c.ok ? "ok" : "fallo",
+        c.ok ? "Confirmado: pasa a UNPAID." : c.motivo,
+        c.ok ? c.datos : undefined,
       ),
     );
-    if (!paso3Ok) {
+    if (!c.ok) {
       return {
         ok: false,
-        donde: "padre",
-        motivo:
-          intercepcion ||
-          "CJ devolvió submitSuccess=false al generar el pedido padre.",
+        donde: "confirmar",
+        motivo: c.motivo,
         ids: idsVistos(),
-        shipmentOrderId: shipment,
+        shipmentOrderId: null,
       };
     }
+    detalle = (await leerDetalle(numero)) ?? detalle;
+  }
+
+  /* ══ 1 · payBalance (v1) CON EL orderId NUMÉRICO DE CJ — ES EL QUE PAGÓ ══
+     Comprobado el 5 sep 2026 con PRUEBA-20260905184139: «Success» y el
+     saldo bajó de $150.00 a $138.60. Su doc (2.2) lo acota: sirve para un
+     pedido con UN envío; un pedido padre con varios sub-pedidos hay que
+     pagarlo con payBalanceV2 y su shipmentOrderId — que solo da el carrito.
+     Por eso ese camino queda DEBAJO, de respaldo. Ni el código SD
+     (cjOrderCode) ni el CJ… sirven en ninguno de los dos: «Order not found»
+     y «pay fail», medidos. */
+  const orderIdCj = limpio(detalle?.orderId);
+  if (orderIdCj && orderIdCj !== numero) {
+    const v1 = await llamarCjConRitmo<unknown>("/shopping/pay/payBalance", {
+      metodo: "POST",
+      cuerpo: { orderId: orderIdCj },
+    });
+    pasos.push(
+      paso(
+        n++,
+        "Pagar del saldo (payBalance, por orderId)",
+        v1.ok ? "ok" : "aviso",
+        v1.ok
+          ? `CJ aceptó el pago del pedido ${orderIdCj}.`
+          : `${v1.motivo}. Se intenta el camino del carrito (el de los pedidos padre con varios envíos).`,
+        v1.ok ? v1.datos : { orderId: orderIdCj },
+      ),
+    );
+    if (v1.ok) pagado = { como: "payBalance", crudo: v1.datos };
   } else {
     pasos.push(
       paso(
         n++,
-        "Generar el pedido padre (saveGenerateParentOrder)",
+        "Pagar del saldo (payBalance, por orderId)",
         "aviso",
-        `${padre.motivo}. Se intenta pagar igual: su doc dice que el payId es opcional y CJ lo genera solo.`,
+        "CJ no dio el orderId numérico del pedido: se va por el camino del carrito.",
       ),
     );
   }
 
-  /* 4 · payBalanceV2 con el shipmentOrderId (y el payId, si lo hubo). */
-  const pago = await llamarCjConRitmo<unknown>("/shopping/pay/payBalanceV2", {
-    metodo: "POST",
-    cuerpo: payId
-      ? { shipmentOrderId: shipment, payId }
-      : { shipmentOrderId: shipment },
-  });
-  pasos.push(
-    paso(
-      n++,
-      "Pagar del saldo (payBalanceV2)",
-      pago.ok ? "ok" : "fallo",
-      pago.ok
-        ? `CJ aceptó el pago de ${shipment}${payId ? ` con payId ${payId}` : ""}.`
-        : pago.motivo,
-      pago.ok ? pago.datos : { shipmentOrderId: shipment, payId },
-    ),
-  );
-  if (!pago.ok) {
-    return {
-      ok: false,
-      donde: "pagar",
-      motivo: pago.motivo,
-      ids: idsVistos(),
-      shipmentOrderId: shipment,
+  if (!pagado) {
+    /* 2 · addCart. Si CJ lo rechaza (ya estaba en el carrito, o ya es UNPAID)
+       se anota y se sigue: lo que de verdad hace falta es el paso 3. */
+    const motivosCarrito: string[] = [];
+    let idEnCarrito: string | null = null;
+    let crudoCarrito: unknown;
+    for (const id of idsDelPedido) {
+      const r = await llamarCjConRitmo<{
+        successCount?: number;
+        addSuccessOrders?: string[];
+        interceptOrders?: Array<Intercepcion | string> | null;
+      }>("/shopping/order/addCart", {
+        metodo: "POST",
+        cuerpo: { cjOrderIdList: [id] },
+      });
+      if (r.ok) {
+        idEnCarrito = id;
+        crudoCarrito = r.datos;
+        break;
+      }
+      motivosCarrito.push(`${id}: ${r.motivo}`);
+    }
+    pasos.push(
+      paso(
+        n++,
+        "Meter el pedido al carrito de CJ (addCart)",
+        idEnCarrito ? "ok" : "aviso",
+        idEnCarrito
+          ? `Aceptado con ${idEnCarrito}.`
+          : `CJ no lo metió al carrito (${motivosCarrito.join(" · ")}). Puede que ya estuviera: se sigue.`,
+        idEnCarrito ? crudoCarrito : motivosCarrito,
+      ),
+    );
+
+    /* 3 · addCartConfirm → shipmentsId. Se prueba primero con el id que el
+       carrito aceptó, y después con los demás. */
+    const confirmar = async (): Promise<
+      { ok: true; datos: ConfirmacionCarrito } | { ok: false; motivo: string }
+    > => {
+      const orden = idEnCarrito
+        ? [idEnCarrito, ...idsDelPedido.filter((i) => i !== idEnCarrito)]
+        : idsDelPedido;
+      const motivos: string[] = [];
+      for (const id of orden) {
+        const r = await llamarCjConRitmo<ConfirmacionCarrito>(
+          "/shopping/order/addCartConfirm",
+          { metodo: "POST", cuerpo: { cjOrderIdList: [id] } },
+        );
+        if (r.ok) return { ok: true, datos: r.datos ?? {} };
+        motivos.push(`${id}: ${r.motivo}`);
+      }
+      return { ok: false, motivo: motivos.join(" · ") || "sin identificador" };
     };
+    const motivoDe = (
+      c: Awaited<ReturnType<typeof confirmar>>,
+    ): string | null => {
+      if (!c.ok) return c.motivo;
+      if (c.datos.submitSuccess === false) {
+        return razones(c.datos.interceptOrders) || "submitSuccess=false";
+      }
+      return null;
+    };
+
+    let confirmacion = await confirmar();
+    let motivoConfirmacion = motivoDe(confirmacion);
+    if (
+      motivoConfirmacion &&
+      esFalloDeInventario(motivoConfirmacion) &&
+      detalle
+    ) {
+      const transporte = await repararTransporte(detalle, numero, pasos, n++);
+      if (transporte) {
+        confirmacion = await confirmar();
+        motivoConfirmacion = motivoDe(confirmacion);
+      }
+    }
+    if (confirmacion.ok && !motivoConfirmacion) {
+      shipment = limpio(confirmacion.datos.shipmentsId) || null;
+    }
+    pasos.push(
+      paso(
+        n++,
+        "Confirmar el carrito (addCartConfirm)",
+        confirmacion.ok && !motivoConfirmacion ? "ok" : "aviso",
+        confirmacion.ok && !motivoConfirmacion
+          ? `Confirmado. shipmentsId = ${shipment ?? "∅ (vacío)"}.`
+          : `CJ no confirmó: ${motivoConfirmacion}.`,
+        confirmacion.ok ? confirmacion.datos : motivoConfirmacion,
+      ),
+    );
+
+    /* El número del envío: lo que CJ dio al confirmar, o lo que dio al crear.
+       Si no hay, NO se llama a payBalanceV2 con otro id: eso es exactamente
+       lo que devolvía «Order not found» y «pay fail». */
+    shipment =
+      shipment ||
+      limpio(entrada.shipmentDeCreacion) ||
+      limpio(detalle?.shipmentOrderId) ||
+      null;
+    if (!shipment) {
+      const motivo = `CJ no entregó el shipmentOrderId (el número del envío que pide payBalanceV2): ni al confirmar el carrito${
+        motivoConfirmacion ? ` (${motivoConfirmacion})` : ""
+      }, ni al crear el pedido, ni en su detalle. Sin ese número no hay con qué pagar.`;
+      pasos.push(
+        paso(n++, "El número del envío (shipmentOrderId)", "fallo", motivo),
+      );
+      return {
+        ok: false,
+        donde: "shipment",
+        motivo,
+        ids: idsVistos(),
+        shipmentOrderId: null,
+      };
+    }
+    pasos.push(
+      paso(
+        n++,
+        "El número del envío (shipmentOrderId)",
+        "ok",
+        `${shipment} ${
+          confirmacion.ok && limpio(confirmacion.datos.shipmentsId)
+            ? "(lo dio addCartConfirm)"
+            : "(lo dio la creación del pedido)"
+        }`,
+      ),
+    );
+
+    /* 4 · saveGenerateParentOrder → payId e importe real. */
+    const padre = await llamarCjConRitmo<PedidoPadre>(
+      "/shopping/order/saveGenerateParentOrder",
+      { metodo: "POST", cuerpo: { shipmentOrderId: shipment } },
+    );
+    let payId: string | null = null;
+    if (padre.ok) {
+      payId = limpio(padre.datos?.payId) || null;
+      const info = padre.datos?.paymentInformation;
+      const intercepcion = razones(padre.datos?.interceptOrders);
+      const sinCuadrar = padre.datos?.unMatchOrderCodes ?? [];
+      const padreOk = padre.datos?.submitSuccess !== false && !intercepcion;
+      pasos.push(
+        paso(
+          n++,
+          "Generar el pedido padre (saveGenerateParentOrder)",
+          padreOk ? "ok" : "fallo",
+          padreOk
+            ? `payId ${payId ?? "∅"} · a pagar $${info?.actualPayment ?? info?.payableAmount ?? padre.datos?.orderMoney ?? "?"} (producto ${info?.orderProductAmount ?? "?"}, flete ${info?.freight ?? "?"})${
+                sinCuadrar.length
+                  ? ` · sin cuadrar: ${sinCuadrar.join(", ")}`
+                  : ""
+              }`
+            : `CJ no lo dejó pasar: ${intercepcion || "submitSuccess=false"}${
+                sinCuadrar.length
+                  ? ` · sin cuadrar: ${sinCuadrar.join(", ")}`
+                  : ""
+              }`,
+          padre.datos,
+        ),
+      );
+      if (!padreOk) {
+        return {
+          ok: false,
+          donde: "padre",
+          motivo:
+            intercepcion ||
+            "CJ devolvió submitSuccess=false al generar el pedido padre.",
+          ids: idsVistos(),
+          shipmentOrderId: shipment,
+        };
+      }
+    } else {
+      pasos.push(
+        paso(
+          n++,
+          "Generar el pedido padre (saveGenerateParentOrder)",
+          "aviso",
+          `${padre.motivo}. Se intenta pagar igual: su doc dice que el payId es opcional y CJ lo genera solo.`,
+        ),
+      );
+    }
+
+    /* 5 · payBalanceV2 con el shipmentOrderId (y el payId, si lo hubo). */
+    const pago = await llamarCjConRitmo<unknown>("/shopping/pay/payBalanceV2", {
+      metodo: "POST",
+      cuerpo: payId
+        ? { shipmentOrderId: shipment, payId }
+        : { shipmentOrderId: shipment },
+    });
+    pasos.push(
+      paso(
+        n++,
+        "Pagar del saldo (payBalanceV2)",
+        pago.ok ? "ok" : "fallo",
+        pago.ok
+          ? `CJ aceptó el pago de ${shipment}${payId ? ` con payId ${payId}` : ""}.`
+          : pago.motivo,
+        pago.ok ? pago.datos : { shipmentOrderId: shipment, payId },
+      ),
+    );
+    if (!pago.ok) {
+      return {
+        ok: false,
+        donde: "pagar",
+        motivo: pago.motivo,
+        ids: idsVistos(),
+        shipmentOrderId: shipment,
+      };
+    }
+    pagado = { como: "payBalanceV2", crudo: pago.datos };
   }
 
-  /* 5 · El saldo DESPUÉS. Si no bajó, «Success» no significó nada. */
+  /* El saldo DESPUÉS. Si no bajó, «Success» no significó nada. */
   const despues = await saldoDeCj();
   const bajo = antes.ok && despues.ok ? antes.saldo - despues.saldo : null;
   pasos.push(
@@ -656,7 +743,7 @@ async function pagarPedidoEnCj(entrada: {
         ? `$${despues.saldo.toFixed(2)}${
             bajo !== null
               ? bajo > 0
-                ? ` (bajó $${bajo.toFixed(2)})`
+                ? ` (bajó $${bajo.toFixed(2)} por ${pagado.como})`
                 : " (NO bajó: mirar en el panel de CJ si de verdad se cobró)"
               : ""
           }`
@@ -665,7 +752,7 @@ async function pagarPedidoEnCj(entrada: {
     ),
   );
 
-  /* 6 · Cómo quedó el pedido. */
+  /* Cómo quedó el pedido. */
   detalle = (await leerDetalle(numero)) ?? detalle;
   const lectura = leerEstadoDeCj(detalle?.orderStatus);
   pasos.push(
@@ -683,7 +770,7 @@ async function pagarPedidoEnCj(entrada: {
   return {
     ok: true,
     ids: idsVistos(),
-    shipmentOrderId: shipment,
+    shipmentOrderId: shipment ?? orderIdCj,
     saldoAntes: antes.ok ? antes.saldo : null,
     saldoDespues: despues.ok ? despues.saldo : null,
   };

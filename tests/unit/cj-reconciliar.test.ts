@@ -104,7 +104,7 @@ describe("los candados en el código", () => {
       fuente.indexOf("export async function comoVaEnCj"),
     );
     const confirma = bloque.indexOf('"/shopping/order/confirmOrder"');
-    const paga = bloque.indexOf("pagarConSaldo(db, id, idsParaPagar(detalle))");
+    const paga = bloque.indexOf("pagarConSaldo(db, id, detalle)");
     expect(confirma).toBeGreaterThan(0);
     expect(paga).toBeGreaterThan(confirma);
     expect(bloque).toContain('metodo: "PATCH"');

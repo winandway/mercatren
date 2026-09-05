@@ -10,14 +10,39 @@ import { describe, expect, it } from "vitest";
 describe("el pago automático con el saldo", () => {
   const fuente = readFileSync("src/lib/cj/pedidos.ts", "utf8");
 
-  it("paga por payBalanceV2 con el shipmentOrderId, y el orderId de respaldo", () => {
-    /* `payBalanceV2` pide el shipmentOrderId (doc y ejemplo de CJ). Se
-       mandaba el orderId DENTRO de ese campo y el saldo nunca bajó. */
-    expect(fuente).toContain("/shopping/pay/payBalanceV2");
-    expect(fuente).toContain("cuerpo: { shipmentOrderId }");
+  it("PAGA PRIMERO con payBalance (v1) por el orderId numérico; payBalanceV2 queda de respaldo", () => {
+    /* Medido el 5 sep 2026: v1 con el orderId de CJ pagó PRUEBA-20260905184139
+       y el saldo bajó $150 → $138.60. V2 pide un shipmentOrderId que un
+       pedido de un solo envío no tiene; por eso el saldo nunca había bajado. */
+    const bloque = fuente.slice(
+      fuente.indexOf("async function pagarConSaldo"),
+      fuente.indexOf("PREGUNTARLE A CJ CÓMO VA UN PEDIDO"),
+    );
+    const v1 = bloque.indexOf('"/shopping/pay/payBalance"');
+    const v2 = bloque.indexOf('"/shopping/pay/payBalanceV2"');
+    expect(v1).toBeGreaterThan(0);
+    expect(v2).toBeGreaterThan(v1);
+    expect(bloque).toContain("cuerpo: { orderId }");
+    expect(bloque).toContain("cuerpo: { shipmentOrderId }");
+    /* Y v2 solo si v1 no pagó. */
+    expect(bloque.indexOf("if (!respuesta.ok) {")).toBeLessThan(v2);
     /* Recién creado está CREATED: se confirma y luego se paga. */
     expect(fuente).toContain("confirmarYPagarEnCj(db, id, pedido.numero)");
+    expect(fuente).toContain("return pagarConSaldo(db, id, detalle);");
     expect(fuente).not.toContain("shipmentOrderId: externoId");
+  });
+
+  it("las compras que quedaron por pagar se reintentan solas desde el vigilante, menos las que pierden dinero", () => {
+    expect(fuente).toContain(
+      "export async function reintentarPagosPendientesDeCj(",
+    );
+    expect(fuente).toContain('startsWith("ESTA VENTA PIERDE")');
+    const vigilante = readFileSync("src/lib/vigilante/correr.ts", "utf8");
+    const actuar = vigilante.slice(
+      vigilante.indexOf("async function actuar("),
+      vigilante.indexOf("async function avisar("),
+    );
+    expect(actuar).toContain("reintentarPagosPendientesDeCj(");
   });
 
   it("EL ENLACE DE TARJETA SIGUE EXISTIENDO: el pedido se crea con payType 1", () => {

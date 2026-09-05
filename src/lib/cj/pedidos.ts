@@ -1009,24 +1009,40 @@ export async function comprarAlProveedor(
 async function pagarConSaldo(
   db: Db,
   id: string,
-  /**
-   * Los identificadores con los que intentar, en orden: el `shipmentOrderId`
-   * (el que pide `payBalanceV2`, doc y ejemplo de CJ) y de respaldo el
-   * `orderId`. Se mandaba solo el `orderId` DENTRO del campo
-   * `shipmentOrderId`, y por eso el saldo nunca se descontó (1 sep 2026).
-   */
-  candidatos: string[],
+  detalle: DetalleCj,
 ): Promise<{ pagado: boolean; motivo?: string }> {
   let respuesta: Awaited<ReturnType<typeof llamarCj<Record<string, unknown>>>> =
     { ok: false, motivo: "Sin identificador de pago." };
   const motivos: string[] = [];
-  for (const shipmentOrderId of candidatos) {
+
+  /* ══ 1 · payBalance (v1) CON EL orderId NUMÉRICO DE CJ — EL QUE PAGA ══
+     Comprobado el 5 sep 2026 con PRUEBA-20260905184139: «Success» y el saldo
+     bajó de $150.00 a $138.60. Hasta ese día se intentaba solo payBalanceV2
+     con el shipmentOrderId, que un pedido de un solo envío NO tiene (lo da
+     el carrito, addCartConfirm, y a un pedido UNPAID le contesta
+     submitSuccess=false): por eso el saldo nunca bajó. Su doc (2.2): v1 paga
+     un pedido de un envío; un pedido padre con varios va por V2. */
+  const orderId = (detalle.orderId ?? "").toString().trim();
+  if (orderId) {
     respuesta = await llamarCj<Record<string, unknown>>(
-      "/shopping/pay/payBalanceV2",
-      { metodo: "POST", cuerpo: { shipmentOrderId } },
+      "/shopping/pay/payBalance",
+      { metodo: "POST", cuerpo: { orderId } },
     );
-    if (respuesta.ok) break;
-    motivos.push(`${shipmentOrderId}: ${respuesta.motivo}`);
+    if (!respuesta.ok)
+      motivos.push(`payBalance ${orderId}: ${respuesta.motivo}`);
+  }
+
+  /* 2 · payBalanceV2 por el shipmentOrderId, de respaldo (pedidos padre con
+     varios envíos). Se prueba cada candidato y se guarda cada motivo. */
+  if (!respuesta.ok) {
+    for (const shipmentOrderId of idsParaPagar(detalle)) {
+      respuesta = await llamarCj<Record<string, unknown>>(
+        "/shopping/pay/payBalanceV2",
+        { metodo: "POST", cuerpo: { shipmentOrderId } },
+      );
+      if (respuesta.ok) break;
+      motivos.push(`${shipmentOrderId}: ${respuesta.motivo}`);
+    }
   }
   if (!respuesta.ok && motivos.length > 0) {
     respuesta = { ok: false, motivo: motivos.join(" · ") };
@@ -1467,7 +1483,7 @@ export async function confirmarYPagarEnCj(
     }
   }
 
-  return pagarConSaldo(db, id, idsParaPagar(detalle));
+  return pagarConSaldo(db, id, detalle);
 }
 
 export async function comoVaEnCj(
@@ -1520,4 +1536,54 @@ export async function esDeEstadosUnidos(pedidoId: string): Promise<boolean> {
   /* En mayúsculas y sin espacios: el país se escribe a mano en el panel, y un
      « us » con espacio dejaría sin despachar una venta de verdad. */
   return (fila?.pais ?? "").trim().toUpperCase() === "US";
+}
+
+/**
+ * REINTENTAR LOS PAGOS PENDIENTES CON EL SALDO (5 sep 2026).
+ *
+ * Una compra que quedó `por_pagar` porque CJ no dejó pagarla en el momento
+ * —o porque el camino de pago estaba mal, como hasta hoy— no puede depender
+ * de que una persona vuelva a pulsar un botón: el vigilante lo intenta en
+ * cada corrida, de a pocas, con el mismo `confirmarYPagarEnCj` del botón.
+ *
+ * Lo que NO se reintenta: las que el candado de margen dejó sin pagar a
+ * propósito («ESTA VENTA PIERDE…»). Esas las decide una persona.
+ */
+export async function reintentarPagosPendientesDeCj(
+  tope = 3,
+): Promise<{ intentadas: number; pagadas: number; motivos: string[] }> {
+  const db = getDb();
+  const filas = await db
+    .select({
+      id: pedidosProveedor.id,
+      numero: pedidos.numero,
+      ultimoError: pedidosProveedor.ultimoError,
+    })
+    .from(pedidosProveedor)
+    .innerJoin(pedidos, eq(pedidos.id, pedidosProveedor.pedidoId))
+    .where(
+      and(
+        eq(pedidosProveedor.estado, "por_pagar"),
+        eq(pedidosProveedor.proveedor, "cj"),
+      ),
+    )
+    .orderBy(pedidosProveedor.creadoEn)
+    .limit(tope * 3);
+  const candidatas = filas
+    .filter((f) => !(f.ultimoError ?? "").startsWith("ESTA VENTA PIERDE"))
+    .slice(0, tope);
+  const motivos: string[] = [];
+  let pagadas = 0;
+  for (const f of candidatas) {
+    try {
+      const r = await confirmarYPagarEnCj(db, f.id, f.numero);
+      if (r.pagado) pagadas += 1;
+      else motivos.push(`${f.numero}: ${r.motivo ?? "sin motivo"}`);
+    } catch (fallo) {
+      motivos.push(
+        `${f.numero}: ${fallo instanceof Error ? fallo.message : String(fallo)}`,
+      );
+    }
+  }
+  return { intentadas: candidatas.length, pagadas, motivos };
 }

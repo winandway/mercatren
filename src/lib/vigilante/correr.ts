@@ -139,6 +139,27 @@ async function actuar(): Promise<Accion[]> {
     console.error("[vigilante] no se pudieron reintentar tandas:", fallo);
   }
 
+  /* 3. Las compras a CJ que quedaron sin pagar se vuelven a intentar con el
+     saldo, de a pocas (5 sep 2026). Hasta hoy dependían de un clic. */
+  try {
+    const { reintentarPagosPendientesDeCj } = await import("@/lib/cj/pedidos");
+    const r = await reintentarPagosPendientesDeCj(3);
+    if (r.intentadas > 0) {
+      acciones.push({
+        clave: "pagar-cj-pendientes",
+        titulo: `Compras a CJ pagadas del saldo al reintentar (de ${r.intentadas} intentadas${
+          r.motivos.length ? `; ${r.motivos.join(" · ").slice(0, 300)}` : ""
+        })`,
+        cantidad: r.pagadas,
+      });
+    }
+  } catch (fallo) {
+    console.error(
+      "[vigilante] no se pudieron reintentar los pagos a CJ:",
+      fallo,
+    );
+  }
+
   return acciones;
 }
 

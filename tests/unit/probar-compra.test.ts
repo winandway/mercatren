@@ -134,11 +134,16 @@ describe("la compra de verdad", () => {
     expect(compra).toContain("await pagarPedidoEnCj(");
   });
 
-  it("PAGA POR EL CAMINO DOCUMENTADO DE CJ, en orden: addCart → addCartConfirm → saveGenerateParentOrder → payBalanceV2", () => {
-    /* Nosotros saltábamos al último paso con el orderId numérico («Order not
-       found») o el cjOrderId («pay fail»). El orden es el de su doc (1.3,
-       1.4, 1.5, 2.3) y el de un cliente de código abierto que sí paga. */
+  it("PAGA PRIMERO con payBalance (v1) por el orderId numérico, y solo si CJ lo rechaza va por el carrito: addCart → addCartConfirm → saveGenerateParentOrder → payBalanceV2", () => {
+    /* Medido el 5 sep 2026: v1 con el orderId de CJ pagó PRUEBA-20260905184139
+       ($150 → $138.60). V2 con el orderId numérico daba «Order not found»,
+       con el cjOrderId «pay fail», y con el código SD «Order not found»; y
+       addCartConfirm a un pedido UNPAID contesta submitSuccess=false. El
+       carrito es el camino de los pedidos padre con varios envíos (doc 2.2). */
+    expect(pago).toContain("cuerpo: { orderId: orderIdCj }");
+    expect(pago).toContain("if (!pagado) {");
     const orden = [
+      "/shopping/pay/payBalance",
       "/shopping/order/addCart",
       "/shopping/order/addCartConfirm",
       "/shopping/order/saveGenerateParentOrder",
@@ -188,6 +193,20 @@ describe("la compra de verdad", () => {
       2,
     );
     expect(pago).toContain("NO bajó");
+  });
+
+  it("UN PEDIDO UNPAID NO SE CONFIRMA: confirmOrder solo para CREATED / IN_CART", () => {
+    /* Con payType 1 CJ lo crea ya en UNPAID y confirmarlo rebota. */
+    expect(pago).toContain("if (hayQueConfirmar(detalle?.orderStatus)) {");
+    const compuerta = entre(
+      nucleo,
+      "function hayQueConfirmar",
+      "async function pagarPedidoEnCj",
+    );
+    expect(compuerta).toContain('s === "CREATED" || s === "IN_CART"');
+    expect(pago.indexOf('"/shopping/order/confirmOrder"')).toBeLessThan(
+      pago.indexOf('"/shopping/pay/payBalance"'),
+    );
   });
 
   it("pagar la pendiente retoma la guardada y NUNCA crea otra", () => {

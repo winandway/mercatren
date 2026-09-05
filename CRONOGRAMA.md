@@ -42,30 +42,26 @@ de mandar el mismo correo cada seis horas.
   «Ventas esperando» queda vacía, y en Panel → Vigilante las alertas rojas de
   compras bajan a cero. El correo deja de llegar.
 
-### 2. 🔴 👤 Probar la compra a CJ desde el módulo nuevo (sin Stripe)
+### 2. ✅ 💻 El pago a CJ ya funciona (5 sep, 20:37) — y ahora 👤 la venta real
 
-Ya no hace falta pagar con tarjeta para probar el tramo del proveedor, que es
-donde murieron las tres compras. **Panel → Equipo → Probar una compra.**
+**Hecho por mí, sin que pulses nada:** desde GitHub pagué la prueba pendiente
+`PRUEBA-20260905184139` con el saldo de CJ. Tu saldo bajó de **$150,00 a
+$138,60** y el pedido quedó en CJ como «pagado, por despachar» (UNSHIPPED /
+PENDING). El fallo de dos semanas: se usaba la llamada de pago equivocada
+(`payBalanceV2`) con identificadores que no eran; la correcta para un pedido
+de un envío es `payBalance` con el `orderId` numérico. Está en el módulo y en
+el circuito automático.
 
-- **PRIMERO:** arriba de la pantalla sale «Última compra de prueba:
-  PRUEBA-20260905184139 · creado sin pagar». Pulsa **«Pagar la prueba
-  pendiente»**: ese pedido ya existe en CJ esperando sus $11,40. Si dice
-  «pagado» y tu saldo baja a ~$138,60, **el tramo de CJ quedó probado**.
-- Después, si quieres una segunda prueba:
-- Pega el enlace del cargador USB-C (o de cualquier producto de EE. UU.).
-- Escribe la dirección de entrega (la de la empresa en Novi sirve).
-- Pulsa **«Solo mirar»** primero: en el paso 3 lee la línea «De estos
-  almacenes» y abre «Ver lo que contestó CJ». Ahí se ve si el transporte más
-  barato sale de un almacén distinto al que tiene el producto.
-- Luego **«Comprar de verdad a CJ»**: crea el pedido, lo confirma (cambiando
-  el transporte si hace falta) y lo paga del saldo. Confirma el aviso.
-- **Cómo saber que quedó:** la pantalla dice «Comprado y pagado: PRUEBA-…»
-  y en tu panel de CJ el saldo baja (~$11 para el cargador). Si se detiene,
-  el paso en rojo dice exactamente qué contestó CJ — mándame esa captura.
-
-**Pendiente de la compra de hoy (12:35):** mándame la captura de Panel →
-Órdenes con el número MT-0000XX y su estado, para saber en cuál de los tres
-sitios se detuvo (sin pagar / pagada sin compra a CJ / por pagar).
+- **MT-000014 (tu compra de las 12:35 con Stripe)** estaba en CJ sin pagar
+  por el mismo fallo. **Se paga sola** en la próxima corrida del vigilante
+  después de esta publicación (reintenta las compras «por pagar» cada 20
+  min). Cómo saber que quedó: Panel → Dinero → Pedidos al proveedor la
+  enseña «pagado», y tu saldo de CJ baja otros $11,40 (→ ~$127,20).
+- **Lo que te toca a ti, cuando yo te avise que la compra completa desde la
+  puerta salió verde:** una compra REAL en https://mercatren.com con tu
+  tarjeta, como un cliente. Cómo saber que quedó: en Panel → Pedidos al
+  proveedor la compra aparece «pagado» sin que toques nada, y el saldo de CJ
+  baja. Con eso `VERIFICAR-PAGOS.md` pasa el circuito de EE. UU. a ✅.
 
 ### 3. 🔴 👤 Los puntos de API de CJ — ES EL ÚNICO FRENO QUE QUEDA
 

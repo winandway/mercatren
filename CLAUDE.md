@@ -300,6 +300,21 @@ caro** (todo vive en `/datos/salud`, sin sesión y sin enseñar secretos):
 caracteres y «ok». Y no se quitan: son los que convierten media hora de
 adivinar en una respuesta de un minuto.
 
+**Y LA SONDA DEL CICLO NO PUEDE CREAR CUENTAS (5 sep 2026).** La versión del
+3 de septiembre probaba el ciclo dando de alta una cuenta «Soporte
+Diagnóstico» (`diagnostico+xxxx@mercatren.com`) **en cada visita** a
+`/datos/salud` —pública, y el vigilante la toca cada 20 minutos—, y cada alta
+disparaba la bienvenida y el aviso «Cuenta nueva» al buzón del equipo: cientos
+de correos y de cuentas basura en dos días, hasta que el dueño preguntó por
+qué llegaba tanto ese correo. Ahora la cuenta es **una fija**
+(`diagnostico-salud`), insertada directo en la tabla —sin pasar por los hooks
+que mandan correo, sin contraseña ni cuenta de acceso—; la sesión de prueba se
+inserta, se firma como la firma better-call (HMAC-SHA256 con el secreto real,
+`firmarCookie`) y se lee con `auth.api.getSession`; se borra al terminar. Y en
+cada visita barre 50 de las cuentas basura viejas (`sesiones.prueba.limpiadas`).
+`tests/unit/canario-sesiones.test.ts` se pone rojo si vuelve el alta. **Una
+sonda de salud jamás crea datos ni manda correos: mide.**
+
 ## ANTES DE AFIRMAR QUE UN PAGO FUNCIONA: `VERIFICAR-PAGOS.md`
 
 **Regla global del 31 ago 2026** (dos clientes reales sin poder comprar):
@@ -1589,27 +1604,76 @@ Cinco cosas que no se tocan:
 Candado: `tests/unit/probar-compra.test.ts` (comprobado en rojo: número `MT-`
 y sin reparar el transporte, tres pruebas caen).
 
-### La primera compra de prueba lo enseñó: un UNPAID no se confirma, se paga
+### EL PAGO A CJ SE PROBÓ Y PAGÓ EL 5 SEP: `payBalance` POR `orderId`, NO V2
 
-`PRUEBA-20260905184139` ($11,40) salió bien hasta crear el pedido, y CJ lo
-dejó **directamente en UNPAID** —así nace con `payType: 1`—. El módulo
-intentó confirmarlo y CJ contestó lo correcto: *«only order in CREATED or
-IN_CART status can be confirmed»*. El pago nunca se intentó; el saldo siguió
-en $150 y el pedido quedó vivo en CJ esperando su dinero.
+`PRUEBA-20260905184139` ($11,40) se creó bien y CJ lo dejó **en UNPAID** (así
+nace con `payType: 1`). El módulo intentó confirmarlo («only order in CREATED
+or IN_CART status can be confirmed») y después pagarlo con `payBalanceV2`,
+que rebotó con los dos identificadores que teníamos: el `orderId` numérico
+(«Order not found») y el `cjOrderId` («pay fail, please contact CJ payment
+center»). Palabras del dueño: _«el de pruebas debería tomar el control de ese
+botón y tú directamente hacer pruebas hasta que esa mierda funcione»_.
 
-**El error era mío y de ese día**: `confirmarYPagarEnCj` (producción) ya
-tenía la compuerta —confirma solo CREATED/IN_CART/vacío, si no salta al pago—
-y al copiar el flujo al módulo se quedó fuera. Ahora `hayQueConfirmar()`
-decide, y UNPAID va directo a `payBalanceV2`.
+**Lo que se midió contra CJ ese día, con dinero de verdad** (la puerta de
+abajo, una llamada por minuto):
 
-- **«Pagar la prueba pendiente»** (`pagarUltimaPruebaPendiente`): retoma la
-  guardada en `configuracion`, la relee, confirma solo si toca y la paga.
-  **Nunca crea otra** — volver a «Comprar» dejaría pedidos huérfanos en CJ.
-- **El chequeo en rojo destapó un candado flojo**: la rebanada de la prueba
-  llegaba hasta el final del archivo, así que al quitar la compuerta de la
-  compra seguía en verde porque encontraba la de «pagar la pendiente». Una
-  prueba de forma se acota **a la función que protege**, nunca «desde aquí
-  hasta el final».
+| Llamada                                              | Respuesta de CJ                                      |
+| ---------------------------------------------------- | ---------------------------------------------------- |
+| `payBalanceV2 {shipmentOrderId: <orderId numérico>}` | Order not found                                      |
+| `payBalanceV2 {shipmentOrderId: <cjOrderId CJ…>}`    | pay fail, please contact CJ payment center           |
+| `payBalanceV2 {shipmentOrderId: <cjOrderCode SD…>}`  | Order not found                                      |
+| `addCartConfirm {cjOrderIdList:[…]}` (pedido UNPAID) | `submitSuccess: false, result: 3, shipmentsId: null` |
+| `saveGenerateParentOrder {shipmentOrderId: SD…}`     | Order not found                                      |
+| `payBalance {cjOrderIdList:[SD…]}`                   | orderId must be not empty                            |
+| **`payBalance {orderId: <orderId numérico>}`**       | **Success · saldo $150,00 → $138,60**                |
+
+**LA REGLA, sacada de su doc (2.2) y comprobada:** un pedido con UN envío se
+paga con **`payBalance` (v1) y el `orderId` numérico** que devuelve
+`getOrderDetail`. `payBalanceV2` es para pedidos padre con varios sub-pedidos
+y pide un `shipmentOrderId` que **solo entrega el carrito**
+(`addCart → addCartConfirm → saveGenerateParentOrder`), y ese carrito no
+acepta un pedido que ya está UNPAID. Durante dos semanas se buscó el
+identificador equivocado para la llamada equivocada. Ni el código `SD…`
+(`cjOrderCode`) ni el `CJ…` sirven en ninguna de las dos.
+
+- **El módulo** (`src/lib/cj/probar-compra-nucleo.ts`, `pagarPedidoEnCj`):
+  saldo antes → `confirmOrder` SOLO si está CREATED/IN_CART (reparando el
+  transporte si el almacén no tiene stock) → **`payBalance {orderId}`** → si
+  CJ lo rechaza, el carrito de cuatro pasos → saldo después → cómo quedó. **La
+  prueba de que se pagó es que el saldo baje**, y se enseña.
+- **Producción** (`pagarConSaldo` en `pedidos.ts`): v1 por `orderId` primero,
+  V2 por los candidatos de siempre solo de respaldo. Y **las compras que
+  quedaron `por_pagar` se reintentan solas desde el vigilante**
+  (`reintentarPagosPendientesDeCj`, 3 por corrida, en la fase de actuar) —
+  menos las que el candado de margen dejó a propósito («ESTA VENTA PIERDE…»).
+  La MT-000014 (compra propia del dueño del 5 sep, 12:35) estaba UNPAID en CJ
+  por este mismo fallo.
+- Candados: `tests/unit/probar-compra.test.ts` (v1 antes que el carrito;
+  `confirmOrder` solo CREATED/IN_CART), `cj-pago-saldo.test.ts` (v1 primero y
+  V2 solo si v1 no pagó; el reintento en `correr.ts`). Los tres comprobados en
+  rojo.
+
+### LA PUERTA PARA PROBAR SIN QUE EL DUEÑO PULSE NADA (`/datos/probar-compra`)
+
+_«¿Qué me pones a mí a perder el tiempo aquí en esto?»_. Tenía razón: cada
+intento era él pulsando un botón y mandando una captura. Ahora la misma prueba
+se dispara desde GitHub y devuelve el diagnóstico entero:
+
+- `POST /datos/probar-compra` con la llave del reloj (`SINCRONIZAR_LLAVE`,
+  la misma de `/datos/vigilante`; sin ella 503, con otra 404; todo por zod).
+  Acciones: `saldo` · `ultima` · `mirar {enlace}` · `comprar {enlace,
+direccion}` · `pagar` · `cj {ruta, metodo, cuerpo}` — **la sonda**, una
+  llamada suelta a CJ acotada a `/shopping/order/`, `/shopping/pay/`,
+  `/product/`, `/logistic/` (`rutaDeSondaPermitida`, pura). Con ella se
+  depura el contrato de CJ **sin publicar una versión por cada intento**.
+- `.github/workflows/probar-compra.yml`, solo `workflow_dispatch`: nunca por
+  reloj, porque «comprar» gasta saldo. Se dispara con
+  `gh workflow run probar-compra.yml -f cuerpo='{"accion":"saldo"}'` y la
+  respuesta se lee en el registro del run (`gh run view <id> --log`).
+- Las acciones del panel (`probar-compra.ts`, `"use server"`) son envoltorios
+  finos que exigen `esSoporteDeVerdad` y delegan en el núcleo, que **no mira
+  la sesión**: es lo que deja usarlo desde la puerta. Hay prueba de que el
+  núcleo no la mira y de que cada acción sí.
 
 ### Dos lecciones del push de ese día
 
