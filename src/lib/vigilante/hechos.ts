@@ -152,6 +152,13 @@ export async function recogerHechos(): Promise<Hechos> {
               ),
             )} then 1 else 0 end)`,
             sinCostoBase: sql<number>`sum(case when ${productos.estado} != 'borrador' and (${productos.precioBaseCentavos} is null or ${productos.precioBaseCentavos} <= 0) then 1 else 0 end)`,
+            /* SIN TRADUCIR = el español dice lo mismo que el inglés. No se
+               adivina el idioma: medio catálogo de CJ son códigos y marcas,
+               y un detector se equivoca justo ahí. */
+            sinTraducir: sql<number>`sum(case when ${productos.tituloEn} is not null and trim(${productos.tituloEn}) <> '' and lower(trim(${productos.tituloEs})) = lower(trim(${productos.tituloEn})) then 1 else 0 end)`,
+            /* CON FLETE REAL = se le preguntó el envío a CJ y ese número está
+               dentro del precio publicado. Es la otra mitad de `porAfinar`. */
+            conFleteReal: sql<number>`sum(case when ${enviosProducto.productoId} is not null and ${enviosProducto.origen} <> 'estimado' then 1 else 0 end)`,
           })
           .from(productos)
           .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -163,6 +170,8 @@ export async function recogerHechos(): Promise<Hechos> {
           enRevision: Number(fila?.enRevision ?? 0),
           porAfinar: Number(fila?.porAfinar ?? 0),
           sinCostoBase: Number(fila?.sinCostoBase ?? 0),
+          sinTraducir: Number(fila?.sinTraducir ?? 0),
+          conFleteReal: Number(fila?.conFleteReal ?? 0),
         });
       }
       return salida;

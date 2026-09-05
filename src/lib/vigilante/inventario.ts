@@ -194,8 +194,13 @@ export async function inventarioPorTienda(
  * latido. El Tablero lee esa fila —una sola, por id— y dice de cuándo es.
  * Un número de hace un rato es infinitamente mejor que un panel que expulsa.
  */
+import type { PlazaVista } from "@/lib/vigilante/reglas";
+
 export type InventarioGuardado = {
-  plazas: PlazaInventario[];
+  /* Lo que el VIGILANTE guarda en su latido es `PlazaVista`, no el
+     inventario largo del panel: son dos medidas distintas y confundirlas
+     hacía que el canario pidiera campos que en el JSON no están. */
+  plazas: PlazaVista[];
   /** Hace cuántos minutos se midió, para poder decirlo en pantalla. */
   haceMinutos: number;
 };
@@ -213,7 +218,7 @@ export async function inventarioDelUltimoLatido(): Promise<InventarioGuardado | 
     .limit(1);
   if (!fila) return null;
   try {
-    const hechos = JSON.parse(fila.hechos) as { plazas?: PlazaInventario[] };
+    const hechos = JSON.parse(fila.hechos) as { plazas?: PlazaVista[] };
     const plazas = Array.isArray(hechos.plazas) ? hechos.plazas : [];
     if (plazas.length === 0) return null;
     return {

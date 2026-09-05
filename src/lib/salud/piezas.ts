@@ -93,11 +93,13 @@ export async function resumenDelCatalogo(): Promise<{
     mercado: string;
     aLaVenta: number;
     enRevision: number;
-    borradores: number;
+    /** Publicados con el título todavía en inglés. */
     sinTraducir: number;
+    /** Con el envío YA cotizado a CJ y metido dentro del precio. */
     conFleteReal: number;
-    conFleteEstimado: number;
-    sinFlete: number;
+    /** Con envío estimado: falta preguntárselo a CJ. */
+    porAfinar: number;
+    sinCostoBase: number;
   }>;
 } | null> {
   try {
@@ -111,11 +113,13 @@ export async function resumenDelCatalogo(): Promise<{
         mercado: p.mercado,
         aLaVenta: p.publicados,
         enRevision: p.enRevision,
-        borradores: p.borradores,
-        sinTraducir: p.sinTraducir,
-        conFleteReal: p.conFleteReal,
-        conFleteEstimado: p.conFleteEstimado,
-        sinFlete: p.sinFlete,
+        /* Los latidos viejos no traen los dos campos nuevos. Se sirven en
+           cero y no se esconde la plaza: media respuesta vale más que
+           ninguna, y en veinte minutos el vigilante los llena. */
+        sinTraducir: p.sinTraducir ?? 0,
+        conFleteReal: p.conFleteReal ?? 0,
+        porAfinar: p.porAfinar,
+        sinCostoBase: p.sinCostoBase,
       })),
     };
   } catch {

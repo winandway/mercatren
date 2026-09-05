@@ -2,7 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Boxes } from "lucide-react";
 
-import type { PlazaInventario } from "@/lib/vigilante/inventario";
+import type { PlazaVista } from "@/lib/vigilante/reglas";
 
 /**
  * EL CATÁLOGO DE UN VISTAZO, EN EL TABLERO (3 sep 2026).
@@ -21,15 +21,24 @@ export async function CatalogoDeUnVistazo({
   plazas,
   haceMinutos,
 }: {
-  plazas: PlazaInventario[];
+  /**
+   * ES `PlazaVista`, LO QUE EL VIGILANTE GUARDA DE VERDAD (4 sep 2026).
+   *
+   * Decía `PlazaInventario` —el inventario largo del panel— sobre un JSON que
+   * nunca tuvo esos campos, porque `inventarioDelUltimoLatido` mentía en su
+   * tipo. Resultado: «sin traducir» y «por resolver» salían en CERO desde que
+   * existe esta tarjeta, y el dueño la miraba creyendo el número.
+   *
+   * El compilador no podía verlo: un `JSON.parse` devuelve `any` y ahí se
+   * puede prometer cualquier forma.
+   */
+  plazas: PlazaVista[];
   /** De cuándo es la medición del vigilante. Un dato sin fecha se lee como
    *  «ahora mismo», y este puede tener veinte minutos. */
   haceMinutos: number;
 }) {
   const t = await getTranslations("panel.resumen.catalogo");
-  const conAlgo = plazas.filter(
-    (p) => p.publicados + p.enRevision + p.borradores > 0,
-  );
+  const conAlgo = plazas.filter((p) => p.publicados + p.enRevision > 0);
   if (conAlgo.length === 0) return null;
 
   const nombre: Record<string, string> = {
@@ -56,8 +65,10 @@ export async function CatalogoDeUnVistazo({
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {conAlgo.map((p) => {
-          const faltan =
-            p.enRevision + p.sinFlete + p.conFleteEstimado + p.sinCostoBase;
+          /* `porAfinar` YA cuenta lo que va con envío estimado, sin fila de
+             envío y con transporte regional: son los tres casos que el
+             afinado tiene que resolver preguntándole el flete a CJ. */
+          const faltan = p.enRevision + p.porAfinar + p.sinCostoBase;
           return (
             <div key={p.mercado} className="rounded-lg bg-slate-50 p-3">
               <p className="text-xs font-semibold text-tinta-suave">

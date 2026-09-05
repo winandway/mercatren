@@ -40,6 +40,12 @@ export type PlazaVista = {
   enRevision: number;
   porAfinar: number;
   sinCostoBase: number;
+  /** Título todavía en inglés: el español dice lo mismo que el inglés.
+   *  Es lo que contesta «¿ya se tradujeron los títulos?» sin abrir el panel. */
+  sinTraducir: number;
+  /** Con el flete YA COTIZADO a CJ y metido dentro del precio publicado.
+   *  Contra `porAfinar`, que es lo que todavía va con un estimado. */
+  conFleteReal: number;
 };
 
 /** Una compra al proveedor o una venta con problema, CON su número y motivo:

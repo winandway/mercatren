@@ -43,6 +43,8 @@ function todoBien(): Hechos {
         enRevision: 50,
         porAfinar: 50,
         sinCostoBase: 0,
+        sinTraducir: 0,
+        conFleteReal: 0,
       },
     ],
     publicadosSinVerificar: 0,
@@ -227,6 +229,8 @@ describe("qué es una alerta", () => {
           enRevision: 0,
           porAfinar: 0,
           sinCostoBase: 8,
+          sinTraducir: 0,
+          conFleteReal: 0,
         },
       ],
     });
@@ -349,6 +353,8 @@ describe("el correo lleva el conteo del catálogo (3 sep 2026)", () => {
           enRevision: 43110,
           porAfinar: 40000,
           sinCostoBase: 0,
+          sinTraducir: 0,
+          conFleteReal: 0,
         },
         {
           mercado: "CL",
@@ -356,6 +362,8 @@ describe("el correo lleva el conteo del catálogo (3 sep 2026)", () => {
           enRevision: 0,
           porAfinar: 0,
           sinCostoBase: 0,
+          sinTraducir: 0,
+          conFleteReal: 0,
         },
       ],
     );
