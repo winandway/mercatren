@@ -11,12 +11,11 @@ import {
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
-import type { PasoDiagnostico } from "@/lib/cj/diagnostico-puro";
-import {
-  comprarDeVerdadACj,
-  probarCompraDeCj,
-  type UltimaCompraDePrueba,
-} from "@/lib/cj/probar-compra";
+import type {
+  PasoDiagnostico,
+  UltimaCompraDePrueba,
+} from "@/lib/cj/diagnostico-puro";
+import { comprarDeVerdadACj, probarCompraDeCj } from "@/lib/cj/probar-compra";
 import { cn } from "@/lib/utils";
 
 /**

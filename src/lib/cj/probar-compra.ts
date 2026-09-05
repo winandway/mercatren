@@ -9,6 +9,11 @@ import {
   type Diagnostico,
   type PasoDiagnostico,
 } from "@/lib/cj/diagnostico";
+import {
+  LLAVE_ULTIMA_PRUEBA,
+  type DireccionDePrueba,
+  type UltimaCompraDePrueba,
+} from "@/lib/cj/diagnostico-puro";
 import { destinoDeEnvio } from "@/lib/cj/destino-fiscal";
 import { almacenDeEntrega, plazaDelMercado } from "@/lib/cj/plazas";
 import {
@@ -184,28 +189,6 @@ export async function probarCompraDeCj(entrada: {
    puede chocar ni confundirse con la serie de los pedidos de clientes.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export const LLAVE_ULTIMA_PRUEBA = "cj_ultima_compra_de_prueba";
-
-export type UltimaCompraDePrueba = {
-  numero: string;
-  producto: string;
-  estado: "pagado" | "creado_sin_pagar" | "fallo";
-  detalle: string;
-  ids: string[];
-  enMs: number;
-  quien: string;
-};
-
-type Direccion = {
-  nombre: string;
-  direccion: string;
-  direccion2?: string;
-  ciudad: string;
-  estado: string;
-  codigoPostal: string;
-  telefono?: string;
-};
-
 /** Con qué se guarda cada paso de la compra, para que la pantalla lo enseñe. */
 function paso(
   numero: number,
@@ -245,7 +228,7 @@ export async function leerUltimaCompraDePrueba(): Promise<UltimaCompraDePrueba |
 
 export async function comprarDeVerdadACj(entrada: {
   enlace: string;
-  direccion: Direccion;
+  direccion: DireccionDePrueba;
 }): Promise<Diagnostico & { ok: boolean; mensaje: string }> {
   if (!(await esSoporteDeVerdad())) {
     return {

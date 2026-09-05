@@ -69,3 +69,32 @@ export function almacenesNombrados(datos: unknown): string[] {
   mirar(datos);
   return [...vistos];
 }
+
+/* ══ LO QUE EL ARCHIVO DE ACCIONES NO PUEDE EXPORTAR ══
+   `probar-compra.ts` lleva «use server», y un archivo así solo puede
+   exportar funciones async: una constante o un tipo exportado hace que
+   Turbopack rechace el módulo ENTERO («the module has no exports»). tsc no
+   lo ve; la compilación sí. Por eso viven aquí. */
+
+/** Donde queda el rastro de la última compra de prueba a CJ. */
+export const LLAVE_ULTIMA_PRUEBA = "cj_ultima_compra_de_prueba";
+
+export type UltimaCompraDePrueba = {
+  numero: string;
+  producto: string;
+  estado: "pagado" | "creado_sin_pagar" | "fallo";
+  detalle: string;
+  ids: string[];
+  enMs: number;
+  quien: string;
+};
+
+export type DireccionDePrueba = {
+  nombre: string;
+  direccion: string;
+  direccion2?: string;
+  ciudad: string;
+  estado: string;
+  codigoPostal: string;
+  telefono?: string;
+};
