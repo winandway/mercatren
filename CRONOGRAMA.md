@@ -52,11 +52,12 @@ PENDING). El fallo de dos semanas: se usaba la llamada de pago equivocada
 de un envío es `payBalance` con el `orderId` numérico. Está en el módulo y en
 el circuito automático.
 
-- **MT-000014 (tu compra de las 12:35 con Stripe)** estaba en CJ sin pagar
-  por el mismo fallo. **Se paga sola** en la próxima corrida del vigilante
-  después de esta publicación (reintenta las compras «por pagar» cada 20
-  min). Cómo saber que quedó: Panel → Dinero → Pedidos al proveedor la
-  enseña «pagado», y tu saldo de CJ baja otros $11,40 (→ ~$127,20).
+- **MT-000014 (tu compra de las 12:35 con Stripe)** quedó en CJ sin pagar
+  por el mismo fallo, pero en nuestro panel ya no está «por pagar» (se cerró
+  como prueba), así que el reintento no la toma. En CJ un pedido sin pagar
+  no cuesta nada y se cancela solo. No hay que hacer nada con ella.
+- **Y la compra completa desde la puerta ya salió (20:56):**
+  `PRUEBA-20260905205642`, creada y pagada en una corrida, $138,60 → $127,20.
 - **Lo que te toca a ti, cuando yo te avise que la compra completa desde la
   puerta salió verde:** una compra REAL en https://mercatren.com con tu
   tarjeta, como un cliente. Cómo saber que quedó: en Panel → Pedidos al

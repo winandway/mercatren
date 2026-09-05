@@ -1636,6 +1636,12 @@ acepta un pedido que ya está UNPAID. Durante dos semanas se buscó el
 identificador equivocado para la llamada equivocada. Ni el código `SD…`
 (`cjOrderCode`) ni el `CJ…` sirven en ninguna de las dos.
 
+**Y la compra completa también salió (20:56):** `PRUEBA-20260905205642`, creada
+y pagada en una sola corrida desde la puerta, $138,60 → $127,20, nueve pasos
+en verde. Ojo con la respuesta de `createOrderV2`: trae los nombres cruzados
+respecto al detalle —su `orderId` es el código `SD…` y su `shipmentOrderId` es
+el `CJ…`—; el `orderId` numérico que paga sale de `getOrderDetail`.
+
 - **El módulo** (`src/lib/cj/probar-compra-nucleo.ts`, `pagarPedidoEnCj`):
   saldo antes → `confirmOrder` SOLO si está CREATED/IN_CART (reparando el
   transporte si el almacén no tiene stock) → **`payBalance {orderId}`** → si

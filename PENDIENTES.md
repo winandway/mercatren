@@ -80,8 +80,9 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
   `payBalanceV2` era la equivocada para un pedido de un envío. Módulo y
   circuito automático llevan el arreglo; el vigilante reintenta las compras
   «por pagar» (MT-000014 es la primera).
-- 🔴 💻 **Falta la compra completa desde la puerta** (`comprar`: crear + pagar
-  en una) y después 👤 **una venta real con tarjeta** que se pague sola.
+- ✅ 💻 **Compra completa desde la puerta (5 sep, 20:56):** `PRUEBA-20260905205642`
+  creada y pagada en una corrida, $138,60 → $127,20, nueve pasos en verde.
+- 🔴 👤 **Falta una venta real con tarjeta** que se pague sola a CJ en el acto.
 - ✅ 💻 **La sonda de salud ya no crea cuentas** «Soporte Diagnóstico» por
   visita (eran los correos de «Cuenta nueva» cada rato); barre las que dejó.
 - 💻 **HECHO · los puntos de CJ ya no se desperdician:** el refresco de stock
