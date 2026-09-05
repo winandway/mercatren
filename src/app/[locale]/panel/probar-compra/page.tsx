@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { ProbarCompra } from "@/components/panel/cj/probar-compra";
+import { leerUltimaCompraDePrueba } from "@/lib/cj/probar-compra";
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
 
 /**
@@ -25,6 +26,7 @@ export default async function PaginaProbarCompra({
   /* Le habla al proveedor y gasta puntos de CJ: solo soporte de verdad, nunca
      con el disfraz de «ver su panel». */
   if (!(await esSoporteDeVerdad())) notFound();
+  const ultima = await leerUltimaCompraDePrueba();
 
   return (
     <div className="space-y-6">
@@ -40,7 +42,7 @@ export default async function PaginaProbarCompra({
         </p>
       </header>
 
-      <ProbarCompra />
+      <ProbarCompra ultima={ultima} />
     </div>
   );
 }

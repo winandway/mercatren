@@ -1,9 +1,20 @@
 "use client";
 
-import { AlertTriangle, Check, Loader2, Play, X } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Loader2,
+  Play,
+  ShoppingCart,
+  X,
+} from "lucide-react";
 import { useState, useTransition } from "react";
 
-import { probarCompraDeCj } from "@/lib/cj/probar-compra";
+import {
+  comprarDeVerdadACj,
+  probarCompraDeCj,
+  type UltimaCompraDePrueba,
+} from "@/lib/cj/probar-compra";
 import type { PasoDiagnostico } from "@/lib/cj/diagnostico";
 import { cn } from "@/lib/utils";
 
@@ -18,10 +29,21 @@ import { cn } from "@/lib/utils";
  * resumen. Las tres compras murieron por un campo que el código tiraba sin
  * mirar; una pantalla que solo dijera «ok / falló» repetiría el problema.
  */
-export function ProbarCompra() {
+export function ProbarCompra({
+  ultima,
+}: {
+  /** La última compra de prueba, para saber qué pasó sin abrir CJ. */
+  ultima: UltimaCompraDePrueba | null;
+}) {
   const [enlace, setEnlace] = useState("");
-  const [estado, setEstado] = useState("");
-  const [zip, setZip] = useState("");
+  /* La dirección de Mercatren LLC en Novi, por defecto: es la del registro y
+     la de devoluciones, y es donde se puede comprobar qué llega en la caja. */
+  const [nombre, setNombre] = useState("Mercatren LLC");
+  const [direccion, setDireccion] = useState("30080 Montmorency Drive");
+  const [ciudad, setCiudad] = useState("Novi");
+  const [estado, setEstado] = useState("MI");
+  const [zip, setZip] = useState("48377");
+  const [telefono, setTelefono] = useState("");
   const [pasos, setPasos] = useState<PasoDiagnostico[]>([]);
   const [aviso, setAviso] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
@@ -29,6 +51,27 @@ export function ProbarCompra() {
 
   return (
     <div className="space-y-4">
+      {ultima ? (
+        <div
+          className={cn(
+            "rounded-xl border p-4 text-sm",
+            ultima.estado === "pagado"
+              ? "border-precio-600/30 bg-emerald-50"
+              : ultima.estado === "fallo"
+                ? "border-red-200 bg-red-50"
+                : "border-amber-300 bg-amber-50",
+          )}
+        >
+          <p className="font-bold">Última compra de prueba: {ultima.numero}</p>
+          <p className="mt-1">
+            {ultima.producto} ·{" "}
+            <strong>{ultima.estado.replace(/_/g, " ")}</strong> ·{" "}
+            {new Date(ultima.enMs).toLocaleString()} · {ultima.quien}
+          </p>
+          <p className="mt-1 text-tinta-suave">{ultima.detalle}</p>
+        </div>
+      ) : null}
+
       <div className="rounded-xl border border-borde bg-white p-4">
         <label className="block text-sm font-semibold" htmlFor="enlace">
           Enlace del producto
@@ -46,61 +89,101 @@ export function ProbarCompra() {
           className="mt-2 h-11 w-full rounded-lg border border-borde px-3 text-sm"
         />
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className="block text-xs font-semibold" htmlFor="estado">
-              Estado de entrega (opcional)
+        <p className="mt-4 text-sm font-semibold">Dónde se entregaría</p>
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              ["Quien recibe", nombre, setNombre, "Nombre"],
+              ["Dirección", direccion, setDireccion, "Calle y número"],
+              ["Ciudad", ciudad, setCiudad, "Ciudad"],
+              ["Estado", estado, setEstado, "MI"],
+              ["Código postal", zip, setZip, "48377"],
+              ["Teléfono (opcional)", telefono, setTelefono, "+1 …"],
+            ] as const
+          ).map(([etiqueta, valor, poner, ejemplo]) => (
+            <label key={etiqueta} className="block text-xs font-semibold">
+              {etiqueta}
+              <input
+                type="text"
+                value={valor}
+                onChange={(e) => poner(e.target.value)}
+                placeholder={ejemplo}
+                className="mt-1 h-10 w-full rounded-lg border border-borde px-3 text-sm font-normal"
+              />
             </label>
-            <input
-              id="estado"
-              type="text"
-              value={estado}
-              onChange={(e) => setEstado(e.target.value)}
-              placeholder="MI"
-              className="mt-1 h-10 w-full rounded-lg border border-borde px-3 text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold" htmlFor="zip">
-              Código postal (opcional)
-            </label>
-            <input
-              id="zip"
-              type="text"
-              value={zip}
-              onChange={(e) => setZip(e.target.value)}
-              placeholder="48377"
-              className="mt-1 h-10 w-full rounded-lg border border-borde px-3 text-sm"
-            />
-          </div>
+          ))}
         </div>
 
-        <button
-          type="button"
-          disabled={corriendo || !enlace.trim()}
-          onClick={() =>
-            iniciar(async () => {
-              setPasos([]);
-              setAviso(null);
-              const r = await probarCompraDeCj({
-                enlace,
-                estado: estado.trim() || undefined,
-                codigoPostal: zip.trim() || undefined,
-              });
-              setPasos(r.pasos);
-              setAviso(r.mensaje);
-              setOk(r.ok);
-            })
-          }
-          className="boton-principal mt-4 gap-2"
-        >
-          {corriendo ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          ) : (
-            <Play className="h-4 w-4" aria-hidden />
-          )}
-          Probar esta compra
-        </button>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            disabled={corriendo || !enlace.trim()}
+            onClick={() =>
+              iniciar(async () => {
+                setPasos([]);
+                setAviso(null);
+                const r = await probarCompraDeCj({
+                  enlace,
+                  estado: estado.trim() || undefined,
+                  codigoPostal: zip.trim() || undefined,
+                });
+                setPasos(r.pasos);
+                setAviso(r.mensaje);
+                setOk(r.ok);
+              })
+            }
+            className="inline-flex items-center gap-2 rounded-lg border border-borde bg-white px-4 py-2.5 text-sm font-semibold hover:border-carga-500 disabled:opacity-60"
+          >
+            {corriendo ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <Play className="h-4 w-4" aria-hidden />
+            )}
+            Solo mirar (no compra)
+          </button>
+
+          {/* EL BOTÓN QUE PIDIÓ EL DUEÑO: compra de verdad, del saldo de CJ,
+              sin pasar por la tarjeta. Es dinero real y CJ lo despacha, así
+              que pide confirmación diciendo las dos cosas. */}
+          <button
+            type="button"
+            disabled={corriendo || !enlace.trim()}
+            onClick={() =>
+              iniciar(async () => {
+                if (
+                  !window.confirm(
+                    "Esto crea un pedido REAL en CJ, lo paga de tu saldo y CJ lo va a despachar a la dirección de arriba. No pasa por Stripe.\n\n¿Comprar de verdad?",
+                  )
+                )
+                  return;
+                setPasos([]);
+                setAviso(null);
+                const r = await comprarDeVerdadACj({
+                  enlace,
+                  direccion: {
+                    nombre,
+                    direccion,
+                    ciudad,
+                    estado,
+                    codigoPostal: zip,
+                    telefono,
+                  },
+                });
+                setPasos(r.pasos);
+                setAviso(r.mensaje);
+                setOk(r.ok);
+              })
+            }
+            className="boton-principal gap-2"
+          >
+            {corriendo ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <ShoppingCart className="h-4 w-4" aria-hidden />
+            )}
+            Comprar de verdad a CJ (paga del saldo)
+          </button>
+        </div>
       </div>
 
       {aviso ? (
