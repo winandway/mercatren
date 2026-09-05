@@ -16,6 +16,52 @@ import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
  */
 
 /** La llave de CJ está viva: `ok`, `sin_llave` o `error`. */
+/**
+ * DE CUÁNTO FUE EL PRESUPUESTO DE PUNTOS, Y QUÉ LO SUBE (5 sep 2026).
+ *
+ * El dueño preguntó qué hay que comprarle a CJ para tener más puntos. Su
+ * documentación dice «50.000 + 100 por dólar de transacciones» y **no define
+ * qué cuenta como transacción**. Su propio aviso sí lo dice: con «Used today:
+ * 61520, Remaining: 0» el presupuesto fue 61.520, o sea $115,20 contados.
+ *
+ * Puesto al lado de lo que él ve en el panel de CJ, eso contesta la pregunta
+ * sin depender de que nadie nos explique nada — y deja de ser una pregunta
+ * que hay que volver a hacer cada mes.
+ */
+export async function presupuestoDeCj(): Promise<{
+  usados: number;
+  quedan: number;
+  productosQueAlcanzan: number;
+  dolaresContados: number;
+  haceMinutos: number;
+} | null> {
+  try {
+    const { getDb } = await import("@/lib/db");
+    const { configuracion } = await import("@/lib/db/schema");
+    const { eq } = await import("drizzle-orm");
+    const { LLAVE_PUNTOS, leerPuntosDelDia, dolaresQueCuentan } =
+      await import("@/lib/cj/puntos");
+    const { PUNTOS_POR_PRODUCTO } = await import("@/lib/cj/reparto-de-puntos");
+    const [fila] = await getDb()
+      .select({ valor: configuracion.valor })
+      .from(configuracion)
+      .where(eq(configuracion.clave, LLAVE_PUNTOS))
+      .limit(1);
+    const p = leerPuntosDelDia(fila?.valor, Date.now());
+    if (!p) return null;
+    const total = p.usados + p.quedan;
+    return {
+      usados: p.usados,
+      quedan: p.quedan,
+      productosQueAlcanzan: Math.floor(total / PUNTOS_POR_PRODUCTO),
+      dolaresContados: dolaresQueCuentan(p.usados, p.quedan),
+      haceMinutos: Math.max(0, Math.round((Date.now() - p.enMs) / 60_000)),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function saludDelProveedor(): Promise<string> {
   try {
     const { cjConfigurado } = await import("@/lib/cj/cliente");

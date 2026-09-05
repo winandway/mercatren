@@ -70,3 +70,45 @@ describe("la sonda de CJ", () => {
     expect(panel).not.toContain("AFINADOS_POR_VUELTA * VUELTAS_POR_DIA");
   });
 });
+
+/**
+ * QUÉ HAY QUE COMPRARLE A CJ PARA TENER MÁS PUNTOS (5 sep 2026).
+ *
+ * El dueño lo preguntó y la documentación de CJ no lo define: dice
+ * «50.000 + 100 por dólar de transacciones» sin decir si una transacción es
+ * recargar el saldo o gastarlo. Su propio aviso sí lo dice, y por eso se
+ * guarda: con «Used today: 61520, Remaining: 0» el presupuesto fue 61.520,
+ * o sea $115,20 contados. Ese número, al lado de lo que él ve en el panel de
+ * CJ, contesta la pregunta sin depender de nadie.
+ */
+describe("el presupuesto de puntos de CJ", () => {
+  it("saca los dólares que CJ contó, del propio aviso", async () => {
+    const { dolaresQueCuentan } = await import("@/lib/cj/puntos");
+    /* El caso real del dueño, 4 sep 2026. */
+    expect(dolaresQueCuentan(61_520, 0)).toBeCloseTo(115.2, 2);
+    /* Sin comprar nada, solo la base: cero dólares contados. */
+    expect(dolaresQueCuentan(50_000, 0)).toBe(0);
+    /* Y nunca negativo, aunque el aviso venga raro. */
+    expect(dolaresQueCuentan(1_000, 0)).toBe(0);
+  });
+
+  it("un aviso de anteayer NO se enseña como el de hoy", async () => {
+    const { leerPuntosDelDia } = await import("@/lib/cj/puntos");
+    const ahora = 1_000_000_000_000;
+    const viejo = JSON.stringify({
+      usados: 61_520,
+      quedan: 0,
+      enMs: ahora - 25 * 60 * 60 * 1000,
+    });
+    /* Los puntos se renuevan cada día: uno de ayer no dice nada de hoy. */
+    expect(leerPuntosDelDia(viejo, ahora)).toBeNull();
+  });
+
+  it("el aviso de CJ se GUARDA, que es lo que faltaba", async () => {
+    /* `puntosDe` existía desde el 3 sep y no la llamaba nadie: el dato venía
+       en cada aviso y se tiraba. */
+    const cliente = readFileSync("src/lib/cj/cliente.ts", "utf8");
+    expect(cliente).toContain("puntosDe(motivo)");
+    expect(cliente).toContain("LLAVE_PUNTOS");
+  });
+});

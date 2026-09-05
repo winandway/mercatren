@@ -179,6 +179,26 @@ async function anotarSinPuntos(motivo: string | undefined): Promise<void> {
         target: configuracion.clave,
         set: { valor: hasta },
       });
+    /* Y SE GUARDA CUÁNTOS ERAN (5 sep 2026). El aviso trae «Used today:
+       61520, Remaining: 0», que es la única forma de saber de cuánto fue el
+       presupuesto del día — y de ahí, cuánto le está sumando lo que se le
+       compra a CJ. `puntosDe` existía desde el 3 sep y no la llamaba nadie. */
+    if (motivo) {
+      const { puntosDe, LLAVE_PUNTOS } = await import("@/lib/cj/puntos");
+      const p = puntosDe(motivo);
+      if (p.usados !== null) {
+        const valor = JSON.stringify({
+          usados: p.usados,
+          quedan: p.quedan ?? 0,
+          enMs: Date.now(),
+        });
+        await getDb()
+          .insert(configuracion)
+          .values({ clave: LLAVE_PUNTOS, valor })
+          .onConflictDoUpdate({ target: configuracion.clave, set: { valor } })
+          .catch(() => undefined);
+      }
+    }
     console.error(`[cj] sin puntos de API: ${motivo ?? ""}`);
   } catch (fallo) {
     console.error("[cj] no se pudo anotar la pausa por puntos:", fallo);

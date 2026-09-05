@@ -5,6 +5,7 @@ import { getDb } from "@/lib/db";
 import {
   avisoDeStripeArmado,
   origenDeLaClaveDeSesiones,
+  presupuestoDeCj,
   resumenDelCatalogo,
   resumenDelReloj,
   resumenDelVigilante,
@@ -111,6 +112,7 @@ export async function GET(peticion: Request) {
       vigilante,
       reloj,
       catalogo,
+      puntosDeCj,
       sesiones,
       sesionesUltimaHora,
       cuentas,
@@ -126,6 +128,7 @@ export async function GET(peticion: Request) {
       resumenDelVigilante(),
       resumenDelReloj(),
       resumenDelCatalogo(),
+      presupuestoDeCj(),
       origenDeLaClaveDeSesiones(
         getCloudflareContext().env as unknown as Record<
           string,
@@ -160,6 +163,10 @@ export async function GET(peticion: Request) {
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */
         catalogo,
+        /* De cuánto fue el presupuesto de puntos de CJ el último día que se
+           agotaron, y cuántos productos alcanzan. `dolaresContados` es lo que
+           CJ contó como transacciones: (total − 50.000) / 100. */
+        puntosDeCj,
         cookies: {
           cuantas: nombresDeCookies.length,
           nombres: nombresDeCookies,

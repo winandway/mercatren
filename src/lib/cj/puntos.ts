@@ -128,3 +128,51 @@ export function leerUltimaLlamada(
     return null;
   }
 }
+
+/** Donde se guarda el último aviso de puntos que dio CJ. */
+export const LLAVE_PUNTOS = "cj_puntos_del_dia";
+
+export type PuntosDelDia = {
+  usados: number;
+  quedan: number;
+  enMs: number;
+};
+
+/**
+ * DE CUÁNTO ES EL PRESUPUESTO, Y DE DÓNDE SALE (5 sep 2026).
+ *
+ * El dueño preguntó qué hay que comprar para que CJ dé más puntos. Su propia
+ * documentación dice `50.000 base + 100 por cada dólar de transacciones`,
+ * pero **no define qué cuenta como transacción**: si es recargar el saldo o
+ * gastarlo en pedidos.
+ *
+ * Lo resuelve su propio aviso. Cuando CJ dice «Used today: 61520,
+ * Remaining: 0», el presupuesto del día fue 61.520, así que las
+ * transacciones que le contaron son `(61.520 − 50.000) / 100 = $115,20`. Ese
+ * número, puesto al lado de lo que él ve en su panel de CJ, contesta la
+ * pregunta sin depender de que nadie nos explique nada.
+ */
+export function dolaresQueCuentan(usados: number, quedan: number): number {
+  const total = usados + Math.max(0, quedan);
+  return Math.max(0, (total - PUNTOS_BASE_DE_CJ) / 100);
+}
+
+/** Los puntos que CJ regala al día sin comprar nada (su documentación). */
+export const PUNTOS_BASE_DE_CJ = 50_000;
+
+/** Lee el último aviso guardado. Null si no hay o si no es de hoy. */
+export function leerPuntosDelDia(
+  guardado: string | null | undefined,
+  ahoraMs: number,
+): PuntosDelDia | null {
+  if (!guardado) return null;
+  try {
+    const d = JSON.parse(guardado) as Partial<PuntosDelDia>;
+    if (typeof d.usados !== "number" || typeof d.enMs !== "number") return null;
+    /* Los puntos se renuevan cada día: uno de anteayer no dice nada de hoy. */
+    if (ahoraMs - d.enMs > 24 * 60 * 60 * 1000) return null;
+    return { usados: d.usados, quedan: d.quedan ?? 0, enMs: d.enMs };
+  } catch {
+    return null;
+  }
+}
