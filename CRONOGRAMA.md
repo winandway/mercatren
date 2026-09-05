@@ -56,25 +56,41 @@ sitio con pagos no se anuncia sin probarlo de punta a punta).
 
 ### 3. 🔴 👤 Los puntos de API de CJ — ES EL ÚNICO FRENO QUE QUEDA
 
-**Medido el 4 sep 2026, con las corridas del robot delante:** de las ocho
-corridas del día, **seis no hicieron nada** porque CJ no tenía puntos. Las dos
-que sí encontraron afinaron **3.178 productos en total** y las dos se pararon
-al agotarlos.
+**CJ no cobra por llamada: cobra por PUNTOS.** Su documentación lo publica:
 
-Ese es el techo real: **unos 3.000 productos por día**, lo dé quien lo dé. No
-lo marca nuestro reloj ni el robot de GitHub —los dos están sobrados—, lo
-marca la cantidad de llamadas que CJ nos deja hacer.
+- **50.000 puntos al día** para todo el mundo, gratis.
+- **+100 puntos por cada dólar** que le compremos, tomando el mes de mayor
+  compra de los últimos tres. Con los ~$135 cargados: **~63.500 al día**.
+- Afinar un producto cuesta **20 puntos** (las tallas, 10; el envío, 10).
 
-Con 47.500 en la cola, a ese ritmo son **unos 16 días**. Con el doble de
-puntos, ocho.
+**63.500 ÷ 20 = 3.175 productos al día.** Medido el 4 sep: **3.178**. La
+fórmula es exacta.
 
-- **Lo único que sube ese techo es comprarle más a CJ.** No hay ajuste de
-  código que lo cambie: el sistema ya llama todo lo que le dejan.
-- Se renuevan solos cada día, y el sistema **deja de llamarlos hasta que
-  vuelvan** para no gastar el reloj en balde.
-- **Cómo saber cómo va:** `https://mercatren.com/datos/salud` — el renglón
-  `catalogo` dice, por país, cuántos están a la venta y cuántos en revisión.
-  No hace falta entrar al panel ni tener sesión.
+**Y no se puede bajar de 20 puntos.** Comprobado en su documentación: el
+listado no devuelve las tallas, y no se pueden pedir varios productos en una
+llamada. Dos llamadas por producto es el piso.
+
+#### Lo que SÍ se arregló (5 sep 2026)
+
+El refresco de stock usaba **la misma llamada de 10 puntos** y corría 2 por
+minuto: hasta **31.000 puntos al día**, la mitad del presupuesto, sin publicar
+ni un producto. Ahora cede mientras haya cola: **de 3.100 llamadas al día a
+96**. Eso libera hasta **1.500 productos más por día**.
+
+#### Lo único que sube el techo: comprarle a CJ
+
+| Si compras | Puntos al día | Productos al día | Los 44.850 salen en |
+| ---------- | ------------- | ---------------- | ------------------- |
+| nada más   | ~63.500       | ~4.700           | **10 días**         |
+| $500       | ~113.500      | ~7.200           | **6 días**          |
+| $1.000     | ~163.500      | ~9.700           | **4,5 días**        |
+
+Y ese dinero **no se pierde**: es saldo para pagar las compras de los
+clientes, que de todos modos hay que cargar. Los puntos vienen de regalo con
+la compra, y duran tres meses.
+
+- **Cómo saber cómo va:** `https://mercatren.com/datos/salud`, renglón
+  `catalogo`. El número de «en revisión» tiene que bajar cada día.
 
 ### 4. 🔴 💻 Terminar de traer las fotos a nuestros servidores
 
