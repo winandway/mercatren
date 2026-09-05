@@ -5,6 +5,7 @@ import { getDb } from "@/lib/db";
 import {
   avisoDeStripeArmado,
   origenDeLaClaveDeSesiones,
+  resumenDelCatalogo,
   resumenDelReloj,
   resumenDelVigilante,
   lecturaDeCuentas,
@@ -109,6 +110,7 @@ export async function GET(peticion: Request) {
       avisoStripe,
       vigilante,
       reloj,
+      catalogo,
       sesiones,
       sesionesUltimaHora,
       cuentas,
@@ -123,6 +125,7 @@ export async function GET(peticion: Request) {
       ),
       resumenDelVigilante(),
       resumenDelReloj(),
+      resumenDelCatalogo(),
       origenDeLaClaveDeSesiones(
         getCloudflareContext().env as unknown as Record<
           string,
@@ -153,6 +156,10 @@ export async function GET(peticion: Request) {
         /* El reloj: hace cuántos minutos latió. Si pasa de unos pocos, el
            sitio no se está moviendo solo. */
         reloj,
+        /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
+           traducir y con qué flete. Es la respuesta a «¿estamos publicando
+           los productos y traduciendo los títulos?» sin entrar al panel. */
+        catalogo,
         cookies: {
           cuantas: nombresDeCookies.length,
           nombres: nombresDeCookies,

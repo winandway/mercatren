@@ -72,6 +72,59 @@ export async function avisoDeStripeArmado(
 
 /** El último latido del vigilante, para el canario: hace cuánto y con
  *  cuántas alertas. `null` si nunca corrió. */
+/**
+ * CÓMO VA EL CATÁLOGO, SIN ENTRAR AL PANEL (4 sep 2026).
+ *
+ * Lo pidió el dueño: «quiero saber si estamos produciendo los títulos, si
+ * estamos publicando los más de cuarenta y seis mil productos». Ese conteo
+ * ya lo mide el vigilante en cada corrida y solo se veía tras iniciar
+ * sesión — así que para contestar había que entrar al panel a mirar.
+ *
+ * Se sirve el que dejó guardado el vigilante, NO se vuelve a contar: son
+ * cincuenta mil fichas y este canario lo consulta cualquiera, cada minuto.
+ *
+ * NO ENSEÑA NINGÚN SECRETO: son conteos de un catálogo que ya es público.
+ * Un producto a la venta se ve en la tienda y en el mapa del sitio; lo que
+ * esto agrega es cuántos faltan, que es la pregunta que se estaba haciendo.
+ */
+export async function resumenDelCatalogo(): Promise<{
+  haceMinutos: number;
+  plazas: Array<{
+    mercado: string;
+    aLaVenta: number;
+    enRevision: number;
+    borradores: number;
+    sinTraducir: number;
+    conFleteReal: number;
+    conFleteEstimado: number;
+    sinFlete: number;
+  }>;
+} | null> {
+  try {
+    const { inventarioDelUltimoLatido } =
+      await import("@/lib/vigilante/inventario");
+    const guardado = await inventarioDelUltimoLatido();
+    if (!guardado) return null;
+    return {
+      haceMinutos: guardado.haceMinutos,
+      plazas: guardado.plazas.map((p) => ({
+        mercado: p.mercado,
+        aLaVenta: p.publicados,
+        enRevision: p.enRevision,
+        borradores: p.borradores,
+        sinTraducir: p.sinTraducir,
+        conFleteReal: p.conFleteReal,
+        conFleteEstimado: p.conFleteEstimado,
+        sinFlete: p.sinFlete,
+      })),
+    };
+  } catch {
+    /* Un canario que se cae por una medida de más deja de servir para lo
+       que existe: decir si la base y el cobro están vivos. */
+    return null;
+  }
+}
+
 export async function resumenDelVigilante(): Promise<{
   haceMinutos: number;
   alertas: number;
