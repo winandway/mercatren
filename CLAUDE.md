@@ -1534,6 +1534,72 @@ Cuatro cosas que no se tocan:
 Candado: `tests/unit/cerrar-prueba.test.ts`, comprobado en rojo (dejando cerrar
 una compra pagada, y dejando el botón en un solo caso).
 
+## PROBAR UNA COMPRA A CJ PEGANDO EL ENLACE, SIN PASAR POR STRIPE (5 sep 2026)
+
+Tres compras de prueba, tres fallos, y cada una costó un cobro real en Stripe
+para descubrir que el circuito moría DESPUÉS del pago, del lado del
+proveedor. Palabras del dueño: _«no puedo estar probando en Stripe cada
+rato… crea un campo donde meto un link y un botón, y ahí vemos qué está
+pasando»_. Tenía razón: el cobro con tarjeta YA está probado (MT-000004 y
+MT-000011, cobros reales); lo que hay que poder repetir cien veces es el
+tramo de CJ.
+
+**Panel → Equipo → Probar una compra** (`src/lib/cj/probar-compra.ts`,
+`diagnostico.ts`, `diagnostico-puro.ts`; solo `esSoporteDeVerdad`). Dos botones:
+
+- **«Solo mirar»**: producto en nuestro catálogo → variantes CON existencia en
+  el almacén de la plaza → todos los transportes de la ruta. No cobra, no crea
+  nada.
+- **«Comprar de verdad a CJ»**: crea un pedido REAL con la dirección escrita,
+  lo confirma y lo paga del saldo (`payBalanceV2`). CJ lo despacha. Pide
+  confirmación diciendo las dos cosas.
+
+**LO QUE LO HACE ÚTIL ES QUE ENSEÑA LA RESPUESTA CRUDA DE CJ EN CADA PASO.**
+El fallo de las tres compras estuvo siempre delante y no se veía porque el
+código lee dos campos y tira el resto: de una cotización de flete solo
+`logisticName` y `logisticPrice`, sin mirar **de qué almacén sale**. CJ dijo
+«the selected logistics is assigned to a warehouse with insufficient
+inventory» y no había dónde mirar de qué almacén hablaba. `almacenesNombrados()`
+recoge todo campo que suene a almacén, sin adivinar cuál usa cada endpoint.
+
+**Y LLEVA EL ARREGLO QUE LAS TRES COMPRAS NUNCA USARON.** Si CJ rechaza la
+confirmación por inventario, pregunta qué transportes SÍ tienen stock
+(`getOrderLogisticsInfo` → `hasStock`), cambia a uno (`updateLogistics`) y
+reconfirma. Ese arreglo (`repararTransporteEnCj`) se construyó el **2 sep**;
+MT-000011 falló el **31 ago**, un día antes, y nadie la reintentó desde
+entonces.
+
+Cinco cosas que no se tocan:
+
+1. **El número empieza por `PRUEBA-`, nunca `MT-`**: se distingue en el panel
+   de CJ y no choca con la serie de clientes.
+2. **NO escribe en `pedidos` ni `pedidos_proveedor`**: no es una venta, y
+   aquello tiene llave foránea a un cliente. El rastro va a
+   `configuracion.cj_ultima_compra_de_prueba` y se enseña en la pantalla.
+3. **Pasa primero por el diagnóstico**: sin variantes con stock ni flete no
+   crea nada. Comprar a ciegas es lo que ya se hizo tres veces.
+4. **La dirección se escribe cada vez**, no viene puesta: la de la empresa y el
+   nombre de la sociedad viven en UN solo sitio y sus candados se pusieron
+   rojos al escribirlos a mano. Los ejemplos de las casillas describen el
+   campo, nunca un dato.
+5. **ESTO NO REEMPLAZA LA PRUEBA DEL CIRCUITO DE PAGOS.** No toca Stripe.
+   Decir «el circuito funciona» porque esto salga verde es el error que la
+   regla de la casa prohíbe.
+
+Candado: `tests/unit/probar-compra.test.ts` (comprobado en rojo: número `MT-`
+y sin reparar el transporte, tres pruebas caen).
+
+### Dos lecciones del push de ese día
+
+- **Un archivo `"use server"` solo puede exportar funciones async.** Una
+  constante o un tipo exportado hace que Turbopack rechace el módulo ENTERO
+  («the module has no exports at all»). **`tsc` no lo ve; la compilación sí**,
+  y el hook de push la corre. Lo compartido va a un módulo puro.
+- **`npm run verify | grep …` devuelve el exit de `grep`, no el de `verify`.**
+  Así se dio por verde tres veces algo que la compilación rechazaba, y el hook
+  —que corre `verify` sin filtro— era el único que decía la verdad. Para
+  encadenar: `npm run verify > log; s=$?; …; exit $s`.
+
 ## LOS PUNTOS DE CJ SON EL PRESUPUESTO DEL DÍA, Y EL STOCK SE LLEVABA LA MITAD (4 sep 2026)
 
 El dueño preguntó por qué iban tan lentos los 44.850 productos en revisión.

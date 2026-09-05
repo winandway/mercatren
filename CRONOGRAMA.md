@@ -42,17 +42,25 @@ de mandar el mismo correo cada seis horas.
   «Ventas esperando» queda vacía, y en Panel → Vigilante las alertas rojas de
   compras bajan a cero. El correo deja de llegar.
 
-### 2. 🔴 👤 Comprar un producto de prueba en Estados Unidos
+### 2. 🔴 👤 Probar la compra a CJ desde el módulo nuevo (sin Stripe)
 
-Es lo único que falta para dar el circuito por probado (regla de la casa: un
-sitio con pagos no se anuncia sin probarlo de punta a punta).
+Ya no hace falta pagar con tarjeta para probar el tramo del proveedor, que es
+donde murieron las tres compras. **Panel → Equipo → Probar una compra.**
 
-- **Espera a que CJ tenga puntos otra vez** (ver el punto 3). Con el panel en
-  rojo por «sin puntos» la compra se va a negar sola, y está bien que lo haga.
-- Compra como Soporte, con tu dirección real de Michigan.
-- **Cómo saber que quedó:** en Panel → Pedidos al proveedor, la compra
-  aparece **pagada con el saldo**, y te llega el correo. Si sale con enlace de
-  tarjeta, es que faltó saldo en CJ.
+- Pega el enlace del cargador USB-C (o de cualquier producto de EE. UU.).
+- Escribe la dirección de entrega (la de la empresa en Novi sirve).
+- Pulsa **«Solo mirar»** primero: en el paso 3 lee la línea «De estos
+  almacenes» y abre «Ver lo que contestó CJ». Ahí se ve si el transporte más
+  barato sale de un almacén distinto al que tiene el producto.
+- Luego **«Comprar de verdad a CJ»**: crea el pedido, lo confirma (cambiando
+  el transporte si hace falta) y lo paga del saldo. Confirma el aviso.
+- **Cómo saber que quedó:** la pantalla dice «Comprado y pagado: PRUEBA-…»
+  y en tu panel de CJ el saldo baja (~$11 para el cargador). Si se detiene,
+  el paso en rojo dice exactamente qué contestó CJ — mándame esa captura.
+
+**Pendiente de la compra de hoy (12:35):** mándame la captura de Panel →
+Órdenes con el número MT-0000XX y su estado, para saber en cuál de los tres
+sitios se detuvo (sin pagar / pagada sin compra a CJ / por pagar).
 
 ### 3. 🔴 👤 Los puntos de API de CJ — ES EL ÚNICO FRENO QUE QUEDA
 
