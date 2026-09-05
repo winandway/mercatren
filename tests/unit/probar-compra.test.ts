@@ -45,8 +45,13 @@ describe("los almacenes que CJ nombra", () => {
 
 describe("la compra de verdad", () => {
   const fuente = readFileSync("src/lib/cj/probar-compra.ts", "utf8");
+  /* SOLO la función de la compra: si la rebanada llegara hasta el final del
+     archivo, quitar la compuerta de la compra seguiría en verde porque la
+     prueba encontraría la de «pagar la pendiente». Lo enseñó el chequeo en
+     rojo. */
   const compra = fuente.slice(
     fuente.indexOf("export async function comprarDeVerdadACj"),
+    fuente.indexOf("export async function pagarUltimaPruebaPendiente"),
   );
 
   it("solo soporte DE VERDAD, y firma quién la hizo", () => {
@@ -93,6 +98,31 @@ describe("la compra de verdad", () => {
     /* Y reconfirma después de cambiarlo, no da por bueno el cambio a secas. */
     const idx = compra.indexOf("updateLogistics");
     expect(compra.indexOf("confirmOrder", idx)).toBeGreaterThan(idx);
+  });
+
+  it("UN PEDIDO UNPAID NO SE CONFIRMA, SE PAGA", () => {
+    /* La primera compra de prueba lo enseñó: con payType 1 CJ lo crea ya en
+       UNPAID, y confirmarlo devuelve «only order in CREATED or IN_CART status
+       can be confirmed». El pago nunca se intentaba. La compuerta es la misma
+       que ya tenía confirmarYPagarEnCj en producción. */
+    expect(compra).toContain("if (hayQueConfirmar(detalle?.orderStatus)) {");
+    const compuerta = fuente.slice(fuente.indexOf("function hayQueConfirmar"));
+    expect(compuerta).toContain(
+      's === "CREATED" || s === "IN_CART" || s === ""',
+    );
+    /* Y en la rama que NO confirma, se sigue al pago en vez de parar. */
+    expect(compra).toContain("Se va directo al pago");
+  });
+
+  it("pagar la pendiente retoma la guardada y NUNCA crea otra", () => {
+    const pendiente = fuente.slice(
+      fuente.indexOf("export async function pagarUltimaPruebaPendiente"),
+    );
+    expect(pendiente).toContain("leerUltimaCompraDePrueba()");
+    expect(pendiente).toContain('ultima.estado !== "creado_sin_pagar"');
+    expect(pendiente).not.toContain("createOrderV2");
+    expect(pendiente).toContain("hayQueConfirmar(detalle?.orderStatus)");
+    expect(pendiente).toContain("/shopping/pay/payBalanceV2");
   });
 
   it("no compra a ciegas: pasa primero por el diagnóstico", () => {

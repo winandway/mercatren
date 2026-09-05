@@ -2742,7 +2742,9 @@
         "pagado": "paid",
         "creado_sin_pagar": "created but unpaid",
         "fallo": "failed"
-      }
+      },
+      "pagarPendiente": "Pay the pending test ({numero})",
+      "pagarPendienteConfirmar": "Order {numero} is still live at CJ waiting for payment. This pays it from your balance, without creating another one.\n\nPay it?"
     }
   },
   "catalogo": {

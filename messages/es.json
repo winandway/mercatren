@@ -2742,7 +2742,9 @@
         "pagado": "pagado",
         "creado_sin_pagar": "creado sin pagar",
         "fallo": "falló"
-      }
+      },
+      "pagarPendiente": "Pagar la prueba pendiente ({numero})",
+      "pagarPendienteConfirmar": "El pedido {numero} sigue vivo en CJ esperando su pago. Esto lo paga de tu saldo, sin crear otro.\n\n¿Pagarlo?"
     }
   },
   "catalogo": {

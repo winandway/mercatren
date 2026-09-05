@@ -189,6 +189,20 @@ export async function probarCompraDeCj(entrada: {
    puede chocar ni confundirse con la serie de los pedidos de clientes.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * ¿HAY QUE CONFIRMAR ESTE PEDIDO ANTES DE PAGARLO? (5 sep 2026)
+ *
+ * Lo enseñó la primera compra de prueba: con `payType: 1` CJ crea el pedido
+ * ya en UNPAID, y confirmarlo devuelve «only order in CREATED or IN_CART
+ * status can be confirmed». Un UNPAID no se confirma: se paga. Es la misma
+ * compuerta que ya tenía `confirmarYPagarEnCj` en producción y que al copiar
+ * el flujo aquí se quedó fuera.
+ */
+function hayQueConfirmar(orderStatus: string | null | undefined): boolean {
+  const s = (orderStatus ?? "").trim().toUpperCase();
+  return s === "CREATED" || s === "IN_CART" || s === "";
+}
+
 /** Con qué se guarda cada paso de la compra, para que la pantalla lo enseñe. */
 function paso(
   numero: number,
@@ -373,7 +387,9 @@ export async function comprarDeVerdadACj(entrada: {
     ),
   );
 
-  /* 5 · Confirmar, reparando el transporte si el almacén no tiene stock. */
+  /* 5 · Confirmar SOLO si hace falta, reparando el transporte si el almacén
+     no tiene stock. Con payType 1 el pedido suele nacer UNPAID: ahí no se
+     confirma, se salta al pago. */
   const leer = async () => {
     const r = await llamarCjConRitmo<{
       orderId?: string;
@@ -386,104 +402,120 @@ export async function comprarDeVerdadACj(entrada: {
     return r.ok ? r.datos : null;
   };
   let detalle = await leer();
-  let confirmacion = await llamarCjConRitmo<unknown>(
-    "/shopping/order/confirmOrder",
-    {
-      metodo: "PATCH",
-      cuerpo: { orderId: detalle?.orderId ?? numero },
-    },
-  );
   let transporteNuevo: string | null = null;
-  if (!confirmacion.ok && esFalloDeInventario(confirmacion.motivo) && detalle) {
-    /* ══ AQUÍ ES DONDE MURIERON LAS TRES COMPRAS ══ El transporte más barato
-       salía de un almacén sin el producto. Se le pregunta a CJ cuáles SÍ
-       tienen stock (`hasStock`) y se cambia. */
-    let opciones: OpcionLogisticaCj[] = [];
-    let codigo: string | null = null;
-    for (const c of candidatosDeCodigoCj(detalle, numero)) {
-      const r = await llamarCjConRitmo<
-        OpcionLogisticaCj[] | { list?: OpcionLogisticaCj[] }
-      >(
-        `/shopping/order/getOrderLogisticsInfo?orderCode=${encodeURIComponent(c)}`,
-      );
-      if (r.ok) {
-        opciones = Array.isArray(r.datos) ? r.datos : (r.datos?.list ?? []);
-        codigo = c;
-        break;
-      }
-    }
-    pasos.push(
-      paso(
-        5,
-        "Transportes con stock, según CJ",
-        opciones.length ? "ok" : "fallo",
-        opciones.length
-          ? opciones
-              .map(
-                (o) =>
-                  `${o.logisticsName ?? "?"}${o.hasStock === true || o.hasStock === "true" || o.hasStock === 1 ? " ✓ con stock" : " (sin stock)"}`,
-              )
-              .join(" · ")
-          : "CJ no devolvió la lista de transportes del pedido.",
-        opciones,
-      ),
+  if (hayQueConfirmar(detalle?.orderStatus)) {
+    let confirmacion = await llamarCjConRitmo<unknown>(
+      "/shopping/order/confirmOrder",
+      {
+        metodo: "PATCH",
+        cuerpo: { orderId: detalle?.orderId ?? numero },
+      },
     );
-    const conStock = elegirLogisticaConStock(opciones);
-    if (conStock && codigo) {
-      for (const from of [2, 1, 0]) {
-        const cambio = await llamarCjConRitmo<unknown>(
-          "/shopping/order/updateLogistics",
-          {
-            metodo: "POST",
-            cuerpo: {
-              id: conStock.id,
-              orderCode: codigo,
-              logisticsName: conStock.logisticsName,
-              from,
-            },
-          },
+    if (
+      !confirmacion.ok &&
+      esFalloDeInventario(confirmacion.motivo) &&
+      detalle
+    ) {
+      /* ══ AQUÍ ES DONDE MURIERON LAS TRES COMPRAS ══ El transporte más barato
+         salía de un almacén sin el producto. Se le pregunta a CJ cuáles SÍ
+         tienen stock (`hasStock`) y se cambia. */
+      let opciones: OpcionLogisticaCj[] = [];
+      let codigo: string | null = null;
+      for (const c of candidatosDeCodigoCj(detalle, numero)) {
+        const r = await llamarCjConRitmo<
+          OpcionLogisticaCj[] | { list?: OpcionLogisticaCj[] }
+        >(
+          `/shopping/order/getOrderLogisticsInfo?orderCode=${encodeURIComponent(c)}`,
         );
-        if (cambio.ok) {
-          transporteNuevo = conStock.logisticsName ?? null;
+        if (r.ok) {
+          opciones = Array.isArray(r.datos) ? r.datos : (r.datos?.list ?? []);
+          codigo = c;
           break;
         }
       }
-      if (transporteNuevo) {
-        confirmacion = await llamarCjConRitmo<unknown>(
-          "/shopping/order/confirmOrder",
-          {
-            metodo: "PATCH",
-            cuerpo: { orderId: detalle.orderId ?? numero },
-          },
-        );
+      pasos.push(
+        paso(
+          5,
+          "Transportes con stock, según CJ",
+          opciones.length ? "ok" : "fallo",
+          opciones.length
+            ? opciones
+                .map(
+                  (o) =>
+                    `${o.logisticsName ?? "?"}${o.hasStock === true || o.hasStock === "true" || o.hasStock === 1 ? " ✓ con stock" : " (sin stock)"}`,
+                )
+                .join(" · ")
+            : "CJ no devolvió la lista de transportes del pedido.",
+          opciones,
+        ),
+      );
+      const conStock = elegirLogisticaConStock(opciones);
+      if (conStock && codigo) {
+        for (const from of [2, 1, 0]) {
+          const cambio = await llamarCjConRitmo<unknown>(
+            "/shopping/order/updateLogistics",
+            {
+              metodo: "POST",
+              cuerpo: {
+                id: conStock.id,
+                orderCode: codigo,
+                logisticsName: conStock.logisticsName,
+                from,
+              },
+            },
+          );
+          if (cambio.ok) {
+            transporteNuevo = conStock.logisticsName ?? null;
+            break;
+          }
+        }
+        if (transporteNuevo) {
+          confirmacion = await llamarCjConRitmo<unknown>(
+            "/shopping/order/confirmOrder",
+            {
+              metodo: "PATCH",
+              cuerpo: { orderId: detalle.orderId ?? numero },
+            },
+          );
+        }
       }
     }
-  }
-  if (!confirmacion.ok) {
-    pasos.push(paso(6, "Confirmar el pedido", "fallo", confirmacion.motivo));
-    await anotar(
-      "creado_sin_pagar",
-      `Creado pero no confirmado: ${confirmacion.motivo}`,
-      idsParaPagar(detalle ?? {}),
+    if (!confirmacion.ok) {
+      pasos.push(paso(6, "Confirmar el pedido", "fallo", confirmacion.motivo));
+      await anotar(
+        "creado_sin_pagar",
+        `Creado pero no confirmado: ${confirmacion.motivo}`,
+        idsParaPagar(detalle ?? {}),
+      );
+      return {
+        ok: false,
+        mensaje: `CJ no dejó confirmar: ${confirmacion.motivo}`,
+        pasos,
+        seDetuvoEn: "confirmar",
+      };
+    }
+    pasos.push(
+      paso(
+        6,
+        "Confirmar el pedido",
+        "ok",
+        transporteNuevo
+          ? `Confirmado tras cambiar el transporte a ${transporteNuevo}.`
+          : "Confirmado con el transporte elegido.",
+        confirmacion.datos,
+      ),
     );
-    return {
-      ok: false,
-      mensaje: `CJ no dejó confirmar: ${confirmacion.motivo}`,
-      pasos,
-      seDetuvoEn: "confirmar",
-    };
+  } else {
+    pasos.push(
+      paso(
+        6,
+        "Confirmar el pedido",
+        "ok",
+        `No hace falta: CJ lo creó ya en ${detalle?.orderStatus ?? "?"}. Se va directo al pago.`,
+        detalle,
+      ),
+    );
   }
-  pasos.push(
-    paso(
-      6,
-      "Confirmar el pedido",
-      "ok",
-      transporteNuevo
-        ? `Confirmado tras cambiar el transporte a ${transporteNuevo}.`
-        : "Confirmado con el transporte elegido.",
-      confirmacion.datos,
-    ),
-  );
 
   /* 6 · Pagar con el saldo. El `shipmentOrderId` nace al confirmar: se relee. */
   detalle = (await leer()) ?? detalle;
@@ -542,6 +574,169 @@ export async function comprarDeVerdadACj(entrada: {
   return {
     ok: true,
     mensaje: `Comprado y pagado: ${numero}. Mira tu saldo en CJ: tiene que haber bajado.`,
+    pasos,
+    seDetuvoEn: null,
+  };
+}
+
+/**
+ * PAGAR LA ÚLTIMA PRUEBA QUE QUEDÓ CREADA SIN PAGAR (5 sep 2026).
+ *
+ * Cuando una compra de prueba se detiene entre crear y pagar, el pedido queda
+ * vivo en la cuenta de CJ esperando su dinero. Volver a pulsar «Comprar»
+ * crearía OTRO. Esto retoma el que está guardado en `configuracion`, lo
+ * relee, lo confirma solo si hace falta y lo paga del saldo. Nunca crea uno.
+ */
+export async function pagarUltimaPruebaPendiente(): Promise<
+  Diagnostico & { ok: boolean; mensaje: string }
+> {
+  if (!(await esSoporteDeVerdad())) {
+    return {
+      ok: false,
+      mensaje: "No tienes permiso para esto.",
+      pasos: [],
+      seDetuvoEn: "permiso",
+    };
+  }
+  const ultima = await leerUltimaCompraDePrueba();
+  const pasos: PasoDiagnostico[] = [];
+  if (!ultima || ultima.estado !== "creado_sin_pagar") {
+    return {
+      ok: false,
+      mensaje: "No hay ninguna prueba creada sin pagar.",
+      pasos,
+      seDetuvoEn: "nada",
+    };
+  }
+  const numero = ultima.numero;
+  const anotar = async (
+    estado: UltimaCompraDePrueba["estado"],
+    detalle: string,
+    ids: string[],
+  ) =>
+    guardarUltimaPrueba({ ...ultima, estado, detalle, ids, enMs: Date.now() });
+
+  const r = await llamarCjConRitmo<{
+    orderId?: string;
+    shipmentOrderId?: string;
+    cjOrderId?: string;
+    orderNum?: string;
+    orderStatus?: string;
+  }>(`/shopping/order/getOrderDetail?orderId=${encodeURIComponent(numero)}`);
+  if (!r.ok) {
+    pasos.push(paso(1, `Buscar ${numero} en CJ`, "fallo", r.motivo));
+    return {
+      ok: false,
+      mensaje: `CJ no encuentra ${numero}: ${r.motivo}`,
+      pasos,
+      seDetuvoEn: "buscar",
+    };
+  }
+  const detalle = r.datos;
+  pasos.push(
+    paso(
+      1,
+      `Buscar ${numero} en CJ`,
+      "ok",
+      `Está en ${detalle?.orderStatus ?? "?"}.`,
+      detalle,
+    ),
+  );
+
+  const lectura = leerEstadoDeCj(detalle?.orderStatus);
+  if (lectura.cancelado) {
+    await anotar(
+      "fallo",
+      `CJ lo tiene cancelado (${detalle?.orderStatus}).`,
+      idsParaPagar(detalle ?? {}),
+    );
+    return {
+      ok: false,
+      mensaje: `CJ tiene ${numero} cancelado.`,
+      pasos,
+      seDetuvoEn: "cancelado",
+    };
+  }
+  if (lectura.pagado) {
+    await anotar(
+      "pagado",
+      `Ya estaba pagado (${detalle?.orderStatus}).`,
+      idsParaPagar(detalle ?? {}),
+    );
+    return {
+      ok: true,
+      mensaje: `${numero} ya está pagado en CJ.`,
+      pasos,
+      seDetuvoEn: null,
+    };
+  }
+  if (hayQueConfirmar(detalle?.orderStatus)) {
+    const c = await llamarCjConRitmo<unknown>("/shopping/order/confirmOrder", {
+      metodo: "PATCH",
+      cuerpo: { orderId: detalle?.orderId ?? numero },
+    });
+    pasos.push(
+      paso(
+        2,
+        "Confirmar el pedido",
+        c.ok ? "ok" : "fallo",
+        c.ok ? "Confirmado." : c.motivo,
+        c.ok ? c.datos : undefined,
+      ),
+    );
+    if (!c.ok) {
+      await anotar(
+        "creado_sin_pagar",
+        `No se pudo confirmar: ${c.motivo}`,
+        idsParaPagar(detalle ?? {}),
+      );
+      return {
+        ok: false,
+        mensaje: `CJ no dejó confirmar: ${c.motivo}`,
+        pasos,
+        seDetuvoEn: "confirmar",
+      };
+    }
+  }
+  const relectura = await llamarCjConRitmo<{
+    orderId?: string;
+    shipmentOrderId?: string;
+    cjOrderId?: string;
+    orderStatus?: string;
+  }>(`/shopping/order/getOrderDetail?orderId=${encodeURIComponent(numero)}`);
+  const d2 = relectura.ok ? relectura.datos : detalle;
+  const ids = idsParaPagar(d2 ?? {});
+  const motivos: string[] = [];
+  let pago: Awaited<ReturnType<typeof llamarCjConRitmo<unknown>>> = {
+    ok: false,
+    motivo: "sin identificador",
+  };
+  for (const shipmentOrderId of ids) {
+    pago = await llamarCjConRitmo<unknown>("/shopping/pay/payBalanceV2", {
+      metodo: "POST",
+      cuerpo: { shipmentOrderId },
+    });
+    if (pago.ok) break;
+    motivos.push(`${shipmentOrderId}: ${pago.motivo}`);
+  }
+  if (!pago.ok) {
+    const motivo = motivos.join(" · ") || pago.motivo;
+    pasos.push(paso(3, "Pagar del saldo", "fallo", motivo, d2));
+    await anotar("creado_sin_pagar", `Sin pagar: ${motivo}`, ids);
+    return {
+      ok: false,
+      mensaje: `El pago del saldo no salió: ${motivo}`,
+      pasos,
+      seDetuvoEn: "pagar",
+    };
+  }
+  pasos.push(
+    paso(3, "Pagar del saldo", "ok", "Pagado del saldo de CJ.", pago.datos),
+  );
+  await anotar("pagado", "Pagado del saldo.", ids);
+  return {
+    ok: true,
+    mensaje: `${numero} pagado. Mira tu saldo en CJ: tiene que haber bajado.`,
     pasos,
     seDetuvoEn: null,
   };

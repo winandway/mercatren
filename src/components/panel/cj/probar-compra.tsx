@@ -3,6 +3,7 @@
 import {
   AlertTriangle,
   Check,
+  CreditCard,
   Loader2,
   Play,
   ShoppingCart,
@@ -15,7 +16,11 @@ import type {
   PasoDiagnostico,
   UltimaCompraDePrueba,
 } from "@/lib/cj/diagnostico-puro";
-import { comprarDeVerdadACj, probarCompraDeCj } from "@/lib/cj/probar-compra";
+import {
+  comprarDeVerdadACj,
+  pagarUltimaPruebaPendiente,
+  probarCompraDeCj,
+} from "@/lib/cj/probar-compra";
 import { cn } from "@/lib/utils";
 
 /**
@@ -97,6 +102,38 @@ export function ProbarCompra({
             · {new Date(ultima.enMs).toLocaleString()} · {ultima.quien}
           </p>
           <p className="mt-1 text-tinta-suave">{ultima.detalle}</p>
+          {/* Si quedó creada sin pagar, el pedido sigue vivo en CJ esperando
+              su dinero. Volver a «Comprar» crearía OTRO: esto retoma ese. */}
+          {ultima.estado === "creado_sin_pagar" ? (
+            <button
+              type="button"
+              disabled={corriendo}
+              onClick={() =>
+                iniciar(async () => {
+                  if (
+                    !window.confirm(
+                      t("pagarPendienteConfirmar", { numero: ultima.numero }),
+                    )
+                  )
+                    return;
+                  setPasos([]);
+                  setAviso(null);
+                  const r = await pagarUltimaPruebaPendiente();
+                  setPasos(r.pasos);
+                  setAviso(r.mensaje);
+                  setOk(r.ok);
+                })
+              }
+              className="boton-principal mt-3 gap-2"
+            >
+              {corriendo ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <CreditCard className="h-4 w-4" aria-hidden />
+              )}
+              {t("pagarPendiente", { numero: ultima.numero })}
+            </button>
+          ) : null}
         </div>
       ) : null}
 
