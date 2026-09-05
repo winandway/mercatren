@@ -85,6 +85,9 @@ export type UltimaCompraDePrueba = {
   estado: "pagado" | "creado_sin_pagar" | "fallo";
   detalle: string;
   ids: string[];
+  /** El número del ENVÍO (SD…) que pide `payBalanceV2`. Lo da CJ al crear o
+      al confirmar el carrito; si no se guarda, no se puede pagar después. */
+  shipmentOrderId?: string | null;
   enMs: number;
   quien: string;
 };
@@ -98,3 +101,26 @@ export type DireccionDePrueba = {
   codigoPostal: string;
   telefono?: string;
 };
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LA SONDA DE CJ: QUÉ RUTAS SE PUEDEN LLAMAR DESDE LA PUERTA DE PRUEBAS
+   ═══════════════════════════════════════════════════════════════════════════
+
+   `/datos/probar-compra` (5 sep 2026) deja mandarle a CJ una llamada suelta
+   —leer un pedido, ver el saldo, probar un pago— para poder depurar el
+   circuito SIN publicar una versión nueva por cada intento. Va con la llave
+   del reloj, y aun así se acota a lo que el sitio ya le pide a CJ. La
+   autenticación queda fuera a propósito: por ahí se renueva el token. */
+export const PREFIJOS_DE_SONDA = [
+  "/shopping/order/",
+  "/shopping/pay/",
+  "/product/",
+  "/logistic/",
+] as const;
+
+export function rutaDeSondaPermitida(ruta: unknown): boolean {
+  if (typeof ruta !== "string") return false;
+  const r = ruta.trim();
+  if (!r.startsWith("/") || r.includes("..") || /\s/.test(r)) return false;
+  return PREFIJOS_DE_SONDA.some((prefijo) => r.startsWith(prefijo));
+}

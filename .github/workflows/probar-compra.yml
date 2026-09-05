@@ -1,0 +1,61 @@
+name: probar-compra
+
+# LA PRUEBA DE COMPRA A CJ, DISPARADA DESDE AQUÍ (5 sep 2026). Le pide al
+# sitio —con la misma llave del reloj— que haga lo que hacen los botones de
+# Panel → Probar una compra: mirar el saldo de CJ, leer la última prueba,
+# diagnosticar un producto, COMPRARLO de verdad pagando del saldo, pagar la
+# prueba que quedó pendiente, o mandarle a CJ una llamada suelta (la sonda).
+# La respuesta entera queda en el registro de esta corrida. Solo se dispara a
+# mano: nunca por reloj, porque «comprar» gasta dinero del saldo.
+on:
+  workflow_dispatch:
+    inputs:
+      cuerpo:
+        description: 'JSON de la petición. Ej.: {"accion":"saldo"} · {"accion":"ultima"} · {"accion":"pagar"} · {"accion":"cj","ruta":"/shopping/order/getOrderDetail?orderId=PRUEBA-…"} · {"accion":"comprar","enlace":"…","direccion":{…}}'
+        required: true
+        default: '{"accion":"saldo"}'
+
+concurrency:
+  group: probar-compra
+  cancel-in-progress: false
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pedirle al sitio que pruebe
+        env:
+          LLAVE: ${{ secrets.SINCRONIZAR_LLAVE }}
+          CUERPO: ${{ inputs.cuerpo }}
+        run: |
+          if [ -z "$LLAVE" ]; then
+            echo "::error::Falta el secreto SINCRONIZAR_LLAVE en el repositorio."
+            exit 1
+          fi
+          if ! printf '%s' "$CUERPO" | jq -c . > peticion.json; then
+            echo "::error::El cuerpo no es JSON valido."
+            exit 1
+          fi
+          echo "Peticion: $(jq -c '.accion' peticion.json)"
+
+          codigo=$(curl -s -o respuesta.json -w "%{http_code}" \
+            --max-time 900 \
+            -X POST "https://mercatren.com/datos/probar-compra" \
+            -H "Authorization: Bearer $LLAVE" \
+            -H "content-type: application/json" \
+            --data @peticion.json)
+
+          echo "Respuesta HTTP: $codigo"
+          echo "===== RESPUESTA ====="
+          jq . respuesta.json 2>/dev/null || cat respuesta.json
+          echo
+          echo "===== FIN ====="
+
+          if [ "$codigo" = "503" ]; then
+            echo "::warning::Falta cargar SINCRONIZAR_LLAVE en YaDominios Cloud."
+            exit 0
+          fi
+          if [ "$codigo" != "200" ]; then
+            echo "::error::El sitio respondio $codigo."
+            exit 1
+          fi
