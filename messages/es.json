@@ -2717,6 +2717,32 @@
         "resolver": "Ya lo arreglé",
         "resolviendo": "Marcando…"
       }
+    },
+    "probarCompra": {
+      "titulo": "Probar una compra",
+      "subtitulo": "Pega el enlace de un producto y mira qué contesta CJ en cada paso: las variantes con existencia, de qué almacén salen y qué transportes hay. «Solo mirar» no cobra nada; «Comprar de verdad» crea un pedido real en CJ y lo paga de tu saldo, sin pasar por Stripe.",
+      "enlace": "Enlace del producto",
+      "enlaceAyuda": "Pega la dirección de cualquier producto del catálogo.",
+      "enlaceEjemplo": "https://mercatren.com/es/producto/…",
+      "direccionTitulo": "Dónde se entregaría",
+      "nombre": "Quien recibe",
+      "direccion": "Dirección",
+      "direccionEjemplo": "Calle y número",
+      "ciudad": "Ciudad",
+      "estado": "Estado",
+      "estadoEjemplo": "Dos letras",
+      "codigoPostal": "Código postal",
+      "telefono": "Teléfono (opcional)",
+      "soloMirar": "Solo mirar (no compra)",
+      "comprar": "Comprar de verdad a CJ (paga del saldo)",
+      "comprarConfirmar": "Esto crea un pedido REAL en CJ, lo paga de tu saldo y CJ lo va a despachar a la dirección de arriba. No pasa por Stripe.\n\n¿Comprar de verdad?",
+      "verCrudo": "Ver lo que contestó CJ, entero",
+      "ultimaTitulo": "Última compra de prueba: {numero}",
+      "estados": {
+        "pagado": "pagado",
+        "creado_sin_pagar": "creado sin pagar",
+        "fallo": "falló"
+      }
     }
   },
   "catalogo": {

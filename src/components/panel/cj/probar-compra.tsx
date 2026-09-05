@@ -8,14 +8,15 @@ import {
   ShoppingCart,
   X,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
+import type { PasoDiagnostico } from "@/lib/cj/diagnostico-puro";
 import {
   comprarDeVerdadACj,
   probarCompraDeCj,
   type UltimaCompraDePrueba,
 } from "@/lib/cj/probar-compra";
-import type { PasoDiagnostico } from "@/lib/cj/diagnostico";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,26 +29,53 @@ import { cn } from "@/lib/utils";
  * LO QUE LA HACE ÚTIL es que enseña **la respuesta cruda de CJ**, no un
  * resumen. Las tres compras murieron por un campo que el código tiraba sin
  * mirar; una pantalla que solo dijera «ok / falló» repetiría el problema.
+ *
+ * LA DIRECCIÓN SE ESCRIBE CADA VEZ, no viene puesta: la de Mercatren LLC vive
+ * en UN solo sitio (`DEVOLUCION_DIRECCION`) y el nombre de la sociedad en
+ * `sociedad.ts` — hay candados que se ponen rojos si se escriben a mano, y
+ * se pusieron. Los ejemplos de las casillas describen el campo, nunca un dato.
  */
 export function ProbarCompra({
   ultima,
 }: {
-  /** La última compra de prueba, para saber qué pasó sin abrir CJ. */
   ultima: UltimaCompraDePrueba | null;
 }) {
+  const t = useTranslations("panel.probarCompra");
   const [enlace, setEnlace] = useState("");
-  /* La dirección de Mercatren LLC en Novi, por defecto: es la del registro y
-     la de devoluciones, y es donde se puede comprobar qué llega en la caja. */
-  const [nombre, setNombre] = useState("Mercatren LLC");
-  const [direccion, setDireccion] = useState("30080 Montmorency Drive");
-  const [ciudad, setCiudad] = useState("Novi");
-  const [estado, setEstado] = useState("MI");
-  const [zip, setZip] = useState("48377");
+  const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [ciudad, setCiudad] = useState("");
+  const [estado, setEstado] = useState("");
+  const [zip, setZip] = useState("");
   const [telefono, setTelefono] = useState("");
   const [pasos, setPasos] = useState<PasoDiagnostico[]>([]);
   const [aviso, setAviso] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [corriendo, iniciar] = useTransition();
+
+  const campos = [
+    { clave: "nombre", valor: nombre, poner: setNombre, ejemplo: t("nombre") },
+    {
+      clave: "direccion",
+      valor: direccion,
+      poner: setDireccion,
+      ejemplo: t("direccionEjemplo"),
+    },
+    { clave: "ciudad", valor: ciudad, poner: setCiudad, ejemplo: t("ciudad") },
+    {
+      clave: "estado",
+      valor: estado,
+      poner: setEstado,
+      ejemplo: t("estadoEjemplo"),
+    },
+    {
+      clave: "codigoPostal",
+      valor: zip,
+      poner: setZip,
+      ejemplo: t("codigoPostal"),
+    },
+    { clave: "telefono", valor: telefono, poner: setTelefono, ejemplo: "+1 …" },
+  ] as const;
 
   return (
     <div className="space-y-4">
@@ -62,11 +90,12 @@ export function ProbarCompra({
                 : "border-amber-300 bg-amber-50",
           )}
         >
-          <p className="font-bold">Última compra de prueba: {ultima.numero}</p>
+          <p className="font-bold">
+            {t("ultimaTitulo", { numero: ultima.numero })}
+          </p>
           <p className="mt-1">
-            {ultima.producto} ·{" "}
-            <strong>{ultima.estado.replace(/_/g, " ")}</strong> ·{" "}
-            {new Date(ultima.enMs).toLocaleString()} · {ultima.quien}
+            {ultima.producto} · <strong>{t(`estados.${ultima.estado}`)}</strong>{" "}
+            · {new Date(ultima.enMs).toLocaleString()} · {ultima.quien}
           </p>
           <p className="mt-1 text-tinta-suave">{ultima.detalle}</p>
         </div>
@@ -74,40 +103,28 @@ export function ProbarCompra({
 
       <div className="rounded-xl border border-borde bg-white p-4">
         <label className="block text-sm font-semibold" htmlFor="enlace">
-          Enlace del producto
+          {t("enlace")}
         </label>
-        <p className="mt-1 text-xs text-tinta-suave">
-          Pega la dirección de cualquier producto del catálogo. No cobra nada,
-          no crea ninguna venta: le pregunta a CJ y te enseña lo que contesta.
-        </p>
+        <p className="mt-1 text-xs text-tinta-suave">{t("enlaceAyuda")}</p>
         <input
           id="enlace"
           type="text"
           value={enlace}
           onChange={(e) => setEnlace(e.target.value)}
-          placeholder="https://mercatren.com/es/producto/…"
+          placeholder={t("enlaceEjemplo")}
           className="mt-2 h-11 w-full rounded-lg border border-borde px-3 text-sm"
         />
 
-        <p className="mt-4 text-sm font-semibold">Dónde se entregaría</p>
+        <p className="mt-4 text-sm font-semibold">{t("direccionTitulo")}</p>
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
-          {(
-            [
-              ["Quien recibe", nombre, setNombre, "Nombre"],
-              ["Dirección", direccion, setDireccion, "Calle y número"],
-              ["Ciudad", ciudad, setCiudad, "Ciudad"],
-              ["Estado", estado, setEstado, "MI"],
-              ["Código postal", zip, setZip, "48377"],
-              ["Teléfono (opcional)", telefono, setTelefono, "+1 …"],
-            ] as const
-          ).map(([etiqueta, valor, poner, ejemplo]) => (
-            <label key={etiqueta} className="block text-xs font-semibold">
-              {etiqueta}
+          {campos.map((c) => (
+            <label key={c.clave} className="block text-xs font-semibold">
+              {t(c.clave)}
               <input
                 type="text"
-                value={valor}
-                onChange={(e) => poner(e.target.value)}
-                placeholder={ejemplo}
+                value={c.valor}
+                onChange={(e) => c.poner(e.target.value)}
+                placeholder={c.ejemplo}
                 className="mt-1 h-10 w-full rounded-lg border border-borde px-3 text-sm font-normal"
               />
             </label>
@@ -139,7 +156,7 @@ export function ProbarCompra({
             ) : (
               <Play className="h-4 w-4" aria-hidden />
             )}
-            Solo mirar (no compra)
+            {t("soloMirar")}
           </button>
 
           {/* EL BOTÓN QUE PIDIÓ EL DUEÑO: compra de verdad, del saldo de CJ,
@@ -150,12 +167,7 @@ export function ProbarCompra({
             disabled={corriendo || !enlace.trim()}
             onClick={() =>
               iniciar(async () => {
-                if (
-                  !window.confirm(
-                    "Esto crea un pedido REAL en CJ, lo paga de tu saldo y CJ lo va a despachar a la dirección de arriba. No pasa por Stripe.\n\n¿Comprar de verdad?",
-                  )
-                )
-                  return;
+                if (!window.confirm(t("comprarConfirmar"))) return;
                 setPasos([]);
                 setAviso(null);
                 const r = await comprarDeVerdadACj({
@@ -181,7 +193,7 @@ export function ProbarCompra({
             ) : (
               <ShoppingCart className="h-4 w-4" aria-hidden />
             )}
-            Comprar de verdad a CJ (paga del saldo)
+            {t("comprar")}
           </button>
         </div>
       </div>
@@ -230,7 +242,7 @@ export function ProbarCompra({
           {p.crudo !== undefined ? (
             <details className="mt-2">
               <summary className="cursor-pointer text-xs font-semibold text-carga-600">
-                Ver lo que contestó CJ, entero
+                {t("verCrudo")}
               </summary>
               <pre className="mt-2 max-h-96 overflow-auto rounded-lg bg-slate-900 p-3 text-xs text-slate-100">
                 {JSON.stringify(p.crudo, null, 2)}

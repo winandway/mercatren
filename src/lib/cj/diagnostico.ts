@@ -37,26 +37,9 @@ import { llamarCjConRitmo } from "@/lib/cj/ritmo";
  * que la regla de la casa prohíbe.
  */
 
-/** Un paso del diagnóstico, con lo que CJ contestó de verdad. */
-export type PasoDiagnostico = {
-  numero: number;
-  titulo: string;
-  estado: "ok" | "aviso" | "fallo";
-  /** Una línea en palabras normales: es lo que se lee primero. */
-  resumen: string;
-  /** La respuesta de CJ tal cual, para poder mirar los campos que no leemos. */
-  crudo?: unknown;
-};
+export type { Diagnostico, PasoDiagnostico } from "@/lib/cj/diagnostico-puro";
+import type { PasoDiagnostico } from "@/lib/cj/diagnostico-puro";
 
-export type Diagnostico = {
-  pasos: PasoDiagnostico[];
-  /** Dónde se detuvo, si se detuvo. */
-  seDetuvoEn: string | null;
-};
-
-/* Las dos funciones puras viven en `diagnostico-puro.ts` para poder probarse
-   sin `server-only`, que revienta bajo vitest. Se reexportan aquí para que
-   quien ya las importaba de este archivo no tenga que cambiar nada. */
 export { almacenesNombrados, slugDeLaUrl } from "@/lib/cj/diagnostico-puro";
 import { almacenesNombrados } from "@/lib/cj/diagnostico-puro";
 

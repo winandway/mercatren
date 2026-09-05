@@ -2717,6 +2717,32 @@
         "resolver": "Fixed it",
         "resolviendo": "Marking…"
       }
+    },
+    "probarCompra": {
+      "titulo": "Test a purchase",
+      "subtitulo": "Paste a product link and see what CJ answers at each step: variants in stock, which warehouse they ship from, and the carriers available. \"Just look\" charges nothing; \"Buy for real\" creates a real CJ order and pays it from your balance, without going through Stripe.",
+      "enlace": "Product link",
+      "enlaceAyuda": "Paste the address of any product in the catalog.",
+      "enlaceEjemplo": "https://mercatren.com/en/producto/…",
+      "direccionTitulo": "Where it would ship to",
+      "nombre": "Recipient",
+      "direccion": "Address",
+      "direccionEjemplo": "Street and number",
+      "ciudad": "City",
+      "estado": "State",
+      "estadoEjemplo": "Two letters",
+      "codigoPostal": "ZIP code",
+      "telefono": "Phone (optional)",
+      "soloMirar": "Just look (no purchase)",
+      "comprar": "Buy for real from CJ (pays from balance)",
+      "comprarConfirmar": "This creates a REAL order at CJ, pays it from your balance, and CJ will ship it to the address above. It does not go through Stripe.\n\nBuy for real?",
+      "verCrudo": "See CJ's full response",
+      "ultimaTitulo": "Last test purchase: {numero}",
+      "estados": {
+        "pagado": "paid",
+        "creado_sin_pagar": "created but unpaid",
+        "fallo": "failed"
+      }
     }
   },
   "catalogo": {

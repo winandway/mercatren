@@ -6,6 +6,27 @@
  * diagnóstico —lo que le habla a CJ— sigue en `diagnostico.ts`.
  */
 
+/** Un paso del diagnóstico, con lo que CJ contestó de verdad. */
+export type PasoDiagnostico = {
+  numero: number;
+  titulo: string;
+  estado: "ok" | "aviso" | "fallo";
+  /** Una línea en palabras normales: es lo que se lee primero. */
+  resumen: string;
+  /** La respuesta de CJ tal cual, para poder mirar los campos que no leemos. */
+  crudo?: unknown;
+};
+
+export type Diagnostico = {
+  pasos: PasoDiagnostico[];
+  /** Dónde se detuvo, si se detuvo. */
+  seDetuvoEn: string | null;
+};
+
+/* Las dos funciones puras viven en `diagnostico-puro.ts` para poder probarse
+   sin `server-only`, que revienta bajo vitest. Se reexportan aquí para que
+   quien ya las importaba de este archivo no tenga que cambiar nada. */
+
 /** Saca el slug de una dirección de producto o de un slug pelado. */
 export function slugDeLaUrl(entrada: string): string | null {
   const texto = entrada.trim();
