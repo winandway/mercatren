@@ -30,10 +30,10 @@ import { cn } from "@/lib/utils";
  * resumen. Las tres compras murieron por un campo que el código tiraba sin
  * mirar; una pantalla que solo dijera «ok / falló» repetiría el problema.
  *
- * LA DIRECCIÓN SE ESCRIBE CADA VEZ, no viene puesta: la de Mercatren LLC vive
- * en UN solo sitio (`DEVOLUCION_DIRECCION`) y el nombre de la sociedad en
- * `sociedad.ts` — hay candados que se ponen rojos si se escriben a mano, y
- * se pusieron. Los ejemplos de las casillas describen el campo, nunca un dato.
+ * LA DIRECCIÓN SE ESCRIBE CADA VEZ, no viene puesta: la dirección de la
+ * empresa y el nombre de la sociedad viven cada uno en UN solo sitio del
+ * código, y hay candados que se ponen rojos si se escriben a mano — se
+ * pusieron. Los ejemplos de las casillas describen el campo, nunca un dato.
  */
 export function ProbarCompra({
   ultima,
