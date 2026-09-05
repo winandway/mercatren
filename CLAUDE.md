@@ -1560,7 +1560,36 @@ documentación: `listV2` **no devuelve variantes** (solo `enable_description`,
 **un solo identificador**, nunca una lista. Así que las dos llamadas por
 producto son el piso.
 
-### Lo que sí estaba mal: el refresco de stock
+### El SEGUNDO desperdicio: preguntar si CJ está vivo costaba 50 puntos (5 sep)
+
+`saludDelProveedor()` usaba **`/product/list`, que cuesta 50 puntos** — dos
+productos y medio afinados— solo para saber si CJ responde. Y la llamaban el
+vigilante cada 20 minutos (3.600 puntos al día) **y CADA visita a
+`/datos/salud`, que es una página pública**. Midiendo el catálogo el 4 de
+septiembre yo mismo la consulté unas sesenta veces: **tres mil puntos del
+dueño gastados en preguntar en vez de publicar**.
+
+**Ahora no se le pregunta nada a CJ.** El sistema le habla todo el día —el
+afinado, el stock, una compra—: `llamarCj` anota si contestó
+(`configuracion.cj_ultima_llamada`) y la sonda LEE ese apunte. Cero puntos, y
+es un dato **más honesto**: dice cómo le fue a una llamada del trabajo real y
+no a una de prueba.
+
+- **Un apunte de más de 30 minutos NO se hace pasar por «ok»**: la sonda
+  contesta `sin_datos`. Decir «ok» con un dato viejo manda a no mirar justo
+  cuando CJ se acaba de caer.
+- **Anotar nunca puede tumbar una llamada**: va en su propio try.
+- Candado: `tests/unit/sonda-cj-sin-costo.test.ts`, comprobado en rojo
+  devolviendo la llamada dentro de la sonda.
+
+**Y EL PANEL DEJÓ DE PROMETER «3.840 PRODUCTOS POR DÍA».** Ese número era
+`40 por vuelta × 96 vueltas` de NUESTRO reloj, que va sobrado; el techo lo
+pone CJ. Sale de `productosPorDia()`: 50.000 puntos entre los 20 que cuesta
+afinar uno = **2.500 al día**, más 5 por cada dólar comprado. Prometer 3.840
+es lo que hizo que el dueño mirara el conteo cuatro días seguidos creyendo
+que algo estaba roto.
+
+### El primer desperdicio: el refresco de stock
 
 Usa **la misma llamada de 10 puntos** y corría **2 por latido**, con el sitio
 latiendo cada minuto: ~3.100 llamadas al día, **31.000 puntos — la mitad del
