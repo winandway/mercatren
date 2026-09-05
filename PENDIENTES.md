@@ -67,6 +67,24 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 💻 **Cláusula en los términos: el margen puede subir**, con aviso
       previo (`PLAN-COMISION.md`).
 
+### 5 sep 2026 · el tramo de CJ, sin pasar por Stripe
+
+- 💻 **HECHO · Panel → Equipo → Probar una compra.** Se pega el enlace de un
+  producto y se ve, paso a paso y con la respuesta cruda de CJ, las variantes
+  con stock, de qué almacén salen y qué transportes hay. Botón «Comprar de
+  verdad a CJ» que crea, confirma —cambiando el transporte si el almacén no
+  tiene stock— y paga del saldo. No toca Stripe ni las tablas de ventas.
+- 🔴 👤 **SIN PROBAR hasta que se pulse:** una compra `PRUEBA-…` tiene que
+  salir «pagado» y el saldo de CJ bajar. Es la pieza que las tres compras
+  fallidas nunca llegaron a ejercitar (el arreglo del transporte es del 2 sep;
+  MT-000011 falló el 31 ago).
+- 💻 **HECHO · los puntos de CJ ya no se desperdician:** el refresco de stock
+  cede mientras haya cola (~31.000 puntos/día) y la sonda de salud dejó de
+  gastar 50 puntos por visita a `/datos/salud`. El presupuesto del día se ve
+  en `puntosDeCj` del canario.
+- 🟠 👤 **La compra de las 12:35:** falta la captura de Panel → Órdenes con el
+  número y el estado, para saber dónde se detuvo.
+
 ## Los cuatro datos que faltan para cerrar las respuestas al contador
 
 - 🔴 👤 **MT-000011 (camiseta, cliente real ya cobrado $7.95):** la talla no
