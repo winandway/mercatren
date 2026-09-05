@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  FlaskConical,
   Activity,
   Clapperboard,
   ArrowUpRight,
@@ -195,6 +196,15 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/vigilante",
         clave: "vigilante",
         Icono: ShieldCheck,
+        soloInterno: true,
+      },
+      /* PROBAR UNA COMPRA sin pasar por la tarjeta (5 sep 2026): tres compras
+         de prueba costaron tres cobros reales en Stripe para descubrir que el
+         circuito moría del lado del proveedor. */
+      {
+        href: "/panel/probar-compra",
+        clave: "probarCompra",
+        Icono: FlaskConical,
         soloInterno: true,
       },
       /* LOS CANALES DE VIDEO DE MERCATREN («Tu Próximo Producto Ganador» y
