@@ -1534,6 +1534,65 @@ Cuatro cosas que no se tocan:
 Candado: `tests/unit/cerrar-prueba.test.ts`, comprobado en rojo (dejando cerrar
 una compra pagada, y dejando el botón en un solo caso).
 
+## LOS PUNTOS DE CJ SON EL PRESUPUESTO DEL DÍA, Y EL STOCK SE LLEVABA LA MITAD (4 sep 2026)
+
+El dueño preguntó por qué iban tan lentos los 44.850 productos en revisión.
+La respuesta estaba en la documentación de CJ, no en nuestro código.
+
+**CJ no cobra por llamada: cobra por PUNTOS**, y los publica por endpoint:
+
+| Endpoint                        | Puntos |
+| ------------------------------- | ------ |
+| `/product/variant/query`        | 10     |
+| `/logistic/freightCalculate`    | 10     |
+| `/product/listV2`               | 50     |
+| `/product/query`                | 10     |
+| `/product/queryProductsByImage` | 1000   |
+
+**Y el presupuesto del día es `50.000 + 100 × dólares comprados`**, tomando el
+MAYOR de los últimos tres meses. Con los ~$135 cargados eso da ~63.500 puntos,
+y el 4 de septiembre el afinado hizo **3.178 productos × 20 puntos = 63.560**.
+La fórmula cuadra con lo medido, no es teoría.
+
+**AFINAR UN PRODUCTO CUESTA 20 PUNTOS Y NO SE PUEDE BAJAR.** Comprobado en su
+documentación: `listV2` **no devuelve variantes** (solo `enable_description`,
+`enable_category`, `enable_combine`, `enable_video`) y `variant/query` acepta
+**un solo identificador**, nunca una lista. Así que las dos llamadas por
+producto son el piso.
+
+### Lo que sí estaba mal: el refresco de stock
+
+Usa **la misma llamada de 10 puntos** y corría **2 por latido**, con el sitio
+latiendo cada minuto: ~3.100 llamadas al día, **31.000 puntos — la mitad del
+presupuesto**. Y no publica ni un producto: solo actualiza el stock de los que
+YA están a la venta.
+
+`src/lib/cj/reparto-de-puntos.ts` (puro, 6 pruebas): con más de 500 esperando,
+el stock pasa a **uno cada quince minutos** (~960 puntos al día en vez de
+31.000) y el afinado se queda con lo demás. Sin cola, vuelve a su ritmo.
+
+Tres cosas que no se tocan:
+
+1. **NO SE APAGA, se espacia.** Un producto publicado cuyo stock no se mira
+   jamás se queda diciendo «quedan 5» para siempre. El checkout lo atrapa
+   antes de cobrar, pero la ficha estaría mintiendo.
+2. **Se puede bajar porque la venta NO depende de ese dato:** el checkout le
+   pregunta a CJ el stock antes de cobrar y sin respuesta no cobra (3 sep). Y
+   el afinado refresca el stock de cada producto que toca, así que los de la
+   cola llegan con el del día.
+3. **El afinado gasta PRIMERO.** Si el stock corriera antes en el latido se
+   llevaría los puntos que hacen falta para publicar; hay una prueba que
+   compara el orden dentro de `tick.ts`.
+
+**El candado mira que el reloj USE la regla**, no solo que la importe:
+importarla y seguir llamando `refrescarExistenciasCj(2)` dejaba el gasto igual
+y la prueba en verde. Se exige que el número que se le pasa sea el que la
+regla decidió. Comprobado en rojo.
+
+**Y LA PALANCA QUE QUEDA ES DE NEGOCIO, NO DE CÓDIGO:** cada dólar comprado en
+CJ son 100 puntos al día = **5 productos más publicados por día**, durante
+tres meses. $500 duplican la velocidad.
+
 ## EL AFINADO CORRE SOLO, Y «SIN PUNTOS» NO ES UNA AVERÍA (4 sep 2026)
 
 El dueño pidió apagar su computadora e irse a dormir con el catálogo

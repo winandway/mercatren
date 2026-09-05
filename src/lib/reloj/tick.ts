@@ -163,6 +163,10 @@ export async function correrTick(
     await anotar("reloj/importacion", fallo);
   }
 
+  /* Cuántos esperan su envío real. Lo llena el afinado; si no llegó a correr
+     se queda en null y el stock se comporta como siempre. */
+  let colaPorAfinar: number | null = null;
+
   /* 2. El afinado: flete real, tallas y stock de lo que está en revisión. */
   try {
     if (queda() > 6_000) {
@@ -182,6 +186,9 @@ export async function correrTick(
           `afinado: ${r.afinados} ok, ${r.agotados} agotados, ${r.fallidos} fallidos, quedan ${r.restantes}`,
         );
       }
+      /* Lo que queda por afinar decide si el stock puede gastar puntos de CJ
+         en este latido: los dos usan la misma llamada de 10 puntos. */
+      colaPorAfinar = r.restantes ?? colaPorAfinar;
     }
   } catch (fallo) {
     console.error("[tick] el afinado falló:", fallo);
@@ -224,12 +231,23 @@ export async function correrTick(
     await anotar("reloj/fotos", fallo);
   }
 
-  /* 5. El stock de CJ, un par por latido. */
+  /* 5. El stock de CJ — Y CEDE SUS PUNTOS MIENTRAS HAYA COLA (4 sep 2026).
+     Refrescar el stock usa la MISMA llamada de 10 puntos que el afinado, y a
+     2 por latido se llevaba la mitad del presupuesto diario de CJ sin
+     publicar ni un producto. Ver `reparto-de-puntos.ts`. */
   try {
     if (queda() > 4_000) {
-      const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
-      const r = await refrescarExistenciasCj(2);
-      if (r.mirados > 0) hizo.push(`stock: ${r.mirados} mirados`);
+      const { cuantosDeStock } = await import("@/lib/cj/reparto-de-puntos");
+      const ahora = new Date();
+      const cuantos = cuantosDeStock(
+        colaPorAfinar ?? 0,
+        ahora.getUTCHours() * 60 + ahora.getUTCMinutes(),
+      );
+      if (cuantos > 0) {
+        const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
+        const r = await refrescarExistenciasCj(cuantos);
+        if (r.mirados > 0) hizo.push(`stock: ${r.mirados} mirados`);
+      }
     }
   } catch (fallo) {
     console.error("[tick] el stock falló:", fallo);
