@@ -47,6 +47,11 @@ de mandar el mismo correo cada seis horas.
 Ya no hace falta pagar con tarjeta para probar el tramo del proveedor, que es
 donde murieron las tres compras. **Panel → Equipo → Probar una compra.**
 
+- **PRIMERO:** arriba de la pantalla sale «Última compra de prueba:
+  PRUEBA-20260905184139 · creado sin pagar». Pulsa **«Pagar la prueba
+  pendiente»**: ese pedido ya existe en CJ esperando sus $11,40. Si dice
+  «pagado» y tu saldo baja a ~$138,60, **el tramo de CJ quedó probado**.
+- Después, si quieres una segunda prueba:
 - Pega el enlace del cargador USB-C (o de cualquier producto de EE. UU.).
 - Escribe la dirección de entrega (la de la empresa en Novi sirve).
 - Pulsa **«Solo mirar»** primero: en el paso 3 lee la línea «De estos

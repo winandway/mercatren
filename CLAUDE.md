@@ -1589,6 +1589,28 @@ Cinco cosas que no se tocan:
 Candado: `tests/unit/probar-compra.test.ts` (comprobado en rojo: número `MT-`
 y sin reparar el transporte, tres pruebas caen).
 
+### La primera compra de prueba lo enseñó: un UNPAID no se confirma, se paga
+
+`PRUEBA-20260905184139` ($11,40) salió bien hasta crear el pedido, y CJ lo
+dejó **directamente en UNPAID** —así nace con `payType: 1`—. El módulo
+intentó confirmarlo y CJ contestó lo correcto: *«only order in CREATED or
+IN_CART status can be confirmed»*. El pago nunca se intentó; el saldo siguió
+en $150 y el pedido quedó vivo en CJ esperando su dinero.
+
+**El error era mío y de ese día**: `confirmarYPagarEnCj` (producción) ya
+tenía la compuerta —confirma solo CREATED/IN_CART/vacío, si no salta al pago—
+y al copiar el flujo al módulo se quedó fuera. Ahora `hayQueConfirmar()`
+decide, y UNPAID va directo a `payBalanceV2`.
+
+- **«Pagar la prueba pendiente»** (`pagarUltimaPruebaPendiente`): retoma la
+  guardada en `configuracion`, la relee, confirma solo si toca y la paga.
+  **Nunca crea otra** — volver a «Comprar» dejaría pedidos huérfanos en CJ.
+- **El chequeo en rojo destapó un candado flojo**: la rebanada de la prueba
+  llegaba hasta el final del archivo, así que al quitar la compuerta de la
+  compra seguía en verde porque encontraba la de «pagar la pendiente». Una
+  prueba de forma se acota **a la función que protege**, nunca «desde aquí
+  hasta el final».
+
 ### Dos lecciones del push de ese día
 
 - **Un archivo `"use server"` solo puede exportar funciones async.** Una
