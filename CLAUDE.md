@@ -1712,6 +1712,13 @@ MAYOR de los últimos tres meses. Con los ~$135 cargados eso da ~63.500 puntos,
 y el 4 de septiembre el afinado hizo **3.178 productos × 20 puntos = 63.560**.
 La fórmula cuadra con lo medido, no es teoría.
 
+**MEDIDO EL 5 SEP 2026, al agotarse (17:36):** `usados: 93.990 · quedan: 0`
+— **~94.000 puntos el día**, no 63.500. Con 20 por producto son **~4.700
+productos afinados al día**. Despejando la fórmula, CJ contó ~$440 de
+«transaction amount» con solo $150 recargados y $22,80 gastados: cuenta más
+que la recarga (qué exactamente, no lo dice). El número que manda es el
+medido, que el canario deja en `puntosDeCj` cada vez que se agotan.
+
 **AFINAR UN PRODUCTO CUESTA 20 PUNTOS Y NO SE PUEDE BAJAR.** Comprobado en su
 documentación: `listV2` **no devuelve variantes** (solo `enable_description`,
 `enable_category`, `enable_combine`, `enable_video`) y `variant/query` acepta

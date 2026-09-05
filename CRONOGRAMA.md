@@ -70,11 +70,13 @@ el circuito automático.
 
 - **50.000 puntos al día** para todo el mundo, gratis.
 - **+100 puntos por cada dólar** que le compremos, tomando el mes de mayor
-  compra de los últimos tres. Con los ~$135 cargados: **~63.500 al día**.
+  compra de los últimos tres. **Medido el 5 sep al agotarse: 93.990 puntos**
+  (CJ contó ~$440 de «transacciones» con $150 recargados: cuenta más que la
+  recarga; el número que vale es el medido).
 - Afinar un producto cuesta **20 puntos** (las tallas, 10; el envío, 10).
 
-**63.500 ÷ 20 = 3.175 productos al día.** Medido el 4 sep: **3.178**. La
-fórmula es exacta.
+**~94.000 ÷ 20 = ~4.700 productos al día.** (El 4 sep, con 63.500 puntos,
+salieron 3.178: la fórmula de 20 por producto es exacta.)
 
 **Y no se puede bajar de 20 puntos.** Comprobado en su documentación: el
 listado no devuelve las tallas, y no se pueden pedir varios productos en una
@@ -91,8 +93,8 @@ ni un producto. Ahora cede mientras haya cola: **de 3.100 llamadas al día a
 
 | Si compras | Puntos al día | Productos al día | Los 44.850 salen en |
 | ---------- | ------------- | ---------------- | ------------------- |
-| nada más   | ~63.500       | ~4.700           | **10 días**         |
-| $500       | ~113.500      | ~7.200           | **6 días**          |
+| nada más   | ~94.000       | ~4.700           | **~10 días**        |
+| $500       | ~144.000      | ~7.200           | **~6 días**         |
 | $1.000     | ~163.500      | ~9.700           | **4,5 días**        |
 
 Y ese dinero **no se pierde**: es saldo para pagar las compras de los
