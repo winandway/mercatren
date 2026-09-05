@@ -2,7 +2,7 @@ import "server-only";
 
 import { desc, inArray } from "drizzle-orm";
 
-import { getDb } from "@/lib/db";
+import { getDb, schema } from "@/lib/db";
 import { configuracion, latidosVigilante } from "@/lib/db/schema";
 import { LLAVE_ULTIMO_TICK } from "@/lib/reloj/tick";
 import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
@@ -447,6 +447,59 @@ export async function lecturaDeCuentas(): Promise<Record<string, string>> {
   }
 }
 
+/** La cuenta fija con la que el canario prueba las sesiones. Sin contraseña,
+    sin cuenta de acceso, rol cliente: no sirve para entrar a nada. */
+const USUARIO_DIAGNOSTICO = "diagnostico-salud";
+const CORREO_DIAGNOSTICO = "diagnostico@mercatren.com";
+
+/** La cookie de sesión firmada como la firma better-call: `valor.HMAC-SHA256`
+    en base64, y todo pasado por encodeURIComponent. */
+async function firmarCookie(valor: string, secreto: string): Promise<string> {
+  const llave = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secreto),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const firma = await crypto.subtle.sign(
+    "HMAC",
+    llave,
+    new TextEncoder().encode(valor),
+  );
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(firma)));
+  return encodeURIComponent(`${valor}.${base64}`);
+}
+
+/**
+ * BORRAR LAS CUENTAS BASURA QUE DEJÓ LA SONDA VIEJA (5 sep 2026).
+ *
+ * `diagnostico+xxxxxxxx@mercatren.com`, «Soporte Diagnóstico», una por cada
+ * visita a /datos/salud desde el 3 de septiembre. Nunca compraron, nunca
+ * entraron: se borran con sus sesiones y sus cuentas de acceso, de a 50 por
+ * visita para no pasarse del tope de parámetros de la base. Devuelve cuántas.
+ */
+async function limpiarCuentasDeDiagnostico(): Promise<number> {
+  const { and, eq, inArray, like } = await import("drizzle-orm");
+  const db = getDb();
+  const basura = await db
+    .select({ id: schema.user.id })
+    .from(schema.user)
+    .where(
+      and(
+        like(schema.user.email, "diagnostico+%@mercatren.com"),
+        eq(schema.user.name, "Soporte Diagnóstico"),
+      ),
+    )
+    .limit(50);
+  const ids = basura.map((u) => u.id);
+  if (ids.length === 0) return 0;
+  await db.delete(schema.session).where(inArray(schema.session.userId, ids));
+  await db.delete(schema.account).where(inArray(schema.account.userId, ids));
+  await db.delete(schema.user).where(inArray(schema.user.id, ids));
+  return ids.length;
+}
+
 /**
  * LA PRUEBA DEFINITIVA: LEER UNA SESIÓN DENTRO DEL PROPIO SERVIDOR (3 sep 2026)
  *
@@ -473,28 +526,62 @@ export async function pruebaDeLectura(): Promise<Record<string, string>> {
     const { getAuth } = await import("@/lib/auth");
     const auth = await getAuth();
 
-    /* ══ EL CICLO COMPLETO, DENTRO DEL SERVIDOR (3 sep 2026) ══
-       Se abre una cuenta efímera, se toma la cookie que el propio sistema
-       de cuentas emite —firmada como la de cualquiera— y se le pide leerla
-       en el acto. Si esto falla, el fallo está en el sistema de cuentas y
-       no en el navegador ni en el camino. */
+    /* ══ EL CICLO COMPLETO, DENTRO DEL SERVIDOR — SIN CREAR CUENTAS (5 sep 2026) ══
+       Se crea una sesión efímera para la cuenta fija de diagnóstico, se firma
+       la cookie EXACTAMENTE como la firma el sistema de cuentas (HMAC-SHA256
+       con su secreto, como hace better-call) y se le pide leerla en el acto.
+       Si esto falla, el fallo está en el sistema de cuentas y no en el
+       navegador ni en el camino.
+
+       La versión del 3 de septiembre hacía esto dando de alta una cuenta: creaba UNA
+       CUENTA NUEVA en cada visita a /datos/salud —que es pública y la toca el
+       vigilante cada 20 minutos—, y cada cuenta disparaba la bienvenida y el
+       aviso «Cuenta nueva: Soporte Diagnóstico» al buzón del equipo. Cientos
+       de correos y de cuentas basura en dos días. Ahora la cuenta es UNA,
+       insertada directo en la tabla (sin pasar por los hooks que mandan
+       correo), sin contraseña ni forma de entrar con ella, y la sesión de
+       prueba se borra al terminar. */
     let ciclo = "no probado";
+    let limpiadas = 0;
     try {
-      const correo = `diagnostico+${crypto.randomUUID().slice(0, 8)}@mercatren.com`;
-      const respuesta = (await auth.api.signUpEmail({
-        body: {
+      const { eq } = await import("drizzle-orm");
+      const db = getDb();
+      await db
+        .insert(schema.user)
+        .values({
+          id: USUARIO_DIAGNOSTICO,
           name: "Soporte Diagnóstico",
-          email: correo,
-          password: `diagnostico ${crypto.randomUUID()}`,
-        },
-        asResponse: true,
-      })) as Response;
-      const galleta = respuesta.headers.get("set-cookie") ?? "";
-      const soloPar = galleta.split(";")[0] ?? "";
-      const leida = await auth.api.getSession({
-        headers: new Headers({ cookie: soloPar }),
+          email: CORREO_DIAGNOSTICO,
+          emailVerified: false,
+          rol: "cliente",
+        })
+        .onConflictDoNothing();
+
+      const contexto = await auth.$context;
+      const token = crypto.randomUUID().replace(/-/g, "");
+      const idSesion = `diagnostico-${crypto.randomUUID()}`;
+      await db.insert(schema.session).values({
+        id: idSesion,
+        token,
+        userId: USUARIO_DIAGNOSTICO,
+        expiresAt: new Date(Date.now() + 2 * 60 * 1000),
+        ipAddress: "",
+        userAgent: "canario",
       });
-      ciclo = leida?.session ? "ok" : `null (cookie de ${soloPar.length} car.)`;
+      try {
+        const nombre = contexto.authCookies.sessionToken.name;
+        const firmada = await firmarCookie(token, contexto.secret);
+        const leida = await auth.api.getSession({
+          headers: new Headers({ cookie: `${nombre}=${firmada}` }),
+        });
+        ciclo = leida?.session ? "ok" : `null (cookie ${nombre})`;
+      } finally {
+        await db
+          .delete(schema.session)
+          .where(eq(schema.session.id, idSesion))
+          .catch(() => undefined);
+      }
+      limpiadas = await limpiarCuentasDeDiagnostico();
     } catch (fallo) {
       ciclo =
         fallo instanceof Error
@@ -515,6 +602,7 @@ export async function pruebaDeLectura(): Promise<Record<string, string>> {
     };
     return {
       ciclo,
+      limpiadas: String(limpiadas),
       conPrefijo: await intentar("__Secure-mercatren.session_token"),
       sinPrefijo: await intentar("mercatren.session_token"),
     };

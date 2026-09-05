@@ -19,9 +19,29 @@ describe("el canario diagnostica las sesiones", () => {
     expect(salud).toContain("cookies: {");
   });
 
-  it("prueba el ciclo completo dentro del servidor", () => {
-    expect(piezas).toContain("auth.api.signUpEmail");
+  it("prueba el ciclo completo dentro del servidor SIN crear cuentas", () => {
+    /* La versión del 3 sep hacía el ciclo con `signUpEmail`: una cuenta nueva
+       por cada visita a /datos/salud —pública, y el vigilante la toca cada 20
+       minutos—, y cada una disparaba la bienvenida y el aviso «Cuenta nueva:
+       Soporte Diagnóstico» al buzón del equipo. Ahora la cuenta es UNA fija,
+       insertada directo (sin los hooks que mandan correo), la sesión se firma
+       como la firma better-call y se borra al terminar. */
+    expect(piezas).not.toContain("signUpEmail");
+    expect(piezas).not.toContain("signInEmail");
+    expect(piezas).toContain("insert(schema.user)");
+    expect(piezas).toContain(".onConflictDoNothing()");
+    expect(piezas).toContain("insert(schema.session)");
+    expect(piezas).toContain("await firmarCookie(token, contexto.secret)");
     expect(piezas).toContain("auth.api.getSession");
+    expect(piezas).toContain("delete(schema.session)");
+  });
+
+  it("y barre las cuentas basura que dejó la sonda vieja", () => {
+    expect(piezas).toContain("await limpiarCuentasDeDiagnostico()");
+    expect(piezas).toContain(
+      'like(schema.user.email, "diagnostico+%@mercatren.com")',
+    );
+    expect(piezas).toContain("delete(schema.user)");
   });
 
   it("compara la clave que de verdad usa el sistema de cuentas", () => {
