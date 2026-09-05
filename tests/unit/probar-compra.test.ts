@@ -100,14 +100,23 @@ describe("la compra de verdad", () => {
     expect(compra).toContain("if (!previo.ok)");
   });
 
-  it("la pantalla pide confirmación diciendo que es dinero real", () => {
+  it("la pantalla pide confirmación diciendo que es dinero real, en los dos idiomas", () => {
+    /* El texto vive en los diccionarios (panel bilingüe), así que se mira
+       cada mitad donde está: el confirm en la pantalla, y que el texto diga
+       «pedido REAL» y «saldo» en es, «REAL order» y «balance» en en. */
     const pantalla = readFileSync(
       "src/components/panel/cj/probar-compra.tsx",
       "utf8",
     );
-    expect(pantalla).toMatch(
-      /window\.confirm\([\s\S]*?pedido REAL[\s\S]*?saldo/,
-    );
+    expect(pantalla).toContain('window.confirm(t("comprarConfirmar"))');
     expect(pantalla).toContain("comprarDeVerdadACj(");
+    const leer = (ruta: string) =>
+      (
+        JSON.parse(readFileSync(ruta, "utf8")) as {
+          panel: { probarCompra: { comprarConfirmar: string } };
+        }
+      ).panel.probarCompra.comprarConfirmar;
+    expect(leer("messages/es.json")).toMatch(/pedido REAL[\s\S]*saldo/);
+    expect(leer("messages/en.json")).toMatch(/REAL order[\s\S]*balance/);
   });
 });
