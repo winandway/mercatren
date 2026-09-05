@@ -54,18 +54,27 @@ sitio con pagos no se anuncia sin probarlo de punta a punta).
   aparece **pagada con el saldo**, y te llega el correo. Si sale con enlace de
   tarjeta, es que faltó saldo en CJ.
 
-### 3. 🔴 👤 Los puntos de API de CJ
+### 3. 🔴 👤 Los puntos de API de CJ — ES EL ÚNICO FRENO QUE QUEDA
 
-Tu captura lo dijo: `Used today: 61520, Remaining: 0`. La importación del
-almacén completo se los comió. Mientras estén en cero **no se afina ningún
-precio, no se refresca stock y no se puede comprar al proveedor**.
+**Medido el 4 sep 2026, con las corridas del robot delante:** de las ocho
+corridas del día, **seis no hicieron nada** porque CJ no tenía puntos. Las dos
+que sí encontraron afinaron **3.178 productos en total** y las dos se pararon
+al agotarlos.
 
-- Se renuevan solos cada día. **Yo ya hice que el sistema deje de llamarlos
-  hasta que vuelvan**, para no gastar el reloj en balde.
-- Para tener más puntos, CJ pide una sola cosa: comprarles más. Es decir, el
-  punto 2 de arriba también sube el límite.
-- **Cómo saber que volvieron:** Panel → Vigilante, la línea «Conexión con CJ»
-  deja de decir «sin puntos».
+Ese es el techo real: **unos 3.000 productos por día**, lo dé quien lo dé. No
+lo marca nuestro reloj ni el robot de GitHub —los dos están sobrados—, lo
+marca la cantidad de llamadas que CJ nos deja hacer.
+
+Con 47.500 en la cola, a ese ritmo son **unos 16 días**. Con el doble de
+puntos, ocho.
+
+- **Lo único que sube ese techo es comprarle más a CJ.** No hay ajuste de
+  código que lo cambie: el sistema ya llama todo lo que le dejan.
+- Se renuevan solos cada día, y el sistema **deja de llamarlos hasta que
+  vuelvan** para no gastar el reloj en balde.
+- **Cómo saber cómo va:** `https://mercatren.com/datos/salud` — el renglón
+  `catalogo` dice, por país, cuántos están a la venta y cuántos en revisión.
+  No hace falta entrar al panel ni tener sesión.
 
 ### 4. 🔴 💻 Terminar de traer las fotos a nuestros servidores
 
@@ -77,19 +86,38 @@ menos de un día está.
 
 ## DESPUÉS (la semana que viene)
 
-### 5. 🟠 💻 Terminar el afinado de los 51.000 en revisión
+### 5. 🟠 💻 Terminar el afinado de los 47.500 en revisión
 
 Cada producto necesita su flete real, sus tallas y su stock antes de salir a
-la venta. Va a unos 3.840 por día, atado a los puntos de CJ. **Cuantos más
-puntos, más rápido.**
+la venta. **Corre solo y no hay nada que tocar** — lo único que lo frena son
+los puntos de CJ (punto 3).
 
-- **Cómo lo miras:** Tablero → «El catálogo, de un vistazo», la columna «Por
-  resolver» bajando cada día.
+**Medido el 4 sep 2026 a las 22:40:**
 
-### 6. 🟠 💻 El traductor se para con JSON roto
+| País           | A la venta | En revisión |
+| -------------- | ---------- | ----------- |
+| Estados Unidos | 2.560      | 44.850      |
+| Chile          | 1.245      | 102         |
+| Colombia       | 3.520      | 2.583       |
+| **Total**      | **7.325**  | **47.535**  |
 
-45.000 títulos siguen en inglés. El traductor pierde la tanda entera cuando
-el modelo devuelve un carácter de más. Hay que rescatar lo que sí vino bien y
+**Y lo que está a la venta está BIEN:** los 7.325 publicados tienen los tres
+el envío ya cotizado a CJ y metido dentro del precio, y ninguno sin costo
+base. El candado hace su trabajo: lo que no pasa el último filtro no sale a
+la venta.
+
+- **Cómo lo miras sin entrar a nada:** `https://mercatren.com/datos/salud`,
+  renglón `catalogo`.
+
+### 6. 🟠 💻 El traductor: 38.500 títulos por pasar al español
+
+**Está corriendo y no hay nada que hacer de tu lado.** Medido el 4 sep 2026:
+**441 títulos en 20 minutos = 1.323 por hora**, así que los 38.500 que faltan
+salen en **poco más de un día**.
+
+Lo que sigue pendiente es que la tanda entera se pierde cuando el modelo
+devuelve un carácter de más. No detiene el trabajo —la siguiente vuelta lo
+reintenta—, pero desperdicia llamadas: hay que rescatar lo que sí vino bien y
 pedir tandas más chicas.
 
 ### 7. 🟠 👤 El reloj de YaDominios Cloud no llama
