@@ -137,11 +137,21 @@ export function FormularioProducto({
   producto,
   imagenes,
   tiendaId,
+  paisOrigen,
 }: {
   producto?: Producto;
   imagenes?: Foto[];
   tiendaId?: string;
+  /**
+   * DE DÓNDE SALE LA MERCANCÍA DE ESTA TIENDA (5 sep 2026). En Venezuela el
+   * cliente la retira en una ciudad, y por eso se pregunta cuál; en Estados
+   * Unidos, Chile y Colombia se despacha a domicilio y **no hay ciudad que
+   * elegir**. Se le pedían ciudades de Venezuela a una tienda de Estados
+   * Unidos. Sin dato se asume Venezuela, que es el comportamiento de siempre.
+   */
+  paisOrigen?: string | null;
 }) {
+  const seRetiraEnCiudad = (paisOrigen ?? "VE") === "VE";
   const t = useTranslations("panel.producto");
   const tPanel = useTranslations("errores");
   const idioma = useLocale();
@@ -628,29 +638,41 @@ export function FormularioProducto({
         {/* ¿EN QUÉ CIUDAD ESTÁ ESTA MERCANCÍA? Sin esto el producto no sale
             cuando un cliente filtra por su ciudad, y el filtro es la portada
             entera. Si la tienda no tiene depósitos, elegir la ciudad le crea
-            uno ("Depósito principal") en el servidor. */}
-        <label className="mt-4 block max-w-md">
-          <span className="text-sm font-semibold">{t("ciudadProducto")}</span>
-          <select
-            name="ciudadDeposito"
-            defaultValue={producto?.depositoZona ?? ""}
-            className="mt-1 w-full rounded-lg border border-borde bg-white px-3 py-2.5 text-sm outline-none focus:border-carga-500"
-          >
-            <option value="">{t("sinCiudad")}</option>
-            {ESTADOS.map((estado) => (
-              <optgroup key={estado.slug} label={estado.nombre}>
-                {estado.ciudades.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.nombre}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-          <span className="mt-1 block text-xs text-tinta-suave">
-            {t("ciudadProductoAyuda")}
-          </span>
-        </label>
+            uno ("Depósito principal") en el servidor.
+            SOLO EN VENEZUELA: lo que se despacha a domicilio no se retira en
+            ninguna ciudad, y el mapa de abajo es el de Venezuela. */}
+        {!seRetiraEnCiudad ? (
+          <p className="mt-4 max-w-md rounded-lg bg-slate-50 px-3 py-2 text-xs text-tinta-suave">
+            {t("seDespachaEn", {
+              pais: t(
+                `paises.${paisOrigen === "CL" || paisOrigen === "CO" ? paisOrigen : "US"}`,
+              ),
+            })}
+          </p>
+        ) : (
+          <label className="mt-4 block max-w-md">
+            <span className="text-sm font-semibold">{t("ciudadProducto")}</span>
+            <select
+              name="ciudadDeposito"
+              defaultValue={producto?.depositoZona ?? ""}
+              className="mt-1 w-full rounded-lg border border-borde bg-white px-3 py-2.5 text-sm outline-none focus:border-carga-500"
+            >
+              <option value="">{t("sinCiudad")}</option>
+              {ESTADOS.map((estado) => (
+                <optgroup key={estado.slug} label={estado.nombre}>
+                  {estado.ciudades.map((c) => (
+                    <option key={c.slug} value={c.slug}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <span className="mt-1 block text-xs text-tinta-suave">
+              {t("ciudadProductoAyuda")}
+            </span>
+          </label>
+        )}
 
         <label className="mt-4 block max-w-xs">
           <span className="text-sm font-semibold">{t("estado")}</span>

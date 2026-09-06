@@ -75,6 +75,13 @@ export default async function PaginaMisProductos({
     );
   }
 
+  /* EL BOTÓN DE «NUEVO» LLEVA EL COMERCIO QUE SE ESTÁ MIRANDO (5 sep 2026).
+     Sin eso, el equipo llenaba la ficha entera y al guardar el servidor
+     contestaba «no se sabe a qué tienda va este producto». */
+  const enlaceNuevo = filtros.comercio
+    ? `/panel/productos/nuevo?comercio=${encodeURIComponent(filtros.comercio)}`
+    : "/panel/productos/nuevo";
+
   const pestanas = [
     { clave: undefined, texto: t("estados.todos"), n: conteo.total },
     { clave: "publicado", texto: t("estados.publicado"), n: conteo.publicado },
@@ -97,7 +104,7 @@ export default async function PaginaMisProductos({
             {t("subtitulo")}
           </p>
         </div>
-        <Link href="/panel/productos/nuevo" className="boton-principal gap-2">
+        <Link href={enlaceNuevo} className="boton-principal gap-2">
           <Plus className="h-4 w-4" aria-hidden />
           {t("nuevo")}
         </Link>
@@ -155,10 +162,7 @@ export default async function PaginaMisProductos({
             {conteo.total === 0 ? t("vacio") : t("sinResultados")}
           </p>
           {conteo.total === 0 ? (
-            <Link
-              href="/panel/productos/nuevo"
-              className="boton-principal mt-5 gap-2"
-            >
+            <Link href={enlaceNuevo} className="boton-principal mt-5 gap-2">
               <Plus className="h-4 w-4" aria-hidden />
               {t("vacioBoton")}
             </Link>

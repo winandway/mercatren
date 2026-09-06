@@ -1692,6 +1692,54 @@ direccion}` · `pagar` · `cj {ruta, metodo, cuerpo}` — **la sonda**, una
   —que corre `verify` sin filtro— era el único que decía la verdad. Para
   encadenar: `npm run verify > log; s=$?; …; exit $s`.
 
+## LA FICHA DE PRODUCTO SABE PARA QUÉ TIENDA ES Y DE QUÉ PAÍS (5 sep 2026)
+
+Un miembro del equipo llenó un producto entero para una tienda de Estados
+Unidos —título, dos idiomas, precio, fotos—, eligiendo entre **ciudades de
+Venezuela**, y al pulsar guardar el servidor contestó en rojo «No se sabe a
+qué tienda va este producto» **y el formulario quedó en blanco**. Palabras del
+dueño: _«desapareció la publicación y perdió todo lo que había cargado… no
+queremos saber nada de Venezuela cuando se publica en Estados Unidos»_.
+
+Eran tres fallos, y los tres se cerraron para todos:
+
+1. **La ficha se dibujaba sin saber para qué tienda era.** Un comercio tiene
+   una sola y su alcance la trae; el equipo puede cargar para cualquiera, y
+   `/panel/productos/nuevo` solo sabía la tienda si venía `?comercio=slug`
+   en la dirección — **y el botón «Nuevo producto» de la lista no lo
+   arrastraba**. Ahora sin tienda no hay ficha: sale el buscador de comercios
+   (el mismo de la calculadora, con rótulo propio), la ficha dice «Este
+   producto es de …», y los dos botones de «Nuevo» llevan el comercio que se
+   está mirando.
+2. **La ciudad de retiro es cosa de Venezuela.** El selector
+   (`ciudadDeposito`) es el mapa venezolano y crea un «depósito» en esa
+   ciudad; lo de EE. UU., Chile y Colombia se despacha a domicilio. La ficha
+   recibe `paisOrigen` de la tienda (`nuevo/page.tsx`, `obtenerMiProducto`)
+   y **solo lo dibuja si es VE**; a los demás les dice «se despacha a domicilio
+   en {país}». Y `guardarProducto` tampoco crea depósitos fuera de Venezuela,
+   venga lo que venga del navegador.
+3. **REACT 19 REINICIA EL FORMULARIO DESPUÉS DE CADA ACCIÓN, TAMBIÉN CUANDO
+   FALLÓ.** Un `<form action={fn}>` vuelve a sus valores iniciales al terminar
+   la acción; el borrador seguía en el navegador, pero solo se restituía al
+   volver a entrar. `FormularioPersistente` ahora **guarda el borrador YA al
+   enviar** (el apunte normal espera medio segundo: quien pulsa «Guardar»
+   justo después de teclear perdía la última palabra) y **restituye lo
+   escrito cuando el formulario dispara `reset`**, sin el aviso de «lo
+   recuperamos». Si la acción salió bien, quien la llamó ya olvidó el borrador
+   y no hay nada que devolver. Vale para los nueve formularios largos.
+
+**Dónde quedó lo que se perdió:** el producto nunca llegó a la base (la
+acción cortó antes del insert). Lo escrito vive en el navegador de quien lo
+cargó, bajo la llave `producto:nuevo`: al abrir de nuevo «Nuevo producto» en
+esa misma computadora y navegador, la ficha lo restituye y avisa. Las fotos
+no (los archivos nunca se guardan en el borrador).
+
+Candados: `tests/unit/producto-tienda-y-pais.test.ts` (la ficha no se dibuja
+sin tienda; los botones arrastran el comercio; la ciudad solo para VE en el
+formulario Y en el servidor; textos en los dos idiomas) y las dos pruebas
+nuevas de `formulario-persistente.test.tsx` (lo escrito vuelve tras un
+`reset`; el borrador se guarda al enviar). Comprobado en rojo.
+
 ## LOS PUNTOS DE CJ SON EL PRESUPUESTO DEL DÍA, Y EL STOCK SE LLEVABA LA MITAD (4 sep 2026)
 
 El dueño preguntó por qué iban tan lentos los 44.850 productos en revisión.

@@ -855,6 +855,11 @@
       "ciudadProducto": "What city is this merchandise in?",
       "sinCiudad": "Choose the warehouse city",
       "ciudadProductoAyuda": "It's where the buyer picks it up. Without a city, the product won't appear when someone filters by theirs.",
+      "paraQueComercio": "Which store is this product for?",
+      "eligeTiendaPrimero": "Which store is this product for? Pick it first: without it there's nowhere to save, and what you type would be lost.",
+      "paraTienda": "This product belongs to {tienda}.",
+      "seDespachaEn": "This product ships to the customer's door in {pais}: there is no pickup city to choose.",
+      "paises": { "US": "United States", "CL": "Chile", "CO": "Colombia" },
       "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…",
       "previaPrecio": "With this price: the customer pays {tarjeta} by card or {zelle} via Zelle — and you receive exactly {base}, either way."
     },

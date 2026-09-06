@@ -302,3 +302,74 @@ describe("las casillas que aparecen tarde también se recuperan", () => {
     expect(nombre?.value).toBe("Escrito a mano");
   });
 });
+
+/**
+ * REACT 19 REINICIA EL FORMULARIO DESPUÉS DE CADA ACCIÓN, TAMBIÉN CUANDO
+ * FALLÓ (5 sep 2026). Un miembro del equipo llenó un producto entero, el
+ * servidor contestó «no se sabe a qué tienda va», y el formulario quedó en
+ * blanco con el aviso en rojo: el borrador seguía en el navegador, pero solo
+ * volvía al entrar de nuevo. Desde su silla, «se borró todo».
+ */
+function FichaConAccion({
+  accion,
+  llave = "con-accion",
+}: {
+  accion: (datos: FormData) => Promise<void>;
+  llave?: string;
+}) {
+  return (
+    <Envuelto>
+      <FormularioPersistente llave={llave} action={accion}>
+        <label>
+          Nombre
+          <input name="tituloEs" defaultValue="" />
+        </label>
+        <button type="submit">Guardar</button>
+      </FormularioPersistente>
+    </Envuelto>
+  );
+}
+
+describe("lo escrito vuelve cuando el formulario se reinicia", () => {
+  it("tras un reinicio, las casillas recuperan el borrador sin avisar", async () => {
+    const persona = userEvent.setup();
+    const { getByLabelText, queryByText, container } = render(
+      <FichaConAccion accion={async () => {}} />,
+    );
+    const nombre = getByLabelText("Nombre") as HTMLInputElement;
+    await persona.type(nombre, "Taladro percutor");
+    await waitFor(() =>
+      expect(
+        window.localStorage.getItem("mercatren:borrador:con-accion"),
+      ).toContain("Taladro percutor"),
+    );
+
+    /* Es lo que React hace al terminar la acción: `form.reset()`. */
+    container.querySelector("form")!.reset();
+    expect(nombre.value).toBe("");
+    await waitFor(() => expect(nombre.value).toBe("Taladro percutor"));
+    /* Sin el aviso de «lo recuperamos»: no se fue a ningún lado. */
+    expect(queryByText(/recuperamos/i)).toBeNull();
+  });
+
+  it("al enviar, el borrador se guarda YA (no medio segundo después) y sigue ahí si la acción falló", async () => {
+    const persona = userEvent.setup();
+    let llamada = 0;
+    const { getByLabelText, getByRole } = render(
+      <FichaConAccion
+        accion={async () => {
+          llamada += 1;
+          /* Una acción que devuelve un fallo NO olvida el borrador. */
+        }}
+      />,
+    );
+    const nombre = getByLabelText("Nombre") as HTMLInputElement;
+    await persona.type(nombre, "Cemento gris");
+    await persona.click(getByRole("button", { name: "Guardar" }));
+    await waitFor(() => expect(llamada).toBe(1));
+    expect(
+      window.localStorage.getItem("mercatren:borrador:con-accion"),
+    ).toContain("Cemento gris");
+    await waitFor(() => expect(nombre.value).toBe("Cemento gris"));
+  });
+});

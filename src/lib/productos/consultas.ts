@@ -219,8 +219,17 @@ export async function obtenerMiProducto(id: string) {
     depositoZona = dep?.zona ?? null;
   }
 
+  /* De dónde sale la mercancía de su tienda: decide si el formulario pide
+     ciudad de retiro (Venezuela) o dice que se despacha (EE. UU., CL, CO). */
+  const [tienda] = await db
+    .select({ paisOrigen: tiendas.paisOrigen, nombre: tiendas.nombre })
+    .from(tiendas)
+    .where(eq(tiendas.id, producto.tiendaId))
+    .limit(1);
+
   return {
     producto: { ...producto, depositoZona },
+    tienda: tienda ?? null,
     imagenes: fotos.map((f) => ({
       id: f.id,
       url: direccionImagen(f),

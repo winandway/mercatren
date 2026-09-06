@@ -212,7 +212,7 @@ export async function guardarProducto(
   /* La moneda del producto es la de la vitrina de su tienda: pesos en las
      plazas de Chile y Colombia, dólares en el resto. */
   const [vitrina] = await db
-    .select({ mercado: tiendas.mercado })
+    .select({ mercado: tiendas.mercado, paisOrigen: tiendas.paisOrigen })
     .from(tiendas)
     .where(eq(tiendas.id, tiendaId));
   const moneda = monedaDelMercado(mercadoPorCodigo(vitrina?.mercado));
@@ -244,7 +244,11 @@ export async function guardarProducto(
    */
   const ciudadDeposito = String(formulario.get("ciudadDeposito") ?? "").trim();
   let depositoId: string | null = null;
-  if (ciudadDeposito && zonaPorSlug(ciudadDeposito)) {
+  /* Solo en Venezuela: el mapa de ciudades es el venezolano, y lo de EE. UU.,
+     Chile y Colombia se despacha a domicilio, no se retira. Una tienda de
+     Estados Unidos no puede quedar con un «depósito» en Maracay (5 sep 2026). */
+  const seRetiraEnCiudad = (vitrina?.paisOrigen ?? "VE") === "VE";
+  if (seRetiraEnCiudad && ciudadDeposito && zonaPorSlug(ciudadDeposito)) {
     const [existenteDep] = await db
       .select({ id: depositos.id })
       .from(depositos)

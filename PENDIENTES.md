@@ -67,6 +67,16 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 💻 **Cláusula en los términos: el margen puede subir**, con aviso
       previo (`PLAN-COMISION.md`).
 
+### 5 sep 2026 · la ficha de producto que se borraba
+
+- ✅ 💻 **Arreglado:** el equipo llenaba «Nuevo producto» sin tienda elegida
+  (el botón no arrastraba el comercio), el servidor decía «no se sabe a qué
+  tienda va» y React vaciaba el formulario. Ahora sin tienda sale el buscador
+  primero; la ciudad de retiro (mapa de Venezuela) solo se pide a tiendas
+  venezolanas; y todo formulario largo restituye lo escrito si se reinicia
+  tras un fallo. El producto perdido nunca llegó a la base: su texto está en
+  el navegador de quien lo cargó y vuelve al abrir «Nuevo producto» ahí.
+
 ### 5 sep 2026 · el tramo de CJ, sin pasar por Stripe
 
 - 💻 **HECHO · Panel → Equipo → Probar una compra.** Se pega el enlace de un

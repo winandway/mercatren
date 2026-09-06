@@ -148,7 +148,7 @@ export function FormularioPersistente({
   const yaSeAviso = useRef<string | null>(null);
 
   const restituir = useCallback(
-    (form: HTMLFormElement, soloVacias = false) => {
+    (form: HTMLFormElement, soloVacias = false, avisar = true) => {
       let borrador;
       try {
         borrador = leerBorrador(
@@ -225,13 +225,55 @@ export function FormularioPersistente({
 
       /* El aviso se enciende UNA vez, y solo si de verdad se puso algo: con
          el formulario en blanco, decir que se recuperó algo es mentir. */
-      if (algoCambio && yaSeAviso.current !== llave) {
+      if (avisar && algoCambio && yaSeAviso.current !== llave) {
         yaSeAviso.current = llave;
         queueMicrotask(() => setRecuperado(true));
       }
     },
     [llave],
   );
+
+  /**
+   * ══ REACT 19 REINICIA EL FORMULARIO DESPUÉS DE CADA ACCIÓN, TAMBIÉN
+   *    CUANDO FALLÓ (5 sep 2026) ══
+   *
+   * Un `<form action={fn}>` vuelve a sus valores iniciales en cuanto la acción
+   * termina, salga bien o mal. Con un producto de diez minutos —título,
+   * descripción en dos idiomas, precio, fotos— y un servidor que contesta
+   * «no se sabe a qué tienda va», la persona veía el aviso en rojo y **el
+   * formulario en blanco**. El borrador seguía en su navegador, pero solo se
+   * restituía al volver a entrar: desde su silla, «se borró todo».
+   *
+   * Dos cosas: antes de mandar se guarda el borrador YA (el apunte normal
+   * espera medio segundo, y quien pulsa «Guardar» justo después de teclear
+   * perdería esa última palabra), y cuando el formulario se reinicia —el
+   * evento `reset`, que React dispara al terminar la acción— lo escrito
+   * vuelve del borrador, sin el aviso de «lo recuperamos»: no se fue a ningún
+   * lado. Si la acción salió bien, quien la llamó ya olvidó el borrador y no
+   * hay nada que devolver.
+   */
+  const guardarAhora = useCallback(() => {
+    try {
+      window.localStorage.setItem(
+        llaveDeBorrador(llave),
+        escribirBorrador(leerCampos(), Date.now()),
+      );
+    } catch {
+      /* Modo privado o almacén lleno: no puede impedir enviar. */
+    }
+  }, [llave, leerCampos]);
+
+  useEffect(() => {
+    const form = formulario.current;
+    if (!form) return;
+    const alReiniciar = () => {
+      setTimeout(() => {
+        if (formulario.current) restituir(formulario.current, false, false);
+      }, 0);
+    };
+    form.addEventListener("reset", alReiniciar);
+    return () => form.removeEventListener("reset", alReiniciar);
+  }, [restituir]);
 
   useEffect(() => {
     const form = formulario.current;
@@ -292,8 +334,26 @@ export function FormularioPersistente({
     [refDeFuera],
   );
 
+  const { action, ...demas } = resto;
+  const accion =
+    typeof action === "function"
+      ? async (datos: FormData) => {
+          guardarAhora();
+          try {
+            await action(datos);
+          } finally {
+            /* Por si el reinicio no dispara `reset` en algún navegador: lo
+               escrito vuelve igual. Con el borrador ya olvidado, no hace nada. */
+            setTimeout(() => {
+              if (formulario.current)
+                restituir(formulario.current, false, false);
+            }, 0);
+          }
+        }
+      : action;
+
   return (
-    <form ref={ponerRef} {...resto}>
+    <form ref={ponerRef} action={accion} {...demas}>
       {/* Se le dice que se recuperó, y se le deja descartarlo. Restituir en
           silencio hace creer que el sistema «se inventó» unos datos. */}
       {recuperado ? (

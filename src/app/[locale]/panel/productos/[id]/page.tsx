@@ -52,7 +52,11 @@ export default async function PaginaEditarProducto({
         </h1>
       </div>
 
-      <FormularioProducto producto={datos.producto} imagenes={datos.imagenes} />
+      <FormularioProducto
+        producto={datos.producto}
+        imagenes={datos.imagenes}
+        paisOrigen={datos.tienda?.paisOrigen}
+      />
 
       {/* Va DESPUES del formulario y aparte: son dos cosas distintas y se
           guardan por separado. Meterlas en el mismo envio obligaria a guardar

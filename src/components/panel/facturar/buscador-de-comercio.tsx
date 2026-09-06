@@ -29,9 +29,13 @@ type Comercio = { id: string; slug: string; nombre: string };
 export function BuscadorDeComercio({
   comercios,
   elegido,
+  titulo,
 }: {
   comercios: Comercio[];
   elegido: Comercio | null;
+  /** El rótulo de la casilla. Sin él, el de la calculadora («¿Por qué
+      comercio estás cuadrando?»); la ficha de producto pone el suyo. */
+  titulo?: string;
 }) {
   const t = useTranslations("panel.calculadora");
   const [texto, setTexto] = useState("");
@@ -74,7 +78,7 @@ export function BuscadorDeComercio({
     <div className="rounded-xl border border-carga-500/30 bg-carga-500/5 p-4">
       <label className="block">
         <span className="text-sm font-bold text-riel-900">
-          {t("porQueComercio")}
+          {titulo ?? t("porQueComercio")}
         </span>
         <span className="relative mt-2 block sm:max-w-md">
           <Search
