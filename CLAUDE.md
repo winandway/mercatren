@@ -1778,17 +1778,28 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   moneda local; allá se RETIRA y se paga en dólares. Salió en la pestaña del
   navegador el primer día y se corrigió ahí mismo: un título que promete lo
   que no se hace es una devolución esperando.
-- **Las mil fichas ya indexadas redirigen con 301** (`mercado/mudanza.ts`):
-  producto y tienda preguntan «¿de qué mercado es esto?» **solo cuando no
-  aparecieron** —en un sitio sano, casi nunca— y responden
-  `permanentRedirect` al dominio nuevo conservando el idioma. Un 404 le dice
-  a Google «esto ya no existe» y tira el posicionamiento de un año; un 301 se
-  lo traspasa. Esa consulta es la única del proyecto sin filtro de mercado, a
-  propósito: su pregunta es «¿de qué OTRO país es?», y no devuelve ni un dato
-  del producto, solo el código del mercado.
-- **`seMudoA` vive en `mercados.ts` y no junto a las consultas** porque es
-  pura y hay que poder probarla: un módulo con `server-only` no se importa
-  desde una prueba. Lo destapó su propio candado al escribirlo.
+- **LAS MIL FICHAS INDEXADAS REDIRIGEN CON 308, Y ESO SOLO LO PUEDE HACER EL
+  MIDDLEWARE.** La primera versión redirigía desde la página, con
+  `permanentRedirect`. **Medido en producción: no sirve.** En el borde de
+  Cloudflare esa redirección sale **dentro del HTML con un 200** — se
+  comprobó pidiendo una ficha de EE. UU. en mercatren.cl y el HTML traía la
+  dirección del .com mientras la respuesta decía 200. Google lee ese 200 como
+  «la página sigue aquí» y no traspasa nada; el 404 habría sido más honesto.
+  Ahora vive en `src/middleware.ts` (`redireccionDeMudanza`), antes que todo
+  lo demás, y devuelve un **308 de verdad** conservando el idioma.
+- **La lista de lo mudado se pide una vez por hora, no por visita.** El
+  middleware corre en el borde y no toca la base; `/datos/mudanza` le entrega
+  los ~1.000 slugs venezolanos y él decide en memoria. Consultar por ficha
+  metería latencia en el camino crítico de TODO el catálogo para atender un
+  caso que, pasada la mudanza, casi no ocurre. **Si la lista falla no se
+  redirige nada**, que es como se comportaba el sitio antes. Y **mientras el
+  dato no se mueva la lista sale VACÍA**: por eso el código se pudo publicar
+  días antes sin efecto alguno.
+- **La lista trae SOLO lo mudado** (`pais_origen = 'VE'` fuera del
+  principal), el mismo criterio que el SQL, así que no se pueden
+  desincronizar. Chile y Colombia tienen decenas de miles de fichas que nunca
+  estuvieron en el .com: incluirlas sería una lista enorme para redirigir
+  direcciones que nadie pidió nunca.
 - **El dato se mueve el MISMO día que apunta el DNS**, con
   `drizzle/mudanzas/2026-09-08-venezuela-a-su-dominio.sql`: mueve por
   `pais_origen` (nunca por una lista de slugs, que se queda vieja con el

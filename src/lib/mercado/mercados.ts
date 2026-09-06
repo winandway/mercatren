@@ -162,25 +162,3 @@ export function esMercadoPrincipal(mercado: Mercado): boolean {
 export function marcaDelMercado(mercado: Mercado): string {
   return mercado.dominio.charAt(0).toUpperCase() + mercado.dominio.slice(1);
 }
-
-/**
- * A dónde mandar a quien pidió algo que ya no vive en este dominio.
- *
- * Vive AQUÍ y no junto a las consultas de la mudanza porque es pura y hay
- * que poder probarla: un módulo con `server-only` no se puede importar desde
- * una prueba (lo destapó su propio candado al escribirlo).
- *
- * Devuelve la dirección COMPLETA en el dominio nuevo, con el idioma que
- * traía: quien abrió el enlace en inglés sigue en inglés. `null` si no se
- * mudó a ninguna parte — ahí sí es un 404 de verdad.
- */
-export function seMudoA(
-  aqui: Mercado,
-  alla: Mercado | null,
-  locale: string,
-  ruta: string,
-): string | null {
-  if (!alla || alla.codigo === aqui.codigo) return null;
-  const idioma = locale === "en" ? "en" : "es";
-  return `https://${alla.dominio}/${idioma}${ruta}`;
-}

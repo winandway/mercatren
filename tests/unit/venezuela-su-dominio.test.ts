@@ -6,7 +6,6 @@ import {
   MERCADOS,
   mercadoPorCodigo,
   mercadoPorHost,
-  seMudoA,
   seRetiraEnCiudad,
 } from "@/lib/mercado/mercados";
 
@@ -83,54 +82,74 @@ describe("el selector de ciudad y la zona guardada", () => {
 });
 
 describe("las mil fichas que ya estaban indexadas", () => {
-  it("una dirección que se mudó devuelve el dominio nuevo, con su idioma", () => {
-    const us = mercadoPorCodigo("US");
-    const ve = mercadoPorCodigo("VE");
-    expect(seMudoA(us, ve, "es", "/producto/electrodo-3-32")).toBe(
-      "https://mercatren.com.ve/es/producto/electrodo-3-32",
-    );
-    expect(seMudoA(us, ve, "en", "/tienda/bley-ferreteria")).toBe(
-      "https://mercatren.com.ve/en/tienda/bley-ferreteria",
-    );
-  });
+  const middleware = leer("src/middleware.ts");
+  const ruta = leer("src/app/datos/mudanza/route.ts");
 
-  it("lo que NO se mudó no se redirige: eso sí es un 404 de verdad", () => {
-    const us = mercadoPorCodigo("US");
-    expect(seMudoA(us, null, "es", "/producto/no-existe")).toBeNull();
-    /* Y nunca a sí mismo: sería un bucle de redirecciones. */
-    expect(seMudoA(us, us, "es", "/producto/x")).toBeNull();
-  });
-
-  it("el 301 se decide en generateMetadata, ANTES del primer byte", () => {
+  it("EL 308 LO DA EL MIDDLEWARE, no la página", () => {
     /**
-     * Estaba en el cuerpo de la página y ahí NO sirve: para cuando la página
-     * corre, el renderizado ya empezó y la redirección sale DENTRO del HTML
-     * con un 200 — medido en la compilación de producción. Google lee ese 200
-     * como «sigue aquí» y no traspasa nada. `generateMetadata` corre antes del
-     * primer byte, así que es el único sitio donde se convierte en 308.
+     * ══ LO QUE ESTO FIJA, Y POR QUÉ (medido en producción el 6 sep 2026) ══
+     *
+     * La primera versión redirigía desde la página. En el borde de
+     * Cloudflare eso sale **dentro del HTML con un 200**: se comprobó
+     * pidiendo una ficha de EE. UU. en mercatren.cl, y el HTML traía la
+     * dirección del .com mientras la respuesta decía 200. Google lee ese 200
+     * como «la página sigue aquí» y no traspasa el posicionamiento.
+     *
+     * El middleware es el único sitio que devuelve un 308 de verdad.
      */
-    for (const ruta of [
+    expect(middleware).toContain("redireccionDeMudanza");
+    expect(middleware).toContain("NextResponse.redirect(");
+    expect(middleware).toContain("308");
+    /* Y las páginas ya NO redirigen: dejarlo en los dos sitios devolvería
+       otra vez el 200 con la redirección dentro del HTML. */
+    for (const pagina of [
       "src/app/[locale]/(tienda)/producto/[slug]/page.tsx",
       "src/app/[locale]/(tienda)/tienda/[slug]/page.tsx",
     ]) {
-      const fuente = leer(ruta);
-      const meta = fuente.indexOf("export async function generateMetadata");
-      const pagina = fuente.indexOf("\nexport default async function", meta);
-      const dentroDeMeta = fuente.slice(meta, pagina > 0 ? pagina : undefined);
-      expect(dentroDeMeta, ruta).toContain("permanentRedirect(destino)");
+      expect(leer(pagina), pagina).not.toContain("permanentRedirect");
     }
   });
 
-  it("es 301 y no 307: un 307 no traspasa el posicionamiento", () => {
-    /* `permanentRedirect` de Next responde 308 (permanente), que es lo que
-       Google trata como mudanza definitiva. `redirect` a secas es 307 y le
-       dice al buscador «esto es temporal, quédate con la vieja». */
-    for (const ruta of [
-      "src/app/[locale]/(tienda)/producto/[slug]/page.tsx",
-      "src/app/[locale]/(tienda)/tienda/[slug]/page.tsx",
-    ]) {
-      expect(leer(ruta), ruta).toContain("permanentRedirect");
-    }
+  it("se decide ANTES que todo lo demás del middleware", () => {
+    /* Una ficha mudada no tiene que llegar a renderizarse. */
+    const mudanza = middleware.indexOf("redireccionDeMudanza(request)");
+    const reloj = middleware.indexOf('pathname === "/__scheduled"');
+    expect(mudanza).toBeGreaterThan(-1);
+    expect(mudanza).toBeLessThan(reloj);
+  });
+
+  it("la lista se pide UNA vez por hora, no por visita", () => {
+    /* Consultarla en cada ficha metería latencia en el camino crítico de
+       TODO el catálogo para atender un caso que casi no ocurre. */
+    expect(middleware).toContain("listaEnMemoria");
+    expect(middleware).toContain("VIGENCIA_LISTA_MS");
+    expect(middleware).toContain("AbortSignal.timeout(1000)");
+  });
+
+  it("si la lista falla, NO se redirige: el sitio queda como estaba", () => {
+    const cuerpo = middleware.slice(
+      middleware.indexOf("async function listaDeMudanza"),
+    );
+    expect(cuerpo).toContain("return listaEnMemoria;");
+    expect(cuerpo).toContain("catch");
+  });
+
+  it("la lista solo trae lo MUDADO, no todo lo que no es del principal", () => {
+    /* Chile y Colombia tienen decenas de miles de fichas y nunca estuvieron
+       indexadas en el .com: incluirlas haría una lista enorme para
+       redirigir direcciones que nadie pidió nunca. */
+    expect(ruta).toContain('eq(tiendas.paisOrigen, "VE")');
+    expect(ruta).toContain("MERCADO_PRINCIPAL.codigo");
+  });
+
+  it("mientras el dato no se mueva, la lista sale vacía", () => {
+    /* Es lo que deja publicar el código días antes de la mudanza sin que
+       cambie nada para nadie. */
+    expect(ruta).toContain("f.mercado !== MERCADO_PRINCIPAL.codigo");
+  });
+
+  it("y un fallo de la lista no puede tumbar la tienda", () => {
+    expect(ruta).toContain("{ productos: {}, tiendas: {} }");
   });
 });
 
