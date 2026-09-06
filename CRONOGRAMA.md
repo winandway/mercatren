@@ -189,15 +189,18 @@ filas. Se les pone el buscador cuando pasen de ahí.
 
 ### 13. 🟠 👤 TikTok Shop: el POS de QRBott, despachado por nosotros
 
-TikTok aprobó la cuenta de empresa el 6 sep 2026. El alcance es **un solo
-producto nuestro** —el Punto de Venta POS de QRBott— con el envío hecho por
-nosotros desde Novi con las etiquetas de TikTok. Sin CJ, sin catálogo, sin
-código al principio. El plan entero está en **`PLAN-TIKTOK-SHOP.md`**.
+TikTok aprobó la cuenta el 6 sep 2026. Alcance: **un solo producto nuestro**
+(el Punto de Venta POS), despachado desde Novi con etiquetas de TikTok. Sin
+CJ, sin catálogo, sin código al principio. Plan y estado de cada paso en
+**`PLAN-TIKTOK-SHOP.md`**.
 
-Lo primero es tuyo y es papeleo: **el certificado FCC y el de seguridad
-eléctrica del fabricante, la factura de compra y las fotos de las
-etiquetas** del equipo, porque Electrónica exige calificación previa (unos
-6 días de revisión). Sin eso no se publica.
+**Hoy está trancado en la máquina:** no hay ninguna unidad en Novi y no se
+sabe quién la fabrica, y TikTok exige calificación de Electrónica (fotos
+del marcado FCC y de seguridad + factura de compra). Lo que destranca es
+**pedir unidades a Novi por CJ**: la etiqueta trae el FCC ID, que dice el
+fabricante. Mientras llegan, **sí se puede vender**: videos en español y
+campañas hacia la ficha de mercatren.com, que ya cobra con tarjeta. Y bajar
+las 52 existencias de la ficha al número real.
 
 ## Lo que ya no hay que vigilar (hecho)
 

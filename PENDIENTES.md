@@ -69,12 +69,19 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ### 6 sep 2026 · TikTok Shop, cuenta aprobada
 
-- [ ] 🟠 👤 **Conseguir los papeles del POS de QRBott para la calificación
-      de Electrónica en TikTok**: certificado de conformidad (FCC + seguridad
-      eléctrica) del fabricante, factura de compra, y fotos de las etiquetas
-      del equipo y del adaptador. Más las seis decisiones (marca registrada o
-      «No brand», quién despacha en Novi, unidades, precio, devoluciones).
-      Todo en `PLAN-TIKTOK-SHOP.md`. Sin código hasta que venda solo.
+- [ ] 🟠 👤 **Pedir unidades del POS a Novi por CJ** (una para abrir y
+      fotografiar, dos o tres de stock). Es lo que destranca TikTok Shop: la
+      etiqueta trae el FCC ID (dice el fabricante) y las fotos del marcado
+      FCC + seguridad eléctrica que pide la calificación de Electrónica,
+      junto con la factura de CJ. Detalle en `PLAN-TIKTOK-SHOP.md`.
+- [ ] 🟠 👤 **Bajar las 52 existencias del POS en mercatren.com al número
+      real** (hoy, cero): la ficha es manual, no va a CJ, y se despacha a
+      mano desde Novi.
+- [ ] 🟡 👤 **Empezar el contenido en español y las campañas hacia la ficha
+      de Mercatren** (Promote desde $3–10/día; Ads Manager $20/día por grupo)
+      sin esperar a TikTok Shop. Lista de videos y etapas en el plan.
+- [ ] 🟡 💻 **Píxel de TikTok en mercatren.com y origen «TikTok» en las
+      órdenes**, cuando arranquen las campañas pagadas.
 
 ### 5 sep 2026 · la ficha de producto que se borraba
 
