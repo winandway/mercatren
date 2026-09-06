@@ -187,14 +187,17 @@ filas. Se les pone el buscador cuando pasen de ahí.
 
 ---
 
-### 13. 🟠 👤💻 TikTok Shop: vender solo lo nuestro
+### 13. 🟠 👤 TikTok Shop: el POS de QRBott, despachado por nosotros
 
-TikTok aprobó la cuenta de empresa el 6 sep 2026. El plan completo, con las
-reglas de TikTok comprobadas y las decisiones que faltan, está en
-**`PLAN-TIKTOK-SHOP.md`**. Lo primero es tuyo: elegir los 5–20 productos
-sin marca con los que se arranca, y decidir «No brand» o registrar marca.
-Después va el registro en Partner Center (con croquis) y recién ahí el
-puente. **Sin la compra real de prueba (paso 3.2) no se publica nada.**
+TikTok aprobó la cuenta de empresa el 6 sep 2026. El alcance es **un solo
+producto nuestro** —el Punto de Venta POS de QRBott— con el envío hecho por
+nosotros desde Novi con las etiquetas de TikTok. Sin CJ, sin catálogo, sin
+código al principio. El plan entero está en **`PLAN-TIKTOK-SHOP.md`**.
+
+Lo primero es tuyo y es papeleo: **el certificado FCC y el de seguridad
+eléctrica del fabricante, la factura de compra y las fotos de las
+etiquetas** del equipo, porque Electrónica exige calificación previa (unos
+6 días de revisión). Sin eso no se publica.
 
 ## Lo que ya no hay que vigilar (hecho)
 

@@ -1,164 +1,172 @@
-# Plan: vender en TikTok Shop solo lo nuestro
+# Plan: vender el POS de QRBott en TikTok Shop
 
 > Escrito el 6 de septiembre de 2026, el día que TikTok aprobó la cuenta de
-> empresa de MERCATREN en TikTok Shop (Seller Center dice «Approved» y pide
-> «complete 2 steps to begin selling»). Lo pidió Richard con dos condiciones
-> que mandan sobre todo lo demás: **solo los productos de nuestra propia
-> tienda** —las marcas de la casa de Estados Unidos— y **nada de marcas
-> chinas ni de terceros**. Y sin tocar código hasta acordar el plan.
+> empresa de MERCATREN en TikTok Shop, y **corregido esa misma tarde**: la
+> primera versión hablaba del catálogo de Estados Unidos entero y estaba
+> mal. Richard lo dijo así: _«si yo tuviese una tienda dentro de Amazon, tú
+> no vas a conectar Amazon directamente… TikTok se conecta a MI tienda»_.
+>
+> **El alcance es UN producto nuestro, propio, y el envío lo hacemos
+> nosotros con las etiquetas de TikTok.** Sin CJ, sin marcas de nadie, sin
+> catálogo. Lo demás es complejo y puede trancar la cuenta; se deja fuera.
 >
 > Todo lo de abajo está comprobado contra las páginas oficiales de TikTok
 > Shop (Seller University y Partner Center) el 6 sep 2026. Lo que salió de
-> guías de terceros va marcado así. **Cuando algo de aquí cambie, se
-> actualiza este archivo en el mismo trabajo.**
+> guías de terceros va marcado. **Cuando algo cambie, se actualiza este
+> archivo en el mismo trabajo.**
 
-## En dos líneas
+## El producto
 
-TikTok Shop no «se conecta» con Mercatren con un botón: los botones que hay
-son para Shopify, WooCommerce y Amazon. Para una tienda propia, TikTok da un
-**Partner Center** donde uno registra su propia aplicación («Custom app»,
-para la tienda de uno), y esa aplicación es la que publica productos,
-recibe los pedidos y devuelve el número de guía. Eso es lo que hay que
-construir: un puente entre Mercatren y TikTok, con Mercatren en el medio
-(precio, factura, compra a CJ, tracking), exactamente como hoy.
+| Dato                | Valor                                                                                                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ficha               | https://mercatren.com/es/producto/punto-de-venta-pos-2                                                                                                                             |
+| Nombre              | Punto de Venta POS · terminal todo en uno con doble pantalla, impresora térmica y lector de códigos integrados                                                                     |
+| Marca               | **QRBott** (así está escrita en la ficha; ver la decisión de marca más abajo)                                                                                                      |
+| Precio en Mercatren | $1.009,89 con el envío incluido                                                                                                                                                    |
+| Existencias         | 52                                                                                                                                                                                 |
+| Tienda              | `mercatren-estados-unidos` — **ojo: esa tienda tiene además 28 productos de CJ**. La conexión con TikTok se hace por PRODUCTO, nunca por tienda entera, o esos 28 se irían con él. |
+| Conectividad        | Wi-Fi y Ethernet → para TikTok es un producto electrónico **con Wi-Fi**: pide el marcado FCC.                                                                                      |
+| Despacho            | Desde Novi, Michigan (la dirección de la sociedad), con etiquetas compradas dentro de TikTok Shipping.                                                                             |
 
-## Cómo funciona una venta por TikTok, en palabras normales
+## Cómo sería una venta, en palabras normales
 
-1. Alguien ve el producto en TikTok (en el video, en la vitrina de la
-   cuenta o en la pestaña Shop) y lo compra **dentro de TikTok**. Paga a
-   TikTok, no a nosotros.
-2. TikTok nos avisa del pedido con la dirección del comprador. Mercatren lo
-   recibe como recibe hoy una venta de la web: lo compra a CJ, CJ despacha
-   desde su almacén de Estados Unidos.
-3. Mercatren le devuelve a TikTok el número de guía. **Eso tiene que pasar
-   en 2 días hábiles** o TikTok lo cuenta como despacho tardío.
-4. TikTok le cobra al comprador, se queda su comisión (6 %) y nos paga a
-   nuestro banco. Mercatren LLC sigue siendo quien vende y factura: el
-   modelo de compra y reventa no cambia, solo cambia la vitrina.
+1. Alguien ve el POS en un video o en la pestaña Shop y lo compra dentro de
+   TikTok. Le paga a TikTok.
+2. A nosotros nos llega el pedido en Seller Center (y en la app de vendedor
+   del teléfono). Alguien en Novi empaca el equipo, **compra la etiqueta en
+   Seller Center** («Arrange shipment»: TikTok elige transportista, USPS,
+   UPS o FedEx, según el tamaño y peso) y la imprime.
+3. Se entrega el paquete al transportista o se pide recogida. **Tiene que
+   estar «en tránsito» en 2 días hábiles.** El número de guía lo pone
+   TikTok solo: no hay que copiar nada.
+4. TikTok le cobra al comprador, se queda el 6 %, descuenta la etiqueta
+   después de la entrega, y nos paga al banco.
 
-Ejemplo con números: una lámpara que en mercatren.com se vende a $40. En
-TikTok, de esos $40 TikTok se queda $2,40 (6 %) y nos paga $37,60. De ahí
-sale lo que le pagamos a CJ (producto + flete) y lo que queda es nuestro.
-**En TikTok no interviene Stripe**, así que el precio se arma distinto al de
-la web: costo + flete + 6 % de TikTok + nuestro margen. Eso es una fórmula
-nueva por canal, y se escribe cuando toque el código.
+Con números, sobre el precio actual de $1.009,89:
 
-## Las reglas de TikTok que deciden el diseño (comprobadas el 6 sep 2026)
+| Concepto                                       | Monto                                                                |
+| ---------------------------------------------- | -------------------------------------------------------------------- |
+| Paga el comprador                              | $1.009,89                                                            |
+| Comisión de TikTok (6 %)                       | −$60,59 (los primeros 30 días, 3 %: −$30,30 según guías de terceros) |
+| Etiqueta de TikTok Shipping, paquete de ~10 kg | −$30 a −$60 **(estimado; se sabe al comprar la primera)**            |
+| Nos queda                                      | ≈ $890 a $920                                                        |
 
-| Regla                                                                                                                                                                                                                                          | De dónde sale                                                 | Qué significa para nosotros                                                                                                                                    |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Un pedido normal tiene que estar «In Transit» en 2 días hábiles** desde que entra (vigente desde el 26 ene 2026). Si en 5 días hábiles no hay guía, TikTok lo cancela solo.                                                                  | Seller University: Fulfillment Policy y Late Dispatch Rate    | CJ tiene que despachar en 1–2 días. **Hay que medirlo antes de vender**: cuánto tardó CJ en mover las dos compras de prueba del 5 sep.                         |
-| Si más del **10 %** de los pedidos salen tarde, TikTok castiga (límite de pedidos, pagos demorados). Guías válidas: **95 % o más**.                                                                                                            | Seller University: LDR y VTR                                  | El puente tiene que subir la guía real de CJ en cuanto exista, solo, sin que nadie la copie a mano.                                                            |
-| **Las etiquetas de USPS deben comprarse dentro de TikTok Shipping** desde el 1 ene 2026; una etiqueta USPS comprada por fuera se rechaza. UPS, FedEx y DHL no tienen esa regla.                                                                | Anuncio de TikTok (resumido por GeekSeller, ParcelPath)       | **CJ despacha muchas veces con USPS con su propia etiqueta.** Es la pregunta abierta número uno: hay que probarla con un pedido real antes de abrir la tienda. |
-| TikTok anunció que el «Seller Shipping» (despachar con transportista propio) se acababa el 31 mar 2026, y **lo revirtió el 17 feb 2026**. Sigue permitido.                                                                                     | Digiday, Easyship (23 feb 2026)                               | El modelo con CJ sigue siendo válido. Si vuelven a anunciarlo, se revisa este plan.                                                                            |
-| Un vendedor local de EE. UU. despacha desde Estados Unidos.                                                                                                                                                                                    | Seller University (envío) y la propia CJ                      | Solo productos del **almacén de EE. UU.** de CJ. Nada de China, nada de Chile/Colombia.                                                                        |
-| **«No brand» es solo para productos de verdad sin marca.** Poner «No brand» a algo que lleva una marca visible se sanciona.                                                                                                                    | Seller University: Brand Authorization e IP Policy            | Publicar como «No brand» SOLO lo que no lleve marca ni logo en el producto ni en las fotos. Es justo lo que pidió Richard.                                     |
-| Para usar **nuestro propio nombre de marca** en la casilla «Brand», TikTok exige el número de registro de la marca en la USPTO (no vale «pendiente») y manda un código al abogado de registro.                                                 | Seller University: Brand Authorization                        | Las tiendas de la casa (Sole & Thread, Ridgeback…) **no** pueden ir en la casilla de marca hoy. Decisión de Richard: registrar una marca o ir sin marca.       |
-| Comisión de TikTok: **6 %** del precio en casi todo (5 % en joyería y usado), sin cuota mensual ni por publicación. Vigente desde el 31 oct 2024.                                                                                              | Seller University: Referral Fees                              | Entra en la fórmula de precio del canal.                                                                                                                       |
-| Los vendedores nuevos que hacen su primera venta en 60 días pagan **3 % durante 30 días** (guías de terceros; comprobar en Seller Center).                                                                                                     | OneCart, FastMoss, Darkroom                                   | Conviene que la primera venta real ocurra cuando el circuito ya esté probado, para aprovechar el mes barato.                                                   |
-| La aplicación propia se crea en **Partner Center** como «Custom app» (para la tienda de uno), con el mismo acceso que las públicas. La aprobación tarda **2–3 días hábiles** (terceros). Hay «tiendas de desarrollo» para probar sin clientes. | Partner Center (App development overview), Unified.to, KeyAPI | Registro primero, código después. Las esperas de TikTok marcan el ritmo, no nosotros.                                                                          |
+El precio en TikTok lo ponemos nosotros: puede ser el mismo de la web o
+uno propio. En TikTok no interviene Stripe.
 
-## Lo que NO se va a hacer, y por qué
+## Las reglas de TikTok que mandan aquí (comprobadas el 6 sep 2026)
 
-- **Conectar CJ directo a TikTok** (CJ tiene su propio conector). Publicaría
-  el catálogo de CJ tal cual —sus fotos, sus nombres, sus marcas chinas— y
-  sacaría a Mercatren del medio: sin nuestro precio, sin nuestra factura, sin
-  nuestro control de qué se vende. Es exactamente lo contrario de lo pedido.
-- **Publicar el almacén completo.** En TikTok se empieza con **pocos
-  productos elegidos a mano** (5 a 20), sin marca, con fotos limpias, que
-  CJ tenga en Estados Unidos con stock. TikTok limita a los vendedores
-  nuevos y castiga rápido; cien mil fichas de golpe es la forma de que
-  cierren la cuenta la primera semana.
-- **Vender marcas de terceros** ni «inspiradas en». Ni una.
-- **Chile y Colombia por TikTok.** Es otra cuenta, otro país y otras
-  reglas. Cuando EE. UU. funcione, se mira.
+| Regla                                                                                                                                                                                                                                                                                                                                                                                                                      | De dónde sale                                              | Qué significa para nosotros                                                                                                                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Electrónica es una categoría con calificación previa.** Antes de publicar hay que pasar por «Qualification Center» con papeles; la mayoría se revisa en unos 6 días.                                                                                                                                                                                                                                                     | Seller University: Your Guide to Category Qualification    | **Es el camino crítico.** Sin esos papeles no se publica nada, con código o sin código.                                                                                                                              |
+| Para electrónica piden: (a) **Certificado de conformidad** del laboratorio (emitido en los últimos 2 años, con las normas probadas: seguridad eléctrica y FCC), y (b) **una foto del producto o su caja donde se vea el marcado de seguridad eléctrica y el marcado FCC** (obligatorio si tiene Wi-Fi o Bluetooth). Si somos revendedores: la **factura de compra al fabricante** (de los últimos 365 días) más las fotos. | Seller University: Electronic Products Requirements        | Hay que pedirle al fabricante del POS el certificado FCC y el de seguridad eléctrica (UL/ETL o equivalente), tener la factura de compra a mano, y fotografiar las etiquetas del equipo y del adaptador de corriente. |
+| **Despacho «en tránsito» en 2 días hábiles** desde que entra el pedido (vigente desde el 26 ene 2026). Sin guía en 5 días hábiles, TikTok lo cancela solo. Más del 10 % tarde → castigos.                                                                                                                                                                                                                                  | Seller University: Fulfillment Policy y Late Dispatch Rate | Alguien en Novi tiene que poder empacar y despachar en dos días, siempre. Es una persona y un proceso, no código.                                                                                                    |
+| **TikTok Shipping**: la etiqueta se compra en Seller Center, TikTok elige el transportista, la guía se sube sola, y el costo se descuenta del pago después de la entrega. Pide peso y medidas exactos y una plantilla de envío. La recogida gratis («Collection by TikTok») no cubre Michigan.                                                                                                                             | Seller University: What is TikTok Shipping?                | Esto resuelve de raíz la regla de las etiquetas USPS (solo valen las compradas dentro de TikTok). Hay que pesar y medir la caja del POS antes de publicar.                                                           |
+| **«No brand» es solo para productos que de verdad no llevan marca.** Para poner un nombre de marca hace falta el número de registro en la USPTO ya aprobado (no «pendiente»); TikTok manda un código al abogado de registro.                                                                                                                                                                                               | Seller University: Brand Authorization e IP Policy         | El POS lleva el nombre QRBott. Si la marca está registrada, se hace la autorización con el número. Si no, se publica como «No brand» **y se arranca el registro**. Decisión de Richard.                              |
+| Comisión de TikTok: **6 %** (vigente desde el 31 oct 2024), sin cuota mensual ni por publicación. Primer mes al 3 % si la primera venta cae en los primeros 60 días (terceros).                                                                                                                                                                                                                                            | Seller University: Referral Fees · OneCart, FastMoss       | Está en la tabla de números de arriba.                                                                                                                                                                               |
+| Un vendedor local de EE. UU. despacha desde Estados Unidos.                                                                                                                                                                                                                                                                                                                                                                | Seller University                                          | Novi cumple.                                                                                                                                                                                                         |
+| Para una tienda propia no hay botón de conexión (los que hay son Shopify, WooCommerce y Amazon). Lo que TikTok da es el **Partner Center** para registrar una aplicación propia («Custom app»).                                                                                                                                                                                                                            | Partner Center: App development overview                   | Para UN producto despachado por nosotros **no hace falta al principio**: se publica y se atiende desde Seller Center. El puente con Mercatren va después, y solo para ese producto.                                  |
 
-## Las decisiones que solo Richard toma (antes de arrancar)
+## Lo que NO se va a hacer
 
-1. **¿Con qué productos empezamos?** Propuesta: entre 5 y 20 productos de
-   nuestras tiendas de EE. UU. que (a) no lleven ninguna marca visible,
-   (b) tengan stock en el almacén de CJ en Estados Unidos, (c) tengan buen
-   margen después del 6 % de TikTok, y (d) sean de una o dos categorías que
-   se presten a video (hogar, cocina, mascotas, accesorios).
-2. **¿Marca propia o «No brand»?** Registrar una marca en la USPTO cuesta
-   dinero y meses, y TikTok no acepta registros pendientes. Recomendación:
-   **arrancar como «No brand»**, y decidir el registro cuando haya ventas.
-3. **¿Quién graba los videos?** TikTok Shop vende por video. Sin contenido no
-   hay ventas aunque el puente funcione perfecto. Los quince videos de
-   «Tu Próximo Producto Ganador» son un punto de partida.
-4. **¿Creadores afiliados sí o no?** TikTok deja pagarle una comisión a
-   creadores que enseñen el producto. Es dinero extra por venta y se decide
-   producto por producto. No hace falta para arrancar.
+- **Conectar la tienda entera.** `mercatren-estados-unidos` tiene 28
+  productos de CJ. La conexión, cuando exista, es por producto marcado.
+- **CJ en el medio.** Ni para este producto ni para ningún otro en TikTok.
+- **El almacén de CJ, Chile, Colombia, más productos.** Después, y cada uno
+  con su propio plan.
+- **Tocar el proyecto QRBot.** El producto se vende desde Mercatren; el
+  software del POS es de otra sesión.
+
+## Las decisiones que solo Richard toma
+
+1. **¿QRBott está registrada en la USPTO?** Y con qué grafía: en la ficha
+   dice «QRBott» con dos tes. Si está registrada → autorización de marca con
+   el número. Si no → «No brand» ahora y registro en paralelo (meses).
+2. **¿Somos fabricante/importador o revendedor ante TikTok?** Si el POS se
+   compra hecho y se le carga nuestro software, lo más seguro es tener las
+   DOS cosas: el certificado del fabricante Y la factura de compra.
+3. **¿Quién empaca y despacha en Novi en 2 días hábiles?** Nombre, y qué
+   pasa cuando esa persona no está.
+4. **¿Cuántas unidades se ponen en TikTok?** Recomendación: **5 o 10, no
+   las 52**, hasta que el puente sincronice el stock con la web. Así no se
+   vende por dos canales lo que ya no hay.
+5. **¿Precio en TikTok?** El mismo $1.009,89, o uno propio.
+6. **Devoluciones.** Para un equipo de $1.000 hay que leer en Seller Center
+   → Returns qué plazo da TikTok al comprador y quién paga el envío de
+   vuelta, antes de publicar. La dirección de devolución es Novi.
 
 ## El roadmap, paso a paso
 
-Cada paso dice quién lo hace y cómo se sabe que quedó. **No se pasa al
-siguiente sin la comprobación del anterior.** Y no se anuncia nada ni se
-manda a nadie a comprar por TikTok hasta el paso 9: es la regla de la casa
-(`VERIFICAR-PAGOS.md`).
+Cada paso dice quién lo hace y cómo se sabe que quedó. No se pasa al
+siguiente sin la comprobación del anterior. **Sin código hasta la fase 4.**
 
-### Fase 0 · Dejar la cuenta lista (esta semana)
+### Fase 0 · Papeles y decisiones (esta semana)
 
-| #   | Quién | Qué                                                                                                                                                                                                                                    | Cómo se sabe que quedó                                                                                                      |
-| --- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 0.1 | 👤    | Tomar las cuatro decisiones de arriba (productos, marca, videos, afiliados).                                                                                                                                                           | Están escritas en este archivo, en la sección siguiente.                                                                    |
-| 0.2 | 👤    | En Seller Center comprobar que están cargados: la cuenta bancaria donde TikTok paga (Chase o Mercury), la dirección de devoluciones (Novi, la misma del registro), la dirección de almacén de salida, y la configuración de impuestos. | Seller Center no muestra ningún aviso rojo en Home ni en «Settings».                                                        |
-| 0.3 | 💻    | Medir con las dos compras de prueba del 5 sep (PRUEBA-20260905184139 y …205642) **cuántos días tardó CJ en entregar una guía y con qué transportista**.                                                                                | Los dos números escritos aquí. Si CJ tardó más de 2 días hábiles, se cambia de transportista o de producto antes de seguir. |
-| 0.4 | 💻    | Preguntarle a CJ (soporte o su propia guía de TikTok) **qué etiqueta usan para pedidos de TikTok**: si compran la de USPS por fuera, TikTok la rechaza.                                                                                | Respuesta escrita aquí, con fecha.                                                                                          |
+| #   | Quién | Qué                                                                                                                                                                            | Cómo se sabe que quedó                                                        |
+| --- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| 0.1 | 👤    | Pedirle al fabricante del POS el **certificado de conformidad** (FCC + seguridad eléctrica, de los últimos 2 años) y tener la **factura de compra** a mano.                    | Los dos archivos guardados en `~/Mercatren-privado/tiktok/` (fuera del repo). |
+| 0.2 | 👤    | **Fotografiar** la etiqueta del equipo y la del adaptador de corriente donde se vean el marcado FCC y el de seguridad eléctrica. Nítidas, planas, sin pegatina encima de otra. | Las fotos en la misma carpeta.                                                |
+| 0.3 | 👤    | **Pesar y medir la caja** tal como se va a despachar.                                                                                                                          | Peso y medidas escritos aquí abajo, en «Decisiones tomadas».                  |
+| 0.4 | 👤    | Tomar las seis decisiones de arriba.                                                                                                                                           | Escritas aquí abajo.                                                          |
+| 0.5 | 👤    | En Seller Center: cuenta bancaria de cobro, dirección de almacén (Novi), dirección de devoluciones (Novi), plantilla de envío «envío gratis», y mirar Taxes y Returns.         | Ningún aviso rojo en Home.                                                    |
 
-### Fase 1 · La aplicación en Partner Center (una semana, por las esperas de TikTok)
+### Fase 1 · Calificación de Electrónica (unos 6 días de espera de TikTok)
 
-| #   | Quién | Qué                                                                                                                                                                                                         | Cómo se sabe que quedó                                                               |
-| --- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1.1 | 👤    | Registrarse en **partner.us.tiktokshop.com** como desarrollador de la propia tienda («Seller in-house developer»), con el MISMO correo que administra la tienda. Yo te paso el croquis casilla por casilla. | Partner Center dice que la cuenta de desarrollador está aprobada (2–3 días hábiles). |
-| 1.2 | 💻    | Preparar en Mercatren la dirección de vuelta que TikTok pide en el formulario de la app (la «Redirect URL»), para que exista antes de que la pegues.                                                        | La dirección responde en producción.                                                 |
-| 1.3 | 👤    | Crear la app: tipo **Custom app**, mercado Estados Unidos, la dirección de vuelta que te doy, y los permisos de productos, pedidos, envíos e inventario. Croquis incluido.                                  | TikTok muestra el **App Key** y el **App Secret**.                                   |
-| 1.4 | 👤    | Pegar App Key y App Secret en las variables del sitio en YaDominios Cloud (te digo el nombre exacto de cada casilla).                                                                                       | El canario `/datos/salud` dice `tiktok: configurado`.                                |
-| 1.5 | 👤    | Abrir el enlace de autorización que genera Mercatren, entrar con la cuenta de la tienda y pulsar «Authorize».                                                                                               | Panel → Equipo → TikTok Shop dice «Tienda MERCATREN conectada» con la fecha.         |
+| #   | Quién | Qué                                                                                                                                                          | Cómo se sabe que quedó                                                |
+| --- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| 1.1 | 👤    | Seller Center → My Account → Qualification Center → Category Qualification → Electronics → subir los papeles de la fase 0. Croquis casilla por casilla, mío. | Qualification Center dice «Approved» en Electronics.                  |
+| 1.2 | 👤    | Si QRBott está registrada: Brand Authorization con el número de registro; el código llega al abogado de registro y hay 10 días para ponerlo.                 | La marca aparece autorizada. Si no hay registro, este paso no existe. |
 
-### Fase 2 · El puente (código, unos 4–6 días de trabajo míos)
+### Fase 2 · Publicar el POS a mano (un día)
 
-| #   | Quién | Qué                                                                                                                                                           | Cómo se sabe que quedó                                                              |
-| --- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 2.1 | 💻    | En Mis productos, una marca **«Publicar en TikTok»** por producto, solo para productos de EE. UU. sin marca. Nada se publica solo.                            | La marca existe, y un producto de Venezuela o de Chile no la tiene.                 |
-| 2.2 | 💻    | El precio del canal: fórmula propia (costo + flete + 6 % + margen), separada de la de la web, pura y con pruebas.                                             | Una prueba con números fijos, comprobada en rojo.                                   |
-| 2.3 | 💻    | Publicar la ficha en TikTok: título limpio (sin marcas, sin código de CJ), fotos, precio, stock, categoría de TikTok, «No brand».                             | El producto aparece en Seller Center → Products con estado «Live» o «In review».    |
-| 2.4 | 💻    | Recibir el pedido de TikTok (aviso automático) y crearlo en Mercatren como una venta más, con su factura de Mercatren LLC y **la compra a CJ que ya existe**. | Un pedido de prueba de TikTok aparece en Panel → Órdenes y en Pedidos al proveedor. |
-| 2.5 | 💻    | Devolverle a TikTok la guía de CJ en cuanto exista, y el stock cada vez que cambie.                                                                           | El pedido en Seller Center pasa a «In Transit» solo, con la guía correcta.          |
-| 2.6 | 💻    | El vigilante mira TikTok: pedidos sin guía a las 24 h en rojo, y el conteo de los cuatro indicadores de TikTok en su tablero.                                 | Correo del vigilante con la sección de TikTok.                                      |
+| #   | Quién | Qué                                                                                                                                                                                                       | Cómo se sabe que quedó                                                       |
+| --- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 2.1 | 💻    | Preparar el texto de la ficha para TikTok en inglés y en español, a partir de la ficha de Mercatren: título limpio, puntos clave, sin código interno.                                                     | El texto está en este archivo para copiar y pegar.                           |
+| 2.2 | 👤    | Seller Center → Products → Add product → «Add manually»: título, fotos (las de Mercatren), categoría Electrónica, marca (según la decisión 1), precio, **stock de 5 o 10**, peso y medidas. Croquis, mío. | El producto sale «Live» en Products (TikTok revisa la ficha uno o dos días). |
+| 2.3 | 👤    | Enlazar el producto a la vitrina de la cuenta y a un video corto del POS funcionando (imprimiendo un ticket, escaneando).                                                                                 | El video muestra el producto con el enlace de compra.                        |
 
-### Fase 3 · Probar de punta a punta (una semana)
+### Fase 3 · La primera venta, mirada paso a paso
 
-| #   | Quién | Qué                                                                                                                                         | Cómo se sabe que quedó                                                                                                                      |
-| --- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3.1 | 💻    | Todo el circuito contra la **tienda de desarrollo** de TikTok (sin clientes reales): publicar, pedido, compra a CJ, guía de vuelta.         | Los pasos en verde en Panel → Equipo → TikTok Shop, con la respuesta cruda de TikTok en cada uno.                                           |
-| 3.2 | 👤    | **Una compra real por TikTok**, con tu tarjeta, de uno de los productos publicados. Solo cuando yo diga que todo lo anterior está en verde. | TikTok muestra el pedido, Mercatren lo crea, CJ lo despacha, la guía vuelve a TikTok en menos de 2 días hábiles, y **te llega el paquete**. |
-| 3.3 | 💻    | Marcar en `VERIFICAR-PAGOS.md` el canal TikTok como PROBADO, con la fecha y el número del pedido.                                           | La línea existe.                                                                                                                            |
+| #   | Quién | Qué                                                                                                                                                                                                                       | Cómo se sabe que quedó                                                               |
+| --- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 3.1 | 👤    | Al primer pedido (real o de prueba tuya): empacar, comprar la etiqueta en Seller Center, imprimir, despachar **el mismo día o el siguiente**. Yo te paso el croquis de «Arrange shipment» antes de que llegue el primero. | Seller Center muestra el pedido «In Transit» dentro de los 2 días hábiles, con guía. |
+| 3.2 | 👤    | Ver que el paquete llegue y que TikTok haga el pago al banco (menos el 6 % y la etiqueta).                                                                                                                                | El pago aparece en Seller Center → Finance y en el banco.                            |
+| 3.3 | 💻    | Anotar en `VERIFICAR-PAGOS.md` el canal TikTok como PROBADO, con fecha y número de pedido, y el costo real de la etiqueta en este archivo.                                                                                | Las líneas existen.                                                                  |
 
-### Fase 4 · Abrir (después de la prueba real)
+### Fase 4 · El puente con Mercatren (después, y solo para lo marcado)
 
-| #   | Quién | Qué                                                                                                              | Cómo se sabe que quedó                                                         |
-| --- | ----- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 4.1 | 👤    | Publicar los videos de los productos elegidos y enlazarlos a la vitrina.                                         | Los videos tienen el producto enlazado.                                        |
-| 4.2 | 💻    | Revisar cada día, la primera semana, los cuatro indicadores de TikTok (despacho, guías, entrega, cancelaciones). | Ninguno fuera de rango; si alguno se acerca, se para de publicar y se corrige. |
-| 4.3 | 👤    | Decidir si se suman más productos, afiliados, o el registro de marca.                                            | Decisión escrita aquí.                                                         |
+Esto es lo que convierte «vender por TikTok» en «vender por TikTok desde
+Mercatren»: el stock en un solo sitio, la venta registrada en Mercatren con
+su factura de Mercatren LLC, y el precio cambiado una sola vez. **No hace
+falta para vender; hace falta para no llevar dos inventarios a mano.**
+
+| #   | Quién | Qué                                                                                                                                                                                                                                         | Cómo se sabe que quedó                                                         |
+| --- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 4.1 | 👤    | Registrarse en partner.us.tiktokshop.com como desarrollador de la propia tienda («Seller in-house developer», mismo correo de la tienda) y crear la «Custom app». Croquis, mío. Se puede hacer en paralelo a la fase 1: es solo una cuenta. | App Key y App Secret a la vista (aprobación 2–3 días hábiles, según terceros). |
+| 4.2 | 💻    | Marca **«Publicar en TikTok»** por producto en Mis productos. Solo aparece en productos de EE. UU. que despacha Mercatren, nunca en los de CJ.                                                                                              | La marca existe y un producto de CJ no la tiene.                               |
+| 4.3 | 💻    | Stock: cada venta en TikTok baja el stock en Mercatren y al revés.                                                                                                                                                                          | Vender uno en TikTok deja 51 en la web.                                        |
+| 4.4 | 💻    | El pedido de TikTok entra en Mercatren como venta (con su factura), y la guía de TikTok queda en el pedido.                                                                                                                                 | Panel → Órdenes muestra la venta con origen «TikTok».                          |
+| 4.5 | 💻    | El vigilante avisa en rojo si un pedido de TikTok lleva 24 h sin guía.                                                                                                                                                                      | Correo del vigilante con la sección de TikTok.                                 |
 
 ## Decisiones tomadas
 
-_(vacío: se llena cuando Richard decida los cuatro puntos de arriba)_
+_(vacío: se llena con las seis decisiones de Richard, más el peso y las medidas de la caja)_
 
-## Preguntas abiertas (se cierran en la Fase 0)
+## Preguntas abiertas
 
-- ¿Con qué transportista y en cuántos días despachó CJ las pruebas del 5 sep?
-- ¿CJ compra etiquetas de USPS por fuera de TikTok para pedidos de TikTok?
-- ¿TikTok cobra y declara el impuesto de venta por nosotros (como Amazon)?
-  Es lo normal en Estados Unidos para un marketplace, pero se comprueba en
-  Seller Center → Taxes antes de la primera venta, no se supone.
+- ¿El fabricante entrega el certificado FCC y el de seguridad eléctrica? Sin
+  eso no hay calificación de Electrónica, y sin calificación no hay venta.
+- ¿Cuánto cuesta de verdad la etiqueta de TikTok Shipping para la caja del
+  POS? Se sabe en la primera compra y se anota aquí.
+- ¿TikTok cobra y declara el impuesto de venta por nosotros? Es lo normal
+  en un marketplace de Estados Unidos, pero se comprueba en Seller Center →
+  Taxes antes de la primera venta, no se supone.
 
 ## Fuentes (leídas el 6 sep 2026)
 
-- Partner Center · App development overview: https://partner.tiktokshop.com/docv2/page/64f198e74830a5028854bf8f
-- Partner Center US: https://partner.us.tiktokshop.com/
+- Seller University · Your Guide to Category Qualification: https://seller-us.tiktok.com/university/essay?knowledge_id=1707918207813422
+- Seller University · Electronic Products Requirements: https://seller-us.tiktok.com/university/essay?knowledge_id=1418345612003114&lang=en
+- Seller University · What is TikTok Shipping?: https://seller-us.tiktok.com/university/essay?knowledge_id=1830506744514347&lang=en
 - Seller University · Fulfillment Policy: https://seller-us.tiktok.com/university/essay?knowledge_id=3995852763301633
 - Seller University · Late Dispatch Rate: https://seller-us.tiktok.com/university/essay?knowledge_id=3668989549299511
 - Seller University · Valid Tracking Rate: https://seller-us.tiktok.com/university/essay?knowledge_id=1274968588748558&lang=en
@@ -166,9 +174,8 @@ _(vacío: se llena cuando Richard decida los cuatro puntos de arriba)_
 - Seller University · Brand Authorization: https://seller-us.tiktok.com/university/essay?knowledge_id=2419888845686570
 - Seller University · Intellectual Property Policy: https://seller-us.tiktok.com/university/essay?knowledge_id=6837901778306818&lang=en
 - Seller University · Referral Fees: https://seller-us.tiktok.com/university/essay?knowledge_id=5988482086864682
+- Partner Center · App development overview: https://partner.tiktokshop.com/docv2/page/64f198e74830a5028854bf8f
+- Partner Center US: https://partner.us.tiktokshop.com/
 - Regla de etiquetas USPS 2026 (GeekSeller): https://www.geekseller.com/blog/tiktok-shop-usps-label-policy-change-for-2026-what-sellers-and-geekseller-users-need-to-know/
-- Reversión del fin del Seller Shipping (Easyship, 23 feb 2026): https://www.easyship.com/blog/tiktok-shop-reverses-us-shipping-mandate
-- Guía de la app custom (Unified.to): https://unified.to/blog/how_to_setup_a_tiktok_shop_application
-- Guía de integración (KeyAPI): https://www.keyapi.ai/blog/tiktok-shop-api-integration-guide-sellers/
-- Conector CJ ↔ TikTok US: https://cjdropshipping.com/article-details/A-Guidance-to-TikTok--US-Connection
 - Comisiones 2026 (OneCart): https://www.getonecart.com/tiktok-shop-seller-fees/
+- Guía de la app custom (KeyAPI): https://www.keyapi.ai/blog/tiktok-shop-api-integration-guide-sellers/
