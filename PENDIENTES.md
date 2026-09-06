@@ -67,6 +67,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 💻 **Cláusula en los términos: el margen puede subir**, con aviso
       previo (`PLAN-COMISION.md`).
 
+### 6 sep 2026 · TikTok Shop, cuenta aprobada
+
+- [ ] 🟠 👤 **Decidir con qué productos se arranca en TikTok Shop, y si van
+      como «No brand» o con marca registrada.** Todo el plan, las reglas de
+      TikTok comprobadas (despacho en 2 días hábiles, etiquetas USPS, marcas,
+      6 %) y las preguntas abiertas están en `PLAN-TIKTOK-SHOP.md`. Sin esas
+      decisiones no se registra la app ni se escribe una línea.
+
 ### 5 sep 2026 · la ficha de producto que se borraba
 
 - ✅ 💻 **Arreglado:** el equipo llenaba «Nuevo producto» sin tienda elegida

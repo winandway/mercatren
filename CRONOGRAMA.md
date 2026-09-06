@@ -187,6 +187,15 @@ filas. Se les pone el buscador cuando pasen de ahí.
 
 ---
 
+### 13. 🟠 👤💻 TikTok Shop: vender solo lo nuestro
+
+TikTok aprobó la cuenta de empresa el 6 sep 2026. El plan completo, con las
+reglas de TikTok comprobadas y las decisiones que faltan, está en
+**`PLAN-TIKTOK-SHOP.md`**. Lo primero es tuyo: elegir los 5–20 productos
+sin marca con los que se arranca, y decidir «No brand» o registrar marca.
+Después va el registro en Partner Center (con croquis) y recién ahí el
+puente. **Sin la compra real de prueba (paso 3.2) no se publica nada.**
+
 ## Lo que ya no hay que vigilar (hecho)
 
 - Las fotos se copian solas y una rota no se enseña (3 sep).
