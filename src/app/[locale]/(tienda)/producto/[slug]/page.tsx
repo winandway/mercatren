@@ -1,7 +1,9 @@
 import { Store } from "lucide-react";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
+import { seMudoA } from "@/lib/mercado/mercados";
+import { mercadoDeEsteProducto } from "@/lib/mercado/mudanza";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BotonAgregar } from "@/components/catalogo/boton-agregar";
@@ -63,6 +65,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const ficha = await obtenerProductoPorSlug(await mercadoDeLaPeticion(), slug);
+
+  /**
+   * ══ EL 301 SE DECIDE AQUÍ, ANTES DE RENDERIZAR (6 sep 2026) ══
+   *
+   * Estaba más abajo, en el cuerpo de la página, y ahí NO sirve: para cuando
+   * la página corre, el renderizado ya empezó y la redirección sale dentro
+   * del HTML con un 200 — medido en la compilación de producción. Google lee
+   * ese 200 como «la página sigue aquí» y no traspasa nada.
+   *
+   * `generateMetadata` corre ANTES del primer byte, así que aquí sí se
+   * convierte en el 308 de verdad.
+   */
+  if (!ficha) {
+    const destino = seMudoA(
+      await mercadoDeLaPeticion(),
+      await mercadoDeEsteProducto(slug),
+      locale,
+      `/producto/${slug}`,
+    );
+    if (destino) permanentRedirect(destino);
+  }
   if (!ficha) return {};
 
   const titulo =
@@ -158,7 +181,22 @@ export default async function PaginaProducto({
   const tCatalogo = await getTranslations("catalogo");
   const ficha = await obtenerProductoPorSlug(await mercadoDeLaPeticion(), slug);
 
-  if (!ficha) notFound();
+  if (!ficha) {
+    /**
+     * ¿O es que se MUDÓ de dominio? Los comercios venezolanos pasaron de
+     * mercatren.com a mercatren.com.ve el 6 sep 2026, con más de mil fichas
+     * ya indexadas. Un 301 traspasa el posicionamiento; un 404 lo tira.
+     */
+    const otro = await mercadoDeEsteProducto(slug);
+    const destino = seMudoA(
+      await mercadoDeLaPeticion(),
+      otro,
+      locale,
+      `/producto/${slug}`,
+    );
+    if (destino) permanentRedirect(destino);
+    notFound();
+  }
 
   /* Cómo despacha el comercio de ESTE producto. Antes la ficha decía a todo el
      mundo "no hacemos entregas a domicilio", y desde que los comercios pueden

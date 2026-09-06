@@ -13,7 +13,11 @@ import { RegistroAppInstalable } from "@/components/registro-app-instalable";
 import { ESPACIOS_QUE_NO_VIAJAN } from "@/i18n/espacios";
 import { comoJsonLd } from "@/lib/seo/datos-estructurados";
 import { mercadoActual } from "@/lib/mercado/actual";
-import { esMercadoPrincipal, marcaDelMercado } from "@/lib/mercado/mercados";
+import {
+  esMercadoPrincipal,
+  marcaDelMercado,
+  seRetiraEnCiudad,
+} from "@/lib/mercado/mercados";
 import { routing } from "@/i18n/routing";
 import { SITIO } from "@/lib/sitio";
 
@@ -63,12 +67,23 @@ export async function generateMetadata({
      descripción remata con la promesa diferencial: precio final en su
      moneda, envío e impuestos incluidos, sin sorpresa de aduana. */
   const monedaLocal = mercado.codigo === "CL" ? t("monedaCLP") : t("monedaCOP");
+  /* ══ VENEZUELA NO SE ENTREGA A DOMICILIO: SE RETIRA (6 sep 2026) ══
+     El texto de los países nuevos promete «entrega a domicilio en todo el
+     país» y cobro en moneda local. En Venezuela las dos cosas son falsas: el
+     producto se busca en un mostrador y se paga en dólares desde Estados
+     Unidos. Se vio en la pestaña del navegador el primer día de la mudanza,
+     y un título que promete lo que no se hace es una devolución esperando. */
+  const retiro = seRetiraEnCiudad(mercado);
   const lema = principal
     ? t("lema")
-    : t("lemaMercado", { pais: mercado.nombre });
+    : retiro
+      ? t("lemaVenezuela")
+      : t("lemaMercado", { pais: mercado.nombre });
   const descripcion = principal
     ? t("lema")
-    : t("descripcionMercado", { pais: mercado.nombre, moneda: monedaLocal });
+    : retiro
+      ? t("descripcionVenezuela")
+      : t("descripcionMercado", { pais: mercado.nombre, moneda: monedaLocal });
   const titulo = `${marca} — ${lema}`;
   /* La IMAGEN de la tarjeta también es del mercado: el principal conserva su
      logotipo con «.com» dibujado; los demás llevan el logo oficial sin

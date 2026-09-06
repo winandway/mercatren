@@ -1,4 +1,5 @@
 import { LayoutDashboard, UserRound } from "lucide-react";
+import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Buscador } from "@/components/layout/buscador";
@@ -17,7 +18,7 @@ import { coberturaPorCiudad } from "@/lib/entrega/cobertura";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import type { Idioma } from "@/lib/dinero";
 import { mercadoActual } from "@/lib/mercado/actual";
-import { esMercadoPrincipal } from "@/lib/mercado/mercados";
+import { seRetiraEnCiudad } from "@/lib/mercado/mercados";
 
 /**
  * Encabezado del sitio: barra oscura con el buscador ancho arriba, igual que
@@ -43,12 +44,6 @@ export async function Encabezado() {
    * la página.
    */
   const mercado = await mercadoActual();
-  /* Las ciudades del selector son la geografía de VENEZUELA, que solo tiene
-     sentido en el mercado principal. En mercatren.cl la pregunta «¿dónde lo
-     retiras?» todavía no existe; cuando Chile tenga su geografía, el
-     selector se enseña con la suya (PLAN-PAISES.md, fase 2). */
-  const conSelectorDeCiudad = esMercadoPrincipal(mercado);
-
   const [categorias, usuario, zona, cobertura] = await Promise.all([
     /* La llave lleva el mercado: el menú de categorías ya sale filtrado por
        el dominio, y una llave única serviría el de un país en el otro. */
@@ -63,6 +58,25 @@ export async function Encabezado() {
       coberturaPorCiudad(mercado),
     ),
   ]);
+  /**
+   * ══ EL SELECTOR SE DIBUJA DONDE HAY ALGO QUE RETIRAR (6 sep 2026) ══
+   *
+   * Las ciudades son la geografía de Venezuela. Hasta hoy la condición era
+   * «¿es el mercado principal?», porque principal y Venezuela eran el mismo
+   * sitio; con la mudanza a mercatren.com.ve dejaron de serlo, y esa regla
+   * le habría pedido a un comprador de Miami que eligiera en qué ciudad
+   * venezolana retira su compra.
+   *
+   * La condición nueva no nombra ningún país: **se dibuja si de verdad hay
+   * ciudades con productos que retirar**, que es lo que la pregunta
+   * significa. Y por eso se ajusta sola en la mudanza: el día que las
+   * tiendas venezolanas pasen al mercado VE, el .com se queda sin cobertura
+   * y el selector desaparece de ahí ese mismo minuto, sin publicar nada.
+   * Mientras tanto —código publicado, dato sin mover— el comprador
+   * venezolano sigue filtrando por su ciudad en mercatren.com como siempre.
+   */
+  const conSelectorDeCiudad = seRetiraEnCiudad(mercado) || cobertura.length > 0;
+
   const trabajaEnElPanel =
     usuario?.rol === "soporte" ||
     usuario?.rol === "validador" ||
@@ -101,7 +115,27 @@ export async function Encabezado() {
               en celular baja a su propia fila para salir completo. Lo demas
               del encabezado se aprieta o se esconde antes que el. */}
           <div className="order-last w-full min-w-0 basis-full md:order-none md:w-auto md:flex-1 md:basis-auto">
-            <Buscador idioma={locale as Idioma} />
+            {/**
+             * EL BUSCADOR LEE LA URL, ASÍ QUE VA EN SUSPENSE (6 sep 2026).
+             *
+             * Usa `useSearchParams` para conservar lo buscado, y eso obliga a
+             * Next a envolverlo. Hasta hoy no hacía falta porque el selector
+             * de ciudad —y su consulta de cobertura— hacían dinámica toda
+             * página con encabezado. Al mudarse Venezuela, mercatren.com dejó
+             * de dibujar el selector, `/docs` volvió a prerenderizarse y la
+             * compilación se cayó entera. El respaldo es la misma casilla sin
+             * el atajo del teclado: nadie ve un hueco.
+             */}
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden
+                  className="h-10 w-full rounded-lg bg-white/10"
+                />
+              }
+            >
+              <Buscador idioma={locale as Idioma} />
+            </Suspense>
           </div>
 
           <SelectorIdioma />

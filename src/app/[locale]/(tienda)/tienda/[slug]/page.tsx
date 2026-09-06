@@ -11,7 +11,7 @@ import {
   Truck,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { videosDeTienda } from "@/lib/videos/consultas";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -26,6 +26,8 @@ import { bannersPara } from "@/lib/banners/consultas";
 import { intercalarBanners } from "@/lib/banners/reglas";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
 import { Link } from "@/i18n/navigation";
+import { seMudoA } from "@/lib/mercado/mercados";
+import { mercadoDeEstaTienda } from "@/lib/mercado/mudanza";
 import { obtenerTiendaPorSlug } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
@@ -56,6 +58,19 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const datos = await obtenerTiendaPorSlug(await mercadoDeLaPeticion(), slug);
+
+  /* El 301 se decide en los metadatos, ANTES del primer byte: en el cuerpo
+     de la página la redirección sale dentro del HTML con un 200 y Google no
+     traspasa el posicionamiento. Medido en la compilación de producción. */
+  if (!datos) {
+    const destino = seMudoA(
+      await mercadoDeLaPeticion(),
+      await mercadoDeEstaTienda(slug),
+      locale,
+      `/tienda/${slug}`,
+    );
+    if (destino) permanentRedirect(destino);
+  }
   if (!datos) return {};
 
   const descripcion =
@@ -164,7 +179,19 @@ export default async function PaginaTienda({
     Number(pagina) || 1,
     mirador.tipo !== "visitante",
   );
-  if (!datos) notFound();
+  if (!datos) {
+    /* ¿Se mudó de dominio? Los comercios venezolanos pasaron a
+       mercatren.com.ve el 6 sep 2026: 301 en vez de 404, o se pierde el
+       posicionamiento que su ficha ya tenía. */
+    const destino = seMudoA(
+      await mercadoDeLaPeticion(),
+      await mercadoDeEstaTienda(slug),
+      locale,
+      `/tienda/${slug}`,
+    );
+    if (destino) permanentRedirect(destino);
+    notFound();
+  }
 
   const { tienda, productos, total, paginas } = datos;
 

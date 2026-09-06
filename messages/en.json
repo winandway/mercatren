@@ -6,7 +6,9 @@
     "lemaMercado": "Shop online with home delivery across {pais}",
     "descripcionMercado": "Online store with home delivery across {pais}. Pay by card in {moneda} — the price you see is final: shipping and taxes included, no surprise customs fees. Tech, home, sports, beauty, and more.",
     "monedaCLP": "Chilean pesos",
-    "monedaCOP": "Colombian pesos"
+    "monedaCOP": "Colombian pesos",
+    "lemaVenezuela": "Shop online and pick it up in your city, anywhere in Venezuela",
+    "descripcionVenezuela": "Venezuelan merchants in one place. Pay from the United States by card or Zelle, and pick the order up in the city you choose: Caracas, Mérida, El Vigía and more. Hardware, auto parts, tech, home and more."
   },
   "encabezado": {
     "buscarPlaceholder": "Search products, stores and brands",
@@ -92,7 +94,9 @@
     "masVariadosTexto": "A bit of everything, different every time you visit.",
     "verTodasLasTiendas": "See all stores",
     "tituloHeroMercado": "Shop online, delivered in {pais}",
-    "subtituloHeroMercado": "Pick your product, pay in pesos, and tell us where to deliver it. The price you see is the final price, shipping included."
+    "subtituloHeroMercado": "Pick your product, pay in pesos, and tell us where to deliver it. The price you see is the final price, shipping included.",
+    "tituloHeroVenezuela": "Shop online and pick it up in your city",
+    "subtituloHeroVenezuela": "Venezuelan merchants in one place. Pay from the United States, pick it up where you are."
   },
   "piePagina": {
     "derechos": "All rights reserved.",

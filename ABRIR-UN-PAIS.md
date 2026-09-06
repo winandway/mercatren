@@ -98,22 +98,52 @@
 - [ ] 👤 La compra de prueba del país: plazo real, papel dentro de la caja, y
       que la aduana no cobre lo que el régimen promete que no cobra.
 
+## D · Si el país YA existía dentro de otro dominio (mudanza)
+
+> Venezuela, 6 sep 2026. No es lo mismo abrir un país que **sacarlo de
+> donde estaba**: sus comercios, sus ciudades y sus mil fichas indexadas ya
+> existían dentro de mercatren.com. Las casillas de arriba se aplican igual,
+> y ADEMÁS estas cuatro, que ningún país nuevo necesita.
+
+- [ ] **Lo que era «del principal» y en realidad era del país, se separa.**
+      El selector de ciudad se dibujaba «si es el mercado principal» porque
+      principal y Venezuela eran el mismo sitio. Al mudarse dejan de serlo:
+      con la regla vieja, mercatren.com le pide a un comprador de Miami que
+      elija en qué ciudad venezolana retira. Se cuelga de lo que la regla
+      dice de VERDAD (`seRetiraEnCiudad`), no de quién es el principal.
+- [ ] **Las cookies del dominio viejo no pueden decidir en el nuevo.** Quien
+      usaba mercatren.com desde El Vigía tiene su ciudad guardada; si se
+      leyera igual, el .com le filtraría el catálogo de Estados Unidos por
+      una ciudad venezolana. Se corta en la ÚNICA puerta a ese dato.
+- [ ] **301 para todo lo que ya estaba indexado.** Producto y tienda
+      redirigen al dominio nuevo ANTES de dar 404 (`mercado/mudanza.ts`).
+      Un 404 le dice a Google «esto ya no existe» y tira el posicionamiento;
+      un 301 le dice «se mudó aquí» y se lo traspasa. **Se comprueba con el
+      estado HTTP real, no en desarrollo**: en `next dev` el streaming
+      convierte tanto el 404 como el 301 en un 200 con la redirección en el
+      cuerpo, y eso no traspasa nada.
+- [ ] **El dato se mueve el MISMO día que apunta el DNS, nunca antes.** En
+      cuanto las tiendas dicen el mercado nuevo, desaparecen del dominio
+      viejo: si el nuevo todavía no responde, no están en ninguna parte. El
+      SQL vive en `drizzle/mudanzas/`, con sus conteos de antes y después y
+      su marcha atrás escrita.
+
 ## Los países, contra esta lista
 
-| Casilla                             | US  | CL      | CO                 | RO (próximo) |
-| ----------------------------------- | --- | ------- | ------------------ | ------------ |
-| Mercado + plaza + almacén           | ✅  | ✅      | ✅                 | —            |
-| Precio con pruebas                  | ✅  | ✅      | ✅                 | —            |
-| Tasa automática                     | n/a | ✅      | ✅                 | —            |
-| Destino + dirección                 | ✅  | ✅      | ✅                 | —            |
-| Checkout (moneda/SOLO tarjeta/imp.) | ✅  | ✅      | ✅                 | —            |
-| Pedido a CJ (país/taxId/almacén)    | ✅  | ✅      | ✅                 | —            |
-| Textos + og + meta + franja         | ✅  | ✅      | ✅                 | —            |
-| Panel por selector                  | ✅  | ✅      | ✅                 | —            |
-| Código público MT                   | ✅  | ✅      | ✅                 | —            |
-| Reporte fiscal                      | n/a | ✅ F129 | n/a                | —            |
-| Bandera en el encabezado            | n/a | ✅      | ✅                 | —            |
-| Video del hero del país             | n/a | ✅      | ✅                 | —            |
-| 👤 Turnstile del dominio            | ✅  | ⬜      | ⬜                 | —            |
-| 👤 Compra de prueba                 | ⬜  | ⬜      | ⬜                 | —            |
-| 👤 Impuestos con contador           | n/a | ✅ SII  | ⬜ decisión aduana | ⬜ IVA UE    |
+| Casilla                             | US  | VE                                     | CL      | CO                 | RO (próximo) |
+| ----------------------------------- | --- | -------------------------------------- | ------- | ------------------ | ------------ |
+| Mercado + plaza + almacén           | ✅  | n/a (sus comercios ponen la mercancía) | ✅      | ✅                 | —            |
+| Precio con pruebas                  | ✅  | ✅ USD                                 | ✅      | ✅                 | —            |
+| Tasa automática                     | n/a | n/a                                    | ✅      | ✅                 | —            |
+| Destino + dirección                 | ✅  | ✅ retiro                              | ✅      | ✅                 | —            |
+| Checkout (moneda/SOLO tarjeta/imp.) | ✅  | ✅ + Zelle                             | ✅      | ✅                 | —            |
+| Pedido a CJ (país/taxId/almacén)    | ✅  | n/a                                    | ✅      | ✅                 | —            |
+| Textos + og + meta + franja         | ✅  | ✅                                     | ✅      | ✅                 | —            |
+| Panel por selector                  | ✅  | ✅                                     | ✅      | ✅                 | —            |
+| Código público MT                   | ✅  | ✅                                     | ✅      | ✅                 | —            |
+| Reporte fiscal                      | n/a | n/a                                    | ✅ F129 | n/a                | —            |
+| Bandera en el encabezado            | n/a | ✅                                     | ✅      | ✅                 | —            |
+| Video del hero del país             | n/a | ⬜                                     | ✅      | ✅                 | —            |
+| 👤 Turnstile del dominio            | ✅  | ⬜                                     | ⬜      | ⬜                 | —            |
+| 👤 Compra de prueba                 | ⬜  | ⬜                                     | ⬜      | ⬜                 | —            |
+| 👤 Impuestos con contador           | n/a | n/a                                    | ✅ SII  | ⬜ decisión aduana | ⬜ IVA UE    |

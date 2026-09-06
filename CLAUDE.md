@@ -1740,6 +1740,74 @@ formulario Y en el servidor; textos en los dos idiomas) y las dos pruebas
 nuevas de `formulario-persistente.test.tsx` (lo escrito vuelve tras un
 `reset`; el borrador se guarda al enviar). Comprobado en rojo.
 
+## VENEZUELA SE MUDÓ A SU PROPIO DOMINIO (6 sep 2026, para el lunes 8)
+
+Lo pidió Richard: _«separar a Venezuela de mercatren.com y crear
+mercatren.com.ve con sus tiendas y sus ciudades, y dejar a mercatren.com solo
+para Estados Unidos»_. Se prepara todo antes; el DNS lo apunta él el lunes.
+
+**El problema de fondo era que «mercado principal» y «Venezuela» eran la
+misma cosa.** mercatren.com enseñaba el catálogo de Estados Unidos Y los
+productos que se retiran en El Vigía, con el selector de ciudades venezolanas
+arriba. Son dos negocios distintos —uno se despacha a una dirección, el otro
+se busca en un mostrador— compartiendo portada, buscador y encabezado.
+
+- **Mercado `VE`** en `mercados.ts`, dominio `mercatren.com.ve`, con
+  **`alias`** (`ve.mercatren.sitios.dev`, `ve.localhost`) para verlo antes de
+  que el DNS apunte y sin tocar código el día del cambio.
+- **`seRetiraEnCiudad(mercado)` reemplaza a `esMercadoPrincipal` donde la
+  regla real era «aquí se retira»**: el hero y el lema. Con la regla vieja,
+  mercatren.com le habría seguido preguntando a un comprador de Miami en qué
+  ciudad de Venezuela retira su compra. **Es la trampa de toda mudanza: lo
+  que se colgó del principal porque entonces eran lo mismo.**
+- **El selector de ciudad se dibuja donde HAY cobertura**, y no nombra
+  ningún país: `seRetiraEnCiudad(mercado) || cobertura.length > 0`. Así se
+  ajusta solo el día de la mudanza —el .com se queda sin ciudades y el
+  selector desaparece de ahí ese minuto, sin publicar nada— y **permite
+  publicar el código días antes sin dejar el .com a medias**: mientras el
+  dato no se mueva, el comprador venezolano sigue filtrando por su ciudad
+  como siempre. Publicar código y dato el mismo día habría sido la única
+  alternativa.
+- **La cookie de ciudad no se lee fuera de Venezuela**, y se corta en
+  `zonaDelCliente()`, que es la ÚNICA puerta a ese dato. Quien venía usando
+  mercatren.com desde El Vigía la tiene puesta: sin ese corte, en el .com se
+  le filtraría el catálogo de Estados Unidos por una ciudad venezolana y
+  vería medio catálogo sin saber por qué.
+- **El lema y la descripción de Venezuela son propios.** El texto de los
+  países nuevos promete «entrega a domicilio en todo el país» y cobro en
+  moneda local; allá se RETIRA y se paga en dólares. Salió en la pestaña del
+  navegador el primer día y se corrigió ahí mismo: un título que promete lo
+  que no se hace es una devolución esperando.
+- **Las mil fichas ya indexadas redirigen con 301** (`mercado/mudanza.ts`):
+  producto y tienda preguntan «¿de qué mercado es esto?» **solo cuando no
+  aparecieron** —en un sitio sano, casi nunca— y responden
+  `permanentRedirect` al dominio nuevo conservando el idioma. Un 404 le dice
+  a Google «esto ya no existe» y tira el posicionamiento de un año; un 301 se
+  lo traspasa. Esa consulta es la única del proyecto sin filtro de mercado, a
+  propósito: su pregunta es «¿de qué OTRO país es?», y no devuelve ni un dato
+  del producto, solo el código del mercado.
+- **`seMudoA` vive en `mercados.ts` y no junto a las consultas** porque es
+  pura y hay que poder probarla: un módulo con `server-only` no se importa
+  desde una prueba. Lo destapó su propio candado al escribirlo.
+- **El dato se mueve el MISMO día que apunta el DNS**, con
+  `drizzle/mudanzas/2026-09-08-venezuela-a-su-dominio.sql`: mueve por
+  `pais_origen` (nunca por una lista de slugs, que se queda vieja con el
+  séptimo comercio), se lleva los pedidos ya hechos —o el panel filtrado por
+  país los escondería— y trae su marcha atrás escrita. Probado entero contra
+  la base LOCAL antes de tocar producción.
+
+**OJO AL MEDIR EL 301: `next dev` MIENTE.** Con el streaming del servidor de
+desarrollo, tanto `notFound()` como `permanentRedirect()` salen como **200**
+con la redirección en el cuerpo — y una redirección en el cuerpo no traspasa
+posicionamiento. Se comprueba con la compilación de producción o contra el
+sitio publicado, mirando el estado HTTP de verdad.
+
+Candado: `tests/unit/venezuela-su-dominio.test.ts` (13 pruebas: el mercado y
+sus alias; que VE es el único de retiro; que el encabezado ya no pregunta por
+el principal; que la cookie se corta antes de leerse; las redirecciones y su
+orden antes del 404; y el SQL, que mueve por país, se lleva los pedidos, trae
+marcha atrás y no borra nada).
+
 ## LAS FOTOS NUEVAS SE LLAMAN COMO EL PRODUCTO, Y CADA UNA DICE QUÉ SE VE (6 sep 2026)
 
 El dueño bajó las cuatro fotos del POS de QRBott desde su ficha y llegaron

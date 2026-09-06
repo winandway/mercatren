@@ -27,7 +27,7 @@ import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
 import { mercadoActual } from "@/lib/mercado/actual";
-import { esMercadoPrincipal } from "@/lib/mercado/mercados";
+import { esMercadoPrincipal, seRetiraEnCiudad } from "@/lib/mercado/mercados";
 import { videoDePortada } from "@/lib/mercado/portada";
 import { cn } from "@/lib/utils";
 
@@ -264,12 +264,19 @@ export default async function PaginaInicio({
           <h1 className="max-w-2xl text-xl font-extrabold tracking-tight text-balance sm:text-3xl">
             {esMercadoPrincipal(mercado)
               ? t("tituloHero")
-              : t("tituloHeroMercado", { pais: mercado.nombre })}
+              : seRetiraEnCiudad(mercado)
+                ? t("tituloHeroVenezuela")
+                : t("tituloHeroMercado", { pais: mercado.nombre })}
           </h1>
           <p className="mt-2 hidden max-w-xl text-sm text-white/80 sm:block">
+            {/* Venezuela no se «entrega en»: se RETIRA. El texto de los
+                demás países prometería una entrega a domicilio que allá no
+                existe. */}
             {esMercadoPrincipal(mercado)
               ? t("subtituloHero")
-              : t("subtituloHeroMercado")}
+              : seRetiraEnCiudad(mercado)
+                ? t("subtituloHeroVenezuela")
+                : t("subtituloHeroMercado")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2.5">
             <Link href="/catalogo" className="boton-principal">

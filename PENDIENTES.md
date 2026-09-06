@@ -75,6 +75,30 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       idiomas por foto; lo ya subido no se toca. Falta 👤 volver a subir las
       4 fotos del POS de QRBott para que salgan con el nombre nuevo.
 
+### 8 sep 2026 · Venezuela se muda a mercatren.com.ve
+
+El código está listo y publicado; **el dato NO se ha movido**. Orden del día
+de la mudanza, en `PLAN-TIKTOK-SHOP.md` no: en `CLAUDE.md` y en el propio SQL.
+
+- [ ] 🔴 👤 **Apuntar el DNS de `mercatren.com.ve`** a YaDominios Cloud y
+      añadir el dominio al sitio `mercatren`.
+- [ ] 🔴 👤 **Agregar `mercatren.com.ve` a Turnstile** en Cloudflare, o nadie
+      podrá entrar ni registrarse en ese dominio.
+- [ ] 🔴 💻 **Correr la mudanza del dato** el mismo día, no antes:
+      `drizzle/mudanzas/2026-09-08-venezuela-a-su-dominio.sql`. En cuanto las
+      tiendas digan `VE` desaparecen del .com; si el dominio nuevo no
+      responde todavía, no están en ninguna parte.
+- [ ] 🔴 💻 **Medir el 301 en producción** (una ficha venezolana pedida en
+      mercatren.com tiene que contestar 308 hacia mercatren.com.ve). Si
+      contesta 200, la redirección se mueve al middleware ese mismo día: son
+      mil fichas indexadas.
+- [ ] 🟠 👤 **Cambio de dirección en Search Console** para las fichas
+      venezolanas, y volver a enviar el mapa del sitio de los dos dominios.
+- [ ] 🟠 💻 **Avisar a los comercios venezolanos** de su dirección nueva: los
+      enlaces que reparten por WhatsApp siguen siendo del .com (funcionan por
+      el 301, pero conviene que repartan el bueno).
+- [ ] 🟡 💻 Video del hero propio de Venezuela (hoy usa el genérico).
+
 ### 6 sep 2026 · TikTok Shop, cuenta aprobada
 
 - [ ] 🟠 👤 **Pedir unidades del POS a Novi por CJ** (una para abrir y

@@ -6,7 +6,9 @@
     "lemaMercado": "Compra online con entrega a domicilio en todo {pais}",
     "descripcionMercado": "Tienda online con entrega a domicilio en todo {pais}. Paga con tarjeta en {moneda} y el precio que ves es el final: envío e impuestos incluidos, sin cobros sorpresa de aduana. Tecnología, hogar, deporte, belleza y más.",
     "monedaCLP": "pesos chilenos",
-    "monedaCOP": "pesos colombianos"
+    "monedaCOP": "pesos colombianos",
+    "lemaVenezuela": "Compra online y retíralo en tu ciudad, en toda Venezuela",
+    "descripcionVenezuela": "Los comercios de Venezuela, en un solo sitio. Quien está en Estados Unidos paga con tarjeta o por Zelle, y el producto se retira en la ciudad que elijas: Caracas, Mérida, El Vigía y más. Ferretería, repuestos, tecnología, hogar y más."
   },
   "encabezado": {
     "buscarPlaceholder": "Buscar productos, tiendas y marcas",
@@ -92,7 +94,9 @@
     "masVariadosTexto": "De todo un poco, distinto cada vez que entras.",
     "verTodasLasTiendas": "Ver todas las tiendas",
     "tituloHeroMercado": "Compra en línea con entrega en {pais}",
-    "subtituloHeroMercado": "Elige tu producto, paga en pesos y dinos dónde entregarlo. El precio que ves es el precio final, con el envío incluido."
+    "subtituloHeroMercado": "Elige tu producto, paga en pesos y dinos dónde entregarlo. El precio que ves es el precio final, con el envío incluido.",
+    "tituloHeroVenezuela": "Compra en línea y retíralo en tu ciudad",
+    "subtituloHeroVenezuela": "Los comercios de Venezuela, en un solo sitio. Pagas desde Estados Unidos y lo retiras donde estás."
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",

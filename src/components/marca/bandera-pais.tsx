@@ -51,11 +51,40 @@ function BanderaColombia({ clase }: { clase?: string }) {
   );
 }
 
+/**
+ * Venezuela: tres franjas (amarillo, azul, rojo) y el arco de ocho estrellas
+ * blancas sobre el azul. Las estrellas se dibujan con un radio pequeño para
+ * que se lean a 20 px de alto, que es el tamaño real del encabezado.
+ */
+function BanderaVenezuela({ clase }: { clase?: string }) {
+  /* El arco: ocho estrellas repartidas en la mitad inferior de un círculo
+     centrado bajo la franja azul. Se calcula para no escribir 8 pares a
+     mano y que queden desparejos. */
+  const estrellas = Array.from({ length: 8 }, (_, i) => {
+    const angulo = Math.PI * (0.62 + (i * 0.76) / 7);
+    return {
+      cx: 12 + Math.cos(angulo) * 6.4,
+      cy: 9.6 + Math.sin(angulo) * 6.4,
+    };
+  });
+  return (
+    <svg viewBox="0 0 24 16" className={clase} aria-hidden focusable="false">
+      <rect width="24" height="16" fill="#CF142B" />
+      <rect width="24" height="10.67" fill="#00247D" />
+      <rect width="24" height="5.33" fill="#FCD116" />
+      {estrellas.map((e, i) => (
+        <circle key={i} cx={e.cx} cy={e.cy} r="0.62" fill="#fff" />
+      ))}
+    </svg>
+  );
+}
+
 const BANDERAS: Record<
   string,
   (props: { clase?: string }) => React.JSX.Element
 > = {
   CL: BanderaChile,
+  VE: BanderaVenezuela,
   CO: BanderaColombia,
 };
 
