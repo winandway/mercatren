@@ -15,6 +15,43 @@
 > guías de terceros va marcado. **Cuando algo cambie, se actualiza este
 > archivo en el mismo trabajo.**
 
+## CORRECCIÓN (6 sep 2026, noche): la pantalla manda sobre la documentación
+
+Richard entró a Seller Center, pulsó «Add manually → Get started» y llegó
+derecho al formulario `product/create`. **TikTok no le pidió ni un papel
+para empezar.** Mis dos versiones anteriores de este plan pusieron primero
+la calificación de Electrónica y la app del Partner Center, y las dos
+estaban mal ordenadas: describí las reglas de TikTok como si fueran una
+puerta cerrada antes de poder escribir, cuando la puerta está abierta.
+
+**La regla que sale de esto, y vale para todo el proyecto:** lo que la
+pantalla PIDE manda sobre lo que la documentación DICE. La documentación
+describe qué puede pasar; la pantalla dice qué hay que hacer ahora. Cuando
+haya captura, la captura gana.
+
+Lo que sí sigue siendo cierto, con su momento corregido:
+
+| Lo que dije                                     | Cuándo pasa de verdad                                                                                                            |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Calificación de Electrónica con certificado FCC | **No bloquea escribir la ficha.** Puede aparecer al elegir categoría, o en el «Submit for review». Se sabe pulsando, no leyendo. |
+| Marca registrada en USPTO                       | Solo si se elige una marca en la casilla «Brand». Con «No brand» no aplica.                                                      |
+| Despacho en 2 días hábiles, etiquetas de TikTok | Con la primera venta, no antes.                                                                                                  |
+| App en Partner Center                           | Nunca hizo falta para vender. Es para sincronizar stock con Mercatren, y va al final.                                            |
+
+Lo que la pantalla sí enseñó, y no estaba en ningún plan:
+
+- **Periodo de prueba de la tienda: tope de 100 productos publicados.** De
+  sobra para uno.
+- **Las imágenes van en JPG, JPEG o PNG, mínimo 600 × 600, hasta 9.** Las
+  fotos de Mercatren son **WebP**: no se pueden subir tal cual. Hay que
+  convertirlas (hecho: las cinco del POS, a JPG de 1024 × 1024).
+- El formulario guarda como borrador («Save as draft») antes de mandar a
+  revisión: se puede llenar todo hoy sin comprometer nada.
+
+**El plan real es: llenar la ficha, guardarla como borrador, y que TikTok
+diga qué le falta.** Es más barato y más rápido que perseguir certificados a
+ciegas.
+
 ## Dónde estamos hoy (6 sep 2026, por la tarde)
 
 | Paso                                                                              | Estado                     | Qué lo frena                                                                                             |
