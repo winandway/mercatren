@@ -834,7 +834,10 @@
       "fotos": {
         "titulo": "Photos",
         "texto": "The first one shows in listings. Up to 8.",
-        "pesanDemasiado": "The photos add up to {peso} and the limit per save is {tope}. Save the product with fewer photos, then come back and add the rest."
+        "pesanDemasiado": "The photos add up to {peso} and the limit per save is {tope}. Save the product with fewer photos, then come back and add the rest.",
+        "descripcionEs": "What's shown (Spanish)",
+        "descripcionEn": "What's shown (English)",
+        "descripcionAyuda": "Under each photo, say in one short sentence what it shows, as you'd tell someone who can't see it: \"POS with the customer-facing second display\". That's what Google reads to show it in Images. Leave it empty and the title is used."
       },
       "agregarFotos": "Add photos",
       "quitarFoto": "Remove photo",
@@ -859,7 +862,11 @@
       "eligeTiendaPrimero": "Which store is this product for? Pick it first: without it there's nowhere to save, and what you type would be lost.",
       "paraTienda": "This product belongs to {tienda}.",
       "seDespachaEn": "This product ships to the customer's door in {pais}: there is no pickup city to choose.",
-      "paises": { "US": "United States", "CL": "Chile", "CO": "Colombia" },
+      "paises": {
+        "US": "United States",
+        "CL": "Chile",
+        "CO": "Colombia"
+      },
       "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…",
       "previaPrecio": "With this price: the customer pays {tarjeta} by card or {zelle} via Zelle — and you receive exactly {base}, either way."
     },

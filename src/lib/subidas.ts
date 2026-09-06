@@ -70,10 +70,16 @@ function extensionDe(tipo: string) {
  * `carpeta` agrupa (por ejemplo "tiendas/mi-tienda"). El nombre del archivo
  * lo pone el sistema, nunca la persona: un nombre subido tal cual puede traer
  * barras y salirse de su carpeta.
+ *
+ * `opciones.nombre` es la base del nombre cuando quien sube sabe describir
+ * la foto (las de producto: `nombreDeFoto` en `imagenes/nombre-de-foto.ts`,
+ * como pide Google). Sin él, un identificador al azar, como siempre. Se
+ * limpia igual que la carpeta: solo letras, números y guiones.
  */
 export async function subirImagen(
   archivo: unknown,
   carpeta: string,
+  opciones: { nombre?: string } = {},
 ): Promise<ResultadoSubida> {
   if (!(archivo instanceof File) || archivo.size === 0) {
     return { ok: false, mensaje: "Elige una imagen." };
@@ -93,7 +99,8 @@ export async function subirImagen(
   }
 
   const limpia = carpeta.replace(/[^a-z0-9/-]/gi, "").replace(/^\/+|\/+$/g, "");
-  const clave = `${limpia}/${nanoid()}.${extensionDe(archivo.type)}`;
+  const nombre = opciones.nombre?.replace(/[^a-z0-9-]/gi, "").toLowerCase();
+  const clave = `${limpia}/${nombre || nanoid()}.${extensionDe(archivo.type)}`;
 
   const { env } = getCloudflareContext();
   await env.BUCKET.put(clave, await archivo.arrayBuffer(), {

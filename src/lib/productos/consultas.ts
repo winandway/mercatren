@@ -235,6 +235,8 @@ export async function obtenerMiProducto(id: string) {
       url: direccionImagen(f),
       /** Las que vinieron del sistema de origen no se pueden borrar del bucket. */
       esNuestra: Boolean(f.clave),
+      altEs: f.textoAltEs ?? null,
+      altEn: f.textoAltEn ?? null,
     })),
   };
 }

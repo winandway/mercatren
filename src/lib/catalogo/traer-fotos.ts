@@ -8,7 +8,7 @@ import { exigirEquipoInterno } from "@/lib/autorizacion";
 import { copiarFotoAlBucket } from "@/lib/catalogo/copiar-foto";
 import { getDb } from "@/lib/db";
 import { mensajes } from "@/lib/mensajes";
-import { fotosRotas, imagenesProducto } from "@/lib/db/schema";
+import { fotosRotas, imagenesProducto, productos } from "@/lib/db/schema";
 
 /**
  * Trae a nuestro almacenamiento las fotos que viven en el servidor del
@@ -82,8 +82,11 @@ export async function traerTandaDeFotos(): Promise<ResultadoTanda> {
       id: imagenesProducto.id,
       productoId: imagenesProducto.productoId,
       url: imagenesProducto.url,
+      slug: productos.slug,
+      orden: imagenesProducto.orden,
     })
     .from(imagenesProducto)
+    .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
     .where(isNotNull(imagenesProducto.url))
     .limit(POR_TANDA);
 
@@ -98,6 +101,8 @@ export async function traerTandaDeFotos(): Promise<ResultadoTanda> {
       id: foto.id,
       productoId: foto.productoId,
       url: foto.url,
+      slug: foto.slug,
+      orden: foto.orden,
     });
     if (r.ok) {
       await db.delete(fotosRotas).where(eq(fotosRotas.imagenId, foto.id));

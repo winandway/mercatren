@@ -834,7 +834,10 @@
       "fotos": {
         "titulo": "Fotos",
         "texto": "La primera es la que se ve en el listado. Hasta 8.",
-        "pesanDemasiado": "Las fotos pesan {peso} y el máximo por guardado es {tope}. Guarda el producto con menos fotos y después vuelve a entrar para agregar el resto."
+        "pesanDemasiado": "Las fotos pesan {peso} y el máximo por guardado es {tope}. Guarda el producto con menos fotos y después vuelve a entrar para agregar el resto.",
+        "descripcionEs": "Qué se ve (español)",
+        "descripcionEn": "Qué se ve (inglés)",
+        "descripcionAyuda": "Debajo de cada foto, di en una frase corta qué se ve, como se la contarías a alguien que no la ve: «POS con la segunda pantalla hacia el cliente». Es lo que Google lee para mostrarla en Imágenes. Si la dejas vacía, usa el título."
       },
       "agregarFotos": "Agregar fotos",
       "quitarFoto": "Quitar foto",
@@ -859,7 +862,11 @@
       "eligeTiendaPrimero": "¿Para qué comercio es este producto? Elígelo primero: sin eso no hay dónde guardarlo, y lo que escribas se quedaría en el aire.",
       "paraTienda": "Este producto es de {tienda}.",
       "seDespachaEn": "Este producto se despacha a domicilio en {pais}: no se elige ciudad de retiro.",
-      "paises": { "US": "Estados Unidos", "CL": "Chile", "CO": "Colombia" },
+      "paises": {
+        "US": "Estados Unidos",
+        "CL": "Chile",
+        "CO": "Colombia"
+      },
       "preparandoFotos": "Preparando {n} foto(s) para que suban rápido…",
       "previaPrecio": "Con este precio: el cliente paga {tarjeta} con tarjeta o {zelle} por Zelle — y tú recibes {base} exactos, pague como pague."
     },

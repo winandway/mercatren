@@ -2,6 +2,8 @@
 
 import { and, eq, ne, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
+
+import { limpiarTextoAlt, nombreDeFoto } from "@/lib/imagenes/nombre-de-foto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -305,15 +307,25 @@ export async function guardarProducto(
   };
 
   let productoId = id;
+  /* El slug del producto da nombre a sus fotos (como pide Google): el que
+     ya tiene si se edita, el que se acaba de acuñar si es nuevo. */
+  let slugProducto: string | null = null;
 
   if (id) {
     await db.update(productos).set(campos).where(eq(productos.id, id));
+    const [actual] = await db
+      .select({ slug: productos.slug })
+      .from(productos)
+      .where(eq(productos.id, id))
+      .limit(1);
+    slugProducto = actual?.slug ?? null;
   } else {
     productoId = nanoid();
+    slugProducto = await slugLibre(db, aSlug(d.tituloEs));
     await db.insert(productos).values({
       ...campos,
       id: productoId,
-      slug: await slugLibre(db, aSlug(d.tituloEs)),
+      slug: slugProducto,
       moneda: "USD",
       creadoEn: ahora,
     });
@@ -332,8 +344,16 @@ export async function guardarProducto(
 
     let orden = Number(ultima?.n ?? -1) + 1;
 
-    for (const foto of fotos.slice(0, 8)) {
-      const subida = await subirImagen(foto, `productos/${productoId}`);
+    for (const [i, foto] of fotos.slice(0, 8).entries()) {
+      /* `punto-de-venta-pos-2-3-x8k2q1.webp`, no `ySbdthKtli-jhl41CplHh.webp`:
+         el nombre dice qué es, en la dirección y en la descarga. */
+      const subida = await subirImagen(foto, `productos/${productoId}`, {
+        nombre: nombreDeFoto({
+          slug: slugProducto,
+          numero: orden + 1,
+          sufijo: nanoid(6),
+        }),
+      });
       if (!subida.ok) return subida;
 
       await db.insert(imagenesProducto).values({
@@ -341,7 +361,36 @@ export async function guardarProducto(
         productoId,
         clave: subida.clave,
         orden: orden++,
+        /* Lo que se ve en la foto, si el comercio lo escribió al subirla.
+           Es lo primero que Google pide para Imágenes; vacío se guarda nulo
+           y la galería cae al título. */
+        textoAltEs: limpiarTextoAlt(formulario.get(`alt_es_nueva_${i}`)),
+        textoAltEn: limpiarTextoAlt(formulario.get(`alt_en_nueva_${i}`)),
       });
+    }
+  }
+
+  /* Los textos alternativos de las fotos que ya estaban: `alt_es_<id>` y
+     `alt_en_<id>`. Solo fotos de ESTE producto: el id viaja en el nombre
+     del campo y no se le cree sin comprobar de quién es. */
+  if (productoId) {
+    for (const [campo, valor] of formulario.entries()) {
+      const m = /^alt_(es|en)_([A-Za-z0-9_-]+)$/.exec(campo);
+      if (!m || m[2]!.startsWith("nueva_") || typeof valor !== "string")
+        continue;
+      await db
+        .update(imagenesProducto)
+        .set(
+          m[1] === "es"
+            ? { textoAltEs: limpiarTextoAlt(valor) }
+            : { textoAltEn: limpiarTextoAlt(valor) },
+        )
+        .where(
+          and(
+            eq(imagenesProducto.id, m[2]!),
+            eq(imagenesProducto.productoId, productoId),
+          ),
+        );
     }
   }
 

@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 
 import { getDb } from "@/lib/db";
 import { imagenesProducto } from "@/lib/db/schema";
+import { nombreDeFoto } from "@/lib/imagenes/nombre-de-foto";
 
 /**
  * COPIAR UNA FOTO DEL SERVIDOR DE ORIGEN A NUESTRO BUCKET.
@@ -44,7 +45,15 @@ const ESPERA_MS = 12_000;
 
 export async function copiarFotoAlBucket(
   bucket: Bucket,
-  foto: { id: string; productoId: string; url: string },
+  foto: {
+    id: string;
+    productoId: string;
+    url: string;
+    /** El slug y el orden dan el nombre descriptivo que pide Google
+     *  (`nombre-de-foto.ts`). Sin slug, un identificador al azar. */
+    slug?: string | null;
+    orden?: number | null;
+  },
 ): Promise<ResultadoCopia> {
   try {
     const respuesta = await fetch(foto.url, {
@@ -59,7 +68,14 @@ export async function copiarFotoAlBucket(
       return { ok: false, status: null, error: new Error(`tipo ${tipo}`) };
     }
 
-    const clave = `productos/${foto.productoId}/${nanoid()}.${extensionDe(tipo)}`;
+    const base = foto.slug
+      ? nombreDeFoto({
+          slug: foto.slug,
+          numero: (foto.orden ?? 0) + 1,
+          sufijo: nanoid(6),
+        })
+      : nanoid();
+    const clave = `productos/${foto.productoId}/${base}.${extensionDe(tipo)}`;
     await bucket.put(clave, await respuesta.arrayBuffer(), {
       httpMetadata: { contentType: tipo ?? "image/jpeg" },
     });

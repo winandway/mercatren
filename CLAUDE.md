@@ -1740,6 +1740,48 @@ formulario Y en el servidor; textos en los dos idiomas) y las dos pruebas
 nuevas de `formulario-persistente.test.tsx` (lo escrito vuelve tras un
 `reset`; el borrador se guarda al enviar). Comprobado en rojo.
 
+## LAS FOTOS NUEVAS SE LLAMAN COMO EL PRODUCTO, Y CADA UNA DICE QUÉ SE VE (6 sep 2026)
+
+El dueño bajó las cuatro fotos del POS de QRBott desde su ficha y llegaron
+como `ySbdthKtli-jhl41CplHh.webp`. Pidió hacer «lo que Google recomienda» y
+no tocar lo ya subido. Comprobado ese día en la guía de imágenes de Google:
+nombres de archivo «cortos pero descriptivos» (`my-new-black-kitten.jpg`
+mejor que `IMG00023.JPG`), pero avisando que el nombre da **«pistas muy
+ligeras»**; lo que pesa es el **texto alternativo** y el contexto de la
+página. Se hicieron las dos cosas.
+
+- **`src/lib/imagenes/nombre-de-foto.ts`** (puro, con pruebas):
+  `nombreDeFoto({slug, numero, sufijo})` →
+  `punto-de-venta-pos-2-1-x8k2q1`. Slug del producto sin acentos ni
+  signos, acortado a 60 sin partir palabra, el número de la foto dentro del
+  producto, y seis caracteres al azar para que dos subidas del mismo
+  producto nunca choquen ni pisen la caché de un año. `subirImagen` acepta
+  `{ nombre }`; sin él sigue con el identificador al azar. **Lo usan los dos
+  caminos al bucket**: `guardarProducto` y el copiador de fotos de CJ y de
+  los comercios (`copiar-foto.ts`, al que el reloj y el botón le pasan el
+  slug). Los documentos (comprobantes, facturas) NO llevan nombre
+  descriptivo, a propósito: siguen al azar.
+- **Cada foto tiene su «Qué se ve»**, en español y en inglés, en la ficha
+  del panel (`alt_es_<id>` / `alt_en_<id>`, y `alt_es_nueva_<i>` para las
+  que se están subiendo). Las columnas `texto_alt_es/en` existían desde el
+  principio y ningún formulario las enseñaba. Se limpian y se acotan a 125
+  (`limpiarTextoAlt`); vacío se guarda nulo y la galería cae al título, como
+  siempre. Solo se actualizan fotos de ESE producto: el id viaja en el
+  nombre del campo y no se le cree sin comprobar.
+- **Lo ya subido no se toca.** Son ~54.000 fotos con caché `immutable` de un
+  año, ya indexadas y en el feed de Google: renombrarlas serían 54.000
+  redirecciones a cambio de una pista muy ligera. Las cuatro del POS se
+  vuelven a subir a mano con el nombre nuevo.
+- **En `fotos-automaticas.ts` el slug y el orden van AL FINAL del select**:
+  el `orderBy` de esa consulta cuenta columnas por posición (la 4 y la 5), y
+  meterlos antes desordenaría la cola.
+
+Candado: `tests/unit/fotos-con-nombre.test.ts` (el nombre puro; `subirImagen`
+con nombre y sin él; los documentos siguen al azar; `guardarProducto` nombra
+con el slug y guarda el alt; el copiador y sus dos llamadores pasan el slug;
+el formulario pide el alt en los dos idiomas; los textos existen). Comprobado
+en rojo rompiendo tres a la vez.
+
 ## LOS PUNTOS DE CJ SON EL PRESUPUESTO DEL DÍA, Y EL STOCK SE LLEVABA LA MITAD (4 sep 2026)
 
 El dueño preguntó por qué iban tan lentos los 44.850 productos en revisión.

@@ -69,18 +69,11 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 
 ### 6 sep 2026 · las fotos se descargan con nombre al azar
 
-- [ ] 🟡 💻 **Nombrar las fotos nuevas con el nombre del producto.** Hoy la
-      clave es `productos/<id>/<21 letras al azar>.webp` (`subirImagen` en
-      `src/lib/subidas.ts` y `copiar-foto.ts`), así que la dirección y el
-      archivo descargado no dicen nada. Google dice que el nombre da «pistas
-      muy ligeras» y que lo que pesa es el texto alternativo y el contexto de
-      la página; aun así, para lo propio conviene. Propuesta: clave
-      `productos/<id>/<slug>-<n>-<6 al azar>.webp` (el slug ya existe), un
-      texto alternativo por foto en la ficha con «título · vista» por
-      defecto, y **no renombrar lo ya subido** (54.000 fotos indexadas con
-      caché de un año; renombrar sería 54.000 redirecciones por nada). Al
-      terminar, volver a subir las 4 fotos del POS de QRBott con el nombre
-      nuevo. Lo pidió Richard el 6 sep al ver las descargas.
+- [x] ✅ 💻 **Las fotos nuevas se llaman como el producto y cada una dice
+      qué se ve** (6 sep 2026, el mismo día). `slug-N-6letras.webp` desde el
+      formulario y desde el copiador de CJ; casilla «Qué se ve» en los dos
+      idiomas por foto; lo ya subido no se toca. Falta 👤 volver a subir las
+      4 fotos del POS de QRBott para que salgan con el nombre nuevo.
 
 ### 6 sep 2026 · TikTok Shop, cuenta aprobada
 

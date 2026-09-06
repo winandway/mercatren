@@ -194,6 +194,10 @@ export async function traerFotosDesdeElReloj(
       url: imagenesProducto.url,
       esDeCj: sql<number>`case when ${productos.fuenteId} = ${FUENTE_CJ} then 1 else 0 end`,
       intentos: sql<number>`coalesce((select ${fotosRotas.intentos} from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.url} = ${imagenesProducto.url}), 0)`,
+      /* Van al final a propósito: el orderBy de abajo cuenta columnas por
+         posición (la 4 y la 5), y meterlas antes lo desordenaría. */
+      slug: productos.slug,
+      orden: imagenesProducto.orden,
     })
     .from(imagenesProducto)
     .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
@@ -219,6 +223,8 @@ export async function traerFotosDesdeElReloj(
           id: foto.id,
           productoId: foto.productoId,
           url: foto.url,
+          slug: foto.slug,
+          orden: foto.orden,
         });
         return { foto, r };
       }),

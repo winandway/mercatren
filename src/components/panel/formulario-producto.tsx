@@ -25,7 +25,13 @@ import { pesoLegible, PESO_MAXIMO_ENVIO } from "@/lib/imagenes/medidas";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
 
-type Foto = { id: string; url: string | null; esNuestra: boolean };
+type Foto = {
+  id: string;
+  url: string | null;
+  esNuestra: boolean;
+  altEs?: string | null;
+  altEn?: string | null;
+};
 
 type Producto = {
   id: string;
@@ -421,59 +427,96 @@ export function FormularioProducto({
       <section className="rounded-xl border border-borde bg-white p-4 sm:p-6">
         <h2 className="font-bold">{t("fotos.titulo")}</h2>
         <p className="mt-1 text-sm text-tinta-suave">{t("fotos.texto")}</p>
+        {/* LO QUE SE VE EN CADA FOTO (6 sep 2026). Es lo primero que Google
+            pide para Imágenes: una frase corta que describa la foto, no el
+            título repetido. Va en los dos idiomas, como todo lo del público.
+            Vacío, la galería cae al título del producto. */}
+        <p className="mt-1 text-xs text-tinta-suave">
+          {t("fotos.descripcionAyuda")}
+        </p>
 
         <div className="mt-4 flex flex-wrap gap-3">
           {fotos.map((f) => (
-            <div
-              key={f.id}
-              className="relative h-24 w-24 overflow-hidden rounded-lg border border-borde bg-slate-50"
-            >
-              {f.url ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={f.url}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
-              <button
-                type="button"
-                onClick={() => quitarGuardada(f.id)}
-                aria-label={t("quitarFoto")}
-                className="absolute top-1 right-1 rounded-full bg-white/90 p-1 text-tinta-suave shadow hover:text-red-600"
-              >
-                <X className="h-3 w-3" aria-hidden />
-              </button>
-              {!f.esNuestra ? (
-                <span
-                  title={t("fotoDeOrigen")}
-                  className="absolute right-0 bottom-0 left-0 bg-riel-900/80 px-1 py-0.5 text-center text-[10px] text-white"
+            <div key={f.id} className="w-40 space-y-1.5">
+              <div className="relative h-24 w-24 overflow-hidden rounded-lg border border-borde bg-slate-50">
+                {f.url ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={f.url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => quitarGuardada(f.id)}
+                  aria-label={t("quitarFoto")}
+                  className="absolute top-1 right-1 rounded-full bg-white/90 p-1 text-tinta-suave shadow hover:text-red-600"
                 >
-                  {t("fotoDeOrigen")}
-                </span>
-              ) : null}
+                  <X className="h-3 w-3" aria-hidden />
+                </button>
+                {!f.esNuestra ? (
+                  <span
+                    title={t("fotoDeOrigen")}
+                    className="absolute right-0 bottom-0 left-0 bg-riel-900/80 px-1 py-0.5 text-center text-[10px] text-white"
+                  >
+                    {t("fotoDeOrigen")}
+                  </span>
+                ) : null}
+              </div>
+              <input
+                name={`alt_es_${f.id}`}
+                defaultValue={f.altEs ?? ""}
+                maxLength={125}
+                placeholder={t("fotos.descripcionEs")}
+                aria-label={t("fotos.descripcionEs")}
+                className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:border-carga-500"
+              />
+              <input
+                name={`alt_en_${f.id}`}
+                defaultValue={f.altEn ?? ""}
+                maxLength={125}
+                placeholder={t("fotos.descripcionEn")}
+                aria-label={t("fotos.descripcionEn")}
+                className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:border-carga-500"
+              />
             </div>
           ))}
 
           {nuevas.map((f, i) => (
-            <div
-              key={`${f.name}-${i}`}
-              className="relative h-24 w-24 overflow-hidden rounded-lg border-2 border-carga-500 bg-slate-50"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={URL.createObjectURL(f)}
-                alt=""
-                className="h-full w-full object-cover"
+            <div key={`${f.name}-${i}`} className="w-40 space-y-1.5">
+              <div className="relative h-24 w-24 overflow-hidden rounded-lg border-2 border-carga-500 bg-slate-50">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={URL.createObjectURL(f)}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setNuevas((n) => n.filter((_, j) => j !== i))}
+                  aria-label={t("quitarFoto")}
+                  className="absolute top-1 right-1 rounded-full bg-white/90 p-1 text-tinta-suave shadow hover:text-red-600"
+                >
+                  <X className="h-3 w-3" aria-hidden />
+                </button>
+              </div>
+              {/* Van por posición: el servidor recibe las fotos nuevas en este
+                  mismo orden y lee `alt_es_nueva_<i>` para cada una. */}
+              <input
+                name={`alt_es_nueva_${i}`}
+                maxLength={125}
+                placeholder={t("fotos.descripcionEs")}
+                aria-label={t("fotos.descripcionEs")}
+                className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:border-carga-500"
               />
-              <button
-                type="button"
-                onClick={() => setNuevas((n) => n.filter((_, j) => j !== i))}
-                aria-label={t("quitarFoto")}
-                className="absolute top-1 right-1 rounded-full bg-white/90 p-1 text-tinta-suave shadow hover:text-red-600"
-              >
-                <X className="h-3 w-3" aria-hidden />
-              </button>
+              <input
+                name={`alt_en_nueva_${i}`}
+                maxLength={125}
+                placeholder={t("fotos.descripcionEn")}
+                aria-label={t("fotos.descripcionEn")}
+                className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs outline-none focus:border-carga-500"
+              />
             </div>
           ))}
 
