@@ -4069,5 +4069,13 @@
     "ningunoEs": "¿Ninguno es el que buscabas?",
     "ningunoEsTexto": "No tenemos ese producto, pero posiblemente lo hay en alguna de nuestras bodegas. Deja tu nombre y tu correo y cuando lo tengamos te contactaremos.",
     "sinResultadosExtra": "Prueba con otra foto donde el producto se vea claro y de cerca."
+  },
+  "global": {
+    "boton": "Global",
+    "titulo": "Mercatren en el mundo",
+    "entrada": "Cada país tiene su propia tienda, con sus comercios, sus precios y su forma de entrega.",
+    "mudanza": "¿Comprabas o vendías en mercatren.com desde Venezuela? Tu tienda y tus productos están ahora en mercatren.com.ve, con todo tal cual lo tenías y la misma clave de siempre. Separamos los países para que cada uno tenga sus ciudades y sus formas de pago propias.",
+    "aqui": "Estás aquí",
+    "cerrar": "Cerrar"
   }
 }

@@ -4069,5 +4069,13 @@
     "ningunoEs": "None of these the one you're looking for?",
     "ningunoEsTexto": "We don't have that product, but it may be in one of our warehouses. Leave your name and email and we'll contact you as soon as we have it.",
     "sinResultadosExtra": "Try another photo where the product is clear and close up."
+  },
+  "global": {
+    "boton": "Global",
+    "titulo": "Mercatren around the world",
+    "entrada": "Each country has its own storefront, with its own sellers, prices, and delivery options.",
+    "mudanza": "Were you buying or selling on mercatren.com from Venezuela? Your store and your products now live at mercatren.com.ve — everything just as you left it, same login. We split the countries apart so each one can have its own cities and payment methods.",
+    "aqui": "You are here",
+    "cerrar": "Close"
   }
 }

@@ -8,11 +8,19 @@ import { esMercadoPrincipal, type Mercado } from "@/lib/mercado/mercados";
  * cuando entre a Colombia». Quien entra a mercatren.cl tiene que ver de un
  * vistazo que está en la plaza de SU país — antes de leer una palabra.
  *
- * ══ SOLO EN LOS DOMINIOS DE PAÍS, Y ES DELIBERADO ══
+ * ══ AHORA LA LLEVAN TODOS, INCLUIDO EL .COM (7 sep 2026) ══
  *
- * mercatren.com (el principal) va SIN bandera: es lo normal de la casa, y lo
- * normal no se marca — la misma regla de la banderita de las tarjetas del
- * catálogo. Se marca la excepción: el dominio de un país concreto.
+ * Hasta la mudanza de Venezuela, mercatren.com iba SIN bandera: era «lo
+ * normal de la casa» y lo normal no se marca. Eso dejó de ser cierto el día
+ * que el .com pasó a ser el dominio de UN país más — el de Estados Unidos —
+ * al lado de mercatren.cl, mercatren.com.co y mercatren.com.ve. Lo pidió
+ * Richard: «en la parte de Estados Unidos, vamos a poner la bandera al lado
+ * del logo como está en todos los sitios».
+ *
+ * Y ahora importa el doble: con cuatro plazas y gente que tenía su cuenta en
+ * el .com y despertó en otro dominio, la bandera es la respuesta de un
+ * vistazo a «¿dónde estoy parado?». La otra mitad de esa respuesta es
+ * `<MercatrenGlobal>`, en la barra de abajo.
  *
  * ══ POR QUÉ NO ES UN EMOJI ══
  *
@@ -79,10 +87,34 @@ function BanderaVenezuela({ clase }: { clase?: string }) {
   );
 }
 
+/**
+ * Estados Unidos: trece franjas y el cantón azul. Las estrellas van
+ * sugeridas con puntos — a 14 px de alto no se distinguen las puntas de una
+ * estrella de verdad, y dibujarlas solo ensucia el trazo.
+ */
+function BanderaEstadosUnidos({ clase }: { clase?: string }) {
+  const alto = 13 / 13;
+  return (
+    <svg viewBox="0 0 19 13" className={clase} aria-hidden focusable="false">
+      <rect width="19" height="13" fill="#fff" />
+      {[0, 2, 4, 6, 8, 10, 12].map((i) => (
+        <rect key={i} y={i * alto} width="19" height={alto} fill="#B22234" />
+      ))}
+      <rect width="8.6" height={alto * 7} fill="#3C3B6E" />
+      {[1.1, 2.9, 4.7, 6.5].map((y) =>
+        [1.1, 2.9, 4.7, 6.5].map((x) => (
+          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.42" fill="#fff" />
+        )),
+      )}
+    </svg>
+  );
+}
+
 const BANDERAS: Record<
   string,
   (props: { clase?: string }) => React.JSX.Element
 > = {
+  US: BanderaEstadosUnidos,
   CL: BanderaChile,
   VE: BanderaVenezuela,
   CO: BanderaColombia,
@@ -95,8 +127,14 @@ const BANDERAS: Record<
  * largo; con la palabra «Chile» ya no hay duda. En celular el nombre se
  * esconde y queda la bandera, que es lo que cabe.
  */
-export function BanderaDelMercado({ mercado }: { mercado: Mercado }) {
-  if (esMercadoPrincipal(mercado)) return null;
+export function BanderaDelMercado({
+  mercado,
+  soloBandera = false,
+}: {
+  mercado: Mercado;
+  /** Sin el nombre al lado: para cuando va dentro de un botón estrecho. */
+  soloBandera?: boolean;
+}) {
   const Bandera = BANDERAS[mercado.codigo];
   if (!Bandera) return null;
   return (
@@ -105,10 +143,34 @@ export function BanderaDelMercado({ mercado }: { mercado: Mercado }) {
       title={mercado.nombre}
       aria-label={mercado.nombre}
     >
-      <Bandera clase="h-3.5 w-auto rounded-[2px] ring-1 ring-white/25" />
-      <span className="hidden text-xs font-semibold text-white/85 sm:inline">
-        {mercado.nombre}
-      </span>
+      <Bandera
+        clase={
+          soloBandera
+            ? "h-5 w-auto rounded-[2px] ring-1 ring-white/30"
+            : "h-3.5 w-auto rounded-[2px] ring-1 ring-white/25"
+        }
+      />
+      {soloBandera ? null : (
+        <span className="hidden text-xs font-semibold text-white/85 sm:inline">
+          {mercado.nombre}
+        </span>
+      )}
     </span>
   );
+}
+
+/**
+ * La bandera de un país por su código, para usarla fuera del encabezado
+ * (hoy: la ventana de «Mercatren en el mundo»). Devuelve `null` si ese país
+ * todavía no tiene bandera dibujada — nunca un recuadro roto.
+ */
+export function BanderaDePais({
+  codigo,
+  clase,
+}: {
+  codigo: string;
+  clase?: string;
+}) {
+  const Bandera = BANDERAS[codigo];
+  return Bandera ? <Bandera clase={clase} /> : null;
 }

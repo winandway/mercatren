@@ -10,6 +10,7 @@ import { SelectorCiudad } from "@/components/layout/selector-ciudad";
 import { SelectorIdioma } from "@/components/layout/selector-idioma";
 import { BanderaDelMercado } from "@/components/marca/bandera-pais";
 import { Logo } from "@/components/marca/logo";
+import { MercatrenGlobal } from "@/components/marca/mercatren-global";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { recordado } from "@/lib/cachecito";
@@ -27,6 +28,7 @@ import { seRetiraEnCiudad } from "@/lib/mercado/mercados";
  */
 export async function Encabezado() {
   const t = await getTranslations("encabezado");
+  const tGlobal = await getTranslations("global");
   const locale = await getLocale();
 
   /**
@@ -86,17 +88,20 @@ export async function Encabezado() {
     <header className="sticky top-0 z-50" data-solo-pantalla>
       {/* Fila principal */}
       <div className="bg-riel-900 text-white">
-        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 sm:px-4">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 sm:gap-x-3 sm:px-4">
           <Link
             href="/"
             className="celda-encabezado flex items-center gap-2"
             aria-label="Mercatren"
           >
-            <Logo className="h-7 sm:h-9" prioridad />
-            {/* La banderita del país del dominio (28 ago 2026): en
-                mercatren.cl se ve la de Chile al lado del logo; el dominio
-                principal va limpio. Pedido del dueño. */}
-            <BanderaDelMercado mercado={mercado} />
+            <Logo className="h-6 sm:h-9" prioridad />
+            {/* La banderita del país, junto al logo. En celular NO va aquí:
+                allá la bandera es el botón que abre «Mercatren en el mundo»
+                —una sola pieza en vez de dos— porque con las dos el carrito
+                se caía a una segunda línea. Medido a 360 px. */}
+            <span className="hidden lg:flex">
+              <BanderaDelMercado mercado={mercado} />
+            </span>
           </Link>
 
           {/* DÓNDE ESTÁ QUIEN COMPRA. Antes aquí había un texto fijo que
@@ -138,6 +143,22 @@ export async function Encabezado() {
             </Suspense>
           </div>
 
+          {/* La bandera-botón, arriba y solo en celular: ahí la barra de
+              secciones se sale de la pantalla y el botón «Global» de abajo no
+              se ve nunca. */}
+          <MercatrenGlobal
+            mercado={mercado}
+            idioma={locale}
+            soloIcono
+            textos={{
+              boton: tGlobal("boton"),
+              titulo: tGlobal("titulo"),
+              entrada: tGlobal("entrada"),
+              mudanza: tGlobal("mudanza"),
+              aqui: tGlobal("aqui"),
+              cerrar: tGlobal("cerrar"),
+            }}
+          />
           <SelectorIdioma />
 
           {/* Al que trabaja en el panel se le pone el panel a un toque: es
@@ -278,6 +299,22 @@ export async function Encabezado() {
           >
             {t("blog")}
           </Link>
+          {/* MERCATREN EN EL MUNDO. Va al final de la barra y en TODOS los
+              dominios: es donde alguien que tenía su cuenta en el .com y
+              despertó en otro dominio entiende qué pasó. Pedido de Richard
+              el día de la mudanza de Venezuela. */}
+          <MercatrenGlobal
+            mercado={mercado}
+            idioma={locale}
+            textos={{
+              boton: tGlobal("boton"),
+              titulo: tGlobal("titulo"),
+              entrada: tGlobal("entrada"),
+              mudanza: tGlobal("mudanza"),
+              aqui: tGlobal("aqui"),
+              cerrar: tGlobal("cerrar"),
+            }}
+          />
         </div>
       </div>
     </header>

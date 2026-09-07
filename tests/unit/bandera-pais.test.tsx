@@ -26,11 +26,37 @@ describe("la bandera del mercado en el encabezado", () => {
     }
   });
 
-  it("EL MERCADO PRINCIPAL NO DIBUJA NADA — lo normal no se marca", () => {
+  it("EL .COM TAMBIÉN LLEVA LA SUYA (7 sep 2026)", () => {
+    /**
+     * Esta prueba exigía lo CONTRARIO: que el dominio principal no dibujara
+     * bandera, porque «lo normal no se marca». Era cierto mientras
+     * mercatren.com era la casa y los demás la excepción.
+     *
+     * Dejó de serlo el día que Venezuela se mudó a su propio dominio: el
+     * .com pasó a ser el dominio de UN país más —Estados Unidos— al lado de
+     * mercatren.cl, mercatren.com.co y mercatren.com.ve. Lo pidió Richard
+     * mirando su propio encabezado: «vamos a poner la bandera de Estados
+     * Unidos al lado del logo como está en todos los sitios».
+     *
+     * Y ahora hace falta de verdad: con cuatro plazas y gente que tenía su
+     * cuenta en el .com, la bandera es la respuesta de un vistazo a «¿dónde
+     * estoy parado?».
+     */
     const { container } = render(
       <BanderaDelMercado mercado={mercadoPorCodigo("US")} />,
     );
-    expect(container.innerHTML).toBe("");
+    expect(container.querySelector("svg")).not.toBeNull();
+    expect(container.textContent).toContain("Estados Unidos");
+  });
+
+  it("sin el nombre al lado cuando va dentro de un botón estrecho", () => {
+    /* En el celular la bandera ES el botón de «Mercatren en el mundo»: con
+       el nombre al lado no cabría el carrito. */
+    const { container } = render(
+      <BanderaDelMercado mercado={mercadoPorCodigo("VE")} soloBandera />,
+    );
+    expect(container.querySelector("svg")).not.toBeNull();
+    expect(container.textContent).not.toContain("Venezuela");
   });
 
   it("ES UN DIBUJO SVG, NUNCA UN EMOJI — el emoji no se dibuja en Windows", () => {
