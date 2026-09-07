@@ -1818,6 +1818,34 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**«MERCATREN EN EL MUNDO»: LA VENTANA QUE EXPLICA LA MUDANZA (7 sep 2026).**
+Lo pidió Richard el mismo día, y el motivo manda sobre el diseño: _«la gente
+que tenía su cuenta en Mercatren de Estados Unidos, que ahora tiene un
+dominio propio, pueda entender qué fue lo que pasó y por qué los mudamos»_.
+Un botón **Global** en la barra de los CUATRO dominios abre una ventana con
+el logo, los cuatro países con su bandera y su dirección, y —**antes de la
+lista**— el aviso de la mudanza: quien la abre porque «no encuentra sus
+productos» necesita el porqué, no cuatro enlaces que no pidió.
+
+- **La lista sale de `MERCADOS`**, la misma lista cerrada que decide el
+  mercado por dominio: el país siguiente aparece ahí solo el día que se
+  declara. Escrita a mano se queda vieja con el primero que entre.
+- **Enlaces con la dirección completa, nunca `<Link>`**: van a OTRO dominio y
+  el enrutador de Next solo sabe moverse dentro de este — la navegación
+  moriría sin decir nada, justo a quien está buscando su tienda.
+- **`<dialog>` con `showModal()`**: el fondo, el foco atrapado dentro y el
+  cierre con Escape vienen de serie. Un div con estado no da ninguna.
+- **El .com también lleva bandera desde hoy.** Iba sin ella («lo normal no se
+  marca»), y eso valía mientras era la casa y los demás la excepción; ahora
+  es el dominio de un país más. La prueba que exigía lo contrario se
+  reescribió contando por qué cambió la regla, en vez de borrarla.
+- **Y destapó un fallo del encabezado en celular:** medido a 360 px, con la
+  bandera junto al logo Y un globo aparte, **el carrito se caía a una segunda
+  línea**. Arriba se dibuja UNA cosa: la bandera ES el botón, como en
+  cualquier sitio internacional. Comprobado a 320, 360 y 390 px.
+
+Candado: `tests/unit/mercatren-global.test.ts`, comprobado en rojo.
+
 **Y UN CUARTO, QUE ERA MÍO Y CASI SALE CARO: «Cambio de dirección» en
 Search Console NO se usa en una mudanza parcial.** Estuvo escrito tres
 veces en `PENDIENTES.md` como tarea de Richard. Comprobado en la
