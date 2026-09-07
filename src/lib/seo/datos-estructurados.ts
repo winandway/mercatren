@@ -1,3 +1,4 @@
+import { divisorDe } from "@/lib/mercado/moneda";
 import { SITIO } from "@/lib/sitio";
 
 /**
@@ -43,9 +44,25 @@ export function comoJsonLd(datos: unknown): string {
     .replaceAll("&", "\\u0026");
 }
 
-/** Centavos enteros → el texto que espera schema.org ("12.50"). */
-function aPrecio(centavos: number): string {
-  return (centavos / 100).toFixed(2);
+/**
+ * Centavos enteros → el texto que espera schema.org, **en la unidad de SU
+ * moneda**: «12.50» en dólares, pero «97701» en pesos chilenos.
+ *
+ * ══ EL FALLO QUE ESTO ARREGLA (7 sep 2026) ══
+ *
+ * Era un `/ 100` fijo, y ni el peso chileno ni el colombiano tienen
+ * centavos. Medido en producción: una cámara de 97.701 CLP le decía a Google
+ * **«977.01 CLP»** —unos mil pesos, cien veces menos— y un router de 365.240
+ * COP, «3652.40». Quien llegara desde Google esperando pagar mil pesos y se
+ * encontrara con cien mil no vuelve, y con razón.
+ *
+ * El archivo que se le manda a Merchant Center (`/datos/google`) ya lo hacía
+ * bien con `divisorDe`; la ficha se había quedado atrás. Es la misma
+ * función, para que no puedan volver a decir cosas distintas.
+ */
+function aPrecio(centavos: number, moneda: string): string {
+  const divisor = divisorDe(moneda);
+  return (centavos / divisor).toFixed(divisor === 1 ? 0 : 2);
 }
 
 function url(locale: string, ruta: string): string {
@@ -96,7 +113,7 @@ export function fichaDeProducto(p: ProductoParaGoogle, locale: string) {
     offers: {
       "@type": "Offer",
       url: url(locale, `/producto/${p.slug}`),
-      price: aPrecio(p.precioCentavos),
+      price: aPrecio(p.precioCentavos, p.moneda),
       priceCurrency: p.moneda,
       // El precio publicado ya trae todo incluido: es el que se cobra.
       availability: hay

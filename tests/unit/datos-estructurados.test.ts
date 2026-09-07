@@ -36,6 +36,37 @@ const PRODUCTO = {
 };
 
 describe("lo que Google lee de cada ficha", () => {
+  it("EL PESO CHILENO Y EL COLOMBIANO NO LLEVAN DECIMALES", () => {
+    /**
+     * ══ EL FALLO QUE ESTO TRANCA (7 sep 2026) ══
+     *
+     * `aPrecio` dividía entre 100 SIEMPRE. Medido en producción:
+     * mercatren.cl le decía a Google que una cámara de 97.701 CLP costaba
+     * **«977.01 CLP»** —cien veces menos— y mercatren.com.co, que un router
+     * de 365.240 COP costaba «3652.40».
+     *
+     * Quien llega desde Google esperando pagar mil pesos y en el checkout ve
+     * cien mil, se va. Y con razón.
+     *
+     * El archivo de Merchant Center ya usaba `divisorDe`; la ficha se había
+     * quedado atrás. Ahora es la misma función para los dos.
+     */
+    const chile = fichaDeProducto(
+      { ...PRODUCTO, precioCentavos: 97_701, moneda: "CLP" },
+      "es",
+    );
+    expect(chile.offers.price).toBe("97701");
+
+    const colombia = fichaDeProducto(
+      { ...PRODUCTO, precioCentavos: 365_240, moneda: "COP" },
+      "es",
+    );
+    expect(colombia.offers.price).toBe("365240");
+
+    /* Y el dólar sigue igual: dos decimales. */
+    expect(fichaDeProducto(PRODUCTO, "es").offers.price).toBe("12.34");
+  });
+
   it("el precio va en dólares con dos decimales, no en centavos", () => {
     const ficha = fichaDeProducto(PRODUCTO, "es");
     // 1234 centavos son $12.34. Publicar "1234" le diría a Google que el
