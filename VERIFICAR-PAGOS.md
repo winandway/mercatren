@@ -6,37 +6,21 @@
 > fecha y con qué compra), qué está construido sin probar, y cómo se prueba.
 > **Se actualiza en el mismo trabajo que toque cualquier pieza de cobro.**
 
-> ## 🔴 3 SEP 2026 · NADIE PUEDE COMPRAR: LA PLATAFORMA SE ESTÁ COMIENDO LAS COOKIES
+> ## ✅ RESUELTO · las cookies vuelven a llegar (medido el 7 sep 2026)
 >
-> **La cuenta se crea, la contraseña es correcta, la sesión se guarda… y el
-> servidor NUNCA recibe la cookie.** Sin cookie no hay sesión, y sin sesión el
-> checkout manda a «entra con tu cuenta». Le pasa a todo el mundo: al dueño en
-> el panel, a los clientes al comprar, y no se arregla recuperando la clave.
->
-> **LA PRUEBA, Y NO NECESITA NUESTRO CÓDIGO** — la cabecera `cookie` se
-> pierde, mientras las demás sí llegan:
+> La alarma del 3 de septiembre —la plataforma se comía la cabecera `cookie`
+> y nadie podía comprar— **está cerrada**. Medido ese día en los CUATRO
+> dominios con una cookie de prueba:
 >
 > ```
-> curl -s -o /dev/null -w "%{redirect_url}\n" "https://mercatren.com/" -H "accept-language: es-VE"
-> → https://mercatren.com/es      ← la cabecera de idioma SÍ llega
->
-> curl -s -o /dev/null -w "%{redirect_url}\n" "https://mercatren.com/" -H "cookie: NEXT_LOCALE=es"
-> → https://mercatren.com/en      ← la cookie NO llega (debería ir a /es)
->
-> curl -s "https://mercatren.com/datos/salud" -H "cookie: a=1; b=2" | grep cookies
-> → "cookies":{"cuantas":0,"nombres":[]}
+> curl -s "https://<dominio>/datos/salud" -H "cookie: p=1; q=2"
+> → "cookies":{"cuantas":2}   ·   sesiones.prueba.ciclo: "ok"
 > ```
 >
-> **NO es del código de Mercatren**, y está comprobado: dentro del propio
-> servidor, crear una sesión y leerla en el acto funciona (`sesiones.prueba.ciclo:
-"ok"` en `/datos/salud`), la clave de firma es estable, el token se guarda con
-> sus 32 caracteres y sus fechas correctas, y las cuatro tablas de cuentas se
-> leen bien. En local, el mismo código funciona. Pasa en los tres dominios y
-> también en `mercatren.sitios.dev`.
->
-> **Se arregla en YaDominios Cloud** (otra sesión): la capa que sirve el sitio
-> tiene que dejar pasar la cabecera `cookie` a las peticiones. **Hasta
-> entonces, PROHIBIDO mandar clientes a comprar.**
+> mercatren.com, mercatren.com.ve, mercatren.cl y mercatren.com.co: los
+> cuatro con `ok: true`, base `ok`, proveedor (CJ) `ok` y aviso de Stripe
+> `ok`. **La prueba se conserva escrita**: es la primera que hay que repetir
+> el día que alguien vuelva a decir «no puedo entrar» o «no puedo comprar».
 
 ## El estado, método por método
 
@@ -46,11 +30,40 @@
 | US (USD)         | Zelle ≥$200                                 | ✅ PROBADO                    | Circuito de captura + validación en uso real desde ago 2026 (cobros por enlace del piloto).                                                                                                                                                                                                                                                                                                                                                            |
 | VE               | Zelle (pedidos)                             | ✅ PROBADO                    | Histórico vivo del comercio piloto; cola de validación en uso diario.                                                                                                                                                                                                                                                                                                                                                                                  |
 | Enlaces de cobro | Tarjeta / Zelle / ACH                       | ✅ PROBADO                    | Facturas reales de $2.860,71 y $7.475 (26 ago). ACH depende de variables del panel — ver canario.                                                                                                                                                                                                                                                                                                                                                      |
-| CL (CLP)         | Tarjeta                                     | ⚠️ SIN PROBAR                 | Construido (CLP cero-decimales verificado contra la doc de Stripe). **Falta una compra real en pesos chilenos.** No anunciar Chile hasta hacerla.                                                                                                                                                                                                                                                                                                      |
-| CO (COP)         | Tarjeta                                     | ⚠️ SIN PROBAR TRAS EL ARREGLO | MT-000010 (Pedro Zambrano) FALLÓ por los 2 decimales de COP en Stripe; el arreglo (aduana `monedas.ts`) está desplegado con pruebas, pero **no hay una compra real posterior que lo confirme.**                                                                                                                                                                                                                                                        |
+| CL (CLP)         | Tarjeta                                     | 🔴 SIGUE SIN PROBAR (7 sep)   | Construido (CLP cero-decimales verificado contra la doc de Stripe). **Falta una compra real en pesos chilenos.** No anunciar Chile hasta hacerla.                                                                                                                                                                                                                                                                                                      |
+| CO (COP)         | Tarjeta                                     | 🔴 SIGUE SIN PROBAR (7 sep)   | MT-000010 (Pedro Zambrano) FALLÓ por los 2 decimales de COP en Stripe; el arreglo (aduana `monedas.ts`) está desplegado con pruebas, pero **no hay una compra real posterior que lo confirme.**                                                                                                                                                                                                                                                        |
 | US               | Compra automática a CJ                      | ⚠️ A MEDIAS                   | El pedido se crea y el saldo paga solo (27 ago), pero MT-000011 dio «Order create fail» en el intento automático — la variante la eligió la máquina. Con las tallas guardadas al importar (30 ago) el comprador ya elige; queda pendiente **una venta completa sin intervención**.                                                                                                                                                                     |
 | US               | Compra a CJ desde «Probar una compra»       | ✅ PROBADO 5 sep 2026         | Dos pruebas pagadas del saldo desde la puerta `/datos/probar-compra` (GitHub): `PRUEBA-20260905184139` (pendiente: `payBalance {orderId}` → $150,00 → $138,60) y **`PRUEBA-20260905205642` completa —crear + pagar en una corrida— ($138,60 → $127,20, UNSHIPPED, `paymentDate 2026-09-05 20:56:55`)**. Los nueve pasos en verde; comprobado además en el panel de CJ (Historial de facturación: «Pago del pedido · Balance · −$11.40 · Éxito»).       |
 | US               | Venta con tarjeta → compra a CJ pagada SOLA | ⚠️ SIN PROBAR TRAS EL ARREGLO | El circuito automático (`confirmarYPagarEnCj` → `pagarConSaldo`) lleva el mismo arreglo del 5 sep y el vigilante reintenta las `por_pagar`. Queda probado cuando una venta `MT-…` pagada con tarjeta salga «pagado» en Panel → Pedidos al proveedor sin que nadie pulse nada (la MT-000014 del 5 sep NO sirve: en nuestro panel ya no está «por pagar» —el vigilante no la lista ni el reintento la toma—, así que quedó en CJ como UNPAID sin costo). |
+
+## La revisión del 7 sep 2026, plaza por plaza
+
+La pidió Richard: _«verificar uno por uno y con un mensaje corto decirme que
+todo está bien o que hay que hacer algo»_. Lo que se midió, y cómo:
+
+| Qué                                     | Cómo se comprobó                              | Resultado                                                     |
+| --------------------------------------- | --------------------------------------------- | ------------------------------------------------------------- |
+| Cookies y sesión, los 4 dominios        | `/datos/salud` con cookie de prueba           | ✅ 2 cookies · ciclo `ok`                                     |
+| Base, CJ y aviso de Stripe, los 4       | `/datos/salud`                                | ✅ los cuatro campos en `ok`                                  |
+| Circuito de CJ en US                    | `mirar` desde la puerta (GitHub), sin comprar | ✅ 2 variantes con stock · 5 transportes                      |
+| Circuito de CJ en CL                    | ídem, almacén CN → CL                         | ✅ 1 variante con stock · 2 transportes                       |
+| Circuito de CJ en CO                    | ídem, almacén CN → CO                         | ✅ 1 variante con stock · 2 transportes                       |
+| Compras al proveedor atascadas          | `pedidos_proveedor` por estado, en producción | ✅ 3 cerradas y 1 pagada · **ninguna con error ni por pagar** |
+| Ventas pagadas sin compra al proveedor  | consulta cruzada en producción                | ✅ ninguna                                                    |
+| **El precio que lee Google en CL y CO** | JSON-LD de una ficha real de cada plaza       | 🔴 **FALLO — arreglado ese día** (ver abajo)                  |
+
+**EL FALLO QUE SALIÓ, y no era de CJ:** los datos estructurados dividían el
+precio entre 100 **siempre**, y ni el peso chileno ni el colombiano tienen
+centavos. Una cámara de 97.701 CLP le decía a Google «977.01 CLP» y un
+router de 365.240 COP, «3652.40» — cien veces menos. Estados Unidos estaba
+bien (22.66 USD), y por eso llevaba semanas sin verse. El archivo de
+Merchant Center ya usaba `divisorDe`; la ficha se había quedado atrás.
+Arreglado y con candado en `datos-estructurados.test.ts`.
+
+**Y una cosa que se comprobó y NO es un fallo:** `/datos/google` devuelve el
+mismo catálogo de EE. UU. en los tres dominios. Es a propósito y está
+escrito en el código: hoy hay UNA cuenta de Merchant Center, la de Estados
+Unidos. El día que Chile o Colombia tengan la suya, ahí se separa.
 
 ## Cómo se prueba un circuito (el rito completo)
 
