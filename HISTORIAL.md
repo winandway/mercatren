@@ -1818,6 +1818,39 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL MAPA DEL SITIO DECLARABA VENEZUELA EN INGLÉS (7 sep 2026).** Richard
+preguntó por qué Search Console decía «0 páginas descubiertas» en
+mercatren.com.ve. El «0» no era el fallo —era un ÍNDICE recién enviado, y
+los hijos se leen después—, pero al medirlo salió otra cosa: **el mapa de
+Venezuela declaraba sus 1.016 fichas en INGLÉS y ninguna en español**. En
+un país donde nadie busca en inglés. Y pasaba en los cuatro dominios.
+
+La causa: `urlsetXml` escribía UNA entrada por ficha con
+`routing.defaultLocale` en el `<loc>`, y ese idioma por defecto es **`en`**.
+
+**Comprobado en la documentación de Google ANTES de tocar nada** (y esto es
+lo que evitó un arreglo a lo bruto): las versiones anotadas con `hreflang`
+**sí se descubren**, así que no se perdían páginas. Pero la forma que Google
+documenta es «un elemento `url` distinto para cada URL», y con ella la
+dirección en español entra por la puerta principal en vez de por una
+anotación.
+
+- Cada ficha produce **una entrada por idioma**, y cada una declara todas
+  sus hermanas incluida ella misma — sin eso el grupo no se forma.
+- **`POR_PARTE` bajó a 20.000 fichas**: cuenta FICHAS, y con dos idiomas son
+  40.000 direcciones. El tope de Google que descarta el archivo entero son
+  50.000, y lo mide en direcciones, no en fichas.
+- **`routing.defaultLocale` se QUEDA en `en`.** Cambiarlo arreglaba el mapa
+  y rompía el resto: decide a qué idioma cae quien entra sin prefijo, y con
+  él viajan las rutas y las redirecciones. El mapa se arregla en el mapa.
+- Y lo que sí estaba bien y se comprobó de paso: las fichas del .com.ve
+  responden 200, sin `noindex`, con la canónica apuntando **a su propio
+  dominio** — si hubiera apuntado al .com, Google habría tratado el dominio
+  nuevo como una copia y no habría indexado nada.
+
+Candado: dos pruebas nuevas en `mapa-del-sitio.test.ts`, comprobadas en rojo
+volviendo a la forma anterior.
+
 **«MERCATREN EN EL MUNDO»: LA VENTANA QUE EXPLICA LA MUDANZA (7 sep 2026).**
 Lo pidió Richard el mismo día, y el motivo manda sobre el diseño: _«la gente
 que tenía su cuenta en Mercatren de Estados Unidos, que ahora tiene un
