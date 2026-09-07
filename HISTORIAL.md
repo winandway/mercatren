@@ -1818,6 +1818,27 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL DNS APUNTÓ EL 7 SEP Y EL DOMINIO QUEDÓ SANO — comprobado pieza por
+pieza antes de mover un solo dato:** portada en los dos idiomas, entrar,
+registro, catálogo, sitemap, robots y salud responden 200; la dirección
+canónica dice `https://mercatren.com.ve/es` (no el .com, que habría hecho
+que Google tratara el dominio nuevo como una copia); el mapa del sitio
+apunta a sus propias direcciones; y el canario contesta cookies 2 · ciclo
+de sesión ok · base ok, que es lo PRIMERO que se mira cuando alguien no
+puede entrar.
+
+**Turnstile NO está activo en NINGÚN dominio** (comprobado con navegador
+real en los tres el 7 sep: ni pase, ni marco, ni guion). O sea que el
+dominio nuevo **no está peor que el .com** y la mudanza no se frena por
+eso — pero el escudo anti-fuerza bruta del login lleva tiempo apagado en
+producción, y eso es una deuda de seguridad aparte: sin él, la única
+defensa de `/entrar` es el límite de intentos.
+
+**La pantalla «Mercatren llega a Venezuela» NO es un fallo:** es el hero de
+país sin catálogo (`parrilla.total === 0` en `(tienda)/page.tsx`).
+Desaparece sola en cuanto el mercado VE tenga productos, y deja el hero
+venezolano de retiro en ciudad. No hay nada que tocar para eso.
+
 **OJO AL MEDIR EL 301: `next dev` MIENTE.** Con el streaming del servidor de
 desarrollo, tanto `notFound()` como `permanentRedirect()` salen como **200**
 con la redirección en el cuerpo — y una redirección en el cuerpo no traspasa
