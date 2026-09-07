@@ -1818,6 +1818,42 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LA MUDANZA SE HIZO EL 7 SEP Y DESTAPÓ DOS FALLOS QUE VENÍAN DE ANTES.**
+6 comercios y 1.197 productos pasaron al catálogo de VE. Lo que se aprendió:
+
+**1 · El país de un comercio tenía SEIS formas.** `tiendas.pais_origen` era
+texto libre con `autocomplete="country-name"`, así que el navegador lo
+rellenaba con el nombre entero: en producción convivían «VE», «Venezuela»,
+«VENEZUELA», «US», «Estados Unidos» y «Chile». La consulta de la mudanza
+buscaba `= 'VE'` y **movió UN comercio de seis**; los otros cinco se
+quedaron vendiendo en el catálogo de Estados Unidos con sus 69 productos, y
+nadie se habría enterado hasta que un comprador de Miami pidiera un tubo
+desde Mérida. Y el fallo era más grande que la mudanza: **el archivo que se
+le manda a Google filtra por ese mismo campo**. Ahora
+`src/lib/mercado/codigo-de-pais.ts` normaliza **en el servidor** (un
+desplegable se salta con la consola abierta) y lo que no está en la lista
+NO se inventa: se respeta lo escrito. Candado:
+`tests/unit/codigo-de-pais.test.ts`, comprobado en rojo.
+
+**2 · El middleware pedía la lista por RED y fallaba en silencio.** Con el
+dato ya movido y `/datos/mudanza` contestando los 1.197 slugs, **seis
+intentos seguidos contra producción dieron 200 en vez de 308**. El
+middleware corre en el borde y ese `fetch` a su propio origen —más de mil
+filas con `AbortSignal.timeout(1000)`— no llegaba nunca; el `catch` lo
+tapaba. Mil fichas dando un 404 blando sin que saltara nada, que es
+exactamente lo que la casa prohíbe. Ahora las direcciones viven en
+`src/lib/mercado/mudados.ts`, **escrito el día de la mudanza**: un conjunto
+CERRADO que no cambia —un producto venezolano nuevo nace en su dominio y
+nunca estuvo en el .com— comparado contra un `Set` en memoria. Sin red, sin
+caché, sin espera; 40 KB. `/datos/mudanza` se retiró. **Un `fetch` dentro
+del middleware es una dependencia de red en el camino de TODAS las
+páginas**, y hay una prueba que se pone roja si vuelve.
+
+**3 · Y una prueba que protegía a un formato, no al dato.** El candado de la
+lista contaba `","` en el archivo; el hook de push la puso roja porque
+prettier lo había reformateado, con las 1.197 fichas intactas. Se mide
+`PRODUCTOS_MUDADOS.size`, no el texto.
+
 **EL DNS APUNTÓ EL 7 SEP Y EL DOMINIO QUEDÓ SANO — comprobado pieza por
 pieza antes de mover un solo dato:** portada en los dos idiomas, entrar,
 registro, catálogo, sitemap, robots y salud responden 200; la dirección

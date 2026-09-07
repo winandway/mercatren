@@ -75,28 +75,36 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       idiomas por foto; lo ya subido no se toca. Falta 👤 volver a subir las
       4 fotos del POS de QRBott para que salgan con el nombre nuevo.
 
-### 8 sep 2026 · Venezuela se muda a mercatren.com.ve
+### 7 sep 2026 · Venezuela ya vive en mercatren.com.ve ✅
 
-El código está listo y publicado; **el dato NO se ha movido**. Orden del día
-de la mudanza, en `PLAN-TIKTOK-SHOP.md` no: en `CLAUDE.md` y en el propio SQL.
+**HECHO.** El DNS apuntó y el dato se movió el mismo día: **6 comercios y
+1.197 productos** en el catálogo de Venezuela. mercatren.com quedó con cero
+productos venezolanos y sin selector de ciudad; mercatren.com.ve con su
+hero de retiro, sus ciudades y sus comercios. Comprobado en el sitio
+publicado, no supuesto.
 
-- [ ] 🔴 👤 **Apuntar el DNS de `mercatren.com.ve`** a YaDominios Cloud y
-      añadir el dominio al sitio `mercatren`.
-- [ ] 🔴 👤 **Agregar `mercatren.com.ve` a Turnstile** en Cloudflare, o nadie
-      podrá entrar ni registrarse en ese dominio.
-- [ ] 🔴 💻 **Correr la mudanza del dato** el mismo día, no antes:
-      `drizzle/mudanzas/2026-09-08-venezuela-a-su-dominio.sql`. En cuanto las
-      tiendas digan `VE` desaparecen del .com; si el dominio nuevo no
-      responde todavía, no están en ninguna parte.
-- [ ] 🔴 💻 **Medir el 301 en producción** (una ficha venezolana pedida en
-      mercatren.com tiene que contestar 308 hacia mercatren.com.ve). Si
-      contesta 200, la redirección se mueve al middleware ese mismo día: son
-      mil fichas indexadas.
+- [x] 👤 DNS de `mercatren.com.ve` apuntado y dominio añadido al sitio.
+- [x] 💻 Mudanza del dato (`scripts/mudar-venezuela.ts`, con marcha atrás).
+- [x] 💻 **El país dejaba pasar seis formas del mismo dato** y la primera
+      pasada movió 1 comercio de 6. Normalizados los 8 de producción y
+      cerrado en el servidor (`codigo-de-pais.ts`).
+- [x] 💻 **Las mil fichas no redirigían**: el middleware pedía la lista por
+      red y fallaba en silencio. Ahora va escrita en `mudados.ts`.
+
+Lo que queda:
+
 - [ ] 🟠 👤 **Cambio de dirección en Search Console** para las fichas
       venezolanas, y volver a enviar el mapa del sitio de los dos dominios.
-- [ ] 🟠 💻 **Avisar a los comercios venezolanos** de su dirección nueva: los
-      enlaces que reparten por WhatsApp siguen siendo del .com (funcionan por
-      el 301, pero conviene que repartan el bueno).
+      Es lo que hace que Google traspase el posicionamiento rápido en vez
+      de descubrirlo ficha por ficha.
+- [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
+      enlaces que reparten por WhatsApp siguen siendo del .com (funcionan
+      por la redirección, pero conviene que repartan el bueno).
+- [ ] 🟠 💻 **Turnstile no está activo en NINGÚN dominio** (medido con
+      navegador real en los tres el 7 sep: ni pase, ni marco, ni guion). No
+      frena nada de Venezuela, pero el escudo del login lleva tiempo
+      apagado: la única defensa de `/entrar` es el límite de intentos.
+      Se enciende cargando dos claves en el panel.
 - [ ] 🟡 💻 Video del hero propio de Venezuela (hoy usa el genérico).
 
 ### 6 sep 2026 · TikTok Shop, cuenta aprobada
