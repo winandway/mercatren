@@ -20,12 +20,18 @@ import {
  */
 describe("los trozos", () => {
   it("cada trozo queda por debajo del tope de Google", () => {
-    expect(POR_PARTE).toBeLessThanOrEqual(50_000);
+    /**
+     * `POR_PARTE` cuenta FICHAS, y cada ficha produce una entrada POR
+     * IDIOMA (7 sep 2026). Con dos idiomas, el tope real de direcciones por
+     * archivo es el doble — y es ese el que Google mide para descartar el
+     * archivo entero. Por eso se comprueba multiplicado.
+     */
+    expect(POR_PARTE * 2).toBeLessThanOrEqual(50_000);
     expect(partesDeProductos(0)).toBe(0);
     expect(partesDeProductos(1)).toBe(1);
     expect(partesDeProductos(POR_PARTE)).toBe(1);
     expect(partesDeProductos(POR_PARTE + 1)).toBe(2);
-    expect(partesDeProductos(100_000)).toBe(3);
+    expect(partesDeProductos(100_000)).toBe(5);
   });
 
   it("solo se sirven los nombres que existen", () => {
@@ -43,6 +49,54 @@ describe("los trozos", () => {
     expect(leerParte("productos-x.xml")).toBeNull();
     expect(leerParte("productos-1")).toBeNull();
     expect(leerParte("../etc/passwd")).toBeNull();
+  });
+});
+
+describe("los idiomas del mapa", () => {
+  it("CADA FICHA ENTRA CON SU DIRECCIÓN EN CADA IDIOMA", () => {
+    /**
+     * ══ EL FALLO QUE ESTO TRANCA (7 sep 2026) ══
+     *
+     * El mapa escribía UNA entrada por ficha, con el idioma por defecto del
+     * proyecto en el `<loc>` — y ese idioma es **inglés**. Resultado: el
+     * mapa de mercatren.com.ve, que es Venezuela, declaraba sus 1.016
+     * fichas en INGLÉS y ninguna en español. Lo destapó Richard preguntando
+     * por qué Search Console decía «0 páginas descubiertas».
+     *
+     * Google sí descubre las versiones anotadas con `hreflang` —se
+     * comprobó en su documentación antes de tocar nada—, así que no se
+     * perdían páginas; pero en una plaza hispanohablante la dirección en
+     * español tiene que entrar por la puerta principal.
+     */
+    const xml = urlsetXml({
+      base: "https://mercatren.com.ve",
+      idiomas: ["es", "en"],
+      porDefecto: "en",
+      entradas: [
+        { ruta: "/producto/tubo", prioridad: 0.6, frecuencia: "weekly" },
+      ],
+    });
+    expect(xml).toContain(
+      "<loc>https://mercatren.com.ve/es/producto/tubo</loc>",
+    );
+    expect(xml).toContain(
+      "<loc>https://mercatren.com.ve/en/producto/tubo</loc>",
+    );
+    expect(xml.match(/<url>/g)?.length).toBe(2);
+  });
+
+  it("cada entrada declara TODAS sus hermanas, incluida ella misma", () => {
+    /* Es lo que Google exige para que entienda el grupo: si una versión no
+       se declara a sí misma, el grupo no se forma. */
+    const xml = urlsetXml({
+      base: "https://mercatren.com.ve",
+      idiomas: ["es", "en"],
+      porDefecto: "en",
+      entradas: [{ ruta: "/producto/x", prioridad: 0.6, frecuencia: "weekly" }],
+    });
+    expect(xml.match(/hreflang="es"/g)?.length).toBe(2);
+    expect(xml.match(/hreflang="en"/g)?.length).toBe(2);
+    expect(xml.match(/hreflang="x-default"/g)?.length).toBe(2);
   });
 });
 
@@ -94,7 +148,9 @@ describe("el XML", () => {
     expect(xml).toContain(
       "<image:image><image:loc>https://mercatren.com/media/fotos/x.webp</image:loc></image:image>",
     );
-    expect(xml.match(/<image:image>/g)?.length).toBe(1);
+    /* Una vez por IDIOMA: la ficha en español y la inglesa son dos
+       direcciones y cada una declara su foto. */
+    expect(xml.match(/<image:image>/g)?.length).toBe(2);
   });
 
   it("EL MAPA DE VIDEOS ES UN MAPA DE VIDEOS: portada, título, archivo, duración y vistas", () => {

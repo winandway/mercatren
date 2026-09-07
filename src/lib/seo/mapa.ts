@@ -14,9 +14,12 @@
  * y devuelven XML, y por eso se prueban.
  */
 
-/** Por debajo del tope de 50.000: deja margen y mantiene cada archivo lejos
- *  de los 50 MB (cada ficha lleva sus dos idiomas y el x-default). */
-export const POR_PARTE = 40_000;
+/**
+ * Fichas por archivo. **Cada ficha produce una entrada POR IDIOMA**, así que
+ * con dos idiomas esto son 40.000 direcciones — por debajo del tope de
+ * 50.000 de Google, que descartaría el archivo entero, y lejos de los 50 MB.
+ */
+export const POR_PARTE = 20_000;
 
 export type Frecuencia =
   "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
@@ -89,38 +92,70 @@ function fecha(d: Date | null | undefined): string {
 }
 
 /**
- * Un `urlset` con cada dirección en sus idiomas: la principal es la del
- * idioma por defecto, y cada idioma (más `x-default`) va como `xhtml:link`.
- * Es lo que hace que Google entienda que /es/... y /en/... son la misma
- * página y no dos que compiten.
+ * Un `urlset` con **una entrada por idioma**, y cada una declarando todas
+ * sus hermanas con `hreflang`.
+ *
+ * ══ POR QUÉ UNA POR IDIOMA, Y NO UNA SOLA (7 sep 2026) ══
+ *
+ * Antes se escribía UNA entrada por ficha, con la dirección del idioma por
+ * defecto en el `<loc>` y las demás colgando como `xhtml:link`. Y el idioma
+ * por defecto del proyecto es **inglés**, así que el mapa de
+ * mercatren.com.ve —Venezuela— declaraba sus 1.016 fichas en INGLÉS y ni
+ * una en español. Lo destapó Richard preguntando por qué Search Console
+ * decía «0 páginas descubiertas».
+ *
+ * Comprobado en la documentación de Google antes de tocar nada: las
+ * versiones de los `xhtml:link` **sí se descubren**, así que aquello no
+ * perdía páginas. Pero la forma que Google documenta es «un elemento `url`
+ * distinto para cada URL», y con ella la dirección en español entra por la
+ * puerta principal en vez de por una anotación. En una plaza
+ * hispanohablante eso es lo que corresponde.
+ *
+ * ══ LO QUE NO SE TOCA ══
+ *
+ * **`routing.defaultLocale` se queda en «en».** Cambiarlo arreglaría el
+ * mapa y rompería el resto: decide a qué idioma cae quien entra sin
+ * prefijo, y con él viajan las rutas y las redirecciones. El mapa se
+ * arregla en el mapa.
+ *
+ * Cada entrada declara **todas** las versiones incluida ella misma, que es
+ * lo que Google exige para que el grupo se entienda; los `xhtml:link` no
+ * cuentan para el tope de 50.000, pero las entradas sí — y por eso
+ * `POR_PARTE` deja margen de sobra.
  */
 export function urlsetXml(o: {
   base: string;
   idiomas: readonly string[];
+  /** A dónde manda `x-default`: quien no habla ninguno de los idiomas. */
   porDefecto: string;
   entradas: EntradaMapa[];
 }): string {
-  const urls = o.entradas.map((e) => {
-    const principal = `${o.base}/${o.porDefecto}${e.ruta}`;
-    const alternos = o.idiomas
-      .map(
-        (idioma) =>
-          `<xhtml:link rel="alternate" hreflang="${idioma}" href="${escaparXml(`${o.base}/${idioma}${e.ruta}`)}"/>`,
-      )
-      .join("");
-    return [
-      "<url>",
-      `<loc>${escaparXml(principal)}</loc>`,
-      `<lastmod>${fecha(e.modificado)}</lastmod>`,
-      `<changefreq>${e.frecuencia}</changefreq>`,
-      `<priority>${e.prioridad}</priority>`,
-      alternos,
-      `<xhtml:link rel="alternate" hreflang="x-default" href="${escaparXml(principal)}"/>`,
-      e.imagen
-        ? `<image:image><image:loc>${escaparXml(e.imagen)}</image:loc></image:image>`
-        : "",
-      "</url>",
-    ].join("");
+  const urls = o.entradas.flatMap((e) => {
+    /* Las hermanas se calculan UNA vez por ficha: son las mismas para
+       todos sus idiomas, y con miles de fichas repetirlas cuesta. */
+    const alternos =
+      o.idiomas
+        .map(
+          (idioma) =>
+            `<xhtml:link rel="alternate" hreflang="${idioma}" href="${escaparXml(`${o.base}/${idioma}${e.ruta}`)}"/>`,
+        )
+        .join("") +
+      `<xhtml:link rel="alternate" hreflang="x-default" href="${escaparXml(`${o.base}/${o.porDefecto}${e.ruta}`)}"/>`;
+
+    return o.idiomas.map((idioma) =>
+      [
+        "<url>",
+        `<loc>${escaparXml(`${o.base}/${idioma}${e.ruta}`)}</loc>`,
+        `<lastmod>${fecha(e.modificado)}</lastmod>`,
+        `<changefreq>${e.frecuencia}</changefreq>`,
+        `<priority>${e.prioridad}</priority>`,
+        alternos,
+        e.imagen
+          ? `<image:image><image:loc>${escaparXml(e.imagen)}</image:loc></image:image>`
+          : "",
+        "</url>",
+      ].join(""),
+    );
   });
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
