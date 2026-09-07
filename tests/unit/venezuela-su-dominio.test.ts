@@ -2,6 +2,12 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  MERCADO_DE_LA_MUDANZA,
+  PRODUCTOS_MUDADOS,
+  TIENDAS_MUDADAS,
+} from "@/lib/mercado/mudados";
+
+import {
   esMercadoPrincipal,
   MERCADOS,
   mercadoPorCodigo,
@@ -127,13 +133,16 @@ describe("las mil fichas que ya estaban indexadas", () => {
   });
 
   it("la lista trae las fichas de verdad que estaban indexadas", () => {
-    expect(mudados).toContain("PRODUCTOS_MUDADOS");
-    expect(mudados).toContain("TIENDAS_MUDADAS");
-    /* Eran ~1.200 productos y 6 comercios el día de la mudanza: si alguien
-       vacía el archivo, las redirecciones dejan de existir sin un error. */
-    const productos = (mudados.match(/","/g) ?? []).length;
-    expect(productos).toBeGreaterThan(900);
-    expect(mudados).toContain("bley-ferreteria");
+    /**
+     * Se mide el SET, no el texto del archivo. La primera versión contaba
+     * comas y se puso roja en el hook de push: prettier había reformateado
+     * el archivo y las comas cambiaron de sitio. Una prueba que depende del
+     * formato no protege nada — protege a un formato.
+     */
+    expect(PRODUCTOS_MUDADOS.size).toBeGreaterThan(900);
+    expect(TIENDAS_MUDADAS.size).toBeGreaterThanOrEqual(6);
+    expect(TIENDAS_MUDADAS.has("bley-ferreteria")).toBe(true);
+    expect(MERCADO_DE_LA_MUDANZA).toBe("VE");
   });
 
   it("quien ya está en el dominio nuevo no se redirige a sí mismo", () => {
