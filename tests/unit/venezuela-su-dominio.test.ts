@@ -83,25 +83,12 @@ describe("el selector de ciudad y la zona guardada", () => {
 
 describe("las mil fichas que ya estaban indexadas", () => {
   const middleware = leer("src/middleware.ts");
-  const ruta = leer("src/app/datos/mudanza/route.ts");
+  const mudados = leer("src/lib/mercado/mudados.ts");
 
   it("EL 308 LO DA EL MIDDLEWARE, no la página", () => {
-    /**
-     * ══ LO QUE ESTO FIJA, Y POR QUÉ (medido en producción el 6 sep 2026) ══
-     *
-     * La primera versión redirigía desde la página. En el borde de
-     * Cloudflare eso sale **dentro del HTML con un 200**: se comprobó
-     * pidiendo una ficha de EE. UU. en mercatren.cl, y el HTML traía la
-     * dirección del .com mientras la respuesta decía 200. Google lee ese 200
-     * como «la página sigue aquí» y no traspasa el posicionamiento.
-     *
-     * El middleware es el único sitio que devuelve un 308 de verdad.
-     */
     expect(middleware).toContain("redireccionDeMudanza");
     expect(middleware).toContain("NextResponse.redirect(");
     expect(middleware).toContain("308");
-    /* Y las páginas ya NO redirigen: dejarlo en los dos sitios devolvería
-       otra vez el 200 con la redirección dentro del HTML. */
     for (const pagina of [
       "src/app/[locale]/(tienda)/producto/[slug]/page.tsx",
       "src/app/[locale]/(tienda)/tienda/[slug]/page.tsx",
@@ -110,46 +97,55 @@ describe("las mil fichas que ya estaban indexadas", () => {
     }
   });
 
+  it("EL MIDDLEWARE NO PIDE NADA POR RED", () => {
+    /**
+     * ══ ESTO ES LO QUE COSTÓ MIL FICHAS EN SILENCIO (7 sep 2026) ══
+     *
+     * La primera versión le pedía la lista a `/datos/mudanza` con un tope
+     * de un segundo. Con el dato ya movido y esa ruta contestando bien,
+     * SEIS intentos seguidos contra producción dieron 200 en vez de 308:
+     * el middleware corre en el borde y esa consulta de más de mil filas
+     * no llegaba nunca — y el `catch` lo tapaba.
+     *
+     * Un `fetch` dentro del middleware es una dependencia de red en el
+     * camino de TODAS las páginas. Si vuelve a aparecer, vuelve el fallo.
+     */
+    expect(middleware).not.toContain("fetch(");
+    expect(middleware).not.toContain("AbortSignal");
+    expect(middleware).not.toContain("listaEnMemoria");
+    /* Y la función es síncrona: no hay nada que esperar. */
+    expect(middleware).toContain(
+      "function redireccionDeMudanza(request: NextRequest): NextResponse | null",
+    );
+  });
+
   it("se decide ANTES que todo lo demás del middleware", () => {
-    /* Una ficha mudada no tiene que llegar a renderizarse. */
     const mudanza = middleware.indexOf("redireccionDeMudanza(request)");
     const reloj = middleware.indexOf('pathname === "/__scheduled"');
     expect(mudanza).toBeGreaterThan(-1);
     expect(mudanza).toBeLessThan(reloj);
   });
 
-  it("la lista se pide UNA vez por hora, no por visita", () => {
-    /* Consultarla en cada ficha metería latencia en el camino crítico de
-       TODO el catálogo para atender un caso que casi no ocurre. */
-    expect(middleware).toContain("listaEnMemoria");
-    expect(middleware).toContain("VIGENCIA_LISTA_MS");
-    expect(middleware).toContain("AbortSignal.timeout(1000)");
+  it("la lista trae las fichas de verdad que estaban indexadas", () => {
+    expect(mudados).toContain("PRODUCTOS_MUDADOS");
+    expect(mudados).toContain("TIENDAS_MUDADAS");
+    /* Eran ~1.200 productos y 6 comercios el día de la mudanza: si alguien
+       vacía el archivo, las redirecciones dejan de existir sin un error. */
+    const productos = (mudados.match(/","/g) ?? []).length;
+    expect(productos).toBeGreaterThan(900);
+    expect(mudados).toContain("bley-ferreteria");
   });
 
-  it("si la lista falla, NO se redirige: el sitio queda como estaba", () => {
+  it("quien ya está en el dominio nuevo no se redirige a sí mismo", () => {
+    expect(middleware).toContain("MERCADO_DE_LA_MUDANZA");
     const cuerpo = middleware.slice(
-      middleware.indexOf("async function listaDeMudanza"),
+      middleware.indexOf("function redireccionDeMudanza"),
     );
-    expect(cuerpo).toContain("return listaEnMemoria;");
-    expect(cuerpo).toContain("catch");
+    expect(cuerpo).toContain("mercadoPorHost");
   });
 
-  it("la lista solo trae lo MUDADO, no todo lo que no es del principal", () => {
-    /* Chile y Colombia tienen decenas de miles de fichas y nunca estuvieron
-       indexadas en el .com: incluirlas haría una lista enorme para
-       redirigir direcciones que nadie pidió nunca. */
-    expect(ruta).toContain('eq(tiendas.paisOrigen, "VE")');
-    expect(ruta).toContain("MERCADO_PRINCIPAL.codigo");
-  });
-
-  it("mientras el dato no se mueva, la lista sale vacía", () => {
-    /* Es lo que deja publicar el código días antes de la mudanza sin que
-       cambie nada para nadie. */
-    expect(ruta).toContain("f.mercado !== MERCADO_PRINCIPAL.codigo");
-  });
-
-  it("y un fallo de la lista no puede tumbar la tienda", () => {
-    expect(ruta).toContain("{ productos: {}, tiendas: {} }");
+  it("solo redirige fichas de producto y de tienda, no el sitio entero", () => {
+    expect(middleware).toContain("(producto|tienda)");
   });
 });
 

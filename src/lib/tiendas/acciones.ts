@@ -5,6 +5,8 @@ import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { codigoDePais } from "@/lib/mercado/codigo-de-pais";
+
 import {
   exigirEquipoInterno,
   obtenerAlcance,
@@ -318,7 +320,9 @@ export async function solicitarComercio(
       telefono: d.telefono,
       direccion: d.direccion,
       ciudad: d.ciudad,
-      paisOrigen: d.paisOrigen,
+      /* Se guarda el CÓDIGO, venga como venga del formulario: ver
+         `codigo-de-pais.ts`, que cuenta lo que costó no hacerlo. */
+      paisOrigen: codigoDePais(d.paisOrigen),
       /**
        * LA VITRINA DONDE VA A VENDER: el dominio por el que se registró.
        *

@@ -3,6 +3,11 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { mercadoPorCodigo, mercadoPorHost } from "@/lib/mercado/mercados";
+import {
+  MERCADO_DE_LA_MUDANZA,
+  PRODUCTOS_MUDADOS,
+  TIENDAS_MUDADAS,
+} from "@/lib/mercado/mudados";
 
 import { routing } from "./i18n/routing";
 import { esRutaSoloEquipo } from "./lib/panel/solo-equipo";
@@ -35,7 +40,7 @@ function quiereMarkdown(request: NextRequest): boolean {
   return /\btext\/markdown\b/i.test(accept);
 }
 
-export default async function middleware(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   /* ══ LO QUE SE MUDÓ DE DOMINIO SE REDIRIGE AQUÍ, Y SOLO AQUÍ ══
@@ -43,7 +48,7 @@ export default async function middleware(request: NextRequest) {
      producción, un `permanentRedirect` desde una página sale DENTRO del HTML
      con un 200, y Google no traspasa nada con eso. Va antes que todo lo
      demás: una ficha mudada no tiene que llegar a renderizarse. */
-  const mudanza = await redireccionDeMudanza(request);
+  const mudanza = redireccionDeMudanza(request);
   if (mudanza) return mudanza;
 
   /* ══ LA PUERTA DEL RELOJ PROPIO (3 sep 2026) ══ YaDominios Cloud invoca
@@ -130,92 +135,50 @@ export default async function middleware(request: NextRequest) {
 }
 
 /**
- * ══ LA REDIRECCIÓN DE UNA MUDANZA DE DOMINIO (6 sep 2026) ══
+ * ══ LA REDIRECCIÓN DE UNA MUDANZA DE DOMINIO ══
  *
  * Venezuela pasó de mercatren.com a mercatren.com.ve con más de mil fichas
  * ya indexadas. Un 404 le dice a Google «esto murió» y tira el
  * posicionamiento de un año; un 308 le dice «se mudó aquí» y se lo traspasa.
  *
- * ══ POR QUÉ LA LISTA VIVE EN MEMORIA Y NO SE CONSULTA POR VISITA ══
+ * Va en el middleware porque es el único sitio que devuelve un 308 de
+ * verdad — comprobado en producción, donde una redirección de página sale
+ * como 200 con la dirección dentro del HTML.
  *
- * El middleware corre en el borde y no puede tocar la base. La alternativa
- * era preguntar por cada ficha que alguien abre — latencia en el camino
- * crítico de TODO el catálogo para atender un caso que, pasada la mudanza,
- * casi no ocurre. Así que la lista se pide UNA VEZ por worker y por hora
- * (`/datos/mudanza`, ~1.000 entradas) y la decisión se toma en memoria.
- *
- * ══ LO QUE PASA SI ALGO FALLA ══
- *
- * Sin lista no se redirige nada, que es exactamente como se comportaba el
- * sitio antes. Y mientras el dato no se haya movido la lista sale VACÍA, así
- * que este código se puede publicar días antes sin efecto alguno.
+ * Y las direcciones vienen de un módulo ESCRITO (`mudados.ts`), nunca de
+ * una consulta: ahí está anotado por qué, que costó mil fichas en silencio.
  */
-type ListaDeMudanza = {
-  productos: Record<string, string>;
-  tiendas: Record<string, string>;
-};
-
-let listaEnMemoria: ListaDeMudanza | null = null;
-let listaPedidaEn = 0;
-const VIGENCIA_LISTA_MS = 3_600_000;
-
-/** `/es/producto/mi-slug` → `{ tipo: "producto", slug: "mi-slug" }`. */
-const RUTA_MUDABLE = /^\/(es|en)\/(producto|tienda)\/([^/?#]+)\/?$/;
-
-async function redireccionDeMudanza(
-  request: NextRequest,
-): Promise<NextResponse | null> {
+function redireccionDeMudanza(request: NextRequest): NextResponse | null {
   const partes = RUTA_MUDABLE.exec(request.nextUrl.pathname);
   if (!partes) return null;
 
   const [, idioma, tipo, slug] = partes;
   if (!idioma || !tipo || !slug) return null;
 
-  const aqui = mercadoPorHost(request.headers.get("host"));
-
-  const lista = await listaDeMudanza(request);
-  if (!lista) return null;
-
-  const codigo =
+  const nombre = decodeURIComponent(slug);
+  const seMudo =
     tipo === "producto"
-      ? lista.productos[decodeURIComponent(slug)]
-      : lista.tiendas[decodeURIComponent(slug)];
-  if (!codigo || codigo === aqui.codigo) return null;
+      ? PRODUCTOS_MUDADOS.has(nombre)
+      : TIENDAS_MUDADAS.has(nombre);
+  if (!seMudo) return null;
 
-  const alla = mercadoPorCodigo(codigo);
-  if (alla.codigo === aqui.codigo) return null;
+  /* Quien ya está en el dominio de destino no se redirige a sí mismo. */
+  if (
+    mercadoPorHost(request.headers.get("host")).codigo === MERCADO_DE_LA_MUDANZA
+  ) {
+    return null;
+  }
 
   /* 308 y no 307: el permanente es el que traspasa el posicionamiento. El
      idioma se conserva — quien abrió el enlace en inglés sigue en inglés. */
   return NextResponse.redirect(
-    `https://${alla.dominio}/${idioma}/${tipo}/${slug}`,
+    `https://${mercadoPorCodigo(MERCADO_DE_LA_MUDANZA).dominio}/${idioma}/${tipo}/${slug}`,
     308,
   );
 }
 
-async function listaDeMudanza(
-  request: NextRequest,
-): Promise<ListaDeMudanza | null> {
-  const ahora = Date.now();
-  if (listaEnMemoria && ahora - listaPedidaEn < VIGENCIA_LISTA_MS) {
-    return listaEnMemoria;
-  }
-  try {
-    const url = new URL("/datos/mudanza", request.nextUrl.origin);
-    /* Un segundo como mucho: la lista es una comodidad, no puede retrasar
-       la portada de nadie si la base va lenta. */
-    const respuesta = await fetch(url, {
-      signal: AbortSignal.timeout(1000),
-    });
-    if (!respuesta.ok) return listaEnMemoria;
-    listaEnMemoria = (await respuesta.json()) as ListaDeMudanza;
-    listaPedidaEn = ahora;
-    return listaEnMemoria;
-  } catch {
-    /* Se conserva la última buena, si la hubo. Nunca tumba la petición. */
-    return listaEnMemoria;
-  }
-}
+/** `/es/producto/mi-slug` → tipo «producto», slug «mi-slug». */
+const RUTA_MUDABLE = /^\/(es|en)\/(producto|tienda)\/([^/?#]+)\/?$/;
 
 export const config = {
   /**
