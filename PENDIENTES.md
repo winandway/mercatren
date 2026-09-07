@@ -93,10 +93,25 @@ publicado, no supuesto.
 
 Lo que queda:
 
-- [ ] 🟠 👤 **Cambio de dirección en Search Console** para las fichas
-      venezolanas, y volver a enviar el mapa del sitio de los dos dominios.
-      Es lo que hace que Google traspase el posicionamiento rápido en vez
-      de descubrirlo ficha por ficha.
+- [ ] 🟠 👤 **Dar de alta `mercatren.com.ve` en Search Console** y enviarle
+      su mapa del sitio:
+
+      ```
+              https://mercatren.com.ve/sitemap.xml
+              ```
+
+              **NO se usa la herramienta «Cambio de dirección»**, y esto se
+              comprobó en la documentación de Google el 7 sep 2026 antes de
+              recomendarlo: esa herramienta es **solo para propiedades de dominio
+              completo** y le diría a Google que TODO mercatren.com se mudó a
+              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+              tirar el posicionamiento de toda la plaza grande para arreglar una
+              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+              que ya están hechas: redirecciones permanentes (el 308 del middleware)
+              y los mapas del sitio separados (medido: el .com ya no lista ni una
+              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+              Este punto ya venía escrito mal en esta lista tres veces.
+
 - [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan
       por la redirección, pero conviene que repartan el bueno).

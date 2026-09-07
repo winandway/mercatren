@@ -1818,6 +1818,20 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**Y UN CUARTO, QUE ERA MÍO Y CASI SALE CARO: «Cambio de dirección» en
+Search Console NO se usa en una mudanza parcial.** Estuvo escrito tres
+veces en `PENDIENTES.md` como tarea de Richard. Comprobado en la
+documentación de Google antes de dárselo: esa herramienta **solo funciona
+en propiedades de dominio completo**, y le habría dicho a Google que TODO
+mercatren.com se mudó a mercatren.com.ve — con el .com vivo y vendiendo en
+Estados Unidos. Habría tirado el posicionamiento de la plaza grande para
+arreglar una parte. Para una mudanza parcial Google pide dos cosas, y las
+dos ya están: **redirecciones permanentes** (el 308 del middleware) y
+**mapas del sitio separados** — medido el 7 sep: el mapa del .com no lista
+ni una dirección venezolana y el del .com.ve tiene sus 6 tiendas. Lo único
+que queda es dar de alta el dominio nuevo como propiedad y enviarle su
+mapa.
+
 **LA MUDANZA SE HIZO EL 7 SEP Y DESTAPÓ DOS FALLOS QUE VENÍAN DE ANTES.**
 6 comercios y 1.197 productos pasaron al catálogo de VE. Lo que se aprendió:
 
