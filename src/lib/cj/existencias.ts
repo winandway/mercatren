@@ -33,6 +33,8 @@ type VarianteConStock = {
   variantSku?: string;
   variantStock?: number | string;
   stockNum?: number | string;
+  /** El nombre que de verdad usa `/product/variant/query` (medido 8 sep). */
+  inventoryNum?: number | string;
 };
 
 /* La regla vive en `masivo.ts` (pura): el afinado de la importación masiva

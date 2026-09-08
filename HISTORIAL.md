@@ -1818,6 +1818,30 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL 1 INVENTADO: LA RAÍZ DE «QUEDAN 2» (8 sep 2026).** Al pedirle a CJ las
+variantes de un candidato para Colombia salió la respuesta cruda:
+`inventoryNum: 0` en cada variante, con la ficha presumiendo 50.057
+unidades. Y `stockDeVariante` leía `variantStock ?? stockNum` —dos nombres
+que CJ no manda— y, sin dato, **asumía UNA unidad**, con un comentario que
+juraba que «CJ solo lista variantes con inventario». Las dos cosas eran
+falsas. Todas las variantes caían en «sin dato» y valían 1: dos tallas a
+cero → «Quedan 2», que es justo lo que decían las fichas de Richard.
+
+- **Medido en producción:** 1.771 productos publicados en EE. UU. (52 %) y
+  859 en Colombia (21 %) con un stock EXACTAMENTE igual a su número de
+  tallas. Son los mismos que estaban con todas las tallas en cero, vistos
+  desde el otro lado.
+- **Lo más grave no era la ficha: era el checkout.** `hayExistenciaEnCj`
+  —el candado que pregunta a CJ ANTES de cobrar— usaba esta misma función.
+  Veía 1 donde había 0. Cobraba fiado en un número inventado.
+- Ahora se leen los tres nombres (`inventoryNum` primero) y **sin dato es
+  CERO**. Inventar stock es cobrar por lo que no existe; quedarse corto solo
+  pierde una venta. La prueba que exigía `{} → 1` se reescribió contando
+  por qué cambió, y hay otra con la respuesta real de CJ.
+- **Regla que deja:** cuando CJ conteste algo que «no cuadra» (50.057 en la
+  ficha, 0 en las variantes), se lee el JSON crudo antes de interpretar. El
+  campo que esperábamos y el que llega no eran el mismo desde el principio.
+
 **LAS DESCRIPCIONES IBAN A 50 POR DÍA PORQUE EL LATIDO TRADUCÍA CERO (8 sep
 2026).** Richard: _«nos gastamos los créditos en cargar un bulto de
 productos… sin agregar el otro idioma»_. Medido: 8.651 fichas publicadas sin

@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
+import { stockDeVariante } from "@/lib/cj/masivo";
+
 const leer = (r: string) => readFileSync(r, "utf8");
 const guardar = leer("src/lib/cj/guardar.ts");
 const barrido = leer("src/lib/cj/verificados.ts");
@@ -75,5 +77,29 @@ describe("el stock de cada talla", () => {
     /* Un producto sin tallas cargadas se rige por su propio stock y no queda
        atrapado por esta regla. */
     expect(publica).toContain("notInArray(productos.id, conVariantes)");
+  });
+});
+
+describe("cómo se lee el stock que manda CJ", () => {
+  it("LEE `inventoryNum`, que es el campo real, y SIN DATO ES CERO", () => {
+    /**
+     * Respuesta real de `/product/variant/query` del 8 sep 2026, recortada:
+     * el stock viene en `inventoryNum`, y las variantes agotadas vienen
+     * igual, con 0. El lector viejo no conocía ese nombre y, sin dato,
+     * inventaba 1: 1.771 productos en EE. UU. con stock igual a su número
+     * de tallas. El checkout cobraba fiado en ese 1.
+     */
+    expect(
+      stockDeVariante({ variantSku: "CJYS173928907GT", inventoryNum: 0 }),
+    ).toBe(0);
+    expect(stockDeVariante({ inventoryNum: 37 })).toBe(37);
+    expect(stockDeVariante({ inventoryNum: "12" })).toBe(12);
+    /* Los nombres viejos siguen valiendo por si CJ los manda. */
+    expect(stockDeVariante({ variantStock: 5 })).toBe(5);
+    expect(stockDeVariante({ stockNum: 3 })).toBe(3);
+    /* Y lo que no trae número NO vale uno. */
+    expect(stockDeVariante({ variantSku: "X" })).toBe(0);
+    expect(stockDeVariante({ inventoryNum: null })).toBe(0);
+    expect(stockDeVariante({ inventoryNum: "muchos" })).toBe(0);
   });
 });

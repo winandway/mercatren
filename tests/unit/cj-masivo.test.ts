@@ -270,9 +270,18 @@ describe("reclamar una tanda", () => {
     expect(porcentajeDe(9, 4)).toBe(100);
   });
 
-  it("el stock de una variante sin dato es UNA, como en existencias.ts", () => {
+  it("el stock de una variante SIN DATO ES CERO — ya no se inventa una", () => {
+    /**
+     * Esta prueba exigía lo CONTRARIO: `{}` → 1, con la idea de que «CJ solo
+     * lista variantes con inventario». Era falso: `/product/variant/query`
+     * manda el stock en `inventoryNum` —que no se leía— y trae también las
+     * agotadas con 0. Todas caían en «sin dato» y valían 1. Medido el 8 sep
+     * 2026: 1.771 productos publicados en EE. UU. con stock igual a su
+     * número de tallas, y el checkout cobrando fiado en ese 1.
+     */
     expect(stockDeVariante({ variantStock: 7 })).toBe(7);
     expect(stockDeVariante({ stockNum: "3" })).toBe(3);
-    expect(stockDeVariante({})).toBe(1);
+    expect(stockDeVariante({ inventoryNum: 4 })).toBe(4);
+    expect(stockDeVariante({})).toBe(0);
   });
 });

@@ -368,10 +368,31 @@ export function porcentajeDe(hechas: number, total: number): number {
   return Math.min(100, Math.max(0, Math.round((hechas / total) * 100)));
 }
 
-/** El stock de una variante de CJ, como lo cuenta `existencias.ts`: sin dato
- *  se asume UNA (CJ solo lista variantes con inventario en ese almacén). */
+/**
+ * El stock de una variante de CJ, como lo cuentan el afinado, el refresco y
+ * el checkout ANTES de cobrar.
+ *
+ * ══ EL 1 INVENTADO (8 sep 2026) ══
+ *
+ * Esto leía `variantStock ?? stockNum` y, sin dato, **asumía UNA unidad**,
+ * con un comentario que juraba que «CJ solo lista variantes con inventario
+ * en ese almacén». Las dos cosas eran falsas: `/product/variant/query`
+ * devuelve el stock en **`inventoryNum`** —un campo que aquí no se leía— y
+ * trae también las variantes con `inventoryNum: 0`. Así que TODAS caían en
+ * el «sin dato» y valían 1.
+ *
+ * Medido en producción: 1.771 productos publicados en Estados Unidos (52 %)
+ * y 859 en Colombia (21 %) tenían un stock EXACTAMENTE igual a su número de
+ * tallas. Dos tallas a cero → «Quedan 2» en la ficha. Y el candado del
+ * checkout —que pregunta a CJ antes de cobrar— usaba esta misma función:
+ * también veía 1 donde había 0.
+ *
+ * Se leen los tres nombres que CJ ha usado, y **sin dato es CERO**. Inventar
+ * stock es cobrar por lo que no existe; quedarse corto solo pierde una
+ * venta.
+ */
 export function stockDeVariante(v: Record<string, unknown>): number {
-  const crudo = v.variantStock ?? v.stockNum;
+  const crudo = v.inventoryNum ?? v.variantStock ?? v.stockNum;
   const n = Number(crudo);
-  return Number.isFinite(n) && n > 0 ? n : 1;
+  return Number.isFinite(n) && n > 0 ? n : 0;
 }
