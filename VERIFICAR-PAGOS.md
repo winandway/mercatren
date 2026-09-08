@@ -65,6 +65,35 @@ mismo catálogo de EE. UU. en los tres dominios. Es a propósito y está
 escrito en el código: hoy hay UNA cuenta de Merchant Center, la de Estados
 Unidos. El día que Chile o Colombia tengan la suya, ahí se separa.
 
+## 8 sep 2026 · el candado del checkout cobraba fiado en un stock inventado
+
+**Lo que se encontró:** `hayExistenciaEnCj` —la pregunta a CJ ANTES de
+cobrar, que existe desde el 2 sep para no cobrar lo que no hay— usaba
+`stockDeVariante`, y esa función, sin dato, **asumía UNA unidad**. CJ manda
+el stock en `inventoryNum`; el código buscaba `variantStock` y `stockNum`.
+Ningún producto traía esos nombres: todos caían en «sin dato» y valían 1.
+El candado decía «sí hay» para variantes con `inventoryNum: 0`.
+
+**Cuánto:** 1.771 productos publicados en EE. UU. (52 %) y 859 en Colombia
+(21 %) con stock exactamente igual a su número de tallas — el 1 inventado
+sumado. Medido en producción.
+
+**Qué se hizo:** `stockDeVariante` lee `inventoryNum` primero y **sin dato
+es CERO**. La prueba que exigía `{} → 1` se reescribió; hay otra con la
+respuesta real de CJ. Comprobado en rojo. Publicado el 8 sep.
+
+**Qué NO cambia en la tabla de arriba:** las compras reales probadas
+(MT-000004, MT-000011, las PRUEBA- del 5 sep) se hicieron con productos que
+sí tenían stock; el fallo no invalida esas pruebas. Lo que invalida es la
+confianza en el candado hasta hoy: **entre el 2 y el 8 sep, una venta de un
+producto con stock real 0 habría pasado el checkout.** No consta ninguna
+(cero compras al proveedor con error en ese periodo), pero se dice.
+
+**Cómo se comprueba que sigue bien:** `tests/unit/stock-de-variantes.test.ts`
+(«LEE inventoryNum… SIN DATO ES CERO») y `cj-masivo.test.ts` («sin dato es
+CERO — ya no se inventa una»). Si alguna vuelve a exigir 1, es el fallo
+otra vez.
+
 ## Cómo se prueba un circuito (el rito completo)
 
 1. Compra del equipo con tarjeta real en el dominio del mercado (`mercatren.cl`
