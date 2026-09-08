@@ -1842,6 +1842,12 @@ urgente y contundente»_. Una constante — pero tres cosas alrededor:
    encima del cruce el comprador racional paga con tarjeta, donde Mercatren
    gana 3 %.
 
+Y el hueco de silencio que quedaba: el insert de la tarifa va en un `try`.
+Si la tabla no llegara a producción, todo cobro nuevo saldría al 3 % sin
+que nadie lo viera. `/datos/salud` lo dice ahora (`tarifas`), y el
+desglose de retiros lee el margen REAL de cada pago Zelle en vez de
+recalcular el 3 % (`desglosarConMargenReal`).
+
 **EL 1 INVENTADO: LA RAÍZ DE «QUEDAN 2» (8 sep 2026).** Al pedirle a CJ las
 variantes de un candidato para Colombia salió la respuesta cruda:
 `inventoryNum: 0` en cada variante, con la ficha presumiendo 50.057
