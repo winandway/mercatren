@@ -384,6 +384,7 @@ export async function guardarTallas(
       await import("@/lib/cj/variantes");
     const { partirVariante, valeLaPenaGuardar } =
       await import("@/lib/cj/tallas");
+    const { stockDeVariante } = await import("@/lib/cj/masivo");
 
     const crudas = crudasYaPedidas ?? (await pedirVariantes(pid, almacen));
     if (!crudas) return 0;
@@ -408,8 +409,24 @@ export async function guardarTallas(
            lo decidiera. */
         precioBaseCentavos: 0,
         precioCentavos: precioPublicadoCentavos,
-        existencias: 0,
-        controlaExistencias: false,
+        /**
+         * ══ EL STOCK DE LA VARIANTE, QUE ESTABA EN CERO A MANO ══
+         *
+         * Aquí decía `existencias: 0` fijo, con el dato de CJ delante en la
+         * misma variable. Y la ficha decide si una talla se puede comprar
+         * mirando ESE número (`selector-variante.tsx`: `v.existencias > 0`).
+         *
+         * Resultado medido el 8 sep 2026 en producción: **2.642 productos a
+         * la venta —863 en Colombia y 1.779 en Estados Unidos— decían
+         * «Quedan 2» arriba y «Sin existencias» en todas sus tallas.**
+         * Nadie podía comprarlos, y llevaban días acumulándose con cada
+         * importación. Lo cazó Richard con dos fichas suyas.
+         *
+         * `stockDeVariante` ya existía y el afinado la usaba para sumar el
+         * total del producto: el dato estaba, solo que no se guardaba.
+         */
+        existencias: stockDeVariante(v as Record<string, unknown>),
+        controlaExistencias: true,
         orden: i,
         activo: true,
         creadoEn: ahora,

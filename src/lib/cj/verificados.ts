@@ -17,7 +17,12 @@ import {
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { REGIONALES } from "@/lib/cj/riesgo";
 import { getDb } from "@/lib/db";
-import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
+import {
+  enviosProducto,
+  productos,
+  tiendas,
+  variantesProducto,
+} from "@/lib/db/schema";
 
 /**
  * NADA DE CJ SE VENDE SIN PASAR EL ÚLTIMO FILTRO (2 sep 2026).
@@ -73,6 +78,27 @@ export async function barrerNoVerificados(): Promise<{
     .from(enviosProducto)
     .where(or(eq(enviosProducto.origen, "estimado"), transporteRegional()));
 
+  /**
+   * ══ SI NINGUNA TALLA SE PUEDE COMPRAR, EL PRODUCTO NO ESTÁ A LA VENTA ══
+   *
+   * Medido el 8 sep 2026: **2.642 fichas publicadas** —863 en Colombia y
+   * 1.779 en Estados Unidos— decían «Quedan 2» arriba y «Sin existencias»
+   * en TODAS sus tallas. El stock del producto se refrescaba; el de cada
+   * variante se guardaba en cero (ya corregido en `cj/guardar.ts`), y la
+   * ficha decide con el de la variante.
+   *
+   * El total del producto no basta como filtro: hay que preguntar si queda
+   * ALGUNA combinación que una persona pueda meter al carrito. Un producto
+   * sin variantes cargadas no entra aquí — ese se rige por su propio stock.
+   */
+  const conVariantes = db
+    .select({ id: variantesProducto.productoId })
+    .from(variantesProducto);
+  const conVarianteComprable = db
+    .select({ id: variantesProducto.productoId })
+    .from(variantesProducto)
+    .where(gt(variantesProducto.existencias, 0));
+
   const retiro = await db
     .update(productos)
     .set({ estado: "en_revision", actualizadoEn: ahora })
@@ -86,6 +112,10 @@ export async function barrerNoVerificados(): Promise<{
           inArray(productos.id, conEnvioMalo),
           isNull(productos.precioBaseCentavos),
           lte(productos.precioBaseCentavos, 0),
+          and(
+            inArray(productos.id, conVariantes),
+            notInArray(productos.id, conVarianteComprable),
+          ),
         ),
       ),
     );
@@ -119,6 +149,13 @@ export async function barrerNoVerificados(): Promise<{
         gt(productos.existencias, 0),
         gt(productos.precioBaseCentavos, 0),
         inArray(productos.id, conEnvioBueno),
+        /* Vuelve solo si hay dónde comprar: o no tiene tallas, o alguna
+           tiene existencia. Sin esto, el barrido lo retiraría y lo
+           republicaría en la misma vuelta, para siempre. */
+        or(
+          notInArray(productos.id, conVariantes),
+          inArray(productos.id, conVarianteComprable),
+        ),
       ),
     );
 
@@ -139,6 +176,27 @@ export async function contarPublicadosSinVerificar(): Promise<number> {
     .select({ id: enviosProducto.productoId })
     .from(enviosProducto)
     .where(or(eq(enviosProducto.origen, "estimado"), transporteRegional()));
+
+  /**
+   * ══ SI NINGUNA TALLA SE PUEDE COMPRAR, EL PRODUCTO NO ESTÁ A LA VENTA ══
+   *
+   * Medido el 8 sep 2026: **2.642 fichas publicadas** —863 en Colombia y
+   * 1.779 en Estados Unidos— decían «Quedan 2» arriba y «Sin existencias»
+   * en TODAS sus tallas. El stock del producto se refrescaba; el de cada
+   * variante se guardaba en cero (ya corregido en `cj/guardar.ts`), y la
+   * ficha decide con el de la variante.
+   *
+   * El total del producto no basta como filtro: hay que preguntar si queda
+   * ALGUNA combinación que una persona pueda meter al carrito. Un producto
+   * sin variantes cargadas no entra aquí — ese se rige por su propio stock.
+   */
+  const conVariantes = db
+    .select({ id: variantesProducto.productoId })
+    .from(variantesProducto);
+  const conVarianteComprable = db
+    .select({ id: variantesProducto.productoId })
+    .from(variantesProducto)
+    .where(gt(variantesProducto.existencias, 0));
   const [fila] = await db
     .select({ n: sql<number>`count(*)` })
     .from(productos)
