@@ -164,14 +164,20 @@ export function baseDesdePublicado(publicadoCentavos: number): number {
  * Hacia atrás y con enteros, igual que la otra: el redondeo hacia arriba deja
  * el centavo de colchón a favor, nunca en contra.
  *
- * ES MÁS BARATO PARA EL CLIENTE, con el mismo margen para nosotros. En una
- * compra de $100 el precio con tarjeta es $106.59 y por Zelle $103.10; en una
- * de $2.000, $2,126.46 contra $2,061.86. La diferencia entera la hace el
- * 2.9% + $0.30 del procesador, que aquí no existe.
+ * HASTA EL 8 SEP 2026 ERA SIEMPRE MÁS BARATO PARA EL CLIENTE (3 % en los dos
+ * métodos y sin procesador). Con Zelle al 6 % ya no siempre: en $100 la
+ * tarjeta da $106.59 y Zelle $106.39; en $2.000, $2,126.46 contra $2,127.66.
+ * El cruce está en una base de ~$282. Lo que se le enseña al comprador es el
+ * ahorro real, calculado, y solo cuando lo hay.
  */
-export function precioZelleCentavos(baseCentavos: number): number {
+export function precioZelleCentavos(
+  baseCentavos: number,
+  /** La tarifa: la vigente por defecto, o la pactada en un cobro concreto. */
+  puntosBase: number = COMISION_ZELLE_PB,
+): number {
   if (baseCentavos <= 0) return 0;
-  return Math.ceil((baseCentavos * 10_000) / (10_000 - COMISION_ZELLE_PB));
+  if (puntosBase >= 10_000) return baseCentavos;
+  return Math.ceil((baseCentavos * 10_000) / (10_000 - puntosBase));
 }
 
 /**
@@ -275,7 +281,34 @@ export const COMISION_TARJETA_PB = 300;
  * precios PRIMERO, la constante después.
  */
 export const COMISION_US_PB = 3000;
-export const COMISION_ZELLE_PB = 300;
+/**
+ * EL MARGEN POR ZELLE: 6 % (8 sep 2026).
+ *
+ * Decisión de Richard, con estas palabras: *«el porcentaje del Zelle que
+ * cobra el tres por ciento, vamos a subirlo al seis… cuando active el toggle
+ * para que salga en el link de pago del cliente, seis por ciento va a ser lo
+ * que se le cobra al cliente»*. Es «la cuenta de Estados Unidos»: todo pago
+ * por Zelle entra a Mercatren LLC, y por eso rige para todo lo que se paga
+ * por Zelle — el checkout y los cobros por enlace.
+ *
+ * ══ LO QUE CAMBIA Y LO QUE NO ══
+ *
+ * - El cliente paga `base / 0,94` en vez de `base / 0,97`. El comercio sigue
+ *   recibiendo SU precio exacto: en pedidos, la comisión del renglón es
+ *   «cobrado − base» y se guarda al crear; en cobros por enlace, el margen es
+ *   el porcentaje del monto.
+ * - **Los cobros ya emitidos conservan su tarifa**: la que regía al crearlos
+ *   se guarda en `tarifas_del_cobro`, y sin fila vale la de antes (3 %). El
+ *   día del cambio había 13 abiertos por $29.129, casi todos de MAXIUM:
+ *   descontarles el doble de lo pactado habría sido robarles.
+ * - **Zelle deja de ser siempre más barato que la tarjeta.** Con 6 % contra
+ *   3 % + 2,9 % + $0,30, Zelle cuesta menos solo con base por debajo de
+ *   ~$282; por encima, la tarjeta sale más barata al comprador. El «ahorro
+ *   por Zelle» del checkout ya solo se enseña cuando existe.
+ *
+ * `COMISION_TARJETA_PB` se queda en 300: la tarjeta no cambió.
+ */
+export const COMISION_ZELLE_PB = 600;
 export const ZELLE_MINIMO_CENTAVOS = 20_000;
 
 /**

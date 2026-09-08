@@ -52,7 +52,7 @@ export type RepartoDelCobro = {
   pagaElCliente: number;
   /** Lo que se queda Stripe. Cero salvo con tarjeta. */
   procesador: number;
-  /** El margen de Mercatren, el 3%. */
+  /** El margen de Mercatren: 3 % con tarjeta, la tarifa pactada sin ella. */
   margen: number;
   /** Lo que se le acredita al comercio. */
   recibeElComercio: number;
@@ -61,6 +61,12 @@ export type RepartoDelCobro = {
 export function repartoDelCobro(
   montoCentavos: number,
   metodo: MetodoDeCobro,
+  /**
+   * La tarifa de Zelle/transferencia PACTADA en este cobro. Por defecto la
+   * vigente; al acreditar se pasa la guardada al crearlo (`tarifas_del_cobro`),
+   * para que subir el margen no le cambie el reparto a un cobro ya emitido.
+   */
+  puntosBaseSinProcesador: number = COMISION_ZELLE_PB,
 ): RepartoDelCobro {
   if (montoCentavos <= 0) {
     return { pagaElCliente: 0, procesador: 0, margen: 0, recibeElComercio: 0 };
@@ -73,7 +79,7 @@ export function repartoDelCobro(
       : 0;
 
   const puntosBase =
-    metodo === "tarjeta" ? COMISION_TARJETA_PB : COMISION_ZELLE_PB;
+    metodo === "tarjeta" ? COMISION_TARJETA_PB : puntosBaseSinProcesador;
   const margen = Math.round((montoCentavos * puntosBase) / 10_000);
 
   /**
@@ -115,11 +121,12 @@ export function loQueCuestaLaTarjeta(montoCentavos: number): number {
 export function cuantoCobrarPara(
   netoDeseadoCentavos: number,
   metodo: MetodoDeCobro,
+  puntosBaseSinProcesador: number = COMISION_ZELLE_PB,
 ): number {
   if (netoDeseadoCentavos <= 0) return 0;
   return metodo === "tarjeta"
     ? precioConAjusteCentavos(netoDeseadoCentavos)
-    : precioZelleCentavos(netoDeseadoCentavos);
+    : precioZelleCentavos(netoDeseadoCentavos, puntosBaseSinProcesador);
 }
 
 /** Los tres métodos, en el orden en que se ofrecen. */

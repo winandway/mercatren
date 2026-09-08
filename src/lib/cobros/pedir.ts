@@ -277,6 +277,31 @@ export async function crearCobroDesdePanel(
       });
     }
 
+    /**
+     * LA TARIFA PACTADA VIAJA CON EL COBRO (8 sep 2026).
+     *
+     * El margen sin procesador se lee de `COMISION_ZELLE_PB` AL ACREDITAR; si
+     * mañana sube otra vez, un cobro creado hoy pagaría lo de mañana. Se deja
+     * escrito lo que regía al crearlo. En su propio `try`: el cobro ya existe
+     * y ya se puede pagar; sin la fila se acredita con la tarifa de antes,
+     * que es lo conservador.
+     */
+    try {
+      const { tarifasDelCobro } = await import("@/lib/db/schema");
+      const { COMISION_ZELLE_PB } = await import("@/lib/dinero");
+      await db
+        .insert(tarifasDelCobro)
+        .values(
+          creadas.map((parte) => ({
+            cobroId: parte.id,
+            puntosBase: COMISION_ZELLE_PB,
+          })),
+        )
+        .onConflictDoNothing();
+    } catch (fallo) {
+      console.error("[cobros] no se pudo guardar la tarifa del cobro:", fallo);
+    }
+
     /* Qué parte es cada una, para poder enseñarlo en su página de pago. Solo
        cuando de verdad se dividió: un cobro de una parte es un cobro normal. */
     if (creadas.length > 1) {

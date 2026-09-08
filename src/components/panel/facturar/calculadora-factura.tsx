@@ -267,15 +267,20 @@ export function CalculadoraFactura({
                       ),
                     })
                   : t("ofrecera.transferencia")}
+            {/* Con Zelle al 6 % y tarjeta al 3 % + procesador, a partir de
+                ~$282 la tarjeta le deja MÁS al comercio: «el procesador se
+                lleva −$7» no se puede decir. Se dice lo que pasa de verdad. */}
             {objetivoCentavos > 0 && metodo === "tarjeta"
               ? " " +
-                t("avisoTarjeta", {
-                  monto: formatearPrecio(
-                    loQueCuestaLaTarjeta(objetivoCentavos),
-                    idioma,
-                    "USD",
-                  ),
-                })
+                (loQueCuestaLaTarjeta(objetivoCentavos) > 0
+                  ? t("avisoTarjeta", {
+                      monto: formatearPrecio(
+                        loQueCuestaLaTarjeta(objetivoCentavos),
+                        idioma,
+                        "USD",
+                      ),
+                    })
+                  : t("avisoTarjetaNoCuesta"))
               : null}
           </p>
         </div>

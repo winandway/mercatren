@@ -392,9 +392,13 @@ export async function subirComprobanteDeCobro(
        queda con el monto menos el 3% y nada más. Va por la misma función para
        que el día que cambie el margen no haya dos sitios que actualizar. */
     const { repartoDelCobro } = await import("@/lib/cobros/reparto");
+    /* Con la tarifa PACTADA en este cobro, no con la vigente: el 8 sep 2026
+       el margen subió al 6 % con 13 cobros abiertos que se prometieron al 3 %. */
+    const { tarifaDelCobro } = await import("@/lib/cobros/consultas");
     const comisionCentavos = repartoDelCobro(
       cobro.montoCentavos,
       "zelle",
+      await tarifaDelCobro(cobro.id),
     ).margen;
 
     const ahora = new Date();

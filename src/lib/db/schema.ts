@@ -3337,6 +3337,26 @@ export const metodosDelCobro = sqliteTable(
 );
 
 /**
+ * LA TARIFA PACTADA EN CADA COBRO (8 sep 2026).
+ *
+ * El margen de Zelle subió del 3 % al 6 % ese día. En cobros por enlace el
+ * reparto se calcula AL ACREDITAR, no al crear: sin esto, los 13 cobros
+ * abiertos ($29.129, casi todos de MAXIUM) habrían pagado el doble de lo que
+ * se les prometió al emitirlos.
+ *
+ * **Sin fila, vale la tarifa de antes (300).** Así los cientos de cobros
+ * anteriores se acreditan como se pactaron sin tocar una sola fila vieja.
+ * Tabla y no columna, como manda la regla: llega sola con `schema.sql`.
+ */
+export const tarifasDelCobro = sqliteTable("tarifas_del_cobro", {
+  cobroId: text("cobro_id")
+    .primaryKey()
+    .references(() => cobrosSolicitados.id, { onDelete: "cascade" }),
+  /** Puntos base del margen sin procesador (Zelle/transferencia): 600 hoy. */
+  puntosBase: integer("puntos_base").notNull(),
+});
+
+/**
  * LAS PARTES DE UNA FACTURA COBRADA EN VARIOS ABONOS (26 ago 2026).
  *
  * Una factura de $7.475 y un cliente con cupo de $2.500 al día en su banco:

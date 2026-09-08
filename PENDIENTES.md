@@ -102,6 +102,17 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       foto de CJ, eso no se detecta por consulta: hace falta que mande dos
       ejemplos para ver qué es exactamente.
 
+### 8 sep 2026 · Zelle al 6 % ✅
+
+- [x] 💻 `COMISION_ZELLE_PB = 600`; tarifa pactada guardada por cobro para
+      no tocar los 13 abiertos; textos y pruebas al día.
+- [ ] 🟠 💻 **Probar de punta a punta el primer cobro por enlace pagado por
+      Zelle al 6 %** (crear → pagar → acreditar) y anotarlo en
+      VERIFICAR-PAGOS. En unidad está; en dinero real, no todavía.
+- [ ] 🟡 👤 **Decidir si la tarjeta se queda en 3 %.** Con Zelle al 6 %, por
+      encima de ~$282 de base la tarjeta le sale más barata al comprador y
+      Mercatren gana menos ahí. Es decisión de negocio.
+
 ### 7 sep 2026 · Venezuela ya vive en mercatren.com.ve ✅
 
 **HECHO.** El DNS apuntó y el dato se movió el mismo día: **6 comercios y
@@ -128,34 +139,34 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                                              https://mercatren.com.ve/mapa/productos-0.xml
-                                              ```
-
-                                              ```
-                                              https://mercatren.com.ve/mapa/paginas.xml
-                                              ```
-
-                                              ```
-                                              https://mercatren.com.ve/mapa/tiendas.xml
-                                              ```
-
-                                              Lo de antes, que ya no aplica:
-
-                                              ```
-                                                      https://mercatren.com.ve/sitemap.xml
+                                                      https://mercatren.com.ve/mapa/productos-0.xml
                                                       ```
 
-                                                      **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                                                      comprobó en la documentación de Google el 7 sep 2026 antes de
-                                                      recomendarlo: esa herramienta es **solo para propiedades de dominio
-                                                      completo** y le diría a Google que TODO mercatren.com se mudó a
-                                                      mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                                                      tirar el posicionamiento de toda la plaza grande para arreglar una
-                                                      parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                                                      que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                                                      y los mapas del sitio separados (medido: el .com ya no lista ni una
-                                                      dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                                                      Este punto ya venía escrito mal en esta lista tres veces.
+                                                      ```
+                                                      https://mercatren.com.ve/mapa/paginas.xml
+                                                      ```
+
+                                                      ```
+                                                      https://mercatren.com.ve/mapa/tiendas.xml
+                                                      ```
+
+                                                      Lo de antes, que ya no aplica:
+
+                                                      ```
+                                                              https://mercatren.com.ve/sitemap.xml
+                                                              ```
+
+                                                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                                              comprobó en la documentación de Google el 7 sep 2026 antes de
+                                                              recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                                              completo** y le diría a Google que TODO mercatren.com se mudó a
+                                                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                                              tirar el posicionamiento de toda la plaza grande para arreglar una
+                                                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                                              y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                                              Este punto ya venía escrito mal en esta lista tres veces.
 
 - [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan

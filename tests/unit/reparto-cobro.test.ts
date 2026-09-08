@@ -63,22 +63,34 @@ describe("el reparto por método", () => {
     expect(r.recibeElComercio).toBeGreaterThanOrEqual(0);
   });
 
-  it("dice cuánto le cuesta al comercio aceptar tarjeta", () => {
-    /* Es el número con el que se decide: en $7.475 son más de doscientos
-       dólares; en $20, ochenta centavos. */
-    expect(loQueCuestaLaTarjeta(747_500)).toBe(
-      repartoDelCobro(747_500, "tarjeta").procesador,
+  it("dice cuánto le cuesta al comercio aceptar tarjeta — y cuándo NO le cuesta", () => {
+    /* Con Zelle al 6 % (8 sep 2026), en una factura de $7.475 la tarjeta le
+       deja al comercio MÁS que Zelle: el número sale negativo y la
+       calculadora ya no dice «el procesador se lleva −$7». En una de $200 la
+       tarjeta sí cuesta, y se dice. */
+    expect(loQueCuestaLaTarjeta(747_500)).toBeLessThan(0);
+    expect(loQueCuestaLaTarjeta(20_000)).toBeGreaterThan(0);
+    expect(loQueCuestaLaTarjeta(20_000)).toBe(
+      repartoDelCobro(20_000, "zelle").recibeElComercio -
+        repartoDelCobro(20_000, "tarjeta").recibeElComercio,
     );
-    expect(loQueCuestaLaTarjeta(747_500)).toBeGreaterThan(20_000);
   });
 });
 
 describe("cuánto cobrar para recibir X limpios", () => {
-  it("con tarjeta hay que cobrar MÁS que sin ella", () => {
-    const conTarjeta = cuantoCobrarPara(725_075, "tarjeta");
-    const sinTarjeta = cuantoCobrarPara(725_075, "zelle");
-    expect(conTarjeta).toBeGreaterThan(sinTarjeta);
-    expect(sinTarjeta).toBe(747_500);
+  it("para el mismo neto, por debajo del cruce la tarjeta exige cobrar más; por encima, Zelle", () => {
+    /* El cruce (~$282 de base) también vale aquí: es la misma fórmula. */
+    expect(cuantoCobrarPara(20_000, "tarjeta")).toBeGreaterThan(
+      cuantoCobrarPara(20_000, "zelle"),
+    );
+    expect(cuantoCobrarPara(725_075, "zelle")).toBeGreaterThan(
+      cuantoCobrarPara(725_075, "tarjeta"),
+    );
+    /* Y sin tarjeta, con la tarifa vigente, el comercio recibe su neto. */
+    const cobrar = cuantoCobrarPara(725_075, "zelle");
+    expect(
+      repartoDelCobro(cobrar, "zelle").recibeElComercio,
+    ).toBeGreaterThanOrEqual(725_075);
   });
 
   it("y el resultado de verdad deja ese neto o un pelo más", () => {

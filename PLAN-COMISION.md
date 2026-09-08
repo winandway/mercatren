@@ -80,3 +80,19 @@ pero por Zelle no hay procesador. En $100: $103.10 contra $106.59.
 - [ ] Comprobar en el navegador
 - [ ] Documentar en `CLAUDE.md`
 - [ ] Publicar y comprobar que quedó en verde
+
+## 8 sep 2026 · Zelle salta al 6 % (la tarjeta se queda en 3 %)
+
+Decisión del dueño. No fue un escalón de la escalera (que iba pareja en los
+dos métodos): fue **solo Zelle**, «urgente y contundente». Lo que implicó:
+
+- `COMISION_ZELLE_PB = 600`. El cliente paga `base / 0,94`.
+- El comercio recibe su precio exacto igual que antes (la comisión del
+  renglón es «cobrado − base»; en cobros por enlace, porcentaje del monto).
+- **Los cobros ya emitidos no cambian**: la tarifa se guarda con cada cobro
+  al crearlo (`tarifas_del_cobro`); los anteriores valen 300.
+- **Zelle ya no es siempre más barato que la tarjeta**: cruce en ~$282 de
+  base. Por encima, el comprador que compara paga con tarjeta.
+
+Queda en la mesa del dueño si la tarjeta sube también, para que la escalera
+vuelva a ir pareja.

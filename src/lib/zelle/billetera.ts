@@ -140,6 +140,12 @@ export type PosicionBilletera = {
   brutoTarjetaCentavos: number;
   brutoZelleCentavos: number;
   /**
+   * El margen que Mercatren se descontó de lo cobrado por Zelle, sumado de
+   * cada pago tal como se acreditó. No se recalcula: Zelle subió al 6 % el
+   * 8 sep 2026 y los pagos de antes siguen valiendo su 3 %.
+   */
+  margenZelleCentavos: number;
+  /**
    * Hasta qué día llegan los datos que tenemos.
    *
    * Hace falta a la vista: el histórico se trajo de una exportación con fecha,
@@ -435,6 +441,7 @@ export async function obtenerPosicion(
     brutoTarjetaCentavos:
       Number(tarjeta?.bruto ?? 0) + Number(enlaces?.bruto ?? 0),
     brutoZelleCentavos: Number(brutoZelle?.total ?? 0),
+    margenZelleCentavos: Number(datos?.comisionGanada ?? 0),
     recibidoDeOtrosCentavos: Number(recibido?.total ?? 0),
     ultimoMovimiento: ultimaFecha(
       datos?.ultimo ? Number(datos.ultimo) * 1000 : null,

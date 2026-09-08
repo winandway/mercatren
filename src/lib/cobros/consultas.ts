@@ -537,3 +537,28 @@ export async function comprobantePendienteDeCobro(
 
   return Boolean(fila);
 }
+
+/**
+ * LA TARIFA DE ANTES DEL 8 SEP 2026, para los cobros creados sin fila en
+ * `tarifas_del_cobro`: el 3 % que regía cuando se emitieron. Está aquí y no
+ * en `dinero.ts` a propósito — no es una tarifa vigente, es un hecho
+ * histórico, y nada nuevo debe usarla.
+ */
+export const TARIFA_ANTERIOR_PB = 300;
+
+/**
+ * La tarifa sin procesador PACTADA en un cobro: la guardada al crearlo, o la
+ * de antes si el cobro es anterior a que se guardara. Con esto, subir el
+ * margen no le cambia el reparto a un cobro ya emitido.
+ */
+export async function tarifaDelCobro(cobroId: string): Promise<number> {
+  const db = getDb();
+  const { tarifasDelCobro } = await import("@/lib/db/schema");
+  const [fila] = await db
+    .select({ puntosBase: tarifasDelCobro.puntosBase })
+    .from(tarifasDelCobro)
+    .where(eq(tarifasDelCobro.cobroId, cobroId))
+    .limit(1);
+  const pb = Number(fila?.puntosBase);
+  return Number.isFinite(pb) && pb > 0 ? pb : TARIFA_ANTERIOR_PB;
+}

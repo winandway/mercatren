@@ -582,7 +582,7 @@
         "ingresos": "Approved inflows",
         "ingresosPie": "{n, plural, one {# approved payment} other {# approved payments}}",
         "comision": "Mercatren markup",
-        "comisionPie": "3% of approved volume",
+        "comisionPie": "Mercatren's margin on approved payments",
         "neto": "Net to merchants",
         "netoPie": "Cost of merchandise",
         "sellers": "Active merchants",
@@ -601,7 +601,7 @@
         "netoComercio": "What you kept",
         "netoPieComercio": "After the fee",
         "rechazadosPieComercio": "Never reached your wallet",
-        "comisionPieComercio": "3% of what you were paid",
+        "comisionPieComercio": "What was deducted from what you were paid",
         "pendientesPieComercio": "{monto} waiting for us to review"
       },
       "noContabiliza": "Not counted",
@@ -2037,7 +2037,7 @@
       "bajada": "What your buyers paid, and what was taken out before it reached you.",
       "bruto": "What your buyers paid",
       "procesador": "Card processing (Stripe)",
-      "mercatren": "Mercatren's fee (3%)",
+      "mercatren": "Mercatren's margin",
       "tuyo": "Your money",
       "porQueZelle": "Processing costs apply only to what was charged by card. Zelle involves no processor at all."
     },
@@ -2577,7 +2577,8 @@
       "cualMontoTitulo": "The match isn't exact: which amount do you charge?",
       "cualMontoAyuda": "Whole units of those products can't reach your amount. Choose whether to charge what you typed (invoice without a breakdown) or the total of the units.",
       "montoEscrito": "What you typed — the exact amount",
-      "montoCuadrado": "What the breakdown units add up to"
+      "montoCuadrado": "What the breakdown units add up to",
+      "avisoTarjetaNoCuesta": "With a card you receive the same or more than through Zelle at this amount: Zelle's margin (6%) is higher than the card margin (3%) plus the processor."
     },
     "correccion": {
       "sinPermiso": "You don't have permission to correct a payment.",

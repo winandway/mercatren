@@ -1818,6 +1818,30 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**ZELLE AL 6 %, Y LO QUE CASI SE ROMPE AL SUBIRLO (8 sep 2026).** Richard:
+_«el porcentaje del Zelle que cobra el tres, vamos a subirlo al seis…
+urgente y contundente»_. Una constante — pero tres cosas alrededor:
+
+1. **La tarifa por tienda (`comision_puntos_base`, 300) NO manda en lo que
+   se acredita.** Parecía la «tercera constante que tiene que cuadrar», y
+   ya no lo es: en pedidos la comisión del renglón se guarda como «cobrado −
+   base» al crear; en cobros por enlace es un porcentaje del monto. Se usa
+   solo en pantallas y en la calculadora. Subir la constante sola bastaba
+   para que el comercio recibiera su precio exacto.
+2. **En cobros por enlace el reparto se calcula AL ACREDITAR.** Había 13
+   abiertos por $29.129 (MAXIUM casi todos) pactados al 3 %: con la
+   constante nueva se les habría descontado el doble en el momento de pagar.
+   Ahora la tarifa vigente se guarda con el cobro (`tarifas_del_cobro`) al
+   crearlo, y sin fila vale la de antes. Acreditar y **corregir un monto**
+   leen esa tarifa.
+3. **Zelle dejó de ser siempre más barato que la tarjeta.** 6 % contra
+   3 % + 2,9 % + $0,30 se cruzan en ~$282 de base. Seis pruebas defendían el
+   «siempre»; se reescribieron con el cruce. El checkout enseña el ahorro
+   solo cuando lo hay; la calculadora deja de decir «el procesador se lleva
+   −$7». Y un efecto de negocio que se le dijo a Richard con números: por
+   encima del cruce el comprador racional paga con tarjeta, donde Mercatren
+   gana 3 %.
+
 **EL 1 INVENTADO: LA RAÍZ DE «QUEDAN 2» (8 sep 2026).** Al pedirle a CJ las
 variantes de un candidato para Colombia salió la respuesta cruda:
 `inventoryNum: 0` en cada variante, con la ficha presumiendo 50.057

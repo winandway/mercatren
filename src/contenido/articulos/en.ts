@@ -743,6 +743,11 @@ export const ARTICULOS_EN: Articulo[] = [
       {
         tipo: "parrafo",
         texto:
+          "Update (Sep 8, 2026): the Zelle margin is now 6%, so Zelle is no longer always cheaper than a card. Checkout still computes both totals and shows the savings only when there are any.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
           "Starting today, checkout calculates your total based on how you choose to pay, and tells you what you save by choosing Zelle. It used to show the card total no matter what, and the order came out cheaper after you confirmed. That's fixed.",
       },
       {

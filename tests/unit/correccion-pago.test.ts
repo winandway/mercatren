@@ -20,10 +20,28 @@ describe("corregir el monto de un pago", () => {
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.datos.montoCentavos).toBe(50_000);
-    /* Zelle no lleva procesador: la comisión es el 3 % de lo que ENTRÓ. */
+    /* Zelle no lleva procesador: la comisión es el margen VIGENTE de lo que
+       ENTRÓ. Desde el 8 sep 2026 es el 6 %; ese caso de agosto, pactado al
+       3 %, se corrige pasando la tarifa guardada con su cobro (abajo). */
+    expect(r.datos.comisionCentavos).toBe(3_000);
+    expect(r.datos.netoCentavos).toBe(47_000);
+    expect(r.datos.diferenciaCentavos).toBe(227_404);
+  });
+
+  it("EL MISMO CASO CON SU TARIFA PACTADA (3 %): $15 de comisión, como en agosto", () => {
+    const r = revisarCorreccion(
+      {
+        montoDeclaradoCentavos: DECLARADO,
+        montoRealCentavos: REAL,
+        motivo: MOTIVO,
+      },
+      "zelle",
+      300,
+    );
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
     expect(r.datos.comisionCentavos).toBe(1_500);
     expect(r.datos.netoCentavos).toBe(48_500);
-    expect(r.datos.diferenciaCentavos).toBe(227_404);
   });
 
   it("LA COMISIÓN SE RECALCULA SOBRE LO QUE ENTRÓ, no sobre lo declarado", () => {

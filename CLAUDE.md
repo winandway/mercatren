@@ -46,8 +46,9 @@ Esta sesión trabaja **únicamente** en `/Users/windocellc/Mercatren.com`.
   contra la base real exige autorización expresa cada vez**.
 - **Las tablas llegan a producción por `schema.sql`**, que YaDominios Cloud
   ejecuta en cada publicación. Se genera con `npm run db:schema-cloud` y se
-  commitea. **Se mantiene CHICO (~13 KB)**: corre entero antes de que el sitio
-  quede en vivo, y con el catálogo dentro (556 KB) la publicación se caía.
+  commitea. **Solo tablas, nunca datos** (~53 KB hoy): corre entero antes de
+  que el sitio quede en vivo, y con el catálogo dentro (556 KB) la
+  publicación se caía.
 - **El histórico Zelle JAMÁS va en `schema.sql`**: trae nombres y correos de
   personas reales y el repositorio es público.
 
@@ -143,7 +144,7 @@ next-intl lee `{sociedad}` como variable ICU y revienta la pantalla entera.
 | Método  | Margen | Procesador   | Precio publicado            |
 | ------- | ------ | ------------ | --------------------------- |
 | Tarjeta | 3 %    | 2.9 % + 0.30 | `V = (base + 0.30) / 0.941` |
-| Zelle   | 3 %    | ninguno      | `V = base / 0.97`           |
+| Zelle   | 6 %    | ninguno      | `V = base / 0.94`           |
 
 En EE. UU. (catálogo propio de CJ) el margen es **30 %** (`COMISION_US_PB`):
 allá Mercatren compra, despacha y asume devolución y contracargo.
@@ -154,8 +155,13 @@ quedan, la diferencia sale del bolsillo del comercio en cada venta. Orden:
 `node scripts/recalcular-precios.ts` → `npm run db:cargar` → recién ahí
 desplegar. Plan en `PLAN-COMISION.md`.
 
-**Las tres constantes tienen que cuadrar:** `COMISION_TARJETA_PB`,
-`COMISION_ZELLE_PB` y `tiendas.comision_puntos_base` valen 300 las tres.
+**Zelle va al 6 % desde el 8 sep 2026** (`COMISION_ZELLE_PB = 600`; tarjeta
+sigue en 300). El comercio recibe su precio exacto en los dos caminos: en
+pedidos la comisión del renglón es «cobrado − base» y se guarda al crear; en
+cobros por enlace **la tarifa pactada se guarda con el cobro**
+(`tarifas_del_cobro`) y sin fila vale la de antes — subir el margen no toca
+lo ya emitido. **Zelle ya no es siempre más barato que la tarjeta**: el cruce
+está en ~$282 de base, y el ahorro solo se enseña cuando existe.
 
 ---
 

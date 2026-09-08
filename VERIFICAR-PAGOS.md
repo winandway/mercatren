@@ -94,6 +94,28 @@ producto con stock real 0 habría pasado el checkout.** No consta ninguna
 CERO — ya no se inventa una»). Si alguna vuelve a exigir 1, es el fallo
 otra vez.
 
+## 8 sep 2026 · Zelle pasa del 3 % al 6 % — qué cambia en el circuito
+
+**Decisión de Richard** («urgente y contundente»). `COMISION_ZELLE_PB = 600`;
+la tarjeta se queda en 300.
+
+- **Pedidos por Zelle:** el cliente paga `base / 0,94`; la comisión del
+  renglón (`cobrado − base`) se guarda al crear el pedido, así que los 4
+  pedidos Zelle sin pagar del día conservan su comisión y el comercio recibe
+  su precio exacto. ✅ Sin cambio de circuito.
+- **Cobros por enlace:** el margen se calcula AL ACREDITAR. Para no cobrarle
+  el doble a los 13 abiertos ($29.129), la tarifa vigente **se guarda con el
+  cobro** (`tarifas_del_cobro`) y sin fila vale 300. Acreditar y corregir un
+  monto leen esa tarifa. ✅ Candado: `tarifa-pactada-del-cobro.test.ts`.
+- **Zelle ya no es siempre más barato que la tarjeta** (cruce en ~$282 de
+  base). El checkout enseña el ahorro solo cuando existe; la calculadora
+  dice cuándo la tarjeta NO cuesta más. Los textos que prometían «3 % igual
+  por Zelle» se corrigieron.
+- **Lo que NO se probó con dinero real ese día:** un cobro por enlace NUEVO
+  pagado por Zelle al 6 % y acreditado. El reparto está probado en unidad
+  con los números exactos; queda la prueba de punta a punta cuando entre el
+  primer cobro real.
+
 ## Cómo se prueba un circuito (el rito completo)
 
 1. Compra del equipo con tarjeta real en el dominio del mercado (`mercatren.cl`

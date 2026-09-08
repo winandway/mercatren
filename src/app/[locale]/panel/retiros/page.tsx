@@ -135,6 +135,7 @@ export default async function PaginaRetiros({
             <DesgloseDelCobro
               brutoTarjetaCentavos={posicion.brutoTarjetaCentavos}
               brutoZelleCentavos={posicion.brutoZelleCentavos}
+              margenZelleCentavos={posicion.margenZelleCentavos}
               idioma={idioma}
             />
           </div>

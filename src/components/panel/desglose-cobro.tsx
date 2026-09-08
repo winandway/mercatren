@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import {
   desglosarCobro,
+  desglosarConMargenReal,
   sumarDesgloses,
   type DesgloseDeCobro,
 } from "@/lib/retiros/desglose";
@@ -25,17 +26,22 @@ import {
 export async function DesgloseDelCobro({
   brutoTarjetaCentavos,
   brutoZelleCentavos,
+  margenZelleCentavos,
   idioma,
 }: {
   brutoTarjetaCentavos: number;
   brutoZelleCentavos: number;
+  /** Lo que de verdad se descontó por Zelle, sumado de cada pago. */
+  margenZelleCentavos: number;
   idioma: Idioma;
 }) {
   const t = await getTranslations("panel.desglose");
 
   const total: DesgloseDeCobro = sumarDesgloses([
     desglosarCobro(brutoTarjetaCentavos, true),
-    desglosarCobro(brutoZelleCentavos, false),
+    /* Por Zelle el margen se LEE de lo acreditado, no se recalcula: hay
+       pagos al 3 % y pagos al 6 %, y la pantalla dice lo que pasó. */
+    desglosarConMargenReal(brutoZelleCentavos, false, margenZelleCentavos),
   ]);
 
   // Sin ventas no se dibuja: una tabla de ceros no explica nada.

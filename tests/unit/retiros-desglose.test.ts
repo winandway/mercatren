@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { COMISION_TARJETA_PB } from "@/lib/dinero";
-import { desglosarCobro, sumarDesgloses } from "@/lib/retiros/desglose";
+import {
+  desglosarCobro,
+  desglosarConMargenReal,
+  sumarDesgloses,
+} from "@/lib/retiros/desglose";
 
 /**
  * LA REGLA QUE NO SE PUEDE ROMPER.
@@ -52,11 +56,31 @@ describe("el procesador y Mercatren van por separado", () => {
     expect(d.mercatrenCentavos).toBeGreaterThan(0);
   });
 
-  it("el margen de Mercatren es el mismo en los dos métodos", () => {
-    // Desde el 10 ago 2026 los dos van al 3%.
-    expect(desglosarCobro(100_000, true).mercatrenCentavos).toBe(
-      desglosarCobro(100_000, false).mercatrenCentavos,
-    );
+  it("POR ZELLE EL MARGEN SE LEE DE LO ACREDITADO, NO SE RECALCULA", () => {
+    /* Zelle subió del 3 % al 6 % el 8 sep 2026, y cada pago guarda su
+       comisión. Un comercio con $1.000 por Zelle repartidos entre pagos
+       viejos (3 %) y nuevos (6 %) tiene un margen real que ninguna fórmula
+       de hoy reproduce: se suma de los pagos y se enseña tal cual. */
+    const d = desglosarConMargenReal(100_000, false, 4_500);
+    expect(d.procesadorCentavos).toBe(0);
+    expect(d.mercatrenCentavos).toBe(4_500);
+    expect(d.delComercioCentavos).toBe(95_500);
+    /* Y con tarjeta, la misma función respeta el procesador. */
+    const t = desglosarConMargenReal(100_000, true, 3_000);
+    expect(t.procesadorCentavos).toBe(Math.round(100_000 * 0.029) + 30);
+    expect(t.delComercioCentavos).toBe(100_000 - t.procesadorCentavos - 3_000);
+  });
+
+  it("un margen real disparatado no rompe la suma", () => {
+    /* Negativo → 0; mayor que el bruto → el bruto. Los tres renglones siguen
+       sumando el bruto exacto, que es lo que hace confiable la pantalla. */
+    expect(desglosarConMargenReal(10_000, false, -5).mercatrenCentavos).toBe(0);
+    const d = desglosarConMargenReal(10_000, false, 99_999);
+    expect(d.mercatrenCentavos).toBe(10_000);
+    expect(
+      d.procesadorCentavos + d.mercatrenCentavos + d.delComercioCentavos,
+    ).toBe(10_000);
+    expect(desglosarConMargenReal(0, false, 300).brutoCentavos).toBe(0);
   });
 
   it("el procesador es 2.9% más 30 centavos fijos", () => {

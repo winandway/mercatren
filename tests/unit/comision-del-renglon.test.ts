@@ -20,11 +20,15 @@ describe("el comercio recibe su precio exacto", () => {
   const comision = (subtotal: number, base: number, cantidad: number) =>
     Math.max(0, subtotal - base * cantidad);
 
-  it("EL CASO STARLINK, al centavo: base $423 → Zelle cobra $436.09 → neto $423.00", () => {
+  it("EL CASO STARLINK, al centavo: base $423 → Zelle cobra $450.00 → neto $423.00", () => {
+    /* Hasta el 8 sep 2026 Zelle cobraba $436.09 (3 %). Ese día Richard
+       subió el margen de Zelle al 6 %: $423 / 0,94 = $450.00 exactos. El
+       comercio sigue recibiendo su base íntegra; lo que cambia es lo que
+       paga el cliente. */
     const base = 42_300;
     expect(precioConAjusteCentavos(base)).toBe(44_985); // la ficha real
     const cobrado = precioZelleCentavos(base);
-    expect(cobrado).toBe(43_609); // lo que pagó el cliente
+    expect(cobrado).toBe(45_000); // lo que paga el cliente por Zelle
     expect(cobrado - comision(cobrado, base, 1)).toBe(base);
   });
 

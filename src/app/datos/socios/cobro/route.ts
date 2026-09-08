@@ -219,6 +219,19 @@ export async function POST(peticion: Request) {
     creadoEn: ahora,
   });
 
+  /* La tarifa que regía al crearlo, para que una subida futura del margen no
+     le cambie el reparto a este cobro (ver `tarifas_del_cobro`). */
+  try {
+    const { tarifasDelCobro } = await import("@/lib/db/schema");
+    const { COMISION_ZELLE_PB } = await import("@/lib/dinero");
+    await db
+      .insert(tarifasDelCobro)
+      .values({ cobroId: id, puntosBase: COMISION_ZELLE_PB })
+      .onConflictDoNothing();
+  } catch (fallo) {
+    console.error("[socios/cobro] no se pudo guardar la tarifa:", fallo);
+  }
+
   /**
    * LA FILA DE CADENA SOLO SE ESCRIBE SI HACE FALTA.
    *

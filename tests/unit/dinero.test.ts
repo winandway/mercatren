@@ -168,9 +168,10 @@ describe("el precio de las variantes", () => {
 describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
   it("por Zelle se cobra el 3%, sin el fee de la tarjeta", () => {
     /* $100 de base: al comercio le tienen que quedar sus $100 completos y a
-       Mercatren su 3%. Nada de procesador, porque Zelle es gratis. */
+       Mercatren su 6 %. Nada de procesador, porque Zelle es gratis. */
+    /* 6 % desde el 8 sep 2026 (antes $103.10 con el 3 %). */
     const publicado = precioZelleCentavos(10_000);
-    expect(publicado).toBe(10_310); // $103.10
+    expect(publicado).toBe(10_639); // $106.39
 
     // Al comercio le queda su precio íntegro después del 3%.
     const seLlevaMercatren = Math.round(
@@ -213,23 +214,37 @@ describe("pagar por Zelle cuesta menos, y tiene que ser así", () => {
     ).toBe("COMISION_ZELLE_PB");
   });
 
-  it("SIEMPRE es más barato que con tarjeta", () => {
-    for (const base of [1_000, 5_000, 20_000, 200_000, 1_000_000]) {
-      expect(
-        precioZelleCentavos(base),
-        `con base ${base} Zelle no salió más barato`,
-      ).toBeLessThan(precioConAjusteCentavos(base));
+  it("YA NO ES SIEMPRE MÁS BARATO QUE LA TARJETA: solo por debajo de ~$282 de base", () => {
+    /**
+     * Hasta el 8 sep 2026, con el 3 % en los dos métodos, Zelle era siempre
+     * más barato: la diferencia entera la hacía el procesador. Con Zelle al
+     * 6 % y tarjeta al 3 % + 2,9 % + $0,30, el cruce es
+     *   base / 0,94 = (base + 0,30) / 0,941  →  base ≈ $282.
+     * Por debajo, Zelle gana; por encima, la tarjeta sale más barata al
+     * comprador. Esta prueba fija ese cruce para que nadie vuelva a prometer
+     * «siempre más barato» en un texto.
+     */
+    for (const base of [1_000, 5_000, 20_000]) {
+      expect(precioZelleCentavos(base), `base ${base}`).toBeLessThan(
+        precioConAjusteCentavos(base),
+      );
+    }
+    for (const base of [200_000, 1_000_000]) {
+      expect(precioZelleCentavos(base), `base ${base}`).toBeGreaterThan(
+        precioConAjusteCentavos(base),
+      );
     }
   });
 
-  it("el ahorro es exactamente lo que cobraba el procesador de más", () => {
-    /* Lo que se ahorra quien paga por Zelle es AHORA el 2.9% + $0.30 del
-       procesador, entero: desde el 10 ago 2026 el margen de Mercatren es el
-       mismo 3% en los dos métodos, así que la diferencia no la hace nuestra
-       comisión sino el procesador que por Zelle no interviene.
-       En una compra de $2.000 son $63,86; en una de $100, $3,49. */
-    expect(ahorroPorZelleCentavos(200_000)).toBe(6_386);
-    expect(ahorroPorZelleCentavos(10_000)).toBe(349);
+  it("el ahorro por Zelle se enseña cuando existe, y NUNCA sale negativo", () => {
+    /* Por debajo del cruce es la diferencia real; por encima, cero — el
+       checkout solo dibuja el aviso cuando hay algo que ahorrar. */
+    const chica = 5_000;
+    expect(ahorroPorZelleCentavos(chica)).toBe(
+      precioConAjusteCentavos(chica) - precioZelleCentavos(chica),
+    );
+    expect(ahorroPorZelleCentavos(chica)).toBeGreaterThan(0);
+    expect(ahorroPorZelleCentavos(200_000)).toBe(0);
   });
 
   it("nunca deja al comercio cobrando de menos", () => {

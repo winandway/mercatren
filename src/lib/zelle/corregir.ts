@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { exigirEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { correccionesPago, pagosZelle } from "@/lib/db/schema";
+import { cobrosZelle, correccionesPago, pagosZelle } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
 import { idDeRegistro, revisar } from "@/lib/validacion/acciones";
 import { revisarCorreccion } from "@/lib/zelle/reglas-correccion";
@@ -91,11 +91,29 @@ export async function corregirMontoDePago(
     return { ok: false, mensaje: t("panel.zelle.soloEntradas") };
   }
 
-  const calculo = revisarCorreccion({
-    montoDeclaradoCentavos: pago.montoCentavos,
-    montoRealCentavos,
-    motivo,
-  });
+  /* Si el pago es de un cobro por enlace, la comisión se recalcula con la
+     tarifa PACTADA en ese cobro (la de antes para los viejos), no con la
+     vigente. Un pago de pedido no tiene puente y usa la vigente. */
+  const [puente] = await db
+    .select({ cobroId: cobrosZelle.cobroId })
+    .from(cobrosZelle)
+    .where(eq(cobrosZelle.pagoZelleId, id))
+    .limit(1);
+  let tarifa: number | undefined;
+  if (puente?.cobroId) {
+    const { tarifaDelCobro } = await import("@/lib/cobros/consultas");
+    tarifa = await tarifaDelCobro(puente.cobroId);
+  }
+
+  const calculo = revisarCorreccion(
+    {
+      montoDeclaradoCentavos: pago.montoCentavos,
+      montoRealCentavos,
+      motivo,
+    },
+    "zelle",
+    tarifa,
+  );
   if (!calculo.ok) {
     return { ok: false, mensaje: t(`panel.correccion.${calculo.aviso}`) };
   }

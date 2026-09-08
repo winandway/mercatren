@@ -73,6 +73,13 @@ const MOTIVO_MAXIMO = 500;
 export function revisarCorreccion(
   p: PeticionDeCorreccion,
   metodo: "zelle" | "transferencia" | "tarjeta" = "zelle",
+  /**
+   * La tarifa sin procesador PACTADA en el cobro del que viene el pago. Sin
+   * ella se usa la vigente — y el 8 sep 2026 la vigente pasó del 3 % al 6 %:
+   * corregir un pago de un cobro viejo con la tarifa nueva le cobraría al
+   * comercio el doble de lo prometido en el mismo acto de arreglarle otra cosa.
+   */
+  puntosBaseSinProcesador?: number,
 ):
   | { ok: true; datos: CorreccionCalculada }
   | { ok: false; aviso: FalloDeCorreccion } {
@@ -94,7 +101,7 @@ export function revisarCorreccion(
   /* La MISMA fórmula del cobro: el procesador primero, el margen después, el
      resto del comercio. Escribir aquí otra cuenta las separa al primer
      arreglo que alguien haga en una sola. */
-  const reparto = repartoDelCobro(real, metodo);
+  const reparto = repartoDelCobro(real, metodo, puntosBaseSinProcesador);
 
   return {
     ok: true,

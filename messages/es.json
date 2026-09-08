@@ -582,7 +582,7 @@
         "ingresos": "Ingresos aprobados",
         "ingresosPie": "{n, plural, one {# pago aprobado} other {# pagos aprobados}}",
         "comision": "Margen de Mercatren",
-        "comisionPie": "3% sobre lo aprobado",
+        "comisionPie": "Margen de Mercatren sobre lo aprobado",
         "neto": "Neto a comercios",
         "netoPie": "Costo de la mercancía",
         "sellers": "Comercios activos",
@@ -601,7 +601,7 @@
         "netoComercio": "Lo que te quedó",
         "netoPieComercio": "Después de la comisión",
         "rechazadosPieComercio": "No llegaron a tu billetera",
-        "comisionPieComercio": "3 % sobre lo que te pagaron",
+        "comisionPieComercio": "Lo que se descontó de lo que te pagaron",
         "pendientesPieComercio": "{monto} esperando a que lo revisemos"
       },
       "noContabiliza": "No se contabiliza",
@@ -2037,7 +2037,7 @@
       "bajada": "Lo que pagaron tus compradores, y qué se descontó antes de llegar a ti.",
       "bruto": "Lo que pagaron tus compradores",
       "procesador": "Procesamiento de tarjeta (Stripe)",
-      "mercatren": "Comisión de Mercatren (3 %)",
+      "mercatren": "Margen de Mercatren",
       "tuyo": "Tu dinero",
       "porQueZelle": "El costo de procesamiento solo se aplica a lo cobrado con tarjeta. Por Zelle no interviene ningún procesador."
     },
@@ -2577,7 +2577,8 @@
       "cualMontoTitulo": "El cuadre no da exacto: ¿cuál monto cobras?",
       "cualMontoAyuda": "Con unidades enteras de esos productos no se llega a tu monto. Elige si cobras lo que escribiste (la factura va sin desglose) o el total de las unidades.",
       "montoEscrito": "Lo que escribiste — el monto exacto",
-      "montoCuadrado": "Lo que suman las unidades del desglose"
+      "montoCuadrado": "Lo que suman las unidades del desglose",
+      "avisoTarjetaNoCuesta": "Con tarjeta recibes lo mismo o más que por Zelle en este monto: el margen de Zelle (6 %) es mayor que el de tarjeta (3 %) más el procesador."
     },
     "correccion": {
       "sinPermiso": "No tienes permiso para corregir un pago.",

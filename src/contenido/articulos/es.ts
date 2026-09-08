@@ -744,6 +744,11 @@ export const ARTICULOS_ES: Articulo[] = [
       {
         tipo: "parrafo",
         texto:
+          "Actualización (8 sep 2026): el margen por Zelle pasó al 6 %, así que ya no siempre es más barato que la tarjeta. El checkout sigue calculando los dos totales y te enseña el ahorro solo cuando lo hay.",
+      },
+      {
+        tipo: "parrafo",
+        texto:
           "Desde hoy el checkout calcula el total según la forma de pago que elijas, y te dice cuánto te ahorras si eliges Zelle. Antes te mostraba siempre el total de tarjeta y el pedido salía más barato después de confirmar; eso ya no pasa.",
       },
       {
