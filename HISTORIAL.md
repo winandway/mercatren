@@ -1818,6 +1818,38 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**2.642 FICHAS A LA VENTA QUE NADIE PODÍA COMPRAR (8 sep 2026).** Richard
+mandó dos fichas suyas: arriba «Quedan 2» y en cada talla «Sin
+existencias». Medido en producción: **863 en Colombia y 1.779 en Estados
+Unidos** con TODAS sus variantes en cero, acumulándose con cada importación.
+Sus palabras: _«esto mata toda la gracia del trabajo que estamos haciendo»_.
+
+- **La causa era UNA línea:** `guardarTallas` escribía `existencias: 0`
+  fijo, con el número de CJ delante en la misma variable. El stock del
+  PRODUCTO sí se refrescaba —por eso decía «Quedan 2»— pero la ficha decide
+  si una talla se puede comprar mirando el de la VARIANTE
+  (`selector-variante.tsx`: `v.existencias > 0`). `stockDeVariante` ya
+  existía y el afinado la usaba para sumar el total: el dato estaba, solo
+  que no se guardaba.
+- **Y el refresco de stock hacía lo mismo**: actualizaba el total y tiraba
+  las variantes que tenía en la mano. Ahora escribe cada talla por SKU —y
+  como CJ solo devuelve las que TIENEN inventario, antes pone todas a cero:
+  una talla agotada allá queda en cero aquí. Es la vía por la que se
+  reparan las 2.642: el refresco toma lo publicado primero.
+- **El barrido retira a revisión lo publicado que tiene tallas y ninguna
+  comprable**, y lo devuelve cuando alguna vuelva a tener. El total del
+  producto no basta como filtro: hay que preguntar si queda ALGUNA
+  combinación que una persona pueda meter al carrito.
+- **Lo que NO era como parecía:** «sin traducir» dio 0 (los títulos sí
+  están en español) y las fotos ajenas son 4 en total — casi todo vive en
+  nuestro bucket. Lo que sí es masivo son las **descripciones**: 8.651
+  fichas publicadas sin descripción en español (Chile 1.245 de 1.245,
+  Colombia 4.110 de 4.110, EE. UU. 3.296 de 3.389). El traductor de
+  descripciones corre a 2 tandas por vuelta y no da abasto.
+
+Candado: `tests/unit/stock-de-variantes.test.ts` (5 pruebas, comprobado en
+rojo devolviendo el cero y quitando la condición del barrido).
+
 **EL MAPA DEL SITIO DECLARABA VENEZUELA EN INGLÉS (7 sep 2026).** Richard
 preguntó por qué Search Console decía «0 páginas descubiertas» en
 mercatren.com.ve. El «0» no era el fallo —era un ÍNDICE recién enviado, y
