@@ -150,10 +150,20 @@ async function cotizar(vid: string, plaza: Plaza) {
   const mejor = elegirCotizacion(opciones);
   if (!mejor)
     return {
+      /* `elegirCotizacion` solo devuelve null cuando NINGUNA opción trae
+         nombre y precio válido (> 0): se enseñan tal cual llegaron para
+         saber qué está mandando CJ (8 sep 2026). */
       motivo:
         opciones.length === 0
           ? "CJ no devolvió transportes"
-          : `ningún transporte nacional entre ${opciones.length}`,
+          : `sin precio válido en ${opciones.length}: ` +
+            opciones
+              .map(
+                (o) =>
+                  `${o.logisticName ?? "?"}=${String(o.logisticPrice ?? "∅")}`,
+              )
+              .join(", ")
+              .slice(0, 120),
     };
   return { costoCentavos: mejor.centavos, transporte: mejor.nombre };
 }

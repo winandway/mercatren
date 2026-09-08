@@ -1,5 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { isNotNull, ne, and } from "drizzle-orm";
+import { and, eq, isNotNull, ne } from "drizzle-orm";
 
 import { sincronizarCatalogo } from "@/lib/catalogo/sincronizar";
 import { getDbAsync, schema } from "@/lib/db";
@@ -37,6 +37,23 @@ import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
  */
 
 export const dynamic = "force-dynamic";
+
+/** Hace cuánto reclamó el reloj su último latido (Infinity si nunca). */
+async function ultimoLatidoHaceMs(
+  db: Awaited<ReturnType<typeof getDbAsync>>,
+): Promise<number> {
+  try {
+    const [fila] = await db
+      .select({ valor: schema.configuracion.valor })
+      .from(schema.configuracion)
+      .where(eq(schema.configuracion.clave, LLAVE_LATIDO_SINCRONIZAR))
+      .limit(1);
+    const marca = Number(fila?.valor);
+    return Number.isFinite(marca) && marca > 0 ? Date.now() - marca : Infinity;
+  } catch {
+    return Infinity;
+  }
+}
 
 async function sincronizarTodas(peticion: Request) {
   /* ══ `?solo=afinado` (4 sep 2026) ══
@@ -115,9 +132,18 @@ async function sincronizarTodas(peticion: Request) {
      En cada vuelta del reloj se miran 25 productos de CJ, del más viejo sin
      revisar al más nuevo: en una hora el catálogo entero está al día y lo
      agotado allá se ve agotado aquí. Un fallo no detiene a las fuentes. */
+  /* ══ SI EL RELOJ LATE, ESTE FLUJO NO LE HABLA A CJ (8 sep 2026) ══
+     El sitio late solo cada 30 s y hace todo esto (importar, afinar, stock,
+     barrido). GitHub entraba cada 10 min por aquí y afinaba 240 s A LA VEZ
+     que el reloj: CJ admite UNA llamada por segundo, y los dos se
+     estorbaban — «Too Many Requests, QPS limit» en los dos lados. Este
+     flujo queda como respaldo: solo toca CJ si el reloj lleva más de cinco
+     minutos sin latir. */
+  const relojLate = (await ultimoLatidoHaceMs(db)) < 5 * 60_000;
+
   let cj: { mirados: number; agotados: number; fallidos: number } | null = null;
   try {
-    if (!soloAfinado) {
+    if (!soloAfinado && !relojLate) {
       const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
       cj = await refrescarExistenciasCj(25);
     }
@@ -135,7 +161,7 @@ async function sincronizarTodas(peticion: Request) {
      siguiente ni a lo de arriba. */
   let importacionCj: unknown = null;
   try {
-    if (!soloAfinado) {
+    if (!soloAfinado && !relojLate) {
       const { avanzarImportacionesEnCurso } =
         await import("@/lib/cj/masivo-servidor");
       importacionCj = await avanzarImportacionesEnCurso(120_000);
@@ -144,14 +170,16 @@ async function sincronizarTodas(peticion: Request) {
     console.error("[sincronizar] la importación masiva no avanzó:", fallo);
   }
 
-  let afinadoCj: unknown = null;
+  let afinadoCj: unknown = relojLate ? "el reloj late: CJ es suyo" : null;
   try {
-    const { afinarImportados } = await import("@/lib/cj/afinar");
-    const { AFINADOS_POR_VUELTA } = await import("@/lib/cj/masivo");
-    afinadoCj = await afinarImportados({
-      limite: AFINADOS_POR_VUELTA,
-      presupuestoMs: 240_000,
-    });
+    if (!relojLate) {
+      const { afinarImportados } = await import("@/lib/cj/afinar");
+      const { AFINADOS_POR_VUELTA } = await import("@/lib/cj/masivo");
+      afinadoCj = await afinarImportados({
+        limite: AFINADOS_POR_VUELTA,
+        presupuestoMs: 240_000,
+      });
+    }
   } catch (fallo) {
     console.error("[sincronizar] el afinado de CJ falló:", fallo);
   }

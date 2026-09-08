@@ -1847,6 +1847,18 @@ fijo de la importación vieja, nunca leído de CJ.
   ya salió con 200 cuando `notFound()` corre, y Next inyecta
   `<meta name="robots" content="noindex">`. Google no la indexa; no hay que
   tocar nada ahí.
+- **Con el motivo visible, la causa del afinado parado (misma noche):**
+  «la ropa primero» mandaba sobre «lo nunca intentado primero», así que un
+  puñado de prendas cuyo flete CJ no cotiza volvía a la cabeza de la cola
+  en cada vuelta (fallar solo les sube la fecha) y los 44.000 sin tallas no
+  tuvieron turno en todo el día. Además el flujo de GitHub
+  (`/datos/sincronizar`, cada 10 min, 240 s de afinado) le hablaba a CJ A
+  LA VEZ que el reloj: «Too Many Requests, QPS limit» en los dos lados. Y
+  entre los dos se gastaron los 100.700 puntos del día fallando: a las
+  22:35 UTC CJ cerró la llave hasta las 16:10 UTC del día siguiente. Ahora
+  lo nunca intentado va primero, el motivo del flete enseña los transportes
+  y precios tal como llegan, y GitHub solo toca CJ si el reloj lleva más de
+  cinco minutos sin latir.
 - Candados: `casi-listos-primero.test.ts`, `reparto-de-puntos.test.ts`.
 
 **ZELLE AL 6 %, Y LO QUE CASI SE ROMPE AL SUBIRLO (8 sep 2026).** Richard:

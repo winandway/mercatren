@@ -121,10 +121,17 @@ export async function afinarImportados(o: {
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
     .where(condicionDeCola(paises))
     .orderBy(
-      /* La ropa primero: es lo único que no se puede vender bien sin afinar. */
-      sql`case when ${productos.categoriaId} = ${DEPARTAMENTO_CON_TALLAS} then 0 else 1 end`,
-      /* Lo que ya se intentó y falló va al final (se le sube la fecha). */
+      /* ══ LO NUNCA INTENTADO VA PRIMERO, EN CUALQUIER DEPARTAMENTO (8 sep 2026) ══
+         Antes «la ropa primero» mandaba sobre todo lo demás: un puñado de
+         prendas cuyo flete CJ no cotiza volvían a la cabeza de la cola en
+         cada vuelta (fallar solo les sube la fecha) y los 44.000 productos
+         sin tallas no tuvieron turno en todo un día: «0 ok, 3 fallidos,
+         quedan 46.117» cada minuto. Ahora lo que falló espera a que pase
+         todo lo que nunca se intentó. */
       sql`${enviosProducto.cotizadoEn} is not null`,
+      /* Y dentro de cada grupo, la ropa primero: es lo único que no se puede
+         vender bien sin afinar. */
+      sql`case when ${productos.categoriaId} = ${DEPARTAMENTO_CON_TALLAS} then 0 else 1 end`,
       asc(enviosProducto.cotizadoEn),
       asc(productos.creadoEn),
     )
