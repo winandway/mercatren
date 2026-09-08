@@ -59,10 +59,22 @@ export const COLA_QUE_MANDA = 500;
  * @param pendientesPorAfinar cuántos esperan su envío real
  * @param minutoDelDia        para espaciar sin guardar estado en ningún lado
  */
+/**
+ * Cuántos «casi listos» se miran por latido mientras haya alguno.
+ *
+ * Son fichas retiradas con flete real que solo esperan una lectura de stock
+ * (8 sep 2026): 10 puntos cada una y vuelve a la venta una ficha entera,
+ * contra los 20 que cuesta afinar una nueva. A 4 por minuto, los 2.642 del
+ * barrido del 8 de septiembre vuelven en ~11 horas; el afinado, que corre
+ * antes en el latido, sigue llevándose lo suyo primero.
+ */
+export const CASI_LISTOS_POR_LATIDO = 4;
+
 export function cuantosDeStock(
   pendientesPorAfinar: number,
   minutoDelDia: number,
   cjSinPuntos = false,
+  casiListos = 0,
 ): number {
   /* ══ SIN PUNTOS NO SE LLAMA A CJ, NI PARA EL STOCK (5 sep 2026) ══
      Se vio en producción a la primera: con el afinado en pausa por falta de
@@ -70,6 +82,9 @@ export function cuantosDeStock(
      puntos, así que eran llamadas que fallan. Y al día siguiente los primeros
      puntos del día se los llevaba el refresco en vez del afinado. */
   if (cjSinPuntos) return 0;
+  /* Con casi listos esperando, el stock NO cede: cada lectura es una ficha
+     que vuelve a venderse hoy. */
+  if (casiListos > 0) return CASI_LISTOS_POR_LATIDO;
   if (pendientesPorAfinar < COLA_QUE_MANDA) return STOCK_POR_LATIDO;
   /* Con cola: uno cada quince minutos. Son ~96 llamadas al día (960 puntos,
      un 1,5 % del presupuesto) en vez de 3.100. */

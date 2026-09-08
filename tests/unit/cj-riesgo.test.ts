@@ -122,7 +122,13 @@ describe("lo cobrado en pesos se lleva a dólares antes de juzgar", () => {
   it("el stock se pregunta en el almacén de la plaza (China para CL/CO)", () => {
     const ex = readFileSync("src/lib/cj/existencias.ts", "utf-8");
     expect(ex).toContain("countryCode=${almacen}");
-    expect(ex).toContain('inArray(tiendas.paisOrigen, ["US", "CL", "CO"])');
+    /* Las tres plazas con almacén salen de UNA constante (8 sep 2026). */
+    expect(ex).toContain(
+      'const PLAZAS_CON_ALMACEN = ["US", "CL", "CO"] as const',
+    );
+    expect(ex).toContain(
+      "inArray(tiendas.paisOrigen, [...PLAZAS_CON_ALMACEN])",
+    );
     const co = readFileSync("src/lib/pedidos/acciones.ts", "utf-8");
     expect(co).toContain('["US", "CL", "CO"].includes(producto.tiendaPais');
   });

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  CASI_LISTOS_POR_LATIDO,
   COLA_QUE_MANDA,
   MINUTOS_ENTRE_STOCK,
   STOCK_POR_LATIDO,
@@ -56,12 +57,31 @@ describe("el reparto de los puntos de CJ", () => {
     /* Y `colaPorAfinar` se asigna FUERA de las ramas: dentro del `else if`
        se quedaba en null cada vez que el afinado no llegaba a correr. */
     expect(tick).toContain("cjEnPausa = true");
-    expect(tick).toMatch(/cuantosDeStock\([\s\S]{0,120}cjEnPausa,?\s*\)/);
+    expect(tick).toMatch(
+      /cuantosDeStock\([\s\S]{0,160}cjEnPausa,\s*casiListos,?\s*\)/,
+    );
     const dentroDelElseIf = tick.slice(
       tick.indexOf("} else if (r.afinados"),
       tick.indexOf("colaPorAfinar = r.restantes"),
     );
     expect(dentroDelElseIf).toContain("}");
+  });
+
+  it("CON CASI LISTOS EN ESPERA, EL STOCK NO CEDE (8 sep 2026)", () => {
+    /* El barrido del 8 de septiembre retiró 2.642 fichas por un cero viejo
+       en sus tallas. Ya tienen flete real: les falta UNA lectura de stock de
+       10 puntos para volver a la venta, contra los 20 que cuesta afinar una
+       ficha nueva. Con la cola por afinar en 46.000, la regla de «ceder»
+       las dejaba sin turno para siempre: Richard trajo la primera, una
+       mochila con stock en CJ dando 404. */
+    expect(cuantosDeStock(46_117, 7, false, 2_642)).toBe(
+      CASI_LISTOS_POR_LATIDO,
+    );
+    expect(CASI_LISTOS_POR_LATIDO).toBeGreaterThan(STOCK_POR_LATIDO);
+    /* Sin puntos de CJ sigue mandando la pausa. */
+    expect(cuantosDeStock(46_117, 7, true, 2_642)).toBe(0);
+    /* Y sin casi listos, todo como antes. */
+    expect(cuantosDeStock(46_117, 7, false, 0)).toBe(0);
   });
 
   it("sin cola, el stock vuelve a su ritmo normal", () => {

@@ -41,6 +41,8 @@ export type ResultadoAfinado = {
   fallidos: number;
   restantes: number;
   motivo?: string;
+  /** El motivo del último producto que falló, para el canario. */
+  ultimoFallo?: string;
 };
 
 function condicionDeCola(paises: string[]) {
@@ -130,6 +132,7 @@ export async function afinarImportados(o: {
 
   const tasas = new Map<string, number | null>();
   const cuenta = { afinados: 0, agotados: 0, fallidos: 0 };
+  let ultimoFallo: string | undefined;
 
   for (const p of cola) {
     if (Date.now() >= hasta) break;
@@ -145,6 +148,9 @@ export async function afinarImportados(o: {
 
     if (!p.pid || !p.costo || p.costo <= 0) {
       cuenta.fallidos += 1;
+      ultimoFallo = !p.pid
+        ? "producto sin código de CJ"
+        : "producto sin costo base";
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -157,6 +163,7 @@ export async function afinarImportados(o: {
     );
     if (!r.ok) {
       cuenta.fallidos += 1;
+      ultimoFallo = `variantes: ${r.motivo}`.slice(0, 160);
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -187,6 +194,11 @@ export async function afinarImportados(o: {
       : {};
     if (!(cotizacion.costoCentavos && cotizacion.costoCentavos > 0)) {
       cuenta.fallidos += 1;
+      ultimoFallo =
+        `flete: ${cotizacion.motivo ?? (elegida?.vid ? "sin cotización" : "sin variante que cotizar")}`.slice(
+          0,
+          160,
+        );
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -261,12 +273,18 @@ export async function afinarImportados(o: {
     } catch (fallo) {
       console.error("[cj-afinar] no se pudo guardar", p.id, fallo);
       cuenta.fallidos += 1;
+      ultimoFallo =
+        `guardar: ${fallo instanceof Error ? fallo.message : String(fallo)}`.slice(
+          0,
+          160,
+        );
     }
   }
 
   return {
     ...cuenta,
     restantes: Math.max(0, restantesAlEmpezar - cuenta.afinados),
+    ...(ultimoFallo ? { ultimoFallo } : {}),
   };
 }
 

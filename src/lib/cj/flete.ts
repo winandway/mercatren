@@ -110,7 +110,7 @@ export async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
 export async function cotizarFlete(
   vid: string,
   plaza: Plaza,
-): Promise<{ costoCentavos?: number; transporte?: string }> {
+): Promise<{ costoCentavos?: number; transporte?: string; motivo?: string }> {
   return cotizar(vid, plaza);
 }
 
@@ -134,7 +134,8 @@ async function cotizar(vid: string, plaza: Plaza) {
 
   if (!respuesta.ok) {
     console.error("[cj] no se pudo cotizar el flete:", respuesta.motivo);
-    return {};
+    /* El motivo sube: el afinado lo enseña en el canario (8 sep 2026). */
+    return { motivo: respuesta.motivo };
   }
 
   const opciones = (
@@ -147,6 +148,12 @@ async function cotizar(vid: string, plaza: Plaza) {
      a $7.95 y CJ la cobró con USPS a $6.70 de envío: $11.73 de costo.
      El precio se fija con el transporte que de verdad va a salir. */
   const mejor = elegirCotizacion(opciones);
-  if (!mejor) return {};
+  if (!mejor)
+    return {
+      motivo:
+        opciones.length === 0
+          ? "CJ no devolvió transportes"
+          : `ningún transporte nacional entre ${opciones.length}`,
+    };
   return { costoCentavos: mejor.centavos, transporte: mejor.nombre };
 }

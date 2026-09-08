@@ -1,15 +1,32 @@
 import "server-only";
 
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  eq,
+  gt,
+  inArray,
+  isNull,
+  lt,
+  notLike,
+  or,
+  sql,
+} from "drizzle-orm";
 
 import { cjConfigurado } from "@/lib/cj/cliente";
 import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { stockDeVariante } from "@/lib/cj/masivo";
 import { almacenDeEntrega } from "@/lib/cj/plazas";
+import { REGIONALES } from "@/lib/cj/riesgo";
 import { variantesDeCj } from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
-import { productos, tiendas, variantesProducto } from "@/lib/db/schema";
+import {
+  enviosProducto,
+  productos,
+  tiendas,
+  variantesProducto,
+} from "@/lib/db/schema";
 
 /**
  * EL STOCK DE CJ, PREGUNTADO A CJ (2 sep 2026).
@@ -80,6 +97,84 @@ export async function hayExistenciaEnCj(
  * EE. UU., del más viejo sin mirar al más nuevo. Cada uno recibe la
  * existencia que CJ dice hoy — cero si no queda ninguna talla allá.
  */
+/**
+ * ══ LOS «CASI LISTOS»: A UNA LLAMADA DE VOLVER A VENDERSE (8 sep 2026) ══
+ *
+ * El barrido del 8 de septiembre retiró 2.642 fichas (1.779 en EE. UU., 863
+ * en Colombia) porque TODAS sus tallas decían cero. Ese cero no venía de
+ * CJ: era el `existencias: 0` fijo que escribía la importación, y nadie lo
+ * había vuelto a leer. Richard trajo la primera: una mochila con 3
+ * variantes con stock en el almacén de CJ y flete cotizado, en «revisión»
+ * y dando 404.
+ *
+ * Y nadie iba a volver a mirarlas: el afinado solo toma lo que no tiene
+ * flete real (estas ya lo tienen), y este refresco miraba primero las
+ * ~6.000 publicadas, a UNA cada quince minutos mientras la cola por afinar
+ * pase de 500. Turno para ellas: nunca.
+ *
+ * «Casi listo» = de CJ, en revisión, con flete real bueno y precio base,
+ * y sin leer en las últimas 24 h. Van primero, y mientras haya alguna el
+ * reloj no cede el ritmo (`cuantosDeStock`): con la misma llamada de 10
+ * puntos vuelve a la venta una ficha entera, contra los 20 que cuesta
+ * afinar una nueva. Cuando CJ dice cero de verdad, se queda en revisión y
+ * se vuelve a mirar al día siguiente.
+ */
+const HACE_24_H = () => new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+function envioBueno() {
+  return getDb()
+    .select({ id: enviosProducto.productoId })
+    .from(enviosProducto)
+    .where(
+      and(
+        eq(enviosProducto.origen, "cotizado"),
+        gt(enviosProducto.costoCentavos, 0),
+        or(
+          isNull(enviosProducto.transporte),
+          and(
+            ...REGIONALES.map((r) =>
+              notLike(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
+            ),
+          ),
+        ),
+      ),
+    );
+}
+
+function casiListo() {
+  return and(
+    eq(productos.estado, "en_revision"),
+    gt(productos.precioBaseCentavos, 0),
+    inArray(productos.id, envioBueno()),
+    or(
+      isNull(productos.sincronizadoEn),
+      lt(productos.sincronizadoEn, HACE_24_H()),
+    ),
+  );
+}
+
+const PLAZAS_CON_ALMACEN = ["US", "CL", "CO"] as const;
+
+/** Cuántas fichas están a una lectura de stock de volver a la venta. */
+export async function contarCasiListos(): Promise<number> {
+  try {
+    const [fila] = await getDb()
+      .select({ n: sql<number>`count(*)` })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .where(
+        and(
+          eq(productos.fuenteId, FUENTE_CJ),
+          inArray(tiendas.paisOrigen, [...PLAZAS_CON_ALMACEN]),
+          casiListo(),
+        ),
+      );
+    return Number(fila?.n ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
 export async function refrescarExistenciasCj(limite = 25): Promise<{
   mirados: number;
   agotados: number;
@@ -103,15 +198,16 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
         /* También lo que está en revisión: cuando vuelva a tener stock, el
            barrido del vigilante lo publica. */
         inArray(productos.estado, ["publicado", "en_revision"]),
-        inArray(tiendas.paisOrigen, ["US", "CL", "CO"]),
+        inArray(tiendas.paisOrigen, [...PLAZAS_CON_ALMACEN]),
       ),
     )
-    /* Lo PUBLICADO primero (3 sep 2026): es lo que se puede comprar, y
-       con cuarenta mil fichas en revisión el turno de las doscientas a la
-       venta llegaba cada varios días. Lo que está en revisión lo refresca
-       el afinado al publicarlo. */
+    /* Primero los CASI LISTOS (8 sep 2026): retirados con flete real que
+       solo esperan una lectura de stock. Después lo PUBLICADO (3 sep): es lo
+       que se puede comprar, y con cuarenta mil fichas en revisión el turno
+       de las de la venta llegaba cada varios días. El resto de la revisión
+       lo refresca el afinado al publicarlo. */
     .orderBy(
-      sql`case when ${productos.estado} = 'publicado' then 0 else 1 end`,
+      sql`case when ${casiListo()} then 0 when ${productos.estado} = 'publicado' then 1 else 2 end`,
       sql`${productos.sincronizadoEn} IS NOT NULL`,
       asc(productos.sincronizadoEn),
     )

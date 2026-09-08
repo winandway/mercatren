@@ -1818,6 +1818,37 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LAS 2.642 RETIRADAS NO IBAN A VOLVER NUNCA (8 sep 2026, por la tarde).**
+Richard mandó una captura: una mochila de EE. UU. dando 404. Medida por la
+puerta de pruebas: en `en_revision`, **3 variantes con stock en el almacén
+de CJ y flete cotizado con 7 transportes**. Es decir, vendible, y retirada
+esa mañana por el barrido porque TODAS sus tallas decían cero — el cero
+fijo de la importación vieja, nunca leído de CJ.
+
+- **Nadie la iba a volver a mirar.** El afinado solo toma lo que no tiene
+  flete real (ella lo tenía). El refresco de stock miraba primero las
+  ~6.000 publicadas, y con la cola por afinar en 46.117 la regla de «ceder
+  puntos» lo dejaba en UNA lectura cada quince minutos: turno para las
+  retiradas, jamás. El plan de la mañana decía «medir en dos días si
+  vuelven»; no hacía falta esperar.
+- **Arreglo:** «casi listo» = de CJ, en revisión, con flete real bueno,
+  precio base y sin leer en 24 h. Van PRIMERO en el refresco
+  (`existencias.ts`), y mientras haya alguno el reloj lee 4 por latido
+  (`CASI_LISTOS_POR_LATIDO`) en vez de ceder: 10 puntos y vuelve una ficha
+  entera, contra 20 por afinar una nueva. Cuando CJ confirma cero, se queda
+  en revisión y se relee al día siguiente. El barrido, que ya corre cada
+  latido, las publica solo. `/datos/salud` → `reloj.ultimo.hizo` dice
+  «casi listos por mirar: N».
+- **Lo segundo que salió:** el afinado llevaba el día entero en «0 ok, 3
+  fallidos, quedan 46.117» y la causa moría en un `console.error`. Ahora el
+  motivo del último fallo (variantes, flete, guardar) sube al resultado y
+  el reloj lo publica en la misma línea.
+- **El 404 es «blando» a propósito de Next:** con `loading.tsx` la respuesta
+  ya salió con 200 cuando `notFound()` corre, y Next inyecta
+  `<meta name="robots" content="noindex">`. Google no la indexa; no hay que
+  tocar nada ahí.
+- Candados: `casi-listos-primero.test.ts`, `reparto-de-puntos.test.ts`.
+
 **ZELLE AL 6 %, Y LO QUE CASI SE ROMPE AL SUBIRLO (8 sep 2026).** Richard:
 _«el porcentaje del Zelle que cobra el tres, vamos a subirlo al seis…
 urgente y contundente»_. Una constante — pero tres cosas alrededor:

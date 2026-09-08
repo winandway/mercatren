@@ -38,10 +38,13 @@ describe("el candado de stock del checkout es cerrado", () => {
     expect(buscar("messages/en.json")).toContain("Nothing was charged");
   });
 
-  it("el refresco de stock mira primero lo publicado", () => {
+  it("el refresco de stock mira lo publicado antes que el resto de la revisión", () => {
+    /* Desde el 8 sep 2026 van PRIMERO los «casi listos» (retirados con flete
+       real que solo esperan una lectura); lo publicado sigue por delante de
+       todo lo demás en revisión. Ver casi-listos-primero.test.ts. */
     const ex = readFileSync("src/lib/cj/existencias.ts", "utf-8");
     expect(ex).toContain(
-      "case when ${productos.estado} = 'publicado' then 0 else 1 end",
+      "case when ${casiListo()} then 0 when ${productos.estado} = 'publicado' then 1 else 2 end",
     );
   });
 });

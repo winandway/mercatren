@@ -64,8 +64,15 @@ const CONOCIDOS: Record<string, Conocido> = {
       "el CSS lo escribimos nosotros. No corre en el navegador de nadie.",
   },
   next: {
-    severidad: "high",
-    motivo: "Lo arrastra postcss, por el mismo motivo de arriba.",
+    severidad: "critical",
+    motivo:
+      "Mirado el 8 sep 2026 (GHSA-p293-qw3h-jr36, publicado ese mismo día): " +
+      "ejecución remota de código SOLO cuando el servidor corre sobre un " +
+      "sistema de archivos de Windows. Este sitio se sirve desde Cloudflare " +
+      "Workers vía OpenNext y se desarrolla en macOS: ese camino no existe " +
+      "aquí. El parche es next 16.3.3+; la subida a 16.3.x va aparte, con su " +
+      "verificación completa (PENDIENTES.md). El «high» anterior era el de " +
+      "postcss, que sigue valiendo por el mismo motivo de arriba.",
   },
   sharp: {
     severidad: "high",

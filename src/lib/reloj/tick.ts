@@ -187,7 +187,11 @@ export async function correrTick(
         cjEnPausa = true;
       } else if (r.afinados + r.fallidos + r.agotados > 0) {
         hizo.push(
-          `afinado: ${r.afinados} ok, ${r.agotados} agotados, ${r.fallidos} fallidos, quedan ${r.restantes}`,
+          `afinado: ${r.afinados} ok, ${r.agotados} agotados, ${r.fallidos} fallidos, quedan ${r.restantes}` +
+            /* POR QUÉ FALLA, EN VOZ ALTA (8 sep 2026): un día entero con
+               «0 ok, 3 fallidos» y la causa muriendo en un console.error
+               que nadie lee. */
+            (r.ultimoFallo ? ` · último fallo: ${r.ultimoFallo}` : ""),
         );
       }
       /* Lo que queda por afinar decide si el stock puede gastar puntos de CJ
@@ -246,16 +250,25 @@ export async function correrTick(
   try {
     if (queda() > 4_000) {
       const { cuantosDeStock } = await import("@/lib/cj/reparto-de-puntos");
+      const { contarCasiListos, refrescarExistenciasCj } =
+        await import("@/lib/cj/existencias");
+      /* Las retiradas con flete real que solo esperan una lectura de stock
+         (8 sep 2026): mientras haya, el stock no cede sus puntos. */
+      const casiListos = cjEnPausa ? 0 : await contarCasiListos();
       const ahora = new Date();
       const cuantos = cuantosDeStock(
         colaPorAfinar ?? 0,
         ahora.getUTCHours() * 60 + ahora.getUTCMinutes(),
         cjEnPausa,
+        casiListos,
       );
       if (cuantos > 0) {
-        const { refrescarExistenciasCj } = await import("@/lib/cj/existencias");
         const r = await refrescarExistenciasCj(cuantos);
-        if (r.mirados > 0) hizo.push(`stock: ${r.mirados} mirados`);
+        if (r.mirados > 0)
+          hizo.push(
+            `stock: ${r.mirados} mirados, ${r.agotados} agotados, ${r.fallidos} fallidos` +
+              (casiListos > 0 ? ` · casi listos por mirar: ${casiListos}` : ""),
+          );
       }
     }
   } catch (fallo) {
