@@ -111,6 +111,8 @@ la tarjeta se queda en 300.
   base). El checkout enseña el ahorro solo cuando existe; la calculadora
   dice cuándo la tarjeta NO cuesta más. Los textos que prometían «3 % igual
   por Zelle» se corrigieron.
+- **Medido en producción el 8 sep 2026 (19:27 UTC), en los 4 dominios:**
+  `tarifas.tabla = ok`, `vigentePb = 600`, cero cobros de hoy sin fila.
 - **Canario:** `/datos/salud` → `tarifas.tabla` («ok» o el error) y
   `tarifas.desdeHoy.sinTarifa` (cobros emitidos desde el 8 sep sin fila). Si
   no dice «ok», los cobros nuevos están saliendo al 3 % viejo en silencio.
