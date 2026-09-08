@@ -9,7 +9,7 @@ import { stockDeVariante } from "@/lib/cj/masivo";
 import { almacenDeEntrega } from "@/lib/cj/plazas";
 import { variantesDeCj } from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
-import { productos, tiendas } from "@/lib/db/schema";
+import { productos, tiendas, variantesProducto } from "@/lib/db/schema";
 
 /**
  * EL STOCK DE CJ, PREGUNTADO A CJ (2 sep 2026).
@@ -140,6 +140,38 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
       })
       .where(eq(productos.id, p.id))
       .catch(() => undefined);
+
+    /**
+     * ══ Y CADA TALLA CON LO SUYO (8 sep 2026) ══
+     *
+     * Hasta hoy este refresco actualizaba el total del producto y TIRABA las
+     * variantes que tenía en la mano. La ficha decide si una talla se puede
+     * comprar por el stock de la VARIANTE, así que el producto decía «Quedan
+     * 2» y cada talla «Sin existencias»: 2.642 fichas así en producción.
+     *
+     * CJ devuelve SOLO las variantes con inventario en ese país (su doc),
+     * así que primero se ponen todas a cero y después se escribe lo que
+     * vino, por SKU. Una talla que allá se agotó queda en cero de verdad.
+     */
+    await db
+      .update(variantesProducto)
+      .set({ existencias: 0, actualizadoEn: new Date() })
+      .where(eq(variantesProducto.productoId, p.id))
+      .catch(() => undefined);
+    for (const v of variantes) {
+      const sku = v.variantSku?.trim();
+      if (!sku) continue;
+      await db
+        .update(variantesProducto)
+        .set({ existencias: stockDe(v), actualizadoEn: new Date() })
+        .where(
+          and(
+            eq(variantesProducto.productoId, p.id),
+            eq(variantesProducto.sku, sku),
+          ),
+        )
+        .catch(() => undefined);
+    }
   }
   return { mirados: cola.length, agotados, fallidos };
 }

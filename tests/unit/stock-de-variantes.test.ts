@@ -5,6 +5,7 @@ const leer = (r: string) => readFileSync(r, "utf8");
 const guardar = leer("src/lib/cj/guardar.ts");
 const barrido = leer("src/lib/cj/verificados.ts");
 const selector = leer("src/components/catalogo/selector-variante.tsx");
+const refresco = leer("src/lib/cj/existencias.ts");
 
 /**
  * ══ 2.642 FICHAS QUE NADIE PODÍA COMPRAR (8 sep 2026) ══
@@ -27,6 +28,23 @@ describe("el stock de cada talla", () => {
       guardar.indexOf("export async function guardarTallas"),
     );
     expect(bloque).not.toContain("existencias: 0,");
+  });
+
+  it("EL REFRESCO DE STOCK ESCRIBE CADA TALLA, no solo el total", () => {
+    /**
+     * Es la vía por la que se reparan las 2.642 fichas que ya estaban mal:
+     * el refresco toca lo publicado primero y, con esto, deja cada talla con
+     * su número. Y como CJ solo devuelve las variantes CON inventario, antes
+     * se ponen todas a cero: una talla que allá se agotó no puede seguir
+     * diciendo que queda.
+     */
+    const cuerpo = refresco.slice(
+      refresco.indexOf("export async function refrescarExistenciasCj"),
+    );
+    expect(cuerpo).toContain(".update(variantesProducto)");
+    expect(cuerpo).toContain("set({ existencias: 0,");
+    expect(cuerpo).toContain("set({ existencias: stockDe(v),");
+    expect(cuerpo).toContain("eq(variantesProducto.sku, sku)");
   });
 
   it("la ficha decide con el stock de la VARIANTE, no con el del producto", () => {
