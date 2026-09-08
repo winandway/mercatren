@@ -1818,6 +1818,18 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**«¿AÚN HAY PRODUCTOS SIN PRECIO O SIN STOCK QUE NO SE PUEDEN VENDER?» (8 sep
+2026, noche).** La pregunta de Richard no tenía número: el inventario
+contaba «agotados» sobre todos los estados y «sin costo base» (el costo,
+no el precio publicado). Ahora el latido del vigilante cuenta, entre TODO
+lo publicado de cada plaza (CJ y comercios), **sin stock** (controla
+existencias y tiene cero, o tiene tallas y ninguna con existencia: la
+ficha decide por la talla) y **sin precio** (precio publicado en cero o
+vacío). Se leen en `/datos/salud` → `catalogo.sinStock` / `sinPrecio` y en
+la tabla de plazas del Vigilante. Primera medida de EE. UU. por el feed de
+Google (publicados, con `availability` y `price`): 1.624 fichas, cero
+`out_of_stock`, cero precios en cero, precio mínimo $4,37.
+
 **LAS 2.642 RETIRADAS NO IBAN A VOLVER NUNCA (8 sep 2026, por la tarde).**
 Richard mandó una captura: una mochila de EE. UU. dando 404. Medida por la
 puerta de pruebas: en `en_revision`, **3 variantes con stock en el almacén
