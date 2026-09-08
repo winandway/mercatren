@@ -263,15 +263,33 @@ export async function correrTick(
     await anotar("reloj/stock", fallo);
   }
 
-  /* 6. Una tanda de títulos al español. */
+  /**
+   * 6. Una tanda de títulos Y UNA DE DESCRIPCIONES al español.
+   *
+   * ══ POR QUÉ LAS DESCRIPCIONES VAN AQUÍ (8 sep 2026) ══
+   *
+   * Este latido corre cada minuto y traducía `tandasDescripciones: 0`. Las
+   * descripciones solo las traducían el flujo de GitHub —que corre unas
+   * cinco veces al día— y el botón del panel. Medido en producción: **~50
+   * descripciones al día**, con 8.651 fichas publicadas sin descripción en
+   * español (Chile todas, Colombia todas). A ese ritmo, más de cien días.
+   *
+   * No gasta puntos de CJ: es el traductor de texto (Gemini), que cuesta
+   * centavos. Lo que sí gasta es tiempo del latido, y por eso va DESPUÉS
+   * del stock y con su propio `queda()`: una tanda de cinco descripciones
+   * no puede robarle el presupuesto a publicar.
+   */
   try {
     if (queda() > 5_000) {
       const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
       const r = await traducirDesdeElReloj({
         tandasTitulos: 1,
-        tandasDescripciones: 0,
+        tandasDescripciones: queda() > 9_000 ? 1 : 0,
       });
       if (r.titulos > 0) hizo.push(`traducción: ${r.titulos} títulos`);
+      if (r.descripciones > 0) {
+        hizo.push(`traducción: ${r.descripciones} descripciones`);
+      }
     }
   } catch (fallo) {
     console.error("[tick] la traducción falló:", fallo);

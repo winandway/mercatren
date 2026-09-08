@@ -1818,6 +1818,21 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LAS DESCRIPCIONES IBAN A 50 POR DÍA PORQUE EL LATIDO TRADUCÍA CERO (8 sep
+2026).** Richard: _«nos gastamos los créditos en cargar un bulto de
+productos… sin agregar el otro idioma»_. Medido: 8.651 fichas publicadas sin
+descripción en español, y el traductor hacía **~50 al día** — más de cien
+días. La causa: el reloj que late cada minuto llamaba
+`traducirDesdeElReloj({ tandasTitulos: 1, tandasDescripciones: 0 })`; las
+descripciones solo las traducían el flujo de GitHub (cinco veces al día) y
+el botón del panel. **No era un problema de puntos de CJ**: el traductor es
+Gemini y cuesta centavos. Era una línea en cero. Ahora cada latido traduce
+también una tanda de descripciones cuando le sobran 9 s de presupuesto,
+después del stock y del afinado, para no robarle tiempo a publicar. Y hay
+1.245 fichas de Chile **sin descripción en ningún idioma**: la importación
+no la trajo, y eso no lo arregla ningún traductor — necesita el afinado con
+`enable_description`. Candado: `reloj-propio.test.ts`.
+
 **2.642 FICHAS A LA VENTA QUE NADIE PODÍA COMPRAR (8 sep 2026).** Richard
 mandó dos fichas suyas: arriba «Quedan 2» y en cada talla «Sin
 existencias». Medido en producción: **863 en Colombia y 1.779 en Estados

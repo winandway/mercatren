@@ -96,3 +96,18 @@ describe("el reloj propio", () => {
     }
   });
 });
+
+describe("las descripciones se traducen desde el latido (8 sep 2026)", () => {
+  it("el reloj pide al menos una tanda de descripciones, no cero", () => {
+    /**
+     * El latido traducía `tandasDescripciones: 0` y las descripciones solo
+     * salían del flujo de GitHub, unas cinco veces al día: ~50 por día con
+     * 8.651 fichas sin descripción en español. Un cero aquí es más de cien
+     * días de catálogo a medias.
+     */
+    const tick = readFileSync("src/lib/reloj/tick.ts", "utf8");
+    const paso = tick.slice(tick.indexOf("traducirDesdeElReloj({"));
+    expect(paso).not.toMatch(/tandasDescripciones:\s*0\s*,/);
+    expect(paso).toContain("tandasDescripciones: queda() > 9_000 ? 1 : 0");
+  });
+});

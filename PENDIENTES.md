@@ -85,11 +85,12 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       escribe el stock real de cada talla a medida que CJ contesta. Medir
       en dos días cuántas siguen con todas las tallas en cero: tiene que
       tender a 0.
-- [ ] 🟠 💻 **8.651 fichas publicadas sin descripción en español** (Chile
-      1.245 de 1.245 · Colombia 4.110 de 4.110 · EE. UU. 3.296 de 3.389).
-      El traductor de descripciones va a 2 tandas por vuelta; hay que
-      medir cuántas por día produce y subirlo, o decidir si se publica
-      sin descripción a propósito.
+- [x] 💻 **El traductor de descripciones hacía ~50 al día**: el latido de
+      cada minuto pedía cero tandas de descripciones. Ahora traduce una por
+      latido. Medir en dos días: tiene que pasar de decenas a cientos.
+- [ ] 🟠 💻 **1.245 fichas de Chile sin descripción en NINGÚN idioma**: la
+      importación no la trajo. Un traductor no arregla lo que no existe;
+      hay que pedirle a CJ la descripción de cada una (cuesta puntos).
 - [ ] 🟡 👤 **Fotos «de otras empresas»**: por origen no es masivo (4 URLs
       ajenas de 8.744). Si Richard se refiere a marcas o logos DENTRO de la
       foto de CJ, eso no se detecta por consulta: hace falta que mande dos
@@ -121,34 +122,34 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                      https://mercatren.com.ve/mapa/productos-0.xml
-                      ```
-
-                      ```
-                      https://mercatren.com.ve/mapa/paginas.xml
-                      ```
-
-                      ```
-                      https://mercatren.com.ve/mapa/tiendas.xml
-                      ```
-
-                      Lo de antes, que ya no aplica:
-
-                      ```
-                              https://mercatren.com.ve/sitemap.xml
+                              https://mercatren.com.ve/mapa/productos-0.xml
                               ```
 
-                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                              comprobó en la documentación de Google el 7 sep 2026 antes de
-                              recomendarlo: esa herramienta es **solo para propiedades de dominio
-                              completo** y le diría a Google que TODO mercatren.com se mudó a
-                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                              tirar el posicionamiento de toda la plaza grande para arreglar una
-                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                              y los mapas del sitio separados (medido: el .com ya no lista ni una
-                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                              Este punto ya venía escrito mal en esta lista tres veces.
+                              ```
+                              https://mercatren.com.ve/mapa/paginas.xml
+                              ```
+
+                              ```
+                              https://mercatren.com.ve/mapa/tiendas.xml
+                              ```
+
+                              Lo de antes, que ya no aplica:
+
+                              ```
+                                      https://mercatren.com.ve/sitemap.xml
+                                      ```
+
+                                      **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                      comprobó en la documentación de Google el 7 sep 2026 antes de
+                                      recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                      completo** y le diría a Google que TODO mercatren.com se mudó a
+                                      mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                      tirar el posicionamiento de toda la plaza grande para arreglar una
+                                      parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                      que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                      y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                      dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                      Este punto ya venía escrito mal en esta lista tres veces.
 
 - [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan
