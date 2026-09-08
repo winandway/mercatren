@@ -447,6 +447,62 @@ export async function lecturaDeCuentas(): Promise<Record<string, string>> {
   }
 }
 
+/**
+ * ¿LOS COBROS NUEVOS LLEVAN SU TARIFA GUARDADA? (8 sep 2026)
+ *
+ * Al subir Zelle al 6 % se decidió que cada cobro por enlace guarde la
+ * tarifa con la que se emitió (`tarifas_del_cobro`), y que sin fila valga la
+ * de ANTES (3 %). Eso protege a los cobros viejos — pero abre un hueco: si
+ * la tabla no llegara a producción, el insert falla dentro de un `try` y
+ * TODOS los cobros nuevos saldrían al 3 % sin que nadie lo viera. Esto lo
+ * dice en voz alta: si la tabla existe, la tarifa vigente, y cuántos cobros
+ * emitidos desde hoy tienen su fila y cuántos no.
+ */
+export async function tarifaDeLosCobros(): Promise<{
+  tabla: "ok" | string;
+  vigentePb: number;
+  desdeHoy: { conTarifa: number; sinTarifa: number } | null;
+}> {
+  const { COMISION_ZELLE_PB } = await import("@/lib/dinero");
+  try {
+    const { getDb, schema } = await import("@/lib/db");
+    const { sql, gte, eq } = await import("drizzle-orm");
+    const db = getDb();
+    await db
+      .select({ id: schema.tarifasDelCobro.cobroId })
+      .from(schema.tarifasDelCobro)
+      .limit(1);
+    /* Desde que se publicó el 6 %: cobros creados hoy o después. */
+    const desde = new Date("2026-09-08T00:00:00Z");
+    const [fila] = await db
+      .select({
+        conTarifa: sql<number>`COALESCE(SUM(CASE WHEN ${schema.tarifasDelCobro.cobroId} IS NOT NULL THEN 1 ELSE 0 END), 0)`,
+        sinTarifa: sql<number>`COALESCE(SUM(CASE WHEN ${schema.tarifasDelCobro.cobroId} IS NULL THEN 1 ELSE 0 END), 0)`,
+      })
+      .from(schema.cobrosSolicitados)
+      .leftJoin(
+        schema.tarifasDelCobro,
+        eq(schema.tarifasDelCobro.cobroId, schema.cobrosSolicitados.id),
+      )
+      .where(gte(schema.cobrosSolicitados.creadoEn, desde));
+    return {
+      tabla: "ok",
+      vigentePb: COMISION_ZELLE_PB,
+      desdeHoy: {
+        conTarifa: Number(fila?.conTarifa ?? 0),
+        sinTarifa: Number(fila?.sinTarifa ?? 0),
+      },
+    };
+  } catch (fallo) {
+    const m = fallo instanceof Error ? fallo.message : String(fallo);
+    return {
+      tabla: m.replace(/\s+/g, " ").slice(0, 160),
+      vigentePb: COMISION_ZELLE_PB,
+      desdeHoy: null,
+    };
+  }
+}
+
 /** La cuenta fija con la que el canario prueba las sesiones. Sin contraseña,
     sin cuenta de acceso, rol cliente: no sirve para entrar a nada. */
 const USUARIO_DIAGNOSTICO = "diagnostico-salud";

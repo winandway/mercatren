@@ -13,6 +13,7 @@ import {
   pruebaDeLectura,
   saludDelProveedor,
   sesionesRecientes,
+  tarifaDeLosCobros,
 } from "@/lib/salud/piezas";
 import { SITIO } from "@/lib/sitio";
 
@@ -117,6 +118,7 @@ export async function GET(peticion: Request) {
       sesionesUltimaHora,
       cuentas,
       prueba,
+      tarifas,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -138,6 +140,7 @@ export async function GET(peticion: Request) {
       sesionesRecientes(),
       lecturaDeCuentas(),
       pruebaDeLectura(),
+      tarifaDeLosCobros(),
     ]);
     return Response.json(
       {
@@ -167,6 +170,10 @@ export async function GET(peticion: Request) {
            agotaron, y cuántos productos alcanzan. `dolaresContados` es lo que
            CJ contó como transacciones: (total − 50.000) / 100. */
         puntosDeCj,
+        /* LA TARIFA DE LOS COBROS (8 sep 2026). `tabla` distinto de «ok»
+           = los cobros nuevos están saliendo al 3 % viejo en silencio.
+           `sinTarifa` > 0 desde hoy = lo mismo, cobro por cobro. */
+        tarifas,
         cookies: {
           cuantas: nombresDeCookies.length,
           nombres: nombresDeCookies,
