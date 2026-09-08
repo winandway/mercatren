@@ -84,11 +84,13 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       leía): 1.771 fichas en EE. UU. y 859 en Colombia con stock igual a su
       número de tallas, y el checkout cobrando fiado en ese 1. Sin dato es
       CERO desde hoy; candado en rojo.
-- [ ] 🔴 💻 **Comprobar que las 2.642 se reparan solas**: el barrido las
-      retira en la próxima vuelta y el refresco (lo publicado primero) les
-      escribe el stock real de cada talla a medida que CJ contesta. Medir
-      en dos días cuántas siguen con todas las tallas en cero: tiene que
-      tender a 0.
+- [x] 💻 **El barrido retiró las 2.643 el mismo día** (864 CO · 1.779 US,
+      16:21). Lo que queda a la venta es todo comprable: CL 1.245 · CO
+      3.247 · US 1.609. Cero fallos anotados.
+- [ ] 🟠 💻 **Que vuelvan a la venta con stock real**: están en revisión;
+      el afinado y el refresco les escriben el stock verdadero de cada
+      talla a medida que CJ contesta (20 puntos por producto). Medir en
+      dos días cuántas volvieron a `publicado` con alguna talla > 0.
 - [x] 💻 **El traductor de descripciones hacía ~50 al día**: el latido de
       cada minuto pedía cero tandas de descripciones. Ahora traduce una por
       latido. Medir en dos días: tiene que pasar de decenas a cientos.
@@ -126,34 +128,34 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                                      https://mercatren.com.ve/mapa/productos-0.xml
-                                      ```
-
-                                      ```
-                                      https://mercatren.com.ve/mapa/paginas.xml
-                                      ```
-
-                                      ```
-                                      https://mercatren.com.ve/mapa/tiendas.xml
-                                      ```
-
-                                      Lo de antes, que ya no aplica:
-
-                                      ```
-                                              https://mercatren.com.ve/sitemap.xml
+                                              https://mercatren.com.ve/mapa/productos-0.xml
                                               ```
 
-                                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                                              comprobó en la documentación de Google el 7 sep 2026 antes de
-                                              recomendarlo: esa herramienta es **solo para propiedades de dominio
-                                              completo** y le diría a Google que TODO mercatren.com se mudó a
-                                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                                              tirar el posicionamiento de toda la plaza grande para arreglar una
-                                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                                              y los mapas del sitio separados (medido: el .com ya no lista ni una
-                                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                                              Este punto ya venía escrito mal en esta lista tres veces.
+                                              ```
+                                              https://mercatren.com.ve/mapa/paginas.xml
+                                              ```
+
+                                              ```
+                                              https://mercatren.com.ve/mapa/tiendas.xml
+                                              ```
+
+                                              Lo de antes, que ya no aplica:
+
+                                              ```
+                                                      https://mercatren.com.ve/sitemap.xml
+                                                      ```
+
+                                                      **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                                      comprobó en la documentación de Google el 7 sep 2026 antes de
+                                                      recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                                      completo** y le diría a Google que TODO mercatren.com se mudó a
+                                                      mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                                      tirar el posicionamiento de toda la plaza grande para arreglar una
+                                                      parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                                      que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                                      y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                                      dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                                      Este punto ya venía escrito mal en esta lista tres veces.
 
 - [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan
