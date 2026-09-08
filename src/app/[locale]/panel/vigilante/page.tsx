@@ -232,6 +232,8 @@ export default async function PaginaVigilante({
                     <th className="py-1 pr-3">{t("enRevision")}</th>
                     <th className="py-1 pr-3">{t("porAfinar")}</th>
                     <th className="py-1 pr-3">{t("sinCostoBase")}</th>
+                    <th className="py-1 pr-3">{t("sinStock")}</th>
+                    <th className="py-1 pr-3">{t("sinPrecio")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -247,6 +249,8 @@ export default async function PaginaVigilante({
                       <td className="py-1 pr-3">{p.enRevision}</td>
                       <td className="py-1 pr-3">{p.porAfinar}</td>
                       <td className="py-1 pr-3">{p.sinCostoBase}</td>
+                      <td className="py-1 pr-3 tabular-nums">{p.sinStock}</td>
+                      <td className="py-1 pr-3 tabular-nums">{p.sinPrecio}</td>
                     </tr>
                   ))}
                 </tbody>

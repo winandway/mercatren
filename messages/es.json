@@ -2733,7 +2733,9 @@
         "ultima": "última vez hace {min} min",
         "resolver": "Ya lo arreglé",
         "resolviendo": "Marcando…"
-      }
+      },
+      "sinStock": "Sin stock",
+      "sinPrecio": "Sin precio"
     },
     "probarCompra": {
       "titulo": "Probar una compra",

@@ -2733,7 +2733,9 @@
         "ultima": "last time {min} min ago",
         "resolver": "Fixed it",
         "resolviendo": "Marking…"
-      }
+      },
+      "sinStock": "Out of stock",
+      "sinPrecio": "No price"
     },
     "probarCompra": {
       "titulo": "Test a purchase",

@@ -46,6 +46,13 @@ export type PlazaVista = {
   /** Con el flete YA COTIZADO a CJ y metido dentro del precio publicado.
    *  Contra `porAfinar`, que es lo que todavía va con un estimado. */
   conFleteReal: number;
+  /** LAS DOS PREGUNTAS DE RICHARD (8 sep 2026): «¿aún hay productos sin
+   *  precio? ¿o sin stock que no se pueden vender?». Se cuentan entre TODO
+   *  lo publicado de la plaza (CJ y comercios), que es donde duele. Sin
+   *  stock = controla existencias y tiene cero, o tiene tallas y ninguna
+   *  con existencia. Sin precio = precio publicado en cero o vacío. */
+  sinStock: number;
+  sinPrecio: number;
 };
 
 /** Una compra al proveedor o una venta con problema, CON su número y motivo:

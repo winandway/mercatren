@@ -142,7 +142,7 @@ export async function recogerHechos(): Promise<Hechos> {
           eq(productos.fuenteId, FUENTE_CJ),
           eq(tiendas.paisOrigen, mercado),
         );
-        const [fila] = await db
+        const [filaCj] = await db
           .select({
             publicados: sql<number>`sum(case when ${productos.estado} = 'publicado' then 1 else 0 end)`,
             enRevision: sql<number>`sum(case when ${productos.estado} = 'en_revision' then 1 else 0 end)`,
@@ -164,6 +164,20 @@ export async function recogerHechos(): Promise<Hechos> {
           .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
           .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
           .where(deCj);
+        /* LAS DOS PREGUNTAS DE RICHARD (8 sep 2026), sobre TODO lo publicado
+           de la plaza y no solo CJ: un producto de un comercio sin precio
+           tampoco se puede vender. La ficha decide por la TALLA, así que
+           «sin stock» también cuenta al que tiene tallas y ninguna con
+           existencia. */
+        const [filaTodos] = await db
+          .select({
+            sinStock: sql<number>`sum(case when ${productos.estado} = 'publicado' and ((${productos.controlaExistencias} = 1 and ${productos.existencias} <= 0) or (${productos.id} in (select producto_id from variantes_producto) and ${productos.id} not in (select producto_id from variantes_producto where existencias > 0))) then 1 else 0 end)`,
+            sinPrecio: sql<number>`sum(case when ${productos.estado} = 'publicado' and coalesce(${productos.precioCentavos}, 0) <= 0 then 1 else 0 end)`,
+          })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .where(eq(tiendas.paisOrigen, mercado));
+        const fila = { ...filaCj, ...filaTodos };
         salida.push({
           mercado,
           publicados: Number(fila?.publicados ?? 0),
@@ -172,6 +186,8 @@ export async function recogerHechos(): Promise<Hechos> {
           sinCostoBase: Number(fila?.sinCostoBase ?? 0),
           sinTraducir: Number(fila?.sinTraducir ?? 0),
           conFleteReal: Number(fila?.conFleteReal ?? 0),
+          sinStock: Number(fila?.sinStock ?? 0),
+          sinPrecio: Number(fila?.sinPrecio ?? 0),
         });
       }
       return salida;

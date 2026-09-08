@@ -168,6 +168,9 @@ export async function resumenDelCatalogo(): Promise<{
     /** Con envío estimado: falta preguntárselo a CJ. */
     porAfinar: number;
     sinCostoBase: number;
+    /** Publicados que no se pueden comprar: sin stock (por talla) o sin precio. */
+    sinStock: number;
+    sinPrecio: number;
   }>;
 } | null> {
   try {
@@ -188,6 +191,8 @@ export async function resumenDelCatalogo(): Promise<{
         conFleteReal: p.conFleteReal ?? 0,
         porAfinar: p.porAfinar,
         sinCostoBase: p.sinCostoBase,
+        sinStock: p.sinStock ?? 0,
+        sinPrecio: p.sinPrecio ?? 0,
       })),
     };
   } catch {
