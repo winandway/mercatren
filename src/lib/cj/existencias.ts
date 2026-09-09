@@ -69,6 +69,20 @@ async function variantesConStockEn(
   return variantesDeCj(r.datos) as VarianteConStock[];
 }
 
+/** Lo mismo, pero diciendo POR QUÉ falló: el refresco lo publica en el canario. */
+async function variantesOMotivo(
+  pid: string,
+  almacen: "US" | "CN",
+): Promise<
+  { ok: true; variantes: VarianteConStock[] } | { ok: false; motivo: string }
+> {
+  const r = await llamarCjConRitmo<unknown>(
+    `/product/variant/query?pid=${encodeURIComponent(pid)}&countryCode=${almacen}`,
+  );
+  if (!r.ok) return { ok: false, motivo: r.motivo };
+  return { ok: true, variantes: variantesDeCj(r.datos) as VarianteConStock[] };
+}
+
 /**
  * ¿Hay stock en EE. UU. para vender `cantidad` de este producto (y de esta
  * talla, si se eligió)? `null` = CJ no contestó: no se bloquea la venta por
@@ -179,6 +193,8 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
   mirados: number;
   agotados: number;
   fallidos: number;
+  /** El motivo del último producto que falló, para el canario. */
+  ultimoFallo?: string;
 }> {
   if (!cjConfigurado()) return { mirados: 0, agotados: 0, fallidos: 0 };
   const db = getDb();
@@ -208,6 +224,8 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
        lo refresca el afinado al publicarlo. */
     .orderBy(
       sql`case when ${casiListo()} then 0 when ${productos.estado} = 'publicado' then 1 else 2 end`,
+      /* Dentro de los casi listos, el que falló pasa al final (ver arriba). */
+      sql`case when ${casiListo()} then ${productos.actualizadoEn} else 0 end`,
       sql`${productos.sincronizadoEn} IS NOT NULL`,
       asc(productos.sincronizadoEn),
     )
@@ -216,16 +234,26 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
 
   let agotados = 0;
   let fallidos = 0;
+  let ultimoFallo: string | undefined;
   for (const p of cola) {
     if (!p.pid) continue;
-    const variantes = await variantesConStockEn(
-      p.pid,
-      almacenDeEntrega(p.pais ?? "US"),
-    );
-    if (variantes === null) {
+    const r = await variantesOMotivo(p.pid, almacenDeEntrega(p.pais ?? "US"));
+    if (!r.ok) {
       fallidos += 1;
+      ultimoFallo = r.motivo.slice(0, 160);
+      /* ══ UN FALLO NO SE QUEDA A LA CABEZA (9 sep 2026) ══ Los casi listos
+         van por fecha; sin mover la fecha, los mismos tres que CJ no
+         contesta volvían primeros en CADA latido y solo avanzaba el cuarto:
+         3 de 4 lecturas tiradas. Se le sube `actualizadoEn` y pasa al final
+         de su grupo; se relee cuando le vuelva a tocar. */
+      await db
+        .update(productos)
+        .set({ actualizadoEn: new Date() })
+        .where(eq(productos.id, p.id))
+        .catch(() => undefined);
       continue;
     }
+    const variantes = r.variantes;
     const total = variantes.reduce((t, v) => t + stockDe(v), 0);
     if (total === 0) agotados += 1;
     await db
@@ -271,5 +299,10 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
         .catch(() => undefined);
     }
   }
-  return { mirados: cola.length, agotados, fallidos };
+  return {
+    mirados: cola.length,
+    agotados,
+    fallidos,
+    ...(ultimoFallo ? { ultimoFallo } : {}),
+  };
 }

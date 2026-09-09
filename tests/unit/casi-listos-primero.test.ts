@@ -36,6 +36,25 @@ describe("los casi listos van primero en el refresco de stock", () => {
     expect(publicado).toBeGreaterThan(casi);
   });
 
+  it("UN FALLO NO SE QUEDA A LA CABEZA: pasa al final y el canario dice por qué", () => {
+    /* Medido el 9 sep por la noche: «stock: 4 mirados, 3 fallidos» en cada
+       latido, los mismos tres. */
+    const bucle = existencias.slice(
+      existencias.indexOf("for (const p of cola)"),
+    );
+    const desde = bucle.indexOf("if (!r.ok) {");
+    const fallo = bucle.slice(desde, bucle.indexOf("continue;", desde));
+    expect(fallo).toContain("ultimoFallo = r.motivo");
+    expect(fallo).toContain(".set({ actualizadoEn: new Date() })");
+    const orden = existencias.slice(existencias.indexOf(".orderBy("));
+    expect(orden).toContain(
+      "case when ${casiListo()} then ${productos.actualizadoEn} else 0 end",
+    );
+    expect(leer("src/lib/reloj/tick.ts")).toContain(
+      "último fallo: ${r.ultimoFallo}",
+    );
+  });
+
   it("el reloj cuenta los casi listos y se los pasa a la regla, y lo dice", () => {
     const tick = leer("src/lib/reloj/tick.ts");
     expect(tick).toContain("await contarCasiListos()");

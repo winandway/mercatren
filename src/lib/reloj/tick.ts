@@ -267,7 +267,10 @@ export async function correrTick(
         if (r.mirados > 0)
           hizo.push(
             `stock: ${r.mirados} mirados, ${r.agotados} agotados, ${r.fallidos} fallidos` +
-              (casiListos > 0 ? ` · casi listos por mirar: ${casiListos}` : ""),
+              (casiListos > 0
+                ? ` · casi listos por mirar: ${casiListos}`
+                : "") +
+              (r.ultimoFallo ? ` · último fallo: ${r.ultimoFallo}` : ""),
           );
       }
     }
