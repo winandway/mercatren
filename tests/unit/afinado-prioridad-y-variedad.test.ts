@@ -64,6 +64,21 @@ describe("el orden del afinado", () => {
     expect(orden).not.toContain("DEPARTAMENTO_CON_TALLAS");
   });
 
+  it("lo pedido que FALLA también sale de la lista: se intenta una vez por petición", () => {
+    /* Con CJ devolviendo flete en cero, los dos monitores volvían a la
+       cabeza en cada latido: 40 puntos por latido tirados. */
+    const afinar = leer("src/lib/cj/afinar.ts");
+    expect(afinar).toContain("const soltarSiEraPedido = async (id: string) =>");
+    const soltares =
+      afinar.match(/await soltarSiEraPedido\(p\.id\);/g)?.length ?? 0;
+    const pospones =
+      afinar.match(/await posponer\(db, p\.id, ahora\);/g)?.length ?? 0;
+    expect(pospones).toBeGreaterThanOrEqual(4);
+    /* cada posponer lleva su soltar delante, más el del fallo al guardar */
+    expect(soltares).toBe(pospones + 1);
+    expect(afinar).toContain('"PEDIDO · "');
+  });
+
   it("lo pedido se lee antes de armar la cola y sale de la lista al afinarse", () => {
     expect(afinar).toContain("const prioridad = await leerPrioridad(db);");
     expect(afinar).toContain("await quitarDePrioridad(p.id, db)");

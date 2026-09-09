@@ -1818,6 +1818,18 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LO PEDIDO QUE FALLA SALE DE LA LISTA, Y CJ COTIZA EN CERO (9 sep 2026, noche).**
+Con CJ de vuelta, el motivo visible dijo la verdad de los monitores de
+Richard: `/logistic/freightCalculate` devuelve FedEx y UPS «US to US» con
+`logisticPrice: 0`. Sin flete real no se publican, y como estaban en la
+lista de prioridad **volvían a la cabeza en cada latido**: 40 puntos por
+latido tirados. Ahora lo pedido se intenta UNA vez por petición: si falla,
+sale de la lista y el canario lo dice con el prefijo «PEDIDO ·». Y el
+hallazgo grande: el afinado avanzó 28 fichas en 6 horas porque **miles de
+productos de EE. UU. reciben flete $0** («sin precio válido en 5»). Queda
+en PENDIENTES decidir si se publican con flete manual o se marcan «sin
+flete cotizable».
+
 **EL EQUIPO VE Y ENCUENTRA LO QUE ESTÁ EN REVISIÓN (9 sep 2026).** Richard:
 _«dame la posibilidad de buscarlos en el buscador y poderlos encontrar; no
 importa que no estén disponibles, quiero verlos»_. Un producto de CJ pasa

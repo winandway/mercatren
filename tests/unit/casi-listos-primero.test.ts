@@ -50,8 +50,8 @@ describe("el afinado dice por qué falla", () => {
   it("cada camino de fallo deja su motivo, y el reloj lo publica", () => {
     const afinar = leer("src/lib/cj/afinar.ts");
     expect(afinar).toContain("ultimoFallo?: string");
-    expect(afinar).toMatch(/ultimoFallo =\s*`variantes: \$\{r\.motivo\}`/);
-    expect(afinar).toMatch(/ultimoFallo =\s*`flete: \$\{cotizacion\.motivo/);
+    expect(afinar).toContain("variantes: ${r.motivo}");
+    expect(afinar).toContain("flete: ${cotizacion.motivo");
     expect(afinar).toMatch(/ultimoFallo =\s*`guardar:/);
     const tick = leer("src/lib/reloj/tick.ts");
     expect(tick).toContain("último fallo: ${r.ultimoFallo}");

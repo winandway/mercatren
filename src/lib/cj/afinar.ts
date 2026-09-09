@@ -111,6 +111,14 @@ export async function afinarImportados(o: {
   if (restantesAlEmpezar === 0) return vacio;
 
   const prioridad = await leerPrioridad(db);
+  /* ══ LO PEDIDO QUE FALLA SALE DE LA LISTA (9 sep 2026) ══ Los dos
+     monitores de Richard volvían a la cabeza en CADA latido con CJ
+     devolviendo flete en cero: 40 puntos por latido tirados, ~5.700 a la
+     hora. Se intenta UNA vez por petición; si falla, sale y el canario dice
+     por qué. Quien lo quiera de nuevo, lo vuelve a pedir. */
+  const soltarSiEraPedido = async (id: string) => {
+    if (prioridad.includes(id)) await quitarDePrioridad(id, db);
+  };
   const cola = await db
     .select({
       id: productos.id,
@@ -165,6 +173,7 @@ export async function afinarImportados(o: {
       ultimoFallo = !p.pid
         ? "producto sin código de CJ"
         : "producto sin costo base";
+      await soltarSiEraPedido(p.id);
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -177,7 +186,12 @@ export async function afinarImportados(o: {
     );
     if (!r.ok) {
       cuenta.fallidos += 1;
-      ultimoFallo = `variantes: ${r.motivo}`.slice(0, 160);
+      ultimoFallo =
+        `${prioridad.includes(p.id) ? "PEDIDO · " : ""}variantes: ${r.motivo}`.slice(
+          0,
+          160,
+        );
+      await soltarSiEraPedido(p.id);
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -196,6 +210,7 @@ export async function afinarImportados(o: {
         })
         .where(eq(productos.id, p.id))
         .catch(() => undefined);
+      await soltarSiEraPedido(p.id);
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -209,10 +224,11 @@ export async function afinarImportados(o: {
     if (!(cotizacion.costoCentavos && cotizacion.costoCentavos > 0)) {
       cuenta.fallidos += 1;
       ultimoFallo =
-        `flete: ${cotizacion.motivo ?? (elegida?.vid ? "sin cotización" : "sin variante que cotizar")}`.slice(
+        `${prioridad.includes(p.id) ? "PEDIDO · " : ""}flete: ${cotizacion.motivo ?? (elegida?.vid ? "sin cotización" : "sin variante que cotizar")}`.slice(
           0,
           160,
         );
+      await soltarSiEraPedido(p.id);
       await posponer(db, p.id, ahora);
       continue;
     }
@@ -288,6 +304,7 @@ export async function afinarImportados(o: {
     } catch (fallo) {
       console.error("[cj-afinar] no se pudo guardar", p.id, fallo);
       cuenta.fallidos += 1;
+      await soltarSiEraPedido(p.id);
       ultimoFallo =
         `guardar: ${fallo instanceof Error ? fallo.message : String(fallo)}`.slice(
           0,
