@@ -1830,6 +1830,15 @@ productos de EE. UU. reciben flete $0** («sin precio válido en 5»). Queda
 en PENDIENTES decidir si se publican con flete manual o se marcan «sin
 flete cotizable».
 
+**Y EL REFRESCO DE STOCK REPETÍA LOS MISMOS TRES FALLOS CADA LATIDO (9 sep 2026,
+noche).** «stock: 4 mirados, 3 fallidos» en cada latido: los casi listos
+iban por fecha de sincronización, un fallo no la movía, y los mismos tres
+que CJ no contestaba volvían primeros siempre. Solo avanzaba el cuarto.
+Ahora al fallar se les sube `actualizadoEn` (pasan al final de su grupo) y
+el motivo sale en el canario. Medido tras publicar: «4 mirados, 0
+fallidos» y la cola de casi listos bajando a 4 por latido. Candado en
+`casi-listos-primero.test.ts`.
+
 **EL EQUIPO VE Y ENCUENTRA LO QUE ESTÁ EN REVISIÓN (9 sep 2026).** Richard:
 _«dame la posibilidad de buscarlos en el buscador y poderlos encontrar; no
 importa que no estén disponibles, quiero verlos»_. Un producto de CJ pasa
