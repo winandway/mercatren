@@ -20,6 +20,21 @@ import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
+
+/**
+ * ══ EL EQUIPO ENCUENTRA LO QUE ESTÁ EN REVISIÓN (9 sep 2026) ══
+ *
+ * Richard: «dame la posibilidad de buscarlos en el buscador y poderlos
+ * encontrar, no importa que no estén disponibles». Solo al BUSCAR y solo con
+ * sesión del equipo: al pasear por departamentos no se mezclan 45.000 fichas
+ * en revisión con las publicadas. El público, Google, el mapa del sitio y el
+ * feed siguen viendo únicamente lo publicado.
+ */
+async function buscandoComoEquipo(q: string | undefined): Promise<boolean> {
+  if (!q) return false;
+  const { esEquipoInterno } = await import("@/lib/autorizacion");
+  return esEquipoInterno().catch(() => false);
+}
 import { metaDeCatalogo } from "@/lib/seo/meta";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +61,7 @@ export async function generateMetadata({
     const [r, departamentos] = await Promise.all([
       listarProductos(mercado, {
         busqueda: filtros.q,
+        paraElEquipo: await buscandoComoEquipo(filtros.q),
         categoria: filtros.categoria,
         comercio: filtros.comercio,
         porPagina: 6,
@@ -125,6 +141,7 @@ export default async function PaginaCatalogo({
   const [resultado, categorias, comercios, departamentos] = await Promise.all([
     listarProductos(mercado, {
       busqueda: filtros.q,
+      paraElEquipo: await buscandoComoEquipo(filtros.q),
       categoria: filtros.categoria,
       comercio: filtros.comercio,
       orden: filtros.orden as OrdenCatalogo,

@@ -41,6 +41,7 @@ import {
   type FiltroDeMercado,
   tiendaVisibleEn,
   visibleEn,
+  visibleEnParaElEquipo,
 } from "@/lib/mercado/repositorio";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
@@ -71,8 +72,12 @@ const VISIBLE = and(
  * la primera que lo olvide enseñaria el catalogo de un pais en el dominio
  * de otro.
  */
-function visibleAqui(mercado: Mercado): FiltroDeMercado {
-  return visibleEn(mercado);
+function visibleAqui(
+  mercado: Mercado,
+  /** Solo el equipo con sesión: incluye lo «en revisión» (9 sep 2026). */
+  paraElEquipo = false,
+): FiltroDeMercado {
+  return paraElEquipo ? visibleEnParaElEquipo(mercado) : visibleEn(mercado);
 }
 
 export type OrdenCatalogo = "recientes" | "precio_asc" | "precio_desc";
@@ -86,6 +91,8 @@ export type FiltrosCatalogo = {
   porPagina?: number;
   /** Slugs de ciudad: solo productos cuyo depósito esté en alguna de ellas. */
   zona?: string[];
+  /** Solo con sesión del equipo: la lista incluye lo «en revisión». */
+  paraElEquipo?: boolean;
 };
 
 /**
@@ -203,6 +210,8 @@ export type ProductoLista = {
   unidad: string | null;
   marca: string | null;
   destacado: boolean;
+  /** «publicado» o «en revisión» (con guion bajo en la base): lo segundo solo lo ve el equipo. */
+  estado?: string;
   /** Para el sello de "nuevo". Texto cuando viaja por JSON. */
   creadoEn: Date | string | null;
   tiendaNombre: string;
@@ -279,7 +288,9 @@ export async function listarProductos(
   const pagina = Math.max(1, filtros.pagina ?? 1);
   const porPagina = Math.min(60, Math.max(6, filtros.porPagina ?? 24));
 
-  const condiciones: SQL[] = [visibleAqui(mercado)];
+  const condiciones: SQL[] = [
+    visibleAqui(mercado, Boolean(filtros.paraElEquipo)),
+  ];
 
   /**
    * El slug puede ser un DEPARTAMENTO de Mercatren o una categoria del propio
@@ -349,6 +360,7 @@ export async function listarProductos(
       unidad: productos.unidad,
       marca: productos.marca,
       destacado: productos.destacado,
+      estado: productos.estado,
       creadoEn: productos.creadoEn,
       tiendaId: tiendas.id,
       tiendaNombre: tiendas.nombre,
@@ -381,6 +393,7 @@ export async function listarProductos(
       unidad: f.unidad,
       marca: f.marca,
       destacado: f.destacado,
+      estado: f.estado,
       creadoEn: f.creadoEn,
       tiendaId: f.tiendaId,
       tiendaNombre: f.tiendaNombre,
@@ -401,7 +414,11 @@ export async function listarProductos(
 }
 
 /** Un producto con todas sus fotos, para su ficha. */
-export async function obtenerProductoPorSlug(mercado: Mercado, slug: string) {
+export async function obtenerProductoPorSlug(
+  mercado: Mercado,
+  slug: string,
+  opciones?: { paraElEquipo?: boolean },
+) {
   const db = getDb();
 
   const [fila] = await db
@@ -469,7 +486,12 @@ export async function obtenerProductoPorSlug(mercado: Mercado, slug: string) {
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
     .leftJoin(depositos, eq(depositos.id, productos.depositoId))
-    .where(and(eq(productos.slug, slug), visibleAqui(mercado)))
+    .where(
+      and(
+        eq(productos.slug, slug),
+        visibleAqui(mercado, Boolean(opciones?.paraElEquipo)),
+      ),
+    )
     .limit(1);
 
   if (!fila) return null;

@@ -1818,6 +1818,19 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL EQUIPO VE Y ENCUENTRA LO QUE ESTÁ EN REVISIÓN (9 sep 2026).** Richard:
+_«dame la posibilidad de buscarlos en el buscador y poderlos encontrar; no
+importa que no estén disponibles, quiero verlos»_. Un producto de CJ pasa
+días en revisión esperando su flete real y no había forma de verlo fuera de
+la base. Ahora el muro tiene una segunda puerta
+(`visibleEnParaElEquipo`) que incluye `en_revision`; la usan el catálogo
+**solo al buscar y solo con sesión del equipo** (`buscandoComoEquipo`) y la
+ficha (`paraElEquipo: delEquipo`, calculado ANTES de pedirla). La ficha
+avisa «En revisión — solo lo ve el equipo» y no dibuja el botón de comprar;
+la tarjeta lleva su sello. El público, Google, el mapa del sitio y el feed
+siguen viendo únicamente lo publicado. Candado:
+`en-revision-solo-el-equipo.test.ts`.
+
 **«PÓNGALOS A LA CABEZA DE LA FILA», «VARIADO, NO PURA ROPA», Y LOS PUNTOS DE
 CJ LEÍDOS DE SU DOC (9 sep 2026).** Richard quería dos monitores de estudio
 (en revisión, en una fila de 46.000) ya, y que lo que se publica cada día

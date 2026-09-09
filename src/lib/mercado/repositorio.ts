@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, type SQL } from "drizzle-orm";
+import { and, eq, inArray, type SQL } from "drizzle-orm";
 
 import { productos, tiendas } from "@/lib/db/schema";
 import { mercadoActual } from "@/lib/mercado/actual";
@@ -76,6 +76,26 @@ export function visibleEn(mercado: Mercado): FiltroDeMercado {
   return soloDeEsteMercado(
     mercado,
     and(eq(productos.estado, "publicado"), eq(tiendas.estado, "activa")),
+  );
+}
+
+/**
+ * LO MISMO, PERO EL EQUIPO TAMBIÉN VE LO QUE ESTÁ EN REVISIÓN (9 sep 2026).
+ *
+ * Richard: «dame la posibilidad de buscarlos en el buscador y poderlos
+ * encontrar; no importa que no estén disponibles, quiero verlos». Un
+ * producto de CJ pasa días en revisión esperando su flete real, y hasta hoy
+ * no había forma de verlo más que en la base. Solo para el equipo con
+ * sesión: el público, Google, el mapa del sitio y el feed siguen viendo
+ * únicamente lo publicado. Lo en revisión nunca lleva botón de comprar.
+ */
+export function visibleEnParaElEquipo(mercado: Mercado): FiltroDeMercado {
+  return soloDeEsteMercado(
+    mercado,
+    and(
+      inArray(productos.estado, ["publicado", "en_revision"]),
+      eq(tiendas.estado, "activa"),
+    ),
   );
 }
 

@@ -91,6 +91,18 @@ export function TarjetaProducto({
           etiqueta={t("entregaUsa")}
         />
 
+        {/* EN REVISIÓN: solo lo ve el equipo con sesión (9 sep 2026). */}
+
+        {producto.estado === "en_revision" ? (
+          <span
+            className="absolute bottom-1.5 left-1.5 rounded-md bg-carga-600 px-1.5 py-0.5 text-[11px] font-bold text-white"
+
+            data-en-revision
+          >
+            {t("enRevisionCorto")}
+          </span>
+        ) : null}
+
         {descuento ? (
           <span className="absolute top-1.5 left-1.5 rounded-md bg-red-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
             -{descuento}%

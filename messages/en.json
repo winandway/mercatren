@@ -2870,7 +2870,10 @@
         "aduanaCL": "No customs surprises: the 19% VAT is already in the price and Mercatren files it directly with Chile's SII (remote-sale regime, Law 21.713). Your package enters Chile with no extra charges on delivery.",
         "aduanaCLConTope": "No customs surprises: the 19% VAT is already in the price and Mercatren files it directly with Chile's SII (remote-sale regime, Law 21.713). Your package enters Chile with no extra charges on delivery. The regime covers items up to USD 500 (about ${tope} CLP today) — everything published on mercatren.cl is within that limit."
       },
-      "mayorista": "Wholesale"
+      "mayorista": "Wholesale",
+      "enRevision": "Under review — visible to the team only.",
+      "enRevisionTexto": "Not for sale yet: the supplier still has to quote the real shipping cost. The public can't see this page.",
+      "enRevisionCorto": "Under review"
     },
     "paginacion": {
       "anterior": "Previous",

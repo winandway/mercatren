@@ -156,7 +156,19 @@ export default async function PaginaProducto({
 
   const t = await getTranslations("catalogo.producto");
   const tCatalogo = await getTranslations("catalogo");
-  const ficha = await obtenerProductoPorSlug(await mercadoDeLaPeticion(), slug);
+  /* ══ EL EQUIPO VE LO QUE ESTÁ EN REVISIÓN (9 sep 2026) ══ Richard: «quiero
+     verlos, no importa que no estén disponibles». Con sesión del equipo la
+     ficha abre aunque el producto siga esperando su flete real; para el
+     público sigue siendo un 404. Nunca lleva botón de comprar. */
+  const { esEquipoInterno } = await import("@/lib/autorizacion");
+  const delEquipo = await esEquipoInterno().catch(() => false);
+  const ficha = await obtenerProductoPorSlug(
+    await mercadoDeLaPeticion(),
+    slug,
+    {
+      paraElEquipo: delEquipo,
+    },
+  );
 
   if (!ficha) notFound();
 
@@ -222,8 +234,7 @@ export default async function PaginaProducto({
 
   /* El equipo puede comprar durante la pausa: es la única forma de probar el
      circuito completo sin abrirle la tienda al público. */
-  const { esEquipoInterno } = await import("@/lib/autorizacion");
-  const delEquipo = await esEquipoInterno().catch(() => false);
+  const enRevision = producto.estado === "en_revision";
 
   const agotado = producto.controlaExistencias && producto.existencias <= 0;
   const pocas =
@@ -373,6 +384,14 @@ export default async function PaginaProducto({
         <GaleriaProducto fotos={ficha.imagenes} titulo={titulo} />
 
         <div>
+          {enRevision ? (
+            <p
+              className="mb-3 rounded-lg border border-carga-500/40 bg-carga-500/10 px-3 py-2 text-sm"
+              data-en-revision
+            >
+              <strong>{t("enRevision")}</strong> {t("enRevisionTexto")}
+            </p>
+          ) : null}
           <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-3xl">
             {titulo}
           </h1>
@@ -529,7 +548,7 @@ export default async function PaginaProducto({
             {/* CON VARIANTES SE ELIGE PRIMERO, sin ellas se compra directo.
                 Un producto con tallas y colores no se puede agregar "en
                 general": el comercio quedaría adivinando cuál despachar. */}
-            {variantes.length > 0 ? (
+            {enRevision ? null : variantes.length > 0 ? (
               <SelectorVariante
                 paisOrigen={ficha.tiendaPais}
                 esEquipoInterno={delEquipo}
