@@ -6,7 +6,8 @@ import { cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { cotizarFlete } from "@/lib/cj/flete";
 import { guardarTallas } from "@/lib/cj/guardar";
-import { DEPARTAMENTO_CON_TALLAS, stockDeVariante } from "@/lib/cj/masivo";
+import { stockDeVariante } from "@/lib/cj/masivo";
+import { leerPrioridad, quitarDePrioridad } from "@/lib/cj/prioridad";
 import { plazaDelMercado, type Plaza } from "@/lib/cj/plazas";
 import { REGIONALES } from "@/lib/cj/riesgo";
 import { llamarCjConRitmo } from "@/lib/cj/ritmo";
@@ -109,6 +110,7 @@ export async function afinarImportados(o: {
   const restantesAlEmpezar = Number(total?.n ?? 0);
   if (restantesAlEmpezar === 0) return vacio;
 
+  const prioridad = await leerPrioridad(db);
   const cola = await db
     .select({
       id: productos.id,
@@ -121,17 +123,22 @@ export async function afinarImportados(o: {
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
     .where(condicionDeCola(paises))
     .orderBy(
-      /* ══ LO NUNCA INTENTADO VA PRIMERO, EN CUALQUIER DEPARTAMENTO (8 sep 2026) ══
-         Antes «la ropa primero» mandaba sobre todo lo demás: un puñado de
-         prendas cuyo flete CJ no cotiza volvían a la cabeza de la cola en
-         cada vuelta (fallar solo les sube la fecha) y los 44.000 productos
-         sin tallas no tuvieron turno en todo un día: «0 ok, 3 fallidos,
-         quedan 46.117» cada minuto. Ahora lo que falló espera a que pase
-         todo lo que nunca se intentó. */
+      /* ══ 1. LO QUE UNA PERSONA PIDIÓ PRIMERO (9 sep 2026) ══ Richard:
+         «póngalos a la cabeza de la fila». Ver `prioridad.ts`. */
+      ...(prioridad.length > 0
+        ? [sql`case when ${inArray(productos.id, prioridad)} then 0 else 1 end`]
+        : []),
+      /* ══ 2. LO NUNCA INTENTADO ANTES QUE LO QUE YA FALLÓ (8 sep 2026) ══
+         Fallar solo le sube la fecha; sin esto, un puñado que CJ no cotiza
+         volvía a la cabeza en cada vuelta y 44.000 no tuvieron turno. */
       sql`${enviosProducto.cotizadoEn} is not null`,
-      /* Y dentro de cada grupo, la ropa primero: es lo único que no se puede
-         vender bien sin afinar. */
-      sql`case when ${productos.categoriaId} = ${DEPARTAMENTO_CON_TALLAS} then 0 else 1 end`,
+      /* ══ 3. VARIADO, NO PURA ROPA (9 sep 2026) ══ Richard: «si usted mira
+         lo que está saliendo en Estados Unidos todos los días, es pura
+         ropa». «La ropa primero» venía de cuando lo sin tallas se vendía
+         sin afinar; hoy nada de CJ sale sin flete real, así que ya no
+         tenía sentido. Se toma el 1.º de cada departamento, luego el 2.º de
+         cada uno, y así: lo publicado del día se parece al catálogo. */
+      sql`row_number() over (partition by ${productos.categoriaId} order by ${enviosProducto.cotizadoEn}, ${productos.creadoEn})`,
       asc(enviosProducto.cotizadoEn),
       asc(productos.creadoEn),
     )
@@ -277,6 +284,7 @@ export async function afinarImportados(o: {
         );
       }
       cuenta.afinados += 1;
+      if (prioridad.includes(p.id)) await quitarDePrioridad(p.id, db);
     } catch (fallo) {
       console.error("[cj-afinar] no se pudo guardar", p.id, fallo);
       cuenta.fallidos += 1;

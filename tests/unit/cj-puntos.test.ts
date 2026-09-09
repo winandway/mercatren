@@ -4,6 +4,7 @@ import {
   esSinPuntos,
   esperarHasta,
   minutosParaVolver,
+  PAUSA_SIN_PUNTOS_MS,
   puntosDe,
   sigueSinPuntos,
 } from "@/lib/cj/puntos";
@@ -37,16 +38,13 @@ describe("reconocer el aviso", () => {
 describe("hasta cuándo se espera", () => {
   const AHORA = Date.parse("2026-09-03T20:00:00Z");
 
-  it("espera a la medianoche de China, que es cuando CJ renueva", () => {
-    const hasta = esperarHasta(AHORA);
-    /* 20:00 UTC son las 04:00 del día siguiente en China: quedan 20 h. */
-    expect(hasta - AHORA).toBeGreaterThan(19 * 3_600_000);
-    expect(hasta - AHORA).toBeLessThan(21 * 3_600_000);
-  });
-
-  it("nunca espera menos de una hora, aunque la medianoche esté encima", () => {
-    const casi = Date.parse("2026-09-03T15:59:00Z"); // 23:59 en China
-    expect(esperarHasta(casi) - casi).toBeGreaterThanOrEqual(3_600_000);
+  it("ESPERA MINUTOS, NO HASTA MEDIANOCHE: CJ repone puntos cada minuto (doc oficial, 9 sep 2026)", () => {
+    /* «Per-Minute Points Replenishment = Total Points / 1440». La versión
+       vieja esperaba hasta la medianoche de China y dejó el afinado parado
+       17 horas el 8 sep, con puntos entrando a ~70 por minuto. */
+    expect(esperarHasta(AHORA) - AHORA).toBe(PAUSA_SIN_PUNTOS_MS);
+    expect(PAUSA_SIN_PUNTOS_MS).toBeLessThanOrEqual(10 * 60_000);
+    expect(PAUSA_SIN_PUNTOS_MS).toBeGreaterThanOrEqual(60_000);
   });
 
   it("una pausa vencida deja de valer", () => {

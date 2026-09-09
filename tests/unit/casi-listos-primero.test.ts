@@ -72,16 +72,16 @@ describe("el afinado dice por qué falla", () => {
  * publicar nada.
  */
 describe("el afinado no se atasca en lo que ya falló", () => {
-  it("lo nunca intentado va antes que la ropa", () => {
+  it("lo nunca intentado va antes que lo que ya falló", () => {
     const afinar = leer("src/lib/cj/afinar.ts");
     const orden = afinar.slice(
       afinar.indexOf(".orderBy("),
       afinar.indexOf(".limit(o.limite)"),
     );
     const nunca = orden.indexOf("cotizadoEn} is not null");
-    const ropa = orden.indexOf("DEPARTAMENTO_CON_TALLAS} then 0");
+    const fecha = orden.indexOf("asc(enviosProducto.cotizadoEn)");
     expect(nunca).toBeGreaterThan(0);
-    expect(ropa).toBeGreaterThan(nunca);
+    expect(fecha).toBeGreaterThan(nunca);
   });
 
   it("cuando CJ no da precio, el motivo enseña lo que mandó", () => {

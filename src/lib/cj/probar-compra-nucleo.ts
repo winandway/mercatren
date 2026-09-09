@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import {
   pasoFlete,
@@ -27,7 +27,12 @@ import {
 } from "@/lib/cj/reconciliar";
 import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { getDb } from "@/lib/db";
-import { configuracion, productos, tiendas } from "@/lib/db/schema";
+import {
+  configuracion,
+  imagenesProducto,
+  productos,
+  tiendas,
+} from "@/lib/db/schema";
 import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 
 /**
@@ -144,6 +149,12 @@ export async function probarCompraDeCjNucleo(entrada: {
       existencias: productos.existencias,
       pais: tiendas.paisOrigen,
       tienda: tiendas.nombre,
+      /* La primera foto, para poder ENSEÑAR el producto sin abrir la ficha
+         (una en revisión no abre). Si ya se copió al bucket va por su clave;
+         si no, la de origen. */
+      imagen: sql<
+        string | null
+      >`(select coalesce(${imagenesProducto.url}, case when ${imagenesProducto.clave} is not null then '/media/' || ${imagenesProducto.clave} end) from ${imagenesProducto} where ${imagenesProducto.productoId} = ${productos.id} order by ${imagenesProducto.orden} limit 1)`,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -1160,4 +1171,33 @@ export async function sondaCj(entrada: {
     cuerpo: entrada.cuerpo,
   });
   return r.ok ? { ok: true, datos: r.datos } : { ok: false, motivo: r.motivo };
+}
+
+/**
+ * «PÓNGALOS A LA CABEZA DE LA FILA» (9 sep 2026): anota un producto para que
+ * el afinado lo tome primero en su próxima vuelta. Devuelve la lista entera.
+ */
+export async function priorizarPorEnlace(
+  enlace: string,
+): Promise<{ ok: boolean; mensaje: string; lista: string[] }> {
+  const slug = slugDeLaUrl(enlace);
+  if (!slug)
+    return { ok: false, mensaje: "Pega el enlace de un producto.", lista: [] };
+  const [ficha] = await getDb()
+    .select({
+      id: productos.id,
+      titulo: productos.tituloEs,
+      estado: productos.estado,
+    })
+    .from(productos)
+    .where(eq(productos.slug, slug))
+    .limit(1);
+  if (!ficha) return { ok: false, mensaje: `No existe «${slug}».`, lista: [] };
+  const { priorizarProducto } = await import("@/lib/cj/prioridad");
+  const lista = await priorizarProducto(ficha.id);
+  return {
+    ok: true,
+    mensaje: `«${ficha.titulo}» (${ficha.estado}) va primero en el afinado. En la lista: ${lista.length}.`,
+    lista,
+  };
 }

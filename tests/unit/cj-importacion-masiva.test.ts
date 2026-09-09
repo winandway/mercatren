@@ -107,9 +107,18 @@ describe("el servidor de la importación", () => {
 describe("el afinado", () => {
   const fuente = leer("src/lib/cj/afinar.ts");
 
-  it("la ropa primero: es lo único que no se vende bien sin talla", () => {
-    expect(fuente).toContain("DEPARTAMENTO_CON_TALLAS");
-    expect(fuente).toContain("then 0 else 1 end");
+  it("YA NO HAY «LA ROPA PRIMERO»: el afinado reparte entre departamentos (9 sep 2026)", () => {
+    /* La regla venía de cuando lo sin tallas se vendía sin afinar. Hoy nada
+       de CJ sale sin flete real, y Richard midió el efecto: «lo que sale en
+       Estados Unidos todos los días es pura ropa». Ahora se toma el primero
+       de cada departamento, luego el segundo de cada uno. Las tallas se
+       siguen guardando al afinar, para cualquier departamento. */
+    const afinar = readFileSync("src/lib/cj/afinar.ts", "utf-8");
+    expect(afinar).not.toContain("DEPARTAMENTO_CON_TALLAS");
+    expect(afinar).toContain(
+      "row_number() over (partition by ${productos.categoriaId}",
+    );
+    expect(afinar).toContain("guardarTallas(");
   });
 
   it("deja el flete REAL, las tallas y el stock, en dos llamadas y no tres", () => {

@@ -1818,6 +1818,31 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**«PÓNGALOS A LA CABEZA DE LA FILA», «VARIADO, NO PURA ROPA», Y LOS PUNTOS DE
+CJ LEÍDOS DE SU DOC (9 sep 2026).** Richard quería dos monitores de estudio
+(en revisión, en una fila de 46.000) ya, y que lo que se publica cada día
+no fuera solo ropa.
+
+- **Lista de prioridad** (`prioridad.ts`, llave `cj_afinar_primero`): ids
+  que el afinado toma primero, hayan fallado antes o no; salen al afinarse.
+  Se llena desde la puerta: `gh workflow run probar-compra.yml -f
+cuerpo='{"accion":"priorizar","enlace":"https://mercatren.com/es/producto/…"}'`.
+- **Orden del afinado:** 1.º lo pedido, 2.º lo nunca intentado, 3.º
+  `row_number() over (partition by categoria)`: el primero de cada
+  departamento, luego el segundo de cada uno. «La ropa primero» venía de
+  cuando lo sin tallas se vendía sin afinar; hoy nada sale sin flete real.
+- **«mirar» trae la primera foto**: para enseñar un producto que aún no
+  abre.
+- **Los puntos de CJ, de su documentación oficial**
+  (`developers.cjdropshipping.com/en/api/api2/standard/points.html`, leída
+  ese día): total diario = 50.000 base + **100 por cada dólar de
+  TRANSACCIONES (el mes mayor de los últimos tres)**, recalculado a diario;
+  base reiniciada a las **00:00 UTC**; y **reposición por minuto = total /
+  1.440**, acumulable hasta el total. Dos consecuencias: cargar saldo NO da
+  puntos (los dan las compras pagadas), y **la pausa «hasta la medianoche de
+  China» era un invento nuestro**: tras un «sin puntos» basta esperar unos
+  minutos. Ver `esperarHasta` en `puntos.ts`.
+
 **«¿AÚN HAY PRODUCTOS SIN PRECIO O SIN STOCK QUE NO SE PUEDEN VENDER?» (8 sep
 2026, noche).** La pregunta de Richard no tenía número: el inventario
 contaba «agotados» sobre todos los estados y «sin costo base» (el costo,

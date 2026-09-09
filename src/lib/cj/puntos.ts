@@ -53,20 +53,23 @@ export function puntosDe(motivo: string): {
 /**
  * Hasta cuándo no vale la pena volver a llamar.
  *
- * CJ renueva los puntos en su día natural, y su operación va en horario de
- * China (UTC+8). Se espera hasta la próxima medianoche de allá; si eso ya
- * pasó, una hora, para no quedarse esperando un día entero por un aviso
- * viejo.
+ * ══ LEÍDO DE LA DOC OFICIAL DE CJ (9 sep 2026) ══
+ * (`developers.cjdropshipping.com/en/api/api2/standard/points.html`)
+ *
+ * CJ NO renueva los puntos de golpe a medianoche: **repone cada minuto
+ * total/1.440** (la base se reinicia a las 00:00 UTC, no en horario de
+ * China). Con ~100.000 de total son ~70 puntos por minuto: 3 afinados. La
+ * versión anterior esperaba «hasta la medianoche de China» y dejaba el
+ * afinado parado hasta 17 horas por un aviso que se cura solo en minutos.
+ * Se esperan cinco: da para ~350 puntos, y si CJ vuelve a decir que no, se
+ * vuelve a esperar cinco.
  */
+export const PAUSA_SIN_PUNTOS_MS = 5 * 60_000;
+
 export function esperarHasta(ahoraMs: number): number {
-  const enChina = ahoraMs + 8 * 3_600_000;
-  const dia = 24 * 3_600_000;
-  const siguienteMedianoche = (Math.floor(enChina / dia) + 1) * dia;
-  const enUtc = siguienteMedianoche - 8 * 3_600_000;
-  return Math.max(enUtc, ahoraMs + 3_600_000);
+  return ahoraMs + PAUSA_SIN_PUNTOS_MS;
 }
 
-/** ¿Sigue en pie la pausa guardada? */
 export function sigueSinPuntos(
   guardado: string | null | undefined,
   ahoraMs: number,

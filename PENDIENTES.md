@@ -102,6 +102,15 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       foto de CJ, eso no se detecta por consulta: hace falta que mande dos
       ejemplos para ver qué es exactamente.
 
+### 9 sep 2026 · Los monitores a la cabeza, variedad, y los puntos bien leídos ✅
+
+- [x] 💻 Lista de prioridad del afinado + acción «priorizar» en la puerta;
+      orden variado por departamento; foto en «mirar».
+- [ ] 🟠 👤 **Richard: ¿mover los $200 de Payoneer a CJ?** Solo da más
+      puntos lo que se COMPRA (100 puntos/día por cada $1 de pedidos del
+      mejor mes de los últimos tres). El saldo sirve para que las compras
+      se paguen solas; no sube el presupuesto de API por sí mismo.
+
 ### 8 sep 2026 · «¿Sin precio o sin stock?» ya se mide ✅
 
 - [x] 💻 El vigilante cuenta publicados sin stock (por talla) y sin precio
@@ -174,34 +183,34 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                                                                                  https://mercatren.com.ve/mapa/productos-0.xml
-                                                                                  ```
+                                                                                              https://mercatren.com.ve/mapa/productos-0.xml
+                                                                                              ```
 
-                                                                                  ```
-                                                                                  https://mercatren.com.ve/mapa/paginas.xml
-                                                                                  ```
+                                                                                              ```
+                                                                                              https://mercatren.com.ve/mapa/paginas.xml
+                                                                                              ```
 
-                                                                                  ```
-                                                                                  https://mercatren.com.ve/mapa/tiendas.xml
-                                                                                  ```
+                                                                                              ```
+                                                                                              https://mercatren.com.ve/mapa/tiendas.xml
+                                                                                              ```
 
-                                                                                  Lo de antes, que ya no aplica:
+                                                                                              Lo de antes, que ya no aplica:
 
-                                                                                  ```
-                                                                                          https://mercatren.com.ve/sitemap.xml
-                                                                                          ```
+                                                                                              ```
+                                                                                                      https://mercatren.com.ve/sitemap.xml
+                                                                                                      ```
 
-                                                                                          **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                                                                                          comprobó en la documentación de Google el 7 sep 2026 antes de
-                                                                                          recomendarlo: esa herramienta es **solo para propiedades de dominio
-                                                                                          completo** y le diría a Google que TODO mercatren.com se mudó a
-                                                                                          mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                                                                                          tirar el posicionamiento de toda la plaza grande para arreglar una
-                                                                                          parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                                                                                          que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                                                                                          y los mapas del sitio separados (medido: el .com ya no lista ni una
-                                                                                          dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                                                                                          Este punto ya venía escrito mal en esta lista tres veces.
+                                                                                                      **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                                                                                      comprobó en la documentación de Google el 7 sep 2026 antes de
+                                                                                                      recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                                                                                      completo** y le diría a Google que TODO mercatren.com se mudó a
+                                                                                                      mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                                                                                      tirar el posicionamiento de toda la plaza grande para arreglar una
+                                                                                                      parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                                                                                      que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                                                                                      y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                                                                                      dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                                                                                      Este punto ya venía escrito mal en esta lista tres veces.
 
 - [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan
