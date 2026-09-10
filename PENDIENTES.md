@@ -111,6 +111,15 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [x] 💻 Los dos monitores de ESTUDIO de EE. UU.: CJ devolvía el flete en
       $0; publicados con flete manual de $40 el par ($239,19 y $239,08).
       Richard puede cambiar ese envío pidiéndolo.
+- [ ] 🔴 👤 **Los monitores de estudio están 60 % por encima del
+      fabricante.** Nosotros $239,19 · VEVOR directo $148,90 · Best Buy
+      $175,99 (mismo modelo VV-501P). Nos cuestan $120,19 + $40 de envío.
+      Con el margen del 30 % de EE. UU. no compiten. Opciones: bajar el
+      margen solo en este producto (a ~$185 quedaría en $25 de ganancia),
+      dejarlo publicado sin promocionar, o quitarlo. **Decide Richard.**
+- [ ] 🟡 💻 **Antes de publicar producto DE MARCA, mirar el precio del
+      fabricante.** El margen del 30 % está pensado para producto sin
+      marca; en marca conocida el comprador compara en dos clics.
 - [ ] 🟠 👤 **Colombia no puede tener monitores de estudio con CJ**: los dos
       únicos que existen están solo en el almacén de EE. UU. (con
       `countryCode=CN` CJ devuelve lista vacía) y Colombia se surte de
@@ -197,34 +206,34 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                                                                                                                                              https://mercatren.com.ve/mapa/productos-0.xml
-                                                                                                                                              ```
-
-                                                                                                                                              ```
-                                                                                                                                              https://mercatren.com.ve/mapa/paginas.xml
-                                                                                                                                              ```
-
-                                                                                                                                              ```
-                                                                                                                                              https://mercatren.com.ve/mapa/tiendas.xml
-                                                                                                                                              ```
-
-                                                                                                                                              Lo de antes, que ya no aplica:
-
-                                                                                                                                              ```
-                                                                                                                                                      https://mercatren.com.ve/sitemap.xml
+                                                                                                                                                      https://mercatren.com.ve/mapa/productos-0.xml
                                                                                                                                                       ```
 
-                                                                                                                                                      **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                                                                                                                                                      comprobó en la documentación de Google el 7 sep 2026 antes de
-                                                                                                                                                      recomendarlo: esa herramienta es **solo para propiedades de dominio
-                                                                                                                                                      completo** y le diría a Google que TODO mercatren.com se mudó a
-                                                                                                                                                      mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                                                                                                                                                      tirar el posicionamiento de toda la plaza grande para arreglar una
-                                                                                                                                                      parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                                                                                                                                                      que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                                                                                                                                                      y los mapas del sitio separados (medido: el .com ya no lista ni una
-                                                                                                                                                      dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                                                                                                                                                      Este punto ya venía escrito mal en esta lista tres veces.
+                                                                                                                                                      ```
+                                                                                                                                                      https://mercatren.com.ve/mapa/paginas.xml
+                                                                                                                                                      ```
+
+                                                                                                                                                      ```
+                                                                                                                                                      https://mercatren.com.ve/mapa/tiendas.xml
+                                                                                                                                                      ```
+
+                                                                                                                                                      Lo de antes, que ya no aplica:
+
+                                                                                                                                                      ```
+                                                                                                                                                              https://mercatren.com.ve/sitemap.xml
+                                                                                                                                                              ```
+
+                                                                                                                                                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                                                                                                                                              comprobó en la documentación de Google el 7 sep 2026 antes de
+                                                                                                                                                              recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                                                                                                                                              completo** y le diría a Google que TODO mercatren.com se mudó a
+                                                                                                                                                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                                                                                                                                              tirar el posicionamiento de toda la plaza grande para arreglar una
+                                                                                                                                                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                                                                                                                                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                                                                                                                                              y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                                                                                                                                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                                                                                                                                              Este punto ya venía escrito mal en esta lista tres veces.
 
 - [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan

@@ -1818,6 +1818,29 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**«¿SON AMPLIFICADAS? ¿EL PRECIO ES POR EL PAR?» — Y EL PRECIO NO COMPITE
+(9 sep 2026, noche).** Las dos preguntas del cliente que la ficha no
+contestaba, porque la importación masiva trae título y precio pero **no la
+descripción**. Ya existía el traedor por tandas del panel
+(`traerDescripciones`); se le puso la misma pieza para UNA ficha
+(`describir-uno.ts` → acción `describir` de la puerta), porque con un
+cliente esperando no se puede depender del turno en una cola de miles.
+Las dos fichas ya dicen «autoamplificados», woofer, tweeter, entradas.
+
+- **Sí son activas**: lo dice CJ («powered»), y la foto del panel trasero
+  tiene entrada de corriente, interruptor y perilla de volumen.
+- **Sí es el par**: confirmado con el FABRICANTE (VEVOR, modelo VV-501P) —
+  «sold as a pair (2 units)», «Dual-Speaker Stereo Sound». En la foto del
+  panel se ve **LEFT SPEAKER OUT**: bornes para la caja izquierda, que es
+  la prueba física de que el sistema son dos cajas.
+- **EL HALLAZGO CARO: el precio no compite.** Nos cuesta $120,19 en CJ, más
+  $40 de envío manual y el 30 % de EE. UU. → **$239,19**. VEVOR lo vende
+  directo a **$148,90** y Best Buy a **$175,99**. Es un producto de marca,
+  fácil de comparar en dos clics. **Antes de publicar algo de marca hay que
+  mirar a cuánto lo vende el fabricante**, no solo el costo del proveedor:
+  el margen del 30 % de EE. UU. está pensado para producto sin marca.
+  Decisión de negocio de Richard en PENDIENTES.
+
 **LOS MONITORES DE ESTUDIO, PUBLICADOS — Y EL CATÁLOGO DE CJ NO TIENE MÁS
 (9 sep 2026, noche).** Richard, molesto y con razón: pidió **monitores de
 estudio de grabación** y se le mandó una lista de 55 cornetas Bluetooth.
