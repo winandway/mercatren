@@ -1818,6 +1818,51 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL CASILLERO: PAQUETERÍA DE EE. UU. A SUDAMÉRICA (9 sep 2026).** Producto
+nuevo pedido por Richard: dirección propia en Miami para comprar en
+cualquier tienda de Estados Unidos y recibir en Sudamérica. La bodega la
+opera **BESTWAY GROUP INTL. CORP.** (14329 SW 142nd St, Miami FL 33186).
+
+**El problema central es que la compra es SILENCIOSA**: la caja llega y
+nadie vio esa compra. Todo el módulo existe para saber de quién es en
+treinta segundos sin equivocarse de cliente.
+
+- **Código `BW-` + verificador Luhn.** El prefijo es de Bestway, que es
+  quien firma el recibo ante UPS. El verificador existe para que un dígito
+  mal leído **falle** en vez de caer en otro casillero: asignar mal es peor
+  que no asignar. Va DOS veces en la etiqueta, porque Amazon normaliza
+  contra USPS y a veces borra la línea 2.
+- **Cadena de matching con puntajes**: prealerta 100, aviso del
+  transportista 95, código leído 90; el nombre nunca pasa de 85, que está
+  bajo el umbral **a propósito** — hay homónimos y familias que comparten
+  apellido y ciudad. Empate en la cima o casillero suspendido: decide una
+  persona.
+- **Recibir NUNCA se bloquea.** Sin dueño, el paquete entra igual y queda
+  huérfano. Rechazar una caja que ya está en la puerta cuesta devolución,
+  reclamo y una reseña de una estrella.
+- **LA DIRECCIÓN NO SE PUBLICA.** Regla dictada por Richard, y la que
+  sostiene el sistema: _«si la gente no crea la cuenta y pone la dirección
+  directamente y nos manda algo, no sabemos de quién es»_. En público solo
+  «Miami, Florida»; la calle, el código postal y el número se ven dentro de
+  la cuenta. Candado: `casillero-direccion-privada.test.ts`.
+- **El widget casi regala casilleros ajenos.** La primera versión devolvía
+  el código y la dirección en la respuesta: cualquiera escribía el correo
+  de otra persona y se llevaba SU código. Ahora la respuesta es siempre
+  «revisa tu correo» y el dato viaja al buzón, que es la única prueba de
+  quién es el dueño. Y si el correo ya tiene cuenta, no se toca. Lo destapó
+  la revisión de seguridad automática del commit.
+- **El logo de Bestway es el suyo**, bajado de su sitio en vectorial
+  (`public/logos/bestway/`). El primero lo dibujé a mano y Richard lo paró
+  con razón: el logo de otra empresa se usa como ella lo publica.
+- **Un texto de la ficha mandaba clientes a la competencia**: «puedes
+  alquilar un casillero, hay varias empresas que lo ofrecen». Ahora lleva
+  al nuestro.
+
+Piezas: `src/lib/casillero/` (dominio con 19 pruebas), 14 tablas,
+`/casillero` (público), `/casillero/crear`, `/casillero/mi-casillero`,
+`/casillero/avisar`, `/panel/casilleros`, `/panel/bodega`, `/widget/form` y
+`/datos/widget`.
+
 **«¿SON AMPLIFICADAS? ¿EL PRECIO ES POR EL PAR?» — Y EL PRECIO NO COMPITE
 (9 sep 2026, noche).** Las dos preguntas del cliente que la ficha no
 contestaba, porque la importación masiva trae título y precio pero **no la
