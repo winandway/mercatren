@@ -1,3 +1,4 @@
+import { Link } from "@/i18n/navigation";
 import { Globe2, PackageCheck, Truck } from "lucide-react";
 
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
@@ -60,6 +61,7 @@ export function EntregaEstadosUnidos({
     precioFinal: string;
     casilleroTitulo: string;
     casilleroTexto: string;
+    casilleroBoton: string;
     mapaTitulo: string;
     mapaPie: string;
   };
@@ -117,6 +119,18 @@ export function EntregaEstadosUnidos({
             <p className="mt-2 text-sm leading-relaxed text-tinta-suave">
               {textos.casilleroTexto}
             </p>
+            {/* ══ EL CASILLERO YA ES NUESTRO (9 sep 2026) ══ Hasta hoy este
+                texto decía «puedes alquilar un casillero — hay varias
+                empresas que lo ofrecen»: mandaba al comprador a la
+                competencia desde nuestra propia ficha de producto. Desde
+                que Mercatren tiene su casillero en Miami, el enlace lleva
+                al nuestro. */}
+            <Link
+              href="/casillero"
+              className="mt-2 inline-block text-sm font-semibold text-carga-600 hover:underline"
+            >
+              {textos.casilleroBoton}
+            </Link>
           </details>
         </>
       ) : null}

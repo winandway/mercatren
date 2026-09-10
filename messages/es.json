@@ -400,7 +400,8 @@
       "busquedasImagen": "Búsquedas por foto",
       "trafico": "Tráfico",
       "vigilante": "Vigilante",
-      "probarCompra": "Probar una compra"
+      "probarCompra": "Probar una compra",
+      "casilleros": "Casilleros"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -2765,6 +2766,35 @@
       },
       "pagarPendiente": "Pagar la prueba pendiente ({numero})",
       "pagarPendienteConfirmar": "El pedido {numero} sigue vivo en CJ esperando su pago. Esto lo paga de tu saldo, sin crear otro.\n\n¿Pagarlo?"
+    },
+    "casilleros": {
+      "titulo": "Casilleros",
+      "bajada": "Paquetería de Estados Unidos a Sudamérica. La bodega la opera BESTWAY GROUP INTL. CORP. en Miami.",
+      "creados": "Casilleros creados",
+      "hoy": "Hoy",
+      "semana": "7 días",
+      "mes": "30 días",
+      "total": "Total",
+      "deDondeVienen": "De dónde vienen",
+      "porPais": "Por país de destino",
+      "salud": "Salud de la operación",
+      "enBodega": "Paquetes en bodega",
+      "huerfanos": "Huérfanos",
+      "sinDeclarar": "Sin declarar",
+      "sinVerificar": "Sin verificar",
+      "buscar": "Buscar",
+      "buscarPlaceholder": "Código, nombre o correo",
+      "colCodigo": "Código",
+      "colNombre": "Nombre legal",
+      "colCorreo": "Correo",
+      "colTelefono": "Teléfono",
+      "colPais": "País",
+      "colOrigen": "Origen",
+      "colEstado": "Estado",
+      "verificado": "Verificado",
+      "sinVerificarUno": "Sin verificar",
+      "sinAltas": "Todavía no hay altas.",
+      "sinCasilleros": "Ningún casillero todavía."
     }
   },
   "catalogo": {
@@ -2842,9 +2872,10 @@
         "plazo": "Llega en 2 a 5 días hábiles",
         "precioFinal": "El precio que ves es el precio final: el envío ya va incluido.",
         "casilleroTitulo": "¿Lo quieres en otro país?",
-        "casilleroTexto": "Puedes alquilar un casillero en Estados Unidos —hay varias empresas que lo ofrecen— y poner esa dirección al comprar. Nosotros te lo llevamos gratis hasta el casillero, y esa empresa se encarga de enviártelo a tu país. El costo, el plazo y la aduana de ese último tramo los maneja ella, no Mercatren.",
+        "casilleroTexto": "Crea tu casillero de Mercatren en Miami: es gratis y te damos una dirección de Estados Unidos con tu número. Compras aquí o en cualquier tienda, lo recibimos por ti y te lo enviamos a tu país.",
         "mapaTitulo": "Nuestro almacén en Estados Unidos",
-        "mapaPie": "Despachamos desde aquí a todo el país."
+        "mapaPie": "Despachamos desde aquí a todo el país.",
+        "casilleroBoton": "Crear mi casillero"
       },
       "ventaMinima": "Venta mínima: {minimo} unidades · {total} el lote",
       "opiniones": "Opiniones",
@@ -4137,6 +4168,28 @@
     "avisoNoCompartirTexto": "Lleva tu número dentro. Si alguien más la usa, su paquete entra a tu casillero y tú respondes por él.",
     "prealertaTitulo": "¿Ya compraste algo?",
     "prealertaBajada": "Avísanos qué viene en camino y con qué número de guía. Así lo reconocemos apenas llegue y no se queda esperando.",
-    "prealertaBoton": "Avisar una compra"
+    "prealertaBoton": "Avisar una compra",
+    "preDescripcion": "¿Qué compraste?",
+    "preDescripcionPlaceholder": "Audífonos inalámbricos",
+    "preComercio": "¿En qué tienda?",
+    "preCantidad": "¿Cuántos?",
+    "preTracking": "Número de guía (opcional)",
+    "preTrackingAyuda": "Si lo tienes, lo reconocemos apenas llegue. Si no, igual nos sirve saber qué viene.",
+    "preValor": "¿Cuánto pagaste? (USD)",
+    "preValorAyuda": "El valor real de la factura. Sin este dato el paquete no puede salir de la bodega: lo exige la aduana.",
+    "preEnviar": "Avisar",
+    "preEnviando": "Guardando…",
+    "preListo": "Listo. Lo reconoceremos cuando llegue a Miami.",
+    "preEsperando": "Lo que estamos esperando",
+    "preErrorDescripcion": "Escribe qué compraste.",
+    "preErrorValor": "Escribe cuánto pagaste, en dólares.",
+    "preErrorTracking": "Ese número de guía no parece válido. Déjalo vacío si no lo tienes a mano.",
+    "preErrorSinCasillero": "Primero crea tu casillero.",
+    "invitacionTitulo": "¿Compras en Estados Unidos?",
+    "invitacionTexto": "Si vas a comprar aquí o en cualquier tienda de Estados Unidos y enviarlo a Sudamérica, crea tu casillero. Es gratis y te damos una dirección en Miami con tu número.",
+    "invitacionBoton": "Crear mi casillero gratis",
+    "invitacionTengoTitulo": "Tu casillero está listo",
+    "invitacionTengoTexto": "Tu número es {codigo}. Recuerda ponerlo al pagar, junto a tu nombre.",
+    "invitacionTengoBoton": "Ver mi dirección"
   }
 }

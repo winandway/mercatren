@@ -400,7 +400,8 @@
       "busquedasImagen": "Photo searches",
       "trafico": "Traffic",
       "vigilante": "Watchdog",
-      "probarCompra": "Test a purchase"
+      "probarCompra": "Test a purchase",
+      "casilleros": "Lockers"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -2765,6 +2766,35 @@
       },
       "pagarPendiente": "Pay the pending test ({numero})",
       "pagarPendienteConfirmar": "Order {numero} is still live at CJ waiting for payment. This pays it from your balance, without creating another one.\n\nPay it?"
+    },
+    "casilleros": {
+      "titulo": "Lockers",
+      "bajada": "Parcel forwarding from the United States to South America. The Miami warehouse is operated by BESTWAY GROUP INTL. CORP.",
+      "creados": "Lockers created",
+      "hoy": "Today",
+      "semana": "7 days",
+      "mes": "30 days",
+      "total": "Total",
+      "deDondeVienen": "Where they come from",
+      "porPais": "By destination country",
+      "salud": "Operations health",
+      "enBodega": "Packages in the warehouse",
+      "huerfanos": "Unidentified",
+      "sinDeclarar": "Not declared",
+      "sinVerificar": "Unverified",
+      "buscar": "Search",
+      "buscarPlaceholder": "Code, name or email",
+      "colCodigo": "Code",
+      "colNombre": "Legal name",
+      "colCorreo": "Email",
+      "colTelefono": "Phone",
+      "colPais": "Country",
+      "colOrigen": "Source",
+      "colEstado": "Status",
+      "verificado": "Verified",
+      "sinVerificarUno": "Unverified",
+      "sinAltas": "No sign-ups yet.",
+      "sinCasilleros": "No lockers yet."
     }
   },
   "catalogo": {
@@ -2842,9 +2872,10 @@
         "plazo": "Arrives in 2 to 5 business days",
         "precioFinal": "The price you see is the final price — shipping is already included.",
         "casilleroTitulo": "Want it in another country?",
-        "casilleroTexto": "You can rent a U.S. mail forwarding address —several companies offer this— and enter it at checkout. We ship to that address for free, and the forwarding company takes it from there to your country. Cost, delivery time, and customs on that final leg are handled by them, not by Mercatren.",
+        "casilleroTexto": "Create your Mercatren locker in Miami: it's free and you get a U.S. address with your own number. Shop here or at any store, we receive it for you and ship it to your country.",
         "mapaTitulo": "Our warehouse in the United States",
-        "mapaPie": "We ship from here to the entire country."
+        "mapaPie": "We ship from here to the entire country.",
+        "casilleroBoton": "Create my locker"
       },
       "ventaMinima": "Minimum order: {minimo} units · {total} per lot",
       "opiniones": "Reviews",
@@ -4137,6 +4168,28 @@
     "avisoNoCompartirTexto": "It has your number in it. If someone else uses it, their package lands in your locker and you answer for it.",
     "prealertaTitulo": "Already bought something?",
     "prealertaBajada": "Tell us what's on its way and its tracking number. That way we recognize it the moment it arrives instead of leaving it waiting.",
-    "prealertaBoton": "Announce a purchase"
+    "prealertaBoton": "Announce a purchase",
+    "preDescripcion": "What did you buy?",
+    "preDescripcionPlaceholder": "Wireless earbuds",
+    "preComercio": "Which store?",
+    "preCantidad": "How many?",
+    "preTracking": "Tracking number (optional)",
+    "preTrackingAyuda": "If you have it, we recognize the package the moment it arrives. If not, knowing what's coming still helps.",
+    "preValor": "How much did you pay? (USD)",
+    "preValorAyuda": "The real invoice value. Without it the package can't leave the warehouse: customs requires it.",
+    "preEnviar": "Announce",
+    "preEnviando": "Saving…",
+    "preListo": "Done. We'll recognize it when it reaches Miami.",
+    "preEsperando": "What we're expecting",
+    "preErrorDescripcion": "Tell us what you bought.",
+    "preErrorValor": "Enter how much you paid, in dollars.",
+    "preErrorTracking": "That tracking number doesn't look valid. Leave it empty if you don't have it handy.",
+    "preErrorSinCasillero": "Create your locker first.",
+    "invitacionTitulo": "Shopping in the United States?",
+    "invitacionTexto": "If you're buying here or at any U.S. store and shipping to South America, create your locker. It's free and you get a Miami address with your own number.",
+    "invitacionBoton": "Create my free locker",
+    "invitacionTengoTitulo": "Your locker is ready",
+    "invitacionTengoTexto": "Your number is {codigo}. Remember to add it at checkout, next to your name.",
+    "invitacionTengoBoton": "See my address"
   }
 }

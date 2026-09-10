@@ -19,6 +19,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
 import { almacenDeLaTienda } from "@/lib/destino/almacenes";
+import { InvitacionCasillero } from "@/components/casillero/invitacion-casillero";
 import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
 import { HileraVideos } from "@/components/videos/hilera-videos";
@@ -547,6 +548,15 @@ export default async function PaginaTienda({
             <CalendarDays className="h-4 w-4" aria-hidden />
             {t("desde")} {fechaCorta(tienda.creadoEn, idioma)}
           </span>
+        </div>
+
+        {/* «¿NECESITAS CASILLERO?» dentro de la tienda. Pedido de Richard el
+            9 sep 2026: el comercio ya tiene aquí su banner y su WhatsApp, y
+            este es otro punto donde el comprador que envía a Sudamérica se
+            entera de que puede tener su dirección en Miami. Compacto y sin
+            competir con la tienda, que es la protagonista de esta página. */}
+        <div className="mt-4">
+          <InvitacionCasillero variante="tienda" />
         </div>
 
         {/* En texto normal, no dentro de una caja: es lo único escrito con las

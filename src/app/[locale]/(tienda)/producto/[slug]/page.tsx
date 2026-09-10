@@ -23,6 +23,7 @@ import {
 } from "@/lib/productos/variantes";
 import { DondeSeRetira } from "@/components/catalogo/donde-se-retira";
 import { EntregaDespacho } from "@/components/catalogo/entrega-despacho";
+import { InvitacionCasillero } from "@/components/casillero/invitacion-casillero";
 import { EntregaEstadosUnidos } from "@/components/catalogo/entrega-estados-unidos";
 import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
 import { FilaProductos } from "@/components/catalogo/fila-productos";
@@ -464,6 +465,7 @@ export default async function PaginaProducto({
               precioFinal: t("entregaUs.precioFinal"),
               casilleroTitulo: t("entregaUs.casilleroTitulo"),
               casilleroTexto: t("entregaUs.casilleroTexto"),
+              casilleroBoton: t("entregaUs.casilleroBoton"),
               mapaTitulo: t("entregaUs.mapaTitulo"),
               mapaPie: t("entregaUs.mapaPie"),
             }}
@@ -600,6 +602,14 @@ export default async function PaginaProducto({
               primera pantalla — y lo primero que tiene que ver quien abre una
               ficha es cuánto cuesta y dónde se compra. Aquí abajo acompañan al
               que ya se interesó, que es para quien son. */}
+          {/* «¿NO TIENES CASILLERO?», bajo el botón de comprar. Pedido de
+              Richard el 9 sep 2026: quien está mirando un producto de
+              Estados Unidos y vive en Sudamérica es justo a quien le sirve.
+              No se le enseña a quien ya lo tiene. */}
+          <div className="mt-6">
+            <InvitacionCasillero />
+          </div>
+
           <EntregaEstadosUnidos
             parte="mapa"
             paisOrigen={ficha.tiendaPais}
@@ -612,6 +622,7 @@ export default async function PaginaProducto({
               precioFinal: t("entregaUs.precioFinal"),
               casilleroTitulo: t("entregaUs.casilleroTitulo"),
               casilleroTexto: t("entregaUs.casilleroTexto"),
+              casilleroBoton: t("entregaUs.casilleroBoton"),
               mapaTitulo: t("entregaUs.mapaTitulo"),
               mapaPie: t("entregaUs.mapaPie"),
             }}

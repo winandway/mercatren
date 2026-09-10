@@ -26,6 +26,7 @@ import {
   Wallet,
   X,
   Camera,
+  PackagePlus,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
@@ -146,6 +147,15 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
         href: "/panel/tiendas-usa",
         clave: "tiendasUsa",
         Icono: Store,
+        soloInterno: true,
+      },
+      /* EL CASILLERO: paquetería de Estados Unidos a Sudamérica. Va con el
+         equipo interno porque enseña datos de compradores —nombre legal,
+         correo, teléfono— que un comercio no tiene por qué ver. */
+      {
+        href: "/panel/casilleros",
+        clave: "casilleros",
+        Icono: PackagePlus,
         soloInterno: true,
       },
       // Las CUENTAS del sistema, que no es lo mismo que los compradores.
