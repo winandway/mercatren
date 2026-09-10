@@ -6,6 +6,14 @@
 -- que ser rapido. El catalogo y el historico se cargan aparte, una vez.
 
 -- ── Tablas (esquema actual) ──
+CREATE TABLE IF NOT EXISTS `accesos_datos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`usuario_id` text NOT NULL,
+	`casillero_id` text NOT NULL,
+	`campo` text NOT NULL,
+	`creado_en` integer NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `account` (
 	`id` text PRIMARY KEY NOT NULL,
 	`account_id` text NOT NULL,
@@ -35,6 +43,21 @@ CREATE TABLE IF NOT EXISTS `aceptaciones` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_aceptaciones_usuario` ON `aceptaciones` (`user_id`);
+CREATE TABLE IF NOT EXISTS `altas_casillero` (
+	`id` text PRIMARY KEY NOT NULL,
+	`usuario_id` text,
+	`origen_id` text,
+	`url_referente` text,
+	`ip_hash` text,
+	`user_agent` text,
+	`estado` text NOT NULL,
+	`motivo` text,
+	`creado_en` integer NOT NULL,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (`origen_id`) REFERENCES `origenes_casillero`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_altas_casillero_origen` ON `altas_casillero` (`origen_id`,`creado_en`);
 CREATE TABLE IF NOT EXISTS `anulaciones_cobro` (
 	`cobro_id` text PRIMARY KEY NOT NULL,
 	`motivo` text,
@@ -50,6 +73,36 @@ CREATE TABLE IF NOT EXISTS `apariencia_tienda` (
 	FOREIGN KEY (`tienda_id`) REFERENCES `tiendas`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
+CREATE TABLE IF NOT EXISTS `asignaciones_paquete` (
+	`id` text PRIMARY KEY NOT NULL,
+	`paquete_id` text NOT NULL,
+	`casillero_id` text NOT NULL,
+	`metodo` text NOT NULL,
+	`score` integer NOT NULL,
+	`automatico` integer NOT NULL,
+	`motivo` text,
+	`usuario_id` text,
+	`creado_en` integer NOT NULL,
+	FOREIGN KEY (`paquete_id`) REFERENCES `paquetes_casillero`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`casillero_id`) REFERENCES `casilleros`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE TABLE IF NOT EXISTS `avisos_entrante` (
+	`id` text PRIMARY KEY NOT NULL,
+	`bodega_id` text NOT NULL,
+	`carrier` text NOT NULL,
+	`tracking` text NOT NULL,
+	`casillero_id` text,
+	`remitente` text,
+	`peso_lb` real,
+	`eta` integer,
+	`estado` text,
+	`recibido_en` integer NOT NULL,
+	FOREIGN KEY (`bodega_id`) REFERENCES `bodegas_casillero`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`casillero_id`) REFERENCES `casilleros`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE INDEX IF NOT EXISTS `idx_avisos_entrante_tracking` ON `avisos_entrante` (`tracking`);
 CREATE TABLE IF NOT EXISTS `avisos_vigilante` (
 	`clave` text PRIMARY KEY NOT NULL,
 	`nivel` text NOT NULL,
@@ -107,6 +160,20 @@ CREATE TABLE IF NOT EXISTS `bitacora_pagos` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_bitacora_pagos_pedido` ON `bitacora_pagos` (`pedido_id`);
+CREATE TABLE IF NOT EXISTS `bodegas_casillero` (
+	`id` text PRIMARY KEY NOT NULL,
+	`codigo` text NOT NULL,
+	`nombre` text NOT NULL,
+	`linea1` text NOT NULL,
+	`linea2` text,
+	`ciudad` text NOT NULL,
+	`estado_us` text NOT NULL,
+	`zip` text NOT NULL,
+	`telefono` text NOT NULL,
+	`activa` integer DEFAULT true NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `bodegas_casillero_codigo_unique` ON `bodegas_casillero` (`codigo`);
 CREATE TABLE IF NOT EXISTS `busquedas_imagen` (
 	`id` text PRIMARY KEY NOT NULL,
 	`mercado` text NOT NULL,
@@ -133,6 +200,30 @@ CREATE TABLE IF NOT EXISTS `cargos_cobro` (
 	FOREIGN KEY (`cobro_id`) REFERENCES `cobros_solicitados`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
+CREATE TABLE IF NOT EXISTS `casilleros` (
+	`id` text PRIMARY KEY NOT NULL,
+	`usuario_id` text NOT NULL,
+	`bodega_id` text NOT NULL,
+	`codigo` text NOT NULL,
+	`secuencia` integer NOT NULL,
+	`nombre_legal` text NOT NULL,
+	`telefono` text NOT NULL,
+	`pais_destino` text NOT NULL,
+	`estado` text DEFAULT 'activo' NOT NULL,
+	`verificado` integer DEFAULT false NOT NULL,
+	`alias_email` text,
+	`origen_id` text,
+	`creado_en` integer NOT NULL,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bodega_id`) REFERENCES `bodegas_casillero`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`origen_id`) REFERENCES `origenes_casillero`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `casilleros_codigo_unique` ON `casilleros` (`codigo`);
+CREATE UNIQUE INDEX IF NOT EXISTS `casilleros_secuencia_unique` ON `casilleros` (`secuencia`);
+CREATE UNIQUE INDEX IF NOT EXISTS `casilleros_alias_email_unique` ON `casilleros` (`alias_email`);
+CREATE INDEX IF NOT EXISTS `idx_casilleros_usuario` ON `casilleros` (`usuario_id`);
+CREATE INDEX IF NOT EXISTS `idx_casilleros_origen` ON `casilleros` (`origen_id`,`creado_en`);
 CREATE TABLE IF NOT EXISTS `categorias` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text,
@@ -225,6 +316,11 @@ CREATE TABLE IF NOT EXISTS `contactos_busqueda` (
 	`creado_en` integer DEFAULT (unixepoch()) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `contadores_casillero` (
+	`clave` text PRIMARY KEY NOT NULL,
+	`valor` integer NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `correcciones_pago` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pago_zelle_id` text NOT NULL,
@@ -308,6 +404,25 @@ CREATE TABLE IF NOT EXISTS `devoluciones_cobro` (
 	FOREIGN KEY (`hecha_por_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 
+CREATE TABLE IF NOT EXISTS `direcciones_destino` (
+	`id` text PRIMARY KEY NOT NULL,
+	`usuario_id` text NOT NULL,
+	`etiqueta` text,
+	`destinatario` text NOT NULL,
+	`documento` text,
+	`telefono` text NOT NULL,
+	`pais` text NOT NULL,
+	`region` text,
+	`ciudad` text NOT NULL,
+	`linea1` text NOT NULL,
+	`linea2` text,
+	`referencias` text,
+	`es_default` integer DEFAULT false NOT NULL,
+	`creado_en` integer NOT NULL,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_direcciones_destino_usuario` ON `direcciones_destino` (`usuario_id`);
 CREATE TABLE IF NOT EXISTS `disputas` (
 	`id` text PRIMARY KEY NOT NULL,
 	`intento_id` text,
@@ -367,6 +482,18 @@ CREATE TABLE IF NOT EXISTS `errores_sistema` (
 	`resuelto_en` integer
 );
 
+CREATE TABLE IF NOT EXISTS `eventos_paquete` (
+	`id` text PRIMARY KEY NOT NULL,
+	`paquete_id` text NOT NULL,
+	`tipo` text NOT NULL,
+	`detalle` text DEFAULT '{}' NOT NULL,
+	`visible_cliente` integer DEFAULT true NOT NULL,
+	`usuario_id` text,
+	`creado_en` integer NOT NULL,
+	FOREIGN KEY (`paquete_id`) REFERENCES `paquetes_casillero`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_eventos_paquete` ON `eventos_paquete` (`paquete_id`,`creado_en`);
 CREATE TABLE IF NOT EXISTS `facturas` (
 	`id` text PRIMARY KEY NOT NULL,
 	`numero` text NOT NULL,
@@ -513,6 +640,12 @@ CREATE TABLE IF NOT EXISTS `intentos_acceso` (
 	`ventana_desde` integer NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `intentos_casillero` (
+	`clave` text PRIMARY KEY NOT NULL,
+	`conteo` integer NOT NULL,
+	`ventana_desde` integer NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `intentos_descripcion` (
 	`producto_id` text PRIMARY KEY NOT NULL,
 	`motivo` text NOT NULL,
@@ -630,6 +763,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS `ordenes_compra_numero_unique` ON `ordenes_com
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_oc_pedido_tienda` ON `ordenes_compra` (`pedido_id`,`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_oc_tienda` ON `ordenes_compra` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_oc_estado` ON `ordenes_compra` (`estado`);
+CREATE TABLE IF NOT EXISTS `origenes_casillero` (
+	`id` text PRIMARY KEY NOT NULL,
+	`nombre` text NOT NULL,
+	`dominio` text NOT NULL,
+	`clave_publica` text NOT NULL,
+	`activo` integer DEFAULT true NOT NULL,
+	`creado_en` integer NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `origenes_casillero_clave_publica_unique` ON `origenes_casillero` (`clave_publica`);
 CREATE TABLE IF NOT EXISTS `pagos` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -696,6 +839,38 @@ CREATE INDEX IF NOT EXISTS `idx_zelle_banco` ON `pagos_zelle` (`banco_origen`);
 CREATE INDEX IF NOT EXISTS `idx_zelle_codigo` ON `pagos_zelle` (`codigo_confirmacion`);
 CREATE INDEX IF NOT EXISTS `idx_zelle_monto` ON `pagos_zelle` (`monto_centavos`);
 CREATE INDEX IF NOT EXISTS `idx_zelle_seller` ON `pagos_zelle` (`seller_cuenta`);
+CREATE TABLE IF NOT EXISTS `paquetes_casillero` (
+	`id` text PRIMARY KEY NOT NULL,
+	`wr` text NOT NULL,
+	`bodega_id` text NOT NULL,
+	`casillero_id` text,
+	`prealerta_id` text,
+	`tracking` text,
+	`carrier` text,
+	`remitente` text,
+	`peso_lb` real,
+	`largo_in` real,
+	`ancho_in` real,
+	`alto_in` real,
+	`peso_facturable_lb` real,
+	`ubicacion` text,
+	`estado` text DEFAULT 'recibido' NOT NULL,
+	`condicion` text,
+	`valor_declarado_centavos` integer,
+	`descripcion_declarada` text,
+	`texto_ocr` text,
+	`fotos` text DEFAULT '[]' NOT NULL,
+	`recibido_en` integer NOT NULL,
+	`recibido_por` text,
+	FOREIGN KEY (`bodega_id`) REFERENCES `bodegas_casillero`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`casillero_id`) REFERENCES `casilleros`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`prealerta_id`) REFERENCES `prealertas`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `paquetes_casillero_wr_unique` ON `paquetes_casillero` (`wr`);
+CREATE INDEX IF NOT EXISTS `idx_paquetes_casillero` ON `paquetes_casillero` (`casillero_id`,`estado`);
+CREATE INDEX IF NOT EXISTS `idx_paquetes_cas_tracking` ON `paquetes_casillero` (`tracking`);
+CREATE INDEX IF NOT EXISTS `idx_paquetes_cas_estado` ON `paquetes_casillero` (`estado`);
 CREATE TABLE IF NOT EXISTS `partes_del_cobro` (
 	`cobro_id` text PRIMARY KEY NOT NULL,
 	`grupo` text NOT NULL,
@@ -772,6 +947,24 @@ CREATE TABLE IF NOT EXISTS `pedidos_proveedor` (
 
 CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_pedido` ON `pedidos_proveedor` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_estado` ON `pedidos_proveedor` (`estado`);
+CREATE TABLE IF NOT EXISTS `prealertas` (
+	`id` text PRIMARY KEY NOT NULL,
+	`casillero_id` text NOT NULL,
+	`tracking` text,
+	`carrier` text,
+	`comercio` text,
+	`descripcion` text NOT NULL,
+	`cantidad` integer DEFAULT 1 NOT NULL,
+	`valor_centavos` integer NOT NULL,
+	`factura_clave` text,
+	`origen` text DEFAULT 'manual' NOT NULL,
+	`estado` text DEFAULT 'abierta' NOT NULL,
+	`creado_en` integer NOT NULL,
+	FOREIGN KEY (`casillero_id`) REFERENCES `casilleros`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_prealertas_tracking` ON `prealertas` (`tracking`);
+CREATE INDEX IF NOT EXISTS `idx_prealertas_casillero` ON `prealertas` (`casillero_id`,`estado`);
 CREATE TABLE IF NOT EXISTS `preguntas_producto` (
 	`id` text PRIMARY KEY NOT NULL,
 	`producto_id` text NOT NULL,
@@ -1176,11 +1369,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1788893794, 1788893794)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1789006602, 1789006602)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1788893794)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1789006602)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
