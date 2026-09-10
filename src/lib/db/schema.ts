@@ -3575,3 +3575,304 @@ export const erroresSistema = sqliteTable("errores_sistema", {
   /** Marcado a mano desde el panel cuando ya se arregló. */
   resueltoEn: integer("resuelto_en", { mode: "timestamp" }),
 });
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EL CASILLERO: PAQUETERÍA DE ESTADOS UNIDOS A SUDAMÉRICA (9 sep 2026)
+
+   El cliente recibe una dirección nuestra en Miami con un código propio.
+   Compra en Amazon, eBay, Walmart o donde sea, y pone esa dirección. La caja
+   llega a la bodega y **nosotros no vimos esa compra**: hay que averiguar de
+   quién es y a dónde va, en menos de treinta segundos y sin buscar a mano.
+
+   El problema central es ese: **la compra es silenciosa**. Todo lo demás es
+   logística conocida. La lógica pura vive en `src/lib/casillero/`, con sus
+   pruebas; aquí solo están las tablas.
+
+   La bodega la opera BESTWAY GROUP INTL. CORP., que le da el soporte físico
+   a Mercatren LLC en Miami.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/** Las bodegas. Hoy una sola en Miami, pero la dirección NO se escribe en el
+ *  código: cambia de local y una dirección vieja es un paquete perdido. */
+export const bodegasCasillero = sqliteTable("bodegas_casillero", {
+  id: text("id").primaryKey(),
+  codigo: text("codigo").notNull().unique(),
+  /** El nombre que va en la etiqueta, encima de la calle. */
+  nombre: text("nombre").notNull(),
+  linea1: text("linea1").notNull(),
+  linea2: text("linea2"),
+  ciudad: text("ciudad").notNull(),
+  estadoUs: text("estado_us").notNull(),
+  zip: text("zip").notNull(),
+  telefono: text("telefono").notNull(),
+  activa: integer("activa", { mode: "boolean" }).notNull().default(true),
+});
+
+/**
+ * Cada sitio donde se puede crear un casillero. Es lo que contesta la
+ * pregunta que el dueño hace todos los días: **¿de dónde vienen las altas?**
+ * Los cuatro Mercatren son orígenes, y el widget crea uno por sitio ajeno.
+ */
+export const origenesCasillero = sqliteTable("origenes_casillero", {
+  id: text("id").primaryKey(),
+  nombre: text("nombre").notNull(),
+  /** Dominio autorizado: se valida contra el `Origin` de la petición, así
+   *  que una clave robada solo sirve desde el sitio registrado. */
+  dominio: text("dominio").notNull(),
+  clavePublica: text("clave_publica").notNull().unique(),
+  activo: integer("activo", { mode: "boolean" }).notNull().default(true),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+});
+
+/**
+ * El casillero de un cliente. Cuelga de la cuenta que ya existe en
+ * Mercatren (`user`): quien compra en el catálogo y quien recibe paquetes
+ * son la misma persona, y dos cuentas serían dos contraseñas que olvidar.
+ */
+export const casilleros = sqliteTable(
+  "casilleros",
+  {
+    id: text("id").primaryKey(),
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    bodegaId: text("bodega_id")
+      .notNull()
+      .references(() => bodegasCasillero.id),
+    /** «MTR-100008». Ver `src/lib/casillero/codigo.ts`. */
+    codigo: text("codigo").notNull().unique(),
+    secuencia: integer("secuencia").notNull().unique(),
+    /**
+     * EL NOMBRE LEGAL, que es el que va en la etiqueta de Amazon.
+     * Se guarda aparte del nombre de la cuenta: la gente se registra como
+     * «Juanchi» y compra como «Juan Carlos Pérez Gómez», y el de la
+     * etiqueta es el segundo.
+     */
+    nombreLegal: text("nombre_legal").notNull(),
+    telefono: text("telefono").notNull(),
+    /** País de destino en Sudamérica. */
+    paisDestino: text("pais_destino").notNull(),
+    /** activo · suspendido. Un suspendido recibe pero no despacha. */
+    estado: text("estado").notNull().default("activo"),
+    /** Nace sin verificar: puede recibir, no puede despachar. Antifraude. */
+    verificado: integer("verificado", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    aliasEmail: text("alias_email").unique(),
+    origenId: text("origen_id").references(() => origenesCasillero.id),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    index("idx_casilleros_usuario").on(t.usuarioId),
+    index("idx_casilleros_origen").on(t.origenId, t.creadoEn),
+  ],
+);
+
+/**
+ * A dónde se manda en Sudamérica. Una copia de esto se CONGELA al crear el
+ * envío: el cliente edita su dirección entremedio y el paquete ya salió.
+ */
+export const direccionesDestino = sqliteTable(
+  "direcciones_destino",
+  {
+    id: text("id").primaryKey(),
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    etiqueta: text("etiqueta"),
+    destinatario: text("destinatario").notNull(),
+    documento: text("documento"),
+    telefono: text("telefono").notNull(),
+    pais: text("pais").notNull(),
+    region: text("region"),
+    ciudad: text("ciudad").notNull(),
+    linea1: text("linea1").notNull(),
+    linea2: text("linea2"),
+    referencias: text("referencias"),
+    esDefault: integer("es_default", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("idx_direcciones_destino_usuario").on(t.usuarioId)],
+);
+
+/**
+ * «Compré esto y viene en camino». Es la pista más fuerte para saber de
+ * quién es una caja, porque la puso el propio cliente antes de que llegara.
+ */
+export const prealertas = sqliteTable(
+  "prealertas",
+  {
+    id: text("id").primaryKey(),
+    casilleroId: text("casillero_id")
+      .notNull()
+      .references(() => casilleros.id, { onDelete: "cascade" }),
+    /** Normalizado: mayúsculas y sin separadores. Ver `tracking.ts`. */
+    tracking: text("tracking"),
+    carrier: text("carrier"),
+    comercio: text("comercio"),
+    descripcion: text("descripcion").notNull(),
+    cantidad: integer("cantidad").notNull().default(1),
+    valorCentavos: integer("valor_centavos").notNull(),
+    facturaClave: text("factura_clave"),
+    origen: text("origen").notNull().default("manual"),
+    /** abierta · cumplida · vencida */
+    estado: text("estado").notNull().default("abierta"),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    index("idx_prealertas_tracking").on(t.tracking),
+    index("idx_prealertas_casillero").on(t.casilleroId, t.estado),
+  ],
+);
+
+/** Lo que el transportista anuncia antes de entregar (UPS, FedEx, USPS). */
+export const avisosEntrante = sqliteTable(
+  "avisos_entrante",
+  {
+    id: text("id").primaryKey(),
+    bodegaId: text("bodega_id")
+      .notNull()
+      .references(() => bodegasCasillero.id),
+    carrier: text("carrier").notNull(),
+    tracking: text("tracking").notNull(),
+    casilleroId: text("casillero_id").references(() => casilleros.id),
+    remitente: text("remitente"),
+    pesoLb: real("peso_lb"),
+    eta: integer("eta", { mode: "timestamp" }),
+    estado: text("estado"),
+    recibidoEn: integer("recibido_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("idx_avisos_entrante_tracking").on(t.tracking)],
+);
+
+/**
+ * La caja. `casilleroId` en nulo significa **huérfano**: llegó y no sabemos
+ * de quién es. Esa es la cola de excepciones, y recibir nunca se bloquea —
+ * rechazar una caja que ya está en la puerta cuesta devolución y reclamo.
+ */
+export const paquetesCasillero = sqliteTable(
+  "paquetes_casillero",
+  {
+    id: text("id").primaryKey(),
+    /** El número de recepción, correlativo. Sale de `contadoresCasillero`. */
+    wr: text("wr").notNull().unique(),
+    bodegaId: text("bodega_id")
+      .notNull()
+      .references(() => bodegasCasillero.id),
+    casilleroId: text("casillero_id").references(() => casilleros.id),
+    prealertaId: text("prealerta_id").references(() => prealertas.id),
+    tracking: text("tracking"),
+    carrier: text("carrier"),
+    remitente: text("remitente"),
+    pesoLb: real("peso_lb"),
+    largoIn: real("largo_in"),
+    anchoIn: real("ancho_in"),
+    altoIn: real("alto_in"),
+    pesoFacturableLb: real("peso_facturable_lb"),
+    ubicacion: text("ubicacion"),
+    estado: text("estado").notNull().default("recibido"),
+    condicion: text("condicion"),
+    /** Lo que declaró el cliente. Sin esto el paquete NO sale de la bodega:
+     *  lo exige la aduana, no el sistema. */
+    valorDeclaradoCentavos: integer("valor_declarado_centavos"),
+    descripcionDeclarada: text("descripcion_declarada"),
+    textoOcr: text("texto_ocr"),
+    /** Claves de las fotos en el bucket. NUNCA públicas: son la prueba. */
+    fotos: text("fotos").notNull().default("[]"),
+    recibidoEn: integer("recibido_en", { mode: "timestamp" }).notNull(),
+    recibidoPor: text("recibido_por"),
+  },
+  (t) => [
+    index("idx_paquetes_casillero").on(t.casilleroId, t.estado),
+    index("idx_paquetes_cas_tracking").on(t.tracking),
+    index("idx_paquetes_cas_estado").on(t.estado),
+  ],
+);
+
+/** Cada asignación, con su método y puntaje. Append-only: es la auditoría. */
+export const asignacionesPaquete = sqliteTable("asignaciones_paquete", {
+  id: text("id").primaryKey(),
+  paqueteId: text("paquete_id")
+    .notNull()
+    .references(() => paquetesCasillero.id, { onDelete: "cascade" }),
+  casilleroId: text("casillero_id")
+    .notNull()
+    .references(() => casilleros.id),
+  metodo: text("metodo").notNull(),
+  score: integer("score").notNull(),
+  automatico: integer("automatico", { mode: "boolean" }).notNull(),
+  motivo: text("motivo"),
+  usuarioId: text("usuario_id"),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+});
+
+/** Cada movimiento del paquete. Append-only: la defensa ante un reclamo. */
+export const eventosPaquete = sqliteTable(
+  "eventos_paquete",
+  {
+    id: text("id").primaryKey(),
+    paqueteId: text("paquete_id")
+      .notNull()
+      .references(() => paquetesCasillero.id, { onDelete: "cascade" }),
+    tipo: text("tipo").notNull(),
+    detalle: text("detalle").notNull().default("{}"),
+    /** Hay eventos internos que el cliente no tiene por qué ver. */
+    visibleCliente: integer("visible_cliente", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    usuarioId: text("usuario_id"),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("idx_eventos_paquete").on(t.paqueteId, t.creadoEn)],
+);
+
+/**
+ * Correlativos atómicos. `UPDATE … RETURNING` y no `MAX()+1`, que se rompe
+ * con dos operarios escaneando a la vez y da dos paquetes con el mismo
+ * número de recepción.
+ */
+export const contadoresCasillero = sqliteTable("contadores_casillero", {
+  clave: text("clave").primaryKey(),
+  valor: integer("valor").notNull(),
+});
+
+/** Cada intento de alta, incluso el que no creó nada. Alimenta el «de dónde
+ *  vienen» del panel: sin los rechazados, el número miente. */
+export const altasCasillero = sqliteTable(
+  "altas_casillero",
+  {
+    id: text("id").primaryKey(),
+    usuarioId: text("usuario_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    origenId: text("origen_id").references(() => origenesCasillero.id),
+    urlReferente: text("url_referente"),
+    /** Hash, nunca la IP en claro. */
+    ipHash: text("ip_hash"),
+    userAgent: text("user_agent"),
+    /** creada · duplicada · rechazada */
+    estado: text("estado").notNull(),
+    motivo: text("motivo"),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("idx_altas_casillero_origen").on(t.origenId, t.creadoEn)],
+);
+
+/** Quién miró un dato sensible. Es lo que hace investigable una fuga. */
+export const accesosDatos = sqliteTable("accesos_datos", {
+  id: text("id").primaryKey(),
+  usuarioId: text("usuario_id").notNull(),
+  casilleroId: text("casillero_id").notNull(),
+  /** documento · telefono · direccion */
+  campo: text("campo").notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+});
+
+/** Límite de intentos del alta pública. No hay KV en la plataforma: va aquí. */
+export const intentosCasillero = sqliteTable("intentos_casillero", {
+  clave: text("clave").primaryKey(),
+  conteo: integer("conteo").notNull(),
+  ventanaDesde: integer("ventana_desde", { mode: "timestamp" }).notNull(),
+});

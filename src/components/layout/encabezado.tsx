@@ -1,4 +1,4 @@
-import { LayoutDashboard, UserRound } from "lucide-react";
+import { LayoutDashboard, PackagePlus, UserRound } from "lucide-react";
 import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -241,6 +241,10 @@ export async function Encabezado() {
                     { href: "/registro", texto: t("crearCuenta") },
                   ]),
               { href: "/catalogo", texto: t("catalogo") },
+              /* EL CASILLERO va arriba en el menú del celular: en el
+                 teléfono esta lista ES la navegación, y un producto nuevo
+                 enterrado al final no lo descubre nadie. */
+              { href: "/casillero", texto: t("casillero") },
               { href: "/tiendas", texto: t("tiendas") },
               { href: "/vender", texto: t("vender") },
               { href: "/como-funciona", texto: t("comoFunciona") },
@@ -298,6 +302,20 @@ export async function Encabezado() {
             className="celda-encabezado hidden shrink-0 lg:block"
           >
             {t("blog")}
+          </Link>
+          {/* ══ EL CASILLERO, EN LA BARRA DE TODOS LOS MERCATREN ══
+              (9 sep 2026) Pedido de Richard señalando este hueco exacto. Es
+              un producto nuevo: dirección propia en Miami para comprar en
+              Amazon, eBay o Walmart y recibirlo en Sudamérica. Va en los
+              cuatro dominios porque el comprador es el mismo en los cuatro,
+              y ANTES de «Global» para no quedar al borde de la pantalla. En
+              el celular vive en el menú «Todo», que ahí es la navegación. */}
+          <Link
+            href="/casillero"
+            className="celda-encabezado hidden shrink-0 items-center gap-1 lg:flex"
+          >
+            <PackagePlus className="h-4 w-4" aria-hidden />
+            {t("casillero")}
           </Link>
           {/* MERCATREN EN EL MUNDO. Va al final de la barra y en TODOS los
               dominios: es donde alguien que tenía su cuenta en el .com y
