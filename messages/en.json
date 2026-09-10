@@ -2839,7 +2839,20 @@
       "colWr": "Receipt",
       "colTracking": "Tracking",
       "colRemitente": "Sender",
-      "colPeso": "Weight"
+      "colPeso": "Weight",
+      "colAsignar": "Assign to",
+      "codigoCasillero": "Locker code",
+      "codigoPlaceholder": "BW-100008",
+      "asignar": "Assign",
+      "asignarAqui": "Assign to this locker",
+      "asignando": "Assigning…",
+      "asignadoOk": "Assigned.",
+      "errorCodigo": "That code isn't valid. Check the last digit.",
+      "errorNoExiste": "No locker has that code.",
+      "errorSuspendido": "That locker is suspended. Tell Support.",
+      "errorYaAsignado": "That package already has an owner. Refresh the queue.",
+      "errorPermiso": "You're not allowed to assign.",
+      "errorFallo": "Couldn't assign it. Please try again."
     },
     "tarifasCasillero": {
       "titulo": "Shipping rates",

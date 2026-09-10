@@ -6,6 +6,8 @@ import { useFormStatus } from "react-dom";
 
 import { recibirDesdeBodega } from "@/lib/casillero/bodega-acciones";
 
+import { AsignarHuerfano } from "./asignar-huerfano";
+
 function Boton({ texto, enviando }: { texto: string; enviando: string }) {
   const { pending } = useFormStatus();
   return (
@@ -132,6 +134,18 @@ export function RecepcionBodega({
                         <p className="font-mono font-semibold">{c.codigo}</p>
                         <p className="text-xs text-tinta-suave">{c.motivo}</p>
                         <p className="text-xs font-semibold">{c.score}</p>
+                        {/* La persona confirma con un clic lo que el sistema
+                            no se atrevió a hacer solo. */}
+                        {c.codigo && estado.paqueteId ? (
+                          <div className="mt-2">
+                            <AsignarHuerfano
+                              paqueteId={estado.paqueteId}
+                              codigoFijo={c.codigo}
+                              motivo={`candidato · ${c.motivo}`}
+                              textos={textos}
+                            />
+                          </div>
+                        ) : null}
                       </li>
                     ))}
                   </ul>

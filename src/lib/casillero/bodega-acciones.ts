@@ -1,14 +1,16 @@
 "use server";
 
 import { nanoid } from "nanoid";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { esEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
+import { codigoValido, normalizarCodigo } from "@/lib/casillero/codigo";
 import { recibirPaquete } from "@/lib/casillero/recepcion";
 import { getDb } from "@/lib/db";
 import {
   asignacionesPaquete,
   eventosPaquete,
+  casilleros,
   paquetesCasillero,
   prealertas,
 } from "@/lib/db/schema";
@@ -86,15 +88,76 @@ export async function asignarAMano(
   motivo: string,
 ): Promise<{ ok: boolean; error?: string }> {
   if (!(await esEquipoInterno())) return { ok: false, error: "permiso" };
+  return asignarHuerfano(paqueteId, casilleroId, motivo);
+}
+
+/**
+ * Asignar escribiendo el CÓDIGO del casillero, que es lo que la persona
+ * de la bodega tiene delante (en la etiqueta, en un chat, en un correo).
+ *
+ * Tres cerrojos antes de mover nada:
+ * - el código tiene que ser válido (con su dígito de control: un dedo que
+ *   resbala no manda la caja a otro cliente),
+ * - el casillero tiene que existir y no estar suspendido,
+ * - y el paquete tiene que seguir HUÉRFANO (ver `asignarHuerfano`).
+ */
+export async function asignarPorCodigo(
+  _previo: { ok?: boolean; error?: string } | null,
+  formulario: FormData,
+): Promise<{ ok?: boolean; error?: string }> {
+  if (!(await esEquipoInterno())) return { error: "permiso" };
+
+  const paqueteId = String(formulario.get("paqueteId") ?? "").trim();
+  const codigo = normalizarCodigo(String(formulario.get("codigo") ?? "")) ?? "";
+  const motivo =
+    String(formulario.get("motivo") ?? "").trim() ||
+    "asignado a mano en bodega";
+  if (!paqueteId) return { error: "fallo" };
+  if (!codigoValido(codigo)) return { error: "codigo" };
+
+  const [c] = await getDb()
+    .select({ id: casilleros.id, estado: casilleros.estado })
+    .from(casilleros)
+    .where(eq(casilleros.codigo, codigo))
+    .limit(1)
+    .catch(() => []);
+  if (!c) return { error: "no-existe" };
+  if (c.estado === "suspendido") return { error: "suspendido" };
+
+  return asignarHuerfano(paqueteId, c.id, motivo);
+}
+
+/**
+ * Lo que de verdad asigna, para las dos entradas.
+ *
+ * **Solo se asigna lo que sigue huérfano** (`casillero_id IS NULL`). Sin ese
+ * cerrojo, dos personas de la bodega mirando la misma cola podrían mover
+ * el mismo paquete dos veces, y la segunda se lo quitaría a un cliente que
+ * ya lo tenía en «mis paquetes». El `RETURNING` es lo que dice si tocó
+ * una fila o ninguna.
+ */
+async function asignarHuerfano(
+  paqueteId: string,
+  casilleroId: string,
+  motivo: string,
+): Promise<{ ok: boolean; error?: string }> {
   const usuario = await obtenerUsuario();
   const ahora = new Date();
 
   try {
     const db = getDb();
-    await db
+    const tocadas = await db
       .update(paquetesCasillero)
       .set({ casilleroId, estado: "asignado" })
-      .where(eq(paquetesCasillero.id, paqueteId));
+      .where(
+        and(
+          eq(paquetesCasillero.id, paqueteId),
+          isNull(paquetesCasillero.casilleroId),
+        ),
+      )
+      .returning({ id: paquetesCasillero.id });
+    if (tocadas.length === 0) return { ok: false, error: "ya-asignado" };
+
     await db.insert(asignacionesPaquete).values({
       id: nanoid(),
       paqueteId,

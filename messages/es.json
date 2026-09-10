@@ -2839,7 +2839,20 @@
       "colWr": "Recepción",
       "colTracking": "Guía",
       "colRemitente": "Remitente",
-      "colPeso": "Peso"
+      "colPeso": "Peso",
+      "colAsignar": "Asignar a",
+      "codigoCasillero": "Código del casillero",
+      "codigoPlaceholder": "BW-100008",
+      "asignar": "Asignar",
+      "asignarAqui": "Asignar a este casillero",
+      "asignando": "Asignando…",
+      "asignadoOk": "Asignado.",
+      "errorCodigo": "Ese código no es válido. Revisa el dígito final.",
+      "errorNoExiste": "No hay ningún casillero con ese código.",
+      "errorSuspendido": "Ese casillero está suspendido. Avísale a Soporte.",
+      "errorYaAsignado": "Ese paquete ya tiene dueño. Refresca la cola.",
+      "errorPermiso": "No tienes permiso para asignar.",
+      "errorFallo": "No se pudo asignar. Vuelve a intentarlo."
     },
     "tarifasCasillero": {
       "titulo": "Tarifas de envío",

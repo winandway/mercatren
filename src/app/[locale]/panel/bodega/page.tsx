@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { AsignarHuerfano } from "@/components/casillero/asignar-huerfano";
 import { RecepcionBodega } from "@/components/casillero/recepcion-bodega";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { huerfanos, recibidosHoy } from "@/lib/casillero/recepcion";
@@ -40,6 +41,18 @@ export default async function PaginaBodega({
     huerfano: t("huerfano"),
     sinCandidatos: t("sinCandidatos"),
     error: t("error"),
+    codigoCasillero: t("codigoCasillero"),
+    codigoPlaceholder: t("codigoPlaceholder"),
+    asignar: t("asignar"),
+    asignarAqui: t("asignarAqui"),
+    asignando: t("asignando"),
+    asignadoOk: t("asignadoOk"),
+    error_codigo: t("errorCodigo"),
+    "error_no-existe": t("errorNoExiste"),
+    error_suspendido: t("errorSuspendido"),
+    "error_ya-asignado": t("errorYaAsignado"),
+    error_permiso: t("errorPermiso"),
+    error_fallo: t("errorFallo"),
   };
 
   return (
@@ -83,6 +96,7 @@ export default async function PaginaBodega({
                   <th className="py-1 pr-3">{t("colTracking")}</th>
                   <th className="py-1 pr-3">{t("colRemitente")}</th>
                   <th className="py-1 pr-3">{t("colPeso")}</th>
+                  <th className="py-1 pr-3">{t("colAsignar")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,6 +109,9 @@ export default async function PaginaBodega({
                     <td className="py-1.5 pr-3">{p.remitente ?? "—"}</td>
                     <td className="py-1.5 pr-3 tabular-nums">
                       {p.pesoLb ?? "—"}
+                    </td>
+                    <td className="py-1.5 pr-3">
+                      <AsignarHuerfano paqueteId={p.id} textos={textos} />
                     </td>
                   </tr>
                 ))}
