@@ -59,6 +59,11 @@ const Peticion = z.discriminatedUnion("accion", [
   z.object({ accion: z.literal("pagar") }),
   z.object({ accion: z.literal("priorizar"), enlace: z.string().min(1) }),
   z.object({
+    accion: z.literal("publicar"),
+    enlace: z.string().min(1),
+    fleteCentavos: z.number().int().min(1).max(50_000),
+  }),
+  z.object({
     accion: z.literal("cj"),
     ruta: z.string().min(1).max(500),
     metodo: z.enum(["GET", "POST", "PATCH", "DELETE"]).optional(),
@@ -112,6 +117,12 @@ export async function POST(peticion: Request) {
     case "pagar":
       resultado = await pagarUltimaPruebaPendienteNucleo();
       break;
+    case "publicar": {
+      const { publicarConFleteManual } =
+        await import("@/lib/cj/publicar-manual");
+      resultado = await publicarConFleteManual(e.enlace, e.fleteCentavos);
+      break;
+    }
     case "priorizar": {
       const { priorizarPorEnlace } =
         await import("@/lib/cj/probar-compra-nucleo");

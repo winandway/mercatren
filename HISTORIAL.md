@@ -1818,6 +1818,17 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**PUBLICAR CON EL FLETE QUE PUSO UNA PERSONA (9 sep 2026, noche).** Richard:
+_«espero el link para pasárselo al cliente»_. CJ cotiza en $0 el envío de
+los dos monitores de estudio y la regla no los publica. Ahora la puerta
+tiene la acción `publicar` con `fleteCentavos`: hace lo mismo que el
+afinado (tallas con stock real, precio con el margen de la plaza, envío
+guardado como cotizado) y deja escrito `transporte = "Manual (persona)"`,
+que no es regional y el barrido no retira. El candado de margen antes de
+pagarle a CJ sigue puesto. Uso:
+`gh workflow run probar-compra.yml -f cuerpo='{"accion":"publicar","enlace":"https://mercatren.com/es/producto/…","fleteCentavos":4000}'`.
+Candado: `publicar-con-flete-manual.test.ts`.
+
 **LO PEDIDO QUE FALLA SALE DE LA LISTA, Y CJ COTIZA EN CERO (9 sep 2026, noche).**
 Con CJ de vuelta, el motivo visible dijo la verdad de los monitores de
 Richard: `/logistic/freightCalculate` devuelve FedEx y UPS «US to US» con
