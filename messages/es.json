@@ -402,7 +402,8 @@
       "vigilante": "Vigilante",
       "probarCompra": "Probar una compra",
       "casilleros": "Casilleros",
-      "bodega": "Bodega"
+      "bodega": "Bodega",
+      "tarifasCasillero": "Tarifas de envío"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -2839,6 +2840,52 @@
       "colTracking": "Guía",
       "colRemitente": "Remitente",
       "colPeso": "Peso"
+    },
+    "tarifasCasillero": {
+      "titulo": "Tarifas de envío",
+      "bajada": "Lo que cuesta mandar un paquete desde Miami, por país. Mientras un país no esté encendido aquí, la calculadora no cotiza a ese país y al cliente se le dice que todavía no hay precio — nunca un número inventado.",
+      "nueva": "Cargar una tarifa",
+      "editando": "Editando {pais}",
+      "cargadas": "Tarifas cargadas",
+      "sinTarifas": "Todavía no hay ninguna tarifa. Mientras tanto, el casillero recibe paquetes pero no puede cotizar envíos.",
+      "pais": "País",
+      "paisAyuda": "Código de dos letras: VE, CO, CL, PE…",
+      "tarifaLibra": "Tarifa por libra",
+      "tarifaLibraAyuda": "Lo que cobras por cada libra facturable. Pregúntale al agente de carga: «¿cuál es tu rate por libra a este destino?». A Venezuela suele ir entre $3 y $7.",
+      "minimoLb": "Mínimo facturable",
+      "minimoLbAyuda": "Aunque el paquete pese menos, se cobran estas libras. En la industria son 5 lb.",
+      "minimoCobro": "Cobro mínimo",
+      "minimoCobroAyuda": "Y nunca se cobra menos de esto en total, aunque el peso dé menos. Suele ser $25 o $30.",
+      "despacho": "Cargo de despacho",
+      "despachoAyuda": "Fijo por envío: papeleo, guía y manejo. Pregunta si el agente lo cobra aparte o ya va en el rate por libra.",
+      "seguro": "Seguro",
+      "seguroAyuda": "Porcentaje del valor declarado. En la industria: 3 % entre $500 y $1.000, y 5 % por encima.",
+      "seguroDesde": "Seguro desde",
+      "seguroDesdeAyuda": "Por debajo de este valor declarado no se cobra seguro.",
+      "divisor": "Divisor volumétrico",
+      "divisorAyuda": "Largo × ancho × alto en pulgadas ÷ este número = peso volumétrico. El estándar aéreo es 166; confírmalo con tu agente, algunos usan 139 o 194.",
+      "diasGratis": "Días de almacenaje gratis",
+      "diasGratisAyuda": "Cuántos días puede esperar el paquete en la bodega sin costo. Lo normal son 30.",
+      "almacenajeDia": "Almacenaje por día",
+      "almacenajeDiaAyuda": "Lo que se cobra por cada día después de los gratis.",
+      "nota": "Nota",
+      "notaAyuda": "Para el equipo: quién dio esta tarifa, desde cuándo vale y qué incluye.",
+      "notaPlaceholder": "Agente X, vigente desde el 1 de octubre, incluye impuestos",
+      "impuesto": "El impuesto del destino va incluido.",
+      "impuestoAyuda": "Si lo dejas sin marcar, el cliente lo paga al recibir — y hay que decírselo antes de que compre, no en la puerta de su casa.",
+      "activa": "Cotizar a este país.",
+      "activaAyuda": "Mientras esté apagado, el cliente ve «todavía no tenemos tarifa» en vez de un precio.",
+      "guardar": "Guardar tarifa",
+      "guardando": "Guardando…",
+      "guardado": "Tarifa guardada.",
+      "estado": "Estado",
+      "siCotiza": "Cotizando",
+      "noCotiza": "Apagada",
+      "editar": "Editar",
+      "errorPais": "El país va con dos letras: VE, CO, CL…",
+      "errorSinPrecio": "No puedes encender una tarifa sin precio por libra.",
+      "errorPermiso": "Solo Soporte puede cambiar tarifas.",
+      "errorFallo": "No se pudo guardar. Vuelve a intentarlo."
     }
   },
   "catalogo": {
@@ -4246,6 +4293,16 @@
     "declararListo": "Declarado. Ya puede salir de Miami.",
     "declararValorAyuda": "El valor real de la factura. Declarar de menos es una multa de aduana, y la paga Mercatren.",
     "declararErrorNoEsTuyo": "Ese paquete no es de tu casillero.",
-    "pesoReal": "Pesa"
+    "pesoReal": "Pesa",
+    "costoEnvio": "Enviarlo a tu país",
+    "impuestoIncluido": "Los impuestos de tu país ya van incluidos.",
+    "impuestoAparte": "Los impuestos de tu país se pagan al recibir, aparte de este precio.",
+    "renglon": {
+      "flete": "Flete",
+      "despacho": "Despacho y manejo",
+      "seguro": "Seguro",
+      "almacenaje": "Almacenaje",
+      "ajuste-minimo": "Ajuste al mínimo"
+    }
   }
 }

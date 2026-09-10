@@ -1818,6 +1818,41 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LAS TARIFAS DEL CASILLERO LAS PONE RICHARD, Y SIN ELLAS NO SE COTIZA (9 sep 2026).**
+Richard, la noche del 9: _«son datos sensibles que requieren de estudio, de
+investigar, de preguntar, no es una cosa que yo la tengo a lo loco… déjamela
+pendiente allí»_. Y pidió que los campos fueran **el estándar de la
+industria**, no lo que él dijera de memoria.
+
+- **Qué se miró.** Cómo cobran de verdad los casilleros de Miami a
+  Venezuela (Liberty Express, Tealca, CasilleroYa, envioshaciavenezuela.com):
+  todos facturan el **mayor entre peso real y volumétrico** (largo × ancho ×
+  alto en pulgadas ÷ 166), una **tarifa por libra** ($3 a $7 a Venezuela), un
+  **mínimo** (5 lb es lo común, a veces también $25-30), un **cargo fijo de
+  despacho**, **seguro** como porcentaje del valor declarado desde cierto
+  monto (3 % de $500 a $1.000, 5 % arriba) y **almacenaje** después de 30
+  días gratis. Esos son los campos, ni uno más.
+- **Dónde vive.** Tabla `tarifas_casillero`, una fila por país, y la pantalla
+  `/panel/casilleros/tarifas` (solo Soporte de verdad guarda: cambiar lo que
+  se cobra no se hace desde el disfraz de «ver el panel de un comercio»). Se
+  escribe en dólares y por ciento; se guarda en centavos y puntos base.
+- **La regla que manda: sin fila activa, `cotizarEnvio` devuelve
+  `{ok:false, motivo:"sin-tarifa"}` y la pantalla no dibuja nada.** Ni un
+  precio por defecto, ni un «aproximado». Es el mismo candado que en CJ:
+  un número inventado es una promesa que después no se cumple.
+- **El desglose se enseña entero** (flete, despacho, seguro, almacenaje y,
+  si aplica, «ajuste al mínimo» como renglón visible, nunca subiendo el
+  flete a escondidas), con el peso facturable y el volumétrico al lado, y
+  **siempre dice si el impuesto del destino va incluido o se paga al
+  recibir**: es la pregunta que más reclamos genera.
+- **Candado:** `tests/unit/casillero-cotizar.test.ts` (9 pruebas: sin
+  tarifa no cotiza, la caja de 24×18×12, el mínimo como renglón, el seguro
+  desde el monto, los días gratis, y el impuesto declarado). Probado en
+  local el 9 sep guardando Venezuela a $6,50 y viendo la fila «Cotizando».
+- **Lo que falta:** que Richard cargue los números reales, país por país.
+  Hasta entonces el casillero recibe paquetes pero no cotiza envíos, y así
+  se le dice al cliente.
+
 **EL CASILLERO: PAQUETERÍA DE EE. UU. A SUDAMÉRICA (9 sep 2026).** Producto
 nuevo pedido por Richard: dirección propia en Miami para comprar en
 cualquier tienda de Estados Unidos y recibir en Sudamérica. La bodega la

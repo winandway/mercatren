@@ -6,7 +6,9 @@ import { Link, redirect } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { casilleroDe } from "@/lib/casillero/crear";
 import { ETIQUETA_ESTADO, ETIQUETA_ESTADO_EN } from "@/lib/casillero/estados";
+import { cotizarEnvio } from "@/lib/casillero/cotizar";
 import { paquetesDe } from "@/lib/casillero/mis-paquetes";
+import { tarifaDe } from "@/lib/casillero/tarifas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +49,10 @@ export default async function PaginaMisPaquetes({
   const casillero = usuario ? await casilleroDe(usuario.id) : null;
   if (!casillero) redirect({ href: "/casillero/crear", locale });
 
-  const paquetes = await paquetesDe(casillero!.id);
+  const [paquetes, tarifa] = await Promise.all([
+    paquetesDe(casillero!.id),
+    tarifaDe(casillero!.paisDestino),
+  ]);
   const etiquetas = idioma === "en" ? ETIQUETA_ESTADO_EN : ETIQUETA_ESTADO;
   const porDeclarar = paquetes.filter((p) => p.faltaDeclarar && p.enBodega);
 
@@ -135,6 +140,58 @@ export default async function PaginaMisPaquetes({
                   ) : null}
                 </div>
               </div>
+
+              {/* ══ LA CALCULADORA SE ENCIENDE SOLA ══ En cuanto haya una
+                  tarifa cargada para su país, cada paquete enseña lo que
+                  cuesta mandarlo. Mientras no la haya, no se dibuja nada:
+                  un precio inventado es una promesa que después no se
+                  cumple. */}
+              {(() => {
+                const c = cotizarEnvio(
+                  {
+                    pesoRealLb: p.pesoLb ?? 0,
+                    medidas:
+                      p.largoIn && p.anchoIn && p.altoIn
+                        ? {
+                            largoIn: p.largoIn,
+                            anchoIn: p.anchoIn,
+                            altoIn: p.altoIn,
+                          }
+                        : null,
+                    valorDeclaradoCentavos: p.valorDeclaradoCentavos,
+                  },
+                  tarifa,
+                );
+                if (!c.ok) return null;
+                return (
+                  <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-semibold">{t("costoEnvio")}</span>
+                      <span className="font-bold tabular-nums">
+                        {formatearPrecio(c.totalCentavos, idioma, "USD")}
+                      </span>
+                    </div>
+                    <ul className="mt-1 space-y-0.5 text-xs text-tinta-suave">
+                      {c.renglones.map((r) => (
+                        <li
+                          key={r.concepto}
+                          className="flex justify-between gap-3"
+                        >
+                          <span>{t(`renglon.${r.concepto}`)}</span>
+                          <span className="tabular-nums">
+                            {formatearPrecio(r.centavos, idioma, "USD")}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-1 text-xs text-tinta-suave">
+                      {c.impuestoIncluido
+                        ? t("impuestoIncluido")
+                        : t("impuestoAparte")}
+                    </p>
+                  </div>
+                );
+              })()}
 
               {p.faltaDeclarar && p.enBodega ? (
                 <div className="mt-3 border-t border-borde pt-3">

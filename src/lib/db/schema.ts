@@ -3876,3 +3876,66 @@ export const intentosCasillero = sqliteTable("intentos_casillero", {
   conteo: integer("conteo").notNull(),
   ventanaDesde: integer("ventana_desde", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * ══ LO QUE CUESTA UN ENVÍO, POR PAÍS ══
+ *
+ * Richard, 9 sep 2026: _«son datos sensibles que requieren de estudio, de
+ * investigar, de preguntar… déjamela pendiente allí»_. Por eso vive en una
+ * tabla que él llena desde el panel y no en el código: una tarifa cambia
+ * con el combustible, con la aduana y con lo que cobre el agente de carga,
+ * y cada cambio no puede ser una publicación.
+ *
+ * Los campos salen de cómo cobra de verdad la industria (medido el 9 sep
+ * 2026 en Liberty Express, Tealca, CasilleroYa y envioshaciavenezuela):
+ * tarifa por libra sobre el **peso facturable**, un mínimo, un cargo fijo
+ * de despacho, seguro como porcentaje del valor declarado a partir de un
+ * monto, y almacenaje después de unos días gratis.
+ *
+ * **Sin fila activa para un país, la calculadora no cotiza.** No inventa un
+ * precio: enseña que todavía no hay tarifa. Cobrar con un número inventado
+ * es exactamente el fallo que ya costó una venta a pérdida en CJ.
+ */
+export const tarifasCasillero = sqliteTable("tarifas_casillero", {
+  /** Código ISO del país de destino: VE, CO, CL… */
+  pais: text("pais").primaryKey(),
+  /** Lo que se cobra por cada libra facturable. */
+  tarifaLibraCentavos: integer("tarifa_libra_centavos").notNull().default(0),
+  /** Nadie factura menos de esto, aunque el paquete pese menos. */
+  minimoLb: real("minimo_lb").notNull().default(1),
+  /** Y nadie cobra menos de esto en total, aunque el peso dé menos. */
+  minimoCobroCentavos: integer("minimo_cobro_centavos").notNull().default(0),
+  /** Cargo fijo por envío: papeleo, guía y manejo. */
+  despachoCentavos: integer("despacho_centavos").notNull().default(0),
+  /** Seguro, en puntos base del valor declarado (300 = 3 %). */
+  seguroPuntosBase: integer("seguro_puntos_base").notNull().default(0),
+  /** Solo se cobra seguro a partir de este valor declarado. */
+  seguroDesdeCentavos: integer("seguro_desde_centavos").notNull().default(0),
+  /**
+   * El divisor del peso volumétrico. 166 es el estándar aéreo en pulgadas y
+   * libras; se deja por país porque cada agente usa el suyo.
+   */
+  divisorVolumetrico: integer("divisor_volumetrico").notNull().default(166),
+  /** Días que el paquete puede esperar en la bodega sin costo. */
+  diasAlmacenajeGratis: integer("dias_almacenaje_gratis").notNull().default(30),
+  /** Y lo que cuesta cada día después. */
+  almacenajeDiaCentavos: integer("almacenaje_dia_centavos")
+    .notNull()
+    .default(0),
+  /**
+   * ¿El impuesto del país de destino va DENTRO de este precio?
+   *
+   * Es la pregunta que más reclamos genera: si va aparte, el cliente paga
+   * al recibir y hay que decírselo ANTES de que compre, no en la puerta de
+   * su casa.
+   */
+  impuestoIncluido: integer("impuesto_incluido", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  /** Sin esto en verdadero, la calculadora no cotiza a este país. */
+  activa: integer("activa", { mode: "boolean" }).notNull().default(false),
+  /** Nota para el equipo: de dónde salió esta tarifa y desde cuándo. */
+  nota: text("nota"),
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" }).notNull(),
+  actualizadoPor: text("actualizado_por"),
+});

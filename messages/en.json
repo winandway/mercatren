@@ -402,7 +402,8 @@
       "vigilante": "Watchdog",
       "probarCompra": "Test a purchase",
       "casilleros": "Lockers",
-      "bodega": "Warehouse"
+      "bodega": "Warehouse",
+      "tarifasCasillero": "Shipping rates"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -2839,6 +2840,52 @@
       "colTracking": "Tracking",
       "colRemitente": "Sender",
       "colPeso": "Weight"
+    },
+    "tarifasCasillero": {
+      "titulo": "Shipping rates",
+      "bajada": "What it costs to ship a package from Miami, by country. Until a country is switched on here, the calculator won't quote for it and the customer is told there's no price yet — never a made-up number.",
+      "nueva": "Add a rate",
+      "editando": "Editing {pais}",
+      "cargadas": "Rates on file",
+      "sinTarifas": "No rates yet. Meanwhile the locker receives packages but can't quote shipping.",
+      "pais": "Country",
+      "paisAyuda": "Two-letter code: VE, CO, CL, PE…",
+      "tarifaLibra": "Rate per pound",
+      "tarifaLibraAyuda": "What you charge per billable pound. Ask your freight agent for their rate per pound to this destination. To Venezuela it usually runs $3 to $7.",
+      "minimoLb": "Minimum billable weight",
+      "minimoLbAyuda": "Even if the package weighs less, this many pounds are charged. The industry standard is 5 lb.",
+      "minimoCobro": "Minimum charge",
+      "minimoCobroAyuda": "And never charge less than this in total. Usually $25 or $30.",
+      "despacho": "Handling fee",
+      "despachoAyuda": "Flat per shipment: paperwork, waybill and handling. Ask whether the agent bills it separately or it's already in the per-pound rate.",
+      "seguro": "Insurance",
+      "seguroAyuda": "Percentage of declared value. Industry standard: 3% between $500 and $1,000, 5% above.",
+      "seguroDesde": "Insurance from",
+      "seguroDesdeAyuda": "Below this declared value no insurance is charged.",
+      "divisor": "Volumetric divisor",
+      "divisorAyuda": "Length × width × height in inches ÷ this number = volumetric weight. The air standard is 166; confirm with your agent, some use 139 or 194.",
+      "diasGratis": "Free storage days",
+      "diasGratisAyuda": "How many days a package can wait in the warehouse at no cost. Usually 30.",
+      "almacenajeDia": "Storage per day",
+      "almacenajeDiaAyuda": "What's charged for each day after the free ones.",
+      "nota": "Note",
+      "notaAyuda": "For the team: who quoted this rate, since when it applies and what it covers.",
+      "notaPlaceholder": "Agent X, effective October 1st, taxes included",
+      "impuesto": "Destination taxes are included.",
+      "impuestoAyuda": "If you leave this unchecked, the customer pays on delivery — and that has to be said before they buy, not at their door.",
+      "activa": "Quote for this country.",
+      "activaAyuda": "While this is off, the customer sees «no rate yet» instead of a price.",
+      "guardar": "Save rate",
+      "guardando": "Saving…",
+      "guardado": "Rate saved.",
+      "estado": "Status",
+      "siCotiza": "Quoting",
+      "noCotiza": "Off",
+      "editar": "Edit",
+      "errorPais": "Country takes two letters: VE, CO, CL…",
+      "errorSinPrecio": "You can't switch on a rate with no per-pound price.",
+      "errorPermiso": "Only Support can change rates.",
+      "errorFallo": "Couldn't save it. Please try again."
     }
   },
   "catalogo": {
@@ -4246,6 +4293,16 @@
     "declararListo": "Declared. It can now leave Miami.",
     "declararValorAyuda": "The real invoice value. Under-declaring is a customs fine, and Mercatren pays it.",
     "declararErrorNoEsTuyo": "That package isn't in your locker.",
-    "pesoReal": "Weighs"
+    "pesoReal": "Weighs",
+    "costoEnvio": "Ship it to your country",
+    "impuestoIncluido": "Your country's taxes are already included.",
+    "impuestoAparte": "Your country's taxes are paid on delivery, on top of this price.",
+    "renglon": {
+      "flete": "Freight",
+      "despacho": "Handling",
+      "seguro": "Insurance",
+      "almacenaje": "Storage",
+      "ajuste-minimo": "Minimum adjustment"
+    }
   }
 }

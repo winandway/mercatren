@@ -1185,6 +1185,24 @@ CREATE TABLE IF NOT EXISTS `tandas_importacion_cj` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_tandas_importacion` ON `tandas_importacion_cj` (`importacion_id`,`estado`);
+CREATE TABLE IF NOT EXISTS `tarifas_casillero` (
+	`pais` text PRIMARY KEY NOT NULL,
+	`tarifa_libra_centavos` integer DEFAULT 0 NOT NULL,
+	`minimo_lb` real DEFAULT 1 NOT NULL,
+	`minimo_cobro_centavos` integer DEFAULT 0 NOT NULL,
+	`despacho_centavos` integer DEFAULT 0 NOT NULL,
+	`seguro_puntos_base` integer DEFAULT 0 NOT NULL,
+	`seguro_desde_centavos` integer DEFAULT 0 NOT NULL,
+	`divisor_volumetrico` integer DEFAULT 166 NOT NULL,
+	`dias_almacenaje_gratis` integer DEFAULT 30 NOT NULL,
+	`almacenaje_dia_centavos` integer DEFAULT 0 NOT NULL,
+	`impuesto_incluido` integer DEFAULT false NOT NULL,
+	`activa` integer DEFAULT false NOT NULL,
+	`nota` text,
+	`actualizado_en` integer NOT NULL,
+	`actualizado_por` text
+);
+
 CREATE TABLE IF NOT EXISTS `tarifas_del_cobro` (
 	`cobro_id` text PRIMARY KEY NOT NULL,
 	`puntos_base` integer NOT NULL,
@@ -1369,11 +1387,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1789006602, 1789006602)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1789011764, 1789011764)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1789006602)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1789011764)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──

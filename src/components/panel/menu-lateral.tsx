@@ -27,6 +27,7 @@ import {
   X,
   Camera,
   Boxes,
+  DollarSign,
   PackagePlus,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -153,6 +154,12 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       /* EL CASILLERO: paquetería de Estados Unidos a Sudamérica. Va con el
          equipo interno porque enseña datos de compradores —nombre legal,
          correo, teléfono— que un comercio no tiene por qué ver. */
+      {
+        href: "/panel/casilleros/tarifas",
+        clave: "tarifasCasillero",
+        Icono: DollarSign,
+        soloInterno: true,
+      },
       {
         href: "/panel/bodega",
         clave: "bodega",
