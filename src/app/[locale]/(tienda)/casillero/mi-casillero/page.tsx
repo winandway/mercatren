@@ -110,7 +110,7 @@ export default async function PaginaMiCasillero({
         </div>
 
         <aside className="h-fit rounded-xl border border-borde bg-white p-5 text-center">
-          <LogoBestway clase="mx-auto h-24 w-24 text-riel-950" />
+          <LogoBestway clase="mx-auto h-auto w-40" />
           <p className="mt-3 text-xs text-tinta-suave">{t("bodegaBajada")}</p>
           <a
             href={enlaceDeMapa()}

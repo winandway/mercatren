@@ -103,11 +103,19 @@ export async function seLePaso(clave: string): Promise<boolean> {
       );
     return false;
   } catch (fallo) {
-    /* Si el contador falla, se deja pasar: cerrarle la puerta a todo el
-       mundo por un error nuestro es peor que un alta de más, que además
-       tiene los otros tres cerrojos delante. */
-    console.error("[widget] el límite de intentos falló:", fallo);
-    return false;
+    /* ══ SI EL CONTADOR FALLA, SE CIERRA (corregido 9 sep 2026) ══
+     *
+     * La primera versión dejaba pasar «para no cerrarle la puerta a todo el
+     * mundo por un error nuestro». El razonamiento vale para una pantalla
+     * de entrada, donde detrás siguen la contraseña y el rol — y no vale
+     * aquí: **este es el único cerrojo que un robot no puede saltarse**.
+     * Los otros tres (la clave, el dominio y la trampa) son justo los que
+     * ya burló quien llegue hasta acá.
+     *
+     * Y cerrar cuesta poco: quien de verdad quiere su casillero lo crea en
+     * mercatren.com, que no depende de esta tabla. */
+    console.error("[widget] el límite de intentos falló, se corta:", fallo);
+    return true;
   }
 }
 

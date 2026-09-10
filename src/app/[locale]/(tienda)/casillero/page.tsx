@@ -164,7 +164,7 @@ export default async function PaginaCasillero({
             explica solo. */}
         <aside className="h-fit rounded-xl border border-borde bg-white p-5 text-center">
           <h2 className="text-base font-bold">{t("bodegaTitulo")}</h2>
-          <LogoBestway clase="mx-auto mt-4 h-28 w-28 text-riel-950" />
+          <LogoBestway clase="mx-auto mt-4 h-auto w-44" />
           <p className="mt-3 text-xs text-tinta-suave">{t("bodegaBajada")}</p>
           {/* SOLO LA CIUDAD. La calle es privada: se ve dentro de la
               cuenta, con el código al lado, que es lo único que la hace

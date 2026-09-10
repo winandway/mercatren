@@ -2,7 +2,10 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 
 import { crearCasillero } from "@/lib/casillero/crear";
-import { lineasDeEtiqueta } from "@/lib/casillero/bodega";
+import {
+  avisarQueYaTieneCuenta,
+  mandarDireccionPorCorreo,
+} from "@/lib/casillero/correo-casillero";
 import {
   dominioAutorizado,
   huellaDeIp,
@@ -24,9 +27,22 @@ export const dynamic = "force-dynamic";
  * responde sin dar pistas: un atacante no tiene por qué saber si falló la
  * clave, el dominio o el límite.
  *
- * **La cuenta se crea con el correo**: quien ya tenga cuenta en Mercatren
- * recibe su casillero en ella, no una segunda cuenta con la misma persona
- * dentro.
+ * ══ NUNCA SE DEVUELVE EL CÓDIGO NI LA DIRECCIÓN (corregido 9 sep 2026) ══
+ *
+ * La primera versión los devolvía en la misma respuesta, **y era un agujero
+ * grave**: cualquiera escribía el correo de otra persona y se llevaba SU
+ * código de casillero, que es lo único que hace falta para mandar cajas a
+ * su nombre o para reclamar las suyas. De paso, la respuesta decía si ese
+ * correo tenía cuenta.
+ *
+ * Ahora la respuesta es **siempre la misma** —«te mandamos un correo»— y el
+ * dato viaja al buzón, que es la única prueba de que quien lo pide es el
+ * dueño de esa dirección. Es la regla que ya rige la recuperación de
+ * contraseña de este proyecto: la pantalla nunca dice si el correo existe.
+ *
+ * Y si el correo YA tiene cuenta, **no se toca esa cuenta**: no se le
+ * escribe el nombre ni el teléfono que mandó quien sea, no se le crea
+ * casillero. Se le avisa al dueño y él decide.
  */
 const Peticion = z.object({
   clave: z.string().min(3).max(80),
@@ -78,28 +94,54 @@ export async function POST(peticion: Request) {
   const db = getDb();
   const correo = e.email.trim().toLowerCase();
   const ahora = new Date();
+  const dominio = origen.dominio;
+
+  /* La respuesta es SIEMPRE esta, exista el correo o no, se cree algo o no.
+     Cualquier diferencia —un campo de más, otro código de estado, otro
+     tiempo de respuesta— vuelve a convertir esto en una forma de averiguar
+     quién tiene cuenta. */
+  const recibido = () =>
+    Response.json({ ok: true, mensaje: "revisa-tu-correo" });
 
   try {
-    /* La cuenta: si ya existe, se usa. Dos cuentas para la misma persona
-       son dos contraseñas y un casillero que ella no encuentra. */
     const [cuenta] = await db
       .select({ id: user.id })
       .from(user)
       .where(eq(user.email, correo))
       .limit(1);
 
-    let usuarioId = cuenta?.id;
-    if (!usuarioId) {
-      usuarioId = nanoid();
-      await db.insert(user).values({
-        id: usuarioId,
-        name: e.nombreLegal.trim(),
-        email: correo,
-        emailVerified: false,
-        createdAt: ahora,
-        updatedAt: ahora,
-      });
+    if (cuenta) {
+      /* Ya tiene cuenta: no se le crea casillero, no se le escribe nada.
+         Se le avisa al dueño y decide él. */
+      await db
+        .insert(altasCasillero)
+        .values({
+          id: nanoid(),
+          origenId: origen.id,
+          estado: "duplicada",
+          motivo: "el correo ya tiene cuenta",
+          ipHash: huella,
+          urlReferente: peticion.headers.get("referer"),
+          creadoEn: ahora,
+        })
+        .catch(() => undefined);
+      await avisarQueYaTieneCuenta({ a: correo, dominio }).catch(
+        () => undefined,
+      );
+      return recibido();
     }
+
+    const usuarioId = nanoid();
+    await db.insert(user).values({
+      id: usuarioId,
+      name: e.nombreLegal.trim(),
+      email: correo,
+      /* Sin verificar: quien creó esto todavía no ha probado que el buzón
+         sea suyo. Lo prueba abriendo el correo que va a recibir. */
+      emailVerified: false,
+      createdAt: ahora,
+      updatedAt: ahora,
+    });
 
     const r = await crearCasillero({
       usuarioId,
@@ -113,14 +155,17 @@ export async function POST(peticion: Request) {
     });
     if (!r.ok) return no(r.motivo);
 
-    /* La dirección se devuelve AQUÍ y solo aquí: ya tiene casillero, así
-       que ya tiene código, que es lo que hace que la dirección sirva. */
-    return Response.json({
-      ok: true,
+    /* La dirección viaja al buzón, nunca en esta respuesta. */
+    await mandarDireccionPorCorreo({
+      a: correo,
+      nombreLegal: e.nombreLegal,
       codigo: r.codigo,
-      yaExistia: r.yaExistia,
-      lineas: lineasDeEtiqueta(e.nombreLegal, r.codigo, "es"),
+      dominio,
+    }).catch((fallo) => {
+      console.error("[widget] no se pudo mandar la dirección:", fallo);
     });
+
+    return recibido();
   } catch (fallo) {
     console.error("[widget] no se pudo crear el casillero:", fallo);
     await db
