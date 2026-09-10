@@ -401,7 +401,8 @@
       "trafico": "Traffic",
       "vigilante": "Watchdog",
       "probarCompra": "Test a purchase",
-      "casilleros": "Lockers"
+      "casilleros": "Lockers",
+      "bodega": "Warehouse"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -2795,6 +2796,35 @@
       "sinVerificarUno": "Unverified",
       "sinAltas": "No sign-ups yet.",
       "sinCasilleros": "No lockers yet."
+    },
+    "bodega": {
+      "titulo": "Miami warehouse",
+      "bajada": "Scan the tracking number and the system works out whose box it is. Receiving is never blocked.",
+      "hoy": "Received today",
+      "solos": "Auto-assigned",
+      "tracking": "Tracking number",
+      "textoOcr": "Label text",
+      "textoOcrPlaceholder": "SHIP TO: JUAN PEREZ BW-100008…",
+      "textoOcrAyuda": "Paste what the scanner reads. If it carries a valid code, the package is assigned on its own.",
+      "peso": "Weight (lb)",
+      "largo": "Length (in)",
+      "ancho": "Width (in)",
+      "alto": "Height (in)",
+      "remitente": "Sender",
+      "ubicacion": "Location",
+      "recibir": "Receive",
+      "recibiendo": "Receiving…",
+      "esperando": "Scan a tracking number to start.",
+      "asignado": "Assigned to",
+      "huerfano": "Unidentified",
+      "sinCandidatos": "No candidates. It goes to the unidentified queue.",
+      "error": "Couldn't receive it. Please try again.",
+      "colaHuerfanos": "Unidentified queue",
+      "sinHuerfanos": "No unidentified packages.",
+      "colWr": "Receipt",
+      "colTracking": "Tracking",
+      "colRemitente": "Sender",
+      "colPeso": "Weight"
     }
   },
   "catalogo": {

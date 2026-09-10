@@ -54,6 +54,7 @@ export const TRAMOS_SOLO_EQUIPO = [
   "vigilante",
   /* Casilleros: enseña nombre legal, correo y teléfono de compradores. */
   "casilleros",
+  "bodega",
 ] as const;
 
 /**

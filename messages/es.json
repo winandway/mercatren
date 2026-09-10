@@ -401,7 +401,8 @@
       "trafico": "Tráfico",
       "vigilante": "Vigilante",
       "probarCompra": "Probar una compra",
-      "casilleros": "Casilleros"
+      "casilleros": "Casilleros",
+      "bodega": "Bodega"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -2795,6 +2796,35 @@
       "sinVerificarUno": "Sin verificar",
       "sinAltas": "Todavía no hay altas.",
       "sinCasilleros": "Ningún casillero todavía."
+    },
+    "bodega": {
+      "titulo": "Bodega de Miami",
+      "bajada": "Escanea la guía y el sistema decide de quién es la caja. Recibir nunca se bloquea.",
+      "hoy": "Recibidos hoy",
+      "solos": "Asignados solos",
+      "tracking": "Número de guía",
+      "textoOcr": "Texto de la etiqueta",
+      "textoOcrPlaceholder": "SHIP TO: JUAN PEREZ BW-100008…",
+      "textoOcrAyuda": "Pega aquí lo que lee el escáner. Si trae un código válido, el paquete se asigna solo.",
+      "peso": "Peso (lb)",
+      "largo": "Largo (in)",
+      "ancho": "Ancho (in)",
+      "alto": "Alto (in)",
+      "remitente": "Remitente",
+      "ubicacion": "Ubicación",
+      "recibir": "Recibir",
+      "recibiendo": "Recibiendo…",
+      "esperando": "Escanea una guía para empezar.",
+      "asignado": "Asignado a",
+      "huerfano": "Sin identificar",
+      "sinCandidatos": "No hay ningún candidato. Queda en la cola de huérfanos.",
+      "error": "No se pudo recibir. Vuelve a intentarlo.",
+      "colaHuerfanos": "Cola de huérfanos",
+      "sinHuerfanos": "No hay paquetes sin identificar.",
+      "colWr": "Recepción",
+      "colTracking": "Guía",
+      "colRemitente": "Remitente",
+      "colPeso": "Peso"
     }
   },
   "catalogo": {
