@@ -130,9 +130,14 @@ export default async function PaginaMiCasillero({
       <section className="mt-8 rounded-xl border border-borde bg-white p-5">
         <h2 className="font-bold">{t("prealertaTitulo")}</h2>
         <p className="mt-1 text-sm text-tinta-suave">{t("prealertaBajada")}</p>
-        <Link href="/casillero/avisar" className="boton-principal mt-4">
-          {t("prealertaBoton")}
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href="/casillero/avisar" className="boton-principal">
+            {t("prealertaBoton")}
+          </Link>
+          <Link href="/casillero/mis-paquetes" className="boton-secundario">
+            {t("paquetesTitulo")}
+          </Link>
+        </div>
       </section>
     </main>
   );

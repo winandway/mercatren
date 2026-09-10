@@ -1,7 +1,9 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { esEquipoInterno } from "@/lib/autorizacion";
+import { OrigenesWidget } from "@/components/casillero/origenes-widget";
 import { listarCasilleros, resumenCasillero } from "@/lib/casillero/panel";
+import { listarOrigenes } from "@/lib/casillero/origenes";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +30,10 @@ export default async function PaginaCasilleros({
   const t = await getTranslations("panel.casilleros");
 
   const { q } = await searchParams;
-  const [resumen, lista] = await Promise.all([
+  const [resumen, lista, origenes] = await Promise.all([
     resumenCasillero(),
     listarCasilleros(q),
+    listarOrigenes(),
   ]);
 
   const tarjetas = resumen
@@ -203,6 +206,35 @@ export default async function PaginaCasilleros({
               {t("sinCasilleros")}
             </p>
           ) : null}
+        </div>
+      </section>
+      {/* LOS SITIOS DONDE ESTÁ PEGADO EL WIDGET. Se administra aquí y no
+          desplegando: el día que una clave aparezca en un foro hay que
+          poder apagarla en diez segundos. */}
+      <section>
+        <h2 className="font-bold">{t("widgetTitulo")}</h2>
+        <p className="mt-1 text-sm text-tinta-suave">{t("widgetBajada")}</p>
+        <div className="mt-3">
+          <OrigenesWidget
+            origenes={origenes}
+            textos={{
+              nombre: t("widgetNombre"),
+              dominio: t("widgetDominio"),
+              crear: t("widgetCrear"),
+              listo: t("widgetListo"),
+              colNombre: t("colNombre"),
+              colDominio: t("widgetDominio"),
+              colClave: t("widgetClave"),
+              colEstado: t("colEstado"),
+              activo: t("widgetActivo"),
+              apagado: t("widgetApagado"),
+              sinOrigenes: t("widgetSinOrigenes"),
+              error_nombre: t("widgetErrorNombre"),
+              error_dominio: t("widgetErrorDominio"),
+              error_permiso: t("widgetErrorPermiso"),
+              error_fallo: t("errorFallo"),
+            }}
+          />
         </div>
       </section>
     </div>

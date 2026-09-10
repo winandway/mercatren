@@ -2795,7 +2795,21 @@
       "verificado": "Verified",
       "sinVerificarUno": "Unverified",
       "sinAltas": "No sign-ups yet.",
-      "sinCasilleros": "No lockers yet."
+      "sinCasilleros": "No lockers yet.",
+      "widgetTitulo": "Sites with the widget",
+      "widgetBajada": "Each site has its own key. If one leaks, switch it off here without touching code.",
+      "widgetNombre": "Site name",
+      "widgetDominio": "Authorized domain",
+      "widgetCrear": "Create",
+      "widgetClave": "Public key",
+      "widgetListo": "Done. Paste these two lines into the site:",
+      "widgetActivo": "Active",
+      "widgetApagado": "Off",
+      "widgetSinOrigenes": "No sites yet. Sign-ups from Mercatren itself don't need a key.",
+      "widgetErrorNombre": "Enter the site name.",
+      "widgetErrorDominio": "That domain doesn't look valid.",
+      "widgetErrorPermiso": "Only Support can create keys.",
+      "errorFallo": "Couldn't do it. Please try again."
     },
     "bodega": {
       "titulo": "Miami warehouse",
@@ -4220,6 +4234,18 @@
     "invitacionBoton": "Create my free locker",
     "invitacionTengoTitulo": "Your locker is ready",
     "invitacionTengoTexto": "Your number is {codigo}. Remember to add it at checkout, next to your name.",
-    "invitacionTengoBoton": "See my address"
+    "invitacionTengoBoton": "See my address",
+    "paquetesTitulo": "My packages",
+    "verMiDireccion": "See my address",
+    "faltaDeclararTitulo": "You have undeclared packages.",
+    "faltaDeclararTexto": "Tell us what's inside and what it cost. Without that, customs won't let them leave Miami.",
+    "sinPaquetes": "Nothing has arrived yet",
+    "sinPaquetesTexto": "When we receive a package for you in Miami, it will show up here with its photo, weight and dimensions.",
+    "declararBoton": "Declare this package",
+    "declararEnviar": "Save",
+    "declararListo": "Declared. It can now leave Miami.",
+    "declararValorAyuda": "The real invoice value. Under-declaring is a customs fine, and Mercatren pays it.",
+    "declararErrorNoEsTuyo": "That package isn't in your locker.",
+    "pesoReal": "Weighs"
   }
 }

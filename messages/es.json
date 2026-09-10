@@ -2795,7 +2795,21 @@
       "verificado": "Verificado",
       "sinVerificarUno": "Sin verificar",
       "sinAltas": "Todavía no hay altas.",
-      "sinCasilleros": "Ningún casillero todavía."
+      "sinCasilleros": "Ningún casillero todavía.",
+      "widgetTitulo": "Sitios con el widget",
+      "widgetBajada": "Cada sitio tiene su clave. Si una se filtra, se apaga aquí sin tocar código.",
+      "widgetNombre": "Nombre del sitio",
+      "widgetDominio": "Dominio autorizado",
+      "widgetCrear": "Crear",
+      "widgetClave": "Clave pública",
+      "widgetListo": "Listo. Pega estas dos líneas en el sitio:",
+      "widgetActivo": "Activo",
+      "widgetApagado": "Apagado",
+      "widgetSinOrigenes": "Ningún sitio todavía. Las altas del propio Mercatren no necesitan clave.",
+      "widgetErrorNombre": "Escribe el nombre del sitio.",
+      "widgetErrorDominio": "Ese dominio no parece válido.",
+      "widgetErrorPermiso": "Solo Soporte puede crear claves.",
+      "errorFallo": "No se pudo. Vuelve a intentarlo."
     },
     "bodega": {
       "titulo": "Bodega de Miami",
@@ -4220,6 +4234,18 @@
     "invitacionBoton": "Crear mi casillero gratis",
     "invitacionTengoTitulo": "Tu casillero está listo",
     "invitacionTengoTexto": "Tu número es {codigo}. Recuerda ponerlo al pagar, junto a tu nombre.",
-    "invitacionTengoBoton": "Ver mi dirección"
+    "invitacionTengoBoton": "Ver mi dirección",
+    "paquetesTitulo": "Mis paquetes",
+    "verMiDireccion": "Ver mi dirección",
+    "faltaDeclararTitulo": "Tienes paquetes sin declarar.",
+    "faltaDeclararTexto": "Dinos qué hay dentro y cuánto costó. Sin ese dato la aduana no deja que salgan de Miami.",
+    "sinPaquetes": "Todavía no ha llegado nada",
+    "sinPaquetesTexto": "Cuando recibamos un paquete tuyo en Miami, aparecerá aquí con su foto, peso y medidas.",
+    "declararBoton": "Declara este paquete",
+    "declararEnviar": "Guardar",
+    "declararListo": "Declarado. Ya puede salir de Miami.",
+    "declararValorAyuda": "El valor real de la factura. Declarar de menos es una multa de aduana, y la paga Mercatren.",
+    "declararErrorNoEsTuyo": "Ese paquete no es de tu casillero.",
+    "pesoReal": "Pesa"
   }
 }
