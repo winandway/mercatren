@@ -1818,6 +1818,29 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LOS MONITORES DE ESTUDIO, PUBLICADOS — Y EL CATÁLOGO DE CJ NO TIENE MÁS
+(9 sep 2026, noche).** Richard, molesto y con razón: pidió **monitores de
+estudio de grabación** y se le mandó una lista de 55 cornetas Bluetooth.
+El error fue de lectura, no de datos. Lo medido, con seis búsquedas nuevas
+en los dos almacenes (`studio monitor`, `recording studio speaker`,
+`professional audio monitor speaker` en US; `studio monitor speaker`,
+`active studio monitor`, `monitor speaker audio` en CN):
+
+- **En CJ solo existen DOS monitores de estudio**, los mismos de la foto:
+  «Active Powered Bookshelf Studio Monitor Speakers 25W X2». Todo lo demás
+  que devuelve «studio monitor» son soportes de pantalla, monitores de
+  bebé, escritorios de estudio y cornetas de fiesta.
+- **Solo están en el almacén de EE. UU.**: pedidas sus variantes con
+  `countryCode=CN`, CJ devuelve `[]`. **Para Colombia no hay monitores de
+  estudio en CJ**, porque Colombia se surte de China.
+- Se publicaron con flete manual de $40 el par: $239,19 (37 en stock) y
+  $239,08 (101). El barrido no los retira porque «Manual (persona)» no es
+  regional.
+- **La comprobación del 404 daba falso positivo**: `grep "No encontramos"`
+  sobre el HTML acierta siempre, porque next-intl manda el diccionario
+  entero en la página. Se mira el `<title>` y el precio. Ver
+  [[grep-html-falso-positivo-i18n]].
+
 **PUBLICAR CON EL FLETE QUE PUSO UNA PERSONA (9 sep 2026, noche).** Richard:
 _«espero el link para pasárselo al cliente»_. CJ cotiza en $0 el envío de
 los dos monitores de estudio y la regla no los publica. Ahora la puerta
