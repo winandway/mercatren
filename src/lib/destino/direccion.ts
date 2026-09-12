@@ -248,6 +248,30 @@ export function esEstadoUS(valor: string | null | undefined): boolean {
  * Se acepta con guion o sin él —la gente escribe las dos formas— y se guarda
  * como venga: es lo que va en la etiqueta del paquete.
  */
+/**
+ * ¿Esto es una ciudad, o alguien escribió el estado donde iba la ciudad?
+ *
+ * Caso real (5 sep 2026): la compra de prueba `PRUEBA-20260905184139` salió
+ * a CJ con ciudad «MI» y estado «Michigan». El proveedor la marcó como
+ * sospechosa, preguntó por correo, nadie contestó y el pedido llevó siete
+ * días parado por once dólares. El checkout real no puede caer en esto
+ * (elige el estado de una lista), pero la puerta de pruebas sí, y una
+ * prueba trancada es una prueba que no mide nada.
+ */
+export function ciudadPlausibleUS(valor: string | null | undefined): boolean {
+  const v = (valor ?? "").trim();
+  if (v.length < 2) return false;
+  const arriba = v.toUpperCase();
+  if (
+    ESTADOS_US.some(
+      (e) => e.codigo === arriba || e.nombre.toUpperCase() === arriba,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function esCodigoPostalUS(valor: string | null | undefined): boolean {
   return /^\d{5}(-\d{4})?$/.test((valor ?? "").trim());
 }

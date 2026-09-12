@@ -1,4 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { ciudadPlausibleUS } from "@/lib/destino/direccion";
 import { z } from "zod";
 
 import {
@@ -36,7 +37,11 @@ const Direccion = z.object({
   nombre: z.string().min(1),
   direccion: z.string().min(1),
   direccion2: z.string().optional(),
-  ciudad: z.string().min(1),
+  /* «MI» no es una ciudad: es el estado escrito en la casilla equivocada,
+     y CJ para el pedido a preguntar. Ver `ciudadPlausibleUS`. */
+  ciudad: z.string().min(1).refine(ciudadPlausibleUS, {
+    message: "la ciudad parece un estado: escribe la ciudad (Novi, no MI)",
+  }),
   estado: z.string().min(1),
   codigoPostal: z.string().default(""),
   telefono: z.string().optional(),
