@@ -147,12 +147,16 @@ async function cotizar(vid: string, plaza: Plaza) {
      capacidad en el almacén. Con ese envío dentro, la camiseta se publicó
      a $7.95 y CJ la cobró con USPS a $6.70 de envío: $11.73 de costo.
      El precio se fija con el transporte que de verdad va a salir. */
-  const mejor = elegirCotizacion(opciones);
+  /* Ver `elegirCotizacion`: el cero de EE. UU. a EE. UU. es envío gratis
+     medido con una compra real; en las plazas que salen de China, no. */
+  const mejor = elegirCotizacion(opciones, {
+    aceptarGratis: plaza.almacen === "US" && plaza.paisEntrega === "US",
+  });
   if (!mejor)
     return {
       /* `elegirCotizacion` solo devuelve null cuando NINGUNA opción trae
-         nombre y precio válido (> 0): se enseñan tal cual llegaron para
-         saber qué está mandando CJ (8 sep 2026). */
+         nombre y precio válido (> 0, o ≥ 0 en EE. UU.): se enseñan tal
+         cual llegaron para saber qué está mandando CJ (8 sep 2026). */
       motivo:
         opciones.length === 0
           ? "CJ no devolvió transportes"

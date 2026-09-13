@@ -43,15 +43,35 @@ export type OpcionDeFlete = {
  * transportes nacionales. Solo si no hay ninguno nacional se cae a un
  * regional — mejor un precio con envío regional que un envío en cero.
  */
+/**
+ * ══ EL CERO DE EE. UU. A EE. UU. ES ENVÍO GRATIS DE VERDAD (13 sep 2026) ══
+ *
+ * Hasta hoy un `logisticPrice: 0` se tomaba por respuesta vacía y la ficha
+ * se quedaba en revisión. Se midió con dinero: la compra de prueba
+ * `PRUEBA-20260905205642` (cargador, almacén L2US, SpeedX US to US) salió
+ * con `productAmount 11.40 · postageAmount 0 · orderAmount 11.40`. CJ no
+ * cobró envío. Y el teléfono que Richard encontró en 404 es un
+ * `SUPPLIER_SHIPPED_PRODUCT` con «USPS US to US = 0»: el proveedor lo manda
+ * con el envío dentro del precio. Había 41.796 fichas de EE. UU. en
+ * revisión, casi todas por esto.
+ *
+ * `aceptarGratis` lo pasa SOLO la plaza de EE. UU. (almacén US → país US).
+ * Para Chile y Colombia, que salen de China, un cero sigue siendo un fallo:
+ * nadie cruza el Pacífico gratis.
+ */
 export function elegirCotizacion(
   opciones: readonly OpcionDeFlete[],
+  ajustes: { aceptarGratis?: boolean } = {},
 ): { nombre: string; centavos: number } | null {
+  const piso = ajustes.aceptarGratis ? 0 : 1;
   const validas = opciones
     .map((o) => ({
       nombre: o.logisticName?.trim() ?? "",
       centavos: Math.round(Number(o.logisticPrice) * 100),
     }))
-    .filter((o) => o.nombre && Number.isFinite(o.centavos) && o.centavos > 0);
+    .filter(
+      (o) => o.nombre && Number.isFinite(o.centavos) && o.centavos >= piso,
+    );
   if (validas.length === 0) return null;
   const nacionales = validas.filter((o) => !esTransporteRegional(o.nombre));
   const candidatas = nacionales.length > 0 ? nacionales : validas;

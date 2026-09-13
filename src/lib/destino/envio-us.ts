@@ -63,10 +63,12 @@ export function envioAUsar(cotizacion: {
 }): EnvioDelProducto {
   const costo = cotizacion.costoCentavos;
 
-  /* Un cero cotizado NO se toma por bueno. Ningún transportista lleva nada
-     gratis: un cero significa que la respuesta vino vacía o mal leída, y
-     tomarlo por bueno reproduce exactamente el fallo que esto viene a cerrar. */
-  if (typeof costo === "number" && Number.isFinite(costo) && costo > 0) {
+  /* El cero cotizado de EE. UU. a EE. UU. SÍ se toma por bueno desde el 13
+     sep 2026: la compra real `PRUEBA-20260905205642` salió con
+     `postageAmount 0` y el proveedor manda esos productos con el envío
+     dentro del precio. Lo que sigue sin valer es un costo ausente o
+     negativo: eso sí es una respuesta vacía. */
+  if (typeof costo === "number" && Number.isFinite(costo) && costo >= 0) {
     return {
       costoCentavos: Math.round(costo),
       origen: "cotizado",
@@ -85,9 +87,17 @@ export function envioAUsar(cotizacion: {
  * ¿Este precio se armó sin envío?
  *
  * El candado del paso A5: sirve para que una prueba pueda ponerse roja si
- * alguien vuelve a publicar con el envío en cero, y para marcar en el panel
- * los que se publicaron antes de este arreglo.
+ * alguien vuelve a publicar sin haber cotizado el envío, y para marcar en el
+ * panel los que se publicaron antes de este arreglo.
+ *
+ * «Sin envío» es NO SABER cuánto cuesta (nulo o negativo). Un cero cotizado
+ * de EE. UU. a EE. UU. es envío gratis medido con una compra real (13 sep
+ * 2026): el precio SÍ lleva el envío dentro, que vale cero.
  */
 export function precioSinEnvio(costoEnvioCentavos: number | null): boolean {
-  return costoEnvioCentavos === null || costoEnvioCentavos <= 0;
+  return (
+    costoEnvioCentavos === null ||
+    !Number.isFinite(costoEnvioCentavos) ||
+    costoEnvioCentavos < 0
+  );
 }

@@ -41,12 +41,18 @@ describe("qué envío se mete en el precio", () => {
     }
   });
 
-  it("un CERO cotizado tampoco se toma por bueno", () => {
-    /* Ningún transportista lleva nada gratis: un cero significa respuesta
-       vacía o mal leída. */
-    const r = envioAUsar({ costoCentavos: 0, transporte: "USPS+" });
-    expect(r.costoCentavos).toBe(ENVIO_ESTIMADO_CENTAVOS);
-    expect(r.origen).toBe("estimado");
+  it("un CERO cotizado de EE. UU. a EE. UU. SÍ es cotización: envío gratis (13 sep 2026)", () => {
+    /* Medido con dinero: `PRUEBA-20260905205642` salió de CJ con
+       `postageAmount 0`. El proveedor manda con el envío dentro del precio.
+       Antes este cero mandaba 41.796 fichas a revisión, y a 404. */
+    const r = envioAUsar({ costoCentavos: 0, transporte: "USPS US to US" });
+    expect(r.costoCentavos).toBe(0);
+    expect(r.origen).toBe("cotizado");
+  });
+
+  it("un costo negativo o ausente sigue siendo respuesta vacía", () => {
+    expect(envioAUsar({ costoCentavos: -1 }).origen).toBe("estimado");
+    expect(envioAUsar({ costoCentavos: null }).origen).toBe("estimado");
   });
 
   it("lo estimado se marca como estimado, para poder volver a mirarlo", () => {
@@ -107,10 +113,11 @@ describe("el precio con envío dentro", () => {
 });
 
 describe("el candado: reconocer un precio armado sin envío", () => {
-  it("cero y nulo son «sin envío»", () => {
-    expect(precioSinEnvio(0)).toBe(true);
+  it("nulo y negativo son «sin envío»; el cero cotizado es envío GRATIS (13 sep 2026)", () => {
+    /* Medido con la compra real del 5 sep: CJ cobró postageAmount 0. */
     expect(precioSinEnvio(null)).toBe(true);
     expect(precioSinEnvio(-1)).toBe(true);
+    expect(precioSinEnvio(0)).toBe(false);
   });
 
   it("cualquier envío de verdad no lo es", () => {

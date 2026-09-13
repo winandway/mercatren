@@ -1818,6 +1818,44 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL FLETE $0 DE EE. UU. ERA ENVÍO GRATIS DE VERDAD, Y TENÍA 41.796 FICHAS EN 404 (13 sep 2026).**
+Richard: _«busca solución, qué pasó aquí, porque hay productos que no
+salen»_, con un teléfono en 404. La ficha tenía stock (4), precio ($139,78
+sobre $89,99 de costo) y almacén de salida US, pero llevaba desde julio
+`en_revision` porque `/logistic/freightCalculate` contesta «USPS US to US =
+0» y el código tomaba el cero por respuesta vacía. Y no era una: **41.796
+fichas de EE. UU. estaban en revisión, contra 5.615 a la venta**, casi todas
+por el mismo cero (el afinado avanzaba 28 en seis horas porque cada una
+fallaba con «sin precio válido»).
+
+- **La medida que lo decidió, con dinero.** `getOrderDetail` del pedido
+  pagado `PRUEBA-20260905205642` (cargador, L2US Warehouse, SpeedX US to
+  US): `productAmount 11.40 · postageAmount 0 · orderAmount 11.40`. CJ no
+  cobró envío. El teléfono es `SUPPLIER_SHIPPED_PRODUCT`: el proveedor lo
+  manda con el envío dentro del precio. La página pública de CJ lo confirma
+  para su almacén de EE. UU., pero lo que manda es el pedido cobrado.
+- **Lo que cambió.** `elegirCotizacion(opciones, { aceptarGratis })`
+  admite el cero **solo cuando la plaza sale del almacén US hacia US**
+  (`flete.ts`). Para Chile y Colombia, que salen de China, el cero sigue
+  siendo un fallo: nadie cruza el Pacífico gratis. `afinar.ts` acepta el
+  cero cotizado; «envío bueno» pasa a `≥ 0` en los casi listos
+  (`existencias.ts`) y en el barrido (`verificados.ts`), con el mismo
+  criterio; `envioAUsar` y `precioSinEnvio` (`envio-us.ts`) distinguen
+  «gratis» (cero cotizado) de «sin envío» (nulo o negativo).
+- **Lo que protege si CJ cambia de idea.** El candado de margen antes de
+  pagar (`pedidos.ts`): si `orderAmount` (producto + envío) no deja el
+  margen mínimo, la venta NO se paga sola y la decide una persona con la
+  pérdida escrita en rojo. Un envío que aparezca donde se cotizó cero cae
+  ahí, nunca en una compra a pérdida.
+- **Candados:** `tests/unit/flete-gratis-us.test.ts` (el cero solo en US →
+  US, y las tres piezas de «envío bueno» de acuerdo), `cj-riesgo.test.ts`
+  (con `aceptarGratis` gana el nacional gratis sobre el regional a $1,70) y
+  `envio-us.test.ts` (cero = cotizado, negativo/nulo = estimado).
+- **Cómo se ve.** El teléfono se puso en la lista de prioridad; CJ estaba
+  sin puntos hasta las 00:00 UTC, así que sale en los primeros latidos del
+  14 sep. El resto de la cola (41 mil) entra al ritmo del afinado: unas
+  2.000 fichas por día con el presupuesto de puntos de hoy.
+
 **LAS TARIFAS DEL CASILLERO LAS PONE RICHARD, Y SIN ELLAS NO SE COTIZA (9 sep 2026).**
 Richard, la noche del 9: _«son datos sensibles que requieren de estudio, de
 investigar, de preguntar, no es una cosa que yo la tengo a lo loco… déjamela

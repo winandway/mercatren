@@ -44,6 +44,25 @@ describe("la cotización que fija el precio", () => {
       elegirCotizacion([{ logisticName: "X", logisticPrice: 0 }]),
     ).toBeNull();
   });
+
+  it("con `aceptarGratis`, el cero es una cotización válida (EE. UU. → EE. UU.)", () => {
+    /* La compra real del 5 sep salió con postageAmount 0. */
+    expect(
+      elegirCotizacion([{ logisticName: "USPS US to US", logisticPrice: 0 }], {
+        aceptarGratis: true,
+      }),
+    ).toEqual({ nombre: "USPS US to US", centavos: 0 });
+    /* Y entre un nacional gratis y un regional a $1.70, gana el nacional. */
+    expect(
+      elegirCotizacion(
+        [
+          { logisticName: "GOFO+", logisticPrice: 1.7 },
+          { logisticName: "USPS US to US", logisticPrice: 0 },
+        ],
+        { aceptarGratis: true },
+      )?.nombre,
+    ).toBe("USPS US to US");
+  });
 });
 
 describe("el candado de margen", () => {
@@ -63,8 +82,8 @@ describe("el candado de margen", () => {
 
 describe("los candados en el código", () => {
   it("cotizar usa elegirCotizacion, no el mínimo a secas", () => {
-    expect(readFileSync("src/lib/cj/flete.ts", "utf-8")).toContain(
-      "elegirCotizacion(opciones)",
+    expect(readFileSync("src/lib/cj/flete.ts", "utf-8")).toMatch(
+      /elegirCotizacion\(opciones,\s*\{/,
     );
   });
   it("el checkout comprueba el stock en CJ antes de cobrar", () => {

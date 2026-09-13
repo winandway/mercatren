@@ -221,7 +221,13 @@ export async function afinarImportados(o: {
     const cotizacion = elegida?.vid
       ? await cotizarFlete(elegida.vid, plaza)
       : {};
-    if (!(cotizacion.costoCentavos && cotizacion.costoCentavos > 0)) {
+    /* Cero cuenta: `cotizarFlete` solo lo deja pasar en EE. UU. → EE. UU.,
+       donde es envío gratis medido (13 sep 2026). */
+    if (
+      typeof cotizacion.costoCentavos !== "number" ||
+      !Number.isFinite(cotizacion.costoCentavos) ||
+      cotizacion.costoCentavos < 0
+    ) {
       cuenta.fallidos += 1;
       ultimoFallo =
         `${prioridad.includes(p.id) ? "PEDIDO · " : ""}flete: ${cotizacion.motivo ?? (elegida?.vid ? "sin cotización" : "sin variante que cotizar")}`.slice(

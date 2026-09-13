@@ -4,6 +4,7 @@ import {
   and,
   eq,
   gt,
+  gte,
   inArray,
   isNull,
   like,
@@ -126,7 +127,8 @@ export async function barrerNoVerificados(): Promise<{
     .where(
       and(
         eq(enviosProducto.origen, "cotizado"),
-        gt(enviosProducto.costoCentavos, 0),
+        /* ≥ 0: el cero cotizado de EE. UU. es envío gratis (13 sep 2026). */
+        gte(enviosProducto.costoCentavos, 0),
         or(
           isNull(enviosProducto.transporte),
           and(
