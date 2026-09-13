@@ -71,7 +71,7 @@ describe("el código de casillero", () => {
 
   it("lo encuentra dentro del texto de una etiqueta escaneada", () => {
     const c = generarCodigoCasillero(7);
-    const etiqueta = `SHIP TO:\nJUAN PEREZ ${c}\n14329 SW 142ND ST\n${c}\nMIAMI FL 33186`;
+    const etiqueta = `SHIP TO:\nJUAN PEREZ ${c}\n14311 SW 142ND ST\n${c}\nMIAMI FL 33186`;
     expect(extraerCodigo(etiqueta)).toBe(c);
     /* Y sin código válido no inventa uno. */
     expect(extraerCodigo("SHIP TO: JUAN PEREZ\nMIAMI FL 33186")).toBeNull();

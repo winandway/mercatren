@@ -15,7 +15,9 @@ export const BODEGA_MIAMI = {
   codigo: "MIA",
   /** El nombre que va en la etiqueta, encima de la calle. */
   nombre: "BESTWAY GROUP INTL. CORP.",
-  linea1: "14329 SW 142nd St",
+  /* Corregida por Richard el 13 sep 2026: es 14311, no 14329. La fila de la
+     base sigue a esta constante (ver `asegurarBodega`). */
+  linea1: "14311 SW 142nd St",
   ciudad: "Miami",
   estadoUs: "FL",
   zip: "33186",

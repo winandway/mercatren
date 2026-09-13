@@ -58,6 +58,7 @@ describe("la dirección es privada", () => {
       "src/components/casillero/copiar-linea.tsx",
       "src/components/casillero/formulario-casillero.tsx",
     ]) {
+      expect(leer(ruta), ruta).not.toContain("14311");
       expect(leer(ruta), ruta).not.toContain("14329");
     }
   });

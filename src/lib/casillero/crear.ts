@@ -51,7 +51,19 @@ async function asegurarBodega(db: ReturnType<typeof getDb>): Promise<string> {
       telefono: "",
       activa: true,
     })
-    .onConflictDoNothing();
+    /* La dirección se corrige en `bodega.ts` y la fila la sigue: el 13 sep
+       2026 el número cambió de 14329 a 14311 y la fila ya existía en
+       producción. Con `doNothing` se habría quedado la vieja para siempre. */
+    .onConflictDoUpdate({
+      target: bodegasCasillero.id,
+      set: {
+        nombre: b.nombre,
+        linea1: b.linea1,
+        ciudad: b.ciudad,
+        estadoUs: b.estadoUs,
+        zip: b.zip,
+      },
+    });
   return b.id;
 }
 

@@ -1856,7 +1856,7 @@ industria**, no lo que él dijera de memoria.
 **EL CASILLERO: PAQUETERÍA DE EE. UU. A SUDAMÉRICA (9 sep 2026).** Producto
 nuevo pedido por Richard: dirección propia en Miami para comprar en
 cualquier tienda de Estados Unidos y recibir en Sudamérica. La bodega la
-opera **BESTWAY GROUP INTL. CORP.** (14329 SW 142nd St, Miami FL 33186).
+opera **BESTWAY GROUP INTL. CORP.** (14311 SW 142nd St, Miami FL 33186; el 14329 de la primera versión era un error, corregido el 13 sep).
 
 **El problema central es que la compra es SILENCIOSA**: la caja llega y
 nadie vio esa compra. Todo el módulo existe para saber de quién es en
