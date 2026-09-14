@@ -206,6 +206,14 @@ export async function resumenDelVigilante(): Promise<{
   haceMinutos: number;
   alertas: number;
   rojas: number;
+  /**
+   * CUÁLES son las rojas, por clave y título (14 sep 2026). Sin esto, el
+   * canario decía «rojas: 1» y para saber cuál había que entrar al panel;
+   * Richard no estaba y una roja puede ser una venta pagada sin pedido al
+   * proveedor. Solo clave y título: el detalle (números de pedido) se
+   * queda dentro del panel.
+   */
+  cuales: Array<{ clave: string; titulo: string }>;
 } | null> {
   try {
     const [ultimo] = await getDb()
@@ -219,6 +227,8 @@ export async function resumenDelVigilante(): Promise<{
     if (!ultimo) return null;
     const lista = JSON.parse(ultimo.alertas || "[]") as Array<{
       nivel?: string;
+      clave?: string;
+      titulo?: string;
     }>;
     return {
       haceMinutos: Math.max(
@@ -227,6 +237,9 @@ export async function resumenDelVigilante(): Promise<{
       ),
       alertas: lista.length,
       rojas: lista.filter((a) => a.nivel === "rojo").length,
+      cuales: lista
+        .filter((a) => a.nivel === "rojo")
+        .map((a) => ({ clave: a.clave ?? "?", titulo: a.titulo ?? "" })),
     };
   } catch {
     return null;
