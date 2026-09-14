@@ -27,15 +27,31 @@ import { traducirDescripciones } from "@/lib/traduccion/modelo";
  * trae, el motivo queda anotado en `intentos_descripcion` y la ficha se
  * queda sin descripción.
  */
-export async function describirUnProducto(enlace: string): Promise<{
+type ResultadoDescribir = {
   ok: boolean;
   mensaje: string;
   textoEn?: string;
   textoEs?: string;
-}> {
+};
+
+export async function describirUnProducto(
+  enlace: string,
+): Promise<ResultadoDescribir> {
   const slug = slugDeLaUrl(enlace);
   if (!slug) return { ok: false, mensaje: "Pega el enlace de un producto." };
+  const [p] = await getDb()
+    .select({ id: productos.id })
+    .from(productos)
+    .where(eq(productos.slug, slug))
+    .limit(1);
+  if (!p) return { ok: false, mensaje: `No existe «${slug}».` };
+  return describirProductoPorId(p.id);
+}
 
+/** La misma pieza, por id: la usa «agregar» de la puerta, que ya lo tiene. */
+export async function describirProductoPorId(
+  productoId: string,
+): Promise<ResultadoDescribir> {
   const db = getDb();
   const [p] = await db
     .select({
@@ -44,9 +60,9 @@ export async function describirUnProducto(enlace: string): Promise<{
       pid: productos.externoId,
     })
     .from(productos)
-    .where(eq(productos.slug, slug))
+    .where(eq(productos.id, productoId))
     .limit(1);
-  if (!p) return { ok: false, mensaje: `No existe «${slug}».` };
+  if (!p) return { ok: false, mensaje: `No existe el producto ${productoId}.` };
   if (!p.pid)
     return { ok: false, mensaje: "El producto no tiene código de CJ." };
 

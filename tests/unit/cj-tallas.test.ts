@@ -72,7 +72,9 @@ describe("partir la variante de CJ", () => {
 
 describe("el circuito de la talla, de punta a punta", () => {
   it("EL IMPORTADOR GUARDA LAS TALLAS al agregar y al reagregar", () => {
-    const fuente = readFileSync("src/lib/cj/importar.ts", "utf-8");
+    /* Desde el 14 sep 2026 el guardado vive en `guardar-producto.ts`
+       (server-only): lo llaman el botón del panel y la puerta. */
+    const fuente = readFileSync("src/lib/cj/guardar-producto.ts", "utf-8");
     /* Desde el 2 sep 2026 la función vive en `guardar.ts` (server-only,
        compartida con la importación masiva) y el importador la llama. */
     const guardar = readFileSync("src/lib/cj/guardar.ts", "utf-8");

@@ -70,6 +70,14 @@ const Peticion = z.discriminatedUnion("accion", [
     fleteCentavos: z.number().int().min(1).max(50_000),
   }),
   z.object({
+    accion: z.literal("agregar"),
+    pid: z.string().min(5),
+    mercados: z
+      .array(z.enum(["US", "CL", "CO"]))
+      .min(1)
+      .max(3),
+  }),
+  z.object({
     accion: z.literal("cj"),
     ruta: z.string().min(1).max(500),
     metodo: z.enum(["GET", "POST", "PATCH", "DELETE"]).optional(),
@@ -138,6 +146,17 @@ export async function POST(peticion: Request) {
       const { priorizarPorEnlace } =
         await import("@/lib/cj/probar-compra-nucleo");
       resultado = await priorizarPorEnlace(e.enlace);
+      break;
+    }
+    case "agregar": {
+      /* Una plaza tras otra, nunca a la vez: las tres le hablan al mismo CJ
+         de una llamada por segundo. */
+      const { agregarPorPid } = await import("@/lib/cj/agregar-por-pid");
+      const salidas = [];
+      for (const mercado of e.mercados) {
+        salidas.push(await agregarPorPid(e.pid, mercado));
+      }
+      resultado = salidas;
       break;
     }
     case "cj":
