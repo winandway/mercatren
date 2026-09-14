@@ -1818,6 +1818,31 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**«AGREGAR» DESDE LA PUERTA: UN PRODUCTO DE CJ EN LAS TRES PLAZAS (14 sep 2026).**
+Richard, con la foto de un limpiador automático de gorras: _«agrégalo en
+Estados Unidos, en Colombia y en Chile… con todos los modelos que puedas,
+con todos los datos»_. El botón del panel mete un producto en UNA plaza (la
+del selector) y hay que estar delante de la pantalla.
+
+- **`guardarProducto` salió de `importar.ts`.** Ese archivo es `"use
+server"`, y una función con `propietarioId` como parámetro exportada
+  desde ahí sería una acción alcanzable con un POST desde cualquier sitio.
+  Ahora vive en `guardar-producto.ts` (`server-only`), devuelve id y slug,
+  y la llaman el botón y la puerta. Candado en `agregar-por-pid.test.ts`.
+- **`agregarPorPid(pid, mercado)`**: detalle de CJ (`/product/query`),
+  existencias del almacén de ESA plaza (sin stock allí no se agrega: sería
+  una ficha que no se puede comprar), costo mínimo entre variantes (el
+  precio en rango se publica por el mínimo, como el importador), guardado
+  con flete y precio de la plaza (tope chileno incluido), y la descripción
+  traducida en el acto (`describirProductoPorId`).
+- **La acción**: `{"accion":"agregar","pid":"…","mercados":["US","CO","CL"]}`
+  por `gh workflow run probar-compra.yml`. Las plazas van una tras otra:
+  las tres le hablan al mismo CJ de una llamada por segundo.
+- **Lo que se encontró**: la máquina no está en CJ (dieciséis búsquedas en
+  los dos almacenes). Hay jaula para lavadora, spray y kit; NO se agregaron
+  sin el sí de Richard, por la regla que él mismo dictó con los monitores:
+  lo que no es lo que se pidió no se manda.
+
 **EL FLETE $0 DE EE. UU. ERA ENVÍO GRATIS DE VERDAD, Y TENÍA 41.796 FICHAS EN 404 (13 sep 2026).**
 Richard: _«busca solución, qué pasó aquí, porque hay productos que no
 salen»_, con un teléfono en 404. La ficha tenía stock (4), precio ($139,78
