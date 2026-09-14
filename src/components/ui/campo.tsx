@@ -42,6 +42,7 @@ export function Campo({
   filas = 3,
   className,
   autoComplete,
+  lista,
 }: {
   tipo: TipoCampo;
   nombre: string;
@@ -75,6 +76,8 @@ export function Campo({
    * usa también en «Mi tienda», donde autocompletar sí ayuda.
    */
   autoComplete?: string;
+  /** El id de un `<datalist>` con sugerencias: la casilla sigue libre. */
+  lista?: string;
 }) {
   const t = useTranslations("formularios.errores");
   const id = useId();
@@ -170,6 +173,7 @@ export function Campo({
           type={regla.atributos.type ?? "text"}
           inputMode={regla.atributos.inputMode}
           autoComplete={autoComplete ?? regla.atributos.autoComplete}
+          list={lista}
         />
       )}
 

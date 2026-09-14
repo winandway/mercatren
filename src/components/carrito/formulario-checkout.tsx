@@ -14,6 +14,7 @@ import {
   olvidarBorrador,
 } from "@/components/ui/formulario-persistente";
 import { Campo } from "@/components/ui/campo";
+import { ciudadesDe } from "@/lib/destino/ciudades";
 import { camposDeEntrega, listaDeEstados } from "@/lib/destino/direccion";
 import { metodosDelDestino } from "@/lib/destino/metodos";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -61,6 +62,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [metodo, setMetodo] = useState<string>("stripe");
   const [forma, setForma] = useState<"retiro" | "envio">("retiro");
+  /* La región o departamento elegido: de ahí salen las ciudades sugeridas
+     de Chile y Colombia (14 sep 2026). La casilla sigue siendo libre. */
+  const [estadoElegido, setEstadoElegido] = useState("");
   /* Si alguno de los comercios del carrito despacha, y cuánto costaría. Lo
      calcula el SERVIDOR con las políticas de la base: el número que se enseña
      aquí tiene que ser el mismo que se va a cobrar. */
@@ -342,6 +346,7 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                     required
                     autoComplete="address-level1"
                     defaultValue=""
+                    onChange={(e) => setEstadoElegido(e.target.value)}
                     className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
                   >
                     <option value="" disabled>
@@ -379,7 +384,23 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                     })()}
                     marcador={t(`entrega.${campo.nombre}Placeholder`)}
                     requerido={campo.obligatorio}
+                    lista={
+                      campo.nombre === "ciudad" &&
+                      ciudadesDe(envio.destino, estadoElegido).length > 0
+                        ? "ciudades-sugeridas"
+                        : undefined
+                    }
                   />
+                  {/* LAS CIUDADES DE LA REGIÓN ELEGIDA, como sugerencia: el
+                      comprador elige la forma que el transportista reconoce
+                      («Vina del Mar», no «Viña») y puede escribir otra. */}
+                  {campo.nombre === "ciudad" ? (
+                    <datalist id="ciudades-sugeridas">
+                      {ciudadesDe(envio.destino, estadoElegido).map((c) => (
+                        <option key={c} value={c} />
+                      ))}
+                    </datalist>
+                  ) : null}
                   {/* LA DIRECCIÓN CLARA, CON EL FORMATO DEL PAÍS (28 ago
                       2026). Lo pidió el dueño: «sobre todo Colombia, las
                       direcciones son muy enredadas». La ayuda enseña el

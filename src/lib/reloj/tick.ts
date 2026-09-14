@@ -312,6 +312,27 @@ export async function correrTick(
     await anotar("reloj/traduccion", fallo);
   }
 
+  /* 6b. UNA descripción de CJ por latido, para todas las plazas (14 sep
+     2026): el reloj traducía descripciones pero nadie las traía de CJ, y
+     Chile tenía 1.245 fichas a la venta sin texto en ningún idioma. Cuesta
+     10 puntos: cede si CJ está sin puntos, y va cada tres minutos para no
+     comerse el presupuesto del afinado. Ver `descripcion-reloj.ts`. */
+  try {
+    if (!cjEnPausa && queda() > 6_000 && new Date().getUTCMinutes() % 3 === 0) {
+      const { traerDescripcionDesdeElReloj } =
+        await import("@/lib/traduccion/descripcion-reloj");
+      const r = await traerDescripcionDesdeElReloj();
+      if (r.traidas + r.sinDatos > 0) {
+        hizo.push(
+          `descripción de CJ: ${r.traidas} traída${r.sinDatos ? `, ${r.sinDatos} sin datos` : ""}, faltan ${r.faltan}`,
+        );
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] traer la descripción falló:", fallo);
+    await anotar("reloj/descripcion", fallo);
+  }
+
   const r = { hizo, duracionMs: Date.now() - arranque };
   await anotarTick(origen, r, arranque);
   return r;
