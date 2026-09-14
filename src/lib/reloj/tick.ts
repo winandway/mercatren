@@ -301,8 +301,12 @@ export async function correrTick(
       const r = await traducirDesdeElReloj({
         tandasTitulos: 1,
         tandasDescripciones: queda() > 9_000 ? 1 : 0,
+        tandasTitulosIngles: 1,
       });
       if (r.titulos > 0) hizo.push(`traducción: ${r.titulos} títulos`);
+      if (r.titulosIngles > 0) {
+        hizo.push(`traducción: ${r.titulosIngles} títulos al inglés`);
+      }
       if (r.descripciones > 0) {
         hizo.push(`traducción: ${r.descripciones} descripciones`);
       }

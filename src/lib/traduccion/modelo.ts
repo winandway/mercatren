@@ -55,6 +55,27 @@ Reglas:
 Responde SOLO con un JSON así, sin texto alrededor:
 {"t":[{"id":"...","titulo":"..."}]}`;
 
+/**
+ * ══ AL INGLÉS, PARA EL CATÁLOGO VENEZOLANO (14 sep 2026) ══
+ *
+ * Los comercios de Venezuela escriben en español y `titulo_en` quedaba
+ * vacío en casi todo su catálogo: la ficha en inglés enseñaba el español.
+ * Misma regla que al español: reescribir como lo haría una tienda, nada
+ * inventado, marcas y códigos intactos.
+ */
+const INSTRUCCION_INGLES = `You are the catalog copywriter for an online store that sells in the United States and Latin America.
+You will receive product titles in Spanish, as written by small merchants. They may be informal, have typos, or mix in local words.
+Your job is to write the title IN ENGLISH as a real store would, for shoppers in the United States.
+Rules:
+- Neutral, professional US English.
+- Keep brands and reference codes exactly as they are.
+- Convert measurements when it makes sense: "26 pulgadas" to "26 inch", "6000 libras" to "6000 lbs".
+- Maximum 90 characters. The first words must say WHAT the product is.
+- Do not invent features the original does not state.
+- If the original is already in English, return it unchanged.
+Answer ONLY with JSON like this, no text around it:
+{"t":[{"id":"...","titulo":"..."}]}`;
+
 function llaveYModelo(): { llave: string; modelo: string } | null {
   let entorno: Record<string, string | undefined> = {};
   try {
@@ -117,7 +138,55 @@ export async function traducirTanda(
     id: p.id,
     titulo: p.tituloEn,
   }));
+  return pedirTitulos(config, INSTRUCCION, entrada, peticiones);
+}
 
+/**
+ * Títulos del español al inglés. Devuelve `tituloEn` por id. Por dentro es
+ * el mismo camino que al español (mismo modelo, mismo parseo): solo cambia
+ * la instrucción.
+ */
+export async function traducirTandaAlIngles(
+  peticiones: Array<{ id: string; tituloEs: string }>,
+): Promise<
+  | { ok: true; traducciones: Array<{ id: string; tituloEn: string }> }
+  | { ok: false; motivo: string }
+> {
+  if (peticiones.length === 0) return { ok: true, traducciones: [] };
+  const config = llaveYModelo();
+  if (!config) {
+    return {
+      ok: false,
+      motivo:
+        "Falta la variable TRADUCCION_LLAVE en el panel del sitio. Sin ella no se traduce nada.",
+    };
+  }
+  /* `leerRespuesta` valida contra el título de origen: aquí el origen es el
+     español, así que viaja en `tituloEn` y el resultado sale en `tituloEs`.
+     Es solo el nombre del campo; se renombra al salir. */
+  const origen = peticiones.map((p) => ({ id: p.id, tituloEn: p.tituloEs }));
+  const r = await pedirTitulos(
+    config,
+    INSTRUCCION_INGLES,
+    peticiones.map((p) => ({ id: p.id, titulo: p.tituloEs })),
+    origen,
+  );
+  if (!r.ok) return r;
+  return {
+    ok: true,
+    traducciones: r.traducciones.map((t) => ({
+      id: t.id,
+      tituloEn: t.tituloEs,
+    })),
+  };
+}
+
+async function pedirTitulos(
+  config: { llave: string; modelo: string },
+  instruccion: string,
+  entrada: Array<{ id: string; titulo: string }>,
+  peticiones: PeticionDeTraduccion[],
+): Promise<ResultadoModelo> {
   let respuesta: Response;
   try {
     respuesta = await fetch(
@@ -129,7 +198,7 @@ export async function traducirTanda(
           "x-goog-api-key": config.llave,
         },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: INSTRUCCION }] },
+          systemInstruction: { parts: [{ text: instruccion }] },
           contents: [{ parts: [{ text: JSON.stringify(entrada) }] }],
           generationConfig: {
             temperature: 0.2,
@@ -159,7 +228,6 @@ export async function traducirTanda(
 
   return leerRespuesta(await respuesta.json(), peticiones);
 }
-
 
 const INSTRUCCION_DESCRIPCION = `Eres el redactor de catálogo de una tienda en línea que vende en Estados Unidos y Latinoamérica.
 
@@ -235,7 +303,10 @@ export async function traducirDescripciones(
       },
     );
   } catch (fallo) {
-    return { ok: false, motivo: `No se pudo hablar con el traductor: ${String(fallo)}` };
+    return {
+      ok: false,
+      motivo: `No se pudo hablar con el traductor: ${String(fallo)}`,
+    };
   }
 
   if (!respuesta.ok) {
@@ -258,12 +329,18 @@ export async function traducirDescripciones(
   try {
     datos = JSON.parse(texto);
   } catch {
-    return { ok: false, motivo: `El traductor no devolvió JSON: ${texto.slice(0, 200)}` };
+    return {
+      ok: false,
+      motivo: `El traductor no devolvió JSON: ${texto.slice(0, 200)}`,
+    };
   }
 
   const lista = (datos as { t?: unknown })?.t;
   if (!Array.isArray(lista)) {
-    return { ok: false, motivo: "El traductor devolvió un JSON con otra forma." };
+    return {
+      ok: false,
+      motivo: "El traductor devolvió un JSON con otra forma.",
+    };
   }
 
   const pedidos = new Set(peticiones.map((p) => p.id));
