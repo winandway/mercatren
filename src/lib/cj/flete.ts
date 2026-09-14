@@ -5,6 +5,7 @@ import { envioAUsar, type EnvioDelProducto } from "@/lib/destino/envio-us";
 import { elegirCotizacion } from "@/lib/cj/riesgo";
 
 import { llamarCjConRitmo } from "./ritmo";
+import { completarStockDeFabrica } from "./stock-fabrica";
 import { elegirVariante, variantesDeCj } from "./variantes";
 
 /**
@@ -99,7 +100,9 @@ export async function pedirVariantes(pid: string, almacen: "US" | "CN" = "US") {
     return null;
   }
   const variantes = variantesDeCj(respuesta.datos);
-  return variantes.length > 0 ? variantes : null;
+  if (variantes.length === 0) return null;
+  /* En China, el stock que vale es el de fábrica (ver `stock-fabrica.ts`). */
+  return completarStockDeFabrica(variantes, almacen);
 }
 
 /**

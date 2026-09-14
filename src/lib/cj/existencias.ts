@@ -18,6 +18,7 @@ import { cjConfigurado } from "@/lib/cj/cliente";
 import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { stockDeVariante } from "@/lib/cj/masivo";
+import { completarStockDeFabrica } from "@/lib/cj/stock-fabrica";
 import { almacenDeEntrega } from "@/lib/cj/plazas";
 import { REGIONALES } from "@/lib/cj/riesgo";
 import { variantesDeCj } from "@/lib/cj/variantes";
@@ -67,7 +68,10 @@ async function variantesConStockEn(
     `/product/variant/query?pid=${encodeURIComponent(pid)}&countryCode=${almacen}`,
   );
   if (!r.ok) return null;
-  return variantesDeCj(r.datos) as VarianteConStock[];
+  return completarStockDeFabrica(
+    variantesDeCj(r.datos) as VarianteConStock[],
+    almacen,
+  );
 }
 
 /** Lo mismo, pero diciendo POR QUÉ falló: el refresco lo publica en el canario. */
@@ -81,7 +85,13 @@ async function variantesOMotivo(
     `/product/variant/query?pid=${encodeURIComponent(pid)}&countryCode=${almacen}`,
   );
   if (!r.ok) return { ok: false, motivo: r.motivo };
-  return { ok: true, variantes: variantesDeCj(r.datos) as VarianteConStock[] };
+  return {
+    ok: true,
+    variantes: await completarStockDeFabrica(
+      variantesDeCj(r.datos) as VarianteConStock[],
+      almacen,
+    ),
+  };
 }
 
 /**

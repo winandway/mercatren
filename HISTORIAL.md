@@ -1818,6 +1818,28 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL STOCK DE FÁBRICA CUENTA EN CHINA (14 sep 2026).** El limpiador de gorras
+de Richard (`Multifunctional Hat Wig Nursing Care Machine`, pids
+2507010316311601000 y 2609090618171622600) salía «sin existencias en el
+almacén CN» con 9.953 unidades en la lista. CJ lleva dos cuentas:
+`cjInventoryNum` (su bodega) y `factoryInventoryNum` (la fábrica del
+proveedor). `/product/variant/query` solo trae la primera; en China casi
+todo es de fábrica y CJ lo compra al proveedor cuando entra el pedido —el
+modelo con el que se surten Chile y Colombia—. Por eso hay fichas de CL/CO
+que nunca pasan de revisión: no faltaba mercancía, faltaba mirar donde
+estaba.
+
+- **Lo que cambió.** `completarStockDeFabrica(variantes, almacen)`
+  (`stock-fabrica.ts`) pregunta a `/product/stock/queryByVid` (10 puntos por
+  variante, máximo 6) SOLO en China y SOLO si `variant/query` dijo cero en
+  todas, y pisa únicamente el cero: un número propio se respeta. Pasa por
+  ahí toda lectura de variantes: `pedirVariantes` (afinado, agregar,
+  tallas) y las dos del checkout y del refresco (`existencias.ts`). Si CJ
+  no contesta una variante, se queda en cero: nunca se inventa stock.
+- **Candado:** `tests/unit/stock-de-fabrica.test.ts` (el caso 0 + 9.953, no
+  cuenta otro almacén, pisa solo el cero, nunca en EE. UU., y las tres
+  lecturas cableadas).
+
 **«AGREGAR» DESDE LA PUERTA: UN PRODUCTO DE CJ EN LAS TRES PLAZAS (14 sep 2026).**
 Richard, con la foto de un limpiador automático de gorras: _«agrégalo en
 Estados Unidos, en Colombia y en Chile… con todos los modelos que puedas,
