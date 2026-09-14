@@ -64,8 +64,8 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 👤 **El informe anual de Michigan vence el 15 feb 2027.** Si se pasa,
       la LLC pierde el «Good Standing» y con eso se caen Payoneer, Merchant
       Center y potencialmente Mercury.
-- [ ] 🟡 💻 **Cláusula en los términos: el margen puede subir**, con aviso
-      previo (`PLAN-COMISION.md`).
+- [x] 💻 **Cláusula en los términos: el margen puede cambiar**, con 15 días
+      de aviso y sin tocar pedidos confirmados (versión 3, 14 sep 2026).
 
 ### 6 sep 2026 · las fotos se descargan con nombre al azar
 
@@ -146,9 +146,9 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       anunciarlo a nadie.
 - [ ] 🟠 💻 Falta el despacho: juntar paquetes, cobrar el envío y la guía
       hasta Sudamérica. Depende de las tarifas de arriba.
-- [ ] 🟡 💻 Verificación de identidad antes de despachar (el casillero nace
-      sin verificar y ya no deja despachar, pero no hay pantalla para
-      verificar).
+- [x] 💻 Verificar, suspender y reactivar un casillero desde
+      `/panel/casilleros` (solo Soporte de verdad; cada cambio queda en
+      `accesos_datos`).
 - [x] 💻 Alta de sitios del widget desde el panel, con el fragmento armado.
 - [x] 💻 «Mis paquetes» con declaración de valor; la calculadora se enciende
       sola en esa lista cuando el país tiene tarifa.
@@ -212,17 +212,15 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [x] 💻 Los «casi listos» (retirados con flete real) van primero en el
       refresco de stock, a 4 por latido; el barrido los publica al leer
       stock real. Mochila de Richard: 3 variantes con stock en CJ.
-- [ ] 🟠 💻 **Medir mañana** en `/datos/salud` → `reloj.ultimo.hizo`:
-      «casi listos por mirar» tiene que bajar de ~2.642 a cero, y
-      `catalogo.US.aLaVenta` subir desde 1.609.
+- [x] 💻 **Medido el 14 sep:** `catalogo.US.aLaVenta` pasó de 1.609 a
+      7.834 (con el flete $0 aceptado del 13 sep); los casi listos ya se
+      leen a 4 por latido.
 - [x] 💻 El afinado llevaba un día en «0 ok, fallidos»: la ropa que CJ no
       cotiza volvía siempre a la cabeza, y GitHub chocaba con el reloj en
       CJ. Arreglado el orden y la colisión.
-- [ ] 🔴 💻 **Mañana 9 sep, después de las 16:10 UTC (CJ reabre puntos):**
-      leer en `/datos/salud` → `reloj.ultimo.hizo` el «último fallo: flete:
-      sin precio válido en N: …» con los transportes y precios crudos, y
-      decidir qué hacer con las prendas que CJ no cotiza desde su almacén
-      de EE. UU. Y confirmar que «afinado: N ok» ya no es cero.
+- [x] 💻 **Leído el 9 y resuelto el 13 sep:** el «sin precio válido» era
+      `logisticPrice: 0` = envío gratis real de EE. UU. a EE. UU. (medido
+      con un pedido pagado). «afinado: 2 ok» por latido el 14 sep.
 
 ### 8 sep 2026 · Zelle al 6 % ✅
 
@@ -261,39 +259,41 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/productos-0.xml
-                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/productos-0.xml
+                                                                                                                                                                                                                                      ```
 
-                                                                                                                                                                                                                      ```
-                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/paginas.xml
-                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/paginas.xml
+                                                                                                                                                                                                                                      ```
 
-                                                                                                                                                                                                                      ```
-                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/tiendas.xml
-                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/tiendas.xml
+                                                                                                                                                                                                                                      ```
 
-                                                                                                                                                                                                                      Lo de antes, que ya no aplica:
+                                                                                                                                                                                                                                      Lo de antes, que ya no aplica:
 
-                                                                                                                                                                                                                      ```
-                                                                                                                                                                                                                              https://mercatren.com.ve/sitemap.xml
-                                                                                                                                                                                                                              ```
+                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                              https://mercatren.com.ve/sitemap.xml
+                                                                                                                                                                                                                                              ```
 
-                                                                                                                                                                                                                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                                                                                                                                                                                                                              comprobó en la documentación de Google el 7 sep 2026 antes de
-                                                                                                                                                                                                                              recomendarlo: esa herramienta es **solo para propiedades de dominio
-                                                                                                                                                                                                                              completo** y le diría a Google que TODO mercatren.com se mudó a
-                                                                                                                                                                                                                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                                                                                                                                                                                                                              tirar el posicionamiento de toda la plaza grande para arreglar una
-                                                                                                                                                                                                                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                                                                                                                                                                                                                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                                                                                                                                                                                                                              y los mapas del sitio separados (medido: el .com ya no lista ni una
-                                                                                                                                                                                                                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                                                                                                                                                                                                                              Este punto ya venía escrito mal en esta lista tres veces.
+                                                                                                                                                                                                                                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                                                                                                                                                                                                                              comprobó en la documentación de Google el 7 sep 2026 antes de
+                                                                                                                                                                                                                                              recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                                                                                                                                                                                                                              completo** y le diría a Google que TODO mercatren.com se mudó a
+                                                                                                                                                                                                                                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                                                                                                                                                                                                                              tirar el posicionamiento de toda la plaza grande para arreglar una
+                                                                                                                                                                                                                                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                                                                                                                                                                                                                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                                                                                                                                                                                                                              y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                                                                                                                                                                                                                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                                                                                                                                                                                                                              Este punto ya venía escrito mal en esta lista tres veces.
 
-- [ ] 🟠 💻 **Avisar a los seis comercios** de su dirección nueva: los
+- [ ] 🟠 👤 **Avisar a los seis comercios** de su dirección nueva (es un
+      correo en tu nombre: lo redacto y lo mando cuando digas «sí»): los
       enlaces que reparten por WhatsApp siguen siendo del .com (funcionan
       por la redirección, pero conviene que repartan el bueno).
-- [ ] 🟠 💻 **Turnstile no está activo en NINGÚN dominio** (medido con
+- [ ] 🟠 👤 **Turnstile no está activo en NINGÚN dominio** (hacen falta las
+      dos claves de Cloudflare, que solo tú puedes sacar; medido con
       navegador real en los tres el 7 sep: ni pase, ni marco, ni guion). No
       frena nada de Venezuela, pero el escudo del login lleva tiempo
       apagado: la única defensa de `/entrar` es el límite de intentos.
@@ -542,8 +542,9 @@ compras reales:
       en el panel de YaDominios Cloud → Variables de entorno.
 - [ ] 🟡 💻 **Las señales también en las bandas de PRODUCTOS de la portada**
       (después de la caché, reordenar sin filtrar — igual que los videos).
-- [ ] 🟠 💻 **La página de la política de devoluciones**, con el plazo y el
-      procedimiento (la dirección no se publica, sale al abrir el trámite).
+- [x] 💻 **La página de la política de devoluciones** existe en
+      `/devoluciones` (30 días desde la recepción, procedimiento, dinero en 5
+      días hábiles; la dirección no se publica). Comprobado el 14 sep.
 - [ ] 🟡 💻 **Medir el envío con las compras reales.** Hoy el respaldo son
       **$3.50 sacados de UNA sola medición**. Con tres o cuatro, se ajusta.
 - [ ] 🟡 💻 **Repartir por rubro** lo que ya está cargado, y **repasar los 78 a

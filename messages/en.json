@@ -2810,7 +2810,15 @@
       "widgetErrorNombre": "Enter the site name.",
       "widgetErrorDominio": "That domain doesn't look valid.",
       "widgetErrorPermiso": "Only Support can create keys.",
-      "errorFallo": "Couldn't do it. Please try again."
+      "errorFallo": "Couldn't do it. Please try again.",
+      "colAcciones": "Actions",
+      "suspendido": "Suspended",
+      "verificar": "Verify",
+      "suspender": "Suspend",
+      "reactivar": "Reactivate",
+      "cambiando": "Updating…",
+      "errorPermisoEstado": "Only Support can change the status.",
+      "errorNoExiste": "That locker no longer exists."
     },
     "bodega": {
       "titulo": "Miami warehouse",

@@ -2810,7 +2810,15 @@
       "widgetErrorNombre": "Escribe el nombre del sitio.",
       "widgetErrorDominio": "Ese dominio no parece válido.",
       "widgetErrorPermiso": "Solo Soporte puede crear claves.",
-      "errorFallo": "No se pudo. Vuelve a intentarlo."
+      "errorFallo": "No se pudo. Vuelve a intentarlo.",
+      "colAcciones": "Acciones",
+      "suspendido": "Suspendido",
+      "verificar": "Verificar",
+      "suspender": "Suspender",
+      "reactivar": "Reactivar",
+      "cambiando": "Cambiando…",
+      "errorPermisoEstado": "Solo Soporte puede cambiar el estado.",
+      "errorNoExiste": "Ese casillero ya no existe."
     },
     "bodega": {
       "titulo": "Bodega de Miami",

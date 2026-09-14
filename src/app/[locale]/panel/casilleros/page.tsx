@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { OrigenesWidget } from "@/components/casillero/origenes-widget";
+import { EstadoCasillero } from "@/components/casillero/estado-casillero";
 import { listarCasilleros, resumenCasillero } from "@/lib/casillero/panel";
 import { listarOrigenes } from "@/lib/casillero/origenes";
 import { notFound } from "next/navigation";
@@ -179,6 +180,7 @@ export default async function PaginaCasilleros({
                 <th className="py-1 pr-3">{t("colPais")}</th>
                 <th className="py-1 pr-3">{t("colOrigen")}</th>
                 <th className="py-1 pr-3">{t("colEstado")}</th>
+                <th className="py-1 pr-3">{t("colAcciones")}</th>
               </tr>
             </thead>
             <tbody>
@@ -195,7 +197,29 @@ export default async function PaginaCasilleros({
                   <td className="py-1.5 pr-3">{c.paisDestino}</td>
                   <td className="py-1.5 pr-3">{c.origen ?? "Mercatren"}</td>
                   <td className="py-1.5 pr-3">
-                    {c.verificado ? t("verificado") : t("sinVerificarUno")}
+                    {c.estado === "suspendido"
+                      ? t("suspendido")
+                      : c.verificado
+                        ? t("verificado")
+                        : t("sinVerificarUno")}
+                  </td>
+                  <td className="py-1.5 pr-3">
+                    {/* Verificar es lo que abre el despacho; suspender lo
+                        cierra. Solo Soporte de verdad. */}
+                    <EstadoCasillero
+                      casilleroId={c.id}
+                      verificado={c.verificado}
+                      estado={c.estado}
+                      textos={{
+                        verificar: t("verificar"),
+                        suspender: t("suspender"),
+                        reactivar: t("reactivar"),
+                        cambiando: t("cambiando"),
+                        error_permiso: t("errorPermisoEstado"),
+                        "error_no-existe": t("errorNoExiste"),
+                        error_fallo: t("errorFallo"),
+                      }}
+                    />
                   </td>
                 </tr>
               ))}

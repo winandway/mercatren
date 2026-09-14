@@ -25,7 +25,7 @@ export const TERMINOS_ES: PaginaContenido = {
   titulo: "Términos y condiciones",
   entradilla:
     "Las reglas del servicio de Mercatren: qué hacemos, qué no hacemos, cómo se paga, cómo se entrega y qué puedes esperar de nosotros.",
-  vigencia: "Versión 2 · Vigentes desde el 15 de agosto de 2026",
+  vigencia: "Versión 3 · Vigentes desde el 14 de septiembre de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -209,6 +209,11 @@ export const TERMINOS_ES: PaginaContenido = {
               titulo: "Los impuestos",
               texto:
                 "cuando apliquen, se mostrarán en el pedido antes de que pagues.",
+            },
+            {
+              titulo: "Nuestro margen puede cambiar",
+              texto:
+                "el margen comercial que va dentro del precio publicado no es fijo: lo revisamos con el tiempo, y puede subir o bajar. Cuando cambie, lo avisaremos en esta página y en el sitio con al menos 15 días de anticipación, y aplicará solo a los pedidos que se confirmen después de esa fecha. Un pedido ya confirmado conserva el precio al que lo confirmaste.",
             },
             {
               titulo: "Errores evidentes de precio",
@@ -477,7 +482,7 @@ export const TERMINOS_EN: PaginaContenido = {
   titulo: "Terms and conditions",
   entradilla:
     "The rules of the Mercatren service: what we do, what we don't do, how payment works, how delivery works, and what you can expect from us.",
-  vigencia: "Version 2 · Effective August 15, 2026",
+  vigencia: "Version 3 · Effective September 14, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
@@ -661,6 +666,11 @@ export const TERMINOS_EN: PaginaContenido = {
               titulo: "Taxes",
               texto:
                 "where they apply, they are shown on the order before you pay.",
+            },
+            {
+              titulo: "Our markup may change",
+              texto:
+                "the commercial markup included in the published price is not fixed: we review it over time, and it may go up or down. When it changes, we will give notice on this page and on the site at least 15 days in advance, and the change will apply only to orders confirmed after that date. An order you have already confirmed keeps the price you confirmed it at.",
             },
             {
               titulo: "Obvious pricing errors",
