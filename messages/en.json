@@ -4324,6 +4324,49 @@
       "seguro": "Insurance",
       "almacenaje": "Storage",
       "ajuste-minimo": "Minimum adjustment"
+    },
+    "calculadora": {
+      "titulo": "How much does it cost to bring it?",
+      "bajada": "Calculate shipping from our Miami warehouse to your country. All-inclusive, door to door.",
+      "pais": {
+        "VE": "Venezuela",
+        "CO": "Colombia",
+        "CL": "Chile",
+        "PE": "Peru",
+        "EC": "Ecuador",
+        "AR": "Argentina",
+        "BO": "Bolivia",
+        "PY": "Paraguay",
+        "UY": "Uruguay",
+        "PA": "Panama"
+      },
+      "peso": "Weight (pounds)",
+      "pesoAyuda": "What the store or the label says. 1 kg = 2.2 lb.",
+      "valor": "Product value (USD)",
+      "valorAyuda": "Optional. We use it to calculate insurance.",
+      "medidas": "Box dimensions (inches)",
+      "medidasAyuda": "Optional. A big, light box is charged by the space it takes.",
+      "largoIn": "Length",
+      "anchoIn": "Width",
+      "altoIn": "Height",
+      "calcular": "Calculate shipping",
+      "calculando": "Calculating…",
+      "total": "Shipping to your country",
+      "pesoFacturable": "Billable weight",
+      "impuestoIncluido": "Taxes and customs included: nothing to pay on delivery.",
+      "impuestoAparte": "Your country's taxes are paid on delivery, on top of this price.",
+      "estimado": "Estimated price based on the weight and dimensions you entered. The final price is set when the package is weighed at the warehouse.",
+      "error_entrada": "Check the numbers: weight in pounds, dimensions in inches.",
+      "error_sin-tarifa": "We don't have a rate for that country yet.",
+      "error_sin-peso": "Enter the weight or the dimensions.",
+      "renglon_flete": "Door-to-door freight",
+      "renglon_despacho": "Handling",
+      "renglon_seguro": "Insurance",
+      "renglon_almacenaje": "Storage",
+      "renglon_ajuste-minimo": "Minimum adjustment",
+      "salida": {
+        "VE": "Weekly departure on Thursdays; we receive until Wednesday at 5 p.m."
+      }
     }
   }
 }

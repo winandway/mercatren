@@ -2,10 +2,12 @@ import { Boxes, MapPin, PackageCheck, ShoppingCart, Truck } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { CalculadoraEnvio } from "@/components/casillero/calculadora-envio";
 import { CopiarLinea } from "@/components/casillero/copiar-linea";
 import { LogoBestway } from "@/components/casillero/logo-bestway";
 import { Link } from "@/i18n/navigation";
 import { BODEGA_MIAMI, lineasDeEtiqueta } from "@/lib/casillero/bodega";
+import { paisesCotizables } from "@/lib/casillero/calculadora-publica";
 import { TIENDAS_CONOCIDAS } from "@/lib/casillero/tiendas";
 import type { Idioma } from "@/lib/dinero";
 
@@ -33,6 +35,10 @@ export async function generateMetadata({
  * constantes y textos, así que responde igual de rápido con la base
  * saturada — y el día que la base falle, esta puerta de entrada sigue
  * abierta. Los datos reales aparecen al crear el casillero.
+ *
+ * La única lectura es la lista de países con tarifa (16 sep 2026), para la
+ * calculadora; si la base no contesta, la lista llega vacía y la
+ * calculadora simplemente no se dibuja. La página sigue en pie.
  */
 export default async function PaginaCasillero({
   params,
@@ -51,6 +57,48 @@ export default async function PaginaCasillero({
      FORMA de la ficha —qué campos hay que llenar en la tienda— y nada más;
      los datos reales aparecen dentro de la cuenta. */
   const ejemplo = lineasDeEtiqueta(t("ejemploNombre"), "", idioma, "tapada");
+
+  /* Solo los países con tarifa ENCENDIDA en el panel. Sin ninguno, la
+     calculadora no se dibuja: un precio inventado es una promesa. */
+  const cotizables = await paisesCotizables().catch(() => []);
+  const tc = await getTranslations("casillero.calculadora");
+  const paisesCalc = cotizables.map((codigo) => ({
+    codigo,
+    nombre: tc.has(`pais.${codigo}`) ? tc(`pais.${codigo}`) : codigo,
+    salida: tc.has(`salida.${codigo}`) ? tc(`salida.${codigo}`) : undefined,
+  }));
+  const CLAVES_CALC = [
+    "titulo",
+    "bajada",
+    "pais",
+    "peso",
+    "pesoAyuda",
+    "valor",
+    "valorAyuda",
+    "medidas",
+    "medidasAyuda",
+    "largoIn",
+    "anchoIn",
+    "altoIn",
+    "calcular",
+    "calculando",
+    "total",
+    "pesoFacturable",
+    "impuestoIncluido",
+    "impuestoAparte",
+    "estimado",
+    "error_entrada",
+    "error_sin-tarifa",
+    "error_sin-peso",
+    "renglon_flete",
+    "renglon_despacho",
+    "renglon_seguro",
+    "renglon_almacenaje",
+    "renglon_ajuste-minimo",
+  ] as const;
+  const textosCalc: Record<string, string> = Object.fromEntries(
+    CLAVES_CALC.map((k) => [k, tc(k)]),
+  );
 
   const pasos = [
     { Icono: PackageCheck, titulo: t("paso1Titulo"), texto: t("paso1") },
@@ -126,6 +174,16 @@ export default async function PaginaCasillero({
           ))}
         </ul>
       </section>
+
+      {paisesCalc.length > 0 ? (
+        <section className="mt-12">
+          <CalculadoraEnvio
+            paises={paisesCalc}
+            idioma={idioma}
+            textos={textosCalc}
+          />
+        </section>
+      ) : null}
 
       <section className="mt-12 grid gap-6 lg:grid-cols-[1fr_18rem]">
         <div>

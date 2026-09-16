@@ -2,6 +2,8 @@
 
 import { desc, eq } from "drizzle-orm";
 
+import { guardarTarifaFila } from "@/lib/casillero/tarifas-guardar";
+
 import { esSoporteDeVerdad, obtenerUsuario } from "@/lib/autorizacion";
 import type { TarifaPais } from "@/lib/casillero/cotizar";
 import { getDb } from "@/lib/db";
@@ -64,15 +66,10 @@ export async function guardarTarifa(
     impuestoIncluido: formulario.get("impuestoIncluido") === "on",
     activa,
     nota: String(formulario.get("nota") ?? "").trim() || null,
-    actualizadoEn: new Date(),
-    actualizadoPor: usuario?.id ?? null,
   };
 
   try {
-    await getDb()
-      .insert(tarifasCasillero)
-      .values(fila)
-      .onConflictDoUpdate({ target: tarifasCasillero.pais, set: fila });
+    await guardarTarifaFila(fila, usuario?.id ?? null);
     return { ok: true };
   } catch (fallo) {
     console.error("[casillero] no se pudo guardar la tarifa:", fallo);

@@ -77,6 +77,35 @@ const Peticion = z.discriminatedUnion("accion", [
       .min(1)
       .max(3),
   }),
+  /* Las tarifas del casillero, desde la puerta (16 sep 2026): Richard pidió
+     que las cargara yo con lo que contestó el agente de carga. En dólares y
+     por ciento, como las da el agente; mismos cerrojos que el formulario. */
+  z.object({
+    accion: z.literal("tarifa"),
+    pais: z.string().regex(/^[A-Z]{2}$/),
+    tarifaLibra: z.number().min(0).max(100),
+    minimoLb: z.number().min(0).max(100).default(1),
+    minimoCobro: z.number().min(0).max(1000).default(0),
+    despacho: z.number().min(0).max(500).default(0),
+    seguroPorciento: z.number().min(0).max(20).default(0),
+    seguroDesde: z.number().min(0).max(100_000).default(0),
+    divisor: z.number().int().min(100).max(300).default(166),
+    diasGratis: z.number().int().min(0).max(365).default(30),
+    almacenajeDia: z.number().min(0).max(100).default(0),
+    impuestoIncluido: z.boolean().default(false),
+    activa: z.boolean().default(false),
+    nota: z.string().max(500).optional(),
+  }),
+  z.object({
+    accion: z.literal("cotizar"),
+    pais: z.string().regex(/^[A-Z]{2}$/),
+    pesoLb: z.number().min(0).max(500),
+    largoIn: z.number().min(0).max(200).optional(),
+    anchoIn: z.number().min(0).max(200).optional(),
+    altoIn: z.number().min(0).max(200).optional(),
+    valorUsd: z.number().min(0).max(100_000).optional(),
+    diasEnBodega: z.number().int().min(0).max(365).optional(),
+  }),
   z.object({
     accion: z.literal("cj"),
     ruta: z.string().min(1).max(500),
@@ -157,6 +186,62 @@ export async function POST(peticion: Request) {
         salidas.push(await agregarPorPid(e.pid, mercado));
       }
       resultado = salidas;
+      break;
+    }
+    case "tarifa": {
+      if (e.activa && e.tarifaLibra <= 0) {
+        resultado = {
+          ok: false,
+          motivo: "No se enciende una tarifa sin precio.",
+        };
+        break;
+      }
+      const { guardarTarifaFila } =
+        await import("@/lib/casillero/tarifas-guardar");
+      const c = (d: number) => Math.round(d * 100);
+      await guardarTarifaFila(
+        {
+          pais: e.pais,
+          tarifaLibraCentavos: c(e.tarifaLibra),
+          minimoLb: e.minimoLb,
+          minimoCobroCentavos: c(e.minimoCobro),
+          despachoCentavos: c(e.despacho),
+          seguroPuntosBase: Math.round(e.seguroPorciento * 100),
+          seguroDesdeCentavos: c(e.seguroDesde),
+          divisorVolumetrico: e.divisor,
+          diasAlmacenajeGratis: e.diasGratis,
+          almacenajeDiaCentavos: c(e.almacenajeDia),
+          impuestoIncluido: e.impuestoIncluido,
+          activa: e.activa,
+          nota: e.nota?.trim() || null,
+        },
+        "puerta de pruebas (GitHub)",
+      );
+      const { tarifaDe } = await import("@/lib/casillero/tarifas");
+      resultado = { ok: true, guardada: await tarifaDe(e.pais) };
+      break;
+    }
+    case "cotizar": {
+      const { tarifaDe } = await import("@/lib/casillero/tarifas");
+      const { cotizarEnvio } = await import("@/lib/casillero/cotizar");
+      const tarifa = await tarifaDe(e.pais);
+      const medidas =
+        e.largoIn && e.anchoIn && e.altoIn
+          ? { largoIn: e.largoIn, anchoIn: e.anchoIn, altoIn: e.altoIn }
+          : null;
+      resultado = {
+        tarifa,
+        cotizacion: cotizarEnvio(
+          {
+            pesoRealLb: e.pesoLb,
+            medidas,
+            valorDeclaradoCentavos:
+              e.valorUsd !== undefined ? Math.round(e.valorUsd * 100) : null,
+            diasEnBodega: e.diasEnBodega,
+          },
+          tarifa,
+        ),
+      };
       break;
     }
     case "cj":

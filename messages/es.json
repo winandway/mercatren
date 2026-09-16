@@ -4324,6 +4324,49 @@
       "seguro": "Seguro",
       "almacenaje": "Almacenaje",
       "ajuste-minimo": "Ajuste al mínimo"
+    },
+    "calculadora": {
+      "titulo": "¿Cuánto cuesta traerlo?",
+      "bajada": "Calcula el envío desde nuestra bodega en Miami hasta tu país. Todo incluido, puerta a puerta.",
+      "pais": {
+        "VE": "Venezuela",
+        "CO": "Colombia",
+        "CL": "Chile",
+        "PE": "Perú",
+        "EC": "Ecuador",
+        "AR": "Argentina",
+        "BO": "Bolivia",
+        "PY": "Paraguay",
+        "UY": "Uruguay",
+        "PA": "Panamá"
+      },
+      "peso": "Peso (libras)",
+      "pesoAyuda": "Lo que dice la tienda o la etiqueta. 1 kg = 2,2 libras.",
+      "valor": "Valor del producto (USD)",
+      "valorAyuda": "Opcional. Con esto calculamos el seguro.",
+      "medidas": "Medidas de la caja (pulgadas)",
+      "medidasAyuda": "Opcional. Si la caja es grande y liviana, se cobra por lo que ocupa.",
+      "largoIn": "Largo",
+      "anchoIn": "Ancho",
+      "altoIn": "Alto",
+      "calcular": "Calcular el envío",
+      "calculando": "Calculando…",
+      "total": "Envío a tu país",
+      "pesoFacturable": "Peso que se cobra",
+      "impuestoIncluido": "Impuestos y nacionalización incluidos: no pagas nada al recibir.",
+      "impuestoAparte": "Los impuestos de tu país se pagan al recibir, aparte de este precio.",
+      "estimado": "Precio estimado con el peso y las medidas que escribiste. El definitivo sale al pesar el paquete en la bodega.",
+      "error_entrada": "Revisa los números: peso en libras, medidas en pulgadas.",
+      "error_sin-tarifa": "Todavía no tenemos tarifa para ese país.",
+      "error_sin-peso": "Escribe el peso o las medidas.",
+      "renglon_flete": "Flete puerta a puerta",
+      "renglon_despacho": "Despacho y manejo",
+      "renglon_seguro": "Seguro",
+      "renglon_almacenaje": "Almacenaje",
+      "renglon_ajuste-minimo": "Ajuste al mínimo",
+      "salida": {
+        "VE": "Salida semanal los jueves; recibimos hasta el miércoles a las 5 p. m."
+      }
     }
   }
 }

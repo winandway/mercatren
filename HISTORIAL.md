@@ -1818,6 +1818,35 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LA TARIFA DE VENEZUELA Y LA CALCULADORA PÚBLICA (16 sep 2026).** Richard
+trajo las respuestas del agente de carga y pidió: _«que tú la agregues en
+los campos del superadmin… y ya entregues la calculadora para hacer
+pruebas»_.
+
+- **Lo que dijo el agente (Venezuela, aéreo, puerta a puerta):** $5 por
+  libra, mínimo 5 libras ($25), todo incluido en la tarifa (sin cargos
+  fijos, DDP: impuestos y nacionalización dentro), seguro opcional del 5 %
+  «más que todo celulares y computadoras», sin almacenaje, salida semanal
+  los jueves con recepción hasta el miércoles a las 5 p. m., marítimo $30
+  por pie cúbico, sin restricciones, prepagado. No contestó Colombia ni
+  Chile.
+- **Cómo quedó cargado:** tarifa por libra $5,00 · mínimo 5 lb · cobro
+  mínimo $25 · despacho $0 · seguro 5 % desde $300 (el umbral lo puse yo,
+  queda por confirmar con Richard) · divisor 166 · 30 días gratis a $0 ·
+  impuesto incluido · activa. Cargada por la puerta (`accion: "tarifa"`)
+  porque no hay sesión de Soporte en producción desde aquí; el guardado es
+  el mismo que el del formulario (`tarifas-guardar.ts`).
+- **La calculadora pública** (`calculadora-publica.ts` + `CalculadoraEnvio`)
+  en `/casillero`: solo países con tarifa encendida y con precio; todo
+  validado con zod; solo lectura. El texto de salida semanal vive en
+  `casillero.calculadora.salida.<pais>`. Candado:
+  `casillero-calculadora-publica.test.ts`.
+- **Probada en local antes de publicar:** caja 24×18×12 de 3 lb con $800
+  declarados → peso facturable 31,3 lb · flete $156,50 · seguro $40 →
+  $196,50, con «impuestos incluidos» y la salida de los jueves.
+- **Lo que falta:** confirmar el umbral del seguro; tarifas de CO y CL; un
+  modo marítimo por pie cúbico.
+
 **EL STOCK DE FÁBRICA CUENTA EN CHINA (14 sep 2026).** El limpiador de gorras
 de Richard (`Multifunctional Hat Wig Nursing Care Machine`, pids
 2507010316311601000 y 2609090618171622600) salía «sin existencias en el
