@@ -71,7 +71,10 @@ export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
     const trabajaEnElPanel =
       rol === "soporte" || rol === "validador" || rol === "vendedor";
 
-    const ruta = destino !== "/" ? destino : trabajaEnElPanel ? "/panel" : "/";
+    /* El comprador aterriza en SU cuenta, no en la portada (Richard, 16 sep
+       2026): «cuando inicia sesión tiene que ir a un sitio elegante». */
+    const ruta =
+      destino !== "/" ? destino : trabajaEnElPanel ? "/panel" : "/cuenta";
 
     /**
      * SE VA CON UNA CARGA COMPLETA, NO CON NAVEGACION DE CLIENTE.

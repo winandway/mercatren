@@ -17,8 +17,8 @@
     "paisPorDefecto": "Estados Unidos",
     "hola": "Hola,",
     "identificate": "Iniciar sesión",
-    "cuentaYListas": "Cuenta y listas",
-    "pedidos": "Devoluciones y pedidos",
+    "cuentaYListas": "Mi cuenta",
+    "pedidos": "Mis pedidos",
     "carrito": "Carrito",
     "menuTodo": "Todo",
     "catalogo": "Catálogo",
@@ -44,7 +44,8 @@
     "blog": "Blog",
     "videos": "Shorts",
     "buscarConFoto": "Buscar con una foto",
-    "casillero": "Casillero"
+    "casillero": "Casillero",
+    "miCasillero": "Mi casillero"
   },
   "inicio": {
     "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
@@ -3709,13 +3710,14 @@
     "entrar": "Entra con tu cuenta para ver tus pedidos."
   },
   "cuenta": {
-    "titulo": "Cuenta y listas",
-    "entradilla": "Tus datos, tus pedidos y la ayuda, todo en un sitio.",
+    "titulo": "Mi cuenta",
+    "entradilla": "Tus pedidos, tu casillero en Miami y tus datos, todo en un sitio.",
     "entrar": "Entra con tu cuenta para ver esta página.",
     "tarjetas": {
       "pedidos": {
-        "titulo": "Tus pedidos",
-        "texto": "Sigue tus compras, paga las que estén pendientes y revisa las entregas."
+        "titulo": "Mis pedidos",
+        "texto": "Sigue cada compra paso a paso: pago, preparación, envío y entrega.",
+        "porPagar": "Tienes {n, plural, one {# pedido pendiente de pago} other {# pedidos pendientes de pago}}. Entra y págalo."
       },
       "datos": {
         "titulo": "Tus datos",
@@ -3732,6 +3734,27 @@
       "panel": {
         "titulo": "Panel de administración",
         "texto": "Tu operación: ventas, pagos y validación."
+      },
+      "casillero": {
+        "titulo": "Tu casillero en Miami está listo",
+        "texto": "{n, plural, =0 {Sin paquetes en la bodega por ahora.} one {# paquete esperando en la bodega.} other {# paquetes esperando en la bodega.}}",
+        "ver": "Ver mi casillero",
+        "avisar": "Avisar una compra",
+        "activarTitulo": "Tu casillero en Miami",
+        "activarTexto": "Compra en Amazon, eBay, Walmart o donde quieras y recíbelo en tu país. Activarlo toma un minuto.",
+        "activar": "Activar mi casillero"
+      },
+      "devoluciones": {
+        "titulo": "Devoluciones",
+        "texto": "30 días desde que recibes. Aquí está el paso a paso."
+      },
+      "pagos": {
+        "titulo": "Cómo pagar",
+        "texto": "Tarjeta al momento de pagar, o Zelle. No guardamos tarjetas: cada compra la confirmas tú."
+      },
+      "vender": {
+        "titulo": "Vender en Mercatren",
+        "texto": "Es la misma cuenta. Abre tu tienda y sube tus productos."
       }
     },
     "nombre": "Nombre",
@@ -3746,7 +3769,14 @@
     },
     "cerrarSesion": "Cerrar sesión",
     "salir": "Cerrar sesión",
-    "saliendo": "Cerrando…"
+    "saliendo": "Cerrando…",
+    "entrarBoton": "Iniciar sesión",
+    "hola": "Hola,",
+    "resumen": {
+      "enCurso": "Pedidos en camino",
+      "entregados": "Entregados",
+      "enMiami": "Paquetes en Miami"
+    }
   },
   "comercio": {
     "titulo": "Registra tu comercio",
@@ -4368,6 +4398,11 @@
       "salida": {
         "VE": "Salida semanal los jueves; recibimos hasta el miércoles a las 5 p. m."
       }
-    }
+    },
+    "listoTitulo": "Tu casillero está listo",
+    "listoTexto": "Úsalo en cualquier tienda de Estados Unidos. Tu dirección completa está dentro.",
+    "verMiCasillero": "Ver mi casillero",
+    "activar": "Activar mi casillero",
+    "activarTexto": "Ya tienes cuenta: solo falta tu casillero. Toma un minuto."
   }
 }

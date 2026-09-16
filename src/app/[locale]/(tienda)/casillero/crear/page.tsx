@@ -48,6 +48,7 @@ export default async function PaginaCrearCasillero({
 
       <div className="mt-6 rounded-xl border border-borde bg-white p-5">
         <FormularioCasillero
+          nombreInicial={usuario?.name ?? ""}
           textos={{
             nombreLegal: t("campoNombre"),
             nombreAyuda: t("campoNombreAyuda"),

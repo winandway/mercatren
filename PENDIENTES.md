@@ -102,6 +102,24 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       foto de CJ, eso no se detecta por consulta: hace falta que mande dos
       ejemplos para ver qué es exactamente.
 
+### 16 sep 2026 · El panel del comprador y el casillero con sesión ✅
+
+- [x] 💻 `/cuenta` es un panel de verdad: pedidos en camino, entregados y
+      paquetes en Miami; el casillero en grande (verde con el código, o la
+      invitación a activarlo); tarjetas de pedidos, devoluciones, cómo
+      pagar, vender (misma cuenta) y ayuda; datos y contraseña. Al
+      comprador no se le habla de roles.
+- [x] 💻 Al entrar, el comprador aterriza en `/cuenta`; el equipo, en el
+      panel. El menú de la cuenta: Mi cuenta · Mis pedidos · Mi casillero ·
+      Vender en Mercatren (o Panel) · Cerrar sesión.
+- [x] 💻 `/casillero` con sesión: un solo botón verde «Ver mi casillero» con
+      el código; sin casillero, «Activar mi casillero» con el nombre ya
+      puesto. Los dos botones que se contradecían solo salen sin sesión. Y
+      «Casillero» del encabezado lleva directo al suyo.
+- [ ] 🟡 💻 Seguimiento con número de guía en el pedido: hoy el detalle
+      enseña los pasos (pago, preparación, envío, entrega) pero no la guía
+      del transportista cuando la hay.
+
 ### 14 sep 2026 · El limpiador de gorras y «agregar» desde la puerta 🟠
 
 - [x] 💻 Acción `agregar` en `/datos/probar-compra`: `{"accion":"agregar",
@@ -272,34 +290,34 @@ Lo que queda:
       esperar a procesar el índice:
 
       ```
-                                                                                                                                                                                                                                                              https://mercatren.com.ve/mapa/productos-0.xml
-                                                                                                                                                                                                                                                              ```
-
-                                                                                                                                                                                                                                                              ```
-                                                                                                                                                                                                                                                              https://mercatren.com.ve/mapa/paginas.xml
-                                                                                                                                                                                                                                                              ```
-
-                                                                                                                                                                                                                                                              ```
-                                                                                                                                                                                                                                                              https://mercatren.com.ve/mapa/tiendas.xml
-                                                                                                                                                                                                                                                              ```
-
-                                                                                                                                                                                                                                                              Lo de antes, que ya no aplica:
-
-                                                                                                                                                                                                                                                              ```
-                                                                                                                                                                                                                                                                      https://mercatren.com.ve/sitemap.xml
+                                                                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/productos-0.xml
                                                                                                                                                                                                                                                                       ```
 
-                                                                                                                                                                                                                                                                      **NO se usa la herramienta «Cambio de dirección»**, y esto se
-                                                                                                                                                                                                                                                                      comprobó en la documentación de Google el 7 sep 2026 antes de
-                                                                                                                                                                                                                                                                      recomendarlo: esa herramienta es **solo para propiedades de dominio
-                                                                                                                                                                                                                                                                      completo** y le diría a Google que TODO mercatren.com se mudó a
-                                                                                                                                                                                                                                                                      mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
-                                                                                                                                                                                                                                                                      tirar el posicionamiento de toda la plaza grande para arreglar una
-                                                                                                                                                                                                                                                                      parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
-                                                                                                                                                                                                                                                                      que ya están hechas: redirecciones permanentes (el 308 del middleware)
-                                                                                                                                                                                                                                                                      y los mapas del sitio separados (medido: el .com ya no lista ni una
-                                                                                                                                                                                                                                                                      dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
-                                                                                                                                                                                                                                                                      Este punto ya venía escrito mal en esta lista tres veces.
+                                                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/paginas.xml
+                                                                                                                                                                                                                                                                      ```
+
+                                                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                                                      https://mercatren.com.ve/mapa/tiendas.xml
+                                                                                                                                                                                                                                                                      ```
+
+                                                                                                                                                                                                                                                                      Lo de antes, que ya no aplica:
+
+                                                                                                                                                                                                                                                                      ```
+                                                                                                                                                                                                                                                                              https://mercatren.com.ve/sitemap.xml
+                                                                                                                                                                                                                                                                              ```
+
+                                                                                                                                                                                                                                                                              **NO se usa la herramienta «Cambio de dirección»**, y esto se
+                                                                                                                                                                                                                                                                              comprobó en la documentación de Google el 7 sep 2026 antes de
+                                                                                                                                                                                                                                                                              recomendarlo: esa herramienta es **solo para propiedades de dominio
+                                                                                                                                                                                                                                                                              completo** y le diría a Google que TODO mercatren.com se mudó a
+                                                                                                                                                                                                                                                                              mercatren.com.ve — cuando el .com sigue vivo con Estados Unidos. Sería
+                                                                                                                                                                                                                                                                              tirar el posicionamiento de toda la plaza grande para arreglar una
+                                                                                                                                                                                                                                                                              parte. Para una mudanza PARCIAL, Google pide exactamente las dos cosas
+                                                                                                                                                                                                                                                                              que ya están hechas: redirecciones permanentes (el 308 del middleware)
+                                                                                                                                                                                                                                                                              y los mapas del sitio separados (medido: el .com ya no lista ni una
+                                                                                                                                                                                                                                                                              dirección venezolana; el .com.ve tiene sus 6 tiendas y sus productos).
+                                                                                                                                                                                                                                                                              Este punto ya venía escrito mal en esta lista tres veces.
 
 - [ ] 🟠 👤 **Avisar a los seis comercios** de su dirección nueva (es un
       correo en tu nombre: lo redacto y lo mando cuando digas «sí»): los

@@ -60,6 +60,10 @@ export async function Encabezado() {
       coberturaPorCiudad(mercado),
     ),
   ]);
+
+  /* Con sesión, «Casillero» lleva DIRECTO al suyo (Richard, 16 sep 2026);
+     la página de su casillero lo manda a activarlo si todavía no lo tiene. */
+  const rutaCasillero = usuario ? "/casillero/mi-casillero" : "/casillero";
   /**
    * ══ EL SELECTOR SE DIBUJA DONDE HAY ALGO QUE RETIRAR (6 sep 2026) ══
    *
@@ -311,7 +315,7 @@ export async function Encabezado() {
               y ANTES de «Global» para no quedar al borde de la pantalla. En
               el celular vive en el menú «Todo», que ahí es la navegación. */}
           <Link
-            href="/casillero"
+            href={rutaCasillero}
             className="celda-encabezado hidden shrink-0 items-center gap-1 lg:flex"
           >
             <PackagePlus className="h-4 w-4" aria-hidden />

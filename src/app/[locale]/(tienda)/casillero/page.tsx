@@ -6,7 +6,9 @@ import { CalculadoraEnvio } from "@/components/casillero/calculadora-envio";
 import { CopiarLinea } from "@/components/casillero/copiar-linea";
 import { LogoBestway } from "@/components/casillero/logo-bestway";
 import { Link } from "@/i18n/navigation";
+import { obtenerUsuario } from "@/lib/autorizacion";
 import { BODEGA_MIAMI, lineasDeEtiqueta } from "@/lib/casillero/bodega";
+import { casilleroDe } from "@/lib/casillero/crear";
 import { paisesCotizables } from "@/lib/casillero/calculadora-publica";
 import { TIENDAS_CONOCIDAS } from "@/lib/casillero/tiendas";
 import type { Idioma } from "@/lib/dinero";
@@ -61,6 +63,16 @@ export default async function PaginaCasillero({
   /* Solo los países con tarifa ENCENDIDA en el panel. Sin ninguno, la
      calculadora no se dibuja: un precio inventado es una promesa. */
   const cotizables = await paisesCotizables().catch(() => []);
+
+  /* ══ SI YA ENTRÓ, LA PÁGINA LO SABE (16 sep 2026) ══ Richard, con la
+     sesión abierta y dos botones delante: «me pregunta si ya tengo un
+     casillero y luego dice ya tengo casillero… eso confunde». Con sesión y
+     casillero: un solo botón verde a SU casillero. Con sesión y sin
+     casillero: activarlo. Sin sesión: crear o entrar. */
+  const usuario = await obtenerUsuario().catch(() => null);
+  const casillero = usuario
+    ? await casilleroDe(usuario.id).catch(() => null)
+    : null;
   const tc = await getTranslations("casillero.calculadora");
   const paisesCalc = cotizables.map((codigo) => ({
     codigo,
@@ -116,14 +128,48 @@ export default async function PaginaCasillero({
         <p className="mx-auto mt-3 max-w-2xl text-pretty text-tinta-suave">
           {t("bajada")}
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/casillero/crear" className="boton-principal">
-            {t("crear")}
-          </Link>
-          <Link href="/casillero/mi-casillero" className="boton-secundario">
-            {t("yaTengo")}
-          </Link>
-        </div>
+        {casillero ? (
+          <div className="mx-auto mt-6 max-w-md rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-5 text-left">
+            <p className="flex items-center gap-2 text-sm font-bold text-emerald-800">
+              <PackageCheck className="h-5 w-5" aria-hidden />
+              {t("listoTitulo")}
+            </p>
+            <p className="mt-1 font-mono text-2xl font-extrabold tracking-wide">
+              {casillero.codigo}
+            </p>
+            <p className="mt-1 text-sm text-tinta-suave">{t("listoTexto")}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href="/casillero/mi-casillero"
+                className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+              >
+                {t("verMiCasillero")}
+              </Link>
+              <Link href="/casillero/avisar" className="boton-secundario">
+                {t("prealertaBoton")}
+              </Link>
+              <Link href="/casillero/mis-paquetes" className="boton-secundario">
+                {t("paquetesTitulo")}
+              </Link>
+            </div>
+          </div>
+        ) : usuario ? (
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <Link href="/casillero/crear" className="boton-principal">
+              {t("activar")}
+            </Link>
+            <p className="text-sm text-tinta-suave">{t("activarTexto")}</p>
+          </div>
+        ) : (
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/casillero/crear" className="boton-principal">
+              {t("crear")}
+            </Link>
+            <Link href="/casillero/mi-casillero" className="boton-secundario">
+              {t("yaTengo")}
+            </Link>
+          </div>
+        )}
       </section>
 
       <section className="mt-12">

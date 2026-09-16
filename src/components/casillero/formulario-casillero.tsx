@@ -41,7 +41,10 @@ function Boton({ texto, enviando }: { texto: string; enviando: string }) {
  */
 export function FormularioCasillero({
   textos,
+  nombreInicial,
 }: {
+  /** El nombre de la cuenta: la persona no lo escribe dos veces. */
+  nombreInicial?: string;
   textos: {
     nombreLegal: string;
     nombreAyuda: string;
@@ -83,6 +86,7 @@ export function FormularioCasillero({
         <span className="text-sm font-semibold">{textos.nombreLegal}</span>
         <input
           name="nombreLegal"
+          defaultValue={nombreInicial ?? ""}
           required
           autoComplete="name"
           placeholder="Nombre y apellidos"

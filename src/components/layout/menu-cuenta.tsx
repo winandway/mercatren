@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDown, LayoutDashboard, Package, UserRound } from "lucide-react";
+import {
+  ChevronDown,
+  LayoutDashboard,
+  Package,
+  PackagePlus,
+  Store,
+  UserRound,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -46,9 +53,18 @@ export function MenuCuenta({
     };
   }, [abierto]);
 
+  /* Lo que un comprador busca en su cuenta, en el orden en que lo busca
+     (Richard, 16 sep 2026: «un menú, el típico, como Amazon»): su cuenta,
+     sus pedidos, su casillero; y vender es la misma cuenta, no otro
+     registro. Quien trabaja en el panel ve el panel en vez de «vender». */
   const entradas = [
     { href: "/cuenta" as const, Icono: UserRound, texto: tc("titulo") },
     { href: "/pedidos" as const, Icono: Package, texto: t("pedidos") },
+    {
+      href: "/casillero/mi-casillero" as const,
+      Icono: PackagePlus,
+      texto: t("miCasillero"),
+    },
     ...(trabajaEnElPanel
       ? [
           {
@@ -57,7 +73,13 @@ export function MenuCuenta({
             texto: t("panel"),
           },
         ]
-      : []),
+      : [
+          {
+            href: "/vender/empezar" as const,
+            Icono: Store,
+            texto: t("vender"),
+          },
+        ]),
   ];
 
   return (

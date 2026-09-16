@@ -1818,6 +1818,36 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**EL PANEL DEL COMPRADOR, Y EL CASILLERO QUE SABE QUIÉN ERES (16 sep 2026).**
+Richard, con la sesión abierta en `/casillero`: _«me pregunta si ya tengo un
+casillero y luego dice ya tengo casillero… eso confunde. Si ya está
+logueado, un botón verde: ver tu casillero»_. Y sobre la cuenta: _«hace
+falta un panel de control para usuarios bien bonito, como Amazon… no
+inventes la rueda: un menú y un dashboard para el que compra; si le da la
+gana de vender, vende. Ya quedamos en que la cuenta era la misma»_.
+
+- **`/casillero` con tres estados.** Con sesión y casillero: tarjeta verde
+  con el código y «Ver mi casillero», «Avisar una compra», «Mis paquetes».
+  Con sesión sin casillero: «Activar mi casillero» y el formulario nace con
+  el nombre de la cuenta. Sin sesión: crear o entrar. El enlace «Casillero»
+  del encabezado, con sesión, va directo a `/casillero/mi-casillero`.
+- **`/cuenta` es el panel del comprador.** Tres números (pedidos en camino,
+  entregados, paquetes en Miami), el casillero en grande, y tarjetas de
+  pedidos (con aviso si hay uno por pagar), devoluciones, cómo pagar
+  (tarjeta al pagar o Zelle; no se guardan tarjetas), vender en Mercatren
+  (misma cuenta → `/vender/empezar`; al equipo, el panel) y ayuda. Ninguna
+  lectura tumba la página. Al comprador no se le enseña «tipo de cuenta».
+- **Al entrar**, el comprador aterriza en `/cuenta` (antes, en la portada).
+  El menú de la cuenta: Mi cuenta · Mis pedidos · Mi casillero · Vender ·
+  Cerrar sesión.
+- **Lo que Richard vio como «Documentos», «Armario», «taquilla» y
+  «desconectar» no era nuestro texto:** tenía el sitio en inglés y Chrome
+  se lo tradujo solo. Con el selector en ES sale nuestro español.
+- **Candado:** `tests/unit/cuenta-panel-del-comprador.test.ts`. Probado en
+  local con `cliente@prueba.local`: entrar → `/cuenta`; activar casillero
+  con el nombre puesto; tarjeta verde BW-100008 en la cuenta y en
+  `/casillero`; menú con las cinco entradas.
+
 **LA TARIFA DE VENEZUELA Y LA CALCULADORA PÚBLICA (16 sep 2026).** Richard
 trajo las respuestas del agente de carga y pidió: _«que tú la agregues en
 los campos del superadmin… y ya entregues la calculadora para hacer

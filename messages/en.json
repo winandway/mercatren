@@ -17,8 +17,8 @@
     "paisPorDefecto": "United States",
     "hola": "Hi,",
     "identificate": "Sign in",
-    "cuentaYListas": "Account & Lists",
-    "pedidos": "Returns & Orders",
+    "cuentaYListas": "My account",
+    "pedidos": "My orders",
     "carrito": "Cart",
     "menuTodo": "All",
     "catalogo": "Catalog",
@@ -44,7 +44,8 @@
     "blog": "Blog",
     "videos": "Shorts",
     "buscarConFoto": "Search with a photo",
-    "casillero": "Locker"
+    "casillero": "Locker",
+    "miCasillero": "My locker"
   },
   "inicio": {
     "tituloHero": "Shop in the U.S., delivered where you need it",
@@ -3709,13 +3710,14 @@
     "entrar": "Sign in to see your orders."
   },
   "cuenta": {
-    "titulo": "Account and lists",
-    "entradilla": "Your details, your orders, and help — all in one place.",
+    "titulo": "My account",
+    "entradilla": "Your orders, your Miami locker and your details, all in one place.",
     "entrar": "Sign in to see this page.",
     "tarjetas": {
       "pedidos": {
-        "titulo": "Your orders",
-        "texto": "Track your purchases, pay the pending ones, and check deliveries."
+        "titulo": "My orders",
+        "texto": "Follow every purchase step by step: payment, preparation, shipping and delivery.",
+        "porPagar": "You have {n, plural, one {# order awaiting payment} other {# orders awaiting payment}}. Open it and pay."
       },
       "datos": {
         "titulo": "Your details",
@@ -3732,6 +3734,27 @@
       "panel": {
         "titulo": "Admin panel",
         "texto": "Your operation: sales, payments, and verification."
+      },
+      "casillero": {
+        "titulo": "Your Miami locker is ready",
+        "texto": "{n, plural, =0 {No packages at the warehouse right now.} one {# package waiting at the warehouse.} other {# packages waiting at the warehouse.}}",
+        "ver": "View my locker",
+        "avisar": "Report a purchase",
+        "activarTitulo": "Your Miami locker",
+        "activarTexto": "Shop at Amazon, eBay, Walmart or anywhere and receive it in your country. It takes a minute to activate.",
+        "activar": "Activate my locker"
+      },
+      "devoluciones": {
+        "titulo": "Returns",
+        "texto": "30 days from delivery. The step-by-step is here."
+      },
+      "pagos": {
+        "titulo": "How to pay",
+        "texto": "Card at checkout, or Zelle. We don't store cards: you confirm every purchase."
+      },
+      "vender": {
+        "titulo": "Sell on Mercatren",
+        "texto": "Same account. Open your store and list your products."
       }
     },
     "nombre": "Name",
@@ -3746,7 +3769,14 @@
     },
     "cerrarSesion": "Sign out",
     "salir": "Sign out",
-    "saliendo": "Signing out…"
+    "saliendo": "Signing out…",
+    "entrarBoton": "Sign in",
+    "hola": "Hello,",
+    "resumen": {
+      "enCurso": "Orders on the way",
+      "entregados": "Delivered",
+      "enMiami": "Packages in Miami"
+    }
   },
   "comercio": {
     "titulo": "Register your business",
@@ -4368,6 +4398,11 @@
       "salida": {
         "VE": "Weekly departure on Thursdays; we receive until Wednesday at 5 p.m."
       }
-    }
+    },
+    "listoTitulo": "Your locker is ready",
+    "listoTexto": "Use it at any US store. Your full address is inside.",
+    "verMiCasillero": "View my locker",
+    "activar": "Activate my locker",
+    "activarTexto": "You already have an account: only your locker is missing. It takes a minute."
   }
 }
