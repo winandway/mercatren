@@ -49,7 +49,7 @@ export function CalculadoraEnvio({
 
       <form action={accion} className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="block sm:col-span-2">
-          <span className="text-sm font-semibold">{textos.pais}</span>
+          <span className="text-sm font-semibold">{textos.paisEtiqueta}</span>
           <select
             name="pais"
             defaultValue={paises[0]?.codigo}

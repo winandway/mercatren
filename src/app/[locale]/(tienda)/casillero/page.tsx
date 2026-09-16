@@ -64,13 +64,13 @@ export default async function PaginaCasillero({
   const tc = await getTranslations("casillero.calculadora");
   const paisesCalc = cotizables.map((codigo) => ({
     codigo,
-    nombre: tc.has(`pais.${codigo}`) ? tc(`pais.${codigo}`) : codigo,
+    nombre: tc.has(`paises.${codigo}`) ? tc(`paises.${codigo}`) : codigo,
     salida: tc.has(`salida.${codigo}`) ? tc(`salida.${codigo}`) : undefined,
   }));
   const CLAVES_CALC = [
     "titulo",
     "bajada",
-    "pais",
+    "paisEtiqueta",
     "peso",
     "pesoAyuda",
     "valor",
