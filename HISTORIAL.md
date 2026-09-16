@@ -1818,6 +1818,18 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**LA CALCULADORA NO SE ENCONTRABA (16 sep 2026).** Richard: _«¿en qué parte
+está la calculadora? No la veo por ningún lado»_. Vivía al final de la
+página pública del casillero, debajo de las tiendas; y con sesión el enlace
+«Casillero» va directo a `/casillero/mi-casillero`, que no la tenía. Ahora:
+página propia `/casillero/calculadora` (indexable), la sección sube justo
+después del hero, botón «Calcular el envío» en los tres estados del hero,
+en mi casillero, tarjeta en la cuenta, enlace en la invitación de la ficha y
+en el pie. Candado en `casillero-calculadora-publica.test.ts` (tres enlaces
+en la página, cuatro archivos más, y el orden antes de «Cómo funciona»).
+Lección: **una función que no se enlaza desde donde está la persona no
+existe**; el comprador con sesión nunca ve la portada del producto.
+
 **EL PANEL DEL COMPRADOR, Y EL CASILLERO QUE SABE QUIÉN ERES (16 sep 2026).**
 Richard, con la sesión abierta en `/casillero`: _«me pregunta si ya tengo un
 casillero y luego dice ya tengo casillero… eso confunde. Si ya está

@@ -126,7 +126,8 @@
       "entrega": "Entrega y envío",
       "devoluciones": "Devoluciones",
       "blog": "Blog",
-      "videos": "Shorts"
+      "videos": "Shorts",
+      "calculadora": "Calcular un envío"
     },
     "lema": "Compra en Estados Unidos, entrega donde la necesites.",
     "descripcion": "Mercatren es un servicio operado por «SOCIEDAD» («ESTADO», Estados Unidos). Vendemos productos por cuenta propia y los entregamos en la dirección que designa el comprador. Cada operación queda documentada de punta a punta.",
@@ -3755,6 +3756,10 @@
       "vender": {
         "titulo": "Vender en Mercatren",
         "texto": "Es la misma cuenta. Abre tu tienda y sube tus productos."
+      },
+      "calculadora": {
+        "titulo": "Calcular un envío",
+        "texto": "Antes de comprar: cuánto cuesta traerlo desde Miami hasta tu país."
       }
     },
     "nombre": "Nombre",
@@ -4397,12 +4402,15 @@
       "renglon_ajuste-minimo": "Ajuste al mínimo",
       "salida": {
         "VE": "Salida semanal los jueves; recibimos hasta el miércoles a las 5 p. m."
-      }
+      },
+      "pronto": "Estamos cargando las tarifas. Muy pronto podrás calcular aquí tu envío.",
+      "sinCasilleroTexto": "¿Todavía no tienes tu dirección en Miami?"
     },
     "listoTitulo": "Tu casillero está listo",
     "listoTexto": "Úsalo en cualquier tienda de Estados Unidos. Tu dirección completa está dentro.",
     "verMiCasillero": "Ver mi casillero",
     "activar": "Activar mi casillero",
-    "activarTexto": "Ya tienes cuenta: solo falta tu casillero. Toma un minuto."
+    "activarTexto": "Ya tienes cuenta: solo falta tu casillero. Toma un minuto.",
+    "calcularEnvio": "Calcular el envío"
   }
 }

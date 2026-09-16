@@ -126,7 +126,8 @@
       "entrega": "Pickup and delivery",
       "devoluciones": "Returns",
       "blog": "Blog",
-      "videos": "Shorts"
+      "videos": "Shorts",
+      "calculadora": "Calculate a shipment"
     },
     "lema": "Shop in the U.S., delivered where you need it.",
     "descripcion": "Mercatren is a service operated by «SOCIEDAD» («ESTADO», United States). We sell products for our own account and deliver them to the address the buyer designates. Every transaction is documented end to end.",
@@ -3755,6 +3756,10 @@
       "vender": {
         "titulo": "Sell on Mercatren",
         "texto": "Same account. Open your store and list your products."
+      },
+      "calculadora": {
+        "titulo": "Calculate a shipment",
+        "texto": "Before you buy: what it costs to bring it from Miami to your country."
       }
     },
     "nombre": "Name",
@@ -4397,12 +4402,15 @@
       "renglon_ajuste-minimo": "Minimum adjustment",
       "salida": {
         "VE": "Weekly departure on Thursdays; we receive until Wednesday at 5 p.m."
-      }
+      },
+      "pronto": "We are loading the rates. Very soon you'll be able to calculate your shipping here.",
+      "sinCasilleroTexto": "Don't have your Miami address yet?"
     },
     "listoTitulo": "Your locker is ready",
     "listoTexto": "Use it at any US store. Your full address is inside.",
     "verMiCasillero": "View my locker",
     "activar": "Activate my locker",
-    "activarTexto": "You already have an account: only your locker is missing. It takes a minute."
+    "activarTexto": "You already have an account: only your locker is missing. It takes a minute.",
+    "calcularEnvio": "Calculate shipping"
   }
 }

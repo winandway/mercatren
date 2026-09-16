@@ -1,4 +1,5 @@
 import {
+  Calculator,
   CircleHelp,
   CreditCard,
   LayoutDashboard,
@@ -123,6 +124,12 @@ export default async function PaginaCuenta({
           ? t("tarjetas.pedidos.porPagar", { n: porPagar })
           : t("tarjetas.pedidos.texto"),
       aviso: porPagar > 0,
+    },
+    {
+      href: "/casillero/calculadora" as const,
+      Icono: Calculator,
+      titulo: t("tarjetas.calculadora.titulo"),
+      texto: t("tarjetas.calculadora.texto"),
     },
     {
       href: "/devoluciones" as const,

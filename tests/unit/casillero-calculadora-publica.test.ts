@@ -42,3 +42,30 @@ describe("la puerta carga y cotiza tarifas", () => {
     expect(puerta).toContain("cotizarEnvio(");
   });
 });
+
+describe("la calculadora se encuentra (16 sep 2026: «no la veo por ningún lado»)", () => {
+  it("tiene su propia página y se enlaza desde el casillero, mi casillero, la cuenta, la ficha y el pie", () => {
+    expect(
+      readFileSync(
+        "src/app/[locale]/(tienda)/casillero/calculadora/page.tsx",
+        "utf8",
+      ),
+    ).toContain("<CalculadoraEnvio");
+    expect(pagina.match(/href="\/casillero\/calculadora"/g)?.length).toBe(3);
+    for (const ruta of [
+      "src/app/[locale]/(tienda)/casillero/mi-casillero/page.tsx",
+      "src/app/[locale]/(tienda)/cuenta/page.tsx",
+      "src/components/casillero/invitacion-casillero.tsx",
+      "src/components/layout/pie-pagina.tsx",
+    ]) {
+      expect(readFileSync(ruta, "utf8"), ruta).toContain(
+        "/casillero/calculadora",
+      );
+    }
+  });
+  it("en la página del casillero va arriba, antes de «Cómo funciona»", () => {
+    expect(pagina.indexOf('id="calculadora"')).toBeLessThan(
+      pagina.indexOf('t("comoTitulo")'),
+    );
+  });
+});

@@ -151,6 +151,9 @@ export default async function PaginaCasillero({
               <Link href="/casillero/mis-paquetes" className="boton-secundario">
                 {t("paquetesTitulo")}
               </Link>
+              <Link href="/casillero/calculadora" className="boton-secundario">
+                {t("calcularEnvio")}
+              </Link>
             </div>
           </div>
         ) : usuario ? (
@@ -159,6 +162,9 @@ export default async function PaginaCasillero({
               {t("activar")}
             </Link>
             <p className="text-sm text-tinta-suave">{t("activarTexto")}</p>
+            <Link href="/casillero/calculadora" className="boton-secundario">
+              {t("calcularEnvio")}
+            </Link>
           </div>
         ) : (
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -168,9 +174,22 @@ export default async function PaginaCasillero({
             <Link href="/casillero/mi-casillero" className="boton-secundario">
               {t("yaTengo")}
             </Link>
+            <Link href="/casillero/calculadora" className="boton-secundario">
+              {t("calcularEnvio")}
+            </Link>
           </div>
         )}
       </section>
+
+      {paisesCalc.length > 0 ? (
+        <section id="calculadora" className="mt-10">
+          <CalculadoraEnvio
+            paises={paisesCalc}
+            idioma={idioma}
+            textos={textosCalc}
+          />
+        </section>
+      ) : null}
 
       <section className="mt-12">
         <h2 className="text-center text-xl font-bold">{t("comoTitulo")}</h2>
@@ -220,16 +239,6 @@ export default async function PaginaCasillero({
           ))}
         </ul>
       </section>
-
-      {paisesCalc.length > 0 ? (
-        <section className="mt-12">
-          <CalculadoraEnvio
-            paises={paisesCalc}
-            idioma={idioma}
-            textos={textosCalc}
-          />
-        </section>
-      ) : null}
 
       <section className="mt-12 grid gap-6 lg:grid-cols-[1fr_18rem]">
         <div>

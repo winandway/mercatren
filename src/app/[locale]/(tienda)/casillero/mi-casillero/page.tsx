@@ -137,6 +137,9 @@ export default async function PaginaMiCasillero({
           <Link href="/casillero/mis-paquetes" className="boton-secundario">
             {t("paquetesTitulo")}
           </Link>
+          <Link href="/casillero/calculadora" className="boton-secundario">
+            {t("calcularEnvio")}
+          </Link>
         </div>
       </section>
     </main>

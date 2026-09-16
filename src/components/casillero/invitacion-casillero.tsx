@@ -62,6 +62,12 @@ export async function InvitacionCasillero({
           >
             {yaTiene ? t("invitacionTengoBoton") : t("invitacionBoton")}
           </Link>
+          <Link
+            href="/casillero/calculadora"
+            className="text-sm font-semibold text-carga-600 hover:underline"
+          >
+            {t("calcularEnvio")}
+          </Link>
         </div>
       </div>
     </aside>
