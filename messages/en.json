@@ -4328,7 +4328,8 @@
     "calculadora": {
       "titulo": "How much does it cost to bring it?",
       "bajada": "Calculate shipping from our Miami warehouse to your country. All-inclusive, door to door.",
-      "pais": {
+      "paisEtiqueta": "Destination country",
+      "paises": {
         "VE": "Venezuela",
         "CO": "Colombia",
         "CL": "Chile",

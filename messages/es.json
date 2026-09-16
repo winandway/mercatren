@@ -4328,7 +4328,8 @@
     "calculadora": {
       "titulo": "¿Cuánto cuesta traerlo?",
       "bajada": "Calcula el envío desde nuestra bodega en Miami hasta tu país. Todo incluido, puerta a puerta.",
-      "pais": {
+      "paisEtiqueta": "País de destino",
+      "paises": {
         "VE": "Venezuela",
         "CO": "Colombia",
         "CL": "Chile",
