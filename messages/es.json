@@ -98,7 +98,8 @@
     "tituloHeroMercado": "Compra en línea con entrega en {pais}",
     "subtituloHeroMercado": "Elige tu producto, paga en pesos y dinos dónde entregarlo. El precio que ves es el precio final, con el envío incluido.",
     "tituloHeroVenezuela": "Compra en línea y retíralo en tu ciudad",
-    "subtituloHeroVenezuela": "Los comercios de Venezuela, en un solo sitio. Pagas desde Estados Unidos y lo retiras donde estás."
+    "subtituloHeroVenezuela": "Los comercios de Venezuela, en un solo sitio. Pagas desde Estados Unidos y lo retiras donde estás.",
+    "calculadoraHero": "Calcular envío a tu país"
   },
   "piePagina": {
     "derechos": "Todos los derechos reservados.",
@@ -2989,7 +2990,8 @@
         "casilleroTexto": "Crea tu casillero de Mercatren en Miami: es gratis y te damos una dirección de Estados Unidos con tu número. Compras aquí o en cualquier tienda, lo recibimos por ti y te lo enviamos a tu país.",
         "mapaTitulo": "Nuestro almacén en Estados Unidos",
         "mapaPie": "Despachamos desde aquí a todo el país.",
-        "casilleroBoton": "Crear mi casillero"
+        "casilleroBoton": "Crear mi casillero",
+        "calculadoraBoton": "Calcular cuánto cuesta traerlo a tu país"
       },
       "ventaMinima": "Venta mínima: {minimo} unidades · {total} el lote",
       "opiniones": "Opiniones",

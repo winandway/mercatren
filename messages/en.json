@@ -98,7 +98,8 @@
     "tituloHeroMercado": "Shop online, delivered in {pais}",
     "subtituloHeroMercado": "Pick your product, pay in pesos, and tell us where to deliver it. The price you see is the final price, shipping included.",
     "tituloHeroVenezuela": "Shop online and pick it up in your city",
-    "subtituloHeroVenezuela": "Venezuelan merchants in one place. Pay from the United States, pick it up where you are."
+    "subtituloHeroVenezuela": "Venezuelan merchants in one place. Pay from the United States, pick it up where you are.",
+    "calculadoraHero": "Calculate shipping to your country"
   },
   "piePagina": {
     "derechos": "All rights reserved.",
@@ -2989,7 +2990,8 @@
         "casilleroTexto": "Create your Mercatren locker in Miami: it's free and you get a U.S. address with your own number. Shop here or at any store, we receive it for you and ship it to your country.",
         "mapaTitulo": "Our warehouse in the United States",
         "mapaPie": "We ship from here to the entire country.",
-        "casilleroBoton": "Create my locker"
+        "casilleroBoton": "Create my locker",
+        "calculadoraBoton": "Calculate what it costs to bring it to your country"
       },
       "ventaMinima": "Minimum order: {minimo} units · {total} per lot",
       "opiniones": "Reviews",

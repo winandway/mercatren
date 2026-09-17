@@ -62,6 +62,7 @@ export function EntregaEstadosUnidos({
     casilleroTitulo: string;
     casilleroTexto: string;
     casilleroBoton: string;
+    calculadoraBoton: string;
     mapaTitulo: string;
     mapaPie: string;
   };
@@ -125,12 +126,23 @@ export function EntregaEstadosUnidos({
                 competencia desde nuestra propia ficha de producto. Desde
                 que Mercatren tiene su casillero en Miami, el enlace lleva
                 al nuestro. */}
-            <Link
-              href="/casillero"
-              className="mt-2 inline-block text-sm font-semibold text-carga-600 hover:underline"
-            >
-              {textos.casilleroBoton}
-            </Link>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              <Link
+                href="/casillero"
+                className="text-sm font-semibold text-carga-600 hover:underline"
+              >
+                {textos.casilleroBoton}
+              </Link>
+              {/* Y el número antes de comprar (16 sep 2026): «la calculadora
+                  debe quedar también en mercatren.com, ahí la gente compra
+                  cosas y las pasa a Venezuela». */}
+              <Link
+                href="/casillero/calculadora"
+                className="text-sm font-semibold text-carga-600 hover:underline"
+              >
+                {textos.calculadoraBoton}
+              </Link>
+            </div>
           </details>
         </>
       ) : null}

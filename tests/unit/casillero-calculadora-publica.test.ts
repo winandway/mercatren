@@ -57,6 +57,9 @@ describe("la calculadora se encuentra (16 sep 2026: «no la veo por ningún lado
       "src/app/[locale]/(tienda)/cuenta/page.tsx",
       "src/components/casillero/invitacion-casillero.tsx",
       "src/components/layout/pie-pagina.tsx",
+      /* Y en mercatren.com, donde la gente compra y lo pasa a su país (16 sep). */
+      "src/components/catalogo/entrega-estados-unidos.tsx",
+      "src/app/[locale]/(tienda)/page.tsx",
     ]) {
       expect(readFileSync(ruta, "utf8"), ruta).toContain(
         "/casillero/calculadora",

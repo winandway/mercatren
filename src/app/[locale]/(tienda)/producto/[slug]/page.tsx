@@ -466,6 +466,7 @@ export default async function PaginaProducto({
               casilleroTitulo: t("entregaUs.casilleroTitulo"),
               casilleroTexto: t("entregaUs.casilleroTexto"),
               casilleroBoton: t("entregaUs.casilleroBoton"),
+              calculadoraBoton: t("entregaUs.calculadoraBoton"),
               mapaTitulo: t("entregaUs.mapaTitulo"),
               mapaPie: t("entregaUs.mapaPie"),
             }}
@@ -623,6 +624,7 @@ export default async function PaginaProducto({
               casilleroTitulo: t("entregaUs.casilleroTitulo"),
               casilleroTexto: t("entregaUs.casilleroTexto"),
               casilleroBoton: t("entregaUs.casilleroBoton"),
+              calculadoraBoton: t("entregaUs.calculadoraBoton"),
               mapaTitulo: t("entregaUs.mapaTitulo"),
               mapaPie: t("entregaUs.mapaPie"),
             }}
