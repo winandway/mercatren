@@ -4426,7 +4426,7 @@
       "kilos": "kilos",
       "medidasBarco": "Medidas de la caja (pulgadas)",
       "medidasBarcoAyuda": "En barco se cobra por el espacio: largo × ancho × alto. 1 pie = 12 pulgadas.",
-      "seguroCasilla": "Asegurar este envío ({porciento} % del valor)",
+      "seguroCasilla": "Asegurar este envío («PORCIENTO» % del valor)",
       "seguroAyuda": "Opcional. Recomendado para celulares y computadoras.",
       "totalBarco": "Envío en barco a tu país",
       "piesFacturables": "Espacio que se cobra",

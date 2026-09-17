@@ -203,8 +203,10 @@ export function CalculadoraEnvio({
             <input type="checkbox" name="conSeguro" className="mt-1" />
             <span>
               <strong>
+                {/* «PORCIENTO» con comillas angulares y no llaves: next-intl
+                    lee {x} como variable ICU y devuelve la clave cruda. */}
                 {textos.seguroCasilla.replace(
-                  "{porciento}",
+                  "«PORCIENTO»",
                   String(elegidoAhora.seguroPorciento),
                 )}
               </strong>{" "}

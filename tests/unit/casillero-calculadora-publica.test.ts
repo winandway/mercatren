@@ -81,3 +81,18 @@ describe("la calculadora se encuentra (16 sep 2026: «no la veo por ningún lado
     );
   });
 });
+
+describe("los textos con variables usan comillas angulares, no llaves", () => {
+  it("«PORCIENTO» en la casilla del seguro: next-intl leería {x} como variable ICU", () => {
+    for (const idioma of ["es", "en"]) {
+      const d = JSON.parse(readFileSync(`messages/${idioma}.json`, "utf8"));
+      expect(d.casillero.calculadora.seguroCasilla, idioma).toContain(
+        "«PORCIENTO»",
+      );
+      expect(d.casillero.calculadora.seguroCasilla, idioma).not.toContain("{");
+    }
+    expect(
+      readFileSync("src/components/casillero/calculadora-envio.tsx", "utf8"),
+    ).toContain('"«PORCIENTO»"');
+  });
+});

@@ -4426,7 +4426,7 @@
       "kilos": "kilos",
       "medidasBarco": "Box dimensions (inches)",
       "medidasBarcoAyuda": "Sea freight is charged by space: length × width × height. 1 foot = 12 inches.",
-      "seguroCasilla": "Insure this shipment ({porciento}% of the value)",
+      "seguroCasilla": "Insure this shipment («PORCIENTO»% of the value)",
       "seguroAyuda": "Optional. Recommended for phones and computers.",
       "totalBarco": "Sea shipping to your country",
       "piesFacturables": "Space charged",
