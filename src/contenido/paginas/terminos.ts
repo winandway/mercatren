@@ -25,7 +25,7 @@ export const TERMINOS_ES: PaginaContenido = {
   titulo: "Términos y condiciones",
   entradilla:
     "Las reglas del servicio de Mercatren: qué hacemos, qué no hacemos, cómo se paga, cómo se entrega y qué puedes esperar de nosotros.",
-  vigencia: "Versión 3 · Vigentes desde el 14 de septiembre de 2026",
+  vigencia: "Versión 4 · Vigentes desde el 17 de septiembre de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -35,12 +35,17 @@ export const TERMINOS_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto: `Mercatren es un servicio de comercio electrónico transfronterizo operado por ${SOCIEDAD.nombre}, una sociedad registrada en Estados Unidos. Cuando en este documento decimos «nosotros», nos referimos a ${SOCIEDAD.nombre} operando bajo la marca Mercatren.`,
+          texto: `Mercatren es una tienda en línea operada por ${SOCIEDAD.nombre}, una sociedad registrada en Estados Unidos. En mercatren.com vendemos y entregamos únicamente dentro de Estados Unidos. Cuando en este documento decimos «nosotros», nos referimos a ${SOCIEDAD.nombre} operando bajo la marca Mercatren.`,
         },
         {
           tipo: "parrafo",
           texto:
             "Al crear una cuenta, hacer un pedido o abrir una tienda en mercatren.com, aceptas estos términos. Si no estás de acuerdo con ellos, no uses el servicio.",
+        },
+        {
+          tipo: "parrafo",
+          texto:
+            "Cada país tiene su propia tienda Mercatren, en su propio dominio (por ejemplo mercatren.cl, mercatren.com.co o mercatren.com.ve), con sus comercios, sus precios y su entrega dentro de ese país, y se rige por las normas de ese país. Son tiendas independientes de la de Estados Unidos.",
         },
       ],
     },
@@ -482,7 +487,7 @@ export const TERMINOS_EN: PaginaContenido = {
   titulo: "Terms and conditions",
   entradilla:
     "The rules of the Mercatren service: what we do, what we don't do, how payment works, how delivery works, and what you can expect from us.",
-  vigencia: "Version 3 · Effective September 14, 2026",
+  vigencia: "Version 4 · Effective September 17, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
@@ -492,12 +497,17 @@ export const TERMINOS_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto: `Mercatren is a cross-border ecommerce service operated by ${SOCIEDAD.nombre}, a company registered in the United States. Where these terms say “we,” that means ${SOCIEDAD.nombre} operating under the Mercatren brand.`,
+          texto: `Mercatren is an online store operated by ${SOCIEDAD.nombre}, a company registered in the United States. On mercatren.com we sell and deliver only within the United States. Where these terms say “we,” that means ${SOCIEDAD.nombre} operating under the Mercatren brand.`,
         },
         {
           tipo: "parrafo",
           texto:
             "By creating an account, placing an order, or opening a store on mercatren.com, you accept these terms. If you do not agree with them, do not use the service.",
+        },
+        {
+          tipo: "parrafo",
+          texto:
+            "Each country has its own Mercatren store, on its own domain (for example mercatren.cl, mercatren.com.co or mercatren.com.ve), with its own merchants, prices and delivery within that country, and it is governed by that country's rules. They are independent from the United States store.",
         },
       ],
     },

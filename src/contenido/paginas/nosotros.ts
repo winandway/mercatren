@@ -20,7 +20,7 @@ export const NOSOTROS_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto: `Mercatren es un servicio operado por ${SOCIEDAD.nombre}, una sociedad registrada en Estados Unidos. Somos un equipo pequeño que construye software para comercio transfronterizo.`,
+          texto: `Mercatren es un servicio operado por ${SOCIEDAD.nombre}, una sociedad registrada en Estados Unidos. Somos un equipo pequeño que construye software para vender en línea.`,
         },
         {
           tipo: "parrafo",
@@ -169,7 +169,7 @@ export const NOSOTROS_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto: `Mercatren is a service operated by ${SOCIEDAD.nombre}, a company registered in the United States. We're a small team building software for cross-border commerce.`,
+          texto: `Mercatren is a service operated by ${SOCIEDAD.nombre}, a company registered in the United States. We're a small team building software for selling online.`,
         },
         {
           tipo: "parrafo",

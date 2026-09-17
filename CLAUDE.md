@@ -89,6 +89,12 @@ saldo · fondos · billetera/wallet · remesa/remittance · comisión sobre el p
 transferencia de dinero · intermediario financiero · agente de cobro · mandato ·
 actuamos en nombre de · el pagador · el beneficiario · instrucción de pago.
 
+**Y «transfronterizo» / «cross-border», retirada el 17 sep 2026 (Richard):**
+mercatren.com vende y entrega SOLO dentro de Estados Unidos; cada país tiene
+su Mercatren en su dominio, con sus comercios, y se rige por su país. Que un
+cliente use el casillero para llevarse su compra a otro lado es asunto suyo:
+no nos hace transfronterizos. Candado: `tests/unit/no-es-transfronterizo.test.ts`.
+
 En su lugar: **vendemos y facturamos · el precio de venta · margen comercial
 incluido en el precio · compramos la mercancía al proveedor · el comprador ·
 la dirección de entrega designada · orden de compra · ingresos por ventas.**

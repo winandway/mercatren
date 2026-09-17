@@ -167,7 +167,7 @@ El sitio está en español e inglés. Cada dirección existe en \`/es/\` y \`/en
   cómo se verifica cada pago y qué queda registrado. Escrita para bancos y
   procesadores de pago.
 - [El modelo de negocio](${SITIO.url}/es/docs/modelo-de-negocio) — el documento
-  completo: comercio electrónico transfronterizo con liquidación doméstica.
+  completo: comercio electrónico con compra y reventa dentro de Estados Unidos.
 
 ## Comprar
 

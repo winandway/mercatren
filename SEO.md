@@ -377,9 +377,11 @@ empieza por `google-site-verification=`). El DNS vive en Cloudflare.
   online Chile.
 - **Colombia**: compra online Colombia · entrega a domicilio · pagar en pesos
   colombianos · precio final · tienda online Colombia.
-- El término de marca de la casa («comercio electrónico transfronterizo con
-  liquidación doméstica») es del .com; las plazas venden en lenguaje de
-  comprador, no de banco.
+- **«Transfronterizo» / «cross-border» está RETIRADO desde el 17 sep 2026**
+  (Richard): mercatren.com vende y entrega solo dentro de Estados Unidos, y
+  cada país tiene su Mercatren en su dominio, regido por su país. No va en
+  títulos, lemas, términos ni docs. Hay candado en
+  `vocabulario-publico.test.ts`.
 
 ### Después de verificar (por cada dominio)
 

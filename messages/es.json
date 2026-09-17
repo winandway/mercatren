@@ -1,7 +1,7 @@
 {
   "marca": {
     "nombre": "Mercatren",
-    "lema": "Compra en Estados Unidos, entrega donde la necesites",
+    "lema": "Compra en línea en Estados Unidos, con el envío incluido",
     "lemaMercadoNuevo": "Muy pronto en {pais}: comercios y productos que se entregan en tu país",
     "lemaMercado": "Compra online con entrega a domicilio en todo {pais}",
     "descripcionMercado": "Tienda online con entrega a domicilio en todo {pais}. Paga con tarjeta en {moneda} y el precio que ves es el final: envío e impuestos incluidos, sin cobros sorpresa de aduana. Tecnología, hogar, deporte, belleza y más.",
@@ -48,7 +48,7 @@
     "miCasillero": "Mi casillero"
   },
   "inicio": {
-    "tituloHero": "Compra en Estados Unidos, entrega donde la necesites",
+    "tituloHero": "Compra en línea en Estados Unidos, con el envío incluido",
     "subtituloHero": "Elige tu producto, paga el precio publicado y dinos dónde entregarlo. El precio que ves es el precio final.",
     "mercadoNuevoTitulo": "Mercatren llega a {pais}",
     "mercadoNuevoTexto": "Estamos preparando el catálogo para {pais}: comercios y productos que se entregan en tu país. Muy pronto vas a poder comprar aquí. Si tienes un negocio, este es el mejor momento para abrir tu tienda.",
@@ -130,7 +130,7 @@
       "videos": "Shorts",
       "calculadora": "Calcular un envío"
     },
-    "lema": "Compra en Estados Unidos, entrega donde la necesites.",
+    "lema": "Compra en línea en Estados Unidos, con el envío incluido.",
     "descripcion": "Mercatren es un servicio operado por «SOCIEDAD» («ESTADO», Estados Unidos). Vendemos productos por cuenta propia y los entregamos en la dirección que designa el comprador. Cada operación queda documentada de punta a punta.",
     "contactoTitulo": "¿Necesitas ayuda?",
     "contactoTexto": "Escríbenos y contesta una persona.",

@@ -36,7 +36,7 @@ export async function generateMetadata({
     keywords:
       locale === "en"
         ? [
-            "cross-border ecommerce",
+            "US ecommerce",
             "domestic settlement",
             "collection agent",
             "not a remittance",
@@ -44,7 +44,7 @@ export async function generateMetadata({
             "Mercatren",
           ]
         : [
-            "ecommerce transfronterizo",
+            "ecommerce en Estados Unidos",
             "comercio electrónico transnacional",
             "liquidación doméstica",
             "agente de cobro",

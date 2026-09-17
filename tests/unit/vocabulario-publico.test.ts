@@ -44,6 +44,13 @@ const PROHIBIDAS = [
      cuenta de» se escapó por conjugación y estuvo publicado en la página del
      cobro por enlace hasta el 16 ago 2026. «Por cuenta propia» —que es lo
      nuestro y es legítimo— no contiene esta frase y no matchea. */
+  /* RETIRADAS EL 17 SEP 2026 (Richard): «Mercatren no es transfronterizo».
+     mercatren.com vende y entrega solo dentro de Estados Unidos, y cada país
+     tiene su tienda en su dominio, regida por su país. Google llegó a
+     enseñar «Cross-border buying and selling» como lema del .com. */
+  "transfronteriz",
+  "cross-border",
+  "cross border",
   "por cuenta de",
   "on behalf of",
   "liquidamos",

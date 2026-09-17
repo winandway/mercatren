@@ -1818,6 +1818,24 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**MERCATREN NO ES TRANSFRONTERIZO: LA PALABRA SE RETIRÓ (17 sep 2026).**
+Richard: _«esa palabra no debe aparecer en ningún lado… algunas búsquedas en
+Google dicen que mercatren.com es transfronterizo y solo se vende aquí en
+Estados Unidos»_. Era verdad: el lema en inglés del .com decía «Cross-border
+buying and selling», el español «entrega donde la necesites», y los términos
+abrían con «servicio de comercio electrónico transfronterizo». Doce
+apariciones en términos, nosotros, el modelo de negocio (es/en), sus palabras
+clave, `llms.txt` y el diccionario. Todo reescrito: mercatren.com vende y
+entrega únicamente dentro de Estados Unidos; cada país tiene su tienda en su
+dominio, con sus comercios, y se rige por las normas de ese país (párrafo
+nuevo en los términos, versión 4). Lemas nuevos: «Compra en línea en Estados
+Unidos, con el envío incluido» / «Shop online in the United States, shipping
+included». El casillero no cambia nada de esto: lo que el cliente haga con su
+paquete es asunto suyo. Candado nuevo, `no-es-transfronterizo.test.ts`, que
+mira `src`, `messages` y `public` enteros (la prueba de vocabulario solo
+miraba `src/contenido`, y por eso el lema se le escapó); comprobado en rojo
+metiendo la palabra a propósito.
+
 **AVIÓN O BARCO, LIBRAS O KILOS, Y EL SEGURO ES OPCIONAL (16 sep 2026).**
 Richard: _«en lo marítimo el peso no aplica… un selector de libras y kilos…
 ¿el valor del producto incrementa el envío y por qué?»_. Sí incrementa,

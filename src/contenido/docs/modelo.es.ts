@@ -27,8 +27,7 @@ import { SOCIEDAD } from "@/lib/sociedad";
  * Ver el prompt de reestructuracion legal para la tabla completa.
  */
 export const MODELO_ES: Documento = {
-  titulo:
-    "Comercio electrónico transfronterizo con compra y reventa en Estados Unidos",
+  titulo: "Comercio electrónico con compra y reventa en Estados Unidos",
   subtitulo:
     "Qué vende Mercatren y a quién, cómo se documenta cada operación, por qué la estructura es una compraventa de mercancía y qué evidencia queda en cada paso.",
   resumen: `Mercatren es una tienda en línea operada por ${SOCIEDAD.nombre}. El comprador en Estados Unidos adquiere un producto del catálogo y designa la dirección donde debe entregarse. ${SOCIEDAD.nombre} compra esa mercancía al proveedor a nombre propio y la revende al comprador. El precio publicado es el precio final e incluye nuestro margen comercial.`,
@@ -330,7 +329,7 @@ export const MODELO_ES: Documento = {
         {
           tipo: "parrafo",
           texto:
-            "La pregunta que hace cualquier banco o procesador al leer un servicio transfronterizo es si la operación constituye money transmission. Este apartado la responde de frente y con el criterio descriptivo, no con una afirmación de que exista una determinación oficial a favor de la empresa.",
+            "La pregunta que hace cualquier banco o procesador al leer un servicio como este es si la operación constituye money transmission. Este apartado la responde de frente y con el criterio descriptivo, no con una afirmación de que exista una determinación oficial a favor de la empresa.",
         },
         {
           tipo: "aviso",

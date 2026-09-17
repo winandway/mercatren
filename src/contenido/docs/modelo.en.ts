@@ -20,7 +20,7 @@ import { SOCIEDAD } from "@/lib/sociedad";
  * agent, mandate, payer, beneficiary, payment instruction, remittance.
  */
 export const MODELO_EN: Documento = {
-  titulo: "Cross-border ecommerce with US-based purchase and resale",
+  titulo: "Ecommerce with US-based purchase and resale",
   subtitulo:
     "What Mercatren sells and to whom, how every transaction is documented, why the structure is a sale of goods, and what evidence each step leaves behind.",
   resumen: `Mercatren is an online store operated by ${SOCIEDAD.nombre}. A buyer in the United States purchases a product from the catalog and designates the address where it must be delivered. ${SOCIEDAD.nombre} buys that merchandise from the supplier in its own name and resells it to the buyer. The published price is the final sale price and includes our commercial markup.`,
@@ -321,7 +321,7 @@ export const MODELO_EN: Documento = {
         {
           tipo: "parrafo",
           texto:
-            "The question any bank or processor asks when reading about a cross-border service is whether the activity constitutes money transmission. This section answers it directly and descriptively, without claiming that any official determination exists in the company's favor.",
+            "The question any bank or processor asks when reading about a service like this is whether the activity constitutes money transmission. This section answers it directly and descriptively, without claiming that any official determination exists in the company's favor.",
         },
         {
           tipo: "aviso",
