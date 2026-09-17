@@ -1818,6 +1818,21 @@ se busca en un mostrador— compartiendo portada, buscador y encabezado.
   país los escondería— y trae su marcha atrás escrita. Probado entero contra
   la base LOCAL antes de tocar producción.
 
+**AVIÓN O BARCO, LIBRAS O KILOS, Y EL SEGURO ES OPCIONAL (16 sep 2026).**
+Richard: _«en lo marítimo el peso no aplica… un selector de libras y kilos…
+¿el valor del producto incrementa el envío y por qué?»_. Sí incrementa,
+solo por el seguro (5 % del valor, que el agente describió como opcional),
+así que ahora es una casilla que marca el cliente: sin marcar no se cobra.
+El barco cobra por pie cúbico (largo × ancho × alto en pulgadas ÷ 1728),
+mínimo 1 ft³ (mío, por confirmar), $30 a Venezuela según el agente; es otra
+tabla (`tarifas_maritimas_casillero`), no columnas en la aérea, porque una
+columna nueva no llega a producción por `schema.sql`. 1 kg = 2,20462 lb
+(`aLibras`). Candados en `casillero-cotizar.test.ts` (8 ft³ → $240, el
+mínimo, kilos, seguro marcado y sin marcar) y en
+`casillero-calculadora-publica.test.ts`. Probado en local: 2 kg con seguro
+sobre $500 → 5 lb mínimo, $25 + $25 = $50; barco 24×24×24 → 8 ft³ → $240,
+con el peso oculto.
+
 **LA CALCULADORA NO SE ENCONTRABA (16 sep 2026).** Richard: _«¿en qué parte
 está la calculadora? No la veo por ningún lado»_. Vivía al final de la
 página pública del casillero, debajo de las tiendas; y con sesión el enlace

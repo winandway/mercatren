@@ -17,13 +17,22 @@ const puerta = readFileSync("src/app/datos/probar-compra/route.ts", "utf8");
 describe("la calculadora pública", () => {
   it("valida la entrada con zod y con topes", () => {
     expect(accion).toContain('from "zod"');
-    expect(accion).toMatch(/pesoLb: z\.number\(\)\.min\(0\)\.max\(500\)/);
+    expect(accion).toMatch(/peso: z\.number\(\)\.min\(0\)\.max\(500\)/);
     expect(accion).toMatch(/valorUsd: z\.number\(\)\.min\(0\)\.max\(100_000\)/);
   });
-  it("solo ofrece países con tarifa ENCENDIDA y con precio", () => {
-    expect(accion).toMatch(
-      /filter\(\(t\) => t\.activa && t\.tarifaLibraCentavos > 0\)/,
+  it("solo ofrece países con tarifa ENCENDIDA y con precio, aérea o marítima", () => {
+    expect(accion).toContain(
+      "if (!t.activa || t.tarifaLibraCentavos <= 0) continue;",
     );
+    expect(accion).toContain(
+      "if (!t.activa || t.tarifaPieCentavos <= 0) continue;",
+    );
+  });
+  it("avión o barco, libras o kilos, seguro opcional", () => {
+    expect(accion).toMatch(/modo: z\.enum\(\["aereo", "maritimo"\]\)/);
+    expect(accion).toMatch(/unidad: z\.enum\(\["lb", "kg"\]\)/);
+    expect(accion).toContain('conSeguro: formulario.get("conSeguro") === "on"');
+    expect(accion).toContain("aLibras(e.peso, e.unidad)");
   });
   it("sin países, la página no la dibuja", () => {
     expect(pagina).toMatch(/paisesCalc\.length > 0 \? \(/);

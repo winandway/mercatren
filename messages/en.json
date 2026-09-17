@@ -2909,7 +2909,16 @@
       "errorPais": "Country takes two letters: VE, CO, CL…",
       "errorSinPrecio": "You can't switch on a rate with no per-pound price.",
       "errorPermiso": "Only Support can change rates.",
-      "errorFallo": "Couldn't save it. Please try again."
+      "errorFallo": "Couldn't save it. Please try again.",
+      "maritimo": {
+        "titulo": "Sea freight (per cubic foot)",
+        "bajada": "Sea freight charges by space, not weight. A cubic foot is a 12 × 12 × 12 inch box.",
+        "nueva": "Add a sea rate",
+        "tarifaPie": "Rate per cubic foot",
+        "tarifaPieAyuda": "What you charge per cubic foot. Ask the agent for their rate per cubic foot to this destination.",
+        "minimoPies": "Minimum cubic feet",
+        "minimoPiesAyuda": "Even if the box is smaller, this many cubic feet are charged. Usually 1."
+      }
     }
   },
   "catalogo": {
@@ -4406,7 +4415,23 @@
         "VE": "Weekly departure on Thursdays; we receive until Wednesday at 5 p.m."
       },
       "pronto": "We are loading the rates. Very soon you'll be able to calculate your shipping here.",
-      "sinCasilleroTexto": "Don't have your Miami address yet?"
+      "sinCasilleroTexto": "Don't have your Miami address yet?",
+      "modo": "How should we ship it?",
+      "aereo": "Air",
+      "maritimo": "Sea",
+      "aereoAyuda": "Per pound. Arrives in days.",
+      "maritimoAyuda": "By the space it takes (cubic feet), regardless of weight. Cheaper for big things; takes weeks.",
+      "unidad": "Unit",
+      "libras": "pounds",
+      "kilos": "kilos",
+      "medidasBarco": "Box dimensions (inches)",
+      "medidasBarcoAyuda": "Sea freight is charged by space: length × width × height. 1 foot = 12 inches.",
+      "seguroCasilla": "Insure this shipment ({porciento}% of the value)",
+      "seguroAyuda": "Optional. Recommended for phones and computers.",
+      "totalBarco": "Sea shipping to your country",
+      "piesFacturables": "Space charged",
+      "renglon_flete-maritimo": "Door-to-door sea freight",
+      "error_sin-medidas": "For sea freight we need the box dimensions."
     },
     "listoTitulo": "Your locker is ready",
     "listoTexto": "Use it at any US store. Your full address is inside.",

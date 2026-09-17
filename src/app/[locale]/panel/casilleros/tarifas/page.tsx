@@ -5,9 +5,13 @@ import {
   FormularioTarifa,
   type TarifaFila,
 } from "@/components/casillero/formulario-tarifa";
+import {
+  FormularioTarifaMaritima,
+  type TarifaMaritimaFila,
+} from "@/components/casillero/formulario-tarifa-maritima";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
-import { listarTarifas } from "@/lib/casillero/tarifas";
+import { listarTarifas, listarTarifasMaritimas } from "@/lib/casillero/tarifas";
 
 export const dynamic = "force-dynamic";
 
@@ -24,15 +28,21 @@ export default async function PaginaTarifas({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ pais?: string }>;
+  searchParams: Promise<{ pais?: string; mar?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   if (!(await esEquipoInterno())) notFound();
   const t = await getTranslations("panel.tarifasCasillero");
 
-  const { pais } = await searchParams;
-  const tarifas = await listarTarifas();
+  const { pais, mar } = await searchParams;
+  const [tarifas, maritimas] = await Promise.all([
+    listarTarifas(),
+    listarTarifasMaritimas(),
+  ]);
+  const editandoMar = mar
+    ? maritimas.find((x) => x.pais === mar.toUpperCase())
+    : undefined;
   const editando = pais
     ? tarifas.find((x) => x.pais === pais.toUpperCase())
     : undefined;
@@ -144,6 +154,91 @@ export default async function PaginaTarifas({
             </table>
           </div>
         )}
+      </section>
+
+      {/* ══ MARÍTIMO ══ Por pie cúbico: el peso no aplica (Richard, 16 sep
+          2026). Misma pantalla, otro modo. */}
+      <section className="border-t border-borde pt-8">
+        <h2 className="text-xl font-bold">{t("maritimo.titulo")}</h2>
+        <p className="mt-1 max-w-3xl text-sm text-tinta-suave">
+          {t("maritimo.bajada")}
+        </p>
+        <h3 className="mt-4 font-bold">
+          {editandoMar
+            ? t("editando", { pais: editandoMar.pais })
+            : t("maritimo.nueva")}
+        </h3>
+        <div className="mt-3">
+          <FormularioTarifaMaritima
+            tarifa={editandoMar as TarifaMaritimaFila | undefined}
+            textos={{
+              pais: t("pais"),
+              paisAyuda: t("paisAyuda"),
+              tarifaPie: t("maritimo.tarifaPie"),
+              tarifaPieAyuda: t("maritimo.tarifaPieAyuda"),
+              minimoPies: t("maritimo.minimoPies"),
+              minimoPiesAyuda: t("maritimo.minimoPiesAyuda"),
+              minimoCobro: t("minimoCobro"),
+              minimoCobroAyuda: t("minimoCobroAyuda"),
+              seguro: t("seguro"),
+              seguroAyuda: t("seguroAyuda"),
+              seguroDesde: t("seguroDesde"),
+              seguroDesdeAyuda: t("seguroDesdeAyuda"),
+              nota: t("nota"),
+              notaPlaceholder: t("notaPlaceholder"),
+              impuesto: t("impuesto"),
+              impuestoAyuda: t("impuestoAyuda"),
+              activa: t("activa"),
+              activaAyuda: t("activaAyuda"),
+              guardar: t("guardar"),
+              guardando: t("guardando"),
+              guardado: t("guardado"),
+              error_pais: t("errorPais"),
+              "error_sin-precio": t("errorSinPrecio"),
+              error_permiso: t("errorPermiso"),
+              error_fallo: t("errorFallo"),
+            }}
+          />
+        </div>
+        {maritimas.length > 0 ? (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs text-tinta-suave">
+                <tr>
+                  <th className="py-1 pr-3">{t("pais")}</th>
+                  <th className="py-1 pr-3">{t("maritimo.tarifaPie")}</th>
+                  <th className="py-1 pr-3">{t("maritimo.minimoPies")}</th>
+                  <th className="py-1 pr-3">{t("estado")}</th>
+                  <th className="py-1 pr-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {maritimas.map((x) => (
+                  <tr key={x.pais} className="border-t border-borde">
+                    <td className="py-1.5 pr-3 font-semibold">{x.pais}</td>
+                    <td className="py-1.5 pr-3 tabular-nums">
+                      ${(x.tarifaPieCentavos / 100).toFixed(2)}
+                    </td>
+                    <td className="py-1.5 pr-3 tabular-nums">
+                      {x.minimoPies} ft³
+                    </td>
+                    <td className="py-1.5 pr-3">
+                      {x.activa ? t("siCotiza") : t("noCotiza")}
+                    </td>
+                    <td className="py-1.5 pr-3">
+                      <Link
+                        href={`/panel/casilleros/tarifas?mar=${x.pais}`}
+                        className="font-semibold text-carga-600 hover:underline"
+                      >
+                        {t("editar")}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
       </section>
     </div>
   );

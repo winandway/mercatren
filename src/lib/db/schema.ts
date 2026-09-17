@@ -3939,3 +3939,31 @@ export const tarifasCasillero = sqliteTable("tarifas_casillero", {
   actualizadoEn: integer("actualizado_en", { mode: "timestamp" }).notNull(),
   actualizadoPor: text("actualizado_por"),
 });
+
+/**
+ * ══ EL MARÍTIMO SE COBRA POR PIE CÚBICO, NO POR LIBRA (16 sep 2026) ══
+ *
+ * Richard: _«en lo marítimo el peso no aplica»_. El agente: $30 por pie
+ * cúbico a Venezuela. Es otra tabla y no columnas nuevas en la aérea, porque
+ * una columna nueva no llega a producción por `schema.sql`; una tabla sí.
+ */
+export const tarifasMaritimasCasillero = sqliteTable(
+  "tarifas_maritimas_casillero",
+  {
+    pais: text("pais").primaryKey(),
+    /** Por cada pie cúbico (largo × ancho × alto en pulgadas ÷ 1728). */
+    tarifaPieCentavos: integer("tarifa_pie_centavos").notNull().default(0),
+    /** Nadie factura menos de esto, en pies cúbicos. */
+    minimoPies: real("minimo_pies").notNull().default(1),
+    minimoCobroCentavos: integer("minimo_cobro_centavos").notNull().default(0),
+    seguroPuntosBase: integer("seguro_puntos_base").notNull().default(0),
+    seguroDesdeCentavos: integer("seguro_desde_centavos").notNull().default(0),
+    impuestoIncluido: integer("impuesto_incluido", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    activa: integer("activa", { mode: "boolean" }).notNull().default(false),
+    nota: text("nota"),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" }).notNull(),
+    actualizadoPor: text("actualizado_por"),
+  },
+);

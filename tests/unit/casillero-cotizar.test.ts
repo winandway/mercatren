@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { cotizarEnvio, type TarifaPais } from "@/lib/casillero/cotizar";
+import {
+  aLibras,
+  cotizarEnvio,
+  cotizarEnvioMaritimo,
+  piesCubicos,
+  type TarifaMaritima,
+  type TarifaPais,
+} from "@/lib/casillero/cotizar";
 
 /**
  * ══ LA CALCULADORA DE ENVÍO (9 sep 2026) ══
@@ -198,5 +205,88 @@ describe("el impuesto del destino", () => {
       { ...VENEZUELA, impuestoIncluido: false },
     );
     expect(sin.ok && sin.impuestoIncluido).toBe(false);
+  });
+});
+
+describe("libras y kilos (16 sep 2026)", () => {
+  it("1 kg son 2,2 libras; en libras no se toca", () => {
+    expect(aLibras(1, "kg")).toBe(2.2);
+    expect(aLibras(10, "kg")).toBe(22.05);
+    expect(aLibras(3, "lb")).toBe(3);
+    expect(aLibras(0, "kg")).toBe(0);
+  });
+});
+
+describe("el seguro es opcional", () => {
+  it("marcado se cobra aunque el valor esté bajo el umbral; sin marcar, no", () => {
+    const base = {
+      pesoRealLb: 10,
+      medidas: null,
+      valorDeclaradoCentavos: 12_000,
+    };
+    const con = cotizarEnvio({ ...base, conSeguro: true }, VENEZUELA);
+    expect(
+      con.ok && con.renglones.find((r) => r.concepto === "seguro")?.centavos,
+    ).toBe(360); /* 3 % de $120 en la tarifa de esta prueba */
+    const sin = cotizarEnvio(
+      { ...base, valorDeclaradoCentavos: 120_000, conSeguro: false },
+      VENEZUELA,
+    );
+    expect(sin.ok && sin.renglones.some((r) => r.concepto === "seguro")).toBe(
+      false,
+    );
+  });
+});
+
+describe("marítimo: por pie cúbico, el peso no aplica (16 sep 2026)", () => {
+  const MAR: TarifaMaritima = {
+    pais: "VE",
+    tarifaPieCentavos: 3_000, // $30 el pie cúbico (el agente)
+    minimoPies: 1,
+    minimoCobroCentavos: 0,
+    seguroPuntosBase: 500,
+    seguroDesdeCentavos: 30_000,
+    impuestoIncluido: true,
+    activa: true,
+  };
+  it("una caja de 24×24×24 son 8 pies cúbicos → $240", () => {
+    expect(piesCubicos({ largoIn: 24, anchoIn: 24, altoIn: 24 })).toBe(8);
+    const r = cotizarEnvioMaritimo(
+      {
+        medidas: { largoIn: 24, anchoIn: 24, altoIn: 24 },
+        valorDeclaradoCentavos: null,
+      },
+      MAR,
+    );
+    expect(r.ok && r.totalCentavos).toBe(24_000);
+  });
+  it("una caja chica paga el mínimo de 1 pie cúbico → $30", () => {
+    const r = cotizarEnvioMaritimo(
+      {
+        medidas: { largoIn: 6, anchoIn: 6, altoIn: 6 },
+        valorDeclaradoCentavos: null,
+      },
+      MAR,
+    );
+    expect(r.ok && r.piesCubicos).toBe(0.13);
+    expect(r.ok && r.piesFacturables).toBe(1);
+    expect(r.ok && r.totalCentavos).toBe(3_000);
+  });
+  it("sin medidas no cotiza, y sin tarifa activa tampoco", () => {
+    expect(
+      cotizarEnvioMaritimo(
+        { medidas: null, valorDeclaradoCentavos: null },
+        MAR,
+      ),
+    ).toEqual({ ok: false, motivo: "sin-medidas" });
+    expect(
+      cotizarEnvioMaritimo(
+        {
+          medidas: { largoIn: 24, anchoIn: 24, altoIn: 24 },
+          valorDeclaradoCentavos: null,
+        },
+        { ...MAR, activa: false },
+      ).ok,
+    ).toBe(false);
   });
 });

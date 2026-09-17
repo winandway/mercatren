@@ -74,10 +74,13 @@ export default async function PaginaCasillero({
     ? await casilleroDe(usuario.id).catch(() => null)
     : null;
   const tc = await getTranslations("casillero.calculadora");
-  const paisesCalc = cotizables.map((codigo) => ({
-    codigo,
-    nombre: tc.has(`paises.${codigo}`) ? tc(`paises.${codigo}`) : codigo,
-    salida: tc.has(`salida.${codigo}`) ? tc(`salida.${codigo}`) : undefined,
+  const paisesCalc = cotizables.map((c) => ({
+    codigo: c.codigo,
+    aereo: c.aereo,
+    maritimo: c.maritimo,
+    seguroPorciento: c.seguroPorciento,
+    nombre: tc.has(`paises.${c.codigo}`) ? tc(`paises.${c.codigo}`) : c.codigo,
+    salida: tc.has(`salida.${c.codigo}`) ? tc(`salida.${c.codigo}`) : undefined,
   }));
   const CLAVES_CALC = [
     "titulo",
@@ -107,6 +110,22 @@ export default async function PaginaCasillero({
     "renglon_seguro",
     "renglon_almacenaje",
     "renglon_ajuste-minimo",
+    "modo",
+    "aereo",
+    "maritimo",
+    "aereoAyuda",
+    "maritimoAyuda",
+    "unidad",
+    "libras",
+    "kilos",
+    "medidasBarco",
+    "medidasBarcoAyuda",
+    "seguroCasilla",
+    "seguroAyuda",
+    "totalBarco",
+    "piesFacturables",
+    "renglon_flete-maritimo",
+    "error_sin-medidas",
   ] as const;
   const textosCalc: Record<string, string> = Object.fromEntries(
     CLAVES_CALC.map((k) => [k, tc(k)]),

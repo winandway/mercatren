@@ -2,12 +2,15 @@
 
 import { desc, eq } from "drizzle-orm";
 
-import { guardarTarifaFila } from "@/lib/casillero/tarifas-guardar";
+import {
+  guardarTarifaFila,
+  guardarTarifaMaritimaFila,
+} from "@/lib/casillero/tarifas-guardar";
 
 import { esSoporteDeVerdad, obtenerUsuario } from "@/lib/autorizacion";
-import type { TarifaPais } from "@/lib/casillero/cotizar";
+import type { TarifaMaritima, TarifaPais } from "@/lib/casillero/cotizar";
 import { getDb } from "@/lib/db";
-import { tarifasCasillero } from "@/lib/db/schema";
+import { tarifasCasillero, tarifasMaritimasCasillero } from "@/lib/db/schema";
 
 /**
  * ══ LAS TARIFAS LAS PONE UNA PERSONA, DESDE EL PANEL ══
@@ -120,6 +123,80 @@ export async function tarifaDe(pais: string): Promise<TarifaPais | null> {
     })
     .from(tarifasCasillero)
     .where(eq(tarifasCasillero.pais, pais.toUpperCase()))
+    .limit(1)
+    .catch(() => []);
+  return fila ?? null;
+}
+
+/* ══ MARÍTIMO ══ */
+export async function guardarTarifaMaritima(
+  _previo: { error?: string; ok?: boolean } | null,
+  formulario: FormData,
+): Promise<{ error?: string; ok?: boolean }> {
+  if (!(await esSoporteDeVerdad())) return { error: "permiso" };
+  const usuario = await obtenerUsuario();
+  const pais = String(formulario.get("pais") ?? "")
+    .trim()
+    .toUpperCase();
+  if (!/^[A-Z]{2}$/.test(pais)) return { error: "pais" };
+  const tarifaPieCentavos = aCentavos(formulario.get("tarifaPie"));
+  const activa = formulario.get("activa") === "on";
+  if (activa && tarifaPieCentavos <= 0) return { error: "sin-precio" };
+  try {
+    await guardarTarifaMaritimaFila(
+      {
+        pais,
+        tarifaPieCentavos,
+        minimoPies: numero(formulario.get("minimoPies"), 1),
+        minimoCobroCentavos: aCentavos(formulario.get("minimoCobro")),
+        seguroPuntosBase: Math.round(
+          numero(formulario.get("seguroPorciento")) * 100,
+        ),
+        seguroDesdeCentavos: aCentavos(formulario.get("seguroDesde")),
+        impuestoIncluido: formulario.get("impuestoIncluido") === "on",
+        activa,
+        nota: String(formulario.get("nota") ?? "").trim() || null,
+      },
+      usuario?.id ?? null,
+    );
+    return { ok: true };
+  } catch (fallo) {
+    console.error("[casillero] no se pudo guardar la tarifa marítima:", fallo);
+    return { error: "fallo" };
+  }
+}
+
+const COLUMNAS_MARITIMAS = {
+  pais: tarifasMaritimasCasillero.pais,
+  tarifaPieCentavos: tarifasMaritimasCasillero.tarifaPieCentavos,
+  minimoPies: tarifasMaritimasCasillero.minimoPies,
+  minimoCobroCentavos: tarifasMaritimasCasillero.minimoCobroCentavos,
+  seguroPuntosBase: tarifasMaritimasCasillero.seguroPuntosBase,
+  seguroDesdeCentavos: tarifasMaritimasCasillero.seguroDesdeCentavos,
+  impuestoIncluido: tarifasMaritimasCasillero.impuestoIncluido,
+  activa: tarifasMaritimasCasillero.activa,
+  nota: tarifasMaritimasCasillero.nota,
+};
+
+export async function listarTarifasMaritimas() {
+  return getDb()
+    .select(COLUMNAS_MARITIMAS)
+    .from(tarifasMaritimasCasillero)
+    .orderBy(
+      desc(tarifasMaritimasCasillero.activa),
+      tarifasMaritimasCasillero.pais,
+    )
+    .limit(50)
+    .catch(() => []);
+}
+
+export async function tarifaMaritimaDe(
+  pais: string,
+): Promise<TarifaMaritima | null> {
+  const [fila] = await getDb()
+    .select(COLUMNAS_MARITIMAS)
+    .from(tarifasMaritimasCasillero)
+    .where(eq(tarifasMaritimasCasillero.pais, pais.toUpperCase()))
     .limit(1)
     .catch(() => []);
   return fila ?? null;

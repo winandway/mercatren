@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getDb } from "@/lib/db";
-import { tarifasCasillero } from "@/lib/db/schema";
+import { tarifasCasillero, tarifasMaritimasCasillero } from "@/lib/db/schema";
 
 /**
  * El guardado de una tarifa, compartido por el formulario del panel y por
@@ -33,4 +33,30 @@ export async function guardarTarifaFila(
     .insert(tarifasCasillero)
     .values(completa)
     .onConflictDoUpdate({ target: tarifasCasillero.pais, set: completa });
+}
+
+export type FilaTarifaMaritima = {
+  pais: string;
+  tarifaPieCentavos: number;
+  minimoPies: number;
+  minimoCobroCentavos: number;
+  seguroPuntosBase: number;
+  seguroDesdeCentavos: number;
+  impuestoIncluido: boolean;
+  activa: boolean;
+  nota: string | null;
+};
+
+export async function guardarTarifaMaritimaFila(
+  fila: FilaTarifaMaritima,
+  actualizadoPor: string | null,
+): Promise<void> {
+  const completa = { ...fila, actualizadoEn: new Date(), actualizadoPor };
+  await getDb()
+    .insert(tarifasMaritimasCasillero)
+    .values(completa)
+    .onConflictDoUpdate({
+      target: tarifasMaritimasCasillero.pais,
+      set: completa,
+    });
 }

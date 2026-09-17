@@ -83,7 +83,11 @@ const Peticion = z.discriminatedUnion("accion", [
   z.object({
     accion: z.literal("tarifa"),
     pais: z.string().regex(/^[A-Z]{2}$/),
-    tarifaLibra: z.number().min(0).max(100),
+    /* aereo (por libra) o maritimo (por pie cúbico; el peso no aplica). */
+    modo: z.enum(["aereo", "maritimo"]).default("aereo"),
+    tarifaPie: z.number().min(0).max(500).default(0),
+    minimoPies: z.number().min(0).max(100).default(1),
+    tarifaLibra: z.number().min(0).max(100).default(0),
     minimoLb: z.number().min(0).max(100).default(1),
     minimoCobro: z.number().min(0).max(1000).default(0),
     despacho: z.number().min(0).max(500).default(0),
@@ -99,7 +103,10 @@ const Peticion = z.discriminatedUnion("accion", [
   z.object({
     accion: z.literal("cotizar"),
     pais: z.string().regex(/^[A-Z]{2}$/),
-    pesoLb: z.number().min(0).max(500),
+    modo: z.enum(["aereo", "maritimo"]).default("aereo"),
+    unidad: z.enum(["lb", "kg"]).default("lb"),
+    conSeguro: z.boolean().optional(),
+    pesoLb: z.number().min(0).max(500).default(0),
     largoIn: z.number().min(0).max(200).optional(),
     anchoIn: z.number().min(0).max(200).optional(),
     altoIn: z.number().min(0).max(200).optional(),
@@ -189,6 +196,35 @@ export async function POST(peticion: Request) {
       break;
     }
     case "tarifa": {
+      if (e.modo === "maritimo") {
+        if (e.activa && e.tarifaPie <= 0) {
+          resultado = {
+            ok: false,
+            motivo: "No se enciende una tarifa marítima sin precio por pie.",
+          };
+          break;
+        }
+        const { guardarTarifaMaritimaFila } =
+          await import("@/lib/casillero/tarifas-guardar");
+        const cm = (d: number) => Math.round(d * 100);
+        await guardarTarifaMaritimaFila(
+          {
+            pais: e.pais,
+            tarifaPieCentavos: cm(e.tarifaPie),
+            minimoPies: e.minimoPies,
+            minimoCobroCentavos: cm(e.minimoCobro),
+            seguroPuntosBase: Math.round(e.seguroPorciento * 100),
+            seguroDesdeCentavos: cm(e.seguroDesde),
+            impuestoIncluido: e.impuestoIncluido,
+            activa: e.activa,
+            nota: e.nota?.trim() || null,
+          },
+          "puerta de pruebas (GitHub)",
+        );
+        const { tarifaMaritimaDe } = await import("@/lib/casillero/tarifas");
+        resultado = { ok: true, guardada: await tarifaMaritimaDe(e.pais) };
+        break;
+      }
       if (e.activa && e.tarifaLibra <= 0) {
         resultado = {
           ok: false,
@@ -222,21 +258,36 @@ export async function POST(peticion: Request) {
       break;
     }
     case "cotizar": {
-      const { tarifaDe } = await import("@/lib/casillero/tarifas");
-      const { cotizarEnvio } = await import("@/lib/casillero/cotizar");
-      const tarifa = await tarifaDe(e.pais);
+      const { tarifaDe, tarifaMaritimaDe } =
+        await import("@/lib/casillero/tarifas");
+      const { aLibras, cotizarEnvio, cotizarEnvioMaritimo } =
+        await import("@/lib/casillero/cotizar");
       const medidas =
         e.largoIn && e.anchoIn && e.altoIn
           ? { largoIn: e.largoIn, anchoIn: e.anchoIn, altoIn: e.altoIn }
           : null;
+      const valorDeclaradoCentavos =
+        e.valorUsd !== undefined ? Math.round(e.valorUsd * 100) : null;
+      if (e.modo === "maritimo") {
+        const tarifa = await tarifaMaritimaDe(e.pais);
+        resultado = {
+          tarifa,
+          cotizacion: cotizarEnvioMaritimo(
+            { medidas, valorDeclaradoCentavos, conSeguro: e.conSeguro },
+            tarifa,
+          ),
+        };
+        break;
+      }
+      const tarifa = await tarifaDe(e.pais);
       resultado = {
         tarifa,
         cotizacion: cotizarEnvio(
           {
-            pesoRealLb: e.pesoLb,
+            pesoRealLb: aLibras(e.pesoLb, e.unidad),
             medidas,
-            valorDeclaradoCentavos:
-              e.valorUsd !== undefined ? Math.round(e.valorUsd * 100) : null,
+            valorDeclaradoCentavos,
+            conSeguro: e.conSeguro,
             diasEnBodega: e.diasEnBodega,
           },
           tarifa,
