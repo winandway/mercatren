@@ -96,3 +96,21 @@ describe("los textos con variables usan comillas angulares, no llaves", () => {
     ).toContain('"«PORCIENTO»"');
   });
 });
+
+describe("«Detalles del producto», su ayuda, y todos los campos obligatorios (16 sep 2026)", () => {
+  const comp = readFileSync(
+    "src/components/casillero/calculadora-envio.tsx",
+    "utf8",
+  );
+  it("el título y el «?» con la explicación de cada campo", () => {
+    expect(comp).toContain("textos.detallesTitulo");
+    expect(comp).toContain("aria-label={textos.ayudaBoton}");
+    expect(comp).toMatch(/\["peso", "valor", "medidas", "seguro"\] as const/);
+  });
+  it("peso, valor y medidas llevan asterisco y required", () => {
+    expect(comp).toContain("{textos.peso} *");
+    expect(comp).toContain("{textos.valor} *");
+    expect(comp).toMatch(/name="valorUsd"\s+inputMode="decimal"\s+required/);
+    expect(comp).not.toContain('required={modoReal === "maritimo"}');
+  });
+});

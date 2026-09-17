@@ -126,6 +126,17 @@ export default async function PaginaCasillero({
     "piesFacturables",
     "renglon_flete-maritimo",
     "error_sin-medidas",
+    "detallesTitulo",
+    "ayudaBoton",
+    "obligatorios",
+    "ayuda_peso_titulo",
+    "ayuda_peso",
+    "ayuda_valor_titulo",
+    "ayuda_valor",
+    "ayuda_medidas_titulo",
+    "ayuda_medidas",
+    "ayuda_seguro_titulo",
+    "ayuda_seguro",
   ] as const;
   const textosCalc: Record<string, string> = Object.fromEntries(
     CLAVES_CALC.map((k) => [k, tc(k)]),

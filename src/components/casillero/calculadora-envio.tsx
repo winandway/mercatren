@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, Plane, Ship } from "lucide-react";
+import { Calculator, CircleHelp, Plane, Ship } from "lucide-react";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 
@@ -48,6 +48,7 @@ export function CalculadoraEnvio({
   );
   const [pais, setPais] = useState(paises[0]?.codigo ?? "");
   const [modo, setModo] = useState<"aereo" | "maritimo">("aereo");
+  const [ayudaAbierta, setAyudaAbierta] = useState(false);
   const elegidoAhora = paises.find((p) => p.codigo === pais);
   const modoReal =
     modo === "maritimo" && elegidoAhora?.maritimo
@@ -127,9 +128,39 @@ export function CalculadoraEnvio({
           </p>
         </fieldset>
 
+        {/* ══ DETALLES DEL PRODUCTO (Richard, 16 sep 2026) ══ Un título que
+            agrupa lo que describe la caja, un «?» que explica cada campo, y
+            todos obligatorios: sin peso, valor y medidas el número es un
+            adivino. */}
+        <div className="mt-1 flex items-center justify-between gap-2 border-t border-borde pt-4 sm:col-span-2">
+          <h3 className="text-base font-bold">{textos.detallesTitulo}</h3>
+          <button
+            type="button"
+            onClick={() => setAyudaAbierta((v) => !v)}
+            aria-expanded={ayudaAbierta}
+            aria-label={textos.ayudaBoton}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-borde text-tinta-suave hover:bg-slate-50"
+          >
+            <CircleHelp className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+        {ayudaAbierta ? (
+          <dl className="rounded-lg bg-slate-50 p-3 text-sm sm:col-span-2">
+            {(["peso", "valor", "medidas", "seguro"] as const).map((k) => (
+              <div key={k} className="py-1">
+                <dt className="font-semibold">{textos[`ayuda_${k}_titulo`]}</dt>
+                <dd className="text-tinta-suave">{textos[`ayuda_${k}`]}</dd>
+              </div>
+            ))}
+            <p className="pt-1 text-xs text-tinta-suave">
+              {textos.obligatorios}
+            </p>
+          </dl>
+        ) : null}
+
         {modoReal === "aereo" ? (
           <label className="block">
-            <span className="text-sm font-semibold">{textos.peso}</span>
+            <span className="text-sm font-semibold">{textos.peso} *</span>
             <span className="mt-1 flex gap-2">
               <input
                 name="peso"
@@ -160,10 +191,11 @@ export function CalculadoraEnvio({
         <label
           className={`block ${modoReal === "maritimo" ? "sm:col-span-2" : ""}`}
         >
-          <span className="text-sm font-semibold">{textos.valor}</span>
+          <span className="text-sm font-semibold">{textos.valor} *</span>
           <input
             name="valorUsd"
             inputMode="decimal"
+            required
             placeholder="0"
             className={campo}
           />
@@ -174,7 +206,7 @@ export function CalculadoraEnvio({
 
         <div className="sm:col-span-2">
           <span className="text-sm font-semibold">
-            {modoReal === "maritimo" ? textos.medidasBarco : textos.medidas}
+            {modoReal === "maritimo" ? textos.medidasBarco : textos.medidas} *
           </span>
           <div className="mt-1 grid grid-cols-3 gap-2">
             {(["largoIn", "anchoIn", "altoIn"] as const).map((n) => (
@@ -182,7 +214,7 @@ export function CalculadoraEnvio({
                 key={n}
                 name={n}
                 inputMode="decimal"
-                required={modoReal === "maritimo"}
+                required
                 placeholder={textos[n]}
                 aria-label={textos[n]}
                 className="w-full rounded-lg border border-borde px-3 py-2 text-sm"
