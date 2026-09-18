@@ -29,6 +29,8 @@ import { getDb } from "@/lib/db";
 import { condicionDeBusqueda } from "./buscar";
 import { conteosDe } from "./conteos";
 import { armarDepartamentos } from "./conteos-armar";
+import { fotoDeTurnoDe } from "./fotos-de-producto";
+import type { FotoGuardada } from "./fotos-de-producto-armar";
 import {
   categorias,
   depositos,
@@ -258,17 +260,29 @@ export type ProductoLista = {
  */
 const SIN_FOTOS_ROTAS = sql`NOT EXISTS (SELECT 1 FROM fotos_rotas fr WHERE fr.imagen_id = imagenes_producto.id AND fr.definitiva = 1 AND fr.url = imagenes_producto.url)`;
 
-function fotoDeTurno(semilla: number) {
-  const desplazamiento = sql.raw(String(Math.trunc(Math.abs(semilla)) || 0));
-  const turno = sql`((ROW_NUMBER() OVER (ORDER BY ${imagenesProducto.orden}, imagenes_producto.rowid) + ${desplazamiento}) % COUNT(*) OVER ())`;
-  const elegir = (columna: SQL) =>
-    sql<
-      string | null
-    >`(SELECT ${columna} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} AND ${SIN_FOTOS_ROTAS} ORDER BY ${turno} LIMIT 1)`;
+/**
+ * ══ LA FOTO DE TURNO YA NO SE ELIGE EN SQL (emergencia de costo, 18 sep 2026) ══
+ *
+ * Aquí vivía `fotoDeTurno`: tres subconsultas por fila (url, clave, alt)
+ * con funciones de ventana y el cruce con `fotos_rotas`, evaluadas para
+ * CADA producto de cada listado —y en la portada, para las 17.000 filas
+ * que entraban al ORDER BY antes de quedarse con 48—. Cien millones de
+ * filas a la hora. Ahora cada listado trae sus productos SIN foto y después
+ * pide UNA fila por producto a `fotos_de_producto` (`fotoDeTurnoDe`), que
+ * ya trae la lista sana y elige en código con la misma semilla. Ver
+ * `fotos-de-producto.ts`.
+ */
+function imagenDe(
+  fotos: Map<string, FotoGuardada | null>,
+  id: string,
+): { imagenUrl: string | null; imagenAlt: string | null } {
+  const f = fotos.get(id) ?? null;
   return {
-    url: elegir(sql`${imagenesProducto.url}`),
-    clave: elegir(sql`${imagenesProducto.clave}`),
-    alt: elegir(sql`${imagenesProducto.textoAltEs}`),
+    imagenUrl: direccionImagen({
+      url: f?.url ?? null,
+      clave: f?.clave ?? null,
+    }),
+    imagenAlt: f?.altEs ?? null,
   };
 }
 
@@ -286,7 +300,6 @@ export async function listarProductos(
   filtros: FiltrosCatalogo = {},
 ) {
   const db = getDb();
-  const foto = fotoDeTurno(semillaDelDia());
   const pagina = Math.max(1, filtros.pagina ?? 1);
   const porPagina = Math.min(60, Math.max(6, filtros.porPagina ?? 24));
 
@@ -382,9 +395,6 @@ export async function listarProductos(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
-      fotoUrl: foto.url,
-      fotoClave: foto.clave,
-      fotoAlt: foto.alt,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -393,6 +403,11 @@ export async function listarProductos(
     .orderBy(orden, desc(productos.actualizadoEn))
     .limit(porPagina)
     .offset((pagina - 1) * porPagina);
+
+  const fotos = await fotoDeTurnoDe(
+    filas.map((f) => f.id),
+    semillaDelDia(),
+  );
 
   /* El catálogo también salía en bloque cuando no hay filtro de comercio. */
   const lista: ProductoLista[] = intercalarPorTienda(
@@ -415,8 +430,7 @@ export async function listarProductos(
       tiendaNombre: f.tiendaNombre,
       tiendaSlug: f.tiendaSlug,
       tiendaPais: f.tiendaPais,
-      imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-      imagenAlt: f.fotoAlt,
+      ...imagenDe(fotos, f.id),
     })),
     (p) => p.tiendaSlug,
   );
@@ -587,7 +601,6 @@ export async function productosSimilares(
   limite = 10,
 ): Promise<ProductoLista[]> {
   const db = getDb();
-  const foto = fotoDeTurno(semillaDelDia());
   const tope = Math.min(24, Math.max(1, limite));
 
   /**
@@ -633,9 +646,6 @@ export async function productosSimilares(
         tiendaNombre: tiendas.nombre,
         tiendaSlug: tiendas.slug,
         tiendaPais: tiendas.paisOrigen,
-        fotoUrl: foto.url,
-        fotoClave: foto.clave,
-        fotoAlt: foto.alt,
       })
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -656,6 +666,10 @@ export async function productosSimilares(
       : [];
 
   const filas = [...mismaCategoria, ...mismaTienda].slice(0, tope);
+  const fotos = await fotoDeTurnoDe(
+    filas.map((f) => f.id),
+    semillaDelDia(),
+  );
 
   return filas.map((f): ProductoLista => ({
     id: f.id,
@@ -674,8 +688,7 @@ export async function productosSimilares(
     tiendaNombre: f.tiendaNombre,
     tiendaSlug: f.tiendaSlug,
     tiendaPais: f.tiendaPais,
-    imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-    imagenAlt: f.fotoAlt,
+    ...imagenDe(fotos, f.id),
   }));
 }
 
@@ -1128,7 +1141,6 @@ async function parrillaSinCache(
   zona?: string[],
 ) {
   const db = getDb();
-  const foto = fotoDeTurno(semilla);
 
   const visible = visibleAqui(mercado);
   const donde = zona?.length
@@ -1154,9 +1166,6 @@ async function parrillaSinCache(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
-      fotoUrl: foto.url,
-      fotoClave: foto.clave,
-      fotoAlt: foto.alt,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -1235,6 +1244,10 @@ async function parrillaSinCache(
     : [{ n: (await conteosDe(mercado)).totalConPrecio }];
 
   const total = Number(conteo?.n ?? 0);
+  const fotos = await fotoDeTurnoDe(
+    filas.map((f) => f.id),
+    semilla,
+  );
 
   return {
     /* SE INTERCALA DESPUÉS DE CONSULTAR, no en el SQL: el orden que llega ya
@@ -1258,8 +1271,7 @@ async function parrillaSinCache(
         tiendaNombre: f.tiendaNombre,
         tiendaSlug: f.tiendaSlug,
         tiendaPais: f.tiendaPais,
-        imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-        imagenAlt: f.fotoAlt,
+        ...imagenDe(fotos, f.id),
       })),
       /* Por FAMILIA, no por tienda: seis de CJ seguidos son seis tiendas
          distintas para el intercalado por tienda, y el dueño los ve como un
@@ -1339,7 +1351,6 @@ async function bandasSinCache(
   if (conProductos.length === 0) return [];
 
   const db = getDb();
-  const foto = fotoDeTurno(semilla);
   const visible = visibleAqui(mercado);
 
   return Promise.all(
@@ -1362,9 +1373,6 @@ async function bandasSinCache(
           tiendaNombre: tiendas.nombre,
           tiendaSlug: tiendas.slug,
           tiendaPais: tiendas.paisOrigen,
-          fotoUrl: foto.url,
-          fotoClave: foto.clave,
-          fotoAlt: foto.alt,
         })
         .from(productos)
         .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -1392,6 +1400,10 @@ async function bandasSinCache(
         .orderBy(...ordenPorRondas(semilla))
         .limit(porBanda);
 
+      const fotos = await fotoDeTurnoDe(
+        filas.map((f) => f.id),
+        semilla,
+      );
       return {
         slug: d.slug,
         nombre: d.nombre,
@@ -1416,8 +1428,7 @@ async function bandasSinCache(
             tiendaNombre: f.tiendaNombre,
             tiendaSlug: f.tiendaSlug,
             tiendaPais: f.tiendaPais,
-            imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-            imagenAlt: f.fotoAlt,
+            ...imagenDe(fotos, f.id),
           })),
           familiaDe,
         ),

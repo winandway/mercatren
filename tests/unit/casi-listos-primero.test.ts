@@ -93,9 +93,10 @@ describe("el afinado dice por qué falla", () => {
 describe("el afinado no se atasca en lo que ya falló", () => {
   it("lo nunca intentado va antes que lo que ya falló", () => {
     const afinar = leer("src/lib/cj/afinar.ts");
+    /* El orden vive en `ordenDeLaCola` desde el 18 sep 2026. */
     const orden = afinar.slice(
-      afinar.indexOf(".orderBy("),
-      afinar.indexOf(".limit(o.limite)"),
+      afinar.indexOf("function ordenDeLaCola("),
+      afinar.indexOf("function condicionDeCola("),
     );
     const nunca = orden.indexOf("cotizadoEn} is not null");
     const fecha = orden.indexOf("asc(enviosProducto.cotizadoEn)");

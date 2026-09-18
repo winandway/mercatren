@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { getDb } from "@/lib/db";
+import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import { imagenesProducto } from "@/lib/db/schema";
 import { nombreDeFoto } from "@/lib/imagenes/nombre-de-foto";
 
@@ -86,6 +87,7 @@ export async function copiarFotoAlBucket(
       .update(imagenesProducto)
       .set({ clave, url: null })
       .where(eq(imagenesProducto.id, foto.id));
+    await olvidarFotosDe([foto.productoId]);
 
     return { ok: true, clave };
   } catch (error) {

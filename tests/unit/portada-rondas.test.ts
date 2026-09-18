@@ -115,21 +115,37 @@ describe("el orden por rondas de vendedor", () => {
 });
 
 describe("la foto de turno", () => {
-  it("las tarjetas ya no clavan la primera foto: rota con la semilla, y las tres columnas hablan de la misma foto", () => {
+  it("las tarjetas ya no clavan la primera foto: rota con la semilla, en código y sobre la lista guardada (18 sep 2026)", () => {
     expect(fuente).not.toContain("PRIMERA_FOTO");
-    const foto = tramo("function fotoDeTurno(", "function semillaDelDia(");
-    expect(foto).toContain(
-      "ROW_NUMBER() OVER (ORDER BY ${imagenesProducto.orden}, imagenes_producto.rowid)",
+    /* Ya no hay subconsultas por fila para la foto: ni la ventana sobre
+       las imágenes ni `elegir(sql`. (La ventana de las RONDAS sigue.) */
+    expect(fuente).not.toContain(
+      "ROW_NUMBER() OVER (ORDER BY ${imagenesProducto.orden}",
     );
-    expect(foto).toContain("% COUNT(*) OVER ()");
-    /* url, clave y alt salen de la misma función `elegir` con el mismo orden */
-    expect(foto.match(/elegir\(sql`/g)?.length).toBe(3);
+    expect(fuente).not.toContain("% COUNT(*) OVER ()");
+    expect(fuente).not.toContain("elegir(sql`");
+    expect(fuente).toContain("function imagenDe(");
+    const armar = readFileSync(
+      "src/lib/catalogo/fotos-de-producto-armar.ts",
+      "utf8",
+    );
+    expect(armar).toContain("export function elegirFoto(");
   });
 
   it("se usa en la parrilla, las bandas, el catálogo y los similares", () => {
+    expect(fuente.match(/await fotoDeTurnoDe\(/g)?.length).toBe(4);
+    expect(fuente.match(/\.\.\.imagenDe\(fotos, f\.id\),/g)?.length).toBe(4);
+    /* Con la semilla de la visita en la portada y la del día en el resto. */
     expect(
-      fuente.match(/fotoDeTurno\((semilla|semillaDelDia\(\))\)/g)?.length,
-    ).toBe(4);
+      fuente.match(
+        /fotoDeTurnoDe\(\s*filas\.map\(\(f\) => f\.id\),\s*semilla,/g,
+      )?.length,
+    ).toBe(2);
+    expect(
+      fuente.match(
+        /fotoDeTurnoDe\(\s*filas\.map\(\(f\) => f\.id\),\s*semillaDelDia\(\),/g,
+      )?.length,
+    ).toBe(2);
   });
 });
 

@@ -117,6 +117,42 @@ con `Set-Cookie`. El sitio daba `BYPASS:set-cookie` porque next-intl ponía
     producción (`opennextjs-cloudflare build` + `wrangler dev`): el 307 y el
     `text/x-component` salen `private`; el HTML sin cookie, `public`.
 
+**La tercera parte (18 sep 2026): las ocho consultas que quedaban.** Con
+los conteos fuera y el borde guardando, la plataforma midió 180–280 M
+filas/hora (antes 1.100 M); la meta es < 33 M/hora. Lo que quedaba:
+
+11. **El listado de productos (~100 M/hora)**: no los productos, la FOTO.
+    `fotoDeTurno` era tres subconsultas por fila (url, clave, alt) con
+    funciones de ventana y el cruce con `fotos_rotas`; y en la portada, con
+    `ORDER BY` de ventana, SQLite las evaluaba para las 17.000 filas antes
+    de quedarse con 48 (149.000 filas por portada). Ahora la tabla
+    `fotos_de_producto` guarda por producto su lista de fotos sanas (hasta
+    12, JSON); cada listado trae sus productos SIN foto y después UNA fila
+    por producto (`fotoDeTurnoDe`), y elige en código con la misma regla
+    (`elegirFoto`, comprobada idéntica al SQL con 10 semillas × 1–7 fotos).
+    Se llena sola la primera vez, se olvida donde cambian las fotos
+    (`olvidarFotosDe` en subir, borrar, alt, copiar al bucket, sincronizar,
+    dar por rota) y el reloj rehace las de más de un día (150 por latido).
+12. **La sincronización con CJ (~80 M/hora)**: cada latido (uno por
+    minuto) contaba y ordenaba la cola del afinado (292.000 + 275.000
+    filas), elegía a quién le toca stock (otro recorrido), barría los no
+    verificados (dos UPDATE de 100.000–165.000 filas) y contaba las fotos
+    por traer (56.000). Ahora el afinado y el stock calculan una LISTA de
+    ids (300 y 200) una vez por tanda o cada media hora, la guardan en
+    `configuracion` (`cj_cola_afinado`, `cj_cola_stock`) y cada latido toma
+    los suyos y los vuelve a mirar por id (seis filas); la lista del
+    afinado se rehace si cambia la prioridad. El barrido corre cuando el
+    afinado hizo algo o cada 15 minutos (`reloj_ultimo_barrido`), más el
+    del vigilante cada 20. El conteo de fotos por traer se recuerda media
+    hora (`fotos_por_traer_conteo`). El orden de las colas es el de
+    siempre; solo se calcula menos veces.
+
+Candados: `tests/unit/fotos-de-producto.test.ts` y
+`sincronizacion-sin-recorrer-el-catalogo.test.ts` (los dos comprobados en
+rojo). Lo que sigue leyendo el catálogo entero y se acepta por ahora: la
+parrilla de la portada (17.000 filas por cálculo, cada minuto por sede, ya
+sin fotos), las bandas y el catálogo sin filtros ordenado por novedad.
+
 Comprobación: `curl -s -D - -o /dev/null https://mercatren.com/es/ayuda`
 dos veces (GET: la plataforma no guarda los HEAD); la segunda con
 `x-yad-cache: HIT` y sin `set-cookie`. Y la del veneno:

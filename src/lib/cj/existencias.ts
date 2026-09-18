@@ -24,6 +24,7 @@ import { REGIONALES } from "@/lib/cj/riesgo";
 import { variantesDeCj } from "@/lib/cj/variantes";
 import { getDb } from "@/lib/db";
 import {
+  configuracion,
   enviosProducto,
   productos,
   tiendas,
@@ -181,43 +182,77 @@ function casiListo() {
 
 const PLAZAS_CON_ALMACEN = ["US", "CL", "CO"] as const;
 
-/** Cuántas fichas están a una lectura de stock de volver a la venta. */
-export async function contarCasiListos(): Promise<number> {
+/**
+ * ══ LA COLA DEL STOCK SE CALCULA UNA VEZ Y SE CONSUME POR LATIDOS
+ * (emergencia de costo, 18 sep 2026) ══
+ *
+ * Elegir a quién le toca lectura de stock ordenaba TODO lo de CJ (casi
+ * listos primero, después lo publicado por fecha) y contar los casi listos
+ * recorría lo mismo otra vez; las dos cosas, cada minuto, para mirar dos o
+ * cuatro productos. Ahora se calcula una lista de `COLA_STOCK_TANDA` ids y
+ * el conteo de una vez, se guardan en `configuracion`, y cada latido toma
+ * los suyos y los vuelve a mirar por id. La lista se rehace cuando se
+ * acaba o a la media hora. El orden es el de siempre.
+ */
+const COLA_STOCK_TANDA = 200;
+const COLA_STOCK_VIGENCIA_MS = 30 * 60_000;
+export const LLAVE_COLA_STOCK = "cj_cola_stock";
+
+type ColaDeStock = { ids: string[]; casiListos: number; calculadaEn: number };
+
+async function leerColaDeStock(): Promise<ColaDeStock | null> {
+  const [fila] = await getDb()
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, LLAVE_COLA_STOCK))
+    .limit(1)
+    .catch(() => []);
+  if (!fila) return null;
   try {
-    const [fila] = await getDb()
-      .select({ n: sql<number>`count(*)` })
-      .from(productos)
-      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(
-        and(
-          eq(productos.fuenteId, FUENTE_CJ),
-          inArray(tiendas.paisOrigen, [...PLAZAS_CON_ALMACEN]),
-          casiListo(),
-        ),
-      );
-    return Number(fila?.n ?? 0);
+    const c = JSON.parse(fila.valor) as Partial<ColaDeStock>;
+    if (
+      !Array.isArray(c.ids) ||
+      typeof c.casiListos !== "number" ||
+      typeof c.calculadaEn !== "number"
+    )
+      return null;
+    if (Date.now() - c.calculadaEn > COLA_STOCK_VIGENCIA_MS) return null;
+    return c as ColaDeStock;
   } catch {
-    return 0;
+    return null;
   }
 }
 
-export async function refrescarExistenciasCj(limite = 25): Promise<{
-  mirados: number;
-  agotados: number;
-  fallidos: number;
-  /** El motivo del último producto que falló, para el canario. */
-  ultimoFallo?: string;
-}> {
-  if (!cjConfigurado()) return { mirados: 0, agotados: 0, fallidos: 0 };
+async function guardarColaDeStock(cola: ColaDeStock): Promise<void> {
+  const valor = JSON.stringify(cola);
+  await getDb()
+    .insert(configuracion)
+    .values({ clave: LLAVE_COLA_STOCK, valor })
+    .onConflictDoUpdate({ target: configuracion.clave, set: { valor } })
+    .catch(() => undefined);
+}
+
+/** La lista vigente, o una recién calculada (las dos consultas caras). */
+async function colaDeStock(): Promise<ColaDeStock> {
+  const guardada = await leerColaDeStock();
+  if (guardada) return guardada;
   const db = getDb();
+  const [fila] = await db
+    .select({ n: sql<number>`count(*)` })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(
+      and(
+        eq(productos.fuenteId, FUENTE_CJ),
+        inArray(tiendas.paisOrigen, [...PLAZAS_CON_ALMACEN]),
+        casiListo(),
+      ),
+    )
+    .catch(() => []);
   /* Las tres plazas: cada producto se mira en el almacén del que sale su
      tienda (EE. UU. o China). */
-  const cola = await db
-    .select({
-      id: productos.id,
-      pid: productos.externoId,
-      pais: tiendas.paisOrigen,
-    })
+  const ids = await db
+    .select({ id: productos.id })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .where(
@@ -241,7 +276,68 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
       sql`${productos.sincronizadoEn} IS NOT NULL`,
       asc(productos.sincronizadoEn),
     )
-    .limit(limite)
+    .limit(COLA_STOCK_TANDA)
+    .catch(() => []);
+  const cola = {
+    ids: ids.map((f) => f.id),
+    casiListos: Number(fila?.n ?? 0),
+    calculadaEn: Date.now(),
+  };
+  await guardarColaDeStock(cola);
+  return cola;
+}
+
+/** Cuántas fichas están a una lectura de stock de volver a la venta. */
+export async function contarCasiListos(): Promise<number> {
+  try {
+    return (await colaDeStock()).casiListos;
+  } catch {
+    return 0;
+  }
+}
+
+export async function refrescarExistenciasCj(limite = 25): Promise<{
+  mirados: number;
+  agotados: number;
+  fallidos: number;
+  /** El motivo del último producto que falló, para el canario. */
+  ultimoFallo?: string;
+}> {
+  if (!cjConfigurado()) return { mirados: 0, agotados: 0, fallidos: 0 };
+  const db = getDb();
+  const guardada = await colaDeStock();
+  if (guardada.ids.length === 0) {
+    /* Lista agotada: la vuelta siguiente la rehace. */
+    await guardarColaDeStock({ ...guardada, calculadaEn: 0 });
+    return { mirados: 0, agotados: 0, fallidos: 0 };
+  }
+  const turno = guardada.ids.slice(0, limite);
+  await guardarColaDeStock({
+    ...guardada,
+    ids: guardada.ids.slice(turno.length),
+  });
+  /* Se vuelven a mirar por id, en el orden de la lista: pocas filas. */
+  const cola = await db
+    .select({
+      id: productos.id,
+      pid: productos.externoId,
+      pais: tiendas.paisOrigen,
+    })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(
+      and(
+        inArray(productos.id, turno),
+        eq(productos.fuenteId, FUENTE_CJ),
+        inArray(productos.estado, ["publicado", "en_revision"]),
+      ),
+    )
+    .orderBy(
+      sql`case ${sql.join(
+        turno.map((id, i) => sql`when ${productos.id} = ${id} then ${i}`),
+        sql` `,
+      )} else ${turno.length} end`,
+    )
     .catch(() => []);
 
   let agotados = 0;

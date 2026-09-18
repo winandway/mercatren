@@ -13,6 +13,7 @@ import {
 import { adivinarDepartamento } from "@/lib/catalogo/departamentos";
 import { precioConAjusteCentavos } from "@/lib/dinero";
 import { getDb } from "@/lib/db";
+import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import { mensajes } from "@/lib/mensajes";
 import {
   categorias,
@@ -388,6 +389,7 @@ export async function sincronizarCatalogo(
           orden: f.position ?? i,
         });
       }
+      await olvidarFotosDe([productoId]);
     }
   }
 

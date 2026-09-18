@@ -13,7 +13,12 @@ import { REGIONALES } from "@/lib/cj/riesgo";
 import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { elegirVariante, variantesDeCj } from "@/lib/cj/variantes";
 import { getDb, type Db } from "@/lib/db";
-import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
+import {
+  configuracion,
+  enviosProducto,
+  productos,
+  tiendas,
+} from "@/lib/db/schema";
 import { precioPublicadoDe } from "@/lib/destino/precio-plaza";
 import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 import { tasaVigente } from "@/lib/mercado/tasas";
@@ -45,6 +50,84 @@ export type ResultadoAfinado = {
   /** El motivo del último producto que falló, para el canario. */
   ultimoFallo?: string;
 };
+
+/** Cuántos ids se guardan por cálculo: unos cincuenta latidos de seis. */
+const COLA_TANDA = 300;
+/** Pasado esto, la lista se rehace aunque queden ids: el catálogo cambia. */
+const COLA_VIGENCIA_MS = 30 * 60_000;
+export const LLAVE_COLA_AFINADO = "cj_cola_afinado";
+
+type ColaGuardada = {
+  ids: string[];
+  restantes: number;
+  calculadaEn: number;
+  paises: string[];
+  prioridad: string[];
+};
+
+async function leerColaGuardada(
+  db: Db,
+  paises: string[],
+  prioridad: string[],
+): Promise<ColaGuardada | null> {
+  const [fila] = await db
+    .select({ valor: configuracion.valor })
+    .from(configuracion)
+    .where(eq(configuracion.clave, LLAVE_COLA_AFINADO))
+    .limit(1)
+    .catch(() => []);
+  if (!fila) return null;
+  try {
+    const c = JSON.parse(fila.valor) as Partial<ColaGuardada>;
+    if (
+      !Array.isArray(c.ids) ||
+      typeof c.restantes !== "number" ||
+      typeof c.calculadaEn !== "number" ||
+      !Array.isArray(c.paises) ||
+      !Array.isArray(c.prioridad)
+    ) {
+      return null;
+    }
+    if (Date.now() - c.calculadaEn > COLA_VIGENCIA_MS) return null;
+    if (c.paises.join(",") !== paises.join(",")) return null;
+    if (c.prioridad.join(",") !== prioridad.join(",")) return null;
+    return c as ColaGuardada;
+  } catch {
+    return null;
+  }
+}
+
+async function guardarColaGuardada(db: Db, cola: ColaGuardada) {
+  const valor = JSON.stringify(cola);
+  await db
+    .insert(configuracion)
+    .values({ clave: LLAVE_COLA_AFINADO, valor })
+    .onConflictDoUpdate({ target: configuracion.clave, set: { valor } })
+    .catch(() => undefined);
+}
+
+function ordenDeLaCola(prioridad: string[]) {
+  return [
+    /* ══ 1. LO QUE UNA PERSONA PIDIÓ PRIMERO (9 sep 2026) ══ Richard:
+       «póngalos a la cabeza de la fila». Ver `prioridad.ts`. */
+    ...(prioridad.length > 0
+      ? [sql`case when ${inArray(productos.id, prioridad)} then 0 else 1 end`]
+      : []),
+    /* ══ 2. LO NUNCA INTENTADO ANTES QUE LO QUE YA FALLÓ (8 sep 2026) ══
+       Fallar solo le sube la fecha; sin esto, un puñado que CJ no cotiza
+       volvía a la cabeza en cada vuelta y 44.000 no tuvieron turno. */
+    sql`${enviosProducto.cotizadoEn} is not null`,
+    /* ══ 3. VARIADO, NO PURA ROPA (9 sep 2026) ══ Richard: «si usted mira
+       lo que está saliendo en Estados Unidos todos los días, es pura
+       ropa». «La ropa primero» venía de cuando lo sin tallas se vendía
+       sin afinar; hoy nada de CJ sale sin flete real, así que ya no
+       tenía sentido. Se toma el 1.º de cada departamento, luego el 2.º de
+       cada uno, y así: lo publicado del día se parece al catálogo. */
+    sql`row_number() over (partition by ${productos.categoriaId} order by ${enviosProducto.cotizadoEn}, ${productos.creadoEn})`,
+    asc(enviosProducto.cotizadoEn),
+    asc(productos.creadoEn),
+  ];
+}
 
 function condicionDeCola(paises: string[]) {
   return and(
@@ -101,15 +184,6 @@ export async function afinarImportados(o: {
   const paises = o.plaza ? [o.plaza.paisEntrega] : ["US", "CL", "CO"];
   const hasta = Date.now() + o.presupuestoMs;
 
-  const [total] = await db
-    .select({ n: sql<number>`count(*)` })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(condicionDeCola(paises));
-  const restantesAlEmpezar = Number(total?.n ?? 0);
-  if (restantesAlEmpezar === 0) return vacio;
-
   const prioridad = await leerPrioridad(db);
   /* ══ LO PEDIDO QUE FALLA SALE DE LA LISTA (9 sep 2026) ══ Los dos
      monitores de Richard volvían a la cabeza en CADA latido con CJ
@@ -119,7 +193,78 @@ export async function afinarImportados(o: {
   const soltarSiEraPedido = async (id: string) => {
     if (prioridad.includes(id)) await quitarDePrioridad(id, db);
   };
-  const cola = await db
+
+  /**
+   * ══ LA COLA SE CALCULA UNA VEZ Y SE CONSUME POR LATIDOS (emergencia de
+   * costo, 18 sep 2026) ══
+   *
+   * Contar y ordenar la cola recorre el catálogo entero de CJ con un LEFT
+   * JOIN a los envíos y cuatro `lower(transporte) LIKE`: 292.000 filas el
+   * conteo y 275.000 la lista, y esto corría CADA MINUTO para sacar seis
+   * productos. Medido el 18 sep: ~40 millones de filas a la hora solo aquí.
+   *
+   * Ahora la consulta cara corre una vez cada `COLA_TANDA` productos (unos
+   * cincuenta latidos) o cada media hora, guarda los ids en `configuracion`,
+   * y cada latido toma los suyos de la lista y los vuelve a mirar por id
+   * (seis filas). Si la lista de prioridad cambia, se rehace: lo que pidió
+   * una persona sigue saliendo primero. El orden es exactamente el de
+   * siempre; solo se calcula menos veces.
+   */
+  const guardada = await leerColaGuardada(db, paises, prioridad);
+  let cola: ColaGuardada;
+  if (guardada) {
+    cola = guardada;
+  } else {
+    const [total] = await db
+      .select({ n: sql<number>`count(*)` })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
+      .where(condicionDeCola(paises));
+    const restantes = Number(total?.n ?? 0);
+    const ids =
+      restantes === 0
+        ? []
+        : (
+            await db
+              .select({ id: productos.id })
+              .from(productos)
+              .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+              .leftJoin(
+                enviosProducto,
+                eq(enviosProducto.productoId, productos.id),
+              )
+              .where(condicionDeCola(paises))
+              .orderBy(...ordenDeLaCola(prioridad))
+              .limit(COLA_TANDA)
+          ).map((f) => f.id);
+    cola = {
+      ids,
+      restantes,
+      calculadaEn: Date.now(),
+      paises,
+      prioridad,
+    };
+    await guardarColaGuardada(db, cola);
+  }
+  const restantesAlEmpezar = cola.restantes;
+  if (restantesAlEmpezar === 0 || cola.ids.length === 0) {
+    /* Con la lista agotada pero productos que siguen faltando (los que
+       fallaron y se pospusieron), la vuelta siguiente rehace la lista. */
+    if (cola.ids.length === 0 && restantesAlEmpezar > 0) {
+      await guardarColaGuardada(db, { ...cola, calculadaEn: 0 });
+    }
+    return { ...vacio, restantes: restantesAlEmpezar };
+  }
+
+  const turno = cola.ids.slice(0, o.limite);
+  /* Se sacan de la lista ANTES de trabajar: si el latido se corta a mitad,
+     los que faltaron vuelven en la lista siguiente, no en esta. */
+  await guardarColaGuardada(db, { ...cola, ids: cola.ids.slice(turno.length) });
+
+  /* Se vuelven a mirar por id: seis filas. Un producto que ya se afinó por
+     otro camino desde que se calculó la lista no gasta puntos de CJ. */
+  const cola_ = await db
     .select({
       id: productos.id,
       pid: productos.externoId,
@@ -129,34 +274,19 @@ export async function afinarImportados(o: {
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(condicionDeCola(paises))
+    .where(and(inArray(productos.id, turno), condicionDeCola(paises)))
     .orderBy(
-      /* ══ 1. LO QUE UNA PERSONA PIDIÓ PRIMERO (9 sep 2026) ══ Richard:
-         «póngalos a la cabeza de la fila». Ver `prioridad.ts`. */
-      ...(prioridad.length > 0
-        ? [sql`case when ${inArray(productos.id, prioridad)} then 0 else 1 end`]
-        : []),
-      /* ══ 2. LO NUNCA INTENTADO ANTES QUE LO QUE YA FALLÓ (8 sep 2026) ══
-         Fallar solo le sube la fecha; sin esto, un puñado que CJ no cotiza
-         volvía a la cabeza en cada vuelta y 44.000 no tuvieron turno. */
-      sql`${enviosProducto.cotizadoEn} is not null`,
-      /* ══ 3. VARIADO, NO PURA ROPA (9 sep 2026) ══ Richard: «si usted mira
-         lo que está saliendo en Estados Unidos todos los días, es pura
-         ropa». «La ropa primero» venía de cuando lo sin tallas se vendía
-         sin afinar; hoy nada de CJ sale sin flete real, así que ya no
-         tenía sentido. Se toma el 1.º de cada departamento, luego el 2.º de
-         cada uno, y así: lo publicado del día se parece al catálogo. */
-      sql`row_number() over (partition by ${productos.categoriaId} order by ${enviosProducto.cotizadoEn}, ${productos.creadoEn})`,
-      asc(enviosProducto.cotizadoEn),
-      asc(productos.creadoEn),
-    )
-    .limit(o.limite);
+      sql`case ${sql.join(
+        turno.map((id, i) => sql`when ${productos.id} = ${id} then ${i}`),
+        sql` `,
+      )} else ${turno.length} end`,
+    );
 
   const tasas = new Map<string, number | null>();
   const cuenta = { afinados: 0, agotados: 0, fallidos: 0 };
   let ultimoFallo: string | undefined;
 
-  for (const p of cola) {
+  for (const p of cola_) {
     if (Date.now() >= hasta) break;
     const plaza = plazaDelMercado(mercadoPorCodigo(p.pais ?? "US"));
     if (!tasas.has(plaza.mercado)) {
@@ -319,9 +449,18 @@ export async function afinarImportados(o: {
     }
   }
 
+  const restantes = Math.max(0, restantesAlEmpezar - cuenta.afinados);
+  /* El conteo guardado baja con lo afinado, para que el latido siguiente
+     diga la verdad sin volver a contar. */
+  await guardarColaGuardada(db, {
+    ...cola,
+    ids: cola.ids.slice(turno.length),
+    restantes,
+  });
+
   return {
     ...cuenta,
-    restantes: Math.max(0, restantesAlEmpezar - cuenta.afinados),
+    restantes,
     ...(ultimoFallo ? { ultimoFallo } : {}),
   };
 }

@@ -118,11 +118,22 @@ describe("candados en el código", () => {
     expect(consultas).toContain(
       "fr.definitiva = 1 AND fr.url = imagenes_producto.url",
     );
-    /* La foto de turno (tarjeta) y la galería (ficha) pasan por el filtro. */
-    expect(consultas).toMatch(
-      /productos\.id\} AND \$\{SIN_FOTOS_ROTAS\} ORDER BY \$\{turno\}/,
-    );
+    /* La galería (ficha) pasa por el filtro… */
     expect(consultas).toMatch(/fila\.producto\.id\),\s*SIN_FOTOS_ROTAS/);
+    /* …y la foto de turno (tarjeta) también, desde donde se arma la lista
+       guardada de cada producto (18 sep 2026: `fotos_de_producto`). Y al
+       darse una foto por rota, la lista guardada se olvida. */
+    const guardadas = leer("src/lib/catalogo/fotos-de-producto.ts");
+    expect(guardadas).toContain(
+      "fr.definitiva = 1 AND fr.url = ${imagenesProducto.url}",
+    );
+    expect(guardadas).toMatch(
+      /inArray\(imagenesProducto\.productoId, ids\), SIN_FOTOS_ROTAS/,
+    );
+    const automaticas = leer("src/lib/catalogo/fotos-automaticas.ts");
+    expect(automaticas).toMatch(
+      /if \(definitiva\) \{\s*rotas\+\+;\s*await olvidarFotosDe\(\[foto\.productoId\]\);/,
+    );
     const buscar = leer("src/lib/catalogo/buscar.ts");
     expect(buscar.match(/fr\.definitiva = 1/g)?.length).toBe(2);
   });

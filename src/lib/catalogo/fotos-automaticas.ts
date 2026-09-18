@@ -18,6 +18,7 @@ import {
   seDaPorRota,
 } from "@/lib/catalogo/fotos-reglas";
 import { getDb } from "@/lib/db";
+import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import {
   configuracion,
   fotosRotas,
@@ -66,12 +67,47 @@ const pendienteDeTraer = and(
   sql`not exists (select 1 from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.definitiva} = 1 and ${fotosRotas.url} = ${imagenesProducto.url})`,
 );
 
-export async function contarFotosPorTraer(): Promise<number> {
+/** El conteo de fotos por traer se recuerda media hora en `configuracion`. */
+export const LLAVE_FOTOS_POR_TRAER = "fotos_por_traer_conteo";
+const CONTEO_FOTOS_VIGENCIA_MS = 30 * 60_000;
+
+/**
+ * ══ SE CUENTA CADA MEDIA HORA, NO CADA LATIDO (emergencia de costo, 18 sep 2026) ══
+ *
+ * Contar las fotos que siguen en un servidor ajeno recorre las 56.000
+ * imágenes cruzando `fotos_rotas`, y el reloj lo hacía en CADA latido —casi
+ * siempre solo para escribir «faltan N» con la cuota de la hora ya
+ * gastada—: 220 veces a la hora. El número es informativo; una media hora
+ * de retraso no cambia nada. `forzar` lo recuenta ya (el vigilante).
+ */
+export async function contarFotosPorTraer(forzar = false): Promise<number> {
+  if (!forzar) {
+    const crudo = await leerConfig(LLAVE_FOTOS_POR_TRAER).catch(() => null);
+    if (crudo) {
+      try {
+        const c = JSON.parse(crudo) as { n?: number; en?: number };
+        if (
+          typeof c.n === "number" &&
+          typeof c.en === "number" &&
+          Date.now() - c.en < CONTEO_FOTOS_VIGENCIA_MS
+        ) {
+          return c.n;
+        }
+      } catch {
+        /* se recuenta */
+      }
+    }
+  }
   const [f] = await getDb()
     .select({ n: sql<number>`count(*)` })
     .from(imagenesProducto)
     .where(pendienteDeTraer);
-  return Number(f?.n ?? 0);
+  const n = Number(f?.n ?? 0);
+  await escribirConfig(
+    LLAVE_FOTOS_POR_TRAER,
+    JSON.stringify({ n, en: Date.now() }),
+  ).catch(() => undefined);
+  return n;
 }
 
 export async function contarFotosRotas(): Promise<number> {
@@ -246,7 +282,12 @@ export async function traerFotosDesdeElReloj(
       fallidas++;
       const intentos = Number(foto.intentos) + 1;
       const definitiva = seDaPorRota(r.status, intentos);
-      if (definitiva) rotas++;
+      /* Una foto que se da por rota deja de salir en las tarjetas: la lista
+         guardada del producto se rehace en la visita siguiente. */
+      if (definitiva) {
+        rotas++;
+        await olvidarFotosDe([foto.productoId]);
+      }
       const fila = {
         productoId: foto.productoId,
         url,

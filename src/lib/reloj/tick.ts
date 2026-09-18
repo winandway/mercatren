@@ -106,6 +106,35 @@ async function anotarTick(origen: string, r: ResultadoTick, arranque: number) {
   }
 }
 
+/** Dónde queda la hora del último barrido completo. */
+export const LLAVE_ULTIMO_BARRIDO = "reloj_ultimo_barrido";
+/** Sin cambios del afinado, el barrido corre cada tanto. */
+export const BARRIDO_CADA_MS = 15 * 60_000;
+
+/** Una marca de tiempo guardada en `configuracion`, o 0 si no existe. */
+async function marcaDe(llave: string): Promise<number> {
+  try {
+    const [fila] = await getDb()
+      .select({ valor: configuracion.valor })
+      .from(configuracion)
+      .where(eq(configuracion.clave, llave))
+      .limit(1);
+    const n = Number(fila?.valor);
+    return Number.isFinite(n) ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function anotarMarca(llave: string, ms: number): Promise<void> {
+  const valor = String(ms);
+  await getDb()
+    .insert(configuracion)
+    .values({ clave: llave, valor })
+    .onConflictDoUpdate({ target: configuracion.clave, set: { valor } })
+    .catch(() => undefined);
+}
+
 /** Deja el fallo en el historial que se ve en Panel → Vigilante. Nunca
  *  lanza: un fallo al anotar un fallo no puede tumbar el latido. */
 async function anotar(origen: string, fallo: unknown): Promise<void> {
@@ -198,6 +227,8 @@ export async function correrTick(
   let colaPorAfinar: number | null = null;
   /** CJ se quedó sin puntos: nadie más le habla en este latido. */
   let cjEnPausa = false;
+  /** Cuántos afinó o agotó este latido: si hubo, el barrido tiene trabajo. */
+  let afinadoEsteLatido = 0;
 
   /* 2. El afinado: flete real, tallas y stock de lo que está en revisión. */
   try {
@@ -231,17 +262,33 @@ export async function correrTick(
          null y el stock gastaba a manos llenas — justo cuando no quedaba
          nada que gastar. Se vio en producción a los diez minutos. */
       colaPorAfinar = r.restantes ?? colaPorAfinar;
+      afinadoEsteLatido = r.afinados + r.agotados;
     }
   } catch (fallo) {
     console.error("[tick] el afinado falló:", fallo);
     await anotar("reloj/afinado", fallo);
   }
 
-  /* 3. El barrido: nada de CJ a la venta sin el último filtro. */
+  /* 3. El barrido: nada de CJ a la venta sin el último filtro.
+
+     ══ SOLO CUANDO ALGO CAMBIÓ, O CADA 15 MINUTOS (emergencia de costo, 18
+     sep 2026) ══ Son dos UPDATE que recorren el catálogo de CJ entero con
+     subconsultas sobre los envíos y las tallas (100.000–165.000 filas cada
+     uno), y corrían CADA MINUTO aunque el afinado no hubiera tocado nada.
+     Ahora corre cuando este latido afinó o agotó algo (lo que retira o
+     publica sale de ahí), y si no, a los 15 minutos del último; el
+     vigilante lo corre además cada 20. Lo que cambió el stock del latido
+     anterior lo recoge la vuelta que toque. */
   try {
-    if (queda() > 2_000) {
+    const ultimoBarrido = await marcaDe(LLAVE_ULTIMO_BARRIDO);
+    const haceMs = arranque - ultimoBarrido;
+    if (
+      queda() > 2_000 &&
+      (afinadoEsteLatido > 0 || haceMs > BARRIDO_CADA_MS)
+    ) {
       const { barrerNoVerificados } = await import("@/lib/cj/verificados");
       const b = await barrerNoVerificados();
+      await anotarMarca(LLAVE_ULTIMO_BARRIDO, arranque);
       if (b.retirados + b.publicados > 0) {
         hizo.push(
           `barrido: ${b.retirados} retirados, ${b.publicados} publicados`,
@@ -271,6 +318,21 @@ export async function correrTick(
   } catch (fallo) {
     console.error("[tick] las fotos fallaron:", fallo);
     await anotar("reloj/fotos", fallo);
+  }
+
+  /* 4b. Las listas de fotos guardadas de más de un día se rehacen (un
+     puñado por latido): es la red de seguridad de `fotos_de_producto`, por
+     si a algún sitio que toca las fotos se le olvidó borrar la suya. */
+  try {
+    if (queda() > 3_000) {
+      const { refrescarFotosViejas } =
+        await import("@/lib/catalogo/fotos-de-producto");
+      const n = await refrescarFotosViejas(150);
+      if (n > 0) hizo.push(`fotos guardadas: ${n} rehechas`);
+    }
+  } catch (fallo) {
+    console.error("[tick] las fotos guardadas fallaron:", fallo);
+    await anotar("reloj/fotos-guardadas", fallo);
   }
 
   /* 5. El stock de CJ — Y CEDE SUS PUNTOS MIENTRAS HAYA COLA (4 sep 2026).

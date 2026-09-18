@@ -44,9 +44,12 @@ describe("la lista de prioridad", () => {
 
 describe("el orden del afinado", () => {
   const afinar = leer("src/lib/cj/afinar.ts");
+  /* Desde el 18 sep 2026 (emergencia de costo) el orden vive en
+     `ordenDeLaCola`, y la lista se calcula una vez cada tanda y se consume
+     por latidos; el orden es el mismo. */
   const orden = afinar.slice(
-    afinar.indexOf(".orderBy("),
-    afinar.indexOf(".limit(o.limite)"),
+    afinar.indexOf("function ordenDeLaCola("),
+    afinar.indexOf("function condicionDeCola("),
   );
 
   it("1.º lo que una persona pidió, 2.º lo nunca intentado, 3.º un poco de cada departamento", () => {

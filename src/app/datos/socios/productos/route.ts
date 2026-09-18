@@ -6,6 +6,7 @@ import {
   type ProductoDeOrigen,
 } from "@/lib/catalogo/agrupar";
 import { getDb } from "@/lib/db";
+import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import {
   imagenesProducto,
   productos,
@@ -270,6 +271,7 @@ export async function POST(peticion: Request) {
           orden: f.position ?? i,
         });
       }
+      await olvidarFotosDe([productoId]);
     }
   }
 

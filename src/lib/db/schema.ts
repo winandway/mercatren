@@ -3563,6 +3563,36 @@ export const avisosVigilante = sqliteTable("avisos_vigilante", {
  * sincronización trae una dirección nueva, la fila deja de coincidir y se
  * limpia sola. Tabla y no columna: `schema.sql` solo crea tablas.
  */
+/**
+ * ══ LAS FOTOS DE CADA PRODUCTO, YA ELEGIDAS Y SIN ROTAS (emergencia de costo, 18 sep 2026) ══
+ *
+ * Cada listado (catálogo, portada, bandas, similares) elegía la foto de
+ * turno con TRES subconsultas por fila sobre `imagenes_producto`, cada una
+ * con funciones de ventana y el cruce con `fotos_rotas`: 9.000 filas por
+ * página del catálogo, 150.000 por portada, cien millones a la hora. Aquí
+ * queda, por producto, la lista de sus fotos sanas (hasta 12, en orden) en
+ * un JSON; el listado lee UNA fila por producto y elige en código.
+ *
+ * Se llena sola la primera vez que alguien pide un producto (`fotosDe`), se
+ * borra en cada sitio que toca `imagenes_producto` o `fotos_rotas`
+ * (`olvidarFotosDe`) y el reloj rehace las de más de un día por si a algún
+ * sitio se le olvidó. Tabla y no columna: `schema.sql` solo crea tablas.
+ */
+export const fotosDeProducto = sqliteTable(
+  "fotos_de_producto",
+  {
+    productoId: text("producto_id")
+      .primaryKey()
+      .references(() => productos.id, { onDelete: "cascade" }),
+    /** JSON: `[{url, clave, altEs, altEn}]`, en el orden de la galería. */
+    fotos: text("fotos").notNull(),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" }).notNull(),
+  },
+  /* El reloj busca «las más viejas que un día»: sin esto recorrería la
+     tabla entera cada minuto. */
+  (t) => [index("idx_fotos_de_producto_actualizado").on(t.actualizadoEn)],
+);
+
 export const fotosRotas = sqliteTable("fotos_rotas", {
   imagenId: text("imagen_id").primaryKey(),
   productoId: text("producto_id").notNull(),
