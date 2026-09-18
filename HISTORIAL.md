@@ -76,12 +76,41 @@ false` si alguna foto pasa de 30 minutos o no existe. **Puerta**:
    `{"accion":"conteos"}` en `/datos/probar-compra` la rehace a mano y
    devuelve el resumen.
 
-**Lo que NO se hizo, y por qué.** El prompt pedía `Cache-Control: public,
-s-maxage=300` en las páginas públicas del catálogo. No se puso: el HTML de
-esas páginas lleva el encabezado con la sesión de quien mira (nombre, carrito,
-casillero) y la ciudad elegida; una caché compartida serviría la página de
-una persona a otra. La caché va en los DATOS (iguales para todos, con el
-mercado en la llave), no en el HTML.
+**La segunda parte, el mismo día: la caché del borde.** Medido en las
+zonas: GPTBot era el 38 % del tráfico y el robot de Meta el 15 %, pidiendo las
+MISMAS diecisiete páginas (/es/ayuda, /es/nosotros, /es/catalogo…) unas 2.500
+veces al día cada una. La plataforma guarda en el borde toda respuesta con
+`Cache-Control: public, s-maxage=300, stale-while-revalidate=3600` (techo 1 h,
+se vacía en cada publicación) y NUNCA una visita con cookie ni una respuesta
+con `Set-Cookie`. El sitio daba `BYPASS:set-cookie` porque next-intl ponía
+`NEXT_LOCALE` en todas las respuestas. Se hizo:
+
+8. **`localeCookie: false`** en `src/i18n/routing.ts`: el idioma va en la
+   ruta, la cookie sobraba. Lo único que cambia: quien eligió idioma a mano
+   y vuelve a `/` cae en el idioma de su navegador.
+9. **La cabecera pública la pone el middleware**, y solo cuando la visita
+   cumple TRES cosas (`src/lib/trafico/cache-del-borde.ts`, puro y probado):
+   sin NINGUNA cookie (no basta con que la plataforma no guarde esas: `public`
+   se lo dice a cualquier caché compartida), solo GET/HEAD, y solo las
+   páginas de una lista CERRADA de lo permitido (portada, catálogo, tiendas,
+   tienda, producto, sección, videos, blog, buscar-con-foto, casillero y su
+   calculadora, ayuda, cómo funciona, devoluciones, docs, entrega, nosotros,
+   privacidad, términos, transparencia, vender). Carrito, cuenta, checkout,
+   pedidos, entrar, el casillero propio y el panel no entran ni sin cookie.
+   Va en el middleware porque Next solo fija su `private, no-store` si no hay
+   una `Cache-Control` puesta antes (`sendRenderResult`).
+10. **Lo que el middleware NO puede ver:** Next le quita las cabeceras RSC
+    (`rsc`, `next-router-prefetch`…) y el parámetro `_rsc` antes de
+    invocarlo (`server/web/adapter.js`, `FLIGHT_HEADERS`). Así que el árbol
+    de React de una navegación anónima también sale `public`, bajo su propia
+    dirección `?_rsc=<hash>`. No se mezcla con el HTML porque la llave es la
+    dirección completa; se comprobó en vivo pidiendo el HTML después del
+    RSC. El país no hace falta separarlo: cada mercado es un dominio.
+
+Comprobación: `curl -sI https://mercatren.com/es/ayuda` dos veces; la
+segunda con `x-yad-cache: HIT` y sin `set-cookie`. Candado:
+`tests/unit/cache-del-borde.test.ts` (comprobado en rojo metiendo «carrito»
+en la lista).
 
 **En qué commit quedó.** Ver `git log --grep="emergencia de costo"`.
 
