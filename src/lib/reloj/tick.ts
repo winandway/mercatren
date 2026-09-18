@@ -147,6 +147,36 @@ export async function correrTick(
     await anotar("reloj/vigilante", fallo);
   }
 
+  /* 0b. LOS CONTEOS DEL CATÁLOGO, cada cinco minutos (emergencia de costo,
+     17 sep 2026). Va ANTES que CJ a propósito: si fuera al final, el afinado
+     y el stock se comerían el presupuesto y la foto no se rehacería nunca.
+     Cuesta unas 25.000 filas leídas por corrida —lo que antes costaba UNA
+     visita a la portada— y sin ella las pantallas leerían la foto vieja.
+     Ver `src/lib/catalogo/conteos.ts`. */
+  try {
+    if (queda() > 4_000) {
+      const { edadDeLosConteos, recalcularTodosLosConteos, CONTEOS_CADA_MS } =
+        await import("@/lib/catalogo/conteos");
+      const edad = await edadDeLosConteos();
+      const masViejo = Math.max(
+        ...Object.values(edad.minutos).map((m) => (m === null ? Infinity : m)),
+      );
+      if (masViejo * 60_000 >= CONTEOS_CADA_MS) {
+        const r = await recalcularTodosLosConteos();
+        hizo.push(`conteos: ${r.hizo.join(" · ")}`);
+        if (r.fallos.length > 0) {
+          await anotar(
+            "reloj/conteos",
+            new Error(`no se pudo rehacer: ${r.fallos.join("; ")}`),
+          );
+        }
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] los conteos fallaron:", fallo);
+    await anotar("reloj/conteos", fallo);
+  }
+
   /* 1. La importación masiva, si hay alguna en marcha. */
   try {
     if (queda() > 8_000) {

@@ -1,11 +1,7 @@
 import "server-only";
 import type { Mercado } from "@/lib/mercado/mercados";
 
-import { sql } from "drizzle-orm";
-
-import { getDb } from "@/lib/db";
-
-import { zonaPorSlug } from "./zonas";
+import { conteosDe } from "@/lib/catalogo/conteos";
 
 /**
  * DÓNDE ESTÁ MERCATREN: cuántos productos se pueden retirar en cada ciudad.
@@ -16,35 +12,21 @@ import { zonaPorSlug } from "./zonas";
  * falta por abrir. La cobertura no se escribe a mano en ninguna parte; sale
  * de los depósitos con productos publicados, así que crece sola cuando un
  * comercio nuevo carga su catálogo.
+ *
+ * ══ SALE DE LA FOTO GUARDADA (emergencia de costo, 17 sep 2026) ══
+ *
+ * Esto era un `GROUP BY d.zona` sobre productos JOIN tiendas JOIN depósitos
+ * en CADA página (va en el encabezado): 32.500 filas por visita, 4 mil
+ * millones a la semana. Ahora lo cuenta el reloj cada pocos minutos y aquí
+ * se lee la fila (`src/lib/catalogo/conteos.ts`). El filtro es el mismo:
+ * publicado, con precio, depósito activo con zona, tienda activa DE ESTE
+ * PAÍS — sin eso, el selector de un dominio prometía mercancía de otro.
  */
 export async function coberturaPorCiudad(
   mercado: Mercado,
 ): Promise<Record<string, number>> {
   try {
-    const db = getDb();
-    const filas = await db.all<{ zona: string; cuantos: number }>(sql`
-      SELECT d.zona AS zona, COUNT(*) AS cuantos
-        FROM depositos d
-        JOIN productos p ON p.deposito_id = d.id
-        JOIN tiendas t ON t.id = p.tienda_id
-       WHERE d.activo = 1
-         AND d.zona IS NOT NULL
-         AND p.estado = 'publicado'
-         AND p.precio_centavos > 0
-         AND t.estado = 'activa'
-         -- El bombillo cuenta lo que se retira EN ESTE PAIS. Sin esto, el
-         -- selector de un dominio prometia mercancia de otro.
-         AND t.mercado = ${mercado.codigo}
-       GROUP BY d.zona
-    `);
-
-    const cobertura: Record<string, number> = {};
-    for (const f of filas) {
-      // Solo ciudades que existen en el mapa: un depósito con una zona
-      // escrita a mano y mal no puede inventar una ciudad en el selector.
-      if (zonaPorSlug(f.zona)) cobertura[f.zona] = Number(f.cuantos);
-    }
-    return cobertura;
+    return (await conteosDe(mercado)).cobertura;
   } catch {
     // Sin base no hay bombillos, pero el encabezado jamás tumba la página.
     return {};

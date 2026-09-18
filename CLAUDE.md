@@ -230,6 +230,9 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
 
 ### Trampas del proyecto que ya costaron caro
 
+- **LOS CONTEOS DEL CATÁLOGO NO SE CALCULAN POR VISITA** (17 sep 2026): salen
+  de la foto de `src/lib/catalogo/conteos.ts` que rehace el reloj. Un agregado
+  sobre `productos` en una página pública es una factura de D1.
 - **NUNCA pedir una tabla entera** (`.select()` sin columnas): Drizzle lista
   todas las columnas del esquema, y una base que ya existe no recibe las
   nuevas → 500 en producción con todo perfecto en local.
@@ -369,6 +372,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [LA EMERGENCIA DE COSTO DE LA BASE: 134 MIL MILLONES DE FILAS AL MES (17 sep 2026)](HISTORIAL.md#la-emergencia-de-costo-de-la-base-134-mil-millones-de-filas-al-mes-17-sep-2026)
 - [LA SOCIEDAD YA ES MERCATREN LLC (12 ago 2026)](HISTORIAL.md#la-sociedad-ya-es-mercatren-llc-12-ago-2026)
 - [LA FIGURA JURÍDICA (regla de cabecera, agosto 2026)](HISTORIAL.md#la-figura-jurídica-regla-de-cabecera-agosto-2026)
 - [SI NADIE PUEDE ENTRAR, MIRA SI LLEGAN LAS COOKIES (3 sep 2026)](HISTORIAL.md#si-nadie-puede-entrar-mira-si-llegan-las-cookies-3-sep-2026)

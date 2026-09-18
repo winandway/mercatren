@@ -146,8 +146,16 @@ describe("los similares de la ficha", () => {
   });
 
   it("misma categoría antes que misma tienda", () => {
-    expect(similares).toContain("THEN 0 ELSE 1 END");
-    expect(similares).toContain("eq(productos.categoriaId, de.categoriaId)");
+    /* Desde el 17 sep 2026 (emergencia de costo) son dos consultas acotadas
+       por índice: primero la categoría, después la tienda, unidas en código
+       en ese orden. Ver `costo-de-la-base.test.ts`. */
+    const categoria = similares.indexOf(
+      "eq(productos.categoriaId, de.categoriaId)",
+    );
+    const tienda = similares.indexOf("eq(productos.tiendaId, de.tiendaId)");
+    expect(categoria).toBeGreaterThan(-1);
+    expect(tienda).toBeGreaterThan(categoria);
+    expect(similares).toContain("[...mismaCategoria, ...mismaTienda]");
   });
 
   it("y la ficha los dibuja al pie", () => {

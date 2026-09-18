@@ -15,6 +15,94 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA EMERGENCIA DE COSTO DE LA BASE: 134 MIL MILLONES DE FILAS AL MES (17 sep 2026)
+
+**Qué se rompió y cómo se veía.** Cloudflare marcó la base `site-mercatren-db`
+leyendo 134 mil millones de filas en el mes ($109 de sobrecosto, y al ritmo
+del tráfico ×10 desde el 11 sep —unas 310.000 peticiones al día— iba camino
+de $775/mes). `wrangler d1 insights --sort-by reads` a 7 días señaló cinco
+consultas con el 90 % de las lecturas:
+
+| #   | Filas (7 d) | Veces   | Filas/vez | Qué era                                                    |
+| --- | ----------- | ------- | --------- | ---------------------------------------------------------- |
+| 1   | 30,1 mil M  | 65.677  | 458.318   | tira de departamentos: subconsulta correlacionada ×22      |
+| 2   | 10,6 mil M  | 24.009  | 441.578   | directorio de comercios con `LEFT JOIN … GROUP BY`         |
+| 3   | 7,5 mil M   | 157.309 | 47.498    | menú de categorías con conteo (va en el encabezado)        |
+| 4   | 6,1 mil M   | 601.895 | 10.174    | la ficha por `slug` (sin índice por slug, LIMIT 1)         |
+| 5   | 4,2 mil M   | 129.210 | 32.515    | bombillo de ciudades (`GROUP BY d.zona`, en el encabezado) |
+
+**La causa real.** Las cuatro primeras y la quinta eran AGREGADOS sobre el
+catálogo entero (23.620 productos), **iguales para todo el que entra por el
+mismo dominio, y rehechos en cada visita**. La memoria de un minuto
+(`recordado`) vive por instancia y en producción cada visita cae en una
+instancia distinta; la caché del borde solo cubría la portada. Y la ficha
+buscaba por `slug` sin índice por slug (el único que lo tenía empezaba por
+`tienda_id`), así que SQLite recorría los publicados hasta dar con él: 10.000
+filas por ficha, 86.000 fichas al día, casi todas de robots.
+
+**Qué se hizo.**
+
+1. **Una foto de conteos por mercado** (`src/lib/catalogo/conteos.ts`),
+   guardada en la tabla `configuracion` (existe en producción: funciona desde
+   el primer minuto) bajo `conteos_catalogo_<MERCADO>`: departamentos con sus
+   hijos sumados, menú, directorio de comercios (las vacías en cero, la
+   mayorista primera), bombillos por ciudad, total y total con precio. La
+   rehace **el reloj cada 5 minutos** (paso 0b de `tick.ts`, ANTES de CJ para
+   que no se lo coma el presupuesto) con **dos GROUP BY planos**: por
+   categoría+tienda y por zona de depósito, ~25.000 filas por corrida en
+   vez de 458.000 por visita. Las pantallas leen la fila con
+   `conteosDe(mercado)` (memoria + borde un minuto); si no existe se calcula
+   UNA vez y se guarda. Lo puro está en `conteos-armar.ts`, con pruebas.
+2. **#1 sin subconsulta correlacionada**: con ciudad elegida (Venezuela),
+   `GROUP BY categoria_id` y los hijos sumados en código
+   (`armarDepartamentos`).
+3. **Índices compuestos** en `schema.ts` → `schema.sql` (`CREATE INDEX IF
+NOT EXISTS`, llegan en la publicación): `productos(slug)`,
+   `(estado, categoria_id)`, `(estado, tienda_id)`, `(deposito_id, estado)`,
+   `(categoria_id, creado_en)`, `(tienda_id, creado_en)`;
+   `tiendas(mercado, estado)`. Comprobados con EXPLAIN QUERY PLAN.
+4. **La ficha resuelve el slug sola y trae la fila por id.** Se probó que el
+   planificador de SQLite, SIN estadísticas (en D1 nadie corre ANALYZE),
+   seguía prefiriendo el índice de `estado` al de `slug` en la consulta con
+   JOIN. Por eso primero `SELECT id WHERE slug = ?` (solo un índice posible)
+   y después la ficha por clave primaria. Dos viajes de una fila.
+5. **Los similares** son dos consultas acotadas (misma categoría, misma
+   tienda) que caminan su índice y paran en el LIMIT, en vez de un `OR`
+   ordenado por CASE que leía la tienda entera (miles en una plaza de CJ).
+6. **El total del catálogo sin filtros y el de la portada sin ciudad** salen
+   de la foto: contar el catálogo entero costaba 20.000 filas por página.
+7. **Canario**: `/datos/salud` → `conteos.{ok, edadMinutos, viejos}`; `ok:
+false` si alguna foto pasa de 30 minutos o no existe. **Puerta**:
+   `{"accion":"conteos"}` en `/datos/probar-compra` la rehace a mano y
+   devuelve el resumen.
+
+**Lo que NO se hizo, y por qué.** El prompt pedía `Cache-Control: public,
+s-maxage=300` en las páginas públicas del catálogo. No se puso: el HTML de
+esas páginas lleva el encabezado con la sesión de quien mira (nombre, carrito,
+casillero) y la ciudad elegida; una caché compartida serviría la página de
+una persona a otra. La caché va en los DATOS (iguales para todos, con el
+mercado en la llave), no en el HTML.
+
+**En qué commit quedó.** Ver `git log --grep="emergencia de costo"`.
+
+**Cómo se comprueba que sigue funcionando.**
+
+```bash
+cd /Users/windocellc/Mercatren.com && npx wrangler d1 insights site-mercatren-db --timePeriod 1d --sort-by reads
+```
+
+Ninguna consulta debería pasar de unos cientos de filas por vez, y el día
+muy por debajo de 800 millones. Y en `https://mercatren.com/datos/salud`,
+`conteos.ok` en `true` con `edadMinutos` de un dígito.
+
+**Qué NO hay que tocar.** No volver a contar en `listarDepartamentosDePortada`,
+`listarComerciosDestacados`, `listarCategoriasConProductos` ni
+`coberturaPorCiudad`; no quitar el paso 0b del reloj; no borrar los índices.
+Candado: `tests/unit/costo-de-la-base.test.ts` (comprobado en rojo) y
+`conteos-armar.test.ts`.
+
+---
+
 ## LA SOCIEDAD YA ES MERCATREN LLC (12 ago 2026)
 
 **`Mercatren LLC` opera la tienda: compra, vende y factura.** `Windoce, LLC` se

@@ -50,6 +50,10 @@ const Direccion = z.object({
 const Peticion = z.discriminatedUnion("accion", [
   z.object({ accion: z.literal("saldo") }),
   z.object({ accion: z.literal("ultima") }),
+  /* Rehace la foto de conteos del catálogo de los cuatro mercados y la
+     devuelve resumida (emergencia de costo, 17 sep 2026). Solo lectura del
+     catálogo; escribe una fila por mercado en `configuracion`. */
+  z.object({ accion: z.literal("conteos") }),
   z.object({
     accion: z.literal("mirar"),
     enlace: z.string().min(1),
@@ -151,6 +155,30 @@ export async function POST(peticion: Request) {
     case "ultima":
       resultado = await leerUltimaCompraDePruebaNucleo();
       break;
+    case "conteos": {
+      const { recalcularTodosLosConteos, edadDeLosConteos, conteosGuardados } =
+        await import("@/lib/catalogo/conteos");
+      const { MERCADOS } = await import("@/lib/mercado/mercados");
+      const r = await recalcularTodosLosConteos();
+      const edad = await edadDeLosConteos();
+      const resumen: Record<string, unknown> = {};
+      for (const m of MERCADOS) {
+        const c = await conteosGuardados(m);
+        resumen[m.codigo] = c
+          ? {
+              total: c.total,
+              departamentos: Object.values(c.departamentos).filter((n) => n > 0)
+                .length,
+              categorias: c.categorias.length,
+              comercios: c.comercios.length,
+              cobertura: Object.keys(c.cobertura).length,
+              bytes: JSON.stringify(c).length,
+            }
+          : null;
+      }
+      resultado = { ...r, edadMinutos: edad.minutos, resumen };
+      break;
+    }
     case "mirar":
       resultado = await probarCompraDeCjNucleo({
         enlace: e.enlace,

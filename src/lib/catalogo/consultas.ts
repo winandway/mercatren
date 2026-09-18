@@ -7,8 +7,8 @@ import {
   desc,
   eq,
   gt,
+  inArray,
   ne,
-  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -27,6 +27,8 @@ import { recordado, recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
 import { condicionDeBusqueda } from "./buscar";
+import { conteosDe } from "./conteos";
+import { armarDepartamentos } from "./conteos-armar";
 import {
   categorias,
   depositos,
@@ -339,12 +341,26 @@ export async function listarProductos(
           (ordenPorRelevancia ??
           sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()} THEN 0 ELSE 1 END`);
 
-  const [total] = await db
-    .select({ n: count() })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
-    .where(donde);
+  /* SIN NINGÚN FILTRO, EL TOTAL ES EL DE LA FOTO GUARDADA (17 sep 2026): el
+     «Catálogo · 19.812 productos» de la página sin filtros costaba contar el
+     catálogo entero (20.000 filas) en cada visita, y ese número ya lo tiene
+     el reloj. Con búsqueda, categoría, comercio, ciudad o «para el equipo»
+     el conteo se hace, porque cambia con el filtro — y con los índices
+     compuestos lee solo el trozo que toca. */
+  const sinFiltros =
+    !filtros.busqueda &&
+    !filtros.categoria &&
+    !filtros.comercio &&
+    !filtros.zona?.length &&
+    !filtros.paraElEquipo;
+  const [total] = sinFiltros
+    ? [{ n: (await conteosDe(mercado)).total }]
+    : await db
+        .select({ n: count() })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
+        .where(donde);
 
   const filas = await db
     .select({
@@ -421,6 +437,30 @@ export async function obtenerProductoPorSlug(
 ) {
   const db = getDb();
 
+  /**
+   * ══ PRIMERO EL ID POR SLUG, DESPUÉS LA FICHA POR ID (17 sep 2026) ══
+   *
+   * La ficha era la consulta #4 de la emergencia de costo: 86.000 veces al
+   * día leyendo 10.000 filas cada una. Buscaba por `slug` y el único índice
+   * con el slug empezaba por `tienda_id`, así que SQLite recorría los
+   * publicados hasta dar con él. Se agregó `idx_productos_slug`… y el
+   * planificador de SQLite, SIN estadísticas (en D1 nadie corre ANALYZE),
+   * seguía prefiriendo el índice de `estado` — comprobado con EXPLAIN QUERY
+   * PLAN. Por eso el slug se resuelve SOLO, en una consulta donde no hay
+   * otro índice que elegir, y la ficha se trae por su clave primaria. Dos
+   * viajes de una fila cada uno en vez de uno de diez mil.
+   *
+   * Cinco candidatos y no uno: el slug es único por tienda, no en el mundo.
+   * El filtro de mercado y de «publicado» de abajo decide cuál es el que se
+   * puede ver aquí, igual que antes.
+   */
+  const candidatos = await db
+    .select({ id: productos.id })
+    .from(productos)
+    .where(eq(productos.slug, slug))
+    .limit(5);
+  if (candidatos.length === 0) return null;
+
   const [fila] = await db
     .select({
       /**
@@ -488,7 +528,10 @@ export async function obtenerProductoPorSlug(
     .leftJoin(depositos, eq(depositos.id, productos.depositoId))
     .where(
       and(
-        eq(productos.slug, slug),
+        inArray(
+          productos.id,
+          candidatos.map((c) => c.id),
+        ),
         visibleAqui(mercado, Boolean(opciones?.paraElEquipo)),
       ),
     )
@@ -545,58 +588,74 @@ export async function productosSimilares(
 ): Promise<ProductoLista[]> {
   const db = getDb();
   const foto = fotoDeTurno(semillaDelDia());
+  const tope = Math.min(24, Math.max(1, limite));
 
-  const parecido = de.categoriaId
-    ? or(
-        eq(productos.categoriaId, de.categoriaId),
-        eq(productos.tiendaId, de.tiendaId),
-      )
-    : eq(productos.tiendaId, de.tiendaId);
-
-  const donde = and(
+  /**
+   * ══ DOS CONSULTAS ACOTADAS EN VEZ DE UNA QUE LEÍA LA TIENDA ENTERA ══
+   * (emergencia de costo, 17 sep 2026)
+   *
+   * Antes era una sola consulta con `categoria = X OR tienda = Y` ordenada
+   * por un CASE: para ordenar, SQLite tenía que leer TODOS los productos de
+   * la tienda (una plaza de CJ tiene miles) y quedarse con diez. Y esto corre
+   * en cada ficha de producto, que es lo que más recorren los robots.
+   *
+   * Ahora se pide primero «los más nuevos de esta categoría» y, si faltan,
+   * «los más nuevos de esta tienda»: cada una camina su índice
+   * (`idx_productos_categoria_creado`, `idx_productos_tienda_creado`) en
+   * orden y PARA al llegar al LIMIT. Decenas de filas, no miles. El orden que
+   * ve el cliente es el mismo de siempre: misma categoría antes que misma
+   * tienda (THEN 0 ELSE 1 END, ahora en código), y lo más nuevo primero.
+   */
+  const comunes = [
     visibleAqui(mercado),
     gt(productos.precioCentavos, 0),
     ne(productos.id, de.productoId),
-    parecido,
     zona?.length ? enZona(zona) : undefined,
-  );
+  ];
 
-  const filas = await db
-    .select({
-      id: productos.id,
-      slug: productos.slug,
-      tituloEs: productos.tituloEs,
-      tituloEn: productos.tituloEn,
-      precioCentavos: productos.precioCentavos,
-      precioAntesCentavos: productos.precioAntesCentavos,
-      moneda: productos.moneda,
-      existencias: productos.existencias,
-      controlaExistencias: productos.controlaExistencias,
-      unidad: productos.unidad,
-      marca: productos.marca,
-      destacado: productos.destacado,
-      creadoEn: productos.creadoEn,
-      tiendaId: tiendas.id,
-      tiendaNombre: tiendas.nombre,
-      tiendaSlug: tiendas.slug,
-      tiendaPais: tiendas.paisOrigen,
-      fotoUrl: foto.url,
-      fotoClave: foto.clave,
-      fotoAlt: foto.alt,
-    })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(donde)
-    .orderBy(
-      /* Misma categoría antes que misma tienda: lo parecido pesa más que lo
-         vecino. Y dentro de cada grupo, lo más nuevo primero. */
-      de.categoriaId
-        ? sql`CASE WHEN ${productos.categoriaId} = ${de.categoriaId} THEN 0 ELSE 1 END`
-        : sql`0`,
-      desc(productos.creadoEn),
-      productos.id,
-    )
-    .limit(Math.min(24, Math.max(1, limite)));
+  const traer = (parecido: SQL, cuantos: number) =>
+    db
+      .select({
+        id: productos.id,
+        slug: productos.slug,
+        tituloEs: productos.tituloEs,
+        tituloEn: productos.tituloEn,
+        precioCentavos: productos.precioCentavos,
+        precioAntesCentavos: productos.precioAntesCentavos,
+        moneda: productos.moneda,
+        existencias: productos.existencias,
+        controlaExistencias: productos.controlaExistencias,
+        unidad: productos.unidad,
+        marca: productos.marca,
+        destacado: productos.destacado,
+        creadoEn: productos.creadoEn,
+        tiendaId: tiendas.id,
+        tiendaNombre: tiendas.nombre,
+        tiendaSlug: tiendas.slug,
+        tiendaPais: tiendas.paisOrigen,
+        fotoUrl: foto.url,
+        fotoClave: foto.clave,
+        fotoAlt: foto.alt,
+      })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .where(and(...comunes, parecido))
+      .orderBy(desc(productos.creadoEn), productos.id)
+      .limit(cuantos);
+
+  const mismaCategoria = de.categoriaId
+    ? await traer(eq(productos.categoriaId, de.categoriaId), tope)
+    : [];
+  const vistos = new Set(mismaCategoria.map((f) => f.id));
+  const faltan = tope - mismaCategoria.length;
+  const mismaTienda =
+    faltan > 0
+      ? (await traer(eq(productos.tiendaId, de.tiendaId), tope)).filter(
+          (f) => !vistos.has(f.id),
+        )
+      : [];
+
+  const filas = [...mismaCategoria, ...mismaTienda].slice(0, tope);
 
   return filas.map((f): ProductoLista => ({
     id: f.id,
@@ -620,50 +679,26 @@ export async function productosSimilares(
   }));
 }
 
+/**
+ * ══ LOS CONTEOS SALEN DE LA FOTO GUARDADA, NO DE LA BASE (17 sep 2026) ══
+ *
+ * Esta, `listarComerciosDelCatalogo`, `listarComerciosDestacados` y la tira
+ * de departamentos sin zona eran cuatro de las cinco consultas que tenían
+ * a la base leyendo 134 mil millones de filas al mes: agregados sobre el
+ * catálogo entero, iguales para todo el mundo, rehechos en cada visita. Ahora
+ * leen la foto que el reloj rehace cada pocos minutos
+ * (`src/lib/catalogo/conteos.ts`). La forma de lo que devuelven es la misma
+ * de siempre: las pantallas no se enteraron del cambio.
+ */
 export async function listarCategoriasConProductos(mercado: Mercado) {
-  const db = getDb();
-
-  const filas = await db
-    .select({
-      slug: categorias.slug,
-      nombreEs: categorias.nombreEs,
-      nombreEn: categorias.nombreEn,
-      cuantos: count(productos.id),
-    })
-    .from(categorias)
-    .innerJoin(productos, eq(productos.categoriaId, categorias.id))
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(visibleAqui(mercado))
-    .groupBy(categorias.slug, categorias.nombreEs, categorias.nombreEn)
-    .orderBy(desc(count(productos.id)));
-
-  return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
+  return (await conteosDe(mercado)).categorias;
 }
 
 /** Comercios con catalogo publicado. */
 export async function listarComerciosDelCatalogo(mercado: Mercado) {
-  const db = getDb();
-
-  const filas = await db
-    .select({
-      slug: tiendas.slug,
-      nombre: tiendas.nombre,
-      cuantos: count(productos.id),
-    })
-    .from(tiendas)
-    .innerJoin(productos, eq(productos.tiendaId, tiendas.id))
-    .where(visibleAqui(mercado))
-    .groupBy(
-      tiendas.id,
-      tiendas.slug,
-      tiendas.nombre,
-      tiendas.logoClave,
-      tiendas.ciudad,
-      tiendas.creadoEn,
-    )
-    .orderBy(desc(count(productos.id)));
-
-  return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
+  return (await conteosDe(mercado)).comercios
+    .filter((c) => c.cuantos > 0)
+    .map((c) => ({ slug: c.slug, nombre: c.nombre, cuantos: c.cuantos }));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -759,51 +794,17 @@ export async function obtenerPortada(
  * contenido cuenta en contra. Son dos públicos distintos.
  */
 export async function listarComerciosDestacados(mercado: Mercado) {
-  const db = getDb();
-
-  const filas = await db
-    .select({
-      slug: tiendas.slug,
-      nombre: tiendas.nombre,
-      descripcionEs: tiendas.descripcionEs,
-      descripcionEn: tiendas.descripcionEn,
-      paisOrigen: tiendas.paisOrigen,
-      logoClave: tiendas.logoClave,
-      ciudad: tiendas.ciudad,
-      creadoEn: tiendas.creadoEn,
-      cuantos: count(productos.id),
-    })
-    .from(tiendas)
-    /**
-     * `leftJoin`, no `innerJoin`: con el inner, una tienda sin productos
-     * desaparece de la lista sin que nadie se entere.
-     *
-     * Y LA CONDICIÓN DEL PRODUCTO VA AQUÍ, EN EL ENGANCHE, NO EN EL `where`.
-     * Esto cuesta media hora de no entender nada: en una tienda vacía el
-     * estado del producto es NULO, así que un `where` que exija
-     * `estado = 'publicado'` la descarta igual — y el `leftJoin` vuelve a
-     * comportarse como un `innerJoin`, en silencio y con el código pareciendo
-     * correcto. Pasó justo así al arreglar esto.
-     */
-    .leftJoin(
-      productos,
-      and(
-        eq(productos.tiendaId, tiendas.id),
-        eq(productos.estado, "publicado"),
-      ),
-    )
-    // En el filtro se queda SOLO lo que es de la tienda.
-    .where(tiendaVisibleEn(mercado))
-    .groupBy(tiendas.id, tiendas.slug, tiendas.nombre)
-    /* LA MAYORISTA VA PRIMERA (30 ago 2026, pedido del dueño): es la tienda
-       con prioridad de la casa y el directorio la enseña de entrada. El
-       resto sigue por tamaño de catálogo, como siempre. */
-    .orderBy(
-      sql`CASE WHEN ${tiendas.slug} = 'us-mayorista' THEN 0 ELSE 1 END`,
-      desc(count(productos.id)),
-    );
-
-  return filas.map((f) => ({ ...f, cuantos: Number(f.cuantos) }));
+  /**
+   * Desde el 17 sep 2026 sale de la foto guardada (ver `conteos.ts`): la
+   * lista de tiendas activas del mercado, con las vacías en cero, la
+   * mayorista primera y el resto por tamaño de catálogo — lo mismo que
+   * hacía el `leftJoin … GROUP BY` que leía 441.000 filas por visita.
+   */
+  const { comercios } = await conteosDe(mercado);
+  return comercios.map(({ creadoEnMs, ...c }) => ({
+    ...c,
+    creadoEn: new Date(creadoEnMs),
+  }));
 }
 
 /** La tienda de un comercio: sus datos y sus productos. */
@@ -920,81 +921,74 @@ export async function listarDepartamentosDePortada(
   idioma: string,
   zona?: string[],
 ): Promise<DepartamentoDePortada[]> {
-  const db = getDb();
-
   /**
    * "Los productos de este departamento" = los que cuelgan de él directamente
    * MÁS los que cuelgan de una subcategoría suya. Los de Bley están en "PVC" y
    * "Hierro", que cuelgan de "Ferretería y construcción": contando solo el
    * departamento saldría en cero teniendo 622 productos debajo.
    *
+   * ══ SIN ZONA, SALE DE LA FOTO GUARDADA; CON ZONA, UN GROUP BY PLANO ══
+   * (emergencia de costo, 17 sep 2026)
+   *
+   * Esta era LA consulta más cara de la base: 30 mil millones de filas a la
+   * semana. Hacía una subconsulta correlacionada por departamento —veintidós
+   * recorridos del catálogo entero, 458.000 filas por visita— y corría en la
+   * portada, el catálogo, el markdown para agentes y las bandas. Ahora:
+   *
+   *  - Sin ciudad elegida (lo que ve casi todo el mundo), los conteos vienen
+   *    de `conteosDe(mercado)`: una fila.
+   *  - Con ciudad, se cuenta UNA vez por categoría (`GROUP BY categoria_id`,
+   *    unos cientos de filas del mercado de Venezuela) y los hijos se suman
+   *    en código con `armarDepartamentos`. Cambia con cada ciudad, así que no
+   *    cabe en la foto; pero ya no hay subconsulta por departamento.
+   *
    * Con zona elegida, los conteos también se acotan a lo que se retira ahí:
    * un departamento que en Caracas está vacío no puede bajar como banda
    * llena de mercancía de otra ciudad.
    */
-  // Mismo criterio que enZona, incluido el respaldo de la ciudad de la
-  // tienda para productos sin depósito. `t` es el alias de tiendas de la
-  // consulta de abajo.
-  const FILTRO_ZONA = zona?.length
-    ? sql`AND (
-        p.deposito_id IN (
-          SELECT dz.id FROM depositos dz
-           WHERE dz.activo = 1
-             AND dz.zona IN (${sql.join(
-               zona.map((c) => sql`${c}`),
-               sql`, `,
-             )})
-        )
-        OR (
-          p.deposito_id IS NULL
-          AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(TRIM(t.ciudad), 'á','a'),'é','e'),'í','i'),'ó','o'),'ú','u')) IN (${sql.join(
-            zona
-              .map((c) => zonaPorSlug(c)?.nombre)
-              .filter((n): n is string => Boolean(n))
-              .map((n) => sql`${normalizarCiudad(n)}`),
-            sql`, `,
-          )})
-        )
-      )`
-    : sql``;
-
-  const DEL_DEPARTAMENTO = sql`
-    p.estado = 'publicado'
-    AND t.estado = 'activa'
-    AND t.mercado = ${mercado.codigo}
-    AND (
-      p.categoria_id = d.id
-      OR p.categoria_id IN (
-        SELECT h.id FROM categorias h WHERE h.padre_id = d.id
-      )
-    )
-    ${FILTRO_ZONA}
-  `;
-
-  const filas = await db.all<{ slug: string; cuantos: number }>(sql`
-    SELECT
-      d.slug AS slug,
-      (SELECT COUNT(*)
-         FROM productos p
-         JOIN tiendas t ON t.id = p.tienda_id
-        WHERE ${DEL_DEPARTAMENTO}) AS cuantos
-    FROM categorias d
-    WHERE d.tienda_id IS NULL
-  `);
-
-  const porSlug = new Map(filas.map((f) => [f.slug, f]));
+  const porSlug: Record<string, number> = zona?.length
+    ? await departamentosEnZona(mercado, zona)
+    : (await conteosDe(mercado)).departamentos;
 
   // El orden y los nombres salen del código, no de la base: la lista es
   // nuestra y así no depende de que la siembra haya corrido.
-  return DEPARTAMENTOS.map((d) => {
-    const fila = porSlug.get(d.slug);
-    return {
-      slug: d.slug,
-      nombre: nombreDepartamento(d, idioma),
-      icono: d.icono,
-      cuantos: Number(fila?.cuantos ?? 0),
-    };
-  });
+  return DEPARTAMENTOS.map((d) => ({
+    slug: d.slug,
+    nombre: nombreDepartamento(d, idioma),
+    icono: d.icono,
+    cuantos: Number(porSlug[d.slug] ?? 0),
+  }));
+}
+
+/** Los publicados por departamento raíz que se retiran en estas ciudades. */
+async function departamentosEnZona(
+  mercado: Mercado,
+  zona: string[],
+): Promise<Record<string, number>> {
+  const db = getDb();
+  const [pares, arbol] = await Promise.all([
+    db
+      .select({ categoriaId: productos.categoriaId, cuantos: count() })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .where(and(visibleAqui(mercado), enZona(zona)))
+      .groupBy(productos.categoriaId),
+    db
+      .select({
+        id: categorias.id,
+        slug: categorias.slug,
+        nombreEs: categorias.nombreEs,
+        nombreEn: categorias.nombreEn,
+        padreId: categorias.padreId,
+        tiendaId: categorias.tiendaId,
+      })
+      .from(categorias),
+  ]);
+  const porCategoria = new Map<string, number>();
+  for (const p of pares) {
+    if (p.categoriaId) porCategoria.set(p.categoriaId, Number(p.cuantos));
+  }
+  return armarDepartamentos(porCategoria, arbol);
 }
 
 /**
@@ -1229,11 +1223,16 @@ async function parrillaSinCache(
     .limit(porPagina)
     .offset((pagina - 1) * porPagina);
 
-  const [conteo] = await db
-    .select({ n: sql<number>`COUNT(*)` })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(donde);
+  /* El total de la portada sin ciudad es el de la foto guardada (17 sep
+     2026), el que cuenta solo lo que tiene precio, como esta parrilla; con
+     ciudad se cuenta, porque cambia con ella. */
+  const [conteo] = zona?.length
+    ? await db
+        .select({ n: sql<number>`COUNT(*)` })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .where(donde)
+    : [{ n: (await conteosDe(mercado)).totalConPrecio }];
 
   const total = Number(conteo?.n ?? 0);
 

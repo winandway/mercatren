@@ -225,6 +225,9 @@ export const tiendas = sqliteTable(
     index("idx_tiendas_estado").on(t.estado),
     // Toda consulta pública del catálogo filtra por mercado desde el 17 ago 2026.
     index("idx_tiendas_mercado").on(t.mercado),
+    /* Y siempre junto con «activa»: un solo índice para las dos condiciones
+       (emergencia de costo, 17 sep 2026). */
+    index("idx_tiendas_mercado_estado").on(t.mercado, t.estado),
   ],
 );
 
@@ -405,6 +408,29 @@ export const productos = sqliteTable(
     index("idx_productos_estado").on(t.estado),
     index("idx_productos_categoria").on(t.categoriaId),
     index("idx_productos_destacado").on(t.destacado),
+    /**
+     * ══ LOS ÍNDICES DE LA EMERGENCIA DE COSTO (17 sep 2026) ══
+     *
+     * La base leía 134 mil millones de filas al mes, y la ficha de producto
+     * era una de las culpables: busca por `slug` y el único índice con el
+     * slug empieza por `tienda_id`, así que SQLite recorría los publicados
+     * uno por uno hasta dar con él (10.000 filas por ficha, 86.000 fichas al
+     * día). Con el índice por slug es una fila.
+     *
+     * Los compuestos son los que de verdad usan los conteos y la ficha:
+     * `estado` solo no acota nada (casi todo está publicado). Cada uno se
+     * comprobó con EXPLAIN QUERY PLAN; la prueba `indices-del-catalogo`
+     * los exige. `CREATE INDEX IF NOT EXISTS` viaja en `schema.sql`, así
+     * que llegan a producción en la publicación siguiente.
+     */
+    index("idx_productos_slug").on(t.slug),
+    index("idx_productos_estado_categoria").on(t.estado, t.categoriaId),
+    index("idx_productos_estado_tienda").on(t.estado, t.tiendaId),
+    index("idx_productos_deposito_estado").on(t.depositoId, t.estado),
+    /* Los similares de la ficha: «los más nuevos de esta categoría / de
+       esta tienda» se leen caminando el índice y parando en el LIMIT. */
+    index("idx_productos_categoria_creado").on(t.categoriaId, t.creadoEn),
+    index("idx_productos_tienda_creado").on(t.tiendaId, t.creadoEn),
   ],
 );
 

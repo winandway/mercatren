@@ -35,6 +35,8 @@ const RAIZ = join(process.cwd(), "src");
 const VIGILADOS = [
   "lib/catalogo/consultas.ts",
   "lib/catalogo/buscar.ts",
+  /* La foto de conteos (17 sep 2026): agregados por mercado, con su filtro. */
+  "lib/catalogo/conteos.ts",
 ] as const;
 
 /** Las formas válidas de traer el país a una consulta. Todas salen de la capa

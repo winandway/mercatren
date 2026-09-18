@@ -119,6 +119,7 @@ export async function GET(peticion: Request) {
       cuentas,
       prueba,
       tarifas,
+      conteos,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -141,6 +142,23 @@ export async function GET(peticion: Request) {
       lecturaDeCuentas(),
       pruebaDeLectura(),
       tarifaDeLosCobros(),
+      /* LA FOTO DE CONTEOS DEL CATÁLOGO (emergencia de costo, 17 sep 2026):
+         cuántos minutos tiene la de cada mercado. `viejos` con algo dentro
+         = el reloj dejó de rehacerla y las pantallas sirven conteos
+         rancios; `null` = nunca se calculó. Ver `lib/catalogo/conteos.ts`. */
+      import("@/lib/catalogo/conteos")
+        .then((m) => m.edadDeLosConteos())
+        .then((e) => ({
+          ok: e.viejos.length === 0,
+          edadMinutos: e.minutos,
+          viejos: e.viejos,
+        }))
+        .catch((fallo: unknown) => ({
+          ok: false,
+          edadMinutos: {},
+          viejos: [],
+          error: fallo instanceof Error ? fallo.message : String(fallo),
+        })),
     ]);
     return Response.json(
       {
@@ -162,6 +180,9 @@ export async function GET(peticion: Request) {
         /* El reloj: hace cuántos minutos latió. Si pasa de unos pocos, el
            sitio no se está moviendo solo. */
         reloj,
+        /* Los conteos del catálogo: `ok: false` = la foto tiene más de
+           treinta minutos o no existe en algún mercado. */
+        conteos,
         /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */
