@@ -71,8 +71,8 @@ describe("la página de una tienda", () => {
   const consultas = sinComentarios(leer("src/lib/catalogo/consultas.ts"));
 
   it("va por listarProductosDeTienda cuando el único filtro es el comercio", () => {
-    expect(consultas).toContain(
-      "return listarProductosDeTienda(mercado, filtros.comercio, pagina, porPagina);",
+    expect(consultas).toMatch(
+      /return listarProductosDeTienda\(\s*mercado,\s*filtros\.comercio,\s*pagina,\s*porPagina,?\s*\)/,
     );
   });
 
