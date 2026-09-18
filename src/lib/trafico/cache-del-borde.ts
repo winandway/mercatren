@@ -12,70 +12,137 @@
  * visitas siguientes no tocan ni el código ni la base. NUNCA guarda una
  * visita que trae `Cookie`, ni una respuesta con `Set-Cookie`; el techo es
  * una hora y se vacía en cada publicación. La cabecera `x-yad-cache` dice
- * qué pasó (HIT / STALE / MISS / BYPASS:motivo).
+ * qué pasó (HIT / STALE / MISS / BYPASS:motivo). La llave es la dirección
+ * COMPLETA, con la query string: comprobado en vivo con dos categorías del
+ * catálogo.
  *
  * Aquí se decide, en puro, qué visitas llevan esa cabecera. Es puro a
- * propósito: lo usa el middleware (que corre en el borde) y lo prueban las
- * pruebas sin levantar nada.
+ * propósito: lo usa `next.config.ts` (las reglas) y lo prueban las pruebas
+ * sin levantar nada.
  *
- * LAS TRES CONDICIONES, Y POR QUÉ NINGUNA SOBRA:
+ * ══ POR QUÉ VA EN `next.config.ts` Y NO EN EL MIDDLEWARE ══
+ *
+ * La primera versión ponía la cabecera desde el middleware. Se cayó en vivo
+ * a los diez minutos: Next le QUITA al middleware las cabeceras del árbol de
+ * React (`rsc`, `next-router-prefetch`…) y el parámetro `_rsc` antes de
+ * invocarlo (`server/web/adapter.js`, `FLIGHT_HEADERS`), así que el
+ * middleware no distingue una navegación RSC de una visita normal. Y una
+ * petición RSC sin su `_rsc` hace que Next conteste un **307** hacia
+ * `?_rsc=<hash>`; ese 307 salía con `public` y el borde lo guardaba bajo la
+ * dirección del HTML: `/es/como-funciona` devolvía un 307 a todo el mundo.
+ * Cualquier robot (o cualquiera a propósito) podía envenenar así todas las
+ * páginas públicas.
+ *
+ * Las reglas de `headers()` de `next.config` se evalúan sobre la petición
+ * ORIGINAL (`missing` mira la cabecera de verdad), tanto en Next como en la
+ * capa de rutas de OpenNext (`getNextConfigHeaders`), y se aplican encima de
+ * la respuesta final, sea página, RSC o redirección.
+ *
+ * LAS CONDICIONES, Y POR QUÉ NINGUNA SOBRA (`SIN_SESION_NI_RSC`):
  *
  *  1. **Sin ninguna cookie.** No basta con que la plataforma no guarde las
  *     visitas con cookie: `public` le dice a CUALQUIER caché compartida
  *     (un proxy de empresa, por ejemplo) que puede guardar esa respuesta. La
- *     página de alguien con sesión lleva su nombre, su carrito y su ciudad;
- *     declararla pública sería regalársela al siguiente. Sin cookie no hay
- *     sesión, ni ciudad elegida, ni carrito: la página es la misma para
- *     todo el que entra por ese dominio.
- *  2. **Solo el HTML.** Una navegación del lado del cliente pide la MISMA
- *     dirección con la cabecera `rsc` y recibe otra cosa (el árbol de React,
- *     no HTML). Next lo distingue con `?_rsc=`, pero no se depende de eso.
- *  3. **Solo las páginas de la lista.** Lo que cambia por quién mira —carrito,
+ *     página de alguien con sesión lleva su nombre, su carrito y su ciudad.
+ *     Sin cookie no hay sesión, ni ciudad elegida, ni carrito: la página es
+ *     la misma para todo el que entra por ese dominio.
+ *  2. **Solo el HTML.** Sin `rsc` ni las cabeceras de prefetch: ni el árbol
+ *     de React ni el 307 que lo acompaña llevan `public`.
+ *  3. **Sin `next-action`.** Una acción de servidor es un POST a la misma
+ *     dirección de la página; su respuesta nunca es pública.
+ *  4. **Solo las páginas de la lista.** Lo que cambia por quién mira —carrito,
  *     cuenta, checkout, pedidos, entrar, el casillero propio, el panel— no
  *     entra ni sin cookie. Es una lista de lo permitido, no de lo prohibido:
  *     una página nueva nace sin caché hasta que alguien la ponga aquí a
  *     conciencia.
  *
  * El país NO hace falta separarlo: cada mercado es un dominio distinto
- * (mercatren.com, .cl, .com.co, .com.ve) y la caché es por dirección
- * completa. La única página que cambia por navegador es `/cobro/[enlace]`
- * (mira el user-agent), y no está en la lista.
+ * (mercatren.com, .cl, .com.co, .com.ve). La única página que cambia por
+ * navegador es `/cobro/[enlace]` (mira el user-agent), y no está en la lista.
  */
 
 export const CACHE_PUBLICA =
   "public, s-maxage=300, stale-while-revalidate=3600";
 
+/** Las páginas de un solo tramo iguales para todos: `/es/ayuda`, `/en/catalogo`… */
+export const PAGINAS_PUBLICAS = [
+  "catalogo",
+  "tiendas",
+  "videos",
+  "buscar-con-foto",
+  "casillero",
+  "ayuda",
+  "como-funciona",
+  "devoluciones",
+  "docs",
+  "entrega",
+  "nosotros",
+  "privacidad",
+  "terminos",
+  "transparencia",
+  "vender",
+  "blog",
+] as const;
+
+/** Las fichas: `/es/producto/<slug>`, `/es/tienda/<slug>`, `/es/docs/<slug>`… */
+export const FICHAS_PUBLICAS = [
+  "tienda",
+  "producto",
+  "seccion",
+  "video",
+  "blog",
+  "docs",
+] as const;
+
+export type CondicionAusente = { type: "header"; key: string };
+
+/** Lo que tiene que FALTAR en la petición para que la respuesta sea pública. */
+export const SIN_SESION_NI_RSC: ReadonlyArray<CondicionAusente> = [
+  { type: "header", key: "cookie" },
+  { type: "header", key: "rsc" },
+  { type: "header", key: "next-router-prefetch" },
+  { type: "header", key: "next-router-segment-prefetch" },
+  { type: "header", key: "next-router-state-tree" },
+  { type: "header", key: "next-action" },
+];
+
+const IDIOMA = ":idioma(es|en)";
+
+export type ReglaDeCabecera = {
+  source: string;
+  missing: CondicionAusente[];
+  headers: Array<{ key: string; value: string }>;
+};
+
 /**
- * Las páginas iguales para todo el que entra sin sesión, por dominio. La
- * expresión exige el idioma en la ruta: la raíz `/` es una redirección que
- * depende del idioma del navegador y no se guarda.
+ * Las reglas tal como las espera `headers()` de `next.config.ts`. La raíz `/`
+ * no entra: es una redirección que depende del idioma del navegador.
+ */
+export function reglasDeCachePublica(): ReglaDeCabecera[] {
+  const missing = SIN_SESION_NI_RSC.map((m) => ({ ...m }));
+  const headers = [{ key: "Cache-Control", value: CACHE_PUBLICA }];
+  return [
+    { source: `/${IDIOMA}`, missing, headers },
+    {
+      source: `/${IDIOMA}/:pagina(${PAGINAS_PUBLICAS.join("|")})`,
+      missing,
+      headers,
+    },
+    {
+      source: `/${IDIOMA}/:tipo(${FICHAS_PUBLICAS.join("|")})/:slug`,
+      missing,
+      headers,
+    },
+    { source: `/${IDIOMA}/casillero/calculadora`, missing, headers },
+  ];
+}
+
+/**
+ * La misma lista, como expresión, para las pruebas y para quien necesite
+ * preguntar por una ruta en código.
  */
 export const PAGINA_PUBLICA_PARA_TODOS = new RegExp(
-  "^/(es|en)(/(" +
-    [
-      "catalogo",
-      "tiendas",
-      "tienda/[^/]+",
-      "producto/[^/]+",
-      "seccion/[^/]+",
-      "videos",
-      "video/[^/]+",
-      "blog(/[^/]+)?",
-      "buscar-con-foto",
-      "casillero",
-      "casillero/calculadora",
-      "ayuda",
-      "como-funciona",
-      "devoluciones",
-      "docs(/[^/]+)*",
-      "entrega",
-      "nosotros",
-      "privacidad",
-      "terminos",
-      "transparencia",
-      "vender",
-    ].join("|") +
-    "))?/?$",
+  `^/(es|en)(/(${PAGINAS_PUBLICAS.join("|")}|(${FICHAS_PUBLICAS.join("|")})/[^/]+|casillero/calculadora))?/?$`,
 );
 
 export type VisitaAlBorde = {
@@ -87,7 +154,7 @@ export type VisitaAlBorde = {
   pideRsc: boolean;
 };
 
-/** ¿Esta visita puede llevar `Cache-Control: public…`? */
+/** ¿Esta visita puede llevar `Cache-Control: public…`? (espejo de las reglas) */
 export function sePuedeGuardarEnElBorde(visita: VisitaAlBorde): boolean {
   if (visita.method !== "GET" && visita.method !== "HEAD") return false;
   if (visita.tieneCookie) return false;

@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+import { reglasDeCachePublica } from "./src/lib/trafico/cache-del-borde";
+
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 /**
@@ -127,7 +129,16 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "20mb" },
   },
   async headers() {
-    return [{ source: "/:ruta*", headers: CABECERAS }];
+    return [
+      { source: "/:ruta*", headers: CABECERAS },
+      /* ══ LA CACHÉ DEL BORDE (emergencia de costo, 17 sep 2026) ══
+         Las páginas iguales para todos salen con `public, s-maxage=300,
+         stale-while-revalidate=3600` SOLO cuando la petición no trae cookie,
+         ni cabeceras RSC, ni `next-action`. Va aquí y no en el middleware
+         porque estas reglas ven la petición original. Lista y motivos en
+         `src/lib/trafico/cache-del-borde.ts`. */
+      ...reglasDeCachePublica(),
+    ];
   },
   turbopack: {
     // Hay otro package-lock.json mas arriba en el disco; sin esto Next elige

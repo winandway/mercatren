@@ -11,10 +11,6 @@ import {
 
 import { routing } from "./i18n/routing";
 import { esRutaSoloEquipo } from "./lib/panel/solo-equipo";
-import {
-  CACHE_PUBLICA,
-  sePuedeGuardarEnElBorde,
-} from "./lib/trafico/cache-del-borde";
 
 const idiomas = createMiddleware(routing);
 
@@ -135,29 +131,12 @@ export default function middleware(request: NextRequest) {
     }
   }
 
-  const respuesta = idiomas(request);
-
-  /* ══ LAS PÁGINAS IGUALES PARA TODOS SE GUARDAN EN EL BORDE (17 sep 2026) ══
-     Solo sin ninguna cookie, solo el HTML y solo las de la lista: ver
-     `lib/trafico/cache-del-borde.ts`, que explica cada condición. La
-     cabecera se pone AQUÍ porque Next solo fija su `private, no-store` si no
-     hay una `Cache-Control` puesta antes (`sendRenderResult`), y el
-     middleware corre antes que la página. */
-  if (
-    sePuedeGuardarEnElBorde({
-      method: request.method,
-      pathname,
-      tieneCookie: request.headers.has("cookie"),
-      pideRsc:
-        request.headers.has("rsc") ||
-        request.headers.has("next-router-prefetch") ||
-        request.headers.has("next-router-segment-prefetch"),
-    })
-  ) {
-    respuesta.headers.set("Cache-Control", CACHE_PUBLICA);
-  }
-
-  return respuesta;
+  /* La cabecera pública de las páginas iguales para todos NO se pone aquí:
+     Next le quita al middleware las cabeceras RSC y el 307 del árbol de
+     React salía «public» y envenenaba la caché del borde (17 sep 2026). Vive
+     en `headers()` de next.config.ts, que sí ve la petición original. Ver
+     `lib/trafico/cache-del-borde.ts`. */
+  return idiomas(request);
 }
 
 /**

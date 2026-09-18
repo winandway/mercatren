@@ -88,29 +88,41 @@ con `Set-Cookie`. El sitio daba `BYPASS:set-cookie` porque next-intl ponía
 8. **`localeCookie: false`** en `src/i18n/routing.ts`: el idioma va en la
    ruta, la cookie sobraba. Lo único que cambia: quien eligió idioma a mano
    y vuelve a `/` cae en el idioma de su navegador.
-9. **La cabecera pública la pone el middleware**, y solo cuando la visita
-   cumple TRES cosas (`src/lib/trafico/cache-del-borde.ts`, puro y probado):
-   sin NINGUNA cookie (no basta con que la plataforma no guarde esas: `public`
-   se lo dice a cualquier caché compartida), solo GET/HEAD, y solo las
-   páginas de una lista CERRADA de lo permitido (portada, catálogo, tiendas,
-   tienda, producto, sección, videos, blog, buscar-con-foto, casillero y su
-   calculadora, ayuda, cómo funciona, devoluciones, docs, entrega, nosotros,
-   privacidad, términos, transparencia, vender). Carrito, cuenta, checkout,
-   pedidos, entrar, el casillero propio y el panel no entran ni sin cookie.
-   Va en el middleware porque Next solo fija su `private, no-store` si no hay
-   una `Cache-Control` puesta antes (`sendRenderResult`).
-10. **Lo que el middleware NO puede ver:** Next le quita las cabeceras RSC
-    (`rsc`, `next-router-prefetch`…) y el parámetro `_rsc` antes de
-    invocarlo (`server/web/adapter.js`, `FLIGHT_HEADERS`). Así que el árbol
-    de React de una navegación anónima también sale `public`, bajo su propia
-    dirección `?_rsc=<hash>`. No se mezcla con el HTML porque la llave es la
-    dirección completa; se comprobó en vivo pidiendo el HTML después del
-    RSC. El país no hace falta separarlo: cada mercado es un dominio.
+9. **La cabecera pública la ponen las reglas de `headers()` de
+   `next.config.ts`** (`reglasDeCachePublica()` en
+   `src/lib/trafico/cache-del-borde.ts`, puro y probado), con `missing`:
+   solo cuando a la petición le FALTAN `cookie`, `rsc`,
+   `next-router-prefetch`, `next-router-segment-prefetch`,
+   `next-router-state-tree` y `next-action`, y solo para una lista CERRADA
+   de lo permitido (portada, catálogo, tiendas, tienda, producto, sección,
+   videos, blog, buscar-con-foto, casillero y su calculadora, ayuda, cómo
+   funciona, devoluciones, docs, entrega, nosotros, privacidad, términos,
+   transparencia, vender). Carrito, cuenta, checkout, pedidos, entrar, el
+   casillero propio y el panel no entran ni sin cookie. Sin cookie no hay
+   sesión, ni ciudad, ni carrito: la página es la misma para todos los que
+   entran por ese dominio (y cada mercado es un dominio).
+10. **POR QUÉ NO EN EL MIDDLEWARE — el hueco que se vio en vivo diez minutos
+    después de publicar la primera versión.** Next le quita al middleware
+    las cabeceras RSC (`rsc`, `next-router-prefetch`…) y el parámetro
+    `_rsc` antes de invocarlo (`server/web/adapter.js`, `FLIGHT_HEADERS`),
+    así que desde el middleware no se distingue una navegación RSC de una
+    visita. Y una petición RSC sin su `_rsc` hace que Next conteste un
+    **307** hacia `?_rsc=<hash>`; ese 307 salía con `public` y el borde lo
+    guardó bajo la dirección del HTML: `/es/como-funciona` devolvía un 307 a
+    todo el mundo (medido: `x-yad-cache: HIT`, 0 bytes). Cualquier robot, o
+    cualquiera a propósito, podía envenenar así todas las páginas públicas.
+    Las reglas de `next.config` se evalúan sobre la petición ORIGINAL, en
+    Next y en la capa de rutas de OpenNext (`getNextConfigHeaders`), y se
+    aplican encima de la respuesta final. Comprobado con la compilación de
+    producción (`opennextjs-cloudflare build` + `wrangler dev`): el 307 y el
+    `text/x-component` salen `private`; el HTML sin cookie, `public`.
 
-Comprobación: `curl -sI https://mercatren.com/es/ayuda` dos veces; la
-segunda con `x-yad-cache: HIT` y sin `set-cookie`. Candado:
-`tests/unit/cache-del-borde.test.ts` (comprobado en rojo metiendo «carrito»
-en la lista).
+Comprobación: `curl -s -D - -o /dev/null https://mercatren.com/es/ayuda`
+dos veces (GET: la plataforma no guarda los HEAD); la segunda con
+`x-yad-cache: HIT` y sin `set-cookie`. Y la del veneno:
+`curl -s -D - -o /dev/null -H "RSC: 1" https://mercatren.com/es/nosotros`
+tiene que salir 307 SIN `public`. Candado: `tests/unit/cache-del-borde.test.ts`
+(comprobado en rojo metiendo «carrito» en la lista).
 
 **En qué commit quedó.** Ver `git log --grep="emergencia de costo"`.
 

@@ -7,7 +7,10 @@ import { describe, expect, it } from "vitest";
 import { routing } from "@/i18n/routing";
 import {
   CACHE_PUBLICA,
+  FICHAS_PUBLICAS,
   PAGINA_PUBLICA_PARA_TODOS,
+  PAGINAS_PUBLICAS,
+  reglasDeCachePublica,
   sePuedeGuardarEnElBorde,
 } from "@/lib/trafico/cache-del-borde";
 
@@ -23,6 +26,12 @@ import {
  * páginas públicas, y que nada con sesión lleve `public` jamás.
  *
  * Comprobado en rojo el 17 sep 2026 metiendo «carrito» en la lista.
+ *
+ * Y la lección del mismo día: la cabecera NO puede ponerla el middleware.
+ * Next le quita las cabeceras RSC antes de invocarlo, y el 307 con que Next
+ * contesta a una petición RSC sin `_rsc` salía «public»: el borde lo guardó
+ * bajo la dirección del HTML y `/es/como-funciona` devolvía un 307 a todo el
+ * mundo. Las reglas viven en `headers()` de next.config, con `missing`.
  */
 
 const sinCookie = (pathname: string, method = "GET") =>
@@ -139,24 +148,56 @@ describe("qué páginas se guardan en el borde", () => {
   });
 });
 
-describe("el middleware pone la cabecera y solo él", () => {
-  const middleware = readFileSync(
-    join(process.cwd(), "src/middleware.ts"),
-    "utf8",
-  );
+describe("las reglas viven en next.config, y solo ahí", () => {
+  const reglas = reglasDeCachePublica();
 
-  it("decide con la función pura y mira si hay cookie", () => {
-    expect(middleware).toContain("sePuedeGuardarEnElBorde({");
-    expect(middleware).toContain('tieneCookie: request.headers.has("cookie")');
-    expect(middleware).toContain(
-      'respuesta.headers.set("Cache-Control", CACHE_PUBLICA)',
+  it("cada regla exige que falten cookie, rsc, prefetch y next-action", () => {
+    expect(reglas.length).toBeGreaterThanOrEqual(4);
+    for (const r of reglas) {
+      expect(r.headers).toEqual([
+        { key: "Cache-Control", value: CACHE_PUBLICA },
+      ]);
+      expect(r.missing.map((m) => m.key).sort()).toEqual(
+        [
+          "cookie",
+          "next-action",
+          "next-router-prefetch",
+          "next-router-segment-prefetch",
+          "next-router-state-tree",
+          "rsc",
+        ].sort(),
+      );
+      expect(r.missing.every((m) => m.type === "header")).toBe(true);
+    }
+  });
+
+  it("las reglas y la expresión de las pruebas cuentan la misma lista", () => {
+    const fuentes = reglas.map((r) => r.source).join("\n");
+    for (const p of [...PAGINAS_PUBLICAS, ...FICHAS_PUBLICAS]) {
+      expect(fuentes, p).toContain(p);
+    }
+    expect(fuentes).toContain("casillero/calculadora");
+    expect(fuentes).not.toMatch(/carrito|checkout|cuenta|pedidos|panel|entrar/);
+  });
+
+  it("next.config.ts las usa y el middleware NO pone la cabecera", () => {
+    const config = readFileSync(join(process.cwd(), "next.config.ts"), "utf8");
+    expect(config).toContain("...reglasDeCachePublica()");
+    const middleware = readFileSync(
+      join(process.cwd(), "src/middleware.ts"),
+      "utf8",
     );
+    /* Next le quita al middleware las cabeceras RSC: desde ahí no se puede
+       distinguir el 307 del árbol de React, y el borde lo guardaba como si
+       fuera la página (17 sep 2026). */
+    expect(middleware).not.toContain("Cache-Control");
+    expect(middleware).not.toContain("CACHE_PUBLICA");
   });
 
   it("ninguna página ni ruta escribe «public, s-maxage» por su cuenta", () => {
     /* Una cabecera pública suelta en una página con sesión es una fuga. */
     const salida = execSync(
-      "grep -rl 's-maxage' src/app src/components src/lib --include='*.ts' --include='*.tsx' || true",
+      "grep -rl 's-maxage' src/app src/components src/lib src/middleware.ts --include='*.ts' --include='*.tsx' || true",
       { cwd: process.cwd(), encoding: "utf8" },
     )
       .split("\n")
