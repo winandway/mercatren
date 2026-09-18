@@ -126,6 +126,55 @@ async function marcaDe(llave: string): Promise<number> {
   }
 }
 
+/**
+ * ══ RECLAMAR UN TRABAJO PESADO ANTES DE EMPEZARLO (18 sep 2026) ══
+ *
+ * Igual que `reclamarTick`, pero para un trabajo concreto: un UPDATE
+ * condicional que solo gana UN latido cada `cadaMs`, aunque dos latidos
+ * corran a la vez o el primero se corte a mitad. Sin esto, la foto de 1.000
+ * ids se rehizo 202 veces a la hora en vez de ~48 (medido por YaDominios):
+ * un latido que se corta deja la foto vieja y el siguiente la rehace entera.
+ */
+async function reclamarMarca(
+  llave: string,
+  cadaMs: number,
+  ahoraMs: number,
+): Promise<boolean> {
+  try {
+    const db = getDb();
+    const r = await db
+      .update(configuracion)
+      .set({ valor: String(ahoraMs) })
+      .where(
+        sql`${configuracion.clave} = ${llave} and cast(${configuracion.valor} as integer) < ${ahoraMs - cadaMs}`,
+      );
+    const cambios = Number(
+      (r as { meta?: { changes?: number } } | null)?.meta?.changes ?? 0,
+    );
+    if (cambios > 0) return true;
+    const ins = await db
+      .insert(configuracion)
+      .values({ clave: llave, valor: String(ahoraMs) })
+      .onConflictDoNothing();
+    return (
+      Number(
+        (ins as { meta?: { changes?: number } } | null)?.meta?.changes ?? 0,
+      ) > 0
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Dónde se marca cada intento de rehacer los conteos y los listados. */
+export const LLAVE_INTENTO_CONTEOS = "reloj_intento_conteos";
+export const LLAVE_INTENTO_LISTADOS = "reloj_intento_listados";
+export const LLAVE_OPTIMIZAR_BASE = "reloj_optimizar_base";
+/** Entre dos intentos de rehacer, como mínimo. */
+const INTENTO_CADA_MS = 4 * 60_000;
+/** `PRAGMA optimize` una vez al día (lo recomienda Cloudflare para D1). */
+const OPTIMIZAR_CADA_MS = 24 * 60 * 60_000;
+
 async function anotarMarca(llave: string, ms: number): Promise<void> {
   const valor = String(ms);
   await getDb()
@@ -176,6 +225,9 @@ export async function correrTick(
     await anotar("reloj/vigilante", fallo);
   }
 
+  /** Si este latido rehízo los conteos, los listados esperan al siguiente. */
+  let rehizoConteos = false;
+
   /* 0b. LOS CONTEOS DEL CATÁLOGO, cada cinco minutos (emergencia de costo,
      17 sep 2026). Va ANTES que CJ a propósito: si fuera al final, el afinado
      y el stock se comerían el presupuesto y la foto no se rehacería nunca.
@@ -190,8 +242,12 @@ export async function correrTick(
       const masViejo = Math.max(
         ...Object.values(edad.minutos).map((m) => (m === null ? Infinity : m)),
       );
-      if (masViejo * 60_000 >= CONTEOS_CADA_MS) {
+      if (
+        masViejo * 60_000 >= CONTEOS_CADA_MS &&
+        (await reclamarMarca(LLAVE_INTENTO_CONTEOS, INTENTO_CADA_MS, arranque))
+      ) {
         const r = await recalcularTodosLosConteos();
+        rehizoConteos = true;
         hizo.push(`conteos: ${r.hizo.join(" · ")}`);
         if (r.fallos.length > 0) {
           await anotar(
@@ -211,14 +267,19 @@ export async function correrTick(
      visita (54 millones de filas a la hora) ahora se ordenan aquí, una vez,
      y las páginas leen la foto. Ver `listados-guardados.ts`. */
   try {
-    if (queda() > 6_000) {
+    /* Nunca en el mismo latido que los conteos: los dos juntos se comían el
+       presupuesto y el latido se cortaba a mitad (18 sep 2026). */
+    if (queda() > 6_000 && !rehizoConteos) {
       const { edadDeLosListados, LISTADOS_CADA_MS } =
         await import("@/lib/catalogo/listados-guardados");
       const edad = await edadDeLosListados();
       const masViejo = Math.max(
         ...Object.values(edad.minutos).map((m) => (m === null ? Infinity : m)),
       );
-      if (masViejo * 60_000 >= LISTADOS_CADA_MS) {
+      if (
+        masViejo * 60_000 >= LISTADOS_CADA_MS &&
+        (await reclamarMarca(LLAVE_INTENTO_LISTADOS, INTENTO_CADA_MS, arranque))
+      ) {
         const { recalcularTodosLosListados } =
           await import("@/lib/catalogo/consultas");
         const r = await recalcularTodosLosListados();
@@ -234,6 +295,24 @@ export async function correrTick(
   } catch (fallo) {
     console.error("[tick] los listados fallaron:", fallo);
     await anotar("reloj/listados", fallo);
+  }
+
+  /* 0d. LAS ESTADÍSTICAS DE LA BASE, una vez al día (18 sep 2026). Sin
+     ellas (no existía `sqlite_stat1`), SQLite creía que `estado = ?` era
+     selectivo y elegía el índice de estado en todas partes: 25.000 filas
+     por una búsqueda de 24 ids. `PRAGMA optimize=0x10002` solo vuelve a
+     analizar las tablas que crecieron o se encogieron mucho. */
+  try {
+    if (
+      queda() > 3_000 &&
+      (await reclamarMarca(LLAVE_OPTIMIZAR_BASE, OPTIMIZAR_CADA_MS, arranque))
+    ) {
+      await getDb().run(sql.raw("PRAGMA optimize=0x10002"));
+      hizo.push("base: estadísticas al día");
+    }
+  } catch (fallo) {
+    console.error("[tick] PRAGMA optimize falló:", fallo);
+    await anotar("reloj/optimizar", fallo);
   }
 
   /* 1. La importación masiva, si hay alguna en marcha. */

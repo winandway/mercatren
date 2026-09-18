@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, inArray, type SQL } from "drizzle-orm";
+import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 
 import { productos, tiendas } from "@/lib/db/schema";
 import { mercadoActual } from "@/lib/mercado/actual";
@@ -89,6 +89,36 @@ export function visibleEn(mercado: Mercado): FiltroDeMercado {
  * sesión: el público, Google, el mapa del sitio y el feed siguen viendo
  * únicamente lo publicado. Lo en revisión nunca lleva botón de comprar.
  */
+/**
+ * ══ EL MISMO FILTRO, PERO SIN DEJAR QUE SQLITE USE EL ÍNDICE DE ESTADO ══
+ * (emergencia de costo, 18 sep 2026)
+ *
+ * La base de producción no tiene estadísticas (no existe `sqlite_stat1`), y
+ * sin ellas el planificador cree que `estado = 'publicado'` es selectivo:
+ * ante `categoria_id = ? AND estado = ? ORDER BY creado_en DESC` elige
+ * `idx_productos_estado_categoria` (igualdad en las dos columnas) y después
+ * ORDENA los miles de productos de la categoría, en vez de caminar
+ * `idx_productos_categoria_creado` hacia atrás y parar en el LIMIT. Medido
+ * por YaDominios: 5.000 filas por ficha, 3.300 fichas a la hora.
+ *
+ * El `+` delante de la columna es SQLite puro: la condición se sigue
+ * evaluando igual, pero ese término ya no puede usar ningún índice. Así el
+ * único índice útil es el del orden. Se usa SOLO en las consultas que
+ * ordenan por una columna indexada y paran en un LIMIT (los similares);
+ * las demás siguen con `visibleEn`.
+ */
+export function visibleEnSinIndiceDeEstado(mercado: Mercado): FiltroDeMercado {
+  return soloDeEsteMercado(
+    mercado,
+    and(sql`+${productos.estado} = 'publicado'`, eq(tiendas.estado, "activa")),
+  );
+}
+
+/* `esVisibleEn` —el mismo filtro decidido en código, para las búsquedas por
+   lista de ids— vive en `visibilidad.ts`, que es puro y se prueba sin
+   servidor. Se reexporta aquí para que la capa siga siendo la única puerta. */
+export { esVisibleEn } from "./visibilidad";
+
 export function visibleEnParaElEquipo(mercado: Mercado): FiltroDeMercado {
   return soloDeEsteMercado(
     mercado,

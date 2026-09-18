@@ -49,10 +49,12 @@ import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { DIAS_PRODUCTO_NUEVO } from "@/lib/dinero";
 import type { Mercado } from "@/lib/mercado/mercados";
 import {
+  esVisibleEn,
   type FiltroDeMercado,
   tiendaVisibleEn,
   visibleEn,
   visibleEnParaElEquipo,
+  visibleEnSinIndiceDeEstado,
 } from "@/lib/mercado/repositorio";
 import { RUTA_MEDIA } from "@/lib/rutas";
 
@@ -409,11 +411,11 @@ export async function listarProductos(
      recorren la paginación). El reloj guarda los primeros `LISTADO_TOPE`
      ids; aquí se corta el tramo y se traen por id. Más allá del tope, en
      vivo. */
-  if (sinFiltros && ordenDeSiempre) {
-    const guardado = await listadoGuardado(mercado, "catalogo", async () => ({
-      semilla: semillaDelDia(),
-      ids: await idsDelCatalogo(mercado, LISTADO_TOPE),
-    }));
+  const guardado =
+    sinFiltros && ordenDeSiempre
+      ? await listadoGuardado(mercado, "catalogo")
+      : null;
+  if (guardado) {
     const totalGuardado = (await conteosDe(mercado)).total;
     const desde = (pagina - 1) * porPagina;
     if (desde < guardado.ids.length || desde >= totalGuardado) {
@@ -657,7 +659,7 @@ export async function obtenerProductoPorSlug(
     .limit(5);
   if (candidatos.length === 0) return null;
 
-  const [fila] = await db
+  const filas = await db
     .select({
       /**
        * LAS COLUMNAS SE NOMBRAN UNA POR UNA, nunca `productos` a secas.
@@ -717,21 +719,35 @@ export async function obtenerProductoPorSlug(
       categoriaNombreEs: categorias.nombreEs,
       categoriaNombreEn: categorias.nombreEn,
       categoriaSlug: categorias.slug,
+      /* Para decidir la visibilidad en código (ver el `where` de abajo). */
+      tiendaEstado: tiendas.estado,
+      tiendaMercado: tiendas.mercado,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
     .leftJoin(depositos, eq(depositos.id, productos.depositoId))
+    /* SOLO `id IN (…)`: con `estado` al lado, SQLite sin estadísticas iba
+       por el índice de estado y leía miles de filas (18 sep 2026). La
+       visibilidad —publicado, tienda activa, este mercado— se decide en
+       código con `esVisibleEn`, igual que hacía `visibleAqui`. */
     .where(
-      and(
-        inArray(
-          productos.id,
-          candidatos.map((c) => c.id),
-        ),
-        visibleAqui(mercado, Boolean(opciones?.paraElEquipo)),
+      inArray(
+        productos.id,
+        candidatos.map((c) => c.id),
       ),
-    )
-    .limit(1);
+    );
+  const fila = filas.find((f) =>
+    esVisibleEn(
+      {
+        estado: f.producto.estado,
+        tiendaEstado: f.tiendaEstado,
+        tiendaMercado: f.tiendaMercado,
+      },
+      mercado,
+      Boolean(opciones?.paraElEquipo),
+    ),
+  );
 
   if (!fila) return null;
 
@@ -802,7 +818,10 @@ export async function productosSimilares(
    * tienda (THEN 0 ELSE 1 END, ahora en código), y lo más nuevo primero.
    */
   const comunes = [
-    visibleAqui(mercado),
+    /* `+estado`: que SQLite no elija el índice de estado y ordene la
+       categoría entera; así camina el de `creado_en` y para en el LIMIT
+       (ver `visibleEnSinIndiceDeEstado`, 18 sep 2026). */
+    visibleEnSinIndiceDeEstado(mercado),
     gt(productos.precioCentavos, 0),
     ne(productos.id, de.productoId),
     zona?.length ? enZona(zona) : undefined,
@@ -1295,11 +1314,10 @@ export async function parrillaDeProductos(
    * primera pantalla sigue girando con la semilla de la visita. Más allá
    * del tope, o con ciudad elegida, se consulta en vivo como siempre.
    */
-  if (!zona?.length) {
-    const guardado = await listadoGuardado(mercado, "parrilla", async () => ({
-      semilla: semillaDelDia(),
-      ids: await idsDeLaParrilla(mercado, semillaDelDia(), LISTADO_TOPE),
-    }));
+  const guardado = zona?.length
+    ? null
+    : await listadoGuardado(mercado, "parrilla");
+  if (guardado) {
     const total = (await conteosDe(mercado)).totalConPrecio;
     const desde = (pagina - 1) * porPagina;
     if (desde < guardado.ids.length || desde >= total) {
@@ -1491,15 +1509,22 @@ async function productosPorIds(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
+      tiendaEstado: tiendas.estado,
+      tiendaMercado: tiendas.mercado,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(and(inArray(productos.id, ids), visibleAqui(mercado)));
+    /* SOLO `id IN (…)` en el WHERE, a propósito: con `estado` al lado,
+       SQLite sin estadísticas elegía el índice de estado y leía 25.000
+       filas por página (medido por YaDominios). La visibilidad se decide
+       abajo, en código, con `esVisibleEn` (mismas tres condiciones). */
+    .where(inArray(productos.id, ids));
+  const visibles = filas.filter((f) => esVisibleEn(f, mercado));
   const fotos = await fotoDeTurnoDe(
-    filas.map((f) => f.id),
+    visibles.map((f) => f.id),
     semilla,
   );
-  const porId = new Map(filas.map((f) => [f.id, f]));
+  const porId = new Map(visibles.map((f) => [f.id, f]));
   return ids
     .map((id) => porId.get(id))
     .filter((f): f is NonNullable<typeof f> => Boolean(f))
@@ -1746,11 +1771,8 @@ export async function bandasDeDepartamentos(
      Seis consultas con ventana por portada, 784 a la hora. El reloj guarda
      los ids de cada banda con la semilla del día; aquí se traen por id. Con
      ciudad (Venezuela) se consulta en vivo, como siempre. */
-  if (!zona?.length) {
-    const guardadas = await bandasGuardadas(mercado, async () => ({
-      semilla: semillaDelDia(),
-      bandas: await bandasPorDepartamento(mercado, semillaDelDia()),
-    }));
+  const guardadas = zona?.length ? null : await bandasGuardadas(mercado);
+  if (guardadas) {
     const departamentos = (await listarDepartamentosDePortada(mercado, idioma))
       .filter((d) => d.cuantos > 0 && guardadas.bandas[d.slug]?.length)
       .sort((a, b) => b.cuantos - a.cuantos)

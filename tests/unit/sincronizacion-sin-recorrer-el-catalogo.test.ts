@@ -50,9 +50,7 @@ describe("el afinado consume una lista guardada", () => {
 
   it("el turno se saca de la lista ANTES de trabajar y se vuelve a mirar por id", () => {
     const antes = afinar.indexOf("ids: cola.ids.slice(turno.length)");
-    const porId = afinar.indexOf(
-      "and(inArray(productos.id, turno), condicionDeCola(paises))",
-    );
+    const porId = afinar.indexOf(".where(inArray(productos.id, turno))");
     const bucle = afinar.indexOf("for (const p of cola_) {");
     expect(antes).toBeGreaterThan(0);
     expect(porId).toBeGreaterThan(antes);
@@ -67,7 +65,7 @@ describe("el stock consume una lista guardada", () => {
     expect(existencias).toContain(".limit(COLA_STOCK_TANDA)");
     expect(existencias).toContain('LLAVE_COLA_STOCK = "cj_cola_stock"');
     expect(existencias).toContain("return (await colaDeStock()).casiListos;");
-    expect(existencias).toMatch(/and\(\s*inArray\(productos\.id, turno\),/);
+    expect(existencias).toContain(".where(inArray(productos.id, turno))");
   });
 });
 
@@ -83,12 +81,9 @@ describe("las colas comunes: el revisor de fotos y el traductor", () => {
     const tanda = sinComentarios(leer("src/lib/traduccion/tanda.ts"));
     expect(tanda).toContain("tomarDeCola({");
     expect(tanda).toContain("const COLA_TOPE = 600;");
-    expect(tanda).toMatch(
-      /inArray\(productos\.id, turno\), tituloPendiente\(\)/,
-    );
-    expect(tanda).toMatch(
-      /inArray\(productos\.id, turno\), descripcionPendiente\(\)/,
-    );
+    expect(
+      tanda.match(/\.where\(inArray\(productos\.id, turno\)\)/g)?.length,
+    ).toBe(2);
   });
 
   it("el ayudante saca el turno de la lista ANTES de trabajar y respeta una lista vacía y fresca", () => {
@@ -120,7 +115,7 @@ describe("el barrido y el conteo de fotos ya no van cada minuto", () => {
     expect(tick).toContain("barrerNoVerificados({ soloIds: r.ids })");
     const verificados = sinComentarios(leer("src/lib/cj/verificados.ts"));
     expect(verificados.match(/\.\.\.soloEstos,/g)?.length).toBe(2);
-    expect(verificados).toContain("[inArray(productos.id, opciones.soloIds)]");
+    expect(verificados).toContain("[inArray(productos.id, opciones.soloIds!)]");
   });
 
   it("el conteo de fotos por traer se recuerda media hora", () => {

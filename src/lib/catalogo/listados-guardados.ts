@@ -136,30 +136,33 @@ export async function guardarBandas(
 }
 
 /**
- * El listado guardado, con memoria y borde de un minuto delante. Si no
- * existe (recién publicado, antes de que el reloj lata), `calcular` lo arma
- * en el momento y se guarda: una vez, no por visita.
+ * El listado guardado, con memoria y borde de un minuto delante, o `null`
+ * si todavía no existe.
+ *
+ * ══ LA PÁGINA NUNCA LO REHACE (18 sep 2026, quinta parte) ══
+ * La primera versión, sin fila, lo calculaba en la visita y lo guardaba.
+ * Medido por YaDominios: la consulta que arma los 1.000 ids corría 202
+ * veces a la hora en vez de ~48, porque cada isolate con la memoria vencida
+ * y la fila ausente (recién publicado, o un latido cortado) la rehacía. Ahora
+ * solo la arma el reloj; sin fila, la página va por el camino de siempre
+ * (la consulta en vivo) hasta que el reloj la escriba, un minuto después.
  */
 export async function listadoGuardado(
   mercado: Mercado,
   clave: ClaveDeListado,
-  calcular: () => Promise<{ semilla: number; ids: string[] }>,
-): Promise<ListadoGuardado> {
+): Promise<ListadoGuardado | null> {
   return recordadoEnElBorde(
     `listado-${clave}-${mercado.codigo}`,
     RECORDAR_MS,
     async () => {
       const crudo = await leerFila(llaveDeListado(mercado, clave));
-      if (crudo) {
-        try {
-          const v: unknown = JSON.parse(crudo);
-          if (esListado(v)) return v;
-        } catch {
-          /* se rehace */
-        }
+      if (!crudo) return null;
+      try {
+        const v: unknown = JSON.parse(crudo);
+        return esListado(v) ? v : null;
+      } catch {
+        return null;
       }
-      const { semilla, ids } = await calcular();
-      return guardarListado(mercado, clave, semilla, ids);
     },
   );
 }
@@ -167,26 +170,19 @@ export async function listadoGuardado(
 /** Igual que `listadoGuardado`, para las bandas de departamentos. */
 export async function bandasGuardadas(
   mercado: Mercado,
-  calcular: () => Promise<{
-    semilla: number;
-    bandas: Record<string, string[]>;
-  }>,
-): Promise<BandasGuardadas> {
+): Promise<BandasGuardadas | null> {
   return recordadoEnElBorde(
     `listado-bandas-${mercado.codigo}`,
     RECORDAR_MS,
     async () => {
       const crudo = await leerFila(llaveDeListado(mercado, "bandas"));
-      if (crudo) {
-        try {
-          const v: unknown = JSON.parse(crudo);
-          if (sonBandas(v)) return v;
-        } catch {
-          /* se rehace */
-        }
+      if (!crudo) return null;
+      try {
+        const v: unknown = JSON.parse(crudo);
+        return sonBandas(v) ? v : null;
+      } catch {
+        return null;
       }
-      const { semilla, bandas } = await calcular();
-      return guardarBandas(mercado, semilla, bandas);
     },
   );
 }

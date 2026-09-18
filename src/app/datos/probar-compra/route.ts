@@ -54,6 +54,14 @@ const Peticion = z.discriminatedUnion("accion", [
      devuelve resumida (emergencia de costo, 17 sep 2026). Solo lectura del
      catálogo; escribe una fila por mercado en `configuracion`. */
   z.object({ accion: z.literal("conteos") }),
+  /* Las estadísticas de la base (18 sep 2026): enseña el plan de las
+     consultas-trampa, corre ANALYZE (o `PRAGMA optimize`) y lo enseña otra
+     vez. Sin estadísticas SQLite elegía el índice de `estado` en todas
+     partes. Solo escribe `sqlite_stat1`: ningún dato. */
+  z.object({
+    accion: z.literal("optimizar"),
+    modo: z.enum(["analyze", "optimize", "solo-plan"]).default("analyze"),
+  }),
   z.object({
     accion: z.literal("mirar"),
     enlace: z.string().min(1),
@@ -155,6 +163,65 @@ export async function POST(peticion: Request) {
     case "ultima":
       resultado = await leerUltimaCompraDePruebaNucleo();
       break;
+    case "optimizar": {
+      const { sql: crudo } = await import("drizzle-orm");
+      const { getDb } = await import("@/lib/db");
+      const db = getDb();
+      const PLANES: Record<string, string> = {
+        "por ids con estado":
+          "EXPLAIN QUERY PLAN SELECT p.id FROM productos p JOIN tiendas t ON t.id = p.tienda_id WHERE p.id IN ('a','b','c') AND p.estado = 'publicado' AND t.mercado = 'US' AND t.estado = 'activa'",
+        "similares por categoría":
+          "EXPLAIN QUERY PLAN SELECT p.id FROM productos p JOIN tiendas t ON t.id = p.tienda_id WHERE t.mercado = 'US' AND p.estado = 'publicado' AND t.estado = 'activa' AND p.precio_centavos > 0 AND p.categoria_id = 'x' ORDER BY p.creado_en DESC LIMIT 10",
+        "tienda (resto)":
+          "EXPLAIN QUERY PLAN SELECT p.id FROM productos p JOIN tiendas t ON t.id = p.tienda_id WHERE p.tienda_id = 'x' AND t.mercado = 'US' AND p.estado = 'publicado' AND t.estado = 'activa' AND +p.creado_en <= 1 ORDER BY p.actualizado_en DESC LIMIT 24",
+      };
+      const planes = async () => {
+        const salida: Record<string, string[]> = {};
+        for (const [nombre, consulta] of Object.entries(PLANES)) {
+          try {
+            const filas = await db.all<{ detail: string }>(crudo.raw(consulta));
+            salida[nombre] = filas.map((f) => f.detail);
+          } catch (fallo) {
+            salida[nombre] = [
+              `error: ${fallo instanceof Error ? fallo.message : String(fallo)}`,
+            ];
+          }
+        }
+        return salida;
+      };
+      const estadisticas = async () => {
+        try {
+          const [f] = await db.all<{ n: number }>(
+            crudo.raw("SELECT count(*) AS n FROM sqlite_stat1"),
+          );
+          return Number(f?.n ?? 0);
+        } catch (fallo) {
+          return `no se pudo leer: ${fallo instanceof Error ? fallo.message : String(fallo)}`;
+        }
+      };
+      const antes = {
+        estadisticas: await estadisticas(),
+        planes: await planes(),
+      };
+      let corrio: string = "nada (solo-plan)";
+      if (e.modo !== "solo-plan") {
+        const orden =
+          e.modo === "analyze" ? "ANALYZE" : "PRAGMA optimize=0x10002";
+        const t0 = Date.now();
+        try {
+          await db.run(crudo.raw(orden));
+          corrio = `${orden}: ok en ${Date.now() - t0} ms`;
+        } catch (fallo) {
+          corrio = `${orden}: error ${fallo instanceof Error ? fallo.message : String(fallo)}`;
+        }
+      }
+      const despues = {
+        estadisticas: await estadisticas(),
+        planes: await planes(),
+      };
+      resultado = { corrio, antes, despues };
+      break;
+    }
     case "conteos": {
       const { recalcularTodosLosConteos, edadDeLosConteos, conteosGuardados } =
         await import("@/lib/catalogo/conteos");

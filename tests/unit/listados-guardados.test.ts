@@ -25,14 +25,25 @@ describe("los listados guardados", () => {
   const consultas = sinComentarios(leer("src/lib/catalogo/consultas.ts"));
 
   it("la parrilla, el catálogo sin filtros y las bandas leen la foto cuando no hay ciudad", () => {
-    expect(consultas).toContain('listadoGuardado(mercado, "parrilla"');
-    expect(consultas).toContain('listadoGuardado(mercado, "catalogo"');
-    expect(consultas).toContain("bandasGuardadas(mercado, async () => ({");
-    /* y traen los productos POR ID, en el orden guardado y filtrando lo visible */
-    expect(consultas).toContain(
-      "and(inArray(productos.id, ids), visibleAqui(mercado))",
-    );
+    expect(consultas).toContain('listadoGuardado(mercado, "parrilla")');
+    expect(consultas).toContain('listadoGuardado(mercado, "catalogo")');
+    expect(consultas).toContain("bandasGuardadas(mercado)");
+    /* y traen los productos POR ID, en el orden guardado; la visibilidad
+       se decide en código (sin `estado` en el WHERE: la trampa del índice) */
+    expect(consultas).toContain(".where(inArray(productos.id, ids));");
+    expect(consultas).toContain("filas.filter((f) => esVisibleEn(f, mercado))");
     expect(consultas).toContain(".map((id) => porId.get(id))");
+  });
+
+  it("la página NUNCA rehace la foto: sin fila, va por el camino en vivo", () => {
+    /* 18 sep 2026: la foto de 1.000 ids se rehacía 202 veces a la hora. */
+    const modulo = sinComentarios(
+      leer("src/lib/catalogo/listados-guardados.ts"),
+    );
+    expect(modulo).not.toContain("calcular");
+    expect(modulo).toContain("if (!crudo) return null;");
+    expect(consultas).not.toMatch(/listadoGuardado\([^)]*async/);
+    expect(consultas).not.toMatch(/bandasGuardadas\([^)]*async/);
   });
 
   it("con ciudad elegida o más allá del tope, se consulta en vivo", () => {
@@ -42,14 +53,24 @@ describe("los listados guardados", () => {
     expect(consultas).toContain(
       "if (desde < guardado.ids.length || desde >= totalGuardado) {",
     );
-    expect(consultas).toContain("if (!zona?.length) {");
+    expect(consultas).toContain("zona?.length\n    ? null");
     expect(consultas).toContain(
       "parrillaSinCache(mercado, semilla, pagina, porPagina, zona)",
     );
   });
 
-  it("el reloj los rehace cada cinco minutos y el canario los vigila", () => {
+  it("el reloj los rehace cada cinco minutos, reclamando el intento, y el canario los vigila", () => {
     const tick = sinComentarios(leer("src/lib/reloj/tick.ts"));
+    /* Un latido que se corta a mitad no hace que el siguiente la rehaga:
+       el intento se reclama antes (UPDATE condicional), y los listados no
+       van en el mismo latido que los conteos. */
+    expect(tick).toContain(
+      "reclamarMarca(LLAVE_INTENTO_LISTADOS, INTENTO_CADA_MS, arranque)",
+    );
+    expect(tick).toContain(
+      "reclamarMarca(LLAVE_INTENTO_CONTEOS, INTENTO_CADA_MS, arranque)",
+    );
+    expect(tick).toContain("!rehizoConteos");
     expect(tick).toContain("recalcularTodosLosListados()");
     expect(tick).toContain("LISTADOS_CADA_MS");
     const modulo = leer("src/lib/catalogo/listados-guardados.ts");

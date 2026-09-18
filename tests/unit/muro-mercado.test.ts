@@ -46,6 +46,11 @@ const FILTROS = [
   "visibleEn(mercado)",
   "tiendaVisibleEn(mercado)",
   "soloDeEsteMercado(mercado",
+  /* Las dos formas nuevas de la emergencia de costo (18 sep 2026): el
+     mismo filtro sin índice de estado, y el filtro decidido en código
+     para las búsquedas por lista de ids. Las dos salen de la capa. */
+  "visibleEnSinIndiceDeEstado(mercado)",
+  "esVisibleEn(",
   /* Una consulta puede heredar el filtro de otra que ya lo aplicó. */
   "donde",
   "condiciones",

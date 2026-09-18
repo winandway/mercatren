@@ -124,11 +124,27 @@ export async function traducirDesdeElReloj(o: {
     if (turno.length === 0) break;
     /* Se vuelven a mirar por id: veinte filas, y solo las que siguen sin
        traducir. */
-    const pendientes = await db
-      .select({ id: productos.id, tituloEn: productos.tituloEn })
-      .from(productos)
-      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(and(inArray(productos.id, turno), tituloPendiente()));
+    /* SOLO `id IN (…)` en el WHERE (18 sep 2026): la condición se repite en
+       código, para que SQLite use la clave primaria y no otro índice. */
+    const pendientes = (
+      await db
+        .select({
+          id: productos.id,
+          tituloEn: productos.tituloEn,
+          tituloEs: productos.tituloEs,
+          pais: tiendas.paisOrigen,
+        })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .where(inArray(productos.id, turno))
+    ).filter(
+      (p) =>
+        PLAZAS.includes(p.pais ?? "") &&
+        (p.tituloEn ?? "").trim() !== "" &&
+        ((p.tituloEs ?? "").trim() === "" ||
+          (p.tituloEs ?? "").trim().toLowerCase() ===
+            (p.tituloEn ?? "").trim().toLowerCase()),
+    );
     if (pendientes.length === 0) continue;
 
     const r = await traducirTanda(
@@ -222,11 +238,23 @@ export async function traducirDesdeElReloj(o: {
       descripcionPendiente,
     );
     if (turno.length === 0) break;
-    const pendientes = await db
-      .select({ id: productos.id, textoEn: productos.descripcionEn })
-      .from(productos)
-      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(and(inArray(productos.id, turno), descripcionPendiente()));
+    const pendientes = (
+      await db
+        .select({
+          id: productos.id,
+          textoEn: productos.descripcionEn,
+          textoEs: productos.descripcionEs,
+          pais: tiendas.paisOrigen,
+        })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .where(inArray(productos.id, turno))
+    ).filter(
+      (p) =>
+        PLAZAS.includes(p.pais ?? "") &&
+        (p.textoEn ?? "").trim() !== "" &&
+        (p.textoEs ?? "").trim() === "",
+    );
     if (pendientes.length === 0) continue;
 
     const r = await traducirDescripciones(

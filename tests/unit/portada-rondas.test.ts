@@ -140,7 +140,7 @@ describe("la foto de turno", () => {
     /* Con la semilla de la visita en la portada y la del día en el resto. */
     expect(
       fuente.match(
-        /fotoDeTurnoDe\(\s*filas\.map\(\(f\) => f\.id\),\s*semilla,/g,
+        /fotoDeTurnoDe\(\s*(filas|visibles)\.map\(\(f\) => f\.id\),\s*semilla,/g,
       )?.length,
     ).toBe(3);
     expect(
@@ -159,7 +159,8 @@ describe("los similares de la ficha", () => {
 
   it("existen, respetan el mercado y nunca devuelven el propio producto", () => {
     expect(similares.length).toBeGreaterThan(100);
-    expect(similares).toContain("visibleAqui(mercado)");
+    /* Con `+estado` (18 sep 2026): mismo filtro, sin el índice de estado. */
+    expect(similares).toContain("visibleEnSinIndiceDeEstado(mercado)");
     expect(similares).toContain("ne(productos.id, de.productoId)");
   });
 

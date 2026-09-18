@@ -318,29 +318,31 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
     ...guardada,
     ids: guardada.ids.slice(turno.length),
   });
-  /* Se vuelven a mirar por id, en el orden de la lista: pocas filas. */
-  const cola = await db
-    .select({
-      id: productos.id,
-      pid: productos.externoId,
-      pais: tiendas.paisOrigen,
-    })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(
-      and(
-        inArray(productos.id, turno),
-        eq(productos.fuenteId, FUENTE_CJ),
-        inArray(productos.estado, ["publicado", "en_revision"]),
-      ),
+  /* Se vuelven a mirar por id, en el orden de la lista: pocas filas.
+     SOLO `id IN (…)` en el WHERE (18 sep 2026): con `estado` al lado,
+     SQLite sin estadísticas iba por el índice de estado y leía 25.000
+     filas. Fuente y estado se comprueban en código. */
+  const posicion = new Map(turno.map((id, i) => [id, i]));
+  const cola = (
+    await db
+      .select({
+        id: productos.id,
+        pid: productos.externoId,
+        pais: tiendas.paisOrigen,
+        fuenteId: productos.fuenteId,
+        estado: productos.estado,
+      })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .where(inArray(productos.id, turno))
+      .catch(() => [])
+  )
+    .filter(
+      (p) =>
+        p.fuenteId === FUENTE_CJ &&
+        (p.estado === "publicado" || p.estado === "en_revision"),
     )
-    .orderBy(
-      sql`case ${sql.join(
-        turno.map((id, i) => sql`when ${productos.id} = ${id} then ${i}`),
-        sql` `,
-      )} else ${turno.length} end`,
-    )
-    .catch(() => []);
+    .sort((a, b) => (posicion.get(a.id) ?? 0) - (posicion.get(b.id) ?? 0));
 
   let agotados = 0;
   let fallidos = 0;

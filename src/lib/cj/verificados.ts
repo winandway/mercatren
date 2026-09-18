@@ -77,10 +77,15 @@ export async function barrerNoVerificados(
 }> {
   const db = getDb();
   const ahora = new Date();
-  const soloEstos =
-    opciones.soloIds && opciones.soloIds.length > 0
-      ? [inArray(productos.id, opciones.soloIds)]
-      : [];
+  const porIds = Boolean(opciones.soloIds && opciones.soloIds.length > 0);
+  const soloEstos = porIds ? [inArray(productos.id, opciones.soloIds!)] : [];
+  /* ══ CON LISTA DE IDS, SOLO LA CLAVE PRIMARIA PUEDE USAR ÍNDICE ══ (18 sep
+     2026) Sin estadísticas, SQLite ante `id IN (…) AND estado = ?` elegía el
+     índice de estado y recorría todos los publicados (25.000 filas medidas
+     por YaDominios). El `+` delante de la columna deja la condición igual
+     pero le quita el índice: así va por la clave primaria. */
+  const estadoEs = (valor: "publicado" | "en_revision") =>
+    porIds ? sql`+${productos.estado} = ${valor}` : eq(productos.estado, valor);
 
   const tiendasDePlaza = db
     .select({ id: tiendas.id })
@@ -122,8 +127,10 @@ export async function barrerNoVerificados(
       and(
         ...soloEstos,
         eq(productos.fuenteId, FUENTE_CJ),
-        eq(productos.estado, "publicado"),
-        inArray(productos.tiendaId, tiendasDePlaza),
+        estadoEs("publicado"),
+        porIds
+          ? sql`+${productos.tiendaId} in ${tiendasDePlaza}`
+          : inArray(productos.tiendaId, tiendasDePlaza),
         or(
           notInArray(productos.id, conEnvio),
           inArray(productos.id, conEnvioMalo),
@@ -163,8 +170,10 @@ export async function barrerNoVerificados(
       and(
         ...soloEstos,
         eq(productos.fuenteId, FUENTE_CJ),
-        eq(productos.estado, "en_revision"),
-        inArray(productos.tiendaId, tiendasDePlaza),
+        estadoEs("en_revision"),
+        porIds
+          ? sql`+${productos.tiendaId} in ${tiendasDePlaza}`
+          : inArray(productos.tiendaId, tiendasDePlaza),
         gt(productos.existencias, 0),
         gt(productos.precioBaseCentavos, 0),
         inArray(productos.id, conEnvioBueno),

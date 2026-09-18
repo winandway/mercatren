@@ -28,8 +28,10 @@ describe("lo «en revisión» solo lo ve el equipo", () => {
       "paraElEquipo ? visibleEnParaElEquipo(mercado) : visibleEn(mercado)",
     );
     expect(c).toContain("visibleAqui(mercado, Boolean(filtros.paraElEquipo))");
-    expect(c).toContain(
-      "visibleAqui(mercado, Boolean(opciones?.paraElEquipo))",
+    /* La ficha decide en código desde el 18 sep 2026 (búsqueda por id sin
+       `estado` en el WHERE), con la misma puerta del equipo. */
+    expect(c).toMatch(
+      /esVisibleEn\(\s*\{[\s\S]*?\},\s*mercado,\s*Boolean\(opciones\?\.paraElEquipo\),?\s*\)/,
     );
     /* Y las demás consultas (portada, similares, mapa) siguen con la pública. */
     expect(

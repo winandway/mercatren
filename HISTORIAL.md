@@ -190,6 +190,44 @@ Lo que sigue leyendo bastante por cálculo y se acepta: `buscar.ts` (la foto
 por fila en el buscador, pocas filas por búsqueda) y las páginas del
 catálogo CON categoría (índice por categoría; ordenan la categoría).
 
+**La quinta parte (18 sep 2026): la trampa del índice de estado.** Tras la
+cuarta, el total no bajó (~98 M/h). YaDominios lo midió con EXPLAIN y
+rows_read en nuestra base: `WHERE id IN (21 ids)` leía 42 filas, pero
+`WHERE id IN (21 ids) AND estado = ?` leía **25.136**. La base no tenía
+estadísticas (no existía `sqlite_stat1`) y SQLite, sin ellas, cree que
+`estado = 'publicado'` es selectivo: elegía el índice de estado, recorría
+todos los publicados y descartaba. 53 de los 98 M/h. Qué se hizo:
+
+18. **Las búsquedas por lista de ids piden SOLO `WHERE id IN (…)`**
+    (`productosPorIds`, la ficha, el afinado, el stock y el traductor) y la
+    visibilidad se decide en código con `esVisibleEn`
+    (`src/lib/mercado/visibilidad.ts`, puro y probado: las mismas tres
+    condiciones de `visibleEn`, más «en revisión» para el equipo).
+19. **Donde el filtro va en SQL junto a un índice de orden**, el estado
+    lleva `+` delante (`visibleEnSinIndiceDeEstado`: los similares; el
+    barrido por ids también con `+tienda_id`): la condición es la misma,
+    pero ya no puede usar índice, así que SQLite usa el del orden.
+20. **Estadísticas**: el reloj corre `PRAGMA optimize=0x10002` una vez al
+    día (paso 0d; en local creó 95 filas de `sqlite_stat1` desde cero) y la
+    puerta `{"accion":"optimizar","modo":"analyze"}` corre ANALYZE a pedido
+    y devuelve los planes antes y después. Con estadísticas cada consulta
+    se comprobó con su índice.
+21. **La foto de 1.000 ids se rehacía 202 veces a la hora**: la página ya
+    NO la reconstruye nunca (sin fila, va en vivo) y el reloj reclama el
+    intento con un UPDATE condicional antes de empezar
+    (`reclamarMarca`), así un latido cortado a mitad no hace que el
+    siguiente la repita; los listados nunca van en el mismo latido que los
+    conteos.
+22. **La consulta de pedidos del vigilante (111.000 filas por llamada)**:
+    `pedidos.id IN (items ⋈ productos de CJ)` materializaba el catálogo de
+    CJ. Ahora parte de los pedidos (`idx_pedidos_estado_creado`) y por cada
+    uno pregunta con `EXISTS`: decenas de filas.
+
+Candado: `tests/unit/trampa-del-indice-de-estado.test.ts` (en rojo
+devolviendo `visibleAqui` al WHERE de `productosPorIds`). **Regla nueva:
+una búsqueda por lista de ids no lleva otra condición indexable en el
+WHERE; lo demás se filtra en código.**
+
 Comprobación: `curl -s -D - -o /dev/null https://mercatren.com/es/ayuda`
 dos veces (GET: la plataforma no guarda los HEAD); la segunda con
 `x-yad-cache: HIT` y sin `set-cookie`. Y la del veneno:

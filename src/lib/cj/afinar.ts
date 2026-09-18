@@ -131,6 +131,25 @@ function ordenDeLaCola(prioridad: string[]) {
   ];
 }
 
+/** La condición de la cola, en código, para las filas remiradas por id. */
+function sigueEnLaCola(
+  p: {
+    fuenteId: string | null;
+    pais: string | null;
+    envioId: string | null;
+    envioOrigen: string | null;
+    transporte: string | null;
+  },
+  paises: string[],
+): boolean {
+  if (p.fuenteId !== FUENTE_CJ) return false;
+  if (!paises.includes(p.pais ?? "")) return false;
+  if (!p.envioId) return true;
+  if (p.envioOrigen === "estimado") return true;
+  const t = (p.transporte ?? "").toLowerCase();
+  return REGIONALES.some((r) => t.includes(r));
+}
+
 function condicionDeCola(paises: string[]) {
   return and(
     eq(productos.fuenteId, FUENTE_CJ),
@@ -266,23 +285,29 @@ export async function afinarImportados(o: {
 
   /* Se vuelven a mirar por id: seis filas. Un producto que ya se afinó por
      otro camino desde que se calculó la lista no gasta puntos de CJ. */
-  const cola_ = await db
-    .select({
-      id: productos.id,
-      pid: productos.externoId,
-      costo: productos.precioBaseCentavos,
-      pais: tiendas.paisOrigen,
-    })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(and(inArray(productos.id, turno), condicionDeCola(paises)))
-    .orderBy(
-      sql`case ${sql.join(
-        turno.map((id, i) => sql`when ${productos.id} = ${id} then ${i}`),
-        sql` `,
-      )} else ${turno.length} end`,
-    );
+  /* SOLO `id IN (…)` en el WHERE (18 sep 2026): con más condiciones al lado,
+     SQLite sin estadísticas dejaba la clave primaria y recorría el catálogo.
+     La condición de la cola se vuelve a aplicar en código, igualita. */
+  const posicion = new Map(turno.map((id, i) => [id, i]));
+  const cola_ = (
+    await db
+      .select({
+        id: productos.id,
+        pid: productos.externoId,
+        costo: productos.precioBaseCentavos,
+        pais: tiendas.paisOrigen,
+        fuenteId: productos.fuenteId,
+        envioId: enviosProducto.productoId,
+        envioOrigen: enviosProducto.origen,
+        transporte: enviosProducto.transporte,
+      })
+      .from(productos)
+      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+      .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
+      .where(inArray(productos.id, turno))
+  )
+    .filter((p) => sigueEnLaCola(p, paises))
+    .sort((a, b) => (posicion.get(a.id) ?? 0) - (posicion.get(b.id) ?? 0));
 
   const tasas = new Map<string, number | null>();
   const cuenta = { afinados: 0, agotados: 0, fallidos: 0 };

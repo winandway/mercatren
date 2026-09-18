@@ -94,13 +94,13 @@ describe("#4 la ficha por slug no recorre el catálogo", () => {
 
   it("resuelve el slug solo, sin otro índice que elegir, y trae la fila por id", () => {
     const porSlug = ficha.indexOf(".where(eq(productos.slug, slug))");
-    const porId = ficha.indexOf("inArray(\n          productos.id,");
+    const porId = ficha.search(/\.where\(\s*inArray\(\s*productos\.id,/);
     expect(porSlug).toBeGreaterThan(-1);
     expect(porId).toBeGreaterThan(porSlug);
-    /* El filtro de mercado y de «publicado» sigue decidiendo qué se ve. */
-    expect(ficha).toContain(
-      "visibleAqui(mercado, Boolean(opciones?.paraElEquipo))",
-    );
+    /* Y por id SOLO la clave (18 sep 2026): el mercado y «publicado» se
+       deciden en código, o SQLite elegía el índice de estado. */
+    expect(ficha).toContain("esVisibleEn(");
+    expect(ficha).not.toContain("visibleAqui(mercado");
   });
 
   it("los similares son dos consultas acotadas por índice, no un OR ordenado por CASE", () => {

@@ -233,6 +233,10 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
 - **LOS CONTEOS DEL CATÁLOGO NO SE CALCULAN POR VISITA** (17 sep 2026): salen
   de la foto de `src/lib/catalogo/conteos.ts` que rehace el reloj. Un agregado
   sobre `productos` en una página pública es una factura de D1.
+- **UNA BÚSQUEDA POR LISTA DE IDS NO LLEVA OTRA CONDICIÓN INDEXABLE** (18 sep
+  2026): `WHERE id IN (…) AND estado = ?` leía 25.000 filas en vez de 42,
+  porque SQLite elegía el índice de estado. Solo `id IN (…)` y lo demás en
+  código (`esVisibleEn`); junto a un índice de orden, `+estado`.
 - **NUNCA pedir una tabla entera** (`.select()` sin columnas): Drizzle lista
   todas las columnas del esquema, y una base que ya existe no recibe las
   nuevas → 500 en producción con todo perfecto en local.

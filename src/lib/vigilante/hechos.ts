@@ -63,6 +63,29 @@ async function seguro<T>(respaldo: T, medir: () => Promise<T>): Promise<T> {
   }
 }
 
+/**
+ * ══ VENTAS PAGADAS CON ALGO DE CJ Y SIN PEDIDO AL PROVEEDOR ══
+ *
+ * Antes era `pedidos.id IN (items ⋈ productos WHERE fuente = CJ)`: SQLite
+ * materializaba la subconsulta leyendo el catálogo de CJ entero (111.000
+ * filas por llamada, medido por YaDominios el 18 sep 2026). Ahora se parte
+ * de los pedidos —`idx_pedidos_estado_creado` deja solo los pagados de hace
+ * más de media hora, que son pocos— y por CADA uno se pregunta si tiene un
+ * renglón de CJ (`EXISTS`, por el índice de items del pedido y la clave de
+ * productos) y si no tiene compra al proveedor. Decenas de filas.
+ */
+function ventaCjSinCompra(ahoraMs: number) {
+  return and(
+    inArray(pedidos.estado, ["pagado", "preparando"]),
+    lt(
+      pedidos.creadoEn,
+      new Date(ahoraMs - UMBRALES.ventaSinCompraMin * 60_000),
+    ),
+    sql`EXISTS (SELECT 1 FROM ${itemsPedido} i JOIN ${productos} p ON p.id = i.producto_id WHERE i.pedido_id = ${pedidos.id} AND p.fuente_id = ${FUENTE_CJ})`,
+    sql`NOT EXISTS (SELECT 1 FROM ${pedidosProveedor} pp WHERE pp.pedido_id = ${pedidos.id})`,
+  );
+}
+
 export async function recogerHechos(): Promise<Hechos> {
   const db = getDb();
   const ahora = new Date();
@@ -215,25 +238,10 @@ export async function recogerHechos(): Promise<Hechos> {
     seguro(0, async () => {
       /* Ventas pagadas con al menos un producto de CJ y sin pedido al
          proveedor, con media hora de margen para que el automático corra. */
-      const conCj = db
-        .select({ id: itemsPedido.pedidoId })
-        .from(itemsPedido)
-        .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
-        .where(eq(productos.fuenteId, FUENTE_CJ));
-      const conCompra = db
-        .select({ id: pedidosProveedor.pedidoId })
-        .from(pedidosProveedor);
       const [f] = await db
         .select({ n: count() })
         .from(pedidos)
-        .where(
-          and(
-            inArray(pedidos.estado, ["pagado", "preparando"]),
-            lt(pedidos.creadoEn, hace(UMBRALES.ventaSinCompraMin)),
-            inArray(pedidos.id, conCj),
-            sql`${pedidos.id} not in ${conCompra}`,
-          ),
-        );
+        .where(ventaCjSinCompra(ahoraMs));
       return Number(f?.n ?? 0);
     }),
     seguro(0, async () => {
@@ -366,25 +374,10 @@ export async function recogerHechos(): Promise<Hechos> {
     }));
   });
   const detalleVentasSinCompra = await seguro<string[]>([], async () => {
-    const conCj = db
-      .select({ id: itemsPedido.pedidoId })
-      .from(itemsPedido)
-      .innerJoin(productos, eq(productos.id, itemsPedido.productoId))
-      .where(eq(productos.fuenteId, FUENTE_CJ));
-    const conCompra = db
-      .select({ id: pedidosProveedor.pedidoId })
-      .from(pedidosProveedor);
     const filas = await db
       .select({ id: pedidos.id, numero: pedidos.numero })
       .from(pedidos)
-      .where(
-        and(
-          inArray(pedidos.estado, ["pagado", "preparando"]),
-          lt(pedidos.creadoEn, hace(UMBRALES.ventaSinCompraMin)),
-          inArray(pedidos.id, conCj),
-          sql`${pedidos.id} not in ${conCompra}`,
-        ),
-      )
+      .where(ventaCjSinCompra(ahoraMs))
       .limit(8);
     /* Con el último motivo de la bitácora: es lo único que dice POR QUÉ una
        venta cobrada no llegó a CJ cuando se cortó antes de crear la fila. */

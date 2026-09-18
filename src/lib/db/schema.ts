@@ -535,6 +535,8 @@ export const pedidos = sqliteTable(
        para «los pedidos de Chile» como para «los de Chile en tal estado». Al
        revés solo serviría para lo segundo. */
     index("idx_pedidos_mercado_estado").on(t.mercado, t.estado),
+    /* El vigilante busca «pagados de hace más de media hora» (18 sep 2026). */
+    index("idx_pedidos_estado_creado").on(t.estado, t.creadoEn),
   ],
 );
 
