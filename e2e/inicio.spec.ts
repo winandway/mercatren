@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import en from "../messages/en.json";
+import es from "../messages/es.json";
 import { DESARROLLADOR, SOCIEDAD } from "../src/lib/sociedad";
 
 /**
@@ -36,8 +37,11 @@ test.describe("Visitante con el navegador en espanol", () => {
     // sugiere productos mientras se escribe: esa es la figura correcta para
     // un campo con lista de sugerencias.
     await expect(page.getByRole("combobox", { name: /Buscar/ })).toBeVisible();
+    /* El titular sale de `messages/es.json`, nunca escrito a mano: el 17 sep
+       2026 un cambio de lema («Compra en línea en Estados Unidos…») dejó
+       esta prueba roja y la publicación entera sin salir cuatro horas. */
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      /Compra en Estados Unidos/i,
+      es.inicio.tituloHero,
     );
   });
 
