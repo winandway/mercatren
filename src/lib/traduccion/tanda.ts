@@ -4,6 +4,7 @@ import { and, asc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { productos, tiendas } from "@/lib/db/schema";
+import { tomarDeCola } from "@/lib/reloj/cola-guardada";
 
 import {
   traducirDescripciones,
@@ -27,6 +28,71 @@ import { POR_TANDA } from "./reglas";
  */
 
 const POR_TANDA_DESCRIPCION = 5;
+
+/**
+ * ══ LAS COLAS DEL TRADUCTOR SE CALCULAN UNA VEZ POR HORA (18 sep 2026) ══
+ *
+ * Buscar «los 20 siguientes sin traducir» recorría los 56.000 productos
+ * con `trim()` y `lower()` (nada de índice posible) y los ordenaba por
+ * fecha, y esto corría 150 veces a la hora para traducir veinte cada vez:
+ * 8 millones de filas a la hora. Ahora la consulta cara trae una lista de
+ * ids una vez por hora (`tomarDeCola`), cada latido toma los suyos y los
+ * vuelve a mirar por id con la misma condición: lo que ya se tradujo por
+ * otro camino no se traduce dos veces.
+ */
+const COLA_TOPE = 600;
+const COLA_VIGENCIA_MS = 60 * 60_000;
+export const LLAVE_COLA_TITULOS = "traduccion_cola_titulos";
+export const LLAVE_COLA_DESCRIPCIONES = "traduccion_cola_descripciones";
+
+function tituloPendiente() {
+  return and(
+    inArray(tiendas.paisOrigen, PLAZAS),
+    isNotNull(productos.tituloEn),
+    sql`trim(${productos.tituloEn}) != ''`,
+    or(
+      sql`trim(${productos.tituloEs}) = ''`,
+      sql`lower(trim(${productos.tituloEs})) = lower(trim(${productos.tituloEn}))`,
+    ),
+  );
+}
+
+function descripcionPendiente() {
+  return and(
+    inArray(tiendas.paisOrigen, PLAZAS),
+    isNotNull(productos.descripcionEn),
+    sql`trim(${productos.descripcionEn}) != ''`,
+    or(
+      sql`${productos.descripcionEs} is null`,
+      sql`trim(${productos.descripcionEs}) = ''`,
+    ),
+  );
+}
+
+/** Los ids que tocan en este latido, ya en el orden de la cola. */
+async function turnoDe(
+  llave: string,
+  cuantos: number,
+  pendiente: () => ReturnType<typeof and>,
+): Promise<string[]> {
+  const db = getDb();
+  const { ids } = await tomarDeCola({
+    llave,
+    vigenciaMs: COLA_VIGENCIA_MS,
+    cuantos,
+    calcular: async () =>
+      (
+        await db
+          .select({ id: productos.id })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .where(pendiente())
+          .orderBy(asc(productos.actualizadoEn))
+          .limit(COLA_TOPE)
+      ).map((f) => f.id),
+  });
+  return ids;
+}
 const PLAZAS = ["US", "CL", "CO"];
 
 export async function traducirDesdeElReloj(o: {
@@ -54,24 +120,16 @@ export async function traducirDesdeElReloj(o: {
   let descripciones = 0;
 
   for (let i = 0; i < o.tandasTitulos; i++) {
+    const turno = await turnoDe(LLAVE_COLA_TITULOS, POR_TANDA, tituloPendiente);
+    if (turno.length === 0) break;
+    /* Se vuelven a mirar por id: veinte filas, y solo las que siguen sin
+       traducir. */
     const pendientes = await db
       .select({ id: productos.id, tituloEn: productos.tituloEn })
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(
-        and(
-          inArray(tiendas.paisOrigen, PLAZAS),
-          isNotNull(productos.tituloEn),
-          sql`trim(${productos.tituloEn}) != ''`,
-          or(
-            sql`trim(${productos.tituloEs}) = ''`,
-            sql`lower(trim(${productos.tituloEs})) = lower(trim(${productos.tituloEn}))`,
-          ),
-        ),
-      )
-      .orderBy(asc(productos.actualizadoEn))
-      .limit(POR_TANDA);
-    if (pendientes.length === 0) break;
+      .where(and(inArray(productos.id, turno), tituloPendiente()));
+    if (pendientes.length === 0) continue;
 
     const r = await traducirTanda(
       pendientes.map((p) => ({
@@ -158,24 +216,18 @@ export async function traducirDesdeElReloj(o: {
     }
   }
   for (let i = 0; i < o.tandasDescripciones; i++) {
+    const turno = await turnoDe(
+      LLAVE_COLA_DESCRIPCIONES,
+      POR_TANDA_DESCRIPCION,
+      descripcionPendiente,
+    );
+    if (turno.length === 0) break;
     const pendientes = await db
       .select({ id: productos.id, textoEn: productos.descripcionEn })
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(
-        and(
-          inArray(tiendas.paisOrigen, PLAZAS),
-          isNotNull(productos.descripcionEn),
-          sql`trim(${productos.descripcionEn}) != ''`,
-          or(
-            sql`${productos.descripcionEs} is null`,
-            sql`trim(${productos.descripcionEs}) = ''`,
-          ),
-        ),
-      )
-      .orderBy(asc(productos.actualizadoEn))
-      .limit(POR_TANDA_DESCRIPCION);
-    if (pendientes.length === 0) break;
+      .where(and(inArray(productos.id, turno), descripcionPendiente()));
+    if (pendientes.length === 0) continue;
 
     const r = await traducirDescripciones(
       pendientes.map((p) => ({ id: p.id, textoEn: (p.textoEn ?? "").trim() })),

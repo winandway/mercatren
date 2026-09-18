@@ -109,10 +109,10 @@ describe("#4 la ficha por slug no recorre el catálogo", () => {
     expect(similares).not.toContain("THEN 0 ELSE 1 END`");
     expect(similares).toContain("eq(productos.categoriaId, de.categoriaId)");
     expect(similares).toContain("eq(productos.tiendaId, de.tiendaId)");
-    expect(similares).toContain(
-      ".orderBy(desc(productos.creadoEn), productos.id)",
-    );
+    expect(similares).toContain(".orderBy(desc(productos.creadoEn))");
     expect(similares).toContain(".limit(cuantos)");
+    /* Sin desempate por id (18 sep 2026): así el índice sirve para el orden. */
+    expect(similares).not.toContain("desc(productos.creadoEn), productos.id");
   });
 });
 

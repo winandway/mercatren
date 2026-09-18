@@ -300,6 +300,8 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
   mirados: number;
   agotados: number;
   fallidos: number;
+  /** Los productos mirados, para barrer solo esos. */
+  ids?: string[];
   /** El motivo del último producto que falló, para el canario. */
   ultimoFallo?: string;
 }> {
@@ -411,6 +413,7 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
     mirados: cola.length,
     agotados,
     fallidos,
+    ids: cola.map((p) => p.id),
     ...(ultimoFallo ? { ultimoFallo } : {}),
   };
 }

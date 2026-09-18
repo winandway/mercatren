@@ -120,6 +120,7 @@ export async function GET(peticion: Request) {
       prueba,
       tarifas,
       conteos,
+      listados,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -159,6 +160,21 @@ export async function GET(peticion: Request) {
           viejos: [],
           error: fallo instanceof Error ? fallo.message : String(fallo),
         })),
+      /* LOS LISTADOS YA ORDENADOS (18 sep 2026): parrilla, catálogo y
+         bandas por mercado. Misma lectura que `conteos`. */
+      import("@/lib/catalogo/listados-guardados")
+        .then((m) => m.edadDeLosListados())
+        .then((e) => ({
+          ok: e.viejos.length === 0,
+          edadMinutos: e.minutos,
+          viejos: e.viejos,
+        }))
+        .catch((fallo: unknown) => ({
+          ok: false,
+          edadMinutos: {},
+          viejos: [],
+          error: fallo instanceof Error ? fallo.message : String(fallo),
+        })),
     ]);
     return Response.json(
       {
@@ -183,6 +199,7 @@ export async function GET(peticion: Request) {
         /* Los conteos del catálogo: `ok: false` = la foto tiene más de
            treinta minutos o no existe en algún mercado. */
         conteos,
+        listados,
         /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */

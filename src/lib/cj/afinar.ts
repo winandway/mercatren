@@ -46,6 +46,8 @@ export type ResultadoAfinado = {
   agotados: number;
   fallidos: number;
   restantes: number;
+  /** Los productos que se tocaron en este turno, para barrer solo esos. */
+  ids?: string[];
   motivo?: string;
   /** El motivo del último producto que falló, para el canario. */
   ultimoFallo?: string;
@@ -461,6 +463,7 @@ export async function afinarImportados(o: {
   return {
     ...cuenta,
     restantes,
+    ids: cola_.map((p) => p.id),
     ...(ultimoFallo ? { ultimoFallo } : {}),
   };
 }

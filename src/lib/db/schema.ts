@@ -431,6 +431,14 @@ export const productos = sqliteTable(
        esta tienda» se leen caminando el índice y parando en el LIMIT. */
     index("idx_productos_categoria_creado").on(t.categoriaId, t.creadoEn),
     index("idx_productos_tienda_creado").on(t.tiendaId, t.creadoEn),
+    /* La página de una tienda (18 sep 2026): «lo más reciente de esta
+       tienda» se lee caminando este índice hacia atrás y parando en la
+       página pedida, en vez de ordenar sus miles de productos cada vez. */
+    index("idx_productos_tienda_estado_actualizado").on(
+      t.tiendaId,
+      t.estado,
+      t.actualizadoEn,
+    ),
   ],
 );
 

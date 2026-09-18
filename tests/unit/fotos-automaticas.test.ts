@@ -179,9 +179,14 @@ describe("candados en el código", () => {
     expect(auto).toContain(
       "case when ${productos.fuenteId} = ${FUENTE_CJ} then 1 else 0 end",
     );
-    /* El orden: esDeCj (columna 4), intentos (5), y después la más vieja. */
+    /* El orden: esDeCj (columna 2), intentos (3), y después la más vieja.
+       Desde el 18 sep 2026 la lista se calcula una vez por hora
+       (`tomarDeCola`) y el latido la consume en ese mismo orden. */
     expect(auto).toContain(
-      "orderBy(sql`4`, sql`5`, sql`imagenes_producto.rowid`)",
+      "orderBy(sql`2`, sql`3`, sql`imagenes_producto.rowid`)",
+    );
+    expect(auto).toContain(
+      "posicion.get(a.id) ?? 0) - (posicion.get(b.id) ?? 0)",
     );
   });
 

@@ -60,12 +60,27 @@ function cambios(resultado: unknown): number {
   return Number(meta?.changes ?? 0);
 }
 
-export async function barrerNoVerificados(): Promise<{
+export async function barrerNoVerificados(
+  opciones: {
+    /**
+     * ══ SOLO ESTOS PRODUCTOS (emergencia de costo, 18 sep 2026) ══
+     * Los dos UPDATE recorren el catálogo de CJ entero (100.000–165.000
+     * filas cada uno). Cuando el reloj sabe QUÉ cambió (los ids que acaba
+     * de afinar o de mirar el stock), barre solo esos: unas filas. El
+     * barrido completo queda para cada 15 minutos y para el vigilante.
+     */
+    soloIds?: string[];
+  } = {},
+): Promise<{
   retirados: number;
   publicados: number;
 }> {
   const db = getDb();
   const ahora = new Date();
+  const soloEstos =
+    opciones.soloIds && opciones.soloIds.length > 0
+      ? [inArray(productos.id, opciones.soloIds)]
+      : [];
 
   const tiendasDePlaza = db
     .select({ id: tiendas.id })
@@ -105,6 +120,7 @@ export async function barrerNoVerificados(): Promise<{
     .set({ estado: "en_revision", actualizadoEn: ahora })
     .where(
       and(
+        ...soloEstos,
         eq(productos.fuenteId, FUENTE_CJ),
         eq(productos.estado, "publicado"),
         inArray(productos.tiendaId, tiendasDePlaza),
@@ -145,6 +161,7 @@ export async function barrerNoVerificados(): Promise<{
     .set({ estado: "publicado", actualizadoEn: ahora })
     .where(
       and(
+        ...soloEstos,
         eq(productos.fuenteId, FUENTE_CJ),
         eq(productos.estado, "en_revision"),
         inArray(productos.tiendaId, tiendasDePlaza),

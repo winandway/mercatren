@@ -32,6 +32,13 @@ import { armarDepartamentos } from "./conteos-armar";
 import { fotoDeTurnoDe } from "./fotos-de-producto";
 import type { FotoGuardada } from "./fotos-de-producto-armar";
 import {
+  bandasGuardadas,
+  guardarBandas,
+  guardarListado,
+  LISTADO_TOPE,
+  listadoGuardado,
+} from "./listados-guardados";
+import {
   categorias,
   depositos,
   imagenesProducto,
@@ -179,6 +186,22 @@ function enZona(ciudades: string[]) {
 }
 
 /** "El Vigía " → "el vigia": para comparar la ciudad libre de la tienda. */
+/**
+ * «Del departamento» = cuelga de él directamente o de una subcategoría
+ * suya (los productos de Bley están en «PVC» y «Hierro», que cuelgan de
+ * «Ferretería y construcción»). El slug puede ser también una categoría
+ * propia de un comercio; las dos formas llegan igual en la dirección.
+ */
+function enDepartamento(slug: string) {
+  return sql`${productos.categoriaId} IN (
+    SELECT c.id FROM categorias c WHERE c.slug = ${slug}
+    UNION
+    SELECT h.id FROM categorias h
+      JOIN categorias d ON d.id = h.padre_id
+     WHERE d.slug = ${slug} AND d.tienda_id IS NULL
+  )`;
+}
+
 function normalizarCiudad(nombre: string): string {
   return nombre
     .normalize("NFD")
@@ -318,15 +341,7 @@ export async function listarProductos(
    * productos teniendo 622 debajo. Eso pasaba y por eso esta esta consulta.
    */
   if (filtros.categoria) {
-    condiciones.push(
-      sql`${productos.categoriaId} IN (
-        SELECT c.id FROM categorias c WHERE c.slug = ${filtros.categoria}
-        UNION
-        SELECT h.id FROM categorias h
-          JOIN categorias d ON d.id = h.padre_id
-         WHERE d.slug = ${filtros.categoria} AND d.tienda_id IS NULL
-      )`,
-    );
+    condiciones.push(enDepartamento(filtros.categoria));
   }
   if (filtros.comercio) {
     condiciones.push(eq(tiendas.slug, filtros.comercio));
@@ -366,6 +381,59 @@ export async function listarProductos(
     !filtros.comercio &&
     !filtros.zona?.length &&
     !filtros.paraElEquipo;
+  const ordenDeSiempre = !filtros.orden || filtros.orden === "recientes";
+
+  /* ══ LA PÁGINA DE UNA TIENDA, EN DOS FASES POR ÍNDICE (18 sep 2026) ══
+     Ver `listarProductosDeTienda`: el conteo sale de la foto de conteos y
+     el orden camina un índice, en vez de contar y ordenar los miles de
+     productos de la tienda en cada visita (872 + 812 veces a la hora). */
+  if (
+    filtros.comercio &&
+    !filtros.busqueda &&
+    !filtros.categoria &&
+    !filtros.zona?.length &&
+    !filtros.paraElEquipo &&
+    ordenDeSiempre
+  ) {
+    return listarProductosDeTienda(
+      mercado,
+      filtros.comercio,
+      pagina,
+      porPagina,
+    );
+  }
+
+  /* ══ SIN FILTROS Y EN EL ORDEN DE SIEMPRE, LA PÁGINA SALE DEL LISTADO
+     GUARDADO (18 sep 2026) ══ Ordenar el catálogo entero por novedad para
+     devolver 24 costaba 68.000 filas, 328 veces a la hora (los robots
+     recorren la paginación). El reloj guarda los primeros `LISTADO_TOPE`
+     ids; aquí se corta el tramo y se traen por id. Más allá del tope, en
+     vivo. */
+  if (sinFiltros && ordenDeSiempre) {
+    const guardado = await listadoGuardado(mercado, "catalogo", async () => ({
+      semilla: semillaDelDia(),
+      ids: await idsDelCatalogo(mercado, LISTADO_TOPE),
+    }));
+    const totalGuardado = (await conteosDe(mercado)).total;
+    const desde = (pagina - 1) * porPagina;
+    if (desde < guardado.ids.length || desde >= totalGuardado) {
+      const lista = intercalarPorTienda(
+        await productosPorIds(
+          mercado,
+          guardado.ids.slice(desde, desde + porPagina),
+          semillaDelDia(),
+        ),
+        (p) => p.tiendaSlug,
+      );
+      return {
+        productos: lista,
+        total: totalGuardado,
+        pagina,
+        paginas: Math.max(1, Math.ceil(totalGuardado / porPagina)),
+      };
+    }
+  }
+
   const [total] = sinFiltros
     ? [{ n: (await conteosDe(mercado)).total }]
     : await db
@@ -444,6 +512,120 @@ export async function listarProductos(
 }
 
 /** Un producto con todas sus fotos, para su ficha. */
+/**
+ * ══ LOS PRODUCTOS DE UNA TIENDA, SIN ORDENAR LA TIENDA ENTERA ══
+ * (emergencia de costo, 18 sep 2026)
+ *
+ * El orden de siempre es «lo recién llegado primero (siete días), después
+ * por fecha de actualización». Escrito como un solo `ORDER BY CASE …,
+ * actualizado_en DESC`, SQLite no puede usar ningún índice para ordenar y
+ * ordena los miles de productos de la tienda en cada visita (6.600 filas
+ * por página, 872 veces a la hora), y el `count(*)` los recorría otra vez.
+ *
+ * Ahora son dos fases con el mismo orden final:
+ *  A. los NUEVOS (`creado_en > corte`): son pocos, se leen por el índice de
+ *     `creado_en` y se ordenan en memoria;
+ *  B. el RESTO, caminando `idx_productos_tienda_estado_actualizado` hacia
+ *     atrás y parando en la página pedida. El `+creado_en` le quita a
+ *     SQLite la tentación de usar el índice de `creado_en` para este
+ *     filtro (leería toda la tienda y ordenaría): comprobado con EXPLAIN.
+ * El total sale de la foto de conteos, que ya cuenta por tienda.
+ */
+async function listarProductosDeTienda(
+  mercado: Mercado,
+  slug: string,
+  pagina: number,
+  porPagina: number,
+) {
+  const db = getDb();
+  const corte = corteDeNovedad();
+  const tiendaId = sql`(SELECT t2.id FROM tiendas t2 WHERE t2.slug = ${slug})`;
+  const columnas = {
+    id: productos.id,
+    slug: productos.slug,
+    tituloEs: productos.tituloEs,
+    tituloEn: productos.tituloEn,
+    precioCentavos: productos.precioCentavos,
+    precioAntesCentavos: productos.precioAntesCentavos,
+    moneda: productos.moneda,
+    existencias: productos.existencias,
+    controlaExistencias: productos.controlaExistencias,
+    unidad: productos.unidad,
+    marca: productos.marca,
+    destacado: productos.destacado,
+    estado: productos.estado,
+    creadoEn: productos.creadoEn,
+    tiendaNombre: tiendas.nombre,
+    tiendaSlug: tiendas.slug,
+    tiendaPais: tiendas.paisOrigen,
+  };
+  const deLaTienda = and(
+    sql`${productos.tiendaId} = ${tiendaId}`,
+    visibleAqui(mercado),
+  );
+
+  const desde = (pagina - 1) * porPagina;
+  const nuevos = await db
+    .select(columnas)
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    /* `corte` va en segundos, como la columna; un Date reventaría en D1
+       (ver `corteDeNovedad`). */
+    .where(and(deLaTienda, sql`${productos.creadoEn} > ${corte}`))
+    .orderBy(desc(productos.actualizadoEn));
+  const deNuevos = nuevos.slice(desde, desde + porPagina);
+  const faltan = porPagina - deNuevos.length;
+  const viejos =
+    faltan > 0
+      ? await db
+          .select(columnas)
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .where(and(deLaTienda, sql`+${productos.creadoEn} <= ${corte}`))
+          .orderBy(desc(productos.actualizadoEn))
+          .limit(faltan)
+          .offset(Math.max(0, desde - nuevos.length))
+      : [];
+  const filas = [...deNuevos, ...viejos];
+
+  const fotos = await fotoDeTurnoDe(
+    filas.map((f) => f.id),
+    semillaDelDia(),
+  );
+  const comercio = (await conteosDe(mercado)).comercios.find(
+    (c) => c.slug === slug,
+  );
+  /* La foto cuenta lo publicado; los nuevos ya leídos afinan el número si
+     la foto se quedó corta (un producto recién publicado). */
+  const total = Math.max(comercio?.cuantos ?? 0, nuevos.length, filas.length);
+
+  return {
+    productos: filas.map((f): ProductoLista => ({
+      id: f.id,
+      slug: f.slug,
+      tituloEs: f.tituloEs,
+      tituloEn: f.tituloEn,
+      precioCentavos: f.precioCentavos,
+      precioAntesCentavos: f.precioAntesCentavos,
+      moneda: f.moneda,
+      existencias: f.existencias,
+      controlaExistencias: f.controlaExistencias,
+      unidad: f.unidad,
+      marca: f.marca,
+      destacado: f.destacado,
+      estado: f.estado,
+      creadoEn: f.creadoEn,
+      tiendaNombre: f.tiendaNombre,
+      tiendaSlug: f.tiendaSlug,
+      tiendaPais: f.tiendaPais,
+      ...imagenDe(fotos, f.id),
+    })),
+    total,
+    pagina,
+    paginas: Math.max(1, Math.ceil(total / porPagina)),
+  };
+}
+
 export async function obtenerProductoPorSlug(
   mercado: Mercado,
   slug: string,
@@ -650,7 +832,12 @@ export async function productosSimilares(
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
       .where(and(...comunes, parecido))
-      .orderBy(desc(productos.creadoEn), productos.id)
+      /* Solo `creado_en DESC`, sin desempate por id (18 sep 2026): con el
+         desempate, SQLite no podía usar el índice para el orden y volvía a
+         ordenar los miles de productos de la categoría en cada ficha
+         (4.000 filas por ficha, 2.600 fichas a la hora). Así camina
+         `idx_productos_categoria_creado` hacia atrás y para en el LIMIT. */
+      .orderBy(desc(productos.creadoEn))
       .limit(cuantos);
 
   const mismaCategoria = de.categoriaId
@@ -1097,6 +1284,41 @@ export async function parrillaDeProductos(
    *
    * La llave lleva el mercado y la ciudad, como manda `muro-cache`.
    */
+  /**
+   * ══ SIN CIUDAD, LA PARRILLA SALE DEL LISTADO GUARDADO (18 sep 2026) ══
+   *
+   * La consulta con la ventana por tienda ordenaba 107.000 filas por
+   * llamada, 190 veces a la hora, y la memoria de un minuto por sede no la
+   * frenaba (cada isolate tiene la suya). Ahora el reloj guarda los primeros
+   * `LISTADO_TOPE` ids en el orden del día (`recalcularListados`); aquí se
+   * corta el tramo de la página y se traen esas dos docenas POR ID. La
+   * primera pantalla sigue girando con la semilla de la visita. Más allá
+   * del tope, o con ciudad elegida, se consulta en vivo como siempre.
+   */
+  if (!zona?.length) {
+    const guardado = await listadoGuardado(mercado, "parrilla", async () => ({
+      semilla: semillaDelDia(),
+      ids: await idsDeLaParrilla(mercado, semillaDelDia(), LISTADO_TOPE),
+    }));
+    const total = (await conteosDe(mercado)).totalConPrecio;
+    const desde = (pagina - 1) * porPagina;
+    if (desde < guardado.ids.length || desde >= total) {
+      const lista = intercalarPorTienda(
+        await productosPorIds(
+          mercado,
+          guardado.ids.slice(desde, desde + porPagina),
+          guardado.semilla,
+        ),
+        familiaDe,
+      );
+      return {
+        productos: pagina === 1 ? rotarComienzo(lista, semilla) : lista,
+        total,
+        pagina,
+        paginas: Math.max(1, Math.ceil(total / porPagina)),
+      };
+    }
+  }
   if (pagina === 1) {
     const base = await recordadoEnElBorde(
       `portada-parrilla-${mercado.codigo}-${(zona ?? []).join(",")}-${porPagina}`,
@@ -1106,6 +1328,201 @@ export async function parrillaDeProductos(
     return { ...base, productos: rotarComienzo(base.productos, semilla) };
   }
   return parrillaSinCache(mercado, semilla, pagina, porPagina, zona);
+}
+
+/**
+ * Los ids de la parrilla en el orden de las rondas: la misma consulta de
+ * `parrillaSinCache`, pero solo el id y hasta el tope guardable.
+ */
+async function idsDeLaParrilla(
+  mercado: Mercado,
+  semilla: number,
+  limite: number,
+): Promise<string[]> {
+  const filas = await getDb()
+    .select({ id: productos.id })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(and(visibleAqui(mercado), gt(productos.precioCentavos, 0)))
+    .orderBy(...ordenPorRondas(semilla))
+    .limit(limite);
+  return filas.map((f) => f.id);
+}
+
+/**
+ * Los ids del catálogo sin filtros en su orden de siempre (lo recién
+ * llegado primero, después por fecha): la consulta de `listarProductos`
+ * sin filtros, solo el id y hasta el tope guardable.
+ */
+async function idsDelCatalogo(
+  mercado: Mercado,
+  limite: number,
+): Promise<string[]> {
+  const filas = await getDb()
+    .select({ id: productos.id })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(visibleAqui(mercado))
+    .orderBy(
+      sql`CASE WHEN ${productos.creadoEn} > ${corteDeNovedad()} THEN 0 ELSE 1 END`,
+      desc(productos.actualizadoEn),
+    )
+    .limit(limite);
+  return filas.map((f) => f.id);
+}
+
+/** Los ids de una banda de departamento, en el orden de las rondas. */
+async function idsDeLaBanda(
+  mercado: Mercado,
+  slug: string,
+  semilla: number,
+  limite: number,
+): Promise<string[]> {
+  const filas = await getDb()
+    .select({ id: productos.id })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(
+      and(
+        visibleAqui(mercado),
+        gt(productos.precioCentavos, 0),
+        enDepartamento(slug),
+      ),
+    )
+    .orderBy(...ordenPorRondas(semilla))
+    .limit(limite);
+  return filas.map((f) => f.id);
+}
+
+/** Cuántas bandas y de cuántos productos se guardan por mercado. */
+const BANDAS_GUARDADAS = 8;
+const POR_BANDA_GUARDADA = 24;
+
+/**
+ * Para el reloj: rehace los tres listados de un mercado con la semilla del
+ * día. Devuelve cuántos ids quedaron en cada uno.
+ */
+export async function recalcularListados(
+  mercado: Mercado,
+): Promise<{ parrilla: number; catalogo: number; bandas: number }> {
+  const semilla = semillaDelDia();
+  const parrilla = await idsDeLaParrilla(mercado, semilla, LISTADO_TOPE);
+  await guardarListado(mercado, "parrilla", semilla, parrilla);
+  const catalogo = await idsDelCatalogo(mercado, LISTADO_TOPE);
+  await guardarListado(mercado, "catalogo", semilla, catalogo);
+  const bandas = await bandasPorDepartamento(mercado, semilla);
+  await guardarBandas(mercado, semilla, bandas);
+  return {
+    parrilla: parrilla.length,
+    catalogo: catalogo.length,
+    bandas: Object.keys(bandas).length,
+  };
+}
+
+async function bandasPorDepartamento(
+  mercado: Mercado,
+  semilla: number,
+): Promise<Record<string, string[]>> {
+  const departamentos = (await listarDepartamentosDePortada(mercado, "es"))
+    .filter((d) => d.cuantos > 0)
+    .sort((a, b) => b.cuantos - a.cuantos)
+    .slice(0, BANDAS_GUARDADAS);
+  const bandas: Record<string, string[]> = {};
+  for (const d of departamentos) {
+    bandas[d.slug] = await idsDeLaBanda(
+      mercado,
+      d.slug,
+      semilla,
+      POR_BANDA_GUARDADA,
+    );
+  }
+  return bandas;
+}
+
+/** Los cuatro mercados, uno por uno; un fallo no frena a los demás. */
+export async function recalcularTodosLosListados(): Promise<{
+  hizo: string[];
+  fallos: string[];
+}> {
+  const { MERCADOS } = await import("@/lib/mercado/mercados");
+  const hizo: string[] = [];
+  const fallos: string[] = [];
+  for (const mercado of MERCADOS) {
+    try {
+      const r = await recalcularListados(mercado);
+      hizo.push(`${mercado.codigo} ${r.parrilla}/${r.catalogo}/${r.bandas}`);
+    } catch (fallo) {
+      fallos.push(
+        `${mercado.codigo}: ${fallo instanceof Error ? fallo.message : String(fallo)}`,
+      );
+    }
+  }
+  return { hizo, fallos };
+}
+
+/**
+ * Las tarjetas de estos productos, EN EL ORDEN DE LA LISTA, con su foto de
+ * turno. Se filtra por lo visible en este mercado: un producto retirado
+ * entre dos fotos del listado (cinco minutos) desaparece de la página en
+ * vez de abrir una ficha que ya no existe.
+ */
+async function productosPorIds(
+  mercado: Mercado,
+  ids: string[],
+  semilla: number,
+): Promise<ProductoLista[]> {
+  if (ids.length === 0) return [];
+  const filas = await getDb()
+    .select({
+      id: productos.id,
+      slug: productos.slug,
+      tituloEs: productos.tituloEs,
+      tituloEn: productos.tituloEn,
+      precioCentavos: productos.precioCentavos,
+      precioAntesCentavos: productos.precioAntesCentavos,
+      moneda: productos.moneda,
+      existencias: productos.existencias,
+      controlaExistencias: productos.controlaExistencias,
+      unidad: productos.unidad,
+      marca: productos.marca,
+      destacado: productos.destacado,
+      estado: productos.estado,
+      creadoEn: productos.creadoEn,
+      tiendaNombre: tiendas.nombre,
+      tiendaSlug: tiendas.slug,
+      tiendaPais: tiendas.paisOrigen,
+    })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(and(inArray(productos.id, ids), visibleAqui(mercado)));
+  const fotos = await fotoDeTurnoDe(
+    filas.map((f) => f.id),
+    semilla,
+  );
+  const porId = new Map(filas.map((f) => [f.id, f]));
+  return ids
+    .map((id) => porId.get(id))
+    .filter((f): f is NonNullable<typeof f> => Boolean(f))
+    .map((f): ProductoLista => ({
+      id: f.id,
+      slug: f.slug,
+      tituloEs: f.tituloEs,
+      tituloEn: f.tituloEn,
+      precioCentavos: f.precioCentavos,
+      precioAntesCentavos: f.precioAntesCentavos,
+      moneda: f.moneda,
+      existencias: f.existencias,
+      controlaExistencias: f.controlaExistencias,
+      unidad: f.unidad,
+      marca: f.marca,
+      destacado: f.destacado,
+      estado: f.estado,
+      creadoEn: f.creadoEn,
+      tiendaNombre: f.tiendaNombre,
+      tiendaSlug: f.tiendaSlug,
+      tiendaPais: f.tiendaPais,
+      ...imagenDe(fotos, f.id),
+    }));
 }
 
 /**
@@ -1325,6 +1742,35 @@ export async function bandasDeDepartamentos(
    * que no se recordara nunca. Lo que se mueve entre visitas es el orden de la
    * parrilla de abajo, que sí la usa.
    */
+  /* ══ SIN CIUDAD, LAS BANDAS SALEN DEL LISTADO GUARDADO (18 sep 2026) ══
+     Seis consultas con ventana por portada, 784 a la hora. El reloj guarda
+     los ids de cada banda con la semilla del día; aquí se traen por id. Con
+     ciudad (Venezuela) se consulta en vivo, como siempre. */
+  if (!zona?.length) {
+    const guardadas = await bandasGuardadas(mercado, async () => ({
+      semilla: semillaDelDia(),
+      bandas: await bandasPorDepartamento(mercado, semillaDelDia()),
+    }));
+    const departamentos = (await listarDepartamentosDePortada(mercado, idioma))
+      .filter((d) => d.cuantos > 0 && guardadas.bandas[d.slug]?.length)
+      .sort((a, b) => b.cuantos - a.cuantos)
+      .slice(0, cuantasBandas);
+    return Promise.all(
+      departamentos.map(async (d) => ({
+        slug: d.slug,
+        nombre: d.nombre,
+        cuantos: d.cuantos,
+        productos: intercalarPorTienda(
+          await productosPorIds(
+            mercado,
+            (guardadas.bandas[d.slug] ?? []).slice(0, porBanda),
+            guardadas.semilla,
+          ),
+          familiaDe,
+        ),
+      })),
+    );
+  }
   return recordadoEnElBorde(
     `portada-bandas-${mercado.codigo}-${idioma}-${(zona ?? []).join(",")}-${cuantasBandas}x${porBanda}`,
     60_000,
@@ -1381,14 +1827,7 @@ async function bandasSinCache(
             visible,
             gt(productos.precioCentavos, 0),
             ...(zona?.length ? [enZona(zona)] : []),
-            sql`${productos.categoriaId} IN (
-              SELECT c.id FROM categorias c
-               WHERE c.slug = ${d.slug} AND c.tienda_id IS NULL
-              UNION
-              SELECT h.id FROM categorias h
-                JOIN categorias p ON p.id = h.padre_id
-               WHERE p.slug = ${d.slug} AND p.tienda_id IS NULL
-            )`,
+            enDepartamento(d.slug),
           ),
         )
         /* EL MISMO ORDEN QUE LA PARRILLA (23 ago 2026). Antes cada banda

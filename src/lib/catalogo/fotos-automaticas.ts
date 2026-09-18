@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { and, asc, eq, isNotNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 
 import { copiarFotoAlBucket } from "@/lib/catalogo/copiar-foto";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
@@ -19,6 +19,7 @@ import {
 } from "@/lib/catalogo/fotos-reglas";
 import { getDb } from "@/lib/db";
 import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
+import { tomarDeCola } from "@/lib/reloj/cola-guardada";
 import {
   configuracion,
   fotosRotas,
@@ -66,6 +67,11 @@ const pendienteDeTraer = and(
   isNotNull(imagenesProducto.url),
   sql`not exists (select 1 from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.definitiva} = 1 and ${fotosRotas.url} = ${imagenesProducto.url})`,
 );
+
+/** La lista de fotos por traer: hasta esto por cálculo, una vez por hora. */
+const COLA_FOTOS_TOPE = 2400;
+const COLA_FOTOS_VIGENCIA_MS = 60 * 60_000;
+export const LLAVE_COLA_FOTOS = "fotos_cola_por_traer";
 
 /** El conteo de fotos por traer se recuerda media hora en `configuracion`. */
 export const LLAVE_FOTOS_POR_TRAER = "fotos_por_traer_conteo";
@@ -223,23 +229,56 @@ export async function traerFotosDesdeElReloj(
    * Después, las que nunca fallaron antes que las que ya fallaron: un origen
    * caído no puede monopolizar la cuota de la hora.
    */
-  const pendientes = await db
-    .select({
-      id: imagenesProducto.id,
-      productoId: imagenesProducto.productoId,
-      url: imagenesProducto.url,
-      esDeCj: sql<number>`case when ${productos.fuenteId} = ${FUENTE_CJ} then 1 else 0 end`,
-      intentos: sql<number>`coalesce((select ${fotosRotas.intentos} from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.url} = ${imagenesProducto.url}), 0)`,
-      /* Van al final a propósito: el orderBy de abajo cuenta columnas por
-         posición (la 4 y la 5), y meterlas antes lo desordenaría. */
-      slug: productos.slug,
-      orden: imagenesProducto.orden,
-    })
-    .from(imagenesProducto)
-    .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
-    .where(pendienteDeTraer)
-    .orderBy(sql`4`, sql`5`, sql`imagenes_producto.rowid`)
-    .limit(maximo);
+  /**
+   * ══ LA LISTA DE FOTOS POR TRAER SE CALCULA UNA VEZ POR HORA (18 sep 2026) ══
+   *
+   * Ordenar las 56.000 fotos pendientes (comercios primero, después las que
+   * nunca fallaron) para tomar 120 corría en cada latido —400 veces a la
+   * hora medidas—: 22 millones de filas a la hora, la consulta más cara de
+   * la base con todo lo demás ya arreglado. Ahora la consulta cara trae
+   * hasta `COLA_FOTOS_TOPE` ids una vez por hora (`tomarDeCola`), cada
+   * latido toma los suyos y los vuelve a mirar por id: pocas filas.
+   */
+  const { ids: turno } = await tomarDeCola({
+    llave: LLAVE_COLA_FOTOS,
+    vigenciaMs: COLA_FOTOS_VIGENCIA_MS,
+    cuantos: maximo,
+    calcular: async () =>
+      (
+        await db
+          .select({
+            id: imagenesProducto.id,
+            esDeCj: sql<number>`case when ${productos.fuenteId} = ${FUENTE_CJ} then 1 else 0 end`,
+            intentos: sql<number>`coalesce((select ${fotosRotas.intentos} from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.url} = ${imagenesProducto.url}), 0)`,
+          })
+          .from(imagenesProducto)
+          .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
+          .where(pendienteDeTraer)
+          .orderBy(sql`2`, sql`3`, sql`imagenes_producto.rowid`)
+          .limit(COLA_FOTOS_TOPE)
+      ).map((f) => f.id),
+  });
+
+  const pendientesSinOrden =
+    turno.length === 0
+      ? []
+      : await db
+          .select({
+            id: imagenesProducto.id,
+            productoId: imagenesProducto.productoId,
+            url: imagenesProducto.url,
+            intentos: sql<number>`coalesce((select ${fotosRotas.intentos} from ${fotosRotas} where ${fotosRotas.imagenId} = ${imagenesProducto.id} and ${fotosRotas.url} = ${imagenesProducto.url}), 0)`,
+            slug: productos.slug,
+            orden: imagenesProducto.orden,
+          })
+          .from(imagenesProducto)
+          .innerJoin(productos, eq(productos.id, imagenesProducto.productoId))
+          .where(and(inArray(imagenesProducto.id, turno), pendienteDeTraer));
+  /* En el orden de la lista: los comercios antes que CJ, como siempre. */
+  const posicion = new Map(turno.map((id, i) => [id, i]));
+  const pendientes = pendientesSinOrden.sort(
+    (a, b) => (posicion.get(a.id) ?? 0) - (posicion.get(b.id) ?? 0),
+  );
 
   const { env } = getCloudflareContext();
   const hasta = ahoraMs + (opciones.presupuestoMs ?? FOTOS_PRESUPUESTO_MS);

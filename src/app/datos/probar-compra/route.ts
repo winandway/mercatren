@@ -160,6 +160,9 @@ export async function POST(peticion: Request) {
         await import("@/lib/catalogo/conteos");
       const { MERCADOS } = await import("@/lib/mercado/mercados");
       const r = await recalcularTodosLosConteos();
+      const { recalcularTodosLosListados } =
+        await import("@/lib/catalogo/consultas");
+      const listados = await recalcularTodosLosListados();
       const edad = await edadDeLosConteos();
       const resumen: Record<string, unknown> = {};
       for (const m of MERCADOS) {
@@ -176,7 +179,7 @@ export async function POST(peticion: Request) {
             }
           : null;
       }
-      resultado = { ...r, edadMinutos: edad.minutos, resumen };
+      resultado = { ...r, listados, edadMinutos: edad.minutos, resumen };
       break;
     }
     case "mirar":

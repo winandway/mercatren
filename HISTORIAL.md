@@ -149,9 +149,46 @@ filas/hora (antes 1.100 M); la meta es < 33 M/hora. Lo que quedaba:
 
 Candados: `tests/unit/fotos-de-producto.test.ts` y
 `sincronizacion-sin-recorrer-el-catalogo.test.ts` (los dos comprobados en
-rojo). Lo que sigue leyendo el catálogo entero y se acepta por ahora: la
-parrilla de la portada (17.000 filas por cálculo, cada minuto por sede, ya
-sin fotos), las bandas y el catálogo sin filtros ordenado por novedad.
+rojo).
+
+**La cuarta parte (18 sep 2026): las diez de ~100 M/hora → meta 33 M/hora.**
+YaDominios midió, tras la tercera, ~100 M filas/hora estables. Lo que
+quedaba, y qué se hizo:
+
+13. **Las páginas que ordenan el catálogo entero (54 M/h)**: la parrilla de
+    la portada (ventana por tienda: 107.000 filas, 190/h), el catálogo sin
+    filtros (`ORDER BY CASE creado_en…, actualizado_en`: 68.000 filas,
+    328/h) y las bandas (784/h). «Cacheado 60 s por sede» no alcanzaba: la
+    memoria vive en cada isolate. Ahora `listados-guardados.ts` guarda por
+    mercado los primeros 1.000 ids de la parrilla y del catálogo, y los de
+    cada banda, ya ordenados con la semilla del día; el reloj los rehace
+    cada 5 minutos (paso 0c, `recalcularListados` en `consultas.ts`) y la
+    página corta su tramo y trae esas dos docenas POR ID
+    (`productosPorIds`, filtrando lo visible). Más allá del tope o con
+    ciudad elegida, en vivo. La primera pantalla de la portada sigue
+    girando con la semilla de la visita; las páginas siguientes y las
+    bandas van con la semilla del día. Canario: `/datos/salud → listados`.
+14. **El revisor de fotos (22,5 M/h, 400/h)** y **el traductor (8,4 M/h,
+    149/h)**: consumen listas guardadas (`tomarDeCola`, el ayudante común
+    de `reloj/cola-guardada.ts`): la consulta cara una vez por hora, cada
+    latido toma los suyos y los remira por id.
+15. **El barrido (3,1 M/h, 30/h)**: el completo cada 15 minutos; cuando el
+    afinado o el stock tocan algo, barre SOLO esos ids
+    (`barrerNoVerificados({ soloIds })`).
+16. **Los similares (11 M/h)**: sin desempate por `id` en el `ORDER BY`,
+    así `idx_productos_categoria_creado` sirve para el orden y para en el
+    LIMIT (comprobado con EXPLAIN: sin «TEMP B-TREE»).
+17. **La página de una tienda (11,5 M/h)**: `listarProductosDeTienda`, dos
+    fases con el mismo orden final —los nuevos por `creado_en`, el resto
+    caminando `idx_productos_tienda_estado_actualizado` hacia atrás con
+    `+creado_en` para que SQLite no elija el otro índice— y el total desde
+    la foto de conteos, no con `count(*)`.
+
+Candados: `tests/unit/listados-guardados.test.ts` (en rojo quitando el paso
+0c) y los nuevos casos de `sincronizacion-sin-recorrer-el-catalogo.test.ts`.
+Lo que sigue leyendo bastante por cálculo y se acepta: `buscar.ts` (la foto
+por fila en el buscador, pocas filas por búsqueda) y las páginas del
+catálogo CON categoría (índice por categoría; ordenan la categoría).
 
 Comprobación: `curl -s -D - -o /dev/null https://mercatren.com/es/ayuda`
 dos veces (GET: la plataforma no guarda los HEAD); la segunda con

@@ -133,19 +133,21 @@ describe("la foto de turno", () => {
   });
 
   it("se usa en la parrilla, las bandas, el catálogo y los similares", () => {
-    expect(fuente.match(/await fotoDeTurnoDe\(/g)?.length).toBe(4);
-    expect(fuente.match(/\.\.\.imagenDe\(fotos, f\.id\),/g)?.length).toBe(4);
+    /* Los cuatro listados en vivo, más `productosPorIds` (los listados
+       guardados) y la página de tienda (18 sep 2026). */
+    expect(fuente.match(/await fotoDeTurnoDe\(/g)?.length).toBe(6);
+    expect(fuente.match(/\.\.\.imagenDe\(fotos, f\.id\),/g)?.length).toBe(6);
     /* Con la semilla de la visita en la portada y la del día en el resto. */
     expect(
       fuente.match(
         /fotoDeTurnoDe\(\s*filas\.map\(\(f\) => f\.id\),\s*semilla,/g,
       )?.length,
-    ).toBe(2);
+    ).toBe(3);
     expect(
       fuente.match(
         /fotoDeTurnoDe\(\s*filas\.map\(\(f\) => f\.id\),\s*semillaDelDia\(\),/g,
       )?.length,
-    ).toBe(2);
+    ).toBe(3);
   });
 });
 

@@ -206,6 +206,36 @@ export async function correrTick(
     await anotar("reloj/conteos", fallo);
   }
 
+  /* 0c. LOS LISTADOS YA ORDENADOS (parrilla, catálogo y bandas), cada cinco
+     minutos: las tres consultas que ordenaban el catálogo entero en cada
+     visita (54 millones de filas a la hora) ahora se ordenan aquí, una vez,
+     y las páginas leen la foto. Ver `listados-guardados.ts`. */
+  try {
+    if (queda() > 6_000) {
+      const { edadDeLosListados, LISTADOS_CADA_MS } =
+        await import("@/lib/catalogo/listados-guardados");
+      const edad = await edadDeLosListados();
+      const masViejo = Math.max(
+        ...Object.values(edad.minutos).map((m) => (m === null ? Infinity : m)),
+      );
+      if (masViejo * 60_000 >= LISTADOS_CADA_MS) {
+        const { recalcularTodosLosListados } =
+          await import("@/lib/catalogo/consultas");
+        const r = await recalcularTodosLosListados();
+        hizo.push(`listados: ${r.hizo.join(" · ")}`);
+        if (r.fallos.length > 0) {
+          await anotar(
+            "reloj/listados",
+            new Error(`no se pudo rehacer: ${r.fallos.join("; ")}`),
+          );
+        }
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] los listados fallaron:", fallo);
+    await anotar("reloj/listados", fallo);
+  }
+
   /* 1. La importación masiva, si hay alguna en marcha. */
   try {
     if (queda() > 8_000) {
@@ -229,6 +259,8 @@ export async function correrTick(
   let cjEnPausa = false;
   /** Cuántos afinó o agotó este latido: si hubo, el barrido tiene trabajo. */
   let afinadoEsteLatido = 0;
+  /** Los productos que este latido afinó o miró: el barrido va solo a esos. */
+  const idsTocados: string[] = [];
 
   /* 2. El afinado: flete real, tallas y stock de lo que está en revisión. */
   try {
@@ -263,6 +295,7 @@ export async function correrTick(
          nada que gastar. Se vio en producción a los diez minutos. */
       colaPorAfinar = r.restantes ?? colaPorAfinar;
       afinadoEsteLatido = r.afinados + r.agotados;
+      idsTocados.push(...(r.ids ?? []));
     }
   } catch (fallo) {
     console.error("[tick] el afinado falló:", fallo);
@@ -282,16 +315,26 @@ export async function correrTick(
   try {
     const ultimoBarrido = await marcaDe(LLAVE_ULTIMO_BARRIDO);
     const haceMs = arranque - ultimoBarrido;
-    if (
-      queda() > 2_000 &&
-      (afinadoEsteLatido > 0 || haceMs > BARRIDO_CADA_MS)
-    ) {
+    if (queda() > 2_000 && haceMs > BARRIDO_CADA_MS) {
       const { barrerNoVerificados } = await import("@/lib/cj/verificados");
       const b = await barrerNoVerificados();
       await anotarMarca(LLAVE_ULTIMO_BARRIDO, arranque);
       if (b.retirados + b.publicados > 0) {
         hizo.push(
           `barrido: ${b.retirados} retirados, ${b.publicados} publicados`,
+        );
+      }
+    } else if (
+      queda() > 2_000 &&
+      afinadoEsteLatido > 0 &&
+      idsTocados.length > 0
+    ) {
+      /* Solo lo que este latido afinó: unas filas, no el catálogo. */
+      const { barrerNoVerificados } = await import("@/lib/cj/verificados");
+      const b = await barrerNoVerificados({ soloIds: idsTocados });
+      if (b.retirados + b.publicados > 0) {
+        hizo.push(
+          `barrido de lo afinado: ${b.retirados} retirados, ${b.publicados} publicados`,
         );
       }
     }
@@ -364,6 +407,17 @@ export async function correrTick(
                 : "") +
               (r.ultimoFallo ? ` · último fallo: ${r.ultimoFallo}` : ""),
           );
+        /* Lo que cambió de stock se barre ya, y solo eso (18 sep 2026): un
+           agotado sale de la venta en este latido, no en 15 minutos. */
+        if (r.ids && r.ids.length > 0 && queda() > 1_500) {
+          const { barrerNoVerificados } = await import("@/lib/cj/verificados");
+          const b = await barrerNoVerificados({ soloIds: r.ids });
+          if (b.retirados + b.publicados > 0) {
+            hizo.push(
+              `barrido del stock: ${b.retirados} retirados, ${b.publicados} publicados`,
+            );
+          }
+        }
       }
     }
   } catch (fallo) {
