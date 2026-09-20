@@ -74,9 +74,12 @@ describe("el candado: que nadie desconecte el diccionario sin querer", () => {
        está en inglés. Se pierde con quitar una línea. */
     const { readFileSync } = await import("node:fs");
     const fuente = readFileSync("src/lib/catalogo/buscar.ts", "utf8");
+    /* Desde el 20 sep 2026 se llama `TEXTO_CORTO`: la descripción salió de
+       ahí por lentitud, pero el departamento se quedó —es lo barato y lo que
+       trae el catálogo en inglés al español. */
     const bloque = fuente.slice(
-      fuente.indexOf("const TEXTO_PRODUCTO"),
-      fuente.indexOf("const TITULO"),
+      fuente.indexOf("const TEXTO_CORTO"),
+      fuente.indexOf("const DESCRIPCION"),
     );
     expect(bloque).toContain("categorias.nombreEs");
   });

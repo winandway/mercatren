@@ -26,7 +26,7 @@ import {
 import { recordado, recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
-import { condicionDeBusqueda } from "./buscar";
+import { condicionDeBusqueda, TOPE_DE_RESULTADOS } from "./buscar";
 import { conteosDe } from "./conteos";
 import { armarDepartamentos } from "./conteos-armar";
 import { fotoDeTurnoDe } from "./fotos-de-producto";
@@ -316,7 +316,7 @@ function imagenDe(
  * categoría, los similares): cambia una vez al día, así la foto de turno es
  * estable entre una página y la siguiente del mismo listado.
  */
-function semillaDelDia(): number {
+export function semillaDelDia(): number {
   return (Math.floor(Date.now() / 86_400_000) % 99_999) + 1;
 }
 
@@ -436,14 +436,34 @@ export async function listarProductos(
     }
   }
 
+  /* ══ BUSCANDO, EL TOTAL SE CUENTA HASTA UN TOPE (20 sep 2026) ══
+     El `COUNT(*)` de una búsqueda recorría todo lo que calzaba —«Página 1 de
+     179»— y después la consulta de las filas lo recorría otra vez. Dos
+     recorridos del catálogo con LIKE por una cifra que nadie usa más que para
+     pintar flechas. Con categoría, comercio o ciudad el conteo se queda: esos
+     sí caminan un índice compuesto. Ver `TOPE_DE_RESULTADOS` en `buscar.ts`. */
   const [total] = sinFiltros
     ? [{ n: (await conteosDe(mercado)).total }]
-    : await db
-        .select({ n: count() })
-        .from(productos)
-        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-        .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
-        .where(donde);
+    : filtros.busqueda
+      ? [
+          {
+            n: (
+              await db
+                .select({ id: productos.id })
+                .from(productos)
+                .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+                .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
+                .where(donde)
+                .limit(TOPE_DE_RESULTADOS)
+            ).length,
+          },
+        ]
+      : await db
+          .select({ n: count() })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
+          .where(donde);
 
   const filas = await db
     .select({

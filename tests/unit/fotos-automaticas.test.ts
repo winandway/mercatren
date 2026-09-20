@@ -134,8 +134,14 @@ describe("candados en el código", () => {
     expect(automaticas).toMatch(
       /if \(definitiva\) \{\s*rotas\+\+;\s*await olvidarFotosDe\(\[foto\.productoId\]\);/,
     );
+    /* El desplegable ya no trae la foto con subconsultas propias (20 sep
+       2026, por lentitud): la pide a `fotos_de_producto`, que es quien
+       aplica `SIN_FOTOS_ROTAS`. La protección es la misma, por otra puerta
+       — y esta prueba exige que siga entrando por ella. */
     const buscar = leer("src/lib/catalogo/buscar.ts");
-    expect(buscar.match(/fr\.definitiva = 1/g)?.length).toBe(2);
+    expect(buscar).toContain("fotoDeTurnoDe(");
+    expect(buscar).not.toContain("fotos_rotas");
+    expect(buscar).not.toContain("imagenesProducto");
   });
 
   it("si el navegador no logra cargar la foto, la tarjeta y la galería enseñan «sin foto», no el título desparramado", () => {

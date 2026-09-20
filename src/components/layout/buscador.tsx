@@ -31,6 +31,8 @@ type Resultado = {
   productos: Sugerencia[];
   comercios: { slug: string; nombre: string }[];
   total: number;
+  /** Hay más de los que se cuentan: el total es un tope, no la cifra real. */
+  hayMas?: boolean;
 };
 
 const VACIO: Resultado = { productos: [], comercios: [], total: 0 };
@@ -352,7 +354,9 @@ export function Buscador({ idioma }: { idioma: Idioma }) {
               className="flex w-full items-center justify-center gap-2 border-t border-borde bg-slate-50 px-4 py-3 text-sm font-semibold text-carga-600 hover:bg-slate-100"
             >
               <TrendingUp className="h-4 w-4" aria-hidden />
-              {t("verTodos", { n: resultado.total })}
+              {resultado.hayMas
+                ? t("verTodosMuchos")
+                : t("verTodos", { n: resultado.total })}
             </button>
           ) : null}
         </div>

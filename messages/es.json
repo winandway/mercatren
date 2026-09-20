@@ -34,6 +34,7 @@
     "docs": "Docs",
     "sinResultados": "No encontramos nada para «{texto}»",
     "verTodos": "Ver los {n} resultados",
+    "verTodosMuchos": "Ver todos los resultados",
     "verTienda": "Ver tienda",
     "agotado": "Agotado",
     "cambiarIdioma": "Cambiar idioma",

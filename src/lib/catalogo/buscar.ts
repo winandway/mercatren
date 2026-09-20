@@ -1,12 +1,7 @@
 import { and, eq, or, sql, type SQL } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
-import {
-  categorias,
-  imagenesProducto,
-  productos,
-  tiendas,
-} from "@/lib/db/schema";
+import { categorias, productos, tiendas } from "@/lib/db/schema";
 import type { Mercado } from "@/lib/mercado/mercados";
 
 import { normalizarTexto } from "./normalizar";
@@ -17,7 +12,8 @@ import {
   visibleEn,
 } from "@/lib/mercado/repositorio";
 
-import { direccionImagen } from "./consultas";
+import { direccionImagen, semillaDelDia } from "./consultas";
+import { fotoDeTurnoDe } from "./fotos-de-producto";
 
 /**
  * El motor de busqueda del catalogo.
@@ -123,16 +119,40 @@ export function palabrasDe(busqueda: string) {
  * Primero se concatena y despues se limpia: asi son catorce reemplazos y no
  * catorce por cada campo.
  */
-const TEXTO_PRODUCTO = normalizar(sql`
+/**
+ * ══ LA DESCRIPCIÓN NO SE NORMALIZA (emergencia de lentitud, 20 sep 2026) ══
+ *
+ * Buscar «ventilador» tardaba 19 segundos y a ratos devolvía 500 por tiempo
+ * agotado. La culpa no era del LIKE: era de los CATORCE `REPLACE` anidados
+ * aplicados al texto CONCATENADO, que incluía `descripcion_es`. Una
+ * descripción de CJ pesa varios miles de letras; catorce pasadas sobre eso,
+ * por cada uno de los 47.000 productos, son gigabytes de texto manipulado en
+ * cada búsqueda.
+ *
+ * Ahora se parte en dos:
+ *  - **Los campos cortos** (títulos, marca, SKU, comercio, departamento) sí
+ *    se normalizan: son los que deciden la relevancia y son baratos.
+ *  - **La descripción** se compara CRUDA. SQLite ya ignora mayúsculas y
+ *    minúsculas en `LIKE` para el alfabeto inglés, así que lo único que se
+ *    pierde es encontrar una palabra acentuada DENTRO de la descripción
+ *    escribiéndola sin acento. En el título —que es donde la gente busca— se
+ *    sigue encontrando igual.
+ *
+ * NO volver a meter `descripcionEs` dentro de `normalizar()`.
+ * Candado: `tests/unit/busqueda-rapida.test.ts`.
+ */
+const TEXTO_CORTO = normalizar(sql`
   COALESCE(${productos.tituloEs}, '') || ' ' ||
   COALESCE(${productos.tituloEn}, '') || ' ' ||
-  COALESCE(${productos.descripcionEs}, '') || ' ' ||
   COALESCE(${productos.marca}, '') || ' ' ||
   COALESCE(${productos.sku}, '') || ' ' ||
   COALESCE(${tiendas.nombre}, '') || ' ' ||
   COALESCE((SELECT ${categorias.nombreEs} FROM ${categorias}
             WHERE ${categorias.id} = ${productos.categoriaId}), '')
 `);
+
+/** La descripción, tal cual está guardada: sin los catorce `REPLACE`. */
+const DESCRIPCION = sql`COALESCE(${productos.descripcionEs}, '')`;
 
 const TITULO = normalizar(productos.tituloEs);
 
@@ -208,14 +228,44 @@ function todasLasPalabras(palabras: string[]): SQL | undefined {
          un día devolviera vacío, un `or()` sin argumentos daría `undefined` y
          la palabra dejaría de filtrar — es decir, el buscador traería el
          catálogo entero. Se protege aquí. */
-      if (formas.length === 0) {
-        return sql`${TEXTO_PRODUCTO} LIKE ${"%" + p + "%"}`;
-      }
+      const buscables = formas.length === 0 ? [p] : formas;
       return or(
-        ...formas.map((f) => sql`${TEXTO_PRODUCTO} LIKE ${"%" + f + "%"}`),
+        ...buscables.flatMap((f) => [
+          sql`${TEXTO_CORTO} LIKE ${"%" + f + "%"}`,
+          sql`${DESCRIPCION} LIKE ${"%" + f + "%"}`,
+        ]),
       );
     }),
   );
+}
+
+/**
+ * ══ BUSCAR NO CUENTA EL CATÁLOGO ENTERO (20 sep 2026) ══
+ *
+ * Con búsqueda, la página hacía un `COUNT(*)` sobre TODO lo que calzaba —un
+ * segundo recorrido completo, solo para escribir «Página 1 de 179»— y después
+ * otro para traer las veinticuatro que se ven. Nadie abre la página 179: los
+ * únicos que recorren esa paginación son los robots, y cada página suya era
+ * otro recorrido del catálogo.
+ *
+ * Ahora se cuenta HASTA UN TOPE. Si hay más, la paginación llega hasta ahí y
+ * lo demás se afina escribiendo mejor lo buscado, que es lo que hace la gente.
+ */
+export const TOPE_DE_RESULTADOS = 600;
+const TOPE_DEL_DESPLEGABLE = 200;
+
+/** Cuántos productos calzan, sin pasar de `tope`. */
+async function contarHasta(
+  donde: SQL | undefined,
+  tope: number,
+): Promise<number> {
+  const filas = await getDb()
+    .select({ id: productos.id })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .where(donde)
+    .limit(tope);
+  return filas.length;
 }
 
 export type Sugerencia = {
@@ -239,15 +289,17 @@ export async function sugerencias(
   cuantas = 8,
 ) {
   const palabras = palabrasDe(busqueda);
-  if (palabras.length === 0) return { productos: [], comercios: [], total: 0 };
+  if (palabras.length === 0)
+    return { productos: [], comercios: [], total: 0, hayMas: false };
 
   const db = getDb();
   const relevancia = puntuacion(busqueda, palabras);
   const donde = and(visibleAqui(mercado), todasLasPalabras(palabras));
 
-  const [filas, [conteo], comercios] = await Promise.all([
+  const [filas, cuantosCalzan, comercios] = await Promise.all([
     db
       .select({
+        id: productos.id,
         slug: productos.slug,
         tituloEs: productos.tituloEs,
         tituloEn: productos.tituloEn,
@@ -257,12 +309,6 @@ export async function sugerencias(
         controlaExistencias: productos.controlaExistencias,
         tiendaNombre: tiendas.nombre,
         tiendaSlug: tiendas.slug,
-        fotoUrl: sql<
-          string | null
-        >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} AND NOT EXISTS (SELECT 1 FROM fotos_rotas fr WHERE fr.imagen_id = imagenes_producto.id AND fr.definitiva = 1 AND fr.url = imagenes_producto.url) ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
-        fotoClave: sql<
-          string | null
-        >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} AND NOT EXISTS (SELECT 1 FROM fotos_rotas fr WHERE fr.imagen_id = imagenes_producto.id AND fr.definitiva = 1 AND fr.url = imagenes_producto.url) ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
       })
       .from(productos)
       .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -270,11 +316,7 @@ export async function sugerencias(
       .orderBy(sql`(${relevancia}) DESC`)
       .limit(cuantas),
 
-    db
-      .select({ n: sql<number>`COUNT(*)` })
-      .from(productos)
-      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(donde),
+    contarHasta(donde, TOPE_DEL_DESPLEGABLE),
 
     // Si lo buscado es el nombre de un comercio, se ofrece su tienda entera.
     db
@@ -289,19 +331,35 @@ export async function sugerencias(
       .limit(3),
   ]);
 
+  /* La foto sale de `fotos_de_producto`, igual que en los listados: las dos
+     subconsultas por fila que había aquí se evaluaban para TODO lo que
+     calzaba, no solo para las ocho que se muestran. */
+  const fotos = await fotoDeTurnoDe(
+    filas.map((f) => f.id),
+    semillaDelDia(),
+  );
+
   return {
-    productos: filas.map((f): Sugerencia => ({
-      slug: f.slug,
-      titulo: f.tituloEs,
-      precioCentavos: f.precioCentavos,
-      moneda: f.moneda,
-      imagenUrl: direccionImagen({ url: f.fotoUrl, clave: f.fotoClave }),
-      tiendaNombre: f.tiendaNombre,
-      tiendaSlug: f.tiendaSlug,
-      agotado: f.controlaExistencias && f.existencias <= 0,
-    })),
+    productos: filas.map((f): Sugerencia => {
+      const foto = fotos.get(f.id) ?? null;
+      return {
+        slug: f.slug,
+        titulo: f.tituloEs,
+        precioCentavos: f.precioCentavos,
+        moneda: f.moneda,
+        imagenUrl: foto
+          ? direccionImagen({ url: foto.url, clave: foto.clave })
+          : null,
+        tiendaNombre: f.tiendaNombre,
+        tiendaSlug: f.tiendaSlug,
+        agotado: f.controlaExistencias && f.existencias <= 0,
+      };
+    }),
     comercios,
-    total: Number(conteo?.n ?? 0),
+    total: cuantosCalzan,
+    /* Al tope no se dice un número: enseñar «Ver los 200 resultados» cuando
+       hay tres mil es mentir con precisión. */
+    hayMas: cuantosCalzan >= TOPE_DEL_DESPLEGABLE,
   };
 }
 
