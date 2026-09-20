@@ -79,7 +79,7 @@ describe("el candado: que nadie desconecte el diccionario sin querer", () => {
        trae el catálogo en inglés al español. */
     const bloque = fuente.slice(
       fuente.indexOf("const TEXTO_CORTO"),
-      fuente.indexOf("const DESCRIPCION"),
+      fuente.indexOf("const TITULO"),
     );
     expect(bloque).toContain("categorias.nombreEs");
   });

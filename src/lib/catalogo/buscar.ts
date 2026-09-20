@@ -1,5 +1,6 @@
-import { and, eq, or, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql, type SQL } from "drizzle-orm";
 
+import { recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 import { categorias, productos, tiendas } from "@/lib/db/schema";
 import type { Mercado } from "@/lib/mercado/mercados";
@@ -132,13 +133,10 @@ export function palabrasDe(busqueda: string) {
  * Ahora se parte en dos:
  *  - **Los campos cortos** (títulos, marca, SKU, comercio, departamento) sí
  *    se normalizan: son los que deciden la relevancia y son baratos.
- *  - **La descripción** se compara CRUDA. SQLite ya ignora mayúsculas y
- *    minúsculas en `LIKE` para el alfabeto inglés, así que lo único que se
- *    pierde es encontrar una palabra acentuada DENTRO de la descripción
- *    escribiéndola sin acento. En el título —que es donde la gente busca— se
- *    sigue encontrando igual.
+ *  - **La descripción** no entra en la consulta. Ni normalizada ni cruda: ver
+ *    la nota de abajo.
  *
- * NO volver a meter `descripcionEs` dentro de `normalizar()`.
+ * NO volver a meter `descripcionEs` en el texto que se busca.
  * Candado: `tests/unit/busqueda-rapida.test.ts`.
  */
 const TEXTO_CORTO = normalizar(sql`
@@ -151,8 +149,12 @@ const TEXTO_CORTO = normalizar(sql`
             WHERE ${categorias.id} = ${productos.categoriaId}), '')
 `);
 
-/** La descripción, tal cual está guardada: sin los catorce `REPLACE`. */
-const DESCRIPCION = sql`COALESCE(${productos.descripcionEs}, '')`;
+/* ══ Y LA DESCRIPCIÓN YA NO SE RECORRE EN CADA BÚSQUEDA (20 sep 2026, 2.ª parte) ══
+   Compararla cruda no bastó: medido en vivo, «ventilador» seguía en 18 s. Un
+   `LIKE` por cada sinónimo sobre 47.000 descripciones de varios miles de
+   letras es leer cientos de megas por búsqueda. Se busca en lo corto —títulos
+   en los dos idiomas, marca, SKU, comercio y departamento—, que es donde la
+   gente acierta. */
 
 const TITULO = normalizar(productos.tituloEs);
 
@@ -230,10 +232,7 @@ function todasLasPalabras(palabras: string[]): SQL | undefined {
          catálogo entero. Se protege aquí. */
       const buscables = formas.length === 0 ? [p] : formas;
       return or(
-        ...buscables.flatMap((f) => [
-          sql`${TEXTO_CORTO} LIKE ${"%" + f + "%"}`,
-          sql`${DESCRIPCION} LIKE ${"%" + f + "%"}`,
-        ]),
+        ...buscables.map((f) => sql`${TEXTO_CORTO} LIKE ${"%" + f + "%"}`),
       );
     }),
   );
@@ -252,20 +251,45 @@ function todasLasPalabras(palabras: string[]): SQL | undefined {
  * lo demás se afina escribiendo mejor lo buscado, que es lo que hace la gente.
  */
 export const TOPE_DE_RESULTADOS = 600;
-const TOPE_DEL_DESPLEGABLE = 200;
 
-/** Cuántos productos calzan, sin pasar de `tope`. */
-async function contarHasta(
-  donde: SQL | undefined,
-  tope: number,
-): Promise<number> {
-  const filas = await getDb()
-    .select({ id: productos.id })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(donde)
-    .limit(tope);
-  return filas.length;
+/** Cuánto vive guardada una búsqueda: lo que tarda alguien en paginarla. */
+export const BUSQUEDA_GUARDADA_MS = 5 * 60_000;
+
+/**
+ * ══ UNA BÚSQUEDA = UN SOLO RECORRIDO, GUARDADO CINCO MINUTOS ══
+ *
+ * Los primeros `TOPE_DE_RESULTADOS` ids que calzan, ya ordenados por
+ * relevancia. De esta lista salen el desplegable (las ocho primeras), el
+ * total, y TODAS las páginas de resultados: quien escribe «ventilador», mira
+ * el desplegable, pulsa Enter y pasa a la página 2 recorre el catálogo UNA
+ * vez, no seis. Y el siguiente visitante que busque lo mismo, ninguna.
+ *
+ * Solo lo público: la búsqueda del equipo (que ve lo «en revisión») no pasa
+ * por aquí, porque esto se guarda en una caché compartida.
+ */
+export async function idsQueCalzan(
+  mercado: Mercado,
+  busqueda: string,
+): Promise<string[]> {
+  const palabras = palabrasDe(busqueda);
+  if (palabras.length === 0) return [];
+  return recordadoEnElBorde(
+    `busqueda-${mercado.codigo}-${palabras.join(" ")}`,
+    BUSQUEDA_GUARDADA_MS,
+    async () =>
+      (
+        await getDb()
+          .select({ id: productos.id })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .where(and(visibleAqui(mercado), todasLasPalabras(palabras)))
+          .orderBy(
+            sql`(${puntuacion(palabras.join(" "), palabras)}) DESC`,
+            desc(productos.actualizadoEn),
+          )
+          .limit(TOPE_DE_RESULTADOS)
+      ).map((f) => f.id),
+  );
 }
 
 export type Sugerencia = {
@@ -293,30 +317,8 @@ export async function sugerencias(
     return { productos: [], comercios: [], total: 0, hayMas: false };
 
   const db = getDb();
-  const relevancia = puntuacion(busqueda, palabras);
-  const donde = and(visibleAqui(mercado), todasLasPalabras(palabras));
-
-  const [filas, cuantosCalzan, comercios] = await Promise.all([
-    db
-      .select({
-        id: productos.id,
-        slug: productos.slug,
-        tituloEs: productos.tituloEs,
-        tituloEn: productos.tituloEn,
-        precioCentavos: productos.precioCentavos,
-        moneda: productos.moneda,
-        existencias: productos.existencias,
-        controlaExistencias: productos.controlaExistencias,
-        tiendaNombre: tiendas.nombre,
-        tiendaSlug: tiendas.slug,
-      })
-      .from(productos)
-      .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-      .where(donde)
-      .orderBy(sql`(${relevancia}) DESC`)
-      .limit(cuantas),
-
-    contarHasta(donde, TOPE_DEL_DESPLEGABLE),
+  const [ids, comercios] = await Promise.all([
+    idsQueCalzan(mercado, busqueda),
 
     // Si lo buscado es el nombre de un comercio, se ofrece su tienda entera.
     db
@@ -330,6 +332,34 @@ export async function sugerencias(
       )
       .limit(3),
   ]);
+
+  /* Las que se enseñan, por su clave y nada más en el WHERE (ver la trampa
+     del índice de estado en CLAUDE.md). El orden lo pone la lista. */
+  const primeras = ids.slice(0, cuantas);
+  const sueltas =
+    primeras.length === 0
+      ? []
+      : await db
+          .select({
+            id: productos.id,
+            slug: productos.slug,
+            tituloEs: productos.tituloEs,
+            tituloEn: productos.tituloEn,
+            precioCentavos: productos.precioCentavos,
+            moneda: productos.moneda,
+            existencias: productos.existencias,
+            controlaExistencias: productos.controlaExistencias,
+            tiendaNombre: tiendas.nombre,
+            tiendaSlug: tiendas.slug,
+          })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .where(inArray(productos.id, primeras));
+  const porId = new Map(sueltas.map((f) => [f.id, f]));
+  const filas = primeras
+    .map((id) => porId.get(id))
+    .filter((f): f is NonNullable<typeof f> => Boolean(f));
+  const cuantosCalzan = ids.length;
 
   /* La foto sale de `fotos_de_producto`, igual que en los listados: las dos
      subconsultas por fila que había aquí se evaluaban para TODO lo que
@@ -359,7 +389,7 @@ export async function sugerencias(
     total: cuantosCalzan,
     /* Al tope no se dice un número: enseñar «Ver los 200 resultados» cuando
        hay tres mil es mentir con precisión. */
-    hayMas: cuantosCalzan >= TOPE_DEL_DESPLEGABLE,
+    hayMas: cuantosCalzan >= TOPE_DE_RESULTADOS,
   };
 }
 

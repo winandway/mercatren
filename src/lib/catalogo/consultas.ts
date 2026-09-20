@@ -26,7 +26,13 @@ import {
 import { recordado, recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 
-import { condicionDeBusqueda, TOPE_DE_RESULTADOS } from "./buscar";
+import {
+  BUSQUEDA_GUARDADA_MS,
+  condicionDeBusqueda,
+  idsQueCalzan,
+  palabrasDe,
+  TOPE_DE_RESULTADOS,
+} from "./buscar";
 import { conteosDe } from "./conteos";
 import { armarDepartamentos } from "./conteos-armar";
 import { fotoDeTurnoDe } from "./fotos-de-producto";
@@ -320,6 +326,16 @@ export function semillaDelDia(): number {
   return (Math.floor(Date.now() / 86_400_000) % 99_999) + 1;
 }
 
+/** Una huella corta y estable para la llave de caché (djb2, sin dependencias). */
+function huellaDe(partes: readonly string[]): string {
+  const texto = partes.join("\u0001");
+  let h = 5381;
+  for (let i = 0; i < texto.length; i++) {
+    h = ((h << 5) + h + texto.charCodeAt(i)) | 0;
+  }
+  return `${(h >>> 0).toString(36)}-${texto.length}`;
+}
+
 export async function listarProductos(
   mercado: Mercado,
   filtros: FiltrosCatalogo = {},
@@ -436,7 +452,65 @@ export async function listarProductos(
     }
   }
 
-  /* ══ BUSCANDO, EL TOTAL SE CUENTA HASTA UN TOPE (20 sep 2026) ══
+  /* ══ BUSCANDO: UN SOLO RECORRIDO, Y GUARDADO CINCO MINUTOS (20 sep 2026) ══
+     Una búsqueda recorre el catálogo con `LIKE`: no hay índice que la salve.
+     Lo que sí se puede es recorrerlo UNA vez: se piden los primeros
+     `TOPE_DE_RESULTADOS` ids ya ordenados por relevancia, se guardan en el
+     borde cinco minutos, y de ahí salen el total, todas las páginas y la
+     misma búsqueda del siguiente visitante. Antes cada página eran dos
+     recorridos (contar y traer), y la página 2 otros dos.
+     El equipo («para el equipo» ve lo que está en revisión) va por el camino
+     de siempre: lo suyo no se guarda en una caché pública. */
+  if (filtros.busqueda && !filtros.paraElEquipo) {
+    const huella = huellaDe([
+      palabrasDe(filtros.busqueda).join(" "),
+      filtros.categoria ?? "",
+      filtros.comercio ?? "",
+      [...(filtros.zona ?? [])].sort().join(","),
+      filtros.orden ?? "",
+    ]);
+    /* Sin más filtros que lo escrito, es LA MISMA lista que ya pidió el
+       desplegable del encabezado: se comparte, no se recorre otra vez. */
+    const soloLoEscrito =
+      !filtros.categoria &&
+      !filtros.comercio &&
+      !filtros.zona?.length &&
+      ordenDeSiempre;
+    const ids = soloLoEscrito
+      ? await idsQueCalzan(mercado, filtros.busqueda)
+      : await recordadoEnElBorde(
+          `busqueda-${mercado.codigo}-${huella}`,
+          BUSQUEDA_GUARDADA_MS,
+          async () =>
+            (
+              await db
+                .select({ id: productos.id })
+                .from(productos)
+                .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+                .leftJoin(categorias, eq(categorias.id, productos.categoriaId))
+                .where(donde)
+                .orderBy(orden, desc(productos.actualizadoEn))
+                .limit(TOPE_DE_RESULTADOS)
+            ).map((f) => f.id),
+        );
+    const desde = (pagina - 1) * porPagina;
+    const lista = intercalarPorTienda(
+      await productosPorIds(
+        mercado,
+        ids.slice(desde, desde + porPagina),
+        semillaDelDia(),
+      ),
+      (p) => p.tiendaSlug,
+    );
+    return {
+      productos: lista,
+      total: ids.length,
+      pagina,
+      paginas: Math.max(1, Math.ceil(ids.length / porPagina)),
+    };
+  }
+
+  /* ══ BUSCANDO COMO EQUIPO, EL TOTAL SE CUENTA HASTA UN TOPE (20 sep 2026) ══
      El `COUNT(*)` de una búsqueda recorría todo lo que calzaba —«Página 1 de
      179»— y después la consulta de las filas lo recorría otra vez. Dos
      recorridos del catálogo con LIKE por una cifra que nadie usa más que para

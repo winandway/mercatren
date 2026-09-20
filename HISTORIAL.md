@@ -44,7 +44,7 @@ que no tenían nada que ver con buscar.
 búsqueda de 19 s deja en cola a todo lo demás, y la ficha de un comprador se
 agotaba esperando detrás de la búsqueda de un robot.
 
-**Qué se hizo exactamente** (commits `3ca7dc58` y `98beb08e`):
+**Qué se hizo exactamente** (commits `3ca7dc58`, `98beb08e` y el de la segunda parte):
 
 - `buscar.ts`: `TEXTO_PRODUCTO` se partió en `TEXTO_CORTO` (títulos, marca,
   SKU, comercio y departamento, normalizado) y `DESCRIPCION` (cruda). SQLite ya
@@ -67,12 +67,30 @@ curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" -H 'Cache-Control: no-ca
 ```
 
 Tiene que responder 200 en pocos segundos, nunca diez. Candado:
-`tests/unit/busqueda-rapida.test.ts` (9 pruebas, comprobadas en rojo).
+`tests/unit/busqueda-rapida.test.ts` (10 pruebas, comprobadas en rojo).
 
 **Qué NO hay que tocar:** no volver a meter `descripcionEs` dentro de
 `normalizar()`; no devolver el `COUNT(*)` a una búsqueda; no llamar a
 `listarProductos` desde `generateMetadata` cuando hay `q`; no abrir `?q=` a
 los robots.
+
+**Segunda parte, el mismo día (medido en vivo tras la primera: seguía en
+18 s).** Quitar los `REPLACE` de la descripción no bastó, porque el `LIKE`
+crudo sobre 47.000 descripciones, una vez por sinónimo, seguía leyendo cientos
+de megas. Y el encabezado consultaba cada 160 ms desde la segunda letra:
+escribir «ventilador» eran seis recorridos en fila. Lo que se hizo:
+
+- La descripción **no entra en la consulta**. Se busca en títulos (es/en),
+  marca, SKU, comercio y departamento.
+- **Una búsqueda = un recorrido** (`idsQueCalzan` en `buscar.ts`): los primeros
+  600 ids ya ordenados por relevancia, guardados cinco minutos en el borde con
+  el país en la llave. De esa lista salen el desplegable, el total y todas las
+  páginas; la página trae sus 24 por id. La búsqueda del equipo (ve lo «en
+  revisión») no pasa por ahí: no se guarda en una caché pública.
+- El encabezado espera 320 ms y empieza en la tercera letra.
+
+Probado en local contra el catálogo de Venezuela: «lamina» devuelve lo mismo y
+en el mismo orden, página 1 y 2 con 24 productos cada una y ninguno repetido.
 
 **Lo que queda, si el catálogo sigue creciendo:** esto sigue siendo un `LIKE`
 que recorre la tabla. El paso siguiente es un índice de texto (FTS5) en una

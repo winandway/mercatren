@@ -37,7 +37,7 @@ describe("la descripción no pasa por los catorce REPLACE", () => {
     /* El texto corto que sí se normaliza, y lo que tiene prohibido llevar. */
     const corto = buscar.slice(
       buscar.indexOf("const TEXTO_CORTO"),
-      buscar.indexOf("const DESCRIPCION"),
+      buscar.indexOf("const TITULO"),
     );
     expect(corto.length).toBeGreaterThan(50);
     expect(corto).not.toContain("descripcion");
@@ -45,12 +45,9 @@ describe("la descripción no pasa por los catorce REPLACE", () => {
     expect(corto).toContain("marca");
   });
 
-  it("la descripción se compara cruda, y se sigue buscando en ella", () => {
-    expect(buscar).toContain(
-      "const DESCRIPCION = sql`COALESCE(${productos.descripcionEs}, '')`",
-    );
-    expect(buscar).toContain('sql`${DESCRIPCION} LIKE ${"%" + f + "%"}`');
-    /* Y el nombre viejo, que llevaba la descripción dentro, ya no existe. */
+  it("la descripción NO entra en la consulta, ni normalizada ni cruda", () => {
+    /* Compararla cruda no bastó: «ventilador» seguía en 18 s en vivo. */
+    expect(buscar).not.toContain("descripcionEs");
     expect(buscar).not.toContain("TEXTO_PRODUCTO");
   });
 });
@@ -73,32 +70,43 @@ describe("buscando, nada cuenta el catálogo entero", () => {
   const buscar = sinComentarios(leer("src/lib/catalogo/buscar.ts"));
   const consultas = sinComentarios(leer("src/lib/catalogo/consultas.ts"));
 
-  it("el desplegable cuenta hasta un tope", () => {
-    expect(buscar).toContain("contarHasta(donde, TOPE_DEL_DESPLEGABLE)");
-    expect(buscar).toMatch(/\.limit\(tope\)/);
-    /* Y ya no hay un COUNT(*) suelto en el buscador. */
+  it("una búsqueda es UN recorrido, con tope y guardado en el borde", () => {
+    const lista = buscar.slice(
+      buscar.indexOf("export async function idsQueCalzan("),
+      buscar.indexOf("export type Sugerencia"),
+    );
+    expect(lista).toContain("recordadoEnElBorde(");
+    expect(lista).toContain("`busqueda-${mercado.codigo}-");
+    expect(lista).toContain(".limit(TOPE_DE_RESULTADOS)");
+    /* Ni un COUNT(*) en el buscador: el total es el largo de la lista. */
     expect(buscar).not.toContain("COUNT(*)");
   });
 
-  it("el catálogo con búsqueda también, y sin búsqueda sigue contando", () => {
+  it("el desplegable y la página comparten esa lista", () => {
+    const sugerir = buscar.slice(
+      buscar.indexOf("export async function sugerencias("),
+    );
+    expect(sugerir).toContain("idsQueCalzan(mercado, busqueda)");
+    expect(sugerir).toContain("inArray(productos.id, primeras)");
     const listado = consultas.slice(
       consultas.indexOf("export async function listarProductos("),
       consultas.indexOf("export async function listarProductosDeTienda("),
     );
-    expect(listado.length).toBeGreaterThan(100);
-    expect(listado).toContain("filtros.busqueda");
-    expect(listado).toContain(".limit(TOPE_DE_RESULTADOS)");
-    /* El `count()` se queda para categoría, comercio y ciudad: esos caminan
-       un índice compuesto. Lo que no puede es correr con búsqueda. */
-    const conBusqueda = listado.indexOf("filtros.busqueda\n");
-    const conCount = listado.indexOf("select({ n: count() })");
-    expect(conCount).toBeGreaterThan(-1);
-    if (conBusqueda > -1) expect(conCount).toBeGreaterThan(conBusqueda);
+    expect(listado).toContain("idsQueCalzan(mercado, filtros.busqueda)");
+    /* Lo del equipo no se guarda en una caché pública. */
+    expect(listado).toContain("filtros.busqueda && !filtros.paraElEquipo");
+  });
+
+  it("el encabezado no consulta en cada letra", () => {
+    const caja = leer("src/components/layout/buscador.tsx");
+    expect(caja).toContain("const LETRAS_MINIMAS = 3;");
+    const espera = Number(caja.match(/const ESPERA_MS = (\d+);/)?.[1] ?? 0);
+    expect(espera).toBeGreaterThanOrEqual(300);
   });
 
   it("el tope es uno solo y lo exporta `buscar.ts`", () => {
     expect(buscar).toContain("export const TOPE_DE_RESULTADOS");
-    expect(consultas).toContain('TOPE_DE_RESULTADOS } from "./buscar"');
+    expect(consultas).toMatch(/TOPE_DE_RESULTADOS,\s*\} from "\.\/buscar"/);
   });
 });
 

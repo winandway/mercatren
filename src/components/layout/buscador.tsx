@@ -37,8 +37,14 @@ type Resultado = {
 
 const VACIO: Resultado = { productos: [], comercios: [], total: 0 };
 
-/** Se espera un pelin entre teclas para no consultar en cada letra. */
-const ESPERA_MS = 160;
+/**
+ * Se espera entre teclas para no consultar en cada letra, y se empieza en la
+ * tercera (20 sep 2026): cada consulta recorre el catálogo, y con 160 ms y
+ * dos letras, escribir «ventilador» eran seis recorridos en fila — la base
+ * los atiende de uno en uno y las fichas de los demás hacían cola detrás.
+ */
+const ESPERA_MS = 320;
+const LETRAS_MINIMAS = 3;
 
 /** Sin acentos y en minusculas, igual que en el servidor. */
 function normalizar(texto: string) {
@@ -132,7 +138,7 @@ export function Buscador({ idioma }: { idioma: Idioma }) {
     // Todo el trabajo va dentro del temporizador, nunca en el cuerpo del
     // efecto: cambiar el estado ahi mismo dispara renders en cascada.
     const reloj = setTimeout(async () => {
-      if (limpio.length < 2) {
+      if (limpio.length < LETRAS_MINIMAS) {
         setResultado(VACIO);
         setCargando(false);
         return;
@@ -186,7 +192,7 @@ export function Buscador({ idioma }: { idioma: Idioma }) {
 
   const hayQueMostrar =
     abierto &&
-    texto.trim().length >= 2 &&
+    texto.trim().length >= LETRAS_MINIMAS &&
     (resultado.productos.length > 0 ||
       resultado.comercios.length > 0 ||
       !cargando);
