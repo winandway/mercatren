@@ -101,3 +101,31 @@ describe("buscando, nada cuenta el catálogo entero", () => {
     expect(consultas).toContain('TOPE_DE_RESULTADOS } from "./buscar"');
   });
 });
+
+describe("una búsqueda no corre dos veces, y los robots no la recorren", () => {
+  it("con `q`, los metadatos salen sin tocar la base y con noindex", () => {
+    const pagina = sinComentarios(
+      leer("src/app/[locale]/(tienda)/catalogo/page.tsx"),
+    );
+    const meta = pagina.slice(
+      pagina.indexOf("export async function generateMetadata("),
+      pagina.indexOf("type Parametros"),
+    );
+    const conQ = meta.indexOf("if (filtros.q) {");
+    const consulta = meta.indexOf("listarProductos(");
+    expect(conQ).toBeGreaterThan(-1);
+    /* El atajo va ANTES de la consulta: con `q` nunca se llega a ella. */
+    expect(conQ).toBeLessThan(consulta);
+    expect(meta).toContain("robots: { index: false, follow: true }");
+  });
+
+  it("robots.txt cierra los resultados del buscador a los tres robots", async () => {
+    const { CERRADO, robotsTxt } = await import("@/lib/seo/robots");
+    expect(CERRADO).toContain("/*?q=");
+    expect(CERRADO).toContain("/*&q=");
+    const texto = robotsTxt("https://mercatren.com");
+    expect(texto.match(/Disallow: \/\*\?q=/g)?.length).toBeGreaterThanOrEqual(
+      3,
+    );
+  });
+});

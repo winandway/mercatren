@@ -76,6 +76,15 @@ export const CERRADO = [
      archivos, para que no puedan volver a decir cosas distintas. */
   ...MEDIA_PRIVADOS_URL,
   "/docs/mercatren-modelo-de-negocio.pdf",
+  /* ══ LOS RESULTADOS DEL BUSCADOR NO SE RASTREAN (20 sep 2026) ══
+     Cada página de `?q=` recorre el catálogo con LIKE, y un robot que sigue
+     la paginación de una búsqueda («Página 1 de 179») son 179 recorridos por
+     término. Eso tumbó el sitio: las búsquedas de los robots hacían cola en
+     la base y las fichas de los compradores salían con 500. Google mismo pide
+     no indexar los resultados de un buscador interno: son páginas sin valor
+     propio. El catálogo por categoría y por tienda sigue abierto. */
+  "/*?q=",
+  "/*&q=",
 ];
 
 /**

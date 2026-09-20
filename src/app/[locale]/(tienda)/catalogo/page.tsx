@@ -56,6 +56,24 @@ export async function generateMetadata({
      hay: «Ropa y calzado: 40 productos» posiciona; «Catálogo» a secas, no.
      Si la base no contesta, salen los textos fijos de siempre. */
   if (!filtros.q && !filtros.categoria && !filtros.comercio) return base;
+
+  /* ══ BUSCANDO, EL TÍTULO NO CONSULTA LA BASE (20 sep 2026) ══
+     Esto corría la búsqueda ENTERA una segunda vez —conteo y orden incluidos—
+     solo para escribir «12 productos para…» en la descripción de la pestaña.
+     Con `porPagina: 6` no coincidía con la de la página, así que nada la
+     compartía: cada visita a `?q=` recorría el catálogo el doble. Y la página
+     de resultados de un buscador interno no se indexa (Google lo pide así), de
+     modo que esa descripción no la leía nadie. */
+  if (filtros.q) {
+    const busqueda = filtros.q.slice(0, 80);
+    const en = locale === "en";
+    return {
+      title: en ? `Results for “${busqueda}”` : `Resultados para «${busqueda}»`,
+      description: base.description,
+      robots: { index: false, follow: true },
+    };
+  }
+
   try {
     const mercado = await mercadoDeLaPeticion();
     const [r, departamentos] = await Promise.all([
