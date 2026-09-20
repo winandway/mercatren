@@ -25,6 +25,7 @@ Servicio **multi-comercio y multi-país**: un país = un dominio = un catálogo.
 | ¿un pago funciona?              | `VERIFICAR-PAGOS.md` — **obligatorio** |
 | abrir un país nuevo             | `ABRIR-UN-PAIS.md` — lista entera      |
 | posicionamiento, «escanea»      | `SEO.md`                               |
+| ¿seguimos con CJ? ¿quién más?   | `PLAN-B-PROVEEDORES.md`                |
 | por qué algo se hizo así        | `HISTORIAL.md` (índice abajo)          |
 
 Al terminar algo se marca en `CRONOGRAMA.md` **y** en `PENDIENTES.md`.
