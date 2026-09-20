@@ -3603,6 +3603,32 @@ export const fotosDeProducto = sqliteTable(
   (t) => [index("idx_fotos_de_producto_actualizado").on(t.actualizadoEn)],
 );
 
+/**
+ * ══ EL TEXTO DE CADA PRODUCTO, YA PREPARADO PARA BUSCAR (20 sep 2026) ══
+ *
+ * Buscar tardaba 19 s porque quitar acentos eran catorce `REPLACE` por
+ * producto, por sinónimo y por búsqueda, sobre 47.000 productos. Aquí ese
+ * trabajo se hace UNA vez por producto: el reloj guarda el título, la marca y
+ * el SKU, y todo lo corto junto (con comercio y departamento), sin acentos y
+ * en minúsculas. La búsqueda hace un `LIKE` sobre texto ya listo.
+ *
+ * Tabla y no columnas: `schema.sql` solo crea tablas, una columna nueva en
+ * `productos` no llegaría sola a producción. Ver `texto-de-busqueda.ts`.
+ */
+export const textoDeBusqueda = sqliteTable("texto_de_busqueda", {
+  productoId: text("producto_id")
+    .primaryKey()
+    .references(() => productos.id, { onDelete: "cascade" }),
+  /** `titulo_es` normalizado: decide la relevancia. */
+  titulo: text("titulo").notNull(),
+  /** Marca y SKU normalizados. */
+  marcaSku: text("marca_sku").notNull(),
+  /** Títulos (es/en), marca, SKU, comercio y departamento, normalizados. */
+  texto: text("texto").notNull(),
+  /** Segundos, como `productos.actualizado_en`: se comparan entre sí. */
+  calculadoEn: integer("calculado_en").notNull(),
+});
+
 export const fotosRotas = sqliteTable("fotos_rotas", {
   imagenId: text("imagen_id").primaryKey(),
   productoId: text("producto_id").notNull(),

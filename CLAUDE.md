@@ -236,8 +236,9 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
 - **BUSCAR NO NORMALIZA LA DESCRIPCIÓN, NO CUENTA TODO Y NO CORRE DOS VECES**
   (20 sep 2026): catorce `REPLACE` sobre `descripcion_es` × 47.000 productos
   daban 19 s por búsqueda, y como la base atiende de una en una, las fichas
-  salían con 500 detrás. Total hasta un tope, metadatos de `?q=` sin base y
-  con `noindex`, y `/*?q=` cerrado en `robots.txt`.
+  salían con 500 detrás. El texto ya viene preparado en `texto_de_busqueda`
+  (lo llena el reloj); una búsqueda es UN recorrido guardado 5 min; metadatos
+  de `?q=` sin base y con `noindex`; `/*?q=` cerrado en `robots.txt`.
 - **UNA BÚSQUEDA POR LISTA DE IDS NO LLEVA OTRA CONDICIÓN INDEXABLE** (18 sep
   2026): `WHERE id IN (…) AND estado = ?` leía 25.000 filas en vez de 42,
   porque SQLite elegía el índice de estado. Solo `id IN (…)` y lo demás en

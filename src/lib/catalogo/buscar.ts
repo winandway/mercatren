@@ -2,10 +2,16 @@ import { and, desc, eq, inArray, or, sql, type SQL } from "drizzle-orm";
 
 import { recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
-import { categorias, productos, tiendas } from "@/lib/db/schema";
+import {
+  categorias,
+  productos,
+  textoDeBusqueda,
+  tiendas,
+} from "@/lib/db/schema";
 import type { Mercado } from "@/lib/mercado/mercados";
 
 import { normalizarTexto } from "./normalizar";
+import { normalizarSql } from "./normalizar-sql";
 import { expandir } from "./sinonimos";
 import {
   type FiltroDeMercado,
@@ -15,6 +21,7 @@ import {
 
 import { direccionImagen, semillaDelDia } from "./consultas";
 import { fotoDeTurnoDe } from "./fotos-de-producto";
+import { textoDeBusquedaListo } from "./texto-de-busqueda";
 
 /**
  * El motor de busqueda del catalogo.
@@ -40,42 +47,8 @@ import { fotoDeTurnoDe } from "./fotos-de-producto";
  * migrar la base cada vez que se afine la regla.
  */
 
-/** Las parejas que se reemplazan para ignorar acentos. */
-const ACENTOS: [string, string][] = [
-  ["á", "a"],
-  ["Á", "a"],
-  ["é", "e"],
-  ["É", "e"],
-  ["í", "i"],
-  ["Í", "i"],
-  ["ó", "o"],
-  ["Ó", "o"],
-  ["ú", "u"],
-  ["Ú", "u"],
-  ["ü", "u"],
-  ["Ü", "u"],
-  ["ñ", "n"],
-  ["Ñ", "n"],
-];
-
-/**
- * El mismo texto, sin acentos y en minusculas, dentro de SQL.
- *
- * OJO: las letras van escritas dentro de la consulta (sql.raw) y NO como
- * parametros. Con parametros, cada columna normalizada gastaba 28 huecos y la
- * base cortaba con "too many SQL variables". Es seguro porque son constantes
- * de este archivo, nunca texto de nadie.
- *
- * Y se normaliza el texto YA CONCATENADO, no columna por columna: catorce
- * reemplazos en total en vez de catorce por columna.
- */
-function normalizar(columna: SQL | unknown): SQL {
-  let expresion = sql`COALESCE(${columna}, '')`;
-  for (const [con, sin] of ACENTOS) {
-    expresion = sql`REPLACE(${expresion}, ${sql.raw(`'${con}'`)}, ${sql.raw(`'${sin}'`)})`;
-  }
-  return sql`LOWER(${expresion})`;
-}
+/* Quitar acentos dentro de SQL: ver `normalizar-sql.ts`. */
+const normalizar = normalizarSql;
 
 /** La misma regla, pero en JavaScript, para lo que escribe la persona.
  *  Vive en `normalizar.ts` para no formar un círculo con `sinonimos.ts`. */
@@ -163,6 +136,25 @@ const MARCA_Y_SKU = normalizar(
   sql`COALESCE(${productos.marca}, '') || ' ' || COALESCE(${productos.sku}, '')`,
 );
 
+/**
+ * Dónde se busca. Dos juegos con el MISMO contenido:
+ *  - `AL_VUELO`: se normaliza en la consulta (catorce `REPLACE` por fila). Es
+ *    el camino de siempre y el respaldo.
+ *  - `PREPARADO`: las columnas de `texto_de_busqueda`, que el reloj ya dejó
+ *    sin acentos y en minúsculas. Un `LIKE` a secas. Ver `texto-de-busqueda.ts`.
+ */
+type Campos = { texto: SQL; titulo: SQL; marcaSku: SQL };
+const AL_VUELO: Campos = {
+  texto: TEXTO_CORTO,
+  titulo: TITULO,
+  marcaSku: MARCA_Y_SKU,
+};
+const PREPARADO: Campos = {
+  texto: sql`${textoDeBusqueda.texto}`,
+  titulo: sql`${textoDeBusqueda.titulo}`,
+  marcaSku: sql`${textoDeBusqueda.marcaSku}`,
+};
+
 /** El candado del mercado sale de la capa: el dominio decide qué catálogo se
  *  busca, y buscar en mercatren.cl no puede encontrar mercancía que solo se
  *  entrega desde mercatren.com. Aquí NO se vuelve a escribir el filtro — una
@@ -177,7 +169,13 @@ function visibleAqui(mercado: Mercado): FiltroDeMercado {
  * La escala importa: que el titulo empiece por lo buscado vale mas que
  * mencionarlo, y mencionarlo en el titulo vale mas que en la descripcion.
  */
-function puntuacion(busqueda: string, palabras: string[]): SQL {
+function puntuacion(
+  busqueda: string,
+  palabras: string[],
+  campos: Campos = AL_VUELO,
+): SQL {
+  const TITULO = campos.titulo;
+  const MARCA_Y_SKU = campos.marcaSku;
   const frase = normalizarTexto(busqueda);
   const partes: SQL[] = [
     // La frase completa, tal cual: lo que mas vale.
@@ -209,7 +207,11 @@ function puntuacion(busqueda: string, palabras: string[]): SQL {
 }
 
 /** La condicion: TODAS las palabras tienen que aparecer en el producto. */
-function todasLasPalabras(palabras: string[]): SQL | undefined {
+function todasLasPalabras(
+  palabras: string[],
+  campos: Campos = AL_VUELO,
+): SQL | undefined {
+  const TEXTO_CORTO = campos.texto;
   if (palabras.length === 0) return undefined;
   /**
    * CADA PALABRA VALE POR TODAS SUS EQUIVALENTES.
@@ -276,19 +278,31 @@ export async function idsQueCalzan(
   return recordadoEnElBorde(
     `busqueda-${mercado.codigo}-${palabras.join(" ")}`,
     BUSQUEDA_GUARDADA_MS,
-    async () =>
-      (
-        await getDb()
-          .select({ id: productos.id })
-          .from(productos)
-          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-          .where(and(visibleAqui(mercado), todasLasPalabras(palabras)))
-          .orderBy(
-            sql`(${puntuacion(palabras.join(" "), palabras)}) DESC`,
-            desc(productos.actualizadoEn),
+    async () => {
+      const frase = palabras.join(" ");
+      /* Con el texto ya preparado, si el reloj terminó de llenarlo; si no,
+         normalizando al vuelo como siempre. Nunca con la tabla a medias. */
+      const preparado = await textoDeBusquedaListo();
+      const campos = preparado ? PREPARADO : AL_VUELO;
+      const base = getDb()
+        .select({ id: productos.id })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId));
+      const conTexto = preparado
+        ? base.innerJoin(
+            textoDeBusqueda,
+            eq(textoDeBusqueda.productoId, productos.id),
           )
-          .limit(TOPE_DE_RESULTADOS)
-      ).map((f) => f.id),
+        : base;
+      const filas = await conTexto
+        .where(and(visibleAqui(mercado), todasLasPalabras(palabras, campos)))
+        .orderBy(
+          sql`(${puntuacion(frase, palabras, campos)}) DESC`,
+          desc(productos.actualizadoEn),
+        )
+        .limit(TOPE_DE_RESULTADOS);
+      return filas.map((f) => f.id);
+    },
   );
 }
 

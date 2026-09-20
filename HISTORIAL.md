@@ -67,12 +67,13 @@ curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" -H 'Cache-Control: no-ca
 ```
 
 Tiene que responder 200 en pocos segundos, nunca diez. Candado:
-`tests/unit/busqueda-rapida.test.ts` (10 pruebas, comprobadas en rojo).
+`tests/unit/busqueda-rapida.test.ts` (14 pruebas, comprobadas en rojo).
 
 **Qué NO hay que tocar:** no volver a meter `descripcionEs` dentro de
 `normalizar()`; no devolver el `COUNT(*)` a una búsqueda; no llamar a
 `listarProductos` desde `generateMetadata` cuando hay `q`; no abrir `?q=` a
-los robots.
+los robots; y si se agrega un campo al texto que se busca, va en los DOS sitios
+(`TEXTO_CORTO` de `buscar.ts` y `TEXTO` de `texto-de-busqueda.ts`; hay prueba).
 
 **Segunda parte, el mismo día (medido en vivo tras la primera: seguía en
 18 s).** Quitar los `REPLACE` de la descripción no bastó, porque el `LIKE`
@@ -92,9 +93,31 @@ escribir «ventilador» eran seis recorridos en fila. Lo que se hizo:
 Probado en local contra el catálogo de Venezuela: «lamina» devuelve lo mismo y
 en el mismo orden, página 1 y 2 con 24 productos cada una y ninguno repetido.
 
-**Lo que queda, si el catálogo sigue creciendo:** esto sigue siendo un `LIKE`
-que recorre la tabla. El paso siguiente es un índice de texto (FTS5) en una
-tabla aparte que llene el reloj; se anota en `PENDIENTES.md`.
+**Tercera parte, el arreglo de raíz (medido tras la segunda: 5,6 s la primera
+vez, 2,3 s repetida).** Lo que quedaba eran los catorce `REPLACE` por producto,
+por sinónimo y por búsqueda. Ahora se hacen UNA vez por producto:
+
+- Tabla nueva **`texto_de_busqueda`** (`producto_id`, `titulo`, `marca_sku`,
+  `texto`, `calculado_en`), ya sin acentos y en minúsculas. Tabla y no columnas:
+  `schema.sql` solo crea tablas.
+- La llena el reloj (paso 0e de `tick.ts`, `catalogo/texto-de-busqueda.ts`):
+  una sentencia `INSERT OR REPLACE … SELECT` por tanda de 3.000, para los
+  productos sin fila, los que cambiaron después de calcularla y los de más de
+  una semana. Cada minuto mientras no esté completa; después, cada cinco.
+- **El buscador la usa SOLO cuando está completa** (marca
+  `texto_de_busqueda_listo` en `configuracion`). Con la tabla a medias dejaría
+  productos sin encontrar; hasta entonces sigue normalizando al vuelo.
+- Canario: `/datos/salud → busqueda` (`listo`, `filas`). Puerta:
+  `{"accion":"texto-de-busqueda"}`.
+
+Probado en local: el reloj llenó 691 de 691 solo, y «lamina pvc» devuelve
+exactamente los mismos productos en el mismo orden antes y después; con acento,
+en mayúsculas, por comercio y por departamento también.
+
+**Si algún día hay que rehacerla entera:** vaciar la tabla y borrar la marca
+(`DELETE FROM texto_de_busqueda; DELETE FROM configuracion WHERE clave =
+'texto_de_busqueda_listo';`). El buscador vuelve solo al camino lento y el
+reloj la rellena en minutos.
 
 ## LA EMERGENCIA DE COSTO DE LA BASE: 134 MIL MILLONES DE FILAS AL MES (17 sep 2026)
 

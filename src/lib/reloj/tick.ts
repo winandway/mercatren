@@ -170,6 +170,7 @@ async function reclamarMarca(
 export const LLAVE_INTENTO_CONTEOS = "reloj_intento_conteos";
 export const LLAVE_INTENTO_LISTADOS = "reloj_intento_listados";
 export const LLAVE_OPTIMIZAR_BASE = "reloj_optimizar_base";
+export const LLAVE_INTENTO_TEXTO = "reloj_intento_texto_de_busqueda";
 /** Entre dos intentos de rehacer, como mínimo. */
 const INTENTO_CADA_MS = 4 * 60_000;
 /** `PRAGMA optimize` una vez al día (lo recomienda Cloudflare para D1). */
@@ -313,6 +314,32 @@ export async function correrTick(
   } catch (fallo) {
     console.error("[tick] PRAGMA optimize falló:", fallo);
     await anotar("reloj/optimizar", fallo);
+  }
+
+  /* 0e. EL TEXTO DE BÚSQUEDA YA PREPARADO (20 sep 2026). Buscar tardaba 19 s
+     porque quitar acentos eran catorce `REPLACE` por producto y por búsqueda.
+     Aquí se hace una vez por producto: los nuevos, los que cambiaron y los
+     de más de una semana. Mientras la tabla no está completa se insiste cada
+     minuto; después, cada cinco. Ver `catalogo/texto-de-busqueda.ts`. */
+  try {
+    if (queda() > 6_000) {
+      const {
+        ponerAlDiaElTextoDeBusqueda,
+        textoDeBusquedaListo,
+        TEXTO_CADA_MS,
+      } = await import("@/lib/catalogo/texto-de-busqueda");
+      const cada = (await textoDeBusquedaListo()) ? TEXTO_CADA_MS : 60_000;
+      if (await reclamarMarca(LLAVE_INTENTO_TEXTO, cada, arranque)) {
+        const r = await ponerAlDiaElTextoDeBusqueda(queda);
+        if (r.preparados > 0)
+          hizo.push(
+            `búsqueda: ${r.preparados} textos preparados${r.listo ? "" : " (sigue)"}`,
+          );
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] el texto de búsqueda falló:", fallo);
+    await anotar("reloj/texto-de-busqueda", fallo);
   }
 
   /* 1. La importación masiva, si hay alguna en marcha. */

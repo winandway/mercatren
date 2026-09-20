@@ -54,6 +54,10 @@ const Peticion = z.discriminatedUnion("accion", [
      devuelve resumida (emergencia de costo, 17 sep 2026). Solo lectura del
      catálogo; escribe una fila por mercado en `configuracion`. */
   z.object({ accion: z.literal("conteos") }),
+  /* Prepara el texto de búsqueda de los productos pendientes (20 sep 2026) y
+     dice cuántas filas hay y si el buscador ya las usa. Solo escribe en
+     `texto_de_busqueda` y su marca en `configuracion`. */
+  z.object({ accion: z.literal("texto-de-busqueda") }),
   /* Las estadísticas de la base (18 sep 2026): enseña el plan de las
      consultas-trampa, corre ANALYZE (o `PRAGMA optimize`) y lo enseña otra
      vez. Sin estadísticas SQLite elegía el índice de `estado` en todas
@@ -220,6 +224,14 @@ export async function POST(peticion: Request) {
         planes: await planes(),
       };
       resultado = { corrio, antes, despues };
+      break;
+    }
+    case "texto-de-busqueda": {
+      const { ponerAlDiaElTextoDeBusqueda, estadoDelTextoDeBusqueda } =
+        await import("@/lib/catalogo/texto-de-busqueda");
+      const hasta = Date.now() + 22_000;
+      const hecho = await ponerAlDiaElTextoDeBusqueda(() => hasta - Date.now());
+      resultado = { ...hecho, ...(await estadoDelTextoDeBusqueda()) };
       break;
     }
     case "conteos": {

@@ -121,6 +121,7 @@ export async function GET(peticion: Request) {
       tarifas,
       conteos,
       listados,
+      busqueda,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -175,6 +176,18 @@ export async function GET(peticion: Request) {
           viejos: [],
           error: fallo instanceof Error ? fallo.message : String(fallo),
         })),
+      /* EL TEXTO DE BÚSQUEDA PREPARADO (20 sep 2026): `listo: false` = el
+         buscador va por el camino lento (normalizando al vuelo) porque el
+         reloj no ha terminado de llenar `texto_de_busqueda`. */
+      import("@/lib/catalogo/texto-de-busqueda")
+        .then((m) => m.estadoDelTextoDeBusqueda())
+        .then((e) => ({ ok: e.listo, ...e }))
+        .catch((fallo: unknown) => ({
+          ok: false,
+          listo: false,
+          filas: 0,
+          error: fallo instanceof Error ? fallo.message : String(fallo),
+        })),
     ]);
     return Response.json(
       {
@@ -200,6 +213,8 @@ export async function GET(peticion: Request) {
            treinta minutos o no existe en algún mercado. */
         conteos,
         listados,
+        /* `ok: false` = buscar vuelve a ser lento. */
+        busqueda,
         /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */

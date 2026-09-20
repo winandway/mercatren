@@ -137,3 +137,58 @@ describe("una búsqueda no corre dos veces, y los robots no la recorren", () => 
     );
   });
 });
+
+describe("el texto de búsqueda ya viene preparado (la tabla `texto_de_busqueda`)", () => {
+  const buscar = sinComentarios(leer("src/lib/catalogo/buscar.ts"));
+  const preparar = sinComentarios(
+    leer("src/lib/catalogo/texto-de-busqueda.ts"),
+  );
+
+  it("la búsqueda usa la tabla SOLO si el reloj terminó de llenarla", () => {
+    const lista = buscar.slice(
+      buscar.indexOf("export async function idsQueCalzan("),
+      buscar.indexOf("export type Sugerencia"),
+    );
+    expect(lista).toContain("await textoDeBusquedaListo()");
+    expect(lista).toContain("preparado ? PREPARADO : AL_VUELO");
+    /* Con la tabla a medias se quedarían productos sin encontrar. */
+    expect(lista).toContain("eq(textoDeBusqueda.productoId, productos.id)");
+  });
+
+  it("lo preparado lleva los MISMOS campos que lo que se normaliza al vuelo", () => {
+    const campos = (codigo: string, desde: string) => {
+      const trozo = codigo.slice(codigo.indexOf(desde));
+      const bloque = trozo.slice(0, trozo.indexOf("`);"));
+      return [...bloque.matchAll(/\$\{(\w+)\.(\w+)\}/g)]
+        .map((m) => `${m[1]}.${m[2]}`)
+        .filter((c) => !c.startsWith("categorias.id"))
+        .filter((c) => c !== "productos.categoriaId");
+    };
+    const alVuelo = campos(buscar, "const TEXTO_CORTO = ");
+    const preparado = campos(preparar, "const TEXTO = ");
+    expect(alVuelo.length).toBeGreaterThan(4);
+    expect(new Set(preparado)).toEqual(new Set(alVuelo));
+  });
+
+  it("se llena con una sentencia por tanda y se marca al terminar", () => {
+    expect(preparar).toContain("INSERT OR REPLACE INTO ${textoDeBusqueda}");
+    expect(preparar).toContain("${textoDeBusqueda.productoId} IS NULL");
+    expect(preparar).toContain(
+      "${productos.actualizadoEn} > ${textoDeBusqueda.calculadoEn}",
+    );
+    expect(preparar).toContain("if (listo) await marcar(true);");
+  });
+
+  it("la tabla viaja en schema.sql, el reloj la llena y el canario la enseña", () => {
+    expect(leer("schema.sql")).toContain(
+      "CREATE TABLE IF NOT EXISTS `texto_de_busqueda`",
+    );
+    const tick = leer("src/lib/reloj/tick.ts");
+    expect(tick).toContain("ponerAlDiaElTextoDeBusqueda(queda)");
+    expect(tick).toContain("LLAVE_INTENTO_TEXTO");
+    const salud = leer("src/app/datos/salud/route.ts");
+    expect(salud).toContain("estadoDelTextoDeBusqueda()");
+    const puerta = leer("src/app/datos/probar-compra/route.ts");
+    expect(puerta).toContain('z.literal("texto-de-busqueda")');
+  });
+});
