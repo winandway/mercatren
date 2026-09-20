@@ -15,6 +15,69 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## BUSCAR TARDABA 19 SEGUNDOS Y TUMBABA LAS FICHAS (20 sep 2026)
+
+**Qué se rompió y cómo se veía.** Richard mandó tres capturas: «Algo se atascó
+de nuestro lado» en una ficha de producto y en `/es/catalogo?q=ventilador`, y
+la paginación de una búsqueda diciendo «Página 1 de 179». Medido en vivo:
+`?q=ventilador` tardaba **19,2 s** y `?q=comp` **9,9 s**; el resto del sitio,
+entre 0,5 y 2,4 s. Los 500 eran tiempo agotado, y salían también en páginas
+que no tenían nada que ver con buscar.
+
+**La causa real, en cuatro piezas:**
+
+1. **Catorce `REPLACE` sobre la descripción.** Para ignorar acentos, el buscador
+   normalizaba el texto del producto YA CONCATENADO, con `descripcion_es`
+   dentro. Una descripción de CJ pesa miles de letras: catorce pasadas sobre
+   eso, por 47.000 productos, en cada búsqueda.
+2. **La búsqueda corría DOS veces por página.** `generateMetadata` llamaba a
+   `listarProductos` con `porPagina: 6` solo para escribir «12 productos
+   para…» en la descripción de la pestaña. Al no coincidir con la llamada de
+   la página, nada la compartía.
+3. **Y cada una contaba todo.** `COUNT(*)` sobre lo que calzaba —de ahí el «de
+   179»— y después otro recorrido para traer veinticuatro filas. El desplegable
+   del encabezado hacía lo mismo, más dos subconsultas de foto por fila.
+4. **Los robots recorrían esa paginación.** `robots.txt` no cerraba `?q=`, así
+   que cada término eran hasta 179 páginas rastreables, cada una un recorrido.
+
+**Por qué caían las fichas:** la base atiende las consultas de una en una. Una
+búsqueda de 19 s deja en cola a todo lo demás, y la ficha de un comprador se
+agotaba esperando detrás de la búsqueda de un robot.
+
+**Qué se hizo exactamente** (commits `3ca7dc58` y `98beb08e`):
+
+- `buscar.ts`: `TEXTO_PRODUCTO` se partió en `TEXTO_CORTO` (títulos, marca,
+  SKU, comercio y departamento, normalizado) y `DESCRIPCION` (cruda). SQLite ya
+  ignora mayúsculas en `LIKE`; solo se pierde encontrar una palabra acentuada
+  DENTRO de la descripción escribiéndola sin acento. Comprobado en la base
+  local: «lamina» daba 50 resultados antes y da 50 después.
+- El desplegable pide la foto a `fotos_de_producto` (`fotoDeTurnoDe`), que es
+  quien ya filtra las rotas.
+- El total con búsqueda se cuenta **hasta un tope**: `TOPE_DE_RESULTADOS = 600`
+  en el catálogo (25 páginas) y 200 en el desplegable, que al tope dice «Ver
+  todos los resultados» en vez de un número falso (`hayMas`).
+- Con `?q=`, los metadatos salen sin tocar la base, con
+  `robots: noindex, follow`, y `robots.txt` cierra `/*?q=` y `/*&q=` a los
+  tres robots. El catálogo por categoría y por tienda sigue abierto.
+
+**Cómo se comprueba que sigue funcionando:**
+
+```bash
+curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" -H 'Cache-Control: no-cache' "https://mercatren.com/es/catalogo?q=ventilador&v=$RANDOM"
+```
+
+Tiene que responder 200 en pocos segundos, nunca diez. Candado:
+`tests/unit/busqueda-rapida.test.ts` (9 pruebas, comprobadas en rojo).
+
+**Qué NO hay que tocar:** no volver a meter `descripcionEs` dentro de
+`normalizar()`; no devolver el `COUNT(*)` a una búsqueda; no llamar a
+`listarProductos` desde `generateMetadata` cuando hay `q`; no abrir `?q=` a
+los robots.
+
+**Lo que queda, si el catálogo sigue creciendo:** esto sigue siendo un `LIKE`
+que recorre la tabla. El paso siguiente es un índice de texto (FTS5) en una
+tabla aparte que llene el reloj; se anota en `PENDIENTES.md`.
+
 ## LA EMERGENCIA DE COSTO DE LA BASE: 134 MIL MILLONES DE FILAS AL MES (17 sep 2026)
 
 **Qué se rompió y cómo se veía.** Cloudflare marcó la base `site-mercatren-db`
