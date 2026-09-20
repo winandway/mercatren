@@ -386,6 +386,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [MERCATREN.COM SEGUÍA HABLANDO DE VENEZUELA DONDE GOOGLE MIRA (20 sep 2026)](HISTORIAL.md#mercatrencom-seguía-hablando-de-venezuela-donde-google-mira-20-sep-2026)
 - [SE SIGUE BAJANDO: EL CATÁLOGO Y LAS TIENDAS YA NO TIENEN BOTÓN «SIGUIENTE» (20 sep 2026)](HISTORIAL.md#se-sigue-bajando-el-catálogo-y-las-tiendas-ya-no-tienen-botón-siguiente-20-sep-2026)
 - [BUSCAR TARDABA 19 SEGUNDOS Y TUMBABA LAS FICHAS (20 sep 2026)](HISTORIAL.md#buscar-tardaba-19-segundos-y-tumbaba-las-fichas-20-sep-2026)
 - [LA EMERGENCIA DE COSTO DE LA BASE: 134 MIL MILLONES DE FILAS AL MES (17 sep 2026)](HISTORIAL.md#la-emergencia-de-costo-de-la-base-134-mil-millones-de-filas-al-mes-17-sep-2026)

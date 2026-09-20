@@ -122,6 +122,7 @@ export async function GET(peticion: Request) {
       conteos,
       listados,
       busqueda,
+      devoluciones,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -188,6 +189,17 @@ export async function GET(peticion: Request) {
           filas: 0,
           error: fallo instanceof Error ? fallo.message : String(fallo),
         })),
+      /* LA DIRECCIÓN DE DEVOLUCIONES (20 sep 2026): solo si está cargada, jamás
+         cuál es. `ok: false` = quien abra una devolución no verá a dónde
+         mandar la caja: falta cargar esa variable en el panel (su nombre vive
+         en `devoluciones/acciones.ts`, el único sitio que la lee). */
+      import("@/lib/devoluciones/acciones")
+        .then((m) => m.direccionDeDevolucionCargada())
+        .then((cargada) => ({
+          ok: cargada,
+          direccion: cargada ? "ok" : "falta",
+        }))
+        .catch(() => ({ ok: false, direccion: "falta" })),
     ]);
     return Response.json(
       {
@@ -215,6 +227,7 @@ export async function GET(peticion: Request) {
         listados,
         /* `ok: false` = buscar vuelve a ser lento. */
         busqueda,
+        devoluciones,
         /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */

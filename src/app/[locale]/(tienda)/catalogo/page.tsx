@@ -103,6 +103,7 @@ export async function generateMetadata({
       : null;
     return {
       ...metaDeCatalogo({
+        mercado: mercado.codigo,
         busqueda: filtros.q ?? null,
         categoria: nombreCategoria,
         comercio: comercioNombre,

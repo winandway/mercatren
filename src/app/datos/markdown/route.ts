@@ -13,6 +13,8 @@ import {
   DEVOLUCIONES_ES,
 } from "@/contenido/paginas/devoluciones";
 import { ENTREGA_EN, ENTREGA_ES } from "@/contenido/paginas/entrega";
+import { ENTREGA_US_EN, ENTREGA_US_ES } from "@/contenido/paginas/entrega-us";
+import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { NOSOTROS_EN, NOSOTROS_ES } from "@/contenido/paginas/nosotros";
 import { PRIVACIDAD_EN, PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
 import { TERMINOS_EN, TERMINOS_ES } from "@/contenido/paginas/terminos";
@@ -241,8 +243,16 @@ export async function GET(peticion: Request) {
          puede pedirse su propio HTML (medido el 23 ago 2026: devolvía solo el
          título). */
       const par = PAGINAS[resto.join("/")]!;
+      /* La versión para agentes dice LO MISMO que la página: la entrega y las
+         devoluciones salen por país (20 sep 2026), o un asistente le contaría
+         a un comprador de Estados Unidos que «se retira en el depósito». */
+      const codigo = (await mercadoDeLaPeticion()).codigo;
+      const delPais =
+        resto.join("/") === "entrega" && codigo === "US"
+          ? { es: ENTREGA_US_ES, en: ENTREGA_US_EN }
+          : par;
       md = paginaAMarkdown(
-        locale === "en" ? par.en : par.es,
+        paraElMercado(locale === "en" ? delPais.en : delPais.es, codigo),
         base,
         `/${locale}/${resto.join("/")}`,
       );

@@ -50,6 +50,9 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
   secciones: [
     {
       id: "estados-unidos",
+      /* Chile y Colombia siguen viendo todo, como hasta hoy: todavía no tienen
+         su política propia escrita (pendiente de `ABRIR-UN-PAIS.md`). */
+      mercados: ["US", "CL", "CO"],
       numero: "1",
       titulo: "Pedidos con entrega en Estados Unidos: 30 días",
       bloques: [
@@ -96,6 +99,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "antes-de-retirar",
+      mercados: ["VE", "CL", "CO"],
       numero: "2",
       titulo: "Venezuela · Antes de retirar: cancelas y te devolvemos todo",
       bloques: [
@@ -122,6 +126,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "al-retirar",
+      mercados: ["VE", "CL", "CO"],
       numero: "3",
       titulo: "Venezuela · Al retirar: revisa antes de firmar",
       bloques: [
@@ -139,6 +144,7 @@ export const DEVOLUCIONES_ES: PaginaContenido = {
     },
     {
       id: "despues-de-retirar",
+      mercados: ["VE", "CL", "CO"],
       numero: "4",
       titulo: "Venezuela · Después de retirar: 7 días para reclamar",
       bloques: [
@@ -282,6 +288,9 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
   secciones: [
     {
       id: "estados-unidos",
+      /* Chile y Colombia siguen viendo todo, como hasta hoy: todavía no tienen
+         su política propia escrita (pendiente de `ABRIR-UN-PAIS.md`). */
+      mercados: ["US", "CL", "CO"],
       numero: "1",
       titulo: "Orders delivered in the United States: 30 days",
       bloques: [
@@ -328,6 +337,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "antes-de-retirar",
+      mercados: ["VE", "CL", "CO"],
       numero: "2",
       titulo: "Venezuela · Before pickup: cancel and get everything back",
       bloques: [
@@ -354,6 +364,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "al-retirar",
+      mercados: ["VE", "CL", "CO"],
       numero: "3",
       titulo: "At pickup: check it before you sign",
       bloques: [
@@ -371,6 +382,7 @@ export const DEVOLUCIONES_EN: PaginaContenido = {
     },
     {
       id: "despues-de-retirar",
+      mercados: ["VE", "CL", "CO"],
       numero: "4",
       titulo: "After pickup: 7 days to file a claim",
       bloques: [

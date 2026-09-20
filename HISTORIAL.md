@@ -15,6 +15,47 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## MERCATREN.COM SEGUÍA HABLANDO DE VENEZUELA DONDE GOOGLE MIRA (20 sep 2026)
+
+**Cómo se destapó.** Richard pidió retomar Merchant Center «ahora que Estados
+Unidos quedó sola». Al revisar lo que Google lee de mercatren.com, dos semanas
+después de mudar Venezuela a su dominio:
+
+- `/es/entrega` era la página de Venezuela: retiro en el depósito y, literal,
+  **«No enviamos a Estados Unidos ni a otros países»** — en la tienda cuya
+  cuenta declara envío gratis a todo Estados Unidos.
+- `/es/devoluciones` traía tres secciones «Venezuela · …».
+- La descripción de cada departamento y de cada búsqueda decía «retira en
+  Venezuela o recíbelo en Estados Unidos», en los cuatro dominios.
+- **La portada y el mapa de videos enseñaban videos de comercios venezolanos**
+  («Envíos a toda Venezuela, mayor y detal»).
+
+**La causa de los videos**, que es la única que no era texto:
+`videos_tienda.mercado` se llenaba con el DOMINIO de la petición, y el panel de
+todos los comercios vive en mercatren.com → un comercio de Venezuela que subía
+un video quedaba «US». La mudanza movió tiendas y productos, no videos.
+
+**Qué se hizo:**
+
+- Videos: el país lo decide **la tienda** (`deEsteMercado` en
+  `videos/consultas.ts`: `tiendas.mercado`, salvo la tienda editorial, que se
+  rige por el video). Arregla lo ya subido sin tocar un dato; al subir, el
+  video hereda el país de su tienda. Candado `tests/unit/videos-por-pais.test.ts`.
+- Entrega: `contenido/paginas/entrega-us.ts` (es/en) para Estados Unidos, sin
+  prometer nada que las fichas no prometan ya. Se quitó «te avisamos por correo
+  cuando sale»: ese correo no existe.
+- Devoluciones: cada sección puede llevar `mercados`; `paraElMercado`
+  (`contenido/paginas/por-mercado.ts`) filtra y vuelve a numerar. **No se
+  reescribió ninguna condición.** Chile y Colombia ven todo, como antes.
+- La versión en Markdown para agentes (`/datos/markdown`) dice lo mismo.
+- `metaDeCatalogo` recibe el mercado (`entregaDelMercado`).
+- Canario `/datos/salud → devoluciones`: dice si la dirección está cargada,
+  nunca cuál es.
+
+Candados: `paginas-por-pais.test.ts`, `videos-por-pais.test.ts`,
+`meta-seo.test.ts`. **Qué NO hay que tocar:** no volver a filtrar videos por
+`videosTienda.mercado` a secas; no servir `ENTREGA_ES` en el mercado US.
+
 ## SE SIGUE BAJANDO: EL CATÁLOGO Y LAS TIENDAS YA NO TIENEN BOTÓN «SIGUIENTE» (20 sep 2026)
 
 **Qué pidió Richard**, mirando «Página 1 de 36» en una búsqueda: «los

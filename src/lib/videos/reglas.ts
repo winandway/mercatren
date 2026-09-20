@@ -289,3 +289,10 @@ function huella(texto: string, semilla: number): number {
   x = Math.imul(x ^ (x >>> 13), 3_266_489_909) >>> 0;
   return (x ^ (x >>> 16)) >>> 0;
 }
+
+/**
+ * La tienda contenedora de los videos de la casa: una sola para todos los
+ * países. Es la única cuyos videos se rigen por su propio `mercado`; los de un
+ * comercio salen donde vende el comercio (20 sep 2026).
+ */
+export const TIENDA_EDITORIAL_ID = "tienda-mercatren-secciones";

@@ -394,44 +394,73 @@ empieza por `google-site-verification=`). El DNS vive en Cloudflare.
 
 **Cuenta 5835487683 · Mercatren · Estados Unidos · español**
 
-| Ajuste                   | Cómo quedó                                          |
-| ------------------------ | --------------------------------------------------- |
-| País de venta            | Estados Unidos, USD                                 |
-| Idioma                   | Español (los títulos del catálogo están en español) |
-| Fuente de productos      | Enlace a `/datos/google`, cada 24 h a las 12:00 AM  |
-| Política de devoluciones | `mercatren.com/es/devoluciones` — **Verified**      |
-| Política de envío        | Gratis · 1-3 días hábiles · todos los productos     |
-| Actualización automática | Precio, disponibilidad y condición: **activadas**   |
-| Mejora de imágenes       | Activada                                            |
-| Actualización de envío   | Apagada a propósito                                 |
+> **Reescrito el 20 sep 2026.** La versión anterior describía el modelo de
+> Venezuela («Mercatren no envía: se retira», tránsito 0-0). Desde el 19 ago el
+> feed solo lleva lo que se entrega en Estados Unidos, y desde el 7 sep
+> Venezuela vive en mercatren.com.ve. **mercatren.com es una tienda de Estados
+> Unidos con envío gratis, y así hay que declararla.**
+
+### Lo que lee Google hoy (medido el 20 sep 2026)
+
+| Pieza                      | Estado                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Feed `/datos/google`       | 21.351 productos, todos de EE. UU., 22 MB, responde en 5 s                     |
+| Disponibilidad             | 21.345 en existencia, 6 agotados                                               |
+| Página de entrega          | `mercatren.com/es/entrega` — **la de EE. UU. desde el 20 sep**                 |
+| Página de devoluciones     | `mercatren.com/es/devoluciones` — solo las secciones de EE. UU.                |
+| Descripciones del catálogo | «Envío gratis a todo Estados Unidos…» (ya no «retira en Venezuela»)            |
+| Videos de la portada       | Solo de comercios de EE. UU. (el país lo decide la tienda)                     |
+| Dirección de devoluciones  | Mercatren LLC, Novi (MI). No se publica; canario `/datos/salud → devoluciones` |
+
+**Lo que estaba mal y habría costado el rechazo** (todo corregido el 20 sep):
+la página de entrega decía «No enviamos a Estados Unidos ni a otros países»;
+la política de devoluciones traía tres secciones «Venezuela · …»; cada
+departamento se describía como «retira en Venezuela o recíbelo en Estados
+Unidos»; y la portada y el mapa de videos enseñaban videos de comercios
+venezolanos. Google cruza el sitio con lo declarado: eso es «información
+contradictoria».
+
+### Lo que hay que declarar en la cuenta (lo hace Richard)
+
+| Ajuste                              | Valor                                                                            |
+| ----------------------------------- | -------------------------------------------------------------------------------- |
+| País de venta                       | Estados Unidos, USD                                                              |
+| Envío · costo                       | Gratis, todos los productos                                                      |
+| Envío · preparación                 | 1 a 2 días hábiles                                                               |
+| Envío · tránsito                    | 1 a 3 días hábiles (total 2 a 5, como dice el sitio)                             |
+| Devoluciones · plazo                | **30 días** (estaba en `N/A`; el «7 días» era de Venezuela)                      |
+| Devoluciones · cómo                 | Por correo                                                                       |
+| Devoluciones · quién paga           | El comprador (si llegó dañado o equivocado, pagamos nosotros: lo dice la página) |
+| Devoluciones · cargo por reposición | Ninguno                                                                          |
+| Devoluciones · reembolso            | 5 días hábiles                                                                   |
+| Dirección del negocio               | La del registro de la LLC (Novi, MI) — la misma de devoluciones, a propósito     |
+
+Después: **Update** en la fuente de productos y esperar la revisión (1–3 días).
+
+### 🔴 Lo que NO está medido
+
+**El «2 a 5 días hábiles» no sale de ninguna entrega real.** Está prometido en
+cada ficha, en la página de entrega y en la política, pero al 20 sep 2026
+todavía no se ha completado una sola compra a CJ con entrega en casa. El primer
+pedido de prueba se mide desde el lunes 21 sep: cuando llegue, el plazo se
+ajusta **en los tres sitios a la vez** (fichas, `/entrega` y Merchant Center).
+Prometerle a Google una velocidad que no se cumple es peor que prometer una
+lenta.
 
 ### Por qué solo Estados Unidos
 
 Venezuela aparece en el selector pero **no está en la lista oficial de países
-soportados** — es mercado beta y probablemente exija bolívares. Y declarar
-países donde todavía no hay comercios (Colombia, México, Chile, Ecuador,
-Argentina) es _misrepresentation_: Google desaprueba los productos allá y,
-en una cuenta nueva, deja mala reputación desde el día uno.
+soportados**. Y declarar países donde todavía no hay operación probada
+(Colombia, Chile) es _misrepresentation_: Google desaprueba los productos allá
+y, en una cuenta nueva, deja mala reputación desde el día uno. Se agregan
+cuando haya ventas reales entregadas en ese país.
 
-**Se agregan cuando haya comercios con mercancía real en ese país.** Google
-lo permite en cualquier momento y sin penalidad.
+### Pendiente en el feed (no bloquea la revisión)
 
-### La tensión que hay que conocer
-
-Mercatren no envía: se retira. Pero Merchant Center para "United States"
-asume entrega en Estados Unidos, y no hay casilla que diga "se retira en otro
-país" — el _local pickup_ de Google exige tiendas en el mismo país de venta.
-
-Lo declarado es lo más honesto que permite el formulario:
-
-- **Tránsito 0-0** — verdadero, no hay transportista.
-- **Preparación 1-3 días** — real: validar el pago y que el comercio lo tenga
-  listo.
-- **Costo cero** — verdadero, no se cobra nada por la entrega.
-
-Y el sitio lo dice de frente en [`/entrega`](https://mercatren.com/es/entrega)
-y en cada ficha de producto. Si Google pregunta, ahí está la explicación, más
-el documento del modelo de negocio.
+- `google_product_category`: falta en los 21.351. Google la asigna sola, pero
+  acierta más si se la damos por departamento.
+- `brand`: no se manda (va `identifier_exists: no`). Correcto para mercancía
+  sin marca; cuando el proveedor dé la marca, se manda.
 
 ---
 

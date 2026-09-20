@@ -18,6 +18,7 @@ import {
   PESO_MAXIMO_BYTES,
   revisarVideo,
   slugDeVideo,
+  TIENDA_EDITORIAL_ID,
 } from "@/lib/videos/reglas";
 
 /**
@@ -38,7 +39,7 @@ export type ResultadoVideo =
 async function tiendaDeLaSesion(
   formulario: FormData,
   opciones?: { comoEquipo?: boolean },
-): Promise<{ id: string; slug: string } | null> {
+): Promise<{ id: string; slug: string; mercado: string } | null> {
   /* ══ LA SUBIDA POR ENLACE NO TIENE SESIÓN, Y ES A PROPÓSITO ══
 
      Quien sube desde `/subir/<llave>` ya demostró quién es con la llave y el
@@ -49,7 +50,7 @@ async function tiendaDeLaSesion(
     const id = String(formulario.get("tiendaId") ?? "").trim();
     if (!id) return null;
     const [t] = await getDb()
-      .select({ id: tiendas.id, slug: tiendas.slug })
+      .select({ id: tiendas.id, slug: tiendas.slug, mercado: tiendas.mercado })
       .from(tiendas)
       .where(eq(tiendas.id, id))
       .limit(1);
@@ -61,7 +62,7 @@ async function tiendaDeLaSesion(
   const db = getDb();
   if (alcance.tipo === "tienda") {
     const [t] = await db
-      .select({ id: tiendas.id, slug: tiendas.slug })
+      .select({ id: tiendas.id, slug: tiendas.slug, mercado: tiendas.mercado })
       .from(tiendas)
       .where(eq(tiendas.id, alcance.tiendaId))
       .limit(1);
@@ -71,7 +72,7 @@ async function tiendaDeLaSesion(
   const id = String(formulario.get("tiendaId") ?? "").trim();
   if (!id) return null;
   const [t] = await db
-    .select({ id: tiendas.id, slug: tiendas.slug })
+    .select({ id: tiendas.id, slug: tiendas.slug, mercado: tiendas.mercado })
     .from(tiendas)
     .where(eq(tiendas.id, id))
     .limit(1);
@@ -160,7 +161,14 @@ export async function subirVideoDeTienda(
   }
 
   const slug = slugDeVideo(titulo, nanoid(6).toLowerCase());
-  const mercado = await mercadoActual();
+  /* El país del video es el de SU TIENDA, no el del dominio: el panel de todos
+     los comercios vive en mercatren.com y marcaba «US» a los de Venezuela. Los
+     de la casa (tienda editorial, una para todos los países) sí toman el del
+     dominio desde donde se suben. Ver `deEsteMercado` en `consultas.ts`. */
+  const mercadoDelVideo =
+    tienda.id === TIENDA_EDITORIAL_ID
+      ? (await mercadoActual()).codigo
+      : tienda.mercado;
 
   try {
     await getDb()
@@ -190,7 +198,7 @@ export async function subirVideoDeTienda(
         pesoBytes: archivo.size,
         productoId: String(formulario.get("productoId") ?? "").trim() || null,
         estado: "publicado",
-        mercado: mercado.codigo,
+        mercado: mercadoDelVideo,
         creadoEn: new Date(),
         actualizadoEn: new Date(),
       });
@@ -468,7 +476,7 @@ export async function subirVideoDeSeccion(
  */
 async function tiendaEditorial(): Promise<string> {
   const db = getDb();
-  const id = "tienda-mercatren-secciones";
+  const id = TIENDA_EDITORIAL_ID;
   const [existe] = await db
     .select({ id: tiendas.id })
     .from(tiendas)

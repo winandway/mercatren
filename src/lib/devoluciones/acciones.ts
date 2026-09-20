@@ -49,6 +49,16 @@ async function direccionDeHoy(): Promise<string | null> {
 }
 
 /**
+ * Para el canario (`/datos/salud`): ¿está cargada la dirección? Responde sí o
+ * no, NUNCA la dirección. Sin ella el trámite se abre igual, pero al comprador
+ * no se le dice a dónde mandar la caja y hay que escribirle a mano — y eso,
+ * antes del 20 sep 2026, solo se sabía cuando ya había pasado.
+ */
+export async function direccionDeDevolucionCargada(): Promise<boolean> {
+  return Boolean(await direccionDeHoy().catch(() => null));
+}
+
+/**
  * Abre el trámite y devuelve la dirección.
  *
  * Es el único sitio del sistema que entrega esa dirección a un comprador, y lo

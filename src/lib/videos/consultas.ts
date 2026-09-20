@@ -1,7 +1,11 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 
 import { recordadoEnElBorde } from "@/lib/cachecito";
-import { repartirEntreTiendas, VIDEOS_POR_RONDA } from "@/lib/videos/reglas";
+import {
+  repartirEntreTiendas,
+  TIENDA_EDITORIAL_ID,
+  VIDEOS_POR_RONDA,
+} from "@/lib/videos/reglas";
 import { direccionImagen } from "@/lib/catalogo/consultas";
 import { getDb } from "@/lib/db";
 import { tiendas, videosTienda } from "@/lib/db/schema";
@@ -71,10 +75,32 @@ function aPublico(f: Fila, idioma: "es" | "en"): VideoPublico {
   };
 }
 
+/**
+ * ══ EL PAÍS DE UN VIDEO LO DECIDE SU TIENDA, NO EL DOMINIO DONDE SE SUBIÓ ══
+ * (20 sep 2026)
+ *
+ * `videos_tienda.mercado` se llenaba con el dominio de la petición, y el panel
+ * de TODOS los comercios vive en mercatren.com: un comercio de Venezuela que
+ * subía un video quedaba marcado «US». Al mudar Venezuela a su dominio (7 sep)
+ * se movieron tiendas y productos, pero los videos siguieron saliendo en la
+ * portada de Estados Unidos —«Envíos a toda Venezuela» en mercatren.com— y en
+ * el mapa de videos que lee Google, justo cuando Merchant Center tiene que
+ * evaluar una tienda de Estados Unidos.
+ *
+ * La regla: un video de un comercio sale donde VENDE ese comercio
+ * (`tiendas.mercado`). Solo los de la casa —la tienda editorial, que es una
+ * para todos los países— se rigen por el mercado del propio video. Así lo ya
+ * subido queda bien sin tocar un dato.
+ */
+function deEsteMercado(codigo: string) {
+  return sql`(CASE WHEN ${videosTienda.tiendaId} = ${TIENDA_EDITORIAL_ID}
+    THEN ${videosTienda.mercado} ELSE ${tiendas.mercado} END) = ${codigo}`;
+}
+
 function visibles(mercado: Mercado) {
   return and(
     eq(videosTienda.estado, "publicado"),
-    eq(videosTienda.mercado, mercado.codigo),
+    deEsteMercado(mercado.codigo),
     eq(tiendas.estado, "activa"),
   );
 }
@@ -238,7 +264,7 @@ export async function videosParaMapa(mercadoCodigo: string) {
     .where(
       and(
         eq(videosTienda.estado, "publicado"),
-        eq(videosTienda.mercado, mercadoCodigo),
+        deEsteMercado(mercadoCodigo),
         eq(tiendas.estado, "activa"),
       ),
     );
@@ -270,7 +296,7 @@ export async function videosParaMapaCompleto(mercadoCodigo: string) {
     .where(
       and(
         eq(videosTienda.estado, "publicado"),
-        eq(videosTienda.mercado, mercadoCodigo),
+        deEsteMercado(mercadoCodigo),
         eq(tiendas.estado, "activa"),
       ),
     );

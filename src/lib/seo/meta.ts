@@ -274,7 +274,35 @@ export function metaDeTienda(d: DatosDeTienda): {
   return { title, description, keywords: [...new Set(keywords)] };
 }
 
+/**
+ * ══ CADA DOMINIO CUENTA SU FORMA DE ENTREGA, Y SOLO LA SUYA (20 sep 2026) ══
+ *
+ * Las descripciones del catálogo decían «retira en Venezuela o recíbelo en
+ * Estados Unidos» en TODOS los dominios. Desde el 7 sep Venezuela vive en
+ * mercatren.com.ve y mercatren.com vende y entrega solo en Estados Unidos:
+ * eso era lo que Google leía de una tienda que tiene que evaluar como
+ * estadounidense (Merchant Center cruza lo que dice el sitio con lo declarado).
+ */
+function entregaDelMercado(mercado: string, en: boolean): string {
+  switch (mercado.trim().toUpperCase()) {
+    case "US":
+      return en
+        ? "Free shipping anywhere in the United States: the price you see is the final price."
+        : "Envío gratis a todo Estados Unidos: el precio que ves es el precio final.";
+    case "VE":
+      return en
+        ? "Pay from the United States and pick up in Venezuela."
+        : "Paga desde Estados Unidos y retira en Venezuela.";
+    default:
+      return en
+        ? "Shop online with delivery in your country."
+        : "Compra en línea con entrega en tu país.";
+  }
+}
+
 export type DatosDeCatalogo = {
+  /** El país del dominio: cada uno cuenta SU forma de entrega. */
+  mercado: string;
   busqueda?: string | null;
   categoria?: string | null;
   comercio?: string | null;
@@ -289,6 +317,7 @@ export function metaDeCatalogo(d: DatosDeCatalogo): {
   description: string;
 } {
   const en = d.idioma === "en";
+  const como = entregaDelMercado(d.mercado, en);
   const n = d.total;
   if (d.busqueda) {
     return {
@@ -298,8 +327,8 @@ export function metaDeCatalogo(d: DatosDeCatalogo): {
       ),
       description: acotar(
         en
-          ? `${n} product${n === 1 ? "" : "s"} for “${d.busqueda}” on Mercatren. Pay by card or Zelle from the US; pick up in Venezuela or get it shipped in the US.`
-          : `${n} producto${n === 1 ? "" : "s"} para «${d.busqueda}» en Mercatren. Paga con tarjeta o Zelle desde Estados Unidos; retira en Venezuela o recíbelo en Estados Unidos.`,
+          ? `${n} product${n === 1 ? "" : "s"} for “${d.busqueda}” on Mercatren. ${como}`
+          : `${n} producto${n === 1 ? "" : "s"} para «${d.busqueda}» en Mercatren. ${como}`,
         LARGO_DESCRIPCION,
       ),
     };
@@ -309,8 +338,8 @@ export function metaDeCatalogo(d: DatosDeCatalogo): {
       title: acotar(d.categoria, LARGO_TITULO),
       description: acotar(
         en
-          ? `${d.categoria}: ${n} product${n === 1 ? "" : "s"} on Mercatren. Pay by card or Zelle from the US; pick up in Venezuela or get it shipped in the US.`
-          : `${d.categoria}: ${n} producto${n === 1 ? "" : "s"} en Mercatren. Paga con tarjeta o Zelle desde Estados Unidos; retira en Venezuela o recíbelo en Estados Unidos.`,
+          ? `${d.categoria}: ${n} product${n === 1 ? "" : "s"} on Mercatren. ${como}`
+          : `${d.categoria}: ${n} producto${n === 1 ? "" : "s"} en Mercatren. ${como}`,
         LARGO_DESCRIPCION,
       ),
     };

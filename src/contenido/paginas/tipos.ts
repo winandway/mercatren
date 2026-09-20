@@ -18,6 +18,11 @@ export type PaginaContenido = {
   indiceTitulo?: string;
   secciones: {
     id: string;
+    /**
+     * En qué países (mercados) se enseña. Sin esto, en todos. La usa
+     * `paraElMercado`: el texto de cada sección no cambia, solo dónde sale.
+     */
+    mercados?: readonly string[];
     numero?: string;
     titulo: string;
     bloques: Bloque[];

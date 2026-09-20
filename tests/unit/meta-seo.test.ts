@@ -149,6 +149,7 @@ describe("metaDeTienda y metaDeCatalogo", () => {
   it("el catálogo cambia el título según lo que se busca o se filtra", () => {
     expect(
       metaDeCatalogo({
+        mercado: "US",
         busqueda: "bicicleta",
         total: 12,
         idioma: "es",
@@ -158,6 +159,7 @@ describe("metaDeTienda y metaDeCatalogo", () => {
     ).toBe("Resultados para «bicicleta»");
     expect(
       metaDeCatalogo({
+        mercado: "US",
         categoria: "Ropa y calzado",
         total: 40,
         idioma: "en",
@@ -167,11 +169,38 @@ describe("metaDeTienda y metaDeCatalogo", () => {
     ).toContain("Ropa y calzado: 40 products");
     expect(
       metaDeCatalogo({
+        mercado: "US",
         total: 0,
         idioma: "es",
         tituloBase: "Catálogo",
         descripcionBase: "Todo",
       }).title,
     ).toBe("Catálogo");
+  });
+
+  it("cada dominio cuenta SU forma de entrega, y solo la suya", () => {
+    /* mercatren.com decía «retira en Venezuela» en cada departamento, dos
+       semanas después de mudar Venezuela a su dominio (20 sep 2026). */
+    const de = (mercado: string, idioma: "es" | "en") =>
+      metaDeCatalogo({
+        mercado,
+        categoria: "Electrónica",
+        total: 227,
+        idioma,
+        tituloBase: "Catálogo",
+        descripcionBase: "x",
+      }).description;
+    expect(de("US", "es")).toContain("Envío gratis a todo Estados Unidos");
+    expect(de("US", "es")).not.toMatch(/Venezuela|retira/i);
+    expect(de("US", "en")).not.toMatch(/Venezuela|pick up/i);
+    expect(de("VE", "es")).toContain("retira en Venezuela");
+    expect(de("VE", "es")).not.toContain("Envío gratis");
+    for (const m of ["CL", "CO"]) {
+      expect(de(m, "es")).not.toMatch(/Venezuela|Estados Unidos/);
+    }
+    for (const m of ["US", "VE", "CL", "CO"]) {
+      expect(de(m, "es").length).toBeLessThanOrEqual(155);
+      expect(de(m, "en").length).toBeLessThanOrEqual(155);
+    }
   });
 });
