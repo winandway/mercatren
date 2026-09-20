@@ -233,6 +233,10 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
 - **LOS CONTEOS DEL CATÁLOGO NO SE CALCULAN POR VISITA** (17 sep 2026): salen
   de la foto de `src/lib/catalogo/conteos.ts` que rehace el reloj. Un agregado
   sobre `productos` en una página pública es una factura de D1.
+- **DENTRO DE `<noscript>` NO VA NINGÚN COMPONENTE DE CLIENTE** (20 sep 2026):
+  un `<Link>` ahí rompe la hidratación de la página entera. `<a>` a secas.
+- **`popstate` LLEGA DESPUÉS DE QUE NEXT MONTA LA PÁGINA**: para saber que es
+  una vuelta con «atrás» se escucha `navigation` → `navigate` (`traverse`).
 - **BUSCAR NO NORMALIZA LA DESCRIPCIÓN, NO CUENTA TODO Y NO CORRE DOS VECES**
   (20 sep 2026): catorce `REPLACE` sobre `descripcion_es` × 47.000 productos
   daban 19 s por búsqueda, y como la base atiende de una en una, las fichas
@@ -382,6 +386,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [SE SIGUE BAJANDO: EL CATÁLOGO Y LAS TIENDAS YA NO TIENEN BOTÓN «SIGUIENTE» (20 sep 2026)](HISTORIAL.md#se-sigue-bajando-el-catálogo-y-las-tiendas-ya-no-tienen-botón-siguiente-20-sep-2026)
 - [BUSCAR TARDABA 19 SEGUNDOS Y TUMBABA LAS FICHAS (20 sep 2026)](HISTORIAL.md#buscar-tardaba-19-segundos-y-tumbaba-las-fichas-20-sep-2026)
 - [LA EMERGENCIA DE COSTO DE LA BASE: 134 MIL MILLONES DE FILAS AL MES (17 sep 2026)](HISTORIAL.md#la-emergencia-de-costo-de-la-base-134-mil-millones-de-filas-al-mes-17-sep-2026)
 - [LA SOCIEDAD YA ES MERCATREN LLC (12 ago 2026)](HISTORIAL.md#la-sociedad-ya-es-mercatren-llc-12-ago-2026)

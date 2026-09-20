@@ -1,12 +1,9 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ControlesCatalogo } from "@/components/catalogo/controles-catalogo";
-import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
-import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { ParrillaInfinita } from "@/components/catalogo/parrilla-infinita";
 import { bannersPara } from "@/lib/banners/consultas";
-import { intercalarBanners } from "@/lib/banners/reglas";
 import { TiraDepartamentos } from "@/components/catalogo/tira-departamentos";
 import { Link } from "@/i18n/navigation";
 import {
@@ -16,6 +13,7 @@ import {
   listarProductos,
   type OrdenCatalogo,
 } from "@/lib/catalogo/consultas";
+import { consultaDeLista } from "@/lib/catalogo/seguir-bajando";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
@@ -36,7 +34,6 @@ async function buscandoComoEquipo(q: string | undefined): Promise<boolean> {
   return esEquipoInterno().catch(() => false);
 }
 import { metaDeCatalogo } from "@/lib/seo/meta";
-import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -184,6 +181,9 @@ export default async function PaginaCatalogo({
     if (valor && clave !== "todas" && clave !== "pagina")
       parametrosSinZona.set(clave, valor);
   }
+  /* La identidad de ESTE listado: sus filtros, sin la página. */
+  const claveDeLista = `catalogo?${parametrosSinZona.toString()}${verTodas ? "&todas=1" : ""}#${resultado.pagina}`;
+  const haciaElPrincipio = `/catalogo${parametrosSinZona.size ? `?${parametrosSinZona.toString()}` : ""}${verTodas ? `${parametrosSinZona.size ? "&" : "?"}todas=1` : ""}`;
   const haciaTodas = `/catalogo?${new URLSearchParams([...parametrosSinZona, ["todas", "1"]]).toString()}`;
   const haciaMiZona = `/catalogo${parametrosSinZona.size ? `?${parametrosSinZona.toString()}` : ""}`;
 
@@ -303,53 +303,90 @@ export default async function PaginaCatalogo({
           )}
         </div>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
-          {intercalarBanners(resultado.productos, bannersCatalogo).map(
-            (x, i) =>
-              x.tipo === "banner" ? (
-                <li
-                  key={`banner-${x.banner.id}-${i}`}
-                  className="col-span-full"
-                >
-                  <BannerPublicitario banner={x.banner} />
-                </li>
-              ) : (
-                <li key={x.item.id}>
-                  <TarjetaProducto producto={x.item} idioma={idioma} />
-                </li>
-              ),
-          )}
-        </ul>
+        <>
+          {/* SE SIGUE BAJANDO, SIN BOTÓN «SIGUIENTE» (20 sep 2026). La página
+              trae las 24 primeras y la parrilla pide las demás al acercarse
+              al final, con estos mismos filtros. La `key` es obligatoria: al
+              cambiar de búsqueda la pieza tiene que nacer de nuevo, o
+              enseñaría lo bajado de la búsqueda anterior. */}
+          {resultado.pagina > 1 ? (
+            <p className="mb-4 text-sm">
+              <Link
+                href={haciaElPrincipio}
+                className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
+              >
+                ← {t("seguirBajando.desdeElPrincipio")}
+              </Link>
+            </p>
+          ) : null}
+          <ParrillaInfinita
+            key={claveDeLista}
+            clave={claveDeLista}
+            inicial={resultado.productos}
+            banners={bannersCatalogo}
+            semilla={0}
+            paginas={resultado.paginas}
+            desdePagina={resultado.pagina}
+            idioma={idioma}
+            consulta={consultaDeLista({
+              q: filtros.q,
+              categoria: filtros.categoria,
+              comercio: filtros.comercio,
+              orden: filtros.orden,
+              todas: verTodas,
+            })}
+            columnas="grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6"
+            textoCargando={t("seguirBajando.cargando")}
+            textoFinal={t("seguirBajando.fin")}
+          />
+        </>
       )}
 
+      {/* Sin JavaScript no hay scroll que cargue nada: ahí sí, los enlaces de
+          siempre. Con JavaScript este bloque no existe. */}
       {resultado.paginas > 1 ? (
-        <Paginacion
-          pagina={resultado.pagina}
-          paginas={resultado.paginas}
-          filtros={filtros}
-          textos={{
-            anterior: t("paginacion.anterior"),
-            siguiente: t("paginacion.siguiente"),
-            posicion: t("paginacion.posicion", {
-              pagina: resultado.pagina,
-              paginas: resultado.paginas,
-            }),
-          }}
-        />
+        <noscript>
+          <Paginacion
+            pagina={resultado.pagina}
+            paginas={resultado.paginas}
+            filtros={filtros}
+            locale={locale}
+            textos={{
+              anterior: t("paginacion.anterior"),
+              siguiente: t("paginacion.siguiente"),
+              posicion: t("paginacion.posicion", {
+                pagina: resultado.pagina,
+                paginas: resultado.paginas,
+              }),
+            }}
+          />
+        </noscript>
       ) : null}
     </div>
   );
 }
 
+/**
+ * EL PAGINADOR DE RESPALDO, SOLO PARA QUIEN NO TIENE JAVASCRIPT.
+ *
+ * Va dentro de un `<noscript>`, y por eso lleva `<a>` a secas y NO `<Link>`:
+ * un componente de cliente dentro de `<noscript>` se manda en un trozo aparte
+ * cuyo hueco el navegador no puede encontrar (con JavaScript, lo de dentro de
+ * `<noscript>` es texto, no elementos), y React revienta al buscarlo —
+ * «Cannot read properties of null (reading 'parentNode')»— llevándose la
+ * carga del resto de la página. Visto el 20 sep 2026 en la primera prueba.
+ */
 function Paginacion({
   pagina,
   paginas,
   filtros,
+  locale,
   textos,
 }: {
   pagina: number;
   paginas: number;
   filtros: Parametros;
+  locale: string;
   textos: { anterior: string; siguiente: string; posicion: string };
 }) {
   function enlace(destino: number) {
@@ -359,41 +396,30 @@ function Paginacion({
     }
     if (destino > 1) consulta.set("pagina", String(destino));
     const texto = consulta.toString();
-    return texto ? `/catalogo?${texto}` : "/catalogo";
+    return `/${locale}/catalogo${texto ? `?${texto}` : ""}`;
   }
 
   const estilo =
-    "inline-flex items-center gap-1 rounded-lg border border-borde px-3 py-2 text-sm font-semibold transition-colors hover:border-carga-500";
+    "inline-flex items-center gap-1 rounded-lg border border-borde px-3 py-2 text-sm font-semibold";
 
   return (
     <nav
       className="mt-10 flex items-center justify-center gap-3"
       aria-label={textos.posicion}
     >
-      <Link
-        href={enlace(pagina - 1)}
-        aria-disabled={pagina <= 1}
-        className={cn(estilo, pagina <= 1 && "pointer-events-none opacity-40")}
-      >
-        <ChevronLeft className="h-4 w-4" aria-hidden />
-        {textos.anterior}
-      </Link>
-
+      {pagina > 1 ? (
+        <a href={enlace(pagina - 1)} className={estilo}>
+          ← {textos.anterior}
+        </a>
+      ) : null}
       <span className="text-sm text-tinta-suave tabular-nums">
         {textos.posicion}
       </span>
-
-      <Link
-        href={enlace(pagina + 1)}
-        aria-disabled={pagina >= paginas}
-        className={cn(
-          estilo,
-          pagina >= paginas && "pointer-events-none opacity-40",
-        )}
-      >
-        {textos.siguiente}
-        <ChevronRight className="h-4 w-4" aria-hidden />
-      </Link>
+      {pagina < paginas ? (
+        <a href={enlace(pagina + 1)} className={estilo}>
+          {textos.siguiente} →
+        </a>
+      ) : null}
     </nav>
   );
 }

@@ -20,13 +20,11 @@ import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
 import { almacenDeLaTienda } from "@/lib/destino/almacenes";
 import { InvitacionCasillero } from "@/components/casillero/invitacion-casillero";
-import { BannerPublicitario } from "@/components/catalogo/banner-publicitario";
-import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
+import { ParrillaInfinita } from "@/components/catalogo/parrilla-infinita";
 import { HileraVideos } from "@/components/videos/hilera-videos";
 import { bannersPara } from "@/lib/banners/consultas";
-import { intercalarBanners } from "@/lib/banners/reglas";
+import { consultaDeLista } from "@/lib/catalogo/seguir-bajando";
 import { IconoWhatsapp } from "@/components/ui/icono-whatsapp";
-import { Link } from "@/i18n/navigation";
 import { obtenerTiendaPorSlug } from "@/lib/catalogo/consultas";
 import type { Idioma } from "@/lib/dinero";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
@@ -168,6 +166,7 @@ export default async function PaginaTienda({
   if (!datos) notFound();
 
   const { tienda, productos, total, paginas } = datos;
+  const paginaActual = datos.pagina;
 
   if (!puedeVerLaFicha(tienda.estado, mirador, tienda.id)) notFound();
 
@@ -739,7 +738,7 @@ export default async function PaginaTienda({
               {tc("vacio")}
             </p>
           ) : (
-            <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6">
+            <>
               {/**
                * EL MAPA VA DENTRO DE LA PARRILLA, COMO UNA TARJETA MÁS.
                *
@@ -752,43 +751,55 @@ export default async function PaginaTienda({
                * se sigue viendo de dónde despachamos, pero sin tapar lo que la
                * gente vino a mirar.
                */}
-              {tienda.paisOrigen?.trim().toUpperCase() === "US" ? (
-                <li className="col-span-2 self-start">
-                  <MapaAlmacen
-                    almacen={almacenDeLaTienda(tienda.id)}
-                    idioma={locale}
-                    titulo={tc("producto.entregaUs.mapaTitulo")}
-                    pie={tc("producto.entregaUs.mapaPie")}
-                  />
-                </li>
-              ) : null}
-
-              {intercalarBanners(productos, bannersTienda).map((x, i) =>
-                x.tipo === "banner" ? (
-                  <li
-                    key={`banner-${x.banner.id}-${i}`}
-                    className="col-span-full"
-                  >
-                    <BannerPublicitario banner={x.banner} />
-                  </li>
-                ) : (
-                  <li key={x.item.id}>
-                    <TarjetaProducto producto={x.item} idioma={idioma} />
-                  </li>
-                ),
-              )}
-            </ul>
+              {/* Y SE SIGUE BAJANDO (20 sep 2026): antes salían 24 y un botón
+                  que mandaba al catálogo para ver el resto de la tienda. Ahora
+                  la tienda entera se ve aquí mismo, bajando. */}
+              <ParrillaInfinita
+                key={`tienda/${tienda.slug}#${paginaActual}`}
+                clave={`tienda/${tienda.slug}#${paginaActual}`}
+                inicial={productos}
+                banners={bannersTienda}
+                semilla={0}
+                paginas={paginas}
+                desdePagina={paginaActual}
+                idioma={idioma}
+                consulta={consultaDeLista({
+                  comercio: tienda.slug,
+                  todas: true,
+                })}
+                columnas="grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-6"
+                textoCargando={tc("seguirBajando.cargando")}
+                textoFinal={tc("seguirBajando.fin")}
+                primero={
+                  tienda.paisOrigen?.trim().toUpperCase() === "US" ? (
+                    <li className="col-span-2 self-start">
+                      <MapaAlmacen
+                        almacen={almacenDeLaTienda(tienda.id)}
+                        idioma={locale}
+                        titulo={tc("producto.entregaUs.mapaTitulo")}
+                        pie={tc("producto.entregaUs.mapaPie")}
+                      />
+                    </li>
+                  ) : null
+                }
+              />
+            </>
           )}
 
+          {/* Sin JavaScript no hay scroll que cargue nada: el enlace de siempre. */}
           {paginas > 1 ? (
-            <p className="mt-8 text-center">
-              <Link
-                href={`/catalogo?comercio=${tienda.slug}`}
-                className="inline-flex items-center gap-2 rounded-lg border border-borde px-5 py-2.5 text-sm font-semibold transition-colors hover:border-carga-500"
-              >
-                {tc("resultados", { n: total })} →
-              </Link>
-            </p>
+            <noscript>
+              {/* `<a>` y no `<Link>`: un componente de cliente dentro de
+                  `<noscript>` rompe la carga de la página (ver el catálogo). */}
+              <p className="mt-8 text-center">
+                <a
+                  href={`/${locale}/catalogo?comercio=${tienda.slug}`}
+                  className="inline-flex items-center gap-2 rounded-lg border border-borde px-5 py-2.5 text-sm font-semibold"
+                >
+                  {tc("resultados", { n: total })} →
+                </a>
+              </p>
+            </noscript>
           ) : null}
         </section>
       </div>

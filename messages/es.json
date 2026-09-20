@@ -3033,6 +3033,11 @@
       "enRevisionTexto": "Todavía no se puede comprar: falta que el proveedor cotice el envío real. El público no ve esta ficha.",
       "enRevisionCorto": "En revisión"
     },
+    "seguirBajando": {
+      "cargando": "Trayendo más…",
+      "fin": "Eso es todo lo que hay.",
+      "desdeElPrincipio": "Ver desde el principio"
+    },
     "paginacion": {
       "anterior": "Anterior",
       "siguiente": "Siguiente",

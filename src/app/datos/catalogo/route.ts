@@ -1,4 +1,10 @@
-import { listarProductos, parrillaDeProductos } from "@/lib/catalogo/consultas";
+import { z } from "zod";
+
+import {
+  listarProductos,
+  type OrdenCatalogo,
+  parrillaDeProductos,
+} from "@/lib/catalogo/consultas";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
@@ -21,6 +27,26 @@ import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
  * Todo lo que sale de aquí es público: son los productos publicados de
  * comercios activos, lo mismo que ya se ve en el catálogo.
  */
+/** Lo que acepta `modo=lista`: texto corto y nada más. */
+const texto = z.string().trim().min(1).max(120);
+const FiltrosDeLista = z.object({
+  q: texto.optional(),
+  categoria: texto.optional(),
+  comercio: texto.optional(),
+  /* Un orden que no existe no rompe la lista: la página lo ignora y sale el
+     de siempre, así que la tanda hace lo mismo. */
+  orden: z
+    .enum(["recientes", "precio_asc", "precio_desc"])
+    .optional()
+    .catch(undefined),
+});
+
+/** El equipo, buscando, ve también lo «en revisión» — igual que en la página. */
+async function esDelEquipo(): Promise<boolean> {
+  const { esEquipoInterno } = await import("@/lib/autorizacion");
+  return esEquipoInterno().catch(() => false);
+}
+
 export async function GET(peticion: Request) {
   const url = new URL(peticion.url);
 
@@ -45,6 +71,39 @@ export async function GET(peticion: Request) {
      * POR PALABRAS (`q`): lo usan los agentes (WebMCP, el skill de compra) y
      * cualquier integración. Es la misma búsqueda del sitio, con sinónimos.
      */
+    /**
+     * `modo=lista` (20 sep 2026): LAS TANDAS DE UN LISTADO AL BAJAR. El
+     * catálogo, una búsqueda, un departamento o una tienda ya no llevan botón
+     * «Siguiente»: la página trae las 24 primeras y de aquí salen las
+     * siguientes. Tiene que ser EXACTAMENTE el mismo pedido que hace la página
+     * (mismos filtros, mismas 24), o al bajar saldría otra cosa o se
+     * repetirían productos. Ver `lib/catalogo/seguir-bajando.ts`.
+     */
+    if (url.searchParams.get("modo") === "lista") {
+      const f = FiltrosDeLista.safeParse({
+        q: url.searchParams.get("q") ?? undefined,
+        categoria: url.searchParams.get("categoria") ?? undefined,
+        comercio: url.searchParams.get("comercio") ?? undefined,
+        orden: url.searchParams.get("orden") ?? undefined,
+      });
+      if (!f.success)
+        return Response.json({ productos: [], pagina, paginas: pagina });
+      const r = await listarProductos(mercado, {
+        busqueda: f.data.q,
+        paraElEquipo: f.data.q ? await esDelEquipo() : false,
+        categoria: f.data.categoria,
+        comercio: f.data.comercio,
+        orden: f.data.orden as OrdenCatalogo | undefined,
+        pagina,
+        zona: visibles,
+      });
+      return Response.json({
+        productos: r.productos,
+        pagina: r.pagina,
+        paginas: r.paginas,
+      });
+    }
+
     const q = url.searchParams.get("q")?.trim() || null;
     if (q) {
       const limite = Math.min(

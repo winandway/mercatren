@@ -177,11 +177,18 @@ describe("candados del panel", () => {
   it("las cuatro parrillas públicas intercalan los banners", () => {
     for (const ruta of [
       "src/app/[locale]/(tienda)/page.tsx",
-      "src/app/[locale]/(tienda)/tienda/[slug]/page.tsx",
-      "src/app/[locale]/(tienda)/catalogo/page.tsx",
       "src/components/catalogo/parrilla-infinita.tsx",
     ]) {
       expect(readFileSync(ruta, "utf8"), ruta).toContain("intercalarBanners(");
     }
+    /* La tienda y el catálogo ya no pintan su parrilla a mano (20 sep 2026):
+       se la dan a `ParrillaInfinita`, que es quien intercala. Lo que no puede
+       faltar es que le PASEN sus banners, o dejarían de salir sin ruido. */
+    expect(
+      readFileSync("src/app/[locale]/(tienda)/tienda/[slug]/page.tsx", "utf8"),
+    ).toContain("banners={bannersTienda}");
+    expect(
+      readFileSync("src/app/[locale]/(tienda)/catalogo/page.tsx", "utf8"),
+    ).toContain("banners={bannersCatalogo}");
   });
 });

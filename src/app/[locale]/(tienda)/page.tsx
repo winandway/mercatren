@@ -474,6 +474,8 @@ export default async function PaginaInicio({
             </div>
 
             <ParrillaInfinita
+              key={`portada#${semilla}`}
+              clave={`portada#${semilla}`}
               inicial={restoDeLaParrilla}
               semilla={semilla}
               paginas={paginasDe24}

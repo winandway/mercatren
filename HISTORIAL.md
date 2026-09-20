@@ -15,6 +15,60 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## SE SIGUE BAJANDO: EL CATÁLOGO Y LAS TIENDAS YA NO TIENEN BOTÓN «SIGUIENTE» (20 sep 2026)
+
+**Qué pidió Richard**, mirando «Página 1 de 36» en una búsqueda: «los
+paginadores son cosas antiguas… que el cliente vaya bajando y se le cargue lo
+siguiente, sin ahogar la página ni hacer tantos llamados a la vez». La portada
+ya lo hacía; el catálogo, las búsquedas, los departamentos y las tiendas
+seguían con el botón (y la tienda enseñaba 24 y mandaba al catálogo por el
+resto).
+
+**Qué se hizo.** Una sola pieza para todos: `ParrillaInfinita`
+(`components/catalogo/parrilla-infinita.tsx`), que ya era la de la portada.
+Con `consulta` pide las tandas del listado con SUS filtros a
+`/datos/catalogo?modo=lista&…&pagina=N` — el mismo `listarProductos` que usa
+la página, con las mismas 24, validado con zod. Lo puro vive en
+`lib/catalogo/seguir-bajando.ts`.
+
+- **Una petición a la vez**, 800 px antes del final, y se deja de pedir cuando
+  no hay más. El cerrojo es una referencia (`pidiendo`), no el estado: con el
+  estado se pedía la MISMA tanda dos veces, porque el scroll dispara antes de
+  que React vuelva a pintar. Eso también pasaba en la portada.
+- **Al volver de una ficha, la lista sigue donde estaba**: lo bajado se guarda
+  en `sessionStorage` (una casilla por familia: portada, catálogo, tienda) y
+  se devuelve solo si es una vuelta con «atrás», a la misma lista y en menos
+  de media hora. Sin esto, quitar el botón cambiaba una molestia por otra peor.
+- **Sin JavaScript** queda el paginador de siempre, dentro de `<noscript>`.
+- Las direcciones `?pagina=N` siguen funcionando (enlaces viejos, Google): la
+  lista arranca ahí y ofrece «← Ver desde el principio».
+
+**Las tres trampas que destapó probarlo en un navegador de verdad:**
+
+1. **Un `<Link>` dentro de `<noscript>` rompe la carga de TODA la página.** Es
+   un componente de cliente: React lo manda en un trozo aparte cuyo hueco, con
+   JavaScript, es texto y no un elemento → «Cannot read properties of null
+   (reading 'parentNode')» y nada hidrata. Dentro de `<noscript>`, `<a>` a
+   secas.
+2. **`popstate` llega DESPUÉS de que Next vuelve a montar la página** (medido:
+   montaje a los 12 ms, `popstate` a los 35). Se escucha primero la API de
+   navegación (`navigate` con `traverse`); donde no existe, la lista se
+   corrige sola cuando llega el aviso tarde.
+3. **Lo guardado se lee una sola vez, al nacer.** La lista recién montada
+   vuelve a guardar enseguida: leer después era leerse a sí misma con 24.
+
+**Cómo se comprobó** (Playwright contra el catálogo local de Venezuela, con y
+sin API de navegación): «lamina» pasa de 24 a 49 con dos peticiones y el aviso
+de fin; al abrir una ficha y volver, 49 productos, cero peticiones y la misma
+altura (6.911 px); otra búsqueda empieza arriba con 24; la tienda pasa de 24 a
+528 bajando; con `orden=precio_asc` los precios siguen ordenados tras las
+tandas; cero errores de consola. Candado: `tests/unit/seguir-bajando.test.ts`
+(15 pruebas, comprobadas en rojo).
+
+**Qué NO hay que tocar:** la `key` de `ParrillaInfinita` en las páginas (sin
+ella, al cambiar de búsqueda se ve lo bajado de la anterior); `modo=lista` sin
+`porPagina`; nada de componentes de cliente dentro de `<noscript>`.
+
 ## BUSCAR TARDABA 19 SEGUNDOS Y TUMBABA LAS FICHAS (20 sep 2026)
 
 **Qué se rompió y cómo se veía.** Richard mandó tres capturas: «Algo se atascó

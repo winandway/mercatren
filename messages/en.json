@@ -3033,6 +3033,11 @@
       "enRevisionTexto": "Not for sale yet: the supplier still has to quote the real shipping cost. The public can't see this page.",
       "enRevisionCorto": "Under review"
     },
+    "seguirBajando": {
+      "cargando": "Loading more…",
+      "fin": "That is everything.",
+      "desdeElPrincipio": "Start from the top"
+    },
     "paginacion": {
       "anterior": "Previous",
       "siguiente": "Next",
