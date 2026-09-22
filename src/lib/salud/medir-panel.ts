@@ -293,3 +293,48 @@ export async function queBancoVeElCliente(): Promise<{
     ),
   };
 }
+
+/**
+ * ══ LOS ÚLTIMOS COBROS, SIN FILTROS Y SIN TRAGARSE EL ERROR (21 sep 2026) ══
+ *
+ * Richard cuadró una factura de $6.483,77, el sistema le dijo que el correo
+ * salió, y la pantalla de enlaces de cobro le enseñó «ninguno». Una hora
+ * buscando un enlace que no podía ver. La consulta de esa pantalla termina en
+ * `.catch(() => [])`: si falla, dice que no hay cobros en vez de decir que se
+ * rompió — y desde fuera del sitio no hay forma de saber cuál de las dos es.
+ *
+ * Esto lee los diez últimos cobros SIN filtro de comercio ni de país, con su
+ * enlace, y si la consulta revienta devuelve el error de verdad.
+ */
+export async function ultimosCobros(): Promise<unknown> {
+  const { getDb } = await import("@/lib/db");
+  const { cobrosSolicitados, tiendas } = await import("@/lib/db/schema");
+  const { desc, eq } = await import("drizzle-orm");
+  try {
+    const filas = await getDb()
+      .select({
+        enlace: cobrosSolicitados.enlace,
+        referencia: cobrosSolicitados.referencia,
+        montoCentavos: cobrosSolicitados.montoCentavos,
+        estado: cobrosSolicitados.estado,
+        correo: cobrosSolicitados.contactoCorreo,
+        creadoEn: cobrosSolicitados.creadoEn,
+        tienda: tiendas.nombre,
+        tiendaMercado: tiendas.mercado,
+      })
+      .from(cobrosSolicitados)
+      .leftJoin(tiendas, eq(tiendas.id, cobrosSolicitados.tiendaId))
+      .orderBy(desc(cobrosSolicitados.creadoEn))
+      .limit(10);
+    return {
+      cuantos: filas.length,
+      cobros: filas.map((f) => ({
+        ...f,
+        url: `https://mercatren.com/es/cobro/${f.enlace}`,
+        monto: (Number(f.montoCentavos) / 100).toFixed(2),
+      })),
+    };
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) };
+  }
+}

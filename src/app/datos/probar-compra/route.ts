@@ -64,6 +64,9 @@ const Peticion = z.discriminatedUnion("accion", [
   /* Qué banco y qué titular ve quien paga por transferencia. Sin números:
      solo los cuatro últimos dígitos (21 sep 2026). */
   z.object({ accion: z.literal("banco-del-cobro") }),
+  /* Los diez últimos cobros con su enlace, sin filtros y sin tragarse el
+     error (21 sep 2026). */
+  z.object({ accion: z.literal("ultimos-cobros") }),
   /* Las estadísticas de la base (18 sep 2026): enseña el plan de las
      consultas-trampa, corre ANALYZE (o `PRAGMA optimize`) y lo enseña otra
      vez. Sin estadísticas SQLite elegía el índice de `estado` en todas
@@ -230,6 +233,11 @@ export async function POST(peticion: Request) {
         planes: await planes(),
       };
       resultado = { corrio, antes, despues };
+      break;
+    }
+    case "ultimos-cobros": {
+      const { ultimosCobros } = await import("@/lib/salud/medir-panel");
+      resultado = await ultimosCobros();
       break;
     }
     case "banco-del-cobro": {
