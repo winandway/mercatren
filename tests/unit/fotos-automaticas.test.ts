@@ -128,7 +128,7 @@ describe("candados en el código", () => {
       "fr.definitiva = 1 AND fr.url = ${imagenesProducto.url}",
     );
     expect(guardadas).toMatch(
-      /inArray\(imagenesProducto\.productoId, ids\), SIN_FOTOS_ROTAS/,
+      /inArray\(imagenesProducto\.productoId, trozo\),\s*SIN_FOTOS_ROTAS/,
     );
     const automaticas = leer("src/lib/catalogo/fotos-automaticas.ts");
     expect(automaticas).toMatch(
