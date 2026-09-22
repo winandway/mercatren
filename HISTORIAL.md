@@ -124,6 +124,50 @@ diccionario). Y si sale que no, esperar los 7 minutos antes de tocar nada.
 
 ---
 
+## EL ENLACE NO OFRECÍA ZELLE Y NADIE DECÍA POR QUÉ (22 sep 2026)
+
+Richard creó el cobro de $6.483,77 pidiendo **«transferencia o Zelle»**. El
+enlace salió **solo con transferencia**. Nadie le dijo nada: ni un aviso, ni
+una nota, ni un motivo. Tuvo que preguntar, y hubo que ir a buscarlo a la
+base para contestarle.
+
+**La causa no era un fallo:** el tope `zelle_cobros_maximo_centavos` estaba
+en **$1.000** y la factura era de $6.483,77, así que `decidirZelle` devolvía
+`monto_alto` — que es justo lo que tiene que hacer. **El fallo era el
+silencio.**
+
+**Y el motivo existía desde siempre.** `decidirZelle` devuelve cuatro:
+`sin_receptor`, `no_habilitada`, `monto_bajo`, `monto_alto`. Lo que pasaba es
+que la única función que los leía, `zelleDelCobro()`, los tira a propósito y
+devuelve un sí/no: **la página pública del cobro no puede recibir un
+«motivo»** (candado en `cobros-anular.test.ts`, porque ahí vive el motivo de
+una anulación, escrito por una persona y capaz de nombrar al comercio). Esa
+decisión sigue siendo correcta. El error fue suponer que si quien paga no
+puede verlo, **quien cobra tampoco**.
+
+**Qué se hizo.** `porQueNoSaleZelle(tiendaId, monto)` en
+`src/lib/cobros/consultas.ts` devuelve el motivo entero, y la lectura de la
+configuración se compartió con `zelleDelCobro` (`leerDecisionZelle`), que
+sigue devolviendo exactamente lo mismo que antes. `crearCobroDesdePanel` lo
+calcula **solo si se pidió Zelle**, en su propio `try` —el cobro ya existe y
+un fallo leyendo la configuración no puede tumbar un enlace válido— y lo
+devuelve en `zelleNoSale`. La pantalla lo enseña en ámbar junto al enlace,
+**con el número exacto que hay que cambiar**: «el monto pasa del máximo por
+cobro, que está en $1.000».
+
+**El tipo vive en `zelle.ts`, no en `pedir.ts`**, porque ese archivo es
+`"use server"` y ahí solo pueden salir funciones async: un tipo exportado
+rompe el módulo entero y `tsc` no lo ve.
+
+**Qué NO hacer:** pasarle el motivo a la página pública «ya que lo tenemos».
+A quien paga no le sirve y puede delatar al comercio. Candado:
+`tests/unit/cobro-desde-panel.test.ts` exige los cuatro motivos en los dos
+idiomas, que el del tope lleve `{maximo}`, y que `zelleDelCobro` **siga sin**
+devolver el motivo. Comprobado en rojo.
+
+**Lo que sigue siendo decisión de Richard:** el valor del tope. Se cambia en
+Panel → Configuración → «Máximo por cobro (Zelle)».
+
 ## LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)
 
 Richard estaba emitiendo una factura real de **$6.483,77** con dos laptops
