@@ -224,7 +224,9 @@ export function CobrarLoCuadrado({
         } catch (fallo) {
           setEnviando(false);
           setError(
-            `No se pudo crear el cobro: ${fallo instanceof Error ? fallo.message : String(fallo)}`,
+            t("noSeCreo", {
+              motivo: fallo instanceof Error ? fallo.message : String(fallo),
+            }),
           );
           return;
         }

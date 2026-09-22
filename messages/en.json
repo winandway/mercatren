@@ -2576,6 +2576,7 @@
       "copiarEnlace": "Copy the link",
       "copiado": "Copied",
       "porWhatsApp": "Send on WhatsApp",
+      "noSeCreo": "The charge could not be created: {motivo}",
       "correoNoSalio": "The email did NOT go out. Copy the link and send it yourself over WhatsApp: the charge already exists and can be paid.",
       "tambienPorCorreo": "We also emailed it to them.",
       "mensajeWhatsApp": "Hi, here's the link to pay invoice {referencia}: {url}",
