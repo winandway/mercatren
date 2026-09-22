@@ -252,3 +252,44 @@ export async function medirElPanel(): Promise<{
 
   return { totalMs: Date.now() - arranque, layout, configuracion };
 }
+
+/**
+ * ══ QUÉ BANCO VE EL CLIENTE EN EL ENLACE DE COBRO (21 sep 2026) ══
+ *
+ * Richard: «yo solo tengo Mercury y Chase, no sé qué es Column». Los datos
+ * que el enlace le enseña a quien paga salen de variables del panel, y desde
+ * fuera no hay forma de saber A CUÁL de las dos cuentas apuntan — el archivo
+ * privado lo dejaba anotado como pendiente desde agosto.
+ *
+ * Esto lo dice, SIN enseñar los números: el nombre del banco y del titular
+ * (que es lo que el cliente lee), y de la cuenta y las rutas solo los cuatro
+ * últimos dígitos, que es lo justo para reconocerlas.
+ */
+export async function queBancoVeElCliente(): Promise<{
+  beneficiario: string | null;
+  banco: string | null;
+  cuentaTermina: string | null;
+  rutaAchTermina: string | null;
+  rutaWireTermina: string | null;
+  listo: boolean;
+}> {
+  const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+  const { env } = getCloudflareContext();
+  const leer = (clave: string) =>
+    (env as unknown as Record<string, string | undefined>)[clave]?.trim() ||
+    null;
+  const cola = (v: string | null) => (v ? v.slice(-4) : null);
+
+  const cuenta = leer("PAGO_CUENTA");
+  const ach = leer("PAGO_RUTA_ACH");
+  return {
+    beneficiario: leer("PAGO_BENEFICIARIO"),
+    banco: leer("PAGO_BANCO"),
+    cuentaTermina: cola(cuenta),
+    rutaAchTermina: cola(ach),
+    rutaWireTermina: cola(leer("PAGO_RUTA_WIRE")),
+    listo: Boolean(
+      leer("PAGO_BENEFICIARIO") && leer("PAGO_BANCO") && cuenta && ach,
+    ),
+  };
+}

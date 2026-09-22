@@ -61,6 +61,9 @@ const Peticion = z.discriminatedUnion("accion", [
   /* Cronometra las consultas del layout del panel y de Configuración (21 sep
      2026): el panel exige sesión y desde fuera no se puede medir. Solo lee. */
   z.object({ accion: z.literal("medir-panel") }),
+  /* Qué banco y qué titular ve quien paga por transferencia. Sin números:
+     solo los cuatro últimos dígitos (21 sep 2026). */
+  z.object({ accion: z.literal("banco-del-cobro") }),
   /* Las estadísticas de la base (18 sep 2026): enseña el plan de las
      consultas-trampa, corre ANALYZE (o `PRAGMA optimize`) y lo enseña otra
      vez. Sin estadísticas SQLite elegía el índice de `estado` en todas
@@ -227,6 +230,11 @@ export async function POST(peticion: Request) {
         planes: await planes(),
       };
       resultado = { corrio, antes, despues };
+      break;
+    }
+    case "banco-del-cobro": {
+      const { queBancoVeElCliente } = await import("@/lib/salud/medir-panel");
+      resultado = await queBancoVeElCliente();
       break;
     }
     case "medir-panel": {
