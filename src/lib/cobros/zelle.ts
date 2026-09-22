@@ -58,13 +58,54 @@ export type ZelleQueNoSale = {
 } | null;
 
 export type DecisionZelle =
-  | { disponible: true; minimoCentavos: number; maximoCentavos: number }
+  | {
+      disponible: true;
+      minimoCentavos: number;
+      maximoCentavos: number;
+      /** El mínimo guardado era imposible (mayor que el máximo) y se ignoró. */
+      minimoImposible?: true;
+    }
   | {
       disponible: false;
       motivo: "sin_receptor" | "no_habilitada" | "monto_bajo" | "monto_alto";
       minimoCentavos: number;
       maximoCentavos: number;
+      minimoImposible?: true;
     };
+
+/* ══════════════════════════════════════════════════════════════════════════
+   UN MÍNIMO POR ENCIMA DEL MÁXIMO APAGA ZELLE EN SILENCIO (22 sep 2026)
+   ══════════════════════════════════════════════════════════════════════════
+
+   ══ LO QUE PASÓ, A LA UNA DE LA MAÑANA ══
+
+   Richard tenía un cobro real de **$6.483,77** sin Zelle. Se le dijo que el
+   tope estaba en $1.000 y que lo subiera. Subió el tope a $7.000 —bien— y de
+   paso escribió **7000 en la casilla «Mínimo propio (USD)»** de esa tienda,
+   que está al lado y se parece. El panel lo guardó sin decir nada, y Zelle
+   siguió sin salir.
+
+   Con mínimo $7.000 y máximo $7.000, **NINGÚN monto puede pagar por Zelle**
+   salvo uno exactamente igual a $7.000. Es una configuración que no se puede
+   cumplir, y la pantalla la aceptó como si fuera normal.
+
+   ══ POR QUÉ ES UN FALLO NUESTRO Y NO UN ERROR SUYO ══
+
+   Dos casillas parecidas, una al lado de la otra, y la que no era apaga un
+   método de pago sin una palabra de aviso. Quien la llena mal no tiene forma
+   de enterarse: el enlace simplemente no ofrece Zelle, igual que cuando el
+   tope está bajo, igual que cuando la tienda está apagada. Tres causas
+   distintas con la misma cara.
+
+   ══ QUÉ SE HACE ══
+
+   Un mínimo mayor que el máximo **no se obedece**: no es una decisión, es un
+   número imposible. Se cae al mínimo general, y si ese también se pasa, no
+   hay mínimo. Y NO se hace en silencio: la decisión lo devuelve en
+   `minimoImposible`, para que el panel se lo diga a quien cobra.
+
+   Lo que de verdad lo previene está en `zelle-admin.ts`: el panel ya no
+   guarda un mínimo por encima del máximo, y dice por qué. */
 
 /** El mínimo que aplica, con la cadena de respaldos en un solo sitio. */
 export function minimoAplicable(
@@ -111,8 +152,29 @@ export function decidirZelle(
   config: ConfigZelleCobro,
   montoCentavos: number,
 ): DecisionZelle {
-  const minimoCentavos = minimoAplicable(config);
   const maximoCentavos = maximoAplicable(config);
+  const pedido = minimoAplicable(config);
+
+  /* UN MÍNIMO MAYOR QUE EL MÁXIMO NO SE OBEDECE: no deja pasar ningún monto,
+     así que no puede ser una decisión de nadie. Ver el comentario de arriba. */
+  /* `>=` y no `>`: con el mínimo IGUAL al máximo solo pasaría un monto
+     exactamente igual a los dos, que es igual de inservible. Es justo el caso
+     que se vio: mínimo $7.000 con máximo $7.000. */
+  const minimoImposible = pedido >= maximoCentavos;
+  let minimoCentavos = pedido;
+  if (minimoImposible) {
+    /* Se cae al general, ignorando el de la tienda… */
+    const general = minimoAplicable({
+      minimoTiendaCentavos: null,
+      minimoGlobalCentavos: config.minimoGlobalCentavos,
+    });
+    /* …y si el general también se pasa, no hay mínimo. Nunca se deja un
+       número que siga apagando Zelle para todo monto. */
+    minimoCentavos = general >= maximoCentavos ? 0 : general;
+  }
+  const avisoMinimo = minimoImposible
+    ? ({ minimoImposible: true } as const)
+    : {};
 
   /* El orden de los motivos es el orden de las causas: sin receptor no hay
      Zelle para nadie; sin el interruptor, no lo hay para esta tienda; y con
@@ -124,6 +186,7 @@ export function decidirZelle(
       motivo: "sin_receptor",
       minimoCentavos,
       maximoCentavos,
+      ...avisoMinimo,
     };
   }
   if (!config.habilitada) {
@@ -132,6 +195,7 @@ export function decidirZelle(
       motivo: "no_habilitada",
       minimoCentavos,
       maximoCentavos,
+      ...avisoMinimo,
     };
   }
   if (montoCentavos < minimoCentavos) {
@@ -140,6 +204,7 @@ export function decidirZelle(
       motivo: "monto_bajo",
       minimoCentavos,
       maximoCentavos,
+      ...avisoMinimo,
     };
   }
   /**
@@ -160,9 +225,10 @@ export function decidirZelle(
       motivo: "monto_alto",
       minimoCentavos,
       maximoCentavos,
+      ...avisoMinimo,
     };
   }
-  return { disponible: true, minimoCentavos, maximoCentavos };
+  return { disponible: true, minimoCentavos, maximoCentavos, ...avisoMinimo };
 }
 
 /**

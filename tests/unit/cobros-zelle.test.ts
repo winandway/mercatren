@@ -192,12 +192,23 @@ describe("el tope de Zelle", () => {
 
   it("el mínimo manda antes que el tope", () => {
     /* Los otros motivos se arreglan de este lado; «monto_alto» solo se
-       arregla cobrando por otra vía, así que va de último. */
+       arregla cobrando por otra vía, así que va de último.
+
+       ══ LOS NÚMEROS CAMBIARON EL 22 SEP 2026, NO LO QUE SE EXIGE ══
+       El ejemplo de antes era mínimo $200 con tope $100: una configuración
+       que NINGÚN monto puede cumplir y que desde hoy no se obedece (ver
+       `zelle-minimo-imposible.test.ts`, el caso de la factura de $6.483,77).
+       Se cambia por un mínimo y un tope que conviven —$200 y $1.000— para
+       que siga midiendo lo único que este candado protege: que con un monto
+       por debajo del mínimo el motivo sea «monto_bajo» y no «monto_alto». */
     const d = decidirZelle(
-      { ...base, minimoGlobalCentavos: 20_000, maximoGlobalCentavos: 10_000 },
+      { ...base, minimoGlobalCentavos: 20_000, maximoGlobalCentavos: 100_000 },
       5_000,
     );
     expect(d.disponible).toBe(false);
     if (!d.disponible) expect(d.motivo).toBe("monto_bajo");
+    /* Y el mínimo se respetó: no se tocó por ser un caso normal. */
+    expect(d.minimoCentavos).toBe(20_000);
+    expect(d.minimoImposible).toBeUndefined();
   });
 });

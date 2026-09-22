@@ -9,6 +9,7 @@ import { configuracion, zelleCobrosTienda } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
 import {
   LLAVE_POLITICA_ZELLE,
+  maximoAplicable,
   politicaZelleDe,
   type PoliticaZelle,
 } from "@/lib/cobros/zelle";
@@ -164,6 +165,40 @@ export async function guardarZelleDeTienda(
   }
 
   const db = getDb();
+
+  /* ══ UN MÍNIMO POR ENCIMA DEL MÁXIMO NO SE GUARDA (22 sep 2026) ══
+
+     Richard, con un cobro real de $6.483,77 sin Zelle a la una de la mañana,
+     subió el tope a $7.000 —bien— y de paso escribió 7000 en «Mínimo propio
+     (USD)», que es la casilla de al lado. El panel lo guardó sin decir nada y
+     Zelle siguió sin salir, porque con mínimo $7.000 y máximo $7.000 ningún
+     monto pasa.
+
+     Dos casillas parecidas juntas, y la que no era apaga un método de pago en
+     silencio. Aquí se para, diciendo el máximo vigente para que se vea de
+     inmediato que el número está en el lado equivocado. `decidirZelle` además
+     desobedece los imposibles que ya estén guardados. */
+  if (minimoCentavos !== null && minimoCentavos > 0) {
+    const [topeFila] = await db
+      .select({ valor: configuracion.valor })
+      .from(configuracion)
+      .where(eq(configuracion.clave, LLAVE_MAXIMO_GLOBAL))
+      .limit(1)
+      .catch(() => []);
+    const maximo = maximoAplicable({
+      maximoGlobalCentavos: topeFila
+        ? Number.parseInt(topeFila.valor, 10)
+        : null,
+    });
+    if (minimoCentavos >= maximo) {
+      return {
+        ok: false,
+        mensaje: t("zelleCobros.minimoSobreMaximo", {
+          maximo: (maximo / 100).toFixed(2),
+        }),
+      };
+    }
+  }
   await db
     .insert(zelleCobrosTienda)
     .values({

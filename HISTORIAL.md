@@ -168,6 +168,44 @@ devolver el motivo. Comprobado en rojo.
 **Lo que sigue siendo decisión de Richard:** el valor del tope. Se cambia en
 Panel → Configuración → «Máximo por cobro (Zelle)».
 
+### Y LO QUE PASÓ DESPUÉS: EL MÍNIMO EN LA CASILLA DE AL LADO (misma noche)
+
+Con el motivo ya en pantalla, se le dijo que el tope estaba en $1.000 y que lo
+subiera. **Lo subió a $7.000, bien — y de paso escribió 7000 en «Mínimo propio
+(USD)» de esa tienda, que es la casilla de al lado y se parece.** El panel lo
+guardó sin decir nada y Zelle siguió sin salir. Sus palabras, a la una de la
+mañana: _«le he dado todo, le he dado las configuraciones, le he guardado,
+luego actualizo el link y no sale»_.
+
+**Con mínimo $7.000 y máximo $7.000 no pasa NINGÚN monto** (salvo uno
+exactamente igual). Es una configuración imposible de cumplir, y la pantalla
+la aceptó como si fuera normal: tres causas distintas —tope bajo, tienda
+apagada, mínimo imposible— con exactamente la misma cara.
+
+**Es un fallo nuestro, no un error suyo.** Dos casillas parecidas juntas, y la
+que no era apaga un método de pago sin una palabra.
+
+**Los dos arreglos:**
+
+1. **Un mínimo mayor o igual que el máximo no se obedece** (`decidirZelle`):
+   no es una decisión, es un número que no deja pasar nada. Se cae al mínimo
+   general; si ese también se pasa, no queda mínimo. Y no en silencio: la
+   decisión devuelve `minimoImposible` para que el panel lo diga. Esto
+   destrabó el enlace de Richard sin que él tocara nada más.
+2. **El panel ya no lo guarda** (`guardarZelleDeTienda`): se para antes de
+   escribir y dice el máximo vigente, para que se vea de inmediato que el
+   número iba en la otra casilla. El texto de ayuda de la casilla ahora
+   advierte que tiene que ser MENOR que el máximo.
+
+**El candado:** `tests/unit/zelle-minimo-imposible.test.ts`, con el caso exacto
+de la factura de $6.483,77, comprobado en rojo. Y `cobros-zelle.test.ts` →
+«el mínimo manda antes que el tope» cambió sus NÚMEROS (usaba mínimo $200 con
+tope $100, que es justo una configuración imposible) sin cambiar lo que exige.
+
+**Lo que NO se tocó:** un mínimo normal sigue filtrando lo que no compensa, el
+tope sigue mandando, y una tienda apagada sigue apagada. Solo se desobedece el
+imposible.
+
 ## LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)
 
 Richard estaba emitiendo una factura real de **$6.483,77** con dos laptops

@@ -1367,7 +1367,9 @@
       "zelleCobros": {
         "montoInvalido": "The minimum must be an amount in dollars, like 200 or 49.90.",
         "tiendaInvalida": "That store doesn't exist.",
-        "guardado": "Saved. It applies from the next link that gets opened."
+        "guardado": "Saved. It applies from the next link that gets opened.",
+        "minimoSobreMaximo": "Not saved: that minimum (${maximo} is the maximum per payment request) would turn Zelle off for EVERY amount. The minimum has to be lower than the maximum. Did you mean to change the maximum, in the yellow box above?",
+        "minimoPropioAyuda": "Empty = use the general one. Zero = no minimum. It must be LOWER than the maximum per payment request."
       },
       "faltaRut": "The company's RUT is missing.",
       "rutFormato": "A RUT has 8 or 9 digits plus its check digit. For example: 76.123.456-0",
