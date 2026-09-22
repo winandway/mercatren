@@ -112,7 +112,17 @@ export const LLAVE_ULTIMA_LLAMADA = "cj_ultima_llamada";
 /** Cuánto vale lo anotado antes de considerarlo viejo: 30 minutos. */
 export const FRESCURA_MS = 30 * 60 * 1000;
 
-export type UltimaLlamada = { ok: boolean; enMs: number };
+export type UltimaLlamada = {
+  /** ¿Le fue bien a la llamada? */
+  ok: boolean;
+  /**
+   * ¿CJ estaba contestando? Es lo que mira la sonda: una llamada puede
+   * fallar porque el producto se descontinuó y CJ estar perfectamente vivo.
+   * Ver `cjSigueVivoTrasElFallo` al final de este archivo (21 sep 2026).
+   */
+  vivo: boolean;
+  enMs: number;
+};
 
 /** Lee lo anotado. Devuelve null si no hay nada o si ya está viejo. */
 export function leerUltimaLlamada(
@@ -123,10 +133,13 @@ export function leerUltimaLlamada(
   try {
     const d = JSON.parse(guardado) as Partial<UltimaLlamada>;
     if (typeof d.ok !== "boolean" || typeof d.enMs !== "number") return null;
+    /* Los apuntes de antes del 21 sep 2026 no traen `vivo`: ahí «le fue
+       bien» era lo único que se sabía, y se respeta tal cual. */
+    const vivo = typeof d.vivo === "boolean" ? d.vivo : d.ok;
     /* Un dato de hace horas no dice cómo está CJ AHORA. Se descarta y la
        sonda contesta «sin datos» en vez de inventar un «ok» viejo. */
     if (ahoraMs - d.enMs > FRESCURA_MS) return null;
-    return { ok: d.ok, enMs: d.enMs };
+    return { ok: d.ok, vivo, enMs: d.enMs };
   } catch {
     return null;
   }
@@ -178,4 +191,86 @@ export function leerPuntosDelDia(
   } catch {
     return null;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   «CJ NO RESPONDE» CUANDO LO QUE PASÓ ES QUE UN PRODUCTO SE DESCONTINUÓ
+   (21 sep 2026)
+   ══════════════════════════════════════════════════════════════════════════
+
+   ══ LO QUE SE VEÍA ══
+
+   `/datos/salud` decía `proveedor: "error"` con CJ perfectamente vivo. En el
+   mismo renglón, el reloj contaba lo que de verdad había pasado:
+
+     «afinado: 0 ok, 0 agotados, 1 fallidos · último fallo: variantes:
+      Product has been removed from shelves, pid:1985602065137795073»
+
+   CJ contestó. Contestó que ESE producto ya no está en su estante, que es un
+   dato del catálogo y no una avería. Pero `anotarComoFue(false)` se llamaba
+   para cualquier respuesta con `result: false`, la sonda leía ese apunte, y
+   el vigilante levantaba una alerta ROJA —«La conexión con CJ no responde»—
+   con un correo a soporte.
+
+   ══ POR QUÉ IMPORTA ══
+
+   Es la misma trampa del 3 de septiembre («sin puntos» no es «caído»), con
+   otra cara. Una alarma roja que salta sin avería enseña a ignorar las
+   alarmas rojas, y la que importa —CJ caído con ventas de EE. UU. ya
+   cobradas y sin pedido creado— llega con el mismo color que el ruido.
+
+   ══ LO QUE SE DISTINGUE AHORA ══
+
+   La pregunta de la sonda es «¿CJ está contestando?», no «¿le fue bien a la
+   última llamada?». Tres casos:
+
+   1. No hubo respuesta (red caída, 5xx): CJ no contesta → la sonda avisa.
+   2. CJ contestó «no» por ESTE producto (descontinuado, no existe, sin
+      variantes): CJ está vivo → la sonda calla. El fallo del producto ya se
+      cuenta en «fallidos» del reloj y en `errores_sistema`.
+   3. CJ contestó «no» por la llave, el permiso o la firma: eso SÍ deja el
+      circuito de dinero muerto → la sonda avisa.
+
+   Lo desconocido se trata como avería a propósito: esconder un fallo que no
+   se entiende es peor que una alarma de más. Si aparece un mensaje nuevo de
+   negocio, se agrega a esta lista con su fecha. */
+
+/**
+ * Los «no» que son del PRODUCTO, no de CJ. Cada uno se agrega aquí solo
+ * después de haberlo visto de verdad en producción, con su fecha.
+ */
+const NOS_DEL_PRODUCTO = [
+  /* 21 sep 2026, afinado de variantes, pid 1985602065137795073. */
+  "removed from shelves",
+  /* Mismo origen: CJ contesta esto cuando el pid ya no está en su catálogo. */
+  "product does not exist",
+  "product not exist",
+  "product not found",
+  "does not exist or has been deleted",
+  /* Un producto sin variantes publicadas: el afinado no puede leer tallas. */
+  "no variant",
+  "variant does not exist",
+  "sku does not exist",
+  "sku not found",
+];
+
+/**
+ * ¿Sigue vivo CJ después de este fallo?
+ *
+ * @param estadoHttp El estado HTTP de la respuesta, o 0 si no hubo ninguna.
+ * @param mensaje El `message` que devolvió CJ, si lo devolvió.
+ */
+export function cjSigueVivoTrasElFallo(
+  estadoHttp: number,
+  mensaje: string | null | undefined,
+): boolean {
+  /* Sin respuesta, o con un error del servidor de CJ, no hay nada que
+     interpretar: CJ no está contestando. */
+  if (estadoHttp === 0 || estadoHttp >= 500) return false;
+  if (!mensaje) return false;
+  const t = mensaje.toLowerCase();
+  /* Quedarse sin puntos tiene su propio estado («sin_puntos»), que ya explica
+     qué hacer. No es ni avería ni un «no» del producto. */
+  if (esSinPuntos(mensaje)) return false;
+  return NOS_DEL_PRODUCTO.some((n) => t.includes(n));
 }

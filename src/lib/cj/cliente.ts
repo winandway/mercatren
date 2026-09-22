@@ -1,6 +1,7 @@
 import "server-only";
 import {
   LLAVE_SIN_PUNTOS,
+  cjSigueVivoTrasElFallo,
   esSinPuntos,
   esperarHasta,
   minutosParaVolver,
@@ -116,6 +117,11 @@ async function pedirToken(llave: string): Promise<RespuestaCj<string>> {
     });
   } catch (fallo) {
     console.error("[cj] no se pudo hablar con CJ:", fallo);
+    /* EL MISMO HUECO QUE EL DE ABAJO, Y PEOR (21 sep 2026): si CJ no
+       contesta ni para dar el token, NINGUNA llamada del día llega a
+       anotarse, así que la sonda se quedaba con el último apunte bueno y
+       decía «ok» hasta que cumpliera media hora. */
+    await anotarComoFue(false, false);
     return { ok: false, motivo: "No se pudo conectar con CJ." };
   }
 
@@ -127,6 +133,9 @@ async function pedirToken(llave: string): Promise<RespuestaCj<string>> {
 
   const token = cuerpo.data?.accessToken;
   if (!respuesta.ok || !token) {
+    /* Una llave rechazada deja el circuito de dinero muerto: se anota como
+       CJ no disponible para que la sonda lo diga (21 sep 2026). */
+    await anotarComoFue(false, false);
     /* Se devuelve el motivo que dio CJ: «no se pudo» obliga a entrar a su panel
        a adivinar, que es justo lo que esto viene a evitar. */
     return {
@@ -244,6 +253,10 @@ export async function llamarCj<T>(
     });
   } catch (fallo) {
     console.error("[cj] no se pudo llamar a CJ:", fallo);
+    /* ESTO SÍ ES «CJ NO CONTESTA», Y ANTES NO SE ANOTABA (21 sep 2026): la
+       sonda se enteraba solo cuando el último apunte bueno cumplía media
+       hora. Media hora de ventas de EE. UU. cobradas sin pedido creado. */
+    await anotarComoFue(false, false);
     return { ok: false, motivo: "No se pudo conectar con CJ." };
   }
 
@@ -255,14 +268,19 @@ export async function llamarCj<T>(
 
   if (!respuesta.ok || cuerpo.result === false) {
     if (esSinPuntos(cuerpo.message)) await anotarSinPuntos(cuerpo.message);
-    await anotarComoFue(false);
+    /* «Product has been removed from shelves» es CJ contestando, no CJ
+       caído: la sonda no puede leerlo como avería (21 sep 2026). */
+    await anotarComoFue(
+      false,
+      cjSigueVivoTrasElFallo(respuesta.status, cuerpo.message),
+    );
     return {
       ok: false,
       motivo: cuerpo.message ?? `CJ respondió ${respuesta.status}.`,
     };
   }
 
-  await anotarComoFue(true);
+  await anotarComoFue(true, true);
   return { ok: true, datos: cuerpo.data as T };
 }
 
@@ -280,12 +298,12 @@ export async function llamarCj<T>(
  *
  * Nunca lanza ni frena la llamada: es un apunte al margen.
  */
-async function anotarComoFue(ok: boolean): Promise<void> {
+async function anotarComoFue(ok: boolean, vivo: boolean): Promise<void> {
   try {
     const { getDb } = await import("@/lib/db");
     const { configuracion } = await import("@/lib/db/schema");
     const { LLAVE_ULTIMA_LLAMADA } = await import("@/lib/cj/puntos");
-    const valor = JSON.stringify({ ok, enMs: Date.now() });
+    const valor = JSON.stringify({ ok, vivo, enMs: Date.now() });
     await getDb()
       .insert(configuracion)
       .values({ clave: LLAVE_ULTIMA_LLAMADA, valor })

@@ -96,7 +96,13 @@ export async function saludDelProveedor(): Promise<string> {
 
     const ultima = leerUltimaLlamada(de(LLAVE_ULTIMA_LLAMADA), Date.now());
     if (!ultima) return "sin_datos";
-    return ultima.ok ? "ok" : "error";
+    /* LA PREGUNTA ES «¿CJ CONTESTA?», NO «¿LE FUE BIEN A LA ÚLTIMA
+       LLAMADA?» (21 sep 2026). Un producto descontinuado hace fallar la
+       llamada con CJ perfectamente vivo, y leer eso como avería levantaba
+       una alerta ROJA y un correo por algo que no estaba roto. El fallo del
+       producto se cuenta aparte, en «fallidos» del reloj. Ver
+       `cjSigueVivoTrasElFallo` en `lib/cj/puntos.ts`. */
+    return ultima.vivo ? "ok" : "error";
   } catch {
     return "error";
   }
