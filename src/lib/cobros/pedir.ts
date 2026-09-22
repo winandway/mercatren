@@ -2,6 +2,8 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
+import type { ZelleQueNoSale } from "@/lib/cobros/zelle";
 import { nanoid } from "nanoid";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
@@ -77,6 +79,9 @@ export type ResultadoCobro =
       /** `false` cuando el cobro existe pero el correo NO salió: la
           pantalla lo dice para que se mande por WhatsApp (21 sep 2026). */
       correoEnviado: boolean;
+      /** Por qué el enlace NO va a ofrecer Zelle, aunque se haya pedido
+          (22 sep 2026). `null` cuando sí lo ofrece o no se pidió. */
+      zelleNoSale: ZelleQueNoSale;
     }
   | { ok: false; mensaje: string; campos?: string[] };
 
@@ -450,11 +455,34 @@ async function crearCobroDeVerdad(datos: FormData): Promise<ResultadoCobro> {
     console.error("[cobro-panel] creado; el correo no salió:", fallo);
   }
 
+  /* ══ SI SE PIDIÓ ZELLE Y NO VA A SALIR, SE DICE (22 sep 2026) ══
+     Richard pidió «transferencia o Zelle» en un cobro de $6.483,77, el
+     enlace salió solo con transferencia y nadie le explicó nada: el tope de
+     Zelle estaba en $1.000. En su propio `try` porque el cobro YA existe:
+     un fallo leyendo la configuración no puede tumbar un enlace válido. */
+  let zelleNoSale: ZelleQueNoSale = null;
+  if (peticion.metodos!.includes("zelle")) {
+    try {
+      const { porQueNoSaleZelle } = await import("@/lib/cobros/consultas");
+      const z = await porQueNoSaleZelle(tienda.id, primera.montoCentavos);
+      if (!z.saldra && z.motivo) {
+        zelleNoSale = {
+          motivo: z.motivo,
+          minimoCentavos: z.minimoCentavos,
+          maximoCentavos: z.maximoCentavos,
+        };
+      }
+    } catch (fallo) {
+      console.error("[cobro-panel] no se pudo revisar Zelle:", fallo);
+    }
+  }
+
   revalidatePath("/[locale]/panel/cobros/enlaces", "page");
   return {
     ok: true,
     url,
     correoEnviado,
+    zelleNoSale,
     referencia: primera.referencia,
     /* Todas las partes, para que el comercio pueda mandarlas cuando toque:
        la primera hoy y la siguiente cuando al cliente le vuelva el cupo. */

@@ -56,6 +56,12 @@ export function CobrarLoCuadrado({
   /* Si la pestaña se recargó después de crear un cobro, el enlace vuelve:
      ver la nota de `sessionStorage` más abajo. Media hora de margen. */
   const [correoSalio, setCorreoSalio] = useState(true);
+  /* Por qué el enlace no ofrece Zelle, si se pidió (22 sep 2026). */
+  const [zelleNoSale, setZelleNoSale] = useState<{
+    motivo: string;
+    minimoCentavos: number;
+    maximoCentavos: number;
+  } | null>(null);
   const [hecho, setHecho] = useState<ParteCreada[] | null>(() => {
     if (typeof window === "undefined") return null;
     try {
@@ -162,6 +168,24 @@ export function CobrarLoCuadrado({
           })}
         </ul>
 
+        {/* ══ POR QUÉ NO SALE ZELLE (22 sep 2026) ══
+            Se pidió «transferencia o Zelle», el enlace salió sin Zelle y
+            Richard tuvo que preguntar por qué. Se lo dice quien sí puede
+            arreglarlo, con el número exacto que hay que cambiar. */}
+        {zelleNoSale ? (
+          <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-relaxed font-medium text-amber-900">
+            {t(`zelleNoSale.${zelleNoSale.motivo}`, {
+              minimo: (zelleNoSale.minimoCentavos / 100).toLocaleString(
+                "en-US",
+                { style: "currency", currency: "USD" },
+              ),
+              maximo: (zelleNoSale.maximoCentavos / 100).toLocaleString(
+                "en-US",
+                { style: "currency", currency: "USD" },
+              ),
+            })}
+          </p>
+        ) : null}
         {correoSalio ? (
           <p className="mt-3 text-xs leading-relaxed text-tinta-suave">
             {hecho.length > 1
@@ -234,6 +258,7 @@ export function CobrarLoCuadrado({
         if (r.ok) {
           setHecho(r.partes);
           setCorreoSalio(r.correoEnviado);
+          setZelleNoSale(r.zelleNoSale);
           /* ══ EL ENLACE NO SE PUEDE PERDER (21 sep 2026) ══
              Richard cuadró una factura, el enlace salió en pantalla, la
              pestaña se recargó y se quedó sin nada que mandarle al cliente:

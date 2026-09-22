@@ -2576,6 +2576,12 @@
       "copiarEnlace": "Copiar el enlace",
       "copiado": "Copiado",
       "porWhatsApp": "Mandar por WhatsApp",
+      "zelleNoSale": {
+        "monto_alto": "Este enlace NO ofrece Zelle: el monto pasa del máximo por cobro, que está en {maximo}. Si quieres que se pueda pagar por Zelle, sube ese tope en Configuración.",
+        "monto_bajo": "Este enlace NO ofrece Zelle: el monto no llega al mínimo de {minimo}.",
+        "no_habilitada": "Este enlace NO ofrece Zelle: este comercio lo tiene cerrado. Se enciende en Comercios.",
+        "sin_receptor": "Este enlace NO ofrece Zelle: falta cargar el correo que recibe los Zelle. Se pone en la configuración del sitio."
+      },
       "noSeCreo": "No se pudo crear el cobro: {motivo}",
       "correoNoSalio": "El correo NO salió. Copia el enlace y mándaselo tú por WhatsApp: el cobro ya existe y se puede pagar.",
       "tambienPorCorreo": "También se lo mandamos por correo.",

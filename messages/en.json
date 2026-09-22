@@ -2576,6 +2576,12 @@
       "copiarEnlace": "Copy the link",
       "copiado": "Copied",
       "porWhatsApp": "Send on WhatsApp",
+      "zelleNoSale": {
+        "monto_alto": "This link does NOT offer Zelle: the amount is over the per-charge maximum of {maximo}. Raise that cap in Settings if you want Zelle available.",
+        "monto_bajo": "This link does NOT offer Zelle: the amount is below the {minimo} minimum.",
+        "no_habilitada": "This link does NOT offer Zelle: this store has it turned off. Turn it on under Stores.",
+        "sin_receptor": "This link does NOT offer Zelle: the receiving Zelle email is missing. Add it in the site settings."
+      },
       "noSeCreo": "The charge could not be created: {motivo}",
       "correoNoSalio": "The email did NOT go out. Copy the link and send it yourself over WhatsApp: the charge already exists and can be paid.",
       "tambienPorCorreo": "We also emailed it to them.",

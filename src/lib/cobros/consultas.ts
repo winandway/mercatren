@@ -407,27 +407,7 @@ export async function listarEnlacesDeCobro(
  * panel y la variable del receptor— y le pasa todo a la función pura, que es
  * la que decide y la que está probada. Aquí solo se lee.
  */
-export async function zelleDelCobro(
-  tiendaId: string,
-  montoCentavos: number,
-): Promise<
-  | { disponible: true; receptor: string; minimoCentavos: number }
-  | {
-      disponible: false;
-      /**
-       * ¿SE PASÓ DEL TOPE DE ZELLE?
-       *
-       * Va como un sí/no y NO como el motivo entero, y es deliberado: la página
-       * pública del cobro tiene un candado que prohíbe la palabra «motivo» en
-       * todo el archivo (`cobros-anular.test.ts`), porque ahí vive el motivo de
-       * una anulación —escrito por una persona, y puede nombrar al comercio—
-       * que jamás puede llegarle a quien paga. Este dato es otra cosa, pero la
-       * regla es del archivo, no del dato: se le pasa lo justo.
-       */
-      topeSuperado: boolean;
-      maximoCentavos: number;
-    }
-> {
+async function leerDecisionZelle(tiendaId: string, montoCentavos: number) {
   const { decidirZelle } = await import("@/lib/cobros/zelle");
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
   const { zelleCobrosTienda, configuracion } = await import("@/lib/db/schema");
@@ -499,6 +479,76 @@ export async function zelleDelCobro(
       receptorConfigurado: Boolean(receptor),
       maximoGlobalCentavos: Number.isFinite(maximoGlobal) ? maximoGlobal : null,
     },
+    montoCentavos,
+  );
+
+  return { decision, receptor };
+}
+
+/**
+ * ══ POR QUÉ NO VA A SALIR ZELLE, PARA QUIEN CREA EL COBRO (22 sep 2026) ══
+ *
+ * Richard emitió un cobro de $6.483,77 pidiendo «transferencia o Zelle», el
+ * enlace salió SIN Zelle y nadie le dijo por qué. Tuvo que preguntarlo. El
+ * motivo existía desde el principio —`decidirZelle` lo devuelve— pero se
+ * quedaba dentro de la página pública, que a propósito solo recibe un sí/no.
+ *
+ * Esto es lo contrario: se lo dice a QUIEN COBRA, que es quien puede
+ * arreglarlo (subir el tope, encender la tienda, cargar el receptor). Nunca
+ * llega a quien paga.
+ */
+export async function porQueNoSaleZelle(
+  tiendaId: string,
+  montoCentavos: number,
+): Promise<{
+  saldra: boolean;
+  motivo: "sin_receptor" | "no_habilitada" | "monto_bajo" | "monto_alto" | null;
+  minimoCentavos: number;
+  maximoCentavos: number;
+}> {
+  const { decision, receptor } = await leerDecisionZelle(
+    tiendaId,
+    montoCentavos,
+  );
+  if (decision.disponible && receptor) {
+    return {
+      saldra: true,
+      motivo: null,
+      minimoCentavos: decision.minimoCentavos,
+      maximoCentavos: decision.maximoCentavos,
+    };
+  }
+  return {
+    saldra: false,
+    motivo: decision.disponible ? "sin_receptor" : decision.motivo,
+    minimoCentavos: decision.minimoCentavos,
+    maximoCentavos: decision.maximoCentavos,
+  };
+}
+
+export async function zelleDelCobro(
+  tiendaId: string,
+  montoCentavos: number,
+): Promise<
+  | { disponible: true; receptor: string; minimoCentavos: number }
+  | {
+      disponible: false;
+      /**
+       * ¿SE PASÓ DEL TOPE DE ZELLE?
+       *
+       * Va como un sí/no y NO como el motivo entero, y es deliberado: la página
+       * pública del cobro tiene un candado que prohíbe la palabra «motivo» en
+       * todo el archivo (`cobros-anular.test.ts`), porque ahí vive el motivo de
+       * una anulación —escrito por una persona, y puede nombrar al comercio—
+       * que jamás puede llegarle a quien paga. Este dato es otra cosa, pero la
+       * regla es del archivo, no del dato: se le pasa lo justo.
+       */
+      topeSuperado: boolean;
+      maximoCentavos: number;
+    }
+> {
+  const { decision, receptor } = await leerDecisionZelle(
+    tiendaId,
     montoCentavos,
   );
 

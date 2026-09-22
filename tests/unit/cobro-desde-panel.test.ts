@@ -127,3 +127,61 @@ describe("el correo del cobro no falla en silencio (21 sep 2026)", () => {
     expect(cuerpo).not.toMatch(/\.catch\(\(\) => \[\]\)/);
   });
 });
+
+describe("por qué no sale Zelle, dicho a quien cobra (22 sep 2026)", () => {
+  /* Richard pidió «transferencia o Zelle» en un cobro de $6.483,77, el
+     enlace salió solo con transferencia y nadie le dijo que el tope de Zelle
+     estaba en $1.000: tuvo que preguntarlo. */
+  const pedir = readFileSync("src/lib/cobros/pedir.ts", "utf8");
+  const consultas = readFileSync("src/lib/cobros/consultas.ts", "utf8");
+  const boton = readFileSync(
+    "src/components/panel/facturar/cobrar-lo-cuadrado.tsx",
+    "utf8",
+  );
+  const es = JSON.parse(readFileSync("messages/es.json", "utf8"));
+  const en = JSON.parse(readFileSync("messages/en.json", "utf8"));
+
+  it("el motivo se calcula al crear el cobro y viaja en el resultado", () => {
+    expect(pedir).toMatch(/porQueNoSaleZelle/);
+    expect(pedir).toMatch(/zelleNoSale,/);
+    expect(consultas).toMatch(/export async function porQueNoSaleZelle/);
+  });
+
+  it("nunca se calcula si no se pidió Zelle", () => {
+    expect(pedir).toMatch(/if \(peticion\.metodos!\.includes\("zelle"\)\)/);
+  });
+
+  it("y un fallo leyendo la configuración NO tumba el enlace ya creado", () => {
+    const desde = pedir.indexOf("porQueNoSaleZelle");
+    const alrededor = pedir.slice(desde - 400, desde + 600);
+    expect(alrededor).toMatch(/try \{/);
+    expect(alrededor).toMatch(/catch \(fallo\)/);
+  });
+
+  it("la pantalla lo dice, con los cuatro motivos en los dos idiomas", () => {
+    expect(boton).toMatch(/zelleNoSale\.\$\{zelleNoSale\.motivo\}/);
+    for (const m of [
+      "sin_receptor",
+      "no_habilitada",
+      "monto_bajo",
+      "monto_alto",
+    ]) {
+      expect(es.panel.calculadora.zelleNoSale[m]).toBeTruthy();
+      expect(en.panel.calculadora.zelleNoSale[m]).toBeTruthy();
+    }
+    /* El del tope dice el número que hay que cambiar: sin él, el aviso
+       manda a buscar. */
+    expect(es.panel.calculadora.zelleNoSale.monto_alto).toContain("{maximo}");
+    expect(en.panel.calculadora.zelleNoSale.monto_alto).toContain("{maximo}");
+  });
+
+  it("el motivo NUNCA sale por la página pública del cobro", () => {
+    /* A quien paga no le importa y puede delatar al comercio: la página
+       pública sigue recibiendo un sí/no. */
+    const publica = readFileSync("src/lib/cobros/consultas.ts", "utf8");
+    const desde = publica.indexOf("export async function zelleDelCobro");
+    const cuerpo = publica.slice(desde, publica.indexOf("\n}", desde));
+    expect(cuerpo).not.toMatch(/motivo: decision\.motivo/);
+    expect(cuerpo).toMatch(/topeSuperado/);
+  });
+});

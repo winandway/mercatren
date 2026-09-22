@@ -44,6 +44,19 @@ export type ConfigZelleCobro = {
   maximoGlobalCentavos?: number | null;
 };
 
+/**
+ * POR QUÉ UN ENLACE NO VA A OFRECER ZELLE. `null` cuando sí lo ofrece.
+ *
+ * Vive aquí y no en `cobros/pedir.ts` porque ese archivo es `"use server"` y
+ * ahí solo pueden salir funciones async: un tipo exportado rompe el módulo
+ * entero y `tsc` no lo ve (lo ve la compilación, en producción).
+ */
+export type ZelleQueNoSale = {
+  motivo: "sin_receptor" | "no_habilitada" | "monto_bajo" | "monto_alto";
+  minimoCentavos: number;
+  maximoCentavos: number;
+} | null;
+
 export type DecisionZelle =
   | { disponible: true; minimoCentavos: number; maximoCentavos: number }
   | {
