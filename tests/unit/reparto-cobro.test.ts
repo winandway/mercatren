@@ -162,15 +162,32 @@ describe("el enlace NUNCA cae a un método que el comercio descartó (26 ago 202
     );
     /* El fallo: el comercio calculaba su factura para transferencia —sin el
        2,9% + $0.30—, quitaba la tarjeta, y si la transferencia no estaba
-       disponible el enlace le ofrecía tarjeta igual, en silencio. */
-    expect(fuente).toContain("if (!conTarjeta) {");
+       disponible el enlace le ofrecía tarjeta igual, en silencio.
+
+       ══ EL CANDADO CAMBIÓ DE FORMA EL 22 SEP 2026 ══
+       Antes exigía `if (!conTarjeta) {` y que fuera antes del primer
+       `return <PagarCobro`. Esa cuenta se hacía mirando solo `zelle` y
+       `transferencia`, y por eso se tragaba el cable y la segunda cuenta
+       (el callejón sin salida de la factura de $6.483,77). Lo que se exige
+       ahora es lo MISMO en sustancia y más fuerte: el aviso sale cuando la
+       lista de métodos disponibles está vacía —lista que ya cuenta el cable—
+       y la tarjeta solo se dibuja si la tarjeta está EN esa lista. */
     expect(fuente).toContain("sinMetodoDisponible");
-    /* Y el orden importa: el aviso va ANTES del `return <PagarCobro`. */
-    const sinMetodos = fuente.indexOf("if (!zelle && !transferencia)");
-    const avisa = fuente.indexOf("if (!conTarjeta) {", sinMetodos);
+    /* La tarjeta entra en la lista solo si el cobro la acepta… */
+    expect(fuente).toContain("tarjeta: conTarjeta");
+    /* …y el aviso va ANTES de cualquier caída a la tarjeta. */
+    const sinMetodos = fuente.indexOf("if (disponibles.length === 0) {");
+    const avisa = fuente.indexOf("sinMetodoDisponible", sinMetodos);
     const caeATarjeta = fuente.indexOf("return <PagarCobro", sinMetodos);
+    expect(sinMetodos).toBeGreaterThan(-1);
     expect(avisa).toBeGreaterThan(sinMetodos);
     expect(avisa).toBeLessThan(caeATarjeta);
+    /* Y ese `return <PagarCobro` solo se alcanza con la tarjeta disponible. */
+    const antesDeLaTarjeta = fuente.slice(
+      fuente.lastIndexOf("if (", caeATarjeta),
+      caeATarjeta,
+    );
+    expect(antesDeLaTarjeta).toContain('disponibles[0] === "tarjeta"');
   });
 
   it("«Transferencia o Zelle» manda los DOS métodos, no uno", () => {

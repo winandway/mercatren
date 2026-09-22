@@ -15,6 +15,94 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA PÁGINA DE PAGO SE QUEDÓ SIN SALIDA, Y SIN A QUIÉN ESCRIBIRLE (22 sep 2026)
+
+Richard emitió el cobro **MT-C-000004** de **$6.483,77** —la misma factura de
+las dos laptops— y abrió el enlace público como lo ve su cliente. Dos quejas,
+sus palabras:
+
+> «destruiste el link que teníamos de cobrar; era espectacular, con todo un
+> trabajo muy bien hecho… el otro era mucho más profesional»
+>
+> «se perdió el seller de la empresa, no lo encuentro, no sale… no aparece el
+> correo de Seller. ¿Dónde putas está?»
+
+Las dos eran ciertas, y ninguna era un cambio de diseño: eran dos fallos.
+
+### 1 · El callejón sin salida del cable
+
+**Cómo se veía.** El cobro se emitió **sin tarjeta** (con $6.483,77 la tarjeta
+deja unos $190 en el procesador) y Zelle no estaba disponible para esa tienda.
+La página enseñaba **una sola instrucción de ACH**, sin selector, sin la
+segunda cuenta y sin el cable. Y dentro de esa instrucción decía:
+
+> «Esta ruta es SOLO para ACH y depósito directo. **Si vas a mandar un cable
+> (wire), no uses esta.**»
+
+…sin ofrecer a dónde mandarlo. Un callejón sin salida en una factura de seis
+mil dólares: quien quería pagar por cable no tenía cómo.
+
+**La causa.** Tres decisiones distintas de `metodos-de-cobro.tsx` contaban los
+métodos mirando solo `zelle` y `transferencia`. Estaban escritas **antes** de
+que existieran el cable (26 ago) y la segunda cuenta (e3717135), y nadie las
+volvió a tocar al agregarlos:
+
+1. `if (!zelle && !transferencia)` → «no hay forma de pagar». Un cobro que solo
+   aceptara cable decía eso teniéndolo.
+2. `if (!conTarjeta && transferencia && !zelle)` → enseñar la ACH directa. Este
+   es el que vio Richard: **se tragaba el cable y la segunda cuenta**.
+3. El método preseleccionado salía de la misma cuenta corta: sin tarjeta y con
+   solo cable arrancaba en «zelle», y debajo del selector no se dibujaba nada.
+
+**El arreglo.** `src/lib/cobros/metodos-visibles.ts`, puro: `metodosDisponibles()`
+devuelve UNA lista y `seEnsenaDirecto()` dice si se enseña sin selector —solo
+con una opción de verdad, y la segunda cuenta cuenta como opción—. Las tres
+decisiones salen de ahí. El día que se agregue un método, aparece en la lista y
+las tres se enteran.
+
+### 2 · La página no decía a quién escribirle
+
+**Cómo se veía.** El nombre del comercio salía arriba y en el pie, y **ningún
+correo en toda la página**. Quien duda de una pantalla que le pide seis mil
+dólares y no tiene a quién escribirle, no paga: cierra.
+
+**El arreglo.** `queSeEnsena()` devuelve además `contacto`, y la página dibuja
+«¿Tienes dudas sobre este cobro?» con el comercio y su correo, en `mailto:` con
+el asunto ya puesto. Sin correo cargado contesta Mercatren, nunca un hueco.
+
+**Y el modo callado sigue callado:** cuando el comercio pidió no aparecer, no
+se enseña ni su nombre ni su correo —sería la misma filtración por otra
+puerta— y contesta `soporte@mercatren.com`. Se importa de
+`lib/correo/direcciones.ts`: escribirlo a mano rompe el candado
+`correo-contacto.test.ts`, que existe para que no haya dos verdades.
+
+### 3 · El pie no llevaba el crédito de Windoce
+
+Esta página tiene marco propio desde el 19 ago (se sacó del de la tienda para
+no arrastrar 45 fotos del catálogo del comercio), y ese marco se quedó con un
+`© 2026 mercatren.com` a secas. Se le puso el crédito con `nofollow` y
+`data-nosnippet`, como en el pie de la tienda.
+
+### Los candados
+
+`tests/unit/cobro-metodos-y-contacto.test.ts`, **comprobado en rojo** con los
+tres fallos reintroducidos a propósito. Y `tests/unit/reparto-cobro.test.ts`
+cambió de forma sin bajar la guardia: el candado de dinero del 26 ago —«un
+cobro sin tarjeta jamás cae en tarjeta»— ahora se apoya en la lista (que ya
+cuenta el cable) en vez de en la cuenta corta que causó esto; también
+comprobado en rojo.
+
+**Comprobado en pantalla** antes de publicar, con un cobro local igual al de
+Richard: sale el selector con Transferencia y Cable, las dos cuentas, el cable
+con su ruta propia y su costo sumado ($6.513,77), y el bloque de contacto. En
+modo callado, ni el nombre ni el correo del comercio aparecen en el HTML.
+
+**Lo que NO hay que tocar:** las tres decisiones tienen que seguir saliendo de
+`metodosDisponibles()`. Volver a preguntar por `zelle`/`transferencia` sueltos
+en cualquiera de ellas devuelve el callejón sin salida.
+
+---
+
 ## LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)
 
 Richard estaba emitiendo una factura real de **$6.483,77** con dos laptops

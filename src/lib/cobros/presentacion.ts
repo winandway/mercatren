@@ -36,6 +36,12 @@
  * nadie se entera hasta que se queja el que lo sufrió.
  */
 
+/* El buzón que contesta cuando el comercio no tiene uno cargado, o cuando
+   pidió no aparecer. Se IMPORTA y no se copia: hay un candado
+   (`correo-contacto.test.ts`) que prohíbe escribir una dirección a mano
+   fuera de donde se declaran, justamente para que no haya dos verdades. */
+import { CORREO_EQUIPO } from "@/lib/correo/direcciones";
+
 /** Cómo se presenta un cobro a quien lo va a pagar. */
 export type ModoDeCobro =
   /** El de siempre: se ve el nombre del comercio. */
@@ -63,6 +69,30 @@ export type QueSeEnsena = {
    * una estafa.
    */
   mostrarReferencia: true;
+  /**
+   * A QUIÉN LE ESCRIBE QUIEN PAGA SI ALGO NO CUADRA (22 sep 2026).
+   *
+   * ══ LO QUE PASÓ ══
+   *
+   * El dueño abrió su propio enlace de cobro de $6.483,77 y no encontró
+   * ningún correo: «se perdió el seller de la empresa, no lo encuentro…
+   * no aparece el correo de Seller». Tenía razón. La página enseñaba el
+   * nombre del comercio arriba y abajo, y **ni una forma de contactar a
+   * nadie**. Quien duda de una página que le pide seis mil dólares y no
+   * tiene a quién escribirle, no paga: cierra.
+   *
+   * ══ Y EN EL MODO CALLADO, MERCATREN ══
+   *
+   * Cuando el comercio pidió no aparecer, tampoco aparece su correo —sería
+   * la misma filtración por otra puerta—: se enseña el de Mercatren, que es
+   * quien cobra y quien factura.
+   */
+  contacto: {
+    /** El nombre de quien atiende, o `null` para no nombrar a nadie. */
+    nombre: string | null;
+    /** Un correo que existe y recibe de verdad. Nunca inventado. */
+    correo: string;
+  };
 };
 
 /**
@@ -74,15 +104,33 @@ export type QueSeEnsena = {
 export function queSeEnsena(
   modo: ModoDeCobro | null | undefined,
   nombreDelComercio: string,
+  correoDelComercio?: string | null,
 ): QueSeEnsena {
   if (modo === "solo_mercatren") {
-    return { comercio: null, nombrarEnElPie: false, mostrarReferencia: true };
+    return {
+      comercio: null,
+      nombrarEnElPie: false,
+      mostrarReferencia: true,
+      /* Ni el nombre ni el correo del comercio: en este modo quien paga no
+         tiene que saber que existe. Contesta Mercatren, que es quien cobra. */
+      contacto: { nombre: null, correo: CORREO_EQUIPO },
+    };
   }
+
+  const suyo = (correoDelComercio ?? "").trim();
 
   return {
     comercio: nombreDelComercio,
     nombrarEnElPie: true,
     mostrarReferencia: true,
+    contacto: {
+      nombre: nombreDelComercio,
+      /* SIN CORREO DEL COMERCIO CONTESTA MERCATREN, nunca un hueco. Un
+         comercio puede empezar a vender con el nombre y completar su ficha
+         después; dejar la pantalla sin a quién escribir por un campo vacío
+         es perder el pago. */
+      correo: suyo || CORREO_EQUIPO,
+    },
   };
 }
 

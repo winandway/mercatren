@@ -4179,7 +4179,13 @@
     "cuentaPrincipal": "Recomendada",
     "cuentaAlterna": "Si tu banco te da problemas con la otra",
     "metodoWire": "Cable (wire)",
-    "metodoWireDetalle": "Llega el mismo día · tiene costo"
+    "metodoWireDetalle": "Llega el mismo día · tiene costo",
+    "contacto": {
+      "titulo": "¿Tienes dudas sobre este cobro?",
+      "deQuien": "Este cobro es de {comercio}. Escríbele y te responde.",
+      "deMercatren": "Escríbenos y te respondemos. El pago lo recibe y lo factura Mercatren.",
+      "asunto": "Consulta sobre el cobro {referencia}"
+    }
   },
   "videos": {
     "hilera": {

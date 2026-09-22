@@ -68,6 +68,10 @@ export default async function PaginaDeCobro({
       pagoId: cobrosSolicitados.pagoId,
       tiendaId: cobrosSolicitados.tiendaId,
       comercio: tiendas.nombre,
+      /* A QUIÉN LE ESCRIBE QUIEN PAGA (22 sep 2026). Puede venir vacío —un
+         comercio empieza a vender con el nombre y completa su ficha
+         después—: ahí contesta Mercatren. Ver `presentacion.ts`. */
+      correoDelComercio: tiendas.correoContacto,
       /* El modo vive en una tabla aparte y casi ningún cobro la tiene: por eso
          `leftJoin`. Sin fila = modo de siempre, que es lo correcto para los
          cientos de cobros que ya existen. */
@@ -85,7 +89,11 @@ export default async function PaginaDeCobro({
 
   /* Qué nombre se enseña. Se decide ANTES de dibujar nada: así el nombre del
      comercio no llega al navegador ni escondido en el HTML de la página. */
-  const presentacion = queSeEnsena(cobro.modo, cobro.comercio);
+  const presentacion = queSeEnsena(
+    cobro.modo,
+    cobro.comercio,
+    cobro.correoDelComercio,
+  );
 
   /**
    * EL RESPALDO DEL WEBHOOK, igual que en los pedidos.
@@ -739,6 +747,39 @@ export default async function PaginaDeCobro({
             {t("vence", { fecha: fechaCorta(cobro.venceEn, idioma) ?? "" })}
           </p>
         ) : null}
+      </div>
+
+      {/* ══ A QUIÉN LE ESCRIBE QUIEN PAGA (22 sep 2026) ══
+
+          El dueño abrió su propio enlace de $6.483,77 y no encontró ningún
+          correo: «no aparece el correo de Seller. ¿Dónde putas está?». Tenía
+          razón: la página nombraba al comercio arriba y abajo, y no daba
+          forma de contactar a nadie. Quien duda de una pantalla que le pide
+          seis mil dólares y no tiene a quién escribirle, cierra.
+
+          En el modo callado no se nombra al comercio ni se enseña su correo
+          —sería la misma filtración por otra puerta—: contesta Mercatren. */}
+      <div className="mt-6 rounded-xl border border-borde bg-white p-4">
+        <p className="text-sm font-bold">{t("contacto.titulo")}</p>
+        {presentacion.contacto.nombre ? (
+          <p className="mt-1 text-sm text-tinta-suave">
+            {t("contacto.deQuien", { comercio: presentacion.contacto.nombre })}
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-tinta-suave">
+            {t("contacto.deMercatren")}
+          </p>
+        )}
+        {/* `mailto:` y no una ruta nuestra: abre el correo de quien paga con
+            el destinatario puesto, sin una pantalla más en medio. */}
+        <a
+          className="mt-2 inline-block text-sm font-bold break-all text-carga-600 underline hover:no-underline"
+          href={`mailto:${presentacion.contacto.correo}?subject=${encodeURIComponent(
+            t("contacto.asunto", { referencia: cobro.referencia }),
+          )}`}
+        >
+          {presentacion.contacto.correo}
+        </a>
       </div>
 
       <p className="mt-4 px-2 text-center text-xs text-tinta-suave">

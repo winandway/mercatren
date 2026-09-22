@@ -16,6 +16,10 @@ import type { DatosDeTransferencia } from "@/lib/cobros/transferencia";
 import { PagarConWire } from "@/components/cobro/pagar-con-wire";
 import { PagarConZelle } from "@/components/cobro/pagar-con-zelle";
 import type { DatosDeWire } from "@/lib/cobros/wire";
+import {
+  metodosDisponibles,
+  seEnsenaDirecto,
+} from "@/lib/cobros/metodos-visibles";
 import { cn } from "@/lib/utils";
 
 /**
@@ -101,17 +105,48 @@ export function MetodosDeCobro({
   /* Cuál de las dos cuentas de ACH está mirando. Índice y no un booleano: el
      día que haya una tercera, esto no cambia. */
   const [cuenta, setCuenta] = useState(0);
-  const [metodo, setMetodo] = useState<
-    "tarjeta" | "zelle" | "transferencia" | "wire"
-  >(
-    aceptaTarjeta === false
-      ? transferencia
-        ? "transferencia"
-        : "zelle"
-      : "tarjeta",
-  );
 
   const conTarjeta = aceptaTarjeta !== false;
+
+  /**
+   * ══ LO QUE DE VERDAD SE PUEDE PAGAR, EN UNA SOLA LISTA (22 sep 2026) ══
+   *
+   * ══ LO QUE PASÓ, EN UNA FACTURA REAL DE $6.483,77 ══
+   *
+   * El dueño emitió el cobro MT-C-000004 sin tarjeta —para no regalarle
+   * $190 al procesador— y abrió el enlace como lo ve su cliente. Encontró
+   * una sola instrucción de ACH, sin nada más: ni la segunda cuenta, ni el
+   * cable. Y la propia pantalla le decía **«esta ruta es SOLO para ACH; si
+   * vas a mandar un cable, no uses esta»**… sin ofrecerle a dónde mandarlo.
+   * Un callejón sin salida en una factura de seis mil dólares.
+   *
+   * La causa: tres decisiones tomadas mirando solo `zelle` y `transferencia`,
+   * escritas antes de que existieran el cable y la segunda cuenta, y que
+   * nadie volvió a tocar cuando se agregaron:
+   *
+   *   1. «¿No hay ningún método?» no miraba `wire`: un cobro que solo
+   *      aceptara cable decía «no hay forma de pagar» teniéndola.
+   *   2. El atajo de «una sola forma, se enseña directa» se disparaba con
+   *      `transferencia` a secas, y **tiraba el cable y la segunda cuenta**.
+   *      Es el fallo que vio el dueño.
+   *   3. El método preseleccionado salía de la misma cuenta corta: sin
+   *      tarjeta y con solo cable, arrancaba en «zelle» y la pantalla se
+   *      quedaba **en blanco** debajo del selector.
+   *
+   * Ahora hay UNA lista de lo disponible y las tres decisiones salen de
+   * ella. Agregar un método mañana no vuelve a dejar huecos: aparece en la
+   * lista y las tres se enteran.
+   */
+  const disponibles = metodosDisponibles({
+    tarjeta: conTarjeta,
+    zelle: Boolean(zelle),
+    transferencia: Boolean(transferencia),
+    wire: Boolean(wire),
+  });
+
+  const [metodo, setMetodo] = useState<
+    "tarjeta" | "zelle" | "transferencia" | "wire"
+  >(disponibles[0] ?? "tarjeta");
 
   /**
    * ══ SI EL COMERCIO QUITÓ LA TARJETA, NO SE CAE A LA TARJETA ══
@@ -127,32 +162,72 @@ export function MetodosDeCobro({
    * descartó: un enlace que no se puede pagar se arregla con una llamada; un
    * cobro por el método equivocado se arregla devolviendo el dinero.
    */
-  if (!zelle && !transferencia) {
-    if (!conTarjeta) {
+  /**
+   * ══ SI EL COMERCIO QUITÓ LA TARJETA, NO SE CAE A LA TARJETA ══
+   *
+   * Aquí había un fallo de dinero. El comercio calculaba su factura para
+   * cobrar por transferencia —sin el 2,9% + $0.30 del procesador—, quitaba la
+   * tarjeta del enlace… y si la transferencia no estaba disponible (los datos
+   * del banco sin configurar, o el monto por debajo del mínimo), esta línea
+   * le ofrecía **tarjeta igual**, en silencio. Justo lo que quería evitar, y
+   * con la factura ya calculada sin ese costo.
+   *
+   * Ahora se dice lo que pasa y no se cobra por un método que el comercio
+   * descartó: un enlace que no se puede pagar se arregla con una llamada; un
+   * cobro por el método equivocado se arregla devolviendo el dinero.
+   */
+  if (disponibles.length === 0) {
+    return (
+      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+        <p className="flex items-start gap-2 text-sm font-semibold text-amber-900">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          {t("sinMetodoDisponible")}
+        </p>
+      </div>
+    );
+  }
+
+  /* UNA SOLA FORMA DE PAGAR SE ENSEÑA DIRECTA: un «elige método» con una
+     opción es una pantalla de más. Con dos o más se elige — y el cable y la
+     segunda cuenta CUENTAN como opciones, que es justo lo que este atajo se
+     estaba tragando. */
+  if (seEnsenaDirecto(disponibles, Boolean(transferenciaAlterna))) {
+    if (disponibles[0] === "tarjeta") {
+      return <PagarCobro enlace={enlace} montoTexto={montoTexto} />;
+    }
+    if (disponibles[0] === "transferencia" && transferencia) {
       return (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-          <p className="flex items-start gap-2 text-sm font-semibold text-amber-900">
-            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-            {t("sinMetodoDisponible")}
-          </p>
-        </div>
+        <PagarConTransferencia
+          enlace={enlace}
+          datos={transferencia.datos}
+          concepto={transferencia.concepto}
+          montoTexto={montoTexto}
+        />
       );
     }
-    /* Con la tarjeta permitida y nada más disponible, se enseña directa: un
-       «elige método» con una sola opción es una pantalla de más. */
-    return <PagarCobro enlace={enlace} montoTexto={montoTexto} />;
-  }
-  /* Y al revés: si el comercio quitó la tarjeta y solo queda una forma, se
-     enseña directa sin obligar a elegir. */
-  if (!conTarjeta && transferencia && !zelle) {
-    return (
-      <PagarConTransferencia
-        enlace={enlace}
-        datos={transferencia.datos}
-        concepto={transferencia.concepto}
-        montoTexto={montoTexto}
-      />
-    );
+    if (disponibles[0] === "wire" && wire) {
+      return (
+        <PagarConWire
+          enlace={enlace}
+          datos={wire.datos}
+          concepto={wire.concepto}
+          montoTexto={wire.montoTexto}
+          facturaTexto={wire.facturaTexto}
+          costoTexto={wire.costoTexto}
+        />
+      );
+    }
+    if (disponibles[0] === "zelle" && zelle) {
+      return (
+        <PagarConZelle
+          enlace={enlace}
+          receptor={zelle.receptor}
+          nombreReceptor={zelle.nombreReceptor}
+          concepto={zelle.concepto}
+          montoTexto={montoTexto}
+        />
+      );
+    }
   }
 
   return (
@@ -186,14 +261,10 @@ export function MetodosDeCobro({
             Icono: Zap,
           },
         ]
-          /* Solo los que de verdad están disponibles para este cobro. */
-          .filter(
-            (m) =>
-              (m.clave === "tarjeta" && conTarjeta) ||
-              (m.clave === "zelle" && zelle) ||
-              (m.clave === "transferencia" && transferencia) ||
-              (m.clave === "wire" && wire),
-          )
+          /* Solo los que de verdad están disponibles para este cobro, y de
+             la MISMA lista que decidió el atajo: dos criterios paralelos es
+             como se llegó al callejón sin salida del 22 sep 2026. */
+          .filter((m) => disponibles.includes(m.clave))
           .map(({ clave, titulo, detalle, Icono }) => (
             <button
               key={clave}

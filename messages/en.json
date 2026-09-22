@@ -4179,7 +4179,13 @@
     "cuentaPrincipal": "Recommended",
     "cuentaAlterna": "If your bank gives you trouble with the other one",
     "metodoWire": "Wire",
-    "metodoWireDetalle": "Arrives same day · has a fee"
+    "metodoWireDetalle": "Arrives same day · has a fee",
+    "contacto": {
+      "titulo": "Questions about this payment request?",
+      "deQuien": "This payment request is from {comercio}. Email them and they'll get back to you.",
+      "deMercatren": "Email us and we'll get back to you. Mercatren receives and invoices this payment.",
+      "asunto": "Question about payment request {referencia}"
+    }
   },
   "videos": {
     "hilera": {

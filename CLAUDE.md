@@ -391,6 +391,7 @@ el error delante no protege a nadie.
 una cuenta un fallo real y el candado que lo tranca.
 
 - [EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)](HISTORIAL.md#el-menú-del-panel-estaba-muy-lento-21-sep-2026)
+- [LA PÁGINA DE PAGO SE QUEDÓ SIN SALIDA, Y SIN A QUIÉN ESCRIBIRLE (22 sep 2026)](HISTORIAL.md#la-página-de-pago-se-quedó-sin-salida-y-sin-a-quién-escribirle-22-sep-2026)
 - [LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)](HISTORIAL.md#la-factura-de-seis-mil-el-monto-se-leía-mal-no-había-cantidad-el-cobro-no-aparecía-y-el-interruptor-no-existía-21-sep-2026)
 - [MERCATREN.COM SEGUÍA HABLANDO DE VENEZUELA DONDE GOOGLE MIRA (20 sep 2026)](HISTORIAL.md#mercatrencom-seguía-hablando-de-venezuela-donde-google-mira-20-sep-2026)
 - [SE SIGUE BAJANDO: EL CATÁLOGO Y LAS TIENDAS YA NO TIENEN BOTÓN «SIGUIENTE» (20 sep 2026)](HISTORIAL.md#se-sigue-bajando-el-catálogo-y-las-tiendas-ya-no-tienen-botón-siguiente-20-sep-2026)

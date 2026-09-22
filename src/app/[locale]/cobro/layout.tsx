@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { Link } from "@/i18n/navigation";
+import { DESARROLLADOR } from "@/lib/sociedad";
 
 /**
  * EL MARCO DE LA PÁGINA DE PAGO: SOLO EL LOGOTIPO.
@@ -52,8 +53,21 @@ export default function LayoutCobro({
 
       <main className="flex-1">{children}</main>
 
+      {/* EL CRÉDITO DEL DESARROLLADOR, que en este pie faltaba (22 sep
+          2026). Es regla del proyecto y esta página se la saltaba por tener
+          marco propio: decía solo «© 2026 mercatren.com». Lleva `nofollow` y
+          `data-nosnippet` como en el pie de la tienda. */}
       <footer className="px-4 py-8 text-center text-xs text-tinta-suave">
-        © {new Date().getFullYear()} mercatren.com
+        © {new Date().getFullYear()} mercatren.com · Developed by{" "}
+        <a
+          className="underline hover:no-underline"
+          href={DESARROLLADOR.sitio}
+          rel="noopener noreferrer nofollow"
+          target="_blank"
+          data-nosnippet
+        >
+          {DESARROLLADOR.nombre}
+        </a>
       </footer>
     </>
   );
