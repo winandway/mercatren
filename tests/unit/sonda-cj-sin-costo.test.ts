@@ -37,8 +37,11 @@ describe("la sonda de CJ", () => {
   });
 
   it("cada llamada real de CJ deja su apunte", () => {
-    expect(cliente).toContain("anotarComoFue(true)");
-    expect(cliente).toContain("anotarComoFue(false)");
+    /* Desde el 21 sep 2026 el apunte lleva dos cosas: si la llamada fue
+       bien y si CJ sigue VIVO (un producto descontinuado falla con CJ
+       perfectamente vivo). */
+    expect(cliente).toContain("anotarComoFue(true, true)");
+    expect(cliente).toContain("anotarComoFue(false, false)");
   });
 
   it("un apunte viejo NO se hace pasar por «ok»", () => {
@@ -48,9 +51,17 @@ describe("la sonda de CJ", () => {
     const viejo = JSON.stringify({ ok: true, enMs: ahora - FRESCURA_MS - 1 });
     expect(leerUltimaLlamada(viejo, ahora)).toBeNull();
     const fresco = JSON.stringify({ ok: true, enMs: ahora - 60_000 });
+    /* Un apunte de antes del 21 sep 2026 no trae `vivo`: vale lo que `ok`. */
     expect(leerUltimaLlamada(fresco, ahora)).toEqual({
       ok: true,
+      vivo: true,
       enMs: ahora - 60_000,
+    });
+    const caido = JSON.stringify({ ok: false, vivo: false, enMs: ahora - 1 });
+    expect(leerUltimaLlamada(caido, ahora)).toEqual({
+      ok: false,
+      vivo: false,
+      enMs: ahora - 1,
     });
     expect(leerUltimaLlamada(null, ahora)).toBeNull();
     expect(leerUltimaLlamada("no es json", ahora)).toBeNull();
