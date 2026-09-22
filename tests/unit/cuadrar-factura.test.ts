@@ -103,3 +103,45 @@ describe("las dos cifras de una factura", () => {
     expect(cuantoCobrarParaRecibir(100_000, 0)).toBe(100_000);
   });
 });
+describe("las unidades que pone la persona mandan (21 sep 2026)", () => {
+  /* Richard: «tengo que agregar dos laptops y no me da la opción». */
+  const laptop = { id: "l", titulo: "Laptop", precioCentavos: 303_847 };
+  const morral = { id: "m", titulo: "Morral", precioCentavos: 19_063 };
+  const guante = { id: "g", titulo: "Guante", precioCentavos: 245 };
+
+  it("dos laptops fijas se respetan, y el resto se cuadra con lo demás", () => {
+    const r = cuadrarFactura(
+      [{ ...laptop, fijas: 2 }, morral, guante],
+      648_377,
+    )!;
+    const suLinea = r.lineas.find((l) => l.id === "l")!;
+    expect(suLinea.cantidad).toBe(2);
+    expect(r.totalCentavos).toBeGreaterThanOrEqual(648_377 - 300);
+    expect(r.totalCentavos).toBeLessThanOrEqual(648_377 + 300);
+  });
+
+  it("sin fijar nada, sigue decidiendo el cuadre", () => {
+    const r = cuadrarFactura([laptop, morral, guante], 648_377)!;
+    expect(r.lineas.reduce((s, l) => s + l.subtotalCentavos, 0)).toBe(
+      r.totalCentavos,
+    );
+  });
+
+  it("si lo fijado ya pasa del monto, se respeta igual y se avisa", () => {
+    const r = cuadrarFactura([{ ...laptop, fijas: 3 }, guante], 303_847)!;
+    expect(r.lineas.find((l) => l.id === "l")!.cantidad).toBe(3);
+    expect(r.exacto).toBe(false);
+    expect(r.diferenciaCentavos).toBe(303_847 * 3 - 303_847);
+  });
+
+  it("fijar TODO lo marcado no rompe nada", () => {
+    const r = cuadrarFactura(
+      [
+        { ...laptop, fijas: 2 },
+        { ...morral, fijas: 1 },
+      ],
+      648_377,
+    )!;
+    expect(r.totalCentavos).toBe(303_847 * 2 + 19_063);
+  });
+});

@@ -24,6 +24,20 @@ export type ProductoParaCuadrar = {
   id: string;
   titulo: string;
   precioCentavos: number;
+  /**
+   * ══ LA CANTIDAD QUE PONE LA PERSONA (21 sep 2026) ══
+   *
+   * Richard tenía que facturar DOS laptops iguales y la pantalla solo dejaba
+   * marcarla una vez: «no me da la opción de agregar la otra computadora».
+   * El cuadre elegía él solo cuántas unidades poner, y eso sirve para los
+   * tubos —donde da igual si van 26 o 27— pero no cuando ya sabes que son
+   * dos máquinas y punto.
+   *
+   * Con `fijas`, esas unidades se dan por puestas: se descuentan del monto y
+   * el resto se cuadra con los demás productos. Sin `fijas`, todo sigue como
+   * antes.
+   */
+  fijas?: number;
 };
 
 export type LineaCuadrada = {
@@ -66,11 +80,33 @@ export function cuadrarFactura(
   const usables = productos.filter((p) => p.precioCentavos > 0);
   if (usables.length === 0 || objetivoCentavos <= 0) return null;
 
-  if (objetivoCentavos <= TOPE_BUSQUEDA_CENTAVOS) {
-    const mejor = buscarMejor(usables, objetivoCentavos);
-    if (mejor) return mejor;
+  /* Lo que la persona fijó a mano se da por puesto y sale del objetivo. */
+  const fijas = new Map<string, number>();
+  let yaPuesto = 0;
+  for (const p of usables) {
+    const n = Math.floor(p.fijas ?? 0);
+    if (n > 0) {
+      fijas.set(p.id, n);
+      yaPuesto += n * p.precioCentavos;
+    }
   }
-  return aproximar(usables, objetivoCentavos);
+  const resto = objetivoCentavos - yaPuesto;
+  const libres = usables.filter((p) => !fijas.has(p.id));
+
+  /* Sin nada libre que cuadrar, o ya cubierto: manda lo que puso la persona. */
+  if (libres.length === 0 || resto <= 0) {
+    return armar(usables, fijas, objetivoCentavos);
+  }
+
+  const delResto =
+    (resto <= TOPE_BUSQUEDA_CENTAVOS ? buscarMejor(libres, resto) : null) ??
+    aproximar(libres, resto);
+
+  const cantidades = new Map(fijas);
+  for (const l of delResto.lineas) {
+    cantidades.set(l.id, (cantidades.get(l.id) ?? 0) + l.cantidad);
+  }
+  return armar(usables, cantidades, objetivoCentavos);
 }
 
 /**

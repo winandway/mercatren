@@ -16,6 +16,7 @@ import {
 } from "@/lib/cobros/reparto";
 import { BuscadorDeComercio } from "@/components/panel/facturar/buscador-de-comercio";
 import { CobrarLoCuadrado } from "@/components/panel/facturar/cobrar-lo-cuadrado";
+import { leerMontoEnCentavos } from "@/lib/facturar/leer-monto";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 
 /**
@@ -67,6 +68,16 @@ export function CalculadoraFactura({
 }) {
   const t = useTranslations("panel.calculadora");
   const [elegidos, setElegidos] = useState<Set<string>>(new Set());
+  /**
+   * ══ CUÁNTAS UNIDADES DE CADA UNO, SI LA PERSONA YA LO SABE (21 sep 2026) ══
+   *
+   * Richard tenía que facturar DOS laptops iguales: «no me da la opción de
+   * agregar la otra computadora». Marcar el producto lo dejaba en manos del
+   * cuadre, que decide cuántas poner. Con esto lo decide él: vacío = que lo
+   * calcule el sistema (para los tubos, donde da igual 26 que 27), y un
+   * número = esas van fijas y el resto se cuadra con los demás.
+   */
+  const [cantidades, setCantidades] = useState<Record<string, string>>({});
   const [monto, setMonto] = useState("");
   const [modo, setModo] = useState<"paga" | "recibe">("paga");
   /**
@@ -93,10 +104,9 @@ export function CalculadoraFactura({
   const [cobrarQue, setCobrarQue] = useState<"escrito" | "cuadrado">("escrito");
 
   const objetivoCentavos = useMemo(() => {
-    const limpio = monto.replace(/[^0-9.,]/g, "").replace(",", ".");
-    const n = Number.parseFloat(limpio);
-    if (!Number.isFinite(n) || n <= 0) return 0;
-    const enCentavos = Math.round(n * 100);
+    /* `6.483,77` son seis mil, no seis: ver `lib/facturar/leer-monto.ts`. */
+    const enCentavos = leerMontoEnCentavos(monto) ?? 0;
+    if (enCentavos <= 0) return 0;
     /* «Quiero recibir X limpios» se convierte a «hay que cobrar Y». */
     return modo === "recibe"
       ? cuantoCobrarPara(enCentavos, metodo)
@@ -104,8 +114,14 @@ export function CalculadoraFactura({
   }, [monto, modo, metodo]);
 
   const seleccion = useMemo(
-    () => productos.filter((p) => elegidos.has(p.id)),
-    [productos, elegidos],
+    () =>
+      productos
+        .filter((p) => elegidos.has(p.id))
+        .map((p) => {
+          const n = Number.parseInt(cantidades[p.id] ?? "", 10);
+          return Number.isFinite(n) && n > 0 ? { ...p, fijas: n } : p;
+        }),
+    [productos, elegidos, cantidades],
   );
 
   const cuadre = useMemo(
@@ -290,6 +306,7 @@ export function CalculadoraFactura({
       <div className="rounded-xl border border-borde bg-white p-4 sm:p-5">
         <p className="text-sm font-bold text-riel-900">{t("paso2")}</p>
         <p className="mt-1 text-sm text-tinta-suave">{t("paso2Ayuda")}</p>
+        <p className="mt-1 text-sm text-tinta-suave">{t("cantidadAyuda")}</p>
 
         {productos.length === 0 ? (
           <p className="mt-3 text-sm text-tinta-suave">{t("sinProductos")}</p>
@@ -297,25 +314,49 @@ export function CalculadoraFactura({
           <ul className="mt-3 max-h-72 space-y-1.5 overflow-y-auto">
             {productos.map((p) => (
               <li key={p.id}>
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-50">
-                  <input
-                    type="checkbox"
-                    checked={elegidos.has(p.id)}
-                    onChange={(e) => {
-                      const copia = new Set(elegidos);
-                      if (e.target.checked) copia.add(p.id);
-                      else copia.delete(p.id);
-                      setElegidos(copia);
-                    }}
-                    className="h-4 w-4 shrink-0"
-                  />
-                  <span className="min-w-0 flex-1 truncate text-sm">
-                    {p.titulo}
-                  </span>
-                  <span className="shrink-0 text-sm font-semibold tabular-nums">
+                <div className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-50">
+                  <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={elegidos.has(p.id)}
+                      onChange={(e) => {
+                        const copia = new Set(elegidos);
+                        if (e.target.checked) copia.add(p.id);
+                        else copia.delete(p.id);
+                        setElegidos(copia);
+                      }}
+                      className="h-4 w-4 shrink-0"
+                    />
+                    <span className="min-w-0 flex-1 truncate text-sm">
+                      {p.titulo}
+                    </span>
+                  </label>
+
+                  {/* CUÁNTAS UNIDADES: solo del que está marcado, y vacío
+                      quiere decir «decídelo tú». */}
+                  {elegidos.has(p.id) ? (
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      inputMode="numeric"
+                      value={cantidades[p.id] ?? ""}
+                      onChange={(e) =>
+                        setCantidades((antes) => ({
+                          ...antes,
+                          [p.id]: e.target.value.replace(/\D/g, ""),
+                        }))
+                      }
+                      placeholder={t("cantidadAuto")}
+                      aria-label={t("cantidadDe", { producto: p.titulo })}
+                      className="w-20 shrink-0 rounded-lg border border-borde px-2 py-1 text-center text-sm tabular-nums"
+                    />
+                  ) : null}
+
+                  <span className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums">
                     {formatearPrecio(p.precioCentavos, idioma, "USD")}
                   </span>
-                </label>
+                </div>
               </li>
             ))}
           </ul>
