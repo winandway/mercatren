@@ -84,6 +84,26 @@ export async function crearCobroDesdePanel(
   _previo: unknown,
   datos: FormData,
 ): Promise<ResultadoCobro> {
+  /* ══ UN COBRO QUE NO SE CREA TIENE QUE DECIR POR QUÉ (22 sep 2026) ══
+     Richard pulsó «Generar enlace» y «no hizo nada»: la acción lanzaba en
+     algún punto fuera de los `try` (la serie, la base, la sesión) y el
+     formulario se quedaba mudo. Todo fallo se anota en `errores_sistema`
+     —se lee con la puerta, `{"accion":"errores"}`— y vuelve a la pantalla
+     con su texto. */
+  try {
+    return await crearCobroDeVerdad(datos);
+  } catch (fallo) {
+    const { registrarError } = await import("@/lib/errores/registro");
+    await registrarError("cobro-panel", fallo, "crearCobroDesdePanel");
+    const texto = fallo instanceof Error ? fallo.message : String(fallo);
+    return {
+      ok: false,
+      mensaje: `No se pudo crear el cobro. Motivo: ${texto.slice(0, 200)}`,
+    };
+  }
+}
+
+async function crearCobroDeVerdad(datos: FormData): Promise<ResultadoCobro> {
   /* Con `.catch`: una cuenta sin comercio asignado lanza, y una acción que
      lanza le revienta el formulario sin decir por qué. */
   const alcance = await obtenerAlcance().catch(() => null);
@@ -179,7 +199,11 @@ export async function crearCobroDesdePanel(
      tiene un cliente delante y no puede corregir de uno en uno. */
   const fallos = revisarPeticion(peticion);
   if (fallos.length > 0) {
-    return { ok: false, mensaje: "Revisa estos campos.", campos: fallos };
+    return {
+      ok: false,
+      mensaje: `Revisa estos campos: ${fallos.join(", ")}.`,
+      campos: fallos,
+    };
   }
 
   /* La cuenta de quien paga se abre sola. Pedirle registrarse antes de pagar es

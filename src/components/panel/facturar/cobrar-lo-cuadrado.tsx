@@ -216,7 +216,18 @@ export function CobrarLoCuadrado({
         if (tiendaId) datos.set("tiendaId", tiendaId);
         setEnviando(true);
         setError(null);
-        const r = await crearCobroDesdePanel(null, datos);
+        /* Si la acción revienta antes de contestar (red, servidor), el botón
+           no puede quedarse girando mudo: se dice (22 sep 2026). */
+        let r: Awaited<ReturnType<typeof crearCobroDesdePanel>>;
+        try {
+          r = await crearCobroDesdePanel(null, datos);
+        } catch (fallo) {
+          setEnviando(false);
+          setError(
+            `No se pudo crear el cobro: ${fallo instanceof Error ? fallo.message : String(fallo)}`,
+          );
+          return;
+        }
         setEnviando(false);
         if (r.ok) {
           setHecho(r.partes);
