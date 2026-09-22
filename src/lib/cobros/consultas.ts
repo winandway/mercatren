@@ -394,8 +394,10 @@ export async function listarEnlacesDeCobro(
     .leftJoin(tiendas, eq(tiendas.id, cobrosSolicitados.tiendaId))
     .where(donde)
     .orderBy(desc(cobrosSolicitados.creadoEn))
-    .limit(100)
-    .catch(() => []);
+    .limit(100);
+  /* Sin tragarse el error: una lista vacía por un error de la base se lee
+     como «no hay cobros», y Richard pasó una hora buscando uno así (21 sep
+     2026). Si la base falla, que falle a la vista. */
 }
 
 /**

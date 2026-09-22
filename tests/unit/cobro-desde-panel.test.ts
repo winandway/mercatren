@@ -97,3 +97,33 @@ describe("el equipo no adivina de qué comercio es el cobro", () => {
     expect(pedir).toContain("Elige de qué comercio es este cobro");
   });
 });
+
+describe("el correo del cobro no falla en silencio (21 sep 2026)", () => {
+  /* Richard creó un cobro y no supo si el cliente recibió el correo: el
+     fallo se quedaba en un console.error y la pantalla decía «también se lo
+     mandamos por correo» de todas formas. */
+  const pedir = readFileSync("src/lib/cobros/pedir.ts", "utf8");
+  const boton = readFileSync(
+    "src/components/panel/facturar/cobrar-lo-cuadrado.tsx",
+    "utf8",
+  );
+  const consultas = readFileSync("src/lib/cobros/consultas.ts", "utf8");
+
+  it("crear el cobro devuelve si el correo salió", () => {
+    expect(pedir).toMatch(/correoEnviado = true/);
+    expect(pedir).toMatch(/ok: true,\s*url,\s*correoEnviado,/);
+  });
+
+  it("y la pantalla lo dice cuando no salió, en vez de «también se lo mandamos»", () => {
+    expect(boton).toMatch(/t\("correoNoSalio"\)/);
+    expect(boton).toMatch(/setCorreoSalio\(r\.correoEnviado\)/);
+  });
+
+  it("la lista de enlaces de cobro no esconde un error de la base como lista vacía", () => {
+    const desde = consultas.indexOf(
+      "export async function listarEnlacesDeCobro",
+    );
+    const cuerpo = consultas.slice(desde, consultas.indexOf("\n}", desde));
+    expect(cuerpo).not.toMatch(/\.catch\(\(\) => \[\]\)/);
+  });
+});

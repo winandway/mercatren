@@ -55,15 +55,21 @@ export function CobrarLoCuadrado({
   const [error, setError] = useState<string | null>(null);
   /* Si la pestaña se recargó después de crear un cobro, el enlace vuelve:
      ver la nota de `sessionStorage` más abajo. Media hora de margen. */
+  const [correoSalio, setCorreoSalio] = useState(true);
   const [hecho, setHecho] = useState<ParteCreada[] | null>(() => {
     if (typeof window === "undefined") return null;
     try {
       const crudo = window.sessionStorage.getItem("ultimo-cobro");
       if (!crudo) return null;
-      const g = JSON.parse(crudo) as { partes?: ParteCreada[]; en?: number };
+      const g = JSON.parse(crudo) as {
+        partes?: ParteCreada[];
+        en?: number;
+        correoEnviado?: boolean;
+      };
       if (!g.partes?.length || !g.en || Date.now() - g.en > 30 * 60_000) {
         return null;
       }
+      if (g.correoEnviado === false) setCorreoSalio(false);
       return g.partes;
     } catch {
       return null;
@@ -156,9 +162,20 @@ export function CobrarLoCuadrado({
           })}
         </ul>
 
-        <p className="mt-3 text-xs leading-relaxed text-tinta-suave">
-          {hecho.length > 1 ? t("comoMandarLasPartes") : t("tambienPorCorreo")}
-        </p>
+        {correoSalio ? (
+          <p className="mt-3 text-xs leading-relaxed text-tinta-suave">
+            {hecho.length > 1
+              ? t("comoMandarLasPartes")
+              : t("tambienPorCorreo")}
+          </p>
+        ) : (
+          <p
+            role="alert"
+            className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-relaxed font-medium text-amber-900"
+          >
+            {t("correoNoSalio")}
+          </p>
+        )}
       </div>
     );
   }
@@ -203,6 +220,7 @@ export function CobrarLoCuadrado({
         setEnviando(false);
         if (r.ok) {
           setHecho(r.partes);
+          setCorreoSalio(r.correoEnviado);
           /* ══ EL ENLACE NO SE PUEDE PERDER (21 sep 2026) ══
              Richard cuadró una factura, el enlace salió en pantalla, la
              pestaña se recargó y se quedó sin nada que mandarle al cliente:
@@ -211,7 +229,11 @@ export function CobrarLoCuadrado({
           try {
             window.sessionStorage.setItem(
               "ultimo-cobro",
-              JSON.stringify({ partes: r.partes, en: Date.now() }),
+              JSON.stringify({
+                partes: r.partes,
+                en: Date.now(),
+                correoEnviado: r.correoEnviado,
+              }),
             );
           } catch {
             /* Sin almacenamiento, el enlace se ve igual aquí abajo. */

@@ -2576,6 +2576,7 @@
       "copiarEnlace": "Copiar el enlace",
       "copiado": "Copiado",
       "porWhatsApp": "Mandar por WhatsApp",
+      "correoNoSalio": "El correo NO salió. Copia el enlace y mándaselo tú por WhatsApp: el cobro ya existe y se puede pagar.",
       "tambienPorCorreo": "También se lo mandamos por correo.",
       "mensajeWhatsApp": "Hola, aquí está el enlace para pagar la factura {referencia}: {url}",
       "elEnlaceOfrecera": "El enlace que generes ofrecerá:",

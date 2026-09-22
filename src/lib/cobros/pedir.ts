@@ -398,6 +398,12 @@ export async function crearCobroDesdePanel(
   /* El correo va en su propio try: el cobro YA existe y el enlace ya se puede
      pagar. Si el correo no sale, el comercio lo copia y lo manda por WhatsApp
      — que es como se manda de verdad la mayoría de las veces. */
+  /* ══ Y SI NO SALIÓ, LA PANTALLA LO DICE (21 sep 2026) ══
+     Richard creó un cobro y se quedó sin saber si el cliente lo recibió: el
+     fallo del correo se quedaba en un `console.error` y la pantalla decía
+     «también se lo mandamos por correo» igual. Ahora vuelve `correoEnviado`
+     y, si es falso, se le pide copiar el enlace y mandarlo por WhatsApp. */
+  let correoEnviado = false;
   try {
     const { correoEnlaceDeCobro } = await import("@/lib/correo/correos");
     await correoEnlaceDeCobro(
@@ -412,6 +418,7 @@ export async function crearCobroDesdePanel(
         url,
       },
     );
+    correoEnviado = true;
   } catch (fallo) {
     console.error("[cobro-panel] creado; el correo no salió:", fallo);
   }
@@ -420,6 +427,7 @@ export async function crearCobroDesdePanel(
   return {
     ok: true,
     url,
+    correoEnviado,
     referencia: primera.referencia,
     /* Todas las partes, para que el comercio pueda mandarlas cuando toque:
        la primera hoy y la siguiente cuando al cliente le vuelva el cupo. */
