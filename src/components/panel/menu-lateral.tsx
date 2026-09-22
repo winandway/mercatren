@@ -15,6 +15,7 @@ import {
   Megaphone,
   Menu,
   Package,
+  Link2,
   Receipt,
   Settings,
   ShieldCheck,
@@ -71,6 +72,16 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
          enlaces de cobro. Antes solo había Zelle, y la tarjeta —el método de
          la primera venta real— no aparecía en ninguna pantalla. */
       { href: "/panel/cobros", clave: "cobros", Icono: Receipt },
+      /* ══ LOS ENLACES QUE UNO GENERA, EN EL MENÚ (21 sep 2026) ══
+         No estaban. Richard cuadró una factura, el enlace no se le quedó en
+         pantalla, y se pasó una hora buscándolo: entró a «Cobros» —que es el
+         dinero que ENTRÓ— y ahí no aparece. La pantalla existía desde agosto
+         y solo se llegaba escribiendo la dirección a mano. */
+      {
+        href: "/panel/cobros/enlaces",
+        clave: "enlacesDeCobro",
+        Icono: Link2,
+      },
       /* CUADRAR UNA FACTURA: cuántas unidades dan un monto exacto. Nació de
          un comercio con una factura de $7.475 y tubos de $199,05 que estaba
          probando cantidades a mano desde el celular. */

@@ -407,7 +407,8 @@
       "probarCompra": "Test a purchase",
       "casilleros": "Lockers",
       "bodega": "Warehouse",
-      "tarifasCasillero": "Shipping rates"
+      "tarifasCasillero": "Shipping rates",
+      "enlacesDeCobro": "Payment links"
     },
     "comercio": {
       "etiqueta": "Merchant",

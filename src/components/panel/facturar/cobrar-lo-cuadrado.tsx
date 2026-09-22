@@ -53,7 +53,22 @@ export function CobrarLoCuadrado({
   const [abierto, setAbierto] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hecho, setHecho] = useState<ParteCreada[] | null>(null);
+  /* Si la pestaña se recargó después de crear un cobro, el enlace vuelve:
+     ver la nota de `sessionStorage` más abajo. Media hora de margen. */
+  const [hecho, setHecho] = useState<ParteCreada[] | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const crudo = window.sessionStorage.getItem("ultimo-cobro");
+      if (!crudo) return null;
+      const g = JSON.parse(crudo) as { partes?: ParteCreada[]; en?: number };
+      if (!g.partes?.length || !g.en || Date.now() - g.en > 30 * 60_000) {
+        return null;
+      }
+      return g.partes;
+    } catch {
+      return null;
+    }
+  });
   const [copiado, setCopiado] = useState<string | null>(null);
   /**
    * EN CUÁNTAS PARTES.
@@ -186,8 +201,22 @@ export function CobrarLoCuadrado({
         setError(null);
         const r = await crearCobroDesdePanel(null, datos);
         setEnviando(false);
-        if (r.ok) setHecho(r.partes);
-        else setError(r.mensaje);
+        if (r.ok) {
+          setHecho(r.partes);
+          /* ══ EL ENLACE NO SE PUEDE PERDER (21 sep 2026) ══
+             Richard cuadró una factura, el enlace salió en pantalla, la
+             pestaña se recargó y se quedó sin nada que mandarle al cliente:
+             una hora buscándolo. Se guarda en ESTA pestaña para poder
+             volver a enseñarlo, y se borra en cuanto empieza otro cobro. */
+          try {
+            window.sessionStorage.setItem(
+              "ultimo-cobro",
+              JSON.stringify({ partes: r.partes, en: Date.now() }),
+            );
+          } catch {
+            /* Sin almacenamiento, el enlace se ve igual aquí abajo. */
+          }
+        } else setError(r.mensaje);
       }}
       className="mt-5 rounded-xl border border-borde bg-white p-4"
     >

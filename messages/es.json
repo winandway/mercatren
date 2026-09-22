@@ -407,7 +407,8 @@
       "probarCompra": "Probar una compra",
       "casilleros": "Casilleros",
       "bodega": "Bodega",
-      "tarifasCasillero": "Tarifas de envío"
+      "tarifasCasillero": "Tarifas de envío",
+      "enlacesDeCobro": "Enlaces de cobro"
     },
     "comercio": {
       "etiqueta": "Comercio",
