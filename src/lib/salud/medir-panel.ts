@@ -346,7 +346,12 @@ export async function ultimosCobros(): Promise<unknown> {
  * aviso del panel (22 sep 2026) vive detrás de una sesión, y esto lee la
  * misma decisión con los mismos datos de producción.
  */
-export async function saleZelle(montoCentavos: number): Promise<
+export async function saleZelle(
+  montoCentavos: number,
+  /* Un trozo del nombre del comercio. Sin él salen los 8 más nuevos, que
+     son los del catálogo y casi nunca el que se está mirando. */
+  tienda?: string,
+): Promise<
   Array<{
     tienda: string;
     mercado: string;
@@ -360,15 +365,17 @@ export async function saleZelle(montoCentavos: number): Promise<
   const { tiendas } = await import("@/lib/db/schema");
   const { desc } = await import("drizzle-orm");
 
-  const filas = await getDb()
+  const { like } = await import("drizzle-orm");
+  const base = getDb()
     .select({
       id: tiendas.id,
       nombre: tiendas.nombre,
       mercado: tiendas.mercado,
     })
-    .from(tiendas)
-    .orderBy(desc(tiendas.creadoEn))
-    .limit(8);
+    .from(tiendas);
+  const filas = await (tienda?.trim()
+    ? base.where(like(tiendas.nombre, `%${tienda.trim()}%`)).limit(8)
+    : base.orderBy(desc(tiendas.creadoEn)).limit(8));
 
   const salida = [];
   for (const t of filas) {
