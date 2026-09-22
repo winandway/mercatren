@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ajustarAlMonto,
   cuadrarFactura,
   cuantoCobrarParaRecibir,
   lasDosCifras,
@@ -143,5 +144,78 @@ describe("las unidades que pone la persona mandan (21 sep 2026)", () => {
       648_377,
     )!;
     expect(r.totalCentavos).toBe(303_847 * 2 + 19_063);
+  });
+});
+
+describe("ajustar el precio de las unidades al monto exacto (21 sep 2026)", () => {
+  /* Richard: «los 6.483,77 se dividen en dos y ajusta tú misma los precios». */
+  const dosLaptops = {
+    id: "l",
+    titulo: "Laptop",
+    precioCentavos: 303_847,
+    cantidad: 2,
+    subtotalCentavos: 607_694,
+  };
+
+  it("EL CASO: dos laptops a $6.483,77 exactos, hasta el último centavo", () => {
+    const r = ajustarAlMonto([dosLaptops], 648_377)!;
+    expect(r.totalCentavos).toBe(648_377);
+    expect(r.lineas[0]!.subtotalCentavos).toBe(648_377);
+    /* 6.483,77 / 2 = 3.241,885: el unitario se guarda con milésimas. */
+    expect(r.lineas[0]!.precioAjustadoMilesimas).toBe(324_188_500);
+    expect(r.lineas[0]!.precioOriginalCentavos).toBe(303_847);
+  });
+
+  it("con varias líneas reparte en proporción y el total sigue exacto", () => {
+    const r = ajustarAlMonto(
+      [
+        dosLaptops,
+        {
+          id: "m",
+          titulo: "Morral",
+          precioCentavos: 19_063,
+          cantidad: 1,
+          subtotalCentavos: 19_063,
+        },
+      ],
+      648_377,
+    )!;
+    expect(r.lineas.reduce((s, l) => s + l.subtotalCentavos, 0)).toBe(648_377);
+    /* La más cara se lleva la mayor parte. */
+    expect(r.lineas[0]!.subtotalCentavos).toBeGreaterThan(
+      r.lineas[1]!.subtotalCentavos,
+    );
+  });
+
+  it("ningún centavo se pierde por el redondeo, sea cual sea el reparto", () => {
+    for (const objetivo of [100_001, 648_377, 999_999, 1]) {
+      const r = ajustarAlMonto(
+        [
+          {
+            id: "a",
+            titulo: "A",
+            precioCentavos: 333,
+            cantidad: 3,
+            subtotalCentavos: 999,
+          },
+          {
+            id: "b",
+            titulo: "B",
+            precioCentavos: 777,
+            cantidad: 7,
+            subtotalCentavos: 5_439,
+          },
+        ],
+        objetivo,
+      )!;
+      expect(r.lineas.reduce((s, l) => s + l.subtotalCentavos, 0)).toBe(
+        objetivo,
+      );
+    }
+  });
+
+  it("sin unidades no hay nada que repartir", () => {
+    expect(ajustarAlMonto([], 648_377)).toBeNull();
+    expect(ajustarAlMonto([dosLaptops], 0)).toBeNull();
   });
 });

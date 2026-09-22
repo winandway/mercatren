@@ -279,3 +279,52 @@ export function cuantoCobrarParaRecibir(
     (netoDeseadoCentavos * 10_000) / (10_000 - comisionPuntosBase),
   );
 }
+
+/**
+ * ══ AJUSTAR EL PRECIO DE LAS UNIDADES AL MONTO EXACTO (21 sep 2026) ══
+ *
+ * Richard, con un presupuesto ya dado de $6.483,77 y dos laptops de $3.038,47:
+ * «los 6.483,77 se dividen en dos y ajusta tú misma los precios de la laptop
+ * y ya está». Tiene razón: cuando la persona YA fijó cuántas unidades van, el
+ * problema no es encontrar cantidades sino repartir el monto entre ellas.
+ *
+ * El objetivo se reparte entre las líneas en proporción a lo que valían, en
+ * centavos enteros, y el último centavo de redondeo lo absorbe la última
+ * línea: el total da EXACTO siempre. El precio unitario que sale puede no ser
+ * entero en centavos (3.241,885): se guarda el subtotal exacto de la línea, y
+ * el unitario se enseña con la precisión que haga falta.
+ */
+export type LineaAjustada = LineaCuadrada & {
+  /** Lo que valía antes del ajuste, para enseñar «antes → ahora». */
+  precioOriginalCentavos: number;
+  /** El unitario ajustado, en milésimas de centavo, para poder enseñarlo. */
+  precioAjustadoMilesimas: number;
+};
+
+export function ajustarAlMonto(
+  lineas: LineaCuadrada[],
+  objetivoCentavos: number,
+): { lineas: LineaAjustada[]; totalCentavos: number } | null {
+  const conUnidades = lineas.filter((l) => l.cantidad > 0);
+  if (conUnidades.length === 0 || objetivoCentavos <= 0) return null;
+  const base = conUnidades.reduce((s, l) => s + l.subtotalCentavos, 0);
+  if (base <= 0) return null;
+
+  let repartido = 0;
+  const ajustadas: LineaAjustada[] = conUnidades.map((l, i) => {
+    const ultima = i === conUnidades.length - 1;
+    const subtotal = ultima
+      ? objetivoCentavos - repartido
+      : Math.round((objetivoCentavos * l.subtotalCentavos) / base);
+    repartido += subtotal;
+    return {
+      ...l,
+      precioOriginalCentavos: l.precioCentavos,
+      subtotalCentavos: subtotal,
+      precioCentavos: Math.round(subtotal / l.cantidad),
+      precioAjustadoMilesimas: Math.round((subtotal * 1000) / l.cantidad),
+    };
+  });
+
+  return { lineas: ajustadas, totalCentavos: objetivoCentavos };
+}

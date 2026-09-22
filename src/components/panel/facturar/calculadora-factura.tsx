@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import {
+  ajustarAlMonto,
   cuadrarFactura,
   type ProductoParaCuadrar,
 } from "@/lib/facturar/cuadrar";
@@ -101,8 +102,19 @@ export function CalculadoraFactura({
    *
    * Con cuadre EXACTO no hay nada que elegir y no se pregunta.
    */
-  const [cobrarQue, setCobrarQue] = useState<"escrito" | "cuadrado">("escrito");
-
+  /*
+   * ══ Y DESDE EL 21 SEP 2026 YA NO SE PREGUNTA NADA ══
+   *
+   * Richard, con dos laptops y un presupuesto de $6.483,77 ya dado al
+   * cliente, se topó con «faltan $406,83» y dos botones. Sus palabras: «los
+   * 6.483,77 se dividen en dos y ajusta tú misma los precios de la laptop y
+   * ya está». Tiene razón: el monto de la factura es sagrado —es lo que el
+   * cliente espera pagar—, y lo que se acomoda es el precio de las unidades.
+   *
+   * Así que SIEMPRE se cobra lo escrito, y si las unidades no suman eso, el
+   * precio de cada una se ajusta en proporción (`ajustarAlMonto`) y el
+   * desglose enseña «antes → ahora». Cero preguntas.
+   */
   const objetivoCentavos = useMemo(() => {
     /* `6.483,77` son seis mil, no seis: ver `lib/facturar/leer-monto.ts`. */
     const enCentavos = leerMontoEnCentavos(monto) ?? 0;
@@ -124,13 +136,21 @@ export function CalculadoraFactura({
     [productos, elegidos, cantidades],
   );
 
-  const cuadre = useMemo(
-    () =>
-      seleccion.length > 0 && objetivoCentavos > 0
-        ? cuadrarFactura(seleccion, objetivoCentavos)
-        : null,
-    [seleccion, objetivoCentavos],
-  );
+  const cuadre = useMemo(() => {
+    if (seleccion.length === 0 || objetivoCentavos <= 0) return null;
+    const crudo = cuadrarFactura(seleccion, objetivoCentavos);
+    if (crudo.exacto) return { ...crudo, ajustado: false as const };
+    const ajuste = ajustarAlMonto(crudo.lineas, objetivoCentavos);
+    if (!ajuste) return { ...crudo, ajustado: false as const };
+    return {
+      ...crudo,
+      exacto: true,
+      ajustado: true as const,
+      lineas: ajuste.lineas,
+      totalCentavos: ajuste.totalCentavos,
+      diferenciaCentavos: 0,
+    };
+  }, [seleccion, objetivoCentavos]);
 
   const cifras = cuadre ? repartoDelCobro(cuadre.totalCentavos, metodo) : null;
 
@@ -382,17 +402,19 @@ export function CalculadoraFactura({
             ) : (
               <CircleAlert className="h-4 w-4" aria-hidden />
             )}
-            {cuadre.exacto
-              ? t("cuadroExacto")
-              : t("noCuadra", {
-                  diferencia: formatearPrecio(
-                    Math.abs(cuadre.diferenciaCentavos),
-                    idioma,
-                    "USD",
-                  ),
-                  senal:
-                    cuadre.diferenciaCentavos > 0 ? t("sobra") : t("falta"),
-                })}
+            {cuadre.ajustado
+              ? t("cuadroAjustado")
+              : cuadre.exacto
+                ? t("cuadroExacto")
+                : t("noCuadra", {
+                    diferencia: formatearPrecio(
+                      Math.abs(cuadre.diferenciaCentavos),
+                      idioma,
+                      "USD",
+                    ),
+                    senal:
+                      cuadre.diferenciaCentavos > 0 ? t("sobra") : t("falta"),
+                  })}
           </p>
 
           <table className="mt-4 w-full text-sm">
@@ -402,9 +424,27 @@ export function CalculadoraFactura({
                   <td className="py-2 pr-2">
                     <span className="font-bold tabular-nums">{l.cantidad}</span>
                     <span className="text-tinta-suave"> × </span>
-                    <span className="tabular-nums">
-                      {formatearPrecio(l.precioCentavos, idioma, "USD")}
-                    </span>
+                    {"precioAjustadoMilesimas" in l ? (
+                      <>
+                        <span className="tabular-nums">
+                          {precioConMilesimas(
+                            l.precioAjustadoMilesimas,
+                            idioma,
+                          )}
+                        </span>{" "}
+                        <s className="text-xs text-tinta-suave tabular-nums">
+                          {formatearPrecio(
+                            l.precioOriginalCentavos,
+                            idioma,
+                            "USD",
+                          )}
+                        </s>
+                      </>
+                    ) : (
+                      <span className="tabular-nums">
+                        {formatearPrecio(l.precioCentavos, idioma, "USD")}
+                      </span>
+                    )}
                     <span className="block text-xs text-tinta-suave">
                       {l.titulo}
                     </span>
@@ -472,84 +512,34 @@ export function CalculadoraFactura({
         </p>
       ) : null}
 
-      {objetivoCentavos > 0 && (tiendaId || comercios.length === 0)
-        ? (() => {
-            const difieren =
-              cuadre !== null && cuadre.totalCentavos !== objetivoCentavos;
-            const aCobrar = !cuadre
-              ? objetivoCentavos
-              : difieren && cobrarQue === "escrito"
-                ? objetivoCentavos
-                : cuadre.totalCentavos;
-            return (
-              <>
-                {difieren ? (
-                  <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-                    <p className="text-sm font-bold text-amber-900">
-                      {t("cualMontoTitulo")}
-                    </p>
-                    <p className="mt-0.5 text-xs text-amber-900">
-                      {t("cualMontoAyuda")}
-                    </p>
-                    <div
-                      className="mt-2 flex flex-wrap gap-2"
-                      role="radiogroup"
-                    >
-                      {[
-                        {
-                          clave: "escrito" as const,
-                          titulo: formatearPrecio(
-                            objetivoCentavos,
-                            idioma,
-                            "USD",
-                          ),
-                          detalle: t("montoEscrito"),
-                        },
-                        {
-                          clave: "cuadrado" as const,
-                          titulo: formatearPrecio(
-                            cuadre.totalCentavos,
-                            idioma,
-                            "USD",
-                          ),
-                          detalle: t("montoCuadrado"),
-                        },
-                      ].map((o) => (
-                        <button
-                          key={o.clave}
-                          type="button"
-                          role="radio"
-                          aria-checked={cobrarQue === o.clave}
-                          onClick={() => setCobrarQue(o.clave)}
-                          className={`rounded-lg border px-3 py-2 text-left text-sm ${
-                            cobrarQue === o.clave
-                              ? "border-carga-500 bg-white font-bold ring-2 ring-carga-500/30"
-                              : "border-amber-300 bg-white/60"
-                          }`}
-                        >
-                          <span className="block tabular-nums">{o.titulo}</span>
-                          <span className="block text-xs font-normal text-tinta-suave">
-                            {o.detalle}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-                <CobrarLoCuadrado
-                  /* La llave reinicia el formulario si cambia el monto: sin
-                     ella, el botón seguiría diciendo la cifra anterior. */
-                  key={aCobrar}
-                  totalCentavos={aCobrar}
-                  montoTexto={formatearPrecio(aCobrar, idioma, "USD")}
-                  metodo={metodo}
-                  tiendaId={tiendaId}
-                  referenciaSugerida={referenciaSugerida}
-                />
-              </>
-            );
-          })()
-        : null}
+      {/* SIEMPRE se cobra lo escrito: el desglose se acomoda al monto, nunca
+          al revés (ver arriba, 21 sep 2026). */}
+      {objetivoCentavos > 0 && (tiendaId || comercios.length === 0) ? (
+        <CobrarLoCuadrado
+          /* La llave reinicia el formulario si cambia el monto: sin
+             ella, el botón seguiría diciendo la cifra anterior. */
+          key={objetivoCentavos}
+          totalCentavos={objetivoCentavos}
+          montoTexto={formatearPrecio(objetivoCentavos, idioma, "USD")}
+          metodo={metodo}
+          tiendaId={tiendaId}
+          referenciaSugerida={referenciaSugerida}
+        />
+      ) : null}
     </div>
   );
+}
+
+/**
+ * $6.483,77 entre dos laptops son $3.241,885 cada una: el unitario ajustado
+ * puede llevar una milésima, y se enseña tal cual para que la cuenta cierre a
+ * ojo. Si no la lleva, sale con sus dos decimales de siempre.
+ */
+function precioConMilesimas(milesimas: number, idioma: Idioma) {
+  return new Intl.NumberFormat(idioma === "es" ? "es-US" : "en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 3,
+  }).format(milesimas / 100_000);
 }

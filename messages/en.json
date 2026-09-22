@@ -2550,6 +2550,7 @@
       "cantidadDe": "How many units of {producto}",
       "cantidadAyuda": "Type how many units go in if you already know (two laptops, say). Leave it on “auto” and we work out how many it takes to hit the amount.",
       "sinProductos": "You don't have published products with a price yet.",
+      "cuadroAjustado": "Adds up exactly: we adjusted the unit prices to your amount.",
       "cuadroExacto": "It matches exactly!",
       "noCuadra": "Closest we get: {senal} {diferencia}.",
       "sobra": "over by",
@@ -2596,10 +2597,6 @@
       "buscaComercio": "Type the store's name…",
       "ningunComercio": "No store with that name.",
       "quitarComercio": "Remove store",
-      "cualMontoTitulo": "The match isn't exact: which amount do you charge?",
-      "cualMontoAyuda": "Whole units of those products can't reach your amount. Choose whether to charge what you typed (invoice without a breakdown) or the total of the units.",
-      "montoEscrito": "What you typed — the exact amount",
-      "montoCuadrado": "What the breakdown units add up to",
       "avisoTarjetaNoCuesta": "With a card you receive the same or more than through Zelle at this amount: Zelle's margin (6%) is higher than the card margin (3%) plus the processor."
     },
     "correccion": {

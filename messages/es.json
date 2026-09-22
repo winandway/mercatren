@@ -2550,6 +2550,7 @@
       "cantidadDe": "Cuántas unidades de {producto}",
       "cantidadAyuda": "Escribe cuántas unidades van si ya lo sabes (por ejemplo, 2 laptops). Déjalo en «auto» y el sistema calcula cuántas hacen falta para llegar al monto.",
       "sinProductos": "Todavía no tienes productos publicados con precio.",
+      "cuadroAjustado": "Cuadra exacto: ajustamos el precio de las unidades a tu monto.",
       "cuadroExacto": "¡Cuadra exacto!",
       "noCuadra": "Lo más cerca que se llega: {senal} {diferencia}.",
       "sobra": "sobran",
@@ -2596,10 +2597,6 @@
       "buscaComercio": "Escribe el nombre del comercio…",
       "ningunComercio": "Ningún comercio con ese nombre.",
       "quitarComercio": "Quitar el comercio",
-      "cualMontoTitulo": "El cuadre no da exacto: ¿cuál monto cobras?",
-      "cualMontoAyuda": "Con unidades enteras de esos productos no se llega a tu monto. Elige si cobras lo que escribiste (la factura va sin desglose) o el total de las unidades.",
-      "montoEscrito": "Lo que escribiste — el monto exacto",
-      "montoCuadrado": "Lo que suman las unidades del desglose",
       "avisoTarjetaNoCuesta": "Con tarjeta recibes lo mismo o más que por Zelle en este monto: el margen de Zelle (6 %) es mayor que el de tarjeta (3 %) más el procesador."
     },
     "correccion": {

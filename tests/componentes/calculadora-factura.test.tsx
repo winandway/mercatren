@@ -69,10 +69,11 @@ describe("la calculadora de facturas", () => {
     );
     await persona.click(screen.getByRole("checkbox", { name: /LAPTOP/i }));
 
-    /* Con el monto bien leído, el cuadre pone DOS laptops solo. */
+    /* Con el monto bien leído, el cuadre pone DOS laptops solo, y las dos
+       suman el monto escrito (con $6,48 ponía cero). */
     const fila = await screen.findByRole("row", { name: /LAPTOP/i });
     expect(fila).toHaveTextContent(/\b2\b/);
-    expect(fila).toHaveTextContent("$6,076.94");
+    expect(fila).toHaveTextContent("$6,483.77");
   });
 
   it("se puede decir CUÁNTAS unidades van, y se respetan", async () => {
@@ -90,7 +91,29 @@ describe("la calculadora de facturas", () => {
 
     const fila = await screen.findByRole("row", { name: /LAPTOP/i });
     expect(fila).toHaveTextContent(/\b2\b/);
-    expect(fila).toHaveTextContent("$6,076.94");
+    /* Y las dos laptops suman EXACTO el monto: $3.241,885 cada una, con el
+       precio de lista tachado al lado. Richard: «ajusta tú misma los precios
+       de la laptop y ya está». Antes decía «faltan $406,83». */
+    expect(fila).toHaveTextContent("$6,483.77");
+    expect(fila).toHaveTextContent("$3,241.885");
+    expect(fila).toHaveTextContent("$3,038.47");
+    expect(screen.getByText(/ajustamos el precio/i)).toBeInTheDocument();
+    expect(screen.queryByText(/faltan/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+  });
+
+  it("si las unidades ya suman exacto, no se ajusta nada ni se dice", async () => {
+    const persona = userEvent.setup();
+    pintar();
+    await persona.type(
+      screen.getByLabelText(/monto de la factura/i),
+      "6076.94",
+    );
+    await persona.click(screen.getByRole("checkbox", { name: /LAPTOP/i }));
+    const fila = await screen.findByRole("row", { name: /LAPTOP/i });
+    expect(fila).toHaveTextContent("$3,038.47");
+    expect(fila).not.toHaveTextContent("$3,241");
+    expect(screen.queryByText(/ajustamos el precio/i)).not.toBeInTheDocument();
   });
 
   it("el selector de cantidad solo sale del producto marcado", async () => {
