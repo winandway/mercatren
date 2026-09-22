@@ -3,6 +3,7 @@ import "server-only";
 import { getTranslations } from "next-intl/server";
 
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import type { Rastreo } from "@/lib/pedidos/rastreo";
 import { SITIO } from "@/lib/sitio";
 
 import { CORREO_CONTACTO, CORREO_EQUIPO } from "./direcciones";
@@ -831,6 +832,81 @@ export async function correoPedidoListo(
       texto: t("pedidoListo.boton"),
       url: urlDe(idioma, `/pedido/${pedido.numero}`),
     },
+    motivo,
+    contacto,
+  });
+}
+
+/**
+ * 13b. Al cliente: SU PEDIDO YA SALIÓ, con el número de guía (21 sep 2026).
+ *
+ * ══ EL HUECO QUE ESTO TAPA ══
+ *
+ * Entre «gracias por tu compra» y «entregado» no había nada. Un comprador de
+ * Estados Unidos paga hoy y la caja llega en días: en esos días el sitio no
+ * le decía una palabra. Y cuando el comercio marcaba el pedido como enviado,
+ * lo que salía era el correo de RETIRAR en un mostrador de Venezuela, con su
+ * «lleva tu documento de identidad». A alguien en Miami.
+ *
+ * ══ LO QUE ESTE CORREO TIENE QUE LLEVAR ══
+ *
+ * El número de guía y quién lo lleva. Es lo único que la persona quiere, y
+ * es lo que convierte «ya salió» en algo que puede comprobar por su cuenta
+ * sin escribirnos. El enlace solo va cuando el transportista es de los que
+ * sabemos rastrear: ver `lib/pedidos/rastreo.ts`, que nunca inventa una
+ * dirección.
+ *
+ * Sin guía el correo se manda igual —«ya salió» vale por sí solo— y dice que
+ * el número llega en cuanto el transportista lo active.
+ */
+export async function correoPedidoEnviado(
+  d: Destinatario,
+  pedido: DatosPedido,
+  rastreo: Rastreo | null,
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const urlDelPedido = urlDe(idioma, `/pedido/${pedido.numero}`);
+
+  return enviar(d, {
+    asunto: t("pedidoEnviado.asunto", { numero: pedido.numero }),
+    previo: rastreo
+      ? t("pedidoEnviado.previo", { guia: rastreo.guia })
+      : t("pedidoEnviado.previoSinGuia"),
+    saludo,
+    titulo: t("pedidoEnviado.titulo"),
+    parrafos: t.raw("pedidoEnviado.parrafos") as string[],
+    datos: [
+      { etiqueta: t("comun.pedido"), valor: pedido.numero },
+      ...(rastreo?.transportista
+        ? [
+            {
+              etiqueta: t("pedidoEnviado.transportista"),
+              valor: rastreo.transportista,
+            },
+          ]
+        : []),
+      ...(rastreo
+        ? [{ etiqueta: t("pedidoEnviado.guia"), valor: rastreo.guia }]
+        : []),
+    ],
+    resaltado: {
+      texto: rastreo
+        ? /* EL NÚMERO TARDA EN ACTIVARSE, Y HAY QUE DECIRLO ANTES. Quien lo
+             busca el mismo día ve «no encontrado» y escribe pensando que el
+             número está mal. */
+          t("pedidoEnviado.tardaEnActivarse")
+        : t("pedidoEnviado.guiaEnCamino"),
+      tono: "bien",
+    },
+    boton: rastreo?.url
+      ? { texto: t("pedidoEnviado.botonRastrear"), url: rastreo.url }
+      : { texto: t("pedidoEnviado.boton"), url: urlDelPedido },
+    /* Si el botón se lo llevó el rastreo, el pedido sigue a un clic: sin
+       esto, el correo que SÍ trae enlace de rastreo es el único donde no se
+       puede volver a la compra. */
+    parrafosFinales: rastreo?.url
+      ? [t("pedidoEnviado.tambienEnTuCuenta", { url: urlDelPedido })]
+      : undefined,
     motivo,
     contacto,
   });

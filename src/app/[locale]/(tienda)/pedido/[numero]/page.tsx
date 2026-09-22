@@ -16,6 +16,7 @@ import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
 import { PasosCompra } from "@/components/pedido/pasos-compra";
 import { Devolver } from "@/components/pedido/devolver";
 import { devolucionDelPedido } from "@/lib/devoluciones/acciones";
+import { guiaDelPedido } from "@/lib/pedidos/guia";
 import {
   avisoDelPedido,
   estaPagado,
@@ -82,6 +83,13 @@ export default async function PaginaPedido({
   /* La devolución del pedido, si la hay. Va aquí y no dentro del componente
      porque la comprobación de quién puede ver la dirección es del SERVIDOR. */
   const devolucion = await devolucionDelPedido(pedido.id);
+
+  /* EL NÚMERO DE GUÍA, CUANDO YA HAY UNO (21 sep 2026). La pantalla enseñaba
+     los pasos —pago, preparación, envío, entrega— pero no el único dato que
+     alguien con un paquete en camino quiere: el número con el que puede
+     mirarlo él mismo. Sale del mismo sitio que el correo, así que los dos
+     dicen lo mismo. */
+  const rastreo = await guiaDelPedido(pedido.id);
 
   const aviso = avisoDelPedido(
     pedido.estado as EstadoDePedido,
@@ -270,6 +278,46 @@ export default async function PaginaPedido({
           </>
         )}
       </p>
+
+      {/* EL NÚMERO DE GUÍA. Va arriba de la dirección a propósito: quien
+          abre esta página con el paquete en camino viene por este dato, no a
+          comprobar su propia calle. Sin guía no se dibuja nada — un renglón
+          vacío solo hace preguntar por qué está ahí. */}
+      {rastreo ? (
+        <section className="mt-4 rounded-xl border border-borde p-4">
+          <h2 className="text-sm font-bold">{t("rastreo.titulo")}</h2>
+          <p className="mt-2 text-sm">
+            {rastreo.transportista ? (
+              <span className="text-tinta-suave">
+                {rastreo.transportista}
+                {" · "}
+              </span>
+            ) : null}
+            <span className="font-bold break-all tabular-nums">
+              {rastreo.guia}
+            </span>
+          </p>
+          {rastreo.url ? (
+            /* Un enlace externo, y por eso `<a>` y no `<Link>`: la página del
+               transportista no es nuestra ruta. */
+            <a
+              className="mt-3 inline-block rounded-lg bg-carga-500 px-4 py-2 text-sm font-bold text-white hover:bg-carga-600"
+              href={rastreo.url}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {t("rastreo.boton")}
+            </a>
+          ) : (
+            <p className="mt-2 text-sm text-tinta-suave">
+              {t("rastreo.sinEnlace")}
+            </p>
+          )}
+          <p className="mt-3 text-xs text-tinta-suave">
+            {t("rastreo.tardaEnActivarse")}
+          </p>
+        </section>
+      ) : null}
 
       {/* A donde va */}
       {direccion ? (

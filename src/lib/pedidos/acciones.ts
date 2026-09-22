@@ -774,6 +774,10 @@ export async function avanzarPedido(
       estado: pedidos.estado,
       clienteId: pedidos.clienteId,
       totalCentavos: pedidos.totalCentavos,
+      /* EL MERCADO DECIDE QUÉ CORREO SALE (21 sep 2026): en Venezuela la
+         mercancía se retira en un mostrador; en los demás países llega a la
+         dirección del comprador. Ver `pedidos/como-se-entrega.ts`. */
+      mercado: pedidos.mercado,
     })
     .from(pedidos)
     .where(eq(pedidos.numero, numero))
@@ -830,34 +834,26 @@ export async function avanzarPedido(
    * EL CLIENTE SE ENTERA POR CORREO, NO ENTRANDO A MIRAR.
    *
    * Quien pagó desde Estados Unidos no está pendiente del sitio: necesita que
-   * le llegue el aviso de que puede ir a buscar su compra, **con la dirección
-   * adentro**. Sin eso hay que entrar al pedido a averiguar dónde está el
-   * depósito, o llamar al comercio.
+   * le llegue el aviso, con la dirección del depósito adentro si retira, o
+   * con el número de guía si su caja va en camino.
    *
-   * El aviso nunca deshace el avance: si el correo falla, el pedido queda
-   * movido igual y el estado se ve en la pantalla.
+   * QUÉ CORREO SALE LO DECIDE UN SOLO SITIO —`aviso-de-avance.ts`—, porque
+   * este botón no es la única puerta: el reloj también despacha pedidos solo
+   * cuando el proveedor da la guía (21 sep 2026). El aviso nunca deshace el
+   * avance: si el correo falla, el pedido queda movido y se anota el fallo.
    */
-  try {
-    const { contactoDeUsuario } = await import("@/lib/correo/contactos");
-    const cliente = await contactoDeUsuario(pedido.clienteId);
-
-    if (cliente) {
-      const datos = { numero, totalCentavos: pedido.totalCentavos };
-
-      if (nuevoEstado === "enviado") {
-        const { puntosDeRetiro, lineasDeRetiro } =
-          await import("@/lib/pedidos/retiro");
-        const { correoPedidoListo } = await import("@/lib/correo/correos");
-        const puntos = lineasDeRetiro(await puntosDeRetiro(pedido.id));
-        await correoPedidoListo(cliente, datos, puntos);
-      } else {
-        const { correoPedidoEntregado } = await import("@/lib/correo/correos");
-        await correoPedidoEntregado(cliente, datos);
-      }
-    }
-  } catch (e) {
-    console.error("[pedido] avanzado; aviso al cliente fallido:", e);
-  }
+  const { avisarAvanceAlCliente } =
+    await import("@/lib/pedidos/aviso-de-avance");
+  await avisarAvanceAlCliente(
+    {
+      id: pedido.id,
+      numero,
+      clienteId: pedido.clienteId,
+      totalCentavos: pedido.totalCentavos,
+      mercado: pedido.mercado,
+    },
+    nuevoEstado,
+  );
 
   return {
     ok: true,

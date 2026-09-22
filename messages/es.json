@@ -3279,6 +3279,12 @@
         "cancelado": "Este pedido ya está cancelado.",
         "faltanFotos": "Para este caso necesitamos al menos una foto."
       }
+    },
+    "rastreo": {
+      "titulo": "Seguimiento de tu envío",
+      "boton": "Rastrear mi paquete",
+      "sinEnlace": "Busca este número en la página de tu transportista.",
+      "tardaEnActivarse": "El transportista puede tardar unas horas en activar el número. Si hoy no aparece nada, vuelve a intentarlo mañana."
     }
   },
   "datosPago": {
@@ -3633,6 +3639,22 @@
       "llevaCedula": "Lleva tu documento de identidad y el número de pedido. Si va otra persona por ti, dile que lleve el suyo y este número.",
       "sinDireccion": "El comercio te dará la dirección exacta al coordinar la entrega contigo.",
       "boton": "Ver mi pedido"
+    },
+    "pedidoEnviado": {
+      "asunto": "Tu pedido {numero} ya va en camino",
+      "previo": "Guía {guia}. Ya puedes seguirlo.",
+      "previoSinGuia": "Tu compra ya salió.",
+      "titulo": "¡Tu pedido ya va en camino!",
+      "parrafos": [
+        "Tu compra ya salió y está en manos del transportista. Te escribimos otra vez cuando quede entregada."
+      ],
+      "transportista": "Transportista",
+      "guia": "Número de guía",
+      "tardaEnActivarse": "El transportista puede tardar unas horas en activar el número. Si hoy no aparece nada, vuelve a intentarlo mañana.",
+      "guiaEnCamino": "En cuanto el transportista active el número de guía, lo verás en tu pedido y te lo enviamos.",
+      "botonRastrear": "Rastrear mi paquete",
+      "boton": "Ver mi pedido",
+      "tambienEnTuCuenta": "Tu pedido también está en tu cuenta: {url}"
     },
     "pedidoEntregado": {
       "asunto": "Constancia de entrega del pedido {numero}",

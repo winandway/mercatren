@@ -3279,6 +3279,12 @@
         "cancelado": "This order is already canceled.",
         "faltanFotos": "For this case we need at least one photo."
       }
+    },
+    "rastreo": {
+      "titulo": "Track your shipment",
+      "boton": "Track my package",
+      "sinEnlace": "Look up this number on your carrier's website.",
+      "tardaEnActivarse": "Carriers can take a few hours to activate a tracking number. If nothing shows up today, try again tomorrow."
     }
   },
   "datosPago": {
@@ -3633,6 +3639,22 @@
       "llevaCedula": "Bring a photo ID and your order number. If someone else is picking it up for you, have them bring their own ID and this number.",
       "sinDireccion": "The seller will give you the exact address when you arrange the pickup.",
       "boton": "View my order"
+    },
+    "pedidoEnviado": {
+      "asunto": "Your order {numero} is on its way",
+      "previo": "Tracking {guia}. You can follow it now.",
+      "previoSinGuia": "Your order has shipped.",
+      "titulo": "Your order is on its way!",
+      "parrafos": [
+        "Your order has shipped and is now with the carrier. We'll email you again once it's delivered."
+      ],
+      "transportista": "Carrier",
+      "guia": "Tracking number",
+      "tardaEnActivarse": "Carriers can take a few hours to activate a tracking number. If nothing shows up today, try again tomorrow.",
+      "guiaEnCamino": "As soon as the carrier activates the tracking number, you'll see it on your order and we'll email it to you.",
+      "botonRastrear": "Track my package",
+      "boton": "View my order",
+      "tambienEnTuCuenta": "Your order is also in your account: {url}"
     },
     "pedidoEntregado": {
       "asunto": "Delivery receipt for order {numero}",

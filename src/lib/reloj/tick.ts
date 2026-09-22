@@ -589,6 +589,32 @@ export async function correrTick(
     await anotar("reloj/descripcion", fallo);
   }
 
+  /* 7. ¿YA DESPACHÓ EL PROVEEDOR? LA GUÍA AL COMPRADOR (21 sep 2026).
+     Hasta hoy el número de guía solo entraba si alguien del equipo pulsaba
+     «actualizar» en Panel → Pedidos al proveedor, y el correo de «ya va en
+     camino» no existía: el comprador de EE. UU. pagaba y no sabía nada más
+     hasta que el paquete aparecía en su puerta.
+
+     Va al FINAL y de últimas a propósito: son dos consultas a CJ como
+     máximo, cede si no hay puntos, y ninguna fila se vuelve a preguntar
+     antes de dos horas. Publicar catálogo manda sobre preguntar. */
+  try {
+    if (!cjEnPausa && queda() > 5_000) {
+      const { mirarDespachosDelProveedor } =
+        await import("@/lib/pedidos/despacho-automatico");
+      const r = await mirarDespachosDelProveedor();
+      if (r.preguntadas > 0) {
+        hizo.push(
+          `despachos: ${r.preguntadas} preguntadas, ${r.conGuia} con guía, ${r.despachados} despachados, ${r.avisados} avisados` +
+            (r.ultimoFallo ? ` · último fallo: ${r.ultimoFallo}` : ""),
+        );
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] los despachos fallaron:", fallo);
+    await anotar("reloj/despachos", fallo);
+  }
+
   const r = { hizo, duracionMs: Date.now() - arranque };
   await anotarTick(origen, r, arranque);
   return r;
