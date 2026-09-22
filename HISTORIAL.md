@@ -101,6 +101,27 @@ modo callado, ni el nombre ni el correo del comercio aparecen en el HTML.
 `metodosDisponibles()`. Volver a preguntar por `zelle`/`transferencia` sueltos
 en cualquiera de ellas devuelve el callejón sin salida.
 
+### Y la trampa de comprobarlo: la Action en verde NO es el sitio publicado
+
+Ese mismo día, dos sesiones distintas dieron por roto este arreglo estando
+bien, por la misma razón. Queda escrito para no repetirlo:
+
+1. **Entre la Action en verde y el sitio republicado pasan unos 7 minutos.**
+   La Action solo empuja a la rama `yapanel-build`; publicar es el paso de
+   después, y lo hace la plataforma. Medido el 22 sep: Action terminada a las
+   04:40, rama al minuto, y el enlace real sirvió la versión nueva sobre las
+   04:47. Comprobar a los dos minutos y concluir «no salió» es lo que pasó.
+2. **Un texto del diccionario NO prueba qué versión sirve el worker.**
+   next-intl manda `messages/es.json` ENTERO dentro de la página, así que una
+   clave nueva aparece en el HTML aunque la pantalla no la dibuje, y una vieja
+   aparece igual en el deploy anterior. Es el mismo falso positivo que ya
+   advierte `CLAUDE.md`, y aquí mordió al revés: se leyó «hay texto del
+   cable» como «ya está el deploy nuevo», y no lo estaba.
+
+**Cómo se comprueba de verdad:** texto RENDERIZADO. Con el navegador, o con
+`curl` buscando una frase que solo exista dibujada (no una clave del
+diccionario). Y si sale que no, esperar los 7 minutos antes de tocar nada.
+
 ---
 
 ## LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)
