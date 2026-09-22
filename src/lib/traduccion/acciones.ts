@@ -159,27 +159,30 @@ export async function traducirCatalogoUs(): Promise<ResultadoTraduccion> {
 }
 
 /** Cuántos productos de EE. UU. siguen sin traducir. Para pintar la pantalla. */
+/** `faltaTraducir`, en SQL: solo para contar. */
+const FALTA_TRADUCIR_SQL = sql`trim(coalesce(${productos.tituloEn}, '')) <> ''
+  AND (trim(coalesce(${productos.tituloEs}, '')) = ''
+       OR lower(trim(${productos.tituloEs})) = lower(trim(${productos.tituloEn})))`;
+
 export async function contarSinTraducir(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
 
   const db = getDb();
   const paisDelCatalogo = await paisDelCatalogoDelPanel();
-  const filas = await db
-    .select({
-      id: productos.id,
-      tituloEs: productos.tituloEs,
-      tituloEn: productos.tituloEn,
-    })
+  /* ══ SE CUENTA EN LA BASE, NO EN EL SERVIDOR (21 sep 2026) ══
+     Esto traía los 47.000 títulos (en los dos idiomas) al worker para
+     filtrarlos con `faltaTraducir` y quedarse con un número. Es la misma
+     regla, escrita en SQL: hay inglés, y el español falta o es igual. La
+     única diferencia es `lower()` de SQLite, que solo baja el alfabeto
+     inglés; un título que difiera solo en la mayúscula de una vocal
+     acentuada contaría como pendiente. Es un CONTEO para pintar la pantalla:
+     quién se traduce lo sigue decidiendo `faltaTraducir` en código. */
+  const [fila] = await db
+    .select({ n: sql<number>`COUNT(*)` })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(
-      and(
-        eq(tiendas.paisOrigen, paisDelCatalogo),
-        isNotNull(productos.tituloEn),
-      ),
-    );
-
-  return filas.filter(faltaTraducir).length;
+    .where(and(eq(tiendas.paisOrigen, paisDelCatalogo), FALTA_TRADUCIR_SQL));
+  return Number(fila?.n ?? 0);
 }
 
 /** Para el panel: ¿se puede traducir, o falta la llave? */
@@ -444,6 +447,18 @@ export async function traerDescripciones(): Promise<ResultadoDescripciones> {
  * campo. Aquí se usa `trim` en el SQL para que esos 1.032 vuelvan a entrar en
  * la cola solos, sin tener que tocar la base a mano.
  */
+function sinDescripcionDe(paisDelCatalogo: string) {
+  return and(
+    eq(tiendas.paisOrigen, paisDelCatalogo),
+    isNotNull(productos.externoId),
+    isNull(intentosDescripcion.productoId),
+    or(
+      isNull(productos.descripcionEs),
+      eq(sql`trim(${productos.descripcionEs})`, ""),
+    ),
+  );
+}
+
 async function pendientesDeDescripcion(db: ReturnType<typeof getDb>) {
   const paisDelCatalogo = await paisDelCatalogoDelPanel();
   return db
@@ -454,23 +469,23 @@ async function pendientesDeDescripcion(db: ReturnType<typeof getDb>) {
       intentosDescripcion,
       eq(intentosDescripcion.productoId, productos.id),
     )
-    .where(
-      and(
-        eq(tiendas.paisOrigen, paisDelCatalogo),
-        isNotNull(productos.externoId),
-        isNull(intentosDescripcion.productoId),
-        or(
-          isNull(productos.descripcionEs),
-          eq(sql`trim(${productos.descripcionEs})`, ""),
-        ),
-      ),
-    );
+    .where(sinDescripcionDe(paisDelCatalogo));
 }
 
 /** Cuántos productos de EE. UU. siguen sin descripción. */
 export async function contarSinDescripcion(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
-  return (await pendientesDeDescripcion(getDb())).length;
+  /* Solo el número (21 sep 2026): traía todas las filas para medirlas. */
+  const [fila] = await getDb()
+    .select({ n: sql<number>`COUNT(*)` })
+    .from(productos)
+    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+    .leftJoin(
+      intentosDescripcion,
+      eq(intentosDescripcion.productoId, productos.id),
+    )
+    .where(sinDescripcionDe(await paisDelCatalogoDelPanel()));
+  return Number(fila?.n ?? 0);
 }
 
 /**
@@ -486,22 +501,19 @@ export async function motivosDeFallo(): Promise<
 > {
   if (!(await esSoporteDeVerdad())) return [];
 
+  /* Se agrupa por el principio del motivo: los de CJ traen el id de la
+     petición al final y si no, cada fallo sería un grupo de uno. Agrupado
+     EN LA BASE (21 sep 2026): antes se traían todos los intentos al worker. */
   const filas = await getDb()
-    .select({ motivo: intentosDescripcion.motivo })
-    .from(intentosDescripcion);
-
-  const cuenta = new Map<string, number>();
-  for (const f of filas) {
-    /* Se agrupa por el principio del motivo: los de CJ traen el id de la
-       petición al final y si no, cada fallo sería un grupo de uno. */
-    const clave = f.motivo.slice(0, 90);
-    cuenta.set(clave, (cuenta.get(clave) ?? 0) + 1);
-  }
-
-  return [...cuenta.entries()]
-    .map(([motivo, cuantos]) => ({ motivo, cuantos }))
-    .sort((a, b) => b.cuantos - a.cuantos)
-    .slice(0, 6);
+    .select({
+      motivo: sql<string>`substr(${intentosDescripcion.motivo}, 1, 90)`,
+      cuantos: sql<number>`COUNT(*)`,
+    })
+    .from(intentosDescripcion)
+    .groupBy(sql`substr(${intentosDescripcion.motivo}, 1, 90)`)
+    .orderBy(sql`COUNT(*) DESC`)
+    .limit(6);
+  return filas.map((f) => ({ motivo: f.motivo, cuantos: Number(f.cuantos) }));
 }
 
 /**

@@ -15,6 +15,42 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)
+
+**Cómo se veía.** Richard: «el menú está muy lento; navego y por ejemplo en
+Configuración está muy lento». Se medía dentro del sitio con la puerta
+(`{"accion":"medir-panel"}`, `lib/salud/medir-panel.ts`), porque el panel
+exige sesión y desde fuera no se llega.
+
+**Las tres causas:**
+
+1. **Sin `loading.tsx` en el panel.** Al tocar un ítem del menú no pasaba
+   NADA hasta que el servidor terminaba todas las consultas de la pantalla de
+   destino. El menú parecía muerto aunque el servidor estuviera trabajando.
+2. **El layout (corre en cada pantalla) hacía seis viajes a la base en fila**
+   (~20 ms cada uno en D1), y uno traía la lista ENTERA de pagos pendientes —
+   todas las columnas— para leerle `.length`.
+3. **Configuración hacía catorce viajes en fila, y cinco traían el catálogo
+   al servidor para contar en JavaScript**: `auditarPrecios` (1.436 ms
+   medidos), `contarSinTraducir` (47.000 títulos en dos idiomas),
+   `contarSinDescripcion`, `contarSinEnvio` y `motivosDeFallo`.
+
+**Qué se hizo:** `panel/loading.tsx` (esqueleto, sin textos); el layout con
+`contarPendientesDeValidacion()` (COUNT) y un solo `Promise.all`; en
+Configuración todo en un `Promise.all`, los conteos en SQL (`FALTA_TRADUCIR_SQL`
+es la regla de `faltaTraducir` escrita en SQL — solo para contar; quién se
+traduce lo sigue decidiendo el código), `motivosDeFallo` con `GROUP BY`, y la
+auditoría de precios recordada cinco minutos en el borde
+(`auditoria-precios-global`: no depende del país ni de quién pregunta).
+
+**Cómo se comprueba:** `gh workflow run probar-compra.yml -f cuerpo='{"accion":"medir-panel"}'`
+enseña cada pieza con su tiempo, antes y después. Candado:
+`tests/unit/panel-rapido.test.ts` (9 pruebas, comprobadas en rojo).
+
+**Qué NO hay que tocar:** ningún `await` de consulta suelto delante del
+`Promise.all` de Configuración; ninguna función de conteo que traiga filas
+para medirlas con `.length`; el `loading.tsx` del panel sin textos.
+
 ## MERCATREN.COM SEGUÍA HABLANDO DE VENEZUELA DONDE GOOGLE MIRA (20 sep 2026)
 
 **Cómo se destapó.** Richard pidió retomar Merchant Center «ahora que Estados

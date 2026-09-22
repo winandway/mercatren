@@ -1,5 +1,6 @@
 import "server-only";
 
+import { recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 import { productos, tiendas } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -67,7 +68,22 @@ export type AuditoriaPrecios = {
   aPerdida: number;
 };
 
+/**
+ * ══ SE RECUERDA CINCO MINUTOS (21 sep 2026) ══
+ * Esta auditoría recorre el catálogo ENTERO (47.000 productos con título y
+ * tienda) y lo trae al servidor: era lo más lento de Configuración, en cada
+ * visita. Es de solo lectura, no depende de quién pregunta ni del país del
+ * panel (recorre todos), y no mueve dinero: se recuerda en el borde. Quien
+ * recalcule precios y quiera ver el efecto al momento, espera cinco minutos
+ * o vuelve a entrar más tarde; el número que importa sigue siendo real.
+ */
 export async function auditarPrecios(): Promise<AuditoriaPrecios> {
+  return recordadoEnElBorde("auditoria-precios-global", 5 * 60_000, () =>
+    auditarPreciosAhora(),
+  );
+}
+
+async function auditarPreciosAhora(): Promise<AuditoriaPrecios> {
   const db = getDb();
 
   const filas = await db

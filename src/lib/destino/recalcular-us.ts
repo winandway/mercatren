@@ -251,8 +251,9 @@ export async function contarSinEnvio(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
   const plaza = plazaDelMercado(await mercadoDelPanel());
 
-  const filas = await getDb()
-    .select({ id: productos.id })
+  /* Solo el número (21 sep 2026): traía todas las filas para medirlas. */
+  const [fila] = await getDb()
+    .select({ n: sql<number>`COUNT(*)` })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
     .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
@@ -268,5 +269,5 @@ export async function contarSinEnvio(): Promise<number> {
       ),
     );
 
-  return filas.length;
+  return Number(fila?.n ?? 0);
 }

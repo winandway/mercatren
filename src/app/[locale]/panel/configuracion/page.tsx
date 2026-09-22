@@ -112,45 +112,68 @@ export default async function PaginaConfiguracion({
   const tc = await getTranslations("panel.configuracion.calculadora");
   const idioma = (await getLocale()) as Idioma;
 
-  // La auditoría de precios: de solo lectura, para responder "¿está todo
-  // bien?" con datos y no con la palabra de nadie.
-  const auditoria = await auditarPrecios().catch(() => ({
-    revisados: 0,
-    correctos: 0,
-    sinBase: 0,
-    aPerdida: 0,
-    totalDesalineados: 0,
-    desalineados: [],
-  }));
-  const fotosPendientes = await contarFotosPendientes();
-  const [fotosRotas, fotosPorHora] = await Promise.all([
+  /* ══ TODAS LAS CONSULTAS DE LA PANTALLA, DE UNA SOLA VEZ (21 sep 2026) ══
+     Esta pantalla hacía catorce viajes a la base UNO DETRÁS DE OTRO, y cinco
+     de ellos traían el catálogo entero al servidor para contar. Richard:
+     «navego y en Configuración está muy lento». Ahora los conteos se hacen en
+     la base, la auditoría de precios se recuerda cinco minutos, y todo sale
+     junto. Lo que falle se pinta vacío en vez de tumbar la pantalla. */
+  const [
+    auditoria,
+    fotosPendientes,
+    fotosRotas,
+    fotosPorHora,
+    indiceVisual,
+    traductor,
+    sinDescripcion,
+    motivosDescripcion,
+    sinEnvio,
+    mercadoMirado,
+    catalogos,
+    zelleCobros,
+    transferencia,
+    tasasCrudas,
+    f129,
+  ] = await Promise.all([
+    // La auditoría de precios: de solo lectura, para responder "¿está todo
+    // bien?" con datos y no con la palabra de nadie.
+    auditarPrecios().catch(() => ({
+      revisados: 0,
+      correctos: 0,
+      sinBase: 0,
+      aPerdida: 0,
+      totalDesalineados: 0,
+      desalineados: [],
+    })),
+    contarFotosPendientes(),
     contarFotosRotas(),
     fotosPorHoraVigente(),
+    estadoDelIndice().catch(() => ({
+      indexados: 0,
+      publicados: 0,
+      conError: 0,
+    })),
+    estadoDelTraductor(),
+    contarSinDescripcion(),
+    motivosDeFallo(),
+    contarSinEnvio(),
+    /* La tarjeta de precios y envíos dice de qué país habla: la decide el
+       selector del panel, igual que el recálculo. */
+    mercadoDelPanel(),
+    /* Si el sistema de un comercio deja de mandar sus cambios, sus productos
+       se quedan congelados y aquí no se veía NADA. Esta es la pantalla que
+       faltaba. */
+    saludDeLosComercios().catch(() => []),
+    // Zelle en los enlaces de cobro: solo se dibuja para el rol soporte.
+    estadoZelleCobros().catch(() => null),
+    /* En su propio catch: un fallo leyendo el entorno no puede tumbar la
+       pantalla entera de Configuración. */
+    estadoTransferencia().catch(() => null),
+    /* La tasa automática de cada país: DolarApi + los ajustes del dueño. */
+    estadoDeTasasAutomaticas().catch(() => null),
+    resumenF129().catch(() => null),
   ]);
-  const indiceVisual = await estadoDelIndice().catch(() => ({
-    indexados: 0,
-    publicados: 0,
-    conError: 0,
-  }));
-  const traductor = await estadoDelTraductor();
-  const sinDescripcion = await contarSinDescripcion();
-  const motivosDescripcion = await motivosDeFallo();
-  const sinEnvio = await contarSinEnvio();
-  /* La tarjeta de precios y envíos dice de qué país habla: la decide el
-     selector del panel, igual que el recálculo. */
-  const paisDelPanel = (await mercadoDelPanel()).nombre;
-
-  /* Si el sistema de un comercio deja de mandar sus cambios, sus productos se
-     quedan congelados y aquí no se veía NADA. Esta es la pantalla que faltaba. */
-  const catalogos = await saludDeLosComercios().catch(() => []);
-
-  // Zelle en los enlaces de cobro: solo se dibuja para el rol soporte.
-  const zelleCobros = await estadoZelleCobros().catch(() => null);
-  /* En su propio catch: un fallo leyendo el entorno no puede tumbar la pantalla
-     entera de Configuración. */
-  const transferencia = await estadoTransferencia().catch(() => null);
-  /* La tasa automática de cada país: DolarApi + los ajustes del dueño. */
-  const tasasCrudas = await estadoDeTasasAutomaticas().catch(() => null);
+  const paisDelPanel = mercadoMirado.nombre;
   const tasas = tasasCrudas
     ? (["CL", "CO"] as const).map((pais) => {
         const r = tasasCrudas[pais];
@@ -165,7 +188,6 @@ export default async function PaginaConfiguracion({
         };
       })
     : null;
-  const f129 = await resumenF129().catch(() => null);
 
   const { env } = getCloudflareContext();
   const puesta = (clave: string) =>

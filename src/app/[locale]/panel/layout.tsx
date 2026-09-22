@@ -31,7 +31,7 @@ import { hayQueAvisarDelMercado, mercadoDelPanel } from "@/lib/mercado/panel";
 import { comercioObservado } from "@/lib/soporte/ver-como";
 import { cn } from "@/lib/utils";
 import { tiendaDeLaSesion } from "@/lib/tiendas/consultas";
-import { listarPendientesDeValidacion } from "@/lib/zelle/consultas";
+import { contarPendientesDeValidacion } from "@/lib/zelle/consultas";
 import { latirConElTrafico } from "@/lib/reloj/tick";
 
 /** El panel lee la base en cada visita: nunca se genera de antemano. */
@@ -93,25 +93,39 @@ export default async function LayoutPanel({
     if (!suya) redirect({ href: "/vender/empezar", locale });
   }
 
-  // Si la cuenta es de un comercio que todavia no tiene tienda asignada, la
-  // consulta avisa en vez de romper la pantalla.
-  const [pendientes, porRetirar] = await Promise.all([
-    listarPendientesDeValidacion().catch(() => []),
-    contarRetirosPendientes().catch(() => 0),
-  ]);
+  /* ══ TODO LO DEL LAYOUT, DE UNA SOLA VEZ (21 sep 2026) ══
+     Esto corre en CADA pantalla del panel, y corría en seis pasos seguidos:
+     cada `await` es un viaje a la base que espera al anterior. Ahora salen
+     todos juntos. El globito de pagos por validar es un COUNT (antes traía
+     la lista entera para leerle `.length`). Si la cuenta es de un comercio
+     sin tienda asignada, cada consulta avisa en vez de romper la pantalla.
 
-  /**
-   * AQUÍ ADENTRO VIAJAN LOS MENSAJES COMPLETOS. El layout público recorta el
-   * espacio `panel` del paquete que va al navegador (31 KB que un visitante
-   * del catálogo no necesita); este proveedor anidado se los devuelve a las
-   * pantallas del panel, que son las únicas que los usan.
-   */
-  const mensajes = await getMessages();
+     AQUÍ ADENTRO VIAJAN LOS MENSAJES COMPLETOS: el layout público recorta el
+     espacio `panel` del paquete que va al navegador (31 KB que un visitante
+     del catálogo no necesita); este proveedor anidado se los devuelve a las
+     pantallas del panel, que son las únicas que los usan. */
+  const [
+    pendientes,
+    porRetirar,
+    mensajes,
+    observado,
+    mercado,
+    puedeCambiarDePais,
+  ] = await Promise.all([
+    contarPendientesDeValidacion().catch(() => 0),
+    contarRetirosPendientes().catch(() => 0),
+    getMessages(),
+    comercioObservado(),
+    /* EL PAÍS QUE ESTÁ MIRANDO EL PANEL. Solo Soporte lo puede cambiar, y por
+       eso solo a Soporte se le dibuja el selector — pero el muro no es este
+       `if`, es que `mercadoDelPanel()` comprueba el rol al leer la cookie. */
+    mercadoDelPanel(),
+    esSoporteDeVerdad(),
+  ]);
 
   /* Si Soporte está mirando el panel de un comercio, se trae su nombre para
      la franja. Sin nombre no se dibuja: una franja que dice «estás viendo el
      panel de» y se corta ahí asusta más de lo que avisa. */
-  const observado = await comercioObservado();
   const [comercioMirado] = observado
     ? await getDb()
         .select({ nombre: tiendas.nombre })
@@ -120,12 +134,6 @@ export default async function LayoutPanel({
         .limit(1)
         .catch(() => [])
     : [];
-
-  /* EL PAÍS QUE ESTÁ MIRANDO EL PANEL. Solo Soporte lo puede cambiar, y por
-     eso solo a Soporte se le dibuja el selector — pero el muro no es este
-     `if`, es que `mercadoDelPanel()` comprueba el rol al leer la cookie. */
-  const mercado = await mercadoDelPanel();
-  const puedeCambiarDePais = await esSoporteDeVerdad();
 
   /* Si se dibuja el asistente: manda el hueco del final y el propio botón. */
   const conAsistente = interno && hayAsistente;
@@ -144,7 +152,7 @@ export default async function LayoutPanel({
           <FranjaVerComo nombre={comercioMirado.nombre} />
         ) : null}
         <MenuLateral
-          porValidar={pendientes.length}
+          porValidar={pendientes}
           porRetirar={porRetirar}
           /* MIRANDO EL PANEL DE UN COMERCIO, EL MENÚ ES EL SUYO. Antes esto
              era `interno` a secas —el ROL de la sesión— así que Soporte veía

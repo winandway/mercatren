@@ -80,43 +80,173 @@ export async function medirElPanel(): Promise<{
     );
   }
 
-  /* Lo de Configuración, en el mismo orden en que la página lo hace. */
+  /* Lo de Configuración. Las piezas que exigen el rol de Soporte se miden
+     por debajo del guardián —la consulta tal cual, para el mercado
+     principal—, y las que traían el catálogo entero se miden en las dos
+     formas: como estaban (filas al servidor) y como quedaron (COUNT en la
+     base). Así el «antes» y el «después» salen del mismo run. */
   {
+    const { getDb } = await import("@/lib/db");
+    const { productos, tiendas, intentosDescripcion, enviosProducto } =
+      await import("@/lib/db/schema");
+    const { and, eq, isNotNull, isNull, or, sql, like } =
+      await import("drizzle-orm");
+    const db = getDb();
+
     const { auditarPrecios } = await import("@/lib/productos/auditoria");
-    const { contarFotosPendientes } =
-      await import("@/lib/catalogo/traer-fotos");
+    await medir(
+      "auditarPrecios · 1.ª vez (recorre el catálogo)",
+      auditarPrecios,
+      configuracion,
+    );
+    await medir(
+      "auditarPrecios · 2.ª vez (recordada)",
+      auditarPrecios,
+      configuracion,
+    );
+
+    await medir(
+      "sin traducir · ANTES (47.000 títulos al servidor)",
+      async () =>
+        (
+          await db
+            .select({ es: productos.tituloEs, en: productos.tituloEn })
+            .from(productos)
+            .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+            .where(
+              and(eq(tiendas.paisOrigen, "US"), isNotNull(productos.tituloEn)),
+            )
+        ).length,
+      configuracion,
+    );
+    await medir(
+      "sin traducir · AHORA (COUNT)",
+      () =>
+        db
+          .select({ n: sql<number>`COUNT(*)` })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .where(
+            and(
+              eq(tiendas.paisOrigen, "US"),
+              sql`trim(coalesce(${productos.tituloEn}, '')) <> '' AND (trim(coalesce(${productos.tituloEs}, '')) = '' OR lower(trim(${productos.tituloEs})) = lower(trim(${productos.tituloEn})))`,
+            ),
+          ),
+      configuracion,
+    );
+
+    const sinDescripcion = and(
+      eq(tiendas.paisOrigen, "US"),
+      isNotNull(productos.externoId),
+      isNull(intentosDescripcion.productoId),
+      or(
+        isNull(productos.descripcionEs),
+        eq(sql`trim(${productos.descripcionEs})`, ""),
+      ),
+    );
+    await medir(
+      "sin descripción · ANTES (filas al servidor)",
+      async () =>
+        (
+          await db
+            .select({ id: productos.id })
+            .from(productos)
+            .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+            .leftJoin(
+              intentosDescripcion,
+              eq(intentosDescripcion.productoId, productos.id),
+            )
+            .where(sinDescripcion)
+        ).length,
+      configuracion,
+    );
+    await medir(
+      "sin descripción · AHORA (COUNT)",
+      () =>
+        db
+          .select({ n: sql<number>`COUNT(*)` })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .leftJoin(
+            intentosDescripcion,
+            eq(intentosDescripcion.productoId, productos.id),
+          )
+          .where(sinDescripcion),
+      configuracion,
+    );
+
+    const sinEnvio = and(
+      eq(tiendas.paisOrigen, "US"),
+      or(
+        isNull(enviosProducto.productoId),
+        like(sql`lower(${enviosProducto.transporte})`, "%regional%"),
+      ),
+    );
+    await medir(
+      "sin envío · ANTES (filas al servidor)",
+      async () =>
+        (
+          await db
+            .select({ id: productos.id })
+            .from(productos)
+            .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+            .leftJoin(
+              enviosProducto,
+              eq(enviosProducto.productoId, productos.id),
+            )
+            .where(sinEnvio)
+        ).length,
+      configuracion,
+    );
+    await medir(
+      "sin envío · AHORA (COUNT)",
+      () =>
+        db
+          .select({ n: sql<number>`COUNT(*)` })
+          .from(productos)
+          .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+          .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
+          .where(sinEnvio),
+      configuracion,
+    );
+
+    await medir(
+      "motivos de fallo · ANTES (todos los intentos al servidor)",
+      async () =>
+        (
+          await db
+            .select({ motivo: intentosDescripcion.motivo })
+            .from(intentosDescripcion)
+        ).length,
+      configuracion,
+    );
+    await medir(
+      "motivos de fallo · AHORA (GROUP BY)",
+      () =>
+        db
+          .select({
+            m: sql<string>`substr(${intentosDescripcion.motivo}, 1, 90)`,
+            n: sql<number>`COUNT(*)`,
+          })
+          .from(intentosDescripcion)
+          .groupBy(sql`substr(${intentosDescripcion.motivo}, 1, 90)`)
+          .orderBy(sql`COUNT(*) DESC`)
+          .limit(6),
+      configuracion,
+    );
+
     const { contarFotosRotas, fotosPorHoraVigente } =
       await import("@/lib/catalogo/fotos-panel");
-    const { estadoDelIndice } = await import("@/lib/busqueda-imagen/indexador");
-    const { estadoDelTraductor, contarSinDescripcion, motivosDeFallo } =
-      await import("@/lib/traduccion/acciones");
     const { saludDeLosComercios } = await import("@/lib/socios/salud");
     const { estadoZelleCobros } = await import("@/lib/cobros/zelle-admin");
     const { estadoTransferencia } =
       await import("@/lib/cobros/transferencia-admin");
-    const { estadoDeTasasAutomaticas } = await import("@/lib/mercado/tasas");
     const { resumenF129 } = await import("@/lib/impuestos/f129");
-
-    await medir(
-      "auditarPrecios (trae TODOS los productos)",
-      auditarPrecios,
-      configuracion,
-    );
-    await medir("contarFotosPendientes", contarFotosPendientes, configuracion);
     await medir("contarFotosRotas", contarFotosRotas, configuracion);
     await medir("fotosPorHoraVigente", fotosPorHoraVigente, configuracion);
-    await medir("estadoDelIndice", estadoDelIndice, configuracion);
-    await medir("estadoDelTraductor", estadoDelTraductor, configuracion);
-    await medir("contarSinDescripcion", contarSinDescripcion, configuracion);
-    await medir("motivosDeFallo", motivosDeFallo, configuracion);
     await medir("saludDeLosComercios", saludDeLosComercios, configuracion);
     await medir("estadoZelleCobros", estadoZelleCobros, configuracion);
     await medir("estadoTransferencia", estadoTransferencia, configuracion);
-    await medir(
-      "estadoDeTasasAutomaticas (DolarApi)",
-      estadoDeTasasAutomaticas,
-      configuracion,
-    );
     await medir("resumenF129", resumenF129, configuracion);
   }
 

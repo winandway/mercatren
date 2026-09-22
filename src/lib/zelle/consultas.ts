@@ -304,6 +304,27 @@ export async function obtenerPago(id: string) {
   return pago ?? null;
 }
 
+/**
+ * Cuántos pagos esperan revisión: para el globito del menú (21 sep 2026).
+ * El layout del panel traía la lista ENTERA —todas las columnas de cada
+ * pago pendiente— en cada pantalla, solo para leer `.length`.
+ */
+export async function contarPendientesDeValidacion(
+  comercio?: string,
+): Promise<number> {
+  const [fila] = await getDb()
+    .select({ n: sql<number>`COUNT(*)` })
+    .from(pagosZelle)
+    .where(
+      and(
+        SOLO_ENTRADAS,
+        eq(pagosZelle.estado, "pendiente"),
+        await filtroDeComercio(comercio),
+      ),
+    );
+  return Number(fila?.n ?? 0);
+}
+
 /** Los pagos que esperan revision del validador. */
 export async function listarPendientesDeValidacion(comercio?: string) {
   const db = getDb();
