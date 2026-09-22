@@ -123,9 +123,20 @@ describe("Configuración no trae el catálogo al servidor para contar", () => {
     expect(f).not.toContain("filas.length");
   });
 
-  it("la auditoría de precios se recuerda cinco minutos", () => {
+  it("la auditoría y los tres conteos del catálogo se recuerdan cinco minutos", () => {
+    /* Medido en producción: el COUNT sigue recorriendo el catálogo
+       (500–700 ms). Con el país en la llave; la auditoría no depende de él. */
     expect(cuerpo(auditoria, "auditarPrecios")).toContain(
       'recordadoEnElBorde("auditoria-precios-global", 5 * 60_000',
+    );
+    expect(cuerpo(traduccion, "contarSinTraducir")).toContain(
+      "`sin-traducir-${paisDelCatalogo}`",
+    );
+    expect(cuerpo(traduccion, "contarSinDescripcion")).toContain(
+      "`sin-descripcion-${paisDelCatalogo}`",
+    );
+    expect(cuerpo(envio, "contarSinEnvio")).toContain(
+      "`sin-envio-${plaza.paisEntrega}`",
     );
   });
 

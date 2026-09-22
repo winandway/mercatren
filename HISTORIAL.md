@@ -43,6 +43,14 @@ traduce lo sigue decidiendo el código), `motivosDeFallo` con `GROUP BY`, y la
 auditoría de precios recordada cinco minutos en el borde
 (`auditoria-precios-global`: no depende del país ni de quién pregunta).
 
+**Lo que enseñó la medición de después:** pasar a `COUNT` ahorra traer las
+filas, pero la base sigue recorriendo el catálogo (sin traducir 1.217 → 517
+ms; sin envío, con su cruce de envíos, no bajó). Por eso los tres conteos del
+catálogo también se recuerdan cinco minutos, con el país en la llave
+(`sin-traducir-US`, `sin-descripcion-US`, `sin-envio-US`). Lo que de verdad
+quita los segundos es que todo va en paralelo y que lo pesado se recuerda: la
+primera apertura paga ~1 s (la más lenta, no la suma) y las siguientes, nada.
+
 **Cómo se comprueba:** `gh workflow run probar-compra.yml -f cuerpo='{"accion":"medir-panel"}'`
 enseña cada pieza con su tiempo, antes y después. Candado:
 `tests/unit/panel-rapido.test.ts` (9 pruebas, comprobadas en rojo).

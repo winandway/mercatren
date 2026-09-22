@@ -3,6 +3,7 @@
 import { and, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 
 import { esSoporteDeVerdad } from "@/lib/autorizacion";
+import { recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 import { intentosDescripcion, productos, tiendas } from "@/lib/db/schema";
 
@@ -177,12 +178,23 @@ export async function contarSinTraducir(): Promise<number> {
      inglés; un título que difiera solo en la mayúscula de una vocal
      acentuada contaría como pendiente. Es un CONTEO para pintar la pantalla:
      quién se traduce lo sigue decidiendo `faltaTraducir` en código. */
-  const [fila] = await db
-    .select({ n: sql<number>`COUNT(*)` })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .where(and(eq(tiendas.paisOrigen, paisDelCatalogo), FALTA_TRADUCIR_SQL));
-  return Number(fila?.n ?? 0);
+  /* Y se recuerda cinco minutos: medido en producción, el COUNT sigue
+     recorriendo el catálogo (517 ms) aunque ya no lo traiga al servidor. Es
+     un número para pintar la pantalla; con el país en la llave. */
+  return recordadoEnElBorde(
+    `sin-traducir-${paisDelCatalogo}`,
+    5 * 60_000,
+    async () => {
+      const [fila] = await db
+        .select({ n: sql<number>`COUNT(*)` })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .where(
+          and(eq(tiendas.paisOrigen, paisDelCatalogo), FALTA_TRADUCIR_SQL),
+        );
+      return Number(fila?.n ?? 0);
+    },
+  );
 }
 
 /** Para el panel: ¿se puede traducir, o falta la llave? */
@@ -475,17 +487,25 @@ async function pendientesDeDescripcion(db: ReturnType<typeof getDb>) {
 /** Cuántos productos de EE. UU. siguen sin descripción. */
 export async function contarSinDescripcion(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
-  /* Solo el número (21 sep 2026): traía todas las filas para medirlas. */
-  const [fila] = await getDb()
-    .select({ n: sql<number>`COUNT(*)` })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .leftJoin(
-      intentosDescripcion,
-      eq(intentosDescripcion.productoId, productos.id),
-    )
-    .where(sinDescripcionDe(await paisDelCatalogoDelPanel()));
-  return Number(fila?.n ?? 0);
+  /* Solo el número, y recordado cinco minutos (21 sep 2026): traía todas
+     las filas para medirlas, y el COUNT sigue recorriendo el catálogo. */
+  const paisDelCatalogo = await paisDelCatalogoDelPanel();
+  return recordadoEnElBorde(
+    `sin-descripcion-${paisDelCatalogo}`,
+    5 * 60_000,
+    async () => {
+      const [fila] = await getDb()
+        .select({ n: sql<number>`COUNT(*)` })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .leftJoin(
+          intentosDescripcion,
+          eq(intentosDescripcion.productoId, productos.id),
+        )
+        .where(sinDescripcionDe(paisDelCatalogo));
+      return Number(fila?.n ?? 0);
+    },
+  );
 }
 
 /**

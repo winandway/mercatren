@@ -9,6 +9,7 @@ import { REGIONALES } from "@/lib/cj/riesgo";
 import { precioPublicadoDe } from "@/lib/destino/precio-plaza";
 import { mercadoDelPanel } from "@/lib/mercado/panel";
 import { tasaVigente } from "@/lib/mercado/tasas";
+import { recordadoEnElBorde } from "@/lib/cachecito";
 import { getDb } from "@/lib/db";
 import { enviosProducto, productos, tiendas } from "@/lib/db/schema";
 
@@ -251,23 +252,30 @@ export async function contarSinEnvio(): Promise<number> {
   if (!(await esSoporteDeVerdad())) return 0;
   const plaza = plazaDelMercado(await mercadoDelPanel());
 
-  /* Solo el número (21 sep 2026): traía todas las filas para medirlas. */
-  const [fila] = await getDb()
-    .select({ n: sql<number>`COUNT(*)` })
-    .from(productos)
-    .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
-    .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
-    .where(
-      and(
-        eq(tiendas.paisOrigen, plaza.paisEntrega),
-        or(
-          isNull(enviosProducto.productoId),
-          ...REGIONALES.map((r) =>
-            like(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
+  /* Solo el número, y recordado cinco minutos (21 sep 2026): traía todas
+     las filas para medirlas, y el COUNT sigue recorriendo el catálogo con
+     el cruce de envíos (668 ms medidos). Con el país en la llave. */
+  return recordadoEnElBorde(
+    `sin-envio-${plaza.paisEntrega}`,
+    5 * 60_000,
+    async () => {
+      const [fila] = await getDb()
+        .select({ n: sql<number>`COUNT(*)` })
+        .from(productos)
+        .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
+        .leftJoin(enviosProducto, eq(enviosProducto.productoId, productos.id))
+        .where(
+          and(
+            eq(tiendas.paisOrigen, plaza.paisEntrega),
+            or(
+              isNull(enviosProducto.productoId),
+              ...REGIONALES.map((r) =>
+                like(sql`lower(${enviosProducto.transporte})`, `%${r}%`),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
-
-  return Number(fila?.n ?? 0);
+        );
+      return Number(fila?.n ?? 0);
+    },
+  );
 }
