@@ -68,6 +68,10 @@ const Peticion = z.discriminatedUnion("accion", [
      error (21 sep 2026). */
   z.object({ accion: z.literal("ultimos-cobros") }),
   z.object({ accion: z.literal("errores") }),
+  z.object({
+    accion: z.literal("sale-zelle"),
+    montoCentavos: z.number().int().positive(),
+  }),
   /* Las estadísticas de la base (18 sep 2026): enseña el plan de las
      consultas-trampa, corre ANALYZE (o `PRAGMA optimize`) y lo enseña otra
      vez. Sin estadísticas SQLite elegía el índice de `estado` en todas
@@ -234,6 +238,11 @@ export async function POST(peticion: Request) {
         planes: await planes(),
       };
       resultado = { corrio, antes, despues };
+      break;
+    }
+    case "sale-zelle": {
+      const { saleZelle } = await import("@/lib/salud/medir-panel");
+      resultado = await saleZelle(e.montoCentavos);
       break;
     }
     case "errores": {

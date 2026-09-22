@@ -338,3 +338,48 @@ export async function ultimosCobros(): Promise<unknown> {
     return { error: e instanceof Error ? e.message : String(e) };
   }
 }
+
+/**
+ * ¿VA A SALIR ZELLE EN UN COBRO DE ESTE MONTO, Y SI NO, POR QUÉ?
+ *
+ * Para comprobarlo desde fuera sin pedirle a Richard que pulse nada: el
+ * aviso del panel (22 sep 2026) vive detrás de una sesión, y esto lee la
+ * misma decisión con los mismos datos de producción.
+ */
+export async function saleZelle(montoCentavos: number): Promise<
+  Array<{
+    tienda: string;
+    mercado: string;
+    saldra: boolean;
+    motivo: string | null;
+    maximo: string;
+  }>
+> {
+  const { porQueNoSaleZelle } = await import("@/lib/cobros/consultas");
+  const { getDb } = await import("@/lib/db");
+  const { tiendas } = await import("@/lib/db/schema");
+  const { desc } = await import("drizzle-orm");
+
+  const filas = await getDb()
+    .select({
+      id: tiendas.id,
+      nombre: tiendas.nombre,
+      mercado: tiendas.mercado,
+    })
+    .from(tiendas)
+    .orderBy(desc(tiendas.creadoEn))
+    .limit(8);
+
+  const salida = [];
+  for (const t of filas) {
+    const z = await porQueNoSaleZelle(t.id, montoCentavos);
+    salida.push({
+      tienda: t.nombre,
+      mercado: t.mercado ?? "",
+      saldra: z.saldra,
+      motivo: z.motivo,
+      maximo: (z.maximoCentavos / 100).toFixed(2),
+    });
+  }
+  return salida;
+}
