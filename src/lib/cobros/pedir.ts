@@ -74,6 +74,9 @@ export type ResultadoCobro =
       referencia: string;
       /** Todas las partes, en orden. Una sola cuando no se dividió. */
       partes: ParteCreada[];
+      /** `false` cuando el cobro existe pero el correo NO salió: la
+          pantalla lo dice para que se mande por WhatsApp (21 sep 2026). */
+      correoEnviado: boolean;
     }
   | { ok: false; mensaje: string; campos?: string[] };
 

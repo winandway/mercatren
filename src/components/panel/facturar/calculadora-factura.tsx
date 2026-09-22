@@ -139,6 +139,7 @@ export function CalculadoraFactura({
   const cuadre = useMemo(() => {
     if (seleccion.length === 0 || objetivoCentavos <= 0) return null;
     const crudo = cuadrarFactura(seleccion, objetivoCentavos);
+    if (!crudo) return null;
     if (crudo.exacto) return { ...crudo, ajustado: false as const };
     const ajuste = ajustarAlMonto(crudo.lineas, objetivoCentavos);
     if (!ajuste) return { ...crudo, ajustado: false as const };

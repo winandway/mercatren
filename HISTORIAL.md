@@ -15,6 +15,79 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)
+
+Richard estaba emitiendo una factura real de **$6.483,77** con dos laptops
+iguales, con el cliente esperando, y la pantalla le falló cuatro veces
+seguidas. Cada una con su candado.
+
+### 1 · `6.483,77` se leía como $6,48
+
+**Cómo se veía:** escribía el monto con punto de miles y coma decimal, como
+se escribe en Venezuela, y el cuadre trabajaba con seis dólares y medio sin
+avisar. **Causa:** `replace(",", ".")` + `parseFloat`, que corta en el
+segundo punto. **Arreglo:** `src/lib/facturar/leer-monto.ts` →
+`leerMontoEnCentavos()`: manda el ÚLTIMO separador; un solo separador con
+tres cifras detrás es de miles (`6.483` = seis mil). Candado:
+`tests/unit/leer-monto.test.ts`.
+
+### 2 · No había forma de decir «van DOS»
+
+El producto se marcaba una vez y el cuadre decidía solo cuántas unidades.
+**Arreglo:** casilla de cantidad por producto marcado (`cantidades` en
+`calculadora-factura.tsx`, `fijas` en `ProductoParaCuadrar`);
+`cuadrarFactura` descuenta las fijas del objetivo y cuadra el resto con los
+libres. Candado: `tests/unit/cuadrar-factura.test.ts` (fijas) y
+`tests/componentes/calculadora-factura.test.tsx`.
+
+### 3 · Con dos laptops «faltaban $406,83» y había que elegir un monto
+
+Dos laptops de lista suman $6.076,94 y el presupuesto era $6.483,77: la
+pantalla ponía un aviso ámbar y dos botones. Richard: _«los 6.483,77 se
+dividen en dos y ajusta tú misma los precios de la laptop y ya está»_.
+**Arreglo:** el monto de la factura es sagrado y SIEMPRE se cobra lo
+escrito; si las unidades no lo suman, `ajustarAlMonto()` (en `cuadrar.ts`)
+reparte el objetivo entre las líneas en proporción, en centavos enteros, y
+la última absorbe el redondeo: total exacto siempre. El desglose enseña el
+precio ajustado (con milésimas si hace falta: $3.241,885) y el de lista
+tachado. La pregunta «¿cuál monto cobras?» se retiró. **Ojo:** el cobro
+guarda solo monto, cargos y concepto — las líneas del desglose no viajan al
+cobro, así que el ajuste vive en la calculadora. Candados: los 4 casos de
+`ajustarAlMonto` en `cuadrar-factura.test.ts` y la prueba del componente
+que exige `$6,483.77`+`$3,241.885` + `$3,038.47`tachado y ningún`radiogroup`.
+
+### 4 · El cobro «creado» no aparecía por ningún lado
+
+Richard cuadró, creó el cobro, y una hora después no encontraba el enlace.
+Con la puerta (`ultimos-cobros`) se vio que **el cobro nunca se creó**: el
+último en la base era otro. Tres cosas se arreglaron para que no vuelva a
+pasar a ciegas: (a) «Enlaces de cobro» entró al menú lateral (antes solo se
+llegaba escribiendo la ruta); (b) el enlace recién creado se guarda en
+`sessionStorage` de la pestaña (`ultimo-cobro`, 30 min) y vuelve al
+recargar; (c) **si el correo no sale, la pantalla lo dice** en ámbar
+(`correoEnviado` en `crearCobroDesdePanel`, texto `correoNoSalio`) en vez de
+«también se lo mandamos por correo»; y `listarEnlacesDeCobro` ya no
+convierte un error de la base en «no hay cobros» (`.catch(() => [])`
+retirado). Candado: `tests/unit/cobro-desde-panel.test.ts`.
+
+**Y una trampa de lectura:** la lista de enlaces filtra por el país del
+panel. Con el panel en Estados Unidos, los cobros de tiendas de Venezuela no
+salen. Primero se pone el panel en el país de la tienda.
+
+### 5 · El interruptor de seller no existía
+
+Richard recordaba haberlo pedido y creía que estaba hecho. `git log --all
+-S` demostró que nunca existió (había el toggle de Zelle por tienda y el
+botón «Aprobar»). Se construyó: `cambiarEstadoDeComercio()` en
+`src/lib/tiendas/acciones.ts` (solo `esSoporteDeVerdad()`, filtra por
+`mercadoDelPanel()`), `<EncenderComercio>` en `/panel/tiendas` (encender
+directo, apagar con confirmación; apagar = `suspendida`, solo la esconde del
+público). Candado: `tests/unit/encender-comercio.test.ts`.
+
+**Qué NO tocar:** `leerMontoEnCentavos` no se «simplifica» con
+`parseFloat`; el cobro se hace SIEMPRE por `objetivoCentavos`, nunca por lo
+que sumen las unidades; el `correoEnviado` no se quita del retorno.
+
 ## EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)
 
 **Cómo se veía.** Richard: «el menú está muy lento; navego y por ejemplo en
