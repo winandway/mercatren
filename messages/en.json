@@ -527,6 +527,14 @@
         "nota": "Note (optional): how and when they were paid",
         "confirmar": "Set balance to zero",
         "cancelar": "Cancel"
+      },
+      "interruptor": {
+        "encender": "Activate this seller",
+        "apagar": "Deactivate this seller",
+        "confirmarTitulo": "Deactivate {nombre}?",
+        "confirmarAyuda": "Their store and products leave the catalog and stop selling. The owner can still sign in and request their money. You can turn it back on whenever you want.",
+        "confirmarApagar": "Yes, deactivate",
+        "cancelar": "Cancel"
       }
     },
     "resumen": {
@@ -1404,7 +1412,9 @@
       "varianteRepetida": "“{nombre}” is duplicated: it’s the same combination written twice (upper and lower case don’t make it different). Merge the stock into a single row and save again.",
       "faltaReferenciaCierre": "Enter the reference of the real payment (at least 3 characters).",
       "saldoCerrado": "Balance closed: {monto} recorded as paid ({pedidos} pending withdrawals marked).",
-      "sinConfirmarStock": "We couldn't confirm the warehouse availability of “{producto}”. Nothing was charged: please try again in a minute."
+      "sinConfirmarStock": "We couldn't confirm the warehouse availability of “{producto}”. Nothing was charged: please try again in a minute.",
+      "comercioEncendido": "{nombre} is active: their store is back in the catalog.",
+      "comercioApagado": "{nombre} is deactivated: their store is out of the catalog."
     },
     "usuarios": {
       "titulo": "Accounts",

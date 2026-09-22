@@ -8,6 +8,7 @@ import { z } from "zod";
 import { codigoDePais } from "@/lib/mercado/codigo-de-pais";
 
 import {
+  esSoporteDeVerdad,
   exigirEquipoInterno,
   obtenerAlcance,
   obtenerUsuario,
@@ -394,6 +395,64 @@ export async function solicitarComercio(
  * hace el equipo de Mercatren y nadie más: si el propio comercio pudiera
  * aprobarse, la revisión no revisaría nada.
  */
+/**
+ * ══ ENCENDER Y APAGAR UN COMERCIO (21 sep 2026) ══
+ *
+ * Richard lo buscó en el panel para activar un seller de Venezuela y no
+ * estaba: solo existía «Aprobar», que sirve una sola vez y únicamente si la
+ * tienda está `pendiente`. Una tienda en `borrador`, o una que se suspendió,
+ * no había forma de encenderla sin tocar la base a mano.
+ *
+ * **Apagar solo la esconde del público.** Su tienda y sus productos salen del
+ * catálogo, del mapa del sitio y de Google; el dueño sigue entrando a su
+ * panel, viendo sus ventas y pudiendo pedir su dinero. Es lo reversible: si
+ * se apaga por error, encenderla lo deja todo como estaba. Quitarle la
+ * entrada o congelarle el saldo son decisiones distintas y más duras, y no
+ * se toman con un interruptor.
+ *
+ * Solo Soporte, y solo sobre comercios del país que está mirando el panel:
+ * desde el panel de Venezuela no se apaga una tienda de Estados Unidos.
+ */
+export async function cambiarEstadoDeComercio(
+  tiendaId: string,
+  encendida: boolean,
+): Promise<{ ok: boolean; mensaje: string }> {
+  const t = await mensajes();
+
+  if (!(await esSoporteDeVerdad())) {
+    return { ok: false, mensaje: t("soloEquipo") };
+  }
+
+  const { mercadoDelPanel } = await import("@/lib/mercado/panel");
+  const mercado = await mercadoDelPanel();
+
+  const resultado = await getDb()
+    .update(tiendas)
+    .set({
+      estado: encendida ? "activa" : "suspendida",
+      actualizadoEn: new Date(),
+    })
+    .where(and(eq(tiendas.id, tiendaId), eq(tiendas.mercado, mercado.codigo)))
+    .returning({ id: tiendas.id, nombre: tiendas.nombre });
+
+  if (resultado.length === 0) {
+    return { ok: false, mensaje: t("tiendaNoExiste") };
+  }
+
+  /* El catálogo y la ficha de la tienda cambian para todo el mundo. */
+  revalidatePath("/[locale]/panel/tiendas", "page");
+  revalidatePath("/[locale]/(tienda)/tienda/[slug]", "page");
+  revalidatePath("/[locale]/(tienda)/tiendas", "page");
+  revalidatePath("/[locale]/(tienda)/catalogo", "page");
+
+  return {
+    ok: true,
+    mensaje: encendida
+      ? t("comercioEncendido", { nombre: resultado[0]!.nombre })
+      : t("comercioApagado", { nombre: resultado[0]!.nombre }),
+  };
+}
+
 export async function aprobarComercio(
   tiendaId: string,
 ): Promise<{ ok: boolean; mensaje: string }> {

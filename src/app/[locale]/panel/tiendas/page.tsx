@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BotonVerComo } from "@/components/panel/ver-como";
 import { CerrarSaldo } from "@/components/panel/cerrar-saldo";
 import { AprobarComercio } from "@/components/panel/aprobar-comercio";
+import { EncenderComercio } from "@/components/panel/tiendas/encender-comercio";
 import { TokenIntegracion } from "@/components/panel/tiendas/token-integracion";
 import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { Link } from "@/i18n/navigation";
@@ -181,6 +182,13 @@ export default async function PaginaComercios({
                 {esSoporte ? (
                   <div className="mt-4">
                     <BotonVerComo tiendaId={c.id} nombre={c.nombre} />
+                    {/* EL INTERRUPTOR (21 sep 2026): activar o desactivar el
+                        comercio, aquí, que es donde se busca. */}
+                    <EncenderComercio
+                      tiendaId={c.id}
+                      nombre={c.nombre}
+                      encendida={c.estado === "activa"}
+                    />
                     <CerrarSaldo
                       tiendaId={c.id}
                       nombre={c.nombre}

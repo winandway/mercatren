@@ -527,6 +527,14 @@
         "nota": "Nota (opcional): cómo y cuándo se le pagó",
         "confirmar": "Dejar el saldo en cero",
         "cancelar": "Cancelar"
+      },
+      "interruptor": {
+        "encender": "Activar este comercio",
+        "apagar": "Desactivar este comercio",
+        "confirmarTitulo": "¿Desactivar {nombre}?",
+        "confirmarAyuda": "Su tienda y sus productos salen del catálogo y dejan de venderse. El dueño sigue entrando a su panel y puede pedir su dinero. Lo puedes volver a activar cuando quieras.",
+        "confirmarApagar": "Sí, desactivar",
+        "cancelar": "Cancelar"
       }
     },
     "resumen": {
@@ -1404,7 +1412,9 @@
       "varianteRepetida": "«{nombre}» está repetida: son la misma combinación escrita dos veces (mayúsculas y minúsculas no la hacen distinta). Junta el stock en una sola fila y guarda de nuevo.",
       "faltaReferenciaCierre": "Escribe la referencia del pago real (mínimo 3 caracteres).",
       "saldoCerrado": "Saldo cerrado: {monto} registrados como pagados ({pedidos} retiros pendientes marcados).",
-      "sinConfirmarStock": "No pudimos confirmar con el almacén la disponibilidad de «{producto}». No se cobró nada: inténtalo de nuevo en un minuto."
+      "sinConfirmarStock": "No pudimos confirmar con el almacén la disponibilidad de «{producto}». No se cobró nada: inténtalo de nuevo en un minuto.",
+      "comercioEncendido": "{nombre} quedó activo: su tienda ya se ve en el catálogo.",
+      "comercioApagado": "{nombre} quedó desactivado: su tienda salió del catálogo."
     },
     "usuarios": {
       "titulo": "Cuentas",
