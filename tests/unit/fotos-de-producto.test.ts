@@ -176,3 +176,19 @@ describe("el mecanismo: se llena solo, se olvida donde cambian las fotos, y el r
     expect(modulo).toContain("const FILAS_POR_SENTENCIA = 30;");
   });
 });
+
+describe("ningún IN lleva más de 100 ids (22 sep 2026)", () => {
+  /* El reloj mandaba 150 ids en un solo IN y la base de la nube falló
+     6.440 veces seguidas, una por minuto. */
+  const fuente = readFileSync("src/lib/catalogo/fotos-de-producto.ts", "utf8");
+
+  it("la consulta de imagenes_producto se trocea con IDS_POR_CONSULTA ≤ 100", () => {
+    expect(fuente).toMatch(/export const IDS_POR_CONSULTA = (\d+)/);
+    const n = Number(fuente.match(/export const IDS_POR_CONSULTA = (\d+)/)![1]);
+    expect(n).toBeLessThanOrEqual(100);
+    expect(fuente).toMatch(/trozos\(ids, IDS_POR_CONSULTA\)/);
+    /* Y el IN de imagenes_producto usa el trozo, nunca la lista entera. */
+    expect(fuente).toMatch(/inArray\(imagenesProducto\.productoId, trozo\)/);
+    expect(fuente).not.toMatch(/inArray\(imagenesProducto\.productoId, ids\)/);
+  });
+});

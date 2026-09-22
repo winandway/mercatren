@@ -2,6 +2,7 @@ import "server-only";
 
 import { and, asc, inArray, lt, sql } from "drizzle-orm";
 
+import type { ImagenCruda } from "@/lib/catalogo/fotos-de-producto-armar";
 import { getDb } from "@/lib/db";
 import { fotosDeProducto, imagenesProducto } from "@/lib/db/schema";
 
@@ -55,26 +56,44 @@ function trozos<T>(lista: readonly T[], tamano: number): T[][] {
 }
 
 /** Las fotos sanas de estos productos, leídas de `imagenes_producto`. */
+/**
+ * ══ NUNCA MÁS DE `IDS_POR_CONSULTA` EN UN `IN` (22 sep 2026) ══
+ *
+ * `refrescarFotosViejas(150)` mandaba 150 ids en un solo `IN (?, ?, …)`, y
+ * la base de la nube no admite más de 100 variables por sentencia. Falló
+ * 6.440 veces seguidas, una por minuto desde el 19 sep, anotadas en
+ * `errores_sistema` como `reloj/fotos-guardadas`, y ninguna lista vieja se
+ * rehizo. Se trocea aquí, en la única función que arma esa consulta.
+ */
+export const IDS_POR_CONSULTA = 90;
+
 async function calcularFotosDe(
   ids: readonly string[],
 ): Promise<Map<string, FotoGuardada[]>> {
   if (ids.length === 0) return new Map();
   const db = getDb();
-  const imagenes = await db
-    .select({
-      productoId: imagenesProducto.productoId,
-      url: imagenesProducto.url,
-      clave: imagenesProducto.clave,
-      textoAltEs: imagenesProducto.textoAltEs,
-      textoAltEn: imagenesProducto.textoAltEn,
-    })
-    .from(imagenesProducto)
-    .where(and(inArray(imagenesProducto.productoId, ids), SIN_FOTOS_ROTAS))
-    .orderBy(
-      imagenesProducto.productoId,
-      asc(imagenesProducto.orden),
-      sql`imagenes_producto.rowid`,
+  const imagenes: ImagenCruda[] = [];
+  for (const trozo of trozos(ids, IDS_POR_CONSULTA)) {
+    imagenes.push(
+      ...(await db
+        .select({
+          productoId: imagenesProducto.productoId,
+          url: imagenesProducto.url,
+          clave: imagenesProducto.clave,
+          textoAltEs: imagenesProducto.textoAltEs,
+          textoAltEn: imagenesProducto.textoAltEn,
+        })
+        .from(imagenesProducto)
+        .where(
+          and(inArray(imagenesProducto.productoId, trozo), SIN_FOTOS_ROTAS),
+        )
+        .orderBy(
+          imagenesProducto.productoId,
+          asc(imagenesProducto.orden),
+          sql`imagenes_producto.rowid`,
+        )),
     );
+  }
   const agrupadas = agruparFotos(imagenes);
   /* Un producto sin fotos también se guarda (lista vacía): si no, cada
      visita volvería a preguntar por él. */
