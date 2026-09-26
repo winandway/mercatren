@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { formaDeEntrega } from "@/lib/pedidos/como-se-entrega";
-import { rastreoDe } from "@/lib/pedidos/rastreo";
+import { queMostrarDelEnvio, rastreoDe } from "@/lib/pedidos/rastreo";
 
 /**
  * «TU PEDIDO YA VA EN CAMINO» (21 sep 2026).
@@ -178,5 +178,71 @@ describe("el correo dice solo lo que es cierto cuando sale", () => {
     expect(String(leer("messages/en.json").asunto)).toContain(
       "tracking number",
     );
+  });
+});
+
+/**
+ * ══ LA GUÍA EN CADA COMPRA, Y DÓNDE VA A APARECER (25 sep 2026) ══
+ *
+ * Richard miró su pedido como lo ve un comprador y pidió ver ahí, en cada
+ * compra, el número de guía. Existía, pero solo dentro del pedido y solo con
+ * guía ya puesta: en «Mis pedidos» no salía nunca, y mientras no llegaba la
+ * pantalla no decía ni dónde mirar.
+ */
+describe("qué ve del envío quien compró", () => {
+  const GUIA = rastreoDe("YWE00001552040285", "SpeedX US to US #2");
+
+  it("con guía, se enseña la guía", () => {
+    const e = queMostrarDelEnvio("enviado", true, GUIA);
+    expect(e.tipo).toBe("guia");
+    expect(e.tipo === "guia" && e.rastreo.guia).toBe("YWE00001552040285");
+  });
+
+  it("pagado y sin guía todavía: se dice dónde va a aparecer", () => {
+    expect(queMostrarDelEnvio("pagado", true, null).tipo).toBe("pendiente");
+    expect(queMostrarDelEnvio("preparando", true, null).tipo).toBe("pendiente");
+  });
+
+  it("la guía sigue a la vista después de entregado: es el comprobante", () => {
+    expect(queMostrarDelEnvio("entregado", true, GUIA).tipo).toBe("guia");
+  });
+
+  it("sin pagar, cancelado o reembolsado no enseña envío", () => {
+    expect(queMostrarDelEnvio("pendiente_pago", true, null).tipo).toBe("nada");
+    expect(queMostrarDelEnvio("cancelado", true, GUIA).tipo).toBe("nada");
+    expect(queMostrarDelEnvio("reembolsado", true, GUIA).tipo).toBe("nada");
+  });
+
+  it("lo que se retira en un mostrador no promete una guía", () => {
+    expect(queMostrarDelEnvio("pagado", false, null).tipo).toBe("nada");
+  });
+});
+
+describe("las dos pantallas deciden con la misma pieza", () => {
+  it("«Mis pedidos» y el pedido usan queMostrarDelEnvio", () => {
+    const lista = readFileSync(
+      "src/app/[locale]/(tienda)/pedidos/page.tsx",
+      "utf8",
+    );
+    const detalle = readFileSync(
+      "src/app/[locale]/(tienda)/pedido/[numero]/page.tsx",
+      "utf8",
+    );
+    for (const [nombre, fuente] of [
+      ["lista", lista],
+      ["detalle", detalle],
+    ]) {
+      expect(fuente, nombre).toContain("queMostrarDelEnvio(");
+      expect(fuente, nombre).toContain('envio.tipo === "pendiente"');
+    }
+  });
+
+  it("la lista trae la guía de cada pedido", () => {
+    const acciones = readFileSync("src/lib/pedidos/acciones.ts", "utf8");
+    const lista = acciones.slice(
+      acciones.indexOf("export async function listarPedidosPropios"),
+    );
+    expect(lista).toContain("guia: sql");
+    expect(lista).toContain("transportista: sql");
   });
 });

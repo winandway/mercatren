@@ -23,6 +23,7 @@ import {
   pagosZelle,
   tiendas,
 } from "@/lib/db/schema";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * Consultas del modulo de pagos Zelle.
@@ -367,7 +368,7 @@ export async function listarComercios(busqueda?: string) {
       comisionPuntosBase: tiendas.comisionPuntosBase,
       pagos: sql<number>`(SELECT COUNT(*) FROM ${pagosZelle} WHERE ${aprobadosDeLaTienda})`,
       ingresosCentavos: sql<number>`COALESCE((SELECT SUM(${pagosZelle.montoCentavos}) FROM ${pagosZelle} WHERE ${aprobadosDeLaTienda}), 0)`,
-      saldoCentavos: sql<number>`COALESCE((SELECT ${billeteras.saldoCentavos} FROM ${billeteras} WHERE ${billeteras.tiendaId} = ${tiendas.id}), 0)`,
+      saldoCentavos: sql<number>`COALESCE((SELECT ${billeteras.saldoCentavos} FROM ${billeteras} WHERE ${billeteras.tiendaId} = ${columnaDeFuera(tiendas.id)}), 0)`,
       /**
        * CUÁNDO VENCE SU FORMULARIO FISCAL, O NADA SI NO LO FIRMÓ.
        *
@@ -388,7 +389,7 @@ export async function listarComercios(busqueda?: string) {
          revés en la billetera, donde los movimientos salían en el año 58548. */
       fiscalVenceEnMs: sql<
         number | null
-      >`(SELECT ${formulariosFiscales.venceEn} * 1000 FROM ${formulariosFiscales} WHERE ${formulariosFiscales.tiendaId} = ${tiendas.id})`,
+      >`(SELECT ${formulariosFiscales.venceEn} * 1000 FROM ${formulariosFiscales} WHERE ${formulariosFiscales.tiendaId} = ${columnaDeFuera(tiendas.id)})`,
     })
     .from(tiendas)
     .where(

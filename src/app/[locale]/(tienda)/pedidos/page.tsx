@@ -1,4 +1,10 @@
-import { ArrowRight, Clock, PackageSearch, TriangleAlert } from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  PackageSearch,
+  Truck,
+  TriangleAlert,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -8,6 +14,8 @@ import type { Idioma } from "@/lib/dinero";
 import { formatearPrecio } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
 import { listarPedidosPropios } from "@/lib/pedidos/acciones";
+import { formaDeEntrega } from "@/lib/pedidos/como-se-entrega";
+import { queMostrarDelEnvio, rastreoDe } from "@/lib/pedidos/rastreo";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +104,13 @@ export default async function PaginaMisPedidos({
             const faltaPagar = pedido.estado === "pendiente_pago";
             const enRevision = pedido.estadoPago === "pendiente";
             const rechazado = pedido.estadoPago === "rechazado";
+            /* EL NÚMERO DE GUÍA EN CADA COMPRA (25 sep 2026). Misma pieza que
+               el correo y la pantalla del pedido: los tres dicen lo mismo. */
+            const envio = queMostrarDelEnvio(
+              pedido.estado,
+              formaDeEntrega(pedido.mercado) === "a_domicilio",
+              rastreoDe(pedido.guia, pedido.transportista),
+            );
 
             return (
               <li
@@ -139,6 +154,42 @@ export default async function PaginaMisPedidos({
                   <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-red-700">
                     <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
                     {t("pagoRechazado")}
+                  </p>
+                ) : null}
+
+                {/* LA GUÍA, O DÓNDE VA A APARECER. Quien compró viene a mirar
+                    esto: por dónde viaja su caja. */}
+                {envio.tipo === "guia" ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-3 py-2 text-xs">
+                    <Truck
+                      className="h-3.5 w-3.5 shrink-0 text-tinta-suave"
+                      aria-hidden
+                    />
+                    <span className="text-tinta-suave">{t("guia")}</span>
+                    <span className="font-mono font-bold break-all">
+                      {envio.rastreo.guia}
+                    </span>
+                    {envio.rastreo.transportista ? (
+                      <span className="text-tinta-suave">
+                        · {envio.rastreo.transportista}
+                      </span>
+                    ) : null}
+                    {envio.rastreo.url ? (
+                      /* Externo: `<a>`, no `<Link>`. */
+                      <a
+                        className="font-semibold text-carga-600 underline hover:no-underline"
+                        href={envio.rastreo.url}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {t("rastrear")}
+                      </a>
+                    ) : null}
+                  </div>
+                ) : envio.tipo === "pendiente" ? (
+                  <p className="mt-3 flex items-center gap-2 text-xs text-tinta-suave">
+                    <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    {t("guiaPendiente")}
                   </p>
                 ) : null}
 

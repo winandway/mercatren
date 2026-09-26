@@ -27,6 +27,7 @@ import { correoAceptable } from "@/lib/validacion/correo-servidor";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { headers } from "next/headers";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * LA BÚSQUEDA POR FOTO, DE PUNTA A PUNTA (30 ago 2026).
@@ -174,10 +175,10 @@ export async function buscarPorImagen(
             moneda: productos.moneda,
             fotoUrl: sql<
               string | null
-            >`(SELECT url FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY orden, id LIMIT 1)`,
+            >`(SELECT url FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY orden, id LIMIT 1)`,
             fotoClave: sql<
               string | null
-            >`(SELECT clave FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY orden, id LIMIT 1)`,
+            >`(SELECT clave FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY orden, id LIMIT 1)`,
           })
           .from(productos)
           .where(

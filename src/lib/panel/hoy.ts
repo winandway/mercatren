@@ -13,6 +13,7 @@ import {
   retiros,
   user,
 } from "@/lib/db/schema";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * LO QUE PASÓ HOY Y LO QUE HAY POR HACER.
@@ -109,8 +110,8 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     suyo.push(eq(pedidos.mercado, codigoPais));
   }
 
-  const subtotal = sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} ${deLaTienda})`;
-  const comision = sql<number>`(SELECT COALESCE(SUM(${itemsPedido.comisionCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} ${deLaTienda})`;
+  const subtotal = sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} ${deLaTienda})`;
+  const comision = sql<number>`(SELECT COALESCE(SUM(${itemsPedido.comisionCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} ${deLaTienda})`;
 
   const ventasDesde = async (desde: Date) => {
     const [fila] = await db

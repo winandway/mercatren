@@ -5,6 +5,7 @@ import { getDbAsync, schema } from "@/lib/db";
 import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
 import { divisorDe } from "@/lib/mercado/moneda";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * EL CATÁLOGO PARA GOOGLE SHOPPING.
@@ -149,10 +150,10 @@ async function tandaDesde(cursor: string): Promise<FilaFeed[]> {
          subió a nuestro bucket, `clave` y se sirve por /media. */
       foto: sql<
         string | null
-      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
       fotoClave: sql<
         string | null
-      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))

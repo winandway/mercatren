@@ -20,6 +20,7 @@ import {
   tiendas,
   user,
 } from "@/lib/db/schema";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * LOS COBROS CON TARJETA, QUE NO SE VEÍAN EN NINGUNA PANTALLA.
@@ -143,7 +144,7 @@ export async function listarCobrosConTarjeta(
 
   /* El importe: si quien mira es un comercio, solo sus renglones. */
   const monto = tiendaId
-    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pagos.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pagos.pedidoId)} AND ${itemsPedido.tiendaId} = ${tiendaId})`
     : sql<number>`${pagos.montoCentavos}`;
 
   const [conteo] = await db
@@ -236,7 +237,7 @@ export async function resumenDeTarjeta(
       : sql``;
 
   const monto = tiendaId
-    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pagos.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pagos.pedidoId)} AND ${itemsPedido.tiendaId} = ${tiendaId})`
     : sql<number>`${pagos.montoCentavos}`;
 
   const [fila] = await db

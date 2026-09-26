@@ -16,6 +16,7 @@ import {
   type EntradaVideo,
 } from "@/lib/seo/mapa";
 import { SITIO } from "@/lib/sitio";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * LOS TROZOS DEL MAPA DEL SITIO (3 sep 2026):
@@ -153,10 +154,10 @@ export async function GET(
              sistema del comercio, `clave` si está en nuestro bucket. */
           foto: sql<
             string | null
-          >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+          >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
           fotoClave: sql<
             string | null
-          >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+          >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
         })
         .from(productos)
         .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))

@@ -124,3 +124,43 @@ export function rastreoDe(
     url: conocido ? conocido.url(numero) : null,
   };
 }
+
+/**
+ * QUÉ SE LE ENSEÑA DEL ENVÍO A QUIEN COMPRÓ (25 sep 2026).
+ *
+ * Richard miró su pedido MT-000014 como lo ve un comprador y pidió que ahí se
+ * vea, en cada compra, el número de guía. Existía desde el 22 sep, pero solo
+ * dentro del pedido y solo cuando ya había guía: en «Mis pedidos» no salía
+ * nunca, y mientras la guía no llegaba la pantalla no decía ni dónde iba a
+ * aparecer. Quien compró no tenía dónde mirar.
+ *
+ * Tres respuestas, y solo tres:
+ *
+ * - `guia`: ya hay número. Se enseña con su transportista y su enlace.
+ * - `pendiente`: pagado, se despacha a su dirección, y todavía sin guía. Se
+ *   dice que aparece aquí —y que le llega por correo— en cuanto salga.
+ * - `nada`: sin pagar, cancelado, entregado sin guía, o se retira en un
+ *   mostrador. Un renglón de envío ahí solo confunde.
+ *
+ * Sale de las MISMAS dos piezas que el correo (`rastreoDe` y
+ * `formaDeEntrega`), para que el correo y la pantalla cuenten lo mismo.
+ */
+export type QueMostrarDelEnvio =
+  { tipo: "guia"; rastreo: Rastreo } | { tipo: "pendiente" } | { tipo: "nada" };
+
+export function queMostrarDelEnvio(
+  estado: string,
+  seDespacha: boolean,
+  rastreo: Rastreo | null,
+): QueMostrarDelEnvio {
+  /* Con guía se enseña siempre, se haya entregado o no: es el comprobante de
+     por dónde viajó, y quien reclama lo necesita. */
+  if (rastreo && estado !== "cancelado" && estado !== "reembolsado") {
+    return { tipo: "guia", rastreo };
+  }
+  if (!seDespacha) return { tipo: "nada" };
+  if (estado === "pagado" || estado === "preparando" || estado === "enviado") {
+    return { tipo: "pendiente" };
+  }
+  return { tipo: "nada" };
+}

@@ -15,6 +15,7 @@ import {
 } from "@/lib/db/schema";
 import { comisionDelProcesador } from "@/lib/dinero";
 import { dinero, fechaIso } from "@/lib/exportar/csv";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * LOS DATOS QUE SE LLEVA EL CONTADOR.
@@ -84,18 +85,18 @@ export async function tablaDeVentas(comercio?: string): Promise<Tabla> {
       cliente: user.name,
       correo: user.email,
       moneda: pedidos.moneda,
-      articulos: sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} ${deLaTienda})`,
-      subtotal: sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} ${deLaTienda})`,
+      articulos: sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} ${deLaTienda})`,
+      subtotal: sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} ${deLaTienda})`,
       /* LA COMISIÓN SALE DE `items_pedido`, que es la ÚNICA cifra buena. Se
          guarda con los puntos base del método con el que se pagó; recalcularla
          aquí daría un número distinto al de la orden de compra. */
-      comision: sql<number>`(SELECT COALESCE(SUM(${itemsPedido.comisionCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} ${deLaTienda})`,
+      comision: sql<number>`(SELECT COALESCE(SUM(${itemsPedido.comisionCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} ${deLaTienda})`,
       referenciaTarjeta: sql<
         string | null
-      >`(SELECT ${pagos.referenciaExterna} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.estado} = 'confirmado' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagos.referenciaExterna} FROM ${pagos} WHERE ${pagos.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pagos.estado} = 'confirmado' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
       referenciaZelle: sql<
         string | null
-      >`(SELECT ${pagosZelle.codigoConfirmacion} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.codigoConfirmacion} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
     })
     .from(pedidos)
     .innerJoin(user, eq(user.id, pedidos.clienteId))
@@ -159,7 +160,7 @@ export async function tablaDeCobrosTarjeta(comercio?: string): Promise<Tabla> {
   }
 
   const monto = tiendaId
-    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pagos.pedidoId} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pagos.pedidoId)} AND ${itemsPedido.tiendaId} = ${tiendaId})`
     : sql<number>`${pagos.montoCentavos}`;
 
   const filas = await db

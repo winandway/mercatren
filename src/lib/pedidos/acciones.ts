@@ -18,6 +18,7 @@ import {
   itemsVariante,
   pagosZelle,
   pedidos,
+  pedidosProveedor,
   productos,
   tiendas,
   variantesProducto,
@@ -37,6 +38,7 @@ import {
 } from "@/lib/destino/direccion";
 import type { Destino } from "@/lib/destino/reglas";
 import { anotarHito } from "@/lib/pedidos/hitos";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * Cierre de la compra.
@@ -690,10 +692,23 @@ export async function listarPedidosPropios() {
       totalCentavos: pedidos.totalCentavos,
       moneda: pedidos.moneda,
       creadoEn: pedidos.creadoEn,
-      articulos: sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id})`,
+      articulos: sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)})`,
       estadoPago: sql<
         string | null
-      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      /* LA GUÍA DE CADA PEDIDO EN LA LISTA (25 sep 2026). Richard pidió ver,
+         en cada compra, el número de guía; salía solo dentro del pedido. Es
+         la misma regla que `guiaDelPedido`: la compra al proveedor más
+         reciente que ya tenga guía. Por `pedido_id`, que tiene índice. */
+      guia: sql<
+        string | null
+      >`(SELECT ${pedidosProveedor.guia} FROM ${pedidosProveedor} WHERE ${pedidosProveedor.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pedidosProveedor.guia} IS NOT NULL ORDER BY ${pedidosProveedor.actualizadoEn} DESC LIMIT 1)`,
+      transportista: sql<
+        string | null
+      >`(SELECT ${pedidosProveedor.transportista} FROM ${pedidosProveedor} WHERE ${pedidosProveedor.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pedidosProveedor.guia} IS NOT NULL ORDER BY ${pedidosProveedor.actualizadoEn} DESC LIMIT 1)`,
+      /* Para saber si se despacha a una dirección o se retira en un
+         mostrador: la misma pieza que decide el correo. */
+      mercado: pedidos.mercado,
     })
     .from(pedidos)
     .where(eq(pedidos.clienteId, usuario.id))

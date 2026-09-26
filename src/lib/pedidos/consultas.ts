@@ -14,6 +14,7 @@ import {
   user,
 } from "@/lib/db/schema";
 import { rastroDelPago, type Rastro } from "@/lib/pagos/rastro";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * Los pedidos vistos desde el panel.
@@ -99,12 +100,12 @@ export async function listarPedidosDelPanel(filtros: FiltrosPedidos = {}) {
 
   // Los importes: si quien mira es un comercio, solo sus renglones.
   const subtotal = tiendaId
-    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    ? sql<number>`(SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${itemsPedido.tiendaId} = ${tiendaId})`
     : sql<number>`${pedidos.totalCentavos}`;
 
   const articulos = tiendaId
-    ? sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})`
-    : sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id})`;
+    ? sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${itemsPedido.tiendaId} = ${tiendaId})`
+    : sql<number>`(SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)})`;
 
   const [conteo] = await db
     .select({ n: sql<number>`COUNT(*)` })
@@ -124,14 +125,14 @@ export async function listarPedidosDelPanel(filtros: FiltrosPedidos = {}) {
       articulos,
       estadoPago: sql<
         string | null
-      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
       /* CÓMO SE PAGÓ. Hasta el 10 ago 2026 el dato estaba guardado y ninguna
          pantalla lo enseñaba: para saber si una venta entró por tarjeta o por
          Zelle había que ir a «Pagos Zelle» y deducirlo por descarte. */
       metodoPago: pedidos.metodoPago,
       estadoTarjeta: sql<
         string | null
-      >`(SELECT ${pagos.estado} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagos.estado} FROM ${pagos} WHERE ${pagos.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
     })
     .from(pedidos)
     .innerJoin(user, eq(user.id, pedidos.clienteId))
@@ -204,7 +205,7 @@ export async function listarClientes(
   const patron = `%${texto}%`;
 
   const gastado = tiendaId
-    ? sql<number>`COALESCE(SUM((SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id} AND ${itemsPedido.tiendaId} = ${tiendaId})), 0)`
+    ? sql<number>`COALESCE(SUM((SELECT COALESCE(SUM(${itemsPedido.subtotalCentavos}), 0) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${itemsPedido.tiendaId} = ${tiendaId})), 0)`
     : sql<number>`COALESCE(SUM(${pedidos.totalCentavos}), 0)`;
 
   const donde = tiendaId
@@ -311,22 +312,22 @@ export async function obtenerPedidoDelPanel(
          dicen cosas distintas del mismo pedido. */
       estadoTarjeta: sql<
         string | null
-      >`(SELECT ${pagos.estado} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagos.estado} FROM ${pagos} WHERE ${pagos.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
       referenciaTarjeta: sql<
         string | null
-      >`(SELECT ${pagos.referenciaExterna} FROM ${pagos} WHERE ${pagos.pedidoId} = ${pedidos.id} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagos.referenciaExterna} FROM ${pagos} WHERE ${pagos.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pagos.metodo} = 'stripe' ORDER BY ${pagos.creadoEn} DESC LIMIT 1)`,
       estadoZelle: sql<
         string | null
-      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.estado} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
       codigoZelle: sql<
         string | null
-      >`(SELECT ${pagosZelle.codigoConfirmacion} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.codigoConfirmacion} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
       bancoZelle: sql<
         string | null
-      >`(SELECT ${pagosZelle.bancoOrigen} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.bancoOrigen} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
       ultimosCuatroZelle: sql<
         string | null
-      >`(SELECT ${pagosZelle.cuentaUltimos4} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${pedidos.id} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
+      >`(SELECT ${pagosZelle.cuentaUltimos4} FROM ${pagosZelle} WHERE ${pagosZelle.pedidoId} = ${columnaDeFuera(pedidos.id)} ORDER BY ${pagosZelle.creadoEn} DESC LIMIT 1)`,
     })
     .from(pedidos)
     .innerJoin(user, eq(user.id, pedidos.clienteId))

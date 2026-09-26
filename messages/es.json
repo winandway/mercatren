@@ -3292,7 +3292,8 @@
       "titulo": "Seguimiento de tu envío",
       "boton": "Rastrear mi paquete",
       "sinEnlace": "Busca este número en la página de tu transportista.",
-      "tardaEnActivarse": "El transportista puede tardar unas horas en activar el número. Si hoy no aparece nada, vuelve a intentarlo mañana."
+      "tardaEnActivarse": "El transportista puede tardar unas horas en activar el número. Si hoy no aparece nada, vuelve a intentarlo mañana.",
+      "pendiente": "Todavía no tiene número de guía. Aparece aquí, y te llega por correo, en cuanto tu pedido salga."
     }
   },
   "datosPago": {
@@ -3769,7 +3770,10 @@
     "pagoPendiente": "Falta el pago",
     "pagoEnRevision": "Comprobante en revisión",
     "pagoRechazado": "El pago no se aprobó",
-    "entrar": "Entra con tu cuenta para ver tus pedidos."
+    "entrar": "Entra con tu cuenta para ver tus pedidos.",
+    "guia": "Guía",
+    "rastrear": "Rastrear",
+    "guiaPendiente": "Tu número de guía aparece aquí en cuanto el pedido salga."
   },
   "cuenta": {
     "titulo": "Mi cuenta",

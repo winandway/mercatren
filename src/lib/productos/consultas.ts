@@ -12,6 +12,7 @@ import {
   productos,
   tiendas,
 } from "@/lib/db/schema";
+import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
 
 /**
  * El catalogo visto desde el panel del comercio.
@@ -91,10 +92,10 @@ export async function listarMisProductos(filtros: FiltrosMisProductos = {}) {
       actualizadoEn: productos.actualizadoEn,
       fotoUrl: sql<
         string | null
-      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+      >`(SELECT ${imagenesProducto.url} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
       fotoClave: sql<
         string | null
-      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${productos.id} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
+      >`(SELECT ${imagenesProducto.clave} FROM ${imagenesProducto} WHERE ${imagenesProducto.productoId} = ${columnaDeFuera(productos.id)} ORDER BY ${imagenesProducto.orden} LIMIT 1)`,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))

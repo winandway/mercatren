@@ -231,6 +231,11 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
 
 ### Trampas del proyecto que ya costaron caro
 
+- **LA COLUMNA DE AFUERA DE UNA SUBCONSULTA VA CON `columnaDeFuera()`** (25 sep
+  2026): sin uniones, Drizzle escribe `WHERE "pedido_id" = "id"` y SQLite toma
+  el `id` de la tabla de ADENTRO. Salían «0 artículos», el tablero «Hoy» y los
+  saldos en cero, y «Pagar ahora» a quien ya había pagado por Zelle. Dentro de
+  un `WHERE`/`EXISTS` Drizzle sí pone la tabla. Candado: `columna-de-fuera.test.ts`.
 - **UN CONTEO SE HACE EN LA BASE, NUNCA TRAYENDO FILAS PARA `.length`** (21 sep
   2026): cinco «conteos» de Configuración traían 47.000 filas al servidor cada
   visita; y toda pantalla del panel pide sus consultas en UN `Promise.all`.
@@ -391,6 +396,7 @@ el error delante no protege a nadie.
 una cuenta un fallo real y el candado que lo tranca.
 
 - [EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)](HISTORIAL.md#el-menú-del-panel-estaba-muy-lento-21-sep-2026)
+- [LA SUBCONSULTA QUE SE COMPARABA CONSIGO MISMA (25 sep 2026)](HISTORIAL.md#la-subconsulta-que-se-comparaba-consigo-misma-25-sep-2026)
 - [«TU PEDIDO YA VA EN CAMINO», Y EL TRANSPORTISTA QUE FALTABA (22 y 25 sep 2026)](HISTORIAL.md#tu-pedido-ya-va-en-camino-y-el-transportista-que-faltaba-22-y-25-sep-2026)
 - [LA PÁGINA DE PAGO SE QUEDÓ SIN SALIDA, Y SIN A QUIÉN ESCRIBIRLE (22 sep 2026)](HISTORIAL.md#la-página-de-pago-se-quedó-sin-salida-y-sin-a-quién-escribirle-22-sep-2026)
 - [EL ENLACE NO OFRECÍA ZELLE Y NADIE DECÍA POR QUÉ (22 sep 2026)](HISTORIAL.md#el-enlace-no-ofrecía-zelle-y-nadie-decía-por-qué-22-sep-2026)

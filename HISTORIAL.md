@@ -15,6 +15,55 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA SUBCONSULTA QUE SE COMPARABA CONSIGO MISMA (25 sep 2026)
+
+**Cómo se vio.** Richard pidió ver la guía en cada compra de «Mis pedidos».
+Al probarlo en local, el pedido con guía no la enseñaba, y **todos los pedidos
+decían «0 artículos»**, incluido uno que tenía un artículo.
+
+**La causa.** Una subconsulta en las columnas de un `select`:
+
+    (SELECT COUNT(*) FROM ${itemsPedido} WHERE ${itemsPedido.pedidoId} = ${pedidos.id})
+
+Cuando la consulta de afuera **no tiene uniones**, Drizzle escribe las columnas
+sin la tabla: `WHERE "pedido_id" = "id"`. Dentro de la subconsulta, SQLite
+busca `"id"` primero en la tabla de ADENTRO, que casi siempre tiene su propio
+`id`: la fila se compara consigo misma. **No da error**: da cero, `null` o una
+suma inflada, y la pantalla lo enseña como dato. Medido con `toSQL()`: con una
+unión sale `"items_pedido"."pedido_id" = "pedidos"."id"`, bien; sin ella, mal.
+Por eso el mismo código funcionaba en unas pantallas y en otras no. Dentro de
+un `WHERE` o un `EXISTS`, Drizzle sí pone la tabla.
+
+**Lo que estaba roto en producción, antes de este día:**
+
+- **«Mis pedidos» del comprador:** «0 artículos» en todos. Y el aviso de «pago
+  en revisión» no salía nunca, así que **a quien ya había subido su comprobante
+  de Zelle se le ofrecía «Pagar ahora»**: el camino a pagar dos veces.
+- **El tablero «Hoy» del panel:** ventas y margen del día y del mes en cero.
+- **Panel → Comercios:** el saldo de cada comercio en cero.
+- **Cobros vistos desde un comercio:** el total cobrado de arriba, **inflado**
+  (con dos columnas llamadas `pedido_id`, la condición era siempre verdadera).
+- **Búsqueda por foto:** resultados sin imagen.
+
+**El arreglo.** `src/lib/db/columna-de-fuera.ts`: `columnaDeFuera(pedidos.id)`
+escribe siempre `"pedidos"."id"`, con uniones o sin ellas. Se aplicó a las 35
+subconsultas de columna del código, también a las que hoy funcionan por tener
+una unión: quitarle la unión a una consulta ya no la rompe en silencio.
+
+**El candado:** `tests/unit/columna-de-fuera.test.ts` ejecuta el SQL que genera
+Drizzle **contra un SQLite de verdad** (`node:sqlite`), con y sin la pieza, y
+prohíbe en todo `src` una subconsulta de columna con la de afuera suelta.
+Comprobado en rojo. Usa tablas mínimas y no el esquema real: importar el
+esquema metía 4.000 líneas en la medición y hundía la cobertura bajo su suelo.
+
+**Y lo que pidió Richard:** «Mis pedidos» enseña en cada compra la guía, el
+transportista y «Rastrear»; y la pantalla del pedido, mientras no hay guía,
+dice que aparece ahí y que llega por correo. Las dos deciden con la misma pieza
+(`queMostrarDelEnvio`), la misma que el correo. Comprobado en pantalla con la
+cuenta de prueba local.
+
+---
+
 ## «TU PEDIDO YA VA EN CAMINO», Y EL TRANSPORTISTA QUE FALTABA (22 y 25 sep 2026)
 
 ### El correo que no existía (22 sep)

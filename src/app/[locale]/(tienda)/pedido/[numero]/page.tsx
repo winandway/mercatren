@@ -16,7 +16,9 @@ import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
 import { PasosCompra } from "@/components/pedido/pasos-compra";
 import { Devolver } from "@/components/pedido/devolver";
 import { devolucionDelPedido } from "@/lib/devoluciones/acciones";
+import { formaDeEntrega } from "@/lib/pedidos/como-se-entrega";
 import { guiaDelPedido } from "@/lib/pedidos/guia";
+import { queMostrarDelEnvio } from "@/lib/pedidos/rastreo";
 import {
   avisoDelPedido,
   estaPagado,
@@ -89,7 +91,11 @@ export default async function PaginaPedido({
      alguien con un paquete en camino quiere: el número con el que puede
      mirarlo él mismo. Sale del mismo sitio que el correo, así que los dos
      dicen lo mismo. */
-  const rastreo = await guiaDelPedido(pedido.id);
+  const envio = queMostrarDelEnvio(
+    pedido.estado,
+    formaDeEntrega(pedido.mercado) === "a_domicilio",
+    await guiaDelPedido(pedido.id),
+  );
 
   const aviso = avisoDelPedido(
     pedido.estado as EstadoDePedido,
@@ -281,28 +287,33 @@ export default async function PaginaPedido({
 
       {/* EL NÚMERO DE GUÍA. Va arriba de la dirección a propósito: quien
           abre esta página con el paquete en camino viene por este dato, no a
-          comprobar su propia calle. Sin guía no se dibuja nada — un renglón
-          vacío solo hace preguntar por qué está ahí. */}
-      {rastreo ? (
+          comprobar su propia calle.
+
+          ══ Y MIENTRAS NO HAY GUÍA, SE DICE DÓNDE VA A APARECER (25 sep) ══
+          Antes, sin guía no se dibujaba nada, y quien acababa de pagar no
+          sabía dónde mirar. Ahora un pedido pagado que se despacha a su
+          dirección enseña el recuadro con «aparece aquí en cuanto salga».
+          Lo decide `queMostrarDelEnvio`, la misma pieza de «Mis pedidos». */}
+      {envio.tipo === "guia" ? (
         <section className="mt-4 rounded-xl border border-borde p-4">
           <h2 className="text-sm font-bold">{t("rastreo.titulo")}</h2>
           <p className="mt-2 text-sm">
-            {rastreo.transportista ? (
+            {envio.rastreo.transportista ? (
               <span className="text-tinta-suave">
-                {rastreo.transportista}
+                {envio.rastreo.transportista}
                 {" · "}
               </span>
             ) : null}
             <span className="font-bold break-all tabular-nums">
-              {rastreo.guia}
+              {envio.rastreo.guia}
             </span>
           </p>
-          {rastreo.url ? (
+          {envio.rastreo.url ? (
             /* Un enlace externo, y por eso `<a>` y no `<Link>`: la página del
                transportista no es nuestra ruta. */
             <a
               className="mt-3 inline-block rounded-lg bg-carga-500 px-4 py-2 text-sm font-bold text-white hover:bg-carga-600"
-              href={rastreo.url}
+              href={envio.rastreo.url}
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -315,6 +326,16 @@ export default async function PaginaPedido({
           )}
           <p className="mt-3 text-xs text-tinta-suave">
             {t("rastreo.tardaEnActivarse")}
+          </p>
+        </section>
+      ) : envio.tipo === "pendiente" ? (
+        <section className="mt-4 rounded-xl border border-dashed border-borde p-4">
+          <h2 className="flex items-center gap-2 text-sm font-bold">
+            <Truck className="h-4 w-4 text-tinta-suave" aria-hidden />
+            {t("rastreo.titulo")}
+          </h2>
+          <p className="mt-1 text-sm text-tinta-suave">
+            {t("rastreo.pendiente")}
           </p>
         </section>
       ) : null}

@@ -3292,7 +3292,8 @@
       "titulo": "Track your shipment",
       "boton": "Track my package",
       "sinEnlace": "Look up this number on your carrier's website.",
-      "tardaEnActivarse": "Carriers can take a few hours to activate a tracking number. If nothing shows up today, try again tomorrow."
+      "tardaEnActivarse": "Carriers can take a few hours to activate a tracking number. If nothing shows up today, try again tomorrow.",
+      "pendiente": "No tracking number yet. It will show up here, and we'll email it to you, as soon as your order ships."
     }
   },
   "datosPago": {
@@ -3769,7 +3770,10 @@
     "pagoPendiente": "Payment pending",
     "pagoEnRevision": "Receipt under review",
     "pagoRechazado": "Payment not approved",
-    "entrar": "Sign in to see your orders."
+    "entrar": "Sign in to see your orders.",
+    "guia": "Tracking",
+    "rastrear": "Track",
+    "guiaPendiente": "Your tracking number will show up here as soon as your order ships."
   },
   "cuenta": {
     "titulo": "My account",
