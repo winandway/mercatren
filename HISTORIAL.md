@@ -55,6 +55,24 @@ un «número no encontrado» es justo lo que hace creer que te vendieron humo.
 Candado: `tests/unit/pedido-enviado-con-guia.test.ts`, con las dos guías
 reales, comprobado en rojo.
 
+### El correo decía algo que no era cierto (25 sep)
+
+CJ da la guía al CREAR la etiqueta, no cuando el transportista recoge la caja.
+Medido en esas dos compras: guía creada el **17 sep**, y el 25 sep 17track
+seguía en «esperando ser recogido por la empresa de mensajería». **Ocho días
+sin moverse.** El correo decía «tu compra ya salió y está en manos del
+transportista»: el comprador habría abierto el enlace, visto que el paquete no
+se movía, y concluido que le mentimos.
+
+Ahora dice solo lo que es cierto cuando sale: **ya tiene número de guía**, y el
+transportista lo recoge en los próximos días. Candado en el mismo archivo de
+pruebas, que prohíbe «en manos del transportista», «ya va en camino» y sus
+versiones en inglés. Comprobado en rojo.
+
+**Y el dato de fondo, que es de negocio:** pagado el 5 sep, etiqueta el 17,
+sin recoger el 25. **Veinte días sin que la caja se mueva**, contra los «2 a 5
+días hábiles» que promete cada ficha. Ver «Lo que NO está medido» en `SEO.md`.
+
 **Cómo sacar una guía a mano, si hace falta:**
 `gh workflow run probar-compra.yml -f cuerpo='{"accion":"cj","ruta":"/shopping/order/getOrderDetail?orderId=<NUESTRO-NUMERO>"}'`
 Por NUESTRO número de pedido (el `orderNum`), no por el de CJ.

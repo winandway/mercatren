@@ -3649,12 +3649,13 @@
       "boton": "View my order"
     },
     "pedidoEnviado": {
-      "asunto": "Your order {numero} is on its way",
+      "asunto": "Your order {numero} has a tracking number",
       "previo": "Tracking {guia}. You can follow it now.",
-      "previoSinGuia": "Your order has shipped.",
-      "titulo": "Your order is on its way!",
+      "previoSinGuia": "Your order has been dispatched.",
+      "titulo": "Your order has a tracking number!",
       "parrafos": [
-        "Your order has shipped and is now with the carrier. We'll email you again once it's delivered."
+        "Your order has been dispatched and has its tracking number. The carrier will pick it up in the next few days, and from then on you'll see every update with the link below.",
+        "We'll email you again once it's delivered."
       ],
       "transportista": "Carrier",
       "guia": "Tracking number",

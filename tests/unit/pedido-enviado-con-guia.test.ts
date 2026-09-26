@@ -140,3 +140,43 @@ describe("el despacho automático no avisa dos veces", () => {
     expect(codigo).toContain('const DESDE = ["pagado", "preparando"] as const');
   });
 });
+
+/**
+ * ══ EL CORREO NO PUEDE DECIR «YA ESTÁ EN MANOS DEL TRANSPORTISTA» (25 sep 2026) ══
+ *
+ * El correo sale cuando CJ da la guía, y CJ la da al CREAR la etiqueta, no
+ * cuando el transportista recoge la caja. Medido en las dos primeras compras
+ * reales: CJ creó la guía el 17 sep y el 25 sep 17track seguía diciendo
+ * «esperando ser recogido por la empresa de mensajería». Ocho días.
+ *
+ * Con el texto de antes —«tu compra ya salió y está en manos del
+ * transportista»— el comprador abría el enlace, veía que el paquete no se
+ * había movido, y concluía que le mintieron. Aquí se exige que el correo diga
+ * solo lo que es cierto en el momento en que sale: que ya hay guía.
+ */
+describe("el correo dice solo lo que es cierto cuando sale", () => {
+  const leer = (f: string) =>
+    (
+      JSON.parse(readFileSync(f, "utf8")) as {
+        correos: { pedidoEnviado: Record<string, string | string[]> };
+      }
+    ).correos.pedidoEnviado;
+
+  it("no afirma que el transportista ya tiene la caja, en ningún idioma", () => {
+    const todo = JSON.stringify([
+      leer("messages/es.json"),
+      leer("messages/en.json"),
+    ]);
+    expect(todo).not.toMatch(/en manos del transportista/i);
+    expect(todo).not.toMatch(/now with the carrier/i);
+    expect(todo).not.toMatch(/ya va en camino/i);
+    expect(todo).not.toMatch(/on its way/i);
+  });
+
+  it("dice que ya hay número de guía, que es lo que sí es cierto", () => {
+    expect(String(leer("messages/es.json").asunto)).toContain("número de guía");
+    expect(String(leer("messages/en.json").asunto)).toContain(
+      "tracking number",
+    );
+  });
+});

@@ -3649,12 +3649,13 @@
       "boton": "Ver mi pedido"
     },
     "pedidoEnviado": {
-      "asunto": "Tu pedido {numero} ya va en camino",
+      "asunto": "Tu pedido {numero} ya tiene número de guía",
       "previo": "Guía {guia}. Ya puedes seguirlo.",
-      "previoSinGuia": "Tu compra ya salió.",
-      "titulo": "¡Tu pedido ya va en camino!",
+      "previoSinGuia": "Tu pedido ya fue despachado.",
+      "titulo": "¡Tu pedido ya tiene número de guía!",
       "parrafos": [
-        "Tu compra ya salió y está en manos del transportista. Te escribimos otra vez cuando quede entregada."
+        "Tu pedido ya fue despachado y tiene su número de guía. El transportista lo recoge en los próximos días: desde ese momento vas a ver cada movimiento con el enlace de abajo.",
+        "Te escribimos otra vez cuando quede entregado."
       ],
       "transportista": "Transportista",
       "guia": "Número de guía",
