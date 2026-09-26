@@ -15,6 +15,52 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## «TU PEDIDO YA VA EN CAMINO», Y EL TRANSPORTISTA QUE FALTABA (22 y 25 sep 2026)
+
+### El correo que no existía (22 sep)
+
+Entre «gracias por tu compra» y «entregado» no había NADA. Un comprador de
+Estados Unidos pagaba y no sabía nada más hasta ver la caja en su puerta. Y
+cuando un comercio marcaba «enviado», salía el correo de RETIRAR en un
+mostrador de Venezuela —«lleva tu documento de identidad»— a gente a la que
+la caja le llega a su casa.
+
+**Lo que se hizo:** `pedidos/como-se-entrega.ts` decide retiro o domicilio
+desde `retiroEnCiudad`; `correoPedidoEnviado` lleva la guía; la pantalla del
+pedido la enseña; y el reloj (`pedidos/despacho-automatico.ts`) le pregunta a
+CJ por la guía de lo pagado, pasa el pedido a «enviado» y avisa **una sola
+vez**: el estado va en el WHERE, así que solo avisa quien movió la fila.
+
+### SpeedX, el que faltaba (25 sep)
+
+**Cómo se vio.** CJ contestó por correo que las dos compras de prueba del 5 sep
+ya iban en camino, sin dar los números. Se sacaron de su API
+(`/shopping/order/getOrderDetail` por nuestro número, desde la puerta
+`probar-compra`): las dos, **«SpeedX US to US #2»**, guías
+`YWE00001552040292` y `YWE00001552040285`.
+
+**El hueco.** `pedidos/rastreo.ts` reconocía USPS, UPS, FedEx, DHL y Amazon,
+pero **no SpeedX, que es el que CJ usa en Estados Unidos**. El comprador habría
+recibido su número de guía sin enlace para rastrearlo, y con el nombre interno
+de CJ («US to US #2») como transportista.
+
+**El arreglo.** SpeedX en la lista, con el enlace que devolvió el propio CJ
+(`trackingUrl`: 17track) y el nombre limpio. **No se inventó nada**: el enlace
+es literalmente el que CJ nos dio para esas dos guías.
+
+**Lo que NO se tocó, a propósito:** un transportista que no conocemos sigue
+saliendo SIN enlace. Se pensó en mandar todo lo desconocido a 17track, que
+detecta el transportista solo, pero no conoce todos los couriers locales, y
+un «número no encontrado» es justo lo que hace creer que te vendieron humo.
+Candado: `tests/unit/pedido-enviado-con-guia.test.ts`, con las dos guías
+reales, comprobado en rojo.
+
+**Cómo sacar una guía a mano, si hace falta:**
+`gh workflow run probar-compra.yml -f cuerpo='{"accion":"cj","ruta":"/shopping/order/getOrderDetail?orderId=<NUESTRO-NUMERO>"}'`
+Por NUESTRO número de pedido (el `orderNum`), no por el de CJ.
+
+---
+
 ## LA PÁGINA DE PAGO SE QUEDÓ SIN SALIDA, Y SIN A QUIÉN ESCRIBIRLE (22 sep 2026)
 
 Richard emitió el cobro **MT-C-000004** de **$6.483,77** —la misma factura de

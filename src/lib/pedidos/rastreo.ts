@@ -62,6 +62,24 @@ const TRANSPORTISTAS: readonly {
     url: (g) =>
       `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${encodeURIComponent(g)}`,
   },
+  /**
+   * SPEEDX: EL QUE CJ USA DE VERDAD EN ESTADOS UNIDOS (25 sep 2026).
+   *
+   * Faltaba, y era el más importante de la lista. Las dos primeras compras
+   * reales a CJ salieron con «SpeedX US to US #2», y con esta lista sin él
+   * el comprador recibía su número de guía SIN enlace para rastrearlo.
+   *
+   * El enlace NO es inventado: es exactamente el `trackingUrl` que CJ nos
+   * devolvió para esas dos compras (YWE00001552040292 y YWE00001552040285),
+   * leído de su API el 25 sep 2026. Es 17track, el rastreador que CJ les da a
+   * sus propios clientes. Y el nombre sale limpio: «SpeedX», no la etiqueta
+   * interna de CJ con su «US to US #2».
+   */
+  {
+    nombre: "SpeedX",
+    marcas: ["speedx", "speed x"],
+    url: (g) => `https://t.17track.net/en#nums=${encodeURIComponent(g)}`,
+  },
   {
     nombre: "Amazon",
     marcas: ["amazon", "amzl"],

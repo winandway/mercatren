@@ -391,6 +391,7 @@ el error delante no protege a nadie.
 una cuenta un fallo real y el candado que lo tranca.
 
 - [EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)](HISTORIAL.md#el-menú-del-panel-estaba-muy-lento-21-sep-2026)
+- [«TU PEDIDO YA VA EN CAMINO», Y EL TRANSPORTISTA QUE FALTABA (22 y 25 sep 2026)](HISTORIAL.md#tu-pedido-ya-va-en-camino-y-el-transportista-que-faltaba-22-y-25-sep-2026)
 - [LA PÁGINA DE PAGO SE QUEDÓ SIN SALIDA, Y SIN A QUIÉN ESCRIBIRLE (22 sep 2026)](HISTORIAL.md#la-página-de-pago-se-quedó-sin-salida-y-sin-a-quién-escribirle-22-sep-2026)
 - [EL ENLACE NO OFRECÍA ZELLE Y NADIE DECÍA POR QUÉ (22 sep 2026)](HISTORIAL.md#el-enlace-no-ofrecía-zelle-y-nadie-decía-por-qué-22-sep-2026)
 - [LA FACTURA DE SEIS MIL: EL MONTO SE LEÍA MAL, NO HABÍA CANTIDAD, EL COBRO NO APARECÍA Y EL INTERRUPTOR NO EXISTÍA (21 sep 2026)](HISTORIAL.md#la-factura-de-seis-mil-el-monto-se-leía-mal-no-había-cantidad-el-cobro-no-aparecía-y-el-interruptor-no-existía-21-sep-2026)

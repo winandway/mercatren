@@ -62,6 +62,25 @@ describe("el número de guía y dónde se mira", () => {
     expect(r?.url).toContain("usps.com");
   });
 
+  /**
+   * ══ SPEEDX FALTABA, Y ES EL QUE CJ USA (25 sep 2026) ══
+   *
+   * Las dos primeras compras reales a CJ salieron con «SpeedX US to US #2».
+   * Sin él en la lista, el comprador recibía su número SIN enlace. Estos son
+   * los datos exactos que devolvió la API de CJ ese día.
+   */
+  it("EL CASO REAL: SpeedX de CJ sale con su enlace y su nombre limpio", () => {
+    const r = rastreoDe("YWE00001552040292", "SpeedX US to US #2");
+    expect(r?.transportista).toBe("SpeedX");
+    /* El mismo `trackingUrl` que devolvió CJ para esa compra. */
+    expect(r?.url).toBe("https://t.17track.net/en#nums=YWE00001552040292");
+  });
+
+  it("la segunda compra real también", () => {
+    const r = rastreoDe("YWE00001552040285", "SpeedX US to US #2");
+    expect(r?.url).toBe("https://t.17track.net/en#nums=YWE00001552040285");
+  });
+
   it("un transportista desconocido sale con su nombre y SIN enlace", () => {
     const r = rastreoDe("ABC123", "Transportista Local");
     expect(r?.guia).toBe("ABC123");
