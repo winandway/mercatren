@@ -290,6 +290,16 @@ describe("la puerta para probar sin sesión (/datos/probar-compra)", () => {
     expect(flujo).not.toContain("schedule:");
     expect(flujo).toContain("secrets.SINCRONIZAR_LLAVE");
     expect(flujo).toContain("https://mercatren.com/datos/probar-compra");
-    expect(flujo).toContain("jq . respuesta.json");
+    /* ══ ENTERA, PERO CON LO PERSONAL TAPADO (25 sep 2026) ══
+       Antes se exigía `jq . respuesta.json`: la respuesta tal cual. El
+       repositorio es público y el registro también, y así quedaron
+       publicados el nombre, la dirección y el teléfono de quien compraba.
+       Lo que este candado protege sigue en pie —la respuesta ENTERA sale en
+       el registro, con todas sus claves, para poder diagnosticar desde ahí—
+       y solo cambian a «[oculto]» los valores personales. El detalle y su
+       propio candado están en `registros-sin-datos.test.ts`. */
+    expect(flujo).toMatch(/jq 'walk\(.+\)' respuesta\.json/);
+    expect(flujo).toContain("[oculto]");
+    expect(flujo).not.toContain("jq . respuesta.json");
   });
 });

@@ -36,7 +36,13 @@ jobs:
             -H "Authorization: Bearer $LLAVE")
 
           echo "Respuesta HTTP: $codigo"
-          cat respuesta.json || true
+          # EL REGISTRO DE ESTA CORRIDA ES PÚBLICO (25 sep 2026): el
+          # repositorio es público y cualquiera lee los registros de Actions.
+          # La respuesta de CJ trae nombre, teléfono y dirección de quien
+          # compra: dos consultas de ese día dejaron publicados un nombre real
+          # y una dirección. Se tapan antes de imprimir. Lo que no es JSON se
+          # corta a 400 caracteres. Candado: tests/unit/registros-sin-datos.test.ts
+          jq 'walk(if type == "object" then with_entries(if (.key | test("customername|phone|address|email|zip|postal|consumer|contact|receiver|taxnumber|idnumber"; "i")) and (.value != null) then .value = "[oculto]" else . end) else . end)' respuesta.json 2>/dev/null || head -c 400 respuesta.json || true
           echo
 
           if [ "$codigo" = "503" ]; then

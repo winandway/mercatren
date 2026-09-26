@@ -63,7 +63,8 @@ jobs:
 
             if [ "$codigo" != "200" ]; then
               echo "::warning::El sitio respondio $codigo en la vuelta $vuelta."
-              head -c 300 respuesta.json 2>/dev/null || true
+              # Registro público: se tapa antes de imprimir (ver probar-compra.yml).
+              jq -c 'walk(if type == "object" then with_entries(if (.key | test("customername|phone|address|email|zip|postal|consumer|contact|receiver|taxnumber|idnumber"; "i")) and (.value != null) then .value = "[oculto]" else . end) else . end)' respuesta.json 2>/dev/null | head -c 300 || head -c 300 respuesta.json 2>/dev/null || true
               sleep 30
               continue
             fi

@@ -73,6 +73,28 @@ versiones en inglés. Comprobado en rojo.
 sin recoger el 25. **Veinte días sin que la caja se mueva**, contra los «2 a 5
 días hábiles» que promete cada ficha. Ver «Lo que NO está medido» en `SEO.md`.
 
+### Los registros de GitHub publicaban a quién se le vendía (25 sep)
+
+**El repositorio es público**, y los registros de las corridas de Actions los
+lee cualquiera. La puerta `probar-compra` imprimía la respuesta de CJ
+**entera**: al sacar las dos guías de arriba quedaron publicados el nombre de
+una persona real, la dirección de Novi y un teléfono. Con un cliente de verdad
+habría publicado su nombre y la dirección de su casa.
+
+**El arreglo:** los cuatro flujos que leen una respuesta del sitio
+(`probar-compra`, `sincronizar`, `vigilante`, `afinar`) la pasan por un filtro
+de `jq` que cambia por `[oculto]` todo campo de nombre, teléfono, dirección,
+correo o código postal, **a cualquier profundidad**. Deja lo que sirve para
+trabajar: número de pedido, estado, transportista y guía. Lo que no es JSON se
+corta a 400 caracteres. Candado: `tests/unit/registros-sin-datos.test.ts`, que
+además corre el filtro de verdad con `jq`. Comprobado en rojo.
+
+**Lo que quedó y solo puede borrar Richard:** los registros de las dos corridas
+del 25 sep (36204334817 y 36204339328), que ya están publicados.
+
+**Y un dato de esas compras:** la de las 18:41 lleva la dirección mal cargada
+(ciudad «MI», estado «Michigan», comas sueltas). La puerta no valida eso.
+
 **Cómo sacar una guía a mano, si hace falta:**
 `gh workflow run probar-compra.yml -f cuerpo='{"accion":"cj","ruta":"/shopping/order/getOrderDetail?orderId=<NUESTRO-NUMERO>"}'`
 Por NUESTRO número de pedido (el `orderNum`), no por el de CJ.
