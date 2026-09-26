@@ -47,3 +47,44 @@ export async function guiaDelPedido(pedidoId: string): Promise<Rastreo | null> {
     return null;
   }
 }
+
+/**
+ * LA GUÍA Y SI VA A LLEGAR UNA (25 sep 2026).
+ *
+ * `guiaDelPedido` dice si YA hay guía. La pantalla necesita además saber si va
+ * a haber una: solo sale de una compra al proveedor en marcha (por pagar,
+ * pagada o enviada). La MT-000014 tenía la suya cerrada como prueba y la
+ * pantalla le prometía «aparece aquí en cuanto salga» para siempre.
+ *
+ * Trae todas las compras de ese pedido —son una o dos— y decide en código.
+ * Nunca revienta: sin base, no hay guía y no se promete nada.
+ */
+export async function envioDelPedido(
+  pedidoId: string,
+): Promise<{ rastreo: Rastreo | null; compraEnMarcha: boolean }> {
+  try {
+    const { COMPRA_EN_MARCHA } = await import("@/lib/pedidos/rastreo");
+    const filas = await getDb()
+      .select({
+        guia: pedidosProveedor.guia,
+        transportista: pedidosProveedor.transportista,
+        estado: pedidosProveedor.estado,
+        actualizadoEn: pedidosProveedor.actualizadoEn,
+      })
+      .from(pedidosProveedor)
+      .where(eq(pedidosProveedor.pedidoId, pedidoId));
+
+    const conGuia = filas
+      .filter((f) => f.guia)
+      .sort((a, b) => b.actualizadoEn.getTime() - a.actualizadoEn.getTime())[0];
+
+    return {
+      rastreo: rastreoDe(conGuia?.guia, conGuia?.transportista),
+      compraEnMarcha: filas.some((f) =>
+        (COMPRA_EN_MARCHA as readonly string[]).includes(f.estado),
+      ),
+    };
+  } catch {
+    return { rastreo: null, compraEnMarcha: false };
+  }
+}

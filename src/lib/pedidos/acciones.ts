@@ -709,6 +709,11 @@ export async function listarPedidosPropios() {
       /* Para saber si se despacha a una dirección o se retira en un
          mostrador: la misma pieza que decide el correo. */
       mercado: pedidos.mercado,
+      /* ¿Hay una compra al proveedor EN MARCHA? Solo de ella sale una guía;
+         sin esto «Mis pedidos» le prometía guía a un pedido cuya compra se
+         cerró (la MT-000014, 25 sep 2026). Con `columnaDeFuera`: es una
+         subconsulta en las columnas de un select sin uniones. */
+      compraEnMarcha: sql<number>`(SELECT COUNT(*) FROM ${pedidosProveedor} WHERE ${pedidosProveedor.pedidoId} = ${columnaDeFuera(pedidos.id)} AND ${pedidosProveedor.estado} IN ('por_pagar', 'pagado', 'enviado'))`,
     })
     .from(pedidos)
     .where(eq(pedidos.clienteId, usuario.id))

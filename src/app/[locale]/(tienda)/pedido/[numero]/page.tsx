@@ -17,7 +17,7 @@ import { PasosCompra } from "@/components/pedido/pasos-compra";
 import { Devolver } from "@/components/pedido/devolver";
 import { devolucionDelPedido } from "@/lib/devoluciones/acciones";
 import { formaDeEntrega } from "@/lib/pedidos/como-se-entrega";
-import { guiaDelPedido } from "@/lib/pedidos/guia";
+import { envioDelPedido } from "@/lib/pedidos/guia";
 import { queMostrarDelEnvio } from "@/lib/pedidos/rastreo";
 import {
   avisoDelPedido,
@@ -91,10 +91,12 @@ export default async function PaginaPedido({
      alguien con un paquete en camino quiere: el número con el que puede
      mirarlo él mismo. Sale del mismo sitio que el correo, así que los dos
      dicen lo mismo. */
+  const despacho = await envioDelPedido(pedido.id);
   const envio = queMostrarDelEnvio(
     pedido.estado,
     formaDeEntrega(pedido.mercado) === "a_domicilio",
-    await guiaDelPedido(pedido.id),
+    despacho.rastreo,
+    despacho.compraEnMarcha,
   );
 
   const aviso = avisoDelPedido(

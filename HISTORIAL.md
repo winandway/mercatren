@@ -56,6 +56,17 @@ prohíbe en todo `src` una subconsulta de columna con la de afuera suelta.
 Comprobado en rojo. Usa tablas mínimas y no el esquema real: importar el
 esquema metía 4.000 líneas en la medición y hundía la cobertura bajo su suelo.
 
+**Y la pantalla prometía una guía que no iba a llegar.** Richard abrió la
+MT-000014 y leyó «todavía no tiene número de guía, aparece aquí en cuanto
+salga». Esa compra no iba a salir: su pedido a CJ se quedó **en el carrito, sin
+pagar**, el 5 sep, y se cerró como prueba. Las dos cajas que sí van en camino
+(guías `YWE00001552040285` y `YWE00001552040292`) son **el mismo cargador USB-C**
+(`vid 2069951802154856450`), comprado otra vez desde la puerta de pruebas; no
+están conectadas a ningún pedido de la tienda. Ahora «aparece aquí» solo sale
+si hay una compra al proveedor **en marcha** (`por_pagar`, `pagado`, `enviado`),
+que es de donde el reloj saca la guía. Cerrada, con error o sin compra, no se
+promete nada. Candado con el caso de la MT-000014, comprobado en rojo.
+
 **Y lo que pidió Richard:** «Mis pedidos» enseña en cada compra la guía, el
 transportista y «Rastrear»; y la pantalla del pedido, mientras no hay guía,
 dice que aparece ahí y que llega por correo. Las dos deciden con la misma pieza

@@ -110,6 +110,7 @@ export default async function PaginaMisPedidos({
               pedido.estado,
               formaDeEntrega(pedido.mercado) === "a_domicilio",
               rastreoDe(pedido.guia, pedido.transportista),
+              Number(pedido.compraEnMarcha) > 0,
             );
 
             return (

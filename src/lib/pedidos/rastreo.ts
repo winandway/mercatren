@@ -152,6 +152,7 @@ export function queMostrarDelEnvio(
   estado: string,
   seDespacha: boolean,
   rastreo: Rastreo | null,
+  compraEnMarcha: boolean,
 ): QueMostrarDelEnvio {
   /* Con guía se enseña siempre, se haya entregado o no: es el comprobante de
      por dónde viajó, y quien reclama lo necesita. */
@@ -159,8 +160,23 @@ export function queMostrarDelEnvio(
     return { tipo: "guia", rastreo };
   }
   if (!seDespacha) return { tipo: "nada" };
+  /* ══ «APARECE AQUÍ» SOLO SI DE VERDAD VA A APARECER (25 sep 2026) ══
+
+     Richard abrió la MT-000014 y leyó «todavía no tiene número de guía,
+     aparece aquí en cuanto salga». Esa compra no iba a salir nunca: su pedido
+     a CJ se quedó en el carrito el 5 sep, sin pagar, y se cerró como prueba.
+     La pantalla le prometía para siempre una guía que no existe.
+
+     La guía solo llega si hay una compra al proveedor EN MARCHA (por pagar,
+     pagada o enviada): de ahí la saca el reloj. Cerrada, con error, o sin
+     compra ninguna —un comercio que despacha por su cuenta todavía no carga
+     guía— no hay nada que esperar, y no se promete. */
+  if (!compraEnMarcha) return { tipo: "nada" };
   if (estado === "pagado" || estado === "preparando" || estado === "enviado") {
     return { tipo: "pendiente" };
   }
   return { tipo: "nada" };
 }
+
+/** Los estados de una compra al proveedor de los que SÍ sale una guía. */
+export const COMPRA_EN_MARCHA = ["por_pagar", "pagado", "enviado"] as const;

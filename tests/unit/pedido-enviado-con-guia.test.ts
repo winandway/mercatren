@@ -193,28 +193,57 @@ describe("qué ve del envío quien compró", () => {
   const GUIA = rastreoDe("YWE00001552040285", "SpeedX US to US #2");
 
   it("con guía, se enseña la guía", () => {
-    const e = queMostrarDelEnvio("enviado", true, GUIA);
+    const e = queMostrarDelEnvio("enviado", true, GUIA, true);
     expect(e.tipo).toBe("guia");
     expect(e.tipo === "guia" && e.rastreo.guia).toBe("YWE00001552040285");
   });
 
   it("pagado y sin guía todavía: se dice dónde va a aparecer", () => {
-    expect(queMostrarDelEnvio("pagado", true, null).tipo).toBe("pendiente");
-    expect(queMostrarDelEnvio("preparando", true, null).tipo).toBe("pendiente");
+    expect(queMostrarDelEnvio("pagado", true, null, true).tipo).toBe(
+      "pendiente",
+    );
+    expect(queMostrarDelEnvio("preparando", true, null, true).tipo).toBe(
+      "pendiente",
+    );
   });
 
   it("la guía sigue a la vista después de entregado: es el comprobante", () => {
-    expect(queMostrarDelEnvio("entregado", true, GUIA).tipo).toBe("guia");
+    expect(queMostrarDelEnvio("entregado", true, GUIA, true).tipo).toBe("guia");
   });
 
   it("sin pagar, cancelado o reembolsado no enseña envío", () => {
-    expect(queMostrarDelEnvio("pendiente_pago", true, null).tipo).toBe("nada");
-    expect(queMostrarDelEnvio("cancelado", true, GUIA).tipo).toBe("nada");
-    expect(queMostrarDelEnvio("reembolsado", true, GUIA).tipo).toBe("nada");
+    expect(queMostrarDelEnvio("pendiente_pago", true, null, true).tipo).toBe(
+      "nada",
+    );
+    expect(queMostrarDelEnvio("cancelado", true, GUIA, true).tipo).toBe("nada");
+    expect(queMostrarDelEnvio("reembolsado", true, GUIA, true).tipo).toBe(
+      "nada",
+    );
+  });
+
+  /**
+   * ══ EL CASO REAL: LA MT-000014 (25 sep 2026) ══
+   * Pagada con tarjeta el 5 sep. Su pedido a CJ se quedó en el carrito, sin
+   * pagar, y se cerró como prueba. La pantalla le decía «aparece aquí en
+   * cuanto salga» para siempre. Sin compra en marcha no se promete nada.
+   */
+  it("EL CASO REAL: pagado, sin guía y con la compra CERRADA, no promete guía", () => {
+    expect(queMostrarDelEnvio("pagado", true, null, false).tipo).toBe("nada");
+  });
+
+  it("una compra en marcha sí promete que la guía va a aparecer", () => {
+    expect(queMostrarDelEnvio("pagado", true, null, true).tipo).toBe(
+      "pendiente",
+    );
+  });
+
+  it("la guía se enseña aunque la compra ya no esté en marcha", () => {
+    /* Una compra ya enviada y luego cerrada sigue siendo el comprobante. */
+    expect(queMostrarDelEnvio("enviado", true, GUIA, false).tipo).toBe("guia");
   });
 
   it("lo que se retira en un mostrador no promete una guía", () => {
-    expect(queMostrarDelEnvio("pagado", false, null).tipo).toBe("nada");
+    expect(queMostrarDelEnvio("pagado", false, null, true).tipo).toBe("nada");
   });
 });
 
