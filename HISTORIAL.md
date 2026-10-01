@@ -15,6 +15,23 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA AUDITORÍA BLOQUEÓ LA PUBLICACIÓN: NEXT CRÍTICO (1 oct 2026)
+
+Al publicar la medición de CJ, el candado de antes de subir se puso rojo con
+dos fallos nuevos de dependencias. **Crítico en `next`**: ejecución de código a
+distancia en `next/og` (`ImageResponse`), de la 16.2.0 a la 16.3.5, que era la
+instalada. **El sitio no usa `next/og`** (comprobado: ni una línea en `src`), así
+que no estaba expuesto; aun así se arregló de verdad y no se anotó en
+`CONOCIDOS`: Next y `eslint-config-next` a **16.3.8**, versión exacta. **Alto en
+`brace-expansion`** (negación de servicio): solo en las herramientas de
+compilación; salió con la misma actualización.
+
+Comprobado: `npm run verify` y `npm run cf:build` en verde. Para la próxima: un
+aviso crítico de Next frena TODA publicación, incluso un arreglo urgente. Se
+mira el mismo día.
+
+---
+
 ## LA SUBCONSULTA QUE SE COMPARABA CONSIGO MISMA (25 sep 2026)
 
 **Cómo se vio.** Richard pidió ver la guía en cada compra de «Mis pedidos».
