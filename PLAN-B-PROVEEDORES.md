@@ -121,6 +121,34 @@ Se anota cada fecha (pago, salida, entrega) en `VERIFICAR-PAGOS.md`.
 
 ---
 
+### El resultado de la vara: CJ NO PASA (medido el 1 oct 2026)
+
+Dos pedidos medidos, los dos pagados el **5 sep**, el mismo cargador USB-C
+(`vid 2069951802154856450`), los dos «SpeedX US to US #2»:
+
+| Qué se mide       | La vara                  | Lo medido                                                                                             | ¿Pasa? |
+| ----------------- | ------------------------ | ----------------------------------------------------------------------------------------------------- | ------ |
+| Guía de rastreo   | en 72 h y que se mueva   | creada el **17 sep** (12 días); primer escaneo del transportista el **30 sep** (25 días)              | NO     |
+| Días a la entrega | 8 días hábiles o menos   | **sin entregar el 1 oct**: 18 días hábiles y contando                                                 | NO     |
+| Si algo falla     | respuesta en 3 días háb. | el correo a soporte **rebotó** (16 sep); contestaron el **25 sep**, 7 días hábiles, sin dar las guías | NO     |
+
+Rastreo de la de las 20:56 (`YWE00001552040292`), visto por Richard el 1 oct:
+«orden de envío creada» 17 sep → «recibido en ONT01» (Ontario, CA) 30 sep →
+«salió de las instalaciones» 1 oct. La de las 18:41 (`YWE00001552040285`) iba
+igual.
+
+**Dos de tres tenían que cumplir todo. Con dos ya reprobados, ninguna tercera
+medida lo cambia: CJ no pasa.** Y lo lento no es solo el transportista: entre
+el pago y la etiqueta pasaron doce días, antes de que el paquete existiera para
+nadie.
+
+**Lo que esto deja en rojo, hoy:** cada ficha de EE. UU., la página de entrega
+y la política prometen **«2 a 5 días hábiles»**. Lo medido es un mes. Toda venta
+de catálogo de CJ que entre ahora es una queja o un contracargo en camino, y
+Merchant Center lo cruza con las entregas reales.
+
+---
+
 ## 5. Qué se hace, en orden
 
 1. **Congelar la carga de catálogo nuevo de CJ** hasta tener las tres medidas.
