@@ -11,6 +11,7 @@ import {
 } from "@/lib/cj/diagnostico";
 import {
   LLAVE_ULTIMA_PRUEBA,
+  metodoDeSondaPermitido,
   rutaDeSondaPermitida,
   type DireccionDePrueba,
   type UltimaCompraDePrueba,
@@ -1164,6 +1165,12 @@ export async function sondaCj(entrada: {
     return {
       ok: false,
       motivo: `Ruta fuera de la lista de la sonda: ${entrada.ruta}`,
+    };
+  }
+  if (!metodoDeSondaPermitido(entrada.metodo)) {
+    return {
+      ok: false,
+      motivo: `La sonda solo consulta (GET). Para comprar o pagar están las acciones «comprar» y «pagar», con sus frenos.`,
     };
   }
   const r = await llamarCjConRitmo<unknown>(entrada.ruta.trim(), {

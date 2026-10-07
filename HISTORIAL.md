@@ -43,6 +43,13 @@ lectura en curso**: en los Workers una visita no puede esperar una promesa
 nacida en otra (si la primera termina, la segunda se cuelga). Probado en local
 quitando la variable: entrar y navegar dos páginas, con la sesión viva.
 
+**5. La puerta de pruebas podía crear y pagar pedidos en CJ por la sonda.**
+La acción `cj` aceptaba cualquier método sobre `/shopping/order/` y
+`/shopping/pay/`: un POST compraba y pagaba con nuestro saldo, sin el candado
+de margen. Si la llave del reloj se filtrara, era una factura sorpresa. Ahora
+la sonda solo acepta GET (`metodoDeSondaPermitido`); comprar y pagar siguen por
+sus acciones, con sus frenos. Candado en `probar-compra.test.ts`.
+
 **4. Avisos de dependencias nuevos** (ver la sección de la auditoría): dos
 parcheados y cinco revisados y anotados.
 

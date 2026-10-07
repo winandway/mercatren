@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   almacenesNombrados,
+  metodoDeSondaPermitido,
   rutaDeSondaPermitida,
   slugDeLaUrl,
 } from "@/lib/cj/diagnostico-puro";
@@ -301,5 +302,35 @@ describe("la puerta para probar sin sesión (/datos/probar-compra)", () => {
     expect(flujo).toMatch(/jq 'walk\(.+\)' respuesta\.json/);
     expect(flujo).toContain("[oculto]");
     expect(flujo).not.toContain("jq . respuesta.json");
+  });
+});
+
+/**
+ * ══ LA SONDA SOLO CONSULTA (7 oct 2026) ══
+ *
+ * Con las rutas permitidas, un POST por la sonda creaba y PAGABA pedidos en CJ
+ * con nuestro saldo, sin el candado de margen. Si la llave del reloj se
+ * filtrara, sería una factura sorpresa. Comprar y pagar van por sus acciones.
+ */
+describe("la sonda de CJ solo lee", () => {
+  it("GET, o sin método, se permite", () => {
+    expect(metodoDeSondaPermitido(undefined)).toBe(true);
+    expect(metodoDeSondaPermitido("GET")).toBe(true);
+    expect(metodoDeSondaPermitido(" get ")).toBe(true);
+  });
+
+  it("nada que escriba: ni crear, ni pagar, ni borrar", () => {
+    for (const m of ["POST", "PATCH", "DELETE", "PUT", "post", ""]) {
+      expect(metodoDeSondaPermitido(m), m).toBe(false);
+    }
+  });
+
+  it("la sonda lo revisa antes de llamar a CJ", () => {
+    const nucleo = readFileSync("src/lib/cj/probar-compra-nucleo.ts", "utf8");
+    const sonda = nucleo.slice(nucleo.indexOf("export async function sondaCj"));
+    const revisa = sonda.indexOf("metodoDeSondaPermitido(entrada.metodo)");
+    const llama = sonda.indexOf("llamarCjConRitmo");
+    expect(revisa).toBeGreaterThan(-1);
+    expect(revisa).toBeLessThan(llama);
   });
 });

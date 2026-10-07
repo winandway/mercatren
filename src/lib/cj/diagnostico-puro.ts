@@ -118,6 +118,22 @@ export const PREFIJOS_DE_SONDA = [
   "/logistic/",
 ] as const;
 
+/**
+ * LA SONDA SOLO CONSULTA (7 oct 2026).
+ *
+ * Con las rutas de arriba, un POST por la sonda crea y PAGA pedidos en CJ con
+ * nuestro saldo, sin pasar por el candado de margen ni por nada de lo que
+ * protege una compra de verdad. Si la llave del reloj se filtrara, sería una
+ * factura sorpresa con nuestro dinero. Para comprar y pagar están las acciones
+ * `comprar` y `pagar`, con sus frenos; la sonda queda para leer.
+ */
+export function metodoDeSondaPermitido(metodo: unknown): boolean {
+  return (
+    metodo === undefined ||
+    (typeof metodo === "string" && metodo.trim().toUpperCase() === "GET")
+  );
+}
+
 export function rutaDeSondaPermitida(ruta: unknown): boolean {
   if (typeof ruta !== "string") return false;
   const r = ruta.trim();
