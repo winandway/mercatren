@@ -69,6 +69,66 @@ const CONOCIDOS: Record<string, Conocido> = {
       "Solo lo usa `npm run iconos`, que se corre a mano para regenerar los " +
       "iconos desde el logo. No entra en la compilación del sitio.",
   },
+  "@next/eslint-plugin-next": {
+    severidad: "high",
+    motivo:
+      "Revisado el 7 oct 2026. Viene de eslint-config-next, que es el revisor de " +
+      "estilo: corre en la computadora al programar y en la verificación, nunca " +
+      "en el sitio. Comprobado con el manifiesto del empaquetado " +
+      "(.open-next/server-functions/default/handler.mjs.meta.json): de 1.419 " +
+      "archivos publicados, ninguno sale de este paquete. El fallo (agotar la " +
+      "pila con patrones anidados) necesita patrones que escriba alguien de " +
+      "fuera, y aquí los patrones son los de nuestra configuración. No hay " +
+      "versión corregida: el único arreglo que ofrece npm es bajar a Next 14.",
+  },
+  "eslint-config-next": {
+    severidad: "high",
+    motivo:
+      "Revisado el 7 oct 2026. Viene de eslint-config-next, que es el revisor de " +
+      "estilo: corre en la computadora al programar y en la verificación, nunca " +
+      "en el sitio. Comprobado con el manifiesto del empaquetado " +
+      "(.open-next/server-functions/default/handler.mjs.meta.json): de 1.419 " +
+      "archivos publicados, ninguno sale de este paquete. El fallo (agotar la " +
+      "pila con patrones anidados) necesita patrones que escriba alguien de " +
+      "fuera, y aquí los patrones son los de nuestra configuración. No hay " +
+      "versión corregida: el único arreglo que ofrece npm es bajar a Next 14.",
+  },
+  braces: {
+    severidad: "high",
+    motivo:
+      "Revisado el 7 oct 2026. Viene de eslint-config-next, que es el revisor de " +
+      "estilo: corre en la computadora al programar y en la verificación, nunca " +
+      "en el sitio. Comprobado con el manifiesto del empaquetado " +
+      "(.open-next/server-functions/default/handler.mjs.meta.json): de 1.419 " +
+      "archivos publicados, ninguno sale de este paquete. El fallo (agotar la " +
+      "pila con patrones anidados) necesita patrones que escriba alguien de " +
+      "fuera, y aquí los patrones son los de nuestra configuración. No hay " +
+      "versión corregida: el único arreglo que ofrece npm es bajar a Next 14.",
+  },
+  micromatch: {
+    severidad: "high",
+    motivo:
+      "Revisado el 7 oct 2026. Viene de eslint-config-next, que es el revisor de " +
+      "estilo: corre en la computadora al programar y en la verificación, nunca " +
+      "en el sitio. Comprobado con el manifiesto del empaquetado " +
+      "(.open-next/server-functions/default/handler.mjs.meta.json): de 1.419 " +
+      "archivos publicados, ninguno sale de este paquete. El fallo (agotar la " +
+      "pila con patrones anidados) necesita patrones que escriba alguien de " +
+      "fuera, y aquí los patrones son los de nuestra configuración. No hay " +
+      "versión corregida: el único arreglo que ofrece npm es bajar a Next 14.",
+  },
+  "fast-glob": {
+    severidad: "high",
+    motivo:
+      "Revisado el 7 oct 2026. Viene de eslint-config-next, que es el revisor de " +
+      "estilo: corre en la computadora al programar y en la verificación, nunca " +
+      "en el sitio. Comprobado con el manifiesto del empaquetado " +
+      "(.open-next/server-functions/default/handler.mjs.meta.json): de 1.419 " +
+      "archivos publicados, ninguno sale de este paquete. El fallo (agotar la " +
+      "pila con patrones anidados) necesita patrones que escriba alguien de " +
+      "fuera, y aquí los patrones son los de nuestra configuración. No hay " +
+      "versión corregida: el único arreglo que ofrece npm es bajar a Next 14.",
+  },
 };
 
 const ORDEN = ["info", "low", "moderate", "high", "critical"];
