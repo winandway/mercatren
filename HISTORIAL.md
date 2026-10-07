@@ -15,6 +15,46 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL ESTUDIO DEL 7 OCT: «EL BOT MANDA MENSAJES LOCOS» (7 oct 2026)
+
+Richard pidió revisar «el bot, los mensajes y el sistema», porque parecía que
+salían mensajes locos. Lo que se revisó y lo que salió:
+
+**1. Quién manda mensajes solo en Mercatren.** Solo correos. No hay WhatsApp,
+ni Telegram, ni un ayudante con IA que conteste: la IA del sitio solo traduce
+títulos y busca por foto. Lo que escribe sin que nadie lo pida es el
+**vigilante** (a soporte@), los avisos de pedidos y cobros al comprador, y el
+despacho automático de la guía.
+
+**2. El vigilante está tranquilo.** Las corridas del 4 al 7 oct solo traen
+alertas ámbar —CJ sin puntos de API, 39 fotos que ya no existen en el servidor
+de origen, un catálogo sin releer— y casi todas con `correoEnviado: false`.
+Nada rojo, nada repetido de más.
+
+**3. El registro de fallos (`errores_sistema`, leído por la puerta con
+`{"accion":"errores"}`):**
+
+| Origen                  | Veces | Última vez      | Qué es                                                                    |
+| ----------------------- | ----- | --------------- | ------------------------------------------------------------------------- |
+| `reloj/fotos-guardadas` | 6.469 | 22 sep          | El `IN` de 150 ids; **arreglado el 22 sep**, ya no sale                   |
+| `sesion/leer`           | 187   | 4 oct           | **Vivo.** Leer la clave de sesiones de la base falla a veces              |
+| `reloj/listados`        | 3     | 7 oct           | Rehacer la foto de listados de CO/US falló; el siguiente latido la rehace |
+| el resto                | 1–4   | mediados de sep | Fallos sueltos de la base, ya no se repiten                               |
+
+**El único vivo que toca a personas es `sesion/leer`.** `/datos/salud` →
+`sesiones.origen` dice `base`: la clave de las sesiones **no está cargada como
+variable** (`BETTER_AUTH_SECRET`) y se lee de la tabla `configuracion` en cada
+petición. Cuando la base tarda, esa petición no reconoce la sesión: ~6 veces al
+día, alguien que estaba dentro aparece fuera. **El arreglo es cargar la variable
+en YaDominios Cloud con el MISMO valor de la base** (si se pone uno nuevo, todos
+tienen que volver a entrar una vez). Queda como pendiente 👤.
+
+**Conclusión:** en Mercatren no hay un bot que mande mensajes locos. Si los
+mensajes raros son de WhatsApp, vienen de otro proyecto (el bot de QRBott u
+otro), y se revisan en su sesión.
+
+---
+
 ## LA AUDITORÍA BLOQUEÓ LA PUBLICACIÓN: NEXT CRÍTICO (1 oct 2026)
 
 Al publicar la medición de CJ, el candado de antes de subir se puso rojo con
