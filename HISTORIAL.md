@@ -15,6 +15,48 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## SEGURIDAD Y FACTURAS SORPRESA: LO QUE SE CERRÓ EL 7 OCT (7 oct 2026)
+
+Richard: «todos los temas que sean de seguridad, que no nos vaya a romper nada y
+que no nos vaya a dar factura sorpresa». Lo que se encontró y se cerró ese día:
+
+**1. Un modelo de IA caro se podía encender desde el panel.** El traductor
+(cada minuto, decenas de miles de productos) y la búsqueda por foto (cualquier
+visitante) tomaban el modelo de `TRADUCCION_MODELO` sin freno, en dos sitios.
+Ahora pasa por `lib/ia/modelo-permitido.ts`: lista cerrada (`gemini-2.5-flash`
+y `gemini-2.5-flash-lite`); cualquier otro se ignora, se usa el de siempre y se
+anota UNA vez por arranque en `errores_sistema` (`ia/modelo-no-aprobado`).
+Agregar un modelo exige el sí de Richard con el costo escrito.
+
+**2. La búsqueda por foto no tenía techo para todos juntos.** Solo uno de 20
+por IP y hora, que se esquiva cambiando de IP. Ahora además **1.000 en 24 h para
+todos**, revisado ANTES de llamar a Google y en la misma consulta que el tope
+por IP (va por el índice de `creado_en`: no suma lecturas). Tocarlo se anota una
+vez (`ia/techo-busqueda-por-foto`). Peor día posible: un par de dólares.
+
+**3. La clave de sesiones se leía de la base en cada visita.** Sin
+`BETTER_AUTH_SECRET` en el panel, cada petición la leía de `configuracion`, y
+cada vez que la base tardaba la sesión no se reconocía (187 veces, `sesion/leer`).
+Ahora `lib/sesion/clave-recordada.ts` la lee una vez por servidor y reintenta
+una vez si falla; un fallo no se recuerda. **Se comparte el valor, nunca una
+lectura en curso**: en los Workers una visita no puede esperar una promesa
+nacida en otra (si la primera termina, la segunda se cuelga). Probado en local
+quitando la variable: entrar y navegar dos páginas, con la sesión viva.
+
+**4. Avisos de dependencias nuevos** (ver la sección de la auditoría): dos
+parcheados y cinco revisados y anotados.
+
+**Candados**, todos comprobados en rojo: `modelo-ia-permitido.test.ts` (lista
+cerrada, nadie lee la variable sin pasar por ella, techo antes de la IA) y
+`clave-de-sesiones-recordada.test.ts`.
+
+**Lo que sigue dependiendo de Richard:** las llaves de Turnstile (el escudo
+contra quien prueba contraseñas no está activo en ningún dominio); cargar
+`BETTER_AUTH_SECRET` en el panel; y poner un tope de gasto en la cuenta de Google
+de la llave del traductor.
+
+---
+
 ## EL ESTUDIO DEL 7 OCT: «EL BOT MANDA MENSAJES LOCOS» (7 oct 2026)
 
 Richard pidió revisar «el bot, los mensajes y el sistema», porque parecía que

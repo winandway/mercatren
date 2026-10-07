@@ -1403,6 +1403,7 @@
       "fotoFalta": "Elige una foto primero.",
       "fotoInvalida": "La foto tiene que ser JPG, PNG o WebP y pesar menos de 3 MB.",
       "fotoMuchasBusquedas": "Hiciste muchas búsquedas seguidas. Espera un rato y vuelve a intentar.",
+      "fotoPausadaHoy": "La búsqueda por foto descansa por hoy. Vuelve a intentarlo mañana, o busca el producto por su nombre.",
       "fotoNoSePudoSubir": "No pudimos recibir la foto. Intenta otra vez.",
       "fotoNoSePudoLeer": "No pudimos entender la foto. Prueba con una donde el producto se vea claro y de cerca.",
       "fotoBusquedaNoExiste": "Esa búsqueda ya no existe.",

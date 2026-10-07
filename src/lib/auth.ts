@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { MERCADOS } from "@/lib/mercado/mercados";
 import { RUTA_AUTH } from "@/lib/rutas";
+import { leerUnaVezYRecordar } from "@/lib/sesion/clave-recordada";
 
 /**
  * Sistema de cuentas de Mercatren.
@@ -46,7 +47,16 @@ const LLAVE_SECRETO = "auth_secret";
  */
 export async function secretoDeSesiones(env: CloudflareEnv) {
   if (env.BETTER_AUTH_SECRET) return env.BETTER_AUTH_SECRET;
+  /* RECORDADA Y CON UN REINTENTO (7 oct 2026): antes se leía de la base en
+     cada visita, y cada vez que la base tardaba la sesión no se reconocía
+     (~6 veces al día). Ver `lib/sesion/clave-recordada.ts`. */
+  return claveDeLaBase.obtener();
+}
 
+/** La clave guardada en la base, leída una sola vez por servidor. */
+const claveDeLaBase = leerUnaVezYRecordar(leerOCrearClaveEnLaBase);
+
+async function leerOCrearClaveEnLaBase(): Promise<string> {
   const db = getDb();
 
   const [guardado] = await db

@@ -2,6 +2,9 @@ import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { avisarModeloRechazado } from "@/lib/ia/avisar";
+import { modeloPermitido } from "@/lib/ia/modelo-permitido";
+
 import {
   leerRespuesta,
   type PeticionDeTraduccion,
@@ -36,7 +39,8 @@ import {
  * se vende mal; un catálogo con los títulos borrados no se vende.
  */
 
-const MODELO_POR_DEFECTO = "gemini-2.5-flash";
+/* El modelo por defecto vive en `lib/ia/modelo-permitido.ts`, junto a la lista
+   cerrada de los aprobados: un solo sitio decide qué IA puede gastar dinero. */
 
 const INSTRUCCION = `Eres el redactor de catálogo de una tienda en línea que vende en Estados Unidos y Latinoamérica.
 
@@ -109,10 +113,11 @@ function llaveYModelo(): { llave: string; modelo: string } | null {
    */
   const llave = (entorno.TRADUCCION_LLAVE ?? "").trim();
   if (!llave) return null;
-  return {
-    llave,
-    modelo: (entorno.TRADUCCION_MODELO ?? "").trim() || MODELO_POR_DEFECTO,
-  };
+  /* EL MODELO PASA POR LA LISTA CERRADA (7 oct 2026): un modelo caro escrito
+     en el panel no se obedece. Ver `lib/ia/modelo-permitido.ts`. */
+  const eleccion = modeloPermitido(entorno.TRADUCCION_MODELO);
+  if (eleccion.rechazado) avisarModeloRechazado(eleccion.rechazado);
+  return { llave, modelo: eleccion.modelo };
 }
 
 /** ¿Está configurado el traductor? Para que el panel lo diga antes de nada. */

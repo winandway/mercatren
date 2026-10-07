@@ -1403,6 +1403,7 @@
       "fotoFalta": "Choose a photo first.",
       "fotoInvalida": "The photo must be JPG, PNG, or WebP and under 3 MB.",
       "fotoMuchasBusquedas": "Too many searches in a row. Wait a bit and try again.",
+      "fotoPausadaHoy": "Photo search is resting for today. Please try again tomorrow, or search for the product by name.",
       "fotoNoSePudoSubir": "We couldn't receive the photo. Try again.",
       "fotoNoSePudoLeer": "We couldn't read the photo. Try one where the product is clear and close up.",
       "fotoBusquedaNoExiste": "That search no longer exists.",

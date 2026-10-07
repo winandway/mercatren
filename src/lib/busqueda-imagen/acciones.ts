@@ -45,6 +45,24 @@ const TAMANO_MAXIMO = 3 * 1024 * 1024;
 /** Tope por IP por hora: el ojo cuesta dinero y un robot no compra nada. */
 const BUSQUEDAS_POR_HORA = 20;
 
+/**
+ * EL TECHO DEL DÍA, PARA TODOS JUNTOS (7 oct 2026).
+ *
+ * Cada búsqueda por foto le pide a Google una mirada a la foto y un vector: es
+ * la única pieza del sitio donde CUALQUIER visitante dispara un gasto de IA. El
+ * tope de arriba es por IP, y quien cambia de IP lo esquiva sin esfuerzo. Este
+ * es el que de verdad impide una factura sorpresa: pasado este número en las
+ * últimas 24 horas, la búsqueda por foto descansa hasta que bajen.
+ *
+ * Con `gemini-2.5-flash` cada búsqueda cuesta del orden de una décima de
+ * centavo, así que el techo deja el peor día en un par de dólares. Es generoso
+ * a propósito: no puede frenar a compradores reales.
+ */
+const BUSQUEDAS_POR_DIA_EN_TOTAL = 1000;
+
+/** Se avisa una sola vez por arranque cuando se toca el techo. */
+let techoAvisado = false;
+
 export type ProductoEncontrado = {
   id: string;
   slug: string;
@@ -87,15 +105,35 @@ export async function buscarPorImagen(
   const cabeceras = await headers();
   const ip = cabeceras.get("cf-connecting-ip") ?? "desconocida";
 
-  /* El tope por IP: la misma tabla cuenta, sin infraestructura nueva. */
-  const [enLaHora] = await db
-    .select({ n: sql<number>`COUNT(*)` })
+  /* LOS DOS TOPES EN UNA SOLA CONSULTA: el de esta IP en la última hora y el
+     de todos en el último día. Va por el índice de `creado_en`, así que no
+     suma lecturas a la base. */
+  const [cuenta] = await db
+    .select({
+      deEstaIp: sql<number>`COALESCE(SUM(CASE WHEN ${busquedasImagen.ip} = ${ip} AND ${busquedasImagen.creadoEn} > unixepoch() - 3600 THEN 1 ELSE 0 END), 0)`,
+      deTodos: sql<number>`COUNT(*)`,
+    })
     .from(busquedasImagen)
-    .where(
-      sql`${busquedasImagen.ip} = ${ip} AND ${busquedasImagen.creadoEn} > unixepoch() - 3600`,
-    );
-  if (Number(enLaHora?.n ?? 0) >= BUSQUEDAS_POR_HORA) {
+    .where(sql`${busquedasImagen.creadoEn} > unixepoch() - 86400`);
+  if (Number(cuenta?.deEstaIp ?? 0) >= BUSQUEDAS_POR_HORA) {
     return { ok: false, mensaje: t("fotoMuchasBusquedas") };
+  }
+  if (Number(cuenta?.deTodos ?? 0) >= BUSQUEDAS_POR_DIA_EN_TOTAL) {
+    if (!techoAvisado) {
+      techoAvisado = true;
+      void import("@/lib/errores/registro")
+        .then(({ registrarError }) =>
+          registrarError(
+            "ia/techo-busqueda-por-foto",
+            new Error(
+              `La búsqueda por foto tocó su techo de ${BUSQUEDAS_POR_DIA_EN_TOTAL} en 24 h`,
+            ),
+            "Descansa hasta que bajen. Si es demanda real, se sube el techo con el costo a la vista.",
+          ),
+        )
+        .catch(() => {});
+    }
+    return { ok: false, mensaje: t("fotoPausadaHoy") };
   }
 
   const mercado = await mercadoActual();

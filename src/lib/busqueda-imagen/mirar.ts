@@ -2,6 +2,9 @@ import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { avisarModeloRechazado } from "@/lib/ia/avisar";
+import { modeloPermitido } from "@/lib/ia/modelo-permitido";
+
 import { extraerTerminos } from "@/lib/busqueda-imagen/parsear";
 
 /**
@@ -32,10 +35,12 @@ function llaveYModelo(): { llave: string; modelo: string } | null {
   }
   const llave = entorno.TRADUCCION_LLAVE?.trim();
   if (!llave) return null;
-  return {
-    llave,
-    modelo: entorno.TRADUCCION_MODELO?.trim() || "gemini-2.5-flash",
-  };
+  /* La misma lista cerrada que el traductor: esta la dispara CUALQUIER
+     visitante con una foto, así que un modelo caro aquí es la factura más
+     fácil de provocar. Ver `lib/ia/modelo-permitido.ts` (7 oct 2026). */
+  const eleccion = modeloPermitido(entorno.TRADUCCION_MODELO);
+  if (eleccion.rechazado) avisarModeloRechazado(eleccion.rechazado);
+  return { llave, modelo: eleccion.modelo };
 }
 
 /** ¿Está configurado el ojo? Sin llave, el botón de la cámara no se ofrece. */
