@@ -13,6 +13,11 @@
 
 ## 0. El veredicto, en una línea
 
+> **Actualizado el 13 oct 2026:** CJ **no pasó** la vara (sección 4) y los
+> paquetes de prueba tardaron **38 días** del pago a la puerta (sección 4, «La
+> llegada»). Quién lo reemplaza: secciones 7 y 8. Lo de abajo es el veredicto
+> del 20 sep, cuando todavía no había nada medido.
+
 **Seguimos con CJ, pero a prueba: hoy no se cambia y tampoco se le invierte más
 hasta medir tres compras reales.** Si dos de tres llegan bien, seguimos; si no,
 se conecta TopDawg o Wholesale2B. La versión para leer (6 páginas, con la
@@ -146,6 +151,64 @@ nadie.
 y la política prometen **«2 a 5 días hábiles»**. Lo medido es un mes. Toda venta
 de catálogo de CJ que entre ahora es una queja o un contracargo en camino, y
 Merchant Center lo cruza con las entregas reales.
+
+### La llegada: 38 días del pago a la puerta (13 oct 2026)
+
+Los dos paquetes llegaron **juntos** a Novi (Michigan) el **martes 13 oct, a
+las 7:30 pm**. Los dos son el mismo cargador USB-C de pared de 24 W, pesan
+0,16 kg y traen etiqueta de **Yanwen Express** (las guías empiezan por `YWE`)
+con remitente un almacén de **Ontario, California**, rotulado «Delta Deliver
+Direct». En CJ el transporte figura como «SpeedX US to US #2».
+
+| Tramo                     | Desde         | Hasta          | Días naturales | Días hábiles | Quién lo tenía                                      |
+| ------------------------- | ------------- | -------------- | -------------- | ------------ | --------------------------------------------------- |
+| Pago → etiqueta           | sáb 5 sep     | jue 17 sep     | 12             | 8            | CJ y su almacén: el envío ni existía                |
+| Etiqueta → primer escaneo | jue 17 sep    | mié 30 sep     | 13             | 9            | entre el almacén y el transportista: no se movió    |
+| Primer escaneo → entrega  | mié 30 sep    | mar 13 oct     | 13             | 8            | Yanwen y su red de reparto                          |
+| **Total**                 | **sáb 5 sep** | **mar 13 oct** | **38**         | **25**       | la vara pedía **8 hábiles o menos**: tres veces más |
+
+Los días hábiles descuentan sábados, domingos, el Día del Trabajo (7 sep) y el
+Día de la Raza (12 oct).
+
+**El rastreo completo** de `YWE00001552040292` (hora local; el otro iba igual),
+copiado por Richard de 17track el 13 oct:
+
+| Fecha y hora   | Dónde                             | Qué dice                          |
+| -------------- | --------------------------------- | --------------------------------- |
+| 17 sep · 22:57 | CA 90640 (Montebello)             | orden de envío creada             |
+| 30 sep · 18:38 | CA 91752 (Eastvale, «ONT01»)      | recibido                          |
+| 30 sep · 19:00 | CA 90640                          | salió de la instalación           |
+| 1 oct · 01:36  | CA 90640                          | recibido en instalación de paso   |
+| 1 oct · 01:38  | CA 90640                          | salió de la instalación           |
+| 2 oct · 15:55  | IL 60131 (Franklin Park, Chicago) | recibido en instalación de paso   |
+| 2 oct · 19:43  | IL 60131                          | salió de la instalación           |
+| 3 oct · 05:53  | IL                                | procesando en instalación de paso |
+| 3 oct · 19:52  | IL                                | en camino a la siguiente          |
+| 8 oct · 23:07  | IL 60005 (Arlington Heights)      | en tránsito, salida               |
+| 13 oct · 10:37 | MI                                | en reparto                        |
+| 13 oct · 19:30 | Novi, MI                          | entregado                         |
+
+**Lo que se lee en el rastreo:**
+
+1. **Dos tercios del tiempo (25 de 38 días) pasaron antes de que ningún
+   transportista tuviera el paquete.** Doce días para crear la etiqueta y trece
+   más para que alguien la escaneara. Eso no es el camión: es el almacén.
+2. **El camión no fue lo lento, fueron las paradas.** De California a Chicago
+   tardó dos días. Después se quedó **cinco días en Illinois** (3 al 8 oct) y
+   otros **cinco para llegar a Michigan**, que está al lado. Y dio vueltas:
+   Montebello, Eastvale, otra vez Montebello, Chicago, Arlington Heights.
+3. **El transporte lo eligió nuestro código, y eligió el más barato.** Tanto
+   la compra de prueba (`masBarato` en `src/lib/cj/probar-compra-nucleo.ts`)
+   como las ventas reales (`transporteReal` en `src/lib/cj/pedidos.ts`) ordenan
+   las opciones de CJ por precio y se quedan con la primera. Con un paquete de
+   0,16 kg, la más barata es una red de consolidación, no USPS ni UPS. **Esa
+   parte de la culpa es nuestra y se puede cambiar.**
+4. **La caja (que no traiga factura, precios ni propaganda, y que sea el
+   producto de la ficha) queda por revisar**: Richard la abre y se anota aquí.
+
+**Por qué un paquete de dentro de EE. UU. tardó más que uno de China:** lo
+estudia la sección 8, separando la parte del almacén, la del proveedor y la
+del transporte.
 
 ---
 
