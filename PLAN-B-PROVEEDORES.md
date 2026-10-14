@@ -439,3 +439,381 @@ marcado como no verificado.
 - https://help.flxpoint.com/kb/general-supplier-integrations/homeroots-as-a-source
 - https://flxpoint-help-center.onrender.com/kb/electronics/petra-industries-as-a-source
 - https://en.wikipedia.org/wiki/D%26H_Distributing
+
+---
+
+## 8. El estudio del 13 oct 2026: de quién fue la culpa, y quién lidera cada país
+
+> Pedido por Richard el 13 oct, el día que llegaron los paquetes: separar si
+> la culpa fue del proveedor puntual dentro de CJ o del transporte barato,
+> buscar la empresa que lidere Estados Unidos y la que lidere España, y armar
+> pruebas con varios transportes. Investigado con fuentes leídas ese día (lista
+> al final de la sección). Lo que no se pudo comprobar dice **sin verificar**.
+> No se compró nada, no se abrió ninguna cuenta y no se llenó ningún
+> formulario.
+
+### El veredicto, en cinco líneas
+
+1. **Dos tercios del retraso (25 de 38 días) pasaron antes de que un transportista tuviera el paquete.** Es culpa del **proveedor** que despacha ese cargador dentro de CJ (almacén «L2US», producto de tipo «lo envía el proveedor»), no del almacén propio de CJ. CJ es corresponsable porque lo vende como «almacén de EE. UU.» y no lo vigila.
+2. **El último tercio (13 días) es del transporte barato:** la guía es de Yanwen Express y el canal se llama «SpeedX US to US #2». Las dos son redes de reparto por encargo, sin activos propios, con Trustpilot de 1,3 y 1,1. **Lo eligió nuestro código por ser el más barato.**
+3. **Un paquete de China llega hoy en una mediana de 10 días** porque entra en un flujo masivo diario hacia la misma red; un paquete suelto de un proveedor chico de EE. UU. espera recogida, espera camión lleno y espera reparto.
+4. **Si se sigue probando con CJ:** solo productos con stock físico de CJ verificado (tipo «ordinario», existencias de CJ mayores que cero, almacén verificado) y transporte **USPS Ground Advantage** o **UPS Ground** por nombre. Nunca «el más barato».
+5. **EE. UU.:** TopDawg primero, Wholesale2B de respaldo, y en paralelo inventario propio de los más vendidos en **Amazon Multi-Channel Fulfillment** (3 días hábiles, sin mínimos publicados). **España:** BigBuy sigue siendo el candidato, con reputación floja; Printful Barcelona solo para estampados.
+
+---
+
+### Los tres tramos, con la culpa repartida
+
+| Tramo                            | Fechas                  | Días naturales / hábiles | De quién es la culpa                                                                                                                                                                                                                              | Evidencia                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| -------------------------------- | ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Pago → etiqueta**           | sáb 5 sep → jue 17 sep  | 12 / 8                   | **Del proveedor del almacén «L2US» dentro de CJ** (principal). CJ, corresponsable: lo lista como almacén de EE. UU. sin vigilar su preparación. Nuestro código, corresponsable menor: no filtró por stock propio de CJ ni por tiempo de despacho. | La API de CJ define el tipo 5 como producto que el proveedor prepara y envía directamente. Nuestro pedido pagado salió con ese tipo, almacén «L2US» y envío cero (registro del proyecto). CJ promete 1–3 días de preparación con stock propio y 3–5 sin él; 8 hábiles es el doble del peor caso. Reseñas de 2026 en la tienda de Shopify describen pedidos retenidos 18 días y stock de EE. UU. que no existía.                                                                                       |
+| **2. Etiqueta → primer escaneo** | jue 17 sep → mié 30 sep | 13 / 9                   | **Del proveedor que imprimió la etiqueta sin entregar el paquete**, y de la red barata que no recoge a diario en un almacén de poco volumen. Reparto exacto **sin verificar**.                                                                    | «Etiqueta creada» significa que el transportista tiene los datos pero no el paquete; lo normal es 24 a 48 horas. La propia guía de SpeedX lo define igual. eBay y Amazon solo cuentan como enviado un escaneo real, justamente porque imprimir antes es un truco conocido para «parar el reloj». La recogida de Yanwen Express se programa y solo cubre ciertas zonas.                                                                                                                                |
+| **3. Primer escaneo → entrega**  | mié 30 sep → mar 13 oct | 13 / 8                   | **Del transporte barato** (Yanwen Express sobre la red de SpeedX, probablemente). **Y nuestro**, porque nuestro código lo eligió.                                                                                                                 | California → Illinois en unas 38 horas: el camión no fue lo lento. Luego, 5 días quieto en Illinois y 4 y medio para ir de Arlington Heights a Michigan (unas 5 horas de carretera, aprox.). Yanwen Express: Trustpilot 1,3 con 93 % de una estrella, y una queja de septiembre de 2026 desde Ann Arbor, Michigan, por 10 días de retraso. SpeedX: 1,1 con 5.614 reseñas y 93 % de una estrella. Estas redes trabajan con conductores por encargo y, según FreightWaves, ninguna gana dinero todavía. |
+
+**Días hábiles:** descuentan sábados, domingos, el Día del Trabajo (7 sep) y el 12 de octubre. Total: 38 naturales, 25 hábiles.
+
+---
+
+### A. Los tres tramos, uno por uno
+
+#### A1. Pago → etiqueta (12 días): proveedor, no almacén de CJ
+
+**Lo que CJ es por dentro, según su propia API.** La documentación oficial de productos de CJ clasifica cada producto con un tipo:
+
+| Tipo                         | Qué significa                           | Quién prepara y envía |
+| ---------------------------- | --------------------------------------- | --------------------- |
+| 0 · ordinario                | inventario y envío gestionados por CJ   | **CJ**                |
+| 4 · de proveedor             | el proveedor colabora con el inventario | **CJ** envía          |
+| 5 · enviado por el proveedor | el proveedor gestiona y despacha        | **el proveedor**      |
+
+Y separa dos existencias: **existencias de CJ** (stock físico en su almacén) y **existencias de fábrica** (stock «virtual» del proveedor). También marca si el almacén está **verificado** (1) o **pendiente de verificar** (2), trae un **ciclo de entrega** en días (ejemplo «3-5») y permite filtrar el listado por **tiempo de despacho de 24, 48 o 72 horas**.
+
+**Nuestro cargador era de tipo 5** (registro del proyecto: pedido pagado con almacén «L2US», envío cero porque el proveedor lo incluye en el precio). El blog de CJ explica que sus «almacenes de proveedor» llevan envío gratis y se encuentran filtrando por almacén de EE. UU. con envío gratis: es exactamente el tipo de ficha que nuestro catálogo trajo. **No era un paquete del almacén propio de CJ en Chino o Nueva Jersey**: era la bodega de un tercero que vende a través de CJ.
+
+**Dónde están los almacenes propios de CJ en EE. UU.** El blog de CJ y las reseñas hablan de dos grandes en Nueva Jersey y Chino (California), y otras fuentes dicen «tres» sin nombrarlos. **Sin verificar** en una página oficial actual (el sitio de CJ redirige a una validación y no se deja leer).
+
+**Lo que CJ promete:** preparación de 1 a 3 días con stock propio y 3 a 5 sin él (su blog), más 2 a 7 días de tránsito desde EE. UU. según reseñas; su app dice 4 a 10 días en total para EE. UU. **Ocho días hábiles solo de preparación** está por encima de cualquiera de esas promesas.
+
+**Quejas de 2025–2026 que calzan con lo nuestro** (reseñas de una estrella en la tienda de apps de Shopify, calificación global 4,9 con 2.874 reseñas):
+
+- mayo 2026: pedidos retenidos 18 días sin envío ni respuesta clara;
+- mayo 2026: stock de EE. UU. que aparecía en el inventario y desapareció al pedir;
+- septiembre 2026: el almacén de EE. UU. no siempre tiene el mismo producto y los envíos son lentos.
+
+**Conclusión del tramo:** el proveedor de «L2US» tardó el doble del peor plazo que CJ promete. CJ no lo frenó ni avisó. Y nosotros no filtramos: con el filtro de tipo 0, existencias de CJ mayores que cero y almacén verificado, ese cargador no habría entrado al catálogo.
+
+#### Confirmado con la API de CJ, el mismo 13 oct
+
+Consultado con la sonda de solo lectura (`/product/query`,
+`/product/stock/queryByVid` y `getOrderDetail`), después de escribir lo de
+arriba:
+
+| Dato                        | Lo que contestó CJ                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------------- |
+| Tipo de producto            | **`SUPPLIER_SHIPPED_PRODUCT`**: lo prepara y lo manda el proveedor                  |
+| Proveedor                   | una comercializadora de **Guangzhou (China)**, que vende bajo otro nombre de tienda |
+| Almacén del pedido          | «L2US Warehouse», **no** una bodega propia de CJ                                    |
+| Transporte                  | «SpeedX US to US #2», envío **$0**                                                  |
+| Lo cobrado                  | $11,40 (producto) + $0 (envío)                                                      |
+| Tiendas que lo venden en CJ | 35                                                                                  |
+| Existencias en EE. UU. hoy  | **ninguna**: CJ solo lo lista en China, con cero                                    |
+
+**Lo que eso significa:** el tramo 1 es del proveedor, como decía el estudio,
+y ahora con el dato de CJ en la mano. Y hay un aviso aparte: **la ficha sigue
+publicada en Mercatren a $19,68 con 192 unidades guardadas**, cuando CJ ya no
+tiene ninguna en EE. UU. La compra no llega a cobrarse (el stock se pregunta
+antes de cobrar), pero la ficha engaña: el refresco del stock no la alcanzó.
+
+**Cuántas fichas son de este tipo:** no se guarda el tipo de producto, así que
+el número exacto falta. La pista: el 13 sep se pusieron a la venta **41.796
+fichas de EE. UU.** que estaban en revisión porque el proveedor cotizaba el
+envío en cero, que es justo la marca de este tipo (ver HISTORIAL, «el flete $0
+de EE. UU. es gratis de verdad»). **Lo más probable es que la gran mayoría del
+catálogo de EE. UU. sea del mismo tipo que tardó 38 días.**
+
+#### A2. Etiqueta → primer escaneo (13 días): una etiqueta sin paquete
+
+**El patrón es conocido.** «Etiqueta creada» (USPS lo llama «pre-shipment», UPS «label created», FedEx «shipment information sent») quiere decir que el remitente compró la etiqueta, pero el transportista todavía no tiene el paquete. Lo normal es que el primer escaneo llegue en 24 a 48 horas. La guía de rastreo de SpeedX dice lo mismo y recomienda reclamar al vendedor si no cambia en tres días hábiles. Trece días no es un retraso del transportista: es un paquete que nadie entregó.
+
+**Por qué se hace.** En marketplaces, el reloj del vendedor se mide con la «fecha de envío». Imprimir la etiqueta temprano hace parecer que salió a tiempo. Por eso eBay y Amazon solo cuentan como enviado el primer escaneo real del transportista (foros de vendedores de eBay y Amazon). CJ, en cambio, sí parece aceptar la etiqueta como «enviado» (registro del proyecto: la guía apareció el 17 de septiembre y CJ no la marcó como problema). **Sin verificar** que el proveedor lo hiciera a propósito; lo que sí se ve es que la etiqueta existió trece días sin paquete.
+
+**La parte del transportista.** Yanwen Express no recoge en cualquier sitio: la integración de Teapplix dice que la recogida cubre códigos postales cerca de grandes aeropuertos y ciudades en California, Texas, Illinois, Nueva Jersey, Nueva York, Pensilvania, Ohio, Washington y Georgia, y que hay que programarla. Una bodega chica con pocos paquetes al día puede esperar a juntar volumen. **Sin verificar** cuánto de los trece días fue espera de recogida y cuánto fue el proveedor.
+
+**Lo que no se pudo aclarar:**
+
+- **«Delta Deliver Direct».** Existe un servicio con ese nombre: **DeliverDirect, de Delta Cargo** (la división de carga de Delta Air Lines), lanzado en 2024 con la empresa de software SmartKargo. Lleva paquetes de hasta 25 libras en la bodega de vuelos de pasajeros, con opciones de 1, 2 y 3 días, y usa socios de primera y última milla que no nombra. **No se encontró ninguna relación pública con CJ, Yanwen ni SpeedX.** Hipótesis, sin verificar: el tramo Montebello → zona de O'Hare en unas 38 horas es compatible con un vuelo o con un camión de dos conductores.
+- **La dirección del remitente** (4501 E Airport Dr, Ontario, CA 91761) es un edificio industrial de varios inquilinos junto al aeropuerto de Ontario, ofrecido en alquiler por Cushman & Wakefield en 2025. No se encontró quién lo ocupa.
+- **«ONT01».** ONT es el código del aeropuerto de Ontario, California. El escaneo dice código postal 91752 (Eastvale, Jurupa Valley, Mira Loma), una zona llena de almacenes a unos minutos de allí. Lo más probable es que sea el código interno de la primera instalación de la red. **Sin verificar.**
+
+#### A3. Primer escaneo → entrega (13 días): la red barata
+
+**Quién movió el paquete.** La guía empieza por YWE y el sitio de **Yanwen Express** (yanwenexpress.com) se presenta como un servicio de **última milla dentro de EE. UU.** que trabaja con socios de reparto (DSP). Es el brazo doméstico de Yanwen, el consolidador chino. El canal de CJ se llama «SpeedX US to US #2», y la ruta coincide con la red de **SpeedX**: SpeedX publica empleos de supervisión de su centro en **Montebello, CA** (donde aparecen tres escaneos) y abrió en diciembre de 2025 un **superhub de 200.000 pies cuadrados a minutos de O'Hare**, que es donde queda Franklin Park. **Probable, sin verificar:** SpeedX como red y Yanwen Express como etiqueta y reparto.
+
+**Lo que se sabe de estas redes:**
+
+| Red                | Qué es                                                                                                    | Reputación (leída hoy)                                                                                                                                                                                                                                                 | Cómo opera                                                                                                                                                                                          |
+| ------------------ | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SpeedX**         | Paquetería de bajo costo nacida en 2022; clientes: Shein, Temu, TikTok Shop y Amazon (FreightWaves, WCPO) | Trustpilot **1,1 de 5**, 5.614 reseñas, **93 % de una estrella**; quejas de entregas falsas, paquetes quietos días y sin teléfono de soporte. BBB: sin perfil oficial encontrado                                                                                       | Más de 12.000 códigos postales (su web); unos tres cuartos del país; ~1 millón de paquetes diarios con conductores independientes en su propio auto; promete entrega al día siguiente o en dos días |
+| **Yanwen Express** | Última milla en EE. UU. con socios de reparto                                                             | Trustpilot **1,3 de 5**, 98 reseñas, **93 % de una estrella**; septiembre 2026: una queja desde **Ann Arbor, Michigan**, por 10 días de retraso; paquetes tirados al patio o dados por entregados sin llegar. Su chat dice que «en reparto» puede tardar de 1 a 5 días | No publica plazos, centros ni teléfono                                                                                                                                                              |
+
+**La lectura del rastreo, tramo por tramo:**
+
+| De                              | A                                         | Tiempo                  | Qué pasó                                               |
+| ------------------------------- | ----------------------------------------- | ----------------------- | ------------------------------------------------------ |
+| 30 sep 18:38 · Eastvale (ONT01) | 1 oct 01:38 · Montebello                  | 7 horas                 | entrada a la red y clasificación                       |
+| 1 oct 01:38 · Montebello        | 2 oct 15:55 · Franklin Park (zona O'Hare) | **~38 horas**           | el tramo largo, unas 2.000 millas (aprox.): **rápido** |
+| 3 oct 19:52 · Illinois          | 8 oct 23:07 · Arlington Heights           | **5 días** sin escaneos | espera                                                 |
+| 8 oct 23:07 · Arlington Heights | 13 oct 10:37 · en reparto en Michigan     | **4 días y medio**      | unas 5 horas de carretera (aprox.)                     |
+
+**Por qué se queda cinco días en Illinois y otros cinco para cruzar a Michigan.** Las redes de consolidación retienen paquetes hasta llenar un camión hacia cada destino; las guías del sector hablan de 12 a 48 horas de espera **en rutas con volumen**, y advierten que los destinos con poco volumen son el punto débil. Michigan no aparece en la lista de zonas de recogida de Yanwen Express ni se encontró un centro de SpeedX allí. **Hipótesis, sin verificar:** el paquete esperó en Chicago a que hubiera carga suficiente hacia Detroit, y en Michigan lo repartió un socio local que salió con él cuando le tocó ruta. El lunes 12 de octubre (feriado federal) pudo sumar un día si en algún punto intervino USPS.
+
+---
+
+### B. Por qué EE. UU. → EE. UU. puede ser más lento que China → EE. UU.
+
+**El dato que lo explica, medido por Parcelsapp en los últimos 60 días (hasta el 12 oct 2026):**
+
+| Ruta                                                   | Mediana     | Rango típico (80 % central) | Entregas medidas |
+| ------------------------------------------------------ | ----------- | --------------------------- | ---------------- |
+| China → EE. UU., todas                                 | **10 días** | 6–18                        | 156.378          |
+| China → EE. UU., última milla **SpeedX**               | **9 días**  | 6–15                        | 9.236            |
+| China → EE. UU., última milla GOFO                     | 10 días     | 6–15                        | 46.292           |
+| China → EE. UU., USPS                                  | 10 días     | 7–23                        | 13.130           |
+| Hong Kong → EE. UU., YunExpress                        | 10–11 días  | —                           | 47               |
+| **Nuestro cargador, EE. UU. → EE. UU., SpeedX/Yanwen** | **38 días** | —                           | 2                |
+
+**La razón:** los paquetes chinos entran a EE. UU. ya **consolidados por el exportador** (Yanwen, YunExpress, Cainiao), en volúmenes enormes y diarios, directo a los centros de estas mismas redes. El camión sale lleno cada día. Nuestro paquete, en cambio, salió de una bodega chica de un proveedor: **sin flujo propio**, dependió de que alguien lo recogiera y de que hubiera carga para su destino. La misma red que es «rápida» para Temu es lenta para un paquete suelto.
+
+**Además, el negocio cambió en 2025.** El 2 de mayo de 2025 terminó la exención de aranceles para paquetes chicos desde China, y desde el **29 de agosto de 2025** quedó suspendida para todos los países (orden ejecutiva 14324, aviso de Aduanas en el Registro Federal). Temu y Shein pasaron mercancía a almacenes en EE. UU. y las redes baratas de reparto (GOFO, UniUni, SpeedX, Yanwen Express) crecieron sobre ese volumen. Un senador pidió en mayo de 2026 al Departamento de Justicia investigar a estas redes respaldadas por capital chino; las empresas lo niegan (FreightWaves).
+
+**Los plazos publicados de cada transportista:**
+
+| Transportista                    | Plazo publicado                                     | Fuente                                                    | Para 0,16 kg (5,6 oz)                                                                                                                                                                                                                    |
+| -------------------------------- | --------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **USPS Ground Advantage**        | **2 a 5 días**                                      | usps.com (oficial)                                        | Desde el 12 jul 2026, la tarifa comercial publicada cobra todo lo de menos de 1 libra al precio de 15,99 oz: **unos $8,40 en zona 8**; con tarifas negociadas, **$5,50–$6,36** (ship.com, julio 2026). Mostrador: desde $8,40 (usps.com) |
+| **UPS Ground**                   | **1 a 5 días hábiles**                              | fuentes secundarias; la página oficial bloquea la lectura | sin cifra verificada para este peso                                                                                                                                                                                                      |
+| **FedEx Ground / Home Delivery** | **1 a 5 días hábiles** en el territorio continental | PDF oficial de FedEx, temporada 2026                      | sin cifra verificada para este peso                                                                                                                                                                                                      |
+| **SpeedX**                       | promete día siguiente o dos días                    | speedx.io                                                 | medido: 9 días de mediana como última milla desde China                                                                                                                                                                                  |
+| **Yanwen Express**               | no publica                                          | yanwenexpress.com                                         | su chat: 1 a 5 días solo «en reparto»                                                                                                                                                                                                    |
+| GOFO, UniUni, OnTrac             | no publican plazo en días                           | sus webs                                                  | OnTrac dice ser hasta dos días más rápido que el terrestre tradicional, sin cifra                                                                                                                                                        |
+
+---
+
+### C. Qué transportes ofrece CJ desde su almacén de EE. UU.
+
+**La lista pública no se puede leer:** la calculadora y el blog de CJ redirigen a una validación. Lo que sí hay:
+
+| Opción en el cotizador de CJ   | Visto en                                                   | Plazo que promete CJ                | Precio para 0,16 kg                | Comentario                                |
+| ------------------------------ | ---------------------------------------------------------- | ----------------------------------- | ---------------------------------- | ----------------------------------------- |
+| **SpeedX US to US #2**         | registro del proyecto (los dos pedidos)                    | sin verificar                       | **$0** (incluido por el proveedor) | la que eligió nuestro código; **38 días** |
+| **USPS US to US**              | registro del proyecto (cotiza 0 en productos de proveedor) | sin verificar                       | 0 en productos de tipo 5           | USPS promete 2–5 días                     |
+| **UPS US to US**               | registro del proyecto                                      | sin verificar                       | a veces 0: CJ no sabe cotizarlo    | UPS Ground 1–5 hábiles                    |
+| **FedEx US to US**             | registro del proyecto                                      | sin verificar                       | a veces 0: CJ no sabe cotizarlo    | FedEx Ground 1–5 hábiles                  |
+| CJPacket (Ordinary, Sensitive) | blog y API de CJ                                           | 7–15 días                           | —                                  | sale **de China**, no sirve               |
+| USPS+                          | blog y ejemplo de la API de CJ                             | 2–5 días (ejemplo de la API, $4,71) | —                                  | China → almacén de EE. UU. → USPS         |
+
+**Dos avisos de la documentación de CJ:**
+
+1. El cotizador devuelve, por cada opción, el nombre, el **plazo en días** y el precio. Hay un segundo método más preciso que además dice por qué una opción no está disponible.
+2. **En los productos de proveedor, normalmente el proveedor fija la logística** y CJ calcula con su plantilla. O sea: en un producto de tipo 5, pedir «USPS» puede no estar disponible o no cambiar nada del tramo 1.
+
+**Cuál conviene para cumplir 2 a 5 días hábiles:**
+
+- **Primera opción: USPS Ground Advantage** (cubre todas las direcciones, 2–5 días, seguro de $100 incluido). **Segunda: UPS Ground.**
+- **Regla para el código:** lista blanca por nombre (USPS, UPS, FedEx), ordenar **por plazo** (que el plazo cotizado sea de 5 días o menos) y solo después por precio. Excluir SpeedX, Yanwen, GOFO y UniUni. Si una opción cotiza cero en un producto que no es de proveedor, tratarla como «sin cotización», como ya hace el proyecto.
+- **La cuenta honesta:** aun con CJ perfecto, preparación de 1 a 3 días más USPS de 2 a 5 da **3 a 8 días hábiles**. «2 a 5 días hábiles» no se cumple con CJ. Mientras se use CJ, la promesa del sitio debería decir **3 a 8 días hábiles**.
+
+---
+
+### D. El proveedor líder para vender en EE. UU.
+
+**No hay novedades de 2026 que cambien la preselección.** No se encontró ninguna noticia de 2026 sobre TopDawg ni Wholesale2B. Lo leído hoy:
+
+| Candidato                          | Despacha desde                                                        | API para sitio propio                                       | Costo (leído hoy)                                                                                                                                                                                                                                   | Reputación (hoy)                                                                                                                                                | Veredicto                                                                 |
+| ---------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **TopDawg**                        | Red de proveedores de EE. UU.; promete 2–5 días por USPS, UPS o FedEx | **Solo en Premier**                                         | Premier **$139,99/mes** facturado al año; Business $34,99/mes al año, con prueba gratis (duración no indicada hoy; el 7 oct se leyó 7 días)                                                                                                         | Trustpilot 4,5–4,6 con **solo 23 reseñas**; 91 % cinco estrellas, 9 % una                                                                                       | **Probar primero.** Mismo riesgo de fondo que CJ: despacha cada proveedor |
+| **Wholesale2B**                    | 100+ proveedores (hay que filtrar los de EE. UU.)                     | Sí: catálogo, stock, pedidos ilimitados y guías por webhook | precio del plan API no visible hoy (el 7 oct: $99,99/mes); se paga con monedero o a mano                                                                                                                                                            | Trustpilot **4,0**, 441 reseñas, 13 % una estrella; 2026: dinero atrapado en el monedero, una API pagada sin soporte (agosto), precios más caros que en tiendas | **Respaldo**                                                              |
+| **Amazon MCF** (inventario propio) | Almacenes de Amazon                                                   | Sí (apps y API propias)                                     | ≤ 4 oz, una unidad: **$7,34** estándar y **$10,70** exprés (amzprep, revisado 18 ago 2026) **más 3,5 %** de recargo (oficial); almacenaje $0,78 por pie cúbico ene–sep y $2,40 oct–dic; cuenta Professional **$39,99/mes** (oficial) con FBA activo | —                                                                                                                                                               | **La vía más rápida y sin mínimos publicados**                            |
+| ShipBob                            | Sus almacenes                                                         | Sí                                                          | no publica tarifas; terceros: alta de $0 a $975 y mínimo de ~$275/mes o ~400 pedidos/mes                                                                                                                                                            | —                                                                                                                                                               | No conviene con poco volumen                                              |
+| ShipMonk                           | Sus almacenes                                                         | Sí                                                          | no publica tarifas; su mínimo mensual es pedidos × tarifa del primer artículo, menos 20 %; cobra extra por tandas de menos de 50 pedidos                                                                                                            | —                                                                                                                                                               | Igual: para cuando haya volumen                                           |
+| Petra Industries                   | Almacén propio, electrónica, envío ciego                              | FTP; API **sin verificar**                                  | cuenta de revendedor                                                                                                                                                                                                                                | —                                                                                                                                                               | Para electrónica, más adelante                                            |
+
+**Amazon MCF, en concreto, para el cargador:**
+
+- **Entrega estándar en 3 días hábiles, exprés en 2** (página oficial). Contando el día de preparación, el total queda en **3 a 4 días hábiles**: es lo único de la lista que cumple «2 a 5» con holgura.
+- **Caja sin marca de Amazon por defecto** (página oficial).
+- Costo por pedido del cargador: unos **$7,60** con el recargo. CJ lo daba «gratis» dentro de su precio de $11,40; aquí el envío se paga aparte, pero se cumple la promesa.
+- Hace falta comprar el inventario por adelantado y mandarlo a Amazon. **Riesgo:** el dinero queda en mercancía y el almacenaje sube casi tres veces de octubre a diciembre.
+- **Sin verificar:** que la cuenta de vendedor sea obligatoria aunque no se venda en Amazon (lo dicen guías de terceros, no la página oficial).
+
+**Recomendación:** TopDawg con su prueba gratis; si falla, Wholesale2B. **Y en paralelo**, los 5 a 10 productos que más se vendan pasan a inventario propio en Amazon MCF. Es la única forma verificada de cumplir 2 a 5 días hábiles sin depender de cientos de proveedores.
+
+---
+
+### E. El proveedor líder para vender en España
+
+**Antes de todo, una regla nueva que lo cambia:** desde el **1 de julio de 2026** la Unión Europea cobra un **derecho de aduana de 3 € por artículo** en paquetes de hasta 150 € que vienen de fuera de la UE (Comisión Europea). Vender a España desde EE. UU. o China encarece cada pedido. **El almacén tiene que estar dentro de la UE.**
+
+| Candidato                    | Almacén                                                       | API                                                                                                                                                        | Costo                                                                                                                                                                                                            | Plazo en España                                                                                                                                                                                                                                       | Reputación (hoy)                                                                                                                                           | Veredicto                                                |
+| ---------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| **BigBuy**                   | Valencia (la ubicación exacta del almacén, **sin verificar**) | REST con JSON, entorno de pruebas, pedidos, costos de envío y seguimiento (según el buscador sobre su página oficial, que **no se dejó abrir**: error 403) | Pack Ecommerce: **89 € de alta + 89 €/mes**, o 74,17 €/mes pagando el año; Marketplaces 119 €/mes (DoDropshipping, actualizado 5 ago 2026). Otras fuentes dicen 69 € + 90 € de alta: **sin verificar** cuál rige | 24–48 h en la UE según reseñas de terceros; **sin verificar** en la fuente oficial. Transportistas mencionados: GLS, SEUR, TNT, DHL, UPS, Correos Exprés y Correos (resumen del buscador sobre su app oficial; esa app hoy figura como no disponible) | Trustpilot **3,0**, 4.729 reseñas, 81 % cinco estrellas y 13 % una; quejas de 2026: gran parte del catálogo agotado, soporte de semanas, reembolsos lentos | **Sigue siendo el candidato**, a prueba                  |
+| **vidaXL / dropshippingXL**  | Venlo, Países Bajos                                           | Sí, con un token de la cuenta                                                                                                                              | ~30 €/mes (reseña de 2026)                                                                                                                                                                                       | **sin verificar**                                                                                                                                                                                                                                     | vidaXL.es **2,4**, 8.131 reseñas, 30 % una estrella; 2026: retrasos de 10 días en España; la caja lleva su marca (estudio del 7 oct)                       | Solo hogar, jardín y muebles                             |
+| **Printful Barcelona**       | Sant Climent de Llobregat (Barcelona)                         | Sí, completa y gratis (estudio del 7 oct)                                                                                                                  | sin cuotas                                                                                                                                                                                                       | **3 días hábiles a España** después de producir; producción de 2 a 5 días hábiles (oficial)                                                                                                                                                           | 4,2 (estudio del 7 oct)                                                                                                                                    | **Pasa, solo estampados**                                |
+| CJ en Europa                 | dice tener almacenes en Europa; en España, **sin verificar**  | la misma API                                                                                                                                               | —                                                                                                                                                                                                                | sin datos verificables                                                                                                                                                                                                                                | la de CJ                                                                                                                                                   | No, con lo visto en EE. UU.                              |
+| Nedis, Infortisa, Globomatik | almacenes propios (Países Bajos, España)                      | **sin verificar**                                                                                                                                          | cuenta de revendedor; alta para empresa extranjera **sin verificar**                                                                                                                                             | —                                                                                                                                                                                                                                                     | —                                                                                                                                                          | Para electrónica, a investigar                           |
+| Dropea                       | España y Portugal                                             | solo app de Shopify                                                                                                                                        | —                                                                                                                                                                                                                | 24–48 h según una reseña                                                                                                                                                                                                                              | 4,4 con 11 reseñas                                                                                                                                         | No: es contra reembolso y no tiene API para sitio propio |
+
+**Un tema que no es de proveedor y hay que mirar aparte:** Mercatren LLC es una sociedad de EE. UU. Vender a consumidores en España con almacén en la UE implica IVA español y, probablemente, registro fiscal allí. **Sin verificar**; lo decide el contador antes de abrir el país.
+
+---
+
+### F. El plan de pruebas que separa proveedor de transporte
+
+**La idea:** cambiar **una sola cosa por vez**. Si cambia el transporte y mejora solo el tramo 3, la culpa era del transporte. Si cambia el almacén y mejora el tramo 1, la culpa era del proveedor.
+
+**Reglas comunes a todas las pruebas:**
+
+- Se paga **el mismo día hábil por la mañana** (un martes), con la misma dirección de Novi y una segunda en otra región (sur u oeste).
+- Se anota con fecha y hora: **pago, etiqueta, primer escaneo real, entrega**. Y el nombre exacto del transporte y la guía.
+- **La vara de siempre:** guía con escaneo real en 72 horas o menos; entrega en **8 días hábiles o menos**; caja sin factura, precios ni propaganda; soporte que contesta en un día hábil.
+
+#### Prueba 1 · CJ, dos por dos (separa almacén y transporte)
+
+| Celda | Producto                                                                                    | Transporte                | Pedidos | Ya medido                  |
+| ----- | ------------------------------------------------------------------------------------------- | ------------------------- | ------- | -------------------------- |
+| A     | el cargador, **tipo 5** (proveedor «L2US»)                                                  | el más barato (SpeedX)    | —       | **sí: 38 días, dos veces** |
+| B     | el mismo cargador, tipo 5                                                                   | **USPS o UPS** por nombre | 2       | —                          |
+| C     | un accesorio parecido de **tipo 0**, existencias de CJ mayores que cero, almacén verificado | el más barato             | 2       | —                          |
+| D     | el mismo de la celda C                                                                      | **USPS o UPS** por nombre | 2       | —                          |
+
+**Costo:** 6 pedidos de unos $12 a $20 de producto más $0 a $9 de envío: **unos $100 a $160.**
+
+**Ojo con la celda B:** el cargador ya no tiene existencias en EE. UU. (CJ, 13 oct). Se hace con otro accesorio de tipo «lo manda el proveedor» parecido en tamaño y precio.
+
+**Qué decide qué:**
+
+- Si en la celda B **CJ no ofrece USPS ni UPS** para ese producto, queda probado que el proveedor fija el transporte: **los productos de tipo 5 salen del catálogo de EE. UU.**
+- Si B mejora el tramo 3 pero no el 1: la culpa del tramo 1 es del proveedor y la del 3 del transporte (lo esperado).
+- Si C o D tardan más de **3 días hábiles** hasta la etiqueta: **el almacén propio de CJ también falla** y se sale de CJ en EE. UU.
+- Si **D cumple 8 hábiles o menos en los dos pedidos**: CJ se queda, pero solo con stock propio verificado y USPS o UPS, y con la promesa del sitio en 3 a 8 días hábiles.
+
+#### Prueba 2 · TopDawg (el candidato de EE. UU.)
+
+- Plan Business con su prueba gratis; **se cancela antes de que termine** si no pasa. La API (Premier, $139,99/mes al año) solo se paga si pasa.
+- **3 pedidos**, de 3 proveedores distintos en 3 estados, cada uno con más de 10 unidades en stock y costo menor a $40: un accesorio electrónico chico (el equivalente al cargador), uno de hogar o cocina y uno de mascotas.
+- **Costo:** unos **$90 a $130** de productos, más la cuota por pedido (el 7 oct se leyó $1,50; hoy no se publica).
+- **Pasa si** cumple la vara y además el margen es de 30 % o más en los tres. Si no pasa, la misma prueba con **Wholesale2B** (unos $100 a $130 más el plan API).
+
+#### Prueba 3 · Amazon MCF con inventario propio (la vía de los más vendidos)
+
+- Se compran **20 unidades** del cargador (u otro de los más vendidos) en un lote y se mandan a un almacén de Amazon. El tiempo de abastecimiento no lo sufre ningún cliente.
+- Cuenta Professional ($39,99 el primer mes) y **3 pedidos MCF** estándar a tres regiones (unos $7,60 cada uno).
+- **Costo:** unos **$180 a $250** en total (inventario sin verificar: de $5 a $8 la unidad; envío de entrada a Amazon sin verificar: de $15 a $25).
+- **Pasa si** los tres llegan en **4 días hábiles o menos** desde el pago, en caja sin marca. Si pasa, los más vendidos se mudan a MCF y el sitio puede prometer «2 a 5 días hábiles» **solo en esas fichas**.
+
+#### Prueba 4 · BigBuy (España)
+
+- **Necesita una decisión de Richard:** una dirección en España que reciba los paquetes y los abra (un conocido, un casillero o un cliente piloto).
+- Un mes de Pack Ecommerce, **3 pedidos** a dos ciudades de la península (una Madrid o Barcelona, otra mediana), productos de 15 a 25 €.
+- **Costo:** **unos 250 a 290 €** (89 € de alta, 89 € del mes, ~60 € de productos y ~15 a 20 € de envíos). Conversión a dólares **sin verificar**.
+- **Pasa si:** ningún pedido se cancela por falta de stock, sale del almacén en 1 día hábil y llega en **3 días hábiles o menos**, en caja neutra.
+- **En paralelo y barato:** una muestra de Printful Barcelona (20 % de descuento y envío gratis en muestras), unos **15 a 25 €**, para medir producción más entrega en España.
+
+#### El costo total del plan
+
+| Prueba                        | Costo aproximado                            |
+| ----------------------------- | ------------------------------------------- |
+| 1 · CJ dos por dos            | $100 – $160                                 |
+| 2 · TopDawg                   | $90 – $135                                  |
+| 3 · Amazon MCF                | $180 – $250                                 |
+| 4 · BigBuy + muestra Printful | 265 € – 315 €                               |
+| **Total sin el respaldo**     | **unos $370 – $545 más unos 265 € – 315 €** |
+| Si TopDawg falla: Wholesale2B | más unos $200 – $230                        |
+
+**Orden recomendado:** la Prueba 1 y la 2 el mismo martes (lo que más se aprende por dólar), la 3 en cuanto llegue el lote, y la 4 cuando haya dirección en España.
+
+---
+
+### Lo que no se pudo verificar
+
+- La relación entre «Delta Deliver Direct», Yanwen, SpeedX y el almacén de Ontario; qué es «ONT01».
+- Que la red física fuera la de SpeedX (la ruta coincide, pero ningún documento público lo dice).
+- La lista oficial y actual de transportes de CJ desde EE. UU., con plazos y precios (el sitio de CJ exige validación).
+- La ubicación y el número actuales de los almacenes propios de CJ en EE. UU.
+- El plazo oficial de UPS Ground (la página bloquea la lectura) y las tarifas de UPS y FedEx para 5,6 oz.
+- Las tarifas oficiales 2026 de Amazon MCF (la cifra de $7,34 es de un tercero), y si la cuenta de vendedor es obligatoria sin vender en Amazon.
+- Las tarifas oficiales de ShipBob y ShipMonk (no las publican).
+- Los precios oficiales, la API, el almacén y los plazos de BigBuy (su web devuelve error 403); el precio actual del plan API de Wholesale2B; la cuota por pedido de TopDawg.
+- El perfil de SpeedX en BBB.
+- Si los almacenes de CJ en Europa incluyen España.
+- El IVA y el registro fiscal que necesitaría Mercatren LLC para vender en España.
+
+---
+
+### Fuentes de la sección 8 (todas leídas el 13 oct 2026)
+
+**CJ Dropshipping**
+
+- https://developers.cjdropshipping.com/en/api/api2/api/product.html — tipos de producto (0, 4, 5), existencias de CJ contra existencias de fábrica, almacén verificado, ciclo de entrega y filtro de despacho de 24/48/72 horas.
+- https://developers.cjdropshipping.com/zh/api/api2/api/logistic.html — el cotizador devuelve nombre, plazo y precio; en productos de proveedor el proveedor fija la logística; ejemplo USPS+ de 2–5 días a $4,71.
+- https://blog.cjdropshipping.cn/detail/Unlock-3-Day-Delivery-with-CJ-s-New-US-Warehouses — promesa de 3 a 6 días con inventario de EE. UU. (11 oct 2024), sin nombrar transportistas.
+- https://blog.cjdropshipping.cn/detail/1334727489640955906 — los «almacenes de proveedor» de CJ, con envío gratis y entrega en una semana (2020).
+- https://blog.cjdropshipping.cn/detail/how-to-use-cj-us-warehouses-to-boost-dropshipping — envío nacional de 2 a 4 días (2020).
+- https://apps.shopify.com/cucheng/reviews?ratings%5B%5D=1&sort_by=newest — calificación 4,9 con 2.874 reseñas; quejas de una estrella de mayo, julio y septiembre de 2026.
+- Resúmenes del buscador sobre el blog de CJ (preparación de 1–3 y 3–5 días; Nueva Jersey y Chino), HustleGotReal (2–7 días desde EE. UU.) y la app de CJ (4–10 días).
+
+**Rastreo, etiquetas y redes de reparto**
+
+- https://www.yanwenexpress.com/ — Yanwen Express se presenta como última milla en EE. UU. con socios de reparto.
+- https://www.trustpilot.com/review/www.yanwenexpress.com — 1,3 con 98 reseñas, 93 % de una estrella; queja de Ann Arbor (septiembre 2026); su chat dice 1 a 5 días en reparto.
+- https://www.trustpilot.com/review/speedx.io — 1,1 con 5.614 reseñas, 93 % de una estrella.
+- https://www.speedx.io/ — más de 12.000 códigos postales; servicios de día siguiente y de dos días.
+- https://www.freightwaves.com/news/new-speedx-superhub-in-chicago-expedites-more-parcel-deliveries — superhub junto a O'Hare (dic 2025): 200.000 pies cuadrados, 500.000 envíos diarios, ~1 millón de paquetes al día con conductores independientes.
+- https://www.freightwaves.com/news/sen-cotton-urges-doj-investigation-of-china-backed-parcel-carriers — redes sin activos, con contratistas y conductores por aplicación; pierden dinero según analistas (22 may 2026).
+- https://www.wcpo.com/news/northern-kentucky/package-delivery-chaos-hits-northern-kentucky-as-speedx-misdelivers-hundreds-of-orders — SpeedX: nacida en 2022, clientes y entregas equivocadas (octubre 2025).
+- https://urbanomnibus.net/2026/07/temus-last-mile/ — SpeedX con centro cerca del JFK; trabajo por encargo de estas redes (julio 2026).
+- https://www.teapplix.com/help/?p=10063 — Yanwen Express como transportista doméstico; recogida solo en ciertas zonas y estados; nació repartiendo para Temu.
+- https://www.easyshippingx.com/en/shipping-guides/us-last-mile-delivery-carriers-analysis/ — SpeedX opera tramos internacionales y domésticos; Yanwen Express trabaja con socios de reparto (vendedor de logística con interés comercial).
+- https://www.17track.net/en/carriers/yanwen — Yanwen es sobre todo exportador; el prefijo no basta para saber el transportista.
+- https://parcelsapp.com/en/delivery-times/china/united-states — China → EE. UU.: mediana de 10 días; SpeedX 9, GOFO 10, USPS 10 (60 días hasta el 12 oct 2026).
+- https://parcelsapp.com/en/delivery-times/hong-kong/united-states — YunExpress, 10–11 días.
+- Resúmenes del buscador sobre ShipBob, WismoLabs, The Letter Pilot y foros de eBay y Amazon — qué es «etiqueta creada», 24–48 horas normales y por qué los marketplaces exigen un escaneo real.
+- Resumen del buscador sobre la guía de rastreo de SpeedX (StartupEditor) — «etiqueta creada» quiere decir que SpeedX no tiene el paquete.
+- Resúmenes del buscador sobre empleos de SpeedX en Montebello (Indeed; la página dio 403) y sobre la consolidación (Fulfill, Shipware, Warp) — espera de 12 a 48 horas por camión lleno; los destinos de poco volumen son el punto débil.
+- https://www.freightwaves.com/news/delta-cargos-deliverdirect-offers-e-commerce-delivery-at-the-speed-of-flight y https://www.smartkargo.com/casestudies/delta-airlines — qué es DeliverDirect de Delta Cargo.
+- https://assets.cushmanwakefield.com/-/pmedia/220180/0/4501-e-airport-dr-unit-b-ares-brochure-2025.pdf (vía el buscador) — el edificio del remitente, en alquiler en 2025.
+
+**Transportistas nacionales y aduanas**
+
+- https://www.usps.com/ship/ground-advantage.htm — Ground Advantage: 2–5 días, hasta 70 lb, $100 de seguro, desde $8,40.
+- https://support.pirateship.com/en/articles/15453569-july-2026-usps-rate-and-rule-changes — cambios de USPS del 12 jul 2026.
+- https://www.ship.com/post/cheapest-way-to-ship-a-package-2026 — 4 oz a $5,50–$6,36 con tarifas negociadas; tarifa publicada de menos de 1 lb a $8,40 en zona 8.
+- https://www.fedex.com/content/dam/fedex/us-united-states/services/2026_Peak_Last_Day_to_ship.pdf — FedEx Ground y Home Delivery: 1 a 5 días hábiles.
+- https://www.ontrac.com/ y https://www.uniuni.com/ — no publican plazos en días.
+- Resumen del buscador sobre el Registro Federal (2025-16802) y KPMG — exención de minimis suspendida para todos los países desde el 29 ago 2025.
+
+**Proveedores de EE. UU. y almacenes logísticos**
+
+- https://topdawg.com/pricing — planes y precios de hoy; API solo en Premier.
+- https://www.trustpilot.com/review/topdawg.com — 4,5–4,6 con 23 reseñas.
+- https://www.wholesale2b.com/dropship-api-plan.html — qué incluye el plan API.
+- https://www.trustpilot.com/review/wholesale2b.com — 4,0 con 441 reseñas; quejas de 2026.
+- https://supplychain.amazon.com/mcf — MCF: 3 días hábiles estándar, 2 exprés, caja sin marca, API, recargo de 3,5 %.
+- https://amzprep.com/amazon-mcf-fees/ — tarifas de MCF 2026 para hasta 4 oz y almacenaje (revisado 18 ago 2026).
+- https://sell.amazon.com/pricing — plan Professional a $39,99 al mes.
+- https://www.shipmonk.com/pricing — cómo se calcula el mínimo mensual.
+- Resúmenes del buscador sobre ShipBob (alta y mínimos de terceros), Petra Industries (Flxpoint, Sellercloud) y TopDawg (Spocket, PickYourApp).
+
+**España y la Unión Europea**
+
+- https://commission.europa.eu/news-and-media/news/ensuring-fairness-and-safety-eur3-customs-duty-low-value-parcels-2026-06-29_en (vía el buscador) — el derecho de 3 € por artículo desde el 1 jul 2026.
+- https://dodropshipping.com/bigbuy-pricing-plans/ — precios de los packs de BigBuy (actualizado 5 ago 2026).
+- https://www.trustpilot.com/review/bigbuy.eu — 3,0 con 4.729 reseñas; quejas de 2026.
+- https://www.trendtrack.io/es/blog-post/resena-de-bigbuy-es-una-opcion-confiable-para-tu-sitio-de-dropshipping — 24–48 h en la UE y problemas de sincronización (competidor con interés).
+- https://apps.shopify.com/bigbuy-synchronization-app — la app de BigBuy figura como no disponible.
+- https://marketing4ecommerce.net/bigbuy-facturacion-internacionalizacion/ — 105 millones de euros, 20.000 m² y 300.000 referencias (dato de 2023).
+- Resúmenes del buscador sobre la página de la API de BigBuy (REST, entorno de pruebas, pedidos y seguimiento) y sobre sus transportistas (GLS, SEUR, Correos Exprés…).
+- https://www.trustpilot.com/review/vidaxl.es — 2,4 con 8.131 reseñas.
+- https://www.printful.com/print-on-demand-spain — 3 días hábiles a España desde Barcelona.
+- Resumen del buscador sobre la ayuda de Printful — producción de 2 a 5 días hábiles.
+- Resúmenes del buscador sobre dropshippingXL (30 €/mes), Dropea, Infortisa y Globomatik.
