@@ -1,9 +1,10 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { preguntasProducto } from "@/lib/db/schema";
+import { noOcultoPorDenuncias } from "@/lib/moderacion/filtros";
 import {
   paraMostrar,
   recortar,
@@ -38,7 +39,13 @@ export async function preguntasDe(
         estado: preguntasProducto.estado,
       })
       .from(preguntasProducto)
-      .where(eq(preguntasProducto.productoId, productoId));
+      .where(
+        and(
+          eq(preguntasProducto.productoId, productoId),
+          /* Denunciada tres veces: oculta para todos (27 oct 2026). */
+          noOcultoPorDenuncias("pregunta", preguntasProducto.id),
+        ),
+      );
 
     return recortar(paraMostrar(filas, idioma));
   } catch {

@@ -1,6 +1,7 @@
 import { BadgeCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { MenuModeracion } from "@/components/moderacion/menu-moderacion";
 import type { PreguntaVisible } from "@/lib/preguntas/reglas";
 
 /**
@@ -59,8 +60,13 @@ export async function PreguntasProducto({
               </span>
             </summary>
 
-            <div className="mt-2 text-sm whitespace-pre-line text-tinta-suave">
-              {p.respuesta}
+            <div className="mt-2 flex items-start gap-2">
+              <div className="min-w-0 flex-1 text-sm whitespace-pre-line text-tinta-suave">
+                {p.respuesta}
+              </div>
+              {/* Denunciar una pregunta (27 oct 2026, Google Play). No hay a
+                  quién bloquear: la publica y la contesta el comercio. */}
+              <MenuModeracion tipo="pregunta" id={p.id} conAutor={false} />
             </div>
 
             {p.delComercio && (

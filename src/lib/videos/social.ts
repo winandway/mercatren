@@ -2,6 +2,10 @@ import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import {
+  autorNoBloqueado,
+  noOcultoPorDenuncias,
+} from "@/lib/moderacion/filtros";
+import {
   comentariosVideo,
   meGustaVideo,
   user,
@@ -78,6 +82,8 @@ export type ComentarioPublico = {
   creadoEn: string | null;
   /** Si quien mira puede borrarlo: lo escribió él, o es el dueño del video, o el equipo. */
   puedeBorrar: boolean;
+  /** Lo escribió quien mira: no se le ofrece denunciarse ni bloquearse. */
+  propio: boolean;
 };
 
 /** Los comentarios publicados de un video, del más nuevo al más viejo. */
@@ -111,6 +117,10 @@ export async function comentariosDe(
         and(
           eq(comentariosVideo.videoId, videoId),
           eq(comentariosVideo.estado, "publicado"),
+          /* Denunciado tres veces: oculto para todos. Bloqueado por quien
+             mira: oculto para él (27 oct 2026, Google Play). */
+          noOcultoPorDenuncias("comentario", comentariosVideo.id),
+          autorNoBloqueado(comentariosVideo.usuarioId, quienMira.id),
         ),
       )
       .orderBy(desc(comentariosVideo.creadoEn))
@@ -128,6 +138,7 @@ export async function comentariosDe(
         esDelComercio ||
         (quienMira.id && quienMira.id === f.usuarioId),
       ),
+      propio: Boolean(quienMira.id && quienMira.id === f.usuarioId),
     }));
   } catch (e) {
     console.error("[videos] no se pudieron leer los comentarios:", e);

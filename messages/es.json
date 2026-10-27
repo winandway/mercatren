@@ -4560,5 +4560,30 @@
       "palabra": "La palabra no coincide. Escríbela tal cual.",
       "fallo": "No pudimos borrar tu cuenta ahora. No se borró nada; inténtalo otra vez en un momento o escríbenos a {correo}."
     }
+  },
+  "moderacion": {
+    "abrir": "Más opciones",
+    "borrar": "Borrar",
+    "denunciar": "Denunciar",
+    "bloquear": "Bloquear a esta persona",
+    "porQue": "¿Por qué lo denuncias?",
+    "enviar": "Enviar denuncia",
+    "gracias": "Gracias. Nuestro equipo lo va a revisar. Si varias personas lo denuncian, se oculta solo.",
+    "bloqueado": "Listo. Ya no verás lo que publique esta persona.",
+    "entrar": "Entrar a mi cuenta",
+    "motivos": {
+      "spam": "Es publicidad o spam",
+      "ofensivo": "Es ofensivo o grosero",
+      "sexual": "Tiene contenido sexual",
+      "odio": "Incita al odio o a la violencia",
+      "fraude": "Es un engaño o una estafa",
+      "otro": "Otro motivo"
+    },
+    "errores": {
+      "sesion": "Para denunciar o bloquear, entra a tu cuenta.",
+      "propio": "Esto lo publicaste tú.",
+      "invalido": "Este contenido ya no está disponible.",
+      "fallo": "No pudimos enviarlo ahora. Inténtalo otra vez en un momento."
+    }
   }
 }

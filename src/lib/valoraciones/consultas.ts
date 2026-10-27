@@ -4,6 +4,10 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import {
+  autorNoBloqueado,
+  noOcultoPorDenuncias,
+} from "@/lib/moderacion/filtros";
 import { itemsPedido, pedidos, user, valoraciones } from "@/lib/db/schema";
 import { resumirValoraciones, type Resumen } from "@/lib/valoraciones/reglas";
 
@@ -21,6 +25,8 @@ export type OpinionPublica = {
   comentario: string | null;
   nombre: string;
   creadoEn: Date | number | null;
+  /** La escribió quien mira: no se le ofrece denunciarla ni bloquearse. */
+  propia: boolean;
 };
 
 export async function resumenDeProducto(productoId: string): Promise<Resumen> {
@@ -40,6 +46,9 @@ export async function opinionesDe(
   limite = 20,
 ): Promise<OpinionPublica[]> {
   const db = getDb();
+  /* Quien mira, para esconderle lo de quien bloqueó (27 oct 2026). Si la
+     sesión no se puede leer, se enseña todo menos lo denunciado. */
+  const quienMira = await obtenerUsuario().catch(() => null);
 
   const filas = await db
     .select({
@@ -48,10 +57,17 @@ export async function opinionesDe(
       comentario: valoraciones.comentario,
       nombre: user.name,
       creadoEn: valoraciones.creadoEn,
+      usuarioId: valoraciones.usuarioId,
     })
     .from(valoraciones)
     .innerJoin(user, eq(user.id, valoraciones.usuarioId))
-    .where(eq(valoraciones.productoId, productoId))
+    .where(
+      and(
+        eq(valoraciones.productoId, productoId),
+        noOcultoPorDenuncias("opinion", valoraciones.id),
+        autorNoBloqueado(valoraciones.usuarioId, quienMira?.id),
+      ),
+    )
     .orderBy(desc(valoraciones.creadoEn))
     .limit(limite)
     .catch(() => []);
@@ -69,6 +85,7 @@ export async function opinionesDe(
      */
     nombre: acortarNombre(f.nombre),
     creadoEn: f.creadoEn,
+    propia: Boolean(quienMira?.id && quienMira.id === f.usuarioId),
   }));
 }
 

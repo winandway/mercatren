@@ -25,7 +25,7 @@ export const TERMINOS_ES: PaginaContenido = {
   titulo: "Términos y condiciones",
   entradilla:
     "Las reglas del servicio de Mercatren: qué hacemos, qué no hacemos, cómo se paga, cómo se entrega y qué puedes esperar de nosotros.",
-  vigencia: "Versión 4 · Vigentes desde el 17 de septiembre de 2026",
+  vigencia: "Versión 5 · Vigentes desde el 27 de octubre de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -423,6 +423,29 @@ export const TERMINOS_ES: PaginaContenido = {
           texto:
             "Detectada cualquiera de estas conductas, detenemos la operación, cerramos la cuenta y conservamos el expediente.",
         },
+        {
+          tipo: "parrafo",
+          texto:
+            "Lo que publicas en Mercatren —comentarios en los videos, opiniones y preguntas de los productos— lo ve todo el mundo. Por eso tampoco se permite publicar:",
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              texto:
+                "Insultos, acoso o mensajes que inciten al odio o a la violencia.",
+            },
+            { texto: "Contenido sexual o violento." },
+            { texto: "Publicidad, spam o enlaces engañosos." },
+            { texto: "Datos personales de otras personas." },
+            { texto: "Cualquier cosa ilegal." },
+          ],
+        },
+        {
+          tipo: "parrafo",
+          texto:
+            "Cualquier persona puede denunciar un contenido, o bloquear a quien lo publicó, desde los tres puntos que tiene al lado. Lo que denuncian varias personas se oculta solo, y nuestro equipo revisa cada denuncia: puede borrar el contenido y cerrar la cuenta de quien no cumpla.",
+        },
       ],
     },
     {
@@ -487,7 +510,7 @@ export const TERMINOS_EN: PaginaContenido = {
   titulo: "Terms and conditions",
   entradilla:
     "The rules of the Mercatren service: what we do, what we don't do, how payment works, how delivery works, and what you can expect from us.",
-  vigencia: "Version 4 · Effective September 17, 2026",
+  vigencia: "Version 5 · Effective October 27, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
@@ -881,6 +904,29 @@ export const TERMINOS_EN: PaginaContenido = {
           tipo: "parrafo",
           texto:
             "If we detect any of these, we stop the transaction, close the account, and retain the file.",
+        },
+        {
+          tipo: "parrafo",
+          texto:
+            "What you post on Mercatren (comments on videos, and product reviews and questions) is visible to everyone. So you also may not post:",
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              texto:
+                "Insults, harassment, or anything that promotes hate or violence.",
+            },
+            { texto: "Sexual or violent content." },
+            { texto: "Ads, spam, or misleading links." },
+            { texto: "Other people's personal information." },
+            { texto: "Anything illegal." },
+          ],
+        },
+        {
+          tipo: "parrafo",
+          texto:
+            "Anyone can report content, or block the person who posted it, from the three-dot menu next to it. Content reported by several people is hidden automatically, and our team reviews every report: we may remove the content and close the account of anyone who breaks these rules.",
         },
       ],
     },

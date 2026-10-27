@@ -337,6 +337,13 @@
       "when": 1793133858441,
       "tag": "0047_tidy_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "6",
+      "when": 1793137620714,
+      "tag": "0048_wet_rattler",
+      "breakpoints": true
     }
   ]
 }

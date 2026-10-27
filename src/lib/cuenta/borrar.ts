@@ -6,6 +6,7 @@ import { ESTADOS_EN_BODEGA } from "@/lib/casillero/estados";
 import { getDb } from "@/lib/db";
 import {
   account,
+  bloqueosUsuario,
   busquedasImagen,
   casilleros,
   comentariosVideo,
@@ -124,6 +125,14 @@ export async function borrarCuenta(
       .delete(comentariosVideo)
       .where(eq(comentariosVideo.usuarioId, usuarioId)),
     db.delete(valoraciones).where(eq(valoraciones.usuarioId, usuarioId)),
+    db
+      .delete(bloqueosUsuario)
+      .where(
+        or(
+          eq(bloqueosUsuario.usuarioId, usuarioId),
+          eq(bloqueosUsuario.bloqueadoId, usuarioId),
+        ),
+      ),
     db
       .update(preguntasProducto)
       .set({ usuarioId: null })

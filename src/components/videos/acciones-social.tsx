@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Check,
-  Eye,
-  Heart,
-  Link2,
-  MessageCircle,
-  Send,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Check, Eye, Heart, Link2, MessageCircle, Send, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,6 +12,7 @@ import {
   ocultarComentario,
 } from "@/lib/videos/social-acciones";
 import type { ComentarioPublico } from "@/lib/videos/social";
+import { MenuModeracion } from "@/components/moderacion/menu-moderacion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -123,6 +115,7 @@ export function AccionesSocial({
         autor: r.autor,
         creadoEn: new Date().toISOString(),
         puedeBorrar: true,
+        propio: true,
       },
       ...lista,
     ]);
@@ -305,21 +298,27 @@ export function AccionesSocial({
                       {c.texto}
                     </p>
                   </div>
-                  {c.puedeBorrar ? (
-                    <button
-                      type="button"
-                      aria-label={t("borrar")}
-                      onClick={async () => {
-                        await ocultarComentario(c.id);
-                        setLista((l) => l.filter((x) => x.id !== c.id));
-                        setCuantos((n) => Math.max(0, n - 1));
-                        router.refresh();
-                      }}
-                      className="shrink-0 rounded p-1 text-tinta-suave hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" aria-hidden />
-                    </button>
-                  ) : null}
+                  {/* Borrar, denunciar y bloquear: dentro de los tres puntos,
+                      nunca a la vista (27 oct 2026, Google Play). */}
+                  <MenuModeracion
+                    tipo="comentario"
+                    id={c.id}
+                    propio={c.propio}
+                    onBorrar={
+                      c.puedeBorrar
+                        ? async () => {
+                            await ocultarComentario(c.id);
+                            setLista((l) => l.filter((x) => x.id !== c.id));
+                            setCuantos((n) => Math.max(0, n - 1));
+                            router.refresh();
+                          }
+                        : undefined
+                    }
+                    onOculto={() => {
+                      setLista((l) => l.filter((x) => x.id !== c.id));
+                      setCuantos((n) => Math.max(0, n - 1));
+                    }}
+                  />
                 </li>
               ))
             )}

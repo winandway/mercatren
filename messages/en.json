@@ -4560,5 +4560,30 @@
       "palabra": "That word doesn't match. Type it exactly as shown.",
       "fallo": "We couldn't delete your account right now. Nothing was deleted; please try again in a moment or email us at {correo}."
     }
+  },
+  "moderacion": {
+    "abrir": "More options",
+    "borrar": "Delete",
+    "denunciar": "Report",
+    "bloquear": "Block this person",
+    "porQue": "Why are you reporting this?",
+    "enviar": "Send report",
+    "gracias": "Thanks. Our team will review it. If several people report it, it's hidden automatically.",
+    "bloqueado": "Done. You won't see what this person posts anymore.",
+    "entrar": "Sign in to my account",
+    "motivos": {
+      "spam": "It's an ad or spam",
+      "ofensivo": "It's offensive or rude",
+      "sexual": "It has sexual content",
+      "odio": "It promotes hate or violence",
+      "fraude": "It's a scam or misleading",
+      "otro": "Something else"
+    },
+    "errores": {
+      "sesion": "Sign in to report or block.",
+      "propio": "You posted this.",
+      "invalido": "This content is no longer available.",
+      "fallo": "We couldn't send it right now. Please try again in a moment."
+    }
   }
 }

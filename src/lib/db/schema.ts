@@ -4080,3 +4080,49 @@ export const cuentasEliminadas = sqliteTable(
   },
   (t) => [index("idx_cuentas_eliminadas_usuario").on(t.usuarioId)],
 );
+
+/**
+ * ══ DENUNCIAR Y BLOQUEAR (27 oct 2026) ══
+ *
+ * Google Play exige, a toda app con contenido de usuarios a la vista del
+ * público (comentarios de videos, opiniones y preguntas de productos), que se
+ * pueda DENUNCIAR ese contenido y BLOQUEAR a quien lo publicó. Reglas en
+ * `lib/moderacion/reglas.ts`. Tablas nuevas y no columnas, como manda la
+ * regla de `schema.sql`.
+ */
+export const denunciasContenido = sqliteTable(
+  "denuncias_contenido",
+  {
+    id: text("id").primaryKey(),
+    /** comentario · opinion · pregunta */
+    tipo: text("tipo").notNull(),
+    objetoId: text("objeto_id").notNull(),
+    /** Quien lo publicó, si se sabe (una pregunta del comercio no tiene). */
+    autorId: text("autor_id"),
+    denuncianteId: text("denunciante_id").notNull(),
+    /** spam · ofensivo · sexual · odio · fraude · otro */
+    motivo: text("motivo").notNull(),
+    /** abierta · descartada · atendida. Solo las abiertas ocultan. */
+    estado: text("estado").notNull().default("abierta"),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("uq_denuncia_una_por_persona").on(
+      t.tipo,
+      t.objetoId,
+      t.denuncianteId,
+    ),
+    index("idx_denuncias_objeto").on(t.tipo, t.objetoId, t.estado),
+  ],
+);
+
+/** Quién no quiere ver a quién. Lo bloqueado se esconde solo para quien bloqueó. */
+export const bloqueosUsuario = sqliteTable(
+  "bloqueos_usuario",
+  {
+    usuarioId: text("usuario_id").notNull(),
+    bloqueadoId: text("bloqueado_id").notNull(),
+    creadoEn: integer("creado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.usuarioId, t.bloqueadoId] })],
+);

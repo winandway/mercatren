@@ -3,6 +3,7 @@
 import { Loader2, Star } from "lucide-react";
 import { useState, useTransition } from "react";
 
+import { MenuModeracion } from "@/components/moderacion/menu-moderacion";
 import { valorarProducto } from "@/lib/valoraciones/acciones";
 import type { OpinionPublica } from "@/lib/valoraciones/consultas";
 
@@ -43,6 +44,9 @@ export function OpinionesProducto({
     soloCompradores: string;
   };
 }) {
+  /* La lista vive aquí para quitar al instante lo que se bloquea o se
+     oculta por denuncias (27 oct 2026). */
+  const [visibles, setVisibles] = useState(opiniones);
   const [estrellas, setEstrellas] = useState(suya?.estrellas ?? 0);
   const [comentario, setComentario] = useState(suya?.comentario ?? "");
   const [aviso, setAviso] = useState<string | null>(null);
@@ -133,16 +137,16 @@ export function OpinionesProducto({
         </p>
       )}
 
-      {opiniones.length === 0 ? (
+      {visibles.length === 0 ? (
         <p className="mt-4 text-sm text-tinta-suave">{textos.sinOpiniones}</p>
       ) : (
         <ul className="mt-4 space-y-4">
-          {opiniones.map((o) => (
+          {visibles.map((o) => (
             <li
               key={o.id}
               className="border-t border-borde pt-3 first:border-0 first:pt-0"
             >
-              <span className="flex items-center gap-2">
+              <span className="flex w-full items-center gap-2">
                 <span className="inline-flex" aria-hidden>
                   {[1, 2, 3, 4, 5].map((n) => (
                     <Star
@@ -156,6 +160,16 @@ export function OpinionesProducto({
                   ))}
                 </span>
                 <span className="text-sm font-semibold">{o.nombre}</span>
+                <span className="ml-auto">
+                  <MenuModeracion
+                    tipo="opinion"
+                    id={o.id}
+                    propio={o.propia}
+                    onOculto={() =>
+                      setVisibles((l) => l.filter((x) => x.id !== o.id))
+                    }
+                  />
+                </span>
               </span>
               {o.comentario ? (
                 <p className="mt-1 text-sm leading-relaxed">{o.comentario}</p>
