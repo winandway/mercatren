@@ -122,22 +122,22 @@ script para rehacerlas están en `fuente/`):
 
 ## Lo que se respondió en Play Console (27 oct 2026)
 
-| Sección                    | Respuesta                                                                                                                      | Estado            |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------- |
-| Política de privacidad     | https://mercatren.com/en/privacidad                                                                                            | Guardada          |
-| Anuncios                   | No tiene                                                                                                                       | Guardada          |
-| ID de publicidad           | No lo usa (la app no pide `AD_ID`)                                                                                             | Guardada          |
-| Apps gubernamentales       | No                                                                                                                             | Guardada          |
-| Funciones financieras      | Ninguna (Mercatren vende y factura; no es servicio de pagos)                                                                   | Guardada          |
-| Apps de salud              | Ninguna                                                                                                                        | Guardada          |
-| Clasificación (IARC)       | «El resto de los tipos de app»; contenido de usuarios con denuncia y bloqueo; lenguaje ligeramente obsceno posible en catálogo | Guardada          |
-| Seguridad de los datos     | 14 tipos recopilados, ninguno compartido, cifrado en tránsito, cuenta con usuario y contraseña, borrado en /delete-account     | Borrador completo |
-| Detalles de acceso         | Falta la cuenta para revisores (usuario y contraseña los pone Richard)                                                         | **Pendiente 👤**  |
-| Público objetivo           | 18 años o más (se compra con tarjeta). Se llena después de «Detalles de acceso»                                                | Bloqueada         |
-| Ficha de Play Store        | en-US, es-US y es-419, con todas las imágenes                                                                                  | Guardada          |
-| Configuración de la tienda | Compras · hola@mercatren.com · https://mercatren.com                                                                           | Guardada          |
-| Países                     | Solo Estados Unidos                                                                                                            | Guardada          |
-| Versión de producción      | 1 (1.0.0), notas en los tres idiomas                                                                                           | Borrador          |
+| Sección                    | Respuesta                                                                                                                      | Estado      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| Política de privacidad     | https://mercatren.com/en/privacidad                                                                                            | Guardada    |
+| Anuncios                   | No tiene                                                                                                                       | Guardada    |
+| ID de publicidad           | No lo usa (la app no pide `AD_ID`)                                                                                             | Guardada    |
+| Apps gubernamentales       | No                                                                                                                             | Guardada    |
+| Funciones financieras      | Ninguna (Mercatren vende y factura; no es servicio de pagos)                                                                   | Guardada    |
+| Apps de salud              | Ninguna                                                                                                                        | Guardada    |
+| Clasificación (IARC)       | «El resto de los tipos de app»; contenido de usuarios con denuncia y bloqueo; lenguaje ligeramente obsceno posible en catálogo | Guardada    |
+| Seguridad de los datos     | 14 tipos recopilados, ninguno compartido, cifrado en tránsito, cuenta con usuario y contraseña, borrado en /delete-account     | Enviada     |
+| Detalles de acceso         | Cuenta «Mario Soporte» (revisor.usuario@mercatren.com); la contraseña la puso Richard                                          | Guardada    |
+| Público objetivo           | Solo 18 años o más (se compra con tarjeta)                                                                                     | Bloqueada   |
+| Ficha de Play Store        | en-US, es-US y es-419, con todas las imágenes                                                                                  | Guardada    |
+| Configuración de la tienda | Compras · hola@mercatren.com · https://mercatren.com                                                                           | Guardada    |
+| Países                     | Solo Estados Unidos                                                                                                            | Guardada    |
+| Versión de producción      | 1 (1.0.0), notas en los tres idiomas                                                                                           | En revisión |
 
 ### Seguridad de los datos, tipo por tipo
 
@@ -168,15 +168,16 @@ persona). Ninguno efímero.
 Browsing the catalog, search (including search by photo), product pages, store videos and the cart work without signing in. Sign in with the account above to test checkout, order tracking (My orders), the Miami locker and account deletion. Please do not complete a real card payment. To delete the account: My account > three-dot menu > Delete my account, then type DELETE. The same page is available at https://mercatren.com/en/delete-account
 ```
 
+## Enviada a revisión (27 oct 2026)
+
+Los doce cambios se mandaron a revisión el 27 oct 2026 por la tarde. La
+«publicación administrada» está apagada: cuando Google la apruebe, sale sola
+en Google Play. Google dice que suele tardar 7 días o menos.
+
 ## Lo que queda para publicar
 
-1. Richard crea en mercatren.com una cuenta de cliente para los revisores de
-   Google y la escribe en «Detalles de acceso» (nombre «Customer account»,
-   usuario, contraseña, las instrucciones de arriba y la casilla de acceso
-   completo marcada).
-2. Con eso se llena «Público objetivo» (18+), se envía «Seguridad de los
-   datos» y se manda la versión 1 a revisión desde «Descripción general de la
-   publicación». Google tarda de unos días a una semana.
-3. Cuando esté aprobada: la guía pública «La app de Mercatren» en Docs (es y
+1. Esperar la respuesta de Google (llega al correo de la cuenta de
+   desarrollador y se ve en «Descripción general de la publicación»).
+2. Cuando esté aprobada: la guía pública «La app de Mercatren» en Docs (es y
    en) con el enlace a Google Play, y el botón «Get it on Google Play» en el
    pie del sitio.
