@@ -171,6 +171,7 @@ export const LLAVE_INTENTO_CONTEOS = "reloj_intento_conteos";
 export const LLAVE_INTENTO_LISTADOS = "reloj_intento_listados";
 export const LLAVE_OPTIMIZAR_BASE = "reloj_optimizar_base";
 export const LLAVE_INTENTO_TEXTO = "reloj_intento_texto_de_busqueda";
+export const LLAVE_PARA_ADULTOS = "reloj_retirar_para_adultos";
 /** Entre dos intentos de rehacer, como mínimo. */
 const INTENTO_CADA_MS = 4 * 60_000;
 /** `PRAGMA optimize` una vez al día (lo recomienda Cloudflare para D1). */
@@ -340,6 +341,33 @@ export async function correrTick(
   } catch (fallo) {
     console.error("[tick] el texto de búsqueda falló:", fallo);
     await anotar("reloj/texto-de-busqueda", fallo);
+  }
+
+  /* 0f. NADA DE AYUDAS SEXUALES EN EL CATÁLOGO (27 oct 2026). La política de
+     Google Play las prohíbe y la app enseña el sitio entero. Una vez por
+     hora se pasan a `borrador` las que hayan entrado. Ver
+     `catalogo/para-adultos.ts`. */
+  try {
+    if (queda() > 5_000) {
+      const { retirarProductosParaAdultos, RETIRAR_PARA_ADULTOS_CADA_MS } =
+        await import("@/lib/catalogo/retirar-para-adultos");
+      if (
+        await reclamarMarca(
+          LLAVE_PARA_ADULTOS,
+          RETIRAR_PARA_ADULTOS_CADA_MS,
+          arranque,
+        )
+      ) {
+        const r = await retirarProductosParaAdultos();
+        if (r.retirados.length > 0)
+          hizo.push(
+            `catálogo: ${r.retirados.length} producto(s) para adultos retirados`,
+          );
+      }
+    }
+  } catch (fallo) {
+    console.error("[tick] retirar productos para adultos falló:", fallo);
+    await anotar("reloj/para-adultos", fallo);
   }
 
   /* 1. La importación masiva, si hay alguna en marcha. */
