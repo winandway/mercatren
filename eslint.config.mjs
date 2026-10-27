@@ -71,6 +71,10 @@ const eslintConfig = defineConfig([
     "coverage/**",
     "cloudflare-env.d.ts",
     "public/sw.js",
+    // La app de Android (Gradle) y las herramientas que arman las imágenes de
+    // las tiendas de apps: no son código del sitio ni se publican con él.
+    "app-android/**",
+    "tienda-apps/**",
   ]),
 
   /**
