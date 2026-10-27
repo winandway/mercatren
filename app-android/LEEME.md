@@ -131,6 +131,36 @@ cd /Users/windocellc/Mercatren.com/app-android && curl -s "https://digitalassetl
 
 Tiene que aparecer `com.mercatren.app` con las huellas.
 
+## Cómo probarla en el teléfono de prueba propio
+
+Probada el 27 oct 2026: abre a pantalla completa, sin la barra del navegador
+(o sea, la verificación del sitio funciona), y un enlace a mercatren.com se
+abre dentro de la app. Capturas en `docs/capturas/app-android-*.png`.
+
+El emulador `mercatren_pruebas` (Android 16 con Google Play) es solo de
+Mercatren; `telefono_pruebas` es de otra sesión y no se toca. Se enciende sin
+ventana en el puerto 5560 para no chocar con el otro:
+
+```bash
+cd /Users/windocellc/Library/Android/sdk && ./emulator/emulator -avd mercatren_pruebas -port 5560 -no-window -no-audio -no-boot-anim -no-snapshot-save -gpu swiftshader_indirect
+```
+
+```bash
+cd /Users/windocellc/Mercatren.com && ~/Library/Android/sdk/platform-tools/adb -s emulator-5560 install -r app-android/salida/mercatren-1.0.0-1.apk && ~/Library/Android/sdk/platform-tools/adb -s emulator-5560 shell am start -n com.mercatren.app/.LauncherActivity
+```
+
+- **La primera vez Chrome enseña su bienvenida** («Make Chrome your own»): en
+  un teléfono de verdad no sale, porque Chrome ya se usó. En el emulador se
+  salta sin aceptar nada con la bandera de desarrollador `--disable-fre`
+  (archivo `/data/local/tmp/chrome-command-line` y
+  `am set-debug-app --persistent com.android.chrome`).
+- **Si arriba aparece la barra con la dirección**, la verificación falló:
+  revisar que `https://mercatren.com/.well-known/assetlinks.json` tenga la
+  huella de la llave con que se firmó ese paquete.
+- La barra de estado sale negra: en Android 15 y 16 la pinta así el sistema
+  en estas apps; la cabecera y la barra de abajo sí llevan el azul de la marca.
+- Se apaga con `adb -s emulator-5560 emu kill`.
+
 ## Volver a generar el proyecto
 
 El proyecto se generó con `@bubblewrap/core` desde `twa-manifest.json`. Si hay

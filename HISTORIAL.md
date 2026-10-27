@@ -82,6 +82,11 @@ navegador arriba. Candado: `tests/unit/app-android-enlaces.test.ts`.
   lo mandaba a `/en/widget/form`, que no existe. `widget` quedó fuera del
   `matcher`. Candado: `tests/unit/widget-sin-idioma.test.ts`.
 
+**Probada en un teléfono de prueba propio** (emulador `mercatren_pruebas`,
+Android 16 con Chrome 133): abre a pantalla completa, sin barra del
+navegador, y un enlace a mercatren.com entra en la app. Capturas en
+`docs/capturas/app-android-*.png`; cómo repetirlo en `app-android/LEEME.md`.
+
 **La ficha de la tienda** (textos, imágenes en inglés y en español, respuestas
 de los formularios) está en `tienda-apps/google-play/FICHA.md`.
 
