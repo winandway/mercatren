@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { Bloques } from "@/components/docs/bloques";
 import { MODELO_ES } from "@/contenido/docs/modelo.es";
@@ -13,7 +14,14 @@ import { comoJsonLd } from "@/lib/seo/datos-estructurados";
  * Una sola forma para todas, para que el sitio se sienta de una pieza y para
  * que agregar una pagina nueva sea escribir su contenido y nada mas.
  */
-export function PaginaDeContenido({ pagina }: { pagina: PaginaContenido }) {
+export function PaginaDeContenido({
+  pagina,
+  antes,
+}: {
+  pagina: PaginaContenido;
+  /** Algo vivo arriba de las secciones (el formulario de borrar la cuenta). */
+  antes?: ReactNode;
+}) {
   const conIndice = pagina.indiceTitulo && pagina.secciones.length > 3;
 
   // En una pagina de preguntas frecuentes, cada punto con titulo es una
@@ -100,6 +108,7 @@ export function PaginaDeContenido({ pagina }: { pagina: PaginaContenido }) {
           ) : null}
 
           <article className={conIndice ? "mt-10 min-w-0 lg:mt-0" : "min-w-0"}>
+            {antes ? <div className="mb-12">{antes}</div> : null}
             {pagina.secciones.map((seccion, i) => (
               <section
                 key={seccion.id}

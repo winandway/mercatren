@@ -32,7 +32,10 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   return {
     name: marca,
     short_name: marca,
-    description: "Tu agente de compras y ventas entre países",
+    /* Antes decía «tu agente de compras y ventas entre países»: las dos
+       ideas que el sitio dejó de decir (17 sep 2026). Es lo que lee el
+       celular al instalar, y lo primero que ve quien abre la app. */
+    description: "Compra en las tiendas de Mercatren y recibe en tu puerta.",
     id: "/es",
     start_url: "/es",
     scope: "/",

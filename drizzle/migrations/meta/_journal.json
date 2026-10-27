@@ -330,6 +330,13 @@
       "when": 1789930831690,
       "tag": "0046_magical_doorman",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "6",
+      "when": 1793133858441,
+      "tag": "0047_tidy_princess_powerful",
+      "breakpoints": true
     }
   ]
 }

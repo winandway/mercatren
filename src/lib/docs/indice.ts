@@ -75,6 +75,7 @@ export const ENLACES_FIJOS: {
   },
   { seccion: "legal", clave: "terminos", href: "/terminos" },
   { seccion: "legal", clave: "privacidad", href: "/privacidad" },
+  { seccion: "legal", clave: "borrarCuenta", href: "/delete-account" },
 ];
 
 /** A qué sección va una guía escrita, por sus temas. Lo primero que calce manda. */

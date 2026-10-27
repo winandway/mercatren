@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { CambiarClave } from "@/components/cuenta/cambiar-clave";
+import { MenuCuenta } from "@/components/cuenta/menu-cuenta";
 import { Salir } from "@/components/cuenta/salir";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
@@ -185,10 +186,14 @@ export default async function PaginaCuenta({
             <p className="truncate text-sm text-tinta-suave">{usuario.email}</p>
           </div>
         </div>
-        <Salir
-          variante="enlace"
-          className="rounded-lg border border-borde px-3 py-2 text-sm hover:bg-slate-50"
-        />
+        <div className="flex items-center gap-2">
+          <Salir
+            variante="enlace"
+            className="rounded-lg border border-borde px-3 py-2 text-sm hover:bg-slate-50"
+          />
+          {/* Borrar la cuenta vive aquí dentro, nunca a la vista. */}
+          <MenuCuenta />
+        </div>
       </div>
 
       {/* Los tres números que un comprador mira primero. */}

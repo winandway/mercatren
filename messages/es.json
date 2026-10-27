@@ -3471,6 +3471,10 @@
       "privacidad": {
         "nombre": "Privacidad",
         "resumen": "Qué datos guardamos, para qué y por cuánto tiempo."
+      },
+      "borrarCuenta": {
+        "nombre": "Borrar tu cuenta",
+        "resumen": "Cómo borrar tu cuenta desde la app o la web, y qué pasa con tus datos."
       }
     },
     "version": "Versión",
@@ -3758,6 +3762,16 @@
       "deQuien": "Te lo envió",
       "aviso": "El monto ya aparece como disponible en tu panel.",
       "boton": "Ver mi panel"
+    },
+    "cuentaEliminada": {
+      "asunto": "Tu cuenta de Mercatren fue borrada",
+      "previo": "Lo pediste desde tu cuenta y ya está hecho.",
+      "titulo": "Tu cuenta fue borrada",
+      "parrafos": [
+        "Borramos tu cuenta de Mercatren como lo pediste: tu nombre, tu correo, tu teléfono, tus direcciones y tu contraseña ya no están en ella, y nadie puede volver a entrar.",
+        "Los pedidos, pagos y facturas se conservan cinco años porque la ley lo exige, sin unirlos a tu cuenta. Después se eliminan.",
+        "Si no fuiste tú quien lo pidió, respóndenos a este correo hoy mismo."
+      ]
     }
   },
   "misPedidos": {
@@ -4511,5 +4525,40 @@
     "activar": "Activar mi casillero",
     "activarTexto": "Ya tienes cuenta: solo falta tu casillero. Toma un minuto.",
     "calcularEnvio": "Calcular el envío"
+  },
+  "borrarCuenta": {
+    "menu": {
+      "abrir": "Más opciones de la cuenta",
+      "borrar": "Borrar mi cuenta"
+    },
+    "formulario": {
+      "titulo": "Borrar tu cuenta para siempre",
+      "cuenta": "Vas a borrar la cuenta {correo}. No se puede deshacer.",
+      "escribe": "Para confirmar, escribe {palabra}",
+      "boton": "Borrar mi cuenta",
+      "borrando": "Borrando tu cuenta…",
+      "apagado": "El botón se enciende cuando escribes {palabra}."
+    },
+    "sinSesion": {
+      "titulo": "Entra para borrar tu cuenta",
+      "texto": "Por seguridad, solo quien entró a la cuenta puede borrarla. Si no puedes entrar, más abajo te decimos cómo pedírnoslo.",
+      "boton": "Entrar a mi cuenta"
+    },
+    "listo": {
+      "titulo": "Tu cuenta fue borrada",
+      "texto": "Ya nadie puede entrar con ella. Te enviamos la confirmación al correo que tenía. Gracias por haber comprado en Mercatren."
+    },
+    "noSePuede": {
+      "titulo": "Todavía no podemos borrar esta cuenta"
+    },
+    "errores": {
+      "equipo": "Esta cuenta es del equipo o de un comercio, y detrás hay ventas y pagos. Escríbenos a {correo} y la cerramos contigo.",
+      "tienda": "Tu cuenta tiene una tienda, y detrás hay ventas y pagos. Escríbenos a {correo} y la cerramos contigo.",
+      "pedidos": "Tienes un pedido pagado que todavía no llega. Cuando lo recibas, podrás borrar tu cuenta desde aquí.",
+      "paquetes": "Tienes paquetes esperando en tu casillero de Miami. Cuando los recibas o los despaches, podrás borrar tu cuenta desde aquí.",
+      "sesion": "Tu sesión se cerró. Vuelve a entrar e inténtalo otra vez.",
+      "palabra": "La palabra no coincide. Escríbela tal cual.",
+      "fallo": "No pudimos borrar tu cuenta ahora. No se borró nada; inténtalo otra vez en un momento o escríbenos a {correo}."
+    }
   }
 }

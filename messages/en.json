@@ -3471,6 +3471,10 @@
       "privacidad": {
         "nombre": "Privacy",
         "resumen": "What data we keep, what for and for how long."
+      },
+      "borrarCuenta": {
+        "nombre": "Delete your account",
+        "resumen": "How to delete your account from the app or the web, and what happens to your data."
       }
     },
     "version": "Version",
@@ -3758,6 +3762,16 @@
       "deQuien": "Sent by",
       "aviso": "The amount already shows as available in your dashboard.",
       "boton": "View my dashboard"
+    },
+    "cuentaEliminada": {
+      "asunto": "Your Mercatren account has been deleted",
+      "previo": "You asked for it from your account, and it's done.",
+      "titulo": "Your account has been deleted",
+      "parrafos": [
+        "We deleted your Mercatren account as you requested: your name, email, phone number, addresses, and password are gone from it, and no one can sign in again.",
+        "Orders, payments, and invoices are kept for five years, as required by law, without being linked to your account. After that, they're deleted.",
+        "If you didn't make this request, reply to this email today."
+      ]
     }
   },
   "misPedidos": {
@@ -4511,5 +4525,40 @@
     "activar": "Activate my locker",
     "activarTexto": "You already have an account: only your locker is missing. It takes a minute.",
     "calcularEnvio": "Calculate shipping"
+  },
+  "borrarCuenta": {
+    "menu": {
+      "abrir": "More account options",
+      "borrar": "Delete my account"
+    },
+    "formulario": {
+      "titulo": "Permanently delete your account",
+      "cuenta": "You're about to delete the account {correo}. This can't be undone.",
+      "escribe": "To confirm, type {palabra}",
+      "boton": "Delete my account",
+      "borrando": "Deleting your account…",
+      "apagado": "The button turns on once you type {palabra}."
+    },
+    "sinSesion": {
+      "titulo": "Sign in to delete your account",
+      "texto": "For your security, only someone signed in to the account can delete it. If you can't sign in, see below for how to ask us.",
+      "boton": "Sign in to my account"
+    },
+    "listo": {
+      "titulo": "Your account has been deleted",
+      "texto": "No one can sign in with it anymore. We sent a confirmation to the email address it used. Thank you for shopping with Mercatren."
+    },
+    "noSePuede": {
+      "titulo": "We can't delete this account just yet"
+    },
+    "errores": {
+      "equipo": "This is a team or store account, with sales and payments behind it. Email us at {correo} and we'll close it with you.",
+      "tienda": "Your account has a store, with sales and payments behind it. Email us at {correo} and we'll close it with you.",
+      "pedidos": "You have a paid order that hasn't arrived yet. Once it's delivered, you can delete your account here.",
+      "paquetes": "You have packages waiting in your Miami locker. Once you receive or ship them, you can delete your account here.",
+      "sesion": "You've been signed out. Sign in again and try once more.",
+      "palabra": "That word doesn't match. Type it exactly as shown.",
+      "fallo": "We couldn't delete your account right now. Nothing was deleted; please try again in a moment or email us at {correo}."
+    }
   }
 }

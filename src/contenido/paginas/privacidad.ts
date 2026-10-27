@@ -16,7 +16,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
   titulo: "Privacidad",
   entradilla:
     "Qué datos recogemos, para qué los usamos, con quién se comparten y cuánto tiempo los guardamos. En palabras normales.",
-  vigencia: "Versión 1 · Vigente desde el 5 de agosto de 2026",
+  vigencia: "Versión 1.1 · Vigente desde el 27 de octubre de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -231,6 +231,11 @@ export const PRIVACIDAD_ES: PaginaContenido = {
           texto:
             "Contestamos dentro de los 30 días. Si no podemos borrar algo porque la ley nos obliga a guardarlo, te decimos qué y por qué.",
         },
+        {
+          tipo: "parrafo",
+          texto:
+            "Y tu cuenta la puedes borrar tú mismo, sin escribirnos, desde la app de Mercatren o en mercatren.com/delete-account: entra, abre «Mi cuenta», toca los tres puntos y elige «Borrar mi cuenta». Ahí mismo te decimos qué se borra y qué guardamos por ley.",
+        },
       ],
     },
     {
@@ -312,7 +317,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
   titulo: "Privacy",
   entradilla:
     "What data we collect, what we use it for, who we share it with, and how long we keep it. In plain language.",
-  vigencia: "Version 1 · Effective August 5, 2026",
+  vigencia: "Version 1.1 · Effective October 27, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
@@ -526,6 +531,11 @@ export const PRIVACIDAD_EN: PaginaContenido = {
           tipo: "parrafo",
           texto:
             "We answer within 30 days. If we can't delete something because the law requires us to keep it, we'll tell you what and why.",
+        },
+        {
+          tipo: "parrafo",
+          texto:
+            "You can also delete your account yourself, without writing to us, in the Mercatren app or at mercatren.com/delete-account: sign in, open “My account,” tap the three dots, and choose “Delete my account.” That page explains what gets deleted and what the law requires us to keep.",
         },
       ],
     },

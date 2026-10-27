@@ -1030,3 +1030,22 @@ export async function correoCambioDeCorreo(d: {
     }),
   ]);
 }
+
+/**
+ * La cuenta se borró (27 oct 2026). Sale a la dirección VIEJA, leída antes de
+ * anonimizar: es la única prueba que le queda a la persona de que lo pidió y
+ * se hizo, y el aviso si no fue ella.
+ */
+export async function correoCuentaEliminada(d: Destinatario) {
+  const { t, saludo, motivo, contacto } = await base(d);
+
+  return enviar(d, {
+    asunto: t("cuentaEliminada.asunto"),
+    previo: t("cuentaEliminada.previo"),
+    saludo,
+    titulo: t("cuentaEliminada.titulo"),
+    parrafos: t.raw("cuentaEliminada.parrafos") as string[],
+    motivo,
+    contacto,
+  });
+}

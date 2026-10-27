@@ -4059,3 +4059,24 @@ export const tarifasMaritimasCasillero = sqliteTable(
     actualizadoPor: text("actualizado_por"),
   },
 );
+
+/**
+ * ══ LAS CUENTAS QUE SE BORRARON (27 oct 2026) ══
+ *
+ * Google Play exige que una cuenta se pueda borrar desde la app y desde la
+ * web. La cuenta se anonimiza (ver `lib/cuenta/borrar-puro.ts`); aquí queda
+ * solo CUÁNDO, sin un solo dato de la persona, para poder contestar «sí, se
+ * borró el día tal» si alguien pregunta. Tabla nueva y no columna, como manda
+ * la regla de `schema.sql`.
+ */
+export const cuentasEliminadas = sqliteTable(
+  "cuentas_eliminadas",
+  {
+    id: text("id").primaryKey(),
+    usuarioId: text("usuario_id").notNull(),
+    /** «app» o «web»: desde dónde se pidió. */
+    origen: text("origen").notNull().default("web"),
+    eliminadaEn: integer("eliminada_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [index("idx_cuentas_eliminadas_usuario").on(t.usuarioId)],
+);
