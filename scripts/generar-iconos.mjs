@@ -102,6 +102,12 @@ async function generar() {
         <rect y="${H / 2}" width="${W}" height="${H / 4}" fill="#003893"/>
         <rect y="${(3 * H) / 4}" width="${W}" height="${H / 4}" fill="#CE1126"/>`;
     }
+    if (pais === "es") {
+      // España (27 oct 2026): rojo, amarillo el doble de ancho, rojo. La
+      // bandera civil, sin escudo, la misma del encabezado.
+      return `<rect width="${W}" height="${H}" fill="#AA151B"/>
+        <rect y="${H / 4}" width="${W}" height="${H / 2}" fill="#F1BF00"/>`;
+    }
     if (pais === "cl") {
       // Canton azul con su estrella, blanco al lado, rojo abajo.
       const canton = H / 2;
@@ -203,6 +209,8 @@ async function generar() {
   for (const [archivo, dominio, pais, nombre] of [
     ["og-cl.png", "mercatren.cl", "cl", "Chile"],
     ["og-co.png", "mercatren.com.co", "co", "Colombia"],
+    /* España vive dentro de mercatren.com mientras llega su dominio. */
+    ["og-es.png", "mercatren.com", "es", "España"],
   ]) {
     await tarjeta(
       "mercatren-isologotipo-horizontal-oscuro.svg",

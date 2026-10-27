@@ -74,16 +74,29 @@ export async function generateMetadata({
      Unidos. Se vio en la pestaña del navegador el primer día de la mudanza,
      y un título que promete lo que no se hace es una devolución esperando. */
   const retiro = seRetiraEnCiudad(mercado);
+  /* ══ ESPAÑA TIENE SU PROPIO TEXTO (27 oct 2026) ══
+     El de los países nuevos dice «en todo {pais}» —«en todo España» está
+     mal dicho— y promete «envío incluido, sin aduana», que es la promesa de
+     CJ cruzando una frontera. En España despacha cada comercio desde dentro
+     del país y se paga en euros. */
+  const espana = mercado.codigo === "ES";
   const lema = principal
     ? t("lema")
     : retiro
       ? t("lemaVenezuela")
-      : t("lemaMercado", { pais: mercado.nombre });
+      : espana
+        ? t("lemaEspana")
+        : t("lemaMercado", { pais: mercado.nombre });
   const descripcion = principal
     ? t("lema")
     : retiro
       ? t("descripcionVenezuela")
-      : t("descripcionMercado", { pais: mercado.nombre, moneda: monedaLocal });
+      : espana
+        ? t("descripcionEspana")
+        : t("descripcionMercado", {
+            pais: mercado.nombre,
+            moneda: monedaLocal,
+          });
   const titulo = `${marca} — ${lema}`;
   /* La IMAGEN de la tarjeta también es del mercado: el principal conserva su
      logotipo con «.com» dibujado; los demás llevan el logo oficial sin

@@ -167,6 +167,80 @@ const NIT: DocumentoDelMercado = {
   },
 };
 
+/**
+ * ══ EL NIF ESPAÑOL (27 oct 2026) ══
+ *
+ * En España el documento fiscal se llama NIF y tiene tres formas, todas de
+ * nueve caracteres:
+ *
+ * - **DNI** (persona española): 8 dígitos y una letra de control.
+ * - **NIE** (persona extranjera residente): X, Y o Z, 7 dígitos y la letra.
+ * - **CIF** (empresa): una letra del tipo de sociedad (B = limitada,
+ *   A = anónima…), 7 dígitos y un control que puede ser número o letra.
+ *
+ * Un autónomo vende con su DNI, y por eso se aceptan las tres: exigir el de
+ * empresa dejaría fuera justo al comercio pequeño que más vende.
+ */
+const LETRAS_DNI = "TRWAGMYFPDXBNJZSQVHLCKE";
+
+/** La letra de control de un DNI (o de un NIE ya pasado a número). */
+export function letraDelDni(numero: string): string {
+  return LETRAS_DNI[Number.parseInt(numero, 10) % 23] ?? "";
+}
+
+/** El control de un CIF: el dígito y su letra equivalente. */
+export function controlDelCif(siete: string): {
+  digito: string;
+  letra: string;
+} {
+  let pares = 0;
+  let impares = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = Number(siete[i]);
+    if (i % 2 === 1) {
+      pares += d;
+    } else {
+      const doble = d * 2;
+      impares += Math.floor(doble / 10) + (doble % 10);
+    }
+  }
+  const digito = (10 - ((pares + impares) % 10)) % 10;
+  return { digito: String(digito), letra: "JABCDEFGHI"[digito] ?? "" };
+}
+
+const NIF: DocumentoDelMercado = {
+  nombre: "NIF",
+  /* CIF de sociedad limitada con su control correcto y a la vista ficticio:
+     1234567 en secuencia. Jamás el NIF de una empresa o persona real. */
+  ejemplo: "B12345674",
+  normalizar: pelado,
+  revisar: (valor) => {
+    const v = pelado(valor);
+    if (!v) return "faltaNif";
+
+    if (/^\d{8}[A-Z]$/.test(v)) {
+      return letraDelDni(v.slice(0, 8)) === v[8] ? null : "nifDigito";
+    }
+    if (/^[XYZ]\d{7}[A-Z]$/.test(v)) {
+      const numero = String("XYZ".indexOf(v[0] ?? "")) + v.slice(1, 8);
+      return letraDelDni(numero) === v[8] ? null : "nifDigito";
+    }
+    if (/^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/.test(v)) {
+      const { digito, letra } = controlDelCif(v.slice(1, 8));
+      const control = v[8];
+      /* Unas sociedades llevan número, otras letra, y otras cualquiera. */
+      if ("ABEH".includes(v[0] ?? "")) {
+        return control === digito ? null : "nifDigito";
+      }
+      if ("KPQSNW".includes(v[0] ?? "")) {
+        return control === letra ? null : "nifDigito";
+      }
+      return control === digito || control === letra ? null : "nifDigito";
+    }
+    return "nifFormato";
+  },
+};
+
 /** Lo de siempre, para los mercados sin regla propia. */
 const GENERICO: DocumentoDelMercado = {
   nombre: "identificacionFiscal",
@@ -186,6 +260,7 @@ const GENERICO: DocumentoDelMercado = {
 const POR_MERCADO: Record<string, DocumentoDelMercado> = {
   CL: RUT,
   CO: NIT,
+  ES: NIF,
 };
 
 /**

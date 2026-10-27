@@ -249,7 +249,11 @@ export async function crearPedido(
     }
   }
 
-  if (destinoDelPedido === "CL" || destinoDelPedido === "CO") {
+  if (
+    destinoDelPedido === "CL" ||
+    destinoDelPedido === "CO" ||
+    destinoDelPedido === "ES"
+  ) {
     /* La región/departamento tiene que venir de SU lista: el candado está en
        el servidor como siempre — el `select` del navegador es cortesía. */
     const { listaDeEstados, esCodigoPostalDe } =
@@ -262,6 +266,17 @@ export async function crearPedido(
        exige) — pero si lo escribió, tiene que estar bien: uno equivocado es
        un reenvío que CJ cobra completo. */
     if (!esCodigoPostalDe(destinoDelPedido, entrega.codigoPostal)) {
+      return { ok: false, mensaje: t("codigoPostalInvalido") };
+    }
+    /* En España el código postal empieza por el número de la provincia
+       (28001 es Madrid): si no coinciden, una de las dos está mal y el
+       paquete se pierde. */
+    if (
+      destinoDelPedido === "ES" &&
+      !(entrega.codigoPostal ?? "")
+        .trim()
+        .startsWith(entrega.estado?.trim() ?? "-")
+    ) {
       return { ok: false, mensaje: t("codigoPostalInvalido") };
     }
   }

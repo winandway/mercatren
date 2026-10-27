@@ -14,6 +14,95 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "mercatren-en-espana",
+    tipo: "documentacion",
+    titulo: "Mercatren en España: cómo elegir tu país y abrir tu tienda",
+    resumen:
+      "España ya está dentro de Mercatren y de su app. Tocas la bandera, eliges España y ves los comercios de allá con sus precios en euros. Y si tienes un negocio en España, así abres tu tienda.",
+    fecha: "2026-10-27",
+    temas: ["España", "países", "euros", "app"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "España vive dentro de mercatren.com y de la app de Mercatren. No hace falta otra dirección: tocas la bandera, eliges España y desde ese momento ves los comercios españoles, con sus precios en euros.",
+      },
+      { tipo: "subtitulo", texto: "Cómo elegir España" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Toca la bandera",
+            texto:
+              "Arriba, al lado del logo, está la bandera del país en el que estás. En la computadora es el botón «Global».",
+          },
+          {
+            titulo: "Elige España",
+            texto:
+              "Se abre «Mercatren en el mundo» con todos los países. Debajo de España dice «En mercatren.com y en la app»: tócala.",
+          },
+          {
+            titulo: "Ya estás en España",
+            texto:
+              "La portada cambia a España y arriba aparece su bandera. Tu elección se recuerda: la próxima vez que entres, sigues en España.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/espana/1-elegir-espana-es.png",
+        alt: "La ventana «Mercatren en el mundo» con la lista de países: Estados Unidos, Venezuela, Chile, Colombia y España, que dice «En mercatren.com y en la app»",
+        pie: "La bandera de arriba abre esta ventana. España está al final de la lista.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/espana/2-portada-espana-es.png",
+        alt: "La portada de Mercatren en España, con la bandera de España en el encabezado y el botón «Abrir mi tienda»",
+        pie: "Así se ve Mercatren con España elegida: la bandera de España arriba, junto al logo.",
+      },
+      { tipo: "subtitulo", texto: "Cambiar a otro país" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Toca otra vez la bandera y elige el país que quieras. Estados Unidos, Venezuela, Chile y Colombia tienen además su propia dirección; España, por ahora, vive dentro de mercatren.com y de la app.",
+      },
+      { tipo: "subtitulo", texto: "Si tienes un negocio en España" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Elige España y toca «Abrir mi tienda». Tu tienda queda abierta al instante, sin esperar aprobación.",
+          "Te pedimos el NIF: el CIF de tu empresa, o tu DNI o NIE si vendes como autónomo.",
+          "Escribes tus precios en euros, con tu IVA ya dentro: ese es el importe que recibes por cada venta.",
+          "Tú preparas y envías cada pedido a la dirección de tu cliente en España.",
+          `Cada venta se factura a nombre de ${SOCIEDAD.nombre}: tú le vendes la mercancía y nosotros se la vendemos a tu cliente.`,
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Las compras se abren en unos días",
+        texto:
+          "Ya puedes abrir tu tienda y cargar tus productos, y ya se ven en Mercatren. El botón de comprar se enciende en cuanto terminemos de probar los pagos en euros de punta a punta; preferimos abrir un poco más tarde que cobrarle mal a alguien.",
+      },
+      { tipo: "subtitulo", texto: "Cómo se paga" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Con tarjeta, en euros. El precio que ves en cada producto es el que pagas, y la entrega es a domicilio en toda España.",
+      },
+    ],
+    enlaces: [
+      { texto: "Empezar a vender", href: "/vender" },
+      {
+        texto: "Impuestos fuera de Estados Unidos",
+        href: "/docs/impuestos-comercios-fuera-de-estados-unidos",
+      },
+    ],
+  },
+
+  {
     slug: "limites-de-zelle",
     tipo: "documentacion",
     titulo: "Los límites de Zelle al pagarle a Mercatren",

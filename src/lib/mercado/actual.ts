@@ -1,9 +1,10 @@
 import "server-only";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import {
-  mercadoPorHost,
+  COOKIE_DEL_PAIS,
+  mercadoDeLaVisita,
   MERCADO_PRINCIPAL,
   type Mercado,
 } from "@/lib/mercado/mercados";
@@ -19,11 +20,17 @@ import {
  * Si el host no se puede leer (una llamada fuera de una petición), responde
  * el mercado principal: es exactamente lo que ya pasa con cualquier host
  * desconocido.
+ *
+ * Dentro de mercatren.com, además, manda el país elegido en el selector
+ * (España, que todavía no tiene dominio): ver `mercadoDeLaVisita`.
  */
 export async function mercadoActual(): Promise<Mercado> {
   try {
-    const host = (await headers()).get("host");
-    return mercadoPorHost(host);
+    const [cabeceras, galletas] = await Promise.all([headers(), cookies()]);
+    return mercadoDeLaVisita(
+      cabeceras.get("host"),
+      galletas.get(COOKIE_DEL_PAIS)?.value,
+    );
   } catch {
     return MERCADO_PRINCIPAL;
   }

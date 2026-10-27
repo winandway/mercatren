@@ -15,6 +15,54 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)
+
+**Qué pidió Richard.** «Vamos a abrir España que quede pendiente de agregar
+el dominio… que España aparezca en la bandera cuando se seleccionan los
+países… en la aplicación va a ser visible… va a tener el euro, va a ser
+español.» Urgente, porque la app de Android ya está en revisión y la van a
+querer usar en España.
+
+**Por qué no bastaba agregar una fila a `MERCADOS`.** El mercado lo decidía
+SOLO el dominio, y España no tiene. Además la app abre mercatren.com y no
+puede saltar a otro dominio sin enseñar la barra del navegador.
+
+**Cómo quedó.**
+
+- `src/lib/mercado/mercados.ts`: España con `enElPrincipal: true` y el
+  dominio del principal (todo lo que arma `https://${dominio}` sale bien).
+  `mercadoPorHost` la salta; `mercadoDeLaVisita(host, cookie)` la devuelve
+  solo dentro del principal y solo si la cookie `mercatren_pais` nombra un
+  país `enElPrincipal`. `nombreEn` para «Spain».
+- `src/lib/mercado/elegir-pais.ts` + `src/app/datos/pais/route.ts`: las
+  banderas de «Mercatren en el mundo» pasan por `/datos/pais`, que pone o
+  QUITA la cookie (sin quitarla, quien estaba en España y toca «Estados
+  Unidos» volvía a España) y siempre aterriza en la portada del país.
+- `src/lib/mercado/actual.ts` lee la cookie. Con cookie el borde nunca
+  guarda ni sirve la página guardada (comprobado en vivo: `x-yad-cache:
+BYPASS`), así que nadie ve España sin elegirla y Google no la ve.
+- Euro (`moneda.ts`, y `formatearPrecio` escribe «12,50 €» en español), NIF
+  con su control (DNI, NIE y CIF) en `identificacion.ts`, destino `ES` con
+  las 52 provincias y el código postal que empieza por la provincia
+  (comprobado también en el servidor), solo tarjeta, bandera dibujada,
+  tarjeta social `og-es.png`, textos propios (título, portada, ficha para
+  Google, alta de comercios) y la guía pública `/docs/mercatren-en-espana`.
+
+**Lo que se frenó a propósito: el cobro.** España es el primer país donde
+los COMERCIOS cobran en una moneda que no es el dólar, y el saldo del
+comercio (`zelle/billetera.ts`) suma centavos sin mirar la moneda; el retiro
+sale en dólares. Un comercio que vendiera 100 € vería «$100». Por la regla de
+pagos del 31 ago, `ESPANA_SIN_COBRO = true` en `src/lib/ventas/pausa.ts`:
+todo funciona menos el botón de pagar, que dice «Muy pronto a la venta» (el
+equipo sí puede comprar para la prueba).
+
+**Candados.** `tests/unit/espana.test.ts` (comprobada en rojo: la cookie
+abriendo un país con dominio propio, y Estados Unidos sin quitar la cookie).
+
+**Qué NO tocar.** No darle a España un dominio de mentira para «que
+funcione»: el día que tenga el suyo, se le pone y se le quita
+`enElPrincipal`. No abrir el cobro sin el saldo en euros probado.
+
 ## LA APP DE ANDROID, Y TODO LO QUE GOOGLE PLAY EXIGIÓ (27 oct 2026)
 
 Richard: «queremos convertirla en una aplicación y publicarla… que hagas

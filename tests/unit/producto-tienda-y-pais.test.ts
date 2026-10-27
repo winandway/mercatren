@@ -83,7 +83,7 @@ describe("la ciudad de retiro es cosa de Venezuela", () => {
         );
       }
       const paises = m.panel.producto.paises as Record<string, string>;
-      expect(Object.keys(paises).sort()).toEqual(["CL", "CO", "US"]);
+      expect(Object.keys(paises).sort()).toEqual(["CL", "CO", "ES", "US"]);
     }
   });
 });

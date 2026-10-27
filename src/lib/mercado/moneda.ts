@@ -67,6 +67,9 @@ const MONEDA_POR_MERCADO: Record<string, string> = {
   /* Colombia, en pesos colombianos. Tampoco tienen centavos: la tabla de
      arriba ya lo sabía desde el primer día, así que esto sale gratis. */
   CO: "COP",
+  /* España, en euros (27 oct 2026). Dos decimales: lo normal, no hace falta
+     declararlo arriba. */
+  ES: "EUR",
 };
 
 /**

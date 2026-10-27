@@ -5,6 +5,8 @@
     "lemaMercadoNuevo": "Coming soon to {pais}: local stores and products delivered in your country",
     "lemaMercado": "Shop online with home delivery across {pais}",
     "descripcionMercado": "Online store with home delivery across {pais}. Pay by card in {moneda} — the price you see is final: shipping and taxes included, no surprise customs fees. Tech, home, sports, beauty, and more.",
+    "lemaEspana": "Shop online with home delivery across Spain",
+    "descripcionEspana": "Online store with home delivery across Spain. Spanish stores ship to your door, and you pay by card in euros. Tech, home, fashion, sports, beauty, and more.",
     "monedaCLP": "Chilean pesos",
     "monedaCOP": "Colombian pesos",
     "lemaVenezuela": "Shop online and pick it up in your city, anywhere in Venezuela",
@@ -98,6 +100,7 @@
     "verTodasLasTiendas": "See all stores",
     "tituloHeroMercado": "Shop online, delivered in {pais}",
     "subtituloHeroMercado": "Pick your product, pay in pesos, and tell us where to deliver it. The price you see is the final price, shipping included.",
+    "subtituloHeroEspana": "Pick your product, pay in euros by card and tell us where to deliver it. The store ships it to you from within Spain.",
     "tituloHeroVenezuela": "Shop online and pick it up in your city",
     "subtituloHeroVenezuela": "Venezuelan merchants in one place. Pay from the United States, pick it up where you are.",
     "calculadoraHero": "Calculate shipping to your country"
@@ -886,10 +889,12 @@
       "paises": {
         "US": "United States",
         "CL": "Chile",
-        "CO": "Colombia"
+        "CO": "Colombia",
+        "ES": "Spain"
       },
       "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…",
-      "previaPrecio": "With this price: the customer pays {tarjeta} by card or {zelle} via Zelle — and you receive exactly {base}, either way."
+      "previaPrecio": "With this price: the customer pays {tarjeta} by card or {zelle} via Zelle — and you receive exactly {base}, either way.",
+      "previaPrecioSoloTarjeta": "At this price: the customer pays {tarjeta} by card — and you receive exactly {base}."
     },
     "ordenes": {
       "titulo": "Orders",
@@ -1377,6 +1382,9 @@
       "faltaNit": "The company's NIT is missing.",
       "nitFormato": "A NIT is digits only: 9 plus its check digit. For example: 900.123.456-8",
       "nitDigito": "That NIT isn't valid: the final check digit doesn't match. Please review it.",
+      "faltaNif": "The NIF is missing: your company's CIF, or your DNI or NIE if you sell as a sole trader.",
+      "nifFormato": "A NIF has 9 characters: a company CIF (B12345674), a DNI (8 digits and a letter) or an NIE (X, Y or Z, 7 digits and a letter).",
+      "nifDigito": "That NIF isn't valid: the final check character doesn't match. Please review it.",
       "estadoInvalido": "Choose your state from the list.",
       "codigoPostalInvalido": "A ZIP code is 5 digits. For example: 33101",
       "formularioFiscalFalta": "Before you can be paid, complete your tax form under “My store”. It takes five minutes and only needs doing once every three years.",
@@ -3036,6 +3044,8 @@
       "soloCompradores": "Only buyers here can review.",
       "pausaTitulo": "Store under maintenance",
       "pausaTexto": "We're fine-tuning shipping for this store, so we can't take orders just yet. Check back soon — it won't be long.",
+      "pausaTituloEspana": "Coming soon",
+      "pausaTextoEspana": "We're opening Mercatren in Spain: stores are adding their products now, and you'll be able to buy them here in a few days.",
       "pausaEquipo": "You're buying with a team account. For the public, this store is still under maintenance.",
       "volver": "Back",
       "volverATienda": "Back to {tienda}",
@@ -3139,12 +3149,15 @@
       "nombreEnvio": "Name of who receives it",
       "estadoCL": "Region",
       "estadoCO": "Department",
+      "estadoES": "Province",
       "estadoPlaceholderCL": "Choose your region",
       "estadoPlaceholderCO": "Choose your department",
+      "estadoPlaceholderES": "Choose your province",
       "formatoDireccionCL": "Street and number, plus unit if applicable. Example: Av. Providencia 1234, Depto 56.",
       "formatoDireccionCO": "Write it the way it's used locally. Example: Calle 45 # 26-85, Torre 2, Apto 301, Barrio El Prado.",
       "codigoPostalAyudaCL": "7 digits. If you don't know it, leave it blank — your order will arrive with your address and comuna.",
-      "codigoPostalAyudaCO": "6 digits. If you don't know it, leave it blank — your order will arrive with your address and city."
+      "codigoPostalAyudaCO": "6 digits. If you don't know it, leave it blank — your order will arrive with your address and city.",
+      "codigoPostalAyudaES": "5 digits, starting with your province number. For example: 28001"
     },
     "pago": {
       "titulo": "How are you paying?",
@@ -3913,6 +3926,13 @@
       "telefonoAyuda": "+57 300 123 4567",
       "porQueLosDatos": "We ask for this because every sale is invoiced under your company's name and stays documented. Without it we can't open your store."
     },
+    "espana": {
+      "ciudadAyuda": "Madrid, Barcelona, Valencia…",
+      "direccionAyuda": "Street, number, floor and door",
+      "paisAyuda": "Spain",
+      "telefonoAyuda": "+34 600 123 456",
+      "porQueLosDatos": "We ask for this because every sale is invoiced under your company's name and stays documented. Without it we can't open your store."
+    },
     "listo": {
       "cargarProductos": "Add my products",
       "verMiTienda": "View my store"
@@ -4347,7 +4367,8 @@
     "entrada": "Each country has its own storefront, with its own sellers, prices, and delivery options.",
     "mudanza": "Were you buying or selling on mercatren.com from Venezuela? Your store and your products now live at mercatren.com.ve — everything just as you left it, same login. We split the countries apart so each one can have its own cities and payment methods.",
     "aqui": "You are here",
-    "cerrar": "Close"
+    "cerrar": "Close",
+    "sinDominio": "On mercatren.com and in the app"
   },
   "casillero": {
     "titulo": "Your locker in Miami",

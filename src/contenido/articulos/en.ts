@@ -14,6 +14,96 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "mercatren-en-espana",
+    tipo: "documentacion",
+    titulo:
+      "Mercatren in Spain: how to choose your country and open your store",
+    resumen:
+      "Spain is now part of Mercatren and its app. Tap the flag, choose Spain, and you'll see Spanish stores with prices in euros. And if you run a business in Spain, here's how to open your store.",
+    fecha: "2026-10-27",
+    temas: ["Spain", "countries", "euros", "app"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "Spain lives inside mercatren.com and the Mercatren app. You don't need a different address: tap the flag, choose Spain, and from then on you'll see Spanish stores with their prices in euros.",
+      },
+      { tipo: "subtitulo", texto: "How to choose Spain" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Tap the flag",
+            texto:
+              "At the top, next to the logo, is the flag of the country you're in. On a computer, it's the “Global” button.",
+          },
+          {
+            titulo: "Choose Spain",
+            texto:
+              "“Mercatren around the world” opens with every country. Under Spain it says “On mercatren.com and in the app” — tap it.",
+          },
+          {
+            titulo: "You're in Spain",
+            texto:
+              "The home page switches to Spain and its flag appears at the top. Your choice is remembered: next time you visit, you'll still be in Spain.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/espana/1-elegir-espana-en.png",
+        alt: "The “Mercatren around the world” window listing the countries: United States, Venezuela, Chile, Colombia, and Spain, which reads “On mercatren.com and in the app”",
+        pie: "The flag at the top opens this window. Spain is at the end of the list.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/espana/2-portada-espana-en.png",
+        alt: "The Mercatren home page for Spain, with the Spanish flag in the header and the “Open my store” button",
+        pie: "This is Mercatren with Spain selected: the Spanish flag at the top, next to the logo.",
+      },
+      { tipo: "subtitulo", texto: "Switching to another country" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Tap the flag again and choose any country. The United States, Venezuela, Chile, and Colombia also have their own web address; Spain, for now, lives inside mercatren.com and the app.",
+      },
+      { tipo: "subtitulo", texto: "If you run a business in Spain" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Choose Spain and tap “Open my store.” Your store goes live right away — no approval wait.",
+          "We'll ask for your NIF: your company's CIF, or your DNI or NIE if you sell as a sole trader.",
+          "You set your prices in euros with your VAT already included: that's the amount you receive for each sale.",
+          "You pack and ship each order to your customer's address in Spain.",
+          `Every sale is invoiced by ${SOCIEDAD.nombre}: you sell the merchandise to us, and we sell it to your customer.`,
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Checkout opens in a few days",
+        texto:
+          "You can already open your store and add your products, and they're already visible on Mercatren. The buy button turns on as soon as we finish testing payments in euros end to end — we'd rather open a little later than charge anyone incorrectly.",
+      },
+      { tipo: "subtitulo", texto: "How payment works" },
+      {
+        tipo: "parrafo",
+        texto:
+          "By card, in euros. The price you see on each product is the price you pay, with home delivery anywhere in Spain.",
+      },
+    ],
+    enlaces: [
+      { texto: "Start selling", href: "/vender" },
+      {
+        texto: "Taxes outside the United States",
+        href: "/docs/impuestos-comercios-fuera-de-estados-unidos",
+      },
+    ],
+  },
+
+  {
     slug: "limites-de-zelle",
     tipo: "documentacion",
     titulo: "Zelle limits when paying Mercatren",

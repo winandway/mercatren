@@ -310,7 +310,10 @@ El control se ejerce después, suspendiendo a quien no cumpla.
 ## Multi-país: el dominio decide el mercado
 
 - `src/lib/mercado/mercados.ts` es **lista cerrada**: US (mercatren.com),
-  CL (mercatren.cl), CO (mercatren.com.co), VE (mercatren.com.ve).
+  CL (mercatren.cl), CO (mercatren.com.co), VE (mercatren.com.ve) y **ES,
+  sin dominio** (27 oct 2026): vive dentro de mercatren.com, se elige con la
+  bandera (cookie `mercatren_pais` vía `/datos/pais`) y **todavía no cobra**
+  (`ESPANA_SIN_COBRO`) hasta que el saldo del comercio sepa de euros.
 - **El país es obligatorio EN EL TIPO.** El filtro solo se fabrica dentro de
   `src/lib/mercado/repositorio.ts` (símbolo no exportado): pedir el catálogo
   sin país **no compila**. `tests/unit/muro-mercado.test.ts` cubre lo que el
@@ -396,6 +399,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)](HISTORIAL.md#españa-se-abre-dentro-de-mercatrencom-sin-dominio-y-todavía-sin-cobrar-27-oct-2026)
 - [LA APP DE ANDROID, Y TODO LO QUE GOOGLE PLAY EXIGIÓ (27 oct 2026)](HISTORIAL.md#la-app-de-android-y-todo-lo-que-google-play-exigió-27-oct-2026)
 - [EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)](HISTORIAL.md#el-menú-del-panel-estaba-muy-lento-21-sep-2026)
 - [LA SUBCONSULTA QUE SE COMPARABA CONSIGO MISMA (25 sep 2026)](HISTORIAL.md#la-subconsulta-que-se-comparaba-consigo-misma-25-sep-2026)

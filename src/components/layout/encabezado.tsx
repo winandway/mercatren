@@ -161,6 +161,7 @@ export async function Encabezado() {
               mudanza: tGlobal("mudanza"),
               aqui: tGlobal("aqui"),
               cerrar: tGlobal("cerrar"),
+              sinDominio: tGlobal("sinDominio"),
             }}
           />
           <SelectorIdioma />
@@ -335,6 +336,7 @@ export async function Encabezado() {
               mudanza: tGlobal("mudanza"),
               aqui: tGlobal("aqui"),
               cerrar: tGlobal("cerrar"),
+              sinDominio: tGlobal("sinDominio"),
             }}
           />
         </div>

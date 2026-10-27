@@ -48,8 +48,16 @@ describe("el registro de mercados", () => {
   });
 
   it("ningún dominio se repite ni trae www", () => {
-    const dominios = MERCADOS.map((m) => m.dominio);
+    /* Los países sin dominio propio (España, 27 oct 2026) llevan el del
+       principal A PROPÓSITO: viven dentro de mercatren.com. Fuera de ellos,
+       cada dominio es de un solo país. */
+    const dominios = MERCADOS.filter((m) => !m.enElPrincipal).map(
+      (m) => m.dominio,
+    );
     expect(new Set(dominios).size).toBe(dominios.length);
+    for (const m of MERCADOS.filter((x) => x.enElPrincipal)) {
+      expect(m.dominio).toBe(MERCADO_PRINCIPAL.dominio);
+    }
     for (const d of dominios) {
       expect(d.startsWith("www.")).toBe(false);
       expect(d).toBe(d.toLowerCase());

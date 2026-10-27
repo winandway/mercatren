@@ -338,7 +338,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                       ? t("entrega.estadoCL")
                       : envio.destino === "CO"
                         ? t("entrega.estadoCO")
-                        : t("entrega.estado")}
+                        : envio.destino === "ES"
+                          ? t("entrega.estadoES")
+                          : t("entrega.estado")}
                   </label>
                   <select
                     id="estado"
@@ -354,7 +356,9 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                         ? t("entrega.estadoPlaceholderCL")
                         : envio.destino === "CO"
                           ? t("entrega.estadoPlaceholderCO")
-                          : t("entrega.estadoPlaceholder")}
+                          : envio.destino === "ES"
+                            ? t("entrega.estadoPlaceholderES")
+                            : t("entrega.estadoPlaceholder")}
                     </option>
                     {(listaDeEstados(envio.destino) ?? []).map((e) => (
                       <option key={e.codigo} value={e.codigo}>
@@ -418,12 +422,16 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
                     </p>
                   ) : null}
                   {campo.nombre === "codigoPostal" &&
-                  (envio.destino === "CL" || envio.destino === "CO") ? (
+                  (envio.destino === "CL" ||
+                    envio.destino === "CO" ||
+                    envio.destino === "ES") ? (
                     <p className="mt-1 text-xs text-tinta-suave">
                       {t(
                         envio.destino === "CL"
                           ? "entrega.codigoPostalAyudaCL"
-                          : "entrega.codigoPostalAyudaCO",
+                          : envio.destino === "CO"
+                            ? "entrega.codigoPostalAyudaCO"
+                            : "entrega.codigoPostalAyudaES",
                       )}
                     </p>
                   ) : null}

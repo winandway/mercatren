@@ -59,10 +59,18 @@ export function BotonAgregar({
    * mañana vuelve.
    */
   if (ventaPausada(paisOrigen, { esEquipoInterno })) {
+    /* En España no es mantenimiento de la tienda: es que el país todavía
+       no cobra. Decirle «tienda en mantenimiento» al comercio que acaba de
+       abrirla le haría creer que algo suyo está mal. */
+    const espana = (paisOrigen ?? "").trim().toUpperCase() === "ES";
     return (
       <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3">
-        <p className="text-sm font-bold text-amber-900">{t("pausaTitulo")}</p>
-        <p className="mt-0.5 text-sm text-amber-900">{t("pausaTexto")}</p>
+        <p className="text-sm font-bold text-amber-900">
+          {t(espana ? "pausaTituloEspana" : "pausaTitulo")}
+        </p>
+        <p className="mt-0.5 text-sm text-amber-900">
+          {t(espana ? "pausaTextoEspana" : "pausaTexto")}
+        </p>
       </div>
     );
   }

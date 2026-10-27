@@ -40,8 +40,14 @@ export type Mercado = {
   codigo: string;
   /** El dominio que abre este mercado, sin www y sin puerto. */
   dominio: string;
-  /** El nombre del país, para las pantallas. Igual en los dos idiomas. */
+  /** El nombre del país, para las pantallas, en español. */
   nombre: string;
+  /**
+   * El nombre en inglés, solo cuando cambia («Spain», «United States»).
+   * Chile, Colombia y Venezuela se escriben igual. Se lee con
+   * `nombreDelMercado`, nunca suelto.
+   */
+  nombreEn?: string;
   /** El mercado que responde cuando el host no se reconoce. Solo uno. */
   principal?: true;
   /**
@@ -66,6 +72,25 @@ export type Mercado = {
    * de que su DNS apunte, sin tocar código el día del cambio.
    */
   alias?: readonly string[];
+  /**
+   * ══ UN PAÍS QUE TODAVÍA NO TIENE DOMINIO PROPIO (España, 27 oct 2026) ══
+   *
+   * Vive DENTRO de mercatren.com y se elige tocando su bandera en «Mercatren
+   * en el mundo». La elección se guarda en una cookie (`COOKIE_DEL_PAIS`)
+   * y desde ahí todo el sitio —catálogo, moneda, altas de comercios, panel—
+   * se comporta como en cualquier otro país.
+   *
+   * Lo pidió Richard para la app: la app abre mercatren.com y no puede saltar
+   * a otro dominio sin enseñar la barra del navegador, así que un país nuevo
+   * tenía que poder vivir dentro del principal mientras su dominio llega.
+   *
+   * Su `dominio` es el del principal a propósito: todo lo que arma una
+   * dirección con `https://${mercado.dominio}` (enlaces, correos, metadatos)
+   * sale bien sin tocar nada. Lo que NO hace es abrir el mercado por host:
+   * `mercadoPorHost` lo salta, y el día que tenga dominio se le quita esta
+   * marca, se le pone su dominio y queda como Chile.
+   */
+  enElPrincipal?: true;
 };
 
 export const MERCADOS: readonly Mercado[] = [
@@ -73,6 +98,7 @@ export const MERCADOS: readonly Mercado[] = [
     codigo: "US",
     dominio: "mercatren.com",
     nombre: "Estados Unidos",
+    nombreEn: "United States",
     principal: true,
   },
   /**
@@ -99,6 +125,19 @@ export const MERCADOS: readonly Mercado[] = [
    * direcciones se disputarían la misma página ante Google.
    */
   { codigo: "CO", dominio: "mercatren.com.co", nombre: "Colombia" },
+  /**
+   * ESPAÑA (27 oct 2026). Sin dominio todavía: vive dentro de mercatren.com
+   * (ver `enElPrincipal`). Como Venezuela, sus comercios ponen su propia
+   * mercancía —no se surte de CJ— pero se despacha a la dirección del
+   * comprador, como en Chile. Vende en euros.
+   */
+  {
+    codigo: "ES",
+    dominio: "mercatren.com",
+    nombre: "España",
+    nombreEn: "Spain",
+    enElPrincipal: true,
+  },
 ] as const;
 
 export const MERCADO_PRINCIPAL: Mercado = MERCADOS.find((m) => m.principal)!;
@@ -123,9 +162,79 @@ export function mercadoPorHost(host: string | null | undefined): Mercado {
     .replace(/^www\./, "");
 
   return (
-    MERCADOS.find((m) => m.dominio === limpio || m.alias?.includes(limpio)) ??
-    MERCADO_PRINCIPAL
+    MERCADOS.find(
+      (m) =>
+        !m.enElPrincipal && (m.dominio === limpio || m.alias?.includes(limpio)),
+    ) ?? MERCADO_PRINCIPAL
   );
+}
+
+/**
+ * LA COOKIE QUE GUARDA EL PAÍS ELEGIDO DENTRO DE mercatren.com.
+ *
+ * Solo dice un código de país (`ES`): ni datos de nadie ni sesión. La pone
+ * y la quita `/datos/pais`, que es a donde llevan las banderas del selector.
+ */
+export const COOKIE_DEL_PAIS = "mercatren_pais";
+
+/** Un año: quien eligió España no tiene que volver a elegirla cada semana. */
+export const DURACION_COOKIE_DEL_PAIS_S = 60 * 60 * 24 * 365;
+
+/**
+ * El mercado de una visita: el del dominio, salvo que el dominio sea el
+ * principal y la persona haya elegido un país que vive dentro de él.
+ *
+ * ══ LA COOKIE SOLO MANDA DENTRO DEL PRINCIPAL ══
+ *
+ * En mercatren.cl la cookie no existe (es de otro dominio), pero aunque
+ * alguien la fabricara a mano no cambia nada: el dominio de un país con
+ * dominio propio manda siempre. Y la cookie solo puede nombrar un país
+ * `enElPrincipal`: con `mercatren_pais=CL` no se ve Chile en el .com, se
+ * ve el .com.
+ *
+ * ══ Y NO HAY REDIRECCIÓN POR GEOLOCALIZACIÓN ══
+ *
+ * Regla del proyecto: nadie cae en España por su IP. Se cae en España
+ * porque se tocó su bandera.
+ */
+export function mercadoDeLaVisita(
+  host: string | null | undefined,
+  paisElegido: string | null | undefined,
+): Mercado {
+  const delHost = mercadoPorHost(host);
+  if (!esMercadoPrincipal(delHost)) return delHost;
+  const elegido = (paisElegido ?? "").trim().toUpperCase();
+  return (
+    MERCADOS.find((m) => m.enElPrincipal && m.codigo === elegido) ?? delHost
+  );
+}
+
+/** ¿Este mercado se ve en mercatren.com (el principal o uno sin dominio)? */
+export function viveEnElPrincipal(mercado: Mercado): boolean {
+  return mercado.principal === true || mercado.enElPrincipal === true;
+}
+
+/**
+ * A dónde lleva la bandera de un país en «Mercatren en el mundo».
+ *
+ * - Desde mercatren.com (el principal o España), toda bandera pasa por
+ *   `/datos/pais`: ahí se pone o se quita la cookie y se sigue al destino.
+ *   Sin ese paso, quien está en España y toca «Estados Unidos» volvería a
+ *   mercatren.com… con la cookie de España puesta, o sea, a España.
+ * - Desde otro dominio, el principal y España pasan por el `/datos/pais` de
+ *   mercatren.com; los demás países van directo a su dominio.
+ */
+export function enlaceParaElegirPais(
+  destino: Mercado,
+  actual: Mercado,
+  idioma: string,
+): string {
+  const paso = `/datos/pais?a=${destino.codigo}&idioma=${idioma}`;
+  if (viveEnElPrincipal(actual)) return paso;
+  if (viveEnElPrincipal(destino)) {
+    return `https://${MERCADO_PRINCIPAL.dominio}${paso}`;
+  }
+  return `https://${destino.dominio}/${idioma}`;
 }
 
 /**
@@ -151,6 +260,13 @@ export function esMercadoPrincipal(mercado: Mercado): boolean {
   return mercado.codigo === MERCADO_PRINCIPAL.codigo;
 }
 
+/** El nombre del país en el idioma de quien lee. */
+export function nombreDelMercado(mercado: Mercado, idioma: string): string {
+  return idioma === "en"
+    ? (mercado.nombreEn ?? mercado.nombre)
+    : mercado.nombre;
+}
+
 /**
  * La marca tal como se enseña en ese mercado: «Mercatren.cl».
  *
@@ -160,5 +276,8 @@ export function esMercadoPrincipal(mercado: Mercado): boolean {
  * En el principal la marca sigue siendo «Mercatren» a secas.
  */
 export function marcaDelMercado(mercado: Mercado): string {
+  /* Sin dominio propio, la marca no puede ser un dominio: «Mercatren
+     España». El día que tenga el suyo, pasa a ser como los demás. */
+  if (mercado.enElPrincipal) return `Mercatren ${mercado.nombre}`;
   return mercado.dominio.charAt(0).toUpperCase() + mercado.dominio.slice(1);
 }

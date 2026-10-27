@@ -27,7 +27,11 @@ import { zonaDelCliente } from "@/lib/entrega/zona-cliente";
 import { ciudadesVisiblesDesde } from "@/lib/entrega/zonas";
 import type { Idioma } from "@/lib/dinero";
 import { mercadoActual } from "@/lib/mercado/actual";
-import { esMercadoPrincipal, seRetiraEnCiudad } from "@/lib/mercado/mercados";
+import {
+  esMercadoPrincipal,
+  nombreDelMercado,
+  seRetiraEnCiudad,
+} from "@/lib/mercado/mercados";
 import { videoDePortada } from "@/lib/mercado/portada";
 import { cn } from "@/lib/utils";
 
@@ -201,10 +205,14 @@ export default async function PaginaInicio({
         />
         <div className="mx-auto max-w-[1500px] px-4 py-16 sm:py-24">
           <h1 className="max-w-2xl text-2xl font-extrabold tracking-tight text-balance sm:text-4xl">
-            {t("mercadoNuevoTitulo", { pais: mercado.nombre })}
+            {t("mercadoNuevoTitulo", {
+              pais: nombreDelMercado(mercado, locale),
+            })}
           </h1>
           <p className="mt-3 max-w-xl text-sm text-white/80 sm:text-base">
-            {t("mercadoNuevoTexto", { pais: mercado.nombre })}
+            {t("mercadoNuevoTexto", {
+              pais: nombreDelMercado(mercado, locale),
+            })}
           </p>
           <div className="mt-6">
             <Link href="/vender" className="boton-principal">
@@ -266,7 +274,9 @@ export default async function PaginaInicio({
               ? t("tituloHero")
               : seRetiraEnCiudad(mercado)
                 ? t("tituloHeroVenezuela")
-                : t("tituloHeroMercado", { pais: mercado.nombre })}
+                : t("tituloHeroMercado", {
+                    pais: nombreDelMercado(mercado, locale),
+                  })}
           </h1>
           <p className="mt-2 hidden max-w-xl text-sm text-white/80 sm:block">
             {/* Venezuela no se «entrega en»: se RETIRA. El texto de los
@@ -276,7 +286,11 @@ export default async function PaginaInicio({
               ? t("subtituloHero")
               : seRetiraEnCiudad(mercado)
                 ? t("subtituloHeroVenezuela")
-                : t("subtituloHeroMercado")}
+                : mercado.codigo === "ES"
+                  ? /* España paga en euros y despacha cada comercio: el
+                       texto de los demás dice «pesos» y «envío incluido». */
+                    t("subtituloHeroEspana")
+                  : t("subtituloHeroMercado")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2.5">
             <Link href="/catalogo" className="boton-principal">

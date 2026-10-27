@@ -8,7 +8,12 @@ import {
   BanderaDePais,
 } from "@/components/marca/bandera-pais";
 import { Logo } from "@/components/marca/logo";
-import { MERCADOS, type Mercado } from "@/lib/mercado/mercados";
+import {
+  enlaceParaElegirPais,
+  MERCADOS,
+  nombreDelMercado,
+  type Mercado,
+} from "@/lib/mercado/mercados";
 
 /**
  * MERCATREN EN EL MUNDO: la ventana que dice dónde vive cada país.
@@ -35,6 +40,14 @@ import { MERCADOS, type Mercado } from "@/lib/mercado/mercados";
  * 3. **La lista sale de `MERCADOS`**, la misma lista cerrada que decide el
  *    mercado por dominio. Un país nuevo aparece aquí solo, el mismo día que
  *    se declara: una lista escrita a mano se queda vieja al primer país.
+ *
+ * ══ ESPAÑA, QUE TODAVÍA NO TIENE DOMINIO (27 oct 2026) ══
+ *
+ * España vive dentro de mercatren.com y se elige aquí. Por eso las banderas
+ * ya no apuntan directo al dominio: pasan por `/datos/pais`, que pone o
+ * quita el país elegido (`enlaceParaElegirPais`). Y debajo de su nombre no
+ * va un dominio que no existe, sino dónde se ve: «En mercatren.com y en la
+ * app».
  */
 export function MercatrenGlobal({
   mercado,
@@ -66,6 +79,8 @@ export function MercatrenGlobal({
     mudanza: string;
     aqui: string;
     cerrar: string;
+    /** Lo que va debajo del nombre de un país sin dominio propio. */
+    sinDominio: string;
   };
 }) {
   const ventana = useRef<HTMLDialogElement>(null);
@@ -151,10 +166,10 @@ export function MercatrenGlobal({
                   />
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold">
-                      {m.nombre}
+                      {nombreDelMercado(m, idioma)}
                     </span>
                     <span className="block truncate text-xs text-riel-900/60">
-                      {m.dominio}
+                      {m.enElPrincipal ? textos.sinDominio : m.dominio}
                     </span>
                   </span>
                   {aqui ? (
@@ -172,7 +187,7 @@ export function MercatrenGlobal({
                     </span>
                   ) : (
                     <a
-                      href={`https://${m.dominio}/${idioma}`}
+                      href={enlaceParaElegirPais(m, mercado, idioma)}
                       className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-riel-900/5"
                     >
                       {contenido}

@@ -98,6 +98,23 @@
 - [ ] 👤 La compra de prueba del país: plazo real, papel dentro de la caja, y
       que la aduana no cobre lo que el régimen promete que no cobra.
 
+## E · Un país SIN dominio todavía (España, 27 oct 2026)
+
+> Lo pidió Richard para la app: la app abre mercatren.com y no puede saltar a
+> otro dominio sin enseñar la barra del navegador. Un país así vive DENTRO
+> del principal hasta que llegue su dominio.
+
+- [ ] En `mercados.ts`: `dominio` = el del principal y `enElPrincipal: true`.
+      `mercadoPorHost` lo salta; se elige con la bandera (`/datos/pais`, que
+      pone o quita la cookie `mercatren_pais`) y `mercadoActual()` lo lee.
+- [ ] `nombreEn` si el nombre cambia en inglés (España → Spain).
+- [ ] Las páginas con cookie nunca las guarda el borde (comprobado en vivo:
+      `x-yad-cache: BYPASS`), así que no hay riesgo de servirle España a quien
+      no la eligió. Google no ve el país: no tiene la cookie.
+- [ ] **El día que tenga dominio**: se le pone, se le quita `enElPrincipal` y
+      queda como Chile. La cookie deja de servir sola (solo nombra países
+      `enElPrincipal`).
+
 ## D · Si el país YA existía dentro de otro dominio (mudanza)
 
 > Venezuela, 6 sep 2026. No es lo mismo abrir un país que **sacarlo de
@@ -130,20 +147,20 @@
 
 ## Los países, contra esta lista
 
-| Casilla                             | US  | VE                                     | CL      | CO                 | RO (próximo) |
-| ----------------------------------- | --- | -------------------------------------- | ------- | ------------------ | ------------ |
-| Mercado + plaza + almacén           | ✅  | n/a (sus comercios ponen la mercancía) | ✅      | ✅                 | —            |
-| Precio con pruebas                  | ✅  | ✅ USD                                 | ✅      | ✅                 | —            |
-| Tasa automática                     | n/a | n/a                                    | ✅      | ✅                 | —            |
-| Destino + dirección                 | ✅  | ✅ retiro                              | ✅      | ✅                 | —            |
-| Checkout (moneda/SOLO tarjeta/imp.) | ✅  | ✅ + Zelle                             | ✅      | ✅                 | —            |
-| Pedido a CJ (país/taxId/almacén)    | ✅  | n/a                                    | ✅      | ✅                 | —            |
-| Textos + og + meta + franja         | ✅  | ✅                                     | ✅      | ✅                 | —            |
-| Panel por selector                  | ✅  | ✅                                     | ✅      | ✅                 | —            |
-| Código público MT                   | ✅  | ✅                                     | ✅      | ✅                 | —            |
-| Reporte fiscal                      | n/a | n/a                                    | ✅ F129 | n/a                | —            |
-| Bandera en el encabezado            | n/a | ✅                                     | ✅      | ✅                 | —            |
-| Video del hero del país             | n/a | ⬜                                     | ✅      | ✅                 | —            |
-| 👤 Turnstile del dominio            | ✅  | ⬜                                     | ⬜      | ⬜                 | —            |
-| 👤 Compra de prueba                 | ⬜  | ⬜                                     | ⬜      | ⬜                 | —            |
-| 👤 Impuestos con contador           | n/a | n/a                                    | ✅ SII  | ⬜ decisión aduana | ⬜ IVA UE    |
+| Casilla                             | US  | VE                                     | CL      | CO                 | ES (sin dominio)                                  | RO (próximo) |
+| ----------------------------------- | --- | -------------------------------------- | ------- | ------------------ | ------------------------------------------------- | ------------ |
+| Mercado + plaza + almacén           | ✅  | n/a (sus comercios ponen la mercancía) | ✅      | ✅                 | ✅ dentro del .com; n/a plaza (comercios propios) | —            |
+| Precio con pruebas                  | ✅  | ✅ USD                                 | ✅      | ✅                 | ✅ EUR (precio del comercio)                      | —            |
+| Tasa automática                     | n/a | n/a                                    | ✅      | ✅                 | n/a                                               | —            |
+| Destino + dirección                 | ✅  | ✅ retiro                              | ✅      | ✅                 | ✅ provincias + CP                                | —            |
+| Checkout (moneda/SOLO tarjeta/imp.) | ✅  | ✅ + Zelle                             | ✅      | ✅                 | 🔴 cerrado (saldo en EUR)                         | —            |
+| Pedido a CJ (país/taxId/almacén)    | ✅  | n/a                                    | ✅      | ✅                 | n/a                                               | —            |
+| Textos + og + meta + franja         | ✅  | ✅                                     | ✅      | ✅                 | ✅                                                | —            |
+| Panel por selector                  | ✅  | ✅                                     | ✅      | ✅                 | ✅                                                | —            |
+| Código público MT                   | ✅  | ✅                                     | ✅      | ✅                 | ✅ (el del comercio)                              | —            |
+| Reporte fiscal                      | n/a | n/a                                    | ✅ F129 | n/a                | ⬜ contador                                       | —            |
+| Bandera en el encabezado            | n/a | ✅                                     | ✅      | ✅                 | ✅                                                | —            |
+| Video del hero del país             | n/a | ⬜                                     | ✅      | ✅                 | ⬜                                                | —            |
+| 👤 Turnstile del dominio            | ✅  | ⬜                                     | ⬜      | ⬜                 | n/a (usa el .com)                                 | —            |
+| 👤 Compra de prueba                 | ⬜  | ⬜                                     | ⬜      | ⬜                 | ⬜                                                | —            |
+| 👤 Impuestos con contador           | n/a | n/a                                    | ✅ SII  | ⬜ decisión aduana | ⬜ IVA España                                     | ⬜ IVA UE    |

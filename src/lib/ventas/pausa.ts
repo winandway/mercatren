@@ -60,6 +60,26 @@ export const EN_PAUSA = true;
 export const PAIS_EN_PAUSA = "US";
 
 /**
+ * ══ ESPAÑA SE VE, SE ABREN TIENDAS Y SE CARGAN PRODUCTOS… PERO TODAVÍA NO
+ * SE COBRA (27 oct 2026) ══
+ *
+ * España es el primer país donde los COMERCIOS cobran en una moneda que no
+ * es el dólar. El saldo de cada comercio (`zelle/billetera.ts`) suma
+ * centavos sin mirar la moneda y los retiros salen en dólares: un comercio
+ * de Madrid que vendiera 100 € vería «$100» en su saldo y cobraría 100
+ * dólares. Eso no se descubre con una prueba de pantalla: se descubre
+ * cuando el comercio cuenta su dinero.
+ *
+ * Regla de Richard del 31 ago 2026: ningún país cobra sin haber probado el
+ * circuito ENTERO —cobro, saldo del comercio, retiro—. Mientras esto esté en
+ * `true`, en España todo funciona menos el botón de pagar; el equipo sí
+ * puede comprar, que es justo lo que hace falta para la compra de prueba.
+ * Se quita cuando el saldo en euros y su retiro estén hechos y probados
+ * (`VERIFICAR-PAGOS.md`).
+ */
+export const ESPANA_SIN_COBRO = true;
+
+/**
  * ¿Se puede comprar este producto?
  *
  * Recibe el país de la tienda, no el producto entero: así la misma función
@@ -81,11 +101,12 @@ export function ventaPausada(
   paisOrigen: string | null | undefined,
   opciones?: { esEquipoInterno?: boolean },
 ): boolean {
-  if (!EN_PAUSA) return false;
   if (opciones?.esEquipoInterno === true) return false;
   /* Se compara en mayúsculas y sin espacios: el país entra a mano en el panel
      y un « us » con espacio dejaría la venta abierta justo donde no debe. */
-  return (paisOrigen ?? "").trim().toUpperCase() === PAIS_EN_PAUSA;
+  const pais = (paisOrigen ?? "").trim().toUpperCase();
+  if (ESPANA_SIN_COBRO && pais === "ES") return true;
+  return EN_PAUSA && pais === PAIS_EN_PAUSA;
 }
 
 /**

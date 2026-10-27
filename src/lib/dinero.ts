@@ -44,7 +44,16 @@ export function formatearPrecio(
   idioma: Idioma,
   moneda: string,
 ) {
-  return new Intl.NumberFormat(idioma === "es" ? "es-US" : "en-US", {
+  /* En euros y en español se escribe como en España: «12,50 €». Con es-US
+     saldría «EUR 12.50», que a un comprador de Madrid le parece un precio
+     de otro país (27 oct 2026). */
+  const region =
+    idioma === "es"
+      ? moneda.toUpperCase() === "EUR"
+        ? "es-ES"
+        : "es-US"
+      : "en-US";
+  return new Intl.NumberFormat(region, {
     style: "currency",
     currency: moneda,
   }).format(centavos / divisorDe(moneda));

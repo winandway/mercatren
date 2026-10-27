@@ -110,6 +110,21 @@ function BanderaEstadosUnidos({ clase }: { clase?: string }) {
   );
 }
 
+/**
+ * España: rojo, amarillo el doble de ancho, rojo. Es la bandera civil, sin
+ * el escudo: a 14 px de alto el escudo es una mancha, y la civil es la
+ * misma bandera de uso oficial. Regla de Richard: el español va SIEMPRE con
+ * la bandera de España, y este país es España de verdad.
+ */
+function BanderaEspana({ clase }: { clase?: string }) {
+  return (
+    <svg viewBox="0 0 19 13" className={clase} aria-hidden focusable="false">
+      <rect width="19" height="13" fill="#AA151B" />
+      <rect y="3.25" width="19" height="6.5" fill="#F1BF00" />
+    </svg>
+  );
+}
+
 const BANDERAS: Record<
   string,
   (props: { clase?: string }) => React.JSX.Element
@@ -118,6 +133,7 @@ const BANDERAS: Record<
   CL: BanderaChile,
   VE: BanderaVenezuela,
   CO: BanderaColombia,
+  ES: BanderaEspana,
 };
 
 /**

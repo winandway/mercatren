@@ -1,12 +1,12 @@
 import { ArrowRight, Mail } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { mercadoActual } from "@/lib/mercado/actual";
-import { esMercadoPrincipal } from "@/lib/mercado/mercados";
+import { esMercadoPrincipal, nombreDelMercado } from "@/lib/mercado/mercados";
 import { DESARROLLADOR, SOCIEDAD } from "@/lib/sociedad";
 
 const SECCIONES = [
@@ -82,7 +82,9 @@ export async function PiePagina() {
             <p className="text-sm text-white/60">
               {principal
                 ? t("vendeTexto")
-                : t("vendeTextoMercado", { pais: mercado.nombre })}
+                : t("vendeTextoMercado", {
+                    pais: nombreDelMercado(mercado, await getLocale()),
+                  })}
             </p>
           </div>
           <Link

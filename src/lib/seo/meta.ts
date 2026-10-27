@@ -151,6 +151,9 @@ export function metaDeProducto(d: DatosDeProducto): {
      ofrecerle Zelle —una red entre bancos de EE. UU.— peor. */
   const esCl = pais === "CL";
   const esCo = pais === "CO";
+  /* España (27 oct 2026): lo despacha el comercio desde España y se paga
+     con tarjeta; ni «retíralo» ni Zelle. */
+  const esEs = pais === "ES";
   const en = d.idioma === "en";
 
   /* Título: producto + comercio; si no cabe, solo el producto. */
@@ -172,15 +175,19 @@ export function metaDeProducto(d: DatosDeProducto): {
         ? en
           ? "Delivered to your door anywhere in Colombia, shipping included."
           : "Entrega a domicilio en toda Colombia, con el envío incluido."
-        : en
-          ? `Pick it up at ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`
-          : `Retíralo en ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`;
+        : esEs
+          ? en
+            ? `Shipped to your door anywhere in Spain by ${d.tienda}.`
+            : `${d.tienda} te lo envía a domicilio en toda España.`
+          : en
+            ? `Pick it up at ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`
+            : `Retíralo en ${d.tienda}${d.ciudad ? `, ${d.ciudad}` : ""}.`;
   const precio = en
     ? `${titulo}${d.marca ? ` by ${d.marca}` : ""} for ${d.precio}.`
     : `${titulo}${d.marca ? ` de ${d.marca}` : ""} por ${d.precio}.`;
   const propia = primeraFrase(d.descripcion, 80);
   const pago =
-    esCl || esCo
+    esCl || esCo || esEs
       ? en
         ? "Pay by card on Mercatren."
         : "Paga con tarjeta en Mercatren."

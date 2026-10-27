@@ -42,7 +42,7 @@
  * mercatren.com.co: allá también se despacha a domicilio, con sus propios
  * campos de dirección (regiones en Chile, departamentos en Colombia).
  */
-export const DESTINOS = ["US", "VE", "CL", "CO"] as const;
+export const DESTINOS = ["US", "VE", "CL", "CO", "ES"] as const;
 export type Destino = (typeof DESTINOS)[number];
 
 /**
@@ -85,6 +85,9 @@ export function destinoDeLaTienda(
      sea ninguna de las tres se entrega en Venezuela, que es de donde
      despachan todos los comercios de hoy. */
   if (pais === "US" || pais === "CL" || pais === "CO") return pais;
+  /* España (27 oct 2026): sus comercios despachan desde España a la
+     dirección del comprador en España. */
+  if (pais === "ES") return "ES";
   return "VE";
 }
 
@@ -128,6 +131,9 @@ export const PLAZO: Record<Destino, { minimo: number; maximo: number }> = {
      Se ajusta con lo que midan las compras de prueba, no antes. */
   CL: { minimo: 10, maximo: 25 },
   CO: { minimo: 10, maximo: 25 },
+  /* España: despacha cada comercio, y el plazo es el suyo —como en
+     Venezuela—. No se promete uno que no se ha medido. */
+  ES: { minimo: 0, maximo: 0 },
 };
 
 export function tienePlazoPropio(destino: Destino): boolean {
@@ -136,7 +142,11 @@ export function tienePlazoPropio(destino: Destino): boolean {
 
 /** El nombre del país de un destino, para la dirección que lee una persona. */
 export function nombreDelPais(destino: Destino): string {
-  return { US: "United States", VE: "Venezuela", CL: "Chile", CO: "Colombia" }[
-    destino
-  ];
+  return {
+    US: "United States",
+    VE: "Venezuela",
+    CL: "Chile",
+    CO: "Colombia",
+    ES: "Spain",
+  }[destino];
 }

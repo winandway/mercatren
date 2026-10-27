@@ -388,7 +388,10 @@ export function FormularioProducto({
                   Ahora las TRES cifras salen debajo de la casilla mientras
                   escribe: qué paga el cliente por cada método y qué recibe
                   él — que es exactamente lo que escribió. */}
-              <VistaPreviaDelPrecio texto={precioEscrito} />
+              <VistaPreviaDelPrecio
+                texto={precioEscrito}
+                paisOrigen={paisOrigen}
+              />
             </div>
             <Campo
               nombre="precioAntes"
@@ -688,7 +691,7 @@ export function FormularioProducto({
           <p className="mt-4 max-w-md rounded-lg bg-slate-50 px-3 py-2 text-xs text-tinta-suave">
             {t("seDespachaEn", {
               pais: t(
-                `paises.${paisOrigen === "CL" || paisOrigen === "CO" ? paisOrigen : "US"}`,
+                `paises.${paisOrigen === "CL" || paisOrigen === "CO" || paisOrigen === "ES" ? paisOrigen : "US"}`,
               ),
             })}
           </p>
@@ -769,10 +772,36 @@ export function FormularioProducto({
 }
 
 /** Las tres cifras del precio, en vivo: tarjeta, Zelle y lo que recibe él. */
-function VistaPreviaDelPrecio({ texto }: { texto: string }) {
+function VistaPreviaDelPrecio({
+  texto,
+  paisOrigen,
+}: {
+  texto: string;
+  paisOrigen?: string | null;
+}) {
   const t = useTranslations("panel.producto");
   const limpio = Number(String(texto).replace(",", "."));
   if (!Number.isFinite(limpio) || limpio <= 0) return null;
+  /* ══ ESPAÑA VENDE EN EUROS Y SOLO CON TARJETA (27 oct 2026) ══
+     Fuera de EE. UU. y Venezuela no se ofrece Zelle, y enseñarle a un
+     comercio de Madrid «$12.00 por Zelle» es enseñarle un precio que su
+     cliente nunca va a ver. */
+  if ((paisOrigen ?? "").toUpperCase() === "ES") {
+    const base = Math.round(limpio * divisorDe("EUR"));
+    const euros = (c: number) =>
+      new Intl.NumberFormat("es-ES", {
+        style: "currency",
+        currency: "EUR",
+      }).format(c / divisorDe("EUR"));
+    return (
+      <p className="bg-carga-50 text-carga-900 mt-1.5 rounded-lg px-3 py-2 text-xs leading-relaxed">
+        {t("previaPrecioSoloTarjeta", {
+          tarjeta: euros(precioConAjusteCentavos(base)),
+          base: euros(base),
+        })}
+      </p>
+    );
+  }
   /* La previa es de la vitrina de EE. UU. (las fórmulas de tarjeta y Zelle
      son de esa plaza), así que la moneda es el dólar — pero el divisor sale
      de la tabla igual, como manda la regla del 30 ago. */

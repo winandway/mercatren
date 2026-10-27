@@ -5,6 +5,8 @@
     "lemaMercadoNuevo": "Muy pronto en {pais}: comercios y productos que se entregan en tu país",
     "lemaMercado": "Compra online con entrega a domicilio en todo {pais}",
     "descripcionMercado": "Tienda online con entrega a domicilio en todo {pais}. Paga con tarjeta en {moneda} y el precio que ves es el final: envío e impuestos incluidos, sin cobros sorpresa de aduana. Tecnología, hogar, deporte, belleza y más.",
+    "lemaEspana": "Compra online con entrega a domicilio en toda España",
+    "descripcionEspana": "Tienda online con entrega a domicilio en toda España. Comercios españoles que te lo envían a casa, y pagas con tarjeta en euros. Tecnología, hogar, moda, deporte, belleza y más.",
     "monedaCLP": "pesos chilenos",
     "monedaCOP": "pesos colombianos",
     "lemaVenezuela": "Compra online y retíralo en tu ciudad, en toda Venezuela",
@@ -98,6 +100,7 @@
     "verTodasLasTiendas": "Ver todas las tiendas",
     "tituloHeroMercado": "Compra en línea con entrega en {pais}",
     "subtituloHeroMercado": "Elige tu producto, paga en pesos y dinos dónde entregarlo. El precio que ves es el precio final, con el envío incluido.",
+    "subtituloHeroEspana": "Elige tu producto, paga en euros con tarjeta y dinos dónde entregarlo. Lo despacha el propio comercio, desde España.",
     "tituloHeroVenezuela": "Compra en línea y retíralo en tu ciudad",
     "subtituloHeroVenezuela": "Los comercios de Venezuela, en un solo sitio. Pagas desde Estados Unidos y lo retiras donde estás.",
     "calculadoraHero": "Calcular envío a tu país"
@@ -886,10 +889,12 @@
       "paises": {
         "US": "Estados Unidos",
         "CL": "Chile",
-        "CO": "Colombia"
+        "CO": "Colombia",
+        "ES": "España"
       },
       "preparandoFotos": "Preparando {n} foto(s) para que suban rápido…",
-      "previaPrecio": "Con este precio: el cliente paga {tarjeta} con tarjeta o {zelle} por Zelle — y tú recibes {base} exactos, pague como pague."
+      "previaPrecio": "Con este precio: el cliente paga {tarjeta} con tarjeta o {zelle} por Zelle — y tú recibes {base} exactos, pague como pague.",
+      "previaPrecioSoloTarjeta": "Con este precio: el cliente paga {tarjeta} con tarjeta — y tú recibes {base} exactos."
     },
     "ordenes": {
       "titulo": "Órdenes",
@@ -1377,6 +1382,9 @@
       "faltaNit": "Falta el NIT de la empresa.",
       "nitFormato": "El NIT son solo números: 9 dígitos y su verificador. Por ejemplo: 900.123.456-8",
       "nitDigito": "Ese NIT no es válido: el dígito del final no corresponde. Revísalo.",
+      "faltaNif": "Falta el NIF: el CIF de la empresa, o tu DNI o NIE si vendes como autónomo.",
+      "nifFormato": "El NIF son 9 caracteres: el CIF de una empresa (B12345674), un DNI (8 números y una letra) o un NIE (X, Y o Z, 7 números y una letra).",
+      "nifDigito": "Ese NIF no es válido: el carácter del final no corresponde. Revísalo.",
       "estadoInvalido": "Elige tu estado de la lista.",
       "codigoPostalInvalido": "El código postal son 5 dígitos. Por ejemplo: 33101",
       "formularioFiscalFalta": "Antes de cobrar, completa tu formulario fiscal en «Mi tienda». Son cinco minutos y solo se hace una vez cada tres años.",
@@ -3036,6 +3044,8 @@
       "soloCompradores": "Solo opinan quienes compraron aquí.",
       "pausaTitulo": "Tienda en mantenimiento",
       "pausaTexto": "Estamos afinando los envíos de esta tienda y por ahora no podemos recibir pedidos. Vuelve pronto: falta poco.",
+      "pausaTituloEspana": "Muy pronto a la venta",
+      "pausaTextoEspana": "Estamos abriendo Mercatren en España: los comercios ya están cargando sus productos y en pocos días vas a poder comprarlos aquí.",
       "pausaEquipo": "Estás comprando con una cuenta del equipo. Para el público esta tienda sigue en mantenimiento.",
       "volver": "Volver",
       "volverATienda": "Volver a {tienda}",
@@ -3139,12 +3149,15 @@
       "nombreEnvio": "Nombre de quien recibe",
       "estadoCL": "Región",
       "estadoCO": "Departamento",
+      "estadoES": "Provincia",
       "estadoPlaceholderCL": "Elige tu región",
       "estadoPlaceholderCO": "Elige tu departamento",
+      "estadoPlaceholderES": "Elige tu provincia",
       "formatoDireccionCL": "Calle y número, y depto si aplica. Ejemplo: Av. Providencia 1234, Depto 56.",
       "formatoDireccionCO": "Escríbela como la usas allá. Ejemplo: Calle 45 # 26-85, Torre 2, Apto 301, Barrio El Prado.",
       "codigoPostalAyudaCL": "Son 7 dígitos. Si no te lo sabes, déjalo vacío: el envío llega igual con tu dirección y comuna.",
-      "codigoPostalAyudaCO": "Son 6 dígitos. Si no te lo sabes, déjalo vacío: el envío llega igual con tu dirección y ciudad."
+      "codigoPostalAyudaCO": "Son 6 dígitos. Si no te lo sabes, déjalo vacío: el envío llega igual con tu dirección y ciudad.",
+      "codigoPostalAyudaES": "Son 5 dígitos y empiezan por el número de tu provincia. Por ejemplo: 28001"
     },
     "pago": {
       "titulo": "¿Cómo vas a pagar?",
@@ -3913,6 +3926,13 @@
       "telefonoAyuda": "+57 300 123 4567",
       "porQueLosDatos": "Pedimos estos datos porque cada venta se factura a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda."
     },
+    "espana": {
+      "ciudadAyuda": "Madrid, Barcelona, Valencia…",
+      "direccionAyuda": "Calle, número, piso y puerta",
+      "paisAyuda": "España",
+      "telefonoAyuda": "+34 600 123 456",
+      "porQueLosDatos": "Pedimos estos datos porque cada venta se factura a nombre de tu empresa y queda documentada. Sin ellos no podemos abrir la tienda."
+    },
     "listo": {
       "cargarProductos": "Cargar mis productos",
       "verMiTienda": "Ver mi tienda"
@@ -4347,7 +4367,8 @@
     "entrada": "Cada país tiene su propia tienda, con sus comercios, sus precios y su forma de entrega.",
     "mudanza": "¿Comprabas o vendías en mercatren.com desde Venezuela? Tu tienda y tus productos están ahora en mercatren.com.ve, con todo tal cual lo tenías y la misma clave de siempre. Separamos los países para que cada uno tenga sus ciudades y sus formas de pago propias.",
     "aqui": "Estás aquí",
-    "cerrar": "Cerrar"
+    "cerrar": "Cerrar",
+    "sinDominio": "En mercatren.com y en la app"
   },
   "casillero": {
     "titulo": "Tu casillero en Miami",

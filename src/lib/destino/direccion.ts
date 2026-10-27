@@ -144,6 +144,10 @@ const POR_DESTINO: Record<Destino, CampoDeEntrega[]> = {
   US: ESTADOS_UNIDOS,
   CL: CONO_SUR,
   CO: CONO_SUR,
+  /* España (27 oct 2026): las mismas casillas que EE. UU., con la provincia
+     en el lugar del estado y el código postal OBLIGATORIO — allá todo el
+     mundo se lo sabe y Correos lo necesita. */
+  ES: ESTADOS_UNIDOS,
 };
 
 /** Las casillas que hay que dibujar para este destino. */
@@ -297,6 +301,8 @@ export function esCodigoPostalDe(
   if (v === "") return true;
   if (destino === "CL") return /^\d{7}$/.test(v);
   if (destino === "CO") return /^\d{6}$/.test(v);
+  /* España: 5 dígitos, y los dos primeros son la provincia (01 a 52). */
+  if (destino === "ES") return /^(0[1-9]|[1-4]\d|5[0-2])\d{3}$/.test(v);
   return true;
 }
 
@@ -372,6 +378,71 @@ export const DEPARTAMENTOS_CO: ReadonlyArray<{
 ];
 
 /**
+ * LAS PROVINCIAS DE ESPAÑA (27 oct 2026), con el código del INE.
+ *
+ * El código es el mismo número con el que empieza el código postal de esa
+ * provincia (28 = Madrid, 28001…): no es un capricho, es lo que permite
+ * comprobar que el código postal y la provincia digan lo mismo. Aquí sí van
+ * los acentos: estas direcciones las lee el comercio español que despacha,
+ * no el sistema de un transportista extranjero.
+ */
+export const PROVINCIAS_ES: ReadonlyArray<{ codigo: string; nombre: string }> =
+  [
+    { codigo: "15", nombre: "A Coruña" },
+    { codigo: "01", nombre: "Álava" },
+    { codigo: "02", nombre: "Albacete" },
+    { codigo: "03", nombre: "Alicante" },
+    { codigo: "04", nombre: "Almería" },
+    { codigo: "33", nombre: "Asturias" },
+    { codigo: "05", nombre: "Ávila" },
+    { codigo: "06", nombre: "Badajoz" },
+    { codigo: "08", nombre: "Barcelona" },
+    { codigo: "48", nombre: "Bizkaia" },
+    { codigo: "09", nombre: "Burgos" },
+    { codigo: "39", nombre: "Cantabria" },
+    { codigo: "12", nombre: "Castellón" },
+    { codigo: "51", nombre: "Ceuta" },
+    { codigo: "13", nombre: "Ciudad Real" },
+    { codigo: "16", nombre: "Cuenca" },
+    { codigo: "10", nombre: "Cáceres" },
+    { codigo: "11", nombre: "Cádiz" },
+    { codigo: "14", nombre: "Córdoba" },
+    { codigo: "20", nombre: "Gipuzkoa" },
+    { codigo: "17", nombre: "Girona" },
+    { codigo: "18", nombre: "Granada" },
+    { codigo: "19", nombre: "Guadalajara" },
+    { codigo: "21", nombre: "Huelva" },
+    { codigo: "22", nombre: "Huesca" },
+    { codigo: "07", nombre: "Islas Baleares" },
+    { codigo: "23", nombre: "Jaén" },
+    { codigo: "26", nombre: "La Rioja" },
+    { codigo: "35", nombre: "Las Palmas" },
+    { codigo: "24", nombre: "León" },
+    { codigo: "25", nombre: "Lleida" },
+    { codigo: "27", nombre: "Lugo" },
+    { codigo: "28", nombre: "Madrid" },
+    { codigo: "52", nombre: "Melilla" },
+    { codigo: "30", nombre: "Murcia" },
+    { codigo: "29", nombre: "Málaga" },
+    { codigo: "31", nombre: "Navarra" },
+    { codigo: "32", nombre: "Ourense" },
+    { codigo: "34", nombre: "Palencia" },
+    { codigo: "36", nombre: "Pontevedra" },
+    { codigo: "37", nombre: "Salamanca" },
+    { codigo: "38", nombre: "Santa Cruz de Tenerife" },
+    { codigo: "40", nombre: "Segovia" },
+    { codigo: "41", nombre: "Sevilla" },
+    { codigo: "42", nombre: "Soria" },
+    { codigo: "43", nombre: "Tarragona" },
+    { codigo: "44", nombre: "Teruel" },
+    { codigo: "45", nombre: "Toledo" },
+    { codigo: "46", nombre: "Valencia" },
+    { codigo: "47", nombre: "Valladolid" },
+    { codigo: "49", nombre: "Zamora" },
+    { codigo: "50", nombre: "Zaragoza" },
+  ];
+
+/**
  * La lista de estados/regiones/departamentos de un destino, o null si ese
  * destino escribe la ciudad libre (Venezuela). El checkout dibuja el `select`
  * con lo que salga de aquí: UNA función, no un `if` por país en la pantalla.
@@ -382,5 +453,6 @@ export function listaDeEstados(
   if (destino === "US") return ESTADOS_US;
   if (destino === "CL") return REGIONES_CL;
   if (destino === "CO") return DEPARTAMENTOS_CO;
+  if (destino === "ES") return PROVINCIAS_ES;
   return null;
 }

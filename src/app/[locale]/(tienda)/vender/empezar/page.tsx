@@ -16,7 +16,11 @@ export const dynamic = "force-dynamic";
 type Textos = (clave: string) => string;
 
 /** En qué espacio de textos vive el vocabulario de cada plaza. */
-const LLAVE: Record<string, string> = { CL: "chile", CO: "colombia" };
+const LLAVE: Record<string, string> = {
+  CL: "chile",
+  CO: "colombia",
+  ES: "espana",
+};
 
 /**
  * LO QUE CADA PAÍS LLAMA DISTINTO EN EL FORMULARIO DE ALTA.
@@ -53,6 +57,17 @@ const VOCABULARIO: Record<
       telefono: t("colombia.telefonoAyuda"),
     }),
     valores: (t) => ({ paisOrigen: t("colombia.paisAyuda") }),
+  },
+  /* España (27 oct 2026): «Ciudad» se dice igual; cambian los ejemplos, el
+     teléfono con su +34 y el país, que nace escrito. */
+  ES: {
+    etiquetas: () => ({}),
+    ayudas: (t) => ({
+      ciudad: t("espana.ciudadAyuda"),
+      direccion: t("espana.direccionAyuda"),
+      telefono: t("espana.telefonoAyuda"),
+    }),
+    valores: (t) => ({ paisOrigen: t("espana.paisAyuda") }),
   },
 };
 

@@ -3,7 +3,11 @@ import { describe, expect, it } from "vitest";
 
 import es from "@/../messages/es.json";
 import en from "@/../messages/en.json";
-import { MERCADOS } from "@/lib/mercado/mercados";
+import {
+  enlaceParaElegirPais,
+  MERCADOS,
+  mercadoPorCodigo,
+} from "@/lib/mercado/mercados";
 
 const leer = (r: string) => readFileSync(r, "utf8");
 const global = leer("src/components/marca/mercatren-global.tsx");
@@ -39,13 +43,23 @@ describe("Mercatren en el mundo", () => {
      * este: con `<Link>` la navegación muere sin decir nada — que es
      * exactamente lo que no puede pasarle a alguien buscando su tienda.
      */
-    expect(global).toContain("href={`https://${m.dominio}/${idioma}`}");
+    /* Desde el 27 oct 2026 la dirección la arma `enlaceParaElegirPais`
+       (pasa por /datos/pais para poner o quitar España): sigue siendo un
+       `<a>` con la dirección hecha, nunca un `<Link>`. Lo que devuelve esa
+       función lo cubre `espana.test.ts`. */
+    expect(global).toContain("href={enlaceParaElegirPais(m, mercado, idioma)}");
     expect(global).not.toContain('from "@/i18n/navigation"');
   });
 
   it("conserva el idioma de quien está leyendo", () => {
     /* Quien lee en inglés en el .com llega a /en en el dominio nuevo. */
-    expect(global).toContain("${idioma}");
+    expect(
+      enlaceParaElegirPais(
+        mercadoPorCodigo("CL"),
+        mercadoPorCodigo("CO"),
+        "en",
+      ),
+    ).toBe("https://mercatren.cl/en");
   });
 
   it("CUENTA LA MUDANZA, y antes de la lista de países", () => {
