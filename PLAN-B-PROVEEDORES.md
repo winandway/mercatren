@@ -442,6 +442,39 @@ marcado como no verificado.
 
 ---
 
+## 9. El arranque (27 oct 2026): CJ en pausa, TopDawg primero
+
+**Lo que ya se hizo.** Richard pausó la venta de CJ en Estados Unidos: las
+fichas se quedan a la vista (adornan la app y sirven para medir la carga),
+pero no se pueden comprar, y el feed de Google y los datos de cada ficha dicen
+«sin existencias» (comprobado en vivo el 27 oct). Interruptor: `EN_PAUSA` en
+`src/lib/ventas/pausa.ts`.
+
+**El orden, sin cambios respecto de la sección 8:**
+
+1. **TopDawg, plan Business con su prueba gratis** (la API solo si pasa).
+   Tres pedidos de tres proveedores en tres estados, a Novi, a otra región y
+   al casillero de Miami. Unos $90 a $135.
+2. **Si TopDawg no pasa: Wholesale2B** (su cuenta gratis no pide tarjeta).
+3. **En paralelo, Amazon MCF** para los cinco a diez más vendidos.
+4. **España: BigBuy**, cuando haya una dirección allá que reciba y abra los
+   paquetes. España ya está abierta dentro de mercatren.com (sección
+   «ESPAÑA SE ABRE…» de `HISTORIAL.md`).
+
+**Lo que necesita a Richard, y nada más:**
+
+- 👤 Aprobar el presupuesto de la prueba de TopDawg (unos $90 a $135 más la
+  cuota por pedido).
+- 👤 Abrir la cuenta de TopDawg con el correo de Mercatren y la tarjeta (la
+  IA no crea cuentas ni pone tarjetas). Al terminar, la IA elige los tres
+  productos con la vara de la sección 8 y le pasa la lista para que confirme
+  cada compra.
+
+**Lo que hace la IA en cuanto entre el primer producto que no sea de CJ:**
+la pausa hoy mira el PAÍS (`US`), porque hoy todo lo de Estados Unidos es de
+CJ. Antes de publicar un producto de TopDawg, la pausa tiene que pasar a
+mirar el PROVEEDOR, o el producto nuevo nacería pausado.
+
 ## 8. El estudio del 13 oct 2026: de quién fue la culpa, y quién lidera cada país
 
 > Pedido por Richard el 13 oct, el día que llegaron los paquetes: separar si
