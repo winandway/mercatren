@@ -25,6 +25,9 @@ export const PAQUETE_ANDROID = "com.mercatren.app";
 export const HUELLAS_SHA256: readonly string[] = [
   // Llave de subida (mercatren-upload), creada el 27 oct 2026.
   "7E:B8:4A:D9:47:AE:9F:93:08:C3:93:1F:FD:CD:4B:51:57:57:6D:EA:99:BF:56:05:5E:D1:91:FA:31:02:C5:65",
+  // La firma de Google Play (Play App Signing): con esta llega la app a los
+  // teléfonos. Play Console → Mercatren → Firma de apps, 27 oct 2026.
+  "F9:4F:23:DB:84:9A:BB:8D:D5:63:57:D4:3D:75:37:2D:3A:D8:F4:95:51:DD:52:D5:91:6E:A4:BF:11:3B:D5:F4",
 ];
 
 /** El contenido de `/.well-known/assetlinks.json`. */
