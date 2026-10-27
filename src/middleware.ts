@@ -192,5 +192,10 @@ export const config = {
    */
   /* `/__scheduled` SÍ entra: el middleware lo reescribe a /datos/reloj antes
      de que el idioma lo toque. */
-  matcher: ["/((?!_next|datos|media|upload|sw.js|manifest.json|.*\\..*).*)"],
+  /* `widget` FUERA (27 oct 2026): `/widget/form` se dibuja dentro del iframe
+     de otras tiendas y no lleva idioma en la ruta. El middleware lo mandaba a
+     `/en/widget/form`, que no existe: el widget del casillero daba 404. */
+  matcher: [
+    "/((?!_next|datos|media|upload|widget|sw.js|manifest.json|.*\\..*).*)",
+  ],
 };

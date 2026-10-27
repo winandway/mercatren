@@ -77,6 +77,10 @@ navegador arriba. Candado: `tests/unit/app-android-enlaces.test.ts`.
   que estar en la misma oración, y también se revisa `messages/`.
 - El manifiesto de la app instalable decía «Tu agente de compras y ventas
   entre países»: cambiado.
+- **El widget del casillero daba 404.** `/widget/form` se carga dentro del
+  iframe de otras tiendas, sin idioma en la ruta, y el middleware de idiomas
+  lo mandaba a `/en/widget/form`, que no existe. `widget` quedó fuera del
+  `matcher`. Candado: `tests/unit/widget-sin-idioma.test.ts`.
 
 **La ficha de la tienda** (textos, imágenes en inglés y en español, respuestas
 de los formularios) está en `tienda-apps/google-play/FICHA.md`.
