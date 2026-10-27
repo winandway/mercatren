@@ -53,6 +53,12 @@ const PROHIBIDAS = [
   "cross border",
   "por cuenta de",
   "on behalf of",
+  /* 27 oct 2026: «We collect on your behalf» y «a tu nombre» estaban en
+     /en/vender y en los pasos de la portada. Las dos dicen que actuamos como
+     mandatarios; Mercatren compra y factura a nombre propio. */
+  "on your behalf",
+  "la compra a tu nombre",
+  "el pedido a tu nombre",
   "liquidamos",
   "liquidar el pago",
   "liquidación de pagos",
@@ -167,6 +173,20 @@ const LEGALES = ["terminos.ts", "privacidad.ts"];
 const NIEGA =
   /\bno\s+(es|son|actúa|actuamos|somos|hay|se|tenemos|recibe)\b|\bnever\b|\bdoes not\b|\bis not\b|\bwe don't\b/i;
 
+/** La oración de la línea donde aparece la palabra (hasta el punto). */
+function oracionCon(linea: string, palabra: string): string {
+  const i = linea.toLowerCase().indexOf(palabra);
+  if (i < 0) return linea;
+  const inicio = Math.max(
+    linea.lastIndexOf(". ", i) + 1,
+    linea.lastIndexOf("? ", i) + 1,
+    linea.lastIndexOf("! ", i) + 1,
+    0,
+  );
+  const fin = linea.indexOf(". ", i);
+  return linea.slice(inicio, fin < 0 ? undefined : fin);
+}
+
 function archivos(carpeta: string): string[] {
   return readdirSync(carpeta).flatMap((nombre) => {
     const ruta = join(carpeta, nombre);
@@ -196,7 +216,12 @@ describe("el vocabulario de las páginas públicas", () => {
 
         const bajo = limpia.toLowerCase();
         for (const palabra of PROHIBIDAS) {
-          if (bajo.includes(palabra) && !NIEGA.test(limpia)) {
+          /* La negación tiene que estar en la MISMA oración que la palabra
+             (27 oct 2026): «the money never leaves the country. We collect
+             on your behalf.» pasaba porque el «never» de la oración de antes
+             se tomaba como excusa para la de después. */
+          const oracion = oracionCon(limpia, palabra);
+          if (bajo.includes(palabra) && !NIEGA.test(oracion)) {
             const corto = ruta.split("/").slice(-2).join("/");
             encontradas.push(`${corto}: "${palabra}" → ${limpia.slice(0, 90)}`);
           }
@@ -244,5 +269,27 @@ describe("el vocabulario de las páginas públicas", () => {
     }
 
     expect(sinComa, sinComa.join("\n")).toEqual([]);
+  });
+
+  /* 27 oct 2026: los pasos de la portada decían «Mercatren hace la compra a
+     tu nombre» / «places the order on your behalf». Los textos de la
+     interfaz viven en messages/, que la revisión de arriba no miraba. */
+  it("los textos de la interfaz no nos presentan como mandatarios", () => {
+    const MANDATO = [
+      "on your behalf",
+      "la compra a tu nombre",
+      "el pedido a tu nombre",
+    ];
+    const encontradas: string[] = [];
+    for (const idioma of ["es", "en"]) {
+      const texto = readFileSync(
+        join(import.meta.dirname, "..", "..", "messages", `${idioma}.json`),
+        "utf8",
+      ).toLowerCase();
+      for (const frase of MANDATO) {
+        if (texto.includes(frase)) encontradas.push(`${idioma}.json: ${frase}`);
+      }
+    }
+    expect(encontradas, encontradas.join("\n")).toEqual([]);
   });
 });

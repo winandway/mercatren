@@ -233,7 +233,7 @@ export const VENDER_EN: PaginaContenido = {
             {
               titulo: "You collect in the United States, in dollars",
               texto:
-                "no currency conversion, and the money never leaves the country. We collect on your behalf.",
+                "no currency conversion, and the money never leaves the country. Every sale is invoiced by Mercatren.",
             },
             {
               titulo: "Every sale with its paper trail",
