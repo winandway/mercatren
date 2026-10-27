@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mercatren.app",
+      "sha256_cert_fingerprints": [
+        "7E:B8:4A:D9:47:AE:9F:93:08:C3:93:1F:FD:CD:4B:51:57:57:6D:EA:99:BF:56:05:5E:D1:91:FA:31:02:C5:65"
+      ]
+    }
+  }
+]

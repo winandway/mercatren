@@ -1,0 +1,30 @@
+# Lo que genera la compilación
+build/
+app/build/
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+*.idx
+
+# Configuración local de la máquina (ruta del SDK)
+local.properties
+
+# Llaves y propiedades de firma: viven SOLO en ~/.config/mercatren/
+*.jks
+*.keystore
+*.p12
+*.pem
+play-upload.properties
+signing.properties
+
+# Paquetes compilados
+*.aab
+*.apk
+salida/
+
+# Editor
+.idea/
+*.iml
+.DS_Store
+captures/

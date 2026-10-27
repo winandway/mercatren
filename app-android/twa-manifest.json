@@ -1,0 +1,42 @@
+{
+  "packageId": "com.mercatren.app",
+  "host": "mercatren.com",
+  "name": "Mercatren",
+  "launcherName": "Mercatren",
+  "display": "standalone",
+  "themeColor": "#10263A",
+  "themeColorDark": "#000000",
+  "navigationColor": "#10263A",
+  "navigationColorDark": "#0A1826",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://mercatren.com/icon-512.png",
+  "maskableIconUrl": "https://mercatren.com/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "/Users/windocellc/.config/mercatren/play-upload.jks",
+    "alias": "mercatren-upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-core",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 24,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}
