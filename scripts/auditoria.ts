@@ -56,6 +56,37 @@ const CONOCIDOS: Record<string, Conocido> = {
       "El empaquetador que convierte Next en un worker. Corre al compilar, no " +
       "en el sitio. Arrastra wrangler.",
   },
+  /* ══ MIRADOS EL 27 OCT 2026, uno por uno ══ */
+  "better-auth": {
+    severidad: "critical",
+    motivo:
+      "Los cuatro avisos son de piezas que Mercatren NO usa: el complemento " +
+      "OAuth Proxy, el inicio de sesión por dispositivo (device authorization), " +
+      "el «state» de OAuth (no hay proveedores sociales: solo correo y " +
+      "contraseña) y un límite de intentos en PostgreSQL (la base es SQLite). " +
+      "El arreglo es la 1.7.7, que exige una columna nueva `issuer` en la " +
+      "tabla `account` con su migración de datos: en esta base una columna " +
+      "nueva no llega por schema.sql y rompería el login. Se sube cuando se " +
+      "prepare esa migración (anotado en PENDIENTES.md).",
+  },
+  glob: {
+    severidad: "high",
+    motivo:
+      "El aviso es de la LÍNEA DE COMANDOS de glob (-c/--cmd). Lo arrastra " +
+      "@node-minify/core dentro del empaquetador de OpenNext, que usa glob " +
+      "como librería y al compilar. No se publica ni se ejecuta como comando.",
+  },
+  "@node-minify/core": {
+    severidad: "high",
+    motivo:
+      "Minificador que usa OpenNext al compilar. Solo arrastra glob (arriba).",
+  },
+  "@opennextjs/aws": {
+    severidad: "high",
+    motivo:
+      "Parte del empaquetador de OpenNext. Corre al compilar, no en el sitio. " +
+      "Arrastra @node-minify/core.",
+  },
   postcss: {
     severidad: "high",
     motivo:
