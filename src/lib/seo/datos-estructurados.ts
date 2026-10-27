@@ -1,5 +1,6 @@
 import { divisorDe } from "@/lib/mercado/moneda";
 import { SITIO } from "@/lib/sitio";
+import { ventaPausada } from "@/lib/ventas/pausa";
 
 /**
  * LO QUE GOOGLE LEE DE CADA PÁGINA, en su propio idioma.
@@ -87,6 +88,8 @@ export type ProductoParaGoogle = {
   moneda: string;
   existencias: number;
   controlaExistencias: boolean;
+  /** País de la tienda: con la venta en pausa, no se anuncia como disponible. */
+  paisOrigen?: string | null;
   sku: string | null;
   marca: string | null;
   categoria: string | null;
@@ -99,7 +102,9 @@ export function fichaDeProducto(p: ProductoParaGoogle, locale: string) {
    * que no lleva cuenta de existencias (el cemento que se vende por kilo)
    * siempre está disponible; los demás, solo si queda algo.
    */
-  const hay = !p.controlaExistencias || p.existencias > 0;
+  const hay =
+    (!p.controlaExistencias || p.existencias > 0) &&
+    !ventaPausada(p.paisOrigen);
 
   return {
     "@context": "https://schema.org",

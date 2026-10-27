@@ -6,6 +6,7 @@ import { MERCADO_PRINCIPAL } from "@/lib/mercado/mercados";
 import { SITIO } from "@/lib/sitio";
 import { divisorDe } from "@/lib/mercado/moneda";
 import { columnaDeFuera } from "@/lib/db/columna-de-fuera";
+import { ventaPausada } from "@/lib/ventas/pausa";
 
 /**
  * EL CATÁLOGO PARA GOOGLE SHOPPING.
@@ -204,7 +205,10 @@ function articulo(p: FilaFeed): string {
     5000,
   );
 
-  const hayStock = !p.controla || p.existencias > 0;
+  /* Con la venta de Estados Unidos en pausa (27 oct 2026) todo el feed sale
+     «sin existencias»: el feed es solo de tiendas de Estados Unidos, y
+     anunciar algo que no se puede comprar va contra Merchant Center. */
+  const hayStock = (!p.controla || p.existencias > 0) && !ventaPausada("US");
 
   return [
     "<item>",

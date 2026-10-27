@@ -38,8 +38,23 @@
  * verdad, y su venta no tiene por qué pagar por una prueba que es nuestra.
  */
 
+/**
+ * ══ PUESTA OTRA VEZ EL 27 OCT 2026 (Richard) ══
+ *
+ * «Vamos a pausar las ventas de CJ en Estados Unidos… y vamos a buscar otra
+ * empresa. Pero los productos los dejamos allí, para que sigan adornando la
+ * aplicación.» Los paquetes de prueba de CJ tardaron 38 días y la vara pedía
+ * 8 hábiles (`PLAN-B-PROVEEDORES.md`). Hoy TODAS las tiendas de Estados Unidos
+ * son las que se armaron con el catálogo de CJ, así que pausar `US` es pausar
+ * CJ. Cuando entre otro proveedor de Estados Unidos, la pausa tiene que mirar
+ * el proveedor y no el país (anotado en `PENDIENTES.md`).
+ *
+ * Con la pausa puesta, el feed de Google y los datos de la ficha dicen «sin
+ * existencias»: anunciar algo que no se puede comprar va contra las reglas de
+ * Merchant Center.
+ */
 /** Mientras esté en `true`, los productos de Estados Unidos no se venden. */
-export const EN_PAUSA = false;
+export const EN_PAUSA = true;
 
 /** El país cuyas ventas se detienen al encender la pausa. */
 export const PAIS_EN_PAUSA = "US";
