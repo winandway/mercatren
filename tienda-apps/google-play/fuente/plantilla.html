@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plantilla Google Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=block" rel="stylesheet">
+<style>
+  /*
+   * PLANTILLA ÚNICA DE LA FICHA DE GOOGLE PLAY (Mercatren)
+   * componer.js abre este archivo, llama a pintar(datos) y saca la foto.
+   * Modos: telefono (1080x1920), tableta (1080x1920), destacado (1024x500),
+   * icono (512x512).
+   */
+  :root {
+    --azul: #10263A;
+    --azul-hondo: #0A1826;
+    --naranja: #FF6B1A;
+    --verde: #0F7A4A;
+    --crema: #FBF5EC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow: hidden; background: var(--azul); }
+  body {
+    font-family: "Geist", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+  .lienzo { position: absolute; inset: 0; overflow: hidden; }
+
+  /* ---------- Fondos ---------- */
+  .oscuro .lienzo {
+    background:
+      radial-gradient(900px 700px at 50% 112%, rgba(39, 84, 122, .55) 0%, rgba(39, 84, 122, 0) 62%),
+      radial-gradient(620px 460px at 92% 4%, rgba(255, 107, 26, .20) 0%, rgba(255, 107, 26, 0) 70%),
+      radial-gradient(520px 420px at 0% 38%, rgba(255, 107, 26, .08) 0%, rgba(255, 107, 26, 0) 70%),
+      linear-gradient(180deg, #11283E 0%, #0A1826 100%);
+  }
+  .claro .lienzo {
+    background:
+      radial-gradient(640px 480px at 92% 4%, rgba(255, 107, 26, .16) 0%, rgba(255, 107, 26, 0) 70%),
+      radial-gradient(1000px 760px at 50% 115%, rgba(16, 38, 58, .13) 0%, rgba(16, 38, 58, 0) 64%),
+      linear-gradient(180deg, #FFFCF8 0%, #F6EDE1 100%);
+  }
+  /* Rejilla de puntos muy suave: da textura sin distraer. */
+  .lienzo::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, currentColor 1.4px, transparent 1.6px);
+    background-size: 34px 34px;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 32%);
+            mask-image: linear-gradient(180deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,0) 32%);
+  }
+  .oscuro .lienzo::after { color: rgba(255, 255, 255, .06); }
+  .claro .lienzo::after { color: rgba(16, 38, 58, .06); }
+
+  /* Las rayas de velocidad del logo, como adorno de marca. */
+  .rayas { position: absolute; display: flex; flex-direction: column; gap: 22px; }
+  .rayas i { display: block; height: 18px; border-radius: 9px; background: var(--naranja); }
+  .claro .rayas i { background: var(--naranja); }
+
+  /* ---------- Titulares ---------- */
+  .cabeza {
+    position: absolute; left: 64px; right: 64px; top: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .marca { height: 46px; margin-bottom: 26px; }
+  .marca svg { height: 46px; width: auto; display: block; }
+  .titulo {
+    font-weight: 800; font-size: 96px; line-height: 1.01; letter-spacing: -2.8px;
+    text-wrap: balance;
+  }
+  .titulo em { font-style: normal; color: var(--naranja); }
+  .linea {
+    margin-top: 26px; font-weight: 500; font-size: 38px; line-height: 1.28;
+    letter-spacing: -.3px; text-wrap: balance; max-width: 900px;
+  }
+  .oscuro .titulo { color: #FFFFFF; }
+  .oscuro .linea { color: rgba(255, 255, 255, .78); }
+  .claro .titulo { color: var(--azul); }
+  .claro .linea { color: rgba(16, 38, 58, .72); }
+
+  /* ---------- Teléfono ---------- */
+  .telefono {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    border-radius: 94px; padding: 15px;
+    background: linear-gradient(150deg, #3A4654 0%, #121820 22%, #07090D 60%, #1B232D 100%);
+  }
+  .oscuro .telefono {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .16), 0 60px 110px rgba(0, 0, 0, .55), 0 0 140px rgba(255, 107, 26, .10);
+  }
+  .claro .telefono {
+    box-shadow: 0 0 0 2px rgba(16, 38, 58, .25), 0 50px 90px rgba(16, 38, 58, .32), 0 12px 24px rgba(16, 38, 58, .18);
+  }
+  .boton-lado { position: absolute; width: 6px; border-radius: 3px; background: linear-gradient(90deg, #0d1218, #2b3540); }
+  .pantalla { position: relative; overflow: hidden; background: #000; border-radius: 80px; }
+  .barra {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 46px 0 58px; font-weight: 600; font-size: 20px; letter-spacing: .2px;
+  }
+  .barra .iconos { display: flex; align-items: center; gap: 9px; }
+  .barra svg { display: block; }
+  .camara {
+    position: absolute; top: 9px; left: 50%; width: 19px; height: 19px; margin-left: -9.5px;
+    border-radius: 50%; background: #05070A; box-shadow: inset 0 0 0 3px #1A2330, 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .captura { display: block; }
+  .gesto { position: absolute; bottom: 13px; left: 50%; width: 190px; margin-left: -95px; height: 7px; border-radius: 4px; }
+
+  /* ---------- Tableta ---------- */
+  .tableta {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    border-radius: 58px; padding: 24px;
+    background: linear-gradient(150deg, #3A4654 0%, #121820 22%, #07090D 60%, #1B232D 100%);
+  }
+  .tableta .pantalla { border-radius: 34px; }
+  .tableta .camara-t {
+    position: absolute; top: 8px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px;
+    border-radius: 50%; background: #1E2834;
+  }
+
+  /* ---------- Gráfico destacado ---------- */
+  .destacado .lienzo {
+    background:
+      radial-gradient(520px 420px at 78% 60%, rgba(255, 107, 26, .22) 0%, rgba(255, 107, 26, 0) 70%),
+      radial-gradient(700px 500px at 10% 120%, rgba(39, 84, 122, .55) 0%, rgba(39, 84, 122, 0) 65%),
+      linear-gradient(120deg, #11283E 0%, #0A1826 100%);
+  }
+  .destacado .lienzo::after { color: rgba(255, 255, 255, .05); -webkit-mask-image: none; mask-image: none; background-size: 26px 26px; }
+  .fg-texto { position: absolute; left: 72px; top: 0; bottom: 0; width: 520px; display: flex; flex-direction: column; justify-content: center; }
+  .fg-texto .marca, .fg-texto .marca svg { height: 50px; }
+  .fg-texto .marca { margin-bottom: 30px; }
+  .fg-titulo { color: #fff; font-weight: 800; font-size: 54px; line-height: 1.04; letter-spacing: -1.6px; text-wrap: balance; }
+  .fg-titulo em { font-style: normal; color: var(--naranja); }
+  .fg-linea { margin-top: 18px; color: rgba(255, 255, 255, .78); font-weight: 500; font-size: 23px; letter-spacing: -.1px; }
+
+  /* ---------- Ícono ---------- */
+  .icono .lienzo { background: var(--azul); }
+  .icono .lienzo::after { display: none; }
+</style>
+</head>
+<body>
+<div id="raiz"></div>
+<script>
+  const SVG_WIFI = (c) => `<svg width="24" height="20" viewBox="0 0 24 20"><path d="M12 19.2 0.4 6.6C3.6 3.6 7.6 2 12 2s8.4 1.6 11.6 4.6z" fill="${c}"/></svg>`;
+  const SVG_SENAL = (c) => `<svg width="22" height="20" viewBox="0 0 22 20"><path d="M21 1v18H3z" fill="${c}"/></svg>`;
+  const SVG_BATERIA = (c) => `<svg width="15" height="24" viewBox="0 0 15 24"><rect x="4.5" y="0.5" width="6" height="3" rx="1" fill="${c}"/><rect x="0.5" y="3" width="14" height="20.5" rx="2.6" fill="${c}"/></svg>`;
+
+  /** «Shop *one* place» → la palabra entre asteriscos va en naranja. */
+  const resaltar = (t) => t.replace(/\*(.+?)\*/g, "<em>$1</em>").replace(/\|/g, "<br>");
+
+  function rayas(x, y, anchos) {
+    return `<div class="rayas" style="left:${x}px;top:${y}px">${anchos.map((a) => `<i style="width:${a}px"></i>`).join("")}</div>`;
+  }
+
+  function barraDeEstado(d, ancho, alto, tam) {
+    const c = d.barraTexto;
+    return `<div class="barra" style="height:${alto}px;background:${d.barraColor};color:${c};font-size:${tam}px">
+      <span>9:41</span>
+      <span class="iconos">${SVG_WIFI(c)}${SVG_SENAL(c)}${SVG_BATERIA(c)}</span>
+    </div>`;
+  }
+
+  function pintarTelefono(d) {
+    document.documentElement.style.width = document.body.style.width = "1080px";
+    document.documentElement.style.height = document.body.style.height = "1920px";
+    const ANCHO = 600;                                   // ancho de la pantalla
+    const altoCaptura = Math.round(ANCHO * d.alto / d.ancho);
+    const BARRA = 35;
+    const altoPantalla = BARRA + altoCaptura;
+    const BISEL = 15;
+    const altoTel = altoPantalla + BISEL * 2;
+    const arriba = 1920 - altoTel - 52;                  // el teléfono se apoya abajo
+    const marca = d.logo ? `<div class="marca">${d.logoSvg}</div>` : "";
+    document.getElementById("raiz").innerHTML = `
+      <div class="lienzo"></div>
+      ${d.fondo === "oscuro" ? rayas(-30, arriba + 330, [150, 104, 64]) : rayas(1080 - 140, arriba + 860, [170, 120, 74])}
+      <div class="cabeza" style="height:${arriba}px;padding-top:10px">
+        ${marca}
+        <h1 class="titulo">${resaltar(d.titulo)}</h1>
+        <p class="linea">${d.linea}</p>
+      </div>
+      <div class="telefono" style="top:${arriba}px;width:${ANCHO + BISEL * 2}px;height:${altoTel}px">
+        <span class="boton-lado" style="right:-5px;top:300px;height:110px"></span>
+        <span class="boton-lado" style="right:-5px;top:450px;height:180px"></span>
+        <div class="pantalla" style="width:${ANCHO}px;height:${altoPantalla}px">
+          ${barraDeEstado(d, ANCHO, BARRA, 20)}
+          <div class="camara"></div>
+          <img class="captura" src="${d.captura}" style="width:${ANCHO}px;height:${altoCaptura}px">
+          <div class="gesto" style="background:${d.gestoColor}"></div>
+        </div>
+      </div>`;
+    document.body.className = d.fondo;
+  }
+
+  function pintarTableta(d) {
+    document.documentElement.style.width = document.body.style.width = "1080px";
+    document.documentElement.style.height = document.body.style.height = "1920px";
+    const ANCHO = 900;
+    const altoCaptura = Math.round(ANCHO * d.alto / d.ancho);
+    const BARRA = 30;
+    const altoPantalla = BARRA + altoCaptura;
+    const BISEL = 24;
+    const altoTab = altoPantalla + BISEL * 2;
+    const arriba = 1920 - altoTab - 60;
+    const marca = d.logo ? `<div class="marca">${d.logoSvg}</div>` : "";
+    document.getElementById("raiz").innerHTML = `
+      <div class="lienzo"></div>
+      <div class="cabeza" style="height:${arriba}px;padding-top:6px">
+        ${marca}
+        <h1 class="titulo">${resaltar(d.titulo)}</h1>
+        <p class="linea">${d.linea}</p>
+      </div>
+      <div class="tableta telefono" style="top:${arriba}px;width:${ANCHO + BISEL * 2}px;height:${altoTab}px;border-radius:58px;padding:${BISEL}px">
+        <span class="camara-t"></span>
+        <div class="pantalla" style="width:${ANCHO}px;height:${altoPantalla}px;border-radius:34px">
+          ${barraDeEstado(d, ANCHO, BARRA, 17)}
+          <img class="captura" src="${d.captura}" style="width:${ANCHO}px;height:${altoCaptura}px">
+          <div class="gesto" style="background:${d.gestoColor};width:160px;margin-left:-80px;height:6px;bottom:10px"></div>
+        </div>
+      </div>`;
+    document.body.className = d.fondo;
+    /* La barra de la tableta lleva el texto más pegado a los bordes. */
+    document.querySelector(".barra").style.padding = "0 30px 0 34px";
+  }
+
+  function pintarDestacado(d) {
+    document.documentElement.style.width = document.body.style.width = "1024px";
+    document.documentElement.style.height = document.body.style.height = "500px";
+    const ANCHO = 236;
+    const altoCaptura = Math.round(ANCHO * d.alto / d.ancho);
+    const BARRA = 14, BISEL = 7;
+    const tel = (img, x, y, giro, z, extra = "") => `
+      <div class="telefono" style="left:${x}px;top:${y}px;transform:rotate(${giro}deg);width:${ANCHO + BISEL * 2}px;height:${BARRA + altoCaptura + BISEL * 2}px;border-radius:40px;padding:${BISEL}px;z-index:${z};box-shadow:0 0 0 1.5px rgba(255,255,255,.18),0 30px 60px rgba(0,0,0,.55)${extra}">
+        <div class="pantalla" style="width:${ANCHO}px;height:${BARRA + altoCaptura}px;border-radius:33px">
+          <div style="height:${BARRA}px;background:${d.barraColor}"></div>
+          <div class="camara" style="top:3px;width:8px;height:8px;margin-left:-4px;box-shadow:inset 0 0 0 1.5px #1A2330"></div>
+          <img class="captura" src="${img}" style="width:${ANCHO}px;height:${altoCaptura}px">
+        </div>
+      </div>`;
+    document.getElementById("raiz").innerHTML = `
+      <div class="lienzo"></div>
+      ${rayas(-26, 392, [120, 78])}
+      <div class="fg-texto">
+        <div class="marca">${d.logoSvg}</div>
+        <h1 class="fg-titulo">${resaltar(d.titulo)}</h1>
+        <p class="fg-linea">${d.linea}</p>
+      </div>
+      ${tel(d.captura2, 790, 74, 7, 1)}
+      ${tel(d.captura, 625, 40, -4, 2)}`;
+    document.body.className = "destacado";
+    document.querySelectorAll(".telefono").forEach((t) => (t.style.position = "absolute"));
+  }
+
+  function pintarIcono(d) {
+    document.documentElement.style.width = document.body.style.width = "512px";
+    document.documentElement.style.height = document.body.style.height = "512px";
+    document.getElementById("raiz").innerHTML = `<div class="lienzo"></div>
+      <svg width="512" height="512" viewBox="0 0 512 512" style="position:absolute;inset:0">
+        <g transform="translate(${d.tx},${d.ty}) scale(${d.escala})">${d.tren}</g>
+      </svg>`;
+    document.body.className = "icono";
+  }
+
+  window.pintar = function (d) {
+    ({ telefono: pintarTelefono, tableta: pintarTableta, destacado: pintarDestacado, icono: pintarIcono })[d.modo](d);
+  };
+</script>
+</body>
+</html>

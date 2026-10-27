@@ -15,6 +15,74 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA APP DE ANDROID, Y TODO LO QUE GOOGLE PLAY EXIGIÓ (27 oct 2026)
+
+Richard: «queremos convertirla en una aplicación y publicarla… que hagas
+bastantes imágenes de mostrario, que todo quede bonito, profesional… que tú
+lo hagas todo». La cuenta de Google Play es la de organización «Divoox»
+(en la cuenta de Google de Windoce), así que no aplica el periodo de doce
+probadores de las cuentas personales.
+
+**La app.** Trusted Web Activity `com.mercatren.app`: abre mercatren.com a
+pantalla completa, sin barra del navegador. Proyecto en `app-android/` (ver su
+`LEEME.md`): Bubblewrap 1.27, AGP 8.9.1, androidbrowserhelper 2.7.4,
+compileSdk y targetSdk 36, minSdk 24. La llave de SUBIDA vive fuera del
+repositorio, en la carpeta de configuración de Mercatren de la máquina
+(`play-upload.jks` y su `.properties`); Google firma lo que instala la gente
+con su propia llave (Play App Signing).
+
+**Para que se vea como app y no como página.** `/.well-known/assetlinks.json`
+(ruta en `src/app/.well-known/assetlinks.json/route.ts`, datos en
+`src/lib/app-android/enlaces.ts`) publica las DOS huellas: la de la llave de
+subida y la de la firma de Google. Si falta una, la app abre con la barra del
+navegador arriba. Candado: `tests/unit/app-android-enlaces.test.ts`.
+
+**Lo que Google exigió y Mercatren no tenía:**
+
+1. **Borrar la cuenta desde la app y desde la web.** Página pública
+   `/delete-account` (es y en, dirección en inglés), menú de tres puntos en
+   «Mi cuenta», palabra de confirmación, correo de aviso. La cuenta se
+   ANONIMIZA en un solo lote: los pedidos, pagos y facturas se quedan cinco
+   años por ley (la base no deja borrar un usuario con pedidos, y no debe).
+   Comercios, equipo, pedidos en camino y paquetes en Miami no se borran
+   solos. `lib/cuenta/borrar*.ts`, tabla `cuentas_eliminadas`. Candado:
+   `tests/unit/borrar-cuenta.test.ts`.
+2. **Denunciar y bloquear** el contenido de usuarios que ve el público
+   (comentarios de videos, opiniones y preguntas de productos). Tres puntos
+   en cada uno; con tres denuncias abiertas se oculta solo; el equipo recibe
+   cada denuncia por correo; bloquear esconde a esa persona solo para quien
+   bloqueó. Borrar un comentario propio también pasó a los tres puntos.
+   `lib/moderacion/`, tablas `denuncias_contenido` y `bloqueos_usuario`,
+   términos versión 5 con lo que no se puede publicar. Candado:
+   `tests/unit/moderacion.test.ts`.
+3. **Nada de ayudas sexuales en el catálogo.** La política de Google prohíbe
+   mostrarlas y había un juguete sexual publicado (de CJ). El reloj pasa a
+   `borrador` cada hora lo que calce con una lista de frases precisa
+   (`lib/catalogo/para-adultos.ts`): «vibrator» sola NO entra porque traía
+   sillas de masaje. Candado: `tests/unit/para-adultos.test.ts`.
+
+**Lo que salió de paso:**
+
+- La auditoría paró la publicación con dos avisos CRÍTICOS: Next (ejecución
+  remota de código) y better-auth. Next subió a 16.4.3 y zod a 4.6.7 (forzado
+  en todo el árbol con `overrides`). better-auth quedó anotado en
+  `CONOCIDOS`: sus avisos son de complementos que no se usan, y la 1.7.7 pide
+  una columna nueva en `account` que `schema.sql` no puede agregar.
+- Next 16.4 exige un layout raíz en cada página: `/widget/form` tiene ahora
+  el suyo (`src/app/widget/layout.tsx`).
+- La portada decía «Mercatren hace la compra a tu nombre» y `/en/vender`
+  «We collect on your behalf»: las dos nos presentaban como mandatarios. La
+  prueba de vocabulario lo dejaba pasar porque cualquier negación de la línea
+  (aunque fuera de otra oración) servía de excusa; ahora la negación tiene
+  que estar en la misma oración, y también se revisa `messages/`.
+- El manifiesto de la app instalable decía «Tu agente de compras y ventas
+  entre países»: cambiado.
+
+**La ficha de la tienda** (textos, imágenes en inglés y en español, respuestas
+de los formularios) está en `tienda-apps/google-play/FICHA.md`.
+
+---
+
 ## SEGURIDAD Y FACTURAS SORPRESA: LO QUE SE CERRÓ EL 7 OCT (7 oct 2026)
 
 Richard: «todos los temas que sean de seguridad, que no nos vaya a romper nada y

@@ -1,0 +1,135 @@
+{
+  "_nota": "Titulares y líneas de cada imagen. La palabra entre *asteriscos* sale en naranja. 'captura' es el archivo de capturas-originales sin el prefijo de dispositivo e idioma. 'fondo' alterna oscuro/claro. La barra | marca dónde se parte el titular en dos líneas.",
+  "telefono": [
+    {
+      "captura": "01-portada",
+      "fondo": "oscuro",
+      "logo": true,
+      "en": {
+        "titulo": "Shop U.S. stores|in *one* place",
+        "linea": "Thousands of products, with shipping included in the price."
+      },
+      "es": {
+        "titulo": "Compra en tiendas|de *EE. UU.*",
+        "linea": "Todo en un solo lugar, con el envío incluido en el precio."
+      }
+    },
+    {
+      "captura": "02-ficha",
+      "fondo": "claro",
+      "en": {
+        "titulo": "Clear prices,|no *surprises*",
+        "linea": "The price you see is the final price, shipping included."
+      },
+      "es": {
+        "titulo": "Precios claros,|sin *sorpresas*",
+        "linea": "El precio que ves es el final, con el envío incluido."
+      }
+    },
+    {
+      "captura": "03-departamentos",
+      "fondo": "oscuro",
+      "en": {
+        "titulo": "*Thousands*|of products",
+        "linea": "Home, garden, fashion, beauty, auto parts and much more."
+      },
+      "es": {
+        "titulo": "*Miles*|de productos",
+        "linea": "Hogar, jardín, moda, belleza, repuestos y mucho más."
+      }
+    },
+    {
+      "captura": "04-busqueda",
+      "fondo": "claro",
+      "en": {
+        "titulo": "Find it|in *seconds*",
+        "linea": "Search by name, brand or store, or use a photo."
+      },
+      "es": {
+        "titulo": "Encuéntralo|en *segundos*",
+        "linea": "Busca por nombre, marca o tienda, o usa una foto."
+      }
+    },
+    {
+      "captura": "05-video",
+      "fondo": "oscuro",
+      "en": {
+        "titulo": "Discover stores|in *video*",
+        "linea": "Short videos, straight from the stores."
+      },
+      "es": {
+        "titulo": "Descubre tiendas|en *video*",
+        "linea": "Videos cortos, directo desde cada tienda."
+      }
+    },
+    {
+      "captura": "06-tiendas",
+      "fondo": "claro",
+      "en": {
+        "titulo": "Many stores,|*one* cart",
+        "linea": "Every store has its own storefront. You check out once."
+      },
+      "es": {
+        "titulo": "Muchas tiendas,|*un* carrito",
+        "linea": "Cada tienda con su vitrina, y pagas todo junto."
+      }
+    },
+    {
+      "captura": "07-carrito",
+      "fondo": "oscuro",
+      "en": {
+        "titulo": "Secure card|*checkout*",
+        "linea": "Review your cart and pay with peace of mind."
+      },
+      "es": {
+        "titulo": "Pago *seguro*|con tarjeta",
+        "linea": "Revisa tu carrito y paga con tranquilidad."
+      }
+    },
+    {
+      "captura": "08-casillero",
+      "fondo": "claro",
+      "en": {
+        "titulo": "Your own|Miami *locker*",
+        "linea": "A U.S. address with your own number, ready to copy."
+      },
+      "es": {
+        "titulo": "Tu casillero|en *Miami*",
+        "linea": "Una dirección en EE. UU. con tu número, lista para copiar."
+      }
+    }
+  ],
+  "tableta": [
+    {
+      "captura": "01-portada",
+      "fondo": "oscuro",
+      "logo": true,
+      "copiaDe": "01-portada"
+    },
+    {
+      "captura": "04-busqueda",
+      "fondo": "claro",
+      "copiaDe": "04-busqueda"
+    },
+    {
+      "captura": "06-tiendas",
+      "fondo": "oscuro",
+      "copiaDe": "06-tiendas"
+    },
+    {
+      "captura": "07-carrito",
+      "fondo": "claro",
+      "copiaDe": "07-carrito"
+    }
+  ],
+  "destacado": {
+    "en": {
+      "titulo": "Shop U.S. stores in *one* place",
+      "linea": "Thousands of products · Shipping included"
+    },
+    "es": {
+      "titulo": "Compra en tiendas de *EE. UU.*",
+      "linea": "Miles de productos · Envío incluido"
+    }
+  }
+}

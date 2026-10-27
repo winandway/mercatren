@@ -18,15 +18,16 @@ Servicio **multi-comercio y multi-país**: un país = un dominio = un catálogo.
 
 ## LO PRIMERO QUE SE MIRA, SEGÚN LA PREGUNTA
 
-| Si preguntan…                   | Se contesta desde                      |
-| ------------------------------- | -------------------------------------- |
-| «¿qué falta?» · «¿qué hago yo?» | `CRONOGRAMA.md` (orden y prioridad)    |
-| «¿qué tenemos pendiente?»       | `PENDIENTES.md` (índice completo)      |
-| ¿un pago funciona?              | `VERIFICAR-PAGOS.md` — **obligatorio** |
-| abrir un país nuevo             | `ABRIR-UN-PAIS.md` — lista entera      |
-| posicionamiento, «escanea»      | `SEO.md`                               |
-| ¿seguimos con CJ? ¿quién más?   | `PLAN-B-PROVEEDORES.md`                |
-| por qué algo se hizo así        | `HISTORIAL.md` (índice abajo)          |
+| Si preguntan…                   | Se contesta desde                                           |
+| ------------------------------- | ----------------------------------------------------------- |
+| «¿qué falta?» · «¿qué hago yo?» | `CRONOGRAMA.md` (orden y prioridad)                         |
+| «¿qué tenemos pendiente?»       | `PENDIENTES.md` (índice completo)                           |
+| ¿un pago funciona?              | `VERIFICAR-PAGOS.md` — **obligatorio**                      |
+| abrir un país nuevo             | `ABRIR-UN-PAIS.md` — lista entera                           |
+| posicionamiento, «escanea»      | `SEO.md`                                                    |
+| ¿seguimos con CJ? ¿quién más?   | `PLAN-B-PROVEEDORES.md`                                     |
+| por qué algo se hizo así        | `HISTORIAL.md` (índice abajo)                               |
+| la app de Android, Google Play  | `app-android/LEEME.md` y `tienda-apps/google-play/FICHA.md` |
 
 Al terminar algo se marca en `CRONOGRAMA.md` **y** en `PENDIENTES.md`.
 
@@ -395,6 +396,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [LA APP DE ANDROID, Y TODO LO QUE GOOGLE PLAY EXIGIÓ (27 oct 2026)](HISTORIAL.md#la-app-de-android-y-todo-lo-que-google-play-exigió-27-oct-2026)
 - [EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)](HISTORIAL.md#el-menú-del-panel-estaba-muy-lento-21-sep-2026)
 - [LA SUBCONSULTA QUE SE COMPARABA CONSIGO MISMA (25 sep 2026)](HISTORIAL.md#la-subconsulta-que-se-comparaba-consigo-misma-25-sep-2026)
 - [«TU PEDIDO YA VA EN CAMINO», Y EL TRANSPORTISTA QUE FALTABA (22 y 25 sep 2026)](HISTORIAL.md#tu-pedido-ya-va-en-camino-y-el-transportista-que-faltaba-22-y-25-sep-2026)
