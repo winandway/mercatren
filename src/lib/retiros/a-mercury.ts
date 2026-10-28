@@ -175,3 +175,24 @@ export function destinatarioParaMercury(datos: {
 export function aDolares(centavos: number): number {
   return Math.round(centavos) / 100;
 }
+
+/**
+ * ¿Este retiro puede salir por la API de Mercury? Solo si es en DÓLARES.
+ *
+ * ══ POR QUÉ (27 oct 2026) ══
+ *
+ * La solicitud de pago de la API (`request-send-money`) recibe `amount` y
+ * nada más: «Amount of USD you want to send», dice su documentación, sin
+ * campo de moneda. Un retiro de 100 € mandado por aquí saldría como $100
+ * — otra cifra, a otro tipo de cambio, y el comercio recibiría lo que su
+ * banco quisiera darle al convertir.
+ *
+ * Mercury SÍ manda euros, pero desde su panel: wire internacional, se elige
+ * la moneda en la lista y cobra un 1 % de cambio. Así se hacen, a mano, los
+ * retiros que no son en dólares, hasta que la API acepte la moneda.
+ */
+export function mercuryLaPuedeMandar(
+  moneda: string | null | undefined,
+): boolean {
+  return (moneda ?? "USD").trim().toUpperCase() === "USD";
+}

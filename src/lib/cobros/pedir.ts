@@ -20,6 +20,7 @@ import {
   type PeticionDeCobro,
 } from "@/lib/cobros/reglas";
 import { getDb } from "@/lib/db";
+import { monedaDeLaTienda } from "@/lib/mercado/moneda";
 import {
   cargosCobro,
   cobrosCadena,
@@ -136,7 +137,12 @@ async function crearCobroDeVerdad(datos: FormData): Promise<ResultadoCobro> {
 
   const db = getDb();
   const [tienda] = await db
-    .select({ id: tiendas.id, nombre: tiendas.nombre, estado: tiendas.estado })
+    .select({
+      id: tiendas.id,
+      nombre: tiendas.nombre,
+      estado: tiendas.estado,
+      mercado: tiendas.mercado,
+    })
     .from(tiendas)
     .where(eq(tiendas.id, tiendaId))
     .limit(1);
@@ -146,6 +152,19 @@ async function crearCobroDeVerdad(datos: FormData): Promise<ResultadoCobro> {
     return {
       ok: false,
       mensaje: "Este comercio no está activo, así que no puede cobrar.",
+    };
+  }
+
+  /* ══ LOS ENLACES DE COBRO SON EN DÓLARES (27 oct 2026) ══ El cobro nace en
+     USD y su neto se suma a la billetera del comercio. En una tienda que
+     vende en euros, esos dólares se leerían como euros. Hasta que el enlace
+     cobre en la moneda de la tienda, no se crea. */
+  const { cobroPorEnlaceAdmite } = await import("@/lib/cobros/moneda");
+  if (!cobroPorEnlaceAdmite(monedaDeLaTienda(tienda.mercado))) {
+    return {
+      ok: false,
+      mensaje:
+        "Los enlaces de cobro todavía son solo en dólares, y esta tienda vende en otra moneda. Muy pronto podrás cobrar por enlace en tu moneda.",
     };
   }
 

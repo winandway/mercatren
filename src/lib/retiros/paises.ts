@@ -405,6 +405,60 @@ export function paisBancario(codigo: string): PaisBancario | null {
 }
 
 /**
+ * ══ A QUÉ PAÍSES SE LE PUEDE PAGAR CADA MONEDA (27 oct 2026) ══
+ *
+ * El dólar sale a cualquier país de la lista: es lo de siempre, un wire en
+ * USD que el banco del comercio convierte. Las demás monedas solo llegan a
+ * los países donde esa moneda ES la del banco: un comercio de España que
+ * vendió en euros los recibe en euros en su IBAN, no en dólares en una
+ * cuenta de Miami. Mandar euros a una cuenta en pesos sería convertir dos
+ * veces el dinero del comercio, y cada conversión se lleva su parte.
+ *
+ * Están todos los países del euro aunque hoy solo España tenga casillas:
+ * el día que se sume Portugal o Italia a la lista de arriba, ya cobran.
+ */
+const PAISES_DE_LA_MONEDA: Record<string, readonly string[]> = {
+  EUR: [
+    "AT",
+    "BE",
+    "CY",
+    "DE",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "GR",
+    "HR",
+    "IE",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "MT",
+    "NL",
+    "PT",
+    "SI",
+    "SK",
+  ],
+  CLP: ["CL"],
+  COP: ["CO"],
+};
+
+/** ¿Se le puede pagar esta moneda a una cuenta de este país? */
+export function paisAdmiteMoneda(pais: string, moneda: string): boolean {
+  const laMoneda = moneda.trim().toUpperCase();
+  if (laMoneda === "USD") return true;
+  return (
+    PAISES_DE_LA_MONEDA[laMoneda]?.includes(pais.trim().toUpperCase()) ?? false
+  );
+}
+
+/** Los países que el formulario de retiro ofrece para una billetera. */
+export function paisesBancariosPara(moneda: string): PaisBancario[] {
+  return PAISES_BANCARIOS.filter((p) => paisAdmiteMoneda(p.codigo, moneda));
+}
+
+/**
  * Comprueba los datos de una cuenta contra las reglas de su país.
  *
  * Devuelve las CLAVES de los campos que están mal, no frases: esto corre en el

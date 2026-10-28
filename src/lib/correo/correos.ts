@@ -511,10 +511,19 @@ export async function correoPagoRechazado(
 /** 7. Al comercio: una venta suya quedo acreditada en su billetera. */
 export async function correoVentaAcreditada(
   d: Destinatario,
-  venta: { montoCentavos: number; referencia?: string | null },
+  venta: {
+    montoCentavos: number;
+    referencia?: string | null;
+    /** La de la venta: un comercio de España vende en euros. */
+    moneda?: string | null;
+  },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(venta.montoCentavos, idioma, "USD");
+  const monto = formatearPrecio(
+    venta.montoCentavos,
+    idioma,
+    venta.moneda ?? "USD",
+  );
 
   return enviar(d, {
     asunto: t("ventaAcreditada.asunto", { monto }),
@@ -671,9 +680,12 @@ export async function correoAvisoRetiroSolicitado(d: {
   comercio: string;
   montoCentavos: number;
   forma: string;
+  /** La de la billetera. Un retiro en euros se hace a mano en Mercury, y
+      quien va al banco tiene que leer «€», no «$». */
+  moneda?: string | null;
 }) {
   const t = await getTranslations({ locale: "es", namespace: "correos" });
-  const monto = formatearPrecio(d.montoCentavos, "es", "USD");
+  const monto = formatearPrecio(d.montoCentavos, "es", d.moneda ?? "USD");
 
   return correoAvisoAlEquipo({
     asunto: t("retiroSolicitado.asunto", { monto, comercio: d.comercio }),
@@ -689,10 +701,18 @@ export async function correoAvisoRetiroSolicitado(d: {
 /** 11. Al comercio: la transferencia ya salió del banco. */
 export async function correoRetiroPagado(
   d: Destinatario,
-  retiro: { montoCentavos: number; referencia?: string | null },
+  retiro: {
+    montoCentavos: number;
+    referencia?: string | null;
+    moneda?: string | null;
+  },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(retiro.montoCentavos, idioma, "USD");
+  const monto = formatearPrecio(
+    retiro.montoCentavos,
+    idioma,
+    retiro.moneda ?? "USD",
+  );
 
   return enviar(d, {
     asunto: t("retiroPagado.asunto", { monto }),
@@ -723,10 +743,14 @@ export async function correoRetiroPagado(
     entera semanas después, o nunca — y quien le envió cree que no llegó. */
 export async function correoTransferenciaRecibida(
   d: Destinatario,
-  datos: { montoCentavos: number; deQuien: string },
+  datos: { montoCentavos: number; deQuien: string; moneda?: string | null },
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(datos.montoCentavos, idioma, "USD");
+  const monto = formatearPrecio(
+    datos.montoCentavos,
+    idioma,
+    datos.moneda ?? "USD",
+  );
 
   return enviar(d, {
     asunto: t("transferenciaRecibida.asunto", { monto }),
@@ -753,11 +777,15 @@ export async function correoTransferenciaRecibida(
 /** 12. Al comercio: no se pudo transferir, con el motivo. */
 export async function correoRetiroRechazado(
   d: Destinatario,
-  retiro: { montoCentavos: number },
+  retiro: { montoCentavos: number; moneda?: string | null },
   motivoRechazo: string,
 ) {
   const { idioma, t, saludo, motivo, contacto } = await base(d);
-  const monto = formatearPrecio(retiro.montoCentavos, idioma, "USD");
+  const monto = formatearPrecio(
+    retiro.montoCentavos,
+    idioma,
+    retiro.moneda ?? "USD",
+  );
 
   return enviar(d, {
     asunto: t("retiroRechazado.asunto", { monto }),

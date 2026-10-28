@@ -15,6 +15,7 @@ import {
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { mercadoActual } from "@/lib/mercado/actual";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
 import {
   documentoDelMercado,
   type DocumentoDelMercado,
@@ -365,6 +366,9 @@ export async function solicitarComercio(
     db.insert(billeteras).values({
       id: `billetera-${nanoid(10)}`,
       tiendaId,
+      /* La de su país. El saldo se calcula con `monedaDeLaTienda`, pero la
+         fila tampoco debe decir USD para una tienda que vende en euros. */
+      moneda: monedaDelMercado(mercado),
     }),
 
     // Ya es un comercio: el panel deja de tratarlo como comprador.

@@ -15,6 +15,64 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL SALDO Y EL RETIRO HABLAN LA MONEDA DE LA TIENDA: EUROS PARA ESPAÑA (27 oct 2026, noche)
+
+**Qué estaba mal.** La billetera de cada comercio nació con `moneda = "USD"`
+para todos y nadie la cambiaba. Mientras todos los comercios vendían en
+dólares no se notaba. Con España —el primer país donde los comercios venden
+en otra moneda— cien euros vendidos se habrían visto como «$100.00», el
+retiro habría salido como cien dólares y el total «por pagar a los
+comercios» del equipo sumaba euros con dólares. Por eso el cobro de España
+se abrió cerrado (`ESPANA_SIN_COBRO`).
+
+**Además había cuatro puertas por donde entraban dólares a una billetera en
+otra moneda:** Zelle (solo mueve dólares, y el equipo lo puede encender a
+mano por tienda), los enlaces de cobro (nacen fijos en USD), el traspaso
+«a otro comercio» (no miraba monedas) y el carrito (el pedido toma la moneda
+del primer producto). Y una de salida: la API de Mercury
+(`request-send-money`) recibe `amount` en dólares y no tiene campo de
+moneda — un retiro de 100 € mandado por ahí saldría como $100.
+
+**Lo que se hizo.**
+
+- `monedaDeLaTienda(mercado)` en `src/lib/mercado/moneda.ts`: la moneda sale
+  del PAÍS de la tienda, el mismo dato que ya manda en el precio de sus
+  productos. `obtenerPosicion` la usa; `billeteras.moneda` ya no se lee
+  (y las tiendas nuevas la guardan bien de todos modos).
+- Retiros: el retiro guarda su moneda; `paisAdmiteMoneda` /
+  `paisesBancariosPara` en `retiros/paises.ts` dejan pagar el euro solo a
+  cuentas de países del euro (los pesos, solo a su país; el dólar, a
+  cualquiera); el servidor lo vuelve a comprobar; el monto se lee con los
+  decimales de la moneda (`aCentavos(texto, lugares)`); la casilla lleva el
+  signo de la moneda (`simboloDeMoneda`).
+- Mercury: `mercuryLaPuedeMandar(moneda)` en `retiros/a-mercury.ts`. Un
+  retiro que no es en dólares NO sale por la API: la cola del equipo esconde
+  el botón y dice, en ámbar, que se haga desde el panel de Mercury como wire
+  internacional eligiendo la moneda (Mercury cobra 1 % de cambio).
+- Las puertas: `zelleAdmiteMoneda` en `zelleAbiertoParaTiendas`;
+  `cobroPorEnlaceAdmite` en el panel, en `crearCobroDesdePanel` y en la
+  puerta de los socios (422 `moneda_no_disponible`); el traspaso solo
+  ofrece y acepta comercios de la misma moneda; el pedido rechaza monedas
+  mezcladas (`monedasMezcladas`).
+- Pantallas y correos: el total del equipo sale uno por moneda, cada fila en
+  la suya; la lista de comercios, el desglose del cobro, el inicio del panel
+  y los correos de venta, retiro y traspaso dicen la moneda real.
+
+**Cómo se comprobó.** En la base LOCAL, con una tienda de prueba de España,
+una venta pagada de 125 € y un retiro de 100 €: saldo «121,25 €», total del
+equipo «$24,676.11» y «121,25 €» por separado, formulario con solo España y
+«Lo recibes en euros», cola del equipo con «100,00 €», el aviso ámbar y sin
+botón de Mercury. Capturas en `docs/capturas/euros-*.png`. La base local se
+devolvió a como estaba.
+
+**Candado.** `tests/unit/saldo-en-la-moneda-de-la-tienda.test.ts`
+(21 pruebas), comprobado en rojo devolviendo el fallo en cuatro sitios.
+
+**Qué NO hay que tocar.** No volver a leer `billeteras.moneda` para el saldo.
+No mandar por la API de Mercury nada que no sea USD. No quitar
+`ESPANA_SIN_COBRO` sin la compra real en euros y la decisión del margen
+(ver `VERIFICAR-PAGOS.md`).
+
 ## ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)
 
 **Qué pidió Richard.** «Vamos a abrir España que quede pendiente de agregar

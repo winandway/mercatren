@@ -9,6 +9,7 @@ import { TokenIntegracion } from "@/components/panel/tiendas/token-integracion";
 import { BuscadorPanel } from "@/components/panel/buscador-panel";
 import { Link } from "@/i18n/navigation";
 import { obtenerUsuario } from "@/lib/autorizacion";
+import { monedaDeLaTienda } from "@/lib/mercado/moneda";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { estadoFiscal, puedeCobrar } from "@/lib/fiscal/w8bene";
 import { listarComercios } from "@/lib/zelle/consultas";
@@ -103,7 +104,11 @@ export default async function PaginaComercios({
                       {t("columnas.ingresos")}
                     </dt>
                     <dd className="font-semibold tabular-nums">
-                      {formatearPrecio(c.ingresosCentavos, idioma, "USD")}
+                      {formatearPrecio(
+                        c.ingresosCentavos,
+                        idioma,
+                        monedaDeLaTienda(c.mercado),
+                      )}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-3">
@@ -113,7 +118,11 @@ export default async function PaginaComercios({
                         className="h-3.5 w-3.5 text-tinta-suave"
                         aria-hidden
                       />
-                      {formatearPrecio(c.saldoCentavos, idioma, "USD")}
+                      {formatearPrecio(
+                        c.saldoCentavos,
+                        idioma,
+                        monedaDeLaTienda(c.mercado),
+                      )}
                     </dd>
                   </div>
                 </dl>

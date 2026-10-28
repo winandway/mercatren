@@ -1,15 +1,17 @@
 "use client";
 
 import { Building2, Landmark, Loader2, Store, Wallet } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useEffect, useRef, useState } from "react";
 
 import {
   FormularioPersistente,
   olvidarBorrador,
 } from "@/components/ui/formulario-persistente";
+import { simboloDeMoneda, type Idioma } from "@/lib/dinero";
+import { decimalesDe, divisorDe } from "@/lib/mercado/moneda";
 import { pedirRetiro } from "@/lib/retiros/acciones";
-import { PAISES_BANCARIOS, paisBancario } from "@/lib/retiros/paises";
+import { paisBancario, paisesBancariosPara } from "@/lib/retiros/paises";
 import { cn } from "@/lib/utils";
 
 /**
@@ -69,6 +71,7 @@ export function PedirRetiro({
   comercios,
   tiendaId,
   puedeElegirTienda = false,
+  moneda = "USD",
 }: {
   disponibleCentavos: number;
   disponibleTexto: string;
@@ -76,13 +79,29 @@ export function PedirRetiro({
   tiendaId: string;
   /** El equipo pide en nombre de un comercio; un vendedor, solo el suyo. */
   puedeElegirTienda?: boolean;
+  /**
+   * La de la billetera. Un comercio que vende en euros solo ve los países
+   * del euro: lo recibe en euros en su IBAN (27 oct 2026).
+   */
+  moneda?: string;
 }) {
   const t = useTranslations("panel.retiros");
+  const idioma = useLocale() as Idioma;
+  /* Un monto como lo escribe quien lo lee: «121,25» en euros y en español,
+     «121.25» en lo demás. `aCentavos` entiende los dos. */
+  const comoSeEscribe = (valor: number) => {
+    const texto = valor.toFixed(decimalesDe(moneda));
+    return idioma === "es" && moneda === "EUR"
+      ? texto.replace(".", ",")
+      : texto;
+  };
   const [abierto, setAbierto] = useState(false);
   const [destino, setDestino] = useState<"comercio" | "banco">("banco");
   /* El país manda: decide qué casillas se dibujan y por qué vía sale. Se
-     arranca en Estados Unidos porque es el destino principal. */
-  const [pais, setPais] = useState("US");
+     arranca en el primero que admite la moneda: Estados Unidos para los
+     dólares, España para los euros. */
+  const paises = paisesBancariosPara(moneda);
+  const [pais, setPais] = useState(paises[0]?.codigo ?? "US");
   const [cuenta, setCuenta] = useState<Record<string, string>>({});
   const [estado, accion, enviando] = useActionState(pedirRetiro, null);
   const monto = useRef<HTMLInputElement>(null);
@@ -154,7 +173,7 @@ export function PedirRetiro({
               className="absolute top-1/2 left-3 -translate-y-1/2 text-tinta-suave"
               aria-hidden
             >
-              $
+              {simboloDeMoneda(moneda, idioma)}
             </span>
             <input
               ref={monto}
@@ -164,7 +183,7 @@ export function PedirRetiro({
               inputMode="decimal"
               required
               autoComplete="off"
-              placeholder="0.00"
+              placeholder={comoSeEscribe(0)}
               // 16px como mínimo: por debajo, el iPhone hace zoom al tocar.
               className="w-full rounded-lg border border-slate-300 py-3 pr-3 pl-7 text-base tabular-nums outline-none focus:border-carga-500 focus:ring-2 focus:ring-carga-500/30 sm:py-2.5 sm:text-sm"
             />
@@ -173,7 +192,9 @@ export function PedirRetiro({
             type="button"
             onClick={() => {
               if (monto.current) {
-                monto.current.value = (disponibleCentavos / 100).toFixed(2);
+                monto.current.value = comoSeEscribe(
+                  disponibleCentavos / divisorDe(moneda),
+                );
               }
             }}
             className="shrink-0 rounded-lg border border-slate-300 px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-slate-50"
@@ -276,14 +297,16 @@ export function PedirRetiro({
               }}
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none focus:border-carga-500 sm:py-2.5 sm:text-sm"
             >
-              {PAISES_BANCARIOS.map((p) => (
+              {paises.map((p) => (
                 <option key={p.codigo} value={p.codigo}>
                   {p.bandera} {t(`paises.${p.codigo}`)}
                 </option>
               ))}
             </select>
             <p className="mt-1 text-xs text-tinta-suave">
-              {t(paisBancario(pais)?.via === "ach" ? "viaAch" : "viaWire")}
+              {moneda === "USD"
+                ? t(paisBancario(pais)?.via === "ach" ? "viaAch" : "viaWire")
+                : t("viaEnTuMoneda", { moneda })}
             </p>
           </div>
 

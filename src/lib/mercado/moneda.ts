@@ -1,4 +1,4 @@
-import type { Mercado } from "@/lib/mercado/mercados";
+import { type Mercado, mercadoPorCodigo } from "@/lib/mercado/mercados";
 
 /**
  * LA MONEDA DE CADA PAÍS, Y CUÁNTAS PARTES TIENE.
@@ -81,4 +81,21 @@ const MONEDA_POR_MERCADO: Record<string, string> = {
  */
 export function monedaDelMercado(mercado: Mercado): string {
   return MONEDA_POR_MERCADO[mercado.codigo] ?? "USD";
+}
+
+/**
+ * En qué moneda vende, cobra y le pagamos a UNA TIENDA: la de su país.
+ *
+ * ══ POR QUÉ SALE DEL PAÍS Y NO DE `billeteras.moneda` (27 oct 2026) ══
+ *
+ * La billetera nació con `USD` por defecto para todos, y nadie la cambiaba.
+ * Con España —el primer país donde los comercios venden en otra moneda—
+ * eso pintaba cien euros vendidos como «$100.00», y el retiro salía como si
+ * fueran dólares. El país de la tienda es el dato que ya manda en el precio
+ * de sus productos; el saldo tiene que hablar la misma moneda que el precio.
+ *
+ * Una tienda sin país (las viejas) es del principal: dólares.
+ */
+export function monedaDeLaTienda(mercado: string | null | undefined): string {
+  return monedaDelMercado(mercadoPorCodigo(mercado));
 }

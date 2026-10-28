@@ -95,3 +95,17 @@ export async function primerosPasos() {
     ],
   };
 }
+
+/**
+ * La moneda en que vende y cobra una tienda, sacada de su país
+ * (`monedaDeLaTienda`). Para las pantallas que tienen el id y no la fila.
+ */
+export async function monedaDeTiendaId(tiendaId: string): Promise<string> {
+  const { monedaDeLaTienda } = await import("@/lib/mercado/moneda");
+  const [fila] = await getDb()
+    .select({ mercado: tiendas.mercado })
+    .from(tiendas)
+    .where(eq(tiendas.id, tiendaId))
+    .limit(1);
+  return monedaDeLaTienda(fila?.mercado);
+}

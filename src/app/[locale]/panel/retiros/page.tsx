@@ -16,6 +16,7 @@ import { DesgloseDelCobro } from "@/components/panel/desglose-cobro";
 import { PedirRetiro } from "@/components/panel/retiros/pedir-retiro";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
+import { mercuryLaPuedeMandar } from "@/lib/retiros/a-mercury";
 import { RUTA_MEDIA } from "@/lib/rutas";
 import { fechaCorta } from "@/lib/fechas";
 import {
@@ -89,7 +90,9 @@ export default async function PaginaRetiros({
   const dinero = (centavos: number) =>
     formatearPrecio(centavos, idioma, moneda);
 
-  const otros = posicion ? await comerciosDestino(posicion.tiendaId) : [];
+  const otros = posicion
+    ? await comerciosDestino(posicion.tiendaId, moneda)
+    : [];
 
   // Al equipo le interesa primero lo que tiene que transferir hoy.
   const pendientes = lista.filter((r) => r.estado === "solicitado");
@@ -137,6 +140,7 @@ export default async function PaginaRetiros({
               brutoZelleCentavos={posicion.brutoZelleCentavos}
               margenZelleCentavos={posicion.margenZelleCentavos}
               idioma={idioma}
+              moneda={moneda}
             />
           </div>
 
@@ -146,6 +150,7 @@ export default async function PaginaRetiros({
             comercios={otros}
             tiendaId={posicion.tiendaId}
             puedeElegirTienda={interno}
+            moneda={moneda}
           />
         </section>
       ) : null}
@@ -191,8 +196,10 @@ export default async function PaginaRetiros({
 
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-baseline gap-x-2">
+                      {/* En la moneda DEL RETIRO: en la cola del equipo
+                          conviven comercios de países distintos. */}
                       <span className="text-lg font-bold tabular-nums">
-                        {dinero(r.montoCentavos)}
+                        {formatearPrecio(r.montoCentavos, idioma, r.moneda)}
                       </span>
                       <span
                         className={cn(
@@ -274,6 +281,26 @@ export default async function PaginaRetiros({
                         destino={r.destino as Record<string, unknown> | null}
                       />
                     ) : null}
+
+                    {/* UN RETIRO QUE NO ES EN DÓLARES SE HACE A MANO: la
+                        conexión con Mercury solo manda dólares
+                        (`mercuryLaPuedeMandar`). Se dice aquí, con la
+                        moneda, para que nadie mande la cifra en USD. */}
+                    {interno &&
+                    r.estado === "solicitado" &&
+                    r.forma !== "comercio" &&
+                    !mercuryLaPuedeMandar(r.moneda) ? (
+                      <p className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                        {t("retiroEnOtraMoneda", {
+                          moneda: r.moneda,
+                          monto: formatearPrecio(
+                            r.montoCentavos,
+                            idioma,
+                            r.moneda,
+                          ),
+                        })}
+                      </p>
+                    ) : null}
                   </div>
 
                   {r.estado === "solicitado" ? (
@@ -286,7 +313,10 @@ export default async function PaginaRetiros({
                            comprueba con el rol de VERDAD: quien está mirando
                            con el disfraz de «ver su panel» no puede. */
                         puedeMandarAMercury={
-                          esSoporte && r.estado === "solicitado" && !r.historico
+                          esSoporte &&
+                          r.estado === "solicitado" &&
+                          !r.historico &&
+                          mercuryLaPuedeMandar(r.moneda)
                         }
                       />
                     </div>

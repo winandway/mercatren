@@ -222,6 +222,14 @@ export async function crearPedido(
     return { ok: false, mensaje: t("destinosMezclados") };
   }
 
+  /* ══ NI MONEDAS (27 oct 2026) ══ El pedido toma la moneda del PRIMER
+     producto: con un producto en euros y otro en dólares, uno de los dos se
+     cobraría con la cifra en la moneda equivocada, y la billetera de su
+     comercio sumaría dólares como si fueran euros. */
+  if (new Set(encontrados.map((p) => p.moneda)).size > 1) {
+    return { ok: false, mensaje: t("monedasMezcladas") };
+  }
+
   const destinoDelPedido: Destino = destinos.values().next().value ?? "VE";
 
   const faltan = faltantesDeEntrega(destinoDelPedido, {

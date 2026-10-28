@@ -79,6 +79,16 @@ export const ARTICULOS_ES: Articulo[] = [
           `Cada venta se factura a nombre de ${SOCIEDAD.nombre}: tú le vendes la mercancía y nosotros se la vendemos a tu cliente.`,
         ],
       },
+      { tipo: "subtitulo", texto: "Cómo cobras tus ventas" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Tu dinero se ve en euros en tu panel, en «Mi dinero»: lo que vendiste, ya con nuestra parte descontada.",
+          "Lo retiras cuando quieras, en euros, a tu cuenta bancaria en España. Escribes tu IBAN y el código SWIFT (BIC) de tu banco, y nuestro equipo hace la transferencia. Llega en uno a tres días hábiles.",
+          "Antes del primer retiro completas tu formulario fiscal en «Mi tienda». Se hace una vez y vale tres años.",
+          "Los enlaces de cobro, por ahora, son solo en dólares: en España tus clientes te compran desde tu tienda en Mercatren.",
+        ],
+      },
       {
         tipo: "aviso",
         tono: "ojo",

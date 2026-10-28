@@ -265,3 +265,12 @@ export function zelleHabilitadaPara(
 }
 
 export const LLAVE_POLITICA_ZELLE = "zelle_politica";
+
+/**
+ * Zelle mueve dólares entre bancos de Estados Unidos, y nada más. Una
+ * tienda que vende en otra moneda no lo ofrece aunque el equipo la haya
+ * encendido a mano (27 oct 2026).
+ */
+export function zelleAdmiteMoneda(moneda: string | null | undefined): boolean {
+  return (moneda ?? "USD").trim().toUpperCase() === "USD";
+}

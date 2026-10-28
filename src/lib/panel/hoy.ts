@@ -4,6 +4,8 @@ import { and, eq, gte, sql, type SQL } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { mercadoPorCodigo } from "@/lib/mercado/mercados";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
 import { obtenerPosicion } from "@/lib/zelle/billetera";
 import {
   disputas,
@@ -247,8 +249,12 @@ export async function resumenDeHoy(): Promise<ResumenDeHoy> {
     porEntregar: Number(sinEntregar?.n ?? 0),
     retirosPendientes: Number(porPagar?.n ?? 0),
     contracargos: Number(enDisputa?.n ?? 0),
-    /* Todo se cobra en dólares: es la moneda del cobro, no la del comercio. */
-    moneda: "USD",
+    /* La moneda de lo que se cuenta (27 oct 2026): la de su tienda para un
+       comercio, la del país del selector para el equipo. Antes decía «todo
+       se cobra en dólares», y con España dejó de ser verdad. */
+    moneda:
+      posicion?.moneda ??
+      monedaDelMercado(mercadoPorCodigo(codigoPais ?? undefined)),
     disponibleCentavos: posicion ? posicion.disponibleCentavos : null,
   };
 }

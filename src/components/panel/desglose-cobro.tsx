@@ -28,12 +28,15 @@ export async function DesgloseDelCobro({
   brutoZelleCentavos,
   margenZelleCentavos,
   idioma,
+  moneda = "USD",
 }: {
   brutoTarjetaCentavos: number;
   brutoZelleCentavos: number;
   /** Lo que de verdad se descontó por Zelle, sumado de cada pago. */
   margenZelleCentavos: number;
   idioma: Idioma;
+  /** La de la billetera: un comercio de España vende en euros. */
+  moneda?: string;
 }) {
   const t = await getTranslations("panel.desglose");
 
@@ -47,7 +50,7 @@ export async function DesgloseDelCobro({
   // Sin ventas no se dibuja: una tabla de ceros no explica nada.
   if (total.brutoCentavos <= 0) return null;
 
-  const dinero = (c: number) => formatearPrecio(c, idioma, "USD");
+  const dinero = (c: number) => formatearPrecio(c, idioma, moneda);
 
   const renglones = [
     { clave: "procesador", valor: total.procesadorCentavos, resta: true },

@@ -16,6 +16,7 @@ import {
   retirosFee,
   tiendas,
 } from "@/lib/db/schema";
+import { monedaDeLaTienda } from "@/lib/mercado/moneda";
 
 /**
  * La billetera del comercio, con su posición REAL.
@@ -207,7 +208,7 @@ export async function obtenerPosicion(
   const db = getDb();
 
   const [tienda] = await db
-    .select({ nombre: tiendas.nombre })
+    .select({ nombre: tiendas.nombre, mercado: tiendas.mercado })
     .from(tiendas)
     .where(eq(tiendas.id, tiendaId))
     .limit(1);
@@ -410,7 +411,9 @@ export async function obtenerPosicion(
   return {
     tiendaId,
     nombreTienda: tienda.nombre,
-    moneda: billetera?.moneda ?? "USD",
+    /* La del PAÍS de la tienda, no la guardada en la billetera: esa nació en
+       USD para todos y una tienda de España vería sus euros como dólares. */
+    moneda: monedaDeLaTienda(tienda.mercado),
     proveedor: billetera?.proveedor ?? "tokiia",
     saldoCentavos: saldo,
     enTramiteCentavos: enTramite,

@@ -5,10 +5,12 @@ import { eq, inArray } from "drizzle-orm";
 import {
   LLAVE_POLITICA_ZELLE,
   politicaZelleDe,
+  zelleAdmiteMoneda,
   zelleHabilitadaPara,
 } from "@/lib/cobros/zelle";
 import { getDb } from "@/lib/db";
-import { configuracion, zelleCobrosTienda } from "@/lib/db/schema";
+import { configuracion, tiendas, zelleCobrosTienda } from "@/lib/db/schema";
+import { monedaDeLaTienda } from "@/lib/mercado/moneda";
 
 /**
  * ¿Se les puede ofrecer Zelle a estas tiendas? (2 sep 2026)
@@ -23,6 +25,17 @@ export async function zelleAbiertoParaTiendas(
 ): Promise<boolean> {
   if (tiendaIds.length === 0) return false;
   const db = getDb();
+
+  /* ZELLE ES SOLO EN DÓLARES (27 oct 2026). Una tienda de España vende en
+     euros: un Zelle por «100» serían cien dólares para una venta de cien
+     euros, y su billetera sumaría dólares como euros. Ni encendida a mano. */
+  const paises = await db
+    .select({ mercado: tiendas.mercado })
+    .from(tiendas)
+    .where(inArray(tiendas.id, tiendaIds));
+  if (paises.some((t) => !zelleAdmiteMoneda(monedaDeLaTienda(t.mercado)))) {
+    return false;
+  }
   const [politicaFila] = await db
     .select({ valor: configuracion.valor })
     .from(configuracion)

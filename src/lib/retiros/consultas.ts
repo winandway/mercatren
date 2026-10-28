@@ -6,6 +6,7 @@ import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 
 import { obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { monedaDeLaTienda } from "@/lib/mercado/moneda";
 import {
   pagosZelle,
   retiros,
@@ -321,10 +322,16 @@ export async function contarRetirosPendientes(): Promise<number> {
  */
 export async function comerciosDestino(
   excepto: string,
+  /** La moneda de quien envía: solo se ofrecen billeteras de la misma. */
+  moneda = "USD",
 ): Promise<{ id: string; nombre: string }[]> {
   const db = getDb();
   const filas = await db
-    .select({ id: tiendas.id, nombre: tiendas.nombre })
+    .select({
+      id: tiendas.id,
+      nombre: tiendas.nombre,
+      mercado: tiendas.mercado,
+    })
     .from(tiendas)
     .where(eq(tiendas.estado, "activa"));
 
@@ -334,6 +341,15 @@ export async function comerciosDestino(
      el dinero en una billetera nuestra), y ordenados por nombre para que
      se pueda encontrar al destinatario sin leer la lista entera. */
   return filas
-    .filter((t) => t.id !== excepto && !esTiendaDeLaCasa(t.id))
+    .filter(
+      (t) =>
+        t.id !== excepto &&
+        !esTiendaDeLaCasa(t.id) &&
+        /* Euros con euros y dólares con dólares (27 oct 2026): el servidor
+           también lo frena, pero un nombre que se puede elegir y después
+           falla es una trampa. */
+        monedaDeLaTienda(t.mercado) === moneda,
+    )
+    .map((t) => ({ id: t.id, nombre: t.nombre }))
     .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }

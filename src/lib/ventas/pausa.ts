@@ -74,8 +74,18 @@ export const PAIS_EN_PAUSA = "US";
  * circuito ENTERO —cobro, saldo del comercio, retiro—. Mientras esto esté en
  * `true`, en España todo funciona menos el botón de pagar; el equipo sí
  * puede comprar, que es justo lo que hace falta para la compra de prueba.
- * Se quita cuando el saldo en euros y su retiro estén hechos y probados
- * (`VERIFICAR-PAGOS.md`).
+ *
+ * ══ LO QUE YA SE HIZO (27 oct 2026, la misma noche) ══
+ *
+ * El saldo y el retiro ya hablan euros: la billetera toma la moneda del país
+ * de la tienda (`monedaDeLaTienda`), el retiro solo va a cuentas de países
+ * del euro y se hace a mano en Mercury eligiendo EUR, y Zelle, los enlaces
+ * de cobro y el traspaso entre comercios ya no pueden meter dólares en una
+ * billetera en euros (`tests/unit/saldo-en-la-moneda-de-la-tienda.test.ts`).
+ *
+ * Lo que FALTA para quitarlo: una compra real en euros mirada hasta el
+ * saldo del comercio, y que Richard decida el margen de la tarjeta en
+ * España (`VERIFICAR-PAGOS.md`).
  */
 export const ESPANA_SIN_COBRO = true;
 

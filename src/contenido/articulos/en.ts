@@ -80,6 +80,16 @@ export const ARTICULOS_EN: Articulo[] = [
           `Every sale is invoiced by ${SOCIEDAD.nombre}: you sell the merchandise to us, and we sell it to your customer.`,
         ],
       },
+      { tipo: "subtitulo", texto: "How you get paid" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Your money shows in euros in your dashboard, under “My money”: what you sold, with our share already taken out.",
+          "Withdraw it whenever you like, in euros, to your bank account in Spain. Enter your IBAN and your bank's SWIFT (BIC) code, and our team sends the transfer. It arrives in one to three business days.",
+          "Before your first withdrawal, you complete your tax form under “My store.” You do it once, and it’s good for three years.",
+          "For now, payment links are dollars-only: in Spain, your customers buy from your store on Mercatren.",
+        ],
+      },
       {
         tipo: "aviso",
         tono: "ojo",

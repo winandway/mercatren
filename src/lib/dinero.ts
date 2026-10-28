@@ -36,27 +36,46 @@ export type Idioma = "es" | "en";
  * el panel — los pesos divididos entre 100 como si fueran dólares. Se vio
  * en pantalla probando el checkout de Chile. Sin default, el compilador
  * obliga a decidir la moneda en CADA llamada: donde el dato la trae, se
- * pasa la del dato; donde el dominio es dólares por diseño (Zelle,
- * retiros, billetera), se escribe "USD" a conciencia.
+ * pasa la del dato; donde el dominio es dólares por diseño (Zelle), se
+ * escribe "USD" a conciencia. La billetera y los retiros DEJARON de serlo el
+ * 27 oct 2026: hablan la moneda del país de la tienda (`monedaDeLaTienda`).
  */
 export function formatearPrecio(
   centavos: number,
   idioma: Idioma,
   moneda: string,
 ) {
-  /* En euros y en español se escribe como en España: «12,50 €». Con es-US
-     saldría «EUR 12.50», que a un comprador de Madrid le parece un precio
-     de otro país (27 oct 2026). */
-  const region =
-    idioma === "es"
-      ? moneda.toUpperCase() === "EUR"
-        ? "es-ES"
-        : "es-US"
-      : "en-US";
-  return new Intl.NumberFormat(region, {
+  return new Intl.NumberFormat(regionDe(idioma, moneda), {
     style: "currency",
     currency: moneda,
   }).format(centavos / divisorDe(moneda));
+}
+
+/* En euros y en español se escribe como en España: «12,50 €». Con es-US
+   saldría «EUR 12.50», que a un comprador de Madrid le parece un precio de
+   otro país (27 oct 2026). */
+function regionDe(idioma: Idioma, moneda: string) {
+  return idioma === "es"
+    ? moneda.toUpperCase() === "EUR"
+      ? "es-ES"
+      : "es-US"
+    : "en-US";
+}
+
+/**
+ * El signo de la moneda, solo: «$», «€». Para las casillas donde se escribe
+ * un monto, que antes llevaban un «$» pegado a mano y le pedían dólares a un
+ * comercio que vende en euros.
+ */
+export function simboloDeMoneda(moneda: string, idioma: Idioma): string {
+  return (
+    new Intl.NumberFormat(regionDe(idioma, moneda), {
+      style: "currency",
+      currency: moneda,
+    })
+      .formatToParts(0)
+      .find((parte) => parte.type === "currency")?.value ?? moneda
+  );
 }
 
 /**

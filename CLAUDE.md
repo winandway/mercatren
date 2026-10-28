@@ -237,6 +237,11 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
   el `id` de la tabla de ADENTRO. Salían «0 artículos», el tablero «Hoy» y los
   saldos en cero, y «Pagar ahora» a quien ya había pagado por Zelle. Dentro de
   un `WHERE`/`EXISTS` Drizzle sí pone la tabla. Candado: `columna-de-fuera.test.ts`.
+- **EL SALDO HABLA LA MONEDA DEL PAÍS DE LA TIENDA** (27 oct 2026):
+  `monedaDeLaTienda(mercado)`, nunca `billeteras.moneda` (nació USD para
+  todos). Nada que no sea USD sale por la API de Mercury; Zelle y los
+  enlaces de cobro son solo en dólares. Candado:
+  `saldo-en-la-moneda-de-la-tienda.test.ts`.
 - **UN CONTEO SE HACE EN LA BASE, NUNCA TRAYENDO FILAS PARA `.length`** (21 sep
   2026): cinco «conteos» de Configuración traían 47.000 filas al servidor cada
   visita; y toda pantalla del panel pide sus consultas en UN `Promise.all`.
@@ -400,6 +405,7 @@ el error delante no protege a nadie.
 una cuenta un fallo real y el candado que lo tranca.
 
 - [ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)](HISTORIAL.md#españa-se-abre-dentro-de-mercatrencom-sin-dominio-y-todavía-sin-cobrar-27-oct-2026)
+- [EL SALDO Y EL RETIRO HABLAN LA MONEDA DE LA TIENDA: EUROS PARA ESPAÑA (27 oct 2026, noche)](HISTORIAL.md#el-saldo-y-el-retiro-hablan-la-moneda-de-la-tienda-euros-para-españa-27-oct-2026-noche)
 - [LA APP DE ANDROID, Y TODO LO QUE GOOGLE PLAY EXIGIÓ (27 oct 2026)](HISTORIAL.md#la-app-de-android-y-todo-lo-que-google-play-exigió-27-oct-2026)
 - [EL MENÚ DEL PANEL «ESTABA MUY LENTO» (21 sep 2026)](HISTORIAL.md#el-menú-del-panel-estaba-muy-lento-21-sep-2026)
 - [LA SUBCONSULTA QUE SE COMPARABA CONSIGO MISMA (25 sep 2026)](HISTORIAL.md#la-subconsulta-que-se-comparaba-consigo-misma-25-sep-2026)

@@ -3,10 +3,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { DevolverCobro } from "@/components/panel/devolver-cobro";
 import { PedirCobro, ReenviarCobro } from "@/components/panel/pedir-cobro";
-import { esEquipoInterno } from "@/lib/autorizacion";
+import { esEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
+import { cobroPorEnlaceAdmite } from "@/lib/cobros/moneda";
 import { listarEnlacesDeCobro } from "@/lib/cobros/consultas";
 import { listarComercios } from "@/lib/zelle/consultas";
 import { SITIO } from "@/lib/sitio";
+import { monedaDeTiendaId } from "@/lib/tiendas/consultas";
 import { estadoParaMostrar } from "@/lib/cobros/reglas";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaCorta } from "@/lib/fechas";
@@ -55,6 +57,16 @@ export default async function PaginaEnlacesDeCobro({
     ? (await listarComercios()).map((c) => ({ id: c.id, nombre: c.nombre }))
     : [];
 
+  /* LOS ENLACES SON EN DÓLARES (27 oct 2026). A un comercio que vende en
+     otra moneda se le dice antes de llenar nada: un formulario que se llena
+     entero y falla al enviar es peor que no tenerlo. */
+  const alcance = esEquipo ? null : await obtenerAlcance().catch(() => null);
+  const monedaPropia =
+    alcance?.tipo === "tienda"
+      ? await monedaDeTiendaId(alcance.tiendaId)
+      : "USD";
+  const enlaceDisponible = cobroPorEnlaceAdmite(monedaPropia);
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-tinta-suave">{t("queEs")}</p>
@@ -66,7 +78,13 @@ export default async function PaginaEnlacesDeCobro({
        * comercio que la integró: los demás abrían esta pantalla, la veían
        * vacía para siempre y no había un botón para crear nada.
        */}
-      <PedirCobro tiendas={esEquipo ? comercios : undefined} />
+      {enlaceDisponible ? (
+        <PedirCobro tiendas={esEquipo ? comercios : undefined} />
+      ) : (
+        <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {t("soloEnDolares")}
+        </p>
+      )}
 
       {enlaces.length === 0 ? (
         <div className="rounded-xl border border-dashed border-borde bg-white px-6 py-16 text-center">

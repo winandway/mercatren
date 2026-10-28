@@ -12,6 +12,7 @@ import {
 import {
   aDolares,
   destinatarioParaMercury,
+  mercuryLaPuedeMandar,
   metodoDeMercury,
   MOTIVO_DEL_PAGO,
 } from "@/lib/retiros/a-mercury";
@@ -72,6 +73,7 @@ export async function enviarRetiroPorMercury(
       estado: retiros.estado,
       forma: retiros.forma,
       montoCentavos: retiros.montoCentavos,
+      moneda: retiros.moneda,
       destino: retiros.destino,
       referencia: retiros.referencia,
       tiendaNombre: tiendas.nombre,
@@ -101,6 +103,16 @@ export async function enviarRetiroPorMercury(
     return {
       ok: false,
       motivo: "Este retiro va a otro comercio, no al banco.",
+    };
+  }
+
+  /* La API solo manda DÓLARES. Un retiro en euros mandado por aquí saldría
+     como la misma cifra en dólares: se hace desde el panel de Mercury, con
+     la moneda elegida a mano (ver `mercuryLaPuedeMandar`). */
+  if (!mercuryLaPuedeMandar(retiro.moneda)) {
+    return {
+      ok: false,
+      motivo: `Este retiro es en ${retiro.moneda}: la conexión con Mercury solo manda dólares. Hazlo desde el panel de Mercury como wire internacional, eligiendo ${retiro.moneda} como moneda, y después márcalo como pagado.`,
     };
   }
 

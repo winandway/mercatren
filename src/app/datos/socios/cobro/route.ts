@@ -2,7 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { modoPedido } from "@/lib/cobros/presentacion";
+import { cobroPorEnlaceAdmite } from "@/lib/cobros/moneda";
 import { getDb } from "@/lib/db";
+import { monedaDeLaTienda } from "@/lib/mercado/moneda";
 import {
   cobrosCadena,
   cobrosSolicitados,
@@ -121,13 +123,25 @@ export async function POST(peticion: Request) {
   }
 
   const [tienda] = await db
-    .select({ id: tiendas.id, nombre: tiendas.nombre, estado: tiendas.estado })
+    .select({
+      id: tiendas.id,
+      nombre: tiendas.nombre,
+      estado: tiendas.estado,
+      mercado: tiendas.mercado,
+    })
     .from(tiendas)
     .where(eq(tiendas.id, vinculo.tiendaId))
     .limit(1);
 
   if (!tienda || tienda.estado !== "activa") {
     return error(403, "comercio_inactivo");
+  }
+
+  /* Los enlaces de cobro son en dólares: una tienda que vende en otra
+     moneda no los crea, tampoco desde su sistema (ver `cobros/moneda.ts`). */
+  const moneda = monedaDeLaTienda(tienda.mercado);
+  if (!cobroPorEnlaceAdmite(moneda)) {
+    return error(422, "moneda_no_disponible", { moneda, admitidas: ["USD"] });
   }
 
   const datos: Partial<PeticionDeCobro> = {

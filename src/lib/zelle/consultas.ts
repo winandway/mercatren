@@ -365,6 +365,9 @@ export async function listarComercios(busqueda?: string) {
       slug: tiendas.slug,
       estado: tiendas.estado,
       paisOrigen: tiendas.paisOrigen,
+      /* Para pintar su dinero en SU moneda: una tienda de España vende en
+         euros (27 oct 2026). */
+      mercado: tiendas.mercado,
       comisionPuntosBase: tiendas.comisionPuntosBase,
       pagos: sql<number>`(SELECT COUNT(*) FROM ${pagosZelle} WHERE ${aprobadosDeLaTienda})`,
       ingresosCentavos: sql<number>`COALESCE((SELECT SUM(${pagosZelle.montoCentavos}) FROM ${pagosZelle} WHERE ${aprobadosDeLaTienda}), 0)`,

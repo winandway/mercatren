@@ -15,9 +15,12 @@ import { getDb } from "@/lib/db";
 import { comprobantesRetiro } from "@/lib/db/schema";
 import {
   limpiarCuenta,
+  paisAdmiteMoneda,
   paisBancario,
   revisarCuenta,
 } from "@/lib/retiros/paises";
+import { formatearPrecio } from "@/lib/dinero";
+import { decimalesDe, monedaDeLaTienda } from "@/lib/mercado/moneda";
 import { aCentavos } from "@/lib/retiros/monto";
 import { billeteras, retiros, tiendas } from "@/lib/db/schema";
 import { mensajes } from "@/lib/mensajes";
@@ -51,7 +54,9 @@ function esquema(t: Textos) {
         .string()
         .trim()
         .min(1, t("faltaMonto"))
-        .transform((v) => v.replace(/[^0-9.]/g, "")),
+        /* La coma se queda: en España es el decimal («121,25»), y
+           `aCentavos` sabe cuándo es decimal y cuándo de miles. */
+        .transform((v) => v.replace(/[^0-9.,]/g, "")),
       /**
        * ZELLE YA NO ES UNA FORMA DE RETIRO, y no fue un recorte de alcance.
        *
@@ -204,17 +209,36 @@ export async function pedirRetiro(
   }
 
   const d = revisado.data;
-  const montoCentavos = aCentavos(d.monto);
+
+  /* La posición va PRIMERO: el monto escrito se lee con los decimales de
+     la moneda de la billetera (cero en pesos chilenos, dos en euros). */
+  const posicion = await obtenerPosicion(tiendaId);
+  if (!posicion) return { ok: false, mensaje: t("sinBilletera") };
+
+  const montoCentavos = aCentavos(d.monto, decimalesDe(posicion.moneda));
 
   if (montoCentavos === null || montoCentavos <= 0) {
     return { ok: false, mensaje: t("montoInvalido") };
   }
 
-  const posicion = await obtenerPosicion(tiendaId);
-  if (!posicion) return { ok: false, mensaje: t("sinBilletera") };
-
   if (montoCentavos > posicion.disponibleCentavos) {
     return { ok: false, mensaje: t("montoMayorAlDisponible") };
+  }
+
+  /**
+   * ══ CADA MONEDA SE PAGA DONDE ESA MONEDA ES LA DEL BANCO (27 oct 2026) ══
+   *
+   * Un comercio de España vendió en euros y los recibe en euros, en su IBAN.
+   * Sin este candado podía pedir sus «100» a una cuenta de Estados Unidos y
+   * quien va al banco mandaría cien dólares por cien euros. Se comprueba en
+   * el servidor: el formulario ya filtra los países, pero el formulario se
+   * lo salta cualquiera con la consola.
+   */
+  if (
+    d.forma !== "comercio" &&
+    !paisAdmiteMoneda(d.pais ?? "", posicion.moneda)
+  ) {
+    return { ok: false, mensaje: t("paisNoRecibeMoneda") };
   }
 
   // El comercio destino tiene que existir, estar activo y no ser el mismo.
@@ -232,7 +256,7 @@ export async function pedirRetiro(
 
     const db = getDb();
     const [destino] = await db
-      .select({ id: tiendas.id })
+      .select({ id: tiendas.id, mercado: tiendas.mercado })
       .from(tiendas)
       .where(
         and(
@@ -243,6 +267,12 @@ export async function pedirRetiro(
       .limit(1);
 
     if (!destino) return { ok: false, mensaje: t("comercioDestinoNoExiste") };
+    /* Entre comercios, solo en la MISMA moneda: cien euros que pasan a una
+       billetera en dólares se convertirían en cien dólares, porque el saldo
+       guarda números, no billetes. */
+    if (monedaDeLaTienda(destino.mercado) !== posicion.moneda) {
+      return { ok: false, mensaje: t("comercioOtraMoneda") };
+    }
     destinoTiendaId = destino.id;
   }
 
@@ -254,6 +284,9 @@ export async function pedirRetiro(
     tiendaId,
     solicitadoPorId: usuario?.id ?? null,
     montoCentavos,
+    /* La de la billetera. Sin esto quedaba el `USD` por defecto y un retiro
+       de un comercio de España se leía en dólares en la cola del equipo. */
+    moneda: posicion.moneda,
     estado: "solicitado",
     forma: d.forma,
     destinoTiendaId,
@@ -290,6 +323,7 @@ export async function pedirRetiro(
       comercio: await nombreDeTienda(tiendaId),
       montoCentavos,
       forma: d.forma,
+      moneda: posicion.moneda,
     });
   } catch (e) {
     console.error("[retiro] pedido; aviso al equipo fallido:", e);
@@ -338,6 +372,7 @@ export async function marcarRetiroPagado(
     .select({
       tiendaId: retiros.tiendaId,
       montoCentavos: retiros.montoCentavos,
+      moneda: retiros.moneda,
       forma: retiros.forma,
       destinoTiendaId: retiros.destinoTiendaId,
     })
@@ -423,6 +458,7 @@ export async function marcarRetiroPagado(
         await correoTransferenciaRecibida(receptor, {
           montoCentavos: retiro.montoCentavos,
           deQuien: quienEnvio?.nombre ?? "Otro comercio",
+          moneda: retiro.moneda,
         });
       }
     } catch (e) {
@@ -445,6 +481,7 @@ export async function marcarRetiroPagado(
       await correoRetiroPagado(duenno, {
         montoCentavos: retiro.montoCentavos,
         referencia: referencia?.trim() || null,
+        moneda: retiro.moneda,
       });
     }
   } catch (e) {
@@ -492,6 +529,7 @@ export async function rechazarRetiro(
       id: retiros.id,
       tiendaId: retiros.tiendaId,
       montoCentavos: retiros.montoCentavos,
+      moneda: retiros.moneda,
     });
 
   if (marcado.length === 0) {
@@ -512,7 +550,10 @@ export async function rechazarRetiro(
     if (duenno) {
       await correoRetiroRechazado(
         duenno,
-        { montoCentavos: marcado[0].montoCentavos },
+        {
+          montoCentavos: marcado[0].montoCentavos,
+          moneda: marcado[0].moneda,
+        },
         limpio,
       );
     }
@@ -669,7 +710,7 @@ export async function cerrarSaldoPorFuera(
       tiendaId,
       solicitadoPorId: usuario?.id ?? null,
       montoCentavos: restante,
-      moneda: "USD",
+      moneda: posicion?.moneda ?? "USD",
       estado: "pagado",
       forma: "externo",
       destino: null,
@@ -688,7 +729,11 @@ export async function cerrarSaldoPorFuera(
     ok: true,
     cerradoCentavos: restante + pagados,
     mensaje: t("saldoCerrado", {
-      monto: `$${((restante + pagados) / 100).toFixed(2)}`,
+      monto: formatearPrecio(
+        restante + pagados,
+        "es",
+        posicion?.moneda ?? "USD",
+      ),
       pedidos: pendientes.length,
     }),
   };

@@ -227,6 +227,7 @@ export async function acreditarPagoConTarjeta(
              distinta en su billetera — y la que se creería es la del correo. */
           montoCentavos: bruto - comision,
           referencia: pedido.numero,
+          moneda: pedido.moneda ?? "USD",
         });
       }
     }

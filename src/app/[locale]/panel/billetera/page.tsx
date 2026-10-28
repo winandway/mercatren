@@ -55,7 +55,21 @@ export default async function PaginaBilletera({
    * al azar es peor que no tenerla: se lee «cero» y se cierra tranquilo.
    */
   const vistaDeTodos = interno && !comercio;
-  const totalPorPagar = todos.reduce((s, f) => s + f.saldoCentavos, 0);
+  /* UN TOTAL POR MONEDA (27 oct 2026). Sumar los euros de un comercio de
+     España con los dólares de uno de Estados Unidos da un número que no es
+     ninguna de las dos cosas. El dólar va primero: es casi todo. */
+  const totalesPorMoneda = [
+    ...todos
+      .reduce(
+        (acumulado, f) =>
+          acumulado.set(
+            f.moneda,
+            (acumulado.get(f.moneda) ?? 0) + f.saldoCentavos,
+          ),
+        new Map<string, number>([["USD", 0]]),
+      )
+      .entries(),
+  ].filter(([moneda, total]) => moneda === "USD" || total !== 0);
 
   if (!posicion) {
     return (
@@ -144,9 +158,14 @@ export default async function PaginaBilletera({
             <p className="text-xs tracking-wide text-white/70 uppercase">
               {t("totalPorPagar")}
             </p>
-            <p className="mt-1 text-4xl font-bold tracking-tight tabular-nums sm:text-5xl">
-              {dinero(totalPorPagar)}
-            </p>
+            {totalesPorMoneda.map(([monedaDelTotal, total]) => (
+              <p
+                key={monedaDelTotal}
+                className="mt-1 text-4xl font-bold tracking-tight tabular-nums sm:text-5xl"
+              >
+                {formatearPrecio(total, idioma, monedaDelTotal)}
+              </p>
+            ))}
             <p className="mt-2 max-w-2xl text-sm text-white/70">
               {t("totalPorPagarAyuda")}
             </p>
@@ -173,14 +192,20 @@ export default async function PaginaBilletera({
                       {f.enTramiteCentavos > 0 ? (
                         <p className="text-xs text-tinta-suave">
                           {t("enTramiteFila", {
-                            monto: dinero(f.enTramiteCentavos),
+                            monto: formatearPrecio(
+                              f.enTramiteCentavos,
+                              idioma,
+                              f.moneda,
+                            ),
                           })}
                         </p>
                       ) : null}
                     </div>
 
+                    {/* Cada comercio en SU moneda, no en la del primero
+                        que devuelva la base. */}
                     <span className="text-lg font-bold tabular-nums">
-                      {dinero(f.saldoCentavos)}
+                      {formatearPrecio(f.saldoCentavos, idioma, f.moneda)}
                     </span>
 
                     <Link
