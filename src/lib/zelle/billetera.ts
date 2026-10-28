@@ -75,30 +75,32 @@ function ultimaFecha(...fechas: (number | null)[]): number | null {
  *
  * Un vendedor: la suya, pase lo que pase. El equipo: la que pida por la
  * dirección —por slug o por id, que en la práctica llegan las dos— y si no
- * pide ninguna, la primera que haya. Antes, sin parámetro, la pantalla decía
- * "este comercio todavía no tiene billetera abierta" aunque sí la tuviera.
+ * pide ninguna, o pide una que no existe, NINGUNA.
+ *
+ * ══ EL FALLO QUE ARREGLA (27 oct 2026) ══
+ *
+ * Antes, sin comercio, devolvía la primera billetera de la base: un comercio
+ * al azar. La página de retiros pintaba su disponible sin decir de quién era
+ * y el botón «Registrar un retiro del comercio» llevaba su id escondido: el
+ * equipo podía apuntar un retiro a nombre del comercio equivocado. Se vio con
+ * el panel en España: «$327,535.61» de Ferremateriales Bley. Un nombre mal
+ * escrito en la dirección, o un id que no existe en un formulario, caían en
+ * lo mismo. Quien llama y recibe `null` decide qué enseñar; elegir por él es
+ * lo que no puede volver a pasar.
  */
 async function tiendaAConsultar(comercio?: string): Promise<string | null> {
   const alcance = await obtenerAlcance();
   if (alcance.tipo === "tienda") return alcance.tiendaId;
 
-  const db = getDb();
+  if (!comercio) return null;
 
-  if (comercio) {
-    const [fila] = await db
-      .select({ id: tiendas.id })
-      .from(tiendas)
-      .where(or(eq(tiendas.slug, comercio), eq(tiendas.id, comercio)))
-      .limit(1);
-    if (fila) return fila.id;
-  }
-
-  const [primera] = await db
-    .select({ id: billeteras.tiendaId })
-    .from(billeteras)
+  const [fila] = await getDb()
+    .select({ id: tiendas.id })
+    .from(tiendas)
+    .where(or(eq(tiendas.slug, comercio), eq(tiendas.id, comercio)))
     .limit(1);
 
-  return primera?.id ?? null;
+  return fila?.id ?? null;
 }
 
 export type PosicionBilletera = {

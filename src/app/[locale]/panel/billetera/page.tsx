@@ -71,18 +71,33 @@ export default async function PaginaBilletera({
       .entries(),
   ].filter(([moneda, total]) => moneda === "USD" || total !== 0);
 
-  if (!posicion) {
+  /* En la vista de todos no hay posición: `obtenerPosicion` ya no elige un
+     comercio por el equipo (27 oct 2026). Y un `?comercio=` que no existe se
+     dice tal cual, en vez de enseñar el de otro. */
+  if (!posicion && !vistaDeTodos) {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight">{t("titulo")}</h1>
         <p className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-tinta-suave">
-          {t("sinBilletera")}
+          {interno && comercio ? (
+            <>
+              {t("comercioNoEncontrado")}{" "}
+              <Link
+                href="/panel/billetera"
+                className="font-semibold text-carga-600 underline"
+              >
+                {t("verTodos")}
+              </Link>
+            </>
+          ) : (
+            t("sinBilletera")
+          )}
         </p>
       </div>
     );
   }
 
-  const moneda = posicion.moneda;
+  const moneda = posicion?.moneda ?? "USD";
   const dinero = (centavos: number) =>
     formatearPrecio(centavos, idioma, moneda);
 
@@ -94,39 +109,45 @@ export default async function PaginaBilletera({
    * bruto y la comisión y dejar que reste es hacerle sacar la cuenta a mano
    * cada vez, que es como aparece la duda de si el descuento está bien.
    */
-  const delMes = interno
-    ? [
-        { clave: "bruto", valor: posicion.mes.brutoCentavos, tono: "" },
-        {
-          clave: "comision",
-          valor: posicion.mes.comisionCentavos,
-          tono: "text-precio-600",
-        },
-        {
-          clave: "retirado",
-          valor: posicion.mes.retiradoCentavos,
-          tono: "text-red-700",
-        },
-        { clave: "rechazado", valor: posicion.mes.rechazadoCentavos, tono: "" },
-      ]
-    : [
-        { clave: "mePagaron", valor: posicion.mes.brutoCentavos, tono: "" },
-        {
-          clave: "comisionMia",
-          valor: posicion.mes.comisionCentavos,
-          tono: "text-red-700",
-        },
-        {
-          clave: "meQuedo",
-          valor: posicion.mes.brutoCentavos - posicion.mes.comisionCentavos,
-          tono: "text-precio-600",
-        },
-        {
-          clave: "saque",
-          valor: posicion.mes.retiradoCentavos,
-          tono: "",
-        },
-      ];
+  const delMes = !posicion
+    ? []
+    : interno
+      ? [
+          { clave: "bruto", valor: posicion.mes.brutoCentavos, tono: "" },
+          {
+            clave: "comision",
+            valor: posicion.mes.comisionCentavos,
+            tono: "text-precio-600",
+          },
+          {
+            clave: "retirado",
+            valor: posicion.mes.retiradoCentavos,
+            tono: "text-red-700",
+          },
+          {
+            clave: "rechazado",
+            valor: posicion.mes.rechazadoCentavos,
+            tono: "",
+          },
+        ]
+      : [
+          { clave: "mePagaron", valor: posicion.mes.brutoCentavos, tono: "" },
+          {
+            clave: "comisionMia",
+            valor: posicion.mes.comisionCentavos,
+            tono: "text-red-700",
+          },
+          {
+            clave: "meQuedo",
+            valor: posicion.mes.brutoCentavos - posicion.mes.comisionCentavos,
+            tono: "text-precio-600",
+          },
+          {
+            clave: "saque",
+            valor: posicion.mes.retiradoCentavos,
+            tono: "",
+          },
+        ];
 
   return (
     <div className="space-y-6">
@@ -227,7 +248,7 @@ export default async function PaginaBilletera({
           pidió ver con ?comercio=. En la vista de todos no se dibuja —
           si no, debajo del total saldrían los movimientos de uno solo y
           parecerían los de la operación entera. */}
-      {vistaDeTodos ? null : (
+      {vistaDeTodos || !posicion ? null : (
         <>
           <section className="grid gap-3 lg:grid-cols-3">
             <article className="rounded-xl border border-slate-200 bg-riel-900 p-6 text-white shadow-sm lg:col-span-2">
@@ -247,14 +268,20 @@ export default async function PaginaBilletera({
                   </p>
 
                   {/* Sacar el dinero tiene que estar donde se mira el saldo: es
-                    lo primero que uno quiere hacer al verlo. */}
+                    lo primero que uno quiere hacer al verlo. El equipo lleva
+                    el comercio en la dirección: sin él, la página de retiros
+                    no sabe de quién es el retiro (27 oct 2026). */}
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <Link
-                      href="/panel/retiros"
+                      href={
+                        interno
+                          ? `/panel/retiros?comercio=${posicion.tiendaId}`
+                          : "/panel/retiros"
+                      }
                       className="inline-flex items-center gap-2 rounded-lg bg-carga-500 px-4 py-2 text-sm font-semibold text-riel-950 transition-colors hover:bg-carga-400"
                     >
                       <ArrowUpRight className="h-4 w-4" aria-hidden />
-                      {tr("pedir")}
+                      {tr(interno ? "pedirPorElComercio" : "pedir")}
                     </Link>
 
                     {posicion.enTramiteCentavos > 0 ? (

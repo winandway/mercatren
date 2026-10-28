@@ -15,6 +15,59 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL EQUIPO PODÍA REGISTRAR UN RETIRO A NOMBRE DEL COMERCIO EQUIVOCADO (27 oct 2026, noche)
+
+**Qué estaba mal.** Haciendo el saldo en euros se vio en local, con el panel
+en España: el equipo abría «Retiros» sin `?comercio=` y arriba salía
+«Tu dinero $327,535.61», que era de Ferremateriales Bley, sin su nombre. El
+botón «Registrar un retiro del comercio» llevaba escondido el id de ese
+comercio: quien registrara un retiro por teléfono lo habría apuntado a Bley,
+fuera quien fuera el que llamó.
+
+**La causa real.** `tiendaAConsultar` (en `src/lib/zelle/billetera.ts`),
+cuando el equipo no pedía comercio, devolvía la **primera billetera de la
+base**: un comercio al azar. Y cuando pedía uno que no existía (un nombre
+mal escrito en la dirección, un id viejo en un formulario) caía en lo mismo.
+La billetera ya se había arreglado en la pantalla el día del
+«$0.00 · MEGAYES», pero la raíz seguía ahí y la heredaba cualquier pantalla
+nueva. Peor: desde la billetera de un comercio, el botón de retirar llevaba
+a `/panel/retiros` **sin** el comercio, así que el equipo nunca podía llegar
+al comercio correcto haciendo clics: siempre caía en el al azar.
+
+**Lo que se hizo.**
+
+- `tiendaAConsultar`: el vendedor, la suya; el equipo, la que nombra y
+  exista; si no nombra ninguna o no existe, `null`. Ya no elige por nadie.
+  Eso cierra también dos puertas del servidor: `pedirRetiro` con un id que
+  no existe y «Cerrar saldo» con un id que no existe usaban el saldo de otro.
+- Retiros, vista por el equipo sin comercio: no se pinta ningún número, ni
+  el desglose, ni el botón. Sale una línea que dice que elija el comercio en
+  «Por pagar a los comercios» o en «Comercios», con los dos enlaces, y la
+  cola de retiros sigue igual debajo. Con comercio elegido sale arriba
+  «Comercio: <nombre> · Elegir otro».
+- Billetera: la vista de todos ya no depende de una posición; un
+  `?comercio=` que no existe dice «No encontramos ese comercio» con enlace a
+  todos; y el botón del comercio lleva `?comercio=<id>` y dice «Registrar un
+  retiro del comercio» (antes «Retirar mi dinero», que es del comercio).
+- El comercio (vendedor) ve lo suyo igual que antes.
+
+**El candado.** `tests/unit/retiro-sin-comercio-al-azar.test.ts`: lee el
+cuerpo de `tiendaAConsultar` (sin `.from(billeteras)`, con `return null`
+sin comercio y `fila?.id ?? null`), que la página de retiros solo dibuje el
+formulario con posición y tenga la línea con sus dos enlaces, que la
+billetera mande el comercio en el enlace, y los textos en los dos idiomas.
+Comprobado en ROJO: con el código de antes fallan siete de nueve.
+
+**Cómo se comprueba que sigue bien.** Entrar como soporte, abrir «Retiros»
+sin nada en la dirección: no sale ningún número, solo la línea. Ir a «Por
+pagar a los comercios» → «Ver su billetera» de uno → «Registrar un retiro
+del comercio»: llega con `?comercio=` y arriba dice su nombre.
+
+**Qué NO hay que tocar.** No devolver el «si no pide ninguna, la primera
+que haya» para que una pantalla «no salga vacía»: vacía es lo correcto, al
+azar es el fallo. Quien llame a `obtenerPosicion` y reciba `null` decide qué
+enseñar.
+
 ## EL SALDO Y EL RETIRO HABLAN LA MONEDA DE LA TIENDA: EUROS PARA ESPAÑA (27 oct 2026, noche)
 
 **Qué estaba mal.** La billetera de cada comercio nació con `moneda = "USD"`

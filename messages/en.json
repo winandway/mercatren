@@ -448,6 +448,8 @@
         "verRetiros": "See withdrawals"
       },
       "sinBilletera": "No supplier has an open account yet.",
+      "comercioNoEncontrado": "We couldn't find that merchant.",
+      "verTodos": "See all merchants",
       "movimientos": "Activity",
       "sinMovimientos": "No activity yet. Every approved payment will show up here.",
       "avisoHistorico": "The outstanding amount isn't typed in by hand: it's all merchandise purchased minus what has already been paid. Every approved transaction raises it on its own.",
@@ -1563,6 +1565,8 @@
       "seguroCancelar": "Are you sure you want to cancel this withdrawal?",
       "masOpciones": "More options",
       "pedirPorElComercio": "Record a merchant withdrawal",
+      "comercioElegido": "Merchant: <b>{nombre}</b> · <otro>Choose another</otro>",
+      "eligeElComercioPrimero": "To record a withdrawal, first choose the merchant under <billetera>Owed to merchants</billetera> or <comercios>Merchants</comercios>. Requested withdrawals are listed below.",
       "zelleDestino": "Your Zelle email or phone number",
       "zelleDestinoPlaceholder": "name@example.com",
       "zelleDestinoAyuda": "The same one you have enrolled with your bank for Zelle. If it's typed wrong, the money goes to someone else and can't be recovered.",

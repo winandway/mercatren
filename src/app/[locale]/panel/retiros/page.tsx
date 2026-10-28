@@ -14,6 +14,7 @@ import { DatosParaTransferir } from "@/components/panel/retiros/datos-para-trans
 import { AccionesRetiro } from "@/components/panel/retiros/acciones-retiro";
 import { DesgloseDelCobro } from "@/components/panel/desglose-cobro";
 import { PedirRetiro } from "@/components/panel/retiros/pedir-retiro";
+import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { mercuryLaPuedeMandar } from "@/lib/retiros/a-mercury";
@@ -80,6 +81,8 @@ export default async function PaginaRetiros({
   const busqueda = (q ?? "").trim().slice(0, 80);
   const t = await getTranslations("panel.retiros");
 
+  /* Al equipo sin `?comercio=` le llega `null`: no se le enseña el dinero
+     de nadie ni se le deja registrar un retiro sin decir de quién. */
   const [posicion, lista, interno] = await Promise.all([
     obtenerPosicion(comercio),
     listarRetiros({ busqueda }),
@@ -110,6 +113,27 @@ export default async function PaginaRetiros({
 
       {posicion ? (
         <section className="space-y-4">
+          {/* DE QUIÉN ES ESTE DINERO. Al comercio no hace falta decírselo;
+              al equipo sí, antes de que registre nada a su nombre. */}
+          {interno ? (
+            <p className="text-sm text-tinta-suave">
+              {t.rich("comercioElegido", {
+                nombre: posicion.nombreTienda,
+                b: (texto) => (
+                  <b className="font-semibold text-tinta">{texto}</b>
+                ),
+                otro: (texto) => (
+                  <Link
+                    href="/panel/billetera"
+                    className="font-semibold text-carga-600 underline"
+                  >
+                    {texto}
+                  </Link>
+                ),
+              })}
+            </p>
+          ) : null}
+
           <dl className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-carga-500/30 bg-white p-5 shadow-sm">
               <dt className="text-xs text-tinta-suave">{t("disponible")}</dt>
@@ -153,6 +177,34 @@ export default async function PaginaRetiros({
             moneda={moneda}
           />
         </section>
+      ) : interno ? (
+        /**
+         * EL EQUIPO, SIN ELEGIR UN COMERCIO, NO VE EL DINERO DE NINGUNO.
+         *
+         * Antes salía uno al azar —el primero de la base— sin su nombre, y el
+         * botón de registrar un retiro llevaba escondido su id. Ahora se le
+         * dice dónde elegirlo; la cola de abajo sigue igual.
+         */
+        <p className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-4 text-sm text-tinta-suave">
+          {t.rich("eligeElComercioPrimero", {
+            billetera: (texto) => (
+              <Link
+                href="/panel/billetera"
+                className="font-semibold text-carga-600 underline"
+              >
+                {texto}
+              </Link>
+            ),
+            comercios: (texto) => (
+              <Link
+                href="/panel/tiendas"
+                className="font-semibold text-carga-600 underline"
+              >
+                {texto}
+              </Link>
+            ),
+          })}
+        </p>
       ) : null}
 
       {/* El buscador solo para el equipo: un comercio ve los suyos, que son

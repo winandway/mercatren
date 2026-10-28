@@ -448,6 +448,8 @@
         "verRetiros": "Ver los retiros"
       },
       "sinBilletera": "Todavía no hay ningún proveedor con cuenta abierta.",
+      "comercioNoEncontrado": "No encontramos ese comercio.",
+      "verTodos": "Ver todos los comercios",
       "movimientos": "Movimientos",
       "sinMovimientos": "Todavía no hay movimientos. Cada pago que se apruebe aparecerá aquí.",
       "avisoHistorico": "El pendiente no está escrito a mano: sale de restarle a toda la mercancía comprada lo que ya se le pagó. Cada operación aprobada lo sube sola.",
@@ -1563,6 +1565,8 @@
       "seguroCancelar": "¿Seguro que quieres cancelar este retiro?",
       "masOpciones": "Más opciones",
       "pedirPorElComercio": "Registrar un retiro del comercio",
+      "comercioElegido": "Comercio: <b>{nombre}</b> · <otro>Elegir otro</otro>",
+      "eligeElComercioPrimero": "Para registrar un retiro, primero elige el comercio en <billetera>Por pagar a los comercios</billetera> o en <comercios>Comercios</comercios>. Abajo están los retiros que ya pidieron.",
       "zelleDestino": "Tu correo o teléfono de Zelle",
       "zelleDestinoPlaceholder": "correo@ejemplo.com",
       "zelleDestinoAyuda": "El mismo que tienes registrado en tu banco para Zelle. Si está mal escrito, el dinero se va a otra persona y no se puede devolver.",

@@ -242,6 +242,10 @@ drizzle/migrations/         SQL versionado (no se aplica solo)
   todos). Nada que no sea USD sale por la API de Mercury; Zelle y los
   enlaces de cobro son solo en dólares. Candado:
   `saldo-en-la-moneda-de-la-tienda.test.ts`.
+- **EL EQUIPO SIN `?comercio=` NO TIENE POSICIÓN** (27 oct 2026):
+  `obtenerPosicion` le devuelve `null`, nunca «la primera billetera». Al azar
+  se registraba un retiro a nombre de otro. Candado:
+  `retiro-sin-comercio-al-azar.test.ts`.
 - **UN CONTEO SE HACE EN LA BASE, NUNCA TRAYENDO FILAS PARA `.length`** (21 sep
   2026): cinco «conteos» de Configuración traían 47.000 filas al servidor cada
   visita; y toda pantalla del panel pide sus consultas en UN `Promise.all`.
@@ -404,6 +408,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [EL EQUIPO PODÍA REGISTRAR UN RETIRO A NOMBRE DEL COMERCIO EQUIVOCADO (27 oct 2026, noche)](HISTORIAL.md#el-equipo-podía-registrar-un-retiro-a-nombre-del-comercio-equivocado-27-oct-2026-noche)
 - [ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)](HISTORIAL.md#españa-se-abre-dentro-de-mercatrencom-sin-dominio-y-todavía-sin-cobrar-27-oct-2026)
 - [EL SALDO Y EL RETIRO HABLAN LA MONEDA DE LA TIENDA: EUROS PARA ESPAÑA (27 oct 2026, noche)](HISTORIAL.md#el-saldo-y-el-retiro-hablan-la-moneda-de-la-tienda-euros-para-españa-27-oct-2026-noche)
 - [LA APP DE ANDROID, Y TODO LO QUE GOOGLE PLAY EXIGIÓ (27 oct 2026)](HISTORIAL.md#la-app-de-android-y-todo-lo-que-google-play-exigió-27-oct-2026)
