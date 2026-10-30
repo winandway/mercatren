@@ -52,6 +52,23 @@ está en Google Cloud → Facturación → Informes, entrando con la cuenta
 (el correo `@mercatren.com`). Es el correo de la empresa y de la cuenta de
 Google Play; quitarlo es decisión de Richard.
 
+## 2b. La cuenta de Google y el «saldo»
+
+- **Cuenta que creó la llave:** `torplanet1@gmail.com`.
+- **Dónde se ve el gasto exacto:** entrando con esa cuenta en Google Cloud,
+  en **Facturación**: «Informes» lo separa por mes, por proyecto y por
+  servicio, y «Transacciones» trae cada cobro a la tarjeta.
+- **No hay saldo que se acabe.** La cuenta NO es prepago: es **pago
+  automático contra la tarjeta 9018**. Google va sumando lo que se usa y,
+  cada vez que llega a $25, lo cobra. Por eso los cobros son siempre de $25
+  (al principio, de $10). No queda dinero «a favor» en la API: lo único que
+  puede quedar es lo usado desde el último cobro hasta el apagado, **menos de
+  $25**, que Google cobrará una última vez.
+- **La regla de la casa pide prepago** para los proveedores de IA («si se
+  acaba el saldo, se detiene; jamás deuda sorpresa»). Esta cuenta no lo
+  cumplía. Si algún día se enciende, conviene pasarla a prepago o ponerle un
+  presupuesto con alerta en Facturación antes.
+
 ## 3. Lo que se apagó (29 oct 2026)
 
 Todo vive en **`src/lib/en-pausa.ts`**, con dos interruptores escritos en el
