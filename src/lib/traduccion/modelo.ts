@@ -3,7 +3,10 @@ import "server-only";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import { avisarModeloRechazado } from "@/lib/ia/avisar";
+import { anotarGastoIa, puedeGastarIa } from "@/lib/ia/gasto";
 import { modeloPermitido } from "@/lib/ia/modelo-permitido";
+import { MOTIVO_TOPE } from "@/lib/ia/presupuesto";
+import { IA_APAGADA, MOTIVO_IA_APAGADA } from "@/lib/en-pausa";
 
 import {
   leerRespuesta,
@@ -192,6 +195,10 @@ async function pedirTitulos(
   entrada: Array<{ id: string; titulo: string }>,
   peticiones: PeticionDeTraduccion[],
 ): Promise<ResultadoModelo> {
+  /* EL TOPE DEL DÍA va DELANTE de la llamada: una tanda de títulos es una
+     unidad. Sin presupuesto no se habla con Google (`lib/ia/presupuesto.ts`). */
+  if (IA_APAGADA) return { ok: false, motivo: MOTIVO_IA_APAGADA };
+  if (!(await puedeGastarIa(1))) return { ok: false, motivo: MOTIVO_TOPE };
   let respuesta: Response;
   try {
     respuesta = await fetch(
@@ -208,6 +215,11 @@ async function pedirTitulos(
           generationConfig: {
             temperature: 0.2,
             responseMimeType: "application/json",
+            /* SIN «PENSAR» (29 oct 2026): gemini-2.5-flash razona por dentro
+               antes de contestar si no se le dice nada, y Google cobra ese
+               razonamiento como texto de salida, a $2,50 el millón. Para
+               traducir un título no hace falta. Ver `lib/ia/presupuesto.ts`. */
+            thinkingConfig: { thinkingBudget: 0 },
           },
         }),
       },
@@ -218,6 +230,9 @@ async function pedirTitulos(
       motivo: `No se pudo hablar con el traductor: ${String(fallo)}`,
     };
   }
+
+  // Google contestó: se anota lo gastado, haya salido bien o mal.
+  await anotarGastoIa(1);
 
   if (!respuesta.ok) {
     /* El motivo entero, no un «no se pudo». Esta pantalla es del equipo
@@ -277,6 +292,13 @@ export async function traducirDescripciones(
     return { ok: false, motivo: "Falta la variable TRADUCCION_LLAVE." };
   }
 
+  /* Cada descripción pesa lo que una tanda de veinte títulos: una unidad. */
+  const unidades = peticiones.length;
+  if (IA_APAGADA) return { ok: false, motivo: MOTIVO_IA_APAGADA };
+  if (!(await puedeGastarIa(unidades))) {
+    return { ok: false, motivo: MOTIVO_TOPE };
+  }
+
   let respuesta: Response;
   try {
     respuesta = await fetch(
@@ -303,6 +325,11 @@ export async function traducirDescripciones(
           generationConfig: {
             temperature: 0.2,
             responseMimeType: "application/json",
+            /* SIN «PENSAR» (29 oct 2026): gemini-2.5-flash razona por dentro
+               antes de contestar si no se le dice nada, y Google cobra ese
+               razonamiento como texto de salida, a $2,50 el millón. Para
+               traducir un título no hace falta. Ver `lib/ia/presupuesto.ts`. */
+            thinkingConfig: { thinkingBudget: 0 },
           },
         }),
       },
@@ -313,6 +340,8 @@ export async function traducirDescripciones(
       motivo: `No se pudo hablar con el traductor: ${String(fallo)}`,
     };
   }
+
+  await anotarGastoIa(unidades);
 
   if (!respuesta.ok) {
     const cuerpo = await respuesta.text().catch(() => "");

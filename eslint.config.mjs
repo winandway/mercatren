@@ -75,6 +75,10 @@ const eslintConfig = defineConfig([
     // las tiendas de apps: no son código del sitio ni se publican con él.
     "app-android/**",
     "tienda-apps/**",
+    // Las copias de trabajo de otras sesiones (`.claude/worktrees/…`) viven
+    // dentro de esta carpeta pero son OTRO checkout, con su propio `.next`:
+    // revisarlas aquí daba miles de errores ajenos a este cambio.
+    ".claude/**",
   ]),
 
   /**

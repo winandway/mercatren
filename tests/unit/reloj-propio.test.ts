@@ -7,6 +7,7 @@ import {
   TICK_PRESUPUESTO_MS,
   VIGILANTE_CADA_MS,
 } from "@/lib/reloj/constantes";
+import { RELOJ_APAGADO } from "@/lib/en-pausa";
 
 /**
  * EL RELOJ PROPIO DEL SITIO (3 sep 2026). El de GitHub corría cinco veces al
@@ -15,11 +16,15 @@ import {
 const leer = (r: string) => readFileSync(r, "utf-8");
 
 describe("el reloj propio", () => {
-  it("está declarado en yadominios.json, cada minuto", () => {
+  it("está declarado en yadominios.json cada minuto… salvo con Mercatren en pausa", () => {
     const cfg = JSON.parse(leer("yadominios.json")) as {
       triggers?: { crons?: string[] };
     };
-    expect(cfg.triggers?.crons).toContain("* * * * *");
+    /* 29 oct 2026: Richard apagó todo lo que gasta (`lib/en-pausa.ts`). Con
+       el reloj apagado, la plataforma ni siquiera lo llama; al encenderlo,
+       el minuto vuelve a `yadominios.json`. */
+    if (RELOJ_APAGADO) expect(cfg.triggers?.crons ?? []).toEqual([]);
+    else expect(cfg.triggers?.crons).toContain("* * * * *");
   });
 
   it("cada latido cabe en lo que Cloudflare deja correr tras la respuesta (30 s)", () => {
@@ -108,6 +113,11 @@ describe("las descripciones se traducen desde el latido (8 sep 2026)", () => {
     const tick = readFileSync("src/lib/reloj/tick.ts", "utf8");
     const paso = tick.slice(tick.indexOf("traducirDesdeElReloj({"));
     expect(paso).not.toMatch(/tandasDescripciones:\s*0\s*,/);
-    expect(paso).toContain("tandasDescripciones: queda() > 9_000 ? 1 : 0");
+    /* Desde el 29 oct 2026 van detrás de su interruptor
+       (`DESCRIPCIONES_EN_EL_RELOJ`, apagado por gasto), pero nunca un cero
+       escrito a mano. */
+    expect(paso).toMatch(
+      /tandasDescripciones:\s*DESCRIPCIONES_EN_EL_RELOJ && queda\(\) > 9_000 \? 1 : 0/,
+    );
   });
 });

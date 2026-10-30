@@ -1,5 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { RELOJ_APAGADO } from "@/lib/en-pausa";
 import { autorizadoPorLlave } from "@/lib/seguridad/llave-del-reloj";
 import { correrVigilante } from "@/lib/vigilante/correr";
 
@@ -20,6 +21,9 @@ async function correr(peticion: Request) {
     );
   }
   if (permiso === "no") return Response.json({ ok: false }, { status: 404 });
+
+  // En pausa: ni correos ni consultas (`lib/en-pausa.ts`).
+  if (RELOJ_APAGADO) return Response.json({ ok: true, apagado: true });
 
   const latido = await correrVigilante("reloj");
   return Response.json({

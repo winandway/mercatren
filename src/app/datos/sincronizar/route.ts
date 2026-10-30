@@ -3,6 +3,7 @@ import { and, eq, isNotNull, ne } from "drizzle-orm";
 
 import { sincronizarCatalogo } from "@/lib/catalogo/sincronizar";
 import { getDbAsync, schema } from "@/lib/db";
+import { RELOJ_APAGADO } from "@/lib/en-pausa";
 import { igualesEnTiempoConstante } from "@/lib/seguridad/llave-del-reloj";
 import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
 
@@ -83,6 +84,10 @@ async function sincronizarTodas(peticion: Request) {
     /* 404 y no 401: a quien no corresponde ni se le confirma que esto existe. */
     return Response.json({ ok: false }, { status: 404 });
   }
+
+  /* EN PAUSA (29 oct 2026): ni catálogos, ni CJ, ni traducción. Se contesta
+     sin tocar la base. Ver `lib/en-pausa.ts`. */
+  if (RELOJ_APAGADO) return Response.json({ ok: true, apagado: true });
 
   const db = await getDbAsync();
   const { fuentesCatalogo } = schema;

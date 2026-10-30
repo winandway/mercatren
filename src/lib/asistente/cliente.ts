@@ -9,6 +9,7 @@ import {
   type MotivoFallo,
   type RespuestaAgente,
 } from "@/lib/asistente/sesion";
+import { IA_APAGADA } from "@/lib/en-pausa";
 
 /**
  * LA PUERTA AL AGENTE OPERATIVO.
@@ -43,6 +44,9 @@ import {
  * el navegador, y ahí el token se lee abriendo la consola.
  */
 function base(): string | null {
+  /* En pausa, el asistente no existe: sin dirección, el panel no dibuja el
+     chat y nada sale hacia el agente (`lib/en-pausa.ts`). */
+  if (IA_APAGADA) return null;
   return baseDelAgente(getCloudflareContext().env.AGENTE_URL);
 }
 

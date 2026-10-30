@@ -42,6 +42,7 @@ import {
   TICK_PRESUPUESTO_MS,
   VIGILANTE_CADA_MS,
 } from "./constantes";
+import { DESCRIPCIONES_EN_EL_RELOJ, MOTIVO_TOPE } from "@/lib/ia/presupuesto";
 
 export { TICK_MINIMO_MS, TICK_PRESUPUESTO_MS, VIGILANTE_CADA_MS };
 
@@ -580,9 +581,15 @@ export async function correrTick(
       const { traducirDesdeElReloj } = await import("@/lib/traduccion/tanda");
       const r = await traducirDesdeElReloj({
         tandasTitulos: 1,
-        tandasDescripciones: queda() > 9_000 ? 1 : 0,
+        /* Fuera del reloj desde el 29 oct 2026: era lo que más gastaba de
+           Google (`DESCRIPCIONES_EN_EL_RELOJ` en `lib/ia/presupuesto.ts`). */
+        tandasDescripciones:
+          DESCRIPCIONES_EN_EL_RELOJ && queda() > 9_000 ? 1 : 0,
         tandasTitulosIngles: 1,
       });
+      /* El tope del día, a la vista: sin esto el traductor se calla y
+         parece una avería. */
+      if (r.motivo === MOTIVO_TOPE) hizo.push("traducción: tope del día");
       if (r.titulos > 0) hizo.push(`traducción: ${r.titulos} títulos`);
       if (r.titulosIngles > 0) {
         hizo.push(`traducción: ${r.titulosIngles} títulos al inglés`);
@@ -602,7 +609,12 @@ export async function correrTick(
      10 puntos: cede si CJ está sin puntos, y va cada tres minutos para no
      comerse el presupuesto del afinado. Ver `descripcion-reloj.ts`. */
   try {
-    if (!cjEnPausa && queda() > 6_000 && new Date().getUTCMinutes() % 3 === 0) {
+    if (
+      DESCRIPCIONES_EN_EL_RELOJ &&
+      !cjEnPausa &&
+      queda() > 6_000 &&
+      new Date().getUTCMinutes() % 3 === 0
+    ) {
       const { traerDescripcionDesdeElReloj } =
         await import("@/lib/traduccion/descripcion-reloj");
       const r = await traerDescripcionDesdeElReloj();

@@ -3,6 +3,7 @@ import "server-only";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 import { DIMENSION } from "@/lib/busqueda-imagen/similitud";
+import { IA_APAGADA, MOTIVO_IA_APAGADA } from "@/lib/en-pausa";
 
 /**
  * LOS VECTORES DE `gemini-embedding-2` (30 ago 2026).
@@ -39,6 +40,7 @@ type ResultadoEmbedding =
 async function pedirEmbedding(
   parts: Array<Record<string, unknown>>,
 ): Promise<ResultadoEmbedding> {
+  if (IA_APAGADA) return { ok: false, motivo: MOTIVO_IA_APAGADA };
   const clave = llave();
   if (!clave) return { ok: false, motivo: "Falta TRADUCCION_LLAVE." };
 

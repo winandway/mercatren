@@ -16,6 +16,16 @@ Servicio **multi-comercio y multi-país**: un país = un dominio = un catálogo.
 
 ---
 
+## ⛔ MERCATREN ESTÁ EN PAUSA DESDE EL 29 OCT 2026 (orden de Richard)
+
+_«Desactive todo por completo hasta nuevo aviso… lleve a cero el gasto.»_
+La IA de Google, el asistente, el reloj de cada minuto, la sincronización y
+el vigilante están APAGADOS (`src/lib/en-pausa.ts`, el reloj fuera de
+`yadominios.json` y tres flujos de GitHub desactivados). El sitio sigue en
+línea por la revisión de Google Play. **Nada de esto se enciende sin que
+Richard lo diga.** Detalle, la cuenta del gasto y cómo se enciende:
+`AUDITORIA-GASTOS.md`.
+
 ## LO PRIMERO QUE SE MIRA, SEGÚN LA PREGUNTA
 
 | Si preguntan…                   | Se contesta desde                                           |
@@ -322,7 +332,7 @@ El control se ejerce después, suspendiendo a quien no cumpla.
   CL (mercatren.cl), CO (mercatren.com.co), VE (mercatren.com.ve) y **ES,
   sin dominio** (27 oct 2026): vive dentro de mercatren.com, se elige con la
   bandera (cookie `mercatren_pais` vía `/datos/pais`) y **todavía no cobra**
-  (`ESPANA_SIN_COBRO`) hasta que el saldo del comercio sepa de euros.
+  (`ESPANA_SIN_COBRO`) hasta la compra real en euros y el margen.
 - **El país es obligatorio EN EL TIPO.** El filtro solo se fabrica dentro de
   `src/lib/mercado/repositorio.ts` (símbolo no exportado): pedir el catálogo
   sin país **no compila**. `tests/unit/muro-mercado.test.ts` cubre lo que el
@@ -408,6 +418,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [EL COBRO DE GOOGLE CLOUD Y MERCATREN EN PAUSA (29 oct 2026)](HISTORIAL.md#el-cobro-de-google-cloud-y-mercatren-en-pausa-29-oct-2026)
 - [EL EQUIPO PODÍA REGISTRAR UN RETIRO A NOMBRE DEL COMERCIO EQUIVOCADO (27 oct 2026, noche)](HISTORIAL.md#el-equipo-podía-registrar-un-retiro-a-nombre-del-comercio-equivocado-27-oct-2026-noche)
 - [ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)](HISTORIAL.md#españa-se-abre-dentro-de-mercatrencom-sin-dominio-y-todavía-sin-cobrar-27-oct-2026)
 - [EL SALDO Y EL RETIRO HABLAN LA MONEDA DE LA TIENDA: EUROS PARA ESPAÑA (27 oct 2026, noche)](HISTORIAL.md#el-saldo-y-el-retiro-hablan-la-moneda-de-la-tienda-euros-para-españa-27-oct-2026-noche)

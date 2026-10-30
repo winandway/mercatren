@@ -25,8 +25,9 @@ describe("traer una descripción desde el reloj", () => {
     expect(reloj).not.toMatch(/tituloEs|imagen/);
   });
   it("el reloj la llama solo con puntos de CJ y cada tres minutos", () => {
+    /* Y detrás del interruptor del gasto (29 oct 2026). */
     expect(tick).toMatch(
-      /!cjEnPausa && queda\(\) > 6_000 && new Date\(\)\.getUTCMinutes\(\) % 3 === 0/,
+      /DESCRIPCIONES_EN_EL_RELOJ &&\s*!cjEnPausa &&\s*queda\(\) > 6_000 &&\s*new Date\(\)\.getUTCMinutes\(\) % 3 === 0/,
     );
     expect(tick).toContain("traerDescripcionDesdeElReloj");
   });

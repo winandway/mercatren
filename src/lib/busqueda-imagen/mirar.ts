@@ -6,6 +6,7 @@ import { avisarModeloRechazado } from "@/lib/ia/avisar";
 import { modeloPermitido } from "@/lib/ia/modelo-permitido";
 
 import { extraerTerminos } from "@/lib/busqueda-imagen/parsear";
+import { IA_APAGADA, MOTIVO_IA_APAGADA } from "@/lib/en-pausa";
 
 /**
  * EL OJO DE LA BÚSQUEDA POR FOTO (30 ago 2026).
@@ -45,6 +46,8 @@ function llaveYModelo(): { llave: string; modelo: string } | null {
 
 /** ¿Está configurado el ojo? Sin llave, el botón de la cámara no se ofrece. */
 export function busquedaPorImagenDisponible(): boolean {
+  /* En pausa, el botón de la cámara no se ofrece (`lib/en-pausa.ts`). */
+  if (IA_APAGADA) return false;
   return llaveYModelo() !== null;
 }
 
@@ -61,6 +64,7 @@ export async function mirarImagen(
   bytes: ArrayBuffer,
   tipoMime: string,
 ): Promise<MiradaDeGemini> {
+  if (IA_APAGADA) return { ok: false, motivo: MOTIVO_IA_APAGADA };
   const config = llaveYModelo();
   if (!config) {
     return { ok: false, motivo: "Falta TRADUCCION_LLAVE en el panel." };
@@ -91,6 +95,11 @@ export async function mirarImagen(
           generationConfig: {
             temperature: 0.2,
             responseMimeType: "application/json",
+            /* SIN «PENSAR» (29 oct 2026): gemini-2.5-flash razona por dentro
+               antes de contestar si no se le dice nada, y Google cobra ese
+               razonamiento como texto de salida, a $2,50 el millón. Para
+               traducir un título no hace falta. Ver `lib/ia/presupuesto.ts`. */
+            thinkingConfig: { thinkingBudget: 0 },
           },
         }),
       },

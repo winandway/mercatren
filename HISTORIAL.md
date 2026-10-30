@@ -15,6 +15,35 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL COBRO DE GOOGLE CLOUD Y MERCATREN EN PAUSA (29 oct 2026)
+
+**Qué vio Richard.** En el banco, «GOOGLE CLOUD» de $25 cada dos o tres días
+desde el 3 de septiembre (tarjeta 9018): unos $9 al día, ≈ $550 en dos meses,
+sin una sola venta.
+
+**La causa.** El reloj propio (2 sep 2026) le pedía a Gemini cada minuto una
+tanda de títulos al español, otra al inglés y descripciones. Tres fallos
+juntos: el modelo `gemini-2.5-flash` «pensaba» por dentro (Google cobra ese
+razonamiento como salida, a $2,50 el millón) porque nadie le puso
+`thinkingBudget: 0`; no había ningún tope diario; y las descripciones —lo
+más caro— se traían de CJ y se traducían todo el día para un catálogo en
+pausa. Lo que nadie limita no deja de gastar, y se descubre en el banco.
+
+**Lo que se hizo.** Por orden de Richard, todo apagado hasta nuevo aviso:
+`src/lib/en-pausa.ts` (`IA_APAGADA`, `RELOJ_APAGADO`) frena el traductor, la
+búsqueda por foto, el índice visual, el asistente, el reloj, la
+sincronización y el vigilante; el reloj se quitó de `yadominios.json`; los
+flujos `afinar`, `sincronizar` y `vigilante` de GitHub se desactivaron. Y,
+para cuando se encienda: `thinkingBudget: 0` en toda llamada de texto, tope
+diario de 150 unidades (`src/lib/ia/presupuesto.ts`, ~$0,25 al día) y las
+descripciones fuera del reloj (`DESCRIPCIONES_EN_EL_RELOJ`).
+
+**Candado.** `tests/unit/mercatren-en-pausa.test.ts`, comprobado en rojo.
+
+**Qué NO hay que tocar.** No quitar `thinkingBudget: 0`, no subir el tope ni
+encender nada de esto sin la palabra de Richard. La auditoría completa, la
+cuenta mes por mes y cómo se enciende: `AUDITORIA-GASTOS.md`.
+
 ## EL EQUIPO PODÍA REGISTRAR UN RETIRO A NOMBRE DEL COMERCIO EQUIVOCADO (27 oct 2026, noche)
 
 **Qué estaba mal.** Haciendo el saldo en euros se vio en local, con el panel

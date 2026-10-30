@@ -1,5 +1,6 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { RELOJ_APAGADO } from "@/lib/en-pausa";
 import { autorizadoPorLlave } from "@/lib/seguridad/llave-del-reloj";
 import { correrTick, reclamarTick } from "@/lib/reloj/tick";
 
@@ -28,6 +29,10 @@ async function latir(peticion: Request) {
   if (!desdeElPlanificador && !conLlave) {
     return Response.json({ ok: false }, { status: 404 });
   }
+
+  /* EN PAUSA (29 oct 2026): se contesta sin tocar la base ni trabajar.
+     Ver `lib/en-pausa.ts`. */
+  if (RELOJ_APAGADO) return Response.json({ ok: true, apagado: true });
 
   const ahoraMs = Date.now();
   let tomado = false;
