@@ -1,0 +1,33 @@
+# La app de Mercatren para iPhone (31 oct 2026). Se genera el proyecto de Xcode
+# con `xcodegen generate` dentro de app-ios/. Ver app-ios/LEEME.md.
+name: Mercatren
+options:
+  bundleIdPrefix: com.mercatren
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: en
+settings:
+  base:
+    DEVELOPMENT_TEAM: 7KM9P6R682
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+targets:
+  Mercatren:
+    type: application
+    platform: iOS
+    sources:
+      - path: Mercatren
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mercatren.app
+        PRODUCT_NAME: Mercatren
+        # Solo iPhone: en iPad corre en modo compatible. Sin esto, Apple la
+        # trata como app de iPad y exige todas las orientaciones.
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_FILE: Mercatren/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO

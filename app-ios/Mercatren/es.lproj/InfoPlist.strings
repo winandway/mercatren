@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "Mercatren usa la cámara cuando eliges tomar una foto de un producto para tu tienda o de un comprobante de pago.";
+"NSPhotoLibraryUsageDescription" = "Mercatren abre tus fotos cuando eliges la imagen de un producto o un comprobante de pago para subirlo.";
+"NSMicrophoneUsageDescription" = "Mercatren usa el micrófono solo cuando grabas un video de tu tienda para subirlo.";

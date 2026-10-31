@@ -15,6 +15,30 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA APP DE IPHONE, A REVISIÓN DE APPLE (31 oct 2026)
+
+**Qué se pidió.** Publicar Mercatren en la App Store de punta a punta con la
+cuenta de Windoce LLC, siguiendo la receta probada con Divoox.
+
+**Lo que se hizo.** Una app nativa pequeña en SwiftUI (`app-ios/`) que
+muestra mercatren.com con pestañas propias, deslizar para recargar, volver
+con el gesto y pantalla de «sin conexión» (lo nativo que pide la guía 4.2).
+Se compila en esta Mac con Xcode y `xcodegen`, se firma y se sube con la
+llave de la API (`app-ios/subir.sh`), sin EAS ni contraseña. La app se creó
+en App Store Connect desde el Chrome de Richard (número 6829188120); la
+ficha, el precio (gratis), los países (solo EE. UU.), las capturas (diez,
+tomadas de la app en el simulador) y el envío a revisión, por la API
+(`tienda-apps/app-store/`); la privacidad, en el Chrome, sacada del código.
+
+**Y en el sitio:** la cámara del buscador ya no se ofrece con la IA apagada
+(`IA_APAGADA`): llevaba a «no disponible», que es una función rota para
+quien la toca y un rechazo en la revisión. Candado en
+`mercatren-en-pausa.test.ts`.
+
+**La receta, las trampas (sin dispositivos, orientaciones de iPad, versión
+1.0 contra 1.0.0, los 175 territorios) y los riesgos de la revisión:**
+`tienda-apps/app-store/PUBLICAR-EN-APPLE.md`.
+
 ## EL COBRO DE GOOGLE CLOUD Y MERCATREN EN PAUSA (29 oct 2026)
 
 **Qué vio Richard.** En el banco, «GOOGLE CLOUD» de $25 cada dos o tres días

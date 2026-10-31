@@ -77,6 +77,13 @@ describe("con la pausa puesta no sale nada hacia Google", () => {
     );
   });
 
+  it("la cámara del buscador no se ofrece con la IA apagada", () => {
+    const buscador = leer("src/components/layout/buscador.tsx");
+    expect(buscador).toMatch(
+      /\{IA_APAGADA \? null : \(\s*<Link\s+href="\/buscar-con-foto"/,
+    );
+  });
+
   it("el tope del día también se cierra con la pausa", () => {
     const gasto = leer("src/lib/ia/gasto.ts");
     expect(gasto).toContain("if (IA_APAGADA) return false;");

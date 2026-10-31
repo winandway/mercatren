@@ -38,6 +38,7 @@ Richard lo diga.** Detalle, la cuenta del gasto y cómo se enciende:
 | ¿seguimos con CJ? ¿quién más?   | `PLAN-B-PROVEEDORES.md`                                     |
 | por qué algo se hizo así        | `HISTORIAL.md` (índice abajo)                               |
 | la app de Android, Google Play  | `app-android/LEEME.md` y `tienda-apps/google-play/FICHA.md` |
+| la app de iPhone, App Store     | `tienda-apps/app-store/PUBLICAR-EN-APPLE.md`                |
 
 Al terminar algo se marca en `CRONOGRAMA.md` **y** en `PENDIENTES.md`.
 
@@ -418,6 +419,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [LA APP DE IPHONE, A REVISIÓN DE APPLE (31 oct 2026)](HISTORIAL.md#la-app-de-iphone-a-revisión-de-apple-31-oct-2026)
 - [EL COBRO DE GOOGLE CLOUD Y MERCATREN EN PAUSA (29 oct 2026)](HISTORIAL.md#el-cobro-de-google-cloud-y-mercatren-en-pausa-29-oct-2026)
 - [EL EQUIPO PODÍA REGISTRAR UN RETIRO A NOMBRE DEL COMERCIO EQUIVOCADO (27 oct 2026, noche)](HISTORIAL.md#el-equipo-podía-registrar-un-retiro-a-nombre-del-comercio-equivocado-27-oct-2026-noche)
 - [ESPAÑA SE ABRE DENTRO DE mercatren.com, SIN DOMINIO, Y TODAVÍA SIN COBRAR (27 oct 2026)](HISTORIAL.md#españa-se-abre-dentro-de-mercatrencom-sin-dominio-y-todavía-sin-cobrar-27-oct-2026)

@@ -1,0 +1,8 @@
+# Lo que genera la compilación: nunca al repositorio.
+salida/
+build/
+*.xcarchive
+xcuserdata/
+DerivedData/
+# El proyecto de Xcode se regenera con `xcodegen generate` desde project.yml.
+Mercatren.xcodeproj/
