@@ -88,6 +88,33 @@ export default async function PaginaCaso({
                 {hora.format(m.creadoEn)}
               </p>
               {m.texto}
+              {m.adjuntos.length > 0 ? (
+                <span className="mt-2 flex flex-wrap gap-2">
+                  {m.adjuntos.map((a, j) => (
+                    <a
+                      key={j}
+                      href={enEsteDominio(a.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block h-20 w-20 overflow-hidden rounded-lg border border-white/20 bg-white/10"
+                      title={a.nombre}
+                    >
+                      {a.tipo === "image/heic" || a.tipo === "image/heif" ? (
+                        <span className="flex h-full items-center justify-center px-1 text-center text-[11px] break-all">
+                          {a.nombre}
+                        </span>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element -- privada y firmada: no pasa por el optimizador
+                        <img
+                          src={enEsteDominio(a.url)}
+                          alt={a.nombre}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </a>
+                  ))}
+                </span>
+              ) : null}
             </div>
           </li>
         ))}
@@ -96,4 +123,15 @@ export default async function PaginaCaso({
       <ChatDelCaso codigo={codigo} />
     </div>
   );
+}
+
+/**
+ * El enlace firmado sale con el dominio principal (así lo pide el gerente de
+ * correo), pero el chat también se abre desde .cl, .com.co, .com.ve o en
+ * local: aquí se usa solo la ruta y la firma, que valen en cualquier dominio
+ * porque los cuatro sirven el mismo sitio.
+ */
+function enEsteDominio(url: string): string {
+  const u = new URL(url);
+  return `${u.pathname}${u.search}`;
 }

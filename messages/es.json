@@ -4673,10 +4673,20 @@
         "cerrado": "Cerrado"
       },
       "errores": {
-        "datos": "Escribe tu mensaje antes de enviarlo.",
+        "datos": "Escribe tu mensaje o adjunta una captura antes de enviarlo.",
         "noExiste": "No encontramos este caso. Abre uno nuevo desde Ayuda.",
-        "base": "No pudimos guardar tu mensaje en este momento. Inténtalo de nuevo en unos minutos. Lo que escribiste sigue aquí."
-      }
+        "base": "No pudimos guardar tu mensaje en este momento. Inténtalo de nuevo en unos minutos. Lo que escribiste sigue aquí.",
+        "demasiados": "Puedes adjuntar hasta {maximo} capturas por mensaje.",
+        "tipo": "Solo se pueden adjuntar imágenes JPG, PNG, WEBP o HEIC.",
+        "grande": "Cada captura puede pesar hasta 10 MB.",
+        "vacio": "Una de las capturas está vacía. Elígela otra vez.",
+        "esperar": "Enviaste muchos mensajes seguidos. Espera un minuto y vuelve a intentarlo. Lo que escribiste sigue aquí.",
+        "sinConexion": "No hay conexión. Revisa tu internet y vuelve a intentarlo. Lo que escribiste y tus capturas siguen aquí."
+      },
+      "capturas": "Capturas para enviar",
+      "quitarCaptura": "Quitar {nombre}",
+      "adjuntar": "Adjuntar captura",
+      "adjuntarAyuda": "Hasta {maximo} imágenes de 10 MB (JPG, PNG, WEBP o HEIC)."
     }
   }
 }

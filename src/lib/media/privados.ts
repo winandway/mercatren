@@ -45,6 +45,9 @@ export const MEDIA_PRIVADOS = [
    * porque de él sale el margen. Solo el equipo interno.
    */
   "facturas-proveedor/",
+  /* Las capturas de los casos de ayuda (1 nov 2026): solo con enlace firmado
+     (`lib/media/firma.ts`) o desde el equipo. */
+  "ayuda/",
 ] as const;
 
 /** Las mismas rutas como las escribe el robots.txt. */

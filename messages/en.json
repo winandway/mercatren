@@ -4673,10 +4673,20 @@
         "cerrado": "Closed"
       },
       "errores": {
-        "datos": "Write your message before sending it.",
+        "datos": "Write a message or attach a screenshot before sending.",
         "noExiste": "We couldn't find this case. Open a new one from Help.",
-        "base": "We couldn't save your message right now. Please try again in a few minutes. What you wrote is still here."
-      }
+        "base": "We couldn't save your message right now. Please try again in a few minutes. What you wrote is still here.",
+        "demasiados": "You can attach up to {maximo} screenshots per message.",
+        "tipo": "You can only attach JPG, PNG, WEBP, or HEIC images.",
+        "grande": "Each screenshot can be up to 10 MB.",
+        "vacio": "One of the screenshots is empty. Please choose it again.",
+        "esperar": "You've sent several messages in a row. Please wait a minute and try again. What you wrote is still here.",
+        "sinConexion": "You're offline. Check your connection and try again. Your message and screenshots are still here."
+      },
+      "capturas": "Screenshots to send",
+      "quitarCaptura": "Remove {nombre}",
+      "adjuntar": "Attach screenshot",
+      "adjuntarAyuda": "Up to {maximo} images, 10 MB each (JPG, PNG, WEBP, or HEIC)."
     }
   }
 }

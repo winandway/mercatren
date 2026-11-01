@@ -14,6 +14,75 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "como-mandar-una-captura-a-soporte",
+    tipo: "documentacion",
+    titulo: "Cómo mandar una captura a soporte",
+    resumen:
+      "Una captura de pantalla nos ayuda a entender el problema más rápido. Así se adjunta en tu caso de ayuda, desde el celular o la computadora.",
+    fecha: "2026-11-01",
+    temas: ["ayuda", "soporte", "capturas"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Abre tu caso de ayuda, toca «Adjuntar captura», elige hasta tres imágenes y envía tu mensaje.",
+      },
+      { tipo: "subtitulo", texto: "Primero, toma la captura" },
+      {
+        tipo: "lista",
+        puntos: [
+          "En el iPhone: botón lateral y subir volumen a la vez.",
+          "En Android: botón de encendido y bajar volumen a la vez.",
+          "En la computadora: Windows, Mayúsculas y S; en Mac, Comando, Mayúsculas y 4.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Después, adjúntala en tu caso" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Abre tu caso",
+            texto:
+              "Desde el enlace del correo que te mandamos, o desde «Mi cuenta», en «Tus casos de ayuda». Si todavía no tienes un caso, ábrelo en Ayuda.",
+          },
+          {
+            titulo: "Toca «Adjuntar captura»",
+            texto:
+              "Está debajo de la casilla del mensaje. Puedes elegir hasta tres imágenes por mensaje, en JPG, PNG, WEBP o HEIC, de hasta 10 MB cada una.",
+          },
+          {
+            titulo: "Revisa y envía",
+            texto:
+              "Verás una miniatura de cada captura; si te equivocaste, quítala con la X. Escribe lo que pasó, si quieres, y toca «Enviar».",
+          },
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "Si algo falla al enviar",
+        texto:
+          "Tu mensaje y tus capturas se quedan en la pantalla y te decimos qué pasó, para que vuelvas a intentarlo sin escribir todo de nuevo.",
+      },
+      { tipo: "subtitulo", texto: "Quién ve tus capturas" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Solo tú, desde tu caso, y nuestro equipo de soporte. No se publican en ningún lado. Antes de enviarla, tapa o recorta lo que no haga falta, como números de tarjeta o contraseñas.",
+      },
+    ],
+    enlaces: [
+      {
+        texto: "Cómo pedir ayuda y seguir tu caso",
+        href: "/docs/como-pedir-ayuda",
+      },
+      { texto: "Ir a Ayuda", href: "/ayuda" },
+    ],
+  },
+
+  {
     slug: "como-pedir-ayuda",
     tipo: "documentacion",
     titulo: "Cómo pedir ayuda y seguir tu caso",

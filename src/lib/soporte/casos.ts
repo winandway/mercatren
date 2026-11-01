@@ -61,16 +61,21 @@ export type CasoParaGerente = {
 };
 
 export type MensajeParaGerente = {
+  id?: string;
   casoId: string;
   autor: string;
   texto: string;
   creadoEn: Date;
 };
 
+/** Una captura como la ve el gerente: nombre, tipo y enlace firmado. */
+export type AdjuntoParaGerente = { nombre: string; tipo: string; url: string };
+
 /** Un caso como lo pide el contrato. Nada de correo, llave del chat ni pagos. */
 export function ticketParaGerente(
   caso: CasoParaGerente,
   mensajes: MensajeParaGerente[],
+  adjuntos: Map<string, AdjuntoParaGerente[]> = new Map(),
 ) {
   return {
     id: caso.id,
@@ -88,6 +93,7 @@ export function ticketParaGerente(
         de: m.autor === "soporte" ? "soporte" : "cliente",
         fecha: m.creadoEn.toISOString(),
         texto: m.texto,
+        adjuntos: (m.id && adjuntos.get(m.id)) || [],
       })),
   };
 }

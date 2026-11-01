@@ -14,6 +14,75 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "como-mandar-una-captura-a-soporte",
+    tipo: "documentacion",
+    titulo: "How to send a screenshot to support",
+    resumen:
+      "A screenshot helps us understand the problem faster. Here's how to attach one to your help case, from your phone or computer.",
+    fecha: "2026-11-01",
+    temas: ["help", "support", "screenshots"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "Open your help case, tap “Attach screenshot,” choose up to three images, and send your message.",
+      },
+      { tipo: "subtitulo", texto: "First, take the screenshot" },
+      {
+        tipo: "lista",
+        puntos: [
+          "On iPhone: press the side button and volume up at the same time.",
+          "On Android: press the power button and volume down at the same time.",
+          "On a computer: Windows + Shift + S; on a Mac, Command + Shift + 4.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Then, attach it to your case" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Open your case",
+            texto:
+              "From the link in the email we sent you, or from “My account,” under “Your help cases.” If you don't have a case yet, open one from Help.",
+          },
+          {
+            titulo: "Tap “Attach screenshot”",
+            texto:
+              "It's below the message box. You can choose up to three images per message, in JPG, PNG, WEBP, or HEIC, up to 10 MB each.",
+          },
+          {
+            titulo: "Review and send",
+            texto:
+              "You'll see a thumbnail of each screenshot; if you picked the wrong one, remove it with the X. Add a note if you'd like, and tap “Send.”",
+          },
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "ojo",
+        titulo: "If something fails while sending",
+        texto:
+          "Your message and screenshots stay on the screen and we tell you what happened, so you can try again without retyping anything.",
+      },
+      { tipo: "subtitulo", texto: "Who sees your screenshots" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Only you, from your case, and our support team. They're never published. Before sending, cover or crop anything we don't need, like card numbers or passwords.",
+      },
+    ],
+    enlaces: [
+      {
+        texto: "How to get help and follow your case",
+        href: "/docs/como-pedir-ayuda",
+      },
+      { texto: "Go to Help", href: "/ayuda" },
+    ],
+  },
+
+  {
     slug: "como-pedir-ayuda",
     tipo: "documentacion",
     titulo: "How to get help and follow your case",

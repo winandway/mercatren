@@ -3,7 +3,7 @@
 import { getLocale } from "next-intl/server";
 
 import { obtenerUsuario } from "@/lib/autorizacion";
-import { esquemaCaso, esquemaMensajeCliente } from "@/lib/soporte/casos";
+import { esquemaCaso } from "@/lib/soporte/casos";
 
 /**
  * Abrir un caso de ayuda y escribir en su chat (1 nov 2026). Solo funciones
@@ -53,27 +53,6 @@ export async function abrirCasoAyuda(
     } catch {
       /* nada */
     }
-    return { ok: false, motivo: "base" };
-  }
-}
-
-export async function escribirEnCaso(
-  codigo: string,
-  campos: Record<string, string>,
-): Promise<
-  { ok: true } | { ok: false; motivo: "datos" | "noExiste" | "base" }
-> {
-  const revisado = esquemaMensajeCliente.safeParse(campos);
-  if (!revisado.success || !/^[A-Za-z0-9_-]{16,40}$/.test(codigo)) {
-    return { ok: false, motivo: "datos" };
-  }
-  try {
-    const { mensajeDelCliente } = await import("@/lib/soporte/casos-consultas");
-    return (await mensajeDelCliente(codigo, revisado.data.texto))
-      ? { ok: true }
-      : { ok: false, motivo: "noExiste" };
-  } catch (fallo) {
-    console.error("[ayuda] no se pudo guardar el mensaje:", fallo);
     return { ok: false, motivo: "base" };
   }
 }

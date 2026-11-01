@@ -15,6 +15,52 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LAS CAPTURAS EN EL CHAT DEL CASO (1 nov 2026)
+
+**Qué se pidió.** Que quien escribe en su caso de ayuda pueda mandar la
+captura del error, y que el gerente de correo la reciba con un enlace.
+
+**Cómo quedó.**
+
+- En el chat del caso, el botón «Adjuntar captura»: hasta **3 imágenes por
+  mensaje**, JPG, PNG, WEBP o HEIC, de **10 MB** como máximo cada una
+  (`src/lib/soporte/adjuntos.ts`, `revisarAdjuntos`). Se ve la miniatura
+  antes de enviar y se puede quitar.
+- El envío va por `POST /upload/ayuda/<codigo>` (multipart), no por una acción
+  del servidor: tres capturas de 10 MB no caben en una acción. Límite de 20
+  envíos por minuto (motivo `esperar`, distinto de `demasiados`, que es «más
+  de 3 capturas»).
+- Las capturas se guardan en el `BUCKET`, en la carpeta privada `ayuda/`
+  (`ayuda/<caso>/<id>.<ext>`), y en la tabla nueva `adjuntos_ayuda`
+  (migración 0050). **Se suben ANTES de escribir en la base**: si la subida
+  falla, no queda un mensaje con capturas fantasma.
+- **Enlaces firmados** (`src/lib/media/firma.ts`): HMAC-SHA256 de la ruta y el
+  vencimiento, válidos **8 días**, `?vence=<unix>&firma=<b64url>`. La ruta
+  `/media/[...clave]` los acepta SOLO para `ayuda/`; sin firma o con la firma
+  cambiada da 404. La llave es `SINCRONIZAR_LLAVE`, y si falta,
+  `GERENTE_SECRETO` o `BETTER_AUTH_SECRET`; sin ninguna no se da enlace.
+- El gerente recibe en `GET /datos/gerente/tickets` cada mensaje con
+  `adjuntos: [{nombre, tipo, url}]`, la url con `https://mercatren.com`.
+- **El chat usa la ruta relativa** (`enEsteDominio`): la página también se
+  abre desde .cl, .com.co, .com.ve y en local, y con el dominio fijo la
+  miniatura salía rota.
+- **Lo escrito no se pierde:** el borrador y las capturas se borran SOLO con
+  el `ok` del servidor; si falla, se quedan en pantalla con el motivo.
+- Guía pública en Docs, en los dos idiomas: «Cómo mandar una captura a
+  soporte».
+
+**Comprobado en local (1 nov 2026):** caso abierto desde Ayuda, dos capturas
+elegidas, una quitada, enviada: la miniatura aparece en el chat; el gerente
+la recibe con enlace firmado (200 con la firma, 404 sin ella o cambiada, 401
+la puerta sin secreto); con la subida forzada a fallar, el aviso sale y el
+texto y la captura siguen, y al recargar el borrador vuelve.
+
+**Candado:** `tests/unit/capturas-de-ayuda.test.ts` (comprobado en rojo).
+**No tocar:** el orden «subir y luego escribir en la base», ni la regla de
+que la firma solo abre `ayuda/`.
+
+---
+
 ## LOS CASOS DE AYUDA Y LA PUERTA DEL GERENTE DE CORREO (1 nov 2026)
 
 **Qué se pidió** (la sesión que lleva los correos de Richard, por orden suya):

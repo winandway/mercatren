@@ -4190,3 +4190,34 @@ export const mensajesAyuda = sqliteTable(
   },
   (t) => [index("idx_mensajes_ayuda_caso").on(t.casoId, t.creadoEn)],
 );
+
+/**
+ * LAS CAPTURAS DE UN CASO DE AYUDA (1 nov 2026, pedido de Richard por el
+ * gerente de correo): hasta 3 imágenes por mensaje, en el BUCKET bajo
+ * `ayuda/` (carpeta privada: solo se abre con un enlace firmado, ver
+ * `lib/media/firma.ts`).
+ */
+export const adjuntosAyuda = sqliteTable(
+  "adjuntos_ayuda",
+  {
+    id: text("id").primaryKey(),
+    mensajeId: text("mensaje_id")
+      .notNull()
+      .references(() => mensajesAyuda.id, { onDelete: "cascade" }),
+    casoId: text("caso_id")
+      .notNull()
+      .references(() => casosAyuda.id, { onDelete: "cascade" }),
+    /** La clave en el BUCKET: `ayuda/<caso>/<adjunto>.<ext>`. */
+    clave: text("clave").notNull(),
+    nombre: text("nombre").notNull(),
+    tipo: text("tipo").notNull(),
+    bytes: integer("bytes").notNull(),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_adjuntos_ayuda_mensaje").on(t.mensajeId),
+    index("idx_adjuntos_ayuda_caso").on(t.casoId),
+  ],
+);

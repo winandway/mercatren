@@ -4,8 +4,9 @@ import { and, asc, desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { getDb } from "@/lib/db";
-import { casosAyuda, mensajesAyuda } from "@/lib/db/schema";
+import { adjuntosAyuda, casosAyuda, mensajesAyuda } from "@/lib/db/schema";
 import {
+  type AdjuntoParaGerente,
   MAX_CASOS_POR_HORA,
   nuevoCodigo,
   numeroDeCaso,
@@ -67,6 +68,53 @@ export async function crearCaso(d: CasoNuevo) {
   return { id, codigo, numero: numeroDeCaso(id) };
 }
 
+/**
+ * Los enlaces FIRMADOS de unas capturas (`lib/media/firma.ts`): valen 8 días
+ * y abren el archivo sin sesión. Sin llave de firma, no se da ninguno.
+ */
+async function enlacesDe(
+  filas: { mensajeId: string; clave: string; nombre: string; tipo: string }[],
+): Promise<Map<string, AdjuntoParaGerente[]>> {
+  const porMensaje = new Map<string, AdjuntoParaGerente[]>();
+  if (filas.length === 0) return porMensaje;
+  const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+  const { firmarRuta, secretoDeFirma } = await import("@/lib/media/firma");
+  const { SITIO } = await import("@/lib/sitio");
+  let env: Record<string, string | undefined> = {};
+  try {
+    env = getCloudflareContext().env as unknown as Record<
+      string,
+      string | undefined
+    >;
+  } catch {
+    env = process.env as Record<string, string | undefined>;
+  }
+  const secreto = secretoDeFirma(env);
+  if (!secreto) return porMensaje;
+  for (const f of filas) {
+    const url = `${SITIO.url}/media/${f.clave}?${await firmarRuta(f.clave, secreto)}`;
+    const lista = porMensaje.get(f.mensajeId) ?? [];
+    lista.push({ nombre: f.nombre, tipo: f.tipo, url });
+    porMensaje.set(f.mensajeId, lista);
+  }
+  return porMensaje;
+}
+
+async function adjuntosDeCasos(casoIds: string[]) {
+  if (casoIds.length === 0) return new Map<string, AdjuntoParaGerente[]>();
+  const filas = await getDb()
+    .select({
+      mensajeId: adjuntosAyuda.mensajeId,
+      clave: adjuntosAyuda.clave,
+      nombre: adjuntosAyuda.nombre,
+      tipo: adjuntosAyuda.tipo,
+    })
+    .from(adjuntosAyuda)
+    .where(inArray(adjuntosAyuda.casoId, casoIds))
+    .orderBy(asc(adjuntosAyuda.creadoEn));
+  return enlacesDe(filas);
+}
+
 /** Un caso por la llave de su chat, con sus mensajes. */
 export async function casoPorCodigo(codigo: string) {
   const db = getDb();
@@ -85,6 +133,7 @@ export async function casoPorCodigo(codigo: string) {
   if (!caso) return null;
   const mensajes = await db
     .select({
+      id: mensajesAyuda.id,
       autor: mensajesAyuda.autor,
       texto: mensajesAyuda.texto,
       creadoEn: mensajesAyuda.creadoEn,
@@ -92,11 +141,29 @@ export async function casoPorCodigo(codigo: string) {
     .from(mensajesAyuda)
     .where(eq(mensajesAyuda.casoId, caso.id))
     .orderBy(asc(mensajesAyuda.creadoEn));
-  return { ...caso, numero: numeroDeCaso(caso.id), mensajes };
+  const adjuntos = await adjuntosDeCasos([caso.id]);
+  return {
+    ...caso,
+    numero: numeroDeCaso(caso.id),
+    mensajes: mensajes.map((m) => ({
+      ...m,
+      adjuntos: adjuntos.get(m.id) ?? [],
+    })),
+  };
 }
 
-/** La persona vuelve a escribir: el caso queda otra vez esperando respuesta. */
-export async function mensajeDelCliente(codigo: string, texto: string) {
+export type ArchivoNuevo = { nombre: string; tipo: string; datos: ArrayBuffer };
+
+/**
+ * La persona vuelve a escribir, con o sin capturas: el caso queda otra vez
+ * esperando respuesta. Las capturas se suben ANTES de guardar el mensaje: si
+ * una falla, no queda un mensaje que diga que hay una captura que no está.
+ */
+export async function mensajeDelCliente(
+  codigo: string,
+  texto: string,
+  archivos: ArchivoNuevo[] = [],
+) {
   const db = getDb();
   const [caso] = await db
     .select({ id: casosAyuda.id })
@@ -105,14 +172,46 @@ export async function mensajeDelCliente(codigo: string, texto: string) {
     .limit(1);
   if (!caso) return false;
   const ahora = new Date();
+  const mensajeId = `ma-${nanoid(14)}`;
+  const { extensionDe } = await import("@/lib/soporte/adjuntos");
+  const subidos: {
+    id: string;
+    clave: string;
+    nombre: string;
+    tipo: string;
+    bytes: number;
+  }[] = [];
+  if (archivos.length > 0) {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const { env } = getCloudflareContext();
+    for (const a of archivos) {
+      const id = `aa-${nanoid(14)}`;
+      const clave = `ayuda/${caso.id}/${id}.${extensionDe(a.tipo)}`;
+      await env.BUCKET.put(clave, a.datos, {
+        httpMetadata: { contentType: a.tipo },
+      });
+      subidos.push({
+        id,
+        clave,
+        nombre: a.nombre,
+        tipo: a.tipo,
+        bytes: a.datos.byteLength,
+      });
+    }
+  }
   await db.batch([
     db.insert(mensajesAyuda).values({
-      id: `ma-${nanoid(14)}`,
+      id: mensajeId,
       casoId: caso.id,
       autor: "cliente",
       texto,
       creadoEn: ahora,
     }),
+    ...subidos.map((a) =>
+      db
+        .insert(adjuntosAyuda)
+        .values({ ...a, mensajeId, casoId: caso.id, creadoEn: ahora }),
+    ),
     db
       .update(casosAyuda)
       .set({ estado: "abierto", actualizadoEn: ahora })
@@ -157,6 +256,7 @@ export async function ticketsParaGerente(soloAbiertos: boolean) {
   const mensajes = casos.length
     ? await db
         .select({
+          id: mensajesAyuda.id,
           casoId: mensajesAyuda.casoId,
           autor: mensajesAyuda.autor,
           texto: mensajesAyuda.texto,
@@ -171,7 +271,8 @@ export async function ticketsParaGerente(soloAbiertos: boolean) {
         )
         .orderBy(asc(mensajesAyuda.creadoEn))
     : [];
-  return casos.map((c) => ticketParaGerente(c, mensajes));
+  const adjuntos = await adjuntosDeCasos(casos.map((c) => c.id));
+  return casos.map((c) => ticketParaGerente(c, mensajes, adjuntos));
 }
 
 /** El gerente contesta: queda el mensaje y el caso pasa a respondido o cerrado. */

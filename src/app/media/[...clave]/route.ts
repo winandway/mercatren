@@ -55,6 +55,7 @@ export async function GET(
 
   if (
     esPrivado(ruta) &&
+    !(await conEnlaceFirmado(peticion, ruta)) &&
     !(await esSuPropioComprobante(ruta, enlaceDeCobro)) &&
     !(await puedeVerlo(ruta))
   ) {
@@ -223,6 +224,30 @@ async function esSuPropioComprobante(
     return Boolean(cobro) && cobro!.id === duenno;
   } catch (e) {
     console.error("[media] no se pudo comprobar el enlace del cobro:", e);
+    return false;
+  }
+}
+
+/**
+ * LAS CAPTURAS DE LOS CASOS DE AYUDA, CON ENLACE FIRMADO (1 nov 2026).
+ *
+ * Las abren la persona desde su chat y el gerente de correo desde la lista
+ * de casos, sin sesión: la firma (`?vence=…&firma=…`, ver `lib/media/firma.ts`)
+ * es el permiso. Solo vale para `ayuda/` y hasta que vence.
+ */
+async function conEnlaceFirmado(peticion: Request, ruta: string) {
+  if (!ruta.startsWith("ayuda/")) return false;
+  try {
+    const { firmaValida, secretoDeFirma } = await import("@/lib/media/firma");
+    const url = new URL(peticion.url);
+    const { env } = getCloudflareContext();
+    return await firmaValida(
+      ruta,
+      url.searchParams.get("vence"),
+      url.searchParams.get("firma"),
+      secretoDeFirma(env as unknown as Record<string, string | undefined>),
+    );
+  } catch {
     return false;
   }
 }

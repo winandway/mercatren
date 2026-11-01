@@ -144,8 +144,14 @@ describe("cada caso, como lo pide el contrato", () => {
         de: "cliente",
         fecha: "2026-11-01T10:00:00.000Z",
         texto: "¿Dónde está?",
+        adjuntos: [],
       },
-      { de: "soporte", fecha: "2026-11-01T11:00:00.000Z", texto: "Hola Ana" },
+      {
+        de: "soporte",
+        fecha: "2026-11-01T11:00:00.000Z",
+        texto: "Hola Ana",
+        adjuntos: [],
+      },
     ]);
   });
 });
