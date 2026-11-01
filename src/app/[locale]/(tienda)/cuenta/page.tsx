@@ -18,6 +18,7 @@ import { CambiarClave } from "@/components/cuenta/cambiar-clave";
 import { MenuCuenta } from "@/components/cuenta/menu-cuenta";
 import { Salir } from "@/components/cuenta/salir";
 import { Link } from "@/i18n/navigation";
+import { CasosDeAyuda } from "@/components/ayuda/casos-de-ayuda";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { casilleroDe } from "@/lib/casillero/crear";
 import { paquetesDe } from "@/lib/casillero/mis-paquetes";
@@ -321,6 +322,10 @@ export default async function PaginaCuenta({
           ) : null}
         </dl>
       </section>
+
+      {/* SUS CASOS DE AYUDA (1 nov 2026): cada uno abre su chat. Solo sale
+          si tiene alguno. */}
+      <CasosDeAyuda usuarioId={usuario.id} />
 
       <section className="mt-4 rounded-xl bg-slate-50 p-5 sm:p-6">
         <h2 className="flex items-center gap-2 font-bold">

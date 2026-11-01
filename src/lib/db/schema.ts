@@ -4126,3 +4126,67 @@ export const bloqueosUsuario = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.usuarioId, t.bloqueadoId] })],
 );
+
+/**
+ * LOS CASOS DE AYUDA (1 nov 2026, plan de soporte de Richard).
+ *
+ * Quien escribe en «Ayuda» abre un caso; lo sigue como un chat en
+ * `/ayuda/caso/<codigo>` (el código es secreto: es la llave de esa
+ * conversación, sirva o no tenga cuenta). El gerente de correo de Richard lo
+ * lee y lo contesta por `/datos/gerente/tickets` (`lib/soporte/gerente.ts`).
+ *
+ * Estados: `abierto` (espera respuesta nuestra), `respondido` (le contestamos
+ * y espera a la persona), `cerrado`. Si la persona vuelve a escribir, el caso
+ * vuelve a `abierto`.
+ *
+ * TABLAS NUEVAS, no columnas: llegan a producción solas por `schema.sql`.
+ */
+export const casosAyuda = sqliteTable(
+  "casos_ayuda",
+  {
+    id: text("id").primaryKey(),
+    /** La llave secreta del chat. Nunca sale en la API del gerente. */
+    codigo: text("codigo").notNull().unique(),
+    usuarioId: text("usuario_id").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    nombre: text("nombre").notNull(),
+    /** Para avisarle por correo. Nunca sale en la API del gerente. */
+    email: text("email").notNull(),
+    idioma: text("idioma").notNull().default("es"),
+    asunto: text("asunto").notNull(),
+    estado: text("estado")
+      .$type<"abierto" | "respondido" | "cerrado">()
+      .notNull()
+      .default("abierto"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [
+    index("idx_casos_ayuda_estado").on(t.estado, t.actualizadoEn),
+    index("idx_casos_ayuda_usuario").on(t.usuarioId),
+    index("idx_casos_ayuda_email").on(t.email, t.creadoEn),
+  ],
+);
+
+export const mensajesAyuda = sqliteTable(
+  "mensajes_ayuda",
+  {
+    id: text("id").primaryKey(),
+    casoId: text("caso_id")
+      .notNull()
+      .references(() => casosAyuda.id, { onDelete: "cascade" }),
+    autor: text("autor").$type<"cliente" | "soporte">().notNull(),
+    texto: text("texto").notNull(),
+    /** La plantilla del gerente (P1…P9), si contestó con una. */
+    plantilla: text("plantilla"),
+    creadoEn: integer("creado_en", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => [index("idx_mensajes_ayuda_caso").on(t.casoId, t.creadoEn)],
+);

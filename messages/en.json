@@ -3795,6 +3795,25 @@
         "Orders, payments, and invoices are kept for five years, as required by law, without being linked to your account. After that, they're deleted.",
         "If you didn't make this request, reply to this email today."
       ]
+    },
+    "casoAbierto": {
+      "asunto": "We got your case {numero}",
+      "previo": "We'll reply here and by email.",
+      "titulo": "We got your message",
+      "parrafos": [
+        "Thanks for writing to us. Your case is open, and someone from our team will reply, usually within one business day.",
+        "You can follow the conversation and send us more details from the link below."
+      ],
+      "numero": "Case number",
+      "boton": "View my case"
+    },
+    "casoRespondido": {
+      "asunto": "We replied to your case {numero}",
+      "titulo": "You have a reply",
+      "boton": "View and reply",
+      "despues": [
+        "If you need anything else, reply from the link: the conversation stays in the same case."
+      ]
     }
   },
   "misPedidos": {
@@ -4633,7 +4652,30 @@
       "errores": {
         "demasiados": "You've sent several messages in the last hour. Please wait a bit and try again, or email us at {correo}. What you wrote is still here.",
         "fallo": "We couldn't send your message right now. Please try again in a few minutes or email us at {correo}. What you wrote is still here.",
-        "sinConexion": "You're offline. Check your internet connection and try again, or email us at {correo}. What you wrote is still here."
+        "sinConexion": "You're offline. Check your internet connection and try again, or email us at {correo}. What you wrote is still here.",
+        "datos": "Please check your details: your name, email, subject or message is missing."
+      },
+      "casoAbierto": "Your case number is #{numero}. We'll reply here and by email, usually within one business day.",
+      "verCaso": "View my case"
+    },
+    "caso": {
+      "volver": "Help",
+      "numero": "Case",
+      "tu": "You",
+      "soporte": "Mercatren Support",
+      "escribir": "Write your message",
+      "enviar": "Send",
+      "enviando": "Sending…",
+      "misCasos": "Your help cases",
+      "estados": {
+        "abierto": "Waiting for a reply",
+        "respondido": "Replied",
+        "cerrado": "Closed"
+      },
+      "errores": {
+        "datos": "Write your message before sending it.",
+        "noExiste": "We couldn't find this case. Open a new one from Help.",
+        "base": "We couldn't save your message right now. Please try again in a few minutes. What you wrote is still here."
       }
     }
   }

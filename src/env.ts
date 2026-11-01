@@ -136,6 +136,7 @@ export const esquemaEntorno = z.object({
    * una variable no esté puesta.
    */
   SINCRONIZAR_LLAVE: z.string().optional(),
+  GERENTE_SECRETO: z.string().optional(),
 
   /**
    * LA LLAVE DE LAS PLATAFORMAS SOCIAS (hoy QRbott).

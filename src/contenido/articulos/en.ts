@@ -14,6 +14,64 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "como-pedir-ayuda",
+    tipo: "documentacion",
+    titulo: "How to get help and follow your case",
+    resumen:
+      "Write to us from Help: you get a case number and follow it like a chat, from the email link or from your account.",
+    fecha: "2026-11-01",
+    temas: ["help", "support", "account"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "Go to Help, tell us what's going on, and you'll get a case number. We reply right there, like a chat, and we email you when we do.",
+      },
+      { tipo: "subtitulo", texto: "How to open a case" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Go to Help",
+            texto:
+              "It's in the page footer and in your account. The “Write to us” form is at the bottom of the page.",
+          },
+          {
+            titulo: "Tell us what's going on",
+            texto:
+              "Your name, your email, a short subject, and your message. If you're signed in, the case is saved to your account. What you type is saved as you go: if the page closes, it's still there when you come back.",
+          },
+          {
+            titulo: "Get your case number",
+            texto:
+              "When you send it, you'll see your case number and a button to open the conversation. We also email you the same link.",
+          },
+        ],
+      },
+      { tipo: "subtitulo", texto: "How to follow the conversation" },
+      {
+        tipo: "lista",
+        puntos: [
+          "The conversation looks like a chat: your messages on the right, our team's on the left.",
+          "When we reply, you get an email with the reply and a link to answer.",
+          "You can add more details to the same case anytime; there's no need to open a new one.",
+          "If you're signed in, your cases are under “My account,” in “Your help cases.”",
+          "Your case link is personal: please don't share it.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Another way to reach us" },
+      {
+        tipo: "parrafo",
+        texto:
+          "You can also email us. The address is on the Help page and in the footer of every page.",
+      },
+    ],
+    enlaces: [{ texto: "Go to Help", href: "/ayuda" }],
+  },
+
+  {
     slug: "mercatren-en-espana",
     tipo: "documentacion",
     titulo:

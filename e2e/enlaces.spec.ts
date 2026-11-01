@@ -83,10 +83,29 @@ test.describe("ningun enlace roto", () => {
       ).toBeGreaterThan(0);
 
       const rotos: string[] = [];
+      const origen = new URL(baseURL!).origin;
       for (const ruta of rutas) {
-        const respuesta = await page.request.get(`${baseURL}${ruta}`, {
-          maxRedirects: 5,
+        /**
+         * UNA REDIRECCIÓN A OTRO DOMINIO NO SE SIGUE (1 nov 2026).
+         *
+         * Los botones de los otros países (`/datos/pais?a=VE`) mandan a
+         * mercatren.com.ve, .cl y .com.co: el SITIO PUBLICADO. Seguirlos hacía
+         * que esta prueba dependiera de que producción estuviera arriba, y el
+         * 1 nov 2026, con el sitio en pausa en la plataforma, tumbó una
+         * publicación que no tenía nada roto. Lo que esta prueba cuida es que
+         * nuestro enlace responda; si responde mandando a otro dominio, cumplió.
+         */
+        let respuesta = await page.request.get(`${baseURL}${ruta}`, {
+          maxRedirects: 0,
         });
+        const destino = respuesta.headers()["location"];
+        if (respuesta.status() >= 300 && respuesta.status() < 400 && destino) {
+          const url = new URL(destino, baseURL);
+          if (url.origin !== origen) continue;
+          respuesta = await page.request.get(url.toString(), {
+            maxRedirects: 5,
+          });
+        }
         if (respuesta.status() >= 400) {
           rotos.push(`${ruta} → ${respuesta.status()}`);
         }

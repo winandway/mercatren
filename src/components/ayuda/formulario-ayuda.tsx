@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Loader2, Send } from "lucide-react";
+import { CheckCircle2, Loader2, MessagesSquare, Send } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -9,40 +9,57 @@ import {
   FormularioPersistente,
   olvidarBorrador,
 } from "@/components/ui/formulario-persistente";
+import { Link } from "@/i18n/navigation";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
-import { enviarAyuda, type ResultadoAyuda } from "@/lib/soporte/bandeja";
+import { abrirCasoAyuda } from "@/lib/soporte/acciones-ayuda";
+import { enviarAyuda } from "@/lib/soporte/bandeja";
+
+type Resultado =
+  | { ok: true; numero?: string; codigo?: string }
+  | { ok: false; motivo: "datos" | "demasiados" | "fallo" | "sinConexion" };
 
 const LLAVE = "ayuda-contacto";
 
 /**
- * El formulario de ayuda (1 nov 2026): el mensaje va a la bandeja de
- * soporte (`lib/soporte/bandeja.ts`). Lo escrito se guarda mientras se
- * escribe y SOLO se borra cuando la bandeja confirma; si falla, se queda en
- * pantalla con el motivo y el correo de contacto como otra vía.
+ * El formulario de ayuda (1 nov 2026). Abre un CASO en la base de Mercatren
+ * (`acciones-ayuda.ts`): la persona lo sigue como un chat y el gerente de
+ * correo lo contesta por `/datos/gerente/tickets`. Si la base falla, el
+ * mensaje va a la bandeja de soporte de Windoce (`bandeja.ts`), así el cliente
+ * llega igual. Lo escrito se guarda mientras se escribe y SOLO se borra con la
+ * confirmación; si falla, se queda en pantalla con el motivo y el correo de
+ * contacto como otra vía.
  */
 export function FormularioAyuda() {
   const t = useTranslations("ayuda.formulario");
   const idioma = useLocale();
   const [enviando, setEnviando] = useState(false);
-  const [resultado, setResultado] = useState<ResultadoAyuda | null>(null);
+  const [resultado, setResultado] = useState<Resultado | null>(null);
 
   async function enviar(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const form = evento.currentTarget;
     const datos = new FormData(form);
     const texto = (clave: string) => String(datos.get(clave) ?? "");
+    const campos = {
+      nombre: texto("nombre"),
+      email: texto("email"),
+      asunto: texto("asunto"),
+      mensaje: texto("mensaje"),
+      sitio_web: texto("sitio_web"),
+    };
     setEnviando(true);
     setResultado(null);
-    const r = await enviarAyuda(
-      {
-        nombre: texto("nombre"),
-        email: texto("email"),
-        asunto: texto("asunto"),
-        mensaje: texto("mensaje"),
-        sitio_web: texto("sitio_web"),
-      },
-      idioma,
-    );
+    let caso: Awaited<ReturnType<typeof abrirCasoAyuda>>;
+    try {
+      caso = await abrirCasoAyuda(campos);
+    } catch {
+      caso = { ok: false, motivo: "base" };
+    }
+    /* La base no contestó: el mensaje va a la bandeja de Windoce. */
+    const r: Resultado =
+      caso.ok || caso.motivo !== "base"
+        ? (caso as Resultado)
+        : await enviarAyuda(campos, idioma);
     setEnviando(false);
     setResultado(r);
     // Solo con la confirmación en la mano se borra lo escrito.
@@ -62,7 +79,20 @@ export function FormularioAyuda() {
           <CheckCircle2 className="h-5 w-5" aria-hidden />
           {t("enviadoTitulo")}
         </p>
-        <p className="mt-1 text-sm">{t("enviadoTexto")}</p>
+        <p className="mt-1 text-sm">
+          {resultado.numero
+            ? t("casoAbierto", { numero: resultado.numero })
+            : t("enviadoTexto")}
+        </p>
+        {resultado.codigo ? (
+          <Link
+            href={`/ayuda/caso/${resultado.codigo}`}
+            className="boton-principal mt-3 inline-flex gap-2"
+          >
+            <MessagesSquare className="h-4 w-4" aria-hidden />
+            {t("verCaso")}
+          </Link>
+        ) : null}
       </div>
     );
   }

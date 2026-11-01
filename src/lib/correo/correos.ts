@@ -1077,3 +1077,50 @@ export async function correoCuentaEliminada(d: Destinatario) {
     contacto,
   });
 }
+
+/**
+ * Los casos de ayuda (1 nov 2026): al abrir uno, la persona recibe el número
+ * y el enlace a su chat; cuando le contestamos, la respuesta y el enlace.
+ * El enlace lleva la llave secreta del caso: es la única puerta a ese chat.
+ */
+export async function correoCasoAbierto(
+  d: Destinatario,
+  caso: { numero: string; codigo: string },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  return enviar(d, {
+    asunto: t("casoAbierto.asunto", { numero: caso.numero }),
+    previo: t("casoAbierto.previo"),
+    saludo,
+    titulo: t("casoAbierto.titulo"),
+    parrafos: t.raw("casoAbierto.parrafos") as string[],
+    datos: [{ etiqueta: t("casoAbierto.numero"), valor: caso.numero }],
+    boton: {
+      texto: t("casoAbierto.boton"),
+      url: urlDe(idioma, `/ayuda/caso/${caso.codigo}`),
+    },
+    motivo,
+    contacto,
+  });
+}
+
+export async function correoCasoRespondido(
+  d: Destinatario,
+  caso: { numero: string; codigo: string; texto: string },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  return enviar(d, {
+    asunto: t("casoRespondido.asunto", { numero: caso.numero }),
+    previo: caso.texto.slice(0, 120),
+    saludo,
+    titulo: t("casoRespondido.titulo"),
+    parrafos: [caso.texto],
+    boton: {
+      texto: t("casoRespondido.boton"),
+      url: urlDe(idioma, `/ayuda/caso/${caso.codigo}`),
+    },
+    parrafosFinales: t.raw("casoRespondido.despues") as string[],
+    motivo,
+    contacto,
+  });
+}

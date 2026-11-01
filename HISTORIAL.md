@@ -15,6 +15,58 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LOS CASOS DE AYUDA Y LA PUERTA DEL GERENTE DE CORREO (1 nov 2026)
+
+**Qué se pidió** (la sesión que lleva los correos de Richard, por orden suya):
+que quien pida ayuda tenga un caso que siga como chat, y que el gerente de
+correo lo lea y lo conteste desde su sesión. El contrato es el de Divoox
+(`tumbite/apps/servidor/src/rutas/gerente.ts`).
+
+**Lo que se hizo.**
+
+- Tablas nuevas `casos_ayuda` y `mensajes_ayuda` (llegan solas por
+  `schema.sql`). Estados: `abierto` → `respondido` → `cerrado`; si la persona
+  vuelve a escribir, `abierto` otra vez.
+- El formulario de `/ayuda` abre el CASO en la base (`acciones-ayuda.ts`) y
+  da su número y el botón al chat; manda un correo con el enlace. **Solo si
+  la base falla** va a la bandeja de Windoce (`bandeja.ts`): el cliente llega
+  igual y no hay mensajes repetidos. Máximo 5 casos por hora por correo.
+- El chat: `/ayuda/caso/<codigo>` (la llave secreta del caso, nunca se
+  indexa), con su casilla para seguir escribiendo; guarda el borrador y solo
+  lo borra con el mensaje guardado. Quien entró con su cuenta ve sus casos en
+  «Mi cuenta». Guía pública «Cómo pedir ayuda y seguir tu caso» en es/en.
+- La puerta del gerente: `GET /datos/gerente/tickets?estado=abiertos|todos`
+  y `POST /datos/gerente/tickets/<id>/responder` (`{texto, plantilla?,
+cerrar?}` → `{ok, numero, plantilla, aviso, correo}`). Bearer con
+  `GERENTE_SECRETO` comparado en tiempo constante (SHA-256), 401 sin él o sin
+  la variable cargada, 30 por minuto, zod. **Nunca sale el correo de la
+  persona, la llave del chat, pagos ni direcciones.** `aviso` es siempre
+  `sin_app` (Mercatren no manda avisos dentro de la app).
+- El secreto se generó y vive en `~/.config/gerente-correo/soporte-mercatren`
+  y `~/.config/mercatren/gerente-secreto` (700/600). Falta cargarlo en las
+  variables del sitio.
+
+**Cómo se comprobó (en local).** Caso abierto desde el formulario (#C4AC5A8A),
+chat con dos mensajes, la casilla se vacía tras enviar; la puerta: 401 sin
+secreto y con uno malo, la lista sin correo ni llave, 400 con datos malos,
+404 con un caso que no existe, la respuesta guardada y el caso a
+«Respondido».
+
+**El tropiezo.** El archivo `src/lib/soporte/acciones.ts` YA EXISTÍA (es el
+de «ver el panel como un comercio») y se pisó un momento; se recuperó de git
+antes de guardar nada. Lo de los casos vive en `acciones-ayuda.ts` y
+`casos-consultas.ts`.
+
+**Y la publicación que no salió.** La del formulario (1 nov 2026) se cayó en
+las pruebas de punta a punta: la de enlaces seguía los botones de los otros
+países hasta el SITIO PUBLICADO, que estaba **en pausa en YaDominios** (503,
+«Este sitio está en pausa»). Ahora no sigue redirecciones a otro dominio
+(`e2e/enlaces.spec.ts`): esa prueba cuida nuestros enlaces, no que
+producción esté arriba.
+
+**Candados:** `tests/unit/casos-de-ayuda.test.ts` y
+`tests/unit/formulario-ayuda.test.ts`, comprobados en rojo.
+
 ## EL SOPORTE, PLAN MIXTO: EL CORREO DE MERCATREN A LA VISTA Y UN FORMULARIO A LA BANDEJA DE WINDOCE (1 nov 2026)
 
 **La decisión de Richard** (traída por la sesión que lleva sus correos): todo

@@ -90,6 +90,8 @@ interface CloudflareEnv {
   AGENTE_TOKEN?: string;
   /** La llave del robotito que sincroniza los catálogos (ver /datos/sincronizar). */
   SINCRONIZAR_LLAVE?: string;
+  /** La puerta del gerente de correo (`/datos/gerente`). Ver `lib/soporte/puerta-gerente.ts`. */
+  GERENTE_SECRETO?: string;
 
   /**
    * La llave de las plataformas socias (QRbott). Solo sirve para VINCULAR una

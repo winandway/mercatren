@@ -3795,6 +3795,25 @@
         "Los pedidos, pagos y facturas se conservan cinco años porque la ley lo exige, sin unirlos a tu cuenta. Después se eliminan.",
         "Si no fuiste tú quien lo pidió, respóndenos a este correo hoy mismo."
       ]
+    },
+    "casoAbierto": {
+      "asunto": "Recibimos tu caso {numero}",
+      "previo": "Te respondemos por aquí y por correo.",
+      "titulo": "Recibimos tu mensaje",
+      "parrafos": [
+        "Gracias por escribirnos. Tu caso ya está abierto y alguien de nuestro equipo lo va a responder, normalmente en un día hábil.",
+        "Puedes seguir la conversación y escribirnos más cosas desde el enlace de abajo."
+      ],
+      "numero": "Número de caso",
+      "boton": "Ver mi caso"
+    },
+    "casoRespondido": {
+      "asunto": "Te respondimos tu caso {numero}",
+      "titulo": "Tienes una respuesta",
+      "boton": "Ver y responder",
+      "despues": [
+        "Si necesitas algo más, contéstanos desde el enlace: la conversación sigue en el mismo caso."
+      ]
     }
   },
   "misPedidos": {
@@ -4633,7 +4652,30 @@
       "errores": {
         "demasiados": "Ya enviaste varios mensajes en la última hora. Espera un rato y vuelve a intentarlo, o escríbenos a {correo}. Lo que escribiste sigue aquí.",
         "fallo": "No pudimos enviar tu mensaje en este momento. Inténtalo de nuevo en unos minutos o escríbenos a {correo}. Lo que escribiste sigue aquí.",
-        "sinConexion": "No hay conexión. Revisa tu internet y vuelve a intentarlo, o escríbenos a {correo}. Lo que escribiste sigue aquí."
+        "sinConexion": "No hay conexión. Revisa tu internet y vuelve a intentarlo, o escríbenos a {correo}. Lo que escribiste sigue aquí.",
+        "datos": "Revisa los datos: falta tu nombre, tu correo, el asunto o el mensaje."
+      },
+      "casoAbierto": "Tu caso es el #{numero}. Te respondemos aquí y por correo, normalmente en un día hábil.",
+      "verCaso": "Ver mi caso"
+    },
+    "caso": {
+      "volver": "Ayuda",
+      "numero": "Caso",
+      "tu": "Tú",
+      "soporte": "Soporte de Mercatren",
+      "escribir": "Escribe tu mensaje",
+      "enviar": "Enviar",
+      "enviando": "Enviando…",
+      "misCasos": "Tus casos de ayuda",
+      "estados": {
+        "abierto": "Esperando respuesta",
+        "respondido": "Respondido",
+        "cerrado": "Cerrado"
+      },
+      "errores": {
+        "datos": "Escribe tu mensaje antes de enviarlo.",
+        "noExiste": "No encontramos este caso. Abre uno nuevo desde Ayuda.",
+        "base": "No pudimos guardar tu mensaje en este momento. Inténtalo de nuevo en unos minutos. Lo que escribiste sigue aquí."
       }
     }
   }

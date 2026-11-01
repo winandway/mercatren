@@ -14,6 +14,64 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "como-pedir-ayuda",
+    tipo: "documentacion",
+    titulo: "Cómo pedir ayuda y seguir tu caso",
+    resumen:
+      "Escríbenos desde Ayuda: te damos un número de caso y lo sigues como un chat, desde el enlace del correo o desde tu cuenta.",
+    fecha: "2026-11-01",
+    temas: ["ayuda", "soporte", "cuenta"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Entras en Ayuda, nos cuentas qué pasa y recibes un número de caso. Te respondemos ahí mismo, como en un chat, y te avisamos por correo.",
+      },
+      { tipo: "subtitulo", texto: "Cómo abrir un caso" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Entra en Ayuda",
+            texto:
+              "Está en el pie de la página y en tu cuenta. Al final de la página está el formulario «Escríbenos».",
+          },
+          {
+            titulo: "Cuéntanos qué pasa",
+            texto:
+              "Tu nombre, tu correo, un asunto corto y tu mensaje. Si entraste con tu cuenta, el caso queda guardado en ella. Lo que escribes se guarda solo mientras escribes: si se cierra la página, sigue ahí al volver.",
+          },
+          {
+            titulo: "Recibe tu número de caso",
+            texto:
+              "Al enviarlo ves tu número de caso y un botón para abrir la conversación. También te llega un correo con el mismo enlace.",
+          },
+        ],
+      },
+      { tipo: "subtitulo", texto: "Cómo seguir la conversación" },
+      {
+        tipo: "lista",
+        puntos: [
+          "La conversación se ve como un chat: tus mensajes a la derecha y los de nuestro equipo a la izquierda.",
+          "Cuando te respondemos, te llega un correo con la respuesta y el enlace para contestar.",
+          "Puedes escribirnos más cosas en el mismo caso cuando quieras; no hace falta abrir otro.",
+          "Si entraste con tu cuenta, tus casos están en «Mi cuenta», en «Tus casos de ayuda».",
+          "El enlace de tu caso es personal: no lo compartas.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Otra forma de escribirnos" },
+      {
+        tipo: "parrafo",
+        texto:
+          "También puedes escribirnos por correo. La dirección está en Ayuda y en el pie de cada página.",
+      },
+    ],
+    enlaces: [{ texto: "Ir a Ayuda", href: "/ayuda" }],
+  },
+
+  {
     slug: "mercatren-en-espana",
     tipo: "documentacion",
     titulo: "Mercatren en España: cómo elegir tu país y abrir tu tienda",
