@@ -231,6 +231,24 @@ CREATE UNIQUE INDEX IF NOT EXISTS `casilleros_secuencia_unique` ON `casilleros` 
 CREATE UNIQUE INDEX IF NOT EXISTS `casilleros_alias_email_unique` ON `casilleros` (`alias_email`);
 CREATE INDEX IF NOT EXISTS `idx_casilleros_usuario` ON `casilleros` (`usuario_id`);
 CREATE INDEX IF NOT EXISTS `idx_casilleros_origen` ON `casilleros` (`origen_id`,`creado_en`);
+CREATE TABLE IF NOT EXISTS `casos_ayuda` (
+	`id` text PRIMARY KEY NOT NULL,
+	`codigo` text NOT NULL,
+	`usuario_id` text,
+	`nombre` text NOT NULL,
+	`email` text NOT NULL,
+	`idioma` text DEFAULT 'es' NOT NULL,
+	`asunto` text NOT NULL,
+	`estado` text DEFAULT 'abierto' NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`usuario_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE set null
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `casos_ayuda_codigo_unique` ON `casos_ayuda` (`codigo`);
+CREATE INDEX IF NOT EXISTS `idx_casos_ayuda_estado` ON `casos_ayuda` (`estado`,`actualizado_en`);
+CREATE INDEX IF NOT EXISTS `idx_casos_ayuda_usuario` ON `casos_ayuda` (`usuario_id`);
+CREATE INDEX IF NOT EXISTS `idx_casos_ayuda_email` ON `casos_ayuda` (`email`,`creado_en`);
 CREATE TABLE IF NOT EXISTS `categorias` (
 	`id` text PRIMARY KEY NOT NULL,
 	`tienda_id` text,
@@ -756,6 +774,17 @@ CREATE TABLE IF NOT EXISTS `medidas_producto` (
 	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
+CREATE TABLE IF NOT EXISTS `mensajes_ayuda` (
+	`id` text PRIMARY KEY NOT NULL,
+	`caso_id` text NOT NULL,
+	`autor` text NOT NULL,
+	`texto` text NOT NULL,
+	`plantilla` text,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`caso_id`) REFERENCES `casos_ayuda`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
+CREATE INDEX IF NOT EXISTS `idx_mensajes_ayuda_caso` ON `mensajes_ayuda` (`caso_id`,`creado_en`);
 CREATE TABLE IF NOT EXISTS `metodos_del_cobro` (
 	`cobro_id` text NOT NULL,
 	`metodo` text NOT NULL,
@@ -1455,11 +1484,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1793137621, 1793137621)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1793560002, 1793560002)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1793137621)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1793560002)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
