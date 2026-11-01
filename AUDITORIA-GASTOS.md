@@ -131,3 +131,12 @@ extra.
 4. Las descripciones siguen fuera del reloj hasta cambiar
    `DESCRIPCIONES_EN_EL_RELOJ`, y el tope diario sigue puesto.
 5. Publicar, y mirar el banco la semana siguiente.
+
+## 7. Si se deja de pagar el correo o el dominio de Mercatren (1 nov 2026)
+
+**ANTES de cortarlo**, se cambia el correo de contacto de la web
+(`CORREO_CONTACTO` en `src/lib/correo/direcciones.ts`, hoy
+`hola@mercatren.com`) por `soporte+mercatren@windoce.com`. **Nunca se deja
+vencer el dominio con la dirección publicada.** El formulario de ayuda
+(`/ayuda`) no depende del correo de Mercatren: va directo a la bandeja de
+soporte de Windoce. Detalle en `HISTORIAL.md`, «EL SOPORTE, PLAN MIXTO».

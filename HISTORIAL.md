@@ -15,6 +15,37 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL SOPORTE, PLAN MIXTO: EL CORREO DE MERCATREN A LA VISTA Y UN FORMULARIO A LA BANDEJA DE WINDOCE (1 nov 2026)
+
+**La decisión de Richard** (traída por la sesión que lleva sus correos): todo
+el soporte de sus apps entra por una sola bandeja de Windoce, con una
+etiqueta por app. En Mercatren, con dos caminos a la vez:
+
+1. **A la vista sigue `hola@mercatren.com`** (`CORREO_CONTACTO`). Nunca un
+   @windoce.com en la web: el 12 ago 2026 se quitó porque Google contestaba
+   que Mercatren era de «Windoce, LLC». El reenvío de hola@ a la bandeja de
+   Windoce lo pone Richard del lado del correo; aquí no se toca.
+2. **El formulario de ayuda** (`/ayuda#escribenos`) manda el mensaje directo
+   a la bandeja (`https://soporte-windoce.sitios.dev/datos/contacto`, POST con
+   `{app:"mercatren", nombre, email, asunto, mensaje, idioma, sitio_web:""}`),
+   sin pasar por el correo de Mercatren. La bandeja acepta el origen
+   mercatren.com y deja 5 por hora por IP. Guarda el borrador y solo lo borra
+   con la confirmación; si falla, lo dice y deja el correo como otra vía. La
+   política del navegador (`connect-src`) se abrió a ese dominio.
+
+**El 1 nov 2026 la bandeja todavía no estaba en vivo** (Richard la estaba
+creando): el formulario se probó en local y mostró «No pudimos enviar…» con
+lo escrito intacto, también después de recargar.
+
+**EL PLAN DE SALIDA (obligatorio).** Si algún día se deja de pagar el correo
+o el dominio de Mercatren, **ANTES de cortarlo** se cambia `CORREO_CONTACTO`
+(`src/lib/correo/direcciones.ts`) por `soporte+mercatren@windoce.com`, y la
+prueba `correo-contacto.test.ts` se ajusta a esa decisión. **Nunca se deja
+vencer el dominio con la dirección publicada**: los clientes escribirían a un
+buzón muerto sin enterarse. El formulario sigue funcionando en cualquier caso.
+
+**Candado:** `tests/unit/formulario-ayuda.test.ts`, comprobado en rojo.
+
 ## LA APP DE IPHONE, A REVISIÓN DE APPLE (31 oct 2026)
 
 **Qué se pidió.** Publicar Mercatren en la App Store de punta a punta con la

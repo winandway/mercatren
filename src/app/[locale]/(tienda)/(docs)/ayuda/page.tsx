@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
+import { FormularioAyuda } from "@/components/ayuda/formulario-ayuda";
 import { PaginaDeContenido } from "@/components/paginas/pagina-contenido";
 import { AYUDA_EN, AYUDA_ES } from "@/contenido/paginas/ayuda";
 import { routing } from "@/i18n/routing";
@@ -46,6 +47,23 @@ export default async function Pagina({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("ayuda.formulario");
 
-  return <PaginaDeContenido pagina={contenido(locale)} />;
+  return (
+    <>
+      <PaginaDeContenido pagina={contenido(locale)} />
+      {/* EL FORMULARIO DE AYUDA (1 nov 2026): el mensaje va a la bandeja de
+          soporte, sin depender del correo de Mercatren. Ver
+          `lib/soporte/bandeja.ts`. */}
+      <section id="escribenos" className="mx-auto max-w-5xl px-4 pb-16">
+        <div className="max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold tracking-tight">{t("titulo")}</h2>
+          <p className="mt-1 mb-5 text-sm text-tinta-suave">
+            {t("entradilla")}
+          </p>
+          <FormularioAyuda />
+        </div>
+      </section>
+    </>
+  );
 }

@@ -4616,5 +4616,25 @@
       "invalido": "This content is no longer available.",
       "fallo": "We couldn't send it right now. Please try again in a moment."
     }
+  },
+  "ayuda": {
+    "formulario": {
+      "titulo": "Write to us",
+      "entradilla": "Tell us what you need and we'll reply by email.",
+      "nombre": "Your name",
+      "correo": "Your email",
+      "asunto": "Subject",
+      "mensaje": "Your message",
+      "enviar": "Send message",
+      "enviando": "Sending…",
+      "enviadoTitulo": "We got your message",
+      "enviadoTexto": "We'll reply to the email you entered, usually within one business day.",
+      "otraVia": "You can also email us at {correo}.",
+      "errores": {
+        "demasiados": "You've sent several messages in the last hour. Please wait a bit and try again, or email us at {correo}. What you wrote is still here.",
+        "fallo": "We couldn't send your message right now. Please try again in a few minutes or email us at {correo}. What you wrote is still here.",
+        "sinConexion": "You're offline. Check your internet connection and try again, or email us at {correo}. What you wrote is still here."
+      }
+    }
   }
 }

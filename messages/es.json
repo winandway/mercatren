@@ -4616,5 +4616,25 @@
       "invalido": "Este contenido ya no está disponible.",
       "fallo": "No pudimos enviarlo ahora. Inténtalo otra vez en un momento."
     }
+  },
+  "ayuda": {
+    "formulario": {
+      "titulo": "Escríbenos",
+      "entradilla": "Cuéntanos qué necesitas y te respondemos por correo.",
+      "nombre": "Tu nombre",
+      "correo": "Tu correo",
+      "asunto": "Asunto",
+      "mensaje": "Tu mensaje",
+      "enviar": "Enviar mensaje",
+      "enviando": "Enviando…",
+      "enviadoTitulo": "Recibimos tu mensaje",
+      "enviadoTexto": "Te respondemos al correo que escribiste, normalmente en un día hábil.",
+      "otraVia": "También puedes escribirnos a {correo}.",
+      "errores": {
+        "demasiados": "Ya enviaste varios mensajes en la última hora. Espera un rato y vuelve a intentarlo, o escríbenos a {correo}. Lo que escribiste sigue aquí.",
+        "fallo": "No pudimos enviar tu mensaje en este momento. Inténtalo de nuevo en unos minutos o escríbenos a {correo}. Lo que escribiste sigue aquí.",
+        "sinConexion": "No hay conexión. Revisa tu internet y vuelve a intentarlo, o escríbenos a {correo}. Lo que escribiste sigue aquí."
+      }
+    }
   }
 }

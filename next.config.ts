@@ -63,7 +63,10 @@ const CSP = [
      delante — medido el 23 ago 2026. */
   "media-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com",
+  /* La bandeja de soporte de Windoce recibe el formulario de ayuda (1 nov
+     2026, `lib/soporte/bandeja.ts`). Sin ella aquí, el navegador bloquea el
+     envío y el cliente ve «no pudimos enviar» con la bandeja funcionando. */
+  "connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com https://soporte-windoce.sitios.dev",
   "frame-src https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
