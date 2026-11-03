@@ -9,8 +9,8 @@ name: vigilante
 # necesita una persona. Va en su propio flujo, aparte del reloj de
 # sincronización, para poder avisar si ESE reloj se para.
 on:
-  schedule:
-    - cron: "7,27,47 * * * *"
+  # SIN HORARIO desde el 3 nov 2026: el catálogo se arma a pedido, uno por uno
+  # (src/lib/catalogo/a-pedido.ts). Ninguna tarea programada recorre el catálogo.
   workflow_dispatch:
 
 concurrency:

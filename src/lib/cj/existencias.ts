@@ -14,6 +14,7 @@ import {
   sql,
 } from "drizzle-orm";
 
+import { CATALOGO_A_PEDIDO } from "@/lib/catalogo/a-pedido";
 import { cjConfigurado } from "@/lib/cj/cliente";
 import { llamarCjConRitmo } from "@/lib/cj/ritmo";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
@@ -305,7 +306,8 @@ export async function refrescarExistenciasCj(limite = 25): Promise<{
   /** El motivo del último producto que falló, para el canario. */
   ultimoFallo?: string;
 }> {
-  if (!cjConfigurado()) return { mirados: 0, agotados: 0, fallidos: 0 };
+  if (CATALOGO_A_PEDIDO || !cjConfigurado())
+    return { mirados: 0, agotados: 0, fallidos: 0 };
   const db = getDb();
   const guardada = await colaDeStock();
   if (guardada.ids.length === 0) {

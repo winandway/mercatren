@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
+import { dentroDeLaApp } from "@/lib/app-movil";
+
 /**
  * EL PULSO: cada página vista y cuánto se estuvo en ella (30 ago 2026).
  *
@@ -21,6 +23,9 @@ export function PulsoDeVisita() {
   });
 
   useEffect(() => {
+    /* Dentro de la app no se mide (3 nov 2026): serían dos escrituras en la
+       base por cada pantalla de cada apertura. Ver `lib/app-movil.ts`. */
+    if (dentroDeLaApp()) return;
     let vivo = true;
 
     function cerrar() {

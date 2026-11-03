@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { BuscadorCj } from "@/components/panel/cj/buscador";
 import { RepartirCatalogo } from "@/components/panel/cj/repartir";
 import { ImportarMasivo } from "@/components/panel/cj/importar-masivo";
+import { CATALOGO_A_PEDIDO } from "@/lib/catalogo/a-pedido";
 import { estadoImportacionMasiva } from "@/lib/cj/masivo-acciones";
 import { Link } from "@/i18n/navigation";
 import { esEquipoInterno } from "@/lib/autorizacion";
@@ -73,7 +74,8 @@ export default async function PaginaCatalogoUsa({
   /* La importación masiva es solo del rol soporte (publica miles de fichas
      con precio): a quien no lo sea, `estadoImportacionMasiva` le devuelve
      null y la tarjeta no se dibuja. */
-  const masivo = configurado ? await estadoImportacionMasiva() : null;
+  const masivo =
+    configurado && !CATALOGO_A_PEDIDO ? await estadoImportacionMasiva() : null;
 
   return (
     <div className="space-y-6">
@@ -128,7 +130,15 @@ export default async function PaginaCatalogoUsa({
 
       <RepartirCatalogo />
 
-      {masivo ? <ImportarMasivo inicial={masivo} almacen={almacen} /> : null}
+      {/* El catálogo se arma a pedido (`catalogo/a-pedido.ts`): la tarjeta
+          de importación masiva no se dibuja y se dice por qué. */}
+      {CATALOGO_A_PEDIDO ? (
+        <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-tinta">
+          {t("unoPorUno")}
+        </p>
+      ) : masivo ? (
+        <ImportarMasivo inicial={masivo} almacen={almacen} />
+      ) : null}
 
       {configurado ? (
         <BuscadorCj buscar={buscar} idioma={locale} almacen={almacen} />

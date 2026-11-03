@@ -2279,7 +2279,8 @@
         "afinando": "Refining…",
         "afinadoResultado": "Refined {afinados} · out of stock {agotados} · failed {fallidos} · {restantes} left",
         "todoAfinado": "Every product in this marketplace has CJ's real freight."
-      }
+      },
+      "unoPorUno": "The catalog is built on demand: search for a product below and add it one at a time. Bulk import is turned off."
     },
     "tiendasUsa": {
       "titulo": "United States stores",

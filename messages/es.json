@@ -2279,7 +2279,8 @@
         "afinando": "Afinando…",
         "afinadoResultado": "Afinados {afinados} · agotados {agotados} · fallidos {fallidos} · quedan {restantes}",
         "todoAfinado": "Todos los productos de esta plaza tienen el flete real de CJ."
-      }
+      },
+      "unoPorUno": "El catálogo se arma a pedido: busca el producto aquí abajo y agrégalo uno por uno. La importación masiva está cerrada."
     },
     "tiendasUsa": {
       "titulo": "Tiendas de Estados Unidos",

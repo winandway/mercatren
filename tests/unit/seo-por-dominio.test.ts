@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { robotsTxt } from "@/lib/seo/robots";
+import { robotsTxtAbierto as robotsTxt } from "@/lib/seo/robots";
 
 /**
  * EL SEO DE CADA DOMINIO ES SUYO (30 ago 2026).

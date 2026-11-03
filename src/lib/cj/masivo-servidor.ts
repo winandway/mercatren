@@ -3,6 +3,10 @@ import "server-only";
 import { and, asc, desc, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import {
+  CATALOGO_A_PEDIDO,
+  MOTIVO_CATALOGO_A_PEDIDO,
+} from "@/lib/catalogo/a-pedido";
 import { cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { idDeDepartamento } from "@/lib/cj/departamento";
@@ -215,6 +219,8 @@ export async function arrancarImportacion(o: {
 }): Promise<
   { ok: true; estado: EstadoImportacion } | { ok: false; motivo: string }
 > {
+  /* El catálogo se arma a pedido, uno por uno (`catalogo/a-pedido.ts`). */
+  if (CATALOGO_A_PEDIDO) return { ok: false, motivo: MOTIVO_CATALOGO_A_PEDIDO };
   if (!cjConfigurado()) {
     return {
       ok: false,
@@ -379,7 +385,8 @@ export async function avanzarImportacion(
 
   const fila = await leerFila(db, id);
   if (!fila) return null;
-  if (fila.estado !== "en_curso" || !cjConfigurado()) return leerEstado(db, id);
+  if (CATALOGO_A_PEDIDO || fila.estado !== "en_curso" || !cjConfigurado())
+    return leerEstado(db, id);
 
   const plaza = plazaDelMercado(mercadoPorCodigo(fila.mercado));
   const tasa = plaza.mercado === "US" ? null : await tasaVigente(plaza.mercado);
@@ -468,6 +475,7 @@ export async function avanzarImportacionesEnCurso(
     estado: string;
   }>
 > {
+  if (CATALOGO_A_PEDIDO) return [];
   const db = getDb();
   const vivas = await db
     .select({ id: importacionesCj.id })
@@ -511,6 +519,7 @@ export async function reanudarImportacion(
   id: string,
 ): Promise<EstadoImportacion | null> {
   const db = getDb();
+  if (CATALOGO_A_PEDIDO) return leerEstado(db, id);
   await db
     .update(importacionesCj)
     .set({ estado: "en_curso", actualizadoEn: new Date() })

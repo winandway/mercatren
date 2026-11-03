@@ -2,6 +2,7 @@ import "server-only";
 
 import { and, asc, eq, inArray, isNull, like, or, sql } from "drizzle-orm";
 
+import { CATALOGO_A_PEDIDO } from "@/lib/catalogo/a-pedido";
 import { cjConfigurado } from "@/lib/cj/cliente";
 import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { cotizarFlete } from "@/lib/cj/flete";
@@ -172,6 +173,9 @@ export async function afinarImportados(o: {
   plaza?: Plaza;
 }): Promise<ResultadoAfinado> {
   const vacio = { afinados: 0, agotados: 0, fallidos: 0, restantes: 0 };
+  /* Sin `motivo` a propósito: el reloj lo leería como «CJ sin puntos» y
+     dejaría de preguntar por los despachos de los pedidos. */
+  if (CATALOGO_A_PEDIDO) return vacio;
   if (!cjConfigurado())
     return { ...vacio, motivo: "Falta la variable CJ_API_KEY." };
 

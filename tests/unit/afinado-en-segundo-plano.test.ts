@@ -17,8 +17,11 @@ const tick = readFileSync("src/lib/reloj/tick.ts", "utf-8");
 const puerta = readFileSync("src/app/datos/sincronizar/route.ts", "utf-8");
 
 describe("el robot que afina en segundo plano", () => {
-  it("corre en GitHub, no en la máquina de nadie, y varias veces por hora", () => {
-    expect(flujo).toContain('cron: "5,35 * * * *"');
+  it("corre en GitHub, no en la máquina de nadie, y SOLO a mano desde el 3 nov 2026", () => {
+    /* El catálogo se arma a pedido (`catalogo/a-pedido.ts`): el afinado ya
+       no tiene horario. Antes corría «5,35 * * * *». */
+    expect(flujo).not.toMatch(/^\s*schedule:/m);
+    expect(flujo).toContain("workflow_dispatch:");
     expect(flujo).toContain("runs-on: ubuntu-latest");
   });
 

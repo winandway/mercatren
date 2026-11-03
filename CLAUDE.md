@@ -26,6 +26,16 @@ línea por la revisión de Google Play. **Nada de esto se enciende sin que
 Richard lo diga.** Detalle, la cuenta del gasto y cómo se enciende:
 `AUDITORIA-GASTOS.md`.
 
+## ⛔ CATÁLOGO VACIADO EL 3 NOV 2026: SE ARMA A PEDIDO, UNO POR UNO
+
+_«Vaciar Mercatren y empezar de cero… pasa a ser app.»_ Se borraron los
+56.650 productos y sus fotos (respaldo en `~/Respaldos/`, fuera del repo);
+quedan 16 escondidos porque sostienen pedidos cobrados. **Nada de
+importación masiva ni sincronización automática** (`src/lib/catalogo/a-pedido.ts`),
+**robots cerrados a todos** (`lib/seo/robots.ts`) y **ningún flujo con
+horario**. Un producto entra solo con el buscador de CJ del panel o la acción
+`agregar` de la puerta. Detalle: «MERCATREN VACIADO» en `HISTORIAL.md`.
+
 ## LO PRIMERO QUE SE MIRA, SEGÚN LA PREGUNTA
 
 | Si preguntan…                   | Se contesta desde                                           |
@@ -419,6 +429,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [MERCATREN VACIADO: EL CATÁLOGO EMPIEZA DE CERO Y SE ARMA A PEDIDO (3 nov 2026)](HISTORIAL.md#mercatren-vaciado-el-catálogo-empieza-de-cero-y-se-arma-a-pedido-3-nov-2026)
 - [LA APP DE IPHONE, A REVISIÓN DE APPLE (31 oct 2026)](HISTORIAL.md#la-app-de-iphone-a-revisión-de-apple-31-oct-2026)
 - [EL COBRO DE GOOGLE CLOUD Y MERCATREN EN PAUSA (29 oct 2026)](HISTORIAL.md#el-cobro-de-google-cloud-y-mercatren-en-pausa-29-oct-2026)
 - [EL EQUIPO PODÍA REGISTRAR UN RETIRO A NOMBRE DEL COMERCIO EQUIVOCADO (27 oct 2026, noche)](HISTORIAL.md#el-equipo-podía-registrar-un-retiro-a-nombre-del-comercio-equivocado-27-oct-2026-noche)

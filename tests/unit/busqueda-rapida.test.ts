@@ -128,10 +128,12 @@ describe("una búsqueda no corre dos veces, y los robots no la recorren", () => 
   });
 
   it("robots.txt cierra los resultados del buscador a los tres robots", async () => {
-    const { CERRADO, robotsTxt } = await import("@/lib/seo/robots");
+    /* Las reglas abiertas, las de cuando el sitio vuelva a recibir robots
+       (hoy está cerrado a todos: `CERRADO_A_TODOS`). */
+    const { CERRADO, robotsTxtAbierto } = await import("@/lib/seo/robots");
     expect(CERRADO).toContain("/*?q=");
     expect(CERRADO).toContain("/*&q=");
-    const texto = robotsTxt("https://mercatren.com");
+    const texto = robotsTxtAbierto("https://mercatren.com");
     expect(texto.match(/Disallow: \/\*\?q=/g)?.length).toBeGreaterThanOrEqual(
       3,
     );

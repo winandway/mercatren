@@ -29,8 +29,8 @@ name: afinar-catalogo
 # Un rojo que no es un problema enseña a ignorar los rojos.
 
 on:
-  schedule:
-    - cron: "5,35 * * * *"
+  # SIN HORARIO desde el 3 nov 2026: el catálogo se arma a pedido, uno por uno
+  # (src/lib/catalogo/a-pedido.ts). Ninguna tarea programada recorre el catálogo.
   workflow_dispatch:
 
 concurrency:

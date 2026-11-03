@@ -136,7 +136,7 @@ export function reglasRobots(): Regla[] {
  * dominio. Cada dominio declara SU host, SU mapa y SU llms.txt; sin la base
  * se cae al principal, que es lo que había.
  */
-export function robotsTxt(base: string = SITIO.url): string {
+export function robotsTxtAbierto(base: string = SITIO.url): string {
   const bloques = reglasRobots().map(({ agente, cerrado }) =>
     [
       `User-agent: ${agente}`,
@@ -161,4 +161,34 @@ export function robotsTxt(base: string = SITIO.url): string {
     `Agentmap: ${base}/.well-known/ai-catalog.json`,
     "",
   ].join("\n");
+}
+
+/**
+ * ══ CERRADO A TODOS LOS ROBOTS (3 nov 2026) ══
+ *
+ * Orden de Richard: Mercatren deja de vender en la web por ahora y pasa a ser
+ * app, con el catálogo vaciado y armado a pedido (`catalogo/a-pedido.ts`).
+ * Mientras tanto ningún buscador, robot de IA ni Merchant Center recorre el
+ * sitio: cada visita de un robot es una consulta a la base que no vende nada.
+ *
+ * Las reglas de arriba (`robotsTxtAbierto`) se quedan intactas para el día
+ * que se vuelva a abrir: basta con poner esto en `false`.
+ */
+export const CERRADO_A_TODOS = true;
+
+/** El archivo cerrado: un solo grupo, todo prohibido, sin mapa del sitio. */
+export function robotsTxtCerrado(base: string = SITIO.url): string {
+  return [
+    `# Mercatren — ${base.replace("https://", "")}`,
+    "# Cerrado a todos los robots por ahora.",
+    "",
+    "User-agent: *",
+    "Disallow: /",
+    "",
+  ].join("\n");
+}
+
+/** El que sirve `src/app/robots.txt/route.ts`. */
+export function robotsTxt(base: string = SITIO.url): string {
+  return CERRADO_A_TODOS ? robotsTxtCerrado(base) : robotsTxtAbierto(base);
 }

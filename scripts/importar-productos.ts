@@ -18,6 +18,18 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+import {
+  CATALOGO_A_PEDIDO,
+  MOTIVO_CATALOGO_A_PEDIDO,
+} from "../src/lib/catalogo/a-pedido.ts";
+
+/* El catálogo se arma a pedido, uno por uno (3 nov 2026): nada de cargar un
+   archivo entero de productos. Ver src/lib/catalogo/a-pedido.ts. */
+if (CATALOGO_A_PEDIDO) {
+  console.error(MOTIVO_CATALOGO_A_PEDIDO);
+  process.exit(1);
+}
+
 const RAIZ = process.cwd();
 
 const opciones = new Map<string, string>();

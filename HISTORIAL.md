@@ -15,6 +15,89 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## MERCATREN VACIADO: EL CATÁLOGO EMPIEZA DE CERO Y SE ARMA A PEDIDO (3 nov 2026)
+
+**La orden (Richard).** Vaciar Mercatren y empezar de cero: la web deja de
+vender por ahora y Mercatren pasa a ser app. El sitio sigue en pausa en
+YaDominios («pausa:operador», desde el 1 nov) y NO se reactiva sin él.
+
+**Respaldo, antes de borrar nada (fuera del repositorio):**
+
+- `~/Respaldos/mercatren-2026-11-03.sql` — la base completa (231 MB),
+  exportada con `wrangler d1 export site-mercatren-db --remote` y comprobada
+  cargándola entera en un SQLite local.
+- `~/Respaldos/mercatren-2026-11-03-fotos/` — las 1.819 fotos que NO vienen
+  del proveedor (73 productos cargados a mano y 1.730 de Bley), 85 MB.
+  Las de CJ (54.845, 47,7 GB) no se respaldaron: se vuelven a traer de CJ.
+
+**Lo que se borró en la base (`site-mercatren-db`):** 56.650 productos con
+sus variantes (21.055), imágenes (56.682), fotos de tarjeta (47.161), texto
+de búsqueda (56.650), envíos (54.859), medidas, intentos de descripción y
+alias de socios; las 3 categorías de Bley; las 1.165 tandas y 3 importaciones
+de CJ; 39 fotos rotas; 26 cachés del catálogo en `configuracion` (listados,
+conteos, colas de traducción, afinado, stock y fotos). Las dos fuentes de
+catálogo quedaron `pausada`. Y `texto_de_busqueda_listo` en blanco: así la
+búsqueda normaliza al vuelo y un producto nuevo se encuentra sin el reloj.
+
+**Lo que NO se tocó, y se comprobó con números antes y después:** 20
+renglones de pedido, 17 pedidos, 7 facturas, 10 pagos, 747 pagos Zelle, 14
+cobros, 3 retiros, 8 movimientos, 48 usuarios, 78 tiendas. Cero referencias
+rotas (`PRAGMA foreign_key_check`).
+
+**Por qué quedan 16 productos y no cero.** Son los que sostienen pedidos ya
+cobrados (`items_pedido`, `renglones_proveedor`, `items_variante`, con llave
+ajena SIN cascada). Borrarlos exigía tocar los renglones de pedidos, que son
+registro legal y del contador. Quedaron en `borrador` (no se ven en la
+tienda), sin categoría y con sus fotos (17 archivos).
+
+**Los departamentos (`dep-*`) NO son catálogo:** son la estructura fija del
+sitio y todo producto nuevo de CJ apunta a uno (`idDeDepartamento`). Se
+borraron con las categorías y se devolvieron del respaldo el mismo día; de
+todos modos `schema.sql` los siembra en cada publicación.
+
+**El cubo (`site-mercatren`):** se borraron las fotos de productos de la
+carpeta `productos/` (de 56.664 archivos quedan los 17 de los productos
+guardados). Comprobantes, retiros, logos de tiendas, búsquedas, asistente y
+videos se quedan: de 56.791 archivos quedan 144 (≈ 430 MB, casi todo video).
+Se borró de mil en mil con `getPlatformProxy` de wrangler y la conexión
+remota al cubo (sin publicar ningún worker): la API REST de Cloudflare frena
+a 1.200 pedidos cada 5 minutos y habría tardado horas.
+
+**El código desde hoy (`src/lib/catalogo/a-pedido.ts`, `CATALOGO_A_PEDIDO`):**
+
+- La importación masiva de CJ (arrancar, reanudar, avanzar), la
+  sincronización de catálogos de comercios, el afinado y el refresco de
+  existencias del reloj contestan sin trabajar. El afinado cerrado devuelve
+  ceros SIN `motivo`: con motivo, el reloj creería que CJ no tiene puntos y
+  dejaría de preguntar por los despachos de los pedidos.
+- El panel no dibuja la tarjeta de importación masiva y dice por qué; el
+  buscador de CJ para agregar uno por uno sigue igual, y la acción `agregar`
+  de la puerta también. `npm run productos:importar` se niega.
+- Ningún flujo de GitHub tiene horario (afinar, sincronizar y vigilante
+  quedan solo a mano) y `yadominios.json` sigue sin reloj.
+- `robots.txt` cerrado a todos (`CERRADO_A_TODOS` en `lib/seo/robots.ts`):
+  un solo grupo, `Disallow: /`, sin mapa del sitio. Las reglas de antes viven
+  en `robotsTxtAbierto` para el día que se reabra.
+- Dentro de la app (iPhone por su agente `MercatrenApp-iOS`, Android por la
+  pantalla completa) el pulso de visitas no escribe (`lib/app-movil.ts`). Las
+  fotos ya se guardan un año en el teléfono (`immutable`), los listados se
+  cargan al bajar, de a poco, nunca el catálogo entero, y las vistas de video
+  se cuentan una vez por video y por sesión.
+
+**Comprobado en local con la base ya vaciada:** portada, catálogo,
+búsqueda, videos, carrito, ayuda y docs responden; el catálogo dice
+«Todavía no hay productos publicados»; un producto borrado da la página de no
+encontrado; ningún error del servidor.
+
+**Números al cerrar:** base 41,8 MB (antes 269 MB); productos 16, todos en
+borrador (antes 56.666); cubo 144 archivos (antes 56.791, 48,2 GB).
+
+**Candado:** `tests/unit/catalogo-a-pedido.test.ts`, comprobado en rojo
+quitando el candado de las existencias, abriendo el robots, devolviendo un
+horario a un flujo y dejando el pulso dentro de la app.
+
+---
+
 ## LAS CAPTURAS EN EL CHAT DEL CASO (1 nov 2026)
 
 **Qué se pidió.** Que quien escribe en su caso de ayuda pueda mandar la

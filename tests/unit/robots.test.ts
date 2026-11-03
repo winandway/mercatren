@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { MEDIA_PRIVADOS, MEDIA_PRIVADOS_URL } from "@/lib/media/privados";
-import { reglasRobots, robotsTxt, SENAL_DE_CONTENIDO } from "@/lib/seo/robots";
+import {
+  reglasRobots,
+  robotsTxtAbierto as robotsTxt,
+  SENAL_DE_CONTENIDO,
+} from "@/lib/seo/robots";
 
 /**
  * LAS REGLAS PARA LOS BUSCADORES.

@@ -4,6 +4,10 @@ import { and, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
+import {
+  CATALOGO_A_PEDIDO,
+  MOTIVO_CATALOGO_A_PEDIDO,
+} from "@/lib/catalogo/a-pedido";
 import { obtenerAlcance } from "@/lib/autorizacion";
 import {
   agruparPorCodigo,
@@ -114,6 +118,10 @@ export async function sincronizarCatalogo(
    */
   opciones?: { sinSesion?: boolean },
 ): Promise<ResultadoSincronizacion> {
+  /* El catálogo se arma a pedido, uno por uno (`catalogo/a-pedido.ts`):
+     ningún archivo entero entra solo. */
+  if (CATALOGO_A_PEDIDO)
+    return { ok: false, mensaje: MOTIVO_CATALOGO_A_PEDIDO };
   const t = await mensajes();
 
   /* Si la cuenta no tiene comercio, se avisa: dejar que la excepción suba
