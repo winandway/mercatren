@@ -9,16 +9,15 @@
 1. **El sitio activo.** El revisor va a abrir la app después de leer la
    respuesta; hoy vería «Este sitio está en pausa».
 2. **Productos publicados.** Hoy el catálogo está vacío a propósito.
-3. **Decidida la cuenta de Mercatren LLC.** La respuesta a la pregunta 9 dice,
-   porque es la verdad, que la marca es de Mercatren LLC y que la publica
-   Windoce LLC. Eso es justo lo que prohíbe la norma 4.2.6, así que la
-   respuesta promete que Mercatren LLC enviará la app desde su propia cuenta.
-   Si esa cuenta no se va a abrir, esta respuesta no sirve y no se manda.
+3. **La pregunta 9 con la línea común de la cuenta.** Richard confirmó el
+   3 nov que la cuenta de Apple es la de Windoce LLC, la empresa que
+   desarrolla, y que no se abre otra para Mercatren LLC. La 4.2.6 pide que la
+   app la envíe el dueño del contenido, así que la respuesta explica que las
+   dos empresas tienen el mismo dueño. Se les preguntó a los gerentes cómo lo
+   contestan las demás apps de la cuenta, para que todas digan lo mismo.
 
-**Lo que recomiendo:** abrir la cuenta de Mercatren LLC y enviar desde allí
-la versión mejorada. En ese caso, esta respuesta se manda solo como cortesía
-en el envío viejo, o ni hace falta. Detalle del rechazo en
-`RECHAZO-2026-11-03.md`.
+**El «sí» de Richard ya está (3 nov).** Falta lo de arriba: el sitio activo
+con productos y la línea común de la pregunta 9.
 
 ## El texto para pegar (en inglés, como lo pide Apple)
 
@@ -52,8 +51,8 @@ The native shell (SwiftUI with native tabs for Home, Search, Cart and Account, p
 Only standard frameworks: SwiftUI and WebKit on iOS. Mercatren's web platform is built on open-source frameworks (Next.js and React) and uses Stripe for card payments.
 
 9. Created for a client or partner
-Yes. The app's content and brand belong to Mercatren LLC. Windoce LLC is the software company that builds and maintains Mercatren's platform, and both companies have the same owner. We understand guideline 4.2.6, so Mercatren LLC is enrolling in the Apple Developer Program and will submit the app from its own account.
+The app's content and brand belong to Mercatren LLC. The app is built, maintained and submitted by Windoce LLC, the software company that develops Mercatren's platform. Mercatren LLC and Windoce LLC have the same owner, so the provider of the app's content and the developer account holder are the same person. Mercatren is not a template product: its catalog, accounts, orders and payments exist only in Mercatren.
 
 Thank you,
-Mercatren LLC
+Windoce LLC, on behalf of Mercatren LLC
 ```

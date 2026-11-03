@@ -120,12 +120,13 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [x] ✅ 💻 Motivo leído en App Store Connect y documentado en
       `tienda-apps/app-store/RECHAZO-2026-11-03.md`. No se reenvió: Apple pide
       cambios importantes y reenviar igual pone en riesgo la cuenta entera.
-- [ ] 🔴 👤 **Abrir la cuenta de desarrollador de Apple de Mercatren LLC**
-      (organización, con su D-U-N-S y la cuota anual): Apple exige que la app
-      la envíe el dueño del contenido, no Windoce.
-- [ ] 🟡 👤 **Dar el «sí» a la respuesta a Apple** (las nueve preguntas),
-      escrita en `tienda-apps/app-store/RESPUESTA-A-APPLE-BORRADOR.md`. Solo
-      se manda con el sitio activo y la cuenta de Mercatren LLC decidida.
+- [x] ✅ 👤 La cuenta de Apple es la de Windoce LLC, la empresa que desarrolla
+      (lo confirmó Richard el 3 nov). No se abre otra para Mercatren LLC.
+- [ ] 💻 Pedirle a los gerentes la línea común de la respuesta a Apple para la
+      4.2.6 (preguntado el 3 nov) y ajustar la pregunta 9 del borrador.
+- [x] ✅ 👤 Richard dio el «sí» a la respuesta a Apple (3 nov). Se manda con
+      la pregunta 9 ajustada a la línea común de la cuenta y con el sitio
+      activo, porque el revisor abre la app al leerla.
 - [ ] 🟡 👤 Decidir cuándo vuelve el sitio y con qué productos: la app lo
       muestra por dentro y hoy enseñaría la página de pausa.
 - [ ] 💻 Con la cuenta y el sitio listos: app con pantallas propias (avisos,
