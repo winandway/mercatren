@@ -122,11 +122,12 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       cambios importantes y reenviar igual pone en riesgo la cuenta entera.
 - [x] ✅ 👤 La cuenta de Apple es la de Windoce LLC, la empresa que desarrolla
       (lo confirmó Richard el 3 nov). No se abre otra para Mercatren LLC.
-- [ ] 💻 Pedirle a los gerentes la línea común de la respuesta a Apple para la
-      4.2.6 (preguntado el 3 nov) y ajustar la pregunta 9 del borrador.
-- [x] ✅ 👤 Richard dio el «sí» a la respuesta a Apple (3 nov). Se manda con
-      la pregunta 9 ajustada a la línea común de la cuenta y con el sitio
-      activo, porque el revisor abre la app al leerla.
+- [ ] 🔴 👤 **Decidir la línea de la pregunta 9 para TODA la cuenta** («¿se
+      hizo para un cliente o socio?»). Los gerentes confirmaron el 3 nov que no
+      hay línea común, que ninguna app le ha contestado a Apple y que los
+      reenvíos de la cuenta están congelados hasta esa decisión. El texto
+      propuesto para Mercatren está en el borrador; Bley es de un cliente y
+      necesita otra respuesta.
 - [ ] 🟡 👤 Decidir cuándo vuelve el sitio y con qué productos: la app lo
       muestra por dentro y hoy enseñaría la página de pausa.
 - [ ] 💻 Con la cuenta y el sitio listos: app con pantallas propias (avisos,
