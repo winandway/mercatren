@@ -123,6 +123,9 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🔴 👤 **Abrir la cuenta de desarrollador de Apple de Mercatren LLC**
       (organización, con su D-U-N-S y la cuota anual): Apple exige que la app
       la envíe el dueño del contenido, no Windoce.
+- [ ] 🟡 👤 **Dar el «sí» a la respuesta a Apple** (las nueve preguntas),
+      escrita en `tienda-apps/app-store/RESPUESTA-A-APPLE-BORRADOR.md`. Solo
+      se manda con el sitio activo y la cuenta de Mercatren LLC decidida.
 - [ ] 🟡 👤 Decidir cuándo vuelve el sitio y con qué productos: la app lo
       muestra por dentro y hoy enseñaría la página de pausa.
 - [ ] 💻 Con la cuenta y el sitio listos: app con pantallas propias (avisos,
