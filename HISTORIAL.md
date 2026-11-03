@@ -15,6 +15,20 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## APPLE RECHAZÓ LA APP DE IPHONE POR 4.3 Y 4.2.6 (3 nov 2026)
+
+La versión 1.0.0 (enviada el 31 oct) volvió rechazada por **4.3 Spam** y
+**4.2.6 servicios de generación de apps**, el mismo minuto que otras siete
+apps de la cuenta de Windoce LLC (Divoox, FinTwin, QRbott, Escenia, Kipuu).
+Es un rechazo del molde y de la cuenta: muchas marcas, el mismo envoltorio del
+sitio, publicadas por quien las hace y no por quien las posee. Mercatren LLC
+es otra empresa y Apple quiere que la envíe ella. Además el sitio está en
+pausa y el catálogo vacío. **No se reenvía sin cambios**: Apple lo prohíbe y
+reenviar en serie arriesga la cuenta entera. El motivo leído, la causa y el
+plan: `tienda-apps/app-store/RECHAZO-2026-11-03.md`.
+
+---
+
 ## MERCATREN VACIADO: EL CATÁLOGO EMPIEZA DE CERO Y SE ARMA A PEDIDO (3 nov 2026)
 
 **La orden (Richard).** Vaciar Mercatren y empezar de cero: la web deja de

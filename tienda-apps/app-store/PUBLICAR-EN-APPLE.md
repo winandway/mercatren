@@ -97,6 +97,11 @@ pasar por la tienda.
 
 ## Riesgos de la revisión, escritos antes de que lleguen
 
+- **RECHAZADA EL 3 NOV 2026 por 4.3 (Spam) y 4.2.6 (apps hechas en serie)**,
+  junto con otras siete apps de la cuenta de Windoce el mismo minuto. No se
+  reenvía sin cambios. Qué dijo Apple, por qué y cómo se arregla:
+  `RECHAZO-2026-11-03.md`.
+
 - **Guía 4.2 (funcionalidad mínima)**: es la razón de las pestañas y lo nativo.
   Si Apple la rechaza por «sitio empaquetado», el siguiente paso es sumar
   avisos (notificaciones push con la llave APNs ya guardada).
