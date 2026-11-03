@@ -124,9 +124,11 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       (lo confirmó Richard el 3 nov). No se abre otra para Mercatren LLC.
 - [x] ✅ La línea común de la cuenta quedó en `~/Gerencia/APPLE-4.3-LINEA-COMUN.md`,
       con la variante de la pregunta 9 para Mercatren (la opera Mercatren LLC).
-- [x] ✅ 👤 Richard dio el «sí» a las respuestas de toda la cuenta (3 nov,
-      12:40). Las demás apps salen ese día; **la de Mercatren se manda cuando
-      vuelva el sitio**, porque el revisor abre la app al leerla.
+- [x] ✅ 👤 **Plan de Apple decidido por Richard (3 nov):** primero Divoox,
+      después Bley en la cuenta del cliente, y el resto congelado. **Mercatren
+      congelado:** ni respuesta a Apple ni compilaciones nuevas hasta que
+      Gerencia avise. Si Apple escribe, se lee y se le avisa a Gerencia, sin
+      responder.
 - [ ] 🟡 👤 Decidir cuándo vuelve el sitio y con qué productos: la app lo
       muestra por dentro y hoy enseñaría la página de pausa.
 - [ ] 💻 Con la cuenta y el sitio listos: app con pantallas propias (avisos,
