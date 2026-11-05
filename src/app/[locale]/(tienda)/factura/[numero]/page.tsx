@@ -193,7 +193,12 @@ export default async function PaginaFactura({
                 factura solo genera la pregunta de por qué está ahí. */}
             {factura.impuestosCentavos > 0 ? (
               <div className="flex justify-between">
-                <dt className="text-tinta-suave">{t("impuestos")}</dt>
+                <dt className="text-tinta-suave">
+                  {/* En euros es España: el IVA va dentro del precio. */}
+                  {factura.moneda === "EUR"
+                    ? t("ivaIncluidoEspana")
+                    : t("impuestos")}
+                </dt>
                 <dd className="tabular-nums">
                   {precio(factura.impuestosCentavos)}
                 </dd>

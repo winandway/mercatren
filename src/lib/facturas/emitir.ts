@@ -1,3 +1,4 @@
+import { LEGALES_ES } from "@/contenido/paginas/legales-por-pais";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -108,6 +109,7 @@ export async function emitirDocumentosDeVenta(
       totalCentavos: pedidos.totalCentavos,
       moneda: pedidos.moneda,
       direccionEntrega: pedidos.direccionEntrega,
+      mercado: pedidos.mercado,
     })
     .from(pedidos)
     .where(eq(pedidos.id, pedidoId))
@@ -146,6 +148,11 @@ export async function emitirDocumentosDeVenta(
   if (renglones.length === 0) return null;
 
   const quienEmite = emisor();
+  /* En España la factura lleva el NIF español de la sociedad (cuando la
+     Agencia Tributaria lo asigne: `legales-por-pais.ts`), no el EIN. */
+  if (pedido.mercado === "ES" && LEGALES_ES.nifEspana) {
+    quienEmite.identificacion = `NIF ${LEGALES_ES.nifEspana}`;
+  }
   const numero = await siguienteNumero(db, SERIES.facturaVenta);
   const facturaId = `fac-${nanoid(12)}`;
   const ahora = new Date();

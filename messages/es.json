@@ -1952,7 +1952,9 @@
       "todas": "Todas",
       "porQue": "Sin tu factura queda una compra sin respaldo en la contabilidad. Es el documento que cierra la operación.",
       "loQueSeCompro": "Qué se le compró",
-      "montoEsLoQueSePaga": "Los montos son lo que se le paga al comercio: el precio de venta menos el margen de Mercatren."
+      "montoEsLoQueSePaga": "Los montos son lo que se le paga al comercio: el precio de venta menos el margen de Mercatren.",
+      "facturanosEspana": "Cómo facturarnos en España",
+      "facturanosEspanaTexto": "Haz una factura completa a nombre de {sociedad}, NIF {nif}, con el IVA aparte. Sin el NIF en la factura no podemos descontar ese IVA."
     },
     "envio": {
       "titulo": "Envíos",
@@ -4198,7 +4200,8 @@
     "impuestos": "Impuestos",
     "total": "Total",
     "pie": "{sociedad} vende esta mercancía por cuenta propia. Conserva este documento: es el comprobante de tu compra.",
-    "verFactura": "Ver mi factura"
+    "verFactura": "Ver mi factura",
+    "ivaIncluidoEspana": "IVA incluido (21 %)"
   },
   "envio": {
     "titulo": "Envíos",

@@ -1952,7 +1952,9 @@
       "todas": "All",
       "porQue": "Without your invoice there's a purchase with nothing backing it in the books. It's the document that closes the transaction.",
       "loQueSeCompro": "What was purchased",
-      "montoEsLoQueSePaga": "Amounts are what the merchant gets paid: the sale price minus Mercatren's margin."
+      "montoEsLoQueSePaga": "Amounts are what the merchant gets paid: the sale price minus Mercatren's margin.",
+      "facturanosEspana": "How to invoice us in Spain",
+      "facturanosEspanaTexto": "Issue a full invoice to {sociedad}, NIF {nif}, with VAT shown separately. Without the NIF on the invoice we can't deduct that VAT."
     },
     "envio": {
       "titulo": "Shipping",
@@ -4198,7 +4200,8 @@
     "impuestos": "Tax",
     "total": "Total",
     "pie": "{sociedad} sells this merchandise on its own account. Keep this document: it is the record of your purchase.",
-    "verFactura": "View my invoice"
+    "verFactura": "View my invoice",
+    "ivaIncluidoEspana": "VAT included (21%)"
   },
   "envio": {
     "titulo": "Shipping",

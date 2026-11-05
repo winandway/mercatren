@@ -1,3 +1,5 @@
+import { LEGALES_ES } from "@/contenido/paginas/legales-por-pais";
+import { SOCIEDAD } from "@/lib/sociedad";
 import { eq } from "drizzle-orm";
 import { ArrowLeft, FileCheck2, FileWarning } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -57,6 +59,7 @@ export default async function PaginaOrdenDeCompra({
       emitidaEn: ordenesCompra.emitidaEn,
       facturaNumero: ordenesCompra.facturaProveedorNumero,
       facturaClave: ordenesCompra.facturaProveedorClave,
+      mercado: pedidos.mercado,
     })
     .from(ordenesCompra)
     .innerJoin(tiendas, eq(tiendas.id, ordenesCompra.tiendaId))
@@ -120,6 +123,22 @@ export default async function PaginaOrdenDeCompra({
           </div>
         </dl>
       </section>
+
+      {/* ESPAÑA: a quién y con qué número se nos factura. Sin factura
+          completa con el NIF español de la sociedad no se deduce el IVA, y se
+          pagaría dos veces (docs/paises/ESPANA-IMPUESTOS-Y-LEGAL.md, 2.4). Sale
+          cuando la Agencia Tributaria haya asignado el NIF. */}
+      {orden.mercado === "ES" && LEGALES_ES.nifEspana ? (
+        <section className="rounded-xl border border-slate-200 bg-white p-5 text-sm shadow-sm">
+          <h2 className="font-bold">{t("facturanosEspana")}</h2>
+          <p className="mt-1 text-tinta-suave">
+            {t("facturanosEspanaTexto", {
+              sociedad: SOCIEDAD.nombre,
+              nif: LEGALES_ES.nifEspana,
+            })}
+          </p>
+        </section>
+      ) : null}
 
       {/* QUÉ SE LE COMPRÓ. Es lo que la lista no decía. */}
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">

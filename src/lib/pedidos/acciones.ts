@@ -585,9 +585,14 @@ export async function crearPedido(
     await import("@/lib/impuestos/chile");
   const mercadoDeLaCompra = mercadoPedido ?? (await mercadoActual());
   const reglaIva = impuestoDelMercado(mercadoDeLaCompra);
+  /* España: el IVA va DENTRO del precio y se anota desglosado (21 %), igual
+     que el de Chile (ver `impuestos/espana.ts`). */
+  const { ivaIncluidoEnEspana } = await import("@/lib/impuestos/espana");
   const ivaCentavos = reglaIva
     ? desglosarDesdeBruto(total, reglaIva).impuesto
-    : 0;
+    : mercadoDeLaCompra.codigo === "ES"
+      ? ivaIncluidoEnEspana(total).impuesto
+      : 0;
 
   await db.batch([
     db.insert(pedidos).values({
