@@ -12,6 +12,7 @@ import {
   respuestaPublica,
 } from "@/lib/app-movil/datos";
 import type { ProductoLista } from "@/lib/catalogo/consultas";
+import { reglasDeCachePublica } from "@/lib/trafico/cache-del-borde";
 import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 
 /**
@@ -131,10 +132,13 @@ describe("lo que la app recibe de cada producto", () => {
 });
 
 describe("la respuesta", () => {
-  it("se guarda en el borde y no lleva cookies", () => {
-    const r = respuestaPublica({ ok: true });
-    expect(r.headers.get("cache-control")).toContain("s-maxage=300");
-    expect(r.headers.get("set-cookie")).toBeNull();
+  it("se guarda en el borde por la lista única, y no lleva cookies", () => {
+    const regla = reglasDeCachePublica().find(
+      (r) => r.source === "/datos/app/v1/:ruta*",
+    );
+    expect(regla?.headers[0]?.value).toContain("s-maxage=300");
+    expect(regla?.missing.some((m) => m.key === "cookie")).toBe(true);
+    expect(respuestaPublica({ ok: true }).headers.get("set-cookie")).toBeNull();
   });
 
   it("las rutas viven en /datos/app/v1 (nunca /api) y validan país e idioma", () => {

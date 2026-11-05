@@ -134,6 +134,10 @@ export function reglasDeCachePublica(): ReglaDeCabecera[] {
       headers,
     },
     { source: `/${IDIOMA}/casillero/calculadora`, missing, headers },
+    /* LA PUERTA DE DATOS DE LA APP NATIVA (5 nov 2026): países, catálogo y
+       fichas, iguales para todos los del mismo país. Sin cookie, como todo lo
+       de esta lista. Ver `lib/app-movil/datos.ts`. */
+    { source: "/datos/app/v1/:ruta*", missing, headers },
   ];
 }
 

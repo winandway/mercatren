@@ -167,18 +167,14 @@ export function fichaParaApp(f: FichaDeLaBase, idioma: IdiomaApp) {
 }
 
 /**
- * La respuesta: JSON, guardable en el borde 5 minutos (son datos públicos,
- * iguales para todos los del mismo país) y SIN cookies, que es lo que deja a
- * la plataforma guardarla. Así un millón de aperturas de la app no son un
- * millón de consultas a la base.
+ * La respuesta: JSON y SIN cookies. La caché del borde (5 minutos) NO se pone
+ * aquí: vive en la lista única de `lib/trafico/cache-del-borde.ts`, que lee
+ * `next.config.ts`, para que ninguna ruta suelta pueda marcar «pública» una
+ * respuesta con sesión. Así un millón de aperturas de la app no son un millón
+ * de consultas a la base.
  */
 export function respuestaPublica(cuerpo: unknown, estado = 200): Response {
-  return Response.json(cuerpo, {
-    status: estado,
-    headers: {
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
-    },
-  });
+  return Response.json(cuerpo, { status: estado });
 }
 
 /** Un error sin caché: que un fallo de un minuto no se quede guardado. */
