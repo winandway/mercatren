@@ -278,6 +278,13 @@ CREATE TABLE IF NOT EXISTS `categorias` (
 
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_categorias_tienda_slug` ON `categorias` (`tienda_id`,`slug`);
 CREATE INDEX IF NOT EXISTS `idx_categorias_padre` ON `categorias` (`padre_id`);
+CREATE TABLE IF NOT EXISTS `clics_promocion` (
+	`promocion_id` text NOT NULL,
+	`dia` text NOT NULL,
+	`huella` text NOT NULL,
+	PRIMARY KEY(`promocion_id`, `dia`, `huella`)
+);
+
 CREATE TABLE IF NOT EXISTS `cobros_cadena` (
 	`cobro_id` text PRIMARY KEY NOT NULL,
 	`modo` text DEFAULT 'comercio' NOT NULL,
@@ -652,6 +659,17 @@ CREATE TABLE IF NOT EXISTS `fuentes_catalogo` (
 );
 
 CREATE INDEX IF NOT EXISTS `idx_fuentes_tienda` ON `fuentes_catalogo` (`tienda_id`);
+CREATE TABLE IF NOT EXISTS `gasto_promociones` (
+	`promocion_id` text NOT NULL,
+	`tienda_id` text NOT NULL,
+	`dia` text NOT NULL,
+	`clics` integer DEFAULT 0 NOT NULL,
+	`clics_gratis` integer DEFAULT 0 NOT NULL,
+	`gasto_centavos` integer DEFAULT 0 NOT NULL,
+	PRIMARY KEY(`promocion_id`, `dia`)
+);
+
+CREATE INDEX IF NOT EXISTS `idx_gasto_promociones_tienda_dia` ON `gasto_promociones` (`tienda_id`,`dia`);
 CREATE TABLE IF NOT EXISTS `hitos_pedido` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -1028,6 +1046,20 @@ CREATE TABLE IF NOT EXISTS `pedidos_proveedor` (
 
 CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_pedido` ON `pedidos_proveedor` (`pedido_id`);
 CREATE INDEX IF NOT EXISTS `idx_pedidos_proveedor_estado` ON `pedidos_proveedor` (`estado`);
+CREATE TABLE IF NOT EXISTS `planes_tienda` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`plan` text DEFAULT 'pro' NOT NULL,
+	`estado` text DEFAULT 'prueba' NOT NULL,
+	`prueba_hasta` integer,
+	`pagado_hasta` integer,
+	`stripe_suscripcion_id` text,
+	`empezado_en` integer NOT NULL,
+	`cancelado_en` integer,
+	`actualizado_en` integer NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_planes_tienda_tienda` ON `planes_tienda` (`tienda_id`);
 CREATE TABLE IF NOT EXISTS `prealertas` (
 	`id` text PRIMARY KEY NOT NULL,
 	`casillero_id` text NOT NULL,
@@ -1110,6 +1142,20 @@ CREATE INDEX IF NOT EXISTS `idx_productos_deposito_estado` ON `productos` (`depo
 CREATE INDEX IF NOT EXISTS `idx_productos_categoria_creado` ON `productos` (`categoria_id`,`creado_en`);
 CREATE INDEX IF NOT EXISTS `idx_productos_tienda_creado` ON `productos` (`tienda_id`,`creado_en`);
 CREATE INDEX IF NOT EXISTS `idx_productos_tienda_estado_actualizado` ON `productos` (`tienda_id`,`estado`,`actualizado_en`);
+CREATE TABLE IF NOT EXISTS `promociones` (
+	`id` text PRIMARY KEY NOT NULL,
+	`tienda_id` text NOT NULL,
+	`producto_id` text NOT NULL,
+	`presupuesto_diario_centavos` integer NOT NULL,
+	`cpc_centavos` integer DEFAULT 15 NOT NULL,
+	`estado` text DEFAULT 'activa' NOT NULL,
+	`creada_en` integer NOT NULL,
+	`actualizada_en` integer NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `idx_promociones_producto` ON `promociones` (`producto_id`);
+CREATE INDEX IF NOT EXISTS `idx_promociones_tienda` ON `promociones` (`tienda_id`);
+CREATE INDEX IF NOT EXISTS `idx_promociones_estado` ON `promociones` (`estado`);
 CREATE TABLE IF NOT EXISTS `pruebas_entrega` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -1510,11 +1556,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1793902147, 1793902147)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1793905765, 1793905765)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1793902147)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1793905765)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
