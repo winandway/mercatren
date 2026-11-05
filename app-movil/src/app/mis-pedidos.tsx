@@ -32,7 +32,10 @@ export default function MisPedidos() {
   const { pais, idioma } = usePreferencias();
   const [lista, setLista] = useState<Pedido[] | null>(null);
   const [vuelta, setVuelta] = useState(0);
-  const [aviso, setAviso] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<{
+    texto: string;
+    tono: "error" | "bien";
+  } | null>(null);
   const [pagando, setPagando] = useState<string | null>(null);
 
   /* Pagar lo que quedó por pagar: el servidor reutiliza el intento vivo. */
@@ -51,13 +54,18 @@ export default function MisPedidos() {
         pago?: { clientSecret: string; clavePublica: string };
       } | null;
       if (!r.ok || !cuerpo?.ok || !cuerpo.pago)
-        return setAviso(texto(idioma, "pagoNoDisponible"));
+        return setAviso({
+          texto: texto(idioma, "pagoNoDisponible"),
+          tono: "error",
+        });
       const cobro = await cobrarConHoja(cuerpo.pago);
-      if (cobro.tipo === "error") setAviso(cobro.mensaje);
-      if (cobro.tipo === "pagado") setAviso(texto(idioma, "pedidoPagado"));
+      if (cobro.tipo === "error")
+        setAviso({ texto: cobro.mensaje, tono: "error" });
+      if (cobro.tipo === "pagado")
+        setAviso({ texto: texto(idioma, "pedidoPagado"), tono: "bien" });
       setVuelta((n) => n + 1);
     } catch {
-      setAviso(texto(idioma, "errorGeneral"));
+      setAviso({ texto: texto(idioma, "errorGeneral"), tono: "error" });
     } finally {
       setPagando(null);
     }
@@ -84,7 +92,7 @@ export default function MisPedidos() {
       keyExtractor={(p) => p.numero}
       contentContainerStyle={estilos.lista}
       ListHeaderComponent={
-        aviso ? <Aviso texto={aviso} tono="info" /> : undefined
+        aviso ? <Aviso texto={aviso.texto} tono={aviso.tono} /> : undefined
       }
       ListEmptyComponent={
         lista === null ? (

@@ -145,6 +145,12 @@ export const ARTICULOS_EN: Articulo[] = [
           "Anything you set from your computer, like the brand or department, stays as is when you edit from your phone.",
         ],
       },
+      { tipo: "subtitulo", texto: "Your name and password" },
+      {
+        tipo: "parrafo",
+        texto:
+          "In “Account,” tap “My details and password” to change your name and your password. To change your password, we ask for your current one — and once you change it, your other devices are signed out, just in case someone saw it.",
+      },
       {
         tipo: "subtitulo",
         texto:

@@ -73,6 +73,10 @@ function Navegacion() {
           }}
         />
         <Stack.Screen
+          name="mis-datos"
+          options={{ title: texto(idioma, "misDatos") }}
+        />
+        <Stack.Screen
           name="mis-ventas"
           options={{ title: texto(idioma, "misVentas") }}
         />

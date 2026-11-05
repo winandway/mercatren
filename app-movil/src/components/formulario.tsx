@@ -49,24 +49,40 @@ export function BotonPrincipal({
   );
 }
 
+/**
+ * Un aviso en línea. Lo que salió bien va en VERDE («bien»), nunca en el
+ * color de la marca ni en azul (regla de la casa); el rojo es solo para
+ * problemas y el azul para lo que informa o espera.
+ */
 export function Aviso({
   texto,
   tono,
 }: {
   texto: string;
-  tono: "error" | "info";
+  tono: "error" | "info" | "bien";
 }) {
   return (
     <View
       style={[
         estilos.aviso,
-        tono === "error" ? estilos.avisoError : estilos.avisoInfo,
+        tono === "error"
+          ? estilos.avisoError
+          : tono === "bien"
+            ? estilos.avisoBien
+            : estilos.avisoInfo,
       ]}
     >
       <Text
         style={[
           estilos.avisoTexto,
-          { color: tono === "error" ? COLORES.rojo : COLORES.azul },
+          {
+            color:
+              tono === "error"
+                ? COLORES.rojo
+                : tono === "bien"
+                  ? COLORES.verde
+                  : COLORES.azul,
+          },
         ]}
       >
         {texto}
@@ -118,6 +134,7 @@ const estilos = StyleSheet.create({
   aviso: { borderRadius: 10, padding: 12, marginTop: 12 },
   avisoError: { backgroundColor: "#FEF2F2" },
   avisoInfo: { backgroundColor: "#EFF6FF" },
+  avisoBien: { backgroundColor: "#ECFDF5" },
   avisoTexto: { fontSize: 14, lineHeight: 20 },
   enlace: {
     color: COLORES.azul,

@@ -176,8 +176,11 @@ apruebe Divoox.
       crea la gente (hoy sigue la pausa de CJ del 27 oct). Antes, la compra de
       prueba de punta a punta.
 - [x] ✅ 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
+- [x] ✅ 💻 Parte 5 (mi cuenta) · «Mis datos y contraseña» en la app, con la
+      puerta de cuentas revisando lo que cada uno cambia de sí mismo. Ver
+      HISTORIAL, «MIS DATOS EN LA APP».
 - [ ] 💻 Parte 5 · Los avisos al teléfono (Firebase para Android, lo ve
-      Gerencia) y mi cuenta.
+      Gerencia; Apple congelado).
 
 ### 5 nov 2026 · Google Play rechazó la app de Android (privacidad) 🔴
 

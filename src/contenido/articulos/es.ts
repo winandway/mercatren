@@ -146,6 +146,12 @@ export const ARTICULOS_ES: Articulo[] = [
           "Lo que pusiste desde la computadora, como la marca o el departamento, se conserva al editar desde el celular.",
         ],
       },
+      { tipo: "subtitulo", texto: "Tu nombre y tu contraseña" },
+      {
+        tipo: "parrafo",
+        texto:
+          "En «Cuenta», toca «Mis datos y contraseña». Ahí cambias tu nombre y tu contraseña. Para cambiar la contraseña te pedimos la actual, y al cambiarla se cierra la sesión en tus otros dispositivos, por si alguien la vio.",
+      },
       {
         tipo: "subtitulo",
         texto: "5. Si un día quieres irte: cierra tu tienda y borra tu cuenta",

@@ -105,6 +105,19 @@ export default function Cuenta() {
           </View>
         )}
         <View style={estilos.grupo}>
+          {sesion?.user ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push("/mis-datos")}
+              style={[estilos.fila, estilos.abajo]}
+            >
+              <Text style={estilos.etiqueta}>
+                {texto(idioma, "misDatosFila")}
+              </Text>
+              <View style={{ flex: 1 }} />
+              <Text style={estilos.flecha}>›</Text>
+            </Pressable>
+          ) : null}
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push("/cambiar-pais")}
@@ -169,6 +182,10 @@ const estilos = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     gap: 10,
+  },
+  abajo: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORES.grisClaro,
   },
   separada: {
     borderTopWidth: StyleSheet.hairlineWidth,

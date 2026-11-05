@@ -183,6 +183,22 @@ export const TEXTOS = {
     faltaEstado: "Enter the state as two letters, like FL.",
     faltaCodigoPostal: "Enter a valid ZIP code.",
     misVentas: "My sales",
+    misDatos: "My details",
+    misDatosFila: "My details and password",
+    correoNoCambia:
+      "To change your email, contact us from Help and we'll verify it's you.",
+    nombreGuardado: "Your name was updated.",
+    nombreNoValido: "Enter a name between 2 and 100 characters.",
+    cambiarClave: "Change password",
+    cambiarClaveTexto:
+      "We ask for your current password so no one can change it from an open session.",
+    claveActual: "Current password",
+    claveNueva: "New password",
+    claveRepetida: "Repeat the new password",
+    clavesNoCoinciden: "The new passwords don't match.",
+    claveActualMal: "Your current password isn't right.",
+    claveCambiada:
+      "Your password was changed. Your other devices were signed out.",
     articulo: "item",
     enCaminoVenta: "It's on its way. Mark it as delivered once it arrives.",
     sinVentas:
@@ -401,6 +417,22 @@ export const TEXTOS = {
     faltaEstado: "Escribe el estado con dos letras, como FL.",
     faltaCodigoPostal: "Escribe un código postal válido.",
     misVentas: "Mis ventas",
+    misDatos: "Mis datos",
+    misDatosFila: "Mis datos y contraseña",
+    correoNoCambia:
+      "Para cambiar tu correo, escríbenos desde Ayuda y comprobamos que eres tú.",
+    nombreGuardado: "Tu nombre quedó guardado.",
+    nombreNoValido: "Escribe un nombre de 2 a 100 caracteres.",
+    cambiarClave: "Cambiar la contraseña",
+    cambiarClaveTexto:
+      "Te pedimos la actual para que nadie pueda cambiarla desde una sesión abierta.",
+    claveActual: "Contraseña actual",
+    claveNueva: "Contraseña nueva",
+    claveRepetida: "Repite la contraseña nueva",
+    clavesNoCoinciden: "Las contraseñas nuevas no coinciden.",
+    claveActualMal: "La contraseña actual no es correcta.",
+    claveCambiada:
+      "Tu contraseña cambió. Se cerró la sesión en tus otros dispositivos.",
     articulo: "artículo",
     enCaminoVenta: "Ya va en camino. Márcalo como entregado cuando llegue.",
     sinVentas:

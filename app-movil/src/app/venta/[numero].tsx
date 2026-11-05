@@ -34,7 +34,7 @@ export default function DetalleVenta() {
   const [fallo, setFallo] = useState(false);
   const [aviso, setAviso] = useState<{
     texto: string;
-    tono: "error" | "info";
+    tono: "error" | "info" | "bien";
   } | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
@@ -82,7 +82,7 @@ export default function DetalleVenta() {
                 if (r.ok && cuerpo?.ok) {
                   setAviso({
                     texto: texto(idioma, "ventaActualizada"),
-                    tono: "info",
+                    tono: "bien",
                   });
                   cargar();
                 } else {

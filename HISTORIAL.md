@@ -15,6 +15,30 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## «MIS DATOS» EN LA APP Y LA PUERTA QUE ACEPTABA CUALQUIER COSA (5 nov 2026)
+
+**Qué se hizo.** En «Cuenta» → «Mis datos y contraseña»: cambiar el nombre
+(con la acción oficial de las cuentas) y la contraseña igual que en la web
+(pide la actual, mínimo 10, repetida, y cierra la sesión en los demás
+aparatos). El borrador guarda solo el nombre, nunca contraseñas.
+
+**Fallo que se cerró antes de abrir la puerta.** La ruta de Better Auth para
+actualizar la cuenta (`/update-user`) aceptaba sin revisar el país, el
+idioma, el teléfono, una foto (un enlace cualquiera) y nombres de cualquier
+largo. Nadie la usaba, pero estaba abierta. Ahora `/datos/auth/…` la revisa
+antes de Better Auth con `src/lib/cuenta/cambio-de-datos.ts` (país de la
+lista cerrada, idioma es/en, teléfono con números, nombre de 2 a 100, sin
+foto). El rol sigue cerrado con `input: false`. Comprobado contra el servidor
+local: país inventado → 400 `PAIS_NO_VALIDO`; sin sesión → 401; contraseña
+actual equivocada → 400 `INVALID_PASSWORD`.
+
+**Y lo que salió bien va en verde:** los avisos de éxito de la app (nombre
+guardado, contraseña cambiada, venta actualizada, pedido pagado) estaban en
+azul. El aviso ganó su tono verde.
+
+**Candados:** `tests/unit/app-movil-mis-datos.test.ts`, en rojo comprobado
+(sin la revisión de `/update-user`; con un éxito en azul).
+
 ## MIS VENTAS Y EDITAR PRODUCTOS EN LA APP, Y LA CALLE QUE EL PANEL NO ENSEÑABA (5 nov 2026)
 
 **Qué se hizo.** El vendedor ya despacha desde el teléfono: «Mi tienda» lleva

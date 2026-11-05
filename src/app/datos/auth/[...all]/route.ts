@@ -1,4 +1,5 @@
 import { getAuth } from "@/lib/auth";
+import { problemaDelCambio } from "@/lib/cuenta/cambio-de-datos";
 import { paisDelAltaValido } from "@/lib/cuenta/pais-del-alta";
 import { comprobarEscudo } from "@/lib/escudo";
 import {
@@ -135,6 +136,22 @@ export async function POST(request: Request) {
    * base y, casi siempre, un cliente que se equivocó al escribir y no se
    * enteró nunca.
    */
+  /* «Mis datos»: lo que la persona cambia de su cuenta se revisa aquí, antes
+     de Better Auth (ver `lib/cuenta/cambio-de-datos.ts`). */
+  if (pathname.endsWith("/update-user")) {
+    const cuerpo: unknown = await request
+      .clone()
+      .json()
+      .catch(() => null);
+    const problema = problemaDelCambio(cuerpo);
+    if (problema) {
+      return Response.json(
+        { message: "Revisa los datos.", code: problema },
+        { status: 400 },
+      );
+    }
+  }
+
   if (pathname.endsWith("/sign-up/email")) {
     /* El país de la app: solo uno de la lista cerrada de mercados. */
     if (!paisDelAltaValido(await paisDelCuerpo(request))) {
