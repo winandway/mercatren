@@ -115,6 +115,24 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       se paga). Mientras siga así, los revisores de Google Play y de Apple ven
       esa página y **rechazan las apps**.
 
+### 5 nov 2026 · La app nativa con Expo (fases 3 y 1 del plan) 🟠
+
+Aprobada por Gerencia (sección 10 de `docs/PLAN-UNA-SOLA-MERCATREN.md`). Por
+partes, cada una con su prueba en rojo. **Nada a las tiendas** hasta que Apple
+apruebe Divoox.
+
+- [x] ✅ 💻 Parte 1 · La puerta de datos del servidor, pública:
+      `/datos/app/v1/paises`, `/catalogo` y `/producto/<slug>`, con país e
+      idioma validados, caché en el borde y nada interno hacia afuera
+      (`src/lib/app-movil/datos.ts`).
+- [ ] 💻 Parte 2 · El proyecto Expo (organización windoce-llc), con la
+      bienvenida (país e idioma), el inicio, la búsqueda y la ficha.
+- [ ] 💻 Parte 3 · Las cuentas en la app (complemento de Better Auth para
+      Expo), el carrito y el pago con la hoja de Stripe.
+- [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
+- [ ] 💻 Parte 5 · Los avisos al teléfono (Firebase para Android, lo ve
+      Gerencia) y mi cuenta.
+
 ### 5 nov 2026 · Google Play rechazó la app de Android (privacidad) 🔴
 
 - [x] ✅ 💻 Causa comprobada: Google dice «Privacy policy link is inactive».

@@ -1,0 +1,190 @@
+import { z } from "zod";
+
+import type { ProductoLista } from "@/lib/catalogo/consultas";
+import {
+  MERCADOS,
+  mercadoPorCodigo,
+  nombreDelMercado,
+  type Mercado,
+} from "@/lib/mercado/mercados";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
+
+/**
+ * LA PUERTA DE DATOS DE LA APP NATIVA (5 nov 2026, plan PLAN-UNA-SOLA-MERCATREN,
+ * sección 10).
+ *
+ * La web usa acciones del servidor, que una app de teléfono no puede llamar.
+ * La app nativa (Expo) lee de `/datos/app/v1/…` (nunca `/api`, que en
+ * YaDominios Cloud lo capturan los estáticos). Aquí está lo puro: qué país
+ * pide la app, qué se le devuelve de cada producto y con qué cabeceras.
+ *
+ * NADA INTERNO SALE POR AQUÍ: ni el código ni el id del proveedor, ni el sku,
+ * ni el costo, ni el depósito por dentro. La app recibe lo mismo que ve un
+ * comprador en la web, y nada más.
+ */
+
+/**
+ * LOS PAÍSES ENCENDIDOS (Fase 1 del plan): donde la app deja comprar. Un país
+ * se enciende solo con su cobro, sus impuestos y su proveedor probados (lista
+ * de `ABRIR-UN-PAIS.md`). Hoy, Estados Unidos.
+ */
+export const PAISES_ENCENDIDOS: readonly string[] = ["US"];
+
+export type IdiomaApp = "es" | "en";
+
+const CODIGOS = MERCADOS.map((m) => m.codigo) as [string, ...string[]];
+
+/** Lo que la app manda en la dirección: el país y el idioma. */
+export const esquemaContexto = z.object({
+  pais: z.enum(CODIGOS).default("US"),
+  idioma: z.enum(["es", "en"]).default("en"),
+});
+
+export function contextoDe(
+  url: URL,
+): { ok: true; mercado: Mercado; idioma: IdiomaApp } | { ok: false } {
+  const r = esquemaContexto.safeParse({
+    pais: url.searchParams.get("pais")?.toUpperCase() || undefined,
+    idioma: url.searchParams.get("idioma")?.toLowerCase() || undefined,
+  });
+  if (!r.success) return { ok: false };
+  return {
+    ok: true,
+    mercado: mercadoPorCodigo(r.data.pais),
+    idioma: r.data.idioma,
+  };
+}
+
+/** Un país para la pantalla de bienvenida. */
+export function paisParaApp(m: Mercado, idioma: IdiomaApp) {
+  return {
+    codigo: m.codigo,
+    nombre: nombreDelMercado(m, idioma),
+    moneda: monedaDelMercado(m),
+    encendido: PAISES_ENCENDIDOS.includes(m.codigo),
+  };
+}
+
+export type ProductoApp = {
+  id: string;
+  slug: string;
+  titulo: string;
+  precio: { centavos: number; moneda: string };
+  precioAntes: { centavos: number; moneda: string } | null;
+  foto: string | null;
+  fotoAlt: string | null;
+  tienda: { nombre: string; slug: string };
+  agotado: boolean;
+};
+
+/** El título en el idioma de la app; si falta el inglés, va el español. */
+function tituloEn(
+  idioma: IdiomaApp,
+  es: string,
+  en: string | null | undefined,
+): string {
+  return idioma === "en" && en?.trim() ? en : es;
+}
+
+/** Una tarjeta del catálogo, como la ve un comprador. */
+export function productoParaApp(
+  p: ProductoLista,
+  idioma: IdiomaApp,
+): ProductoApp {
+  return {
+    id: p.id,
+    slug: p.slug,
+    titulo: tituloEn(idioma, p.tituloEs, p.tituloEn),
+    precio: { centavos: p.precioCentavos, moneda: p.moneda },
+    precioAntes:
+      p.precioAntesCentavos && p.precioAntesCentavos > p.precioCentavos
+        ? { centavos: p.precioAntesCentavos, moneda: p.moneda }
+        : null,
+    foto: p.imagenUrl,
+    fotoAlt: p.imagenAlt,
+    tienda: { nombre: p.tiendaNombre, slug: p.tiendaSlug },
+    agotado: p.controlaExistencias && p.existencias <= 0,
+  };
+}
+
+/** Lo que la ficha necesita de lo que devuelve `obtenerProductoPorSlug`. */
+export type FichaDeLaBase = {
+  producto: {
+    id: string;
+    slug: string;
+    marca: string | null;
+    tituloEs: string;
+    tituloEn: string | null;
+    descripcionEs: string | null;
+    descripcionEn: string | null;
+    precioCentavos: number;
+    precioAntesCentavos: number | null;
+    moneda: string;
+    existencias: number;
+    controlaExistencias: boolean;
+    unidad: string | null;
+  };
+  tiendaNombre: string;
+  tiendaSlug: string;
+  categoriaNombreEs: string | null;
+  categoriaNombreEn: string | null;
+  imagenes: Array<{
+    url: string;
+    altEs: string | null;
+    altEn: string | null;
+  }>;
+};
+
+/** La ficha completa para la app. */
+export function fichaParaApp(f: FichaDeLaBase, idioma: IdiomaApp) {
+  const p = f.producto;
+  return {
+    id: p.id,
+    slug: p.slug,
+    titulo: tituloEn(idioma, p.tituloEs, p.tituloEn),
+    descripcion:
+      idioma === "en" && p.descripcionEn?.trim()
+        ? p.descripcionEn
+        : (p.descripcionEs ?? ""),
+    marca: p.marca,
+    precio: { centavos: p.precioCentavos, moneda: p.moneda },
+    precioAntes:
+      p.precioAntesCentavos && p.precioAntesCentavos > p.precioCentavos
+        ? { centavos: p.precioAntesCentavos, moneda: p.moneda }
+        : null,
+    unidad: p.unidad,
+    agotado: p.controlaExistencias && p.existencias <= 0,
+    categoria:
+      idioma === "en"
+        ? (f.categoriaNombreEn ?? f.categoriaNombreEs)
+        : f.categoriaNombreEs,
+    tienda: { nombre: f.tiendaNombre, slug: f.tiendaSlug },
+    fotos: f.imagenes.map((i) => ({
+      url: i.url,
+      alt: (idioma === "en" ? i.altEn : i.altEs) ?? i.altEs ?? null,
+    })),
+  };
+}
+
+/**
+ * La respuesta: JSON, guardable en el borde 5 minutos (son datos públicos,
+ * iguales para todos los del mismo país) y SIN cookies, que es lo que deja a
+ * la plataforma guardarla. Así un millón de aperturas de la app no son un
+ * millón de consultas a la base.
+ */
+export function respuestaPublica(cuerpo: unknown, estado = 200): Response {
+  return Response.json(cuerpo, {
+    status: estado,
+    headers: {
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+    },
+  });
+}
+
+/** Un error sin caché: que un fallo de un minuto no se quede guardado. */
+export function respuestaDeError(motivo: string, estado: number): Response {
+  return Response.json(
+    { ok: false, motivo },
+    { status: estado, headers: { "Cache-Control": "no-store" } },
+  );
+}
