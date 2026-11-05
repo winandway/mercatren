@@ -1124,3 +1124,37 @@ export async function correoCasoRespondido(
     contacto,
   });
 }
+
+/**
+ * El acuse del desistimiento (directiva 2023/2673, art. 11 bis): el contenido
+ * del aviso y la fecha y la hora en que llegó, en hora de España, que es donde
+ * vive quien compra.
+ */
+export async function correoAcuseDesistimiento(
+  d: Destinatario,
+  aviso: { numero: string; recibidoEn: Date },
+) {
+  const { idioma, t, saludo, motivo, contacto } = await base(d);
+  const cuando = new Intl.DateTimeFormat(idioma === "en" ? "en-US" : "es-ES", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "Europe/Madrid",
+  }).format(aviso.recibidoEn);
+  return enviar(d, {
+    asunto: t("desistimiento.asunto", { numero: aviso.numero }),
+    previo: t("desistimiento.previo"),
+    saludo,
+    titulo: t("desistimiento.titulo"),
+    parrafos: t.raw("desistimiento.parrafos") as string[],
+    datos: [
+      { etiqueta: t("desistimiento.pedido"), valor: aviso.numero },
+      { etiqueta: t("desistimiento.recibido"), valor: cuando },
+    ],
+    boton: {
+      texto: t("desistimiento.boton"),
+      url: urlDe(idioma, `/pedido/${aviso.numero}`),
+    },
+    motivo,
+    contacto,
+  });
+}

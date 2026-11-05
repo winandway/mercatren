@@ -14,9 +14,11 @@ import { tieneFactura } from "@/lib/facturas/consultas";
 import { conciliarPedido } from "@/lib/stripe/conciliar";
 import { obtenerPedidoPropio } from "@/lib/pedidos/acciones";
 import { PasosCompra } from "@/components/pedido/pasos-compra";
+import { Desistir } from "@/components/pedido/desistir";
 import { Devolver } from "@/components/pedido/devolver";
 import { devolucionDelPedido } from "@/lib/devoluciones/acciones";
 import { formaDeEntrega } from "@/lib/pedidos/como-se-entrega";
+import { situacionDesistimiento } from "@/lib/pedidos/desistimiento-consultas";
 import { envioDelPedido } from "@/lib/pedidos/guia";
 import { queMostrarDelEnvio } from "@/lib/pedidos/rastreo";
 import {
@@ -85,6 +87,9 @@ export default async function PaginaPedido({
   /* La devolución del pedido, si la hay. Va aquí y no dentro del componente
      porque la comprobación de quién puede ver la dirección es del SERVIDOR. */
   const devolucion = await devolucionDelPedido(pedido.id);
+  /* «Desistir del contrato aquí»: solo pedidos de España (fuera de España no
+     lee la base). */
+  const desistimiento = await situacionDesistimiento(pedido);
 
   /* EL NÚMERO DE GUÍA, CUANDO YA HAY UNO (21 sep 2026). La pantalla enseñaba
      los pasos —pago, preparación, envío, entrega— pero no el único dato que
@@ -444,6 +449,15 @@ export default async function PaginaPedido({
 
       {/* Devolver. Solo tiene sentido con el pedido ya pagado: antes de eso lo
           que toca es cancelar, y ofrecer las dos cosas a la vez confunde. */}
+      {desistimiento && (desistimiento.puede || desistimiento.desistidoEn) ? (
+        <div className="mt-6">
+          <Desistir
+            numero={pedido.numero}
+            vence={desistimiento.vence?.toISOString() ?? null}
+            desistidoEn={desistimiento.desistidoEn?.toISOString() ?? null}
+          />
+        </div>
+      ) : null}
       {estaPagado(pedido.estado) ? (
         <div className="mt-6">
           <Devolver pedidoId={pedido.id} yaHay={devolucion} />

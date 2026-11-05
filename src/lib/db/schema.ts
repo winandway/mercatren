@@ -4342,3 +4342,32 @@ export const clicsPromocion = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.promocionId, t.dia, t.huella] })],
 );
+
+/**
+ * EL DESISTIMIENTO DE UNA COMPRA (5 nov 2026, Fase 5: España).
+ *
+ * En España quien compra a distancia tiene 14 días para desistir sin dar
+ * motivos (TRLGDCU arts. 102 a 108), y la directiva europea 2023/2673 pide una
+ * función «Desistir del contrato aquí» con su confirmación y un acuse con la
+ * fecha y la hora. Esto guarda ESE aviso: es la prueba de que se dio en plazo.
+ * El reembolso lo hace el equipo, como cualquier devolución.
+ *
+ * Tabla nueva, no columnas (`schema.sql` solo crea tablas). Una fila por
+ * pedido: avisar dos veces no crea dos desistimientos.
+ */
+export const desistimientos = sqliteTable("desistimientos", {
+  id: text("id").primaryKey(),
+  pedidoId: text("pedido_id")
+    .notNull()
+    .unique()
+    .references(() => pedidos.id, { onDelete: "cascade" }),
+  clienteId: text("cliente_id")
+    .notNull()
+    .references(() => user.id),
+  /** Como se llamaba y a qué correo se mandó el acuse, por si la cuenta cambia. */
+  nombre: text("nombre").notNull(),
+  correo: text("correo").notNull(),
+  creadoEn: integer("creado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

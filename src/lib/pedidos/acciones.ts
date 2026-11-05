@@ -735,6 +735,9 @@ export async function listarPedidosPropios() {
 
   const filas = await db
     .select({
+      /* Para el desistimiento de España en la app (se queda en el servidor:
+         la puerta de la app no lo manda). */
+      id: pedidos.id,
       numero: pedidos.numero,
       estado: pedidos.estado,
       totalCentavos: pedidos.totalCentavos,

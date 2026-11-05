@@ -3873,6 +3873,19 @@
       "despues": [
         "If you need anything else, reply from the link: the conversation stays in the same case."
       ]
+    },
+    "desistimiento": {
+      "asunto": "We received your withdrawal from order {numero}",
+      "previo": "Keep this email: it's the acknowledgment of your withdrawal.",
+      "titulo": "We received your withdrawal",
+      "parrafos": [
+        "You withdrew from the purchase contract for this order. This email is your acknowledgment: please keep it.",
+        "We'll refund everything you paid, including standard shipping, within 14 days of your notice and using the same payment method. We may wait until we receive the product or proof that you sent it.",
+        "If you've already received it, you have 14 days to send it back. We'll email you the steps."
+      ],
+      "pedido": "Order",
+      "recibido": "Received on (Spain time)",
+      "boton": "View my order"
     }
   },
   "misPedidos": {
@@ -4766,5 +4779,22 @@
       "adjuntar": "Attach screenshot",
       "adjuntarAyuda": "Up to {maximo} images, 10 MB each (JPG, PNG, WEBP, or HEIC)."
     }
+  },
+  "desistimiento": {
+    "titulo": "Withdraw from the purchase",
+    "explicacion": "You have 14 calendar days from receiving your order to withdraw without giving a reason.",
+    "hasta": "You can withdraw until {fecha}.",
+    "boton": "Withdraw from contract here",
+    "confirmarTitulo": "Do you confirm your withdrawal from this order?",
+    "confirmarTexto": "We'll refund everything you paid, including standard shipping, and email you the acknowledgment.",
+    "confirmar": "Confirm withdrawal",
+    "cancelar": "Go back",
+    "enviando": "Sending…",
+    "hecho": "We received your withdrawal on {fecha}. We've emailed you the acknowledgment.",
+    "entra": "Sign in to withdraw from your order.",
+    "noExiste": "We couldn't find that order in your account.",
+    "fueraDePlazo": "The withdrawal period for this order has ended.",
+    "error": "We couldn't register your withdrawal. Please try again or contact us.",
+    "noAplica": "This order can't be withdrawn from here. Contact us and we'll help."
   }
 }

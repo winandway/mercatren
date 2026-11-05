@@ -152,6 +152,19 @@ export function urlMisPedidos(pais: string, idioma: Idioma): string {
   return privada("pedidos", pais, idioma);
 }
 
+/** «Confirmar desistimiento» de un pedido (España). */
+export function urlDesistir(
+  numero: string,
+  pais: string,
+  idioma: Idioma,
+): string {
+  return privada(
+    `pedidos/${encodeURIComponent(numero)}/desistir`,
+    pais,
+    idioma,
+  );
+}
+
 export function urlProducto(
   slug: string,
   pais: string,

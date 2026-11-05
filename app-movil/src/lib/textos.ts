@@ -183,6 +183,16 @@ export const TEXTOS = {
     sinPedidos: "You haven't placed any orders yet.",
     articulos: "items",
     entraParaComprar: "Sign in or create an account to check out.",
+    desistirBoton: "Withdraw from contract here",
+    desistirPregunta: "Do you confirm your withdrawal from this order?",
+    desistirExplica:
+      "We'll refund everything you paid, including standard shipping, and email you the acknowledgment.",
+    desistirConfirmar: "Confirm withdrawal",
+    desistirVolver: "Go back",
+    desistirHecho:
+      "We received your withdrawal on {fecha}. We've emailed you the acknowledgment.",
+    desististe: "You withdrew on {fecha}.",
+    desistirError: "We couldn't register your withdrawal. Please try again.",
     paisApagado:
       "We're not selling in this country through the app yet. Choose another country from your account.",
     faltaEstado: "Enter the state as two letters, like FL.",
@@ -479,6 +489,16 @@ export const TEXTOS = {
     sinPedidos: "Todavía no has hecho pedidos.",
     articulos: "artículos",
     entraParaComprar: "Entra o crea tu cuenta para comprar.",
+    desistirBoton: "Desistir del contrato aquí",
+    desistirPregunta: "¿Confirmas que desistes de este pedido?",
+    desistirExplica:
+      "Te devolvemos todo lo pagado, incluido el envío estándar. Te mandamos el acuse a tu correo.",
+    desistirConfirmar: "Confirmar desistimiento",
+    desistirVolver: "Volver",
+    desistirHecho:
+      "Recibimos tu desistimiento el {fecha}. Te mandamos el acuse a tu correo.",
+    desististe: "Desististe el {fecha}.",
+    desistirError: "No pudimos registrar tu desistimiento. Inténtalo de nuevo.",
     paisApagado:
       "Todavía no vendemos en este país por la app. Elige otro país desde tu cuenta.",
     faltaEstado: "Escribe el estado con dos letras, como FL.",

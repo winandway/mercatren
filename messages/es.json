@@ -3873,6 +3873,19 @@
       "despues": [
         "Si necesitas algo más, contéstanos desde el enlace: la conversación sigue en el mismo caso."
       ]
+    },
+    "desistimiento": {
+      "asunto": "Recibimos tu desistimiento del pedido {numero}",
+      "previo": "Guarda este correo: es el acuse de tu desistimiento.",
+      "titulo": "Recibimos tu desistimiento",
+      "parrafos": [
+        "Desististe del contrato de compra de este pedido. Este correo es el acuse: guárdalo.",
+        "Te devolvemos todo lo que pagaste, incluido el envío estándar, en un máximo de 14 días desde tu aviso y por el mismo medio de pago. Podemos esperar a recibir el producto o la prueba de que lo enviaste.",
+        "Si ya lo recibiste, tienes 14 días para devolverlo. Te escribimos con los pasos."
+      ],
+      "pedido": "Pedido",
+      "recibido": "Recibido el (hora de España)",
+      "boton": "Ver mi pedido"
     }
   },
   "misPedidos": {
@@ -4766,5 +4779,22 @@
       "adjuntar": "Adjuntar captura",
       "adjuntarAyuda": "Hasta {maximo} imágenes de 10 MB (JPG, PNG, WEBP o HEIC)."
     }
+  },
+  "desistimiento": {
+    "titulo": "Desistir de la compra",
+    "explicacion": "Tienes 14 días naturales desde que recibes el pedido para desistir sin dar motivos.",
+    "hasta": "Puedes desistir hasta el {fecha}.",
+    "boton": "Desistir del contrato aquí",
+    "confirmarTitulo": "¿Confirmas que desistes de este pedido?",
+    "confirmarTexto": "Te devolvemos todo lo pagado, incluido el envío estándar. Te mandamos el acuse a tu correo.",
+    "confirmar": "Confirmar desistimiento",
+    "cancelar": "Volver",
+    "enviando": "Enviando…",
+    "hecho": "Recibimos tu desistimiento el {fecha}. Te mandamos el acuse a tu correo.",
+    "entra": "Entra con tu cuenta para desistir de tu pedido.",
+    "noExiste": "No encontramos ese pedido en tu cuenta.",
+    "fueraDePlazo": "El plazo para desistir de este pedido ya terminó.",
+    "error": "No pudimos registrar tu desistimiento. Inténtalo de nuevo o escríbenos.",
+    "noAplica": "Este pedido no se puede desistir desde aquí. Escríbenos y lo vemos."
   }
 }
