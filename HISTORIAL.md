@@ -15,6 +15,33 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL CARRITO Y EL PAGO DE LA APP (5 nov 2026)
+
+**Qué es.** La app tiene carrito (uno por país, guardado en el teléfono),
+«Agregar al carrito» en la ficha, la pestaña «Carrito» con el número, la
+pantalla de pago con la dirección de entrega (con borrador) y la hoja de pago
+de Stripe, y «Mis pedidos» (con «Pagar con tarjeta» para lo que quedó por
+pagar).
+
+**Las reglas de dinero, las de siempre:** de la app al servidor solo viajan
+el producto y la cantidad; precio, existencia, destino y pausa los vuelve a
+leer la MISMA `crearPedido` de la web. El intento de pago lo arma la MISMA
+`crearIntentoDePago` (monto del pedido en la base, intento reutilizado). La
+app solo enseña la hoja; el cobro lo acredita el aviso de Stripe.
+
+**La pausa de ventas se respeta:** la ficha trae `seVende` con la MISMA
+`ventaPausada` de la web; con la pausa puesta no hay botón de agregar, y el
+servidor rechaza el pedido igual. Hoy Estados Unidos sigue en pausa.
+
+**Detalle de Expo:** el complemento `@stripe/stripe-react-native` en
+`app.json` necesita sus opciones (`{"enableGooglePay": false}`); sin ellas el
+empaquetador revienta con «merchantIdentifier».
+
+**Sin probar:** la hoja con una tarjeta (no hay claves de prueba de Stripe en
+la máquina). En rojo en `VERIFICAR-PAGOS.md`.
+
+**Candado:** `tests/unit/app-movil-carrito.test.ts`, comprobada en rojo.
+
 ## UNA CUENTA CON TIENDA SE CIERRA SOLA, SIN ESCRIBIR A SOPORTE (5 nov 2026)
 
 **Por qué.** Apple, regla 5.1.1(v): el borrado de la cuenta se tiene que poder

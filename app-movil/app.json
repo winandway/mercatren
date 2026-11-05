@@ -49,6 +49,12 @@
           "cameraPermission": "Mercatren uses the camera so you can take pictures of the products you sell.",
           "microphonePermission": false
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "enableGooglePay": false
+        }
       ]
     ],
     "experiments": {

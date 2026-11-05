@@ -72,6 +72,10 @@ export default function Cuenta() {
               {texto(idioma, "hola")}, {sesion.user.name}
             </Text>
             <Text style={estilos.correo}>{sesion.user.email}</Text>
+            <BotonPrincipal
+              texto={texto(idioma, "misPedidos")}
+              onPress={() => router.push("/mis-pedidos")}
+            />
             {tienda ? (
               <BotonPrincipal
                 texto={texto(idioma, "miTienda")}

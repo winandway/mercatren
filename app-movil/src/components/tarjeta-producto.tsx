@@ -62,8 +62,10 @@ export function TarjetaProducto({
 }
 
 const estilos = StyleSheet.create({
+  /* Media pantalla como máximo: con un solo producto no se estira a todo el ancho. */
   tarjeta: {
     flex: 1,
+    maxWidth: "47%",
     margin: 6,
     backgroundColor: COLORES.fondo,
     borderRadius: 10,

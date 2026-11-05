@@ -8,6 +8,7 @@ import {
   type Mercado,
 } from "@/lib/mercado/mercados";
 import { monedaDelMercado } from "@/lib/mercado/moneda";
+import { ventaPausada } from "@/lib/ventas/pausa";
 
 /**
  * LA PUERTA DE DATOS DE LA APP NATIVA (5 nov 2026, plan PLAN-UNA-SOLA-MERCATREN,
@@ -126,6 +127,8 @@ export type FichaDeLaBase = {
   };
   tiendaNombre: string;
   tiendaSlug: string;
+  /** El país de donde sale la mercancía: decide si la venta está en pausa. */
+  tiendaPais?: string | null;
   categoriaNombreEs: string | null;
   categoriaNombreEn: string | null;
   imagenes: Array<{
@@ -154,6 +157,9 @@ export function fichaParaApp(f: FichaDeLaBase, idioma: IdiomaApp) {
         : null,
     unidad: p.unidad,
     agotado: p.controlaExistencias && p.existencias <= 0,
+    /* La MISMA pausa de la web (`ventas/pausa.ts`): con la venta de un país
+       en pausa la ficha se ve, pero no se compra. */
+    seVende: !ventaPausada(f.tiendaPais),
     categoria:
       idioma === "en"
         ? (f.categoriaNombreEn ?? f.categoriaNombreEs)

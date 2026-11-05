@@ -67,8 +67,10 @@ async function siguienteNumero(db: ReturnType<typeof getDb>) {
 
 export async function crearPedido(
   entrada: DatosPedido,
+  /* La app nativa (`/datos/app/mi/pedido`) pasa el idioma de la persona. */
+  opciones: { idioma?: "es" | "en" } = {},
 ): Promise<ResultadoPedido> {
-  const t = await mensajes();
+  const t = await mensajes(opciones.idioma);
 
   const usuario = await obtenerUsuario();
   if (!usuario) {
@@ -85,7 +87,10 @@ export async function crearPedido(
        convierte al de quien está comprando. */
     return {
       ok: false,
-      mensaje: await avisoDeCampo(revisado.error.issues[0]?.message),
+      mensaje: await avisoDeCampo(
+        revisado.error.issues[0]?.message,
+        opciones.idioma,
+      ),
     };
   }
 

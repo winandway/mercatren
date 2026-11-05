@@ -41,7 +41,15 @@ export function mensajes(idioma?: "es" | "en") {
  * está traducida se devuelve el aviso genérico, nunca la clave en crudo: leer
  * "telefonoCaracteres" en pantalla no le dice nada a nadie.
  */
-export async function avisoDeCampo(clave: string | undefined): Promise<string> {
-  const t = await getTranslations("formularios.errores");
+export async function avisoDeCampo(
+  clave: string | undefined,
+  idioma?: "es" | "en",
+): Promise<string> {
+  const t = idioma
+    ? await getTranslations({
+        locale: idioma,
+        namespace: "formularios.errores",
+      })
+    : await getTranslations("formularios.errores");
   return clave && t.has(clave) ? t(clave) : t("invalido");
 }

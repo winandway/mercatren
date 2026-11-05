@@ -156,8 +156,15 @@ apruebe Divoox.
 - [ ] 🔴 La migración 0051 (tabla `solicitudes_cierre`) llega sola a
       producción con `schema.sql` al publicar; comprobar en vivo cuando se
       quite la pausa de la plataforma.
-- [ ] 💻 Parte 3b · El carrito y el pago con la hoja de Stripe (sin cobros
-      reales sin el sí de Richard).
+- [x] ✅ 💻 Parte 3b · Carrito, pago con la hoja de Stripe y «Mis pedidos»
+      en la app, con las mismas acciones de la web. Probado en local hasta el
+      pedido (MT-000270). Ver HISTORIAL, «EL CARRITO Y EL PAGO DE LA APP».
+- [ ] 🔴 👤 Claves de PRUEBA de Stripe (secreta y pública, modo test) para
+      probar la hoja de pago con la tarjeta 4242 en el simulador. Sin eso el
+      cobro de la app no está probado (`VERIFICAR-PAGOS.md`).
+- [ ] 🔴 👤 Decidir si se abre la venta de Estados Unidos para las tiendas que
+      crea la gente (hoy sigue la pausa de CJ del 27 oct). Antes, la compra de
+      prueba de punta a punta.
 - [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
 - [ ] 💻 Parte 5 · Los avisos al teléfono (Firebase para Android, lo ve
       Gerencia) y mi cuenta.

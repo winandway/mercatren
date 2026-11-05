@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 
+import { BotonPrincipal } from "@/components/formulario";
+import { useCarrito } from "@/contexto/carrito";
 import { usePreferencias } from "@/contexto/preferencias";
 import {
   absoluta,
@@ -31,6 +33,8 @@ type Estado =
 
 /** La ficha de un producto: fotos que se pasan con el dedo, precio y tienda. */
 export default function Producto() {
+  const { agregar } = useCarrito();
+  const [agregado, setAgregado] = useState(false);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const { pais, idioma } = usePreferencias();
   const { width } = useWindowDimensions();
@@ -130,6 +134,30 @@ export default function Producto() {
           {texto(idioma, "vendidoPor")}{" "}
           <Text style={estilos.tiendaNombre}>{f.tienda.nombre}</Text>
         </Text>
+        {/* Se compra solo si hay existencias y la venta del país no está en
+            pausa (la MISMA pausa de la web, que el servidor vuelve a mirar). */}
+        {f.seVende === false ? (
+          <Text style={estilos.noSeVende}>{texto(idioma, "noSeVende")}</Text>
+        ) : !f.agotado ? (
+          <BotonPrincipal
+            texto={
+              agregado
+                ? texto(idioma, "agregado")
+                : texto(idioma, "agregarAlCarrito")
+            }
+            onPress={() => {
+              agregar({
+                productoId: f.id,
+                slug: f.slug,
+                titulo: f.titulo,
+                foto: f.fotos[0]?.url ?? null,
+                precio: f.precio,
+                cantidad: 1,
+              });
+              setAgregado(true);
+            }}
+          />
+        ) : null}
         {f.descripcion ? (
           <>
             <Text style={estilos.subtitulo}>
@@ -179,6 +207,7 @@ const estilos = StyleSheet.create({
     color: COLORES.gris,
     textDecorationLine: "line-through",
   },
+  noSeVende: { fontSize: 14, color: COLORES.gris, marginTop: 8 },
   agotado: {
     alignSelf: "flex-start",
     backgroundColor: COLORES.gris,

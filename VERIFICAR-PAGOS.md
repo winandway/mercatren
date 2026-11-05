@@ -22,6 +22,23 @@
 > `ok`. **La prueba se conserva escrita**: es la primera que hay que repetir
 > el día que alguien vuelva a decir «no puedo entrar» o «no puedo comprar».
 
+> ## 🔴 LA APP NATIVA: EL COBRO CON TARJETA NO ESTÁ PROBADO (5 nov 2026)
+>
+> La app (Expo, `app-movil/`) ya crea el pedido con la MISMA acción de la web
+> (`/datos/app/mi/pedido` → `crearPedido`) y pide el intento con la MISMA
+> acción de la web (`crearIntentoDePago`); paga con la hoja de Stripe
+> (`app-movil/src/lib/cobrar.ts`) y lo acredita el aviso de Stripe, como en la
+> web. **Probado en local hasta el pedido** (MT-000270: total calculado por el
+> servidor, $16,26, `pendiente_pago`, `stripe`) y la pausa de ventas.
+> **NO probado: la hoja de pago con una tarjeta**, porque en esta máquina no
+> hay claves de PRUEBA de Stripe. Falta: (1) las claves de prueba de Stripe en
+> `.dev.vars` (`STRIPE_SECRET_KEY`, `STRIPE_CLAVE_PUBLICA`, test) para pagar
+> con la tarjeta 4242 en el simulador; (2) después, una compra real desde la
+> app mirada hasta el cobro en Stripe y el pedido «pagado». **No anunciar
+> compras en la app hasta hacer las dos.** Además, la venta de Estados Unidos
+> sigue en pausa (`EN_PAUSA` en `src/lib/ventas/pausa.ts`, la pausa de CJ del
+> 27 oct): abrirla para las tiendas que crea la gente es decisión de Richard.
+
 ## El estado, método por método
 
 | Mercado          | Método                                      | Estado                                 | Evidencia                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |

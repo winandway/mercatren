@@ -54,6 +54,8 @@ export type FichaApp = {
   precioAntes: Precio | null;
   unidad: string | null;
   agotado: boolean;
+  /** false si la venta del país de la tienda está en pausa. */
+  seVende?: boolean;
   categoria: string | null;
   tienda: { nombre: string; slug: string };
   fotos: Array<{ url: string; alt: string | null }>;
@@ -97,6 +99,23 @@ export function urlCatalogo(o: {
     q: o.q?.trim(),
     pagina: o.pagina && o.pagina > 1 ? o.pagina : undefined,
   });
+}
+
+/** Las puertas privadas de la app (con sesión), fuera de lo que se guarda en el borde. */
+function privada(ruta: string, pais: string, idioma: Idioma): string {
+  return `${API_BASE}/datos/app/mi/${ruta}?pais=${encodeURIComponent(pais)}&idioma=${idioma}`;
+}
+
+export function urlPedido(pais: string, idioma: Idioma): string {
+  return privada("pedido", pais, idioma);
+}
+
+export function urlPagarPedido(pais: string, idioma: Idioma): string {
+  return privada("pagar", pais, idioma);
+}
+
+export function urlMisPedidos(pais: string, idioma: Idioma): string {
+  return privada("pedidos", pais, idioma);
 }
 
 export function urlProducto(

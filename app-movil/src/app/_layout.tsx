@@ -3,6 +3,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
+import { ProveedorDeCarrito } from "@/contexto/carrito";
 import {
   ProveedorDePreferencias,
   usePreferencias,
@@ -57,6 +58,14 @@ function Navegacion() {
           options={{ title: texto(idioma, "miTienda") }}
         />
         <Stack.Screen
+          name="pagar"
+          options={{ title: texto(idioma, "pagar") }}
+        />
+        <Stack.Screen
+          name="mis-pedidos"
+          options={{ title: texto(idioma, "misPedidos") }}
+        />
+        <Stack.Screen
           name="nuevo-producto"
           options={{
             presentation: "modal",
@@ -92,8 +101,10 @@ function Navegacion() {
 export default function Raiz() {
   return (
     <ProveedorDePreferencias>
-      <StatusBar style="light" />
-      <Navegacion />
+      <ProveedorDeCarrito>
+        <StatusBar style="light" />
+        <Navegacion />
+      </ProveedorDeCarrito>
     </ProveedorDePreferencias>
   );
 }
