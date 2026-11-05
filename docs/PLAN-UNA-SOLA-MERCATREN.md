@@ -163,6 +163,80 @@ Cada fase es una meta que encarga Gerencia, con su prueba de «terminado».
 3. ¿Precio del plan Pro y de los promocionados?
 4. ¿Qué país va después de Estados Unidos?
 
+## 10. De la ventana a la app nativa, en una página
+
+> Pedido por Gerencia el 5 nov 2026, antes de programar. Richard aprobó el
+> plan entero y su prioridad es la app nativa. **Nada se sube a Apple hasta que
+> Apple apruebe Divoox.**
+
+**Hoy:** la app de iPhone (SwiftUI) y la de Android (una ventana de Chrome
+de pantalla completa) muestran el sitio por dentro. Por eso Apple la rechazó.
+
+**Mañana:** una app de verdad hecha con **Expo y React Native**, la misma base
+que usa Divoox, con **un solo código para iPhone y Android**. Mantiene los
+mismos identificadores (`com.mercatren.app`) y la misma llave de firma de
+Android, así que las fichas de las tiendas siguen siendo las mismas.
+
+### Qué se rehace (todo lo que ve la persona)
+
+Las pantallas, en este orden:
+
+1. **Bienvenida:** elegir país e idioma (el selector estilo Amazon). De ahí
+   sale la moneda.
+2. **Entrar y crear cuenta**, con el ojito en la contraseña y el borrador que
+   no se pierde.
+3. **Inicio:** las tiendas y los productos del país.
+4. **Búsqueda.**
+5. **Ficha del producto.**
+6. **Carrito.**
+7. **Pago** con la hoja de pago de Stripe para el teléfono (tarjeta, Apple Pay
+   y Google Pay). Lo físico no paga comisión a Apple ni a Google.
+8. **Mis pedidos** y su seguimiento.
+9. **Crear mi tienda.**
+10. **Subir un producto con la cámara** (fotos comprimidas en el teléfono).
+11. **Mis ventas:** los pedidos de mi tienda.
+12. **Avisos al teléfono:** venta nueva, pago recibido, pedido en camino.
+13. **Mi cuenta:** datos, idioma, legales y borrar la cuenta.
+
+Después, en otra meta: los videos cortos, los mensajes entre comprador y
+vendedor, y el casillero.
+
+### Qué se reutiliza del servidor (sin rehacer)
+
+La base de datos, las cuentas (Better Auth tiene complemento oficial para
+Expo), el cobro con Stripe del lado del servidor, los precios y las monedas,
+las subidas al cubo, los correos, las páginas legales y el panel del equipo,
+que sigue en la web. **El servidor de hoy es el mismo.**
+
+### Qué se agrega al servidor
+
+- **Una puerta de datos para la app**, en `/datos/app/v1` (nunca `/api`):
+  catálogo, ficha, carrito, pedido, tienda, productos y subida de fotos. La
+  web usa acciones del servidor que una app no puede llamar.
+- **Una tabla de avisos:** el número de cada teléfono para mandarle avisos.
+- **El envío de avisos:** la llave de avisos de Apple ya está guardada. Para
+  Android hace falta un proyecto de Firebase (gratis). Si no existe uno que
+  sirva, lo crea Richard: es la única pieza que depende de él.
+
+### Cuánto cuesta Expo
+
+- **Plan gratis:** según una guía de terceros, 15 compilaciones de Android y
+  15 de iPhone al mes. Alcanza para empezar.
+- **Starter:** 19 dólares al mes, con 45 dólares de crédito para compilar.
+- **Production:** 199 dólares al mes, con 225 de crédito.
+- Si Divoox ya paga un plan en la misma cuenta de Expo, Mercatren lo comparte.
+  Se confirma en la página de precios de Expo el día de contratar. La decisión
+  de pagar es de Richard.
+
+### Cómo se trabaja
+
+1. Primero la puerta de datos del servidor, con sus pruebas.
+2. Después las pantallas, en el orden de arriba, probadas en el simulador.
+3. TestFlight y la prueba interna de Google con usuarios reales, anotando lo
+   que digan: Apple lo pregunta.
+4. Solo cuando Gerencia lo diga, y después de que Apple apruebe Divoox, se
+   envía a las tiendas, con el auditor de tiendas antes.
+
 ## Fuentes (leídas el 5 nov 2026)
 
 - Temu y AliExpress: lectura directa de `temu.com` (cookies `region` y
@@ -180,5 +254,8 @@ Cada fase es una meta que encarga Gerencia, con su prueba de «terminado».
   https://www.retaildetail.eu/?p=33456 ·
   https://www.yicaiglobal.com/news/chinese-exporters-to-focus-on-localization-branding-ai-as-small-parcels-era-ends-insiders-say
 - Stripe, precio adaptativo: https://docs.stripe.com/payments/checkout/adaptive-pricing
+- Expo, precios: https://expo.dev/pricing · https://docs.expo.dev/billing/plans/ ·
+  https://toolradar.com/tools/expo/pricing (tercero, para el plan gratis)
+- Better Auth con Expo: https://better-auth.com/docs/integrations/expo
 - Mercatren: `HISTORIAL.md` (emergencia de la base del 17 sep),
   `AUDITORIA-GASTOS.md` (IA de Google) y `PLAN-B-PROVEEDORES.md`.

@@ -135,6 +135,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       (lo revisa el auditor de tiendas antes de enviar).
 - [ ] 🟡 👤 Decidir si se reabren los robots (Google): hoy cerrados, porque
       eran el mayor gasto de la base.
+- [x] ✅ 💻 Alarma de consumo (Fase 0 del plan): `npm run consumo` mide filas
+      leídas y escritas en 24 h y el tamaño de la base y del cubo, y sale en
+      verde, aviso o emergencia. Topes en `src/lib/consumo/umbrales.ts`.
+- [ ] 💻 Que la corra cada hora el gerente que ya hace la ronda (lo encarga
+      Gerencia) y avise en aviso o emergencia.
+- [x] ✅ 💻 Página «De la ventana a la app nativa» en
+      `docs/PLAN-UNA-SOLA-MERCATREN.md` (sección 10), mandada a Gerencia antes
+      de programar.
 
 ### 3 nov 2026 · Apple rechazó la app de iPhone (4.3 y 4.2.6) 🔴
 
