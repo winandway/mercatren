@@ -177,7 +177,13 @@ describe("el borrador no pierde lo escrito y no guarda lo sensible", () => {
   it("todo formulario de la app usa el borrador (menos la búsqueda)", () => {
     for (const archivo of archivosDe(`${APP}/app`)) {
       const fuente = leer(archivo);
-      if (archivo.endsWith("buscar.tsx")) continue;
+      /* La búsqueda no es un formulario, y la palabra para borrar la cuenta
+         no se guarda a propósito: es una confirmación, no un dato. */
+      if (
+        archivo.endsWith("buscar.tsx") ||
+        archivo.endsWith("borrar-cuenta.tsx")
+      )
+        continue;
       if (/<Campo\b|<CampoClave\b|<TextInput\b/.test(fuente)) {
         expect(fuente, archivo).toContain("useBorrador(");
       }

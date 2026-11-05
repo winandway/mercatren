@@ -101,8 +101,8 @@ describe("el formulario del producto", () => {
     expect(leer("app-movil/src/lib/productos.ts")).toContain(
       "export const LADO_DE_LA_FOTO = 1600;",
     );
-    expect(leer("app-movil/src/lib/fotos.ts")).toContain(
-      "compress: 0.8, format: SaveFormat.JPEG",
+    expect(leer("app-movil/src/lib/fotos.ts")).toMatch(
+      /compress:\s*0\.8,\s*format:\s*SaveFormat\.JPEG/,
     );
   });
 
@@ -185,8 +185,8 @@ describe("borrar la cuenta dentro de la app", () => {
 
   it("usa la MISMA acción de la web y sus mismos mensajes", () => {
     const ruta = leer("src/app/datos/app/mi/borrar-cuenta/route.ts");
-    expect(ruta).toContain(
-      'borrarMiCuenta({ palabra: cuerpo.data.palabra, origen: "app" })',
+    expect(ruta).toMatch(
+      /borrarMiCuenta\(\{\s*palabra:\s*cuerpo\.data\.palabra,\s*origen:\s*"app",?\s*\}\)/,
     );
     expect(ruta).toContain('namespace: "borrarCuenta"');
     expect(ruta).toContain("CORREO_CONTACTO");
