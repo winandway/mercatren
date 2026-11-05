@@ -29,10 +29,11 @@ import {
  * `fotosDe(ids)`. La elección (rota con la semilla) se hace en código.
  *
  * Cómo se mantiene, en tres capas:
- *  1. **Se llena sola**: si a un producto le falta la fila, se calcula
+ *  1. **Se escribe con el cambio** (desde el 5 nov 2026; antes se llenaba sola en
+ *     la visita): si a un producto le falta la fila, se calcula
  *     desde `imagenes_producto` en ese momento y se guarda. Un producto
  *     recién publicado sale con foto en su primera visita.
- *  2. **Se borra donde cambian las fotos** (`olvidarFotosDe`): subir, copiar
+ *  2. **Se borra donde cambian las fotos** (`rehacerFotosDe`): subir, copiar
  *     al bucket, sincronizar, marcar rota. La visita siguiente la rehace.
  *  3. **El reloj rehace las de más de un día** (`refrescarFotosViejas`), por
  *     si a algún sitio nuevo se le olvidó borrar. Es la red de seguridad, no
@@ -147,15 +148,13 @@ export async function fotosDe(
       resultado.set(f.productoId, leerFotosGuardadas(f.fotos));
   }
 
+  /* MIRAR NO ESCRIBE (regla «La nube no se come el dinero», 5 nov 2026): lo
+     que falta se calcula para esta visita y NO se guarda. La fila se escribe
+     cuando las fotos cambian (`rehacerFotosDe`), nunca porque alguien mira. */
   const faltan = unicos.filter((id) => !resultado.has(id));
   if (faltan.length > 0) {
     const nuevas = await calcularFotosDe(faltan);
     for (const [id, lista] of nuevas) resultado.set(id, lista);
-    /* Guardar no puede tumbar el listado: si falla, la visita siguiente
-       vuelve a calcular. */
-    await guardarFotos(nuevas).catch((fallo) => {
-      console.error("[fotos-de-producto] no se pudo guardar:", fallo);
-    });
   }
   return resultado;
 }
@@ -172,21 +171,20 @@ export async function fotoDeTurnoDe(
 }
 
 /**
- * Borra lo guardado de estos productos: se llama donde cambian las fotos.
- * Nunca lanza — un olvido fallido lo cubre el reloj al día siguiente.
+ * Rehace lo guardado de estos productos: se llama donde cambian las fotos.
+ * Desde el 5 nov 2026 la fila se ESCRIBE aquí, con el cambio, y no en la
+ * visita siguiente (mirar no escribe). Nunca lanza: si falla, las visitas
+ * calculan la foto al vuelo, sin escribir, hasta el próximo cambio.
  */
-export async function olvidarFotosDe(ids: readonly string[]): Promise<void> {
+export async function rehacerFotosDe(ids: readonly string[]): Promise<void> {
   const unicos = [...new Set(ids)].filter(Boolean);
   if (unicos.length === 0) return;
   try {
-    const db = getDb();
     for (const trozo of trozos(unicos, 100)) {
-      await db
-        .delete(fotosDeProducto)
-        .where(inArray(fotosDeProducto.productoId, trozo));
+      await guardarFotos(await calcularFotosDe(trozo));
     }
   } catch (fallo) {
-    console.error("[fotos-de-producto] no se pudo olvidar:", fallo);
+    console.error("[fotos-de-producto] no se pudo rehacer:", fallo);
   }
 }
 

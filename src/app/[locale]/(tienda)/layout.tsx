@@ -1,7 +1,6 @@
 import { Encabezado } from "@/components/layout/encabezado";
 import { PiePagina } from "@/components/layout/pie-pagina";
 import { WebMcp } from "@/components/agentes/webmcp";
-import { PulsoDeVisita } from "@/components/analitica/pulso-de-visita";
 import { RastroDeNavegacion } from "@/components/navegacion/rastro-de-navegacion";
 import { latirConElTrafico } from "@/lib/reloj/tick";
 
@@ -27,7 +26,8 @@ export default async function LayoutTienda({
           ficha lo necesita porque en las navegaciones de cliente el referrer
           no se actualiza. */}
       <RastroDeNavegacion />
-      <PulsoDeVisita />
+      {/* Sin pulso de visitas desde el 5 nov 2026: mirar no escribe en la base
+          (regla «La nube no se come el dinero»). */}
       <Encabezado />
       <main className="flex-1">{children}</main>
       <PiePagina />

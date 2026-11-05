@@ -46,21 +46,18 @@ describe("el filtro de robots", () => {
 });
 
 describe("los candados del pulso", () => {
-  it("EL PANEL NO SE CUENTA y el visitante es un hash del día, sin cookies", () => {
+  it("MIRAR NO ESCRIBE (5 nov 2026): la ruta del pulso no toca la base y nunca responde error", () => {
     const fuente = readFileSync("src/app/datos/visita/route.ts", "utf-8");
-    expect(fuente).toContain("/^\\/(es|en)\\/panel/");
-    expect(fuente).toContain("hashDelDia");
-    expect(fuente).toContain("cf-ipcountry");
-    /* Medir jamás estorba: la ruta nunca responde error al visitante. */
+    expect(fuente).not.toMatch(/getDb|\.insert\(|\.update\(/);
     expect(fuente).toContain("return Response.json({ ok: true });");
   });
 
-  it("el pulso vive en la tienda, y el tráfico queda cerrado con el disfraz", () => {
+  it("la tienda ya no monta el pulso, y el tráfico sigue cerrado con el disfraz", () => {
     const layout = readFileSync(
       "src/app/[locale]/(tienda)/layout.tsx",
       "utf-8",
     );
-    expect(layout).toContain("PulsoDeVisita");
+    expect(layout).not.toContain("<PulsoDeVisita");
     const soloEquipo = readFileSync("src/lib/panel/solo-equipo.ts", "utf-8");
     expect(soloEquipo).toContain('"trafico"');
   });

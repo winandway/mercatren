@@ -21,7 +21,7 @@ import {
  * la elección es la MISMA que hacía el SQL, que la lista se arma bien, y
  * que las piezas del mecanismo (llenado, olvido, refresco) están puestas.
  *
- * Comprobada en rojo el 18 sep 2026 quitando `olvidarFotosDe` de
+ * Comprobada en rojo el 18 sep 2026 quitando `rehacerFotosDe` de
  * `copiar-foto.ts`.
  */
 
@@ -141,16 +141,26 @@ describe("el mecanismo: se llena solo, se olvida donde cambian las fotos, y el r
     );
   });
 
-  it("lo que falta se calcula UNA vez y se guarda; nunca por visita", () => {
-    expect(modulo).toContain(
+  it("MIRAR NO ESCRIBE (5 nov 2026): lo que falta se calcula para la visita y se guarda solo cuando las fotos cambian", () => {
+    const fotosDe = modulo.slice(
+      modulo.indexOf("export async function fotosDe("),
+      modulo.indexOf("export async function fotoDeTurnoDe("),
+    );
+    expect(fotosDe).toContain(
       "const faltan = unicos.filter((id) => !resultado.has(id));",
     );
-    expect(modulo).toContain("await guardarFotos(nuevas)");
+    expect(fotosDe).not.toContain("guardarFotos(");
+    const rehacer = modulo.slice(
+      modulo.indexOf("export async function rehacerFotosDe("),
+    );
+    expect(rehacer).toContain(
+      "await guardarFotos(await calcularFotosDe(trozo))",
+    );
     /* Un producto sin fotos también se guarda, para no volver a preguntar. */
     expect(modulo).toContain("if (!agrupadas.has(id)) agrupadas.set(id, []);");
   });
 
-  it("todo sitio que toca las fotos olvida la lista guardada", () => {
+  it("todo sitio que toca las fotos rehace la lista guardada", () => {
     for (const archivo of [
       "src/app/datos/socios/productos/route.ts",
       "src/lib/catalogo/copiar-foto.ts",
@@ -158,11 +168,11 @@ describe("el mecanismo: se llena solo, se olvida donde cambian las fotos, y el r
       "src/lib/catalogo/sincronizar.ts",
       "src/lib/productos/acciones.ts",
     ]) {
-      expect(leer(archivo), archivo).toContain("olvidarFotosDe(");
+      expect(leer(archivo), archivo).toContain("rehacerFotosDe(");
     }
     /* Y el borrado de una foto desde el panel también. */
     expect(
-      leer("src/lib/productos/acciones.ts").match(/olvidarFotosDe\(/g)?.length,
+      leer("src/lib/productos/acciones.ts").match(/rehacerFotosDe\(/g)?.length,
     ).toBeGreaterThanOrEqual(3);
   });
 

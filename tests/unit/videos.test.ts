@@ -342,10 +342,15 @@ describe("el contador de vistas y el reproductor profesional (24 ago 2026)", () 
     expect(layout).toContain("<RastroDeNavegacion />");
   });
 
-  it("contar una vista comprueba que el video esté publicado", async () => {
+  it("MIRAR NO ESCRIBE (5 nov 2026): una vista va a los registros, no a la base", async () => {
     const { readFileSync } = await import("node:fs");
     const acciones = readFileSync("src/lib/videos/social-acciones.ts", "utf8");
-    expect(acciones).toContain('eq(videosTienda.estado, "publicado")');
+    const vista = acciones.slice(
+      acciones.indexOf("export async function registrarVistaDeVideo("),
+    );
+    const cuerpo = vista.slice(0, vista.indexOf("\n}\n") + 2);
+    expect(cuerpo).toContain("console.log(");
+    expect(cuerpo).not.toMatch(/getDb|\.update\(|\.insert\(/);
   });
 });
 

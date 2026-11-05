@@ -18,7 +18,7 @@ import {
   seDaPorRota,
 } from "@/lib/catalogo/fotos-reglas";
 import { getDb } from "@/lib/db";
-import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
+import { rehacerFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import { tomarDeCola } from "@/lib/reloj/cola-guardada";
 import {
   configuracion,
@@ -325,7 +325,7 @@ export async function traerFotosDesdeElReloj(
          guardada del producto se rehace en la visita siguiente. */
       if (definitiva) {
         rotas++;
-        await olvidarFotosDe([foto.productoId]);
+        await rehacerFotosDe([foto.productoId]);
       }
       const fila = {
         productoId: foto.productoId,

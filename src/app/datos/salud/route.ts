@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 
 import { VERSION_AGENTES } from "@/lib/agentes/recursos";
 import { ultimaMedida } from "@/lib/consumo/vigilar";
+import { PRESUPUESTO } from "@/lib/db/presupuesto";
 import { getDb } from "@/lib/db";
 import {
   avisoDeStripeArmado,
@@ -244,6 +245,9 @@ export async function GET(peticion: Request) {
         /* `ok: false` = la base o el cubo pasaron a aviso o emergencia, o el
            reloj no pudo medir (`motivo`). Ver `lib/consumo/umbrales.ts`. */
         consumo,
+        /* El presupuesto de escrituras de ESTA instancia en esta hora
+           (`lib/db/presupuesto.ts`): `agotado: true` = se están frenando. */
+        presupuesto: PRESUPUESTO.estado(),
         /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */

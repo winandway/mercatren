@@ -132,7 +132,7 @@ describe("candados en el código", () => {
     );
     const automaticas = leer("src/lib/catalogo/fotos-automaticas.ts");
     expect(automaticas).toMatch(
-      /if \(definitiva\) \{\s*rotas\+\+;\s*await olvidarFotosDe\(\[foto\.productoId\]\);/,
+      /if \(definitiva\) \{\s*rotas\+\+;\s*await rehacerFotosDe\(\[foto\.productoId\]\);/,
     );
     /* El desplegable ya no trae la foto con subconsultas propias (20 sep
        2026, por lentitud): la pide a `fotos_de_producto`, que es quien

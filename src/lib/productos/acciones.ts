@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
-import { olvidarFotosDe } from "@/lib/catalogo/fotos-de-producto";
+import { rehacerFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
 import { combinacionRepetida } from "@/lib/productos/heredar";
 import { mercadoPorCodigo } from "@/lib/mercado/mercados";
@@ -357,7 +357,7 @@ export async function guardarProducto(
       });
       if (!subida.ok) return subida;
 
-      await olvidarFotosDe([productoId]);
+      await rehacerFotosDe([productoId]);
       await db.insert(imagenesProducto).values({
         id: nanoid(),
         productoId,
@@ -395,7 +395,7 @@ export async function guardarProducto(
         );
     }
     /* El alt también vive en la lista guardada de las tarjetas. */
-    await olvidarFotosDe([productoId]);
+    await rehacerFotosDe([productoId]);
   }
 
   revalidatePath("/[locale]/panel", "layout");
@@ -444,7 +444,7 @@ export async function borrarFoto(
   }
 
   await db.delete(imagenesProducto).where(eq(imagenesProducto.id, imagenId));
-  await olvidarFotosDe([fila.productoId]);
+  await rehacerFotosDe([fila.productoId]);
 
   // Solo se borra del almacenamiento lo que subimos nosotros. Las fotos que
   // viven en el servidor del comercio de origen no son nuestras.

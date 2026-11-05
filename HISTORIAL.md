@@ -15,6 +15,37 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA NUBE NO SE COME EL DINERO: MIRAR NO ESCRIBE Y TODA ESCRITURA TIENE TOPE (5 nov 2026)
+
+**La regla (Richard, global):** con pocos clientes, la factura tiene que ser
+casi la fija; la causa siempre es código nuestro que escribe de más.
+
+**Lo que escribía al mirar, y cómo quedó:**
+
+| Qué                  | Antes                                 | Ahora                                                                   |
+| -------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
+| Pulso de visitas     | 2 escrituras por página vista         | La tienda no lo monta; la ruta solo deja un registro                    |
+| Vistas de video      | +1 en la base por vista               | Un registro del servidor                                                |
+| Foto de las tarjetas | Se guardaba en la visita si faltaba   | Se calcula para la visita; se escribe cuando cambian (`rehacerFotosDe`) |
+| Conteos del catálogo | Se guardaban en la visita si faltaban | Se calculan para la visita, sin guardar                                 |
+
+**El presupuesto en código** (`src/lib/db/presupuesto.ts`): `getDb()` envuelve
+la base; cada respuesta de Cloudflare trae las filas leídas y escritas y se
+suman por instancia y por hora. Una sentencia de más de 5.000 filas escritas
+queda en el registro de errores; pasadas 50.000 en la hora, las escrituras se
+FRENAN antes de llegar a la base (leer sigue). El canario `/datos/salud` enseña
+`presupuesto`. Probado con la base local: páginas, la app y un caso de ayuda
+(escritura en grupo) pasan por la pieza y quedan contados.
+
+**Lo que no ve:** las lecturas que Drizzle hace por `raw()`. El total real lo
+mide la alarma de cada hora contra Cloudflare.
+
+**Candados:** `tests/unit/presupuesto-base.test.ts` (en rojo: sin freno y con
+la base sin envolver) y las pruebas de tráfico, videos, fotos y conteos,
+reescritas para exigir que mirar no escriba.
+
+---
+
 ## LA ALARMA DE CONSUMO VIVE EN EL SERVIDOR (5 nov 2026)
 
 **Meta de Gerencia (Fase 0 del plan):** que nunca más llegue una factura alta

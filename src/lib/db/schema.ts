@@ -3585,7 +3585,7 @@ export const avisosVigilante = sqliteTable("avisos_vigilante", {
  *
  * Se llena sola la primera vez que alguien pide un producto (`fotosDe`), se
  * borra en cada sitio que toca `imagenes_producto` o `fotos_rotas`
- * (`olvidarFotosDe`) y el reloj rehace las de más de un día por si a algún
+ * (`rehacerFotosDe`) y el reloj rehace las de más de un día por si a algún
  * sitio se le olvidó. Tabla y no columna: `schema.sql` solo crea tablas.
  */
 export const fotosDeProducto = sqliteTable(

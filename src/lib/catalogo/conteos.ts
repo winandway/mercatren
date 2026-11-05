@@ -265,7 +265,8 @@ export async function conteosDe(mercado: Mercado): Promise<ConteosDelMercado> {
   return recordadoEnElBorde(
     `conteos-catalogo-${mercado.codigo}`,
     RECORDAR_MS,
-    async () => (await conteosGuardados(mercado)) ?? recalcularConteos(mercado),
+    /* Sin fila, se calcula y NO se guarda: mirar no escribe (5 nov 2026). */
+    async () => (await conteosGuardados(mercado)) ?? calcularConteos(mercado),
   );
 }
 

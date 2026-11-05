@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 
@@ -189,15 +189,8 @@ export async function ocultarComentario(
  * consola no infla nada. Sin sesión también cuenta — las vistas son de todos.
  */
 export async function registrarVistaDeVideo(videoId: string): Promise<void> {
-  try {
-    const db = getDb();
-    await db
-      .update(videosTienda)
-      .set({ vistas: sql`${videosTienda.vistas} + 1` })
-      .where(
-        and(eq(videosTienda.id, videoId), eq(videosTienda.estado, "publicado")),
-      );
-  } catch {
-    /* Contar jamás puede romper nada. */
-  }
+  /* MIRAR NO ESCRIBE (5 nov 2026, regla «La nube no se come el dinero»): la
+     vista queda en los registros del servidor, no en la base. El número de
+     vistas que se enseña es el guardado hasta ese día. */
+  console.log(JSON.stringify({ vistaDeVideo: videoId, hora: Date.now() }));
 }

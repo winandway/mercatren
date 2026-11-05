@@ -125,9 +125,10 @@ describe("la foto: quién la rehace y quién avisa si no", () => {
     );
     expect(conteos).toContain("recordadoEnElBorde(");
     expect(conteos).toContain("`conteos-catalogo-${mercado.codigo}`");
-    /* Sin fila, se calcula UNA vez y se guarda: nunca por visita. */
+    /* Sin fila, se calcula para la visita y NO se guarda: mirar no escribe
+       (regla «La nube no se come el dinero», 5 nov 2026). */
     expect(conteos).toContain(
-      "(await conteosGuardados(mercado)) ?? recalcularConteos(mercado)",
+      "(await conteosGuardados(mercado)) ?? calcularConteos(mercado)",
     );
     /* Los agregados baratos: un GROUP BY plano por categoría y tienda. */
     expect(conteos).toContain(
