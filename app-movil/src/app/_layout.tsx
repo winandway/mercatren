@@ -35,6 +35,17 @@ function Navegacion() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="producto/[slug]" options={{ title: "" }} />
         <Stack.Screen
+          name="entrar"
+          options={{ presentation: "modal", title: texto(idioma, "entrar") }}
+        />
+        <Stack.Screen
+          name="crear-cuenta"
+          options={{
+            presentation: "modal",
+            title: texto(idioma, "crearCuenta"),
+          }}
+        />
+        <Stack.Screen
           name="cambiar-pais"
           options={{
             headerShown: false,

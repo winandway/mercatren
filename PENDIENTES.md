@@ -133,8 +133,16 @@ apruebe Divoox.
       `tests/unit/app-movil-pantallas.test.ts`. Ver `app-movil/LEEME.md`.
 - [ ] 💻 Antes de subir a las tiendas: la guía pública de la app en Docs, en
       los dos idiomas, con las capturas de `docs/capturas/app-nativa/`.
-- [ ] 💻 Parte 3 · Las cuentas en la app (complemento de Better Auth para
-      Expo), el carrito y el pago con la hoja de Stripe.
+- [x] ✅ 💻 Parte 3a · Las cuentas en la app: crear cuenta (con el país y el
+      idioma de la app), entrar, cerrar sesión, escudo anti-robots en vista
+      web, borrador que no guarda la contraseña. Probado en el simulador (ver
+      HISTORIAL, «LAS CUENTAS DENTRO DE LA APP NATIVA»).
+- [ ] 💻 Portada del inicio con «Crea tu tienda» cuando el país no tiene
+      productos (pedido de Gerencia: una app vacía no pasa ninguna tienda).
+- [ ] 💻 Borrar la cuenta desde la app (Apple lo exige dentro de la app),
+      antes de cualquier envío a las tiendas.
+- [ ] 💻 Parte 3b · El carrito y el pago con la hoja de Stripe (sin cobros
+      reales sin el sí de Richard).
 - [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
 - [ ] 💻 Parte 5 · Los avisos al teléfono (Firebase para Android, lo ve
       Gerencia) y mi cuenta.

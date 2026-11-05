@@ -15,6 +15,42 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LAS CUENTAS DENTRO DE LA APP NATIVA (5 nov 2026)
+
+**Qué es.** La app de Expo (`app-movil/`) entra y crea cuenta con las MISMAS
+cuentas de la web (Better Auth), con el complemento `@better-auth/expo`. La
+cuenta nace con el país de la bienvenida (`paisEntrega`, de ahí la moneda) y
+el idioma de la app. La sesión vive cifrada en el llavero del teléfono.
+
+**Tres fallos encontrados al probarlo en el simulador, y su candado:**
+
+1. **La cuenta se creaba pero la app no veía la sesión.** El sitio nombra sus
+   galletas `mercatren.session_token` (`advanced.cookiePrefix`), y el cliente
+   de Expo buscaba `better-auth.session_token`: tiraba la galleta. Arreglo:
+   `cookiePrefix: PREFIJO_DE_GALLETAS` en `app-movil/src/lib/auth-client.ts`.
+   Candado: `tests/unit/app-movil-cuentas.test.ts` compara los dos prefijos.
+2. **Cerrar sesión daba 403** («Missing or null Origin»). La app no manda
+   `Origin`; manda `expo-origin`, y lo traduce el complemento `expo()` del
+   servidor, con `mercatren://` entre los orígenes de confianza
+   (`src/lib/app-movil/origenes.ts`; Expo Go `exp://` SOLO fuera de
+   producción). Ojo: el servidor local de desarrollo NO tomó el cambio de
+   `src/lib/auth.ts` hasta reiniciarlo. Candado: la misma prueba exige
+   `expo()` y que en producción solo valga `mercatren://`.
+3. **El escudo anti-robots no tiene versión nativa.** Se carga la página
+   `/datos/app/escudo` (Turnstile) en una vista web, como indica Cloudflare;
+   el pase vuelve a la app por `postMessage` y viaja en `x-escudo`, igual que
+   en la web. El aviso hay que mandarlo tras `load` (antes se pierde en
+   iPhone), y la vista solo navega por el sitio y Cloudflare. Probado con las
+   claves de prueba públicas de Cloudflare: sin pase 403, con pase 200.
+
+**Además:** el alta rechaza un país fuera de la lista cerrada
+(`src/lib/cuenta/pais-del-alta.ts`, `PAIS_NO_VALIDO`); entrar nunca dice si
+el correo tiene cuenta; el borrador de los formularios (`useBorrador`) nunca
+guarda la contraseña; toda contraseña pasa por `CampoClave` con su ojito.
+
+**Cómo se comprueba:** `npx vitest run tests/unit/app-movil-cuentas.test.ts`
+y, en el simulador contra el servidor local, crear cuenta, salir y entrar.
+
 ## LA NUBE NO SE COME EL DINERO: MIRAR NO ESCRIBE Y TODA ESCRITURA TIENE TOPE (5 nov 2026)
 
 **La regla (Richard, global):** con pocos clientes, la factura tiene que ser

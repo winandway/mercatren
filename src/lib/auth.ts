@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -9,6 +10,7 @@ import { cache } from "react";
 import { eq } from "drizzle-orm";
 
 import { getDb, schema } from "@/lib/db";
+import { origenesDeLaApp } from "@/lib/app-movil/origenes";
 import { MERCADOS } from "@/lib/mercado/mercados";
 import { RUTA_AUTH } from "@/lib/rutas";
 import { leerUnaVezYRecordar } from "@/lib/sesion/clave-recordada";
@@ -85,6 +87,8 @@ async function leerOCrearClaveEnLaBase(): Promise<string> {
   return definitivo?.valor ?? nuevo;
 }
 
+const ORIGENES_DE_LA_APP = origenesDeLaApp();
+
 export const getAuth = cache(async () => {
   const { env } = getCloudflareContext();
 
@@ -105,10 +109,13 @@ export const getAuth = cache(async () => {
      * sesión sigue siendo por dominio —una cookie no cruza de .com a .cl—,
      * pero la MISMA cuenta entra en los dos.
      */
-    trustedOrigins: MERCADOS.flatMap((m) => [
-      `https://${m.dominio}`,
-      `https://www.${m.dominio}`,
-    ]),
+    trustedOrigins: [
+      ...MERCADOS.flatMap((m) => [
+        `https://${m.dominio}`,
+        `https://www.${m.dominio}`,
+      ]),
+      ...ORIGENES_DE_LA_APP,
+    ],
 
     emailAndPassword: {
       enabled: true,
@@ -202,8 +209,11 @@ export const getAuth = cache(async () => {
       cookiePrefix: "mercatren",
     },
 
-    // nextCookies siempre va de ultimo en la lista.
-    plugins: [nextCookies()],
+    /* `expo()`: la app nativa no manda «Origin»; manda «expo-origin» con su
+       esquema (mercatren://) y este complemento lo traduce para que la
+       comprobación de origen la deje pasar (ver ORIGENES_DE_LA_APP).
+       nextCookies siempre va de ultimo en la lista. */
+    plugins: [expo(), nextCookies()],
   });
 });
 

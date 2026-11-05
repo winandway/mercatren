@@ -1,4 +1,5 @@
 import { getAuth } from "@/lib/auth";
+import { paisDelAltaValido } from "@/lib/cuenta/pais-del-alta";
 import { comprobarEscudo } from "@/lib/escudo";
 import {
   anotarFallo,
@@ -53,6 +54,16 @@ async function correoDelCuerpo(request: Request): Promise<string | null> {
     return typeof cuerpo.email === "string" ? cuerpo.email : null;
   } catch {
     return null;
+  }
+}
+
+/** El país del alta, tal como venga (ver `lib/cuenta/pais-del-alta.ts`). */
+async function paisDelCuerpo(request: Request): Promise<unknown> {
+  try {
+    const cuerpo = (await request.clone().json()) as { paisEntrega?: unknown };
+    return cuerpo.paisEntrega;
+  } catch {
+    return undefined;
   }
 }
 
@@ -125,6 +136,13 @@ export async function POST(request: Request) {
    * enteró nunca.
    */
   if (pathname.endsWith("/sign-up/email")) {
+    /* El país de la app: solo uno de la lista cerrada de mercados. */
+    if (!paisDelAltaValido(await paisDelCuerpo(request))) {
+      return Response.json(
+        { message: "País no válido.", code: "PAIS_NO_VALIDO" },
+        { status: 400 },
+      );
+    }
     const correoAlta = await correoDelCuerpo(request);
     if (correoAlta) {
       const { correoAceptable, anotarRechazo } =

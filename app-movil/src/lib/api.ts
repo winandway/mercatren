@@ -12,6 +12,17 @@ export const API_BASE = (
   process.env.EXPO_PUBLIC_API_URL ?? "https://mercatren.com"
 ).replace(/\/$/, "");
 
+/** Donde viven las cuentas en el sitio (nunca /api: ver `src/lib/rutas.ts`). */
+export const RUTA_AUTH = "/datos/auth";
+
+/** El prefijo de las galletas de sesión del sitio (`advanced.cookiePrefix`). */
+export const PREFIJO_DE_GALLETAS = "mercatren";
+
+/** La página del escudo anti-robots que la app carga en una vista web. */
+export function urlEscudo(idioma: Idioma): string {
+  return `${API_BASE}/datos/app/escudo?idioma=${idioma}`;
+}
+
 export type Precio = { centavos: number; moneda: string };
 
 export type Pais = {

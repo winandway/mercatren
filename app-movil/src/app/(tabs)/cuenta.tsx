@@ -4,16 +4,17 @@ import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { BotonPrincipal, Enlace } from "@/components/formulario";
 import { SelectorIdioma } from "@/components/selector-idioma";
 import { usePreferencias } from "@/contexto/preferencias";
 import { API_BASE, pedirJson, urlPaises, type Pais } from "@/lib/api";
+import { authClient, salir } from "@/lib/auth-client";
 import { bandera, COLORES } from "@/lib/colores";
 import { texto, type ClaveDeTexto } from "@/lib/textos";
 
 /**
- * La cuenta. Por ahora: el país y el idioma, y las páginas de ayuda y legales
- * (que las tiendas de apps exigen a mano). Entrar y crear cuenta llegan con la
- * parte 3 del plan; aquí no se pone un botón que todavía no lleve a nada.
+ * La cuenta: entrar o crear cuenta (o, con sesión, el nombre y «Cerrar
+ * sesión»), el país, el idioma y las páginas de ayuda y legales.
  */
 const PAGINAS: Array<{ clave: ClaveDeTexto; ruta: string }> = [
   { clave: "ayuda", ruta: "ayuda" },
@@ -24,6 +25,8 @@ const PAGINAS: Array<{ clave: ClaveDeTexto; ruta: string }> = [
 export default function Cuenta() {
   const { pais, idioma } = usePreferencias();
   const [nombre, setNombre] = useState<string | null>(null);
+  const { data: sesion } = authClient.useSession();
+  const [saliendo, setSaliendo] = useState(false);
 
   useEffect(() => {
     let vivo = true;
@@ -45,6 +48,34 @@ export default function Cuenta() {
         <Text style={estilos.titulo}>{texto(idioma, "cuenta")}</Text>
       </SafeAreaView>
       <ScrollView contentContainerStyle={estilos.cuerpo}>
+        {sesion?.user ? (
+          <View style={[estilos.grupo, estilos.persona]}>
+            <Text style={estilos.hola}>
+              {texto(idioma, "hola")}, {sesion.user.name}
+            </Text>
+            <Text style={estilos.correo}>{sesion.user.email}</Text>
+            <Enlace
+              texto={texto(idioma, "salir")}
+              onPress={async () => {
+                if (saliendo) return;
+                setSaliendo(true);
+                await salir();
+                setSaliendo(false);
+              }}
+            />
+          </View>
+        ) : (
+          <View style={[estilos.grupo, estilos.persona]}>
+            <BotonPrincipal
+              texto={texto(idioma, "entrar")}
+              onPress={() => router.push("/entrar")}
+            />
+            <Enlace
+              texto={texto(idioma, "crearCuenta")}
+              onPress={() => router.push("/crear-cuenta")}
+            />
+          </View>
+        )}
         <View style={estilos.grupo}>
           <Pressable
             accessibilityRole="button"
@@ -114,4 +145,7 @@ const estilos = StyleSheet.create({
   valor: { flex: 1, textAlign: "right", fontSize: 15, color: COLORES.gris },
   flecha: { fontSize: 22, color: COLORES.gris },
   pie: { textAlign: "center", color: COLORES.gris, fontSize: 12, marginTop: 8 },
+  persona: { padding: 16, paddingTop: 4 },
+  hola: { fontSize: 20, fontWeight: "700", color: COLORES.azul, marginTop: 12 },
+  correo: { fontSize: 14, color: COLORES.gris, marginTop: 4 },
 });
