@@ -125,8 +125,14 @@ apruebe Divoox.
       `/datos/app/v1/paises`, `/catalogo` y `/producto/<slug>`, con país e
       idioma validados, caché en el borde y nada interno hacia afuera
       (`src/lib/app-movil/datos.ts`).
-- [ ] 💻 Parte 2 · El proyecto Expo (organización windoce-llc), con la
-      bienvenida (país e idioma), el inicio, la búsqueda y la ficha.
+- [x] ✅ 💻 Parte 2 · El proyecto Expo (`app-movil/`, organización
+      windoce-llc, `com.mercatren.app`): bienvenida con país e idioma
+      (selector estilo Amazon), inicio que carga al bajar, búsqueda, ficha y
+      cuenta. Probado en el simulador de iPhone contra el servidor local; un
+      país apagado devuelve a la bienvenida. Pruebas en
+      `tests/unit/app-movil-pantallas.test.ts`. Ver `app-movil/LEEME.md`.
+- [ ] 💻 Antes de subir a las tiendas: la guía pública de la app en Docs, en
+      los dos idiomas, con las capturas de `docs/capturas/app-nativa/`.
 - [ ] 💻 Parte 3 · Las cuentas en la app (complemento de Better Auth para
       Expo), el carrito y el pago con la hoja de Stripe.
 - [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
