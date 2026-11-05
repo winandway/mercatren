@@ -119,8 +119,8 @@ describe("el formulario de la app", () => {
   });
 
   it("el borrador de la tienda es de su dueño (la llave lleva la cuenta)", () => {
-    expect(leer("app-movil/src/app/crear-tienda.tsx")).toContain(
-      'useBorrador("crear-tienda", sesion?.user?.id, d,',
+    expect(leer("app-movil/src/app/crear-tienda.tsx")).toMatch(
+      /useBorrador\(\s*"crear-tienda",\s*sesion\?\.user\?\.id,\s*d,/,
     );
   });
 });
