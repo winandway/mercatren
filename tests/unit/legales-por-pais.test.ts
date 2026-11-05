@@ -41,7 +41,10 @@ const COMPLETOS: DatosLegalesEspana = {
   devolucionPaga: "comprador",
   diasParaResponder: 10,
 };
-const DATOS = { ES: COMPLETOS, VE: { revisadoPorAbogado: true } };
+const DATOS = {
+  ES: COMPLETOS,
+  VE: { revisadoPorAbogado: true, publicadoSinRevision: false },
+};
 
 const texto = (s: unknown) => JSON.stringify(s);
 
@@ -56,15 +59,28 @@ describe("ningún país se enciende sin sus textos legales", () => {
     if (enLaApp("VE")) expect(legalesListos("VE")).toBe(true);
   });
 
-  it("hoy no están listos, y por eso las páginas no cambian", () => {
+  it("España hoy no está lista, y por eso sus páginas no cambian", () => {
     expect(legalesListos("ES")).toBe(false);
-    expect(legalesListos("VE")).toBe(false);
     expect(legalesListos("US")).toBe(true);
     expect(seccionesLegalesDelPais("terminos", "ES", "es")).toEqual([]);
-    expect(seccionesLegalesDelPais("privacidad", "VE", "en")).toEqual([]);
     expect(conLegalesDelPais(TERMINOS_ES, "terminos", "ES", "es")).toBe(
       TERMINOS_ES,
     );
+  });
+
+  it("Venezuela se publica ya (orden de Gerencia), pendiente del abogado", () => {
+    /* Con la venta abierta, unos términos de EE. UU. en mercatren.com.ve
+       eran peores que unos venezolanos sin revisar. */
+    expect(LEGALES_VE.publicadoSinRevision).toBe(true);
+    expect(seccionesLegalesDelPais("terminos", "VE", "es")).toHaveLength(1);
+    expect(seccionesLegalesDelPais("privacidad", "VE", "en")).toHaveLength(1);
+    const pagina = conLegalesDelPais(TERMINOS_ES, "terminos", "VE", "es");
+    expect(pagina.secciones.at(-1)!.id).toBe("venezuela");
+    expect(pagina.secciones.at(-1)!.numero).toBe(
+      String(TERMINOS_ES.secciones.length + 1),
+    );
+    /* Pero eso NO cuenta como revisado: la app sigue sin poder encenderse. */
+    expect(legalesListos("VE")).toBe(false);
   });
 
   it("un solo dato que falte, o la revisión del abogado, y no se publica", () => {
@@ -90,7 +106,6 @@ describe("ningún país se enciende sin sus textos legales", () => {
       false,
     );
     expect(LEGALES_ES.revisadoPorAbogado).toBe(false);
-    expect(LEGALES_VE.revisadoPorAbogado).toBe(false);
   });
 });
 

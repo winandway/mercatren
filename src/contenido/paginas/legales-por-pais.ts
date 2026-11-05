@@ -43,6 +43,16 @@ export type DatosLegalesEspana = {
 
 export type DatosLegalesVenezuela = {
   revisadoPorAbogado: boolean;
+  /**
+   * Publicada SIN la revisión del abogado, por orden de Gerencia (5 nov
+   * 2026): con la venta de Venezuela abierta en la web, unos términos de
+   * Estados Unidos en mercatren.com.ve («vendemos y entregamos únicamente
+   * dentro de Estados Unidos») eran peores que unos venezolanos sin revisar.
+   * PENDIENTE DE REVISIÓN DEL ABOGADO (anotado en
+   * `docs/LO-QUE-FALTA-PARA-ESPANA-Y-VENEZUELA.md`). La app no se enciende
+   * en Venezuela hasta que `revisadoPorAbogado` sea true.
+   */
+  publicadoSinRevision: boolean;
 };
 
 /** Hoy: nada decidido. Se llenan con lo que diga Richard y revise el abogado. */
@@ -59,6 +69,7 @@ export const LEGALES_ES: DatosLegalesEspana = {
 
 export const LEGALES_VE: DatosLegalesVenezuela = {
   revisadoPorAbogado: false,
+  publicadoSinRevision: true,
 };
 
 export function legalesDeEspanaListos(d: DatosLegalesEspana): boolean {
@@ -76,8 +87,14 @@ export function legalesDeEspanaListos(d: DatosLegalesEspana): boolean {
   );
 }
 
+/** Listos de verdad (revisados): lo que hace falta para encender la app. */
 export function legalesDeVenezuelaListos(d: DatosLegalesVenezuela): boolean {
   return d.revisadoPorAbogado;
+}
+
+/** Lo que se enseña en la web: revisados, o publicados por orden de Gerencia. */
+export function seVenLosLegalesDeVenezuela(d: DatosLegalesVenezuela): boolean {
+  return d.revisadoPorAbogado || d.publicadoSinRevision;
 }
 
 /** ¿Este país ya puede enseñar sus textos legales propios? */
@@ -331,8 +348,8 @@ export function terminosDeVenezuela(idioma: Idioma): Seccion[] {
             : "For purchases on mercatren.com.ve",
           parrafos: [
             es
-              ? "Lo que dice esta sección se aplica a las compras en mercatren.com.ve y prevalece sobre cualquier otra parte de estos términos que diga algo distinto, incluidas las que hablan de Estados Unidos."
-              : "This section applies to purchases on mercatren.com.ve and prevails over any other part of these terms that says otherwise, including the parts about the United States.",
+              ? "Vigente desde el 5 de noviembre de 2026. Lo que dice esta sección se aplica a las compras en mercatren.com.ve y prevalece sobre cualquier otra parte de estos términos que diga algo distinto, incluidas las que hablan de Estados Unidos."
+              : "Effective November 5, 2026. This section applies to purchases on mercatren.com.ve and prevails over any other part of these terms that says otherwise, including the parts about the United States.",
           ],
         },
         {
@@ -427,8 +444,9 @@ export function privacidadDeVenezuela(idioma: Idioma): Seccion[] {
 }
 
 /**
- * Las secciones legales propias del país, SOLO si están listas. Hoy devuelve
- * siempre la lista vacía: falta lo de Richard y el abogado.
+ * Las secciones legales propias del país, SOLO si se pueden enseñar: las de
+ * España cuando estén los datos de Richard y la revisión del abogado; las de
+ * Venezuela ya, publicadas por orden de Gerencia y pendientes del abogado.
  */
 export function seccionesLegalesDelPais(
   pagina: "terminos" | "privacidad",
@@ -445,7 +463,7 @@ export function seccionesLegalesDelPais(
       ? terminosDeEspana(datos.ES, idioma)
       : privacidadDeEspana(datos.ES, idioma);
   }
-  if (codigo === "VE" && legalesDeVenezuelaListos(datos.VE)) {
+  if (codigo === "VE" && seVenLosLegalesDeVenezuela(datos.VE)) {
     return pagina === "terminos"
       ? terminosDeVenezuela(idioma)
       : privacidadDeVenezuela(idioma);

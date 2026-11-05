@@ -217,9 +217,10 @@ apruebe Divoox.
       con bienes en Venezuela la obliga a inscribirse en el RIF? ¿Está fijada
       la alícuota adicional del IVA por pagos en divisas? La venta de la web
       ya está abierta: riesgo vivo.
-- [ ] 🔴 👤 Al abogado: revisar las secciones legales de Venezuela y España
-      (`src/contenido/paginas/legales-por-pais.ts`). Hoy mercatren.com.ve
-      enseña los términos de EE. UU.
+- [ ] 🔴 👤 Al abogado: revisar las secciones legales de Venezuela (ya
+      publicadas el 5 nov sin revisar, por orden de Gerencia) y de España
+      (escritas, sin publicar). Todo junto, en simple, en
+      `docs/LO-QUE-FALTA-PARA-ESPANA-Y-VENEZUELA.md`.
 - [ ] 💻 España, antes de encender: la sección de devoluciones de España, el
       texto del botón de pagar («Pedido con obligación de pago» o igual de
       claro), datos del fabricante en la ficha, factura completa del comercio

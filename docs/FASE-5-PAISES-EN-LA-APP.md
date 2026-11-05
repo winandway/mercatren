@@ -83,18 +83,19 @@ producto de Venezuela pedido «como si fuera de Estados Unidos» se rechaza.
   del consumidor, representante en la UE, derechos y la AEPD para España;
   quién vende, retiro en el comercio, pago, garantía, ley venezolana y datos
   tratados en EE. UU. para Venezuela.
-- **No se publican a medias.** Salen solas cuando estén los datos de Richard
+- **España no se publica a medias.** Sale sola cuando estén los datos de Richard
   (`LEGALES_ES`: NIF español, representante fiscal, representante en la UE,
   domicilio y teléfono que se publican, quién paga la devolución, días para
   responder) y `revisadoPorAbogado: true` en cada país. Hoy las páginas no
   cambian. El candado (`tests/unit/legales-por-pais.test.ts`) no deja
   encender España o Venezuela en la app, ni abrir el cobro de España, sin
   sus textos listos.
-- **Hallazgo para el abogado:** mercatren.com.ve enseña hoy los términos de
-  Estados Unidos («vendemos y entregamos únicamente dentro de Estados
-  Unidos», ley de EE. UU.). La sección de Venezuela lo corrige en cuanto el
-  abogado la revise. La venta de Venezuela ya está abierta en la web: es un
-  riesgo vivo.
+- **Venezuela, publicada sin revisar por orden de Gerencia (5 nov 2026):**
+  mercatren.com.ve enseñaba los términos de Estados Unidos («vendemos y
+  entregamos únicamente dentro de Estados Unidos»), con la venta abierta. La
+  sección de Venezuela ya sale en términos y privacidad, con
+  `publicadoSinRevision: true`. **Pendiente de revisión del abogado**; la app
+  no se enciende en Venezuela hasta `revisadoPorAbogado: true`.
 
 ### La guía de cada país en Docs, escondida
 
