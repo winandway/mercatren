@@ -261,6 +261,8 @@ export type ProductoLista = {
   tiendaPais: string | null;
   imagenUrl: string | null;
   imagenAlt: string | null;
+  /** Solo en los promocionados (Fase 4): para contar el clic. */
+  patrocinado?: { promocionId: string; firma: string };
 };
 
 /**
@@ -1570,6 +1572,17 @@ export async function recalcularTodosLosListados(): Promise<{
     }
   }
   return { hizo, fallos };
+}
+
+/**
+ * Las tarjetas de unos productos sueltos, con el muro del país: las usan los
+ * promocionados (`lib/ganar/promociones.ts`). Como mucho 24 por llamada.
+ */
+export async function tarjetasDeProductos(
+  mercado: Mercado,
+  ids: string[],
+): Promise<ProductoLista[]> {
+  return productosPorIds(mercado, ids.slice(0, 24), semillaDelDia());
 }
 
 /**

@@ -14,6 +14,128 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "pro-plan-and-sponsored-products",
+    tipo: "documentacion",
+    titulo: "The Pro plan and sponsored products: sell more on Mercatren",
+    resumen:
+      "The Pro plan lets you publish up to 5,000 products, gives you your stats, and features your store — with the first month free. And with sponsored products, your product shows up first and you only pay when someone taps it.",
+    fecha: "2026-11-05",
+    temas: ["comercios", "pro plan", "sponsored", "app"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In short",
+        texto:
+          "Two ways to sell more: the Pro plan, to grow your store, and sponsored products, to put a product first when people search.",
+      },
+      {
+        tipo: "aviso",
+        tono: "bien",
+        titulo: "For now, nothing is charged",
+        texto:
+          "The Pro plan's free month doesn't ask for a card, and what you spend on sponsored products is recorded without being charged. We'll let you know before we start charging, and nothing is charged unless you accept it.",
+      },
+      { tipo: "subtitulo", texto: "The Pro plan" },
+      {
+        tipo: "parrafo",
+        texto:
+          "It's $9.99 a month, and the first month is free. Here's what it includes:",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Publish up to 5,000 products at a time. Without a plan, the maximum is 100.",
+          "Your stats for the last 30 days: sales, what's yours, orders, units, and best sellers.",
+          "Your store appears first in the store directory, with the “Pro” badge.",
+        ],
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Open the Pro plan",
+            texto:
+              "In the app, go to “My store” and tap “Pro plan.” On a computer, it's in your dashboard, under “My business.”",
+          },
+          {
+            titulo: "Start your free month",
+            texto:
+              "Tap “Start my free month.” It's one per store and doesn't ask for a card.",
+          },
+          {
+            titulo: "Check your stats",
+            texto:
+              "With Pro, the same screen shows your last 30 days and your best sellers.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/pro-plan-en.png",
+        alt: "The Pro plan screen in the app: $9.99 per month, first month free, its three benefits, “Free month until December 5,” and the stats for the last 30 days",
+        pie: "With Pro, your sales for the last 30 days and your best sellers, on the same screen.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "If you already had more than 100 published products, you don't lose any: you just can't publish another until you pause one or upgrade to Pro.",
+          "You can cancel anytime: you keep Pro until the end of the month, and before then you can choose to keep it.",
+          "When the free month ends, your store goes back to the free plan on its own.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Sponsored products" },
+      {
+        tipo: "parrafo",
+        texto:
+          "A sponsored product appears first on the home screen and in search, marked “Sponsored.” You only pay when someone taps it — never for showing it.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Each tap costs $0.15.",
+          "You choose your daily budget, from $1 to $50. You never spend more than that: once it's used up, your product stops appearing as sponsored until the next day.",
+          "Each person counts once per day, and bots don't count.",
+          "At most 2 of every 12 products in a list are sponsored, so the catalog stays open to everyone.",
+        ],
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Open the product",
+            texto:
+              "In the app, go to “My store” and tap the product. On a computer, go to “Promote” in your dashboard and pick it from the list.",
+          },
+          {
+            titulo: "Set your daily budget",
+            texto:
+              "The app tells you right away how many people it can reach: with $5, up to 34 a day.",
+          },
+          {
+            titulo: "Promote it",
+            texto:
+              "Tap “Promote.” Right there you'll see today's and the last 30 days' taps and spend, and you can pause or resume it anytime.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/promote-en.png",
+        alt: "The “Promote” screen in the app: a $5 daily budget, “Up to 34 people a day,” and today's and the last 30 days' taps and spend",
+        pie: "You set the daily cap — you never spend more than that.",
+      },
+    ],
+    enlaces: [
+      {
+        texto: "Sell from your phone with the Mercatren app",
+        href: "/docs/sell-with-the-mercatren-app",
+      },
+      { texto: "Start selling", href: "/vender" },
+    ],
+  },
+
+  {
     slug: "sell-with-the-mercatren-app",
     tipo: "documentacion",
     titulo: "Sell from your phone with the Mercatren app",

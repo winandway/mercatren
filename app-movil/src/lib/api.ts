@@ -42,6 +42,8 @@ export type ProductoApp = {
   fotoAlt: string | null;
   tienda: { nombre: string; slug: string };
   agotado: boolean;
+  /** Solo en los promocionados: se enseña «Patrocinado» y se cuenta el clic. */
+  patrocinado?: { promocionId: string; firma: string };
 };
 
 export type FichaApp = {
@@ -83,6 +85,11 @@ function conContexto(
     }
   }
   return url.toString();
+}
+
+/** Donde se avisa el clic en un promocionado (Fase 4). */
+export function urlClicPromocion(): string {
+  return `${API_BASE}/datos/promo/clic`;
 }
 
 export function urlPaises(idioma: Idioma): string {

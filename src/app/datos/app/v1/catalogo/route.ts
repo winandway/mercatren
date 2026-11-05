@@ -7,6 +7,11 @@ import {
   respuestaPublica,
 } from "@/lib/app-movil/datos";
 import { listarProductos } from "@/lib/catalogo/consultas";
+import { promocionadosParaMostrar } from "@/lib/ganar/promociones";
+import {
+  mezclarPromocionados,
+  PROMOCIONADOS_POR_DOCENA,
+} from "@/lib/ganar/reglas";
 
 export const dynamic = "force-dynamic";
 
@@ -42,9 +47,35 @@ export async function GET(peticion: Request) {
       categoria: filtros.data.categoria,
       comercio: filtros.data.tienda,
     });
+    const lista = r.productos.map((p) => productoParaApp(p, contexto.idioma));
+    /* LOS PROMOCIONADOS (Fase 4): solo en la primera página de la portada o
+       de una búsqueda, como mucho 2 de cada 12 y con su etiqueta. Mostrarlos
+       no escribe nada; el clic se cuenta aparte (`/datos/promo/clic`). */
+    const conPromocionados =
+      filtros.data.pagina === 1 &&
+      !filtros.data.categoria &&
+      !filtros.data.tienda &&
+      lista.length > 0
+        ? mezclarPromocionados(
+            lista,
+            (
+              await promocionadosParaMostrar(
+                contexto.mercado,
+                PROMOCIONADOS_POR_DOCENA * Math.ceil(lista.length / 12),
+              ).catch((fallo: unknown) => {
+                /* Sin promocionados la lista sale igual; el fallo queda a la vista. */
+                console.error("[app/catalogo] promocionados", fallo);
+                return [];
+              })
+            ).map((p) => ({
+              ...productoParaApp(p, contexto.idioma),
+              patrocinado: { promocionId: p.promocionId, firma: p.firma },
+            })),
+          )
+        : lista;
     return respuestaPublica({
       ok: true,
-      productos: r.productos.map((p) => productoParaApp(p, contexto.idioma)),
+      productos: conPromocionados,
       pagina: r.pagina,
       paginas: r.paginas,
       total: r.total,

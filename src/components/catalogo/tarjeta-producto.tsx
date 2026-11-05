@@ -58,9 +58,26 @@ export function TarjetaProducto({
     ? Math.round((ahorro / producto.precioAntesCentavos!) * 100)
     : null;
 
+  /* EL CLIC DE UN PROMOCIONADO (Fase 4): se avisa sin esperar, con
+     `sendBeacon` (sobrevive al cambio de página). Qué cuenta lo decide el
+     servidor. */
+  const promo = producto.patrocinado;
+  const avisarClic = () => {
+    if (!promo || typeof navigator === "undefined") return;
+    try {
+      navigator.sendBeacon(
+        "/datos/promo/clic",
+        JSON.stringify({ p: promo.promocionId, f: promo.firma }),
+      );
+    } catch (fallo) {
+      console.warn("[promo] clic", fallo);
+    }
+  };
+
   return (
     <Link
       href={`/producto/${producto.slug}`}
+      onClick={promo ? avisarClic : undefined}
       /* Menos relleno en el celular: con tres por hilera cada tarjeta mide
          unos 110px, y 12px de aire por lado se comen la foto. */
       className="group flex h-full flex-col rounded-xl bg-white p-1.5 transition-shadow duration-200 hover:shadow-[0_2px_16px_rgba(16,38,58,0.12)] sm:p-3"
@@ -179,6 +196,11 @@ export function TarjetaProducto({
         ) : null}
 
         <p className="mt-auto truncate pt-2 text-xs text-tinta-suave">
+          {promo ? (
+            <span className="font-semibold text-tinta">
+              {t("patrocinado")} ·{" "}
+            </span>
+          ) : null}
           {producto.tiendaNombre}
         </p>
 

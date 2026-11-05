@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   BookOpen,
   CreditCard,
+  Crown,
   FileText,
   Flag,
   Languages,
@@ -123,6 +124,9 @@ const GRUPOS: { titulo: string; entradas: Entrada[] }[] = [
       /* A quién le fía y cuánto le deben. El crédito lo da el comercio con su
          propio riesgo; aquí solo lleva la cuenta. */
       { href: "/panel/creditos", clave: "creditos", Icono: CreditCard },
+      /* FASE 4 (5 nov 2026): el plan Pro y los promocionados del comercio. */
+      { href: "/panel/plan", clave: "plan", Icono: Crown },
+      { href: "/panel/promociones", clave: "promociones", Icono: Megaphone },
     ],
   },
   {

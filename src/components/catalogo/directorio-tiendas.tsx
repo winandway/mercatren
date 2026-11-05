@@ -26,6 +26,8 @@ export type TiendaDirectorio = {
   ciudad: string | null;
   logoUrl: string | null;
   cuantos: number;
+  /** Tiene plan Pro: sale primero y con su marca (Fase 4). */
+  pro?: boolean;
 };
 
 export function DirectorioTiendas({
@@ -92,8 +94,15 @@ export function DirectorioTiendas({
                 )}
 
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold group-hover:text-carga-600">
-                    {tienda.nombre}
+                  <span className="flex items-center gap-1.5">
+                    <span className="truncate font-bold group-hover:text-carga-600">
+                      {tienda.nombre}
+                    </span>
+                    {tienda.pro ? (
+                      <span className="shrink-0 rounded-full bg-carga-500 px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase">
+                        {t("pro")}
+                      </span>
+                    ) : null}
                   </span>
                   {tienda.ciudad ? (
                     <span className="mt-0.5 flex items-center gap-1 text-xs text-tinta-suave">

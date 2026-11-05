@@ -76,6 +76,8 @@ export type ProductoApp = {
   fotoAlt: string | null;
   tienda: { nombre: string; slug: string };
   agotado: boolean;
+  /** Solo en los promocionados: para contar el clic (ver `lib/ganar`). */
+  patrocinado?: { promocionId: string; firma: string };
 };
 
 /** El título en el idioma de la app; si falta el inglés, va el español. */

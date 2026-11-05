@@ -4250,3 +4250,95 @@ export const adjuntosAyuda = sqliteTable(
     index("idx_adjuntos_ayuda_caso").on(t.casoId),
   ],
 );
+
+/**
+ * ══ FASE 4 · GANAR MÁS: EL PLAN PRO Y LOS PROMOCIONADOS (5 nov 2026) ══
+ *
+ * Reglas en `lib/ganar/reglas.ts` y decisiones en `docs/FASE-4-GANAR-MAS.md`.
+ * Tablas nuevas y no columnas, como manda la regla de `schema.sql`. NADA de
+ * esto cobra todavía: el mes gratis corre y lo promocionado queda «por
+ * cobrar» hasta el sí de Richard.
+ */
+export const planesTienda = sqliteTable(
+  "planes_tienda",
+  {
+    id: text("id").primaryKey(),
+    /** Una fila por tienda, para siempre: así el mes gratis es uno solo. */
+    tiendaId: text("tienda_id").notNull(),
+    plan: text("plan").notNull().default("pro"),
+    /** prueba · activa · cancelada (cancelada sigue hasta su fecha) */
+    estado: text("estado")
+      .$type<"prueba" | "activa" | "cancelada">()
+      .notNull()
+      .default("prueba"),
+    pruebaHasta: integer("prueba_hasta", { mode: "timestamp" }),
+    pagadoHasta: integer("pagado_hasta", { mode: "timestamp" }),
+    /** Para cuando se encienda el cobro; hoy siempre vacío. */
+    stripeSuscripcionId: text("stripe_suscripcion_id"),
+    empezadoEn: integer("empezado_en", { mode: "timestamp" }).notNull(),
+    canceladoEn: integer("cancelado_en", { mode: "timestamp" }),
+    actualizadoEn: integer("actualizado_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [uniqueIndex("idx_planes_tienda_tienda").on(t.tiendaId)],
+);
+
+export const promociones = sqliteTable(
+  "promociones",
+  {
+    id: text("id").primaryKey(),
+    tiendaId: text("tienda_id").notNull(),
+    /** Un producto, una promoción (se pausa y se reanuda, no se duplica). */
+    productoId: text("producto_id").notNull(),
+    presupuestoDiarioCentavos: integer("presupuesto_diario_centavos").notNull(),
+    cpcCentavos: integer("cpc_centavos").notNull().default(15),
+    /** activa · pausada */
+    estado: text("estado")
+      .$type<"activa" | "pausada">()
+      .notNull()
+      .default("activa"),
+    creadaEn: integer("creada_en", { mode: "timestamp" }).notNull(),
+    actualizadaEn: integer("actualizada_en", { mode: "timestamp" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("idx_promociones_producto").on(t.productoId),
+    index("idx_promociones_tienda").on(t.tiendaId),
+    index("idx_promociones_estado").on(t.estado),
+  ],
+);
+
+/**
+ * El gasto de cada promoción, por día UTC. UNA fila por promoción y día: los
+ * clics se suman ahí (nunca una fila por clic de más). El gasto nunca pasa
+ * del presupuesto: los clics de después son gratis (`clicsGratis`).
+ */
+export const gastoPromociones = sqliteTable(
+  "gasto_promociones",
+  {
+    promocionId: text("promocion_id").notNull(),
+    tiendaId: text("tienda_id").notNull(),
+    /** AAAA-MM-DD en UTC. */
+    dia: text("dia").notNull(),
+    clics: integer("clics").notNull().default(0),
+    clicsGratis: integer("clics_gratis").notNull().default(0),
+    gastoCentavos: integer("gasto_centavos").notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.promocionId, t.dia] }),
+    index("idx_gasto_promociones_tienda_dia").on(t.tiendaId, t.dia),
+  ],
+);
+
+/**
+ * Quién ya hizo clic hoy en cada promoción, para cobrar uno por persona y
+ * día. La huella es un resumen (no se guarda la IP ni el navegador). Las
+ * filas de días anteriores se borran al abrir el día de esa promoción.
+ */
+export const clicsPromocion = sqliteTable(
+  "clics_promocion",
+  {
+    promocionId: text("promocion_id").notNull(),
+    dia: text("dia").notNull(),
+    huella: text("huella").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.promocionId, t.dia, t.huella] })],
+);

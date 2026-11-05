@@ -11,6 +11,8 @@ import {
 } from "@/lib/catalogo/consultas";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import type { Idioma } from "@/lib/dinero";
+import { slugsConPro } from "@/lib/ganar/planes";
+import { proPrimero } from "@/lib/ganar/reglas";
 import { rutaCanonica } from "@/lib/sitio";
 
 /**
@@ -57,21 +59,32 @@ export default async function PaginaTiendas({
   // Si la base no responde, la página sale vacía pero sale: el directorio
   // nunca puede tumbar la navegación.
   const mercado = await mercadoDeLaPeticion();
-  const comercios = await listarComerciosDestacados(mercado).catch(() => []);
+  const [comercios, conPro] = await Promise.all([
+    listarComerciosDestacados(mercado).catch(() => []),
+    /* Las tiendas con plan Pro salen primero (Fase 4). Si la consulta
+       falla, el directorio sale igual, sin destacar a nadie. */
+    slugsConPro().catch((fallo: unknown) => {
+      console.error("[tiendas] tiendas con Pro", fallo);
+      return new Set<string>();
+    }),
+  ]);
 
-  const tiendas: TiendaDirectorio[] = comercios.map((c) => ({
-    slug: c.slug,
-    nombre: c.nombre,
-    descripcion:
-      (idioma === "en"
-        ? (c.descripcionEn ?? c.descripcionEs)
-        : c.descripcionEs) ?? null,
-    ciudad: c.ciudad ?? null,
-    logoUrl: c.logoClave
-      ? direccionImagen({ url: null, clave: c.logoClave })
-      : null,
-    cuantos: c.cuantos,
-  }));
+  const tiendas: TiendaDirectorio[] = proPrimero(comercios, conPro).map(
+    (c) => ({
+      slug: c.slug,
+      nombre: c.nombre,
+      descripcion:
+        (idioma === "en"
+          ? (c.descripcionEn ?? c.descripcionEs)
+          : c.descripcionEs) ?? null,
+      ciudad: c.ciudad ?? null,
+      logoUrl: c.logoClave
+        ? direccionImagen({ url: null, clave: c.logoClave })
+        : null,
+      cuantos: c.cuantos,
+      pro: c.pro,
+    }),
+  );
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-8">

@@ -60,6 +60,20 @@ describe("toda imagen de un artículo existe en public/", () => {
     expect(slug).toMatch(/^[a-z-]+$/);
   });
 
+  it("la guía del plan Pro y los promocionados existe en los dos idiomas, con capturas", () => {
+    /* Fase 4 (5 nov 2026): lo nuevo se explica al público en Docs. Y dice
+       que por ahora no se cobra nada, porque el cobro está apagado. */
+    const slug = "pro-plan-and-sponsored-products";
+    for (const articulos of [ARTICULOS_ES, ARTICULOS_EN]) {
+      const guia = articulos.find((a) => a.slug === slug);
+      expect(guia, slug).toBeTruthy();
+      expect(
+        guia!.cuerpo.filter((b) => b.tipo === "imagen").length,
+      ).toBeGreaterThanOrEqual(2);
+      expect(guia!.temas).toContain("comercios");
+    }
+  });
+
   it("el tutorial del W-8BEN-E existe en los dos idiomas y lleva capturas", () => {
     const es = ARTICULOS_ES.find((a) => a.slug === "formulario-fiscal-w8ben-e");
     const en = ARTICULOS_EN.find((a) => a.slug === "formulario-fiscal-w8ben-e");

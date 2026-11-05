@@ -73,6 +73,14 @@ function Navegacion() {
           }}
         />
         <Stack.Screen
+          name="plan-pro"
+          options={{ title: texto(idioma, "planPro") }}
+        />
+        <Stack.Screen
+          name="promocionar/[id]"
+          options={{ title: texto(idioma, "promocionar") }}
+        />
+        <Stack.Screen
           name="mis-datos"
           options={{ title: texto(idioma, "misDatos") }}
         />

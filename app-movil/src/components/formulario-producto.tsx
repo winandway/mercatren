@@ -444,6 +444,19 @@ export function FormularioProducto({ id }: { id?: string }) {
           onPress={guardar}
           ocupado={ocupado}
         />
+        {editando && id && estado === "publicado" ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() =>
+              router.push({ pathname: "/promocionar/[id]", params: { id } })
+            }
+            style={estilos.secundario}
+          >
+            <Text style={estilos.secundarioTexto}>
+              {texto(idioma, "promocionarProducto")}
+            </Text>
+          </Pressable>
+        ) : null}
         {editando && estado ? (
           <Pressable
             accessibilityRole="button"

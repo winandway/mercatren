@@ -181,6 +181,16 @@ apruebe Divoox.
       HISTORIAL, «MIS DATOS EN LA APP».
 - [ ] 💻 Parte 5 · Los avisos al teléfono (Firebase para Android, lo ve
       Gerencia; Apple congelado).
+- [x] ✅ 💻 Fase 4 · Plan Pro (mes gratis, tope de publicados, estadísticas,
+      tienda destacada) y productos promocionados (clic firmado con tope),
+      en la app y en el panel, con su guía pública. Probado en local. Ver
+      HISTORIAL, «FASE 4» y `docs/FASE-4-GANAR-MAS.md`.
+- [ ] 🔴 👤 Fase 4 · Encender el cobro de Pro y de los promocionados:
+      decisión de Richard, con las claves de PRUEBA de Stripe para probarlo
+      de punta a punta antes (bloque en rojo de `VERIFICAR-PAGOS.md`).
+- [ ] 🔴 La migración 0052 (planes, promociones, gasto y clics) llega sola
+      con `schema.sql` al publicar; comprobar en vivo cuando se quite la pausa
+      de la plataforma.
 
 ### 5 nov 2026 · Google Play rechazó la app de Android (privacidad) 🔴
 

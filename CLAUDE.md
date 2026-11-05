@@ -431,6 +431,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [FASE 4: EL PLAN PRO Y LOS PRODUCTOS PROMOCIONADOS, SIN COBRAR TODAVÍA (5 nov 2026)](HISTORIAL.md#fase-4-el-plan-pro-y-los-productos-promocionados-sin-cobrar-todavía-5-nov-2026)
 - [«MIS DATOS» EN LA APP Y LA PUERTA QUE ACEPTABA CUALQUIER COSA (5 nov 2026)](HISTORIAL.md#mis-datos-en-la-app-y-la-puerta-que-aceptaba-cualquier-cosa-5-nov-2026)
 - [MIS VENTAS Y EDITAR PRODUCTOS EN LA APP, Y LA CALLE QUE EL PANEL NO ENSEÑABA (5 nov 2026)](HISTORIAL.md#mis-ventas-y-editar-productos-en-la-app-y-la-calle-que-el-panel-no-enseñaba-5-nov-2026)
 - [EL CARRITO Y EL PAGO DE LA APP (5 nov 2026)](HISTORIAL.md#el-carrito-y-el-pago-de-la-app-5-nov-2026)

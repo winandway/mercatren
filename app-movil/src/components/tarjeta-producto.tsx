@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { absoluta, type ProductoApp } from "@/lib/api";
+import { absoluta, urlClicPromocion, type ProductoApp } from "@/lib/api";
 import { COLORES } from "@/lib/colores";
 import { precioTexto, type Idioma } from "@/lib/dinero";
 import { texto } from "@/lib/textos";
@@ -16,9 +16,23 @@ export function TarjetaProducto({
   idioma: Idioma;
 }) {
   const foto = absoluta(p.foto);
+  /* El clic de un promocionado se avisa sin esperar: el comprador ya va a la
+     ficha. Qué cuenta y qué no lo decide el servidor. */
+  const avisarClic = () => {
+    if (!p.patrocinado) return;
+    void fetch(urlClicPromocion(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        p: p.patrocinado.promocionId,
+        f: p.patrocinado.firma,
+      }),
+    }).catch((fallo: unknown) => console.warn("[promo] clic", fallo));
+  };
   return (
     <Link
       href={{ pathname: "/producto/[slug]", params: { slug: p.slug } }}
+      onPress={avisarClic}
       asChild
     >
       <Pressable style={estilos.tarjeta} accessibilityRole="link">
@@ -54,7 +68,9 @@ export function TarjetaProducto({
           ) : null}
         </View>
         <Text style={estilos.tienda} numberOfLines={1}>
-          {p.tienda.nombre}
+          {p.patrocinado
+            ? `${texto(idioma, "patrocinado")} · ${p.tienda.nombre}`
+            : p.tienda.nombre}
         </Text>
       </Pressable>
     </Link>

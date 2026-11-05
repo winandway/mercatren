@@ -33,6 +33,11 @@ async function buscandoComoEquipo(q: string | undefined): Promise<boolean> {
   const { esEquipoInterno } = await import("@/lib/autorizacion");
   return esEquipoInterno().catch(() => false);
 }
+import { promocionadosParaMostrar } from "@/lib/ganar/promociones";
+import {
+  mezclarPromocionados,
+  PROMOCIONADOS_POR_DOCENA,
+} from "@/lib/ganar/reglas";
 import { metaDeCatalogo } from "@/lib/seo/meta";
 
 export const dynamic = "force-dynamic";
@@ -169,6 +174,31 @@ export default async function PaginaCatalogo({
     /* LA TIRA TAMBIÉN AQUÍ DENTRO. Ver el comentario de abajo. */
     listarDepartamentosDePortada(mercado, idioma).catch(() => []),
   ]);
+  /* LOS PROMOCIONADOS (Fase 4): en la primera página de una búsqueda o del
+     catálogo entero, como mucho 2 de cada 12 y con su marca. Mostrarlos no
+     escribe nada; el clic se cuenta aparte (`/datos/promo/clic`). */
+  if (
+    resultado.pagina === 1 &&
+    !filtros.categoria &&
+    !filtros.comercio &&
+    resultado.productos.length > 0
+  ) {
+    const promos = await promocionadosParaMostrar(
+      mercado,
+      PROMOCIONADOS_POR_DOCENA * Math.ceil(resultado.productos.length / 12),
+    ).catch((fallo: unknown) => {
+      console.error("[catalogo] promocionados", fallo);
+      return [];
+    });
+    resultado.productos = mezclarPromocionados(
+      resultado.productos,
+      promos.map(({ promocionId, firma, ...p }) => ({
+        ...p,
+        patrocinado: { promocionId, firma },
+      })),
+    );
+  }
+
   /* Los banners de la casa para el catálogo. Sin banners activos no cambia nada. */
   const bannersCatalogo = await bannersPara(mercado, "catalogo", idioma);
 

@@ -16,6 +16,7 @@ import { combinacionRepetida } from "@/lib/productos/heredar";
 import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 import { divisorDe, monedaDelMercado } from "@/lib/mercado/moneda";
 import { zonaPorSlug } from "@/lib/entrega/zonas";
+import { revisarTopeAlPublicar } from "@/lib/ganar/planes";
 import { mensajes } from "@/lib/mensajes";
 import {
   depositos,
@@ -175,9 +176,12 @@ export async function guardarProducto(
   let tiendaId: string | null =
     alcance.tipo === "tienda" ? alcance.tiendaId : null;
 
+  /* Para el tope de publicados del plan: lo que ya estaba publicado no se
+     frena (ver `lib/ganar/planes.ts`). */
+  let estabaPublicado = false;
   if (id) {
     const [existente] = await db
-      .select({ tiendaId: productos.tiendaId })
+      .select({ tiendaId: productos.tiendaId, estado: productos.estado })
       .from(productos)
       .where(eq(productos.id, id))
       .limit(1);
@@ -189,6 +193,7 @@ export async function guardarProducto(
       return { ok: false, mensaje: t("productoAjeno") };
     }
     tiendaId = existente.tiendaId;
+    estabaPublicado = existente.estado === "publicado";
   } else if (!tiendaId) {
     tiendaId = String(formulario.get("tiendaId") ?? "").trim() || null;
   }
@@ -208,6 +213,21 @@ export async function guardarProducto(
   }
 
   const d = revisado.data;
+
+  /* EL TOPE DE PUBLICADOS DEL PLAN (Fase 4, 5 nov 2026): 100 sin plan y
+     5.000 con Pro. Nadie pierde lo que ya tiene publicado. */
+  if (d.estado === "publicado") {
+    const tope = await revisarTopeAlPublicar({
+      tiendaId,
+      yaEstabaPublicado: estabaPublicado,
+    });
+    if (!tope.ok) {
+      return {
+        ok: false,
+        mensaje: t(tope.pro ? "topePro" : "topeSinPlan", { tope: tope.tope }),
+      };
+    }
+  }
 
   /**
    * EL ROBOTITO DE LOS PRECIOS. Lo que el comercio escribe es SU precio
@@ -484,7 +504,11 @@ export async function cambiarEstadoProducto(
   const db = getDb();
 
   const [producto] = await db
-    .select({ tiendaId: productos.tiendaId, precio: productos.precioCentavos })
+    .select({
+      tiendaId: productos.tiendaId,
+      precio: productos.precioCentavos,
+      estado: productos.estado,
+    })
     .from(productos)
     .where(eq(productos.id, id))
     .limit(1);
@@ -495,6 +519,18 @@ export async function cambiarEstadoProducto(
   }
   if (estado === "publicado" && producto.precio <= 0) {
     return { ok: false, mensaje: t("ponlePrecio") };
+  }
+  if (estado === "publicado") {
+    const tope = await revisarTopeAlPublicar({
+      tiendaId: producto.tiendaId,
+      yaEstabaPublicado: producto.estado === "publicado",
+    });
+    if (!tope.ok) {
+      return {
+        ok: false,
+        mensaje: t(tope.pro ? "topePro" : "topeSinPlan", { tope: tope.tope }),
+      };
+    }
   }
 
   await db

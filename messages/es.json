@@ -411,7 +411,9 @@
       "casilleros": "Casilleros",
       "bodega": "Bodega",
       "tarifasCasillero": "Tarifas de envío",
-      "enlacesDeCobro": "Enlaces de cobro"
+      "enlacesDeCobro": "Enlaces de cobro",
+      "plan": "Plan Pro",
+      "promociones": "Promocionar"
     },
     "comercio": {
       "etiqueta": "Comercio",
@@ -1431,7 +1433,9 @@
       "saldoCerrado": "Saldo cerrado: {monto} registrados como pagados ({pedidos} retiros pendientes marcados).",
       "sinConfirmarStock": "No pudimos confirmar con el almacén la disponibilidad de «{producto}». No se cobró nada: inténtalo de nuevo en un minuto.",
       "comercioEncendido": "{nombre} quedó activo: su tienda ya se ve en el catálogo.",
-      "comercioApagado": "{nombre} quedó desactivado: su tienda salió del catálogo."
+      "comercioApagado": "{nombre} quedó desactivado: su tienda salió del catálogo.",
+      "topeSinPlan": "Tu tienda ya tiene {tope} productos publicados, el máximo sin plan. Pausa alguno o pásate al plan Pro para publicar hasta 5,000.",
+      "topePro": "Llegaste al máximo de {tope} productos publicados. Pausa alguno para publicar este."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -2961,6 +2965,56 @@
         "minimoPies": "Mínimo en pies cúbicos",
         "minimoPiesAyuda": "Aunque la caja sea más chica, se cobran estos pies. Lo normal es 1."
       }
+    },
+    "ganar": {
+      "titulo": "Plan Pro",
+      "precio": "{precio} al mes",
+      "primerMesGratis": "El primer mes gratis",
+      "resumen": "Para las tiendas que quieren crecer.",
+      "beneficio1": "Publica hasta 5,000 productos (sin plan, 100).",
+      "beneficio2": "Tus estadísticas: ventas, pedidos y lo más vendido.",
+      "beneficio3": "Tu tienda, destacada en el directorio de tiendas.",
+      "publicados": "Productos publicados: {n} de {tope}",
+      "empezar": "Empezar mi mes gratis",
+      "sinTarjeta": "No pedimos tarjeta. Al terminar el mes, tu tienda vuelve sola al plan sin costo: nada se cobra sin que lo aceptes.",
+      "mesGratisHasta": "Mes gratis hasta el {fecha}.",
+      "proHasta": "Tienes Pro hasta el {fecha}.",
+      "proTermina": "Tu Pro termina el {fecha}.",
+      "seguir": "Seguir con Pro",
+      "cancelar": "Cancelar Pro",
+      "cancelarPregunta": "¿Cancelar Pro? Lo sigues teniendo hasta el final de este mes.",
+      "terminado": "Tu mes gratis terminó. Muy pronto podrás seguir con Pro.",
+      "estadisticas": "Tus últimos 30 días",
+      "ventas": "Ventas",
+      "paraTi": "Para ti",
+      "pedidos": "Pedidos",
+      "unidades": "Unidades",
+      "masVendidos": "Lo más vendido",
+      "sinVentas": "Todavía no hay ventas en estos 30 días.",
+      "soloComercio": "El plan Pro y las promociones los administra cada comercio desde su propio panel.",
+      "yaTuvoPrueba": "Esta tienda ya usó su mes gratis.",
+      "error": "No pudimos hacerlo. Inténtalo de nuevo.",
+      "promoTitulo": "Promocionar",
+      "promoExplica": "Tu producto sale de primero, con la marca «Patrocinado». Pagas 0,15 dólares cada vez que alguien lo toca, y nunca más que tu presupuesto del día.",
+      "promoProducto": "Producto",
+      "promoElegir": "Elige un producto publicado",
+      "promoPresupuesto": "Presupuesto diario (dólares)",
+      "promoPresupuestoAyuda": "De 1 a 50 dólares. Con 5 dólares, hasta 34 personas al día.",
+      "promoGuardar": "Promocionar",
+      "promoGuardada": "Tu producto quedó promocionado.",
+      "promoPresupuestoMal": "Escribe un presupuesto diario de 1 a 50 dólares.",
+      "promoNoPublicado": "Solo se promocionan productos publicados.",
+      "promoSinProductos": "Publica un producto para poder promocionarlo.",
+      "promoSinCobro": "Por ahora no se cobra nada: lo que gastas queda anotado y te avisamos antes de empezar a cobrar.",
+      "promoLista": "Tus promociones",
+      "promoNinguna": "Todavía no promocionas ningún producto.",
+      "promoActiva": "Activa",
+      "promoPausada": "Pausada",
+      "promoPresupuestoDia": "{monto} al día",
+      "promoHoy": "Hoy: {clics} toques, {gasto}",
+      "promo30": "30 días: {clics} toques, {gasto}",
+      "promoPausar": "Pausar",
+      "promoReanudar": "Reanudar"
     }
   },
   "catalogo": {
@@ -3074,7 +3128,8 @@
       "mayorista": "Mayorista",
       "enRevision": "En revisión — solo lo ve el equipo.",
       "enRevisionTexto": "Todavía no se puede comprar: falta que el proveedor cotice el envío real. El público no ve esta ficha.",
-      "enRevisionCorto": "En revisión"
+      "enRevisionCorto": "En revisión",
+      "patrocinado": "Patrocinado"
     },
     "seguirBajando": {
       "cargando": "Trayendo más…",
@@ -4020,10 +4075,11 @@
   },
   "tiendasDirectorio": {
     "titulo": "Las tiendas de Mercatren",
-    "entradilla": "Todos los comercios que venden aquí, con su ciudad y su catálogo. Todos en igualdad: sin tiendas de la casa ni favoritos.",
+    "entradilla": "Todos los comercios que venden aquí, con su ciudad y su catálogo. Las tiendas con plan Pro salen primero y llevan su marca.",
     "buscar": "Buscar una tienda por nombre o ciudad",
     "sinResultados": "Ninguna tienda coincide con lo que buscas.",
-    "productos": "{n, plural, one {# producto} other {# productos}}"
+    "productos": "{n, plural, one {# producto} other {# productos}}",
+    "pro": "Pro"
   },
   "formularios": {
     "clave": {

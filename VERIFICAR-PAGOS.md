@@ -39,6 +39,21 @@
 > sigue en pausa (`EN_PAUSA` en `src/lib/ventas/pausa.ts`, la pausa de CJ del
 > 27 oct): abrirla para las tiendas que crea la gente es decisión de Richard.
 
+> ## 🔴 FASE 4: EL PLAN PRO Y LOS PROMOCIONADOS NO COBRAN — EL COBRO ESTÁ APAGADO (5 nov 2026)
+>
+> Construido y probado en local (`docs/FASE-4-GANAR-MAS.md`): el mes gratis
+> del plan Pro (uno por tienda, sin tarjeta), el tope de publicados (100 sin
+> plan, 5,000 con Pro), los promocionados con su clic firmado, uno por
+> persona y día, sin robots y con el tope del día dentro de la sentencia.
+> **NO HAY NINGÚN COBRO CONECTADO:** al terminar el mes gratis la tienda
+> vuelve sola al plan sin costo, y el gasto de los promocionados queda
+> anotado en `gasto_promociones` «por cobrar». Las pantallas lo dicen en
+> palabras («por ahora no se cobra nada»). Encenderlo exige: (1) el sí de
+> Richard, (2) las claves de PRUEBA de Stripe para probar la suscripción y
+> el cargo del gasto, (3) una prueba de punta a punta mirada en Stripe, y (4)
+> avisar a los vendedores antes del primer cobro. **No anunciar Pro ni los
+> promocionados como «de pago» hasta entonces.**
+
 ## El estado, método por método
 
 | Mercado          | Método                                      | Estado                                 | Evidencia                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |

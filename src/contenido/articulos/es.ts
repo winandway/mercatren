@@ -14,6 +14,129 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    /* Dirección en inglés, como manda la regla de EE. UU. (Fase 4, 5 nov 2026). */
+    slug: "pro-plan-and-sponsored-products",
+    tipo: "documentacion",
+    titulo: "Plan Pro y productos promocionados: vende más en Mercatren",
+    resumen:
+      "El plan Pro te deja publicar hasta 5,000 productos, te da tus estadísticas y destaca tu tienda, con el primer mes gratis. Y con los promocionados, tu producto sale de primero y solo pagas cuando alguien lo toca.",
+    fecha: "2026-11-05",
+    temas: ["comercios", "plan pro", "promocionados", "app"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Dos maneras de vender más: el plan Pro, para que tu tienda crezca, y los productos promocionados, para que un producto salga de primero cuando la gente busca.",
+      },
+      {
+        tipo: "aviso",
+        tono: "bien",
+        titulo: "Por ahora no se cobra nada",
+        texto:
+          "El mes gratis del plan Pro no pide tarjeta, y lo que gastas en promocionados queda anotado sin cobrarse. Te avisaremos antes de empezar a cobrar, y nada se cobra sin que lo aceptes.",
+      },
+      { tipo: "subtitulo", texto: "El plan Pro" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Cuesta 9,99 dólares al mes y el primer mes es gratis. Esto es lo que incluye:",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Publica hasta 5,000 productos a la vez. Sin plan, el máximo es 100.",
+          "Tus estadísticas de los últimos 30 días: lo vendido, lo que es para ti, los pedidos, las unidades y lo más vendido.",
+          "Tu tienda sale primero en el directorio de tiendas, con la marca «Pro».",
+        ],
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Abre el plan Pro",
+            texto:
+              "En la app, entra a «Mi tienda» y toca «Plan Pro». En la computadora, está en tu panel, en el menú «Mi negocio».",
+          },
+          {
+            titulo: "Empieza tu mes gratis",
+            texto:
+              "Toca «Empezar mi mes gratis». Es uno por tienda y no pide tarjeta.",
+          },
+          {
+            titulo: "Mira tus estadísticas",
+            texto:
+              "Con Pro, la misma pantalla te muestra tus últimos 30 días y tus productos más vendidos.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/pro-plan-es.png",
+        alt: "La pantalla del plan Pro en la app: 9,99 dólares al mes, el primer mes gratis, sus tres beneficios, «Mes gratis hasta el 5 de diciembre» y las estadísticas de los últimos 30 días",
+        pie: "Con Pro, tus ventas de los últimos 30 días y lo más vendido, en la misma pantalla.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Si ya tenías más de 100 productos publicados, no pierdes ninguno: solo no puedes publicar otro hasta pausar alguno o pasarte a Pro.",
+          "Puedes cancelar cuando quieras: sigues con Pro hasta el final del mes, y antes de esa fecha puedes volver a seguir con Pro.",
+          "Cuando termina el mes gratis, tu tienda vuelve sola al plan sin costo.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Los productos promocionados" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Un producto promocionado sale de primero en la portada y en la búsqueda, con la marca «Patrocinado». Pagas solo cuando alguien lo toca, nunca por mostrarlo.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Cada toque cuesta 0,15 dólares.",
+          "Tú eliges el presupuesto del día, de 1 a 50 dólares. Nunca se gasta más que eso: cuando se acaba, tu producto deja de salir como patrocinado hasta el día siguiente.",
+          "Cada persona cuenta una sola vez por día, y los robots no cuentan.",
+          "Como mucho, 2 de cada 12 productos de una lista son patrocinados: el catálogo sigue siendo de todos.",
+        ],
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Abre el producto",
+            texto:
+              "En la app, entra a «Mi tienda» y toca el producto. En la computadora, entra a «Promocionar» en tu panel y elígelo de la lista.",
+          },
+          {
+            titulo: "Pon tu presupuesto del día",
+            texto:
+              "La app te dice al momento hasta cuántas personas puede alcanzar: con 5 dólares, hasta 34 al día.",
+          },
+          {
+            titulo: "Promociónalo",
+            texto:
+              "Toca «Promocionar». Ahí mismo ves los toques y lo gastado de hoy y de los últimos 30 días, y puedes pausarlo o reanudarlo cuando quieras.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/promote-es.png",
+        alt: "La pantalla «Promocionar» en la app: el presupuesto diario de 5 dólares, «Hasta 34 personas al día», el aviso «Tu producto quedó promocionado» y los toques y lo gastado de hoy y de los últimos 30 días",
+        pie: "Tú pones el tope del día; nunca se gasta más que eso.",
+      },
+    ],
+    enlaces: [
+      {
+        texto: "Vende desde el celular con la app de Mercatren",
+        href: "/docs/sell-with-the-mercatren-app",
+      },
+      { texto: "Empieza a vender", href: "/vender" },
+    ],
+  },
+
+  {
     /* Dirección en inglés, como manda la regla de EE. UU.: es la misma en los dos idiomas. */
     slug: "sell-with-the-mercatren-app",
     tipo: "documentacion",

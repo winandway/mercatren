@@ -70,6 +70,13 @@ export default function MiTienda() {
               {texto(idioma, "misVentas")}
             </Text>
           </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/plan-pro")}
+            style={estilos.ventas}
+          >
+            <Text style={estilos.ventasTexto}>{texto(idioma, "planPro")}</Text>
+          </Pressable>
         </View>
       }
       ListEmptyComponent={

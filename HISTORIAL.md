@@ -15,6 +15,41 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## FASE 4: EL PLAN PRO Y LOS PRODUCTOS PROMOCIONADOS, SIN COBRAR TODAVÍA (5 nov 2026)
+
+**Qué se hizo** (decisiones en `docs/FASE-4-GANAR-MAS.md`):
+
+- **Plan Pro:** 9,99 al mes con el primer mes gratis (uno por tienda, sin
+  tarjeta). Da 5,000 publicados en vez de 100, estadísticas de 30 días
+  (salen de las ventas guardadas: mirar no escribe en la base) y la tienda
+  primero en el directorio con la marca «Pro». Cancelar sigue hasta el final
+  del mes. En la app («Mi tienda» → «Plan Pro») y en el panel («Plan Pro»).
+- **El tope de publicados** vive en `guardarProducto` y
+  `cambiarEstadoProducto` (la web y la app pasan por ahí): nadie pierde lo
+  ya publicado; solo no suma otro. Comprobado en local con 100 publicados:
+  sin plan, el 101 se rechaza con el aviso; con Pro, entra.
+- **Promocionados:** 0,15 por toque, presupuesto diario de 1 a 50, nunca más
+  que el presupuesto (el tope va dentro de la sentencia, `MIN(...)`), uno por
+  persona y día (huella sin IP ni navegador guardados), robots fuera, firma
+  del día con cada promocionado (nadie fabrica clics para gastarle el
+  presupuesto a otro). Salen en la primera página de la portada y la
+  búsqueda (app y web), como mucho 2 de cada 12, con «Patrocinado». Mostrar
+  no escribe; un clic que cuenta escribe dos filas como mucho; con el
+  presupuesto agotado, ninguna. Comprobado en local: primer clic 15 ¢,
+  repetido / robot / firma inventada = 0, tope de 1 dólar respetado en el
+  séptimo clic, y deja de salir al agotarse.
+- **Fallo propio que se cerró antes de publicar:** al mezclar, la marca de
+  «patrocinado» pisaba la firma del clic. Ahora la marca es `enPuestoPagado`.
+
+**Lo que NO está:** el cobro (ver el bloque en rojo de `VERIFICAR-PAGOS.md`).
+
+**Candados:** `tests/unit/ganar-reglas.test.ts` y
+`tests/unit/ganar-fase4.test.ts` (rojo comprobado: sin el filtro de robots,
+sin el tope en `guardarProducto`, con «hasta N personas» mal contado).
+
+**Tablas nuevas** (llegan con `schema.sql`): `planes_tienda`, `promociones`,
+`gasto_promociones`, `clics_promocion` (migración 0052).
+
 ## «MIS DATOS» EN LA APP Y LA PUERTA QUE ACEPTABA CUALQUIER COSA (5 nov 2026)
 
 **Qué se hizo.** En «Cuenta» → «Mis datos y contraseña»: cambiar el nombre

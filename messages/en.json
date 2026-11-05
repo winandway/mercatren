@@ -411,7 +411,9 @@
       "casilleros": "Lockers",
       "bodega": "Warehouse",
       "tarifasCasillero": "Shipping rates",
-      "enlacesDeCobro": "Payment links"
+      "enlacesDeCobro": "Payment links",
+      "plan": "Pro plan",
+      "promociones": "Promote"
     },
     "comercio": {
       "etiqueta": "Merchant",
@@ -1431,7 +1433,9 @@
       "saldoCerrado": "Balance closed: {monto} recorded as paid ({pedidos} pending withdrawals marked).",
       "sinConfirmarStock": "We couldn't confirm the warehouse availability of “{producto}”. Nothing was charged: please try again in a minute.",
       "comercioEncendido": "{nombre} is active: their store is back in the catalog.",
-      "comercioApagado": "{nombre} is deactivated: their store is out of the catalog."
+      "comercioApagado": "{nombre} is deactivated: their store is out of the catalog.",
+      "topeSinPlan": "Your store already has {tope} published products, the most allowed without a plan. Pause one, or upgrade to Pro to publish up to 5,000.",
+      "topePro": "You've reached the maximum of {tope} published products. Pause one to publish this one."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -2961,6 +2965,56 @@
         "minimoPies": "Minimum cubic feet",
         "minimoPiesAyuda": "Even if the box is smaller, this many cubic feet are charged. Usually 1."
       }
+    },
+    "ganar": {
+      "titulo": "Pro plan",
+      "precio": "{precio} per month",
+      "primerMesGratis": "First month free",
+      "resumen": "For stores ready to grow.",
+      "beneficio1": "Publish up to 5,000 products (100 without a plan).",
+      "beneficio2": "Your stats: sales, orders, and best sellers.",
+      "beneficio3": "Your store featured in the store directory.",
+      "publicados": "Published products: {n} of {tope}",
+      "empezar": "Start my free month",
+      "sinTarjeta": "No card needed. When the month ends, your store goes back to the free plan on its own — nothing is charged unless you accept it.",
+      "mesGratisHasta": "Free month until {fecha}.",
+      "proHasta": "You have Pro until {fecha}.",
+      "proTermina": "Your Pro ends on {fecha}.",
+      "seguir": "Keep Pro",
+      "cancelar": "Cancel Pro",
+      "cancelarPregunta": "Cancel Pro? You keep it until the end of this month.",
+      "terminado": "Your free month is over. You'll be able to continue with Pro very soon.",
+      "estadisticas": "Your last 30 days",
+      "ventas": "Sales",
+      "paraTi": "For you",
+      "pedidos": "Orders",
+      "unidades": "Units",
+      "masVendidos": "Best sellers",
+      "sinVentas": "No sales in these 30 days yet.",
+      "soloComercio": "Each merchant manages the Pro plan and promotions from their own dashboard.",
+      "yaTuvoPrueba": "This store already used its free month.",
+      "error": "We couldn't do that. Please try again.",
+      "promoTitulo": "Promote",
+      "promoExplica": "Your product shows up first, marked “Sponsored.” You pay $0.15 each time someone taps it — never more than your daily budget.",
+      "promoProducto": "Product",
+      "promoElegir": "Choose a published product",
+      "promoPresupuesto": "Daily budget (USD)",
+      "promoPresupuestoAyuda": "From 1 to 50 dollars. With $5, up to 34 people a day.",
+      "promoGuardar": "Promote",
+      "promoGuardada": "Your product is promoted.",
+      "promoPresupuestoMal": "Enter a daily budget between 1 and 50 dollars.",
+      "promoNoPublicado": "Only published products can be promoted.",
+      "promoSinProductos": "Publish a product to be able to promote it.",
+      "promoSinCobro": "For now nothing is charged: what you spend is recorded, and we'll let you know before we start charging.",
+      "promoLista": "Your promotions",
+      "promoNinguna": "You're not promoting any product yet.",
+      "promoActiva": "Active",
+      "promoPausada": "Paused",
+      "promoPresupuestoDia": "{monto} a day",
+      "promoHoy": "Today: {clics} taps, {gasto}",
+      "promo30": "30 days: {clics} taps, {gasto}",
+      "promoPausar": "Pause",
+      "promoReanudar": "Resume"
     }
   },
   "catalogo": {
@@ -3074,7 +3128,8 @@
       "mayorista": "Wholesale",
       "enRevision": "Under review — visible to the team only.",
       "enRevisionTexto": "Not for sale yet: the supplier still has to quote the real shipping cost. The public can't see this page.",
-      "enRevisionCorto": "Under review"
+      "enRevisionCorto": "Under review",
+      "patrocinado": "Sponsored"
     },
     "seguirBajando": {
       "cargando": "Loading more…",
@@ -4020,10 +4075,11 @@
   },
   "tiendasDirectorio": {
     "titulo": "Stores on Mercatren",
-    "entradilla": "Every merchant selling here, with their city and their catalog. All on equal footing: no house stores, no favorites.",
+    "entradilla": "Every merchant selling here, with their city and their catalog. Stores on the Pro plan appear first and carry its badge.",
     "buscar": "Search stores by name or city",
     "sinResultados": "No store matches your search.",
-    "productos": "{n, plural, one {# product} other {# products}}"
+    "productos": "{n, plural, one {# product} other {# products}}",
+    "pro": "Pro"
   },
   "formularios": {
     "clave": {
