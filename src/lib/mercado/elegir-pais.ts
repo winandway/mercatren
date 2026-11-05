@@ -7,6 +7,7 @@ import {
   mercadoPorHost,
   type Mercado,
 } from "./mercados";
+import { dentroDeMercatren } from "./interruptores";
 
 /**
  * QUÉ HACE `/datos/pais` CUANDO ALGUIEN TOCA UNA BANDERA (27 oct 2026).
@@ -45,6 +46,7 @@ export function decidirPais(
   codigo: string | null | undefined,
   idiomaCrudo: string | null | undefined,
   host: string | null | undefined,
+  luego?: string | null,
 ): DecisionDePais {
   const idioma = idiomaElegido(idiomaCrudo);
   const limpio = (codigo ?? "").trim().toUpperCase();
@@ -52,7 +54,12 @@ export function decidirPais(
     MERCADOS.find((m) => m.codigo === limpio) ?? MERCADO_PRINCIPAL;
   const enElPrincipal = esMercadoPrincipal(mercadoPorHost(host));
 
-  if (!mercado.enElPrincipal && !esMercadoPrincipal(mercado)) {
+  /* Vive dentro del principal: sin dominio (España) o con su interruptor
+     encendido (una sola Mercatren, `interruptores.ts`). */
+  const viveDentro =
+    mercado.enElPrincipal === true || dentroDeMercatren(mercado.codigo);
+
+  if (!viveDentro && !esMercadoPrincipal(mercado)) {
     return {
       destino: `https://${mercado.dominio}/${idioma}`,
       cookie: enElPrincipal ? "quitar" : "nada",
@@ -69,10 +76,55 @@ export function decidirPais(
   }
 
   return {
-    destino: `/${idioma}`,
-    cookie: mercado.enElPrincipal ? "poner" : "quitar",
+    destino: `/${idioma}${rutaParaSeguir(luego)}`,
+    cookie: viveDentro && !mercado.principal ? "poner" : "quitar",
     mercado,
   };
+}
+
+/**
+ * A DÓNDE SE PUEDE SEGUIR DESPUÉS DE ELEGIR EL PAÍS (5 nov 2026).
+ *
+ * Al entrar o al crear la cuenta, la persona vuelve a SU país (el de su
+ * cuenta) y sigue a su cuenta o a su panel, no a la portada. Solo esas dos
+ * rutas: cualquier otra cosa en `luego` se ignora (nadie arma desde fuera un
+ * salto a otro sitio).
+ */
+const SEGUIR_A = ["/cuenta", "/panel"] as const;
+
+export function rutaParaSeguir(luego: string | null | undefined): string {
+  return (SEGUIR_A as readonly string[]).includes(luego ?? "") ? luego! : "";
+}
+
+/**
+ * EL PAÍS DE LA CUENTA MANDA AL ENTRAR (una sola Mercatren, 5 nov 2026).
+ *
+ * Si la cuenta dice otro país que el de la visita, y ese país se puede usar
+ * DENTRO de este mismo sitio (mercatren.com y los que viven dentro), se pasa
+ * por `/datos/pais` para dejarlo puesto y se sigue a `ruta`. Si el país de la
+ * cuenta vive en otro dominio, NO se salta: la sesión es de este dominio y la
+ * persona aterrizaría sin sesión. Devuelve `null` cuando no hay nada que
+ * cambiar.
+ */
+export function destinoConElPaisDeLaCuenta(o: {
+  paisCuenta: string | null | undefined;
+  host: string | null | undefined;
+  paisVisita: string;
+  idioma: Idioma;
+  ruta: string;
+}): string | null {
+  const cuenta = (o.paisCuenta ?? "").trim().toUpperCase();
+  if (!cuenta || cuenta === o.paisVisita) return null;
+  if (!esMercadoPrincipal(mercadoPorHost(o.host))) return null;
+  const mercado = MERCADOS.find((m) => m.codigo === cuenta);
+  if (!mercado) return null;
+  const cabeAqui =
+    mercado.principal === true ||
+    mercado.enElPrincipal === true ||
+    dentroDeMercatren(mercado.codigo);
+  if (!cabeAqui) return null;
+  const seguir = rutaParaSeguir(o.ruta);
+  return `/datos/pais?a=${mercado.codigo}&idioma=${o.idioma}${seguir ? `&luego=${seguir}` : ""}`;
 }
 
 /** La cabecera `Set-Cookie` que corresponde a la decisión, o null. */

@@ -8,6 +8,7 @@ import {
   type Mercado,
 } from "@/lib/mercado/mercados";
 import { monedaDelMercado } from "@/lib/mercado/moneda";
+import { paisesEnLaApp } from "@/lib/mercado/interruptores";
 import { ventaPausada } from "@/lib/ventas/pausa";
 
 /**
@@ -29,7 +30,8 @@ import { ventaPausada } from "@/lib/ventas/pausa";
  * se enciende solo con su cobro, sus impuestos y su proveedor probados (lista
  * de `ABRIR-UN-PAIS.md`). Hoy, Estados Unidos.
  */
-export const PAISES_ENCENDIDOS: readonly string[] = ["US"];
+/* Sale del interruptor de cada país (`mercado/interruptores.ts`). */
+export const PAISES_ENCENDIDOS: readonly string[] = paisesEnLaApp();
 
 export type IdiomaApp = "es" | "en";
 

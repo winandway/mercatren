@@ -9,12 +9,19 @@ import { CampoClave } from "@/components/cuenta/campo-clave";
 import { Escudo } from "@/components/cuenta/escudo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { destinoConElPaisDeLaCuenta } from "@/lib/mercado/elegir-pais";
 
 /**
  * Entrada al sistema. El panel de administracion solo abre para las cuentas
  * con permiso; una cuenta recien creada entra como cliente.
  */
-export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
+export function FormularioEntrar({
+  claveEscudo,
+  paisDeLaVisita = "US",
+}: {
+  claveEscudo?: string;
+  paisDeLaVisita?: string;
+}) {
   const t = useTranslations("entrar");
   const idioma = useLocale();
   const parametros = useSearchParams();
@@ -91,7 +98,24 @@ export function FormularioEntrar({ claveEscudo }: { claveEscudo?: string }) {
      * vez con la sesion nueva. Cuesta una fraccion de segundo y solo pasa una
      * vez, al entrar.
      */
-    window.location.assign(`/${idioma}${ruta === "/" ? "" : ruta}`);
+    /* EL PAÍS DE LA CUENTA MANDA (una sola Mercatren, 5 nov 2026): si la
+       cuenta es de otro país que se usa dentro de este sitio, se pasa por
+       él y se sigue a la cuenta o al panel. */
+    const paisCuenta = (data?.user as { paisEntrega?: string } | undefined)
+      ?.paisEntrega;
+    const conSuPais =
+      destino === "/"
+        ? destinoConElPaisDeLaCuenta({
+            paisCuenta,
+            host: window.location.host,
+            paisVisita: paisDeLaVisita,
+            idioma: idioma === "en" ? "en" : "es",
+            ruta,
+          })
+        : null;
+    window.location.assign(
+      conSuPais ?? `/${idioma}${ruta === "/" ? "" : ruta}`,
+    );
   }
 
   return (

@@ -4,6 +4,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { paisesParaElAlta } from "@/lib/cuenta/pais-del-alta";
+import { nombreDelMercado } from "@/lib/mercado/mercados";
+import { monedaDelMercado } from "@/lib/mercado/moneda";
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { FormularioRegistro } from "@/components/cuenta/formulario-registro";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +39,15 @@ export default async function PaginaRegistro({
   // componente no dibuja nada y la entrada funciona como siempre.
   const { env } = getCloudflareContext();
   const claveEscudo = env.TURNSTILE_CLAVE_SITIO;
+
+  /* EL PAÍS AL CREAR LA CUENTA (una sola Mercatren, 5 nov 2026): los mismos
+     de la app (su interruptor) y, siempre, el de esta visita. */
+  const mercado = await mercadoDeLaPeticion();
+  const paises = paisesParaElAlta(mercado.codigo).map((m) => ({
+    codigo: m.codigo,
+    nombre: nombreDelMercado(m, locale === "en" ? "en" : "es"),
+    moneda: monedaDelMercado(m),
+  }));
   const t = await getTranslations("entrar");
 
   return (
@@ -82,7 +95,11 @@ export default async function PaginaRegistro({
         ))}
       </ul>
 
-      <FormularioRegistro claveEscudo={claveEscudo} />
+      <FormularioRegistro
+        claveEscudo={claveEscudo}
+        paises={paises}
+        paisDeLaVisita={mercado.codigo}
+      />
     </section>
   );
 }

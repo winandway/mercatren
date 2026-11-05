@@ -14,6 +14,7 @@ import { Escudo } from "@/components/cuenta/escudo";
 import { Campo } from "@/components/ui/campo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { destinoConElPaisDeLaCuenta } from "@/lib/mercado/elegir-pais";
 import { registrarAceptacion } from "@/lib/legal-acciones";
 import { medirClave } from "@/lib/validacion/fortaleza";
 
@@ -28,13 +29,23 @@ import { medirClave } from "@/lib/validacion/fortaleza";
  * formulario a proposito (`input: false` en el esquema de la cuenta): quien
  * entra al panel se decide aparte, nunca desde aqui.
  */
-export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
+export function FormularioRegistro({
+  claveEscudo,
+  paises = [],
+  paisDeLaVisita = "US",
+}: {
+  claveEscudo?: string;
+  /** Los países que se ofrecen (`paisesParaElAlta`), el de la visita primero. */
+  paises?: { codigo: string; nombre: string; moneda: string }[];
+  paisDeLaVisita?: string;
+}) {
   const t = useTranslations("entrar");
   const tClave = useTranslations("formularios.clave");
   const idioma = useLocale();
   const parametros = useSearchParams();
   const destino = parametros.get("destino") ?? "/";
 
+  const [pais, setPais] = useState(paisDeLaVisita);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [clave, setClave] = useState("");
@@ -84,8 +95,16 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
 
     setEnviando(true);
 
+    /* El país va en la cuenta (`paisEntrega`), como en la app: de ahí salen
+       su moneda y lo que puede comprar. El servidor lo revisa
+       (`paisDelAltaValido`). */
     const { error: fallo } = await authClient.signUp.email(
-      { name: nombre.trim(), email: correo.trim(), password: clave },
+      {
+        name: nombre.trim(),
+        email: correo.trim(),
+        password: clave,
+        paisEntrega: pais,
+      } as Parameters<typeof authClient.signUp.email>[0],
       { headers: pase ? { "x-escudo": pase } : {} },
     );
 
@@ -124,9 +143,19 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
        vuelve y le repinta encima un nombre y un correo ya usados. */
     olvidarBorrador("registro-cuenta");
 
-    // Carga completa, por lo mismo que en la pantalla de entrar: acaba de
-    // cambiar quien eres y el servidor tiene que armar la pagina otra vez.
-    window.location.assign(`/${idioma}${destino === "/" ? "" : destino}`);
+    /* Si eligió otro país que el de esta visita, se pasa por su país (y se
+       sigue a su cuenta); si no, a donde iba. Carga completa, por lo mismo
+       que en la pantalla de entrar: acaba de cambiar quien eres. */
+    const conSuPais = destinoConElPaisDeLaCuenta({
+      paisCuenta: pais,
+      host: window.location.host,
+      paisVisita: paisDeLaVisita,
+      idioma: idioma === "en" ? "en" : "es",
+      ruta: "/cuenta",
+    });
+    window.location.assign(
+      conSuPais ?? `/${idioma}${destino === "/" ? "" : destino}`,
+    );
   }
 
   return (
@@ -157,6 +186,29 @@ export function FormularioRegistro({ claveEscudo }: { claveEscudo?: string }) {
         onChange={setCorreo}
         requerido
       />
+
+      {/* EL PAÍS DONDE VIVES: de ahí salen tu moneda y lo que puedes comprar
+          (una sola Mercatren). El de la visita viene elegido. */}
+      {paises.length > 1 ? (
+        <label className="block">
+          <span className="text-sm font-semibold">{t("pais")}</span>
+          <select
+            name="pais"
+            value={pais}
+            onChange={(e) => setPais(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-borde bg-white px-3 py-2.5 text-sm outline-none focus:border-carga-500"
+          >
+            {paises.map((p) => (
+              <option key={p.codigo} value={p.codigo}>
+                {p.nombre} · {p.moneda}
+              </option>
+            ))}
+          </select>
+          <span className="mt-1 block text-xs text-tinta-suave">
+            {t("paisAyuda")}
+          </span>
+        </label>
+      ) : null}
 
       <CampoClave
         nombre="clave"

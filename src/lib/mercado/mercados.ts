@@ -35,6 +35,8 @@
  * mercatren.com queda solo para lo que se entrega en Estados Unidos.
  */
 
+import { dentroDeMercatren } from "./interruptores";
+
 export type Mercado = {
   /** El código que guarda `tiendas.mercado`. */
   codigo: string;
@@ -204,8 +206,15 @@ export function mercadoDeLaVisita(
   const delHost = mercadoPorHost(host);
   if (!esMercadoPrincipal(delHost)) return delHost;
   const elegido = (paisElegido ?? "").trim().toUpperCase();
+  /* Un país con dominio propio también puede vivir dentro del principal si
+     su interruptor lo dice (`interruptores.ts`): una sola Mercatren. */
   return (
-    MERCADOS.find((m) => m.enElPrincipal && m.codigo === elegido) ?? delHost
+    MERCADOS.find(
+      (m) =>
+        !m.principal &&
+        (m.enElPrincipal || dentroDeMercatren(m.codigo)) &&
+        m.codigo === elegido,
+    ) ?? delHost
   );
 }
 

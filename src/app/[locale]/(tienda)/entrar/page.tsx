@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { FormularioEntrar } from "@/components/cuenta/formulario-entrar";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +37,10 @@ export default async function PaginaEntrar({
     <section className="mx-auto w-full max-w-md px-4 py-16">
       <h1 className="text-2xl font-bold tracking-tight">{t("titulo")}</h1>
       <p className="mt-1 text-sm text-tinta-suave">{t("subtitulo")}</p>
-      <FormularioEntrar claveEscudo={claveEscudo} />
+      <FormularioEntrar
+        claveEscudo={claveEscudo}
+        paisDeLaVisita={(await mercadoDeLaPeticion()).codigo}
+      />
     </section>
   );
 }

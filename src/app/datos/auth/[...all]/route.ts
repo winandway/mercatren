@@ -1,6 +1,10 @@
 import { getAuth } from "@/lib/auth";
 import { problemaDelCambio } from "@/lib/cuenta/cambio-de-datos";
-import { paisDelAltaValido } from "@/lib/cuenta/pais-del-alta";
+import {
+  paisDelAltaPermitido,
+  paisDelAltaValido,
+} from "@/lib/cuenta/pais-del-alta";
+import { COOKIE_DEL_PAIS, mercadoDeLaVisita } from "@/lib/mercado/mercados";
 import { comprobarEscudo } from "@/lib/escudo";
 import {
   anotarFallo,
@@ -56,6 +60,16 @@ async function correoDelCuerpo(request: Request): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+/** El país de esta visita, por su dominio y su cookie (la misma regla del sitio). */
+function mercadoDeLaPeticionHttp(request: Request) {
+  const galleta = (request.headers.get("cookie") ?? "")
+    .split(";")
+    .map((p) => p.trim())
+    .find((p) => p.startsWith(`${COOKIE_DEL_PAIS}=`))
+    ?.slice(COOKIE_DEL_PAIS.length + 1);
+  return mercadoDeLaVisita(request.headers.get("host"), galleta);
 }
 
 /** El país del alta, tal como venga (ver `lib/cuenta/pais-del-alta.ts`). */
@@ -154,7 +168,13 @@ export async function POST(request: Request) {
 
   if (pathname.endsWith("/sign-up/email")) {
     /* El país de la app: solo uno de la lista cerrada de mercados. */
-    if (!paisDelAltaValido(await paisDelCuerpo(request))) {
+    if (
+      !paisDelAltaValido(await paisDelCuerpo(request)) ||
+      !paisDelAltaPermitido(
+        await paisDelCuerpo(request),
+        mercadoDeLaPeticionHttp(request).codigo,
+      )
+    ) {
       return Response.json(
         { message: "País no válido.", code: "PAIS_NO_VALIDO" },
         { status: 400 },

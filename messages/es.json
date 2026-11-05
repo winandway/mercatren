@@ -365,7 +365,9 @@
         "titulo": "Para vender, con la misma cuenta",
         "texto": "Abre tu tienda cuando quieras. Se publica al momento: no hay que esperar a que nadie te apruebe."
       }
-    }
+    },
+    "pais": "País donde vives",
+    "paisAyuda": "De aquí salen tu moneda y lo que puedes comprar. Lo puedes cambiar después."
   },
   "panel": {
     "titulo": "Administración",

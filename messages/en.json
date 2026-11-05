@@ -365,7 +365,9 @@
         "titulo": "To sell, with the same account",
         "texto": "Open your store whenever you want. It goes live right away — no waiting for anyone to approve you."
       }
-    }
+    },
+    "pais": "Country you live in",
+    "paisAyuda": "It sets your currency and what you can buy. You can change it later."
   },
   "panel": {
     "titulo": "Admin",

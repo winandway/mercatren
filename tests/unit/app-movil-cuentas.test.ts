@@ -107,10 +107,13 @@ describe("el país de la cuenta", () => {
     const ruta = leer("src/app/datos/auth/[...all]/route.ts");
     const alta = ruta.indexOf('pathname.endsWith("/sign-up/email")');
     const pais = ruta.indexOf(
-      "if (!paisDelAltaValido(await paisDelCuerpo(request))) {\n      return Response.json(",
+      "!paisDelAltaValido(await paisDelCuerpo(request))",
     );
+    /* Y que sea uno de los que se ofrecen (interruptor del país, 5 nov 2026). */
+    const permitido = ruta.indexOf("!paisDelAltaPermitido(", alta);
     expect(alta).toBeGreaterThan(-1);
     expect(pais).toBeGreaterThan(alta);
+    expect(permitido).toBeGreaterThan(alta);
   });
 });
 
