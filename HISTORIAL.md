@@ -15,6 +15,34 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA APP ABRE TIENDAS CON LA MISMA ALTA DE LA WEB (5 nov 2026)
+
+**Qué es.** El inicio de un país sin productos ya no es una pantalla en blanco
+(lo pidió Gerencia: una app vacía no pasa ninguna tienda): enseña «Abre tu
+tienda en Mercatren» con tres pasos y el botón «Crea tu tienda». La tienda se
+crea desde la app con los mismos datos obligatorios que la web, nace activa
+en el país de la app, con su billetera en la moneda del país, el rol de
+vendedor y la firma de los términos (`contexto: "alta-comercio-app"`).
+
+**Cómo se hizo, para que no se aparte:** el alta salió de la acción de la web
+a `src/lib/tiendas/alta.ts` (`darDeAltaComercio`), que usan la web
+(`solicitarComercio`) y la app (`/datos/app/mi/tienda`). NO va en un archivo
+«use server»: ahí cada función exportada se puede llamar desde el navegador,
+y esta recibe el usuario ya resuelto; quien la llama lo saca SIEMPRE de la
+sesión. «Mi tienda» es privada y vive fuera de `/datos/app/v1` (lo que se
+guarda en el borde).
+
+**Arreglado de paso, para web y app:** la firma de los términos se grababa
+ANTES de revisar los datos, y cada intento con un dato mal escrito dejaba una
+fila de más. Ahora va en la misma escritura que la tienda.
+
+**Candado:** `tests/unit/app-movil-tienda.test.ts` y
+`tests/unit/alta-sin-aprobacion.test.ts` (la web y la app usan la misma alta).
+
+**Cómo se comprueba:** en el simulador, contra el servidor local: inicio
+vacío → «Crea tu tienda» → entrar → llenar → «¡Tu tienda está lista!»; en la
+base local, la tienda `activa`, billetera `USD`, rol `vendedor`.
+
 ## LAS CUENTAS DENTRO DE LA APP NATIVA (5 nov 2026)
 
 **Qué es.** La app de Expo (`app-movil/`) entra y crea cuenta con las MISMAS

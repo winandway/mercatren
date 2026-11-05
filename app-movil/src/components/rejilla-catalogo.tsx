@@ -20,12 +20,15 @@ export function RejillaCatalogo({
   q = "",
   vacio,
   cabecera,
+  alVaciar,
 }: {
   pais: string | null;
   idioma: Idioma;
   q?: string;
   vacio: ClaveDeTexto;
   cabecera?: React.ReactElement;
+  /** Lo que se enseña cuando no hay productos (en vez del texto `vacio`). */
+  alVaciar?: React.ReactElement;
 }) {
   const { productos, estado, hayMas, masAbajo, reiniciar } = useCatalogo(
     pais,
@@ -65,7 +68,9 @@ export function RejillaCatalogo({
         estado === "cargando" ? (
           <ActivityIndicator style={estilos.cargando} color={COLORES.naranja} />
         ) : (
-          <Text style={estilos.aviso}>{texto(idioma, vacio)}</Text>
+          (alVaciar ?? (
+            <Text style={estilos.aviso}>{texto(idioma, vacio)}</Text>
+          ))
         )
       }
       ListFooterComponent={

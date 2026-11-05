@@ -124,7 +124,7 @@ export function absoluta(url: string | null): string | null {
 
 export class FalloDeRed extends Error {
   constructor(
-    readonly motivo: "sin_conexion" | "no_existe" | "servidor",
+    readonly motivo: "sin_conexion" | "no_existe" | "servidor" | "sin_sesion",
     mensaje?: string,
   ) {
     super(mensaje ?? motivo);
@@ -135,11 +135,13 @@ export class FalloDeRed extends Error {
 export async function pedirJson<T>(
   url: string,
   pedir: typeof fetch = fetch,
+  opciones: RequestInit = {},
 ): Promise<T> {
   const corte = new AbortController();
   const reloj = setTimeout(() => corte.abort(), 15_000);
   try {
-    const r = await pedir(url, { signal: corte.signal });
+    const r = await pedir(url, { ...opciones, signal: corte.signal });
+    if (r.status === 401) throw new FalloDeRed("sin_sesion");
     if (r.status === 404) throw new FalloDeRed("no_existe");
     if (!r.ok) throw new FalloDeRed("servidor", `HTTP ${r.status}`);
     return (await r.json()) as T;

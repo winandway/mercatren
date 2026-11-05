@@ -224,15 +224,14 @@ describe("las reglas de la casa, dentro de la app", () => {
   });
 
   it("la configuración de tipos de la app no depende de sus paquetes (GitHub no los instala)", () => {
-    /* `expo start` vuelve a meter el «extends» si no se arranca con
-       EXPO_NO_TYPESCRIPT_SETUP=1 (pasó el 5 nov 2026 y tumbó la publicación). */
+    /* Hereda de una copia LOCAL de la base de Expo. Con «expo/tsconfig.base»
+       (un paquete) las pruebas se caen en GitHub, que no instala la app: pasó
+       el 5 nov 2026 y tumbó la publicación. Expo solo pone el suyo si falta. */
     const tipos = JSON.parse(
       readFileSync("app-movil/tsconfig.json", "utf-8"),
     ) as Record<string, unknown>;
-    expect(tipos.extends).toBeUndefined();
-    expect(readFileSync("app-movil/package.json", "utf-8")).toContain(
-      "EXPO_NO_TYPESCRIPT_SETUP=1",
-    );
+    expect(tipos.extends).toBe("./tsconfig.base.json");
+    expect(statSync("app-movil/tsconfig.base.json").isFile()).toBe(true);
   });
 
   it("la app se llama Mercatren, con su identificador y la cuenta de Expo de la empresa", () => {

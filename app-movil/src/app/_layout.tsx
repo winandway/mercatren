@@ -46,6 +46,13 @@ function Navegacion() {
           }}
         />
         <Stack.Screen
+          name="crear-tienda"
+          options={{
+            presentation: "modal",
+            title: texto(idioma, "crearTienda"),
+          }}
+        />
+        <Stack.Screen
           name="cambiar-pais"
           options={{
             headerShown: false,

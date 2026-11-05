@@ -137,8 +137,12 @@ apruebe Divoox.
       idioma de la app), entrar, cerrar sesión, escudo anti-robots en vista
       web, borrador que no guarda la contraseña. Probado en el simulador (ver
       HISTORIAL, «LAS CUENTAS DENTRO DE LA APP NATIVA»).
-- [ ] 💻 Portada del inicio con «Crea tu tienda» cuando el país no tiene
-      productos (pedido de Gerencia: una app vacía no pasa ninguna tienda).
+- [x] ✅ 💻 Portada del inicio con «Crea tu tienda» cuando el país no tiene
+      productos (pedido de Gerencia), y crear la tienda desde la app con la
+      MISMA alta de la web. Probado en el simulador (ver HISTORIAL, «LA APP
+      ABRE TIENDAS CON LA MISMA ALTA DE LA WEB»).
+- [ ] 💻 Parte 4 · Subir productos desde la app con la cámara (título y
+      descripción en los dos idiomas, precio, fotos) y «mis ventas».
 - [ ] 💻 Borrar la cuenta desde la app (Apple lo exige dentro de la app),
       antes de cualquier envío a las tiendas.
 - [ ] 💻 Parte 3b · El carrito y el pago con la hoja de Stripe (sin cobros

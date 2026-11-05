@@ -19,16 +19,31 @@ import en from "@/../messages/en.json";
  * porque nada se ponía rojo.
  */
 describe("la tienda nace activa y nadie la aprueba", () => {
-  const alta = readFileSync("src/lib/tiendas/acciones.ts", "utf8");
+  /* Desde el 5 nov 2026 el alta vive en `alta.ts`: la comparten la web
+     (`solicitarComercio`) y la app nativa (`/datos/app/mi/tienda`). */
+  const alta = readFileSync("src/lib/tiendas/alta.ts", "utf8");
 
   it("el alta inserta la tienda en `activa`", () => {
     /* Si alguien vuelve a poner `pendiente` aquí, el comercio se queda con su
        tienda en 404 y creyendo que el sitio perdió su trabajo. */
-    expect(alta).toContain('estado: "activa"');
     const cuerpoDelAlta = alta.slice(
-      alta.indexOf("export async function solicitarComercio"),
+      alta.indexOf("export async function darDeAltaComercio"),
     );
+    expect(cuerpoDelAlta).toContain('estado: "activa"');
     expect(cuerpoDelAlta).not.toContain('estado: "pendiente"');
+  });
+
+  it("la web y la app usan la MISMA alta", () => {
+    expect(readFileSync("src/lib/tiendas/acciones.ts", "utf8")).toContain(
+      "return darDeAltaComercio({",
+    );
+    expect(
+      readFileSync("src/app/datos/app/mi/tienda/route.ts", "utf8"),
+    ).toContain("darDeAltaComercio({");
+    /* Y nunca desde un archivo «use server», donde se podría llamar con otro
+       usuario desde el navegador. */
+    expect(alta.startsWith('"use server"')).toBe(false);
+    expect(alta).toContain('import "server-only";');
   });
 
   it("el correo al equipo AVISA, no manda a aprobar", () => {

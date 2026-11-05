@@ -34,10 +34,10 @@ vez que abre la app.
 - En el simulador, contra el servidor local: crear `.env.local` con
   `EXPO_PUBLIC_API_URL=http://localhost:3000` (no se sube al repositorio),
   levantar el sitio con `npm run dev` en la raíz y aquí `npm run ios`.
-- **Siempre con `npm run …` (o `EXPO_NO_TYPESCRIPT_SETUP=1 npx expo start`).**
-  Un `npx expo start` a secas le vuelve a poner a `tsconfig.json` el
-  «extends» de Expo, y eso tumba las pruebas del sitio en GitHub (pasó el
-  5 nov 2026). Hay prueba que lo vigila.
+- **La configuración de tipos hereda de `tsconfig.base.json`, una copia local
+  de la de Expo.** No se cambia por `expo/tsconfig.base`: en GitHub la app no
+  tiene sus paquetes y las pruebas del sitio se caen (pasó el 5 nov 2026). Hay
+  prueba que lo vigila.
 
 ## La cuenta de Expo
 

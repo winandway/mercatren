@@ -2,12 +2,13 @@ import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { PortadaVender } from "@/components/portada-vender";
 import { RejillaCatalogo } from "@/components/rejilla-catalogo";
 import { SelectorIdioma } from "@/components/selector-idioma";
 import { usePreferencias } from "@/contexto/preferencias";
 import { COLORES } from "@/lib/colores";
 
-/** Inicio: la cabecera azul de la marca y el catálogo del país. */
+/** Inicio: la cabecera azul de la marca y el catálogo del país (o la portada «Abre tu tienda»). */
 export default function Inicio() {
   const { pais, idioma } = usePreferencias();
   return (
@@ -23,7 +24,14 @@ export default function Inicio() {
           <SelectorIdioma />
         </View>
       </SafeAreaView>
-      <RejillaCatalogo pais={pais} idioma={idioma} vacio="sinProductos" />
+      {/* Un país sin productos no es una pantalla en blanco: invita a vender
+          (pedido de Gerencia). Con productos, la invitación va arriba, corta. */}
+      <RejillaCatalogo
+        pais={pais}
+        idioma={idioma}
+        vacio="sinProductos"
+        alVaciar={<PortadaVender pais={pais} idioma={idioma} />}
+      />
     </View>
   );
 }

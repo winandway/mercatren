@@ -55,7 +55,8 @@ describe("el país de un comercio se guarda como código", () => {
   });
 
   it("EL ALTA DE UN COMERCIO LO USA, o el dato se vuelve a ensuciar", () => {
-    const acciones = readFileSync("src/lib/tiendas/acciones.ts", "utf8");
+    /* Desde el 5 nov 2026 el alta vive en `alta.ts` (la comparten web y app). */
+    const acciones = readFileSync("src/lib/tiendas/alta.ts", "utf8");
     expect(acciones).toContain("codigoDePais(d.paisOrigen)");
     /* Y no puede volver a guardarse crudo. */
     expect(acciones).not.toMatch(/paisOrigen:\s*d\.paisOrigen\s*,/);

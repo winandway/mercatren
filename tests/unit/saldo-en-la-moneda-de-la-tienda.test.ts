@@ -51,7 +51,7 @@ describe("la moneda de una tienda sale de su país", () => {
   });
 
   it("una tienda nueva abre su billetera en la moneda de su país", () => {
-    expect(leer("src/lib/tiendas/acciones.ts")).toContain(
+    expect(leer("src/lib/tiendas/alta.ts")).toContain(
       "moneda: monedaDelMercado(mercado)",
     );
   });

@@ -1,11 +1,8 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-
-import { codigoDePais } from "@/lib/mercado/codigo-de-pais";
 
 import {
   esSoporteDeVerdad,
@@ -15,14 +12,9 @@ import {
 } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
 import { mercadoActual } from "@/lib/mercado/actual";
-import { monedaDelMercado } from "@/lib/mercado/moneda";
-import {
-  documentoDelMercado,
-  type DocumentoDelMercado,
-} from "@/lib/mercado/identificacion";
-import { VERSION_TERMINOS } from "@/lib/legal";
 import { mensajes } from "@/lib/mensajes";
-import { aceptaciones, billeteras, tiendas, user } from "@/lib/db/schema";
+import { tiendas, user } from "@/lib/db/schema";
+import { darDeAltaComercio } from "@/lib/tiendas/alta";
 import { borrarImagen, subirImagen } from "@/lib/subidas";
 
 /**
@@ -179,73 +171,6 @@ export async function guardarMiTienda(
   return { ok: true, mensaje: t("tiendaGuardada") };
 }
 
-/**
- * ALTA DE UN COMERCIO NUEVO, hecha por él mismo.
- *
- * Antes esto solo lo podía hacer el equipo, a mano, contra la base. Quien se
- * registraba por "Vender en Mercatren" acababa con una cuenta de comprador,
- * sin tienda, mirando un panel vacío — sin ningún error en pantalla, porque
- * no había ningún error: sencillamente nadie le había asignado nada.
- *
- * TRES REGLAS QUE NO SE NEGOCIAN:
- *
- * 1. Los datos de la empresa son OBLIGATORIOS. No se crea una tienda a medias
- *    para andar después llamando al comercio a pedirle lo que falta. O están
- *    todos, o no hay alta.
- *
- * 2. La tienda nace PENDIENTE, nunca activa. Cobrar en nombre de Mercatren no
- *    puede ser algo que uno se conceda solo: lo aprueba el equipo.
- *
- * 3. Se le abre su billetera desde el primer día. Sin ella, el primer pago
- *    que le aprueben no tendría dónde acreditarse.
- */
-const esquemaComercio = (t: Textos, documento: DocumentoDelMercado) =>
-  z.object({
-    nombre: z.string().trim().min(2, t("nombreTiendaObligatorio")).max(80),
-    razonSocial: z.string().trim().min(2, t("faltaRazonSocial")).max(120),
-    /**
-     * EL DOCUMENTO DE LA EMPRESA, CON LA REGLA DE SU PAÍS.
-     *
-     * En Chile es el RUT y lleva dígito verificador, así que se comprueba de
-     * verdad: un dedazo se atrapa aquí y no semanas después, al facturarle.
-     * En los demás mercados sigue la regla genérica de siempre — mercatren.com
-     * no cambia ni un carácter.
-     *
-     * Se guarda NORMALIZADO (sin puntos ni guiones): lo guardado es lo que
-     * alguien copia y pega en un banco o en una factura.
-     */
-    identificacionFiscal: z
-      .string()
-      .trim()
-      .min(1, t("faltaIdentificacion"))
-      .max(40)
-      .superRefine((valor, ctx) => {
-        const aviso = documento.revisar(valor);
-        if (aviso) {
-          ctx.addIssue({ code: "custom", message: t(aviso) });
-        }
-      })
-      .transform((valor) => documento.normalizar(valor)),
-    correoContacto: z.string().trim().email(t("correoInvalido")),
-    telefono: z.string().trim().min(6, t("faltaTelefono")).max(40),
-    direccion: z.string().trim().min(4, t("faltaDireccion")).max(200),
-    ciudad: z.string().trim().min(2, t("faltaCiudad")).max(80),
-    paisOrigen: z.string().trim().min(2, t("faltaPais")).max(60),
-    descripcionEs: z.string().trim().max(600).optional(),
-    sitioWeb: z.union([z.literal(""), z.string().trim().url()]).optional(),
-  });
-
-/** Convierte "Ferremateriales Bley" en "ferrematerailes-bley". */
-function aSlug(nombre: string) {
-  return nombre
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-}
-
 export async function solicitarComercio(
   _previo: unknown,
   datos: FormData,
@@ -260,136 +185,15 @@ export async function solicitarComercio(
      vez, aquí. */
   const mercado = await mercadoActual();
 
-  const db = getDb();
-
-  // Si ya tiene comercio, no se le crea otro: se le manda a su panel.
-  const [suya] = await db
-    .select({ id: tiendas.id })
-    .from(tiendas)
-    .where(eq(tiendas.propietarioId, usuario.id))
-    .limit(1);
-
-  if (suya) return { ok: false, mensaje: t("yaTienesComercio") };
-
-  /* LA FIRMA, EXIGIDA EN EL SERVIDOR. La casilla del navegador se puede
-     manipular; esta comprobación no. Y la aceptación queda grabada con
-     quién, cuándo y qué versión — es lo que convierte el clic en firma. */
-  if (String(datos.get("aceptaTerminos") ?? "") !== "on") {
-    return { ok: false, mensaje: t("aceptaTerminosComercio") };
-  }
-  await db.insert(aceptaciones).values({
-    id: nanoid(),
-    userId: usuario.id,
-    documento: "terminos",
-    version: VERSION_TERMINOS,
+  return darDeAltaComercio({
+    usuario,
+    mercado,
+    datos: Object.fromEntries(
+      [...datos.entries()].map(([k, v]) => [k, String(v)]),
+    ),
+    t,
     contexto: "alta-comercio",
-    creadoEn: new Date(),
   });
-
-  const revisado = esquemaComercio(t, documentoDelMercado(mercado)).safeParse(
-    Object.fromEntries(datos) as Record<string, string>,
-  );
-
-  if (!revisado.success) {
-    return {
-      ok: false,
-      mensaje: revisado.error.issues[0]?.message ?? t("revisaLosDatos"),
-    };
-  }
-
-  const d = revisado.data;
-
-  // El slug tiene que ser único: es la dirección pública de la tienda.
-  let slug = aSlug(d.nombre) || "comercio";
-  const [ocupado] = await db
-    .select({ id: tiendas.id })
-    .from(tiendas)
-    .where(eq(tiendas.slug, slug))
-    .limit(1);
-  if (ocupado) slug = `${slug}-${nanoid(5).toLowerCase()}`;
-
-  const tiendaId = `tienda-${nanoid(10)}`;
-
-  await db.batch([
-    db.insert(tiendas).values({
-      id: tiendaId,
-      propietarioId: usuario.id,
-      slug,
-      nombre: d.nombre,
-      razonSocial: d.razonSocial,
-      identificacionFiscal: d.identificacionFiscal,
-      correoContacto: d.correoContacto,
-      telefono: d.telefono,
-      direccion: d.direccion,
-      ciudad: d.ciudad,
-      /* Se guarda el CÓDIGO, venga como venga del formulario: ver
-         `codigo-de-pais.ts`, que cuenta lo que costó no hacerlo. */
-      paisOrigen: codigoDePais(d.paisOrigen),
-      /**
-       * LA VITRINA DONDE VA A VENDER: el dominio por el que se registró.
-       *
-       * No se deduce de `paisOrigen` y son cosas distintas: la ferretería
-       * despacha DESDE Venezuela y vende EN mercatren.com. Quien se dé de alta
-       * entrando por mercatren.cl vende en Chile, salga su mercancía de donde
-       * salga.
-       *
-       * Sin esto, un comercio chileno se registraba y su tienda aparecía en el
-       * catálogo de mercatren.com —el default de la columna— mientras su
-       * propio dominio seguía vacío. El comercio no vería su tienda por ningún
-       * lado y no tendría forma de entender por qué.
-       *
-       * El equipo lo puede corregir después desde Comercios.
-       */
-      mercado: mercado.codigo,
-      sitioWeb: d.sitioWeb || null,
-      descripcionEs: d.descripcionEs || null,
-      /**
-       * NACE ACTIVA. Decision del dueño, 15 ago 2026.
-       *
-       * Antes nacia `pendiente` y la aprobaba el equipo. En la practica eso era
-       * una cola que nadie miraba: los comercios que se registran son gente a
-       * la que el dueño MANDA a registrarse, asi que la aprobacion era un
-       * tramite que el siempre iba a conceder — y mientras tanto el comercio
-       * veia su tienda en 404 y creia que el sitio habia perdido su trabajo.
-       *
-       * El control no desaparece, cambia de momento: se revisa DESPUES y se
-       * suspende a quien no cumpla. Es la diferencia entre frenar a todos por
-       * si acaso y frenar a quien de verdad hace algo raro.
-       *
-       * `pendiente` y `borrador` siguen existiendo y las pantallas los saben
-       * leer: es lo que queda al suspender a alguien.
-       */
-      estado: "activa",
-    }),
-
-    // Su billetera, desde el primer día.
-    db.insert(billeteras).values({
-      id: `billetera-${nanoid(10)}`,
-      tiendaId,
-      /* La de su país. El saldo se calcula con `monedaDeLaTienda`, pero la
-         fila tampoco debe decir USD para una tienda que vende en euros. */
-      moneda: monedaDelMercado(mercado),
-    }),
-
-    // Ya es un comercio: el panel deja de tratarlo como comprador.
-    db.update(user).set({ rol: "vendedor" }).where(eq(user.id, usuario.id)),
-  ]);
-
-  revalidatePath("/[locale]/panel", "layout");
-
-  /* Al equipo, para enterarse — NO para aprobar nada. El aviso dice que la
-     tienda ya está activa: pedirle al equipo que «verifique» a alguien que ya
-     está vendiendo es una tarea que no existe, y de las que enseñan a ignorar
-     los correos del sistema. Nunca es requisito: si el correo falla, el alta
-     ya está hecha. */
-  try {
-    const { correoAvisoComercioNuevo } = await import("@/lib/correo/correos");
-    await correoAvisoComercioNuevo({ ...d, slug });
-  } catch (e) {
-    console.error("[comercio] alta creada; aviso interno fallido:", e);
-  }
-
-  return { ok: true, mensaje: t("comercioListo"), slug };
 }
 
 /**

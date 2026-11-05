@@ -431,6 +431,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [LA APP ABRE TIENDAS CON LA MISMA ALTA DE LA WEB (5 nov 2026)](HISTORIAL.md#la-app-abre-tiendas-con-la-misma-alta-de-la-web-5-nov-2026)
 - [LAS CUENTAS DENTRO DE LA APP NATIVA (5 nov 2026)](HISTORIAL.md#las-cuentas-dentro-de-la-app-nativa-5-nov-2026)
 - [MERCATREN SE REABRE SIN CJ: LA GENTE CREA SU TIENDA DESDE LA APP (5 nov 2026)](HISTORIAL.md#mercatren-se-reabre-sin-cj-la-gente-crea-su-tienda-desde-la-app-5-nov-2026)
 - [LA TIENDA SE CIERRA EN EL CÓDIGO Y LAS PÁGINAS LEGALES NUNCA SE APAGAN (5 nov 2026)](HISTORIAL.md#la-tienda-se-cierra-en-el-código-y-las-páginas-legales-nunca-se-apagan-5-nov-2026)
