@@ -31,6 +31,10 @@ export function PortadaVender({
       <View style={[estilos.caja, compacta && estilos.compacta]}>
         <Text style={estilos.titulo}>{texto(idioma, "tuTiendaAbierta")}</Text>
         <Text style={estilos.texto}>{tienda.nombre}</Text>
+        <BotonPrincipal
+          texto={texto(idioma, "verMiTienda")}
+          onPress={() => router.push("/mi-tienda")}
+        />
       </View>
     );
   }

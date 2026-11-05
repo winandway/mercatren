@@ -20,8 +20,13 @@ import { getTranslations } from "next-intl/server";
  * El idioma sale del que está navegando, sin tener que pasarlo por parámetro:
  * la dirección ya empieza por /es o /en y next-intl lo resuelve solo.
  */
-export function mensajes() {
-  return getTranslations("panel.mensajes");
+export function mensajes(idioma?: "es" | "en") {
+  /* Con idioma explícito para las rutas de la app nativa (`/datos/app/…`):
+     ahí la dirección no empieza por /es o /en y next-intl caería en el
+     idioma por defecto. */
+  return idioma
+    ? getTranslations({ locale: idioma, namespace: "panel.mensajes" })
+    : getTranslations("panel.mensajes");
 }
 
 /**

@@ -5,8 +5,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BotonPrincipal, Enlace } from "@/components/formulario";
+import { MenuTresPuntos } from "@/components/menu-tres-puntos";
 import { SelectorIdioma } from "@/components/selector-idioma";
 import { usePreferencias } from "@/contexto/preferencias";
+import { useMiTienda } from "@/hooks/use-mi-tienda";
 import { API_BASE, pedirJson, urlPaises, type Pais } from "@/lib/api";
 import { authClient, salir } from "@/lib/auth-client";
 import { bandera, COLORES } from "@/lib/colores";
@@ -27,6 +29,7 @@ export default function Cuenta() {
   const [nombre, setNombre] = useState<string | null>(null);
   const { data: sesion } = authClient.useSession();
   const [saliendo, setSaliendo] = useState(false);
+  const { tienda } = useMiTienda(pais, idioma);
 
   useEffect(() => {
     let vivo = true;
@@ -45,7 +48,22 @@ export default function Cuenta() {
   return (
     <View style={estilos.pantalla}>
       <SafeAreaView edges={["top"]} style={estilos.cabecera}>
-        <Text style={estilos.titulo}>{texto(idioma, "cuenta")}</Text>
+        <View style={estilos.filaCabecera}>
+          <Text style={estilos.titulo}>{texto(idioma, "cuenta")}</Text>
+          {/* Borrar la cuenta va escondido aquí, nunca a la vista. */}
+          {sesion?.user ? (
+            <MenuTresPuntos
+              etiqueta={texto(idioma, "masOpciones")}
+              opciones={[
+                {
+                  texto: texto(idioma, "borrarCuenta"),
+                  destructiva: true,
+                  alTocar: () => router.push("/borrar-cuenta"),
+                },
+              ]}
+            />
+          ) : null}
+        </View>
       </SafeAreaView>
       <ScrollView contentContainerStyle={estilos.cuerpo}>
         {sesion?.user ? (
@@ -54,6 +72,12 @@ export default function Cuenta() {
               {texto(idioma, "hola")}, {sesion.user.name}
             </Text>
             <Text style={estilos.correo}>{sesion.user.email}</Text>
+            {tienda ? (
+              <BotonPrincipal
+                texto={texto(idioma, "miTienda")}
+                onPress={() => router.push("/mi-tienda")}
+              />
+            ) : null}
             <Enlace
               texto={texto(idioma, "salir")}
               onPress={async () => {
@@ -128,6 +152,11 @@ const estilos = StyleSheet.create({
     paddingBottom: 12,
   },
   titulo: { color: "#FFFFFF", fontSize: 22, fontWeight: "800", marginTop: 4 },
+  filaCabecera: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   cuerpo: { padding: 16, gap: 16 },
   grupo: { backgroundColor: "#FFFFFF", borderRadius: 12, overflow: "hidden" },
   fila: {

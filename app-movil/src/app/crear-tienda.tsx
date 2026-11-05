@@ -150,6 +150,10 @@ export default function CrearTienda() {
         {tienda ? <Text style={estilos.ayuda}>{tienda.nombre}</Text> : null}
         <Text style={estilos.ayuda}>{texto(idioma, "tiendaListaTexto")}</Text>
         <BotonPrincipal
+          texto={texto(idioma, "primerProducto")}
+          onPress={() => router.replace("/nuevo-producto")}
+        />
+        <Enlace
           texto={texto(idioma, "volverInicio")}
           onPress={() => router.back()}
         />

@@ -26,6 +26,7 @@ export function RejillaCatalogo({
   idioma: Idioma;
   q?: string;
   vacio: ClaveDeTexto;
+  /** Lo que va encima de los productos (solo cuando hay productos). */
   cabecera?: React.ReactElement;
   /** Lo que se enseña cuando no hay productos (en vez del texto `vacio`). */
   alVaciar?: React.ReactElement;
@@ -60,7 +61,8 @@ export function RejillaCatalogo({
       contentContainerStyle={estilos.lista}
       contentInsetAdjustmentBehavior="automatic"
       keyboardDismissMode="on-drag"
-      ListHeaderComponent={cabecera}
+      /* La cabecera va solo con productos; sin ellos manda `alVaciar`. */
+      ListHeaderComponent={productos.length ? cabecera : undefined}
       renderItem={({ item }) => <TarjetaProducto p={item} idioma={idioma} />}
       onEndReached={masAbajo}
       onEndReachedThreshold={0.6}

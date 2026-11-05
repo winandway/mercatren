@@ -141,10 +141,14 @@ apruebe Divoox.
       productos (pedido de Gerencia), y crear la tienda desde la app con la
       MISMA alta de la web. Probado en el simulador (ver HISTORIAL, «LA APP
       ABRE TIENDAS CON LA MISMA ALTA DE LA WEB»).
-- [ ] 💻 Parte 4 · Subir productos desde la app con la cámara (título y
-      descripción en los dos idiomas, precio, fotos) y «mis ventas».
-- [ ] 💻 Borrar la cuenta desde la app (Apple lo exige dentro de la app),
-      antes de cualquier envío a las tiendas.
+- [x] ✅ 💻 Parte 4 · Subir productos desde la app con la cámara o la
+      galería, nombre en los dos idiomas y el precio publicado a la vista;
+      «Mi tienda» con lo subido. Un producto nuevo ya aparece en el catálogo
+      (la foto se rehace al guardar). Ver HISTORIAL, «SUBIR PRODUCTOS Y BORRAR
+      LA CUENTA DESDE LA APP».
+- [ ] 💻 «Mis ventas» en la app y editar un producto ya subido.
+- [x] ✅ 💻 Borrar la cuenta desde la app, en el menú de tres puntos, con la
+      misma acción de la web (probado en el simulador y por la puerta).
 - [ ] 💻 Parte 3b · El carrito y el pago con la hoja de Stripe (sin cobros
       reales sin el sí de Richard).
 - [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.

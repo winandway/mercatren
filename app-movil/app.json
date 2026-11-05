@@ -41,7 +41,15 @@
       ],
       "expo-image",
       "expo-localization",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Mercatren uses your photo library so you can add pictures of the products you sell.",
+          "cameraPermission": "Mercatren uses the camera so you can take pictures of the products you sell.",
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

@@ -9,6 +9,7 @@ import { z } from "zod";
 
 import { exigirEquipoInterno, obtenerAlcance } from "@/lib/autorizacion";
 import { getDb } from "@/lib/db";
+import { catalogoCambioEnTienda } from "@/lib/catalogo/al-cambiar";
 import { rehacerFotosDe } from "@/lib/catalogo/fotos-de-producto";
 import { baseDesdePublicado, precioConAjusteCentavos } from "@/lib/dinero";
 import { combinacionRepetida } from "@/lib/productos/heredar";
@@ -142,8 +143,10 @@ async function slugLibre(
  */
 export async function guardarProducto(
   formulario: FormData,
+  /* La app nativa (`/datos/app/mi/productos`) pasa el idioma de la persona. */
+  opciones: { idioma?: "es" | "en" } = {},
 ): Promise<ResultadoProducto> {
-  const t = await mensajes();
+  const t = await mensajes(opciones.idioma);
 
   /**
    * SI NO PUEDE GUARDAR, SE LE DICE. NO SE REVIENTA.
@@ -398,6 +401,10 @@ export async function guardarProducto(
     await rehacerFotosDe([productoId]);
   }
 
+  /* La foto del catálogo se rehace aquí, al cambiar: el reloj está apagado
+     y sin esto el producto no aparecería nunca (ver `catalogo/al-cambiar.ts`). */
+  await catalogoCambioEnTienda(tiendaId);
+
   revalidatePath("/[locale]/panel", "layout");
   revalidatePath("/[locale]/catalogo", "page");
   revalidatePath("/[locale]/tienda/[slug]", "page");
@@ -490,6 +497,8 @@ export async function cambiarEstadoProducto(
     .update(productos)
     .set({ estado, actualizadoEn: new Date() })
     .where(eq(productos.id, id));
+
+  await catalogoCambioEnTienda(producto.tiendaId);
 
   revalidatePath("/[locale]/panel", "layout");
   revalidatePath("/[locale]/catalogo", "page");

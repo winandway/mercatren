@@ -31,6 +31,7 @@ export default function Inicio() {
         idioma={idioma}
         vacio="sinProductos"
         alVaciar={<PortadaVender pais={pais} idioma={idioma} />}
+        cabecera={<PortadaVender pais={pais} idioma={idioma} compacta />}
       />
     </View>
   );

@@ -15,6 +15,40 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## SUBIR PRODUCTOS Y BORRAR LA CUENTA DESDE LA APP (5 nov 2026)
+
+**Qué es.** Desde la app, el dueño de una tienda sube productos con la cámara
+o la galería (hasta 8 fotos, achicadas en el teléfono a 1600 px), con el
+nombre en los dos idiomas y SU precio; al lado ve el precio que verá el
+comprador, el mismo cálculo del sitio. Se guarda con la MISMA acción de la web
+(`guardarProducto`, por `/datos/app/mi/productos`). «Mi tienda» lista lo
+subido. Y cualquier cuenta se borra desde la app (Apple lo exige): menú de
+tres puntos → escribir la palabra → la MISMA acción de la web
+(`borrarMiCuenta`, por `/datos/app/mi/borrar-cuenta`), con sus mismos
+mensajes cuando la cuenta tiene tienda, pedidos o paquetes.
+
+**Dos fallos encontrados al probarlo, y su candado:**
+
+1. **Las fotos no salían del teléfono** («Unsupported FormDataPart
+   implementation»). El `fetch` de Expo SDK 58 no acepta la forma vieja de
+   React Native (`{ uri, name, type }`); acepta partes que sepan dar sus bytes.
+   Arreglo: `parteDeFoto` en `app-movil/src/lib/fotos.ts`
+   (`bytes: () => new File(uri).bytes()`).
+2. **Un producto nuevo no aparecía nunca en el catálogo, ni en la web.** La
+   portada y el catálogo sin filtros salen de una foto guardada que rehacía el
+   reloj, y el reloj está apagado por la pausa. Arreglo: la foto del mercado
+   se rehace cuando un producto se guarda o cambia de estado
+   (`src/lib/catalogo/al-cambiar.ts`); unas pocas filas por cambio real, cero
+   por visita.
+
+**Candado:** `tests/unit/app-movil-productos.test.ts` (precio idéntico al del
+sitio, fotos con bytes, la tienda y el estado nunca salen del formulario, la
+foto del catálogo se rehace al guardar, borrar va en el menú de tres puntos).
+
+**Cómo se comprueba:** en el simulador, «Administrar mi tienda» → «Agregar un
+producto» → dos fotos de la galería → publicar → aparece en «Mi tienda» y en
+el catálogo (a lo sumo un minuto después, por la memoria de un minuto).
+
 ## LA APP ABRE TIENDAS CON LA MISMA ALTA DE LA WEB (5 nov 2026)
 
 **Qué es.** El inicio de un país sin productos ya no es una pantalla en blanco
