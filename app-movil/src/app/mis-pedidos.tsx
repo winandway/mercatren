@@ -91,6 +91,8 @@ export default function MisPedidos() {
       data={lista ?? []}
       keyExtractor={(p) => p.numero}
       contentContainerStyle={estilos.lista}
+      refreshing={false}
+      onRefresh={() => setVuelta((n) => n + 1)}
       ListHeaderComponent={
         aviso ? <Aviso texto={aviso.texto} tono={aviso.tono} /> : undefined
       }

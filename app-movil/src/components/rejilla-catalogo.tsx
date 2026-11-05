@@ -66,6 +66,10 @@ export function RejillaCatalogo({
       renderItem={({ item }) => <TarjetaProducto p={item} idioma={idioma} />}
       onEndReached={masAbajo}
       onEndReachedThreshold={0.6}
+      /* Jalar hacia abajo vuelve a pedir la primera página (como en toda
+         tienda): lo nuevo aparece sin cerrar la app. */
+      refreshing={false}
+      onRefresh={reiniciar}
       ListEmptyComponent={
         estado === "cargando" ? (
           <ActivityIndicator style={estilos.cargando} color={COLORES.naranja} />

@@ -242,3 +242,23 @@ describe("las reglas de la casa, dentro de la app", () => {
     expect(app.android.package).toBe("com.mercatren.app");
   });
 });
+
+describe("las listas se refrescan como en toda tienda", () => {
+  it("jalar hacia abajo vuelve a pedir el catálogo y las listas del vendedor y del comprador", () => {
+    expect(
+      readFileSync(`${APP}/components/rejilla-catalogo.tsx`, "utf-8"),
+    ).toContain("onRefresh={reiniciar}");
+    for (const pantalla of ["mis-pedidos", "mis-ventas", "mi-tienda"]) {
+      expect(
+        readFileSync(`${APP}/app/${pantalla}.tsx`, "utf-8"),
+        pantalla,
+      ).toContain("onRefresh={() => setVuelta((n) => n + 1)}");
+    }
+  });
+
+  it("una página vacía corta la carga en vez de quedarse girando", () => {
+    expect(readFileSync(`${APP}/hooks/use-catalogo.ts`, "utf-8")).toContain(
+      "r.pagina < r.paginas && r.productos.length > 0",
+    );
+  });
+});

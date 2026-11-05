@@ -33,7 +33,9 @@ export function useCatalogo(pais: string | null, idioma: Idioma, q = "") {
         );
         if (mio !== turno.current) return;
         pagina.current = r.pagina;
-        setHayMas(r.pagina < r.paginas);
+        /* Una página vacía corta la carga: la cuenta del catálogo puede ir
+           unos minutos atrasada, y no se sigue pidiendo (ni girando) en vano. */
+        setHayMas(r.pagina < r.paginas && r.productos.length > 0);
         setProductos((antes) =>
           siguiente === 1 ? r.productos : [...antes, ...r.productos],
         );

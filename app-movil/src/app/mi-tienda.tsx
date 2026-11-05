@@ -28,6 +28,7 @@ import { texto } from "@/lib/textos";
 export default function MiTienda() {
   const { pais, idioma } = usePreferencias();
   const { tienda } = useMiTienda(pais, idioma);
+  const [vuelta, setVuelta] = useState(0);
   const [lista, setLista] = useState<MiProducto[] | null>(null);
 
   useFocusEffect(
@@ -46,7 +47,7 @@ export default function MiTienda() {
       return () => {
         vivo = false;
       };
-    }, [pais, idioma]),
+    }, [pais, idioma, vuelta]),
   );
 
   return (
@@ -54,6 +55,8 @@ export default function MiTienda() {
       data={lista ?? []}
       keyExtractor={(p) => p.id}
       contentContainerStyle={estilos.lista}
+      refreshing={false}
+      onRefresh={() => setVuelta((n) => n + 1)}
       ListHeaderComponent={
         <View style={estilos.cabecera}>
           {tienda ? <Text style={estilos.nombre}>{tienda.nombre}</Text> : null}

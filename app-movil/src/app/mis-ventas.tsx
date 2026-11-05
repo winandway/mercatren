@@ -26,6 +26,7 @@ import { urlMisVentas, type Venta } from "@/lib/ventas";
  */
 export default function MisVentas() {
   const { pais, idioma } = usePreferencias();
+  const [vuelta, setVuelta] = useState(0);
   const [lista, setLista] = useState<Venta[] | null>(null);
 
   useFocusEffect(
@@ -40,7 +41,7 @@ export default function MisVentas() {
       return () => {
         vivo = false;
       };
-    }, [pais, idioma]),
+    }, [pais, idioma, vuelta]),
   );
 
   const fecha = (ms: number) =>
@@ -54,6 +55,8 @@ export default function MisVentas() {
       data={lista ?? []}
       keyExtractor={(v) => v.numero}
       contentContainerStyle={estilos.lista}
+      refreshing={false}
+      onRefresh={() => setVuelta((n) => n + 1)}
       ListEmptyComponent={
         lista === null ? (
           <ActivityIndicator color={COLORES.naranja} style={{ padding: 32 }} />
