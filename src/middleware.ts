@@ -11,6 +11,11 @@ import {
 
 import { routing } from "./i18n/routing";
 import { esRutaSoloEquipo } from "./lib/panel/solo-equipo";
+import {
+  abiertaConTiendaCerrada,
+  paginaCerrada,
+  tiendaCerradaAqui,
+} from "./lib/tienda-cerrada";
 
 const idiomas = createMiddleware(routing);
 
@@ -42,6 +47,30 @@ function quiereMarkdown(request: NextRequest): boolean {
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  /* ══ LA TIENDA CERRADA (5 nov 2026) ══ Mercatren está en pausa: todo
+     contesta la página de «cerrado», menos las páginas legales y de ayuda
+     que declaramos en las tiendas de apps, que nunca se apagan. Va primero
+     para que nada de la tienda llegue a armarse. Ver `lib/tienda-cerrada.ts`. */
+  if (
+    tiendaCerradaAqui() &&
+    pathname !== "/__scheduled" &&
+    !abiertaConTiendaCerrada(pathname)
+  ) {
+    const dominio = (request.headers.get("host") ?? "mercatren.com").replace(
+      /^www\./,
+      "",
+    );
+    return new NextResponse(paginaCerrada(pathname, dominio), {
+      status: 503,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "retry-after": "86400",
+        "x-robots-tag": "noindex",
+      },
+    });
+  }
 
   /* ══ LO QUE SE MUDÓ DE DOMINIO SE REDIRIGE AQUÍ, Y SOLO AQUÍ ══
      Es el único sitio del sitio que devuelve un 308 de verdad: medido en

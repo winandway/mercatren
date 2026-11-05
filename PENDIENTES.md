@@ -122,9 +122,14 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       responde 503 «Sitio en pausa», porque el sitio está en pausa por orden de
       Richard. Avisado a Gerencia. No se corrigió ni se reenvió: se trabaja solo
       por metas de Gerencia.
-- [ ] 🟡 👤 Para arreglarlo hace falta una de dos: reactivar el sitio, o una
-      meta de Gerencia para dejar la política de privacidad en una dirección
-      que no se apague y cambiarla en Play Console.
+- [x] ✅ 💻 Meta de Gerencia: la tienda se cierra en el código y las páginas
+      legales y de ayuda quedan siempre abiertas, en las mismas direcciones
+      (ver HISTORIAL, «LA TIENDA SE CIERRA EN EL CÓDIGO»).
+- [ ] 🔴 Quitar la pausa de la PLATAFORMA al sitio mercatren (panel de
+      YaDominios; lo coordina Gerencia). Sin eso nada responde 200.
+- [ ] 💻 Con la pausa quitada: comprobar en vivo con curl (legales 200,
+      tienda 503) y avisar a Gerencia. El reenvío a Google lo autoriza
+      Gerencia después del auditor de tiendas.
 
 ### 3 nov 2026 · Apple rechazó la app de iPhone (4.3 y 4.2.6) 🔴
 

@@ -15,6 +15,46 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA TIENDA SE CIERRA EN EL CÓDIGO Y LAS PÁGINAS LEGALES NUNCA SE APAGAN (5 nov 2026)
+
+**Qué pasó.** Google Play rechazó la app de Android el 5 nov: «Privacy policy
+link is inactive». El enlace declarado (`/en/privacidad`) daba 503 «Sitio en
+pausa». Esa página la pone la PLATAFORMA (YaDominios, «pausa:operador» desde el
+1 nov): tapa el sitio entero antes de que corra nuestro código, y su
+documentación no admite excepciones por ruta.
+
+**Meta de Gerencia:** la tienda sigue cerrada (decisión de Richard), pero las
+páginas legales responden siempre, en las MISMAS direcciones declaradas en las
+tiendas de apps.
+
+**Cómo quedó (`src/lib/tienda-cerrada.ts`, `TIENDA_CERRADA`):**
+
+- El cierre vive en el código, en el middleware y antes de todo lo demás. En
+  producción, toda página contesta la página «cerrado» (503, `noindex`, sin
+  base ni React), menos `privacidad`, `terminos`, `delete-account` y `ayuda` en
+  los dos idiomas, y `entrar`, `olvide-mi-clave`, `nueva-clave` y `panel`.
+  Borrar la cuenta exige entrar, y el equipo tiene que poder trabajar.
+- Solo en producción (`NODE_ENV`): en desarrollo y en las pruebas de punta a
+  punta la tienda se ve abierta, que es lo que esas pruebas recorren.
+- Las rutas de servidor (`/datos`, `/media`, `/upload`) no pasan por el
+  middleware: el inicio de sesión, el aviso de Stripe y las capturas de
+  ayuda siguen andando.
+- **Para que esté en vivo falta quitar la pausa de la plataforma** al sitio
+  mercatren (panel de YaDominios). La tienda sigue cerrada igual, por código.
+  Reabrir la tienda = `TIENDA_CERRADA` en `false`, y lo decide Richard.
+
+**Comprobado en la compilación de producción en local** (`npm run cf:build` y
+`cf:preview`): privacidad, términos, borrar cuenta, ayuda y entrar dan 200 en
+los dos idiomas; la portada, el catálogo, una ficha y el carrito dan 503 con
+la página «cerrado».
+
+**Candado:** `tests/unit/tienda-cerrada.test.ts` lee las direcciones de
+mercatren.com que declaran las dos fichas (Google Play y App Store) y exige que
+todas abran con la tienda cerrada. Comprobado en rojo quitando «terminos» y
+cambiando el 503 por 200.
+
+---
+
 ## APPLE RECHAZÓ LA APP DE IPHONE POR 4.3 Y 4.2.6 (3 nov 2026)
 
 La versión 1.0.0 (enviada el 31 oct) volvió rechazada por **4.3 Spam** y
