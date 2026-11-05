@@ -75,8 +75,26 @@ producto de Venezuela pedido «como si fuera de Estados Unidos» se rechaza.
   bandera que hubiera quedado. No toca la cuenta (abrir los términos no es
   elegir país). Lista cerrada de páginas.
 - Términos y privacidad ya enseñan las secciones de cada país
-  (`paraElMercado`), como devoluciones. Las secciones propias de España y
-  Venezuela salen de la investigación para el contador (ver el punto 4).
+  (`paraElMercado`), como devoluciones.
+- **Las secciones legales propias de España y Venezuela están escritas**
+  (`src/contenido/paginas/legales-por-pais.ts`), con la base legal de cada
+  frase en `docs/paises/`: quién vende, cómo es la venta, precio, desistimiento
+  de 14 días con su formulario modelo, garantía de 3 años, ley y tribunales
+  del consumidor, representante en la UE, derechos y la AEPD para España;
+  quién vende, retiro en el comercio, pago, garantía, ley venezolana y datos
+  tratados en EE. UU. para Venezuela.
+- **No se publican a medias.** Salen solas cuando estén los datos de Richard
+  (`LEGALES_ES`: NIF español, representante fiscal, representante en la UE,
+  domicilio y teléfono que se publican, quién paga la devolución, días para
+  responder) y `revisadoPorAbogado: true` en cada país. Hoy las páginas no
+  cambian. El candado (`tests/unit/legales-por-pais.test.ts`) no deja
+  encender España o Venezuela en la app, ni abrir el cobro de España, sin
+  sus textos listos.
+- **Hallazgo para el abogado:** mercatren.com.ve enseña hoy los términos de
+  Estados Unidos («vendemos y entregamos únicamente dentro de Estados
+  Unidos», ley de EE. UU.). La sección de Venezuela lo corrige en cuanto el
+  abogado la revise. La venta de Venezuela ya está abierta en la web: es un
+  riesgo vivo.
 
 ### La guía de cada país en Docs, escondida
 
@@ -93,7 +111,8 @@ producto de Venezuela pedido «como si fuera de Estados Unidos» se rechaza.
    pedido avanzando (regla «prohibido lanzar pagos sin probar»). Se anota en
    `VERIFICAR-PAGOS.md`.
 2. Lo del contador y el abogado que esté marcado como «bloquea» en la
-   página del país (`docs/paises/`).
+   página del país (`docs/paises/`), y sus textos legales listos: los datos en
+   `legales-por-pais.ts` y `revisadoPorAbogado: true`.
 3. Una línea: `enLaApp: true` en `interruptores.ts` (y, para España, además
    `ESPANA_SIN_COBRO = false` en `ventas/pausa.ts`, con el margen decidido).
 4. Push. La guía de Docs se publica sola con el interruptor.
@@ -111,5 +130,8 @@ producto de Venezuela pedido «como si fuera de Estados Unidos» se rechaza.
   textos legales del país y la lista de países fresca.
 - `tests/unit/app-movil-cuentas.test.ts` — el código postal se guarda en el
   borrador.
+- `tests/unit/legales-por-pais.test.ts` — ningún país se enciende sin sus
+  textos legales; nada a medias; lo que la ley de España obliga a decir; nunca
+  la plataforma europea de litigios (derogada el 20 jul 2025).
 
 Todas se comprobaron en ROJO quitando el arreglo.

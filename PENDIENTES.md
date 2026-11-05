@@ -209,6 +209,25 @@ apruebe Divoox.
 - [ ] 🔴 👤 Encender España: el margen de España, lo del contador marcado
       «bloquea» en `docs/paises/ESPANA-IMPUESTOS-Y-LEGAL.md`, la compra real
       en euros y el sí de Richard.
+- [ ] 🔴 👤 España, lo que solo da Richard: registrar Mercatren LLC en el IVA
+      español con representante fiscal (obligatorio para una empresa de EE.
+      UU.), el representante del RGPD en la UE, y qué domicilio y teléfono se
+      publican. Con eso se llenan `LEGALES_ES` y se manda al abogado.
+- [ ] 🔴 👤 Venezuela, al contador venezolano: ¿la reventa de Mercatren LLC
+      con bienes en Venezuela la obliga a inscribirse en el RIF? ¿Está fijada
+      la alícuota adicional del IVA por pagos en divisas? La venta de la web
+      ya está abierta: riesgo vivo.
+- [ ] 🔴 👤 Al abogado: revisar las secciones legales de Venezuela y España
+      (`src/contenido/paginas/legales-por-pais.ts`). Hoy mercatren.com.ve
+      enseña los términos de EE. UU.
+- [ ] 💻 España, antes de encender: la sección de devoluciones de España, el
+      texto del botón de pagar («Pedido con obligación de pago» o igual de
+      claro), datos del fabricante en la ficha, factura completa del comercio
+      con el NIF español y factura al comprador con IVA en euros.
+- [ ] 🟡 💻 El botón «Desistir del contrato aquí» en «Mis pedidos»
+      (directiva europea; España aún no la incorpora).
+- [ ] 🟡 💻 Venezuela: equivalente referencial en bolívares a la tasa del BCV
+      junto al precio (recomendado por el abogado de la investigación).
 - [ ] 🟡 👤 Zelle dentro de la app (hoy solo tarjeta; Zelle sigue en la web).
       Decisión de negocio.
 

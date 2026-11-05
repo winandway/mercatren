@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 
 import { PaginaDeContenido } from "@/components/paginas/pagina-contenido";
 import { PRIVACIDAD_EN, PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
+import { conLegalesDelPais } from "@/contenido/paginas/legales-por-pais";
 import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { routing } from "@/i18n/routing";
 import { mercadoActual } from "@/lib/mercado/actual";
@@ -17,9 +18,16 @@ const RUTA = "/privacidad";
 /** Cada país enseña sus secciones (España, Venezuela): ver `por-mercado.ts`. */
 async function contenido(locale: string) {
   const mercado = await mercadoActual();
-  return paraElMercado(
-    locale === "en" ? PRIVACIDAD_EN : PRIVACIDAD_ES,
+  /* Y, al final, las secciones legales propias del país (España,
+     Venezuela) cuando estén listas: ver `legales-por-pais.ts`. */
+  return conLegalesDelPais(
+    paraElMercado(
+      locale === "en" ? PRIVACIDAD_EN : PRIVACIDAD_ES,
+      mercado.codigo,
+    ),
+    "privacidad",
     mercado.codigo,
+    locale === "en" ? "en" : "es",
   );
 }
 

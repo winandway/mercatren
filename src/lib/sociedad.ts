@@ -51,6 +51,12 @@ export const SOCIEDAD = {
   pais: "Estados Unidos",
   /** El país en inglés: el documento del modelo está en los dos idiomas. */
   paisEn: "United States",
+  /**
+   * El número con que la inscribió Michigan (Identification #). Es público:
+   * la ley española de servicios en línea (LSSI art. 10) pide decir en qué
+   * registro está inscrito quien vende.
+   */
+  registro: "900260648",
 } as const;
 
 /**

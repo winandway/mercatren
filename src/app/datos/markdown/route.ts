@@ -14,6 +14,7 @@ import {
 } from "@/contenido/paginas/devoluciones";
 import { ENTREGA_EN, ENTREGA_ES } from "@/contenido/paginas/entrega";
 import { ENTREGA_US_EN, ENTREGA_US_ES } from "@/contenido/paginas/entrega-us";
+import { conLegalesDelPais } from "@/contenido/paginas/legales-por-pais";
 import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { NOSOTROS_EN, NOSOTROS_ES } from "@/contenido/paginas/nosotros";
 import { PRIVACIDAD_EN, PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
@@ -251,8 +252,22 @@ export async function GET(peticion: Request) {
         resto.join("/") === "entrega" && codigo === "US"
           ? { es: ENTREGA_US_ES, en: ENTREGA_US_EN }
           : par;
+      const ruta = resto.join("/");
+      const dePais = paraElMercado(
+        locale === "en" ? delPais.en : delPais.es,
+        codigo,
+      );
       md = paginaAMarkdown(
-        paraElMercado(locale === "en" ? delPais.en : delPais.es, codigo),
+        /* Lo mismo que la página: las secciones legales propias del país,
+           cuando estén listas (`legales-por-pais.ts`). */
+        ruta === "terminos" || ruta === "privacidad"
+          ? conLegalesDelPais(
+              dePais,
+              ruta,
+              codigo,
+              locale === "en" ? "en" : "es",
+            )
+          : dePais,
         base,
         `/${locale}/${resto.join("/")}`,
       );

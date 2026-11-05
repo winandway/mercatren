@@ -48,6 +48,13 @@ escrita y escondida con `soloConPais`.
 `tests/unit/guias-y-legales-por-pais.test.ts` y el del código postal en
 `app-movil-cuentas.test.ts`. Rojo comprobado en cada uno.
 
+**Los textos legales de cada país** (`contenido/paginas/legales-por-pais.ts`)
+están escritos con la base legal de `docs/paises/`, pero no se publican hasta
+tener los datos de Richard y la revisión del abogado. Candado
+`tests/unit/legales-por-pais.test.ts`: ningún país se enciende en la app (ni
+abre el cobro de España) sin ellos. Hallazgo: mercatren.com.ve enseña hoy los
+términos de EE. UU.
+
 **Lo que NO se tocó:** los interruptores (VE y ES apagados en la app) y la
 pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
 en la máquina local y se devolvieron.

@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 
 import { PaginaDeContenido } from "@/components/paginas/pagina-contenido";
 import { TERMINOS_EN, TERMINOS_ES } from "@/contenido/paginas/terminos";
+import { conLegalesDelPais } from "@/contenido/paginas/legales-por-pais";
 import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { routing } from "@/i18n/routing";
 import { mercadoActual } from "@/lib/mercado/actual";
@@ -17,9 +18,13 @@ const RUTA = "/terminos";
 /** Cada país enseña sus secciones (España, Venezuela): ver `por-mercado.ts`. */
 async function contenido(locale: string) {
   const mercado = await mercadoActual();
-  return paraElMercado(
-    locale === "en" ? TERMINOS_EN : TERMINOS_ES,
+  /* Y, al final, las secciones legales propias del país (España,
+     Venezuela) cuando estén listas: ver `legales-por-pais.ts`. */
+  return conLegalesDelPais(
+    paraElMercado(locale === "en" ? TERMINOS_EN : TERMINOS_ES, mercado.codigo),
+    "terminos",
     mercado.codigo,
+    locale === "en" ? "en" : "es",
   );
 }
 
