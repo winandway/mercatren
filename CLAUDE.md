@@ -51,6 +51,7 @@ reloj. Detalle: «MERCATREN SE REABRE SIN CJ» en `HISTORIAL.md`.
 | por qué algo se hizo así        | `HISTORIAL.md` (índice abajo)                               |
 | la app de Android, Google Play  | `app-android/LEEME.md` y `tienda-apps/google-play/FICHA.md` |
 | la app de iPhone, App Store     | `tienda-apps/app-store/PUBLICAR-EN-APPLE.md`                |
+| encender un país en la app      | `docs/FASE-5-PAISES-EN-LA-APP.md` y `docs/paises/`          |
 
 Al terminar algo se marca en `CRONOGRAMA.md` **y** en `PENDIENTES.md`.
 
@@ -431,6 +432,8 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)](HISTORIAL.md#fase-5-venezuela-y-españa-en-la-app-preparados-y-apagados-5-nov-2026)
+- [UNA SOLA MERCATREN: EL PAÍS VA EN LA CUENTA (5 nov 2026)](HISTORIAL.md#una-sola-mercatren-el-país-va-en-la-cuenta-5-nov-2026)
 - [FASE 4: EL PLAN PRO Y LOS PRODUCTOS PROMOCIONADOS, SIN COBRAR TODAVÍA (5 nov 2026)](HISTORIAL.md#fase-4-el-plan-pro-y-los-productos-promocionados-sin-cobrar-todavía-5-nov-2026)
 - [«MIS DATOS» EN LA APP Y LA PUERTA QUE ACEPTABA CUALQUIER COSA (5 nov 2026)](HISTORIAL.md#mis-datos-en-la-app-y-la-puerta-que-aceptaba-cualquier-cosa-5-nov-2026)
 - [MIS VENTAS Y EDITAR PRODUCTOS EN LA APP, Y LA CALLE QUE EL PANEL NO ENSEÑABA (5 nov 2026)](HISTORIAL.md#mis-ventas-y-editar-productos-en-la-app-y-la-calle-que-el-panel-no-enseñaba-5-nov-2026)

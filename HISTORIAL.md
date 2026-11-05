@@ -15,6 +15,59 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)
+
+**Qué se hizo** (detalle en `docs/FASE-5-PAISES-EN-LA-APP.md`): la entrega
+de cada país la dice el servidor (`/datos/app/v1/entrega`, de
+`destino/direccion.ts`); Venezuela se retira en la ciudad y España va a
+domicilio con provincia y código postal; los textos legales de la app abren
+los del país (`/datos/app/v1/legal`); la guía de Docs de cada país está
+escrita y escondida con `soloConPais`.
+
+**Fallos reales que salieron probando en el simulador:**
+
+- **Un pedido de Venezuela hecho desde la app quedaba anotado como de
+  Estados Unidos.** `crearPedido` sacaba el mercado del dominio, y la app
+  entra siempre por mercatren.com sin la galleta del país. Ahora la app manda
+  el país (`opciones.pais`), se resuelve contra la lista cerrada y lo
+  comprado tiene que ser de ese país. Es una acción del servidor que también
+  llama el navegador: por eso solo el código, nunca un mercado entero.
+- **La puerta de compra de la app no miraba el interruptor**: solo la
+  pantalla. Ahora `403 pais_apagado` (el equipo sí compra, para probar).
+- **Cáceres, Cádiz y Córdoba salían después de Cuenca** (la lista de
+  provincias estaba ordenada a mano). También en la web. Ahora se ordena con
+  el orden alfabético de España.
+- **El borrador de la app tiraba el código postal**: la regla de no guardar
+  «códigos» de un solo uso atrapaba «codigoPostal».
+- **La dirección de Madrid aparecía al pagar en Venezuela**: el borrador del
+  pago era uno solo para todos los países. Ahora uno por país.
+- **La lista de países se quedaba vieja en el teléfono**: al encender un país
+  seguía diciendo «Muy pronto». Ahora se pide con `no-cache`.
+
+**Candados:** `tests/unit/app-movil-entrega-por-pais.test.ts`,
+`tests/unit/guias-y-legales-por-pais.test.ts` y el del código postal en
+`app-movil-cuentas.test.ts`. Rojo comprobado en cada uno.
+
+**Lo que NO se tocó:** los interruptores (VE y ES apagados en la app) y la
+pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
+en la máquina local y se devolvieron.
+
+## UNA SOLA MERCATREN: EL PAÍS VA EN LA CUENTA (5 nov 2026)
+
+**Qué se hizo:** el registro de la web pide el país (la misma pieza que la
+app: `cuenta/pais-del-alta.ts`), el país se guarda en la cuenta
+(`paisEntrega`), al entrar la persona vuelve a su país
+(`destinoConElPaisDeLaCuenta`) y la bandera, con sesión, lo guarda en la
+cuenta. Cada país tiene su interruptor en `mercado/interruptores.ts`
+(`enLaApp` y `dentroDeMercatren`), y la puerta de cuentas no abre cuentas en
+un país apagado.
+
+**Lo que no se hace a propósito:** saltar a otro dominio al entrar (la sesión
+es de este dominio y la persona aterrizaría sin sesión), ni redirigir por
+geolocalización.
+
+**Candado:** `tests/unit/una-sola-mercatren.test.ts`.
+
 ## FASE 4: EL PLAN PRO Y LOS PRODUCTOS PROMOCIONADOS, SIN COBRAR TODAVÍA (5 nov 2026)
 
 **Qué se hizo** (decisiones en `docs/FASE-4-GANAR-MAS.md`):

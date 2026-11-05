@@ -192,6 +192,26 @@ apruebe Divoox.
       con `schema.sql` al publicar; comprobar en vivo cuando se quite la pausa
       de la plataforma.
 
+### 5 nov 2026 · Una sola Mercatren en la web y la Fase 5 preparada 🟠
+
+- [x] ✅ 💻 Fase 1 en la web: el país al crear la cuenta (la misma pieza que
+      la app), el país va en la cuenta y la devuelve a su país al entrar, y la
+      bandera lo guarda. Interruptor por país en
+      `src/lib/mercado/interruptores.ts`. Ver HISTORIAL, «UNA SOLA MERCATREN».
+- [x] ✅ 💻 Fase 5 preparada y APAGADA: Venezuela (retiro en la ciudad) y
+      España (envío con provincia y código postal, en euros) dentro de la app,
+      con sus textos legales y su guía de Docs escondida. Ver
+      `docs/FASE-5-PAISES-EN-LA-APP.md`.
+- [x] ✅ 💻 Arreglado de paso: un pedido de Venezuela hecho desde la app
+      quedaba anotado como de Estados Unidos; ahora queda en su país.
+- [ ] 🔴 👤 Encender Venezuela en la app: el sí de Richard, después de una
+      compra real del equipo por la app (una línea en `interruptores.ts`).
+- [ ] 🔴 👤 Encender España: el margen de España, lo del contador marcado
+      «bloquea» en `docs/paises/ESPANA-IMPUESTOS-Y-LEGAL.md`, la compra real
+      en euros y el sí de Richard.
+- [ ] 🟡 👤 Zelle dentro de la app (hoy solo tarjeta; Zelle sigue en la web).
+      Decisión de negocio.
+
 ### 5 nov 2026 · Google Play rechazó la app de Android (privacidad) 🔴
 
 - [x] ✅ 💻 Causa comprobada: Google dice «Privacy policy link is inactive».
