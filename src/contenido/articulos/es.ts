@@ -14,6 +14,151 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    /* Dirección en inglés, como manda la regla de EE. UU.: es la misma en los dos idiomas. */
+    slug: "sell-with-the-mercatren-app",
+    tipo: "documentacion",
+    titulo: "Vende desde el celular con la app de Mercatren",
+    resumen:
+      "Crea tu cuenta, abre tu tienda y sube tus productos con la cámara del celular, en minutos y sin página web. Y si un día quieres irte, cierras tu tienda y borras tu cuenta desde la misma app.",
+    fecha: "2026-11-05",
+    temas: ["app", "comercios", "vender", "celular"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Con la app de Mercatren montas tu tienda desde el celular: creas tu cuenta, pones los datos de tu empresa y subes cada producto con una foto. Tu tienda queda publicada al momento, sin esperar aprobación.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "La app está llegando a las tiendas",
+        texto:
+          "La app de Mercatren está entrando a la App Store y a Google Play. Mientras tanto, todo lo que cuenta esta guía se hace con los mismos pasos desde mercatren.com, en el navegador del celular o de la computadora.",
+      },
+      { tipo: "subtitulo", texto: "1. Crea tu cuenta" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Abre la app, elige tu país y toca «Crea tu tienda». Escribe tu nombre, tu correo y una contraseña; con el ojito de la casilla puedes ver lo que escribes. La app comprueba sola que eres una persona, sin acertijos ni semáforos.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/open-your-store-es.png",
+        alt: "La portada de la app de Mercatren con la invitación «Abre tu tienda en Mercatren», sus tres pasos y el botón «Crea tu tienda»",
+        pie: "Si todavía no tienes tienda, la portada te invita a abrirla en tres pasos.",
+      },
+      { tipo: "subtitulo", texto: "2. Abre tu tienda" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Pon el nombre de tu tienda y los datos de tu empresa: razón social, identificación fiscal, teléfono, dirección y desde dónde envías. Los pedimos porque tus ventas se facturan a nombre de tu empresa.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Tu tienda nace abierta: no esperas a que nadie la apruebe.",
+          "Antes de abrirla aceptas los términos para vendedores, que puedes leer desde la misma pantalla.",
+          "Si la app se cierra a mitad del formulario, lo que escribiste te espera al volver, con la opción de empezar de nuevo.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "3. Sube tus productos con la cámara" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Toca «Agregar un producto»",
+            texto:
+              "Está en «Mi tienda», que abres desde la portada o desde «Cuenta».",
+          },
+          {
+            titulo: "Toma las fotos",
+            texto:
+              "Hasta ocho por producto, con la cámara o desde tu galería. La app las aligera antes de subirlas, para que no gastes tus datos.",
+          },
+          {
+            titulo: "Escribe el nombre en los dos idiomas",
+            texto:
+              "En español y en inglés, para que te encuentren todos los compradores. La descripción es opcional.",
+          },
+          {
+            titulo: "Pon tu precio",
+            texto:
+              "Es lo que recibes por cada venta. Debajo, la app te muestra al instante el precio que verá el comprador, con nuestro margen ya incluido.",
+          },
+          {
+            titulo: "Publica",
+            texto:
+              "Toca «Publicar producto» y aparece en el catálogo de tu país.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/add-a-product-es.png",
+        alt: "La pantalla «Nuevo producto» con dos fotos, el nombre en español y en inglés, un precio de 25 dólares y la línea «Lo que recibes por cada venta. El comprador verá $26.89.»",
+        pie: "Tú escribes lo que quieres recibir; la app te dice al momento cuánto verá el comprador.",
+      },
+      { tipo: "subtitulo", texto: "Cómo se factura cada venta" },
+      {
+        tipo: "parrafo",
+        texto: `Cada venta la factura ${SOCIEDAD.nombre}: tú nos vendes la mercancía y nosotros se la vendemos a tu cliente. Tú preparas y envías cada pedido a la dirección que indica el comprador, y te pagamos lo que te corresponde por tus ventas a tu cuenta bancaria registrada.`,
+      },
+      {
+        tipo: "subtitulo",
+        texto: "4. Si un día quieres irte: cierra tu tienda y borra tu cuenta",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "Lo haces tú, desde la app, sin escribirle a nadie. Entra a «Cuenta», toca el menú de tres puntos de arriba y elige «Borrar la cuenta». Esto es lo que pasa:",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Hoy mismo",
+            texto: "Tu tienda deja de venderse y sale de Mercatren.",
+          },
+          {
+            titulo: "Terminamos lo que está en curso",
+            texto:
+              "Completamos tus pedidos abiertos y revisamos los pagos que esperan.",
+          },
+          {
+            titulo: "Te pagamos",
+            texto:
+              "Lo que te corresponde por tus ventas llega a tu cuenta bancaria registrada.",
+          },
+          {
+            titulo: "Tu cuenta se borra sola",
+            texto:
+              "Cuando no queda nada pendiente —normalmente en menos de 30 días— tu cuenta se borra y te avisamos por correo.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/close-your-store-es.png",
+        alt: "La pantalla «Cerrar tu tienda y borrar tu cuenta» con los cuatro pasos, la casilla para escribir BORRAR y el botón para confirmar",
+        pie: "Para confirmar escribes BORRAR: así nadie cierra una tienda por un toque sin querer.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Lo que se guarda",
+        texto:
+          "Las ventas y las facturas se guardan cinco años, como exige la ley, sin tu nombre. Si no tienes tienda y solo compras, tu cuenta se borra en el momento.",
+      },
+    ],
+    enlaces: [
+      { texto: "Empieza a vender", href: "/vender" },
+      { texto: "Cómo pedir ayuda", href: "/docs/como-pedir-ayuda" },
+    ],
+  },
+
+  {
     slug: "como-mandar-una-captura-a-soporte",
     tipo: "documentacion",
     titulo: "Cómo mandar una captura a soporte",

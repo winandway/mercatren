@@ -14,6 +14,151 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "sell-with-the-mercatren-app",
+    tipo: "documentacion",
+    titulo: "Sell from your phone with the Mercatren app",
+    resumen:
+      "Create your account, open your store, and add products with your phone's camera — in minutes, no website needed. And if you ever want to leave, you close your store and delete your account from the same app.",
+    fecha: "2026-11-05",
+    temas: ["app", "comercios", "selling", "phone"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In short",
+        texto:
+          "With the Mercatren app, you set up your store from your phone: create your account, add your business details, and list each product with a photo. Your store goes live right away — no approval wait.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "The app is on its way to the stores",
+        texto:
+          "The Mercatren app is coming to the App Store and Google Play. Until then, everything in this guide works with the same steps at mercatren.com, from your phone's browser or your computer.",
+      },
+      { tipo: "subtitulo", texto: "1. Create your account" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Open the app, choose your country, and tap “Create your store.” Enter your name, your email, and a password — tap the eye icon in the field to see what you typed. The app checks that you're a person on its own, with no puzzles to solve.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/open-your-store-en.png",
+        alt: "The Mercatren app home screen with the “Open your store on Mercatren” invitation, its three steps, and the “Create your store” button",
+        pie: "If you don't have a store yet, the home screen walks you through opening one in three steps.",
+      },
+      { tipo: "subtitulo", texto: "2. Open your store" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Enter your store name and your business details: legal name, tax ID, phone number, address, and where you ship from. We ask for them because your sales are invoiced in your business's name.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "Your store opens live: there's no approval to wait for.",
+          "Before opening it, you accept the seller terms, which you can read from the same screen.",
+          "If the app closes halfway through the form, everything you typed is waiting when you come back, with the option to start over.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "3. Add products with your camera" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Tap “Add a product”",
+            texto:
+              "It's under “My store,” which you open from the home screen or from “Account.”",
+          },
+          {
+            titulo: "Take your photos",
+            texto:
+              "Up to eight per product, with the camera or from your photo library. The app makes them lighter before uploading, so you don't burn through your data.",
+          },
+          {
+            titulo: "Name it in both languages",
+            texto:
+              "In Spanish and English, so every shopper can find it. The description is optional.",
+          },
+          {
+            titulo: "Set your price",
+            texto:
+              "It's what you receive for each sale. Right below, the app instantly shows the price shoppers will see, with our margin already included.",
+          },
+          {
+            titulo: "Publish",
+            texto:
+              "Tap “Publish product,” and it shows up in your country's catalog.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/add-a-product-en.png",
+        alt: "The “New product” screen with two photos, the name in Spanish and English, a $25 price, and the line “What you receive for each sale. Shoppers will see $26.89.”",
+        pie: "You enter what you want to receive; the app tells you right away what shoppers will see.",
+      },
+      { tipo: "subtitulo", texto: "How each sale is invoiced" },
+      {
+        tipo: "parrafo",
+        texto: `Every sale is invoiced by ${SOCIEDAD.nombre}: you sell the merchandise to us, and we sell it to your customer. You pack and ship each order to the address the shopper provides, and we pay you what you're owed for your sales to your registered bank account.`,
+      },
+      {
+        tipo: "subtitulo",
+        texto:
+          "4. If you ever want to leave: close your store and delete your account",
+      },
+      {
+        tipo: "parrafo",
+        texto:
+          "You do it yourself, from the app, without contacting anyone. Go to “Account,” tap the three-dot menu at the top, and choose “Delete account.” Here's what happens:",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Today",
+            texto: "Your store stops selling and is removed from Mercatren.",
+          },
+          {
+            titulo: "We wrap up what's in progress",
+            texto:
+              "We complete your open orders and review any pending payments.",
+          },
+          {
+            titulo: "We pay you",
+            texto:
+              "What you're owed for your sales goes to your registered bank account.",
+          },
+          {
+            titulo: "Your account deletes itself",
+            texto:
+              "Once nothing is pending — usually within 30 days — your account is deleted and we email you.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/close-your-store-en.png",
+        alt: "The “Close your store and delete your account” screen with the four steps, the field to type DELETE, and the confirm button",
+        pie: "To confirm, you type DELETE — so no one closes a store with an accidental tap.",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "What we keep",
+        texto:
+          "Sales and invoices are kept for five years, as required by law, without your name. If you don't have a store and only shop, your account is deleted right away.",
+      },
+    ],
+    enlaces: [
+      { texto: "Start selling", href: "/vender" },
+      { texto: "How to get help", href: "/docs/como-pedir-ayuda" },
+    ],
+  },
+
+  {
     slug: "como-mandar-una-captura-a-soporte",
     tipo: "documentacion",
     titulo: "How to send a screenshot to support",

@@ -44,6 +44,22 @@ describe("toda imagen de un artículo existe en public/", () => {
     }
   }
 
+  it("la guía de la app existe en los dos idiomas, con sus capturas y dirección en inglés", () => {
+    /* Regla de la casa (12 oct 2026): lo nuevo se explica al público en Docs,
+       en los dos idiomas y con capturas reales. La app nativa (5 nov 2026)
+       trae crear la tienda, subir productos y cerrar la cuenta sola. */
+    const slug = "sell-with-the-mercatren-app";
+    for (const articulos of [ARTICULOS_ES, ARTICULOS_EN]) {
+      const guia = articulos.find((a) => a.slug === slug);
+      expect(guia, slug).toBeTruthy();
+      const capturas = guia!.cuerpo.filter((b) => b.tipo === "imagen");
+      expect(capturas.length).toBeGreaterThanOrEqual(3);
+      expect(guia!.temas).toContain("comercios");
+    }
+    /* Para EE. UU. las direcciones van en inglés, también la del español. */
+    expect(slug).toMatch(/^[a-z-]+$/);
+  });
+
   it("el tutorial del W-8BEN-E existe en los dos idiomas y lleva capturas", () => {
     const es = ARTICULOS_ES.find((a) => a.slug === "formulario-fiscal-w8ben-e");
     const en = ARTICULOS_EN.find((a) => a.slug === "formulario-fiscal-w8ben-e");

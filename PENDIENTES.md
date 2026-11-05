@@ -131,8 +131,13 @@ apruebe Divoox.
       cuenta. Probado en el simulador de iPhone contra el servidor local; un
       país apagado devuelve a la bienvenida. Pruebas en
       `tests/unit/app-movil-pantallas.test.ts`. Ver `app-movil/LEEME.md`.
-- [ ] 💻 Antes de subir a las tiendas: la guía pública de la app en Docs, en
-      los dos idiomas, con las capturas de `docs/capturas/app-nativa/`.
+- [x] ✅ 💻 La guía pública de la app en Docs, en los dos idiomas, con tres
+      capturas reales por idioma: «Vende desde el celular con la app de
+      Mercatren» (dirección `/docs/sell-with-the-mercatren-app`). Cuenta crear
+      la cuenta, abrir la tienda, subir productos y cerrar la tienda. Dice que
+      la app está llegando a las tiendas: al publicarla allá, se cambia ese
+      aviso por los botones de descarga. Candado en
+      `tests/unit/articulos-imagenes.test.ts` (5 nov 2026).
 - [x] ✅ 💻 Parte 3a · Las cuentas en la app: crear cuenta (con el país y el
       idioma de la app), entrar, cerrar sesión, escudo anti-robots en vista
       web, borrador que no guarda la contraseña. Probado en el simulador (ver
