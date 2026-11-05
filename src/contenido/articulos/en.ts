@@ -18,7 +18,7 @@ export const ARTICULOS_EN: Articulo[] = [
     tipo: "documentacion",
     titulo: "Sell from your phone with the Mercatren app",
     resumen:
-      "Create your account, open your store, and add products with your phone's camera — in minutes, no website needed. And if you ever want to leave, you close your store and delete your account from the same app.",
+      "Create your account, open your store, add products with your phone's camera, and ship your sales — no website needed. And if you ever want to leave, you close your store and delete your account from the same app.",
     fecha: "2026-11-05",
     temas: ["app", "comercios", "selling", "phone"],
     cuerpo: [
@@ -104,10 +104,51 @@ export const ARTICULOS_EN: Articulo[] = [
         tipo: "parrafo",
         texto: `Every sale is invoiced by ${SOCIEDAD.nombre}: you sell the merchandise to us, and we sell it to your customer. You pack and ship each order to the address the shopper provides, and we pay you what you're owed for your sales to your registered bank account.`,
       },
+      { tipo: "subtitulo", texto: "4. Ship your sales" },
+      {
+        tipo: "parrafo",
+        texto:
+          "In “My store,” tap “My sales.” You'll see each order with its number, who bought it, what you sold, and where it stands. Open one to see what's in it, the full shipping address, and the shopper's phone number.",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Pack and ship",
+            texto:
+              "When the order says “Paid,” pack it and send it to the address on the screen. If it still says “Awaiting payment,” wait — don't ship it yet.",
+          },
+          {
+            titulo: "Mark it as shipped",
+            texto:
+              "If you send it with a carrier, tap “Mark as shipped.” The shopper gets an email letting them know.",
+          },
+          {
+            titulo: "Mark it as delivered",
+            texto:
+              "Once the shopper has it, tap “Mark as delivered.” If you hand it over in person, you can do this right away.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/your-sales-en.png",
+        alt: "A sale in the app: the order number, “Paid,” what's in it, the shipping address in Miami, and the “Mark as delivered” and “Mark as shipped” buttons",
+        pie: "Each sale has everything you need to ship it. Orders only move forward — they can't go back a step.",
+      },
+      { tipo: "subtitulo", texto: "Update a product anytime" },
+      {
+        tipo: "lista",
+        puntos: [
+          "In “My store,” tap the product to change its name, description, price, units, and photos.",
+          "“Pause sales” hides it from shoppers without deleting it; “Publish again” puts it back on sale.",
+          "Anything you set from your computer, like the brand or department, stays as is when you edit from your phone.",
+        ],
+      },
       {
         tipo: "subtitulo",
         texto:
-          "4. If you ever want to leave: close your store and delete your account",
+          "5. If you ever want to leave: close your store and delete your account",
       },
       {
         tipo: "parrafo",

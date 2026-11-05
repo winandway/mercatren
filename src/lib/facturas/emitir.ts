@@ -14,6 +14,7 @@ import {
 } from "@/lib/db/schema";
 import { SERIES } from "@/lib/facturas/numeracion";
 import { siguienteNumero } from "@/lib/facturas/serie";
+import { lineasDeLaEntrega } from "@/lib/pedidos/direccion-de-entrega";
 import { SITIO } from "@/lib/sitio";
 
 /**
@@ -81,11 +82,8 @@ function emisor(): Emisor {
 
 /** La dirección de entrega, aplanada a una línea para el documento. */
 function direccionEnUnaLinea(guardada: unknown): string | null {
-  if (!guardada || typeof guardada !== "object") return null;
-  const d = guardada as Record<string, unknown>;
-  const partes = [d.direccion, d.referencia, d.ciudad, d.pais]
-    .filter((p): p is string => typeof p === "string" && p.trim() !== "")
-    .map((p) => p.trim());
+  /* Con estado y código postal, que antes se perdían en la factura. */
+  const partes = lineasDeLaEntrega(guardada, { conNombre: false });
   return partes.length > 0 ? partes.join(", ") : null;
 }
 

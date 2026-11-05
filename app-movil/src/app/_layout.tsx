@@ -73,6 +73,21 @@ function Navegacion() {
           }}
         />
         <Stack.Screen
+          name="mis-ventas"
+          options={{ title: texto(idioma, "misVentas") }}
+        />
+        <Stack.Screen
+          name="venta/[numero]"
+          options={{ title: texto(idioma, "venta") }}
+        />
+        <Stack.Screen
+          name="editar-producto/[id]"
+          options={{
+            presentation: "modal",
+            title: texto(idioma, "editarProducto"),
+          }}
+        />
+        <Stack.Screen
           name="borrar-cuenta"
           options={{
             presentation: "modal",

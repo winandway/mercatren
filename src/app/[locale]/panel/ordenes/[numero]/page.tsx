@@ -23,6 +23,7 @@ import { hitosDe } from "@/lib/pedidos/hitos";
 import { listarPruebasDeEntrega } from "@/lib/pedidos/prueba-entrega";
 import { fechaCorta, fechaHora } from "@/lib/fechas";
 import { obtenerPedidoDelPanel } from "@/lib/pedidos/consultas";
+import { lineasDeLaEntrega } from "@/lib/pedidos/direccion-de-entrega";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -50,15 +51,6 @@ const TONO: Record<string, string> = {
 };
 
 /** La dirección, en el orden en que se escribe un sobre. */
-const ORDEN_DIRECCION = [
-  "nombre",
-  "linea1",
-  "linea2",
-  "ciudad",
-  "estado",
-  "codigoPostal",
-  "pais",
-];
 
 export default async function PaginaPedidoDelPanel({
   params,
@@ -127,10 +119,8 @@ export default async function PaginaPedidoDelPanel({
   const dinero = (centavos: number) =>
     formatearPrecio(centavos, idioma, pedido.moneda);
 
-  const direccion = pedido.entrega.direccion;
-  const lineas = direccion
-    ? ORDEN_DIRECCION.map((c) => direccion[c]).filter(Boolean)
-    : [];
+  /* La calle se guarda en `direccion`: ver `pedidos/direccion-de-entrega.ts`. */
+  const lineas = lineasDeLaEntrega(pedido.entrega.direccion);
 
   const sinPagar = pedido.estado === "pendiente_pago";
   const cerrado =

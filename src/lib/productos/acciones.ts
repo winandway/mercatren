@@ -419,8 +419,10 @@ export async function guardarProducto(
 /** Quita una foto de un producto del comercio. */
 export async function borrarFoto(
   imagenId: string,
+  /* La app nativa pasa el idioma de la persona (ver `mensajes`). */
+  opciones: { idioma?: "es" | "en" } = {},
 ): Promise<{ ok: boolean; mensaje: string }> {
-  const t = await mensajes();
+  const t = await mensajes(opciones.idioma);
 
   /* Igual que en guardarProducto: si no tiene alcance se le dice, no se
      revienta la pantalla. Ver la explicación larga allí arriba. */
@@ -465,8 +467,10 @@ export async function borrarFoto(
 export async function cambiarEstadoProducto(
   id: string,
   estado: "borrador" | "publicado" | "agotado",
+  /* La app nativa pasa el idioma de la persona (ver `mensajes`). */
+  opciones: { idioma?: "es" | "en" } = {},
 ): Promise<{ ok: boolean; mensaje: string }> {
-  const t = await mensajes();
+  const t = await mensajes(opciones.idioma);
 
   /* Igual que en guardarProducto: si no tiene alcance se le dice, no se
      revienta la pantalla. Ver la explicación larga allí arriba. */

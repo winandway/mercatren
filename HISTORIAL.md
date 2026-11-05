@@ -15,6 +15,49 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## MIS VENTAS Y EDITAR PRODUCTOS EN LA APP, Y LA CALLE QUE EL PANEL NO ENSEÑABA (5 nov 2026)
+
+**Qué se hizo.** El vendedor ya despacha desde el teléfono: «Mi tienda» lleva
+a «Mis ventas» (la MISMA lista de Órdenes del panel, `listarPedidosDelPanel`
+acotada a su tienda), cada venta abre su detalle con lo que lleva (solo SUS
+renglones), la dirección, el teléfono y los botones «Entregado» y «Enviado»
+con la MISMA acción de la web (`avanzarPedido`, que solo avanza y le manda el
+correo al comprador). Tocar un producto lo abre para editar: textos, precio,
+unidades, fotos (quitar pide confirmar; la última no se quita) y «Pausar la
+venta / Volver a publicar» (`cambiarEstadoProducto`). Crear y editar son la
+misma pieza (`app-movil/src/components/formulario-producto.tsx`) y la edición
+guarda su borrador por producto, solo si hay algo distinto de lo guardado.
+
+**Fallo 1 que se evitó: editar desde el teléfono borraba lo de la web.**
+`guardarProducto` reescribe todas las columnas con lo que llega; la app solo
+manda seis campos. Un producto con marca, SKU, departamento, precio «antes»,
+destacado o depósito los habría perdido en silencio. La ruta arma el
+formulario con lo guardado (`src/lib/app-movil/editar-producto.ts`) y encima
+pone lo de la app; el estado no lo cambia la edición. Comprobado en local: se
+le puso marca, SKU, unidad y destacado a un producto, se le cambió el precio
+desde la app (15 → 18) y todo siguió en su sitio.
+
+**Fallo 2, real y de todos: la ficha del pedido del panel no enseñaba la
+calle.** Buscaba `linea1`/`linea2`, pero la compra guarda `direccion` y
+`direccion2`. El comercio veía nombre, ciudad y país, sin calle. La factura y
+la ficha del equipo además se comían el estado y el código postal. Ahora una
+sola pieza (`src/lib/pedidos/direccion-de-entrega.ts`) arma la dirección para
+el panel, la ficha del equipo, la factura y la app («Miami, FL 33101»), y
+entiende las dos formas guardadas. Comprobado en el panel local.
+
+**Candados:** `tests/unit/app-movil-ventas.test.ts`, en rojo comprobado tres
+veces (sin conservar el SKU, sin filtrar los renglones de la tienda, sin leer
+`direccion`).
+
+**Cómo se comprueba:** en la app, «Mi tienda» → «Mis ventas» → una venta
+pagada → «Marcar como enviado» → el estado pasa a «Enviado» y queda el hito
+con el nombre de quien lo hizo; en el panel, la ficha del pedido enseña la
+calle.
+
+**Qué NO tocar:** no mandar a `guardarProducto` el formulario de la app sin
+pasar por `formularioDeEdicion`; no volver a escribir listas de campos de la
+dirección en cada pantalla.
+
 ## EL CARRITO Y EL PAGO DE LA APP (5 nov 2026)
 
 **Qué es.** La app tiene carrito (uno por país, guardado en el teléfono),

@@ -16,6 +16,7 @@ import { cobrarConHoja } from "@/lib/cobrar";
 import { cabeceraDeSesion } from "@/lib/auth-client";
 import { COLORES } from "@/lib/colores";
 import { precioTexto } from "@/lib/dinero";
+import { ESTADOS_BUENOS, nombreDelEstado } from "@/lib/estados-de-pedido";
 import { texto } from "@/lib/textos";
 
 type Pedido = {
@@ -97,7 +98,8 @@ export default function MisPedidos() {
           <View style={{ flex: 1 }}>
             <Text style={estilos.numero}>{item.numero}</Text>
             <Text style={estilos.detalle}>
-              {item.articulos} {texto(idioma, "articulos")}
+              {item.articulos}{" "}
+              {texto(idioma, item.articulos === 1 ? "articulo" : "articulos")}
             </Text>
             {item.guia ? (
               <Text style={estilos.detalle}>{item.guia}</Text>
@@ -132,25 +134,6 @@ export default function MisPedidos() {
       )}
     />
   );
-}
-
-/* Lo que salió bien va en verde (regla de la casa). */
-const ESTADOS_BUENOS = new Set([
-  "pagado",
-  "preparando",
-  "enviado",
-  "entregado",
-]);
-const NOMBRES: Record<string, { es: string; en: string }> = {
-  pendiente_pago: { es: "Por pagar", en: "Awaiting payment" },
-  pagado: { es: "Pagado", en: "Paid" },
-  preparando: { es: "Preparando", en: "Preparing" },
-  enviado: { es: "Enviado", en: "Shipped" },
-  entregado: { es: "Entregado", en: "Delivered" },
-  cancelado: { es: "Cancelado", en: "Canceled" },
-};
-function nombreDelEstado(estado: string, idioma: "es" | "en"): string {
-  return NOMBRES[estado]?.[idioma] ?? estado;
 }
 
 const estilos = StyleSheet.create({

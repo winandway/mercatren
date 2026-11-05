@@ -7,6 +7,7 @@ import type { FichaDeVenta } from "@/lib/pedidos/lineas-de-la-venta";
 import { eq } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
+import { lineasDeLaEntrega } from "@/lib/pedidos/direccion-de-entrega";
 import {
   facturas,
   itemsPedido,
@@ -53,11 +54,7 @@ import {
  * «, , Venezuela» se lee como un error del sistema.
  */
 function textoDeLaEntrega(valor: unknown): string | null {
-  if (!valor || typeof valor !== "object") return null;
-  const d = valor as Record<string, unknown>;
-  const partes = [d.nombre, d.direccion, d.ciudad, d.pais, d.referencia]
-    .map((v) => (typeof v === "string" ? v.trim() : ""))
-    .filter(Boolean);
+  const partes = lineasDeLaEntrega(valor);
   return partes.length ? partes.join(" · ") : null;
 }
 

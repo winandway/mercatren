@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -20,8 +21,8 @@ import { urlMisProductos, type MiProducto } from "@/lib/productos";
 import { texto } from "@/lib/textos";
 
 /**
- * MI TIENDA: el nombre, «Agregar un producto» y lo que ya está subido, con su
- * precio publicado y su estado. Se vuelve a pedir al volver a la pantalla (por
+ * MI TIENDA: el nombre, «Agregar un producto», «Mis ventas» y lo que ya está
+ * subido, con su precio publicado y su estado (tocar uno lo abre para editar). Se vuelve a pedir al volver a la pantalla (por
  * ejemplo, después de publicar uno).
  */
 export default function MiTienda() {
@@ -60,6 +61,15 @@ export default function MiTienda() {
             texto={texto(idioma, "agregarProducto")}
             onPress={() => router.push("/nuevo-producto")}
           />
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/mis-ventas")}
+            style={estilos.ventas}
+          >
+            <Text style={estilos.ventasTexto}>
+              {texto(idioma, "misVentas")}
+            </Text>
+          </Pressable>
         </View>
       }
       ListEmptyComponent={
@@ -70,7 +80,17 @@ export default function MiTienda() {
         )
       }
       renderItem={({ item }) => (
-        <View style={estilos.fila}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint={texto(idioma, "editarProducto")}
+          onPress={() =>
+            router.push({
+              pathname: "/editar-producto/[id]",
+              params: { id: item.id },
+            })
+          }
+          style={estilos.fila}
+        >
           <View style={estilos.marco}>
             {item.foto ? (
               <Image
@@ -95,11 +115,15 @@ export default function MiTienda() {
             >
               {texto(
                 idioma,
-                item.estado === "publicado" ? "verEnLaTienda" : "borrador",
+                item.estado === "publicado"
+                  ? "verEnLaTienda"
+                  : item.estado === "agotado"
+                    ? "agotado"
+                    : "pausado",
               )}
             </Text>
           </View>
-        </View>
+        </Pressable>
       )}
     />
   );
@@ -108,6 +132,16 @@ export default function MiTienda() {
 const estilos = StyleSheet.create({
   lista: { padding: 16, gap: 10, backgroundColor: "#F3F4F6", flexGrow: 1 },
   cabecera: { gap: 4, marginBottom: 8 },
+  ventas: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: COLORES.azul,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  ventasTexto: { color: COLORES.azul, fontWeight: "700", fontSize: 15 },
   nombre: { fontSize: 22, fontWeight: "800", color: COLORES.azul },
   vacio: {
     textAlign: "center",

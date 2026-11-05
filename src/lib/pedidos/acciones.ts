@@ -779,8 +779,10 @@ const AVANCES: Record<string, string[]> = {
 export async function avanzarPedido(
   numero: string,
   nuevoEstado: "enviado" | "entregado",
+  /* La app nativa (`/datos/app/mi/ventas/…`) pasa el idioma de la persona. */
+  opciones: { idioma?: "es" | "en" } = {},
 ): Promise<{ ok: boolean; mensaje: string }> {
-  const t = await mensajes();
+  const t = await mensajes(opciones.idioma);
 
   const alcance = await obtenerAlcance().catch(() => null);
   if (!alcance) return { ok: false, mensaje: t("sinPermiso") };

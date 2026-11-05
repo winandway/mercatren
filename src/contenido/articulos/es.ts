@@ -19,7 +19,7 @@ export const ARTICULOS_ES: Articulo[] = [
     tipo: "documentacion",
     titulo: "Vende desde el celular con la app de Mercatren",
     resumen:
-      "Crea tu cuenta, abre tu tienda y sube tus productos con la cámara del celular, en minutos y sin página web. Y si un día quieres irte, cierras tu tienda y borras tu cuenta desde la misma app.",
+      "Crea tu cuenta, abre tu tienda, sube tus productos con la cámara del celular y despacha tus ventas, sin página web. Y si un día quieres irte, cierras tu tienda y borras tu cuenta desde la misma app.",
     fecha: "2026-11-05",
     temas: ["app", "comercios", "vender", "celular"],
     cuerpo: [
@@ -105,9 +105,50 @@ export const ARTICULOS_ES: Articulo[] = [
         tipo: "parrafo",
         texto: `Cada venta la factura ${SOCIEDAD.nombre}: tú nos vendes la mercancía y nosotros se la vendemos a tu cliente. Tú preparas y envías cada pedido a la dirección que indica el comprador, y te pagamos lo que te corresponde por tus ventas a tu cuenta bancaria registrada.`,
       },
+      { tipo: "subtitulo", texto: "4. Despacha tus ventas" },
+      {
+        tipo: "parrafo",
+        texto:
+          "En «Mi tienda», toca «Mis ventas». Ves cada pedido con su número, quién compró, lo que vendiste y en qué va. Al abrir uno tienes lo que lleva, la dirección completa de entrega y el teléfono del comprador.",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Prepara y envía",
+            texto:
+              "Cuando el pedido dice «Pagado», empácalo y mándalo a la dirección que ves en pantalla. Si todavía dice «Por pagar», espera: no lo envíes.",
+          },
+          {
+            titulo: "Márcalo como enviado",
+            texto:
+              "Si lo despachas por transporte, toca «Marcar como enviado». Al comprador le llega un correo avisándole.",
+          },
+          {
+            titulo: "Márcalo como entregado",
+            texto:
+              "Cuando el comprador lo recibe, toca «Marcar como entregado». Si lo entregas en mano, puedes hacerlo directamente.",
+          },
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/your-sales-es.png",
+        alt: "La pantalla de una venta en la app: el número del pedido, «Pagado», lo que lleva, la dirección de entrega en Miami y los botones «Marcar como entregado» y «Marcar como enviado»",
+        pie: "Cada venta trae lo que necesitas para despacharla. Los pedidos solo avanzan: no se pueden devolver a un paso anterior.",
+      },
+      { tipo: "subtitulo", texto: "Cambia un producto cuando quieras" },
+      {
+        tipo: "lista",
+        puntos: [
+          "En «Mi tienda», toca el producto: cambias el nombre, la descripción, el precio, las unidades y las fotos.",
+          "Con «Pausar la venta» lo escondes de los compradores sin borrarlo; con «Volver a publicar» vuelve a la venta.",
+          "Lo que pusiste desde la computadora, como la marca o el departamento, se conserva al editar desde el celular.",
+        ],
+      },
       {
         tipo: "subtitulo",
-        texto: "4. Si un día quieres irte: cierra tu tienda y borra tu cuenta",
+        texto: "5. Si un día quieres irte: cierra tu tienda y borra tu cuenta",
       },
       {
         tipo: "parrafo",

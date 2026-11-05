@@ -151,7 +151,12 @@ apruebe Divoox.
       «Mi tienda» con lo subido. Un producto nuevo ya aparece en el catálogo
       (la foto se rehace al guardar). Ver HISTORIAL, «SUBIR PRODUCTOS Y BORRAR
       LA CUENTA DESDE LA APP».
-- [ ] 💻 «Mis ventas» en la app y editar un producto ya subido.
+- [x] ✅ 💻 «Mis ventas» en la app (lista, detalle con la dirección, «Enviado» y
+      «Entregado» con la misma acción del panel) y editar un producto ya subido
+      (textos, precio, unidades, fotos, pausar y volver a publicar) sin borrar
+      lo puesto en la web. Probado en el simulador. De paso se arregló para
+      todos que la ficha del pedido del panel no enseñaba la calle. Ver
+      HISTORIAL, «MIS VENTAS Y EDITAR PRODUCTOS EN LA APP».
 - [x] ✅ 💻 Borrar la cuenta desde la app, en el menú de tres puntos, con la
       misma acción de la web (probado en el simulador y por la puerta).
 - [x] ✅ 💻 Cerrar una cuenta con tienda sin escribir a soporte (Apple
@@ -170,7 +175,7 @@ apruebe Divoox.
 - [ ] 🔴 👤 Decidir si se abre la venta de Estados Unidos para las tiendas que
       crea la gente (hoy sigue la pausa de CJ del 27 oct). Antes, la compra de
       prueba de punta a punta.
-- [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
+- [x] ✅ 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.
 - [ ] 💻 Parte 5 · Los avisos al teléfono (Firebase para Android, lo ve
       Gerencia) y mi cuenta.
 

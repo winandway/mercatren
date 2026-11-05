@@ -182,6 +182,42 @@ export const TEXTOS = {
     entraParaComprar: "Sign in or create an account to check out.",
     faltaEstado: "Enter the state as two letters, like FL.",
     faltaCodigoPostal: "Enter a valid ZIP code.",
+    misVentas: "My sales",
+    articulo: "item",
+    enCaminoVenta: "It's on its way. Mark it as delivered once it arrives.",
+    sinVentas:
+      "No sales yet. When someone buys from your store, the order shows up here.",
+    venta: "Sale",
+    cliente: "Customer",
+    enviarA: "Ship to",
+    notasDelCliente: "Customer notes",
+    loQueLleva: "What's in it",
+    totalDeLaVenta: "Sale total",
+    prepararVenta:
+      "Pack this order and ship it to the address below. Then mark it as shipped or delivered.",
+    esperandoPago:
+      "The customer hasn't paid yet. Don't ship it until it shows as paid.",
+    marcarEnviado: "Mark as shipped",
+    marcarEntregado: "Mark as delivered",
+    confirmarEnviado:
+      "Mark this order as shipped? The customer will get an email.",
+    confirmarEntregado:
+      "Mark this order as delivered? The customer will get an email. This can't be undone.",
+    confirmar: "Confirm",
+    ventaActualizada: "Done. We let the customer know.",
+    sinDireccion:
+      "This order has no shipping address. Contact Mercatren support before shipping it.",
+    editarProducto: "Edit product",
+    guardarCambios: "Save changes",
+    pausarVenta: "Pause sales",
+    volverAPublicar: "Publish again",
+    pausado: "Paused",
+    ventaPausada: "Paused: shoppers can't see this product right now.",
+    quitarFotoPregunta: "Remove this photo from the product?",
+    ultimaFoto:
+      "A product needs at least one photo. Add another one before removing this one.",
+    productoNoEditable:
+      "This product is under review and can't be edited right now.",
   },
   es: {
     bienvenida: "Bienvenido a Mercatren",
@@ -364,6 +400,42 @@ export const TEXTOS = {
     entraParaComprar: "Entra o crea tu cuenta para comprar.",
     faltaEstado: "Escribe el estado con dos letras, como FL.",
     faltaCodigoPostal: "Escribe un código postal válido.",
+    misVentas: "Mis ventas",
+    articulo: "artículo",
+    enCaminoVenta: "Ya va en camino. Márcalo como entregado cuando llegue.",
+    sinVentas:
+      "Todavía no tienes ventas. Cuando alguien compre en tu tienda, el pedido aparece aquí.",
+    venta: "Venta",
+    cliente: "Cliente",
+    enviarA: "Enviar a",
+    notasDelCliente: "Notas del cliente",
+    loQueLleva: "Lo que lleva",
+    totalDeLaVenta: "Total de la venta",
+    prepararVenta:
+      "Prepara este pedido y envíalo a la dirección de abajo. Después márcalo como enviado o entregado.",
+    esperandoPago:
+      "El cliente todavía no ha pagado. No lo envíes hasta que aparezca como pagado.",
+    marcarEnviado: "Marcar como enviado",
+    marcarEntregado: "Marcar como entregado",
+    confirmarEnviado:
+      "¿Marcar este pedido como enviado? Al cliente le llega un correo.",
+    confirmarEntregado:
+      "¿Marcar este pedido como entregado? Al cliente le llega un correo. No se puede deshacer.",
+    confirmar: "Confirmar",
+    ventaActualizada: "Listo. Le avisamos al cliente.",
+    sinDireccion:
+      "Este pedido no tiene dirección de entrega. Escríbele a soporte de Mercatren antes de enviarlo.",
+    editarProducto: "Editar producto",
+    guardarCambios: "Guardar cambios",
+    pausarVenta: "Pausar la venta",
+    volverAPublicar: "Volver a publicar",
+    pausado: "Pausado",
+    ventaPausada: "Pausado: los compradores no ven este producto por ahora.",
+    quitarFotoPregunta: "¿Quitar esta foto del producto?",
+    ultimaFoto:
+      "Un producto necesita al menos una foto. Agrega otra antes de quitar esta.",
+    productoNoEditable:
+      "Este producto está en revisión y no se puede editar por ahora.",
   },
 } as const satisfies Record<Idioma, Record<string, string>>;
 

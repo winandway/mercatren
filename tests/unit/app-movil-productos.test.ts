@@ -92,7 +92,7 @@ describe("el formulario del producto", () => {
   it("las fotos van como partes con bytes, nunca con la forma vieja de React Native", () => {
     const fotos = leer("app-movil/src/lib/fotos.ts");
     expect(fotos).toContain("bytes: () => new File(foto.uri).bytes()");
-    const pantalla = leer("app-movil/src/app/nuevo-producto.tsx");
+    const pantalla = leer("app-movil/src/components/formulario-producto.tsx");
     expect(pantalla).toContain('cuerpo.append("fotos", parteDeFoto(foto))');
     expect(pantalla).not.toMatch(/uri:\s*foto\.uri/);
   });
@@ -107,9 +107,13 @@ describe("el formulario del producto", () => {
   });
 
   it("guarda el borrador por cuenta y lo borra al publicar", () => {
-    const pantalla = leer("app-movil/src/app/nuevo-producto.tsx");
+    /* Crear y editar son la misma pieza; cada producto editado, su borrador. */
+    expect(leer("app-movil/src/app/nuevo-producto.tsx")).toContain(
+      "<FormularioProducto />",
+    );
+    const pantalla = leer("app-movil/src/components/formulario-producto.tsx");
     expect(pantalla).toMatch(
-      /useBorrador\(\s*"nuevo-producto",\s*sesion\?\.user\?\.id,/,
+      /useBorrador\(\s*editando\s*\?\s*`editar-producto:\$\{id\}`\s*:\s*"nuevo-producto",\s*sesion\?\.user\?\.id,/,
     );
     expect(pantalla.indexOf("await limpiar();")).toBeGreaterThan(
       pantalla.indexOf("respuesta?.ok"),
