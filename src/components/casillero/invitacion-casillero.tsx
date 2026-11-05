@@ -56,18 +56,22 @@ export async function InvitacionCasillero({
               ? t("invitacionTengoTexto", { codigo: yaTiene.codigo })
               : t("invitacionTexto")}
           </p>
-          <Link
-            href={yaTiene ? "/casillero/mi-casillero" : "/casillero"}
-            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-carga-600 hover:underline"
-          >
-            {yaTiene ? t("invitacionTengoBoton") : t("invitacionBoton")}
-          </Link>
-          <Link
-            href="/casillero/calculadora"
-            className="text-sm font-semibold text-carga-600 hover:underline"
-          >
-            {t("calcularEnvio")}
-          </Link>
+          {/* Los dos enlaces en su fila, separados: sueltos salían pegados
+              («…gratisCalcular el envío»), visto el 5 nov 2026. */}
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+            <Link
+              href={yaTiene ? "/casillero/mi-casillero" : "/casillero"}
+              className="inline-flex items-center gap-1 text-sm font-semibold text-carga-600 hover:underline"
+            >
+              {yaTiene ? t("invitacionTengoBoton") : t("invitacionBoton")}
+            </Link>
+            <Link
+              href="/casillero/calculadora"
+              className="text-sm font-semibold text-carga-600 hover:underline"
+            >
+              {t("calcularEnvio")}
+            </Link>
+          </div>
         </div>
       </div>
     </aside>

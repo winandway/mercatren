@@ -27,6 +27,8 @@ import { InvitacionCasillero } from "@/components/casillero/invitacion-casillero
 import { EntregaEstadosUnidos } from "@/components/catalogo/entrega-estados-unidos";
 import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
 import { seguridadDelProducto } from "@/lib/productos/seguridad-consultas";
+import { aBolivares, textoBolivares } from "@/lib/precios/bcv";
+import { tasaBcvDelDia } from "@/lib/precios/bcv-servidor";
 import { FilaProductos } from "@/components/catalogo/fila-productos";
 import { RegistrarVisita } from "@/components/catalogo/registrar-visita";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
@@ -192,6 +194,13 @@ export default async function PaginaProducto({
     ficha.producto.id,
     (await mercadoDeLaPeticion()).codigo,
   );
+  /* Venezuela: el equivalente referencial en bolívares a la tasa oficial del
+     BCV (caché del borde, nunca la base). Solo para precios en dólares. */
+  const tasaBcv =
+    (await mercadoDeLaPeticion()).codigo === "VE" &&
+    (ficha.producto.moneda ?? "USD") === "USD"
+      ? await tasaBcvDelDia()
+      : null;
 
   // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
   const zona = await zonaDelCliente();
@@ -517,6 +526,17 @@ export default async function PaginaProducto({
                 </span>
               ) : null}
             </p>
+            {tasaBcv ? (
+              <p className="mt-1 text-sm text-tinta-suave tabular-nums">
+                {t("equivalenteBolivares", {
+                  monto: textoBolivares(
+                    aBolivares(producto.precioCentavos, tasaBcv),
+                    idioma === "en" ? "en" : "es",
+                  ),
+                  fecha: tasaBcv.fechaValor.split("-").reverse().join("/"),
+                })}
+              </p>
+            ) : null}
 
             {ahorro ? (
               <p className="mt-1 text-sm">

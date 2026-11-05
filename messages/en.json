@@ -3149,7 +3149,8 @@
       "seguridadTitulo": "Manufacturer and safety",
       "fabricante": "Manufacturer",
       "responsableUe": "Responsible person in the EU",
-      "advertencias": "Safety warnings"
+      "advertencias": "Safety warnings",
+      "equivalenteBolivares": "Reference equivalent: {monto}, at the official BCV rate of {fecha}."
     },
     "seguirBajando": {
       "cargando": "Loading more…",

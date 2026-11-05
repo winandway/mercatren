@@ -3149,7 +3149,8 @@
       "seguridadTitulo": "Fabricante y seguridad",
       "fabricante": "Fabricante",
       "responsableUe": "Responsable en la UE",
-      "advertencias": "Advertencias de seguridad"
+      "advertencias": "Advertencias de seguridad",
+      "equivalenteBolivares": "Equivalente referencial: {monto}, a la tasa oficial del BCV del {fecha}."
     },
     "seguirBajando": {
       "cargando": "Trayendo más…",
