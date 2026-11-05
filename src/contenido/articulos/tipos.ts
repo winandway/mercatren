@@ -72,4 +72,12 @@ export type Articulo = {
   cuerpo: BloqueArticulo[];
   /** Un documento relacionado, si lo hay. */
   enlaces?: { texto: string; href: string }[];
+  /**
+   * LA GUÍA DE UN PAÍS QUE TODAVÍA ESTÁ APAGADO (5 nov 2026, Fase 5). Se
+   * escribe antes, pero no se publica: ni en la lista, ni en el buscador, ni
+   * en el mapa del sitio, ni en su dirección, hasta que el interruptor de ese
+   * país se encienda en la app (`mercado/interruptores.ts`). Contarle a la
+   * gente cómo comprar donde todavía no se vende sería engañarla.
+   */
+  soloConPais?: string;
 };

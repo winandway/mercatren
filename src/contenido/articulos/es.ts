@@ -14,6 +14,179 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "mercatren-venezuela-in-the-app",
+    tipo: "documentacion",
+    soloConPais: "VE",
+    titulo: "Mercatren Venezuela desde la app",
+    resumen:
+      "Elige Venezuela en la app, paga en dólares con tarjeta y retira tu pedido con el comercio, en tu ciudad. Quien paga puede estar en cualquier lugar; quien retira, en Venezuela.",
+    fecha: "2026-11-05",
+    temas: ["app", "compradores", "venezuela", "retiro"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "En Venezuela compras en la app de Mercatren igual que en mercatren.com.ve: precios en dólares, pago con tarjeta y retiro del pedido con el comercio, en la ciudad que elijas.",
+      },
+      { tipo: "subtitulo", texto: "1. Elige Venezuela" },
+      {
+        tipo: "parrafo",
+        texto:
+          "La primera vez que abres la app te pregunta desde qué país compras. Elige Venezuela. Si ya tenías otro país, lo cambias cuando quieras en «Cuenta», en la fila «País». El país también queda guardado en tu cuenta: si entras desde otro celular, la app vuelve a Venezuela.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/choose-your-country-es.png",
+        alt: "La pantalla de la app «¿Desde qué país compras?» con Estados Unidos, Venezuela y España para elegir, cada uno con su moneda",
+        pie: "Cada país muestra su moneda. Los que todavía no están abiertos dicen «Muy pronto».",
+      },
+      { tipo: "subtitulo", texto: "2. Agrega tus productos y paga" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Los precios están en dólares estadounidenses, los mismos que publica cada comercio. Agrega lo que quieras al carrito y paga con tarjeta. Puedes pagar desde Venezuela o desde otro país: es muy común que un familiar pague desde Estados Unidos y que la persona que vive en Venezuela retire el pedido.",
+      },
+      { tipo: "subtitulo", texto: "3. Di quién retira y en qué ciudad" },
+      {
+        tipo: "parrafo",
+        texto:
+          "En Venezuela los pedidos no se envían a domicilio: se retiran con el comercio, en la ciudad. Por eso la app solo te pide el nombre de quien va a retirar, su teléfono y la ciudad. No hace falta escribir una dirección.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/venezuela-pickup-es.png",
+        alt: "La pantalla de pago de la app para Venezuela, con «Datos para el retiro»: nombre completo, teléfono, el aviso de que se retira con el vendedor en la ciudad y la ciudad",
+        pie: "Solo tres datos: quién retira, su teléfono y la ciudad.",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "Te confirmamos el pedido",
+            texto:
+              "Al pagar recibes un correo con el número de tu pedido y el lugar donde se retira, para que se lo puedas reenviar a quien va a buscarlo.",
+          },
+          {
+            titulo: "Te avisamos cuando esté listo",
+            texto:
+              "Escribimos al teléfono que pusiste cuando el comercio tenga tu pedido preparado.",
+          },
+          {
+            titulo: "Lo retiras",
+            texto:
+              "Quien retira se presenta con el número del pedido. En «Cuenta», «Mis pedidos», ves en qué va cada compra.",
+          },
+        ],
+      },
+      { tipo: "subtitulo", texto: "Si tienes un comercio en Venezuela" },
+      {
+        tipo: "parrafo",
+        texto:
+          "También puedes vender desde la app: eliges Venezuela, abres tu tienda y subes tus productos con la cámara del celular, con tus precios en dólares. Los pasos están en la guía «Vende desde el celular con la app de Mercatren».",
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Las condiciones de tu país",
+        texto:
+          "Desde «Cuenta» en la app, «Términos», «Privacidad» y «Ayuda» abren las de Mercatren Venezuela, no las de otro país.",
+      },
+    ],
+    enlaces: [
+      {
+        texto: "Vende desde el celular con la app de Mercatren",
+        href: "/docs/sell-with-the-mercatren-app",
+      },
+      { texto: "Términos y condiciones", href: "/terminos" },
+    ],
+  },
+  {
+    slug: "mercatren-spain-in-the-app",
+    tipo: "documentacion",
+    soloConPais: "ES",
+    titulo: "Mercatren España desde la app",
+    resumen:
+      "Elige España en la app, compra en euros con el IVA incluido y recibe tu pedido en casa. Te contamos qué datos pide la entrega y qué derechos tienes como consumidor.",
+    fecha: "2026-11-05",
+    temas: ["app", "compradores", "españa", "entrega"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "En España, Mercatren vende en euros. El precio que ves es el precio final, con el IVA incluido, y el comercio te envía el pedido a tu dirección dentro de España.",
+      },
+      { tipo: "subtitulo", texto: "1. Elige España" },
+      {
+        tipo: "parrafo",
+        texto:
+          "La primera vez que abres la app te pregunta desde qué país compras. Elige España. Si ya tenías otro país, lo cambias cuando quieras en «Cuenta», en la fila «País». Al cambiar de país el carrito empieza de cero, porque cada país tiene sus propios comercios y su moneda.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/choose-your-country-es.png",
+        alt: "La pantalla de la app «¿Desde qué país compras?» con España elegida y su moneda, el euro",
+        pie: "España aparece con su moneda: el euro.",
+      },
+      { tipo: "subtitulo", texto: "2. Escribe dónde lo recibes" },
+      {
+        tipo: "parrafo",
+        texto:
+          "La app te pide la dirección como se escribe en España: la calle y el número, el piso y la puerta si los hay, la ciudad, la provincia y el código postal.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/spain-checkout-es.png",
+        alt: "La pantalla de pago de la app para España con nombre, teléfono, dirección, piso y puerta, ciudad, provincia Madrid, código postal 28013 y el total en euros",
+        pie: "El total sale en euros, con el IVA incluido.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "La provincia se elige de la lista, así no hay forma de escribirla mal.",
+          "El código postal tiene cinco cifras y empieza por el número de tu provincia: 28 en Madrid, 08 en Barcelona, 41 en Sevilla. Si no coinciden, la app te avisa antes de pagar, porque un paquete con la provincia equivocada se pierde.",
+          "Lo que escribes queda guardado en tu celular: si cierras la app a mitad de camino, al volver está todo en su sitio.",
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/spain-provinces-es.png",
+        alt: "La lista de provincias de España en la app, en orden alfabético: A Coruña, Álava, Albacete, Alicante y las demás",
+        pie: "Las provincias, en orden alfabético.",
+      },
+      { tipo: "subtitulo", texto: "3. Paga con tarjeta" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Pagas con tu tarjeta en la misma app. Al terminar recibes un correo con el número de tu pedido y, en «Cuenta», «Mis pedidos», ves en qué va.",
+      },
+      { tipo: "subtitulo", texto: "Tus derechos como consumidor" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Tienes 14 días naturales desde que recibes el pedido para desistir de la compra, sin dar explicaciones.",
+          "Lo que compras tiene la garantía legal que marca la ley española para los consumidores.",
+          "Las condiciones completas de España están en «Cuenta», «Términos», y la forma de devolver algo, en «Ayuda».",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "¿Tienes un comercio en España?",
+        texto:
+          "Puedes vender en Mercatren España: pones tu producto, tu precio y el envío, y nosotros el escaparate, la venta y la factura. Toda la información está en «Vende en Mercatren».",
+      },
+    ],
+    enlaces: [
+      { texto: "Vende en Mercatren", href: "/vender" },
+      { texto: "Devoluciones", href: "/devoluciones" },
+      { texto: "Términos y condiciones", href: "/terminos" },
+    ],
+  },
+  {
     /* Dirección en inglés, como manda la regla de EE. UU. (Fase 4, 5 nov 2026). */
     slug: "pro-plan-and-sponsored-products",
     tipo: "documentacion",

@@ -21,7 +21,7 @@ import {
 import { usePreferencias } from "@/contexto/preferencias";
 import { useBorrador } from "@/hooks/use-borrador";
 import { useMiTienda } from "@/hooks/use-mi-tienda";
-import { API_BASE, pedirJson, urlPaises, type Pais } from "@/lib/api";
+import { pedirPaises, urlLegal, type Pais } from "@/lib/api";
 import { authClient, cabeceraDeSesion } from "@/lib/auth-client";
 import { bandera, COLORES } from "@/lib/colores";
 import {
@@ -83,7 +83,7 @@ export default function CrearTienda() {
   }, [sesion?.user?.email]);
 
   useEffect(() => {
-    pedirJson<{ paises: Pais[] }>(urlPaises(idioma))
+    pedirPaises(idioma)
       .then((r) => setPaises(r.paises))
       .catch(() => undefined);
   }, [idioma]);
@@ -298,7 +298,7 @@ export default function CrearTienda() {
         <Enlace
           texto={texto(idioma, "leerTerminos")}
           onPress={() =>
-            void WebBrowser.openBrowserAsync(`${API_BASE}/${idioma}/terminos`)
+            void WebBrowser.openBrowserAsync(urlLegal(pais, idioma, "terminos"))
           }
         />
 

@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import type { Idioma } from "@/lib/dinero";
-import { paisSigueEncendido, pedirJson, urlPaises, type Pais } from "@/lib/api";
+import { paisSigueEncendido, pedirPaises } from "@/lib/api";
 import {
   guardarPreferencias,
   leerPreferencias,
@@ -52,7 +52,7 @@ export function ProveedorDePreferencias({
         /* Sin esperar: si el país guardado se apagó, de vuelta a la bienvenida. */
         const guardado = p.pais;
         if (guardado)
-          pedirJson<{ paises: Pais[] }>(urlPaises(p.idioma))
+          pedirPaises(p.idioma)
             .then((r) => {
               if (vivo && !paisSigueEncendido(guardado, r.paises)) {
                 setPais(null);

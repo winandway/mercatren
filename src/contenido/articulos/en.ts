@@ -14,6 +14,179 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "mercatren-venezuela-in-the-app",
+    tipo: "documentacion",
+    soloConPais: "VE",
+    titulo: "Mercatren Venezuela in the app",
+    resumen:
+      "Choose Venezuela in the app, pay in US dollars by card and pick up your order from the seller in your city. Whoever pays can be anywhere; whoever picks up is in Venezuela.",
+    fecha: "2026-11-05",
+    temas: ["app", "buyers", "venezuela", "pickup"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "In Venezuela you shop in the Mercatren app just like on mercatren.com.ve: prices in US dollars, card payment, and in-person pickup from the seller in the city you choose.",
+      },
+      { tipo: "subtitulo", texto: "1. Choose Venezuela" },
+      {
+        tipo: "parrafo",
+        texto:
+          'The first time you open the app, it asks where you\'re shopping from. Choose Venezuela. If you had picked another country, you can change it anytime under "Account", in the "Country" row. Your country is also saved to your account, so if you sign in on another phone, the app goes straight back to Venezuela.',
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/choose-your-country-en.png",
+        alt: 'The app screen "Where are you shopping from?" with the United States, Venezuela and Spain to choose from, each with its currency',
+        pie: 'Each country shows its currency. The ones that aren\'t open yet say "Coming soon".',
+      },
+      { tipo: "subtitulo", texto: "2. Add your items and pay" },
+      {
+        tipo: "parrafo",
+        texto:
+          "Prices are in US dollars, exactly as each seller lists them. Add what you want to your cart and pay by card. You can pay from Venezuela or from another country: it's very common for a family member to pay from the United States while the person who lives in Venezuela picks up the order.",
+      },
+      { tipo: "subtitulo", texto: "3. Tell us who picks up and in which city" },
+      {
+        tipo: "parrafo",
+        texto:
+          "In Venezuela, orders aren't delivered to your door: they're picked up from the seller, in the city. That's why the app only asks for the name of the person picking up, their phone number and the city. No street address needed.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/venezuela-pickup-en.png",
+        alt: 'The app checkout screen for Venezuela, with "Pickup details": full name, phone number, a note that the order is picked up from the seller in your city, and the city',
+        pie: "Just three details: who picks up, their phone number and the city.",
+      },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "We confirm your order",
+            texto:
+              "After you pay, you get an email with your order number and the pickup location, so you can forward it to whoever is picking it up.",
+          },
+          {
+            titulo: "We let you know when it's ready",
+            texto:
+              "We text the phone number you entered as soon as the seller has your order ready.",
+          },
+          {
+            titulo: "You pick it up",
+            texto:
+              'The person picking up brings the order number. Under "Account", "My orders", you can see where each purchase stands.',
+          },
+        ],
+      },
+      { tipo: "subtitulo", texto: "If you run a business in Venezuela" },
+      {
+        tipo: "parrafo",
+        texto:
+          'You can sell from the app too: choose Venezuela, open your store and upload your products with your phone\'s camera, priced in US dollars. The steps are in the guide "Sell from your phone with the Mercatren app".',
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "The terms for your country",
+        texto:
+          'From "Account" in the app, "Terms", "Privacy" and "Help" open the ones for Mercatren Venezuela, not another country\'s.',
+      },
+    ],
+    enlaces: [
+      {
+        texto: "Sell from your phone with the Mercatren app",
+        href: "/docs/sell-with-the-mercatren-app",
+      },
+      { texto: "Terms and conditions", href: "/terminos" },
+    ],
+  },
+  {
+    slug: "mercatren-spain-in-the-app",
+    tipo: "documentacion",
+    soloConPais: "ES",
+    titulo: "Mercatren Spain in the app",
+    resumen:
+      "Choose Spain in the app, shop in euros with VAT included and get your order delivered to your door. Here's what the delivery form asks for and what your rights are as a consumer.",
+    fecha: "2026-11-05",
+    temas: ["app", "buyers", "spain", "delivery"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          "In Spain, Mercatren sells in euros. The price you see is the final price, with VAT included, and the seller ships your order to your address in Spain.",
+      },
+      { tipo: "subtitulo", texto: "1. Choose Spain" },
+      {
+        tipo: "parrafo",
+        texto:
+          'The first time you open the app, it asks where you\'re shopping from. Choose Spain. If you had picked another country, you can change it anytime under "Account", in the "Country" row. Changing countries starts a fresh cart, because each country has its own sellers and its own currency.',
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/choose-your-country-en.png",
+        alt: 'The app screen "Where are you shopping from?" with Spain selected and its currency, the euro',
+        pie: "Spain shows up with its currency: the euro.",
+      },
+      { tipo: "subtitulo", texto: "2. Tell us where to deliver" },
+      {
+        tipo: "parrafo",
+        texto:
+          "The app asks for your address the way it's written in Spain: street and number, floor and door if you have them, city, province and postal code.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/spain-checkout-en.png",
+        alt: "The app checkout screen for Spain with name, phone number, street address, floor and door, city, province Madrid, postal code 28013 and the total in euros",
+        pie: "The total is shown in euros, with VAT included.",
+      },
+      {
+        tipo: "lista",
+        puntos: [
+          "You pick your province from a list, so it can't be misspelled.",
+          "The postal code has five digits and starts with your province's number: 28 for Madrid, 08 for Barcelona, 41 for Seville. If they don't match, the app tells you before you pay, because a package sent to the wrong province gets lost.",
+          "What you type is saved on your phone: if you close the app halfway through, everything is still there when you come back.",
+        ],
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/app/spain-provinces-en.png",
+        alt: "The list of Spanish provinces in the app, in alphabetical order: A Coruña, Álava, Albacete, Alicante and the rest",
+        pie: "Provinces, in alphabetical order.",
+      },
+      { tipo: "subtitulo", texto: "3. Pay by card" },
+      {
+        tipo: "parrafo",
+        texto:
+          'You pay with your card right in the app. When you\'re done, you get an email with your order number, and under "Account", "My orders", you can follow it.',
+      },
+      { tipo: "subtitulo", texto: "Your rights as a consumer" },
+      {
+        tipo: "lista",
+        puntos: [
+          "You have 14 calendar days from the day you receive your order to withdraw from the purchase, no reason needed.",
+          "What you buy comes with the legal guarantee that Spanish consumer law provides.",
+          'The full terms for Spain are under "Account", "Terms", and how to return something is under "Help".',
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Run a business in Spain?",
+        texto:
+          'You can sell on Mercatren Spain: you bring your product, your price and your shipping; we provide the storefront, the sale and the invoice. Everything you need is on "Sell on Mercatren".',
+      },
+    ],
+    enlaces: [
+      { texto: "Sell on Mercatren", href: "/vender" },
+      { texto: "Returns", href: "/devoluciones" },
+      { texto: "Terms and conditions", href: "/terminos" },
+    ],
+  },
+  {
     slug: "pro-plan-and-sponsored-products",
     tipo: "documentacion",
     titulo: "The Pro plan and sponsored products: sell more on Mercatren",

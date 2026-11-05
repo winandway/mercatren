@@ -102,7 +102,9 @@ describe("el pedido y el pago", () => {
 
   it("el pedido lo crea la MISMA acción de la web, en el idioma de la persona", () => {
     expect(ruta).toContain("await crearPedido(");
-    expect(ruta).toContain("{ idioma: contexto.idioma }");
+    expect(ruta).toContain(
+      "{ idioma: contexto.idioma, pais: contexto.mercado.codigo }",
+    );
     expect(ruta).toContain('metodoPago: "stripe"');
   });
 

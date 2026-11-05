@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 import { contextoDe, respuestaDeError } from "@/lib/app-movil/datos";
-import { obtenerUsuario } from "@/lib/autorizacion";
+import { esEquipoInterno, obtenerUsuario } from "@/lib/autorizacion";
+import { enLaApp } from "@/lib/mercado/interruptores";
 import { esquemaEntrega } from "@/lib/pedidos/esquemas";
 import { crearPedido } from "@/lib/pedidos/acciones";
 import { crearIntentoDePago } from "@/lib/stripe/acciones";
@@ -46,6 +47,17 @@ export async function POST(peticion: Request) {
   if (!(await obtenerUsuario().catch(() => null))) {
     return respuestaDeError("sin_sesion", 401);
   }
+  /* EL INTERRUPTOR DEL PAÍS SE MIRA AQUÍ, NO SOLO EN LA PANTALLA (5 nov
+     2026). La app solo ofrece los países encendidos, pero esta puerta la
+     puede llamar cualquiera: un país apagado no compra por la app. El equipo
+     sí, igual que en la pausa: es la única forma de probar la compra real
+     de un país antes de encenderlo. */
+  if (
+    !enLaApp(contexto.mercado.codigo) &&
+    !(await esEquipoInterno().catch(() => false))
+  ) {
+    return respuestaDeError("pais_apagado", 403);
+  }
   const cuerpo = esquema.safeParse(await peticion.json().catch(() => null));
   if (!cuerpo.success) return respuestaDeError("datos", 400);
 
@@ -55,11 +67,13 @@ export async function POST(peticion: Request) {
       lineas: cuerpo.data.lineas,
       /* En la app se paga con tarjeta; Zelle sigue siendo de la web. */
       metodoPago: "stripe",
-      /* La app despacha a una dirección (Estados Unidos y los países que se
-         enciendan); el retiro en mostrador es de Venezuela, en la web. */
-      formaEntrega: "envio",
+      /* Venezuela se retira en una ciudad; los demás países, a la dirección
+         (la misma regla de la web: `retiroEnCiudad` del mercado). */
+      formaEntrega: contexto.mercado.retiroEnCiudad ? "retiro" : "envio",
     },
-    { idioma: contexto.idioma },
+    /* El país lo dice la app: entra siempre por mercatren.com y sin la
+       galleta del país, así que el dominio no sabe dónde compra. */
+    { idioma: contexto.idioma, pais: contexto.mercado.codigo },
   );
   if (!pedido.ok) return privada({ ok: false, mensaje: pedido.mensaje }, 400);
 

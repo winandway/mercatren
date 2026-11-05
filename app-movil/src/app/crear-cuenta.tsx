@@ -22,7 +22,7 @@ import {
 } from "@/components/formulario";
 import { usePreferencias } from "@/contexto/preferencias";
 import { useBorrador } from "@/hooks/use-borrador";
-import { API_BASE } from "@/lib/api";
+import { urlLegal, type PaginaLegal } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { bandera, COLORES } from "@/lib/colores";
 import { faltaEnAlta, mensajeDeError } from "@/lib/cuentas";
@@ -89,8 +89,9 @@ export default function CrearCuenta() {
     }
   };
 
-  const abrir = (ruta: string) =>
-    void WebBrowser.openBrowserAsync(`${API_BASE}/${idioma}/${ruta}`);
+  const abrir = (ruta: PaginaLegal) => {
+    void WebBrowser.openBrowserAsync(urlLegal(pais, idioma, ruta));
+  };
 
   return (
     <KeyboardAvoidingView

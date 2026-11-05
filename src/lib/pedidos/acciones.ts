@@ -7,6 +7,7 @@ import { FUENTE_CJ } from "@/lib/cj/constantes";
 import { ajustarCantidad } from "@/lib/cj/mayorista";
 import { precioDeVariante } from "@/lib/productos/heredar";
 import { mercadoActual } from "@/lib/mercado/actual";
+import { MERCADOS } from "@/lib/mercado/mercados";
 import { revalidatePath } from "next/cache";
 
 import { numeroDePedido, revisar } from "@/lib/validacion/acciones";
@@ -67,8 +68,10 @@ async function siguienteNumero(db: ReturnType<typeof getDb>) {
 
 export async function crearPedido(
   entrada: DatosPedido,
-  /* La app nativa (`/datos/app/mi/pedido`) pasa el idioma de la persona. */
-  opciones: { idioma?: "es" | "en" } = {},
+  /* La app nativa (`/datos/app/mi/pedido`) pasa el idioma de la persona y el
+     país que eligió: la app entra siempre por mercatren.com y sin la galleta
+     del país, así que el dominio no sirve para saber dónde compra. */
+  opciones: { idioma?: "es" | "en"; pais?: string } = {},
 ): Promise<ResultadoPedido> {
   const t = await mensajes(opciones.idioma);
 
@@ -236,6 +239,20 @@ export async function crearPedido(
   }
 
   const destinoDelPedido: Destino = destinos.values().next().value ?? "VE";
+
+  /* ══ LA APP COMPRA EN EL PAÍS QUE ELIGIÓ (5 nov 2026) ══ Cuando el país
+     viene de la app, lo que se compra tiene que ser de ESE país: un pedido
+     armado a mano con un producto de otro quedaría anotado en el mercado
+     equivocado (y con su moneda y sus reglas equivocadas). */
+  /* Esto es una acción del servidor —también la puede llamar un navegador—,
+     así que no se acepta un mercado entero: solo el código, y se resuelve
+     contra la lista cerrada. Un código que no existe no compra. */
+  const mercadoPedido = opciones.pais
+    ? MERCADOS.find((m) => m.codigo === opciones.pais?.trim().toUpperCase())
+    : undefined;
+  if (opciones.pais && mercadoPedido?.codigo !== destinoDelPedido) {
+    return { ok: false, mensaje: t("productoFueraDelCatalogo") };
+  }
 
   const faltan = faltantesDeEntrega(destinoDelPedido, {
     nombre: entrega.nombre,
@@ -566,7 +583,7 @@ export async function crearPedido(
    */
   const { impuestoDelMercado, desglosarDesdeBruto } =
     await import("@/lib/impuestos/chile");
-  const mercadoDeLaCompra = await mercadoActual();
+  const mercadoDeLaCompra = mercadoPedido ?? (await mercadoActual());
   const reglaIva = impuestoDelMercado(mercadoDeLaCompra);
   const ivaCentavos = reglaIva
     ? desglosarDesdeBruto(total, reglaIva).impuesto
@@ -593,7 +610,10 @@ export async function crearPedido(
          pedido: sin ella el proveedor no puede sacar la caja. */
       direccionEntrega: {
         nombre: entrega.nombre,
-        pais: entrega.pais ?? nombreDelPais(destinoDelPedido),
+        /* `||` y no `??`: el esquema deja la casilla vacía en "" cuando no
+           llega (la app no la manda), y un país en blanco no le dice nada a
+           quien despacha. */
+        pais: entrega.pais?.trim() || nombreDelPais(destinoDelPedido),
         ciudad: entrega.ciudad,
         direccion: entrega.direccion ?? "",
         direccion2: entrega.direccion2 ?? null,

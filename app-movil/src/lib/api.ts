@@ -92,8 +92,35 @@ export function urlClicPromocion(): string {
   return `${API_BASE}/datos/promo/clic`;
 }
 
+/**
+ * Las páginas legales y de ayuda DEL PAÍS de la persona: el servidor la lleva
+ * a la de su país (`/datos/app/v1/legal`). Abrir `/{idioma}/terminos` a secas
+ * enseñaba siempre las de Estados Unidos.
+ */
+export type PaginaLegal = "terminos" | "privacidad" | "ayuda" | "devoluciones";
+
+export function urlLegal(
+  pais: string | null | undefined,
+  idioma: Idioma,
+  pagina: PaginaLegal,
+): string {
+  return `${API_BASE}/datos/app/v1/legal?pais=${encodeURIComponent(pais ?? "US")}&idioma=${idioma}&pagina=${pagina}`;
+}
+
 export function urlPaises(idioma: Idioma): string {
   return conContexto("paises", null, idioma);
+}
+
+/**
+ * La lista de países SIEMPRE fresca (5 nov 2026): el teléfono la guardaba y,
+ * al encender o apagar un país, seguía diciendo «Próximamente» (o dejaba
+ * elegir uno ya apagado). Es una lista corta y fija: pedirla de nuevo no
+ * cuesta nada en la base.
+ */
+export function pedirPaises(idioma: Idioma): Promise<{ paises: Pais[] }> {
+  return pedirJson<{ paises: Pais[] }>(urlPaises(idioma), fetch, {
+    headers: { "Cache-Control": "no-cache" },
+  });
 }
 
 export function urlCatalogo(o: {

@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -18,16 +18,20 @@ import {
 } from "@/components/formulario";
 import { useCarrito } from "@/contexto/carrito";
 import { usePreferencias } from "@/contexto/preferencias";
+import { SelectorLista } from "@/components/selector-lista";
 import { useBorrador } from "@/hooks/use-borrador";
-import { urlPedido } from "@/lib/api";
+import { pedirJson, urlPedido } from "@/lib/api";
 import { authClient, cabeceraDeSesion } from "@/lib/auth-client";
 import { lineasParaElPedido, totalCentavos } from "@/lib/carrito";
 import { cobrarConHoja } from "@/lib/cobrar";
 import { COLORES } from "@/lib/colores";
 import { precioTexto } from "@/lib/dinero";
 import {
+  ENTREGA_US,
   faltaEnEntrega,
   entregaParaElPedido,
+  urlEntrega,
+  type ConfigEntrega,
   type DatosEntrega,
 } from "@/lib/pago";
 import { texto, type ClaveDeTexto } from "@/lib/textos";
@@ -61,24 +65,46 @@ export default function Pagar() {
     mensaje?: string;
   } | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  /* Cómo se entrega en este país (dirección o retiro, y su lista de estados
+     o provincias): sale del servidor, la misma fuente que la web. */
+  const [entrega, setEntrega] = useState<ConfigEntrega>(ENTREGA_US);
+  useEffect(() => {
+    if (!pais) return;
+    let vivo = true;
+    pedirJson<{ entrega: ConfigEntrega }>(urlEntrega(pais, idioma))
+      .then((r) => vivo && setEntrega(r.entrega))
+      .catch((fallo: unknown) => console.warn("[pagar] entrega", fallo));
+    return () => {
+      vivo = false;
+    };
+  }, [pais, idioma]);
+  function pide(campo: string) {
+    return entrega.campos.find((c) => c.nombre === campo);
+  }
   const [hecho, setHecho] = useState<{
     numero: string;
     pagado: boolean;
   } | null>(null);
 
   const { recuperado, limpiar } = useBorrador(
-    "pagar",
+    /* Uno por PAÍS: la dirección de Madrid no sirve para retirar en
+       Maracaibo, y se colaba al cambiar de país (5 nov 2026). */
+    `pagar-${pais}`,
     sesion?.user?.id,
     d,
     (g) => setD((antes) => ({ ...antes, ...g })),
   );
-  const poner = (campo: keyof DatosEntrega) => (v: string) =>
+  /* Al corregir, el aviso de lo que faltaba se va: dejarlo en rojo encima de
+     un dato ya bien escrito hace creer que sigue mal. */
+  const poner = (campo: keyof DatosEntrega) => (v: string) => {
+    setError(null);
     setD((a) => ({ ...a, [campo]: v }));
+  };
   const moneda = lineas[0]?.precio.moneda ?? "USD";
 
   const pagar = async () => {
     if (!pais || !lineas.length) return;
-    const falta = faltaEnEntrega(d);
+    const falta = faltaEnEntrega(d, entrega);
     if (falta) return setError({ clave: falta });
     setError(null);
     setOcupado(true);
@@ -87,7 +113,7 @@ export default function Pagar() {
         method: "POST",
         headers: { "Content-Type": "application/json", ...cabeceraDeSesion() },
         body: JSON.stringify({
-          entrega: entregaParaElPedido(d),
+          entrega: entregaParaElPedido(d, entrega),
           lineas: lineasParaElPedido(lineas),
         }),
       });
@@ -102,6 +128,9 @@ export default function Pagar() {
         };
       } | null;
       if (r.status === 401) return setError({ clave: "entraParaComprar" });
+      /* El país se apagó mientras tanto (o nunca estuvo encendido): se dice
+         claro, no un «algo salió mal». */
+      if (r.status === 403) return setError({ clave: "paisApagado" });
       if (!r.ok || !cuerpo?.ok || !cuerpo.numero) {
         return setError(
           cuerpo?.mensaje
@@ -201,7 +230,12 @@ export default function Pagar() {
             </Pressable>
           </View>
         ) : null}
-        <Text style={estilos.subtitulo}>{texto(idioma, "entregaTitulo")}</Text>
+        <Text style={estilos.subtitulo}>
+          {texto(
+            idioma,
+            entrega.forma === "retiro" ? "retiroTitulo" : "entregaTitulo",
+          )}
+        </Text>
         <Etiqueta>{texto(idioma, "nombre")}</Etiqueta>
         <Campo
           value={d.nombre}
@@ -219,42 +253,84 @@ export default function Pagar() {
           autoComplete="tel"
           textContentType="telephoneNumber"
         />
-        <Etiqueta>{texto(idioma, "direccion1")}</Etiqueta>
-        <Campo
-          value={d.direccion}
-          onChangeText={poner("direccion")}
-          placeholder={texto(idioma, "direccion1")}
-          autoComplete="street-address"
-          textContentType="streetAddressLine1"
-        />
-        <Etiqueta>{texto(idioma, "direccion2")}</Etiqueta>
-        <Campo
-          value={d.direccion2}
-          onChangeText={poner("direccion2")}
-          placeholder={texto(idioma, "direccion2")}
-          textContentType="streetAddressLine2"
-        />
-        <Etiqueta>{texto(idioma, "ciudad")}</Etiqueta>
-        <Campo
-          value={d.ciudad}
-          onChangeText={poner("ciudad")}
-          placeholder={texto(idioma, "ciudad")}
-          textContentType="addressCity"
-        />
-        <View style={estilos.dos}>
-          <View style={{ flex: 1 }}>
-            <Etiqueta>{texto(idioma, "estadoUS")}</Etiqueta>
+        {entrega.forma === "retiro" ? (
+          <Aviso texto={texto(idioma, "retiroAviso")} tono="info" />
+        ) : null}
+        {pide("direccion") ? (
+          <>
+            <Etiqueta>{texto(idioma, "direccion1")}</Etiqueta>
             <Campo
-              value={d.estado}
-              onChangeText={poner("estado")}
-              placeholder="FL"
-              autoCapitalize="characters"
-              maxLength={2}
-              textContentType="addressState"
+              value={d.direccion}
+              onChangeText={poner("direccion")}
+              placeholder={texto(idioma, "direccion1")}
+              autoComplete="street-address"
+              textContentType="streetAddressLine1"
             />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Etiqueta>{texto(idioma, "codigoPostal")}</Etiqueta>
+          </>
+        ) : null}
+        {pide("direccion2") ? (
+          <>
+            <Etiqueta>
+              {texto(idioma, etiquetaDeDireccion2(entrega.pais))}
+            </Etiqueta>
+            <Campo
+              value={d.direccion2}
+              onChangeText={poner("direccion2")}
+              placeholder={texto(idioma, etiquetaDeDireccion2(entrega.pais))}
+              textContentType="streetAddressLine2"
+            />
+          </>
+        ) : null}
+        {pide("ciudad") ? (
+          <>
+            <Etiqueta>{texto(idioma, "ciudad")}</Etiqueta>
+            <Campo
+              value={d.ciudad}
+              onChangeText={poner("ciudad")}
+              placeholder={texto(idioma, "ciudad")}
+              textContentType="addressCity"
+            />
+          </>
+        ) : null}
+        {pide("estado") ? (
+          <>
+            <Etiqueta>
+              {texto(idioma, etiquetaDelEstado(entrega.pais))}
+            </Etiqueta>
+            {entrega.estados ? (
+              <SelectorLista
+                valor={d.estado}
+                opciones={entrega.estados}
+                alElegir={poner("estado")}
+                titulo={texto(idioma, etiquetaDelEstado(entrega.pais))}
+                marcador={texto(idioma, "elegir")}
+                cerrar={texto(idioma, "cerrar")}
+              />
+            ) : (
+              <Campo
+                value={d.estado}
+                onChangeText={poner("estado")}
+                placeholder="FL"
+                autoCapitalize="characters"
+                maxLength={2}
+                textContentType="addressState"
+              />
+            )}
+          </>
+        ) : null}
+        {pide("codigoPostal") ? (
+          <>
+            <Etiqueta>
+              {texto(
+                idioma,
+                pide("codigoPostal")?.obligatorio
+                  ? entrega.pais === "US"
+                    ? "codigoPostal"
+                    : /* «ZIP code» es solo de Estados Unidos. */
+                      "codigoPostalFuera"
+                  : "codigoPostalOpcional",
+              )}
+            </Etiqueta>
             <Campo
               value={d.codigoPostal}
               onChangeText={poner("codigoPostal")}
@@ -263,8 +339,8 @@ export default function Pagar() {
               maxLength={10}
               textContentType="postalCode"
             />
-          </View>
-        </View>
+          </>
+        ) : null}
         <View style={estilos.totalFila}>
           <Text style={estilos.totalTexto}>{texto(idioma, "total")}</Text>
           <Text style={estilos.totalTexto}>
@@ -288,6 +364,22 @@ export default function Pagar() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
+}
+
+/** En España la segunda línea es el piso y la puerta («3.º B»), no la
+ *  «suite» de Estados Unidos. */
+function etiquetaDeDireccion2(pais: string): "direccion2" | "direccion2Piso" {
+  return pais === "ES" ? "direccion2Piso" : "direccion2";
+}
+
+/** Cómo se llama el «estado» en cada país. */
+function etiquetaDelEstado(
+  pais: string,
+): "estadoLabel" | "provinciaLabel" | "regionLabel" | "departamentoLabel" {
+  if (pais === "ES") return "provinciaLabel";
+  if (pais === "CL") return "regionLabel";
+  if (pais === "CO") return "departamentoLabel";
+  return "estadoLabel";
 }
 
 const estilos = StyleSheet.create({

@@ -3,7 +3,9 @@ import { setRequestLocale } from "next-intl/server";
 
 import { PaginaDeContenido } from "@/components/paginas/pagina-contenido";
 import { PRIVACIDAD_EN, PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
+import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { routing } from "@/i18n/routing";
+import { mercadoActual } from "@/lib/mercado/actual";
 import { rutaCanonica, SITIO } from "@/lib/sitio";
 
 export function generateStaticParams() {
@@ -12,8 +14,13 @@ export function generateStaticParams() {
 
 const RUTA = "/privacidad";
 
-function contenido(locale: string) {
-  return locale === "en" ? PRIVACIDAD_EN : PRIVACIDAD_ES;
+/** Cada país enseña sus secciones (España, Venezuela): ver `por-mercado.ts`. */
+async function contenido(locale: string) {
+  const mercado = await mercadoActual();
+  return paraElMercado(
+    locale === "en" ? PRIVACIDAD_EN : PRIVACIDAD_ES,
+    mercado.codigo,
+  );
 }
 
 export async function generateMetadata({
@@ -22,7 +29,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const pagina = contenido(locale);
+  const pagina = await contenido(locale);
 
   return {
     title: pagina.titulo,
@@ -47,5 +54,5 @@ export default async function Pagina({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <PaginaDeContenido pagina={contenido(locale)} />;
+  return <PaginaDeContenido pagina={await contenido(locale)} />;
 }

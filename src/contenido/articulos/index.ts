@@ -1,6 +1,12 @@
 import { ARTICULOS_EN } from "./en";
 import { ARTICULOS_ES } from "./es";
 import type { Articulo, TipoArticulo } from "./tipos";
+import { enLaApp } from "@/lib/mercado/interruptores";
+
+/** Lo publicado: la guía de un país apagado no existe todavía. */
+export function publicados(lista: readonly Articulo[]): Articulo[] {
+  return lista.filter((a) => !a.soloConPais || enLaApp(a.soloConPais));
+}
 
 /**
  * De dónde salen los artículos, en el idioma que toque.
@@ -10,9 +16,9 @@ import type { Articulo, TipoArticulo } from "./tipos";
  * en otro idioma en vez de contarlas como duplicados.
  */
 export function articulosDe(idioma: string): Articulo[] {
-  const lista = idioma === "en" ? ARTICULOS_EN : ARTICULOS_ES;
+  const lista = publicados(idioma === "en" ? ARTICULOS_EN : ARTICULOS_ES);
   // El más nuevo primero, siempre.
-  return [...lista].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return lista.sort((a, b) => b.fecha.localeCompare(a.fecha));
 }
 
 export function articulosPorTipo(
@@ -37,7 +43,13 @@ export function buscarArticulo(
  * existir igual — mejor que caiga en el idioma que hay que en un 404.
  */
 export function todosLosSlugs(): string[] {
-  return [...new Set([...ARTICULOS_ES, ...ARTICULOS_EN].map((a) => a.slug))];
+  return [
+    ...new Set(
+      [...publicados(ARTICULOS_ES), ...publicados(ARTICULOS_EN)].map(
+        (a) => a.slug,
+      ),
+    ),
+  ];
 }
 
 /** La dirección pública de un artículo, según lo que sea. */

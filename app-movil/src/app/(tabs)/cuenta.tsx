@@ -9,7 +9,7 @@ import { MenuTresPuntos } from "@/components/menu-tres-puntos";
 import { SelectorIdioma } from "@/components/selector-idioma";
 import { usePreferencias } from "@/contexto/preferencias";
 import { useMiTienda } from "@/hooks/use-mi-tienda";
-import { API_BASE, pedirJson, urlPaises, type Pais } from "@/lib/api";
+import { pedirPaises, urlLegal, type PaginaLegal } from "@/lib/api";
 import { authClient, salir } from "@/lib/auth-client";
 import { bandera, COLORES } from "@/lib/colores";
 import { texto, type ClaveDeTexto } from "@/lib/textos";
@@ -18,7 +18,7 @@ import { texto, type ClaveDeTexto } from "@/lib/textos";
  * La cuenta: entrar o crear cuenta (o, con sesión, el nombre y «Cerrar
  * sesión»), el país, el idioma y las páginas de ayuda y legales.
  */
-const PAGINAS: Array<{ clave: ClaveDeTexto; ruta: string }> = [
+const PAGINAS: Array<{ clave: ClaveDeTexto; ruta: PaginaLegal }> = [
   { clave: "ayuda", ruta: "ayuda" },
   { clave: "privacidad", ruta: "privacidad" },
   { clave: "terminos", ruta: "terminos" },
@@ -33,7 +33,7 @@ export default function Cuenta() {
 
   useEffect(() => {
     let vivo = true;
-    pedirJson<{ paises: Pais[] }>(urlPaises(idioma))
+    pedirPaises(idioma)
       .then(
         (r) =>
           vivo &&
@@ -141,9 +141,7 @@ export default function Cuenta() {
               key={p.ruta}
               accessibilityRole="link"
               onPress={() =>
-                void WebBrowser.openBrowserAsync(
-                  `${API_BASE}/${idioma}/${p.ruta}`,
-                )
+                void WebBrowser.openBrowserAsync(urlLegal(pais, idioma, p.ruta))
               }
               style={[estilos.fila, i > 0 && estilos.separada]}
             >

@@ -440,7 +440,10 @@ export const PROVINCIAS_ES: ReadonlyArray<{ codigo: string; nombre: string }> =
     { codigo: "47", nombre: "Valladolid" },
     { codigo: "49", nombre: "Zamora" },
     { codigo: "50", nombre: "Zaragoza" },
-  ];
+    /* En orden alfabético DE ESPAÑA, ordenado aquí y no a mano: escrita a mano,
+       la lista ponía Cáceres, Cádiz y Córdoba después de Cuenca (la tilde
+       ordenaba detrás de la «u»), y quien buscaba la suya no la encontraba. */
+  ].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
 /**
  * La lista de estados/regiones/departamentos de un destino, o null si ese

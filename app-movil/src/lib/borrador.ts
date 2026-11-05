@@ -15,8 +15,11 @@ export function llaveDeBorrador(
   return `${PREFIJO_BORRADOR}:${formulario}:${cuenta || "sin-cuenta"}`;
 }
 
+/* «codigo» es el código de un solo uso, NO el código postal: con «codigo» a
+   secas, el borrador del pago tiraba el código postal y, al volver, había que
+   escribirlo otra vez (5 nov 2026). */
 const SENSIBLE =
-  /clave|contrase|password|pin\b|codigo|code|otp|tarjeta|card|cvv|cvc/i;
+  /clave|contrase|password|pin\b|codigo(?!postal)|code|otp|tarjeta|card|cvv|cvc/i;
 
 export function sinSensibles<T extends Record<string, string>>(
   valores: T,

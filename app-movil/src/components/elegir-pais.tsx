@@ -15,7 +15,7 @@ import {
 
 import { SelectorIdioma } from "@/components/selector-idioma";
 import { usePreferencias } from "@/contexto/preferencias";
-import { pedirJson, urlPaises, type Pais } from "@/lib/api";
+import { pedirPaises, type Pais } from "@/lib/api";
 import { bandera, COLORES } from "@/lib/colores";
 import { texto } from "@/lib/textos";
 
@@ -37,7 +37,7 @@ export function ElegirPais({ alElegir }: { alElegir?: () => void }) {
   useEffect(() => {
     let vivo = true;
     setFallo(false);
-    pedirJson<{ paises: Pais[] }>(urlPaises(idioma))
+    pedirPaises(idioma)
       .then((r) => vivo && setPaises(r.paises))
       .catch(() => vivo && setFallo(true));
     return () => {

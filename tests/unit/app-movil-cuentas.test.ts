@@ -172,6 +172,10 @@ describe("el borrador no pierde lo escrito y no guarda lo sensible", () => {
     expect(leerBorrador('{"correo":"a@b.co","clave":"secreta"}')).toEqual({
       correo: "a@b.co",
     });
+    /* El código postal no es un código secreto: se guarda. */
+    expect(sinSensibles({ codigoPostal: "28013", codigo: "123456" })).toEqual({
+      codigoPostal: "28013",
+    });
     expect(leerBorrador("no es json")).toBeNull();
     expect(leerBorrador('{"nombre":"  "}')).toBeNull();
     expect(hayAlgoEscrito({ a: "", b: " " })).toBe(false);
