@@ -156,12 +156,31 @@ Cada fase es una meta que encarga Gerencia, con su prueba de «terminado».
 | **4 · Ganar más**          | Plan Pro y productos promocionados.                                                                     | Primer cobro de un plan y de un promocionado              |
 | **5 · Más países**         | Uno por uno, con su cobro, sus impuestos y su proveedor probados. El orden lo deciden los datos.        | Cada país, con su compra real                             |
 
-## 9. Lo que decides tú
+## 9. Las decisiones, tomadas (5 nov 2026)
 
-1. ¿Aprobamos el modelo: una sola Mercatren con la app al centro?
-2. ¿Probamos TopDawg como primer proveedor (tres compras de prueba)?
-3. ¿Precio del plan Pro y de los promocionados?
-4. ¿Qué país va después de Estados Unidos?
+Richard aprobó el plan entero y encargó (por Gerencia) que estas decisiones
+se tomen «como lo hace el mercado» y queden escritas. Se pueden cambiar con
+una línea; nada de esto cobra dinero real sin su sí.
+
+1. **El modelo: una sola Mercatren con la app al centro.** Aprobado por
+   Richard el 5 nov 2026.
+2. **El primer proveedor: TopDawg**, con tres compras de prueba antes de
+   vender. Las compras se le pasan a Gerencia antes de hacerlas. Hace falta
+   la cuenta de TopDawg y su llave de la API, que solo puede abrir Richard.
+3. **El plan Pro para vendedores: 9,99 dólares al mes**, con el primer mes
+   gratis. La referencia es Etsy Plus, a 10 dólares; quedarse un centavo
+   debajo es lo que hace el mercado. Incluye más productos publicados, la
+   tienda destacada en su categoría y estadísticas.
+4. **Los productos promocionados: pago por clic, con presupuesto diario.**
+   Es como funcionan los anuncios de Etsy y de Amazon. Para empezar, 0,15
+   dólares por clic y un presupuesto diario que pone el vendedor, de 1 a 50
+   dólares. Nunca se cobra más que ese presupuesto.
+5. **El país después de Estados Unidos: Venezuela.** Es el único con
+   comercios vendiendo de verdad (11 pedidos) y cobra en dólares por Zelle,
+   que ya está probado. **Después, España:** el euro ya está construido y
+   BigBuy es el candidato a proveedor, pero falta una compra real en euros y
+   el consejo del contador sobre el IVA. Chile y Colombia quedan congelados
+   hasta tener comercios propios.
 
 ## 10. De la ventana a la app nativa, en una página
 
