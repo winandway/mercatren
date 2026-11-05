@@ -15,6 +15,37 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## MERCATREN SE REABRE SIN CJ: LA GENTE CREA SU TIENDA DESDE LA APP (5 nov 2026)
+
+**La orden (Richard, directo en la sesión):** «resetes, que borres todo lo de
+CJ Dropshipping… deje la página funcional, todas las páginas funcionales.
+Nosotros vamos a trabajar más que todo es con la aplicación». Gerencia lo
+confirmó con su «Sí, enciéndela». El catálogo de CJ NO se restaura.
+
+**Lo que se hizo:**
+
+- `TIENDA_CERRADA` en `false`: todas las páginas responden. El cierre por
+  código queda listo para volver a usarlo con una línea.
+- Respaldo fresco antes de borrar: `~/Respaldos/mercatren-2026-11-05.sql`
+  (43 MB, fuera del repositorio).
+- **Las 64 tiendas que se crearon para el catálogo de CJ, borradas** (Oakhaus,
+  Greenfoot Garden, Kickstart Moto y las de rubro de Chile y Colombia, más las
+  tres «Mercatren · país»), con sus billeteras vacías, envíos, apariencia y la
+  fuente de CJ. Se quedan 4, **suspendidas**, porque tienen pedidos cobrados:
+  Sole & Thread, Nova Mobile, Hearth & Watt y Ferretería y construcción (CO).
+  Quedan 14 tiendas.
+- Las 7 claves de CJ en `configuracion` (llave de la API, puntos, última
+  llamada), borradas. Del cubo, los 32 logos y portadas de esas tiendas.
+- **Nada legal cambió**, contado antes y después: 20 renglones de pedido, 17
+  pedidos, 7 facturas, 10 pagos, 747 pagos Zelle, 8 movimientos, 3 retiros,
+  4 órdenes de compra, 48 cuentas. Cero referencias rotas.
+
+**Lo que sigue apagado a propósito** (para no volver al gasto de antes): la IA
+de Google, el reloj, la importación masiva y la sincronización, y los robots
+(`robots.txt` cerrado). El código de CJ sigue en el repositorio, dormido.
+
+---
+
 ## LA TIENDA SE CIERRA EN EL CÓDIGO Y LAS PÁGINAS LEGALES NUNCA SE APAGAN (5 nov 2026)
 
 **Qué pasó.** Google Play rechazó la app de Android el 5 nov: «Privacy policy

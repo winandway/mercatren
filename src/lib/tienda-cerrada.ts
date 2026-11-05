@@ -20,7 +20,10 @@ import { DESARROLLADOR } from "@/lib/sociedad";
  *
  * Candado: `tests/unit/tienda-cerrada.test.ts`.
  */
-export const TIENDA_CERRADA = true;
+/* ABIERTA desde el 5 nov 2026: Richard pidió «deje la página funcional, todas
+   las páginas funcionales», con el catálogo de CJ borrado y el foco en la app.
+   El cierre queda listo para volver a usarlo con una línea. */
+export const TIENDA_CERRADA = false;
 
 /**
  * Lo que responde con la tienda cerrada, en los dos idiomas y también sin el
@@ -51,8 +54,9 @@ export function abiertaConTiendaCerrada(ruta: string): boolean {
 /** La tienda está cerrada en este entorno (solo en producción). */
 export function tiendaCerradaAqui(
   entorno: string | undefined = process.env.NODE_ENV,
+  cerrada: boolean = TIENDA_CERRADA,
 ): boolean {
-  return TIENDA_CERRADA && entorno === "production";
+  return cerrada && entorno === "production";
 }
 
 const TEXTOS = {

@@ -42,11 +42,15 @@ function direccionesDeclaradas(): string[] {
 }
 
 describe("la tienda cerrada", () => {
-  it("está cerrada, y solo en producción: desarrollo y pruebas la ven abierta", () => {
-    expect(TIENDA_CERRADA).toBe(true);
-    expect(tiendaCerradaAqui("production")).toBe(true);
-    expect(tiendaCerradaAqui("development")).toBe(false);
-    expect(tiendaCerradaAqui("test")).toBe(false);
+  it("hoy está ABIERTA (5 nov 2026, Richard: «todas las páginas funcionales»)", () => {
+    expect(TIENDA_CERRADA).toBe(false);
+    expect(tiendaCerradaAqui("production")).toBe(false);
+  });
+
+  it("cerrada, se cierra solo en producción: desarrollo y pruebas la ven abierta", () => {
+    expect(tiendaCerradaAqui("production", true)).toBe(true);
+    expect(tiendaCerradaAqui("development", true)).toBe(false);
+    expect(tiendaCerradaAqui("test", true)).toBe(false);
   });
 
   it("toda dirección declarada en Google Play y App Store sigue abierta", () => {

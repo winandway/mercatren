@@ -26,15 +26,17 @@ línea por la revisión de Google Play. **Nada de esto se enciende sin que
 Richard lo diga.** Detalle, la cuenta del gasto y cómo se enciende:
 `AUDITORIA-GASTOS.md`.
 
-## ⛔ CATÁLOGO VACIADO EL 3 NOV 2026: SE ARMA A PEDIDO, UNO POR UNO
+## ⛔ SIN CJ DESDE EL 5 NOV 2026: LA GENTE CREA SU TIENDA, SOBRE TODO DESDE LA APP
 
-_«Vaciar Mercatren y empezar de cero… pasa a ser app.»_ Se borraron los
-56.650 productos y sus fotos (respaldo en `~/Respaldos/`, fuera del repo);
-quedan 16 escondidos porque sostienen pedidos cobrados. **Nada de
-importación masiva ni sincronización automática** (`src/lib/catalogo/a-pedido.ts`),
-**robots cerrados a todos** (`lib/seo/robots.ts`) y **ningún flujo con
-horario**. Un producto entra solo con el buscador de CJ del panel o la acción
-`agregar` de la puerta. Detalle: «MERCATREN VACIADO» en `HISTORIAL.md`.
+_«Borre todo lo de CJ Dropshipping… deje la página funcional… vamos a
+trabajar más que todo con la aplicación»_ (Richard, 5 nov). El catálogo de CJ
+(56.650 productos) y sus 64 tiendas están borrados y **no se restauran**
+(respaldos en `~/Respaldos/`, fuera del repo). Quedan 16 productos y 4 tiendas
+de CJ **escondidos/suspendidos** porque sostienen pedidos cobrados. La tienda
+está abierta (`TIENDA_CERRADA = false` en `src/lib/tienda-cerrada.ts`). Siguen
+apagados a propósito: importación masiva y sincronización
+(`src/lib/catalogo/a-pedido.ts`), robots (`lib/seo/robots.ts`), la IA y el
+reloj. Detalle: «MERCATREN SE REABRE SIN CJ» en `HISTORIAL.md`.
 
 ## LO PRIMERO QUE SE MIRA, SEGÚN LA PREGUNTA
 
@@ -429,6 +431,8 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [MERCATREN SE REABRE SIN CJ: LA GENTE CREA SU TIENDA DESDE LA APP (5 nov 2026)](HISTORIAL.md#mercatren-se-reabre-sin-cj-la-gente-crea-su-tienda-desde-la-app-5-nov-2026)
+- [LA TIENDA SE CIERRA EN EL CÓDIGO Y LAS PÁGINAS LEGALES NUNCA SE APAGAN (5 nov 2026)](HISTORIAL.md#la-tienda-se-cierra-en-el-código-y-las-páginas-legales-nunca-se-apagan-5-nov-2026)
 - [MERCATREN VACIADO: EL CATÁLOGO EMPIEZA DE CERO Y SE ARMA A PEDIDO (3 nov 2026)](HISTORIAL.md#mercatren-vaciado-el-catálogo-empieza-de-cero-y-se-arma-a-pedido-3-nov-2026)
 - [LA APP DE IPHONE, A REVISIÓN DE APPLE (31 oct 2026)](HISTORIAL.md#la-app-de-iphone-a-revisión-de-apple-31-oct-2026)
 - [EL COBRO DE GOOGLE CLOUD Y MERCATREN EN PAUSA (29 oct 2026)](HISTORIAL.md#el-cobro-de-google-cloud-y-mercatren-en-pausa-29-oct-2026)
