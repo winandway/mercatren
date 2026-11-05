@@ -50,7 +50,14 @@ const METODOS = [
  * Los precios que se muestran son de referencia. El pedido se arma en el
  * servidor, que vuelve a leer precios y existencias de la base.
  */
-export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
+export function FormularioCheckout({
+  haySesion,
+  botonConPago = false,
+}: {
+  haySesion: boolean;
+  /** España: el botón dice «Comprar y pagar» (ver la página del checkout). */
+  botonConPago?: boolean;
+}) {
   const t = useTranslations("checkout");
   const tc = useTranslations("carrito");
   const te = useTranslations("envio");
@@ -568,6 +575,8 @@ export function FormularioCheckout({ haySesion }: { haySesion: boolean }) {
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
               {t("procesando")}
             </>
+          ) : botonConPago ? (
+            t("confirmarConPago")
           ) : (
             t("confirmar")
           )}

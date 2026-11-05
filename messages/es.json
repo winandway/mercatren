@@ -3243,6 +3243,7 @@
     },
     "resumen": "Resumen del pedido",
     "confirmar": "Confirmar pedido",
+    "confirmarConPago": "Comprar y pagar",
     "procesando": "Creando tu pedido…",
     "error": "No pudimos crear el pedido."
   },

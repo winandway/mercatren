@@ -3243,6 +3243,7 @@
     },
     "resumen": "Order summary",
     "confirmar": "Place order",
+    "confirmarConPago": "Buy and pay",
     "procesando": "Creating your order…",
     "error": "We couldn't create the order."
   },

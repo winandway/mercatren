@@ -12,6 +12,7 @@ import {
   seccionesLegalesDelPais,
   type DatosLegalesEspana,
 } from "@/contenido/paginas/legales-por-pais";
+import { DEVOLUCIONES_ES } from "@/contenido/paginas/devoluciones";
 import { PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
 import { TERMINOS_ES } from "@/contenido/paginas/terminos";
 import { enLaApp } from "@/lib/mercado/interruptores";
@@ -167,6 +168,39 @@ describe("España: lo que la ley obliga a decir", () => {
   });
 });
 
+describe("España: las devoluciones", () => {
+  const dev = texto(seccionesLegalesDelPais("devoluciones", "ES", "es", DATOS));
+
+  it("14 días para arrepentirse, el reembolso completo y la garantía de 3 años", () => {
+    expect(dev).toContain("14 días naturales");
+    expect(dev).toContain("incluido el envío estándar");
+    expect(dev).toContain("3 años");
+    expect(dev).toContain("El envío de vuelta lo pagas tú");
+  });
+
+  it("va al principio de la página de devoluciones, solo en España", () => {
+    const pagina = conLegalesDelPais(
+      DEVOLUCIONES_ES,
+      "devoluciones",
+      "ES",
+      "es",
+      DATOS,
+    );
+    expect(pagina.secciones[0]!.id).toBe("espana");
+    expect(pagina.secciones[0]!.mercados).toEqual(["ES"]);
+    /* Hoy, sin los datos de Richard, la página no cambia. */
+    expect(conLegalesDelPais(DEVOLUCIONES_ES, "devoluciones", "ES", "es")).toBe(
+      DEVOLUCIONES_ES,
+    );
+  });
+
+  it("Venezuela conserva sus devoluciones de retiro, sin duplicar", () => {
+    expect(seccionesLegalesDelPais("devoluciones", "VE", "es", DATOS)).toEqual(
+      [],
+    );
+  });
+});
+
 describe("Venezuela: quién vende, dónde se retira y la ley que protege", () => {
   const terminos = texto(
     seccionesLegalesDelPais("terminos", "VE", "es", DATOS),
@@ -197,10 +231,34 @@ describe("Venezuela: quién vende, dónde se retira y la ley que protege", () =>
   });
 });
 
+describe("el botón de pagar en España dice que se paga", () => {
+  it("«Comprar y pagar», no «Confirmar pedido» (TRLGDCU art. 98.2)", () => {
+    const leer = (r: string) => readFileSync(join(RAIZ, r), "utf-8");
+    const es = JSON.parse(leer("messages/es.json")) as {
+      checkout: Record<string, string>;
+    };
+    const en = JSON.parse(leer("messages/en.json")) as {
+      checkout: Record<string, string>;
+    };
+    expect(es.checkout.confirmarConPago).toBe("Comprar y pagar");
+    expect(en.checkout.confirmarConPago).toBe("Buy and pay");
+    expect(leer("src/app/[locale]/(tienda)/checkout/page.tsx")).toContain(
+      '(await mercadoActual()).codigo === "ES"',
+    );
+    expect(leer("src/components/carrito/formulario-checkout.tsx")).toContain(
+      't("confirmarConPago")',
+    );
+    /* En la app el botón ya dice «Pagar con tarjeta». */
+    expect(leer("app-movil/src/lib/textos.ts")).toContain(
+      'pagarConTarjeta: "Pagar con tarjeta"',
+    );
+  });
+});
+
 describe("las páginas y la versión para agentes usan la misma pieza", () => {
   it("términos, privacidad y el Markdown", () => {
     const leer = (r: string) => readFileSync(join(RAIZ, r), "utf-8");
-    for (const p of ["terminos", "privacidad"]) {
+    for (const p of ["terminos", "privacidad", "devoluciones"]) {
       expect(
         leer(`src/app/[locale]/(tienda)/(docs)/${p}/page.tsx`),
         p,

@@ -327,6 +327,90 @@ export function privacidadDeEspana(
   ];
 }
 
+/* ════════════════════════ ESPAÑA · DEVOLUCIONES ════════════════════════ */
+
+export function devolucionesDeEspana(
+  d: DatosLegalesEspana,
+  idioma: Idioma,
+): Seccion[] {
+  const es = idioma === "es";
+  const vuelta =
+    d.devolucionPaga === "mercatren"
+      ? es
+        ? "El envío de vuelta lo pagamos nosotros."
+        : "We pay for return shipping."
+      : es
+        ? "El envío de vuelta lo pagas tú; te lo decimos antes de comprar, como manda la ley."
+        : "You pay for return shipping; we tell you before you buy, as the law requires.";
+  return [
+    {
+      id: "espana",
+      mercados: ["ES"],
+      numero: "",
+      titulo: es
+        ? "España · 14 días para arrepentirte y 3 años de garantía"
+        : "Spain · 14 days to change your mind and a 3-year guarantee",
+      bloques: [
+        {
+          tipo: "aviso",
+          tono: "acento",
+          titulo: es
+            ? "Para las compras con entrega en España"
+            : "For purchases delivered in Spain",
+          parrafos: [
+            es
+              ? "Esta sección prevalece sobre cualquier otra de esta página que diga algo distinto."
+              : "This section prevails over anything else on this page that says otherwise.",
+          ],
+        },
+        {
+          tipo: "lista",
+          puntos: [
+            {
+              titulo: es
+                ? "Te arrepientes sin dar motivos"
+                : "Change your mind, no reason needed",
+              texto: es
+                ? "tienes 14 días naturales desde que recibes el producto. Avísanos desde «Mis pedidos» o escribiendo a " +
+                  CORREO_CONTACTO +
+                  "; en las condiciones de compra está el formulario modelo."
+                : 'you have 14 calendar days from the day you receive the product. Tell us from "My orders" or by writing to ' +
+                  CORREO_CONTACTO +
+                  "; the model form is in the terms of sale.",
+            },
+            {
+              titulo: es
+                ? "Lo devuelves en 14 días"
+                : "Send it back within 14 days",
+              texto: vuelta,
+            },
+            {
+              titulo: es ? "Te devolvemos todo" : "You get everything back",
+              texto: es
+                ? "lo que pagaste, incluido el envío estándar, en un máximo de 14 días desde tu aviso y por el mismo medio de pago. Podemos esperar a recibir el producto o la prueba de que lo enviaste."
+                : "what you paid, including standard shipping, within 14 days of your notice and using the same payment method. We may wait until we receive the product or proof that you sent it.",
+            },
+            {
+              titulo: es ? "Garantía de 3 años" : "3-year guarantee",
+              texto: es
+                ? "si el producto no está bien, respondemos durante 3 años desde la entrega; si el fallo aparece en los 2 primeros años, se presume que ya venía así. Puedes pedir que lo reparen o lo cambien, y si no se puede, una rebaja o que te devolvamos el dinero."
+                : "if the product isn't right, we are responsible for 3 years from delivery; if the problem appears within the first 2 years, it is presumed to have been there from the start. You can ask for a repair or a replacement and, if neither is possible, a price reduction or a refund.",
+            },
+            {
+              titulo: es
+                ? "Lo que no se puede devolver"
+                : "What can't be returned",
+              texto: es
+                ? "lo hecho a tu medida o personalizado, lo que se estropea o caduca rápido, y lo precintado por salud o higiene que se haya abierto. Eso no quita la garantía si llega mal."
+                : "custom-made or personalized items, goods that spoil or expire quickly, and goods sealed for health or hygiene reasons once unsealed. That doesn't affect the guarantee if they arrive faulty.",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+}
+
 /* ════════════════════════ VENEZUELA ════════════════════════ */
 
 export function terminosDeVenezuela(idioma: Idioma): Seccion[] {
@@ -448,8 +532,10 @@ export function privacidadDeVenezuela(idioma: Idioma): Seccion[] {
  * España cuando estén los datos de Richard y la revisión del abogado; las de
  * Venezuela ya, publicadas por orden de Gerencia y pendientes del abogado.
  */
+export type PaginaLegalDelPais = "terminos" | "privacidad" | "devoluciones";
+
 export function seccionesLegalesDelPais(
-  pagina: "terminos" | "privacidad",
+  pagina: PaginaLegalDelPais,
   pais: string,
   idioma: Idioma,
   datos: { ES: DatosLegalesEspana; VE: DatosLegalesVenezuela } = {
@@ -459,11 +545,16 @@ export function seccionesLegalesDelPais(
 ): Seccion[] {
   const codigo = pais.trim().toUpperCase();
   if (codigo === "ES" && legalesDeEspanaListos(datos.ES)) {
-    return pagina === "terminos"
-      ? terminosDeEspana(datos.ES, idioma)
-      : privacidadDeEspana(datos.ES, idioma);
+    if (pagina === "terminos") return terminosDeEspana(datos.ES, idioma);
+    if (pagina === "privacidad") return privacidadDeEspana(datos.ES, idioma);
+    return devolucionesDeEspana(datos.ES, idioma);
   }
-  if (codigo === "VE" && seVenLosLegalesDeVenezuela(datos.VE)) {
+  /* Venezuela ya tiene sus devoluciones en `devoluciones.ts` (retiro). */
+  if (
+    codigo === "VE" &&
+    pagina !== "devoluciones" &&
+    seVenLosLegalesDeVenezuela(datos.VE)
+  ) {
     return pagina === "terminos"
       ? terminosDeVenezuela(idioma)
       : privacidadDeVenezuela(idioma);
@@ -471,25 +562,30 @@ export function seccionesLegalesDelPais(
   return [];
 }
 
-/** La página con las secciones del país al final (numeradas en su sitio). */
+/**
+ * La página con las secciones del país, numeradas en su sitio: al final en
+ * términos y privacidad; AL PRINCIPIO en devoluciones, que es lo primero que
+ * busca quien quiere devolver algo.
+ */
 export function conLegalesDelPais(
   base: PaginaContenido,
-  pagina: "terminos" | "privacidad",
+  pagina: PaginaLegalDelPais,
   pais: string,
   idioma: Idioma,
+  datos?: { ES: DatosLegalesEspana; VE: DatosLegalesVenezuela },
 ): PaginaContenido {
-  const propias = seccionesLegalesDelPais(pagina, pais, idioma);
+  const propias = seccionesLegalesDelPais(pagina, pais, idioma, datos);
   if (propias.length === 0) return base;
   const numeradas = base.secciones.some((s) => s.numero);
-  const siguiente = base.secciones.length + 1;
+  const todas =
+    pagina === "devoluciones"
+      ? [...propias, ...base.secciones]
+      : [...base.secciones, ...propias];
   return {
     ...base,
-    secciones: [
-      ...base.secciones,
-      ...propias.map((s, i) => ({
-        ...s,
-        numero: numeradas ? String(siguiente + i) : undefined,
-      })),
-    ],
+    secciones: todas.map((s, i) => ({
+      ...s,
+      numero: numeradas && s.numero !== undefined ? String(i + 1) : s.numero,
+    })),
   };
 }

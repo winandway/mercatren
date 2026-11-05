@@ -260,7 +260,7 @@ export async function GET(peticion: Request) {
       md = paginaAMarkdown(
         /* Lo mismo que la página: las secciones legales propias del país,
            cuando estén listas (`legales-por-pais.ts`). */
-        ruta === "terminos" || ruta === "privacidad"
+        ruta === "terminos" || ruta === "privacidad" || ruta === "devoluciones"
           ? conLegalesDelPais(
               dePais,
               ruta,

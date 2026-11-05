@@ -6,6 +6,7 @@ import {
   DEVOLUCIONES_EN,
   DEVOLUCIONES_ES,
 } from "@/contenido/paginas/devoluciones";
+import { conLegalesDelPais } from "@/contenido/paginas/legales-por-pais";
 import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { routing } from "@/i18n/routing";
 import { mercadoActual } from "@/lib/mercado/actual";
@@ -20,9 +21,16 @@ const RUTA = "/devoluciones";
 /** Cada dominio enseña las secciones de su país: ver `por-mercado.ts`. */
 async function contenido(locale: string) {
   const mercado = await mercadoActual();
-  return paraElMercado(
-    locale === "en" ? DEVOLUCIONES_EN : DEVOLUCIONES_ES,
+  /* España pone su sección (14 días y 3 años) al principio cuando sus textos
+     legales estén listos: ver `legales-por-pais.ts`. */
+  return conLegalesDelPais(
+    paraElMercado(
+      locale === "en" ? DEVOLUCIONES_EN : DEVOLUCIONES_ES,
+      mercado.codigo,
+    ),
+    "devoluciones",
     mercado.codigo,
+    locale === "en" ? "en" : "es",
   );
 }
 
