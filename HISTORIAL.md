@@ -62,6 +62,35 @@ la revise.
 pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
 en la máquina local y se devolvieron.
 
+## ESPAÑA Y VENEZUELA: LO QUE LA LEY PIDE, CONSTRUIDO (5 nov 2026, tarde)
+
+Por orden de Gerencia, todo lo que no dependía de Richard (detalle y fuentes
+en `docs/paises/`):
+
+- **«Desistir del contrato aquí»** (TRLGDCU arts. 102 a 108, directiva
+  2023/2673): tabla `desistimientos` (una fila por pedido), la misma acción en
+  la web y en la app, acuse por correo en hora de España. Solo España; fuera
+  de España no lee la base. Candado `tests/unit/desistimiento.test.ts`.
+- **Quién fabrica el producto** (Reglamento UE 2023/988, art. 19): tabla
+  `seguridad_producto`; `guardarProducto` lo exige para publicar en una
+  tienda de España; la app manda lo guardado al editar (sin eso, cambiar el
+  precio de un producto de España desde la app se rechazaba). Candado
+  `tests/unit/seguridad-producto.test.ts`.
+- **IVA de España** desglosado (21 %) en el pedido y «IVA incluido» en la
+  factura; NIF español en la factura y la orden de compra cuando exista.
+  Pieza aparte de la de Chile (la de Chile trae un tope que en España no
+  existe). Candado `tests/unit/iva-espana.test.ts`.
+- **Botón «Comprar y pagar»** en el checkout de España (TRLGDCU art. 98.2).
+- **Devoluciones de España** detrás del candado de los textos legales.
+- **Bolívares a la tasa del BCV** en las fichas de Venezuela. Trampa: la
+  portada del BCV sirve el certificado incompleto y el servidor la rechaza
+  («unable to verify the first certificate»); por eso DolarAPI (fuente
+  oficial) de respaldo. Caché del borde, nunca la base. Candado
+  `tests/unit/bolivares-bcv.test.ts`.
+- **Un aviso de error del panel en desarrollo** («Hydration failed» en el
+  menú) era un módulo viejo del servidor de desarrollo: reiniciado, no se
+  repite.
+
 ## UNA SOLA MERCATREN: EL PAÍS VA EN LA CUENTA (5 nov 2026)
 
 **Qué se hizo:** el registro de la web pide el país (la misma pieza que la

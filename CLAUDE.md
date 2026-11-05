@@ -432,6 +432,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [ESPAÑA Y VENEZUELA: LO QUE LA LEY PIDE, CONSTRUIDO (5 nov 2026, tarde)](HISTORIAL.md#españa-y-venezuela-lo-que-la-ley-pide-construido-5-nov-2026-tarde)
 - [FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)](HISTORIAL.md#fase-5-venezuela-y-españa-en-la-app-preparados-y-apagados-5-nov-2026)
 - [UNA SOLA MERCATREN: EL PAÍS VA EN LA CUENTA (5 nov 2026)](HISTORIAL.md#una-sola-mercatren-el-país-va-en-la-cuenta-5-nov-2026)
 - [FASE 4: EL PLAN PRO Y LOS PRODUCTOS PROMOCIONADOS, SIN COBRAR TODAVÍA (5 nov 2026)](HISTORIAL.md#fase-4-el-plan-pro-y-los-productos-promocionados-sin-cobrar-todavía-5-nov-2026)

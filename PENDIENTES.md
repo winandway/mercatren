@@ -221,14 +221,17 @@ apruebe Divoox.
       publicadas el 5 nov sin revisar, por orden de Gerencia) y de España
       (escritas, sin publicar). Todo junto, en simple, en
       `docs/LO-QUE-FALTA-PARA-ESPANA-Y-VENEZUELA.md`.
-- [ ] 💻 España, antes de encender: la sección de devoluciones de España, el
-      texto del botón de pagar («Pedido con obligación de pago» o igual de
-      claro), datos del fabricante en la ficha, factura completa del comercio
-      con el NIF español y factura al comprador con IVA en euros.
-- [ ] 🟡 💻 El botón «Desistir del contrato aquí» en «Mis pedidos»
-      (directiva europea; España aún no la incorpora).
-- [ ] 🟡 💻 Venezuela: equivalente referencial en bolívares a la tasa del BCV
-      junto al precio (recomendado por el abogado de la investigación).
+- [x] ✅ 💻 España, antes de encender (5 nov): devoluciones de España, botón
+      «Comprar y pagar», datos del fabricante (Reglamento UE 2023/988), IVA
+      desglosado en pedido y factura, NIF español en la factura y en la orden
+      de compra cuando exista.
+- [x] ✅ 💻 «Desistir del contrato aquí» en la web y en la app (5 nov):
+      dos pasos y acuse por correo con fecha y hora (tabla desistimientos).
+- [x] ✅ 💻 Venezuela: equivalente en bolívares a la tasa oficial del BCV
+      debajo del precio (5 nov; BCV o DolarAPI, caché del borde, sin base).
+- [ ] 🔴 Las migraciones 0053 (desistimientos) y 0054 (seguridad_producto)
+      llegan solas con `schema.sql`; comprobar en vivo cuando se quite la
+      pausa de la plataforma.
 - [ ] 🟡 👤 Zelle dentro de la app (hoy solo tarjeta; Zelle sigue en la web).
       Decisión de negocio.
 

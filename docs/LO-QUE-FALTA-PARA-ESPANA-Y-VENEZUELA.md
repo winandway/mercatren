@@ -143,10 +143,21 @@
 
 ---
 
-## Lo que el equipo de código hace solo (no depende de nadie)
+## Lo que el equipo de código ya hizo (5 nov 2026)
 
-Por orden de Gerencia, en marcha: la sección de devoluciones de España, el
-texto del botón de pagar, los datos del fabricante en la ficha (lo pide el
-reglamento europeo de seguridad de productos), las facturas con el IVA de
-España, el botón «Desistir del contrato aquí» en «Mis pedidos», y el precio
-equivalente en bolívares junto al precio en dólares.
+Por orden de Gerencia, ya está construido y probado:
+
+- **Devoluciones de España:** la sección de los 14 días para arrepentirse y
+  la garantía de 3 años, al principio de la página. Sale con los demás textos
+  legales de España, cuando estén los datos de Richard y el abogado.
+- **El botón de pagar en España** dice «Comprar y pagar» (la ley pide que el
+  botón diga sin dudas que se paga). En la app ya decía «Pagar con tarjeta».
+- **«Desistir del contrato aquí»** en la web y en la app, para pedidos de
+  España: dos pasos y un acuse por correo con la fecha y la hora.
+- **Quién fabrica el producto:** las tiendas de España no pueden publicar sin
+  el fabricante y cómo escribirle; se ve en la ficha.
+- **El IVA de España** va desglosado en el pedido y la factura dice «IVA
+  incluido (21 %)»; con el número fiscal español, la factura y la orden de
+  compra lo llevan solas.
+- **Venezuela:** debajo del precio en dólares sale el equivalente en
+  bolívares a la tasa oficial del BCV del día.
