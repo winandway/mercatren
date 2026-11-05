@@ -115,6 +115,17 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       se paga). Mientras siga así, los revisores de Google Play y de Apple ven
       esa página y **rechazan las apps**.
 
+### 5 nov 2026 · Google Play rechazó la app de Android (privacidad) 🔴
+
+- [x] ✅ 💻 Causa comprobada: Google dice «Privacy policy link is inactive».
+      El enlace declarado en Play Console (`https://mercatren.com/en/privacidad`)
+      responde 503 «Sitio en pausa», porque el sitio está en pausa por orden de
+      Richard. Avisado a Gerencia. No se corrigió ni se reenvió: se trabaja solo
+      por metas de Gerencia.
+- [ ] 🟡 👤 Para arreglarlo hace falta una de dos: reactivar el sitio, o una
+      meta de Gerencia para dejar la política de privacidad en una dirección
+      que no se apague y cambiarla en Play Console.
+
 ### 3 nov 2026 · Apple rechazó la app de iPhone (4.3 y 4.2.6) 🔴
 
 - [x] ✅ 💻 Motivo leído en App Store Connect y documentado en
