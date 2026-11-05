@@ -83,6 +83,27 @@ export function urlMisProductos(pais: string, idioma: Idioma): string {
   return `${API_BASE}/datos/app/mi/productos?pais=${encodeURIComponent(pais)}&idioma=${idioma}`;
 }
 
+export function urlCerrarCuenta(pais: string, idioma: Idioma): string {
+  return `${API_BASE}/datos/app/mi/cerrar-cuenta?pais=${encodeURIComponent(pais)}&idioma=${idioma}`;
+}
+
+export type PasoDelCierre = "pedidos" | "pagos" | "saldo";
+export type EstadoDelCierre =
+  | { ok: true; borrada: true }
+  | { ok: true; conTienda: false }
+  | { ok: true; conTienda: true; pedido: boolean; pasos: PasoDelCierre[] };
+
+/** El texto de cada paso pendiente del cierre. */
+export function textoDelPaso(
+  paso: PasoDelCierre,
+): "cierrePedidos" | "cierrePagos" | "cierreSaldo" {
+  return paso === "pedidos"
+    ? "cierrePedidos"
+    : paso === "pagos"
+      ? "cierrePagos"
+      : "cierreSaldo";
+}
+
 export function urlBorrarCuenta(idioma: Idioma): string {
   return `${API_BASE}/datos/app/mi/borrar-cuenta?idioma=${idioma}`;
 }

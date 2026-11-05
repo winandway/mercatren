@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { BorrarCuenta } from "@/components/cuenta/borrar-cuenta";
+import { CerrarTienda } from "@/components/cuenta/cerrar-tienda";
 import { PaginaDeContenido } from "@/components/paginas/pagina-contenido";
 import {
   BORRAR_CUENTA_EN,
@@ -100,6 +101,15 @@ export default async function Pagina({
       );
     } else if (estado.puede) {
       bloque = <BorrarCuenta correo={estado.correo} />;
+    } else if (estado.motivo === "tienda" && estado.cierre) {
+      /* Una cuenta con tienda pide su cierre aquí mismo (Apple 5.1.1(v)). */
+      bloque = (
+        <CerrarTienda
+          correo={estado.correo}
+          pedido={estado.cierre.pedido}
+          pasos={estado.cierre.pasos}
+        />
+      );
     } else {
       bloque = (
         <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 sm:p-6">

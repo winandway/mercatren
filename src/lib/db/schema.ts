@@ -4082,6 +4082,35 @@ export const cuentasEliminadas = sqliteTable(
 );
 
 /**
+ * ══ CERRAR UNA CUENTA CON TIENDA (5 nov 2026) ══
+ *
+ * Apple (5.1.1(v)) exige que el borrado de la cuenta se pueda EMPEZAR desde la
+ * app, también la de un comercio. Una cuenta con tienda no se borra al
+ * instante (tiene pedidos que entregar y un saldo que cobrar): se pide el
+ * cierre, la tienda se apaga a la venta en ese momento, y la cuenta se borra
+ * sola cuando ya no queda nada pendiente. Reglas en `lib/cuenta/cierre-puro.ts`.
+ * Tabla nueva y no columnas, como manda la regla de `schema.sql`.
+ */
+export const solicitudesCierre = sqliteTable(
+  "solicitudes_cierre",
+  {
+    id: text("id").primaryKey(),
+    usuarioId: text("usuario_id").notNull(),
+    tiendaId: text("tienda_id").notNull(),
+    /** «app» o «web»: desde dónde se pidió. */
+    origen: text("origen").notNull().default("web"),
+    /** pendiente · completada */
+    estado: text("estado")
+      .$type<"pendiente" | "completada">()
+      .notNull()
+      .default("pendiente"),
+    pedidaEn: integer("pedida_en", { mode: "timestamp" }).notNull(),
+    completadaEn: integer("completada_en", { mode: "timestamp" }),
+  },
+  (t) => [index("idx_solicitudes_cierre_usuario").on(t.usuarioId, t.estado)],
+);
+
+/**
  * ══ DENUNCIAR Y BLOQUEAR (27 oct 2026) ══
  *
  * Google Play exige, a toda app con contenido de usuarios a la vista del

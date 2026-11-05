@@ -431,6 +431,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [UNA CUENTA CON TIENDA SE CIERRA SOLA, SIN ESCRIBIR A SOPORTE (5 nov 2026)](HISTORIAL.md#una-cuenta-con-tienda-se-cierra-sola-sin-escribir-a-soporte-5-nov-2026)
 - [SUBIR PRODUCTOS Y BORRAR LA CUENTA DESDE LA APP (5 nov 2026)](HISTORIAL.md#subir-productos-y-borrar-la-cuenta-desde-la-app-5-nov-2026)
 - [LA APP ABRE TIENDAS CON LA MISMA ALTA DE LA WEB (5 nov 2026)](HISTORIAL.md#la-app-abre-tiendas-con-la-misma-alta-de-la-web-5-nov-2026)
 - [LAS CUENTAS DENTRO DE LA APP NATIVA (5 nov 2026)](HISTORIAL.md#las-cuentas-dentro-de-la-app-nativa-5-nov-2026)

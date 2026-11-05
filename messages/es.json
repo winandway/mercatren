@@ -4604,12 +4604,30 @@
     },
     "errores": {
       "equipo": "Esta cuenta es del equipo o de un comercio, y detrás hay ventas y pagos. Escríbenos a {correo} y la cerramos contigo.",
-      "tienda": "Tu cuenta tiene una tienda, y detrás hay ventas y pagos. Escríbenos a {correo} y la cerramos contigo.",
+      "tienda": "Tu cuenta tiene una tienda. Para borrarla, primero se cierra la tienda: dejamos de venderla en el acto, terminamos tus pedidos y te pagamos lo que te corresponde por tus ventas, y después la cuenta se borra sola.",
       "pedidos": "Tienes un pedido pagado que todavía no llega. Cuando lo recibas, podrás borrar tu cuenta desde aquí.",
       "paquetes": "Tienes paquetes esperando en tu casillero de Miami. Cuando los recibas o los despaches, podrás borrar tu cuenta desde aquí.",
       "sesion": "Tu sesión se cerró. Vuelve a entrar e inténtalo otra vez.",
       "palabra": "La palabra no coincide. Escríbela tal cual.",
       "fallo": "No pudimos borrar tu cuenta ahora. No se borró nada; inténtalo otra vez en un momento o escríbenos a {correo}."
+    },
+    "cierre": {
+      "titulo": "Cerrar tu tienda y borrar tu cuenta",
+      "texto": "Así funciona, paso a paso:",
+      "paso1": "Hoy mismo: tu tienda deja de venderse y sale de Mercatren.",
+      "paso2": "Terminamos tus pedidos abiertos y revisamos los pagos que esperan.",
+      "paso3": "Te pagamos lo que te corresponde por tus ventas, a tu cuenta bancaria registrada.",
+      "paso4": "Cuando no queda nada pendiente —normalmente en menos de {dias} días— tu cuenta se borra sola y te avisamos por correo.",
+      "legal": "Las ventas y las facturas se guardan cinco años, como exige la ley, sin tu nombre.",
+      "escribe": "Para confirmar, escribe {palabra}",
+      "boton": "Cerrar mi tienda y borrar mi cuenta",
+      "pidiendo": "Pidiendo el cierre…",
+      "enCurso": "Cierre en curso",
+      "enCursoTexto": "Tu tienda ya no se vende. Tu cuenta se borra sola cuando termine lo que falta:",
+      "pedidos": "Entregar tus pedidos abiertos",
+      "pagos": "Revisar los pagos que esperan",
+      "saldo": "Pagarte lo que te corresponde por tus ventas",
+      "nadaPendiente": "No queda nada pendiente: tu cuenta se está borrando."
     }
   },
   "moderacion": {

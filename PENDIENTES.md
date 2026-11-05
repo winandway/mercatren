@@ -149,6 +149,13 @@ apruebe Divoox.
 - [ ] 💻 «Mis ventas» en la app y editar un producto ya subido.
 - [x] ✅ 💻 Borrar la cuenta desde la app, en el menú de tres puntos, con la
       misma acción de la web (probado en el simulador y por la puerta).
+- [x] ✅ 💻 Cerrar una cuenta con tienda sin escribir a soporte (Apple
+      5.1.1(v)), en la web y en la app con la misma pieza: la tienda se apaga
+      ya y la cuenta se borra sola sin pendientes. Ver HISTORIAL, «UNA CUENTA
+      CON TIENDA SE CIERRA SOLA».
+- [ ] 🔴 La migración 0051 (tabla `solicitudes_cierre`) llega sola a
+      producción con `schema.sql` al publicar; comprobar en vivo cuando se
+      quite la pausa de la plataforma.
 - [ ] 💻 Parte 3b · El carrito y el pago con la hoja de Stripe (sin cobros
       reales sin el sí de Richard).
 - [ ] 💻 Parte 4 · Crear la tienda, subir productos con la cámara y mis ventas.

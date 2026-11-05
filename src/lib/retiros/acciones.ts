@@ -488,6 +488,12 @@ export async function marcarRetiroPagado(
     console.error("[retiro] pagado; aviso al comercio fallido:", e);
   }
 
+  /* Puede ser lo último que frenaba el cierre de una cuenta con tienda
+     (`cuenta/cierre.ts`). Revisarlo nunca deshace lo hecho aquí. */
+  {
+    const { revisarCierreDeTienda } = await import("@/lib/cuenta/cierre");
+    await revisarCierreDeTienda(retiro.tiendaId).catch(() => undefined);
+  }
   return { ok: true, mensaje: t("retiroPagado") };
 }
 
@@ -724,6 +730,12 @@ export async function cerrarSaldoPorFuera(
   }
 
   revalidatePath("/[locale]/panel", "layout");
+  /* Puede ser lo último que frenaba el cierre de una cuenta con tienda
+     (`cuenta/cierre.ts`). Revisarlo nunca deshace lo hecho aquí. */
+  {
+    const { revisarCierreDeTienda } = await import("@/lib/cuenta/cierre");
+    await revisarCierreDeTienda(tiendaId).catch(() => undefined);
+  }
   const pagados = pendientes.reduce((s, r) => s + Number(r.monto), 0);
   return {
     ok: true,

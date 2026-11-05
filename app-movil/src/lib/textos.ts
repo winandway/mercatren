@@ -133,6 +133,25 @@ export const TEXTOS = {
     cancelar: "Cancel",
     verEnLaTienda: "Published",
     borrador: "Draft",
+    cierreTitulo: "Close your store and delete your account",
+    cierreTexto: "Here's how it works, step by step:",
+    cierrePaso1:
+      "Today: your store stops selling and is removed from Mercatren.",
+    cierrePaso2: "We finish your open orders and review any pending payments.",
+    cierrePaso3:
+      "We pay you what you're owed for your sales, to your registered bank account.",
+    cierrePaso4:
+      "Once nothing is pending — usually within 30 days — your account is deleted automatically and we email you.",
+    cierreLegal:
+      "Sales and invoices are kept for five years, as required by law, without your name.",
+    cierreBoton: "Close my store and delete my account",
+    cierreEnCurso: "Closure in progress",
+    cierreEnCursoTexto:
+      "Your store is no longer for sale. Your account will be deleted automatically once these are done:",
+    cierrePedidos: "Deliver your open orders",
+    cierrePagos: "Review pending payments",
+    cierreSaldo: "Pay you what you're owed for your sales",
+    cierreNada: "Nothing is pending: your account is being deleted.",
   },
   es: {
     bienvenida: "Bienvenido a Mercatren",
@@ -265,6 +284,25 @@ export const TEXTOS = {
     cancelar: "Cancelar",
     verEnLaTienda: "Publicado",
     borrador: "Borrador",
+    cierreTitulo: "Cerrar tu tienda y borrar tu cuenta",
+    cierreTexto: "Así funciona, paso a paso:",
+    cierrePaso1: "Hoy mismo: tu tienda deja de venderse y sale de Mercatren.",
+    cierrePaso2:
+      "Terminamos tus pedidos abiertos y revisamos los pagos que esperan.",
+    cierrePaso3:
+      "Te pagamos lo que te corresponde por tus ventas, a tu cuenta bancaria registrada.",
+    cierrePaso4:
+      "Cuando no queda nada pendiente —normalmente en menos de 30 días— tu cuenta se borra sola y te avisamos por correo.",
+    cierreLegal:
+      "Las ventas y las facturas se guardan cinco años, como exige la ley, sin tu nombre.",
+    cierreBoton: "Cerrar mi tienda y borrar mi cuenta",
+    cierreEnCurso: "Cierre en curso",
+    cierreEnCursoTexto:
+      "Tu tienda ya no se vende. Tu cuenta se borra sola cuando termine lo que falta:",
+    cierrePedidos: "Entregar tus pedidos abiertos",
+    cierrePagos: "Revisar los pagos que esperan",
+    cierreSaldo: "Pagarte lo que te corresponde por tus ventas",
+    cierreNada: "No queda nada pendiente: tu cuenta se está borrando.",
   },
 } as const satisfies Record<Idioma, Record<string, string>>;
 

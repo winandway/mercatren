@@ -898,6 +898,13 @@ export async function avanzarPedido(
     nuevoEstado,
   );
 
+  /* Un pedido entregado puede ser lo último que frenaba el cierre de una
+     cuenta con tienda (ver `cuenta/cierre.ts`). Nunca deshace el avance. */
+  if (nuevoEstado === "entregado") {
+    const { revisarCierreDePedido } = await import("@/lib/cuenta/cierre");
+    await revisarCierreDePedido(pedido.id).catch(() => undefined);
+  }
+
   return {
     ok: true,
     mensaje:

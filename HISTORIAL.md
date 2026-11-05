@@ -15,6 +15,46 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## UNA CUENTA CON TIENDA SE CIERRA SOLA, SIN ESCRIBIR A SOPORTE (5 nov 2026)
+
+**Por qué.** Apple, regla 5.1.1(v): el borrado de la cuenta se tiene que poder
+EMPEZAR desde la app, también la de un comercio. Hasta hoy, a una cuenta con
+tienda se le decía «escríbenos y la cerramos contigo». Pedido de Gerencia.
+
+**Cómo funciona (como Etsy o Shopify), igual en la web y en la app:**
+
+1. La persona pide el cierre escribiendo la palabra (web: página «Delete
+   account»; app: menú de tres puntos → borrar la cuenta).
+2. En ese momento la tienda pasa a `suspendida`: sale del catálogo, de Google
+   y de la app. El equipo recibe un correo con lo pendiente.
+3. Se terminan los pedidos abiertos, se revisan los pagos que esperan y se le
+   paga lo que le corresponde por sus ventas.
+4. Cuando no queda nada, la cuenta se borra sola (la MISMA `borrarCuenta`:
+   anonimiza, los pedidos y las facturas se guardan cinco años) y se le avisa
+   por correo. A la persona se le dicen los pasos y «normalmente en menos de
+   30 días».
+
+**Las piezas:** reglas en `src/lib/cuenta/cierre-puro.ts`; el servidor en
+`src/lib/cuenta/cierre.ts` (pedir, revisar, borrar); la tabla
+`solicitudes_cierre` (migración 0051, también en `schema.sql`). La web usa
+`CerrarTienda` y la app `/datos/app/mi/cerrar-cuenta`; las dos llaman a
+`pedirCierreDeMiCuenta`.
+
+**El cierre no depende del reloj (apagado):** se revisa cuando algo pendiente
+se resuelve: un pedido entregado (`avanzarPedido`), un retiro pagado
+(`marcarRetiroPagado`), un saldo cerrado por fuera (`cerrarSaldoPorFuera`), un
+pago aprobado o rechazado (`aprobarPago`, `rechazarPago`), y cuando la persona
+mira su página de borrar.
+
+**El equipo de Mercatren** (`soporte`, `validador`) sigue cerrándose con
+soporte: es otra cosa.
+
+**Candado:** `tests/unit/cierre-de-cuenta-con-tienda.test.ts`, comprobada en
+rojo. **Cómo se comprueba:** en local, una cuenta con tienda y un pago por
+revisar → pedir el cierre en la app → la tienda queda `suspendida` y sale
+«Revisar los pagos que esperan» (también en la web) → revisar el pago → al
+mirar, la cuenta se borra sola y ya no puede entrar.
+
 ## SUBIR PRODUCTOS Y BORRAR LA CUENTA DESDE LA APP (5 nov 2026)
 
 **Qué es.** Desde la app, el dueño de una tienda sube productos con la cámara

@@ -572,6 +572,12 @@ export async function aprobarPago(id: string): Promise<Resultado> {
   const { avisarAgotados } = await import("@/lib/productos/agotados");
   await avisarAgotados(renglones);
 
+  /* Puede ser lo último que frenaba el cierre de una cuenta con tienda
+     (`cuenta/cierre.ts`). Revisarlo nunca deshace lo hecho aquí. */
+  {
+    const { revisarCierreDeTienda } = await import("@/lib/cuenta/cierre");
+    await revisarCierreDeTienda(pago.tiendaId).catch(() => undefined);
+  }
   return { ok: true, mensaje: t("pagoAprobado") };
 }
 
@@ -678,5 +684,9 @@ export async function rechazarPago(
     console.error("[zelle] rechazado; el aviso del cobro no salio:", fallo);
   }
 
+  if (pago.tiendaId) {
+    const { revisarCierreDeTienda } = await import("@/lib/cuenta/cierre");
+    await revisarCierreDeTienda(pago.tiendaId).catch(() => undefined);
+  }
   return { ok: true, mensaje: t("pagoRechazado") };
 }

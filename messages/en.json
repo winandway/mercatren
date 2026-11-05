@@ -4604,12 +4604,30 @@
     },
     "errores": {
       "equipo": "This is a team or store account, with sales and payments behind it. Email us at {correo} and we'll close it with you.",
-      "tienda": "Your account has a store, with sales and payments behind it. Email us at {correo} and we'll close it with you.",
+      "tienda": "Your account has a store. To delete it, the store is closed first: we stop selling it right away, finish your orders and pay you what you're owed for your sales, and then your account is deleted automatically.",
       "pedidos": "You have a paid order that hasn't arrived yet. Once it's delivered, you can delete your account here.",
       "paquetes": "You have packages waiting in your Miami locker. Once you receive or ship them, you can delete your account here.",
       "sesion": "You've been signed out. Sign in again and try once more.",
       "palabra": "That word doesn't match. Type it exactly as shown.",
       "fallo": "We couldn't delete your account right now. Nothing was deleted; please try again in a moment or email us at {correo}."
+    },
+    "cierre": {
+      "titulo": "Close your store and delete your account",
+      "texto": "Here's how it works, step by step:",
+      "paso1": "Today: your store stops selling and is removed from Mercatren.",
+      "paso2": "We finish your open orders and review any pending payments.",
+      "paso3": "We pay you what you're owed for your sales, to your registered bank account.",
+      "paso4": "Once nothing is pending — usually within {dias} days — your account is deleted automatically and we email you.",
+      "legal": "Sales and invoices are kept for five years, as required by law, without your name.",
+      "escribe": "To confirm, type {palabra}",
+      "boton": "Close my store and delete my account",
+      "pidiendo": "Requesting closure…",
+      "enCurso": "Closure in progress",
+      "enCursoTexto": "Your store is no longer for sale. Your account will be deleted automatically once these are done:",
+      "pedidos": "Deliver your open orders",
+      "pagos": "Review pending payments",
+      "saldo": "Pay you what you're owed for your sales",
+      "nadaPendiente": "Nothing is pending: your account is being deleted."
     }
   },
   "moderacion": {

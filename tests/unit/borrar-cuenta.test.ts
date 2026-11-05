@@ -35,13 +35,20 @@ describe("quién puede borrar su cuenta sola", () => {
     expect(puedeBorrarSuCuenta(cliente)).toEqual({ ok: true });
   });
 
-  it("el equipo y los comercios, no: se cierran con soporte", () => {
-    for (const rol of ["vendedor", "validador", "soporte"]) {
+  it("el equipo, no: se cierra con soporte", () => {
+    for (const rol of ["validador", "soporte"]) {
       expect(puedeBorrarSuCuenta({ ...cliente, rol })).toEqual({
         ok: false,
         motivo: "equipo",
       });
     }
+  });
+
+  it("un comercio va al camino del cierre, nunca a «escribir a soporte» (Apple 5.1.1(v))", () => {
+    expect(puedeBorrarSuCuenta({ ...cliente, rol: "vendedor" })).toEqual({
+      ok: false,
+      motivo: "tienda",
+    });
   });
 
   it("quien es dueño de una tienda, aunque diga «cliente», tampoco", () => {

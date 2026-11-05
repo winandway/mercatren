@@ -57,8 +57,14 @@ export type PuedeBorrar =
 
 /** ¿Puede esta persona borrar su cuenta ella sola, ahora? */
 export function puedeBorrarSuCuenta(s: SituacionDeLaCuenta): PuedeBorrar {
-  if (s.rol !== "cliente") return { ok: false, motivo: "equipo" };
-  if (s.tieneTienda) return { ok: false, motivo: "tienda" };
+  /* El equipo de Mercatren se cierra con soporte. Un comercio NO (5 nov 2026,
+     Apple 5.1.1(v)): pide el cierre él mismo y la cuenta se borra sola cuando
+     no queda nada pendiente (`cierre.ts`). Por eso «tienda» va aparte. */
+  if (s.rol === "soporte" || s.rol === "validador") {
+    return { ok: false, motivo: "equipo" };
+  }
+  if (s.tieneTienda || s.rol === "vendedor")
+    return { ok: false, motivo: "tienda" };
   if (s.pedidosEnCamino > 0) return { ok: false, motivo: "pedidos" };
   if (s.paquetesEnBodega > 0) return { ok: false, motivo: "paquetes" };
   return { ok: true };
