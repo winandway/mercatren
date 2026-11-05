@@ -20,10 +20,11 @@ describe("el reloj propio", () => {
     const cfg = JSON.parse(leer("yadominios.json")) as {
       triggers?: { crons?: string[] };
     };
-    /* 29 oct 2026: Richard apagó todo lo que gasta (`lib/en-pausa.ts`). Con
-       el reloj apagado, la plataforma ni siquiera lo llama; al encenderlo,
-       el minuto vuelve a `yadominios.json`. */
-    if (RELOJ_APAGADO) expect(cfg.triggers?.crons ?? []).toEqual([]);
+    /* 29 oct 2026: Richard apagó todo lo que gasta (`lib/en-pausa.ts`).
+       5 nov 2026: con el reloj apagado, la plataforma lo llama UNA vez por
+       hora y solo corre la alarma de consumo. Al encenderlo, vuelve el
+       minuto. */
+    if (RELOJ_APAGADO) expect(cfg.triggers?.crons ?? []).toEqual(["0 * * * *"]);
     else expect(cfg.triggers?.crons).toContain("* * * * *");
   });
 
