@@ -438,6 +438,18 @@ CREATE TABLE IF NOT EXISTS `depositos` (
 CREATE INDEX IF NOT EXISTS `idx_depositos_tienda` ON `depositos` (`tienda_id`);
 CREATE INDEX IF NOT EXISTS `idx_depositos_zona` ON `depositos` (`zona`);
 CREATE UNIQUE INDEX IF NOT EXISTS `idx_depositos_tienda_nombre` ON `depositos` (`tienda_id`,`nombre`);
+CREATE TABLE IF NOT EXISTS `desistimientos` (
+	`id` text PRIMARY KEY NOT NULL,
+	`pedido_id` text NOT NULL,
+	`cliente_id` text NOT NULL,
+	`nombre` text NOT NULL,
+	`correo` text NOT NULL,
+	`creado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`pedido_id`) REFERENCES `pedidos`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`cliente_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS `desistimientos_pedido_id_unique` ON `desistimientos` (`pedido_id`);
 CREATE TABLE IF NOT EXISTS `devoluciones` (
 	`id` text PRIMARY KEY NOT NULL,
 	`pedido_id` text NOT NULL,
@@ -1255,6 +1267,18 @@ CREATE TABLE IF NOT EXISTS `secciones_video` (
 CREATE UNIQUE INDEX IF NOT EXISTS `secciones_video_slug_unique` ON `secciones_video` (`slug`);
 CREATE UNIQUE INDEX IF NOT EXISTS `secciones_video_llave_subida_unique` ON `secciones_video` (`llave_subida`);
 CREATE INDEX IF NOT EXISTS `idx_secciones_video_mercado` ON `secciones_video` (`mercado`,`estado`);
+CREATE TABLE IF NOT EXISTS `seguridad_producto` (
+	`producto_id` text PRIMARY KEY NOT NULL,
+	`fabricante_nombre` text NOT NULL,
+	`fabricante_direccion` text NOT NULL,
+	`fabricante_correo` text NOT NULL,
+	`responsable_ue` text,
+	`advertencias_es` text,
+	`advertencias_en` text,
+	`actualizado_en` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`producto_id`) REFERENCES `productos`(`id`) ON UPDATE no action ON DELETE cascade
+);
+
 CREATE TABLE IF NOT EXISTS `series_documento` (
 	`id` text PRIMARY KEY NOT NULL,
 	`prefijo` text NOT NULL,
@@ -1556,11 +1580,11 @@ CREATE TABLE IF NOT EXISTS `zelle_cobros_tienda` (
 -- anterior) y DO NOTHING garantiza que un despliegue jamas pise el
 -- saldo real que este andando en produccion.
 INSERT INTO tiendas (id, slug, nombre, estado, comision_puntos_base, pais_origen, descripcion_es, descripcion_en, creado_en, actualizado_en)
-VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1793905765, 1793905765)
+VALUES ('tienda-bley-ferreteria', 'bley-ferreteria', 'Ferremateriales Bley C.A', 'activa', 300, 'VE', NULL, NULL, 1793910976, 1793910976)
 ON CONFLICT(id) DO NOTHING;
 
 INSERT INTO billeteras (id, tienda_id, saldo_centavos, moneda, proveedor, estado, creado_en)
-VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1793905765)
+VALUES ('billetera-bley-ferreteria', 'tienda-bley-ferreteria', 0, 'USD', 'tokiia', 'activa', 1793910976)
 ON CONFLICT(tienda_id) DO NOTHING;
 
 -- ── Departamentos de Mercatren (categorias de la casa, tienda_id NULL) ──
