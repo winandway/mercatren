@@ -84,9 +84,11 @@ describe("ninguna tarea programada recorre el catálogo", () => {
     }
   });
 
-  it("el sitio no tiene reloj propio en su configuración", () => {
-    const config = leer("yadominios.json");
-    expect(config).not.toMatch(/"triggers"|"crons"/);
+  it("el único reloj del sitio es el de la alarma de consumo, una vez por hora", () => {
+    const config = JSON.parse(leer("yadominios.json")) as {
+      triggers?: { crons?: string[] };
+    };
+    expect(config.triggers?.crons ?? []).toEqual(["0 * * * *"]);
   });
 });
 

@@ -89,9 +89,23 @@ describe("con la pausa puesta no sale nada hacia Google", () => {
     expect(gasto).toContain("if (IA_APAGADA) return false;");
   });
 
-  it("el reloj, la sincronización y el vigilante contestan sin trabajar", () => {
+  it("el reloj apagado solo corre la alarma de consumo (5 nov 2026), y antes de trabajar", () => {
+    const texto = leer("src/app/datos/reloj/route.ts");
+    const desde = donde(texto, "if (RELOJ_APAGADO) {", "reloj");
+    const hasta = donde(
+      texto,
+      "return Response.json({ ok: true, apagado: true, consumo });",
+      "reloj",
+    );
+    expect(hasta).toBeGreaterThan(desde);
+    expect(hasta).toBeLessThan(donde(texto, "reclamarTick(ahoraMs)", "reloj"));
+    const bloque = texto.slice(desde, hasta);
+    expect(bloque).toContain("await vigilarConsumo()");
+    expect(bloque).not.toMatch(/correrTick|reclamarTick/);
+  });
+
+  it("la sincronización y el vigilante contestan sin trabajar", () => {
     for (const [ruta, trabajo] of [
-      ["src/app/datos/reloj/route.ts", "reclamarTick(ahoraMs)"],
       ["src/app/datos/sincronizar/route.ts", "await getDbAsync()"],
       ["src/app/datos/vigilante/route.ts", "await correrVigilante("],
     ] as const) {

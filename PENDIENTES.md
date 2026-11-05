@@ -138,8 +138,11 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [x] ✅ 💻 Alarma de consumo (Fase 0 del plan): `npm run consumo` mide filas
       leídas y escritas en 24 h y el tamaño de la base y del cubo, y sale en
       verde, aviso o emergencia. Topes en `src/lib/consumo/umbrales.ts`.
-- [ ] 💻 Que la corra cada hora el gerente que ya hace la ronda (lo encarga
-      Gerencia) y avise en aviso o emergencia.
+- [x] ✅ 💻 La alarma vive en el servidor: el reloj de la plataforma la corre
+      cada hora, avisa por correo a soporte@windoce.com solo en aviso o
+      emergencia, y el canario `/datos/salud` enseña la última medida.
+- [ ] 🔴 La variable `CF_ANALYTICS_TOKEN` en el panel del sitio mercatren: una
+      llave de Cloudflare solo de lectura de estadísticas. Sin ella no mide.
 - [x] ✅ 💻 Página «De la ventana a la app nativa» en
       `docs/PLAN-UNA-SOLA-MERCATREN.md` (sección 10), mandada a Gerencia antes
       de programar.

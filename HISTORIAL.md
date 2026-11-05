@@ -15,6 +15,41 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## LA ALARMA DE CONSUMO VIVE EN EL SERVIDOR (5 nov 2026)
+
+**Meta de Gerencia (Fase 0 del plan):** que nunca más llegue una factura alta
+sin aviso, y sin un agente que gaste créditos cada hora.
+
+**Cómo quedó:**
+
+- El reloj de la plataforma vuelve a `yadominios.json`, pero **una vez por
+  hora** (`0 * * * *`), y con `RELOJ_APAGADO` lo ÚNICO que corre es la alarma
+  (`/datos/reloj` → `vigilarConsumo()`): nada del catálogo ni del proveedor.
+- **Medir** (`src/lib/consumo/medir.ts`): el sitio no puede contarse solo
+  (Drizzle lee por `raw()`, que no trae cuántas filas leyó), así que pregunta a
+  la API de estadísticas de Cloudflare (GraphQL): filas leídas y escritas en
+  24 h, tamaño de la base y del cubo. Comprobado el 5 nov contra Cloudflare:
+  234.199 filas leídas, 184 escritas, base 41,8 MB, cubo 427 MB, igual que
+  `wrangler d1 info`. Trampa: para ordenar por fecha hay que pedir la fecha
+  como dimensión.
+- **Nivel** (`umbrales.ts`): verde, aviso o emergencia; manda la peor cifra; un
+  dato que no se pudo leer nunca pasa por verde.
+- **Correo** a soporte@windoce.com SOLO en aviso o emergencia: cuando empeora,
+  o cada 6 horas si sigue igual.
+- **Canario:** `/datos/salud` → `consumo`, con la última medida guardada.
+- También existe `npm run consumo`, que hace lo mismo desde la computadora.
+
+**Lo que falta para que mida en producción:** la variable `CF_ANALYTICS_TOKEN`
+en el panel del sitio, con una llave de Cloudflare solo de lectura de
+estadísticas. Sin ella, el canario dice `sin_llave` y no sale ningún correo.
+
+**Candados:** `tests/unit/consumo-vigilar.test.ts` y `consumo-umbrales.test.ts`;
+y `mercatren-en-pausa.test.ts` exige que el reloj apagado solo corra la alarma.
+Comprobados en rojo: correo en verde, reloj apagado que trabaja y reloj de cada
+minuto.
+
+---
+
 ## MERCATREN SE REABRE SIN CJ: LA GENTE CREA SU TIENDA DESDE LA APP (5 nov 2026)
 
 **La orden (Richard, directo en la sesión):** «resetes, que borres todo lo de

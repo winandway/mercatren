@@ -92,6 +92,8 @@ interface CloudflareEnv {
   SINCRONIZAR_LLAVE?: string;
   /** La puerta del gerente de correo (`/datos/gerente`). Ver `lib/soporte/puerta-gerente.ts`. */
   GERENTE_SECRETO?: string;
+  /** La alarma de consumo: llave de Cloudflare solo de lectura de estadísticas. Ver `lib/consumo/medir.ts`. */
+  CF_ANALYTICS_TOKEN?: string;
 
   /**
    * La llave de las plataformas socias (QRbott). Solo sirve para VINCULAR una

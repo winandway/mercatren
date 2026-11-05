@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 
 import { VERSION_AGENTES } from "@/lib/agentes/recursos";
+import { ultimaMedida } from "@/lib/consumo/vigilar";
 import { getDb } from "@/lib/db";
 import {
   avisoDeStripeArmado,
@@ -123,6 +124,7 @@ export async function GET(peticion: Request) {
       listados,
       busqueda,
       devoluciones,
+      consumo,
     ] = await Promise.all([
       saludDelProveedor(),
       avisoDeStripeArmado(
@@ -200,6 +202,17 @@ export async function GET(peticion: Request) {
           direccion: cargada ? "ok" : "falta",
         }))
         .catch(() => ({ ok: false, direccion: "falta" })),
+      /* LA ALARMA DE CONSUMO (5 nov 2026): la última medida que dejó el reloj
+         de cada hora. Solo lee la fila guardada; no le pregunta a Cloudflare. */
+      ultimaMedida()
+        .then((u) => ({
+          ok: u?.nivel === "verde",
+          nivel: u?.nivel ?? null,
+          haceMinutos: u ? Math.round((Date.now() - u.momento) / 60_000) : null,
+          motivo: u?.motivo ?? null,
+          medida: u?.medida ?? null,
+        }))
+        .catch(() => ({ ok: false, nivel: null, motivo: "sin base" })),
     ]);
     return Response.json(
       {
@@ -228,6 +241,9 @@ export async function GET(peticion: Request) {
         /* `ok: false` = buscar vuelve a ser lento. */
         busqueda,
         devoluciones,
+        /* `ok: false` = la base o el cubo pasaron a aviso o emergencia, o el
+           reloj no pudo medir (`motivo`). Ver `lib/consumo/umbrales.ts`. */
+        consumo,
         /* CÓMO VA EL CATÁLOGO por plaza: a la venta, en revisión, sin
            traducir y con qué flete. Es la respuesta a «¿estamos publicando
            los productos y traduciendo los títulos?» sin entrar al panel. */

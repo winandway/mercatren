@@ -137,6 +137,12 @@ export const esquemaEntorno = z.object({
    */
   SINCRONIZAR_LLAVE: z.string().optional(),
   GERENTE_SECRETO: z.string().optional(),
+  /**
+   * La alarma de consumo (5 nov 2026): una llave de Cloudflare SOLO de lectura
+   * de estadísticas, para que el reloj de cada hora lea las filas de la base y
+   * el tamaño del cubo. Sin ella la alarma no mide y el canario lo dice.
+   */
+  CF_ANALYTICS_TOKEN: z.string().optional(),
 
   /**
    * LA LLAVE DE LAS PLATAFORMAS SOCIAS (hoy QRbott).

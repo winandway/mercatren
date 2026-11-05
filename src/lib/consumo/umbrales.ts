@@ -73,3 +73,24 @@ export function bytesDe(texto: string): number {
   ];
   return numero * 1000 ** potencia;
 }
+
+/** Mientras siga en aviso o emergencia, el correo se repite cada 6 horas. */
+export const REPETIR_AVISO_MS = 6 * 60 * 60_000;
+
+/**
+ * ¿Se manda el correo? Solo en aviso o emergencia: cuando el nivel empeora,
+ * o cuando lleva 6 horas igual sin arreglarse. En verde no se escribe nada:
+ * un correo cada hora diciendo «todo bien» termina sin leerse.
+ */
+export function debeAvisar(
+  anterior: { nivel?: Nivel; avisadoEn?: number } | null,
+  nivel: Nivel,
+  ahoraMs: number,
+): boolean {
+  if (nivel === "verde") return false;
+  if (!anterior?.nivel || ORDEN[nivel] > ORDEN[anterior.nivel]) return true;
+  return (
+    typeof anterior.avisadoEn !== "number" ||
+    ahoraMs - anterior.avisadoEn >= REPETIR_AVISO_MS
+  );
+}
