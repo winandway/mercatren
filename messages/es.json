@@ -900,7 +900,16 @@
       },
       "preparandoFotos": "Preparando {n} foto(s) para que suban rápido…",
       "previaPrecio": "Con este precio: el cliente paga {tarjeta} con tarjeta o {zelle} por Zelle — y tú recibes {base} exactos, pague como pague.",
-      "previaPrecioSoloTarjeta": "Con este precio: el cliente paga {tarjeta} con tarjeta — y tú recibes {base} exactos."
+      "previaPrecioSoloTarjeta": "Con este precio: el cliente paga {tarjeta} con tarjeta — y tú recibes {base} exactos.",
+      "seguridadTitulo": "Seguridad del producto (Unión Europea)",
+      "seguridadAyuda": "La ley europea pide decir quién fabrica el producto y cómo escribirle, y sus advertencias de seguridad. Sin el fabricante no se publica en España.",
+      "fabricanteNombre": "Fabricante (nombre o marca registrada)",
+      "fabricanteDireccion": "Dirección postal del fabricante",
+      "fabricanteCorreo": "Correo del fabricante",
+      "responsableUe": "Persona responsable en la UE (si el fabricante está fuera de la UE)",
+      "responsableUeAyuda": "Nombre, dirección y correo.",
+      "advertenciasEs": "Advertencias de seguridad (español)",
+      "advertenciasEn": "Advertencias de seguridad (inglés)"
     },
     "ordenes": {
       "titulo": "Órdenes",
@@ -1437,7 +1446,10 @@
       "comercioEncendido": "{nombre} quedó activo: su tienda ya se ve en el catálogo.",
       "comercioApagado": "{nombre} quedó desactivado: su tienda salió del catálogo.",
       "topeSinPlan": "Tu tienda ya tiene {tope} productos publicados, el máximo sin plan. Pausa alguno o pásate al plan Pro para publicar hasta 5,000.",
-      "topePro": "Llegaste al máximo de {tope} productos publicados. Pausa alguno para publicar este."
+      "topePro": "Llegaste al máximo de {tope} productos publicados. Pausa alguno para publicar este.",
+      "seguridadFabricante": "Para vender en España, escribe quién fabrica el producto.",
+      "seguridadDireccion": "Para vender en España, escribe la dirección postal del fabricante.",
+      "seguridadCorreo": "Para vender en España, escribe un correo válido del fabricante."
     },
     "usuarios": {
       "titulo": "Cuentas",
@@ -3131,7 +3143,11 @@
       "enRevision": "En revisión — solo lo ve el equipo.",
       "enRevisionTexto": "Todavía no se puede comprar: falta que el proveedor cotice el envío real. El público no ve esta ficha.",
       "enRevisionCorto": "En revisión",
-      "patrocinado": "Patrocinado"
+      "patrocinado": "Patrocinado",
+      "seguridadTitulo": "Fabricante y seguridad",
+      "fabricante": "Fabricante",
+      "responsableUe": "Responsable en la UE",
+      "advertencias": "Advertencias de seguridad"
     },
     "seguirBajando": {
       "cargando": "Trayendo más…",

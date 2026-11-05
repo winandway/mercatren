@@ -47,6 +47,12 @@ export type ProductoApp = {
 };
 
 export type FichaApp = {
+  /** Solo en España: quién fabrica el producto y sus advertencias. */
+  seguridad?: {
+    fabricante: string;
+    responsableUe: string | null;
+    advertencias: string | null;
+  } | null;
   id: string;
   slug: string;
   titulo: string;

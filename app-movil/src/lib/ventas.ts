@@ -67,6 +67,9 @@ export type ProductoParaEditar = {
   moneda: string;
   estado: string;
   fotos: { id: string; url: string | null }[];
+  /** España: si la tienda pide los datos del fabricante, y lo guardado. */
+  pideSeguridad?: boolean;
+  seguridad?: { [k: string]: string | null } | null;
 };
 
 /** ¿Lo que se ve en el formulario es lo mismo que está guardado? */

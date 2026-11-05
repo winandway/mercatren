@@ -50,6 +50,37 @@ export type DatosProducto = {
 };
 
 /**
+ * ESPAÑA: QUIÉN FABRICA EL PRODUCTO (Reglamento UE 2023/988, art. 19). Solo
+ * se piden a las tiendas de España; el servidor los exige para publicar allá.
+ */
+export type SeguridadApp = {
+  fabricanteNombre: string;
+  fabricanteDireccion: string;
+  fabricanteCorreo: string;
+  responsableUe: string;
+  advertenciasEs: string;
+  advertenciasEn: string;
+};
+
+export const SEGURIDAD_VACIA: SeguridadApp = {
+  fabricanteNombre: "",
+  fabricanteDireccion: "",
+  fabricanteCorreo: "",
+  responsableUe: "",
+  advertenciasEs: "",
+  advertenciasEn: "",
+};
+
+export function camposDeSeguridad(s: SeguridadApp): Record<string, string> {
+  return Object.fromEntries(Object.entries(s).map(([k, v]) => [k, v.trim()]));
+}
+
+/** ¿Esta tienda vende en un país que pide los datos del fabricante? */
+export function pideSeguridad(pais: string | null | undefined): boolean {
+  return (pais ?? "").toUpperCase() === "ES";
+}
+
+/**
  * Lo primero que falta. Los dos idiomas son obligatorios en el título (regla
  * de la casa: todo lo que ve el público, en español e inglés).
  */

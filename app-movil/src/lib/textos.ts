@@ -183,6 +183,16 @@ export const TEXTOS = {
     sinPedidos: "You haven't placed any orders yet.",
     articulos: "items",
     entraParaComprar: "Sign in or create an account to check out.",
+    fabricanteYSeguridad: "Manufacturer and safety",
+    seguridadTitulo: "Product safety (European Union)",
+    seguridadAyuda:
+      "EU law requires saying who manufactures the product and how to contact them. Without the manufacturer it can't be published in Spain.",
+    fabricanteNombre: "Manufacturer (name or trademark)",
+    fabricanteDireccion: "Manufacturer's postal address",
+    fabricanteCorreo: "Manufacturer's email",
+    responsableUe: "Responsible person in the EU (if outside the EU)",
+    advertenciasEs: "Safety warnings (Spanish)",
+    advertenciasEn: "Safety warnings (English)",
     desistirBoton: "Withdraw from contract here",
     desistirPregunta: "Do you confirm your withdrawal from this order?",
     desistirExplica:
@@ -489,6 +499,16 @@ export const TEXTOS = {
     sinPedidos: "Todavía no has hecho pedidos.",
     articulos: "artículos",
     entraParaComprar: "Entra o crea tu cuenta para comprar.",
+    fabricanteYSeguridad: "Fabricante y seguridad",
+    seguridadTitulo: "Seguridad del producto (Unión Europea)",
+    seguridadAyuda:
+      "La ley europea pide decir quién fabrica el producto y cómo escribirle. Sin el fabricante no se publica en España.",
+    fabricanteNombre: "Fabricante (nombre o marca)",
+    fabricanteDireccion: "Dirección postal del fabricante",
+    fabricanteCorreo: "Correo del fabricante",
+    responsableUe: "Responsable en la UE (si está fuera de la UE)",
+    advertenciasEs: "Advertencias de seguridad (español)",
+    advertenciasEn: "Advertencias de seguridad (inglés)",
     desistirBoton: "Desistir del contrato aquí",
     desistirPregunta: "¿Confirmas que desistes de este pedido?",
     desistirExplica:

@@ -379,6 +379,13 @@
       "when": 1793910620539,
       "tag": "0053_odd_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "6",
+      "when": 1793910976189,
+      "tag": "0054_wet_steel_serpent",
+      "breakpoints": true
     }
   ]
 }

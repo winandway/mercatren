@@ -1,3 +1,4 @@
+import { CAMPOS_SEGURIDAD } from "@/lib/productos/seguridad";
 import { baseDesdePublicado } from "@/lib/dinero";
 import { divisorDe } from "@/lib/mercado/moneda";
 
@@ -18,6 +19,8 @@ import { divisorDe } from "@/lib/mercado/moneda";
  * cambia la edición (publicar o pausar es otro botón). Pieza pura, con su
  * prueba en `tests/unit/app-movil-ventas.test.ts`.
  */
+export { CAMPOS_SEGURIDAD };
+
 export const CAMPOS_DE_LA_APP = [
   "tituloEs",
   "tituloEn",
@@ -38,6 +41,13 @@ export type ProductoGuardado = {
   estado: "borrador" | "publicado" | "agotado";
   /** La ciudad del depósito (solo Venezuela); `null` si no tiene. */
   zonaDeposito: string | null;
+  /**
+   * España: quién fabrica el producto (Reglamento UE 2023/988). Se manda
+   * siempre lo guardado: sin esto, editar el precio desde la app de un
+   * producto publicado en España se rechazaría por «falta el fabricante».
+   */
+  seguridad?:
+    { [K in (typeof CAMPOS_SEGURIDAD)[number]]?: string | null } | null;
 };
 
 /** De la unidad menor a lo que se escribe en la casilla, POR MONEDA. */
@@ -68,8 +78,13 @@ export function formularioDeEdicion(
   if (guardado.destacado) f.destacado = "on";
   if (guardado.zonaDeposito) f.ciudadDeposito = guardado.zonaDeposito;
 
-  /* Lo que sí cambia la app. */
-  for (const campo of CAMPOS_DE_LA_APP) {
+  for (const campo of CAMPOS_SEGURIDAD) {
+    const valor = guardado.seguridad?.[campo];
+    if (valor) f[campo] = valor;
+  }
+
+  /* Lo que sí cambia la app (y, en España, los datos del fabricante). */
+  for (const campo of [...CAMPOS_DE_LA_APP, ...CAMPOS_SEGURIDAD]) {
     const valor = recibido[campo];
     if (typeof valor === "string") f[campo] = valor.slice(0, 2000);
   }

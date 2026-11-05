@@ -19,6 +19,10 @@ import {
   precioZelleCentavos,
 } from "@/lib/dinero";
 import { divisorDe } from "@/lib/mercado/moneda";
+import {
+  pideSeguridadUe,
+  type DatosSeguridad,
+} from "@/lib/productos/seguridad";
 import { ESTADOS } from "@/lib/entrega/zonas";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { pesoLegible, PESO_MAXIMO_ENVIO } from "@/lib/imagenes/medidas";
@@ -144,6 +148,7 @@ export function FormularioProducto({
   imagenes,
   tiendaId,
   paisOrigen,
+  seguridad,
 }: {
   producto?: Producto;
   imagenes?: Foto[];
@@ -156,8 +161,11 @@ export function FormularioProducto({
    * Unidos. Sin dato se asume Venezuela, que es el comportamiento de siempre.
    */
   paisOrigen?: string | null;
+  /** Lo guardado de la seguridad del producto (solo tiendas de España). */
+  seguridad?: { [K in keyof DatosSeguridad]?: string | null } | null;
 }) {
   const seRetiraEnCiudad = (paisOrigen ?? "VE") === "VE";
+  const pideSeguridad = pideSeguridadUe(paisOrigen);
   const t = useTranslations("panel.producto");
   const tPanel = useTranslations("errores");
   const idioma = useLocale();
@@ -626,6 +634,61 @@ export function FormularioProducto({
             placeholder={t("marcaPlaceholder")}
           />
         </div>
+
+        {/* ESPAÑA: quién fabrica el producto y sus advertencias (Reglamento
+            UE 2023/988, art. 19). Sin el fabricante no se publica allá. */}
+        {pideSeguridad ? (
+          <fieldset className="mt-6 rounded-xl border border-borde p-4">
+            <legend className="px-1 text-sm font-semibold">
+              {t("seguridadTitulo")}
+            </legend>
+            <p className="mb-3 text-sm text-tinta-suave">
+              {t("seguridadAyuda")}
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Campo
+                nombre="fabricanteNombre"
+                etiqueta={t("fabricanteNombre")}
+                valor={seguridad?.fabricanteNombre}
+                placeholder={t("fabricanteNombre")}
+              />
+              <Campo
+                nombre="fabricanteCorreo"
+                etiqueta={t("fabricanteCorreo")}
+                valor={seguridad?.fabricanteCorreo}
+                placeholder="correo@ejemplo.com"
+                tipo="email"
+              />
+            </div>
+            <div className="mt-4 grid gap-4">
+              <Campo
+                nombre="fabricanteDireccion"
+                etiqueta={t("fabricanteDireccion")}
+                valor={seguridad?.fabricanteDireccion}
+                placeholder={t("fabricanteDireccion")}
+              />
+              <Campo
+                nombre="responsableUe"
+                etiqueta={t("responsableUe")}
+                ayuda={t("responsableUeAyuda")}
+                valor={seguridad?.responsableUe}
+                filas={2}
+              />
+              <Campo
+                nombre="advertenciasEs"
+                etiqueta={t("advertenciasEs")}
+                valor={seguridad?.advertenciasEs}
+                filas={3}
+              />
+              <Campo
+                nombre="advertenciasEn"
+                etiqueta={t("advertenciasEn")}
+                valor={seguridad?.advertenciasEn}
+                filas={3}
+              />
+            </div>
+          </fieldset>
+        ) : null}
 
         <label className="mt-4 flex items-start gap-3">
           <input

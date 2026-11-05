@@ -223,7 +223,11 @@ export async function obtenerMiProducto(id: string) {
   /* De dónde sale la mercancía de su tienda: decide si el formulario pide
      ciudad de retiro (Venezuela) o dice que se despacha (EE. UU., CL, CO). */
   const [tienda] = await db
-    .select({ paisOrigen: tiendas.paisOrigen, nombre: tiendas.nombre })
+    .select({
+      paisOrigen: tiendas.paisOrigen,
+      nombre: tiendas.nombre,
+      mercado: tiendas.mercado,
+    })
     .from(tiendas)
     .where(eq(tiendas.id, producto.tiendaId))
     .limit(1);

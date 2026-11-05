@@ -34,11 +34,15 @@ import {
 import {
   aCentavos,
   camposDelProducto,
+  camposDeSeguridad,
   faltaEnProducto,
   FOTOS_POR_PRODUCTO,
+  pideSeguridad,
   precioPublicadoCentavos,
+  SEGURIDAD_VACIA,
   urlMisProductos,
   type DatosProducto,
+  type SeguridadApp,
 } from "@/lib/productos";
 import { texto, type ClaveDeTexto } from "@/lib/textos";
 import {
@@ -80,6 +84,13 @@ export function FormularioProducto({ id }: { id?: string }) {
   const { data: sesion } = authClient.useSession();
   const [d, setD] = useState<DatosProducto>(VACIO);
   const [guardado, setGuardado] = useState<DatosProducto | null>(null);
+  /* España: quién fabrica el producto. Al subir, según el país de la app; al
+     editar, lo dice el servidor (el país de la tienda). */
+  const [seg, setSeg] = useState<SeguridadApp>(SEGURIDAD_VACIA);
+  const [segGuardada, setSegGuardada] = useState<SeguridadApp | null>(null);
+  const [conSeguridad, setConSeguridad] = useState(
+    !editando && pideSeguridad(pais),
+  );
   const [estado, setEstado] = useState<string | null>(null);
   const [moneda, setMoneda] = useState(MONEDA);
   const [fotosGuardadas, setFotosGuardadas] = useState<FotoGuardada[]>([]);
@@ -92,11 +103,24 @@ export function FormularioProducto({ id }: { id?: string }) {
   const { recuperado, limpiar } = useBorrador(
     editando ? `editar-producto:${id}` : "nuevo-producto",
     sesion?.user?.id,
-    /* Al editar, sin cambios no hay borrador que guardar. */
-    editando && igualQueLoGuardado(d, guardado) ? VACIO : d,
+    /* Al editar, sin cambios no hay borrador que guardar. Los datos del
+       fabricante van en el mismo borrador. */
+    editando &&
+      igualQueLoGuardado(d, guardado) &&
+      igualQueLoGuardado(seg, segGuardada)
+      ? { ...VACIO, ...SEGURIDAD_VACIA }
+      : { ...d, ...seg },
     (g) => {
       hayBorrador.current = true;
-      setD((antes) => ({ ...antes, ...g }));
+      const delProducto: Partial<DatosProducto> = {};
+      const deSeguridad: Partial<SeguridadApp> = {};
+      for (const [k, v] of Object.entries(g)) {
+        if (typeof v !== "string") continue;
+        if (k in SEGURIDAD_VACIA) deSeguridad[k as keyof SeguridadApp] = v;
+        else delProducto[k as keyof DatosProducto] = v;
+      }
+      setD((antes) => ({ ...antes, ...delProducto }));
+      setSeg((antes) => ({ ...antes, ...deSeguridad }));
     },
   );
 
@@ -121,6 +145,16 @@ export function FormularioProducto({ id }: { id?: string }) {
         };
         setGuardado(servidor);
         if (!hayBorrador.current) setD(servidor);
+        if (p.pideSeguridad) {
+          const s: SeguridadApp = { ...SEGURIDAD_VACIA };
+          for (const k of Object.keys(
+            SEGURIDAD_VACIA,
+          ) as (keyof SeguridadApp)[])
+            s[k] = p.seguridad?.[k] ?? "";
+          setConSeguridad(true);
+          setSegGuardada(s);
+          if (!hayBorrador.current) setSeg(s);
+        }
         setEstado(p.estado);
         setMoneda(p.moneda);
         setFotosGuardadas(p.fotos);
@@ -205,6 +239,9 @@ export function FormularioProducto({ id }: { id?: string }) {
       const cuerpo = new FormData();
       for (const [campo, valor] of Object.entries(camposDelProducto(d)))
         cuerpo.append(campo, valor);
+      if (conSeguridad)
+        for (const [campo, valor] of Object.entries(camposDeSeguridad(seg)))
+          cuerpo.append(campo, valor);
       for (const foto of fotos) cuerpo.append("fotos", parteDeFoto(foto));
       const r = await fetch(
         id ? urlMiProducto(id, pais, idioma) : urlMisProductos(pais, idioma),
@@ -431,6 +468,42 @@ export function FormularioProducto({ id }: { id?: string }) {
           style={estilos.largo}
         />
 
+        {conSeguridad ? (
+          <View style={estilos.seguridad}>
+            <Text style={estilos.seguridadTitulo}>
+              {texto(idioma, "seguridadTitulo")}
+            </Text>
+            <Text style={estilos.ayuda}>{texto(idioma, "seguridadAyuda")}</Text>
+            {(
+              [
+                ["fabricanteNombre", "fabricanteNombre", false],
+                ["fabricanteDireccion", "fabricanteDireccion", false],
+                ["fabricanteCorreo", "fabricanteCorreo", false],
+                ["responsableUe", "responsableUe", true],
+                ["advertenciasEs", "advertenciasEs", true],
+                ["advertenciasEn", "advertenciasEn", true],
+              ] as const
+            ).map(([campo, etiqueta, largo]) => (
+              <View key={campo}>
+                <Etiqueta>{texto(idioma, etiqueta)}</Etiqueta>
+                <Campo
+                  value={seg[campo]}
+                  onChangeText={(v) => setSeg((a) => ({ ...a, [campo]: v }))}
+                  placeholder={texto(idioma, etiqueta)}
+                  keyboardType={
+                    campo === "fabricanteCorreo" ? "email-address" : "default"
+                  }
+                  autoCapitalize={
+                    campo === "fabricanteCorreo" ? "none" : "sentences"
+                  }
+                  multiline={largo}
+                  style={largo ? estilos.largo : undefined}
+                />
+              </View>
+            ))}
+          </View>
+        ) : null}
+
         {error ? (
           <Aviso
             texto={
@@ -540,6 +613,14 @@ const estilos = StyleSheet.create({
   botonFotoTexto: { color: COLORES.azul, fontWeight: "700", fontSize: 15 },
   ayuda: { fontSize: 13, color: COLORES.gris, marginTop: 6 },
   largo: { minHeight: 80, textAlignVertical: "top" },
+  seguridad: {
+    marginTop: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORES.grisClaro,
+    borderRadius: 12,
+  },
+  seguridadTitulo: { fontSize: 16, fontWeight: "800", color: COLORES.azul },
   secundario: {
     marginTop: 12,
     borderWidth: 1,

@@ -9,6 +9,7 @@ import { VariantesYMedidas } from "@/components/panel/variantes-producto";
 import { medidasDe, variantesDe } from "@/lib/productos/variantes";
 import { Link } from "@/i18n/navigation";
 import { obtenerMiProducto } from "@/lib/productos/consultas";
+import { seguridadDelProducto } from "@/lib/productos/seguridad-consultas";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +33,11 @@ export default async function PaginaEditarProducto({
 
   // Las variantes y las medidas viven en sus propias tablas: un producto sin
   // ellas se edita igual que siempre.
-  const [variantes, medidas] = await Promise.all([
+  const [variantes, medidas, seguridad] = await Promise.all([
     variantesDe(datos.producto.id),
     medidasDe(datos.producto.id),
+    /* España: quién fabrica el producto (solo lee si la tienda es de allá). */
+    seguridadDelProducto(datos.producto.id, datos.tienda?.mercado),
   ]);
 
   return (
@@ -56,6 +59,7 @@ export default async function PaginaEditarProducto({
         producto={datos.producto}
         imagenes={datos.imagenes}
         paisOrigen={datos.tienda?.paisOrigen}
+        seguridad={seguridad}
       />
 
       {/* Va DESPUES del formulario y aparte: son dos cosas distintas y se

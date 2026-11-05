@@ -1,3 +1,4 @@
+import { CAMPOS_SEGURIDAD } from "@/lib/productos/seguridad";
 import { desc, eq, inArray } from "drizzle-orm";
 
 import { contextoDe, respuestaDeError } from "@/lib/app-movil/datos";
@@ -28,6 +29,8 @@ const CAMPOS = [
   "descripcionEn",
   "precio",
   "existencias",
+  /* España: quién fabrica el producto (los lee solo si la tienda es de allá). */
+  ...CAMPOS_SEGURIDAD,
 ] as const;
 /* Una ruta solo puede exportar GET, POST y su configuración: nada más. */
 const FOTOS_POR_PRODUCTO = 8;

@@ -900,7 +900,16 @@
       },
       "preparandoFotos": "Getting {n} photo(s) ready for a fast upload…",
       "previaPrecio": "With this price: the customer pays {tarjeta} by card or {zelle} via Zelle — and you receive exactly {base}, either way.",
-      "previaPrecioSoloTarjeta": "At this price: the customer pays {tarjeta} by card — and you receive exactly {base}."
+      "previaPrecioSoloTarjeta": "At this price: the customer pays {tarjeta} by card — and you receive exactly {base}.",
+      "seguridadTitulo": "Product safety (European Union)",
+      "seguridadAyuda": "EU law requires saying who manufactures the product, how to contact them, and its safety warnings. Without the manufacturer it can't be published in Spain.",
+      "fabricanteNombre": "Manufacturer (name or registered trademark)",
+      "fabricanteDireccion": "Manufacturer's postal address",
+      "fabricanteCorreo": "Manufacturer's email",
+      "responsableUe": "Responsible person in the EU (if the manufacturer is outside the EU)",
+      "responsableUeAyuda": "Name, address and email.",
+      "advertenciasEs": "Safety warnings (Spanish)",
+      "advertenciasEn": "Safety warnings (English)"
     },
     "ordenes": {
       "titulo": "Orders",
@@ -1437,7 +1446,10 @@
       "comercioEncendido": "{nombre} is active: their store is back in the catalog.",
       "comercioApagado": "{nombre} is deactivated: their store is out of the catalog.",
       "topeSinPlan": "Your store already has {tope} published products, the most allowed without a plan. Pause one, or upgrade to Pro to publish up to 5,000.",
-      "topePro": "You've reached the maximum of {tope} published products. Pause one to publish this one."
+      "topePro": "You've reached the maximum of {tope} published products. Pause one to publish this one.",
+      "seguridadFabricante": "To sell in Spain, enter who manufactures the product.",
+      "seguridadDireccion": "To sell in Spain, enter the manufacturer's postal address.",
+      "seguridadCorreo": "To sell in Spain, enter a valid email for the manufacturer."
     },
     "usuarios": {
       "titulo": "Accounts",
@@ -3131,7 +3143,11 @@
       "enRevision": "Under review — visible to the team only.",
       "enRevisionTexto": "Not for sale yet: the supplier still has to quote the real shipping cost. The public can't see this page.",
       "enRevisionCorto": "Under review",
-      "patrocinado": "Sponsored"
+      "patrocinado": "Sponsored",
+      "seguridadTitulo": "Manufacturer and safety",
+      "fabricante": "Manufacturer",
+      "responsableUe": "Responsible person in the EU",
+      "advertencias": "Safety warnings"
     },
     "seguirBajando": {
       "cargando": "Loading more…",

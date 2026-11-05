@@ -1,3 +1,5 @@
+import { pideSeguridadUe } from "@/lib/productos/seguridad";
+import { seguridadDelProducto } from "@/lib/productos/seguridad-consultas";
 import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -72,6 +74,7 @@ async function productoMio(usuarioId: string, id: string) {
       unidad: productos.unidad,
       destacado: productos.destacado,
       depositoId: productos.depositoId,
+      mercado: tiendas.mercado,
     })
     .from(productos)
     .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))
@@ -128,6 +131,11 @@ export async function GET(peticion: Request, ctx: Contexto) {
         id: f.id,
         url: direccionImagen(f),
       })),
+      /* España: quién fabrica el producto. Fuera de España, null sin leer. */
+      seguridad: pideSeguridadUe(p.mercado)
+        ? await seguridadDelProducto(p.id, p.mercado)
+        : null,
+      pideSeguridad: pideSeguridadUe(p.mercado),
     },
   });
 }
@@ -169,6 +177,7 @@ export async function POST(peticion: Request, ctx: Contexto) {
       destacado: Boolean(p.destacado),
       estado,
       zonaDeposito,
+      seguridad: await seguridadDelProducto(p.id, p.mercado),
     },
     textos,
   );

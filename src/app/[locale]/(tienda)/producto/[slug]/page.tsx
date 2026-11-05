@@ -26,6 +26,7 @@ import { EntregaDespacho } from "@/components/catalogo/entrega-despacho";
 import { InvitacionCasillero } from "@/components/casillero/invitacion-casillero";
 import { EntregaEstadosUnidos } from "@/components/catalogo/entrega-estados-unidos";
 import { PreguntasProducto } from "@/components/catalogo/preguntas-producto";
+import { seguridadDelProducto } from "@/lib/productos/seguridad-consultas";
 import { FilaProductos } from "@/components/catalogo/fila-productos";
 import { RegistrarVisita } from "@/components/catalogo/registrar-visita";
 import { TarjetaProducto } from "@/components/catalogo/tarjeta-producto";
@@ -185,6 +186,12 @@ export default async function PaginaProducto({
   /* Las preguntas de la ficha. Si fallan salen vacias y el bloque desaparece:
      un problema de base no puede tumbar la pagina donde se vende. */
   const preguntas = await preguntasDe(ficha.producto.id, locale);
+  /* España: quién fabrica el producto y sus advertencias (Reglamento UE
+     2023/988, art. 19). Fuera de España no lee la base. */
+  const seguridad = await seguridadDelProducto(
+    ficha.producto.id,
+    (await mercadoDeLaPeticion()).codigo,
+  );
 
   // La ciudad que eligio quien mira, para decirle si le queda cerca o lejos.
   const zona = await zonaDelCliente();
@@ -693,6 +700,47 @@ export default async function PaginaProducto({
           {descripcion?.trim() || t("sinDescripcion")}
         </p>
       </section>
+
+      {seguridad ? (
+        <section className="mt-8 max-w-3xl">
+          <h2 className="text-lg font-bold">{t("seguridadTitulo")}</h2>
+          <dl className="mt-2 space-y-2 text-sm text-tinta-suave">
+            <div>
+              <dt className="font-semibold text-tinta">{t("fabricante")}</dt>
+              <dd>
+                {seguridad.fabricanteNombre} · {seguridad.fabricanteDireccion} ·{" "}
+                {seguridad.fabricanteCorreo}
+              </dd>
+            </div>
+            {seguridad.responsableUe ? (
+              <div>
+                <dt className="font-semibold text-tinta">
+                  {t("responsableUe")}
+                </dt>
+                <dd className="whitespace-pre-line">
+                  {seguridad.responsableUe}
+                </dd>
+              </div>
+            ) : null}
+            {(
+              locale === "en"
+                ? (seguridad.advertenciasEn ?? seguridad.advertenciasEs)
+                : seguridad.advertenciasEs
+            ) ? (
+              <div>
+                <dt className="font-semibold text-tinta">
+                  {t("advertencias")}
+                </dt>
+                <dd className="whitespace-pre-line">
+                  {locale === "en"
+                    ? (seguridad.advertenciasEn ?? seguridad.advertenciasEs)
+                    : seguridad.advertenciasEs}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </section>
+      ) : null}
 
       {/* Va DESPUES de la descripcion: quien todavia duda ya la leyo, y es ahi
           donde aparece la pregunta que decide la compra. */}

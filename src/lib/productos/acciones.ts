@@ -17,12 +17,19 @@ import { mercadoPorCodigo } from "@/lib/mercado/mercados";
 import { divisorDe, monedaDelMercado } from "@/lib/mercado/moneda";
 import { zonaPorSlug } from "@/lib/entrega/zonas";
 import { revisarTopeAlPublicar } from "@/lib/ganar/planes";
+import {
+  faltaEnSeguridad,
+  hayAlgoDeSeguridad,
+  pideSeguridadUe,
+  seguridadDelFormulario,
+} from "@/lib/productos/seguridad";
 import { mensajes } from "@/lib/mensajes";
 import {
   depositos,
   imagenesProducto,
   medidasProducto,
   productos,
+  seguridadProducto,
   tiendas,
   variantesProducto,
 } from "@/lib/db/schema";
@@ -243,6 +250,17 @@ export async function guardarProducto(
     .where(eq(tiendas.id, tiendaId));
   const moneda = monedaDelMercado(mercadoPorCodigo(vitrina?.mercado));
 
+  /* ESPAÑA: QUIÉN FABRICA EL PRODUCTO (Reglamento UE 2023/988, art. 19).
+     Sin el fabricante y cómo escribirle, no se publica en España. Se puede
+     guardar como borrador sin eso. */
+  const seguridad = pideSeguridadUe(vitrina?.mercado)
+    ? seguridadDelFormulario(Object.fromEntries(formulario))
+    : null;
+  if (seguridad && d.estado === "publicado") {
+    const falta = faltaEnSeguridad(seguridad);
+    if (falta) return { ok: false, mensaje: t(falta) };
+  }
+
   const precioBaseCentavos = aCentavos(d.precio, moneda);
   if (precioBaseCentavos === null || precioBaseCentavos <= 0) {
     return { ok: false, mensaje: t("precioMayorQueCero") };
@@ -353,6 +371,23 @@ export async function guardarProducto(
       moneda: "USD",
       creadoEn: ahora,
     });
+  }
+
+  /* Una fila por producto; se escribe al guardar, nunca al mirar. */
+  if (seguridad && productoId && hayAlgoDeSeguridad(seguridad)) {
+    const fila = {
+      fabricanteNombre: seguridad.fabricanteNombre,
+      fabricanteDireccion: seguridad.fabricanteDireccion,
+      fabricanteCorreo: seguridad.fabricanteCorreo,
+      responsableUe: seguridad.responsableUe || null,
+      advertenciasEs: seguridad.advertenciasEs || null,
+      advertenciasEn: seguridad.advertenciasEn || null,
+      actualizadoEn: ahora,
+    };
+    await db
+      .insert(seguridadProducto)
+      .values({ productoId, ...fila })
+      .onConflictDoUpdate({ target: seguridadProducto.productoId, set: fila });
   }
 
   // Las fotos nuevas se suman a las que ya tenga.

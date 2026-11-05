@@ -166,6 +166,24 @@ export default function Producto() {
             <Text style={estilos.descripcion}>{f.descripcion}</Text>
           </>
         ) : null}
+        {f.seguridad ? (
+          <>
+            <Text style={estilos.subtitulo}>
+              {texto(idioma, "fabricanteYSeguridad")}
+            </Text>
+            <Text style={estilos.descripcion}>{f.seguridad.fabricante}</Text>
+            {f.seguridad.responsableUe ? (
+              <Text style={estilos.descripcion}>
+                {f.seguridad.responsableUe}
+              </Text>
+            ) : null}
+            {f.seguridad.advertencias ? (
+              <Text style={estilos.descripcion}>
+                {f.seguridad.advertencias}
+              </Text>
+            ) : null}
+          </>
+        ) : null}
       </View>
     </ScrollView>
   );

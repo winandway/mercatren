@@ -4371,3 +4371,28 @@ export const desistimientos = sqliteTable("desistimientos", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+/**
+ * LA SEGURIDAD DEL PRODUCTO EN LA UNIÓN EUROPEA (5 nov 2026, Fase 5: España).
+ *
+ * El Reglamento (UE) 2023/988, art. 19, obliga a que la oferta en línea diga
+ * quién fabrica el producto (nombre y dirección postal y electrónica), la
+ * persona responsable en la UE si el fabricante es de fuera, y las
+ * advertencias de seguridad en el idioma del comprador. Solo se pide a las
+ * tiendas de España. Tabla nueva, no columnas (`schema.sql` solo crea tablas).
+ */
+export const seguridadProducto = sqliteTable("seguridad_producto", {
+  productoId: text("producto_id")
+    .primaryKey()
+    .references(() => productos.id, { onDelete: "cascade" }),
+  fabricanteNombre: text("fabricante_nombre").notNull(),
+  fabricanteDireccion: text("fabricante_direccion").notNull(),
+  fabricanteCorreo: text("fabricante_correo").notNull(),
+  /** Solo si el fabricante está fuera de la UE: nombre, dirección y correo. */
+  responsableUe: text("responsable_ue"),
+  advertenciasEs: text("advertencias_es"),
+  advertenciasEn: text("advertencias_en"),
+  actualizadoEn: integer("actualizado_en", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});

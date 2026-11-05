@@ -1,3 +1,4 @@
+import { seguridadDelProducto } from "@/lib/productos/seguridad-consultas";
 import {
   contextoDe,
   fichaParaApp,
@@ -25,9 +26,31 @@ export async function GET(
   try {
     const ficha = await obtenerProductoPorSlug(contexto.mercado, slug);
     if (!ficha) return respuestaDeError("no_existe", 404);
+    /* España: quién fabrica el producto (Reglamento UE 2023/988, art. 19).
+       Fuera de España no lee la base. */
+    const seguridad = await seguridadDelProducto(
+      ficha.producto.id,
+      contexto.mercado.codigo,
+    );
+    const es = contexto.idioma === "es";
     return respuestaPublica({
       ok: true,
-      producto: fichaParaApp(ficha, contexto.idioma),
+      producto: {
+        ...fichaParaApp(ficha, contexto.idioma),
+        seguridad: seguridad
+          ? {
+              fabricante: [
+                seguridad.fabricanteNombre,
+                seguridad.fabricanteDireccion,
+                seguridad.fabricanteCorreo,
+              ].join(" · "),
+              responsableUe: seguridad.responsableUe,
+              advertencias: es
+                ? seguridad.advertenciasEs
+                : (seguridad.advertenciasEn ?? seguridad.advertenciasEs),
+            }
+          : null,
+      },
     });
   } catch (fallo) {
     console.error("[app/producto]", fallo);
