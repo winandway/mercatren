@@ -50,3 +50,12 @@ cd /Users/windocellc/Mercatren.com/app-movil && EXPO_TOKEN=$(cat ~/.config/merca
 
 **Nada sube a las tiendas** hasta que Apple apruebe Divoox (orden de Gerencia)
 y el auditor de tiendas dé su APTO.
+
+### ⛔ Ninguna compilación de EAS sin permiso de Gerencia (5 nov 2026)
+
+La cuenta windoce-llc llevaba **83 compilaciones por encima de lo incluido**
+(unos 100 dólares de más). Desde el 5 nov 2026: **ningún `eas build` (ni
+`eas update`, ni `eas submit`) sin el permiso escrito de Gerencia**, ni a mano
+ni desde una tarea programada. Todo se prueba en el **simulador local**, que
+es gratis: `npm run start` en esta carpeta y la app de desarrollo ya
+instalada en el simulador.
