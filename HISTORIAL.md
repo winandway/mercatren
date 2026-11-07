@@ -62,6 +62,18 @@ la revise.
 pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
 en la máquina local y se devolvieron.
 
+## AYUDA, DEVOLUCIONES Y ENTREGA TAMBIÉN EN INGLÉS: /support, /returns Y /shipping (7 nov 2026)
+
+**Qué pasó.** Misma regla que privacidad y términos: las direcciones para EE. UU. van en inglés. `/ayuda` es la página de soporte que declaran Google Play y App Store; `/devoluciones` y `/entrega` las exige Merchant Center en el pie.
+
+**Qué se hizo.** Carpetas movidas a `(docs)/support` (con `caso/[codigo]`), `(docs)/returns` y `(docs)/shipping`. El mapa de mudanzas `src/lib/direcciones-legales.ts` ahora cubre las cinco viejas y el middleware las manda con 301, conservando idioma y resto (`/es/ayuda/caso/abc` va a `/es/support/caso/abc`), antes del cierre de la tienda. Referencias internas cambiadas (pie, encabezado, cuenta, correos de casos, mapa del sitio, llms.txt, ruta de Markdown, caché del borde, índice de Docs, artículos, ficha de App Store). La app nativa conserva sus claves (`ayuda`, `devoluciones`): `RUTA_DE_LA_PAGINA` solo cambia a dónde llevan. `/upload/ayuda`, `/datos/app/v1/entrega` y `/panel/devoluciones` NO se tocan.
+
+**Candado.** `tests/unit/direcciones-legales-en-ingles.test.ts`, comprobado en rojo (7 pruebas fallaron al volver a poner `/entrega`, quitar un 301 y renombrar una carpeta).
+
+**Comprobado en producción** (.com y .com.ve): las seis nuevas dan 200; las viejas, 301 a la nueva.
+
+**Siguen en español** (fuera del encargo): `/como-funciona`, `/nosotros`, `/transparencia`, `/vender`, `/casillero`, `/catalogo`, `/tiendas`, `/entrar`, `/olvide-mi-clave`, `/nueva-clave`.
+
 ## LAS DIRECCIONES LEGALES VAN EN INGLÉS: /privacy Y /terms (7 nov 2026)
 
 **Qué pasaba.** La regla de Richard para Estados Unidos es que las direcciones

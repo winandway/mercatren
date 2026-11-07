@@ -451,6 +451,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [AYUDA, DEVOLUCIONES Y ENTREGA TAMBIÉN EN INGLÉS: /support, /returns Y /shipping (7 nov 2026)](HISTORIAL.md#ayuda-devoluciones-y-entrega-también-en-inglés-support-returns-y-shipping-7-nov-2026)
 - [LAS DIRECCIONES LEGALES VAN EN INGLÉS: /privacy Y /terms (7 nov 2026)](HISTORIAL.md#las-direcciones-legales-van-en-inglés-privacy-y-terms-7-nov-2026)
 - [EL CASILLERO, CERRADO HASTA NUEVO AVISO (7 nov 2026)](HISTORIAL.md#el-casillero-cerrado-hasta-nuevo-aviso-7-nov-2026)
 - [LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON (7 nov 2026)](HISTORIAL.md#los-productos-de-los-comercios-volvieron-7-nov-2026)
