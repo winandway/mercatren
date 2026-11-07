@@ -71,8 +71,8 @@ export const FIJAS: ReadonlyArray<readonly [string, number, Frecuencia]> = [
      encontrables. */
   ["/entrega", 0.6, "monthly"],
   ["/devoluciones", 0.6, "monthly"],
-  ["/terminos", 0.4, "yearly"],
-  ["/privacidad", 0.4, "yearly"],
+  ["/terms", 0.4, "yearly"],
+  ["/privacy", 0.4, "yearly"],
 ];
 
 /** Lo que XML no soporta crudo. `&` primero o se escaparía dos veces. */

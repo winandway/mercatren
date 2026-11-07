@@ -73,8 +73,8 @@ export const ENLACES_FIJOS: {
     href: "/llms.txt",
     externo: true,
   },
-  { seccion: "legal", clave: "terminos", href: "/terminos" },
-  { seccion: "legal", clave: "privacidad", href: "/privacidad" },
+  { seccion: "legal", clave: "terminos", href: "/terms" },
+  { seccion: "legal", clave: "privacidad", href: "/privacy" },
   { seccion: "legal", clave: "borrarCuenta", href: "/delete-account" },
 ];
 

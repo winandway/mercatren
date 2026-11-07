@@ -92,8 +92,8 @@ describe("la tienda cerrada", () => {
       "/es/tiendas",
       "/es/carrito",
       "/en/checkout",
-      "/es/privacidad-falsa",
-      "/es/terminosx",
+      "/es/privacy-falsa",
+      "/es/termsx",
     ]) {
       expect(abiertaConTiendaCerrada(ruta), ruta).toBe(false);
     }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 
 import { PaginaDeContenido } from "@/components/paginas/pagina-contenido";
-import { TERMINOS_EN, TERMINOS_ES } from "@/contenido/paginas/terminos";
+import { PRIVACIDAD_EN, PRIVACIDAD_ES } from "@/contenido/paginas/privacidad";
 import { conLegalesDelPais } from "@/contenido/paginas/legales-por-pais";
 import { paraElMercado } from "@/contenido/paginas/por-mercado";
 import { routing } from "@/i18n/routing";
@@ -13,7 +13,7 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const RUTA = "/terminos";
+const RUTA = "/privacy";
 
 /** Cada país enseña sus secciones (España, Venezuela): ver `por-mercado.ts`. */
 async function contenido(locale: string) {
@@ -21,8 +21,11 @@ async function contenido(locale: string) {
   /* Y, al final, las secciones legales propias del país (España,
      Venezuela) cuando estén listas: ver `legales-por-pais.ts`. */
   return conLegalesDelPais(
-    paraElMercado(locale === "en" ? TERMINOS_EN : TERMINOS_ES, mercado.codigo),
-    "terminos",
+    paraElMercado(
+      locale === "en" ? PRIVACIDAD_EN : PRIVACIDAD_ES,
+      mercado.codigo,
+    ),
+    "privacidad",
     mercado.codigo,
     locale === "en" ? "en" : "es",
   );
@@ -50,7 +53,7 @@ export async function generateMetadata({
   };
 }
 
-/** Los terminos y condiciones del servicio. */
+/** La politica de privacidad. */
 export default async function Pagina({
   params,
 }: {

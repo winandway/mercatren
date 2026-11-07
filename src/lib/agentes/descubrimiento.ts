@@ -79,7 +79,7 @@ export function recursoProtegido(base?: string) {
     bearer_methods_supported: ["header"],
     scopes_supported: ["cobros", "catalogo"],
     resource_documentation: r.authMd,
-    resource_policy_uri: `${r.base}/es/terminos`,
+    resource_policy_uri: `${r.base}/es/terms`,
   };
 }
 

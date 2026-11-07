@@ -238,7 +238,7 @@ export function FormularioRegistro({
           {t.rich("aceptoTerminos", {
             terminos: (texto) => (
               <Link
-                href="/terminos"
+                href="/terms"
                 target="_blank"
                 className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
               >
@@ -247,7 +247,7 @@ export function FormularioRegistro({
             ),
             privacidad: (texto) => (
               <Link
-                href="/privacidad"
+                href="/privacy"
                 target="_blank"
                 className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
               >

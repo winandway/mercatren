@@ -10,6 +10,7 @@ import {
 } from "@/lib/mercado/mudados";
 
 import { routing } from "./i18n/routing";
+import { direccionLegalNueva } from "./lib/direcciones-legales";
 import { esRutaSoloEquipo } from "./lib/panel/solo-equipo";
 import {
   abiertaConTiendaCerrada,
@@ -47,6 +48,16 @@ function quiereMarkdown(request: NextRequest): boolean {
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  /* ══ LAS DIRECCIONES LEGALES VIEJAS → LAS EN INGLÉS, CON 301 ══ Declaradas
+     en Google Play y App Store Connect: antes que todo, incluso que el cierre
+     de la tienda. Ver `lib/direcciones-legales.ts`. */
+  const legalNueva = direccionLegalNueva(pathname);
+  if (legalNueva) {
+    const destino = request.nextUrl.clone();
+    destino.pathname = legalNueva;
+    return NextResponse.redirect(destino, 301);
+  }
 
   /* ══ LA TIENDA CERRADA (5 nov 2026) ══ Mercatren está en pausa: todo
      contesta la página de «cerrado», menos las páginas legales y de ayuda

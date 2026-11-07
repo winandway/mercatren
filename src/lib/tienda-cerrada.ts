@@ -29,19 +29,19 @@ export const TIENDA_CERRADA = false;
  * Lo que responde con la tienda cerrada, en los dos idiomas y también sin el
  * idioma delante (esas direcciones solo redirigen al idioma):
  *
- * - `privacidad`, `terminos`, `delete-account` y `ayuda` (con sus casos):
+ * - `privacy`, `terms`, `delete-account` y `ayuda` (con sus casos):
  *   las que declaramos en Google Play y en App Store Connect.
  * - `entrar`, `olvide-mi-clave` y `nueva-clave`: borrar la cuenta exige haber
  *   entrado, y Google pide que se pueda hacer desde la web.
  * - `panel`: el equipo tiene que poder trabajar (detrás de su sesión).
  */
 const SIEMPRE_ABIERTA =
-  /^(?:\/(?:es|en))?\/(?:privacidad|terminos|delete-account|ayuda|entrar|olvide-mi-clave|nueva-clave|panel)(?:\/.*)?$/;
+  /^(?:\/(?:es|en))?\/(?:privacy|terms|delete-account|ayuda|entrar|olvide-mi-clave|nueva-clave|panel)(?:\/.*)?$/;
 
 /** Las páginas legales declaradas en las tiendas, para el candado. */
 export const PAGINAS_LEGALES = [
-  "privacidad",
-  "terminos",
+  "privacy",
+  "terms",
   "delete-account",
   "ayuda",
 ] as const;
@@ -65,8 +65,8 @@ const TEXTOS = {
     texto:
       "Estamos preparando la tienda de nuevo. Mientras tanto, estas páginas siguen disponibles:",
     enlaces: [
-      ["privacidad", "Política de privacidad"],
-      ["terminos", "Términos y condiciones"],
+      ["privacy", "Política de privacidad"],
+      ["terms", "Términos y condiciones"],
       ["delete-account", "Borrar mi cuenta"],
       ["ayuda", "Ayuda"],
     ],
@@ -78,8 +78,8 @@ const TEXTOS = {
     texto:
       "We’re getting the store ready again. In the meantime, these pages are still available:",
     enlaces: [
-      ["privacidad", "Privacy Policy"],
-      ["terminos", "Terms and Conditions"],
+      ["privacy", "Privacy Policy"],
+      ["terms", "Terms and Conditions"],
       ["delete-account", "Delete my account"],
       ["ayuda", "Help"],
     ],

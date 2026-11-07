@@ -79,14 +79,14 @@ describe("la guía de cada país, escrita y escondida", () => {
 describe("los textos legales del país, desde la app", () => {
   it("Venezuela abre los de su dominio", () => {
     expect(destinoLegal("VE", "es", "terminos")).toMatchObject({
-      destino: "https://mercatren.com.ve/es/terminos",
+      destino: "https://mercatren.com.ve/es/terms",
       cookie: "nada",
     });
   });
 
   it("España se abre dentro de mercatren.com, con su país puesto", () => {
     expect(destinoLegal("ES", "en", "privacidad")).toMatchObject({
-      destino: "/en/privacidad",
+      destino: "/en/privacy",
       cookie: "poner",
     });
   });
@@ -118,7 +118,7 @@ describe("los textos legales del país, desde la app", () => {
       ),
     );
     expect(r.status).toBe(303);
-    expect(r.headers.get("Location")).toBe("/es/terminos");
+    expect(r.headers.get("Location")).toBe("/es/terms");
     expect(r.headers.get("Set-Cookie")).toContain("mercatren_pais=ES");
     expect(r.headers.get("Cache-Control")).toBe("no-store");
   });
@@ -140,7 +140,7 @@ describe("los textos legales del país, desde la app", () => {
 
   it("términos y privacidad enseñan las secciones del país de la visita", () => {
     const leer = (r: string) => readFileSync(join(RAIZ, r), "utf-8");
-    for (const pagina of ["terminos", "privacidad"]) {
+    for (const pagina of ["terms", "privacy"]) {
       const fuente = leer(
         `src/app/[locale]/(tienda)/(docs)/${pagina}/page.tsx`,
       );

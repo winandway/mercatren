@@ -55,8 +55,8 @@ const SECCIONES = [
       { clave: "blog", href: "/blog" },
       { clave: "videos", href: "/videos" },
       { clave: "transparencia", href: "/transparencia" },
-      { clave: "terminos", href: "/terminos" },
-      { clave: "privacidad", href: "/privacidad" },
+      { clave: "terminos", href: "/terms" },
+      { clave: "privacidad", href: "/privacy" },
     ],
   },
 ] as const;

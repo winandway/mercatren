@@ -81,8 +81,8 @@ describe("qué páginas se guardan en el borde", () => {
       "/es/docs/modelo-de-negocio",
       "/es/entrega",
       "/es/nosotros",
-      "/es/privacidad",
-      "/es/terminos",
+      "/es/privacy",
+      "/es/terms",
       "/es/transparencia",
       "/es/vender",
     ]) {

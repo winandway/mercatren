@@ -53,8 +53,8 @@ const PAGINAS: Record<string, { es: PaginaContenido; en: PaginaContenido }> = {
   "vender/comisiones": { es: COMISIONES_ES, en: COMISIONES_EN },
   entrega: { es: ENTREGA_ES, en: ENTREGA_EN },
   devoluciones: { es: DEVOLUCIONES_ES, en: DEVOLUCIONES_EN },
-  terminos: { es: TERMINOS_ES, en: TERMINOS_EN },
-  privacidad: { es: PRIVACIDAD_ES, en: PRIVACIDAD_EN },
+  terms: { es: TERMINOS_ES, en: TERMINOS_EN },
+  privacy: { es: PRIVACIDAD_ES, en: PRIVACIDAD_EN },
 };
 
 /** Las páginas cuyo texto vive en un namespace de `messages/*.json`. */
@@ -260,10 +260,14 @@ export async function GET(peticion: Request) {
       md = paginaAMarkdown(
         /* Lo mismo que la página: las secciones legales propias del país,
            cuando estén listas (`legales-por-pais.ts`). */
-        ruta === "terminos" || ruta === "privacidad" || ruta === "devoluciones"
+        ruta === "terms" || ruta === "privacy" || ruta === "devoluciones"
           ? conLegalesDelPais(
               dePais,
-              ruta,
+              ruta === "terms"
+                ? "terminos"
+                : ruta === "privacy"
+                  ? "privacidad"
+                  : ruta,
               codigo,
               locale === "en" ? "en" : "es",
             )

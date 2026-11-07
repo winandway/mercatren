@@ -258,7 +258,7 @@ describe("el botón de pagar en España dice que se paga", () => {
 describe("las páginas y la versión para agentes usan la misma pieza", () => {
   it("términos, privacidad y el Markdown", () => {
     const leer = (r: string) => readFileSync(join(RAIZ, r), "utf-8");
-    for (const p of ["terminos", "privacidad", "devoluciones"]) {
+    for (const p of ["terms", "privacy", "devoluciones"]) {
       expect(
         leer(`src/app/[locale]/(tienda)/(docs)/${p}/page.tsx`),
         p,

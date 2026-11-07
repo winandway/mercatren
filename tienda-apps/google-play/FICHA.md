@@ -15,7 +15,7 @@
 | Categoría                      | Compras (Shopping)                                       |
 | Correo de contacto             | hola@mercatren.com                                       |
 | Sitio web                      | https://mercatren.com                                    |
-| Política de privacidad         | https://mercatren.com/en/privacidad                      |
+| Política de privacidad         | https://mercatren.com/en/privacy                         |
 | Borrar la cuenta (Data safety) | https://mercatren.com/en/delete-account                  |
 | Países                         | Solo Estados Unidos (el .com vende solo allí)            |
 | Anuncios                       | No tiene                                                 |
@@ -124,7 +124,7 @@ script para rehacerlas están en `fuente/`):
 
 | Sección                    | Respuesta                                                                                                                      | Estado      |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------- |
-| Política de privacidad     | https://mercatren.com/en/privacidad                                                                                            | Guardada    |
+| Política de privacidad     | https://mercatren.com/en/privacy                                                                                               | Guardada    |
 | Anuncios                   | No tiene                                                                                                                       | Guardada    |
 | ID de publicidad           | No lo usa (la app no pide `AD_ID`)                                                                                             | Guardada    |
 | Apps gubernamentales       | No                                                                                                                             | Guardada    |

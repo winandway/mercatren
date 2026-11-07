@@ -99,7 +99,7 @@ export const ARTICULOS_EN: Articulo[] = [
         texto: "Sell from your phone with the Mercatren app",
         href: "/docs/sell-with-the-mercatren-app",
       },
-      { texto: "Terms and conditions", href: "/terminos" },
+      { texto: "Terms and conditions", href: "/terms" },
     ],
   },
   {
@@ -183,7 +183,7 @@ export const ARTICULOS_EN: Articulo[] = [
     enlaces: [
       { texto: "Sell on Mercatren", href: "/vender" },
       { texto: "Returns", href: "/devoluciones" },
-      { texto: "Terms and conditions", href: "/terminos" },
+      { texto: "Terms and conditions", href: "/terms" },
     ],
   },
   {

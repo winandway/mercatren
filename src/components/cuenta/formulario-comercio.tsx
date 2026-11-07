@@ -247,7 +247,7 @@ export function FormularioComercio({
           {t.rich("aceptoTerminosComercio", {
             terminos: (texto) => (
               <Link
-                href="/terminos"
+                href="/terms"
                 target="_blank"
                 className="font-semibold text-riel-700 underline underline-offset-2 hover:text-carga-600"
               >

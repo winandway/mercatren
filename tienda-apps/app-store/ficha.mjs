@@ -34,7 +34,7 @@ const TEXTOS = {
   "en-US": {
     name: "Mercatren: Shop U.S. Stores",
     subtitle: "Shop U.S. stores in one place",
-    privacyPolicyUrl: "https://mercatren.com/en/privacidad",
+    privacyPolicyUrl: "https://mercatren.com/en/privacy",
     supportUrl: "https://mercatren.com/en/ayuda",
     promotionalText:
       "Shop thousands of products from U.S. stores, delivered to your door.",
@@ -65,7 +65,7 @@ Mercatren LLC · Novi, Michigan, USA`,
   "es-MX": {
     name: "Mercatren: tiendas de EE. UU.",
     subtitle: "Tiendas de EE. UU. en un lugar",
-    privacyPolicyUrl: "https://mercatren.com/es/privacidad",
+    privacyPolicyUrl: "https://mercatren.com/es/privacy",
     supportUrl: "https://mercatren.com/es/ayuda",
     promotionalText:
       "Compra miles de productos de tiendas de EE. UU. y recíbelos en tu puerta.",

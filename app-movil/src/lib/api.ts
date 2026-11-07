@@ -100,7 +100,7 @@ export function urlClicPromocion(): string {
 
 /**
  * Las páginas legales y de ayuda DEL PAÍS de la persona: el servidor la lleva
- * a la de su país (`/datos/app/v1/legal`). Abrir `/{idioma}/terminos` a secas
+ * a la de su país (`/datos/app/v1/legal`). Abrir la dirección de los términos a secas
  * enseñaba siempre las de Estados Unidos.
  */
 export type PaginaLegal = "terminos" | "privacidad" | "ayuda" | "devoluciones";

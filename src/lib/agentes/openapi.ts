@@ -23,7 +23,7 @@ export function openapiDeMercatren(base?: string) {
         "Catálogo público, búsqueda, servidor MCP y la API de socios para cobrar por enlace y sincronizar catálogos.",
       description: `Mercatren es un marketplace operado por ${r.sociedad} (Michigan, Estados Unidos): compradores en Estados Unidos pagan con tarjeta o Zelle y la mercancía se retira en comercios de Venezuela o se despacha en Estados Unidos. Las rutas públicas no necesitan credenciales. Las rutas de socios usan un token de tienda (Bearer) que entrega el equipo de Mercatren al vincular la tienda.`,
       contact: { name: "Mercatren", email: r.contacto, url: r.comoFunciona },
-      termsOfService: `${r.base}/es/terminos`,
+      termsOfService: `${r.base}/es/terms`,
     },
     servers: [{ url: r.base }],
     externalDocs: { description: "Documentación", url: r.docs },

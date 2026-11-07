@@ -44,6 +44,19 @@ export function esPaginaLegal(valor: unknown): valor is PaginaLegal {
   );
 }
 
+/**
+ * La dirección PÚBLICA de cada página (7 nov 2026): en inglés, como
+ * manda la regla para Estados Unidos. La clave de arriba ("terminos",
+ * "privacidad") es el nombre que ya mandan las apps publicadas a
+ * `/datos/app/v1/legal`: no cambia. Solo cambia a dónde lleva.
+ */
+export const RUTA_DE_LA_PAGINA: Record<PaginaLegal, string> = {
+  terminos: "terms",
+  privacidad: "privacy",
+  ayuda: "ayuda",
+  devoluciones: "devoluciones",
+};
+
 export function destinoLegal(
   codigo: string | null | undefined,
   idioma: Idioma,
@@ -57,13 +70,13 @@ export function destinoLegal(
 
   if (!viveDentro && !esMercadoPrincipal(mercado)) {
     return {
-      destino: `https://${mercado.dominio}/${idioma}/${pagina}`,
+      destino: `https://${mercado.dominio}/${idioma}/${RUTA_DE_LA_PAGINA[pagina]}`,
       cookie: "nada",
       mercado,
     };
   }
   return {
-    destino: `/${idioma}/${pagina}`,
+    destino: `/${idioma}/${RUTA_DE_LA_PAGINA[pagina]}`,
     cookie: esMercadoPrincipal(mercado) ? "quitar" : "poner",
     mercado,
   };

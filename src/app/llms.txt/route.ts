@@ -127,7 +127,7 @@ ${listaComercios}
 
 - Correo: ${CORREO_CONTACTO}
 - [Ayuda](${base}/es/ayuda) · [Devoluciones](${base}/es/devoluciones)
-- [Términos](${base}/es/terminos) · [Privacidad](${base}/es/privacidad)
+- [Términos](${base}/es/terms) · [Privacidad](${base}/es/privacy)
 `;
     return new Response(texto, {
       headers: {
@@ -223,7 +223,7 @@ Declarado en \`robots.txt\` con \`Content-Signal\`:
 - Correo: ${CORREO_CONTACTO}
 - [Ayuda](${SITIO.url}/es/ayuda) · [Devoluciones](${SITIO.url}/es/devoluciones)
   · [Entrega](${SITIO.url}/es/entrega)
-- [Términos](${SITIO.url}/es/terminos) · [Privacidad](${SITIO.url}/es/privacidad)
+- [Términos](${SITIO.url}/es/terms) · [Privacidad](${SITIO.url}/es/privacy)
 `;
 
   return new Response(texto, {
