@@ -1,8 +1,9 @@
 import { Image } from "expo-image";
-import { useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,6 +13,8 @@ import {
 } from "react-native";
 
 import { BotonPrincipal } from "@/components/formulario";
+import { HojaDenuncia } from "@/components/hoja-denuncia";
+import { MenuTresPuntos } from "@/components/menu-tres-puntos";
 import { useCarrito } from "@/contexto/carrito";
 import { usePreferencias } from "@/contexto/preferencias";
 import {
@@ -21,8 +24,10 @@ import {
   urlProducto,
   type FichaApp,
 } from "@/lib/api";
+import { authClient, cabeceraDeSesion } from "@/lib/auth-client";
 import { COLORES } from "@/lib/colores";
 import { precioTexto } from "@/lib/dinero";
+import { enviar, urlBloquear, type ObjetivoDenuncia } from "@/lib/moderacion";
 import { texto } from "@/lib/textos";
 
 type Estado =
@@ -40,12 +45,18 @@ export default function Producto() {
   const { width } = useWindowDimensions();
   const [estado, setEstado] = useState<Estado>({ tipo: "cargando" });
   const [intento, setIntento] = useState(0);
+  const { data: sesion } = authClient.useSession();
+  const [denunciando, setDenunciando] = useState<ObjetivoDenuncia | null>(null);
 
   useEffect(() => {
     if (!pais || !slug) return;
     let vivo = true;
     setEstado({ tipo: "cargando" });
-    pedirJson<{ producto: FichaApp }>(urlProducto(slug, pais, idioma))
+    /* Con sesión se manda la cookie: así el servidor esconde lo que esta
+       persona bloqueó (sin cookie la respuesta es la pública de siempre). */
+    pedirJson<{ producto: FichaApp }>(urlProducto(slug, pais, idioma), fetch, {
+      headers: cabeceraDeSesion(),
+    })
       .then((r) => vivo && setEstado({ tipo: "listo", ficha: r.producto }))
       .catch((fallo) => {
         if (!vivo) return;
@@ -88,8 +99,91 @@ export default function Producto() {
   }
 
   const f = estado.ficha;
+
+  /* Denunciar y bloquear piden cuenta (la denuncia lleva nombre para que no
+     la llenen robots): sin sesión se lleva a entrar. */
+  const conSesion = (accion: () => void) => {
+    if (sesion?.user) accion();
+    else {
+      Alert.alert(texto(idioma, "reportNeedsSignIn"), undefined, [
+        { text: texto(idioma, "cancelar"), style: "cancel" },
+        {
+          text: texto(idioma, "entrar"),
+          onPress: () => router.push("/entrar"),
+        },
+      ]);
+    }
+  };
+  const bloquear = () =>
+    conSesion(() =>
+      Alert.alert(texto(idioma, "blockTitle"), texto(idioma, "blockExplain"), [
+        { text: texto(idioma, "cancelar"), style: "cancel" },
+        {
+          text: texto(idioma, "blockSeller"),
+          style: "destructive",
+          onPress: async () => {
+            const r = await enviar(
+              urlBloquear(pais ?? "US", idioma),
+              { tipo: "tienda", id: f.tienda.slug },
+              cabeceraDeSesion(),
+            );
+            if (r.ok) {
+              Alert.alert(texto(idioma, "blockDone"));
+              router.back();
+            } else {
+              Alert.alert(texto(idioma, r.clave));
+            }
+          },
+        },
+      ]),
+    );
+
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <MenuTresPuntos
+              etiqueta={texto(idioma, "masOpciones")}
+              opciones={[
+                {
+                  texto: texto(idioma, "reportProduct"),
+                  alTocar: () =>
+                    conSesion(() =>
+                      setDenunciando({
+                        tipo: "producto",
+                        id: f.id,
+                        nombre: f.titulo,
+                      }),
+                    ),
+                },
+                {
+                  texto: texto(idioma, "reportStore"),
+                  alTocar: () =>
+                    conSesion(() =>
+                      setDenunciando({
+                        tipo: "tienda",
+                        id: f.tienda.slug,
+                        nombre: f.tienda.nombre,
+                      }),
+                    ),
+                },
+                {
+                  texto: texto(idioma, "blockSeller"),
+                  destructiva: true,
+                  alTocar: bloquear,
+                },
+              ]}
+            />
+          ),
+        }}
+      />
+      <HojaDenuncia
+        objetivo={denunciando}
+        pais={pais ?? "US"}
+        idioma={idioma}
+        alCerrar={() => setDenunciando(null)}
+      />
       <ScrollView
         horizontal
         pagingEnabled

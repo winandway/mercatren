@@ -118,6 +118,19 @@ export default function Cuenta() {
               <Text style={estilos.flecha}>›</Text>
             </Pressable>
           ) : null}
+          {sesion?.user ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push("/bloqueados")}
+              style={[estilos.fila, estilos.abajo]}
+            >
+              <Text style={estilos.etiqueta}>
+                {texto(idioma, "blockedSellers")}
+              </Text>
+              <View style={{ flex: 1 }} />
+              <Text style={estilos.flecha}>›</Text>
+            </Pressable>
+          ) : null}
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push("/cambiar-pais")}

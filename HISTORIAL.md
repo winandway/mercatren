@@ -15,6 +15,44 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## DENUNCIAR Y BLOQUEAR EN LA APP NATIVA, PARA GOOGLE PLAY (6 nov 2026)
+
+**Por qué:** el auditor de tiendas dio NO APTO: la política de contenido de
+usuarios exige poder denunciar y bloquear DENTRO de la app, y aquí cualquiera
+abre su tienda y sube productos. La ficha de Play ya lo había declarado.
+
+**Qué hay:** núcleo único `lib/moderacion/nucleo.ts` (lo usan la web, por
+`acciones.ts`, y la app); tipos nuevos `producto` y `tienda` (autor = dueño de
+la tienda); rutas privadas `/datos/app/mi/denunciar`, `/bloquear` y
+`/bloqueos` (ver y deshacer); sesión obligatoria ANTES de leer el cuerpo
+(sin sesión: 401 «sesion»), zod, `private, no-store`. La denuncia queda en su
+tabla y avisa al equipo por correo; con tres abiertas se oculta para todos.
+El tope de intentos del proyecto es el de la entrada (login) y no sirve aquí:
+el límite real es el índice único (una persona denuncia una vez lo mismo).
+
+**Qué se esconde:** catálogo, búsqueda y ficha de `/datos/app/v1` quitan lo
+denunciado tres veces y lo de los vendedores que quien mira bloqueó
+(`lib/moderacion/para-la-app.ts`). Sin cookie no se lee ningún bloqueo y la
+respuesta sigue siendo la que guarda el borde; con cookie el borde no la
+guarda (regla de `cache-del-borde.ts`), así que la lista de uno no se la lleva
+otro. La app manda la cookie en catálogo y ficha. Lo denunciado tres veces
+solo se oculta en la app; la web no enseña «Denunciar» en productos.
+
+**App:** tres puntos en la ficha (Denunciar producto, Denunciar tienda,
+Bloquear a este vendedor), hoja de motivos, gracias, «Cuenta → Vendedores
+bloqueados» para deshacer. La app no tiene preguntas ni comentarios, por eso
+no hay «Denunciar» en preguntas (el servidor ya acepta el tipo).
+`nuevo-producto` redirige a entrar o a crear tienda (el alta ya pedía los
+términos).
+
+**Fallo real al probar en el simulador:** en iPhone la alerta de «sin sesión»
+no salía: se abría mientras el menú de tres puntos aún se cerraba y se perdía.
+`MenuTresPuntos` ahora espera a que cierre antes de actuar.
+
+**Candados:** `tests/unit/app-movil-moderacion.test.ts` (comprobado en rojo
+con seis fallos metidos a propósito). Capturas: `docs/capturas/app-moderacion-*`.
+Paquete de Android versionCode 11 compilado en local, sin EAS.
+
 ## FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)
 
 **Qué se hizo** (detalle en `docs/FASE-5-PAISES-EN-LA-APP.md`): la entrega

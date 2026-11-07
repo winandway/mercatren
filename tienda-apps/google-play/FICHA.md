@@ -28,29 +28,27 @@
 Mercatren: Shop U.S. Stores
 ```
 
-**Descripción corta** (68/80)
+**Descripción corta** (58/80)
 
 ```
-Shop thousands of products from U.S. stores, delivered to your door.
+Shop from independent U.S. stores, delivered to your door.
 ```
 
-**Descripción completa** (1241/4000)
+**Descripción completa** (1124/4000)
 
 ```
-Mercatren brings independent stores and thousands of products together in one place. Browse, compare, and check out securely with your card. Every order is sold and invoiced by Mercatren LLC, a U.S. company based in Michigan.
+Mercatren brings independent stores together in one place. Browse, compare, and check out securely with your card. Every order is sold and invoiced by Mercatren LLC, a U.S. company based in Michigan.
 
 WHAT YOU CAN DO
-• Shop thousands of products in electronics, home, fashion, beauty, pets, and more.
-• Search with a photo: take or upload a picture and find similar products.
-• Discover stores through short videos.
+• Browse and search products from independent stores.
 • See the full price up front, with shipping included where it applies. No surprises at checkout.
 • Pay securely with your credit or debit card.
 • Follow every order from payment to delivery, with the tracking number right in your account.
-• Get your own Miami locker address to receive purchases from other online stores.
-• Open your own store and start selling, with the same account.
+• Open your own store and sell with the same account: add products with your phone's camera.
+• Report a product or a store, and block a seller, right from the product page. You can see and undo your blocks in Account.
 
 WHY MERCATREN
-• One account to shop, track orders, use your locker, and sell.
+• One account to shop, track orders, and sell.
 • Clear prices and a documented record of every purchase.
 • Fully bilingual: use the app in English or Spanish.
 • A real team behind it. Questions? Write to hola@mercatren.com.
@@ -69,29 +67,27 @@ Mercatren LLC · Novi, Michigan, USA
 Mercatren: tiendas de EE. UU.
 ```
 
-**Descripción corta** (73/80)
+**Descripción corta** (68/80)
 
 ```
-Compra miles de productos de tiendas de EE. UU. y recíbelos en tu puerta.
+Compra en tiendas independientes de EE. UU. y recíbelo en tu puerta.
 ```
 
-**Descripción completa** (1309/4000)
+**Descripción completa** (1185/4000)
 
 ```
-Mercatren reúne tiendas independientes y miles de productos en un solo lugar. Mira, compara y paga con tu tarjeta de forma segura. Cada pedido lo vende y lo factura Mercatren LLC, una empresa de Estados Unidos con sede en Michigan.
+Mercatren reúne tiendas independientes en un solo lugar. Mira, compara y paga con tu tarjeta de forma segura. Cada pedido lo vende y lo factura Mercatren LLC, una empresa de Estados Unidos con sede en Michigan.
 
 LO QUE PUEDES HACER
-• Comprar miles de productos de electrónica, hogar, moda, belleza, mascotas y más.
-• Buscar con una foto: toma o sube una imagen y encuentra productos parecidos.
-• Descubrir tiendas en videos cortos.
+• Ver y buscar productos de tiendas independientes.
 • Ver el precio completo desde el principio, con el envío incluido donde aplica. Sin sorpresas al pagar.
 • Pagar de forma segura con tu tarjeta de crédito o débito.
 • Seguir cada pedido desde el pago hasta la entrega, con el número de guía en tu cuenta.
-• Tener tu propia dirección de casillero en Miami para recibir compras de otras tiendas en línea.
-• Abrir tu propia tienda y empezar a vender, con la misma cuenta.
+• Abrir tu propia tienda y vender con la misma cuenta: sube productos con la cámara del celular.
+• Denunciar un producto o una tienda y bloquear a un vendedor, desde la ficha del producto. Ves y deshaces tus bloqueos en Cuenta.
 
 POR QUÉ MERCATREN
-• Una sola cuenta para comprar, seguir tus pedidos, usar tu casillero y vender.
+• Una sola cuenta para comprar, seguir tus pedidos y vender.
 • Precios claros y un registro documentado de cada compra.
 • Totalmente bilingüe: usa la app en español o en inglés.
 • Un equipo real detrás. ¿Preguntas? Escríbenos a hola@mercatren.com.
@@ -165,7 +161,7 @@ persona). Ninguno efímero.
 ### Detalles de acceso: lo que va en la casilla de instrucciones
 
 ```
-Browsing the catalog, search (including search by photo), product pages, store videos and the cart work without signing in. Sign in with the account above to test checkout, order tracking (My orders), the Miami locker and account deletion. Please do not complete a real card payment. To delete the account: My account > three-dot menu > Delete my account, then type DELETE. The same page is available at https://mercatren.com/en/delete-account
+Browsing the catalog, search, product pages and the cart work without signing in. Sign in with the account above to test checkout, order tracking (My orders), opening a store and adding a product (camera), reporting and blocking (three-dot menu on a product page; undo blocks in Account > Blocked sellers) and account deletion. Please do not complete a real card payment. To delete the account: My account > three-dot menu > Delete my account, then type DELETE. The same page is available at https://mercatren.com/en/delete-account
 ```
 
 ## Enviada a revisión (27 oct 2026)

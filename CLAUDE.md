@@ -455,6 +455,7 @@ una cuenta un fallo real y el candado que lo tranca.
 - [LAS DIRECCIONES LEGALES VAN EN INGLÉS: /privacy Y /terms (7 nov 2026)](HISTORIAL.md#las-direcciones-legales-van-en-inglés-privacy-y-terms-7-nov-2026)
 - [EL CASILLERO, CERRADO HASTA NUEVO AVISO (7 nov 2026)](HISTORIAL.md#el-casillero-cerrado-hasta-nuevo-aviso-7-nov-2026)
 - [LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON (7 nov 2026)](HISTORIAL.md#los-productos-de-los-comercios-volvieron-7-nov-2026)
+- [DENUNCIAR Y BLOQUEAR EN LA APP NATIVA, PARA GOOGLE PLAY (6 nov 2026)](HISTORIAL.md#denunciar-y-bloquear-en-la-app-nativa-para-google-play-6-nov-2026)
 - [ESPAÑA Y VENEZUELA: LO QUE LA LEY PIDE, CONSTRUIDO (5 nov 2026, tarde)](HISTORIAL.md#españa-y-venezuela-lo-que-la-ley-pide-construido-5-nov-2026-tarde)
 - [FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)](HISTORIAL.md#fase-5-venezuela-y-españa-en-la-app-preparados-y-apagados-5-nov-2026)
 - [UNA SOLA MERCATREN: EL PAÍS VA EN LA CUENTA (5 nov 2026)](HISTORIAL.md#una-sola-mercatren-el-país-va-en-la-cuenta-5-nov-2026)

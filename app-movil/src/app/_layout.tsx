@@ -85,6 +85,10 @@ function Navegacion() {
           options={{ title: texto(idioma, "misDatos") }}
         />
         <Stack.Screen
+          name="bloqueados"
+          options={{ title: texto(idioma, "blockedSellers") }}
+        />
+        <Stack.Screen
           name="mis-ventas"
           options={{ title: texto(idioma, "misVentas") }}
         />

@@ -7,6 +7,8 @@ import {
   respuestaPublica,
 } from "@/lib/app-movil/datos";
 import { listarProductos } from "@/lib/catalogo/consultas";
+import { ocultosParaLaApp, quienMira } from "@/lib/moderacion/para-la-app";
+import { estaOcultoParaLaApp, sinOcultos } from "@/lib/moderacion/reglas";
 import { promocionadosParaMostrar } from "@/lib/ganar/promociones";
 import {
   mezclarPromocionados,
@@ -40,6 +42,23 @@ export async function GET(peticion: Request) {
   if (!filtros.success) return respuestaDeError("filtros", 400);
 
   try {
+    /* Lo denunciado tres veces no se ve, y lo de un vendedor que quien mira
+       bloqueó tampoco. Sin cookie no hay a quién esconderle bloqueos: no se
+       lee nada de ellos y la respuesta sigue siendo la que guarda el borde. */
+    const ocultos = await ocultosParaLaApp(await quienMira(peticion));
+    if (
+      filtros.data.tienda &&
+      (ocultos.tiendasBloqueadas.has(filtros.data.tienda) ||
+        ocultos.tiendasDenunciadas.has(filtros.data.tienda))
+    ) {
+      return respuestaPublica({
+        ok: true,
+        productos: [],
+        pagina: 1,
+        paginas: 1,
+        total: 0,
+      });
+    }
     const r = await listarProductos(contexto.mercado, {
       busqueda: filtros.data.q,
       pagina: filtros.data.pagina,
@@ -47,7 +66,10 @@ export async function GET(peticion: Request) {
       categoria: filtros.data.categoria,
       comercio: filtros.data.tienda,
     });
-    const lista = r.productos.map((p) => productoParaApp(p, contexto.idioma));
+    const lista = sinOcultos(
+      r.productos.map((p) => productoParaApp(p, contexto.idioma)),
+      ocultos,
+    );
     /* LOS PROMOCIONADOS (Fase 4): solo en la primera página de la portada o
        de una búsqueda, como mucho 2 de cada 12 y con su etiqueta. Mostrarlos
        no escribe nada; el clic se cuenta aparte (`/datos/promo/clic`). */
@@ -67,10 +89,12 @@ export async function GET(peticion: Request) {
                 console.error("[app/catalogo] promocionados", fallo);
                 return [];
               })
-            ).map((p) => ({
-              ...productoParaApp(p, contexto.idioma),
-              patrocinado: { promocionId: p.promocionId, firma: p.firma },
-            })),
+            )
+              .map((p) => ({
+                ...productoParaApp(p, contexto.idioma),
+                patrocinado: { promocionId: p.promocionId, firma: p.firma },
+              }))
+              .filter((p) => !estaOcultoParaLaApp(p, ocultos)),
           )
         : lista;
     return respuestaPublica({

@@ -14,18 +14,29 @@ export function useMiTienda(pais: string | null, idioma: Idioma) {
   const conSesion = Boolean(sesion?.user);
   const [datos, setDatos] = useState<RespuestaMiTienda | null>(null);
   const [vuelta, setVuelta] = useState(0);
+  /* Ya llegó la respuesta (buena o mala): distingue «todavía no sé» de «no tiene». */
+  const [cargado, setCargado] = useState(false);
 
   useEffect(() => {
     if (!pais || !conSesion) {
       setDatos(null);
+      setCargado(false);
       return;
     }
     let vivo = true;
     pedirJson<RespuestaMiTienda>(urlMiTienda(pais, idioma), fetch, {
       headers: cabeceraDeSesion(),
     })
-      .then((r) => vivo && setDatos(r))
-      .catch(() => vivo && setDatos(null));
+      .then((r) => {
+        if (!vivo) return;
+        setDatos(r);
+        setCargado(true);
+      })
+      .catch(() => {
+        if (!vivo) return;
+        setDatos(null);
+        setCargado(true);
+      });
     return () => {
       vivo = false;
     };
@@ -34,6 +45,7 @@ export function useMiTienda(pais: string | null, idioma: Idioma) {
   const recargar = useCallback(() => setVuelta((n) => n + 1), []);
   return {
     conSesion,
+    cargado,
     tienda: datos?.tienda ?? null,
     documento: datos?.documento ?? null,
     recargar,

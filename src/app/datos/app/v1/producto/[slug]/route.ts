@@ -6,6 +6,8 @@ import {
   respuestaPublica,
 } from "@/lib/app-movil/datos";
 import { obtenerProductoPorSlug } from "@/lib/catalogo/consultas";
+import { ocultosParaLaApp, quienMira } from "@/lib/moderacion/para-la-app";
+import { estaOcultoParaLaApp } from "@/lib/moderacion/reglas";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,17 @@ export async function GET(
   try {
     const ficha = await obtenerProductoPorSlug(contexto.mercado, slug);
     if (!ficha) return respuestaDeError("no_existe", 404);
+    /* Denunciado tres veces, o de un vendedor que quien mira bloqueó: para
+       esa persona no existe (sin cookie no se lee ningún bloqueo). */
+    const ocultos = await ocultosParaLaApp(await quienMira(peticion));
+    if (
+      estaOcultoParaLaApp(
+        { id: ficha.producto.id, tienda: { slug: ficha.tiendaSlug } },
+        ocultos,
+      )
+    ) {
+      return respuestaDeError("no_existe", 404);
+    }
     /* España: quién fabrica el producto (Reglamento UE 2023/988, art. 19).
        Fuera de España no lee la base. */
     const seguridad = await seguridadDelProducto(

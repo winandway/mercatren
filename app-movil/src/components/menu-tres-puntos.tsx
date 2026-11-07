@@ -52,7 +52,10 @@ export function MenuTresPuntos({
                 accessibilityRole="button"
                 onPress={() => {
                   setAbierto(false);
-                  o.alTocar();
+                  /* En iPhone, abrir una alerta u otra ventana mientras esta
+                     todavía se está cerrando la deja perdida (se vio el 6 nov
+                     2026 con «Denunciar»): se espera a que termine de cerrar. */
+                  setTimeout(o.alTocar, 450);
                 }}
                 style={[estilos.opcion, i > 0 && estilos.separada]}
               >

@@ -6,6 +6,7 @@ import {
   type PaginaCatalogo,
   type ProductoApp,
 } from "@/lib/api";
+import { cabeceraDeSesion } from "@/lib/auth-client";
 import type { Idioma } from "@/lib/dinero";
 
 type Estado = "cargando" | "listo" | "sin_conexion";
@@ -30,6 +31,10 @@ export function useCatalogo(pais: string | null, idioma: Idioma, q = "") {
       try {
         const r = await pedirJson<PaginaCatalogo>(
           urlCatalogo({ pais, idioma, q, pagina: siguiente }),
+          fetch,
+          /* Con sesión viaja la cookie y el servidor esconde lo que esta
+             persona bloqueó; sin sesión no va nada y vale la caché del borde. */
+          { headers: cabeceraDeSesion() },
         );
         if (mio !== turno.current) return;
         pagina.current = r.pagina;
