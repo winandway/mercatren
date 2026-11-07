@@ -62,6 +62,52 @@ la revise.
 pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
 en la máquina local y se devolvieron.
 
+## LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON (7 nov 2026)
+
+**Qué se rompió y cómo se veía.** El vaciado del 3 nov siguió al pie de la
+letra una orden que decía «borra TODOS los productos». Las tiendas y las
+cuentas de los comercios quedaron, pero sus productos se fueron con los de
+CJ: mercatren.com.ve se veía pelada. Richard, el 7 nov: _«había que borrar a
+CJ Dropshipping… nuestros clientes que venden sus productos dentro de nuestra
+plataforma tienen que continuar allí»_.
+
+**La causa real.** No se contó cuántos productos eran de comercios reales
+antes de borrar. Eran 1.801 de seis tiendas de Venezuela: Bley Ferretería
+(1.730), Inversiones multiservicios AC0803 (44), Brillox Steel (15), MEGAYES
+(6), MAXIUM (4) y Variedades COLOMBIA NEXT (2). Doce se habían salvado en
+borrador porque sostienen pedidos cobrados.
+
+**Qué se hizo (7 nov).**
+
+1. Respaldo fresco de la base antes de escribir: `~/Respaldos/mercatren-2026-11-07.sql`.
+2. `scripts/restaurar-productos-de-comercios.py` comparó el respaldo del 3 nov
+   con la base de hoy y escribió solo lo que faltaba: 3 categorías de Bley,
+   1.789 productos, los 12 que quedaron devueltos a como estaban, 20
+   variantes, 1.796 fotos en la base, 1.617 fotos de tarjeta, 1.789 textos
+   de búsqueda, 2 medidas y 2 alias. Probado antes en una copia local, con
+   cero llaves rotas. Aplicado con `wrangler d1 execute --remote --file`
+   (cuenta de YaDominios Cloud, `CLOUDFLARE_ACCOUNT_ID` de la cuenta de la
+   plataforma): 39.123 filas escritas.
+3. Las 1.796 fotos se volvieron a subir al cubo `site-mercatren` desde
+   `~/Respaldos/mercatren-2026-11-03-fotos/`, con su tipo de archivo
+   (`getPlatformProxy` con el cubo remoto, sin publicar ningún worker).
+4. **17 fotos no estaban en ningún lado** (ni en el respaldo ni en el cubo).
+   Sus 15 productos volvieron en **borrador**, para no enseñar una foto rota:
+   7 de Inversiones multiservicios, 6 de Brillox Steel y 1 de Variedades
+   COLOMBIA NEXT. El comercio sube la foto otra vez y lo publica.
+5. El resumen del catálogo de Venezuela se rehízo solo en el siguiente latido
+   del reloj: 1.535 productos con precio.
+
+**Cómo se comprueba.** mercatren.com.ve: la portada enseña productos y las
+seis tiendas cargan con sus fotos, cero rotas (medido con Playwright a 390 px).
+En la base: `SELECT t.nombre, COUNT(p.id) FROM tiendas t LEFT JOIN productos p
+ON p.tienda_id = t.id WHERE t.mercado = 'VE' GROUP BY t.id`.
+
+**Qué NO hay que tocar.** Ningún borrado de catálogo sin filtrar por la fuente
+del proveedor o por sus tiendas. Regla arriba del todo en `CLAUDE.md`.
+
+---
+
 ## ESPAÑA Y VENEZUELA: LO QUE LA LEY PIDE, CONSTRUIDO (5 nov 2026, tarde)
 
 Por orden de Gerencia, todo lo que no dependía de Richard (detalle y fuentes

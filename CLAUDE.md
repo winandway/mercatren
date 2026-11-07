@@ -38,6 +38,17 @@ apagados a propósito: importación masiva y sincronización
 (`src/lib/catalogo/a-pedido.ts`), robots (`lib/seo/robots.ts`), la IA y el
 reloj. Detalle: «MERCATREN SE REABRE SIN CJ» en `HISTORIAL.md`.
 
+## ⛔ LOS PRODUCTOS DE LOS COMERCIOS NO SE BORRAN. NUNCA (Richard, 7 nov 2026)
+
+_«Todos los productos de todos los clientes tienen que quedarse… nosotros
+estábamos borrando a CJ… a ellos no los vamos a borrar.»_ El vaciado del 3 nov
+se llevó 1.801 productos de seis comercios de Venezuela; se devolvieron el
+7 nov desde el respaldo. **Borrar catálogo es borrar SOLO lo del proveedor**
+(CJ o el que venga): se filtra por su fuente o por sus tiendas, jamás «todos
+los productos». Si una orden dice «borra todos los productos», se cuenta
+primero cuántos son de comercios reales y se para a preguntar. Detalle y cómo
+se devuelven: «LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON» en `HISTORIAL.md`.
+
 ## LO PRIMERO QUE SE MIRA, SEGÚN LA PREGUNTA
 
 | Si preguntan…                   | Se contesta desde                                           |
@@ -432,6 +443,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON (7 nov 2026)](HISTORIAL.md#los-productos-de-los-comercios-volvieron-7-nov-2026)
 - [ESPAÑA Y VENEZUELA: LO QUE LA LEY PIDE, CONSTRUIDO (5 nov 2026, tarde)](HISTORIAL.md#españa-y-venezuela-lo-que-la-ley-pide-construido-5-nov-2026-tarde)
 - [FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)](HISTORIAL.md#fase-5-venezuela-y-españa-en-la-app-preparados-y-apagados-5-nov-2026)
 - [UNA SOLA MERCATREN: EL PAÍS VA EN LA CUENTA (5 nov 2026)](HISTORIAL.md#una-sola-mercatren-el-país-va-en-la-cuenta-5-nov-2026)
