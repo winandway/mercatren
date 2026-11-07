@@ -1,3 +1,5 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
+import { CasilleroCerrado } from "@/components/casillero/casillero-cerrado";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -40,6 +42,9 @@ export default async function PaginaMisPaquetes({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  /* Cerrado desde el 7 nov 2026 (`casillero/abierto.ts`): ni dirección, ni
+     formulario, ni datos; solo el aviso. */
+  if (!CASILLERO_ABIERTO) return <CasilleroCerrado />;
   const idioma = locale as Idioma;
   const t = await getTranslations("casillero");
 

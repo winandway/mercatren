@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { ArrowRight, Mail } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
@@ -35,7 +36,10 @@ const SECCIONES = [
          cualquier página del sitio, o no aprueba la cuenta. */
       { clave: "entrega", href: "/entrega" },
       { clave: "devoluciones", href: "/devoluciones" },
-      { clave: "calculadora", href: "/casillero/calculadora" },
+      /* El casillero, cerrado desde el 7 nov 2026 (`casillero/abierto.ts`). */
+      ...(CASILLERO_ABIERTO
+        ? ([{ clave: "calculadora", href: "/casillero/calculadora" }] as const)
+        : []),
       // El contacto abre el buzon REAL de CORREO_CONTACTO. Nunca poner
       // aqui un correo @mercatren.com sin SMTP: no recibe y el mensaje se
       // pierde. noreply@mercatren.com es solo para ENVIAR avisos del sistema.

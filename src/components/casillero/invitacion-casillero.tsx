@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { PackagePlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -30,6 +31,9 @@ export async function InvitacionCasillero({
   /** ficha: bajo el botón de comprar · tienda: dentro del comercio. */
   variante?: "ficha" | "tienda";
 }) {
+  /* Cerrado desde el 7 nov 2026: no se invita a nadie a mandar su compra a
+     un casillero que no recibe (`casillero/abierto.ts`). */
+  if (!CASILLERO_ABIERTO) return null;
   const t = await getTranslations("casillero");
   const usuario = await obtenerUsuario().catch(() => null);
   const yaTiene = usuario

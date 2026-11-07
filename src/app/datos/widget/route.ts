@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
@@ -61,6 +62,9 @@ const no = (motivo: string, estado = 400) =>
   Response.json({ ok: false, motivo }, { status: estado });
 
 export async function POST(peticion: Request) {
+  /* Cerrado desde el 7 nov 2026 (`casillero/abierto.ts`): nadie abre un
+     casillero que no recibe paquetes. */
+  if (!CASILLERO_ABIERTO) return no("cerrado", 503);
   const crudo = await peticion.json().catch(() => null);
   const entrada = Peticion.safeParse(crudo);
   if (!entrada.success) return no("datos");

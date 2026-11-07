@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { LayoutDashboard, PackagePlus, UserRound } from "lucide-react";
 import { Suspense } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -249,7 +250,10 @@ export async function Encabezado() {
               /* EL CASILLERO va arriba en el menú del celular: en el
                  teléfono esta lista ES la navegación, y un producto nuevo
                  enterrado al final no lo descubre nadie. */
-              { href: "/casillero", texto: t("casillero") },
+              /* Cerrado desde el 7 nov 2026: ver `casillero/abierto.ts`. */
+              ...(CASILLERO_ABIERTO
+                ? [{ href: "/casillero" as const, texto: t("casillero") }]
+                : []),
               { href: "/tiendas", texto: t("tiendas") },
               { href: "/vender", texto: t("vender") },
               { href: "/como-funciona", texto: t("comoFunciona") },
@@ -315,13 +319,15 @@ export async function Encabezado() {
               cuatro dominios porque el comprador es el mismo en los cuatro,
               y ANTES de «Global» para no quedar al borde de la pantalla. En
               el celular vive en el menú «Todo», que ahí es la navegación. */}
-          <Link
-            href={rutaCasillero}
-            className="celda-encabezado hidden shrink-0 items-center gap-1 lg:flex"
-          >
-            <PackagePlus className="h-4 w-4" aria-hidden />
-            {t("casillero")}
-          </Link>
+          {CASILLERO_ABIERTO ? (
+            <Link
+              href={rutaCasillero}
+              className="celda-encabezado hidden shrink-0 items-center gap-1 lg:flex"
+            >
+              <PackagePlus className="h-4 w-4" aria-hidden />
+              {t("casillero")}
+            </Link>
+          ) : null}
           {/* MERCATREN EN EL MUNDO. Va al final de la barra y en TODOS los
               dominios: es donde alguien que tenía su cuenta en el .com y
               despertó en otro dominio entiende qué pasó. Pedido de Richard

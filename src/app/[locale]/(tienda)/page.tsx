@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import {
   ArrowRight,
   PackageCheck,
@@ -305,7 +306,7 @@ export default async function PaginaInicio({
             {/* En mercatren.com la gente compra aquí o en Amazon y lo pasa a
                 Sudamérica (Richard, 16 sep 2026): el número del envío va en
                 la primera pantalla. */}
-            {esMercadoPrincipal(mercado) ? (
+            {CASILLERO_ABIERTO && esMercadoPrincipal(mercado) ? (
               <Link
                 href="/casillero/calculadora"
                 className="inline-flex items-center justify-center rounded-lg border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"

@@ -1,5 +1,6 @@
 "use client";
 
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import {
   ChevronDown,
   LayoutDashboard,
@@ -60,11 +61,16 @@ export function MenuCuenta({
   const entradas = [
     { href: "/cuenta" as const, Icono: UserRound, texto: tc("titulo") },
     { href: "/pedidos" as const, Icono: Package, texto: t("pedidos") },
-    {
-      href: "/casillero/mi-casillero" as const,
-      Icono: PackagePlus,
-      texto: t("miCasillero"),
-    },
+    /* El casillero, cerrado desde el 7 nov 2026 (`casillero/abierto.ts`). */
+    ...(CASILLERO_ABIERTO
+      ? [
+          {
+            href: "/casillero/mi-casillero" as const,
+            Icono: PackagePlus,
+            texto: t("miCasillero"),
+          },
+        ]
+      : []),
     ...(trabajaEnElPanel
       ? [
           {

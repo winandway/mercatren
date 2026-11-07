@@ -1,5 +1,6 @@
 "use server";
 
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { crearCasillero } from "@/lib/casillero/crear";
 
@@ -13,6 +14,9 @@ export async function crearMiCasillero(
   _previo: { error?: string; codigo?: string } | null,
   formulario: FormData,
 ): Promise<{ error?: string; codigo?: string }> {
+  /* Cerrado desde el 7 nov 2026 (`casillero/abierto.ts`): ni por un POST
+     directo. */
+  if (!CASILLERO_ABIERTO) return { error: "cerrado" };
   const usuario = await obtenerUsuario();
   if (!usuario) return { error: "sesion" };
 

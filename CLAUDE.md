@@ -49,6 +49,14 @@ los productos». Si una orden dice «borra todos los productos», se cuenta
 primero cuántos son de comercios reales y se para a preguntar. Detalle y cómo
 se devuelven: «LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON» en `HISTORIAL.md`.
 
+## ⛔ EL CASILLERO ESTÁ CERRADO DESDE EL 7 NOV 2026 (orden de Richard)
+
+La empresa del casillero en Miami está cerrada: un paquete mandado ahí no lo
+recibe nadie. `CASILLERO_ABIERTO = false` (`src/lib/casillero/abierto.ts`)
+esconde todo lo que lo ofrece. **Nada nuevo enlaza al casillero sin pasar por
+ese interruptor** (la prueba `casillero-cerrado.test.ts` lo exige). Se abre
+solo con el sí de Richard.
+
 ## LO PRIMERO QUE SE MIRA, SEGÚN LA PREGUNTA
 
 | Si preguntan…                   | Se contesta desde                                           |
@@ -443,6 +451,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [EL CASILLERO, CERRADO HASTA NUEVO AVISO (7 nov 2026)](HISTORIAL.md#el-casillero-cerrado-hasta-nuevo-aviso-7-nov-2026)
 - [LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON (7 nov 2026)](HISTORIAL.md#los-productos-de-los-comercios-volvieron-7-nov-2026)
 - [ESPAÑA Y VENEZUELA: LO QUE LA LEY PIDE, CONSTRUIDO (5 nov 2026, tarde)](HISTORIAL.md#españa-y-venezuela-lo-que-la-ley-pide-construido-5-nov-2026-tarde)
 - [FASE 5: VENEZUELA Y ESPAÑA EN LA APP, PREPARADOS Y APAGADOS (5 nov 2026)](HISTORIAL.md#fase-5-venezuela-y-españa-en-la-app-preparados-y-apagados-5-nov-2026)

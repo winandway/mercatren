@@ -1,5 +1,6 @@
 "use server";
 
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { and, desc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
@@ -29,6 +30,9 @@ export async function avisarCompra(
   _previo: { error?: string; ok?: boolean } | null,
   formulario: FormData,
 ): Promise<{ error?: string; ok?: boolean }> {
+  /* Cerrado desde el 7 nov 2026 (`casillero/abierto.ts`): ni por un POST
+     directo. */
+  if (!CASILLERO_ABIERTO) return { error: "cerrado" };
   const usuario = await obtenerUsuario();
   if (!usuario) return { error: "sesion" };
 

@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import { Link } from "@/i18n/navigation";
 import { Globe2, PackageCheck, Truck } from "lucide-react";
 
@@ -108,42 +109,46 @@ export function EntregaEstadosUnidos({
           </div>
 
           {/* EL CONSEJO, en gris y abajo: es una salida para quien no está en
-          Estados Unidos, no una oferta nuestra. */}
-          <details className="rounded-xl border border-borde bg-slate-50 px-3.5 py-3">
-            <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-tinta">
-              <Globe2
-                className="h-4 w-4 shrink-0 text-tinta-suave"
-                aria-hidden
-              />
-              {textos.casilleroTitulo}
-            </summary>
-            <p className="mt-2 text-sm leading-relaxed text-tinta-suave">
-              {textos.casilleroTexto}
-            </p>
-            {/* ══ EL CASILLERO YA ES NUESTRO (9 sep 2026) ══ Hasta hoy este
-                texto decía «puedes alquilar un casillero — hay varias
-                empresas que lo ofrecen»: mandaba al comprador a la
-                competencia desde nuestra propia ficha de producto. Desde
-                que Mercatren tiene su casillero en Miami, el enlace lleva
-                al nuestro. */}
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-              <Link
-                href="/casillero"
-                className="text-sm font-semibold text-carga-600 hover:underline"
-              >
-                {textos.casilleroBoton}
-              </Link>
-              {/* Y el número antes de comprar (16 sep 2026): «la calculadora
-                  debe quedar también en mercatren.com, ahí la gente compra
-                  cosas y las pasa a Venezuela». */}
-              <Link
-                href="/casillero/calculadora"
-                className="text-sm font-semibold text-carga-600 hover:underline"
-              >
-                {textos.calculadoraBoton}
-              </Link>
-            </div>
-          </details>
+          Estados Unidos, no una oferta nuestra. Cerrado desde el 7 nov 2026
+          (`casillero/abierto.ts`): no se manda a nadie a un casillero que no
+          recibe. */}
+          {CASILLERO_ABIERTO ? (
+            <details className="rounded-xl border border-borde bg-slate-50 px-3.5 py-3">
+              <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-tinta">
+                <Globe2
+                  className="h-4 w-4 shrink-0 text-tinta-suave"
+                  aria-hidden
+                />
+                {textos.casilleroTitulo}
+              </summary>
+              <p className="mt-2 text-sm leading-relaxed text-tinta-suave">
+                {textos.casilleroTexto}
+              </p>
+              {/* ══ EL CASILLERO YA ES NUESTRO (9 sep 2026) ══ Hasta hoy este
+                  texto decía «puedes alquilar un casillero — hay varias
+                  empresas que lo ofrecen»: mandaba al comprador a la
+                  competencia desde nuestra propia ficha de producto. Desde
+                  que Mercatren tiene su casillero en Miami, el enlace lleva
+                  al nuestro. */}
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                <Link
+                  href="/casillero"
+                  className="text-sm font-semibold text-carga-600 hover:underline"
+                >
+                  {textos.casilleroBoton}
+                </Link>
+                {/* Y el número antes de comprar (16 sep 2026): «la calculadora
+                    debe quedar también en mercatren.com, ahí la gente compra
+                    cosas y las pasa a Venezuela». */}
+                <Link
+                  href="/casillero/calculadora"
+                  className="text-sm font-semibold text-carga-600 hover:underline"
+                >
+                  {textos.calculadoraBoton}
+                </Link>
+              </div>
+            </details>
+          ) : null}
         </>
       ) : null}
     </div>

@@ -62,6 +62,42 @@ la revise.
 pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
 en la máquina local y se devolvieron.
 
+## EL CASILLERO, CERRADO HASTA NUEVO AVISO (7 nov 2026)
+
+**La orden (Richard).** La empresa que nos daba el casillero en Miami no tiene
+todos sus permisos y está cerrada temporalmente. Si alguien compra y manda su
+paquete ahí, nadie lo recibe. Hay que esconder todo lo que ofrece el
+casillero, ya.
+
+**Qué se hizo.** Un solo interruptor, `CASILLERO_ABIERTO = false` en
+`src/lib/casillero/abierto.ts`, y todo el sitio lo consulta:
+
+- Fuera de la vista: el enlace de la barra y del menú «Todo», «Mi casillero»
+  en el menú de la cuenta, la calculadora del pie y de la portada, el recuadro
+  «¿Compras en Estados Unidos?» de las fichas y las tiendas, el consejo del
+  casillero en la entrega de EE. UU., y la tarjeta grande, el resumen y la
+  calculadora de la página de la cuenta (que ya ni pregunta por el casillero).
+- Las seis páginas del casillero cortan antes de leer nada y solo enseñan el
+  aviso «El casillero no está disponible por ahora»: **nadie ve la dirección
+  de Miami**, ni quien ya tenía su casillero. Llevan `noindex`.
+- No se puede crear un casillero ni avisar un paquete por un POST directo,
+  ni desde el widget que otros sitios llevan incrustado.
+- La página de entregas dice que por ahora no hay forma de mandar a otro país.
+- El panel del equipo (casilleros, bodega) sigue igual, para lo que ya estaba
+  en camino.
+
+**Cómo se comprueba.** En el sitio, ninguna página dice «casillero» salvo
+las del propio casillero, que solo tienen el aviso. Candado:
+`tests/unit/casillero-cerrado.test.ts`, comprobado en rojo (interruptor
+encendido, guarda quitada de una página, enlace del pie sin interruptor).
+
+**Cómo se vuelve a abrir.** Cuando haya un casillero que funcione y Richard
+lo diga: el interruptor en `true` y la primera prueba de ese archivo al
+revés. El texto del casillero (`messages`, `entrega-us.ts`) habla de
+Bestway y de Miami: revisarlo si el casillero nuevo es de otra empresa.
+
+---
+
 ## LOS PRODUCTOS DE LOS COMERCIOS VOLVIERON (7 nov 2026)
 
 **Qué se rompió y cómo se veía.** El vaciado del 3 nov siguió al pie de la

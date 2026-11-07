@@ -4667,7 +4667,14 @@
     "verMiCasillero": "Ver mi casillero",
     "activar": "Activar mi casillero",
     "activarTexto": "Ya tienes cuenta: solo falta tu casillero. Toma un minuto.",
-    "calcularEnvio": "Calcular el envío"
+    "calcularEnvio": "Calcular el envío",
+    "cerrado": {
+      "titulo": "El casillero no está disponible por ahora",
+      "texto": "Pausamos el servicio de casillero en Miami mientras lo ponemos en orden. No envíes compras a la dirección del casillero: en este momento nadie las recibe. Te avisaremos cuando vuelva.",
+      "paquetes": "Si ya tenías un paquete en camino, escríbenos y te ayudamos a resolverlo.",
+      "volver": "Volver a la tienda",
+      "ayuda": "Escribir a ayuda"
+    }
   },
   "borrarCuenta": {
     "menu": {

@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import {
   Calculator,
   CircleHelp,
@@ -90,7 +91,9 @@ export default async function PaginaCuenta({
      cero y el resto se dibuja igual. */
   const [pedidos, casillero] = await Promise.all([
     listarPedidosPropios().catch(() => []),
-    casilleroDe(usuario.id).catch(() => null),
+    /* Con el casillero cerrado (7 nov 2026) ni se pregunta por él: así no
+       se enseña su dirección de Miami a nadie. */
+    CASILLERO_ABIERTO ? casilleroDe(usuario.id).catch(() => null) : null,
   ]);
   const paquetes = casillero
     ? await paquetesDe(casillero.id).catch(() => [])
@@ -108,12 +111,18 @@ export default async function PaginaCuenta({
       texto: t("resumen.entregados"),
       href: "/pedidos" as const,
     },
-    {
-      valor: enMiami,
-      texto: t("resumen.enMiami"),
-      href: (casillero ? "/casillero/mis-paquetes" : "/casillero/crear") as
-        "/casillero/mis-paquetes" | "/casillero/crear",
-    },
+    ...(CASILLERO_ABIERTO
+      ? [
+          {
+            valor: enMiami,
+            texto: t("resumen.enMiami"),
+            href: (casillero
+              ? "/casillero/mis-paquetes"
+              : "/casillero/crear") as
+              "/casillero/mis-paquetes" | "/casillero/crear",
+          },
+        ]
+      : []),
   ];
 
   const tarjetas = [
@@ -127,12 +136,16 @@ export default async function PaginaCuenta({
           : t("tarjetas.pedidos.texto"),
       aviso: porPagar > 0,
     },
-    {
-      href: "/casillero/calculadora" as const,
-      Icono: Calculator,
-      titulo: t("tarjetas.calculadora.titulo"),
-      texto: t("tarjetas.calculadora.texto"),
-    },
+    ...(CASILLERO_ABIERTO
+      ? [
+          {
+            href: "/casillero/calculadora" as const,
+            Icono: Calculator,
+            titulo: t("tarjetas.calculadora.titulo"),
+            texto: t("tarjetas.calculadora.texto"),
+          },
+        ]
+      : []),
     {
       href: "/devoluciones" as const,
       Icono: RotateCcw,
@@ -198,7 +211,9 @@ export default async function PaginaCuenta({
       </div>
 
       {/* Los tres números que un comprador mira primero. */}
-      <dl className="mt-8 grid grid-cols-3 gap-3">
+      <dl
+        className={`mt-8 grid gap-3 ${CASILLERO_ABIERTO ? "grid-cols-3" : "grid-cols-2"}`}
+      >
         {resumen.map((r) => (
           <Link
             key={r.texto}
@@ -213,64 +228,68 @@ export default async function PaginaCuenta({
         ))}
       </dl>
 
-      {/* ══ EL CASILLERO, EN GRANDE ══ Si ya lo tiene, verde y con su código;
+      {CASILLERO_ABIERTO ? (
+        <>
+          {/* ══ EL CASILLERO, EN GRANDE ══ Si ya lo tiene, verde y con su código;
           si no, la invitación a activarlo. Nunca dos botones que se
           contradigan (Richard, 16 sep 2026). */}
-      <section
-        className={`mt-6 rounded-2xl p-5 sm:p-6 ${
-          casillero
-            ? "border-2 border-emerald-500 bg-emerald-50"
-            : "border border-borde bg-riel-950 text-white"
-        }`}
-      >
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p
-              className={`flex items-center gap-2 text-sm font-bold ${casillero ? "text-emerald-800" : "text-white/80"}`}
-            >
-              {casillero ? (
-                <PackageCheck className="h-5 w-5" aria-hidden />
-              ) : (
-                <PackagePlus className="h-5 w-5" aria-hidden />
-              )}
-              {casillero
-                ? t("tarjetas.casillero.titulo")
-                : t("tarjetas.casillero.activarTitulo")}
-            </p>
-            {casillero ? (
-              <p className="mt-1 font-mono text-2xl font-extrabold tracking-wide">
-                {casillero.codigo}
-              </p>
-            ) : null}
-            <p
-              className={`mt-1 text-sm ${casillero ? "text-tinta-suave" : "text-white/80"}`}
-            >
-              {casillero
-                ? t("tarjetas.casillero.texto", { n: enMiami })
-                : t("tarjetas.casillero.activarTexto")}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {casillero ? (
-              <>
-                <Link
-                  href="/casillero/mi-casillero"
-                  className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+          <section
+            className={`mt-6 rounded-2xl p-5 sm:p-6 ${
+              casillero
+                ? "border-2 border-emerald-500 bg-emerald-50"
+                : "border border-borde bg-riel-950 text-white"
+            }`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p
+                  className={`flex items-center gap-2 text-sm font-bold ${casillero ? "text-emerald-800" : "text-white/80"}`}
                 >
-                  {t("tarjetas.casillero.ver")}
-                </Link>
-                <Link href="/casillero/avisar" className="boton-secundario">
-                  {t("tarjetas.casillero.avisar")}
-                </Link>
-              </>
-            ) : (
-              <Link href="/casillero/crear" className="boton-principal">
-                {t("tarjetas.casillero.activar")}
-              </Link>
-            )}
-          </div>
-        </div>
-      </section>
+                  {casillero ? (
+                    <PackageCheck className="h-5 w-5" aria-hidden />
+                  ) : (
+                    <PackagePlus className="h-5 w-5" aria-hidden />
+                  )}
+                  {casillero
+                    ? t("tarjetas.casillero.titulo")
+                    : t("tarjetas.casillero.activarTitulo")}
+                </p>
+                {casillero ? (
+                  <p className="mt-1 font-mono text-2xl font-extrabold tracking-wide">
+                    {casillero.codigo}
+                  </p>
+                ) : null}
+                <p
+                  className={`mt-1 text-sm ${casillero ? "text-tinta-suave" : "text-white/80"}`}
+                >
+                  {casillero
+                    ? t("tarjetas.casillero.texto", { n: enMiami })
+                    : t("tarjetas.casillero.activarTexto")}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {casillero ? (
+                  <>
+                    <Link
+                      href="/casillero/mi-casillero"
+                      className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+                    >
+                      {t("tarjetas.casillero.ver")}
+                    </Link>
+                    <Link href="/casillero/avisar" className="boton-secundario">
+                      {t("tarjetas.casillero.avisar")}
+                    </Link>
+                  </>
+                ) : (
+                  <Link href="/casillero/crear" className="boton-principal">
+                    {t("tarjetas.casillero.activar")}
+                  </Link>
+                )}
+              </div>
+            </div>
+          </section>
+        </>
+      ) : null}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tarjetas.map((tarjeta) => (

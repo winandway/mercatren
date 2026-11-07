@@ -4667,7 +4667,14 @@
     "verMiCasillero": "View my locker",
     "activar": "Activate my locker",
     "activarTexto": "You already have an account: only your locker is missing. It takes a minute.",
-    "calcularEnvio": "Calculate shipping"
+    "calcularEnvio": "Calculate shipping",
+    "cerrado": {
+      "titulo": "The package locker is unavailable for now",
+      "texto": "We've paused our Miami package locker service while we get it back in order. Please don't ship purchases to the locker address: no one can receive them right now. We'll let you know when it's back.",
+      "paquetes": "If you already have a package on the way, contact us and we'll help you sort it out.",
+      "volver": "Back to the store",
+      "ayuda": "Contact support"
+    }
   },
   "borrarCuenta": {
     "menu": {

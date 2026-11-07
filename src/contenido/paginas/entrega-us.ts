@@ -1,3 +1,4 @@
+import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import type { PaginaContenido } from "./tipos";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { SOCIEDAD } from "@/lib/sociedad";
@@ -90,8 +91,9 @@ export const ENTREGA_US_ES: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "Esta tienda entrega solo dentro de Estados Unidos. Si vives en otro país, puedes crear gratis tu casillero de Mercatren en Miami: te damos una dirección de Estados Unidos con tu número, recibimos tu compra y te la enviamos a tu país.",
+          texto: CASILLERO_ABIERTO
+            ? "Esta tienda entrega solo dentro de Estados Unidos. Si vives en otro país, puedes crear gratis tu casillero de Mercatren en Miami: te damos una dirección de Estados Unidos con tu número, recibimos tu compra y te la enviamos a tu país."
+            : "Esta tienda entrega solo dentro de Estados Unidos. Por ahora no tenemos un servicio para enviarla a otro país.",
         },
       ],
     },
@@ -190,8 +192,9 @@ export const ENTREGA_US_EN: PaginaContenido = {
       bloques: [
         {
           tipo: "parrafo",
-          texto:
-            "This store delivers within the United States only. If you live elsewhere, you can open a free Mercatren mailbox in Miami: you get a U.S. address with your own number, we receive your purchase, and we forward it to your country.",
+          texto: CASILLERO_ABIERTO
+            ? "This store delivers within the United States only. If you live elsewhere, you can open a free Mercatren mailbox in Miami: you get a U.S. address with your own number, we receive your purchase, and we forward it to your country."
+            : "This store delivers within the United States only. For now, we don't offer a way to forward orders to another country.",
         },
       ],
     },
