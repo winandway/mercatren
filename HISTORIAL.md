@@ -62,6 +62,43 @@ la revise.
 pausa de España (`ESPANA_SIN_COBRO`). Para las capturas se encendieron solo
 en la máquina local y se devolvieron.
 
+## LAS DIRECCIONES LEGALES VAN EN INGLÉS: /privacy Y /terms (7 nov 2026)
+
+**Qué pasaba.** La regla de Richard para Estados Unidos es que las direcciones
+van en inglés, pero la privacidad y los términos vivían en `/privacidad` y
+`/terminos`. Y `/privacy` y `/terms` redirigían a `/en/privacy` y
+`/en/terms`, que daban 404. Google Play ya había rechazado la app una vez por
+el enlace de privacidad: antes de reenviarla, la dirección tenía que estar bien.
+
+**Qué se hizo.** Las carpetas pasaron a `(docs)/privacy` y `(docs)/terms`
+(`git mv`). Los nombres internos en español (`privacidad.ts`, `terminos.ts`,
+las claves `terminos`/`privacidad` de `/datos/app/v1/legal`) NO cambian: las
+apps ya publicadas mandan esas claves; lo que cambia es a dónde llevan
+(`RUTA_DE_LA_PAGINA` en `lib/app-movil/legal.ts`). Se mudaron las referencias:
+pie, formularios de registro y de comercio, índice de Docs, artículos, mapa del
+sitio, `llms.txt`, descubrimiento de agentes, OpenAPI, ruta de Markdown, caché
+del borde, tienda cerrada (las legales que nunca se apagan) y las fichas de las
+tiendas.
+
+**Las viejas no se rompen jamás.** `lib/direcciones-legales.ts` +
+`src/middleware.ts`: `/privacidad`, `/es/privacidad`, `/en/privacidad` (y lo
+mismo con `terminos`) redirigen con **301 explícito** a la nueva conservando
+idioma y lo que venga detrás. Va ANTES del cierre de la tienda: una dirección
+declarada en Google Play y App Store Connect no depende de que la tienda esté
+abierta.
+
+**Candado:** `tests/unit/direcciones-legales-en-ingles.test.ts` (comprobado en
+rojo): se pone rojo si faltan las carpetas `privacy`/`terms`, si alguna
+referencia interna vuelve a `/privacidad` o `/terminos`, o si falta el 301.
+
+**Lo que NO se tocó:** ninguna consola de tienda. Las fichas en el repo ya
+dicen `https://mercatren.com/en/privacy`; la que está guardada en Play Console y
+App Store Connect sigue siendo la vieja (redirige con 301) hasta que el auditor
+de tiendas dé su APTO y Gerencia autorice cambiarla. **Faltan por la misma
+regla** (direcciones en español): `/ayuda`, `/devoluciones`, `/entrega`,
+`/nosotros`, `/vender`, `/como-funciona`, `/transparencia`, `/docs/...` con
+slugs en español y los artículos del blog.
+
 ## EL CASILLERO, CERRADO HASTA NUEVO AVISO (7 nov 2026)
 
 **La orden (Richard).** La empresa que nos daba el casillero en Miami no tiene

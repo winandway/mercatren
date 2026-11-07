@@ -18,6 +18,11 @@
 
 ---
 
+## 🔴 Antes de volver a mandar la app a Google (anotado por Gerencia, 7 nov 2026) 💻
+
+- [x] 💻 **HECHO el 7 nov 2026** (commit 3434759d): /privacy y /terms dan 200 en /en y /es, y en mercatren.com y mercatren.com.ve; /privacidad y /terminos (con o sin idioma) redirigen con 301 a las nuevas. Candado: tests/unit/direcciones-legales-en-ingles.test.ts. Las fichas del repo ya declaran /en/privacy. **FALTA: el auditor de tiendas (APTO) antes de reenviar la app, y que Gerencia autorice cambiar la dirección guardada en Play Console y App Store Connect (hoy sigue la vieja, que redirige).** Quedan en español por la misma regla: ayuda, devoluciones, entrega, nosotros, vender, como-funciona, transparencia, docs/*.
+- (original) Las direcciones legales en inglés dan 404. Comprobado: /privacy y /terms redirigen a /en/privacy y /en/terms, que dan 404. Lo que sí carga es /en/privacidad y /en/terminos (la palabra en español dentro de la versión en inglés). Por la regla de Richard, las direcciones van en inglés: /privacy y /terms (y /es/privacy, /es/terms) tienen que dar 200, y /privacidad y /terminos tienen que redirigir con 301 a las nuevas. Revisar también qué dirección tiene puesta Play Console en la política de privacidad, y que todo pase por el auditor de tiendas antes de mandar la app. Dejar prueba en rojo y candado.
+
 # BLOQUE 1 · LO LEGAL Y LO FISCAL
 
 Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
