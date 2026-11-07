@@ -51,6 +51,29 @@ cd /Users/windocellc/Mercatren.com/app-movil && EXPO_TOKEN=$(cat ~/.config/merca
 **Nada sube a las tiendas** hasta que Apple apruebe Divoox (orden de Gerencia)
 y el auditor de tiendas dé su APTO.
 
+### Compilar Android aquí, gratis, sin EAS (7 nov 2026)
+
+Esta computadora tiene el SDK de Android y Java 17. El paquete para Google Play
+se arma con un solo comando y no gasta compilaciones de Expo:
+
+```bash
+cd /Users/windocellc/Mercatren.com/app-movil && bash scripts/compilar-android-local.sh
+```
+
+- Deja `salidas/mercatren-<versionCode>.aab` (para la tienda) y `.apk` (para
+  instalarlo en el emulador `mercatren_pruebas`). `salidas/`, `android/` e
+  `ios/` no entran a git: se generan desde `app.json`.
+- Firma con la llave de subida de `~/.config/mercatren/play-upload.properties`
+  (huella 7E:B8:4A…C5:65, la misma de la app de Google Play).
+- Fuerza el servidor de producción: `.env.local` apunta a la computadora local
+  y, sin eso, el paquete saldría hablándole a localhost.
+- Salta la revisión «lint» de Stripe (pide una pieza privada de Google) y le
+  dice a R8 que ignore la función de billeteras de Stripe, que no se usa.
+- **Cada versión nueva sube `android.versionCode` en `app.json`.** La 10
+  (2.0.0) es la primera nativa; la de la ventana web era la 1.
+- Permisos bloqueados a propósito (`blockedPermissions`): ventana flotante,
+  huella, biometría y NFC. La app no los usa y Google pregunta por cada uno.
+
 ### ⛔ Ninguna compilación de EAS sin permiso de Gerencia (5 nov 2026)
 
 La cuenta windoce-llc llevaba **83 compilaciones por encima de lo incluido**

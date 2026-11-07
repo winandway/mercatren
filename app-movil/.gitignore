@@ -41,3 +41,8 @@ example
 # generated native folders
 /ios
 /android
+
+# Lo nativo se genera con «expo prebuild» (compilación local, sin EAS)
+/android
+/ios
+/salidas
