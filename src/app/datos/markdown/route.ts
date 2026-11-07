@@ -48,11 +48,11 @@ export const dynamic = "force-dynamic";
 /** Las páginas cuyo contenido vive en `src/contenido/paginas/`. */
 const PAGINAS: Record<string, { es: PaginaContenido; en: PaginaContenido }> = {
   nosotros: { es: NOSOTROS_ES, en: NOSOTROS_EN },
-  ayuda: { es: AYUDA_ES, en: AYUDA_EN },
+  support: { es: AYUDA_ES, en: AYUDA_EN },
   vender: { es: VENDER_ES, en: VENDER_EN },
   "vender/comisiones": { es: COMISIONES_ES, en: COMISIONES_EN },
-  entrega: { es: ENTREGA_ES, en: ENTREGA_EN },
-  devoluciones: { es: DEVOLUCIONES_ES, en: DEVOLUCIONES_EN },
+  shipping: { es: ENTREGA_ES, en: ENTREGA_EN },
+  returns: { es: DEVOLUCIONES_ES, en: DEVOLUCIONES_EN },
   terms: { es: TERMINOS_ES, en: TERMINOS_EN },
   privacy: { es: PRIVACIDAD_ES, en: PRIVACIDAD_EN },
 };
@@ -249,7 +249,7 @@ export async function GET(peticion: Request) {
          a un comprador de Estados Unidos que «se retira en el depósito». */
       const codigo = (await mercadoDeLaPeticion()).codigo;
       const delPais =
-        resto.join("/") === "entrega" && codigo === "US"
+        resto.join("/") === "shipping" && codigo === "US"
           ? { es: ENTREGA_US_ES, en: ENTREGA_US_EN }
           : par;
       const ruta = resto.join("/");
@@ -260,14 +260,14 @@ export async function GET(peticion: Request) {
       md = paginaAMarkdown(
         /* Lo mismo que la página: las secciones legales propias del país,
            cuando estén listas (`legales-por-pais.ts`). */
-        ruta === "terms" || ruta === "privacy" || ruta === "devoluciones"
+        ruta === "terms" || ruta === "privacy" || ruta === "returns"
           ? conLegalesDelPais(
               dePais,
               ruta === "terms"
                 ? "terminos"
                 : ruta === "privacy"
                   ? "privacidad"
-                  : ruta,
+                  : "devoluciones",
               codigo,
               locale === "en" ? "en" : "es",
             )

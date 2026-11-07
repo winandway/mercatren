@@ -53,8 +53,8 @@ export function esPaginaLegal(valor: unknown): valor is PaginaLegal {
 export const RUTA_DE_LA_PAGINA: Record<PaginaLegal, string> = {
   terminos: "terms",
   privacidad: "privacy",
-  ayuda: "ayuda",
-  devoluciones: "devoluciones",
+  ayuda: "support",
+  devoluciones: "returns",
 };
 
 export function destinoLegal(

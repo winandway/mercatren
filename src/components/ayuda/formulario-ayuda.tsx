@@ -86,7 +86,7 @@ export function FormularioAyuda() {
         </p>
         {resultado.codigo ? (
           <Link
-            href={`/ayuda/caso/${resultado.codigo}`}
+            href={`/support/caso/${resultado.codigo}`}
             className="boton-principal mt-3 inline-flex gap-2"
           >
             <MessagesSquare className="h-4 w-4" aria-hidden />

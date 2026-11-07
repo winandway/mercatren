@@ -27,7 +27,7 @@ export async function CasilleroCerrado() {
           {t("volver")}
         </Link>
         <Link
-          href="/ayuda"
+          href="/support"
           className="inline-flex items-center justify-center rounded-lg border border-borde px-4 py-2 text-sm font-semibold text-tinta hover:bg-slate-50"
         >
           {t("ayuda")}

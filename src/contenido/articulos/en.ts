@@ -182,7 +182,7 @@ export const ARTICULOS_EN: Articulo[] = [
     ],
     enlaces: [
       { texto: "Sell on Mercatren", href: "/vender" },
-      { texto: "Returns", href: "/devoluciones" },
+      { texto: "Returns", href: "/returns" },
       { texto: "Terms and conditions", href: "/terms" },
     ],
   },
@@ -565,7 +565,7 @@ export const ARTICULOS_EN: Articulo[] = [
         texto: "How to get help and follow your case",
         href: "/docs/como-pedir-ayuda",
       },
-      { texto: "Go to Help", href: "/ayuda" },
+      { texto: "Go to Help", href: "/support" },
     ],
   },
 
@@ -624,7 +624,7 @@ export const ARTICULOS_EN: Articulo[] = [
           "You can also email us. The address is on the Help page and in the footer of every page.",
       },
     ],
-    enlaces: [{ texto: "Go to Help", href: "/ayuda" }],
+    enlaces: [{ texto: "Go to Help", href: "/support" }],
   },
 
   {
@@ -937,7 +937,7 @@ export const ARTICULOS_EN: Articulo[] = [
       },
     ],
     enlaces: [
-      { texto: "Delivery and pickup", href: "/entrega" },
+      { texto: "Delivery and pickup", href: "/shipping" },
       { texto: "Go to My store", href: "/panel/mi-tienda" },
     ],
   },
@@ -1051,7 +1051,7 @@ export const ARTICULOS_EN: Articulo[] = [
     ],
     enlaces: [
       { texto: "Search the catalog", href: "/catalogo" },
-      { texto: "Help", href: "/ayuda" },
+      { texto: "Help", href: "/support" },
     ],
   },
   {

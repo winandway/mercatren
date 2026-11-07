@@ -16,7 +16,7 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const RUTA = "/devoluciones";
+const RUTA = "/returns";
 
 /** Cada dominio enseña las secciones de su país: ver `por-mercado.ts`. */
 async function contenido(locale: string) {

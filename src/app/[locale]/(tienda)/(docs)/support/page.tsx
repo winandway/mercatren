@@ -11,7 +11,7 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const RUTA = "/ayuda";
+const RUTA = "/support";
 
 function contenido(locale: string) {
   return locale === "en" ? AYUDA_EN : AYUDA_ES;

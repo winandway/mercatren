@@ -93,7 +93,7 @@ describe("los textos legales del país, desde la app", () => {
 
   it("Estados Unidos quita el país que hubiera quedado", () => {
     expect(destinoLegal("US", "es", "ayuda")).toMatchObject({
-      destino: "/es/ayuda",
+      destino: "/es/support",
       cookie: "quitar",
     });
   });

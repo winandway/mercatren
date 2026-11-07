@@ -20,7 +20,7 @@ export async function CasosDeAyuda({ usuarioId }: { usuarioId: string }) {
         {casos.map((c) => (
           <li key={c.id}>
             <Link
-              href={`/ayuda/caso/${c.codigo}`}
+              href={`/support/caso/${c.codigo}`}
               className="hover:text-carga-700 flex items-center justify-between gap-3 py-2.5"
             >
               <span className="min-w-0 truncate">

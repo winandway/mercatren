@@ -147,13 +147,13 @@ export default async function PaginaCuenta({
         ]
       : []),
     {
-      href: "/devoluciones" as const,
+      href: "/returns" as const,
       Icono: RotateCcw,
       titulo: t("tarjetas.devoluciones.titulo"),
       texto: t("tarjetas.devoluciones.texto"),
     },
     {
-      href: "/ayuda" as const,
+      href: "/support" as const,
       Icono: CreditCard,
       titulo: t("tarjetas.pagos.titulo"),
       texto: t("tarjetas.pagos.texto"),
@@ -176,7 +176,7 @@ export default async function PaginaCuenta({
           },
         ]),
     {
-      href: "/ayuda" as const,
+      href: "/support" as const,
       Icono: CircleHelp,
       titulo: t("tarjetas.ayuda.titulo"),
       texto: t("tarjetas.ayuda.texto"),

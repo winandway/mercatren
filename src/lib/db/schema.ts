@@ -4160,7 +4160,7 @@ export const bloqueosUsuario = sqliteTable(
  * LOS CASOS DE AYUDA (1 nov 2026, plan de soporte de Richard).
  *
  * Quien escribe en «Ayuda» abre un caso; lo sigue como un chat en
- * `/ayuda/caso/<codigo>` (el código es secreto: es la llave de esa
+ * `/support/caso/<codigo>` (el código es secreto: es la llave de esa
  * conversación, sirva o no tenga cuenta). El gerente de correo de Richard lo
  * lee y lo contesta por `/datos/gerente/tickets` (`lib/soporte/gerente.ts`).
  *

@@ -406,8 +406,8 @@ empieza por `google-site-verification=`). El DNS vive en Cloudflare.
 | -------------------------- | ------------------------------------------------------------------------------ |
 | Feed `/datos/google`       | 21.351 productos, todos de EE. UU., 22 MB, responde en 5 s                     |
 | Disponibilidad             | 21.345 en existencia, 6 agotados                                               |
-| Página de entrega          | `mercatren.com/es/entrega` — **la de EE. UU. desde el 20 sep**                 |
-| Página de devoluciones     | `mercatren.com/es/devoluciones` — solo las secciones de EE. UU.                |
+| Página de entrega          | `mercatren.com/es/shipping` — **la de EE. UU. desde el 20 sep**                |
+| Página de devoluciones     | `mercatren.com/es/returns` — solo las secciones de EE. UU.                     |
 | Descripciones del catálogo | «Envío gratis a todo Estados Unidos…» (ya no «retira en Venezuela»)            |
 | Videos de la portada       | Solo de comercios de EE. UU. (el país lo decide la tienda)                     |
 | Dirección de devoluciones  | Mercatren LLC, Novi (MI). No se publica; canario `/datos/salud → devoluciones` |

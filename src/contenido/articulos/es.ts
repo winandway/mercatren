@@ -182,7 +182,7 @@ export const ARTICULOS_ES: Articulo[] = [
     ],
     enlaces: [
       { texto: "Vende en Mercatren", href: "/vender" },
-      { texto: "Devoluciones", href: "/devoluciones" },
+      { texto: "Devoluciones", href: "/returns" },
       { texto: "Términos y condiciones", href: "/terms" },
     ],
   },
@@ -566,7 +566,7 @@ export const ARTICULOS_ES: Articulo[] = [
         texto: "Cómo pedir ayuda y seguir tu caso",
         href: "/docs/como-pedir-ayuda",
       },
-      { texto: "Ir a Ayuda", href: "/ayuda" },
+      { texto: "Ir a Ayuda", href: "/support" },
     ],
   },
 
@@ -625,7 +625,7 @@ export const ARTICULOS_ES: Articulo[] = [
           "También puedes escribirnos por correo. La dirección está en Ayuda y en el pie de cada página.",
       },
     ],
-    enlaces: [{ texto: "Ir a Ayuda", href: "/ayuda" }],
+    enlaces: [{ texto: "Ir a Ayuda", href: "/support" }],
   },
 
   {
@@ -937,7 +937,7 @@ export const ARTICULOS_ES: Articulo[] = [
       },
     ],
     enlaces: [
-      { texto: "Entrega y retiro", href: "/entrega" },
+      { texto: "Entrega y retiro", href: "/shipping" },
       { texto: "Ir a Mi tienda", href: "/panel/mi-tienda" },
     ],
   },
@@ -1051,7 +1051,7 @@ export const ARTICULOS_ES: Articulo[] = [
     ],
     enlaces: [
       { texto: "Buscar en el catálogo", href: "/catalogo" },
-      { texto: "Ayuda", href: "/ayuda" },
+      { texto: "Ayuda", href: "/support" },
     ],
   },
   {

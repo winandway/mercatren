@@ -1097,7 +1097,7 @@ export async function correoCasoAbierto(
     datos: [{ etiqueta: t("casoAbierto.numero"), valor: caso.numero }],
     boton: {
       texto: t("casoAbierto.boton"),
-      url: urlDe(idioma, `/ayuda/caso/${caso.codigo}`),
+      url: urlDe(idioma, `/support/caso/${caso.codigo}`),
     },
     motivo,
     contacto,
@@ -1117,7 +1117,7 @@ export async function correoCasoRespondido(
     parrafos: [caso.texto],
     boton: {
       texto: t("casoRespondido.boton"),
-      url: urlDe(idioma, `/ayuda/caso/${caso.codigo}`),
+      url: urlDe(idioma, `/support/caso/${caso.codigo}`),
     },
     parrafosFinales: t.raw("casoRespondido.despues") as string[],
     motivo,

@@ -29,13 +29,13 @@ const SECCIONES = [
   {
     titulo: "ayuda",
     enlaces: [
-      { clave: "centroAyuda", href: "/ayuda" },
+      { clave: "centroAyuda", href: "/support" },
       /* ENTREGA Y DEVOLUCIONES VAN EN EL PIE A PROPÓSITO. Son las dos
          preguntas que se hace cualquiera antes de pagarle a una tienda que
          no conoce — y Google Merchant Center las exige alcanzables desde
          cualquier página del sitio, o no aprueba la cuenta. */
-      { clave: "entrega", href: "/entrega" },
-      { clave: "devoluciones", href: "/devoluciones" },
+      { clave: "entrega", href: "/shipping" },
+      { clave: "devoluciones", href: "/returns" },
       /* El casillero, cerrado desde el 7 nov 2026 (`casillero/abierto.ts`). */
       ...(CASILLERO_ABIERTO
         ? ([{ clave: "calculadora", href: "/casillero/calculadora" }] as const)

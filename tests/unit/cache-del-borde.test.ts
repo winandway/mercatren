@@ -73,13 +73,13 @@ describe("qué páginas se guardan en el borde", () => {
       "/es/buscar-con-foto",
       "/es/casillero",
       "/es/casillero/calculadora",
-      "/es/ayuda",
+      "/es/support",
       "/es/como-funciona",
-      "/es/devoluciones",
+      "/es/returns",
       "/es/docs",
       "/es/docs/una-guia",
       "/es/docs/modelo-de-negocio",
-      "/es/entrega",
+      "/es/shipping",
       "/es/nosotros",
       "/es/privacy",
       "/es/terms",
@@ -123,7 +123,7 @@ describe("qué páginas se guardan en el borde", () => {
     expect(
       sePuedeGuardarEnElBorde({
         method: "GET",
-        pathname: "/es/ayuda",
+        pathname: "/es/support",
         tieneCookie: true,
         pideRsc: false,
       }),
@@ -131,12 +131,12 @@ describe("qué páginas se guardan en el borde", () => {
   });
 
   it("solo GET y HEAD, y nunca el árbol de React", () => {
-    expect(sinCookie("/es/ayuda", "POST")).toBe(false);
-    expect(sinCookie("/es/ayuda", "HEAD")).toBe(true);
+    expect(sinCookie("/es/support", "POST")).toBe(false);
+    expect(sinCookie("/es/support", "HEAD")).toBe(true);
     expect(
       sePuedeGuardarEnElBorde({
         method: "GET",
-        pathname: "/es/ayuda",
+        pathname: "/es/support",
         tieneCookie: false,
         pideRsc: true,
       }),

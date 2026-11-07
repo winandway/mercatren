@@ -2,7 +2,7 @@
  * ══ QUÉ PÁGINAS PUEDE GUARDAR EL BORDE, Y CUÁNDO (emergencia de costo, 17 sep 2026) ══
  *
  * Lo que pasó: GPTBot (38 % del tráfico) y el robot de Meta (15 %) pedían las
- * MISMAS diecisiete páginas unas 2.500 veces al día cada una —/es/ayuda,
+ * MISMAS diecisiete páginas unas 2.500 veces al día cada una —/es/support,
  * /es/nosotros, /es/catalogo…— y cada visita, aunque fuera a «Ayuda»,
  * armaba el encabezado entero contra la base. La base pasó de 0,3 a 26,6 mil
  * millones de filas leídas al día.
@@ -64,18 +64,18 @@
 export const CACHE_PUBLICA =
   "public, s-maxage=300, stale-while-revalidate=3600";
 
-/** Las páginas de un solo tramo iguales para todos: `/es/ayuda`, `/en/catalogo`… */
+/** Las páginas de un solo tramo iguales para todos: `/es/support`, `/en/catalogo`… */
 export const PAGINAS_PUBLICAS = [
   "catalogo",
   "tiendas",
   "videos",
   "buscar-con-foto",
   "casillero",
-  "ayuda",
+  "support",
   "como-funciona",
-  "devoluciones",
+  "returns",
   "docs",
-  "entrega",
+  "shipping",
   "nosotros",
   "privacy",
   "terms",

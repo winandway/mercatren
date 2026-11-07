@@ -92,11 +92,11 @@ describe("la página de entrega de Estados Unidos", () => {
   });
 
   it("la página, y su versión para agentes, eligen por el país del dominio", () => {
-    const entrega = leer("src/app/[locale]/(tienda)/(docs)/entrega/page.tsx");
+    const entrega = leer("src/app/[locale]/(tienda)/(docs)/shipping/page.tsx");
     expect(entrega).toContain('mercado.codigo === "US"');
     expect(entrega).toContain("ENTREGA_US_ES");
     const devoluciones = leer(
-      "src/app/[locale]/(tienda)/(docs)/devoluciones/page.tsx",
+      "src/app/[locale]/(tienda)/(docs)/returns/page.tsx",
     );
     expect(devoluciones).toContain("paraElMercado(");
     const agentes = leer("src/app/datos/markdown/route.ts");

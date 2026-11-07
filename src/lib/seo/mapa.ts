@@ -66,11 +66,11 @@ export const FIJAS: ReadonlyArray<readonly [string, number, Frecuencia]> = [
   ["/nosotros", 0.7, "monthly"],
   ["/transparencia", 0.7, "monthly"],
   ["/vender/comisiones", 0.6, "monthly"],
-  ["/ayuda", 0.6, "monthly"],
+  ["/support", 0.6, "monthly"],
   /* Entrega y devoluciones: Merchant Center las exige publicadas y
      encontrables. */
-  ["/entrega", 0.6, "monthly"],
-  ["/devoluciones", 0.6, "monthly"],
+  ["/shipping", 0.6, "monthly"],
+  ["/returns", 0.6, "monthly"],
   ["/terms", 0.4, "yearly"],
   ["/privacy", 0.4, "yearly"],
 ];

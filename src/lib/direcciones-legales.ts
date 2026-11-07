@@ -1,8 +1,8 @@
 /**
  * LAS DIRECCIONES LEGALES VAN EN INGLÉS (7 nov 2026, regla de Richard para
- * Estados Unidos): `/privacy` y `/terms`.
+ * Estados Unidos): `/privacy`, `/terms`, `/support`, `/returns` y `/shipping`.
  *
- * Las viejas (`/privacidad`, `/terminos`) estaban declaradas en Google Play
+ * Las viejas (`/privacidad`, `/terminos`, `/ayuda`, `/devoluciones`, `/entrega`) estaban declaradas en Google Play
  * Console y en App Store Connect y circularon por correo y por Google: NUNCA
  * pueden romperse. Se redirigen con un 301 explícito (permanente, no 307 ni
  * 308) conservando el idioma y lo que venga después. Va en el middleware —el
@@ -19,9 +19,13 @@
 export const DIRECCIONES_LEGALES_VIEJAS: Readonly<Record<string, string>> = {
   privacidad: "privacy",
   terminos: "terms",
+  ayuda: "support",
+  devoluciones: "returns",
+  entrega: "shipping",
 };
 
-const VIEJA = /^(\/(?:es|en))?\/(privacidad|terminos)(\/.*)?$/;
+const VIEJA =
+  /^(\/(?:es|en))?\/(privacidad|terminos|ayuda|devoluciones|entrega)(\/.*)?$/;
 
 /** La dirección nueva si esta es una vieja; `null` si no hay nada que mudar. */
 export function direccionLegalNueva(ruta: string): string | null {

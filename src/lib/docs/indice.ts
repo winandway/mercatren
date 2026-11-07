@@ -38,9 +38,9 @@ export const ENLACES_FIJOS: {
   { seccion: "empezar", clave: "modelo", href: "/docs/modelo-de-negocio" },
   { seccion: "empezar", clave: "transparencia", href: "/transparencia" },
   { seccion: "empezar", clave: "nosotros", href: "/nosotros" },
-  { seccion: "compradores", clave: "entrega", href: "/entrega" },
-  { seccion: "compradores", clave: "devoluciones", href: "/devoluciones" },
-  { seccion: "compradores", clave: "ayuda", href: "/ayuda" },
+  { seccion: "compradores", clave: "entrega", href: "/shipping" },
+  { seccion: "compradores", clave: "devoluciones", href: "/returns" },
+  { seccion: "compradores", clave: "ayuda", href: "/support" },
   { seccion: "comercios", clave: "vender", href: "/vender" },
   { seccion: "comercios", clave: "comisiones", href: "/vender/comisiones" },
   {

@@ -107,7 +107,7 @@ describe("lo que ve el público", () => {
   });
 
   it("la página de ayuda lleva el formulario", () => {
-    expect(leer("src/app/[locale]/(tienda)/(docs)/ayuda/page.tsx")).toContain(
+    expect(leer("src/app/[locale]/(tienda)/(docs)/support/page.tsx")).toContain(
       "<FormularioAyuda />",
     );
   });

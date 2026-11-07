@@ -180,7 +180,7 @@ describe("cada mensaje le llega al gerente con sus capturas", () => {
 
   it("el chat enseña la miniatura con la ruta relativa: se ve desde los cuatro dominios", () => {
     const pagina = leer(
-      "src/app/[locale]/(tienda)/(docs)/ayuda/caso/[codigo]/page.tsx",
+      "src/app/[locale]/(tienda)/(docs)/support/caso/[codigo]/page.tsx",
     );
     expect(pagina).toContain("src={enEsteDominio(a.url)}");
     expect(pagina).toContain("href={enEsteDominio(a.url)}");

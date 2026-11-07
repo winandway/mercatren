@@ -12,7 +12,7 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-const RUTA = "/entrega";
+const RUTA = "/shipping";
 
 /**
  * CADA DOMINIO CUENTA SU ENTREGA (20 sep 2026). mercatren.com enseñaba la de

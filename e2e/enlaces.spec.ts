@@ -18,7 +18,7 @@ const PUNTOS_DE_PARTIDA = [
   "/es",
   "/es/catalogo",
   "/es/docs",
-  "/es/ayuda",
+  "/es/support",
   "/es/vender",
   "/en",
 ];

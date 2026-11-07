@@ -29,21 +29,21 @@ export const TIENDA_CERRADA = false;
  * Lo que responde con la tienda cerrada, en los dos idiomas y también sin el
  * idioma delante (esas direcciones solo redirigen al idioma):
  *
- * - `privacy`, `terms`, `delete-account` y `ayuda` (con sus casos):
+ * - `privacy`, `terms`, `delete-account` y `support` (con sus casos):
  *   las que declaramos en Google Play y en App Store Connect.
  * - `entrar`, `olvide-mi-clave` y `nueva-clave`: borrar la cuenta exige haber
  *   entrado, y Google pide que se pueda hacer desde la web.
  * - `panel`: el equipo tiene que poder trabajar (detrás de su sesión).
  */
 const SIEMPRE_ABIERTA =
-  /^(?:\/(?:es|en))?\/(?:privacy|terms|delete-account|ayuda|entrar|olvide-mi-clave|nueva-clave|panel)(?:\/.*)?$/;
+  /^(?:\/(?:es|en))?\/(?:privacy|terms|delete-account|support|entrar|olvide-mi-clave|nueva-clave|panel)(?:\/.*)?$/;
 
 /** Las páginas legales declaradas en las tiendas, para el candado. */
 export const PAGINAS_LEGALES = [
   "privacy",
   "terms",
   "delete-account",
-  "ayuda",
+  "support",
 ] as const;
 
 /** ¿Responde esta página con la tienda cerrada? */
@@ -68,7 +68,7 @@ const TEXTOS = {
       ["privacy", "Política de privacidad"],
       ["terms", "Términos y condiciones"],
       ["delete-account", "Borrar mi cuenta"],
-      ["ayuda", "Ayuda"],
+      ["support", "Ayuda"],
     ],
     otroIdioma: ["en", "English"],
     derechos: "Todos los derechos reservados. Desarrollado por",
@@ -81,7 +81,7 @@ const TEXTOS = {
       ["privacy", "Privacy Policy"],
       ["terms", "Terms and Conditions"],
       ["delete-account", "Delete my account"],
-      ["ayuda", "Help"],
+      ["support", "Help"],
     ],
     otroIdioma: ["es", "Español"],
     derechos: "All rights reserved. Developed by",

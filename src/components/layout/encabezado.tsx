@@ -260,7 +260,7 @@ export async function Encabezado() {
               { href: "/docs", texto: t("docs") },
               { href: "/videos", texto: t("videos") },
               { href: "/blog", texto: t("blog") },
-              { href: "/ayuda", texto: t("ayuda") },
+              { href: "/support", texto: t("ayuda") },
               { href: "/pedidos", texto: t("pedidos") },
             ]}
           />
@@ -288,7 +288,7 @@ export async function Encabezado() {
             {t("docs")}
           </Link>
           <Link
-            href="/ayuda"
+            href="/support"
             className="celda-encabezado hidden shrink-0 md:block"
           >
             {t("ayuda")}

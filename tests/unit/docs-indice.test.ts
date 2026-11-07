@@ -123,7 +123,7 @@ describe("el buscador", () => {
   );
   it("encuentra sin acentos y por varias palabras", () => {
     expect(buscarEnDocs(entradas, "devolucion").map((e) => e.href)).toContain(
-      "/devoluciones",
+      "/returns",
     );
     expect(buscarEnDocs(entradas, "w8ben").map((e) => e.href)).toContain(
       "/docs/formulario-fiscal-w8ben-e",

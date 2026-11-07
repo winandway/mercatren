@@ -220,8 +220,8 @@ describe("el XML", () => {
       "",
       "/catalogo",
       "/tiendas",
-      "/entrega",
-      "/devoluciones",
+      "/shipping",
+      "/returns",
       "/docs",
       "/blog",
     ]) {

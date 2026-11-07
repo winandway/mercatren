@@ -72,7 +72,7 @@ describe("la tienda cerrada", () => {
 
   it("la ayuda abre con sus casos, y se puede entrar para borrar la cuenta", () => {
     for (const ruta of [
-      "/es/ayuda/caso/abc",
+      "/es/support/caso/abc",
       "/en/entrar",
       "/es/olvide-mi-clave",
       "/en/nueva-clave",

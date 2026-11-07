@@ -34,7 +34,24 @@ describe("las páginas legales viven en inglés", () => {
     expect(existsSync(join(RAIZ, `${PAGINAS}/terminos`))).toBe(false);
   });
 
+  it("existen support, returns y shipping, y ya no ayuda, devoluciones ni entrega", () => {
+    for (const nueva of ["support", "returns", "shipping"])
+      expect(
+        existsSync(join(RAIZ, `${PAGINAS}/${nueva}/page.tsx`)),
+        nueva,
+      ).toBe(true);
+    for (const vieja of ["ayuda", "devoluciones", "entrega"])
+      expect(existsSync(join(RAIZ, `${PAGINAS}/${vieja}`)), vieja).toBe(false);
+    expect(
+      existsSync(join(RAIZ, `${PAGINAS}/support/caso/[codigo]/page.tsx`)),
+    ).toBe(true);
+  });
+
   it("cada página se declara con su dirección en inglés", () => {
+    for (const nueva of ["support", "returns", "shipping"])
+      expect(leer(`${PAGINAS}/${nueva}/page.tsx`)).toContain(
+        `const RUTA = "/${nueva}";`,
+      );
     expect(leer(`${PAGINAS}/privacy/page.tsx`)).toContain(
       'const RUTA = "/privacy";',
     );
@@ -52,6 +69,16 @@ describe("las viejas redirigen con 301 conservando el idioma", () => {
     ["/terminos", "/terms"],
     ["/es/terminos", "/es/terms"],
     ["/en/terminos", "/en/terms"],
+    ["/ayuda", "/support"],
+    ["/es/ayuda", "/es/support"],
+    ["/en/ayuda", "/en/support"],
+    ["/es/ayuda/caso/abc123", "/es/support/caso/abc123"],
+    ["/devoluciones", "/returns"],
+    ["/es/devoluciones", "/es/returns"],
+    ["/en/devoluciones", "/en/returns"],
+    ["/entrega", "/shipping"],
+    ["/es/entrega", "/es/shipping"],
+    ["/en/entrega", "/en/shipping"],
   ])("%s → %s", (vieja, nueva) => {
     expect(direccionLegalNueva(vieja)).toBe(nueva);
   });
@@ -62,7 +89,13 @@ describe("las viejas redirigen con 301 conservando el idioma", () => {
       "/es/terms",
       "/es/privacidad-falsa",
       "/es/terminosx",
-      "/es/ayuda",
+      "/es/support",
+      "/es/returns",
+      "/en/shipping",
+      "/es/panel/devoluciones",
+      "/datos/app/v1/entrega",
+      "/upload/ayuda/abc",
+      "/es/ayudante",
       "/es/delete-account",
     ]) {
       expect(direccionLegalNueva(r), r).toBeNull();
@@ -85,7 +118,7 @@ describe("ninguna referencia interna usa las direcciones viejas", () => {
      opcional delante. Así no salta con los archivos de contenido
      (`paginas/privacidad`) ni con las etiquetas de texto (`<terminos>`). */
   const VIEJA =
-    /(?:^|["'`\s(\[=])(?:\/(?:es|en|\$\{[^}]*\}|\{idioma\}))?\/(?:privacidad|terminos)(?![\w-])/;
+    /(?:^|["'`\s(\[=])(?:\/(?:es|en|\$\{[^}]*\}|\{idioma\}))?\/(?:privacidad|terminos|ayuda|devoluciones|entrega)(?![\w-])/;
   /* Aquí viven a propósito: el mecanismo de la redirección y este candado. */
   const PERMITIDOS = new Set([
     "src/lib/direcciones-legales.ts",
