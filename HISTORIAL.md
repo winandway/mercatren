@@ -15,6 +15,100 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## VENEZUELA ENCENDIDA EN LA APP, Y LA TARJETA DE LA APP APAGADA PARA EL PÚBLICO (8 nov 2026)
+
+**Qué se decidió:** Gerencia (con la decisión delegada por Richard) mete la app
+de Android a Google Play con **Venezuela**, el único país con productos reales
+(1.535, casi todos de Bley Ferretería). Hasta hoy en la app solo estaba Estados
+Unidos, que está vacío: fue lo que hizo dar NO APTO al auditor de tiendas.
+
+**Qué se hizo:**
+
+1. `enLaApp: true` para VE en `src/lib/mercado/interruptores.ts`. La
+   bienvenida de la app enseña Venezuela **primera y ya marcada**
+   (`porDefecto` en `/datos/app/v1/paises`; `paisesEnOrden` y `paisMarcado`
+   en la app). Quien ya eligió un país conserva el suyo. La guía «Mercatren
+   Venezuela desde la app» sale sola en Docs (se reescribió: se paga con Zelle
+   en la web). Efecto aparte, buscado: Venezuela también se ofrece al crear la
+   cuenta en la web (`paisesParaElAlta`).
+2. **Un país sin productos no queda en blanco:** la portada grande «Abre tu
+   tienda» ahora empieza con «Muy pronto: productos de comercios de este
+   país» (Estados Unidos hoy). Chile, Colombia y España siguen saliendo con
+   «Muy pronto» en la bienvenida, sin poder elegirse.
+3. **Nada cobra sin probar.** La hoja de tarjeta de Stripe DENTRO de la app
+   nunca se probó con una tarjeta (prueba 9 de `COMO-PROBAR-LOS-COBROS.md`):
+   `TARJETA_EN_LA_APP_PARA_EL_PUBLICO = false`
+   (`src/lib/app-movil/cobro-en-la-app.ts`). Solo el equipo la ve, para hacer
+   esa prueba. El público paga con **Zelle en la web**, lo ya probado en
+   Venezuela: la app crea el pedido con Zelle (la MISMA `crearPedido`, con su
+   mínimo de $200 y la política de Zelle por tienda) y abre en el navegador la
+   página de pago de ESE pedido en mercatren.com.ve (`/es/pedido/MT-…`), la
+   misma ficha de pago y la misma subida del comprobante de la web.
+4. **Sin escribir otra vez la contraseña:** la app abre
+   `/datos/app/abrir-pedido` con un **pase de un solo uso** (complemento
+   `oneTimeToken` de Better Auth: guardado con hash, 5 minutos, solo lo emite
+   el servidor). Ahí se canjea, se pone la sesión en el dominio del país y se
+   va al pedido. El destino es siempre `/{idioma}/pedido/MT-000000` del mismo
+   dominio (nunca otro sitio). Si el pase falla, la página del pedido ya no da
+   404 sin sesión: manda a entrar y vuelve sola (le sirve también al correo).
+5. **El servidor primero, compatible con la app publicada (2.0.0, versión
+   12):** ella no manda `metodoPago` y para el servidor eso es tarjeta: al
+   público se le contesta con un mensaje claro y **no se crea ningún pedido**.
+   «Pagar» desde Mis pedidos le devuelve `pagoEnLaWeb`, que ella no conoce:
+   enseña su aviso de siempre y no cobra nada. La app nueva (versión 13) pide
+   los métodos a `/datos/app/mi/metodos` y manda el que eligió.
+6. **Legal:** la prueba «Venezuela no se enciende en la app sin la revisión del
+   abogado» se cambió por lo que de verdad aplica: la web ya vende en
+   Venezuela con sus textos propios (publicados sin revisar por orden de
+   Gerencia el 5 nov), y la app abre esos mismos textos. Ahora se exige que
+   esos textos estén a la vista, y que encender la app **no** dé por revisado
+   lo que espera al abogado (`revisadoPorAbogado` sigue en false;
+   `legalesListos("VE")` también). La revisión sigue pendiente en
+   `PENDIENTES.md` y no frena el envío.
+
+**Probado en el emulador de Android** (compilación de desarrollo contra el
+servidor local, con una cuenta de prueba local): la bienvenida abre con
+Venezuela marcada; portada con productos de Bley; ficha; carrito de 74
+unidades; «Pagar» ofrece solo Zelle con el total estimado; «Seguir al pago»
+creó el pedido local MT-000274 con Zelle y abrió su página de pago ya con la
+sesión puesta (el pase se canjeó: 303 a `/es/pedido/MT-000274`); el mismo pase
+otra vez ya no pone sesión; «Pagar en la página web» pide un pase nuevo y
+vuelve a abrir; Estados Unidos vacío enseña «Muy pronto». Capturas en
+`tienda-apps/google-play/capturas-ve/` (la 05 es de la máquina local: barra
+«localhost» y bandera de EE. UU.; para la ficha de Play se rehace en
+producción, donde la página es mercatren.com.ve).
+
+**Aviso conocido:** el total «estimado con Zelle» de la app sale de la
+fórmula sobre el precio publicado; el servidor usa el precio base guardado
+cuando el producto lo tiene, y puede diferir unos centavos por unidad (en la
+prueba: $210,90 estimado contra $213,12 real). Por eso dice «estimado» y la
+página de pago enseña el exacto antes de pagar.
+
+**Lo que NO se tocó:** el cobro con tarjeta en la web, la pausa de Estados
+Unidos (`EN_PAUSA`), España (apagada en la app y sin cobro), Plan Pro y
+promocionar (ya fuera de Android). Ningún paquete se compiló ni se subió a
+Google; nada se publicó.
+
+**Candados** (todos comprobados en ROJO metiendo el fallo otra vez):
+
+- `tests/unit/app-movil-pago-en-la-web.test.ts` — la tarjeta apagada para el
+  público (interruptor, puerta del pedido y «pagar»), el método se mira antes
+  de crear el pedido, el enlace va a la web del país, «abrir-pedido» no manda
+  a otro sitio, el pase es de un uso y con hash, la página del pedido sin
+  sesión manda a entrar, la app solo abre direcciones de Mercatren, el total
+  estimado de Zelle de la app es el de la web, Venezuela primera y marcada, y
+  «Muy pronto» en el país vacío.
+- `tests/unit/legales-por-pais.test.ts` — Venezuela en la app solo con sus
+  textos a la vista; lo que espera al abogado no se da por revisado.
+- `tests/unit/una-sola-mercatren.test.ts` y
+  `tests/unit/guias-y-legales-por-pais.test.ts` — al día con Venezuela
+  encendida.
+
+**Cómo se enciende la tarjeta en la app:** hecha la prueba 9 (compra real con
+tarjeta en la app, mirada hasta Stripe y el pedido «pagado») y anotada en
+`VERIFICAR-PAGOS.md`: `TARJETA_EN_LA_APP_PARA_EL_PUBLICO = true`, se cambia la
+primera prueba de `app-movil-pago-en-la-web.test.ts` y una publicación mirada.
+
 ## DENUNCIAR Y BLOQUEAR EN LA APP NATIVA, PARA GOOGLE PLAY (6 nov 2026)
 
 **Por qué:** el auditor de tiendas dio NO APTO: la política de contenido de

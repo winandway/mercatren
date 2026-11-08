@@ -7,6 +7,12 @@
 >
 > Estado: **construido, probado en local y APAGADO.** En producción la app
 > solo ofrece Estados Unidos.
+>
+> **8 nov 2026: VENEZUELA ENCENDIDA en la app** (Gerencia, decisión delegada
+> por Richard), con la venta por **Zelle en la web** y la tarjeta de la app
+> apagada para el público hasta la prueba 9. Lo de la revisión del abogado
+> abajo ya no frena a Venezuela (la web vende con esos textos); España sigue
+> apagada. Detalle: `HISTORIAL.md`, «VENEZUELA ENCENDIDA EN LA APP…».
 
 ## 1. Los dos interruptores (y por qué son dos)
 

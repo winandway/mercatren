@@ -192,9 +192,11 @@ está en la **prueba interna** de Google Play.
 
 **Antes:** no hay ningún producto de 1 dólar real; el más barato que hay hoy
 es de Venezuela (por ejemplo, «Niple PVC de 1/2 x 1 m», unos 2,45 dólares, de
-Bley Ferretería). Venezuela está apagada en la app, pero **el equipo sí puede
-comprar**: por eso se entra con una cuenta de **Soporte**. Avísale antes a
-Bley que va a entrar un pedido de prueba que se cancela.
+Bley Ferretería). Venezuela ya está encendida en la app (8 nov 2026), pero
+**la tarjeta dentro de la app solo la ve el equipo**: por eso se entra con una
+cuenta de **Soporte** y, al pagar, se elige «Tarjeta (en la app)». Hace falta
+la versión 13 o posterior (la 12 no deja elegir). Avísale antes a Bley que va
+a entrar un pedido de prueba que se cancela.
 
 1. **Entra a la prueba interna.** En Play Console → Mercatren → Pruebas →
    Prueba interna → Testers, agrega tu correo de Google, copia el enlace de
@@ -209,7 +211,7 @@ Bley que va a entrar un pedido de prueba que se cancela.
    panel, cancela el pedido `MT-…` y avísale a Bley que era la prueba.
 5. **Dínoslo** con el número del pedido. La IA lo anota como PROBADO en
    `VERIFICAR-PAGOS.md` (con fecha y pedido) y recién ahí se pueden abrir las
-   compras en la app.
+   compras con tarjeta en la app (`TARJETA_EN_LA_APP_PARA_EL_PUBLICO = true`).
 
 ---
 

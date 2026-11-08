@@ -213,7 +213,7 @@ export const TEXTOS = {
     sinMetodosDePago:
       "Purchases in the app aren't available in this country yet.",
     muyProntoProductos:
-      "Coming soon: products from stores in this country. Open yours and be one of the first.",
+      "Products from stores in this country are on the way. Open yours and be one of the first.",
     pagoNoDisponible:
       "Card payments aren't available right now. Please try again later.",
     pedidoCreado: "Order placed",
@@ -572,7 +572,7 @@ export const TEXTOS = {
     sinMetodosDePago:
       "Las compras en la app todavía no están disponibles en este país.",
     muyProntoProductos:
-      "Muy pronto: productos de comercios de este país. Abre tu tienda y sé de los primeros.",
+      "Ya vienen los productos de comercios de este país. Abre tu tienda y sé de los primeros.",
     pagoNoDisponible:
       "El pago con tarjeta no está disponible ahora. Inténtalo más tarde.",
     pedidoCreado: "Pedido creado",

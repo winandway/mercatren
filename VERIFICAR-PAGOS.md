@@ -24,6 +24,16 @@
 
 > ## 🔴 LA APP NATIVA: EL COBRO CON TARJETA NO ESTÁ PROBADO (5 nov 2026)
 >
+> **8 nov 2026: APAGADO PARA EL PÚBLICO.** Venezuela se encendió en la app y el
+> público paga con **Zelle en la web** (la app abre la página de pago del
+> pedido en mercatren.com.ve: la misma ficha y la misma subida del comprobante
+> de la web, ya probadas). La hoja de tarjeta de la app solo la ve el equipo
+> (`TARJETA_EN_LA_APP_PARA_EL_PUBLICO = false`,
+> `src/lib/app-movil/cobro-en-la-app.ts`) hasta la prueba 9. **Probado en
+> local:** el pedido de Zelle desde la app y el salto a la página de pago (ver
+> `HISTORIAL.md`). **Sin probar en producción:** el pase de un solo uso en
+> mercatren.com.ve (se mira con la primera compra real de Zelle desde la app).
+>
 > La app (Expo, `app-movil/`) ya crea el pedido con la MISMA acción de la web
 > (`/datos/app/mi/pedido` → `crearPedido`) y pide el intento con la MISMA
 > acción de la web (`crearIntentoDePago`); paga con la hoja de Stripe
