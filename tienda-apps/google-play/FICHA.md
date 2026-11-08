@@ -210,3 +210,105 @@ en Google Play. Google dice que suele tardar 7 días o menos.
 2. Cuando esté aprobada: la guía pública «La app de Mercatren» en Docs (es y
    en) con el enlace a Google Play, y el botón «Get it on Google Play» en el
    pie del sitio.
+
+## Ficha para Venezuela (8 nov 2026, cargada como borrador por la API)
+
+Gerencia decidió que la app nativa entra con Venezuela, el único país con
+productos reales. Estos textos reemplazan a los de arriba en la consola. Los
+países de distribución (solo Venezuela), la dirección de privacidad y la
+seguridad de los datos se cambian en la consola: la API no los toca.
+
+### Español (es-419 y es-US)
+
+**Nombre** (30/30)
+
+```
+Mercatren: compra en Venezuela
+```
+
+**Descripción corta**
+
+```
+Compra en tiendas de Venezuela y retira tu pedido con el vendedor en tu ciudad.
+```
+
+**Descripción completa**
+
+```
+Mercatren reúne comercios de Venezuela en un solo lugar. Mira el catálogo, compara precios en dólares y haz tu pedido desde el celular. Cada pedido lo vende y lo factura Mercatren LLC, una empresa de Estados Unidos con sede en Michigan.
+
+LO QUE PUEDES HACER
+• Ver y buscar productos de comercios de Venezuela, con su foto y su precio.
+• Hacer tu pedido y retirarlo con el vendedor, en tu ciudad. Te escribimos cuando esté listo.
+• Pagar con Zelle en nuestra página web: te decimos a dónde enviarlo y subes el comprobante.
+• Seguir tus pedidos desde tu cuenta.
+• Abrir tu propia tienda y vender con la misma cuenta: sube productos con la cámara del celular.
+• Denunciar un producto o una tienda y bloquear a un vendedor, desde el menú de tres puntos. Ves y deshaces tus bloqueos en tu cuenta.
+
+POR QUÉ MERCATREN
+• Una sola cuenta para comprar, seguir tus pedidos y vender.
+• Precios claros y un registro de cada compra.
+• En español o en inglés.
+• Un equipo real detrás. ¿Preguntas? Escríbenos a hola@mercatren.com.
+
+TUS DATOS, TU DECISIÓN
+Puedes borrar tu cuenta cuando quieras, desde la app o en mercatren.com/delete-account.
+
+Mercatren LLC · Novi, Michigan, EE. UU.
+```
+
+### Inglés (en-US)
+
+**Nombre**
+
+```
+Mercatren: Shop Venezuela
+```
+
+**Descripción corta**
+
+```
+Shop stores in Venezuela and pick up your order from the seller in your city.
+```
+
+**Descripción completa**
+
+```
+Mercatren brings stores in Venezuela together in one place. Browse the catalog, compare prices in U.S. dollars, and place your order from your phone. Every order is sold and invoiced by Mercatren LLC, a U.S. company based in Michigan.
+
+WHAT YOU CAN DO
+• Browse and search products from stores in Venezuela, with photos and prices.
+• Place your order and pick it up from the seller in your city. We'll message you when it's ready.
+• Pay with Zelle on our website: we tell you where to send it and you upload the receipt.
+• Track your orders from your account.
+• Open your own store and sell with the same account: add products with your phone's camera.
+• Report a product or a store, or block a seller, from the three-dot menu. You can see and undo your blocks in your account.
+
+WHY MERCATREN
+• One account to shop, track orders, and sell.
+• Clear prices and a record of every purchase.
+• In English or Spanish.
+• A real team behind it. Questions? Write to hola@mercatren.com.
+
+YOUR DATA, YOUR CHOICE
+You can delete your account at any time, from the app or at mercatren.com/delete-account.
+
+Mercatren LLC · Novi, Michigan, USA
+```
+
+### Notas de la versión 13
+
+```
+Ahora puedes comprar en tiendas de Venezuela: haz tu pedido, retíralo con el vendedor en tu ciudad y paga con Zelle en nuestra web.
+```
+
+```
+You can now shop stores in Venezuela: place your order, pick it up from the seller in your city, and pay with Zelle on our website.
+```
+
+### Capturas de teléfono (las mismas en los tres idiomas)
+
+`capturas-ve/01-bienvenida-venezuela-es.png`, `02-portada-venezuela-es.png`,
+`03-ficha-producto-es.png`, `06-pedido-creado-pagar-en-la-web-es.png`,
+`07-pais-vacio-muy-pronto-es.png`. La 04 lleva «Comprador Prueba» y la 05 es
+de la máquina local: no se usan.
