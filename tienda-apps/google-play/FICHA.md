@@ -240,7 +240,7 @@ Mercatren reúne comercios de Venezuela en un solo lugar. Mira el catálogo, com
 LO QUE PUEDES HACER
 • Ver y buscar productos de comercios de Venezuela, con su foto y su precio.
 • Hacer tu pedido y retirarlo con el vendedor, en tu ciudad. Te escribimos cuando esté listo.
-• Pagar con Zelle en nuestra página web: te decimos a dónde enviarlo y subes el comprobante.
+• Pagar con Zelle en nuestra página web, en pedidos desde 200 dólares: te decimos a dónde enviarlo y subes el comprobante.
 • Seguir tus pedidos desde tu cuenta.
 • Abrir tu propia tienda y vender con la misma cuenta: sube productos con la cámara del celular.
 • Denunciar un producto o una tienda y bloquear a un vendedor, desde el menú de tres puntos. Ves y deshaces tus bloqueos en tu cuenta.
@@ -279,7 +279,7 @@ Mercatren brings stores in Venezuela together in one place. Browse the catalog, 
 WHAT YOU CAN DO
 • Browse and search products from stores in Venezuela, with photos and prices.
 • Place your order and pick it up from the seller in your city. We'll message you when it's ready.
-• Pay with Zelle on our website: we tell you where to send it and you upload the receipt.
+• Pay with Zelle on our website, on orders of $200 or more: we tell you where to send it and you upload the receipt.
 • Track your orders from your account.
 • Open your own store and sell with the same account: add products with your phone's camera.
 • Report a product or a store, or block a seller, from the three-dot menu. You can see and undo your blocks in your account.
@@ -305,6 +305,10 @@ Ahora puedes comprar en tiendas de Venezuela: haz tu pedido, retíralo con el ve
 ```
 You can now shop stores in Venezuela: place your order, pick it up from the seller in your city, and pay with Zelle on our website.
 ```
+
+### Imagen destacada
+
+`grafico-destacado-ve-es.png` (es-419, es-US) y `grafico-destacado-ve-en.png` (en-US). Sin capturas de tableta.
 
 ### Capturas de teléfono (las mismas en los tres idiomas)
 
