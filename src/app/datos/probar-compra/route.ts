@@ -72,6 +72,9 @@ const Peticion = z.discriminatedUnion("accion", [
   z.object({
     accion: z.literal("sale-zelle"),
     montoCentavos: z.number().int().positive(),
+    /* Un trozo del nombre del comercio (8 nov 2026: sin él solo salían los
+       ocho más nuevos y no se podía mirar a Bley). */
+    tienda: z.string().max(80).optional(),
   }),
   /* Las estadísticas de la base (18 sep 2026): enseña el plan de las
      consultas-trampa, corre ANALYZE (o `PRAGMA optimize`) y lo enseña otra
@@ -243,7 +246,7 @@ export async function POST(peticion: Request) {
     }
     case "sale-zelle": {
       const { saleZelle } = await import("@/lib/salud/medir-panel");
-      resultado = await saleZelle(e.montoCentavos);
+      resultado = await saleZelle(e.montoCentavos, e.tienda);
       break;
     }
     case "tablas": {
