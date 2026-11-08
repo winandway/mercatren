@@ -187,7 +187,7 @@ entre el dinero, y verlo ahí haría creer que ya se cobró.
 
 **Qué se está probando:** el cobro con tarjeta dentro de la app nativa, que
 nunca se probó con una tarjeta (bloque en rojo de `VERIFICAR-PAGOS.md`). Sin
-esta prueba la app no se abre a compras. La versión 2.0.0 (versionCode 11) ya
+esta prueba la app no se abre a compras. La versión 2.0.0 (versionCode 12) ya
 está en la **prueba interna** de Google Play.
 
 **Antes:** no hay ningún producto de 1 dólar real; el más barato que hay hoy
