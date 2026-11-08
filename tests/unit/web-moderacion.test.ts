@@ -40,3 +40,12 @@ describe("denunciar y bloquear también en la web (dictamen de Play, 8 nov 2026)
     );
   });
 });
+
+describe("lo que está apagado no se le ofrece a Google", () => {
+  it("la búsqueda por foto apagada lleva noindex", () => {
+    const f = leer("src/app/[locale]/(tienda)/buscar-con-foto/page.tsx");
+    expect(f).toMatch(
+      /busquedaPorImagenDisponible\(\)\s*\?\s*\{\}\s*:\s*\{ robots: \{ index: false/,
+    );
+  });
+});

@@ -15,7 +15,15 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "buscarConFoto" });
-  return { title: t("titulo"), description: t("texto") };
+  /* Apagada (sin la llave del ojo), la página no se le ofrece a Google: solo
+     dice que no está disponible (8 nov 2026, dictamen de Play). */
+  return {
+    title: t("titulo"),
+    description: t("texto"),
+    ...(busquedaPorImagenDisponible()
+      ? {}
+      : { robots: { index: false, follow: true } }),
+  };
 }
 
 export default async function PaginaBuscarConFoto({
