@@ -119,3 +119,10 @@ Wholesale2B:
 - https://www.wholesale2b.com/wholesale2b-vs-topdawg.html (página de marketing de Wholesale2B contra TopDawg; solo para contexto)
 
 Notas: los resultados de https://www.wholesale2b.com/pricing y /pricing.html no correspondían al sitio real (traían planes ajenos) y se descartaron. Un buscador citó a terceros (xpay.sh, spotsaas.com) con otros precios; no se usaron.
+
+## Lo que ya se hizo (8 nov 2026)
+
+- Richard abrió la cuenta gratis de TopDawg el 7 nov con el correo de Windoce (go@windoce.com), que está conectado a la IA.
+- El 8 nov se les escribió desde ese buzón a su soporte con tres preguntas antes de pagar: si el plan Business sirve para tienda propia con pedidos a mano y catálogo en CSV, si hay prueba de 7 días y pago mensual, y en qué plan viene la API y cuánto cuesta.
+- La respuesta llega a ese mismo buzón: la IA la lee sola, sin pedírsela a Richard.
+- Decisión tomada: TopDawg, sin API al principio; Wholesale2B descartada para empezar (mezcla AliExpress, 5 % por pedido, más quejas).
