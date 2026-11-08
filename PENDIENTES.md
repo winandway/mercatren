@@ -188,7 +188,7 @@ apruebe Divoox.
       5.1.1(v)), en la web y en la app con la misma pieza: la tienda se apaga
       ya y la cuenta se borra sola sin pendientes. Ver HISTORIAL, «UNA CUENTA
       CON TIENDA SE CIERRA SOLA».
-- [ ] 🔴 La migración 0051 (tabla `solicitudes_cierre`) llega sola a
+- [x] ✅ (8 nov 2026: comprobado en vivo con la sonda `{"accion":"tablas"}`: están las siete tablas de 0051 a 0054, faltan 0) La migración 0051 (tabla `solicitudes_cierre`) llega sola a
       producción con `schema.sql` al publicar; comprobar en vivo cuando se
       quite la pausa de la plataforma. (8 nov: el sitio ya responde; se
       comprueba con la sonda `{"accion":"tablas"}` de la puerta
@@ -215,7 +215,7 @@ apruebe Divoox.
 - [ ] 🔴 👤 Fase 4 · Encender el cobro de Pro y de los promocionados:
       decisión de Richard, con las claves de PRUEBA de Stripe para probarlo
       de punta a punta antes (bloque en rojo de `VERIFICAR-PAGOS.md`).
-- [ ] 🔴 La migración 0052 (planes, promociones, gasto y clics) llega sola
+- [x] ✅ (8 nov 2026: comprobado en vivo con la sonda `{"accion":"tablas"}`: están las siete tablas de 0051 a 0054, faltan 0) La migración 0052 (planes, promociones, gasto y clics) llega sola
       con `schema.sql` al publicar; comprobar en vivo cuando se quite la pausa
       de la plataforma.
 
@@ -256,7 +256,7 @@ apruebe Divoox.
       dos pasos y acuse por correo con fecha y hora (tabla desistimientos).
 - [x] ✅ 💻 Venezuela: equivalente en bolívares a la tasa oficial del BCV
       debajo del precio (5 nov; BCV o DolarAPI, caché del borde, sin base).
-- [ ] 🔴 Las migraciones 0053 (desistimientos) y 0054 (seguridad_producto)
+- [x] ✅ (8 nov 2026: comprobado en vivo con la sonda `{"accion":"tablas"}`: están las siete tablas de 0051 a 0054, faltan 0) Las migraciones 0053 (desistimientos) y 0054 (seguridad_producto)
       llegan solas con `schema.sql`; comprobar en vivo cuando se quite la
       pausa de la plataforma.
 - [ ] 🟡 👤 Zelle dentro de la app (hoy solo tarjeta; Zelle sigue en la web).
@@ -275,7 +275,7 @@ apruebe Divoox.
 - [x] ✅ 💻 5 nov: Richard pidió reabrir sin CJ. Tienda abierta por código,
       64 tiendas de CJ borradas, nada legal tocado (ver HISTORIAL, «MERCATREN
       SE REABRE SIN CJ»).
-- [ ] 🔴 Quitar la pausa de la PLATAFORMA al sitio mercatren (la pidió
+- [x] ✅ (8 nov 2026: el sitio responde 200, la pausa ya no está) Quitar la pausa de la PLATAFORMA al sitio mercatren (la pidió
       Gerencia a la sesión de YaDominios Cloud). Sin eso nada responde.
 - [ ] 💻 Con la pausa quitada: comprobar en vivo portada, crear tienda,
       privacidad y términos con 200, y preparar el reenvío a Google Play
