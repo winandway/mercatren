@@ -316,3 +316,13 @@ You can now shop stores in Venezuela: place your order, pick it up from the sell
 `03-ficha-producto-es.png`, `06-pedido-creado-pagar-en-la-web-es.png`,
 `07-pais-vacio-muy-pronto-es.png`. La 04 lleva «Comprador Prueba» y la 05 es
 de la máquina local: no se usan.
+
+### Acceso a la app: instrucciones para el revisor (versión 13)
+
+Va en Contenido de la app → Acceso a la app. Usuario:
+`revisor.usuario@mercatren.com`. La contraseña la pega Richard (no se escribe
+aquí). Texto de la casilla de instrucciones (497 caracteres):
+
+```
+Keep Venezuela selected on the welcome screen and tap Continue. Open any product and tap Add to cart. Zelle orders start at $200, so add a higher-priced item (for example a generator) or more units. Checkout is pickup from the seller in the buyer's city; Continue to payment opens our website with the Zelle instructions. Please do not send money. Report a product or store, or block a seller, from the three-dot menu on the product page. Blocked sellers and Delete account are in the Account tab.
+```
