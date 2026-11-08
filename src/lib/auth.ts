@@ -5,6 +5,7 @@ import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { oneTimeToken } from "better-auth/plugins/one-time-token";
 import { cache } from "react";
 
 import { eq } from "drizzle-orm";
@@ -213,7 +214,22 @@ export const getAuth = cache(async () => {
        esquema (mercatren://) y este complemento lo traduce para que la
        comprobación de origen la deje pasar (ver ORIGENES_DE_LA_APP).
        nextCookies siempre va de ultimo en la lista. */
-    plugins: [expo(), nextCookies()],
+    plugins: [
+      expo(),
+      /* EL PASE DE UN SOLO USO DE LA APP AL NAVEGADOR (8 nov 2026). Al pagar
+         un pedido de la app en la web (Zelle en mercatren.com.ve), la app
+         abre el navegador con un pase que vale UNA vez y pocos minutos, y
+         ahí la sesión ya está puesta: sin volver a escribir la contraseña.
+         Guardado con hash; solo lo emite el servidor
+         (`/datos/app/mi/pedido` y `/datos/app/mi/pagar`), nunca un cliente
+         por su cuenta; lo canjea `/datos/app/abrir-pedido`. */
+      oneTimeToken({
+        expiresIn: 5,
+        storeToken: "hashed",
+        disableClientRequest: true,
+      }),
+      nextCookies(),
+    ],
   });
 });
 

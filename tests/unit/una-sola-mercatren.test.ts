@@ -27,9 +27,9 @@ import { mercadoDeLaVisita } from "@/lib/mercado/mercados";
 const leer = (ruta: string) => readFileSync(ruta, "utf-8");
 
 describe("el interruptor de cada país", () => {
-  it("hoy solo Estados Unidos está en la app; España vive dentro de mercatren.com", () => {
-    expect(paisesEnLaApp()).toEqual(["US"]);
-    expect(enLaApp("VE")).toBe(false);
+  it("en la app: Estados Unidos y Venezuela (8 nov 2026); España vive dentro de mercatren.com", () => {
+    expect(paisesEnLaApp()).toEqual(["US", "VE"]);
+    expect(enLaApp("VE")).toBe(true);
     expect(enLaApp("ES")).toBe(false);
     expect(dentroDeMercatren("ES")).toBe(true);
     /* Venezuela, preparada y apagada: sigue en su dominio. */
@@ -54,14 +54,20 @@ describe("el interruptor de cada país", () => {
 
 describe("el país al crear la cuenta, en la web y en la app", () => {
   it("se ofrecen los encendidos y, siempre, el de la visita (primero)", () => {
-    expect(paisesParaElAlta("US").map((m) => m.codigo)).toEqual(["US"]);
-    expect(paisesParaElAlta("ES").map((m) => m.codigo)).toEqual(["ES", "US"]);
+    /* Venezuela encendida en la app desde el 8 nov 2026. */
+    expect(paisesParaElAlta("US").map((m) => m.codigo)).toEqual(["US", "VE"]);
+    expect(paisesParaElAlta("ES").map((m) => m.codigo)).toEqual([
+      "ES",
+      "US",
+      "VE",
+    ]);
     expect(paisesParaElAlta("VE").map((m) => m.codigo)).toEqual(["VE", "US"]);
   });
 
   it("el servidor no abre cuentas en un país apagado", () => {
-    expect(paisDelAltaPermitido("VE", "US")).toBe(false);
+    expect(paisDelAltaPermitido("VE", "US")).toBe(true);
     expect(paisDelAltaPermitido("ES", "US")).toBe(false);
+    expect(paisDelAltaPermitido("CL", "US")).toBe(false);
     expect(paisDelAltaPermitido("ES", "ES")).toBe(true);
     expect(paisDelAltaPermitido("US", "ES")).toBe(true);
     expect(paisDelAltaPermitido(undefined, "US")).toBe(true);

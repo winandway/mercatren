@@ -61,8 +61,8 @@ describe("el país y el idioma que pide la app", () => {
     expect(contextoDe(new URL("https://m.com/x?idioma=fr")).ok).toBe(false);
   });
 
-  it("solo Estados Unidos está encendido, con su moneda", () => {
-    expect(PAISES_ENCENDIDOS).toEqual(["US"]);
+  it("Estados Unidos y Venezuela (8 nov 2026) encendidos, con su moneda", () => {
+    expect(PAISES_ENCENDIDOS).toEqual(["US", "VE"]);
     expect(paisParaApp(mercadoPorCodigo("US"), "es")).toMatchObject({
       codigo: "US",
       moneda: "USD",

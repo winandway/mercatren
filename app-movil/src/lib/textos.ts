@@ -197,6 +197,23 @@ export const TEXTOS = {
     codigoPostal: "ZIP code",
     codigoPostalFuera: "Postal code",
     pagarConTarjeta: "Pay with card",
+    comoPagas: "How do you want to pay?",
+    metodoTarjeta: "Card (in the app)",
+    metodoTarjetaAyuda: "Team only, for the test purchase.",
+    metodoZelle: "Zelle",
+    metodoZelleAyuda:
+      "You'll pay on our website: we show you where to send it and you upload the receipt.",
+    zelleDesde: "Zelle orders start at {monto}.",
+    totalEstimadoZelle: "Estimated total with Zelle",
+    totalExactoEnLaWeb: "You'll see the exact total before you pay.",
+    seguirAlPago: "Continue to payment",
+    pagarEnLaWeb: "Pay on our website",
+    pagarEnLaWebTexto:
+      "Your order is saved. We'll open the payment page on our website: send the Zelle payment and upload the receipt there.",
+    sinMetodosDePago:
+      "Purchases in the app aren't available in this country yet.",
+    muyProntoProductos:
+      "Coming soon: products from stores in this country. Open yours and be one of the first.",
     pagoNoDisponible:
       "Card payments aren't available right now. Please try again later.",
     pedidoCreado: "Order placed",
@@ -539,6 +556,23 @@ export const TEXTOS = {
     codigoPostal: "Código postal",
     codigoPostalFuera: "Código postal",
     pagarConTarjeta: "Pagar con tarjeta",
+    comoPagas: "¿Cómo quieres pagar?",
+    metodoTarjeta: "Tarjeta (en la app)",
+    metodoTarjetaAyuda: "Solo para el equipo, para la compra de prueba.",
+    metodoZelle: "Zelle",
+    metodoZelleAyuda:
+      "Pagas en nuestra página web: te decimos a dónde enviarlo y subes el comprobante.",
+    zelleDesde: "Con Zelle se compra desde {monto}.",
+    totalEstimadoZelle: "Total estimado con Zelle",
+    totalExactoEnLaWeb: "Verás el total exacto antes de pagar.",
+    seguirAlPago: "Seguir al pago",
+    pagarEnLaWeb: "Pagar en la página web",
+    pagarEnLaWebTexto:
+      "Tu pedido quedó guardado. Abrimos la página de pago en nuestra web: ahí envías el Zelle y subes el comprobante.",
+    sinMetodosDePago:
+      "Las compras en la app todavía no están disponibles en este país.",
+    muyProntoProductos:
+      "Muy pronto: productos de comercios de este país. Abre tu tienda y sé de los primeros.",
     pagoNoDisponible:
       "El pago con tarjeta no está disponible ahora. Inténtalo más tarde.",
     pedidoCreado: "Pedido creado",

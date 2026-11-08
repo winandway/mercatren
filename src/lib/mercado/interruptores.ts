@@ -21,9 +21,12 @@ export type Interruptor = { enLaApp: boolean; dentroDeMercatren: boolean };
 
 export const INTERRUPTORES: Readonly<Record<string, Interruptor>> = {
   US: { enLaApp: true, dentroDeMercatren: true },
-  /* Preparada en la app (moneda, retiro en ciudad, legales y guía).
-     Apagada hasta el sí de Richard. */
-  VE: { enLaApp: false, dentroDeMercatren: false },
+  /* ENCENDIDA EN LA APP EL 8 NOV 2026 (Gerencia, con la decisión delegada
+     por Richard): la app de Android entra a Google Play con Venezuela, el
+     único país con productos reales. Se cobra con Zelle en la web
+     (`app-movil/cobro-en-la-app.ts`); la tarjeta de la app sigue apagada
+     para el público hasta la prueba 9. Sigue viviendo en su dominio. */
+  VE: { enLaApp: true, dentroDeMercatren: false },
   /* Ya se ve dentro de mercatren.com (sin cobro: `ESPANA_SIN_COBRO`).
      En la app, apagada hasta el sí de Richard. */
   ES: { enLaApp: false, dentroDeMercatren: true },

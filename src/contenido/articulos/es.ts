@@ -19,7 +19,7 @@ export const ARTICULOS_ES: Articulo[] = [
     soloConPais: "VE",
     titulo: "Mercatren Venezuela desde la app",
     resumen:
-      "Elige Venezuela en la app, paga en dólares con tarjeta y retira tu pedido con el comercio, en tu ciudad. Quien paga puede estar en cualquier lugar; quien retira, en Venezuela.",
+      "Elige Venezuela en la app, paga en dólares con Zelle desde nuestra página web y retira tu pedido con el comercio, en tu ciudad. Quien paga puede estar en cualquier lugar; quien retira, en Venezuela.",
     fecha: "2026-11-05",
     temas: ["app", "compradores", "venezuela", "retiro"],
     cuerpo: [
@@ -28,7 +28,7 @@ export const ARTICULOS_ES: Articulo[] = [
         tono: "acento",
         titulo: "En una línea",
         texto:
-          "En Venezuela compras en la app de Mercatren igual que en mercatren.com.ve: precios en dólares, pago con tarjeta y retiro del pedido con el comercio, en la ciudad que elijas.",
+          "En Venezuela compras en la app de Mercatren igual que en mercatren.com.ve: precios en dólares, pago con Zelle en nuestra página web y retiro del pedido con el comercio, en la ciudad que elijas.",
       },
       { tipo: "subtitulo", texto: "1. Elige Venezuela" },
       {
@@ -46,7 +46,7 @@ export const ARTICULOS_ES: Articulo[] = [
       {
         tipo: "parrafo",
         texto:
-          "Los precios están en dólares estadounidenses, los mismos que publica cada comercio. Agrega lo que quieras al carrito y paga con tarjeta. Puedes pagar desde Venezuela o desde otro país: es muy común que un familiar pague desde Estados Unidos y que la persona que vive en Venezuela retire el pedido.",
+          "Los precios están en dólares estadounidenses, los mismos que publica cada comercio. Agrega lo que quieras al carrito, elige Zelle y toca «Seguir al pago». La app guarda tu pedido y abre su página de pago en mercatren.com.ve: ahí ves el total exacto, a dónde enviar el Zelle, y subes la captura del comprobante. Las compras con Zelle son desde 200 dólares. Puedes pagar desde Venezuela o desde otro país: es muy común que un familiar pague desde Estados Unidos y que la persona que vive en Venezuela retire el pedido.",
       },
       { tipo: "subtitulo", texto: "3. Di quién retira y en qué ciudad" },
       {
@@ -66,7 +66,7 @@ export const ARTICULOS_ES: Articulo[] = [
           {
             titulo: "Te confirmamos el pedido",
             texto:
-              "Al pagar recibes un correo con el número de tu pedido y el lugar donde se retira, para que se lo puedas reenviar a quien va a buscarlo.",
+              "Cuando confirmamos tu pago recibes un correo con el número de tu pedido y el lugar donde se retira, para que se lo puedas reenviar a quien va a buscarlo. Si cerraste la página de pago, la vuelves a abrir desde «Cuenta», «Mis pedidos».",
           },
           {
             titulo: "Te avisamos cuando esté listo",

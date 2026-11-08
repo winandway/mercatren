@@ -131,3 +131,91 @@ export function entregaParaElPedido(
     codigoPostal: d.codigoPostal.trim() || undefined,
   };
 }
+
+/* ══ CÓMO SE PAGA EN LA APP (8 nov 2026) ══
+ *
+ * Nada cobra sin probar: la tarjeta dentro de la app (hoja de Stripe) solo
+ * la ve el equipo hasta la prueba 9; el público paga con Zelle en la web.
+ * Qué métodos tiene cada quien lo dice el servidor (`/datos/app/mi/metodos`,
+ * de `src/lib/app-movil/cobro-en-la-app.ts` del sitio); aquí solo se lee. */
+export type MetodoApp = "tarjeta" | "zelle";
+
+export function urlMetodos(pais: string, idioma: Idioma): string {
+  return `${API_BASE}/datos/app/mi/metodos?pais=${encodeURIComponent(pais)}&idioma=${idioma}`;
+}
+
+/** Lo que se ofrece mientras llega la respuesta (o si no llega): solo Zelle
+ *  donde existe. Nunca la tarjeta por adivinar: el servidor la rechazaría. */
+export function metodosDeRespaldo(pais: string | null): MetodoApp[] {
+  return pais === "VE" || pais === "US" ? ["zelle"] : [];
+}
+
+/** Los métodos que mandó el servidor, filtrados a los que la app conoce. */
+export function metodosLeidos(crudo: unknown): MetodoApp[] {
+  if (!Array.isArray(crudo)) return [];
+  return crudo.filter((m): m is MetodoApp => m === "tarjeta" || m === "zelle");
+}
+
+/* El precio con Zelle, para ESTIMAR el total en la pantalla. El de verdad lo
+ * calcula el servidor al crear el pedido (y la página de pago lo enseña
+ * antes de pagar). Copia de `baseDesdePublicado` y `precioZelleCentavos` de
+ * `src/lib/dinero.ts`: la prueba `app-movil-pago-en-la-web.test.ts` falla si
+ * se separan (por ejemplo, si sube el margen y aquí no). */
+const PROCESADOR_PORCENTAJE_PB = 290;
+const PROCESADOR_FIJO_CENTAVOS = 30;
+const COMISION_TARJETA_PB = 300;
+const COMISION_ZELLE_PB = 600;
+
+export function precioZelleDesdePublicado(publicado: number): number {
+  if (publicado <= 0) return 0;
+  const base = Math.max(
+    0,
+    Math.floor(
+      (publicado * (10_000 - PROCESADOR_PORCENTAJE_PB - COMISION_TARJETA_PB)) /
+        10_000,
+    ) - PROCESADOR_FIJO_CENTAVOS,
+  );
+  if (base <= 0) return 0;
+  return Math.ceil((base * 10_000) / (10_000 - COMISION_ZELLE_PB));
+}
+
+export function totalZelleEstimado(
+  lineas: { precio: { centavos: number }; cantidad: number }[],
+): number {
+  return lineas.reduce(
+    (suma, l) =>
+      suma + precioZelleDesdePublicado(l.precio.centavos) * l.cantidad,
+    0,
+  );
+}
+
+const WEB_DE_MERCATREN =
+  /^(https:\/\/(www\.)?mercatren\.(com|com\.ve|cl|com\.co)\/|http:\/\/(10\.0\.2\.2|localhost|127\.0\.0\.1|[a-z]+\.localhost)(:\d+)?\/)/;
+
+/** Qué hacer con la respuesta del pedido (o de «pagar» en Mis pedidos). */
+export type SiguientePaso =
+  | { tipo: "web"; url: string }
+  | { tipo: "hoja"; clientSecret: string; clavePublica: string }
+  | { tipo: "sinPago" };
+
+export type RespuestaDePago = {
+  pagoEnLaWeb?: string | null;
+  pago?: { clientSecret?: string; clavePublica?: string } | null;
+} | null;
+
+export function siguientePaso(cuerpo: RespuestaDePago): SiguientePaso {
+  const web = cuerpo?.pagoEnLaWeb;
+  /* Solo un dominio de Mercatren con https (o la máquina de desarrollo):
+     nada de abrir lo que sea que venga en la respuesta. */
+  if (typeof web === "string" && WEB_DE_MERCATREN.test(web)) {
+    return { tipo: "web", url: web };
+  }
+  if (cuerpo?.pago?.clientSecret && cuerpo.pago.clavePublica) {
+    return {
+      tipo: "hoja",
+      clientSecret: cuerpo.pago.clientSecret,
+      clavePublica: cuerpo.pago.clavePublica,
+    };
+  }
+  return { tipo: "sinPago" };
+}

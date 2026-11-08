@@ -60,7 +60,10 @@ describe("la guía de cada país, escrita y escondida", () => {
     const base = ARTICULOS_ES[0]!;
     const conPais = (p: string): Articulo => ({ ...base, soloConPais: p });
     expect(publicados([conPais("US")])).toHaveLength(1);
-    expect(publicados([conPais("VE")])).toHaveLength(0);
+    /* Venezuela se encendió en la app el 8 nov 2026: su guía se publica.
+       España sigue apagada. */
+    expect(publicados([conPais("VE")])).toHaveLength(1);
+    expect(publicados([conPais("ES")])).toHaveLength(0);
     expect(publicados([{ ...base, soloConPais: undefined }])).toHaveLength(1);
   });
 

@@ -15,7 +15,7 @@ import {
 
 import { SelectorIdioma } from "@/components/selector-idioma";
 import { usePreferencias } from "@/contexto/preferencias";
-import { pedirPaises, type Pais } from "@/lib/api";
+import { paisesEnOrden, paisMarcado, pedirPaises, type Pais } from "@/lib/api";
 import { bandera, COLORES } from "@/lib/colores";
 import { texto } from "@/lib/textos";
 
@@ -24,7 +24,8 @@ import { texto } from "@/lib/textos";
  * precios y la entrega (plan PLAN-UNA-SOLA-MERCATREN: un .com, el país lo
  * elige la persona). Los países que todavía no venden salen con «Muy pronto»
  * y no se pueden elegir. Lo usan la bienvenida (la primera vez) y «Cambiar de
- * país» desde la cuenta.
+ * país» desde la cuenta. El país por defecto (8 nov 2026: Venezuela) sale
+ * primero y ya marcado.
  */
 export function ElegirPais({ alElegir }: { alElegir?: () => void }) {
   const { idioma, pais: actual, cambiar } = usePreferencias();
@@ -38,7 +39,12 @@ export function ElegirPais({ alElegir }: { alElegir?: () => void }) {
     let vivo = true;
     setFallo(false);
     pedirPaises(idioma)
-      .then((r) => vivo && setPaises(r.paises))
+      .then((r) => {
+        if (!vivo) return;
+        setPaises(paisesEnOrden(r.paises, r.porDefecto));
+        /* El país por defecto (Venezuela) queda marcado: un toque y adentro. */
+        setElegido((antes) => paisMarcado(antes, r.paises, r.porDefecto));
+      })
       .catch(() => vivo && setFallo(true));
     return () => {
       vivo = false;

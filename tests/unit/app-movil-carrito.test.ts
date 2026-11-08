@@ -105,7 +105,11 @@ describe("el pedido y el pago", () => {
     expect(ruta).toContain(
       "{ idioma: contexto.idioma, pais: contexto.mercado.codigo }",
     );
-    expect(ruta).toContain('metodoPago: "stripe"');
+    /* 8 nov 2026: la app elige el método (tarjeta solo el equipo; Zelle en
+       la web); a `crearPedido` le llega el interno de siempre. */
+    expect(ruta).toContain(
+      'metodoPago: metodo === "zelle" ? "zelle" : "stripe"',
+    );
   });
 
   it("de la app no pasa ningún precio: el esquema solo acepta producto y cantidad", () => {
@@ -121,7 +125,8 @@ describe("el pedido y el pago", () => {
   it("el intento de pago lo arma el servidor con la MISMA acción de la web", () => {
     expect(ruta).toContain("await crearIntentoDePago(pedido.numero)");
     expect(leer("src/app/datos/app/mi/pagar/route.ts")).toContain(
-      "crearIntentoDePago(cuerpo.data.numero)",
+      /* 8 nov 2026: el número sale del pedido leído (solo SU pedido). */
+      "crearIntentoDePago(pedido.numero)",
     );
     const cobrar = leer("app-movil/src/lib/cobrar.ts");
     expect(cobrar).toContain("paymentIntentClientSecret: pago.clientSecret");

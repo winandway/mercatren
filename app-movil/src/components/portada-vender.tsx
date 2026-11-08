@@ -48,8 +48,17 @@ export function PortadaVender({
     );
   }
 
+  /* La versión grande sale solo cuando el país NO tiene productos: a quien
+     viene a comprar se le dice primero, claro, que llegan muy pronto
+     (8 nov 2026), y después se le invita a vender. */
   return (
     <View style={estilos.caja}>
+      <View style={estilos.pronto}>
+        <Text style={estilos.prontoEtiqueta}>{texto(idioma, "pronto")}</Text>
+        <Text style={estilos.prontoTexto}>
+          {texto(idioma, "muyProntoProductos")}
+        </Text>
+      </View>
       <Text style={estilos.tituloGrande}>{texto(idioma, "venderTitulo")}</Text>
       <Text style={estilos.texto}>{texto(idioma, "venderTexto")}</Text>
       {(["venderPaso1", "venderPaso2", "venderPaso3"] as const).map(
@@ -90,4 +99,23 @@ const estilos = StyleSheet.create({
     overflow: "hidden",
   },
   pasoTexto: { flex: 1, color: "#FFFFFF", fontSize: 15 },
+  pronto: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 12,
+    gap: 4,
+    marginBottom: 6,
+  },
+  prontoEtiqueta: {
+    alignSelf: "flex-start",
+    backgroundColor: COLORES.naranja,
+    color: "#FFFFFF",
+    fontWeight: "800",
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  prontoTexto: { color: COLORES.azul, fontSize: 15, fontWeight: "600" },
 });

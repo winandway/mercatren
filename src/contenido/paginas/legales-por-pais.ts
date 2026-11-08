@@ -49,8 +49,10 @@ export type DatosLegalesVenezuela = {
    * Estados Unidos en mercatren.com.ve («vendemos y entregamos únicamente
    * dentro de Estados Unidos») eran peores que unos venezolanos sin revisar.
    * PENDIENTE DE REVISIÓN DEL ABOGADO (anotado en
-   * `docs/LO-QUE-FALTA-PARA-ESPANA-Y-VENEZUELA.md`). La app no se enciende
-   * en Venezuela hasta que `revisadoPorAbogado` sea true.
+   * `docs/LO-QUE-FALTA-PARA-ESPANA-Y-VENEZUELA.md`). La app se encendió en
+   * Venezuela el 8 nov 2026 con ESTOS mismos textos (los que ya rigen la
+   * venta en la web); la revisión del abogado sigue pendiente y
+   * `revisadoPorAbogado` no se pone en true sin ella.
    */
   publicadoSinRevision: boolean;
 };

@@ -19,7 +19,7 @@ export const ARTICULOS_EN: Articulo[] = [
     soloConPais: "VE",
     titulo: "Mercatren Venezuela in the app",
     resumen:
-      "Choose Venezuela in the app, pay in US dollars by card and pick up your order from the seller in your city. Whoever pays can be anywhere; whoever picks up is in Venezuela.",
+      "Choose Venezuela in the app, pay in US dollars with Zelle on our website and pick up your order from the seller in your city. Whoever pays can be anywhere; whoever picks up is in Venezuela.",
     fecha: "2026-11-05",
     temas: ["app", "buyers", "venezuela", "pickup"],
     cuerpo: [
@@ -28,7 +28,7 @@ export const ARTICULOS_EN: Articulo[] = [
         tono: "acento",
         titulo: "In one line",
         texto:
-          "In Venezuela you shop in the Mercatren app just like on mercatren.com.ve: prices in US dollars, card payment, and in-person pickup from the seller in the city you choose.",
+          "In Venezuela you shop in the Mercatren app just like on mercatren.com.ve: prices in US dollars, Zelle payment on our website, and in-person pickup from the seller in the city you choose.",
       },
       { tipo: "subtitulo", texto: "1. Choose Venezuela" },
       {
@@ -46,7 +46,7 @@ export const ARTICULOS_EN: Articulo[] = [
       {
         tipo: "parrafo",
         texto:
-          "Prices are in US dollars, exactly as each seller lists them. Add what you want to your cart and pay by card. You can pay from Venezuela or from another country: it's very common for a family member to pay from the United States while the person who lives in Venezuela picks up the order.",
+          'Prices are in US dollars, exactly as each seller lists them. Add what you want to your cart, choose Zelle and tap "Continue to payment". The app saves your order and opens its payment page on mercatren.com.ve, where you see the exact total, where to send your Zelle payment, and upload a screenshot of the receipt. Zelle orders start at $200. You can pay from Venezuela or from another country: it\'s very common for a family member to pay from the United States while the person who lives in Venezuela picks up the order.',
       },
       { tipo: "subtitulo", texto: "3. Tell us who picks up and in which city" },
       {
@@ -66,7 +66,7 @@ export const ARTICULOS_EN: Articulo[] = [
           {
             titulo: "We confirm your order",
             texto:
-              "After you pay, you get an email with your order number and the pickup location, so you can forward it to whoever is picking it up.",
+              'Once we confirm your payment, you get an email with your order number and the pickup location, so you can forward it to whoever is picking it up. If you closed the payment page, open it again from "Account", "My orders".',
           },
           {
             titulo: "We let you know when it's ready",

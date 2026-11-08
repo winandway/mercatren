@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -20,7 +21,7 @@ import { useCarrito } from "@/contexto/carrito";
 import { usePreferencias } from "@/contexto/preferencias";
 import { SelectorLista } from "@/components/selector-lista";
 import { useBorrador } from "@/hooks/use-borrador";
-import { pedirJson, urlPedido } from "@/lib/api";
+import { pedirJson, urlPagarPedido, urlPedido } from "@/lib/api";
 import { authClient, cabeceraDeSesion } from "@/lib/auth-client";
 import { lineasParaElPedido, totalCentavos } from "@/lib/carrito";
 import { cobrarConHoja } from "@/lib/cobrar";
@@ -30,9 +31,16 @@ import {
   ENTREGA_US,
   faltaEnEntrega,
   entregaParaElPedido,
+  metodosDeRespaldo,
+  metodosLeidos,
+  siguientePaso,
+  totalZelleEstimado,
   urlEntrega,
+  urlMetodos,
   type ConfigEntrega,
   type DatosEntrega,
+  type MetodoApp,
+  type RespuestaDePago,
 } from "@/lib/pago";
 import { texto, type ClaveDeTexto } from "@/lib/textos";
 
@@ -47,10 +55,14 @@ const VACIO: DatosEntrega = {
 };
 
 /**
- * PAGAR: la dirección de entrega y la hoja de pago de Stripe. El pedido lo
- * crea el servidor con la MISMA acción de la web (precio, existencia y pausa
- * leídos de la base); la app solo manda qué productos y cuántos. El cobro lo
- * acredita el aviso de Stripe al servidor, nunca la app.
+ * PAGAR: la dirección de entrega y el método. El pedido lo crea el servidor
+ * con la MISMA acción de la web (precio, existencia y pausa leídos de la
+ * base); la app solo manda qué productos, cuántos y con qué se paga.
+ *
+ * ══ 8 nov 2026: NADA COBRA SIN PROBAR ══
+ * La hoja de tarjeta de Stripe solo la ve el equipo (prueba 9). El público
+ * paga con Zelle en la web: el pedido se crea y se abre en el navegador su
+ * página de pago en la web del país, la misma que ya usa mercatren.com.ve.
  */
 export default function Pagar() {
   const { pais, idioma } = usePreferencias();
@@ -84,7 +96,38 @@ export default function Pagar() {
   const [hecho, setHecho] = useState<{
     numero: string;
     pagado: boolean;
+    enLaWeb?: boolean;
   } | null>(null);
+  /* Con qué puede pagar esta persona aquí: lo dice el servidor (la tarjeta
+     de la app solo para el equipo). Mientras llega, solo Zelle donde existe. */
+  const respaldo: MetodoApp[] = metodosDeRespaldo(pais);
+  const primero: MetodoApp | null = respaldo[0] ?? null;
+  const [metodos, setMetodos] = useState(respaldo);
+  const [zelleMinimo, setZelleMinimo] = useState(20_000);
+  const [metodo, setMetodo] = useState(primero);
+  useEffect(() => {
+    if (!pais) return;
+    let vivo = true;
+    pedirJson<{ metodos: unknown; zelleMinimoCentavos?: number }>(
+      urlMetodos(pais, idioma),
+      fetch,
+      { headers: cabeceraDeSesion() },
+    )
+      .then((r) => {
+        if (!vivo) return;
+        const leidos = metodosLeidos(r.metodos);
+        setMetodos(leidos);
+        setMetodo((antes) =>
+          antes && leidos.includes(antes) ? antes : (leidos[0] ?? null),
+        );
+        if (typeof r.zelleMinimoCentavos === "number")
+          setZelleMinimo(r.zelleMinimoCentavos);
+      })
+      .catch((fallo: unknown) => console.warn("[pagar] métodos", fallo));
+    return () => {
+      vivo = false;
+    };
+  }, [pais, idioma]);
 
   const { recuperado, limpiar } = useBorrador(
     /* Uno por PAÍS: la dirección de Madrid no sirve para retirar en
@@ -101,9 +144,31 @@ export default function Pagar() {
     setD((a) => ({ ...a, [campo]: v }));
   };
   const moneda = lineas[0]?.precio.moneda ?? "USD";
+  const conZelle = metodo === "zelle";
+  const totalAMostrar = conZelle
+    ? totalZelleEstimado(lineas)
+    : totalCentavos(lineas);
+
+  /* Abre en el navegador la página de pago del pedido (Zelle en la web).
+     Si el enlace que vino con el pedido ya se usó, se pide uno nuevo. */
+  const abrirPagoEnLaWeb = async (numero: string, url?: string) => {
+    let destino = url;
+    if (!destino && pais) {
+      const r = await fetch(urlPagarPedido(pais, idioma), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...cabeceraDeSesion() },
+        body: JSON.stringify({ numero }),
+      }).catch(() => null);
+      const respuesta: RespuestaDePago = await r?.json().catch(() => null);
+      const paso = siguientePaso(respuesta ?? null);
+      if (paso.tipo === "web") destino = paso.url;
+    }
+    if (!destino) return setError({ clave: "pagoNoDisponible" });
+    await WebBrowser.openBrowserAsync(destino);
+  };
 
   const pagar = async () => {
-    if (!pais || !lineas.length) return;
+    if (!pais || !lineas.length || !metodo) return;
     const falta = faltaEnEntrega(d, entrega);
     if (falta) return setError({ clave: falta });
     setError(null);
@@ -115,12 +180,14 @@ export default function Pagar() {
         body: JSON.stringify({
           entrega: entregaParaElPedido(d, entrega),
           lineas: lineasParaElPedido(lineas),
+          metodoPago: metodo,
         }),
       });
       const cuerpo = (await r.json().catch(() => null)) as {
         ok?: boolean;
         mensaje?: string;
         numero?: string;
+        pagoEnLaWeb?: string | null;
         pago?: {
           clientSecret?: string;
           clavePublica?: string;
@@ -141,17 +208,17 @@ export default function Pagar() {
       /* El pedido ya existe: el carrito y el borrador ya no hacen falta. */
       vaciar();
       await limpiar();
-      if (!cuerpo.pago?.clientSecret || !cuerpo.pago.clavePublica) {
+      const paso = siguientePaso(cuerpo);
+      if (paso.tipo === "web") {
+        setHecho({ numero: cuerpo.numero, pagado: false, enLaWeb: true });
+        await abrirPagoEnLaWeb(cuerpo.numero, paso.url);
+        return;
+      }
+      if (paso.tipo !== "hoja") {
         setHecho({ numero: cuerpo.numero, pagado: false });
         return setError({ clave: "pagoNoDisponible" });
       }
-      const cobro = await cobrarConHoja(
-        {
-          clientSecret: cuerpo.pago.clientSecret,
-          clavePublica: cuerpo.pago.clavePublica,
-        },
-        d.nombre.trim(),
-      );
+      const cobro = await cobrarConHoja(paso, d.nombre.trim());
       if (cobro.tipo !== "pagado") {
         setHecho({ numero: cuerpo.numero, pagado: false });
         return setError(
@@ -187,6 +254,17 @@ export default function Pagar() {
       <View style={estilos.centro}>
         <Text style={estilos.titulo}>{texto(idioma, "pedidoCreado")}</Text>
         <Text style={estilos.ayuda}>{hecho.numero}</Text>
+        {hecho.enLaWeb ? (
+          <>
+            <Text style={estilos.ayuda}>
+              {texto(idioma, "pagarEnLaWebTexto")}
+            </Text>
+            <BotonPrincipal
+              texto={texto(idioma, "pagarEnLaWeb")}
+              onPress={() => void abrirPagoEnLaWeb(hecho.numero)}
+            />
+          </>
+        ) : null}
         {error ? (
           <Aviso
             texto={
@@ -341,13 +419,64 @@ export default function Pagar() {
             />
           </>
         ) : null}
+        <Text style={[estilos.subtitulo, { marginTop: 18 }]}>
+          {texto(idioma, "comoPagas")}
+        </Text>
+        {metodos.length === 0 ? (
+          <Aviso texto={texto(idioma, "sinMetodosDePago")} tono="info" />
+        ) : (
+          metodos.map((m) => {
+            const marcado = metodo === m;
+            return (
+              <Pressable
+                key={m}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: marcado }}
+                onPress={() => {
+                  setError(null);
+                  setMetodo(m);
+                }}
+                style={[estilos.metodo, marcado && estilos.metodoMarcado]}
+              >
+                <View style={[estilos.radio, marcado && estilos.radioLleno]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={estilos.metodoNombre}>
+                    {texto(
+                      idioma,
+                      m === "zelle" ? "metodoZelle" : "metodoTarjeta",
+                    )}
+                  </Text>
+                  <Text style={estilos.nota}>
+                    {texto(
+                      idioma,
+                      m === "zelle" ? "metodoZelleAyuda" : "metodoTarjetaAyuda",
+                    )}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })
+        )}
         <View style={estilos.totalFila}>
-          <Text style={estilos.totalTexto}>{texto(idioma, "total")}</Text>
           <Text style={estilos.totalTexto}>
-            {precioTexto(totalCentavos(lineas), moneda, idioma)}
+            {texto(idioma, conZelle ? "totalEstimadoZelle" : "total")}
+          </Text>
+          <Text style={estilos.totalTexto}>
+            {precioTexto(totalAMostrar, moneda, idioma)}
           </Text>
         </View>
-        <Text style={estilos.nota}>{texto(idioma, "totalNota")}</Text>
+        <Text style={estilos.nota}>
+          {texto(idioma, conZelle ? "totalExactoEnLaWeb" : "totalNota")}
+        </Text>
+        {conZelle && totalAMostrar < zelleMinimo ? (
+          <Aviso
+            texto={texto(idioma, "zelleDesde").replace(
+              "{monto}",
+              precioTexto(zelleMinimo, "USD", idioma),
+            )}
+            tono="info"
+          />
+        ) : null}
         {error ? (
           <Aviso
             texto={
@@ -356,11 +485,13 @@ export default function Pagar() {
             tono="error"
           />
         ) : null}
-        <BotonPrincipal
-          texto={texto(idioma, "pagarConTarjeta")}
-          onPress={pagar}
-          ocupado={ocupado}
-        />
+        {metodo ? (
+          <BotonPrincipal
+            texto={texto(idioma, conZelle ? "seguirAlPago" : "pagarConTarjeta")}
+            onPress={pagar}
+            ocupado={ocupado}
+          />
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -430,4 +561,28 @@ const estilos = StyleSheet.create({
   },
   recuperadoTexto: { flex: 1, fontSize: 13, color: COLORES.azul },
   recuperadoBoton: { fontSize: 13, fontWeight: "700", color: COLORES.naranja },
+  metodo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORES.grisClaro,
+    marginTop: 8,
+  },
+  metodoMarcado: {
+    borderColor: COLORES.naranja,
+    borderWidth: 2,
+    backgroundColor: "#FFF4ED",
+  },
+  metodoNombre: { fontSize: 16, fontWeight: "700", color: COLORES.texto },
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: COLORES.gris,
+  },
+  radioLleno: { borderColor: COLORES.naranja, borderWidth: 7 },
 });

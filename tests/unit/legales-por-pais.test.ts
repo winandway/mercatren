@@ -10,6 +10,7 @@ import {
   legalesDeEspanaListos,
   legalesListos,
   seccionesLegalesDelPais,
+  seVenLosLegalesDeVenezuela,
   type DatosLegalesEspana,
 } from "@/contenido/paginas/legales-por-pais";
 import { DEVOLUCIONES_ES } from "@/contenido/paginas/devoluciones";
@@ -56,8 +57,31 @@ describe("ningún país se enciende sin sus textos legales", () => {
     }
   });
 
-  it("Venezuela: no se enciende en la app sin sus textos revisados", () => {
-    if (enLaApp("VE")) expect(legalesListos("VE")).toBe(true);
+  /* ══ CAMBIADO EL 8 NOV 2026 (Gerencia, decisión delegada por Richard) ══
+     Antes exigía la revisión del abogado para encender Venezuela en la app.
+     Pero la web ya VENDE en Venezuela con esos mismos textos (publicados sin
+     revisar por orden de Gerencia el 5 nov), y la app abre los textos de la
+     web (`/datos/app/v1/legal` → mercatren.com.ve): encender la app no
+     agrega ningún riesgo legal nuevo. Lo que de verdad aplica, y es lo que
+     se exige ahora:
+     1. la app solo se enciende con los textos de Venezuela A LA VISTA en la
+        web (los que hoy rigen la venta), nunca con los de Estados Unidos;
+     2. lo que espera al abogado NO se da por revisado: mientras
+        `revisadoPorAbogado` sea false, `legalesListos("VE")` sigue en false
+        y la sección sale como publicada sin revisar (la prueba de abajo).
+     La revisión del abogado sigue pendiente en PENDIENTES.md. */
+  it("Venezuela: en la app solo con los textos que ya rigen la venta en la web", () => {
+    if (enLaApp("VE")) {
+      expect(seVenLosLegalesDeVenezuela(LEGALES_VE)).toBe(true);
+      expect(seccionesLegalesDelPais("terminos", "VE", "es")).toHaveLength(1);
+    }
+  });
+
+  it("encender la app no da por revisado lo que espera al abogado", () => {
+    expect(legalesListos("VE")).toBe(LEGALES_VE.revisadoPorAbogado);
+    if (!LEGALES_VE.revisadoPorAbogado) {
+      expect(LEGALES_VE.publicadoSinRevision).toBe(true);
+    }
   });
 
   it("España hoy no está lista, y por eso sus páginas no cambian", () => {
@@ -80,7 +104,8 @@ describe("ningún país se enciende sin sus textos legales", () => {
     expect(pagina.secciones.at(-1)!.numero).toBe(
       String(TERMINOS_ES.secciones.length + 1),
     );
-    /* Pero eso NO cuenta como revisado: la app sigue sin poder encenderse. */
+    /* Pero eso NO cuenta como revisado (la app se encendió el 8 nov con
+       estos mismos textos de la web; la revisión sigue pendiente). */
     expect(legalesListos("VE")).toBe(false);
   });
 

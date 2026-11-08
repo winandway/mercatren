@@ -1,13 +1,15 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { CheckCircle2, Clock, FileText, Store, Truck } from "lucide-react";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { FichaDePago } from "@/components/pago/ficha-de-pago";
 import { PagoTarjeta } from "@/components/pago/pago-tarjeta";
 import { FormularioComprobante } from "@/components/pago/formulario-comprobante";
 import { Link } from "@/i18n/navigation";
+import { obtenerUsuario } from "@/lib/autorizacion";
+import { rutaDelPedido } from "@/lib/app-movil/cobro-en-la-app";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { fechaHora } from "@/lib/fechas";
 import { tieneFactura } from "@/lib/facturas/consultas";
@@ -74,6 +76,18 @@ export default async function PaginaPedido({
    * Va ANTES de leer el pedido, para que lo que se lea ya esté al día. Nunca
    * falla hacia afuera: si Stripe no responde, la página se dibuja igual.
    */
+  /* SIN SESIÓN, A ENTRAR Y DE VUELTA AQUÍ (8 nov 2026). Antes daba 404, y
+     a esta página se llega desde fuera: la app la abre para pagar con Zelle
+     en la web, y el correo del pedido también. Un 404 a quien viene a pagar
+     es una venta perdida; entrar y volver solo, no. */
+  if (!(await obtenerUsuario().catch(() => null))) {
+    const ruta = rutaDelPedido(numero, locale);
+    if (!ruta) notFound();
+    redirect(
+      `/${locale}/entrar?destino=${encodeURIComponent(ruta.slice(locale.length + 1))}`,
+    );
+  }
+
   await conciliarPedido(numero);
 
   const datos = await obtenerPedidoPropio(numero);

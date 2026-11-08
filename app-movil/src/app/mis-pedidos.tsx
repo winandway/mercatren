@@ -1,3 +1,4 @@
+import * as WebBrowser from "expo-web-browser";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -19,6 +20,7 @@ import {
   urlPagarPedido,
 } from "@/lib/api";
 import { cobrarConHoja } from "@/lib/cobrar";
+import { siguientePaso } from "@/lib/pago";
 import { cabeceraDeSesion } from "@/lib/auth-client";
 import { COLORES } from "@/lib/colores";
 import { precioTexto } from "@/lib/dinero";
@@ -122,14 +124,23 @@ export default function MisPedidos() {
       });
       const cuerpo = (await r.json().catch(() => null)) as {
         ok?: boolean;
+        pagoEnLaWeb?: string | null;
         pago?: { clientSecret: string; clavePublica: string };
       } | null;
-      if (!r.ok || !cuerpo?.ok || !cuerpo.pago)
+      const paso = r.ok && cuerpo?.ok ? siguientePaso(cuerpo) : null;
+      /* Zelle (y todo pago del público hasta la prueba 9) se paga en la web:
+         la misma página de pago del pedido que usa mercatren.com.ve. */
+      if (paso?.tipo === "web") {
+        await WebBrowser.openBrowserAsync(paso.url);
+        setVuelta((n) => n + 1);
+        return;
+      }
+      if (paso?.tipo !== "hoja")
         return setAviso({
           texto: texto(idioma, "pagoNoDisponible"),
           tono: "error",
         });
-      const cobro = await cobrarConHoja(cuerpo.pago);
+      const cobro = await cobrarConHoja(paso);
       if (cobro.tipo === "error")
         setAviso({ texto: cobro.mensaje, tono: "error" });
       if (cobro.tipo === "pagado")

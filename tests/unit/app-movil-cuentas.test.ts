@@ -74,7 +74,9 @@ describe("la app y el sitio hablan de la misma sesión", () => {
 
   it("el servidor tiene el complemento de Expo y los orígenes de la app", () => {
     const auth = leer("src/lib/auth.ts");
-    expect(auth).toContain("plugins: [expo(), nextCookies()]");
+    /* Expo primero y nextCookies SIEMPRE el último (8 nov 2026: en medio,
+       el pase de un solo uso para pagar en la web). */
+    expect(auth).toMatch(/plugins: \[\s*expo\(\),[\s\S]*nextCookies\(\),\s*\]/);
     expect(auth).toContain("...ORIGENES_DE_LA_APP");
   });
 });

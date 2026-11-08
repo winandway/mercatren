@@ -123,10 +123,41 @@ export function urlPaises(idioma: Idioma): string {
  * elegir uno ya apagado). Es una lista corta y fija: pedirla de nuevo no
  * cuesta nada en la base.
  */
-export function pedirPaises(idioma: Idioma): Promise<{ paises: Pais[] }> {
-  return pedirJson<{ paises: Pais[] }>(urlPaises(idioma), fetch, {
-    headers: { "Cache-Control": "no-cache" },
-  });
+export function pedirPaises(
+  idioma: Idioma,
+): Promise<{ paises: Pais[]; porDefecto?: string | null }> {
+  return pedirJson<{ paises: Pais[]; porDefecto?: string | null }>(
+    urlPaises(idioma),
+    fetch,
+    { headers: { "Cache-Control": "no-cache" } },
+  );
+}
+
+/**
+ * EL PAÍS POR DEFECTO EN LA BIENVENIDA (8 nov 2026): quien abre la app por
+ * primera vez lo encuentra ARRIBA y ya marcado (Venezuela, el único con
+ * productos hoy; lo dice el servidor). Solo si está encendido. Quien ya
+ * eligió un país conserva el suyo.
+ */
+export function paisesEnOrden(
+  paises: Pais[],
+  porDefecto: string | null | undefined,
+): Pais[] {
+  const primero = paises.find((p) => p.codigo === porDefecto && p.encendido);
+  if (!primero) return paises;
+  return [primero, ...paises.filter((p) => p !== primero)];
+}
+
+export function paisMarcado(
+  actual: string | null,
+  paises: Pais[],
+  porDefecto: string | null | undefined,
+): string | null {
+  if (actual && paises.some((p) => p.codigo === actual && p.encendido))
+    return actual;
+  return paises.some((p) => p.codigo === porDefecto && p.encendido)
+    ? (porDefecto ?? null)
+    : null;
 }
 
 export function urlCatalogo(o: {
