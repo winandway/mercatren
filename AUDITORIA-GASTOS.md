@@ -140,3 +140,31 @@ extra.
 vencer el dominio con la dirección publicada.** El formulario de ayuda
 (`/ayuda`) no depende del correo de Mercatren: va directo a la bandeja de
 soporte de Windoce. Detalle en `HISTORIAL.md`, «EL SOPORTE, PLAN MIXTO».
+
+## La visita despertaba al reloj en pausa (8 nov 2026)
+
+**Qué se vio.** El parte de consumo de YaDominios del 7 nov: la base escribió
+54.656 filas y leyó 11,8 millones, con 3.357 s de procesador (el más alto de
+todos los sitios). La consulta que más escribía era el upsert en
+`configuracion`: 7.092 filas, parejo a toda hora (~300 por hora), con el
+reloj supuestamente apagado.
+
+**La causa.** `latirConElTrafico()` (en `src/lib/reloj/tick.ts`, llamado desde
+los layouts de la tienda y del panel) corría un latido entero desde cada
+visita, una vez por minuto por instancia, y no miraba `RELOJ_APAGADO`. Cada
+latido reclamaba la marca, rehacía trabajos y anotaba marcas en
+`configuracion`. Los robots y las visitas lo mantenían andando las 24 horas.
+
+**El arreglo.** Se quitó el latido por visitas (una visita no escribe), y
+`reclamarTick` y `correrTick` devuelven sin tocar la base cuando
+`RELOJ_APAGADO` está puesto. Solo late el reloj de la plataforma, y en pausa
+solo corre la alarma de consumo una vez por hora.
+
+**Candado.** `tests/unit/reloj-no-late-con-visitas.test.ts` (comprobado en
+rojo quitando la guarda) y `reloj-propio.test.ts`, que exige que ningún
+layout vuelva a llamar al latido.
+
+**Cómo se comprueba.** La analítica de D1 (consulta por hora con
+`d1QueriesAdaptiveGroups`, llave en `~/.config/mercatren/cf-analytics-token`)
+tiene que mostrar el upsert de `configuracion` en una o dos filas por hora,
+no en trescientas.

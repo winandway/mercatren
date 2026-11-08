@@ -1,10 +1,10 @@
 import "server-only";
 
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { desc, eq, sql } from "drizzle-orm";
 
 import { getDb } from "@/lib/db";
 import { configuracion, latidosVigilante } from "@/lib/db/schema";
+import { RELOJ_APAGADO } from "@/lib/en-pausa";
 import { LLAVE_LATIDO_SINCRONIZAR } from "@/lib/vigilante/reglas";
 
 /**
@@ -48,6 +48,8 @@ export { TICK_MINIMO_MS, TICK_PRESUPUESTO_MS, VIGILANTE_CADA_MS };
 
 /** Toma la marca si nadie la tomó hace poco. `true` = a trabajar. */
 export async function reclamarTick(ahoraMs: number): Promise<boolean> {
+  /* En pausa nadie toma la marca: ni la puerta ni nadie escribe aquí. */
+  if (RELOJ_APAGADO) return false;
   const db = getDb();
   const limite = ahoraMs - TICK_MINIMO_MS;
   const r = await db
@@ -202,6 +204,8 @@ export async function correrTick(
   origen: "puerta" | "trafico" = "puerta",
   presupuestoMs = TICK_PRESUPUESTO_MS,
 ): Promise<ResultadoTick> {
+  /* En pausa el latido no lee ni escribe nada (ver `lib/en-pausa.ts`). */
+  if (RELOJ_APAGADO) return { hizo: ["apagado"], duracionMs: 0 };
   const arranque = Date.now();
   const hasta = arranque + presupuestoMs;
   const queda = () => hasta - Date.now();
@@ -660,37 +664,11 @@ export async function correrTick(
   return r;
 }
 
-/* ══ Y SI NINGÚN RELOJ LLAMA, LATE CON EL TRÁFICO (3 sep 2026) ══
-   Cada visita pública o del panel puede dejar un latido en segundo plano:
-   si la marca lleva más de 50 s sin tomarse, se reclama y el trabajo corre
-   con `ctx.waitUntil` mientras la página ya se entregó. Con Google y los
-   compradores entrando a toda hora, el sitio se mueve solo aunque el reloj
-   de la plataforma o el de GitHub fallen. Un contador por instancia evita
-   siquiera mirar la base más de una vez por minuto. */
-let ultimoIntentoMs = 0;
-
-export function latirConElTrafico(): void {
-  const ahora = Date.now();
-  if (ahora - ultimoIntentoMs < 60_000) return;
-  ultimoIntentoMs = ahora;
-  type Contexto = { waitUntil: (p: Promise<unknown>) => void };
-  let ctx: Contexto | null = null;
-  try {
-    ctx = getCloudflareContext().ctx as unknown as Contexto;
-  } catch {
-    return; /* Sin contexto (un build, una prueba): no hay dónde latir. */
-  }
-  if (!ctx || typeof ctx.waitUntil !== "function") return;
-  ctx.waitUntil(
-    (async () => {
-      if (!(await reclamarTick(ahora))) return;
-      const r = await correrTick("trafico");
-      console.log(
-        "[tick·tráfico]",
-        r.duracionMs,
-        "ms:",
-        r.hizo.join(" · ") || "nada pendiente",
-      );
-    })().catch((fallo) => console.error("[tick·tráfico] falló:", fallo)),
-  );
-}
+/* ══ LA VISITA NO DESPIERTA AL RELOJ (8 nov 2026) ══
+   Aquí vivía `latirConElTrafico`: cada visita, una vez por minuto y por
+   instancia, reclamaba la marca y corría un latido entero. No miraba la
+   pausa (`RELOJ_APAGADO`), así que con Mercatren en pausa siguió escribiendo
+   ~300 filas por hora en `configuracion` (7.092 el 7 nov, la consulta que
+   más escribía de la base) y leyendo millones. Se quitó: una visita no
+   escribe (regla «la nube no se come el dinero»). Solo late el reloj de la
+   plataforma, y con la pausa ni eso. Candado: `reloj-no-late-con-visitas.test.ts`. */

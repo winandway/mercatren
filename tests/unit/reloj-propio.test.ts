@@ -89,16 +89,13 @@ describe("el reloj propio", () => {
     expect(existsSync("src/app/__scheduled")).toBe(false);
   });
 
-  it("y si ningún reloj llama, late con el tráfico desde los dos layouts", () => {
-    const tick = leer("src/lib/reloj/tick.ts");
-    expect(tick).toContain("export function latirConElTrafico()");
-    expect(tick).toContain("ctx.waitUntil(");
-    expect(tick).toContain("await reclamarTick(ahora)");
+  it("una visita ya NO despierta al reloj (8 nov 2026)", () => {
+    expect(leer("src/lib/reloj/tick.ts")).not.toContain("latirConElTrafico(");
     for (const ruta of [
       "src/app/[locale]/(tienda)/layout.tsx",
       "src/app/[locale]/panel/layout.tsx",
     ]) {
-      expect(leer(ruta), ruta).toContain("latirConElTrafico();");
+      expect(leer(ruta), ruta).not.toContain("latirConElTrafico");
     }
   });
 });
