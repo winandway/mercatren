@@ -1,4 +1,6 @@
-import { useLocalSearchParams } from "expo-router";
+import { ofreceServiciosDigitales } from "@/lib/servicios-digitales";
+
+import { Redirect, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -40,7 +42,7 @@ type Mensaje = { clave: ClaveDeTexto; tono: "error" | "info" | "bien" } | null;
  * días con pausar y reanudar. El mismo «Promocionar» del panel web. NADA SE
  * COBRA TODAVÍA, y se dice.
  */
-export default function Promocionar() {
+function PromocionarPantalla() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { pais, idioma } = usePreferencias();
   const { data: sesion } = authClient.useSession();
@@ -283,3 +285,9 @@ const estilos = StyleSheet.create({
   },
   secundarioTexto: { color: COLORES.azul, fontWeight: "700", fontSize: 15 },
 });
+
+/** En Android no se ofrece (ver `lib/servicios-digitales.ts`), ni por enlace. */
+export default function Promocionar() {
+  if (!ofreceServiciosDigitales()) return <Redirect href="/mi-tienda" />;
+  return <PromocionarPantalla />;
+}

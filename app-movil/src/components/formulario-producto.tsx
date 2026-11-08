@@ -51,6 +51,7 @@ import {
   urlMiProducto,
   type ProductoParaEditar,
 } from "@/lib/ventas";
+import { ofreceServiciosDigitales } from "@/lib/servicios-digitales";
 
 const VACIO: DatosProducto = {
   tituloEs: "",
@@ -517,7 +518,10 @@ export function FormularioProducto({ id }: { id?: string }) {
           onPress={guardar}
           ocupado={ocupado}
         />
-        {editando && id && estado === "publicado" ? (
+        {editando &&
+        id &&
+        estado === "publicado" &&
+        ofreceServiciosDigitales() ? (
           <Pressable
             accessibilityRole="button"
             onPress={() =>

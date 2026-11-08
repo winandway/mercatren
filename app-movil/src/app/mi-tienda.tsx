@@ -16,6 +16,7 @@ import { useMiTienda } from "@/hooks/use-mi-tienda";
 import { absoluta, pedirJson } from "@/lib/api";
 import { cabeceraDeSesion } from "@/lib/auth-client";
 import { COLORES } from "@/lib/colores";
+import { ofreceServiciosDigitales } from "@/lib/servicios-digitales";
 import { precioTexto } from "@/lib/dinero";
 import { urlMisProductos, type MiProducto } from "@/lib/productos";
 import { texto } from "@/lib/textos";
@@ -73,13 +74,17 @@ export default function MiTienda() {
               {texto(idioma, "misVentas")}
             </Text>
           </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.push("/plan-pro")}
-            style={estilos.ventas}
-          >
-            <Text style={estilos.ventasTexto}>{texto(idioma, "planPro")}</Text>
-          </Pressable>
+          {ofreceServiciosDigitales() ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push("/plan-pro")}
+              style={estilos.ventas}
+            >
+              <Text style={estilos.ventasTexto}>
+                {texto(idioma, "planPro")}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
       }
       ListEmptyComponent={

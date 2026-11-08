@@ -1,4 +1,6 @@
-import { useFocusEffect } from "expo-router";
+import { ofreceServiciosDigitales } from "@/lib/servicios-digitales";
+
+import { Redirect, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -24,7 +26,7 @@ import { texto } from "@/lib/textos";
  * las estadísticas de los últimos 30 días (salen de las ventas guardadas).
  * El mismo plan del panel web. NADA SE COBRA: el mes gratis no pide tarjeta.
  */
-export default function PlanPro() {
+function PlanProPantalla() {
   const { pais, idioma } = usePreferencias();
   const [datos, setDatos] = useState<RespuestaPlan | null>(null);
   const [fallo, setFallo] = useState(false);
@@ -261,3 +263,9 @@ const estilos = StyleSheet.create({
     paddingVertical: 8,
   },
 });
+
+/** En Android no se ofrece (ver `lib/servicios-digitales.ts`), ni por enlace. */
+export default function PlanPro() {
+  if (!ofreceServiciosDigitales()) return <Redirect href="/mi-tienda" />;
+  return <PlanProPantalla />;
+}
