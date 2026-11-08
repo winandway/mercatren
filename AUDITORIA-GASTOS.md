@@ -168,3 +168,11 @@ layout vuelva a llamar al latido.
 `d1QueriesAdaptiveGroups`, llave en `~/.config/mercatren/cf-analytics-token`)
 tiene que mostrar el upsert de `configuracion` en una o dos filas por hora,
 no en trescientas.
+
+**Segundo camino, cerrado el mismo día.** La ficha de Chile pide la tasa del
+dólar (`tasaAutomatica`), y cada instancia escribía dos filas en
+`configuracion` cada 90 s aunque la tasa fuera la misma. Ahora solo se
+escribe si cambió o si la fecha guardada pasa de una hora
+(`hayQueGuardarTasa`), y un fallo al guardar queda en el registro en vez de
+callarse. Candado: `tests/unit/tasa-no-escribe-por-visita.test.ts`, comprobado
+en rojo.
