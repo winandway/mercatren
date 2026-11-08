@@ -183,6 +183,36 @@ entre el dinero, y verlo ahí haría creer que ya se cobró.
 
 ---
 
+## Prueba 9 · Una compra real con tarjeta dentro de la app de Android (8 nov 2026)
+
+**Qué se está probando:** el cobro con tarjeta dentro de la app nativa, que
+nunca se probó con una tarjeta (bloque en rojo de `VERIFICAR-PAGOS.md`). Sin
+esta prueba la app no se abre a compras. La versión 2.0.0 (versionCode 11) ya
+está en la **prueba interna** de Google Play.
+
+**Antes:** no hay ningún producto de 1 dólar real; el más barato que hay hoy
+es de Venezuela (por ejemplo, «Niple PVC de 1/2 x 1 m», unos 2,45 dólares, de
+Bley Ferretería). Venezuela está apagada en la app, pero **el equipo sí puede
+comprar**: por eso se entra con una cuenta de **Soporte**. Avísale antes a
+Bley que va a entrar un pedido de prueba que se cancela.
+
+1. **Entra a la prueba interna.** En Play Console → Mercatren → Pruebas →
+   Prueba interna → Testers, agrega tu correo de Google, copia el enlace de
+   «Unirse en Android» y ábrelo en tu teléfono. Instala Mercatren 2.0.0.
+2. **Entra con tu cuenta de Soporte** en la app y abre ese producto. Pulsa
+   comprar, llena el retiro (nombre, teléfono, ciudad) y paga con tu tarjeta
+   real en la hoja de Stripe.
+3. **Lo que tiene que pasar:** la app dice que el pago entró; en Stripe sale el
+   cobro como «Exitoso»; en Panel → Pedidos el pedido `MT-…` sale «pagado», y
+   en la app, en «Mis pedidos», también. Anota el número.
+4. **Reembolsa:** en Stripe, abre ese cobro → «Reembolsar» → total. En el
+   panel, cancela el pedido `MT-…` y avísale a Bley que era la prueba.
+5. **Dínoslo** con el número del pedido. La IA lo anota como PROBADO en
+   `VERIFICAR-PAGOS.md` (con fecha y pedido) y recién ahí se pueden abrir las
+   compras en la app.
+
+---
+
 ## Si algo no sale como dice aquí
 
 Anótalo con **el número del pedido** y qué esperabas ver. Con eso se reproduce
