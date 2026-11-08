@@ -16,7 +16,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
   titulo: "Privacidad",
   entradilla:
     "Qué datos recogemos, para qué los usamos, con quién se comparten y cuánto tiempo los guardamos. En palabras normales.",
-  vigencia: "Versión 1.1 · Vigente desde el 27 de octubre de 2026",
+  vigencia: "Versión 1.2 · Vigente desde el 8 de noviembre de 2026",
   indiceTitulo: "En esta página",
   secciones: [
     {
@@ -65,8 +65,38 @@ export const PRIVACIDAD_ES: PaginaContenido = {
               "Verificar el pago contra el banco antes de aprobarlo",
             ],
             [
+              "Datos de la tarjeta",
+              "Los escribes en el formulario de pago de Stripe",
+              "Cobrar tu compra. Los recibe y los guarda Stripe, no Mercatren",
+            ],
+            [
+              "Datos de tu tienda, si vendes",
+              "Los escribes al abrir tu tienda: nombre comercial, contacto, país, identificación fiscal y la cuenta donde recibes tus pagos",
+              "Publicar tu tienda, pagarte tus ventas y cumplir con las obligaciones fiscales",
+            ],
+            [
+              "Fotos y videos",
+              "Los subes tú al publicar productos o videos",
+              "Enseñarlos en tu tienda y en Mercatren. Son públicos mientras estén publicados",
+            ],
+            [
+              "Preguntas, opiniones y comentarios",
+              "Los escribes tú",
+              "Publicarlos junto a tu nombre. Cualquiera puede denunciarlos",
+            ],
+            [
+              "Búsquedas",
+              "Lo que escribes en el buscador o la foto con la que buscas",
+              "Enseñarte resultados y saber qué productos buscan los compradores",
+            ],
+            [
+              "Denuncias y bloqueos",
+              "Los haces tú desde los tres puntos",
+              "Revisar el contenido denunciado y esconderte lo de quien bloqueaste",
+            ],
+            [
               "Datos técnicos",
-              "Tu navegador, al entrar",
+              "Tu navegador o tu teléfono, al entrar",
               "Mantener tu sesión abierta y detectar usos anómalos",
             ],
           ],
@@ -76,7 +106,7 @@ export const PRIVACIDAD_ES: PaginaContenido = {
           tono: "neutro",
           titulo: "No pedimos lo que no necesitamos",
           parrafos: [
-            "No te pedimos número de cuenta, número de tarjeta ni documento de identidad para comprar. Tampoco guardamos datos de tarjetas: no procesamos tarjetas.",
+            "No te pedimos número de cuenta ni documento de identidad para comprar. Los datos de tu tarjeta los escribes en el formulario de Stripe y los procesa Stripe: Mercatren nunca los ve ni los guarda.",
           ],
         },
       ],
@@ -164,6 +194,16 @@ export const PRIVACIDAD_ES: PaginaContenido = {
               titulo: "Con el comercio al que le compras",
               texto:
                 "solo lo necesario para entregar: nombre del destinatario, dirección, teléfono y qué pidió. No le damos tu comprobante ni tus datos bancarios.",
+            },
+            {
+              titulo: "Con el público, lo que tú publicas",
+              texto:
+                "el nombre de tu tienda, tus productos, fotos y videos, y las preguntas, opiniones y comentarios que escribes se ven en el sitio y en la app. Lo demás de tu cuenta no.",
+            },
+            {
+              titulo: "Con Stripe, que procesa los pagos con tarjeta",
+              texto:
+                "Stripe, Inc. recibe los datos de tu tarjeta y algunos datos de tu aparato (como identificadores del navegador o del teléfono y tu dirección IP) para cobrar y prevenir el fraude. Los trata según su propia política de privacidad, en stripe.com/privacy.",
             },
             {
               titulo: "Con los proveedores que hacen funcionar el sitio",
@@ -317,7 +357,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
   titulo: "Privacy",
   entradilla:
     "What data we collect, what we use it for, who we share it with, and how long we keep it. In plain language.",
-  vigencia: "Version 1.1 · Effective October 27, 2026",
+  vigencia: "Version 1.2 · Effective November 8, 2026",
   indiceTitulo: "On this page",
   secciones: [
     {
@@ -366,8 +406,38 @@ export const PRIVACIDAD_EN: PaginaContenido = {
               "Verifying payment against the bank before approving it",
             ],
             [
+              "Card details",
+              "You enter them in Stripe's payment form",
+              "Charging your purchase. Stripe receives and stores them, not Mercatren",
+            ],
+            [
+              "Your store details, if you sell",
+              "You enter them when opening your store: business name, contact details, country, tax ID, and the account where you receive payments",
+              "Publishing your store, paying you for your sales, and meeting tax obligations",
+            ],
+            [
+              "Photos and videos",
+              "You upload them when listing products or posting videos",
+              "Showing them in your store and on Mercatren. They're public while published",
+            ],
+            [
+              "Questions, reviews, and comments",
+              "You write them",
+              "Publishing them with your name. Anyone can report them",
+            ],
+            [
+              "Searches",
+              "What you type in the search bar, or the photo you search with",
+              "Showing you results and learning which products shoppers look for",
+            ],
+            [
+              "Reports and blocks",
+              "You make them from the three-dot menu",
+              "Reviewing reported content and hiding content from people you blocked",
+            ],
+            [
               "Technical data",
-              "Your browser, when you visit",
+              "Your browser or phone, when you visit",
               "Keeping your session open and detecting unusual use",
             ],
           ],
@@ -377,7 +447,7 @@ export const PRIVACIDAD_EN: PaginaContenido = {
           tono: "neutro",
           titulo: "We don't ask for what we don't need",
           parrafos: [
-            "We don't ask for your account number, card number, or ID document to buy. We also don't store card data: we don't process cards.",
+            "We don't ask for your account number or ID document to buy. You enter your card details in Stripe's form and Stripe processes them: Mercatren never sees or stores them.",
           ],
         },
       ],
@@ -465,6 +535,16 @@ export const PRIVACIDAD_EN: PaginaContenido = {
               titulo: "The merchant you buy from",
               texto:
                 "only what's needed to deliver: recipient name, address, phone, and what was ordered. We don't give them your receipt or your banking details.",
+            },
+            {
+              titulo: "The public, for what you post",
+              texto:
+                "your store name, your products, photos, and videos, and the questions, reviews, and comments you write are visible on the site and in the app. The rest of your account is not.",
+            },
+            {
+              titulo: "Stripe, which processes card payments",
+              texto:
+                "Stripe, Inc. receives your card details and some device data (such as browser or phone identifiers and your IP address) to charge you and prevent fraud. It handles them under its own privacy policy, at stripe.com/privacy.",
             },
             {
               titulo: "The providers that keep the site running",

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 
 import { Link } from "@/i18n/navigation";
 import { bloquearAutor, denunciarContenido } from "@/lib/moderacion/acciones";
+import { olvidarBloqueados } from "@/lib/moderacion/estilo-bloqueados";
 import {
   MOTIVOS_DE_DENUNCIA,
   type MotivoDeDenuncia,
@@ -27,6 +28,9 @@ export function MenuModeracion({
   conAutor = true,
   onBorrar,
   onOculto,
+  etiquetas,
+  otraDenuncia,
+  onBloqueado,
 }: {
   tipo: TipoDenunciable;
   id: string;
@@ -38,11 +42,21 @@ export function MenuModeracion({
   onBorrar?: () => Promise<void>;
   /** Para quitarlo de la lista en cuanto se bloquea o se oculta. */
   onOculto?: () => void;
+  /** Textos propios (p. ej. «Denunciar este producto», «Bloquear a este vendedor»). */
+  etiquetas?: { denunciar?: string; bloquear?: string };
+  /** Una segunda cosa que se puede denunciar desde el mismo menú (la tienda del producto). */
+  otraDenuncia?: { tipo: TipoDenunciable; id: string; etiqueta: string };
+  /** Después de bloquear con éxito (la web recarga para esconder lo del vendedor). */
+  onBloqueado?: () => void;
 }) {
   const t = useTranslations("moderacion");
   const [abierto, setAbierto] = useState(false);
   const [paso, setPaso] = useState<"menu" | "motivo" | "listo">("menu");
   const [motivo, setMotivo] = useState<MotivoDeDenuncia>("ofensivo");
+  const [objetivo, setObjetivo] = useState<{
+    tipo: TipoDenunciable;
+    id: string;
+  }>({ tipo, id });
   const [aviso, setAviso] = useState<string | null>(null);
   const [sinSesion, setSinSesion] = useState(false);
   const [enCurso, empezar] = useTransition();
@@ -73,13 +87,13 @@ export function MenuModeracion({
 
   function denunciar() {
     empezar(async () => {
-      const r = await denunciarContenido({ tipo, id, motivo }).catch(() => ({
+      const r = await denunciarContenido({ ...objetivo, motivo }).catch(() => ({
         ok: false as const,
         motivo: "fallo" as const,
       }));
       if (r.ok) {
         cerrarCon(t("gracias"));
-        if (r.oculto) onOculto?.();
+        if (r.oculto && objetivo.tipo === tipo) onOculto?.();
         return;
       }
       if (r.motivo === "sesion") setSinSesion(true);
@@ -95,7 +109,11 @@ export function MenuModeracion({
       }));
       if (r.ok) {
         cerrarCon(t("bloqueado"));
+        /* Cualquier bloqueo (ficha, opiniones, videos) deja vieja la lista
+           que esconde las tarjetas: se olvida aquí, en un solo sitio. */
+        olvidarBloqueados();
         onOculto?.();
+        onBloqueado?.();
         return;
       }
       if (r.motivo === "sesion") setSinSesion(true);
@@ -145,11 +163,31 @@ export function MenuModeracion({
                 <button
                   type="button"
                   role="menuitem"
-                  onClick={() => setPaso("motivo")}
+                  onClick={() => {
+                    setObjetivo({ tipo, id });
+                    setPaso("motivo");
+                  }}
                   className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-slate-50"
                 >
                   <Flag className="h-4 w-4" aria-hidden />
-                  {t("denunciar")}
+                  {etiquetas?.denunciar ?? t("denunciar")}
+                </button>
+              ) : null}
+              {!propio && otraDenuncia ? (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setObjetivo({
+                      tipo: otraDenuncia.tipo,
+                      id: otraDenuncia.id,
+                    });
+                    setPaso("motivo");
+                  }}
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-slate-50"
+                >
+                  <Flag className="h-4 w-4" aria-hidden />
+                  {otraDenuncia.etiqueta}
                 </button>
               ) : null}
               {!propio && conAutor ? (
@@ -161,7 +199,7 @@ export function MenuModeracion({
                   className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-slate-50"
                 >
                   <Ban className="h-4 w-4" aria-hidden />
-                  {t("bloquear")}
+                  {etiquetas?.bloquear ?? t("bloquear")}
                 </button>
               ) : null}
             </>

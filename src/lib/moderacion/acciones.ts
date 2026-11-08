@@ -3,6 +3,11 @@
 import { obtenerUsuario } from "@/lib/autorizacion";
 
 import { bloquearComo, denunciarComo, type Rechazo } from "./nucleo";
+import {
+  desbloquearTienda,
+  listarBloqueados,
+  tiendasBloqueadasPor,
+} from "./para-la-app";
 
 /**
  * DENUNCIAR Y BLOQUEAR (27 oct 2026). Ver `reglas.ts`.
@@ -28,4 +33,30 @@ export async function bloquearAutor(entrada: {
 }): Promise<{ ok: true } | { ok: false; motivo: Rechazo }> {
   const usuario = await obtenerUsuario();
   return bloquearComo(usuario?.id ?? null, entrada);
+}
+
+/** Los slugs de los vendedores que bloqueó quien mira (para esconder sus tarjetas). */
+export async function misVendedoresBloqueados(): Promise<string[]> {
+  const usuario = await obtenerUsuario().catch(() => null);
+  if (!usuario) return [];
+  return [...(await tiendasBloqueadasPor(usuario.id))];
+}
+
+/** La lista con nombres, para «Vendedores bloqueados» en la cuenta. */
+export async function listaDeBloqueados(): Promise<
+  Array<{ slug: string; nombre: string }>
+> {
+  const usuario = await obtenerUsuario().catch(() => null);
+  if (!usuario) return [];
+  return listarBloqueados(usuario.id);
+}
+
+/** Deshacer un bloqueo desde la web. */
+export async function desbloquearVendedor(
+  slug: string,
+): Promise<{ ok: boolean }> {
+  const usuario = await obtenerUsuario().catch(() => null);
+  if (!usuario || typeof slug !== "string" || !/^[a-z0-9-]{1,200}$/i.test(slug))
+    return { ok: false };
+  return { ok: await desbloquearTienda(usuario.id, slug) };
 }

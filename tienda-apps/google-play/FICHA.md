@@ -98,6 +98,38 @@ Puedes borrar tu cuenta cuando quieras, desde la app o en mercatren.com/delete-a
 Mercatren LLC · Novi, Michigan, EE. UU.
 ```
 
+## Notas de la versión (nuevas, 8 nov 2026 — sin subir)
+
+Inglés:
+
+```
+Shop from independent U.S. stores and pay securely with your card. Report a product or a store, or block a seller, from the three-dot menu. You can see and undo your blocks in Account.
+```
+
+Español:
+
+```
+Compra en tiendas independientes de EE. UU. y paga con tu tarjeta de forma segura. Denuncia un producto o una tienda, o bloquea a un vendedor, desde el menú de tres puntos. Ves y deshaces tus bloqueos en Cuenta.
+```
+
+## Lo que hay que cambiar en la consola (8 nov 2026 — NO se sube sin el sí de Richard)
+
+La consola guarda todavía la ficha del 27 oct, que promete miles de
+productos, búsqueda por foto, videos de tiendas y casillero en Miami. El texto
+de arriba (nombre, descripción corta y completa, en-US, es-US y es-419) ya no
+dice nada de eso y es el que se pega. Además:
+
+- **Notas de la versión**: las de este archivo, en los tres idiomas.
+- **Política de privacidad**: cambiar a https://mercatren.com/en/privacy
+  (la consola tiene la dirección vieja en español, que redirige).
+- **Seguridad de los datos**: sumar «Identificadores del aparato» (Stripe) y
+  quitar del motivo de Fotos la búsqueda por foto y de Otra información el
+  documento del casillero (tabla de abajo, ya corregida).
+- **Capturas**: las ocho de teléfono y las cuatro de tableta enseñan el
+  catálogo de CJ borrado, la búsqueda por foto y el casillero. Se rehacen con
+  `fuente/` cuando la tienda de Estados Unidos tenga productos reales; hasta
+  entonces no hay qué fotografiar (decisión de Richard en `PENDIENTES.md`).
+
 ## Imágenes
 
 Todas en esta carpeta, hechas con capturas reales del sitio (las plantillas y el
@@ -141,22 +173,23 @@ Todos «recopilados», ninguno «compartido» (Stripe y los demás proveedores s
 encargados nuestros; lo que va al comercio al que se le compra lo inicia la
 persona). Ninguno efímero.
 
-| Dato                       | ¿Obligatorio? | Para qué                                                                    |
-| -------------------------- | ------------- | --------------------------------------------------------------------------- |
-| Nombre                     | Sí            | Funciones, seguridad y fraude, administrar la cuenta                        |
-| Correo                     | Sí            | Funciones, comunicaciones, seguridad, cuenta                                |
-| ID de usuario              | Sí            | Funciones, cuenta                                                           |
-| Dirección                  | Opcional      | Funciones, seguridad                                                        |
-| Teléfono                   | Opcional      | Funciones, seguridad                                                        |
-| Otra información personal  | Opcional      | Funciones, seguridad (documento del casillero, datos fiscales del comercio) |
-| Historial de compras       | Sí            | Funciones, seguridad, cuenta                                                |
-| Información de pago        | Opcional      | Funciones, seguridad (la tarjeta la procesa Stripe)                         |
-| Fotos                      | Opcional      | Funciones, seguridad (búsqueda por foto, comprobantes)                      |
-| Videos                     | Opcional      | Funciones (videos de las tiendas)                                           |
-| Archivos y documentos      | Opcional      | Funciones, seguridad                                                        |
-| Interacciones en la app    | Sí            | Funciones, estadísticas, personalización                                    |
-| Historial de búsqueda      | Opcional      | Funciones, estadísticas                                                     |
-| Otro contenido de usuarios | Opcional      | Funciones (comentarios, opiniones, preguntas)                               |
+| Dato                        | ¿Obligatorio? | Para qué                                                                  |
+| --------------------------- | ------------- | ------------------------------------------------------------------------- |
+| Nombre                      | Sí            | Funciones, seguridad y fraude, administrar la cuenta                      |
+| Correo                      | Sí            | Funciones, comunicaciones, seguridad, cuenta                              |
+| ID de usuario               | Sí            | Funciones, cuenta                                                         |
+| Dirección                   | Opcional      | Funciones, seguridad                                                      |
+| Teléfono                    | Opcional      | Funciones, seguridad                                                      |
+| Otra información personal   | Opcional      | Funciones, seguridad (datos fiscales y de cobro del comercio)             |
+| Historial de compras        | Sí            | Funciones, seguridad, cuenta                                              |
+| Información de pago         | Opcional      | Funciones, seguridad (la tarjeta la procesa Stripe)                       |
+| Fotos                       | Opcional      | Funciones, seguridad (fotos de productos, comprobantes)                   |
+| Videos                      | Opcional      | Funciones (videos de las tiendas)                                         |
+| Archivos y documentos       | Opcional      | Funciones, seguridad                                                      |
+| Interacciones en la app     | Sí            | Funciones, estadísticas, personalización                                  |
+| Historial de búsqueda       | Opcional      | Funciones, estadísticas                                                   |
+| Otro contenido de usuarios  | Opcional      | Funciones (comentarios, opiniones, preguntas)                             |
+| Identificadores del aparato | Opcional      | Seguridad y prevención de fraude (los recoge Stripe al pagar con tarjeta) |
 
 ### Detalles de acceso: lo que va en la casilla de instrucciones
 

@@ -22,7 +22,8 @@
 
 - [x] 💻 **8 nov 2026: comprobado en vivo** /en/privacy, /en/terms y /es/privacy dan 200 con su título en mercatren.com, .com.ve, .cl y .com.co; /privacidad, /terminos y /en/privacidad redirigen con 301 y terminan en 200 (la de Play Console también). El sitio ya no está en pausa.
 - [x] 💻 **8 nov 2026: dictamen del auditor de tiendas = NO APTO** (`tienda-apps/google-play/DICTAMEN-2026-11-08.md`). Lo que falta: la tienda de EE. UU. tiene cero productos (contenido mínimo); la ficha de Play promete miles de productos, búsqueda por foto, casillero y capturas del catálogo de CJ borrado; denunciar/bloquear existe solo en la app nativa, no en la web; la política de privacidad no cubre datos del vendedor, fotos/videos, comentarios, búsquedas ni nombra a Stripe; la sección de seguridad de datos debe sumar los identificadores del aparato que recoge Stripe; cambiar la dirección de privacidad de la consola a /en/privacy en el mismo envío. No se mandó nada a Google.
-- [ ] 💻 Del dictamen, lo que es código: llevar denunciar y bloquear a la web, y completar la política de privacidad (vendedores, fotos y videos, comentarios, búsquedas, Stripe) en los dos idiomas.
+- [x] 💻 Del dictamen, lo que es código (8 nov 2026): denunciar producto, denunciar tienda y bloquear al vendedor en la web (tres puntos en la ficha y en la tienda); lo bloqueado se esconde del catálogo y la ficha dice cómo deshacerlo; «Vendedores bloqueados» en la cuenta (`/cuenta/bloqueados`). Política de privacidad 1.2 en los dos idiomas: datos de la tienda, fotos y videos, comentarios, búsquedas, denuncias y bloqueos, y Stripe con nombre (se quitó el «no procesamos tarjetas», que era falso). Ficha de Play reescrita en `tienda-apps/google-play/FICHA.md` (notas de la versión, seguridad de los datos con los identificadores de Stripe), sin subir. Candados: `web-moderacion.test.ts` y `privacidad-completa.test.ts`, comprobados en rojo. Probado en local con Playwright de punta a punta.
+- [ ] 💻 Rehacer las capturas de la ficha de Play cuando la tienda de EE. UU. tenga productos reales (las de hoy enseñan el catálogo de CJ, la búsqueda por foto y el casillero).
 - [ ] 🔴 👤 Del dictamen, lo que es de Richard/Gerencia: qué paquete se manda (web o nativa), productos reales en la tienda de EE. UU. o decidir con qué país entra la app, la ficha nueva de Play, y confirmar la contraseña de la cuenta de revisores.
 
 - [x] 💻 **HECHO el 7 nov 2026** (commit 3434759d): /privacy y /terms dan 200 en /en y /es, y en mercatren.com y mercatren.com.ve; /privacidad y /terminos (con o sin idioma) redirigen con 301 a las nuevas. Candado: tests/unit/direcciones-legales-en-ingles.test.ts. Las fichas del repo ya declaran /en/privacy. **FALTA: el auditor de tiendas (APTO) antes de reenviar la app, y que Gerencia autorice cambiar la dirección guardada en Play Console y App Store Connect (hoy sigue la vieja, que redirige).** Quedan en español por la misma regla: ayuda, devoluciones, entrega, nosotros, vender, como-funciona, transparencia, docs/*.
@@ -101,7 +102,7 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 👤 **Apple**: cuando acepten la cuenta y se paguen los 99 dólares,
       la app de iOS. Apple rechaza un sitio envuelto sin más: necesita
       funciones propias (avisos, por ejemplo).
-- [ ] 🟡 💻 **better-auth 1.7.7**: exige la columna `issuer` en `account`, con
+- [x] 🟡 💻 **better-auth 1.7.7** (subida a la 1.7.18 el 8 nov 2026, ver abajo): exige la columna `issuer` en `account`, con
       su migración de datos. Sus avisos no nos alcanzan (anotados en
       `scripts/auditoria.ts`), pero hay que subirla con esa migración preparada.
       **Revisado el 8 nov 2026:** la última es la 1.7.18 y ya NO pide `issuer`
@@ -111,6 +112,10 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       antes de subir, probar entrar, registrarse y salir en local y en la app
       (`@better-auth/expo` sube junto). No se subió: el riesgo es dejar a todos
       sin poder entrar y los avisos no nos alcanzan.
+      **Subida el 8 nov 2026 a la 1.7.18** (`better-auth` y `@better-auth/expo`)
+      tras probar en local: registrarse, ver la sesión, salir, volver a entrar,
+      clave mala (401), entrar como la app (cabecera `expo-origin`) y leer
+      «mis pedidos» de la app: todo en verde. Sin migración.
 - [x] 💻 Lo que vio el ayudante de las imágenes (8 nov 2026): las sugerencias
       del buscador ya salen en inglés en /en (el servidor manda `tituloEn` y el
       desplegable elige con `tituloDeSugerencia`; candado

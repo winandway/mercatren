@@ -3973,6 +3973,10 @@
       "calculadora": {
         "titulo": "Calculate a shipment",
         "texto": "Before you buy: what it costs to bring it from Miami to your country."
+      },
+      "bloqueados": {
+        "titulo": "Blocked sellers",
+        "texto": "See and undo the sellers you blocked."
       }
     },
     "nombre": "Name",
@@ -4752,7 +4756,19 @@
       "propio": "You posted this.",
       "invalido": "This content is no longer available.",
       "fallo": "We couldn't send it right now. Please try again in a moment."
-    }
+    },
+    "denunciarProducto": "Report this product",
+    "denunciarTienda": "Report this store",
+    "bloquearVendedor": "Block this seller",
+    "fichaBloqueadaTitulo": "You blocked this seller",
+    "tiendaBloqueadaTitulo": "You blocked this store",
+    "fichaBloqueadaTexto": "You won't see their products or store while they're blocked. You can unblock them at any time.",
+    "verBloqueados": "See blocked sellers",
+    "bloqueadosTitulo": "Blocked sellers",
+    "bloqueadosTexto": "You won't see products or stores from these sellers. If you change your mind, unblock them here.",
+    "bloqueadosVacio": "You haven't blocked any sellers.",
+    "desbloquear": "Unblock",
+    "volverCuenta": "My account"
   },
   "ayuda": {
     "formulario": {

@@ -77,6 +77,7 @@ export function TarjetaProducto({
   return (
     <Link
       href={`/producto/${producto.slug}`}
+      data-tienda={producto.tiendaSlug}
       onClick={promo ? avisarClic : undefined}
       /* Menos relleno en el celular: con tres por hilera cada tarjeta mide
          unos 110px, y 12px de aire por lado se comen la foto. */

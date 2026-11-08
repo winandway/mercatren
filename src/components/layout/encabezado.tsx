@@ -13,6 +13,7 @@ import { BanderaDelMercado } from "@/components/marca/bandera-pais";
 import { Logo } from "@/components/marca/logo";
 import { MercatrenGlobal } from "@/components/marca/mercatren-global";
 import { Link } from "@/i18n/navigation";
+import { EsconderBloqueados } from "@/components/moderacion/esconder-bloqueados";
 import { obtenerUsuario } from "@/lib/autorizacion";
 import { recordado } from "@/lib/cachecito";
 import { listarCategoriasConProductos } from "@/lib/catalogo/consultas";
@@ -91,6 +92,7 @@ export async function Encabezado() {
 
   return (
     <header className="sticky top-0 z-50" data-solo-pantalla>
+      {usuario ? <EsconderBloqueados cuenta={usuario.id} /> : null}
       {/* Fila principal */}
       <div className="bg-riel-900 text-white">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-2 gap-y-2 px-3 py-2 sm:gap-x-3 sm:px-4">

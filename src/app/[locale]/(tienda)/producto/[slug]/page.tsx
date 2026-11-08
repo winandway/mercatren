@@ -37,6 +37,7 @@ import { preguntasDe } from "@/lib/preguntas/consultas";
 import { politicaDeEnvio } from "@/lib/envios/consultas";
 import { GaleriaProducto } from "@/components/catalogo/galeria-producto";
 import { Link } from "@/i18n/navigation";
+import { ModeracionFicha } from "@/components/moderacion/moderacion-ficha";
 import {
   obtenerProductoPorSlug,
   productosSimilares,
@@ -175,6 +176,28 @@ export default async function PaginaProducto({
   );
 
   if (!ficha) notFound();
+
+  /* EL BLOQUEO VALE EN LA WEB (8 nov 2026, dictamen de Google Play): quien
+     bloqueó a este vendedor no ve su producto, ve cómo deshacerlo. */
+  const { bloqueoAlVendedor } = await import("@/lib/moderacion/en-la-web");
+  if (await bloqueoAlVendedor(ficha.tiendaSlug)) {
+    const tm = await getTranslations("moderacion");
+    return (
+      <div
+        className="mx-auto max-w-xl px-4 py-16 text-center"
+        data-vendedor-bloqueado
+      >
+        <h1 className="text-2xl font-bold">{tm("fichaBloqueadaTitulo")}</h1>
+        <p className="mt-2 text-tinta-suave">{tm("fichaBloqueadaTexto")}</p>
+        <Link
+          href="/cuenta/bloqueados"
+          className="boton-principal mt-6 inline-block"
+        >
+          {tm("verBloqueados")}
+        </Link>
+      </div>
+    );
+  }
 
   /* Cómo despacha el comercio de ESTE producto. Antes la ficha decía a todo el
      mundo "no hacemos entregas a domicilio", y desde que los comercios pueden
@@ -414,7 +437,7 @@ export default async function PaginaProducto({
             {titulo}
           </h1>
 
-          <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-tinta-suave">
+          <div className="mt-2 inline-flex items-center gap-1.5 text-sm text-tinta-suave">
             <Store className="h-4 w-4" aria-hidden />
             {t("vendidoPor")}{" "}
             <Link
@@ -423,7 +446,11 @@ export default async function PaginaProducto({
             >
               {ficha.tiendaNombre}
             </Link>
-          </p>
+            <ModeracionFicha
+              productoId={ficha.producto.id}
+              tiendaId={ficha.tiendaId}
+            />
+          </div>
 
           {/* LAS ESTRELLAS, pegadas al nombre. Sin opiniones no se dibuja
               nada: «0 de 5» se lee como un producto malísimo cuando lo que

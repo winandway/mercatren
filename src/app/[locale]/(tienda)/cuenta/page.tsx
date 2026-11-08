@@ -1,5 +1,6 @@
 import { CASILLERO_ABIERTO } from "@/lib/casillero/abierto";
 import {
+  Ban,
   Calculator,
   CircleHelp,
   CreditCard,
@@ -151,6 +152,12 @@ export default async function PaginaCuenta({
       Icono: RotateCcw,
       titulo: t("tarjetas.devoluciones.titulo"),
       texto: t("tarjetas.devoluciones.texto"),
+    },
+    {
+      href: "/cuenta/bloqueados" as const,
+      Icono: Ban,
+      titulo: t("tarjetas.bloqueados.titulo"),
+      texto: t("tarjetas.bloqueados.texto"),
     },
     {
       href: "/support" as const,

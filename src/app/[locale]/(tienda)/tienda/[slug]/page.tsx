@@ -15,6 +15,8 @@ import { notFound } from "next/navigation";
 import { mercadoDeLaPeticion } from "@/lib/mercado/repositorio";
 import { videosDeTienda } from "@/lib/videos/consultas";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ModeracionFicha } from "@/components/moderacion/moderacion-ficha";
+import { Link } from "@/i18n/navigation";
 
 import { BanderaDeLaTienda } from "@/components/catalogo/bandera-destino";
 import { MapaAlmacen } from "@/components/catalogo/mapa-almacen";
@@ -169,6 +171,27 @@ export default async function PaginaTienda({
   const paginaActual = datos.pagina;
 
   if (!puedeVerLaFicha(tienda.estado, mirador, tienda.id)) notFound();
+
+  /* EL BLOQUEO VALE EN LA WEB (8 nov 2026, dictamen de Google Play). */
+  const { bloqueoAlVendedor } = await import("@/lib/moderacion/en-la-web");
+  if (await bloqueoAlVendedor(tienda.slug)) {
+    const tm = await getTranslations("moderacion");
+    return (
+      <div
+        className="mx-auto max-w-xl px-4 py-16 text-center"
+        data-vendedor-bloqueado
+      >
+        <h1 className="text-2xl font-bold">{tm("tiendaBloqueadaTitulo")}</h1>
+        <p className="mt-2 text-tinta-suave">{tm("fichaBloqueadaTexto")}</p>
+        <Link
+          href="/cuenta/bloqueados"
+          className="boton-principal mt-6 inline-block"
+        >
+          {tm("verBloqueados")}
+        </Link>
+      </div>
+    );
+  }
 
   const avisoNoPublica = avisoDeFichaNoPublica(tienda.estado);
 
@@ -390,9 +413,14 @@ export default async function PaginaTienda({
                 {t("mayoristaSello", { minimo: MINIMO_MAYORISTA })}
               </p>
             ) : null}
-            <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
-              {tienda.nombre}
-            </h1>
+            <div className="flex items-start gap-2">
+              <h1 className="max-w-2xl text-3xl leading-tight font-bold tracking-tight text-white sm:text-4xl">
+                {tienda.nombre}
+              </h1>
+              <div className="mt-1 rounded bg-white/90">
+                <ModeracionFicha tiendaId={tienda.id} />
+              </div>
+            </div>
             {/* LA BANDERITA AL LADO DEL PAÍS. El nombre ya está escrito; la
                 bandera es el ancla que hace que el ojo lo enfoque sin leer, que
                 es de lo que se trata en una ficha a la que se llega de Google

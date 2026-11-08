@@ -3973,6 +3973,10 @@
       "calculadora": {
         "titulo": "Calcular un envío",
         "texto": "Antes de comprar: cuánto cuesta traerlo desde Miami hasta tu país."
+      },
+      "bloqueados": {
+        "titulo": "Vendedores bloqueados",
+        "texto": "Mira y deshaz los bloqueos que hiciste."
       }
     },
     "nombre": "Nombre",
@@ -4752,7 +4756,19 @@
       "propio": "Esto lo publicaste tú.",
       "invalido": "Este contenido ya no está disponible.",
       "fallo": "No pudimos enviarlo ahora. Inténtalo otra vez en un momento."
-    }
+    },
+    "denunciarProducto": "Denunciar este producto",
+    "denunciarTienda": "Denunciar esta tienda",
+    "bloquearVendedor": "Bloquear a este vendedor",
+    "fichaBloqueadaTitulo": "Bloqueaste a este vendedor",
+    "tiendaBloqueadaTitulo": "Bloqueaste esta tienda",
+    "fichaBloqueadaTexto": "No verás sus productos ni su tienda mientras siga bloqueado. Puedes desbloquearlo cuando quieras.",
+    "verBloqueados": "Ver vendedores bloqueados",
+    "bloqueadosTitulo": "Vendedores bloqueados",
+    "bloqueadosTexto": "No verás los productos ni las tiendas de estos vendedores. Si cambias de opinión, desbloquéalos aquí.",
+    "bloqueadosVacio": "No has bloqueado a ningún vendedor.",
+    "desbloquear": "Desbloquear",
+    "volverCuenta": "Mi cuenta"
   },
   "ayuda": {
     "formulario": {
