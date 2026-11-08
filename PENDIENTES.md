@@ -18,6 +18,11 @@
 
 ---
 
+## Escrituras de configuracion con la pausa puesta (8 nov 2026) 💻
+
+- [x] La visita despertaba al reloj en pausa (~300 escrituras por hora en `configuracion`) y la ficha de Chile reescribía la tasa cada 90 s. Arreglado y publicado el 8 nov; detalle en `AUDITORIA-GASTOS.md`.
+- [ ] Medir en la analítica de D1 la primera hora completa después de publicar (desde las 14:00 UTC del 8 nov): el upsert de `configuracion` tiene que caer a una o dos filas por hora.
+
 ## 🔴 Antes de volver a mandar la app a Google (anotado por Gerencia, 7 nov 2026) 💻
 
 - [x] 💻 **8 nov 2026: comprobado en vivo** /en/privacy, /en/terms y /es/privacy dan 200 con su título en mercatren.com, .com.ve, .cl y .com.co; /privacidad, /terminos y /en/privacidad redirigen con 301 y terminan en 200 (la de Play Console también). El sitio ya no está en pausa.
