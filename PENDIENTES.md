@@ -20,6 +20,11 @@
 
 ## 🔴 Antes de volver a mandar la app a Google (anotado por Gerencia, 7 nov 2026) 💻
 
+- [x] 💻 **8 nov 2026: comprobado en vivo** /en/privacy, /en/terms y /es/privacy dan 200 con su título en mercatren.com, .com.ve, .cl y .com.co; /privacidad, /terminos y /en/privacidad redirigen con 301 y terminan en 200 (la de Play Console también). El sitio ya no está en pausa.
+- [x] 💻 **8 nov 2026: dictamen del auditor de tiendas = NO APTO** (`tienda-apps/google-play/DICTAMEN-2026-11-08.md`). Lo que falta: la tienda de EE. UU. tiene cero productos (contenido mínimo); la ficha de Play promete miles de productos, búsqueda por foto, casillero y capturas del catálogo de CJ borrado; denunciar/bloquear existe solo en la app nativa, no en la web; la política de privacidad no cubre datos del vendedor, fotos/videos, comentarios, búsquedas ni nombra a Stripe; la sección de seguridad de datos debe sumar los identificadores del aparato que recoge Stripe; cambiar la dirección de privacidad de la consola a /en/privacy en el mismo envío. No se mandó nada a Google.
+- [ ] 💻 Del dictamen, lo que es código: llevar denunciar y bloquear a la web, y completar la política de privacidad (vendedores, fotos y videos, comentarios, búsquedas, Stripe) en los dos idiomas.
+- [ ] 🔴 👤 Del dictamen, lo que es de Richard/Gerencia: qué paquete se manda (web o nativa), productos reales en la tienda de EE. UU. o decidir con qué país entra la app, la ficha nueva de Play, y confirmar la contraseña de la cuenta de revisores.
+
 - [x] 💻 **HECHO el 7 nov 2026** (commit 3434759d): /privacy y /terms dan 200 en /en y /es, y en mercatren.com y mercatren.com.ve; /privacidad y /terminos (con o sin idioma) redirigen con 301 a las nuevas. Candado: tests/unit/direcciones-legales-en-ingles.test.ts. Las fichas del repo ya declaran /en/privacy. **FALTA: el auditor de tiendas (APTO) antes de reenviar la app, y que Gerencia autorice cambiar la dirección guardada en Play Console y App Store Connect (hoy sigue la vieja, que redirige).** Quedan en español por la misma regla: ayuda, devoluciones, entrega, nosotros, vender, como-funciona, transparencia, docs/*.
 - [x] 💻 **HECHO el 7 nov 2026** (commit 65a4f39e): /support, /returns y /shipping dan 200 en /en y /es, en mercatren.com y mercatren.com.ve; /ayuda (con /caso/<código>), /devoluciones y /entrega, con o sin idioma, redirigen con 301. La clave «ayuda» de la app nativa no cambia. Candado ampliado en tests/unit/direcciones-legales-en-ingles.test.ts.
 - (original) Las direcciones legales en inglés dan 404. Comprobado: /privacy y /terms redirigen a /en/privacy y /en/terms, que dan 404. Lo que sí carga es /en/privacidad y /en/terminos (la palabra en español dentro de la versión en inglés). Por la regla de Richard, las direcciones van en inglés: /privacy y /terms (y /es/privacy, /es/terms) tienen que dar 200, y /privacidad y /terminos tienen que redirigir con 301 a las nuevas. Revisar también qué dirección tiene puesta Play Console en la política de privacidad, y que todo pase por el auditor de tiendas antes de mandar la app. Dejar prueba en rojo y candado.
@@ -99,9 +104,19 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🟡 💻 **better-auth 1.7.7**: exige la columna `issuer` en `account`, con
       su migración de datos. Sus avisos no nos alcanzan (anotados en
       `scripts/auditoria.ts`), pero hay que subirla con esa migración preparada.
-- [ ] 🟡 💻 Lo que vio el ayudante de las imágenes: las sugerencias del
-      buscador salen en español en la versión en inglés, y la portada del .com
-      tiene el botón «Calcular envío a tu país».
+      **Revisado el 8 nov 2026:** la última es la 1.7.18 y ya NO pide `issuer`
+      (solo existió en la 1.7.0 a 1.7.2); sus tablas son idénticas a las de la
+      1.6.25, así que no hace falta migración. PERO la 1.7 revisa el esquema al
+      arrancar y lanza un error si una columna obligatoria no la escribe ella:
+      antes de subir, probar entrar, registrarse y salir en local y en la app
+      (`@better-auth/expo` sube junto). No se subió: el riesgo es dejar a todos
+      sin poder entrar y los avisos no nos alcanzan.
+- [x] 💻 Lo que vio el ayudante de las imágenes (8 nov 2026): las sugerencias
+      del buscador ya salen en inglés en /en (el servidor manda `tituloEn` y el
+      desplegable elige con `tituloDeSugerencia`; candado
+      `tests/unit/titulo-de-sugerencia.test.ts`, comprobado en rojo). El botón
+      «Calcular envío a tu país» ya no sale en la portada del .com (mirado en
+      vivo con Playwright en /en y /es).
 
 ### 27 oct 2026 · CJ en pausa y el plan nuevo de proveedores 🟠
 
@@ -111,7 +126,11 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
       cuenta** Business con prueba gratis. Detalle en `PLAN-B-PROVEEDORES.md`,
       sección 9.
 - [ ] 🟡 💻 **La pausa por proveedor y no por país**, antes de publicar el
-      primer producto de TopDawg.
+      primer producto de TopDawg. **8 nov 2026: se deja quieta a propósito.**
+      Desde el 5 nov las tiendas de Estados Unidos las crea la gente, y hoy la
+      pausa de `US` también frena sus ventas. Qué debe pausar depende de la
+      decisión 👤 de Richard de abrir o no esa venta (bloque de la app nativa)
+      y del sí a TopDawg; hacerla antes es adivinar.
 
 ### 1 nov 2026 · ⛔ EL SITIO ESTÁ EN PAUSA EN YADOMINIOS
 
@@ -171,7 +190,9 @@ apruebe Divoox.
       CON TIENDA SE CIERRA SOLA».
 - [ ] 🔴 La migración 0051 (tabla `solicitudes_cierre`) llega sola a
       producción con `schema.sql` al publicar; comprobar en vivo cuando se
-      quite la pausa de la plataforma.
+      quite la pausa de la plataforma. (8 nov: el sitio ya responde; se
+      comprueba con la sonda `{"accion":"tablas"}` de la puerta
+      probar-compra, ver bloque de 0053/0054.)
 - [x] ✅ 💻 Parte 3b · Carrito, pago con la hoja de Stripe y «Mis pedidos»
       en la app, con las mismas acciones de la web. Probado en local hasta el
       pedido (MT-000270). Ver HISTORIAL, «EL CARRITO Y EL PAGO DE LA APP».
@@ -269,6 +290,11 @@ apruebe Divoox.
       emergencia, y el canario `/datos/salud` enseña la última medida.
 - [ ] 🔴 La variable `CF_ANALYTICS_TOKEN` en el panel del sitio mercatren: una
       llave de Cloudflare solo de lectura de estadísticas. Sin ella no mide.
+      **8 nov 2026:** la llave ya existe en la máquina
+      (`~/.config/mercatren/cf-analytics-token`), pero cargarla en el panel
+      necesita la «llave de Acceso para IA» del sitio mercatren (punto 👤 de
+      abajo) o que Richard la pegue él. `/datos/salud` sigue con
+      `consumo.nivel: null`.
 - [x] ✅ 💻 Página «De la ventana a la app nativa» en
       `docs/PLAN-UNA-SOLA-MERCATREN.md` (sección 10), mandada a Gerencia antes
       de programar.

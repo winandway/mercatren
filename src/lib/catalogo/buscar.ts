@@ -309,6 +309,8 @@ export async function idsQueCalzan(
 export type Sugerencia = {
   slug: string;
   titulo: string;
+  /** El título en inglés, si lo hay: el desplegable de /en lo prefiere. */
+  tituloEn: string | null;
   precioCentavos: number;
   moneda: string;
   imagenUrl: string | null;
@@ -389,6 +391,7 @@ export async function sugerencias(
       return {
         slug: f.slug,
         titulo: f.tituloEs,
+        tituloEn: f.tituloEn?.trim() || null,
         precioCentavos: f.precioCentavos,
         moneda: f.moneda,
         imagenUrl: foto

@@ -15,11 +15,13 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { formatearPrecio, type Idioma } from "@/lib/dinero";
 import { cn } from "@/lib/utils";
+import { tituloDeSugerencia } from "@/lib/catalogo/titulo-de-sugerencia";
 import { IA_APAGADA } from "@/lib/en-pausa";
 
 type Sugerencia = {
   slug: string;
   titulo: string;
+  tituloEn: string | null;
   precioCentavos: number;
   moneda: string;
   imagenUrl: string | null;
@@ -316,7 +318,10 @@ export function Buscador({ idioma }: { idioma: Idioma }) {
 
               <span className="min-w-0 flex-1">
                 <span className="line-clamp-2 block text-sm leading-snug">
-                  <Resaltado texto={p.titulo} palabras={palabras} />
+                  <Resaltado
+                    texto={tituloDeSugerencia(p, idioma)}
+                    palabras={palabras}
+                  />
                 </span>
                 <span className="mt-0.5 block truncate text-xs text-tinta-suave">
                   {p.tiendaNombre}

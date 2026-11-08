@@ -68,6 +68,7 @@ const Peticion = z.discriminatedUnion("accion", [
      error (21 sep 2026). */
   z.object({ accion: z.literal("ultimos-cobros") }),
   z.object({ accion: z.literal("errores") }),
+  z.object({ accion: z.literal("tablas") }),
   z.object({
     accion: z.literal("sale-zelle"),
     montoCentavos: z.number().int().positive(),
@@ -243,6 +244,11 @@ export async function POST(peticion: Request) {
     case "sale-zelle": {
       const { saleZelle } = await import("@/lib/salud/medir-panel");
       resultado = await saleZelle(e.montoCentavos);
+      break;
+    }
+    case "tablas": {
+      const { revisarTablas } = await import("@/lib/salud/tablas");
+      resultado = await revisarTablas();
       break;
     }
     case "errores": {
