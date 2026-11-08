@@ -1,16 +1,15 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 /**
  * LA TASA DE CHILE NO SE REESCRIBE EN CADA VISITA (8 nov 2026).
  * La ficha de Chile pide la tasa; antes cada instancia escribía dos filas en
  * `configuracion` cada 90 s aunque la tasa fuera la misma.
  */
-vi.mock("server-only", () => ({}));
 
 import {
   hayQueGuardarTasa,
   REFRESCAR_TASA_CADA_MS,
-} from "@/lib/mercado/tasa-automatica";
+} from "@/lib/mercado/guardar-tasa";
 
 describe("guardar la tasa", () => {
   const ahora = 1_800_000_000_000;
