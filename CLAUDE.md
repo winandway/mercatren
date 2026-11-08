@@ -451,6 +451,7 @@ el error delante no protege a nadie.
 **Antes de tocar una de estas piezas, lee su sección en `HISTORIAL.md`.** Cada
 una cuenta un fallo real y el candado que lo tranca.
 
+- [CJ RETIRADO: SE ACABARON LOS CORREOS DE «LA CONEXIÓN CON CJ NO RESPONDE» (8 nov 2026)](HISTORIAL.md#cj-retirado-se-acabaron-los-correos-de-la-conexión-con-cj-no-responde-8-nov-2026)
 - [EL BOTÓN DE GOOGLE PLAY EN TODOS LOS DOMINIOS (8 nov 2026)](HISTORIAL.md#el-botón-de-google-play-en-todos-los-dominios-8-nov-2026)
 - [VENEZUELA ENCENDIDA EN LA APP, Y LA TARJETA DE LA APP APAGADA PARA EL PÚBLICO (8 nov 2026)](HISTORIAL.md#venezuela-encendida-en-la-app-y-la-tarjeta-de-la-app-apagada-para-el-público-8-nov-2026)
 - [AYUDA, DEVOLUCIONES Y ENTREGA TAMBIÉN EN INGLÉS: /support, /returns Y /shipping (7 nov 2026)](HISTORIAL.md#ayuda-devoluciones-y-entrega-también-en-inglés-support-returns-y-shipping-7-nov-2026)

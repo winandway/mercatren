@@ -1,3 +1,4 @@
+import { CJ_RETIRADO } from "@/lib/cj/retirado";
 import "server-only";
 
 import { desc, inArray } from "drizzle-orm";
@@ -63,6 +64,8 @@ export async function presupuestoDeCj(): Promise<{
 }
 
 export async function saludDelProveedor(): Promise<string> {
+  /* CJ retirado (8 nov 2026): ni se le llama ni se avisa por él. */
+  if (CJ_RETIRADO) return "retirado";
   try {
     const { cjConfigurado } = await import("@/lib/cj/cliente");
     if (!cjConfigurado()) return "sin_llave";

@@ -1,3 +1,4 @@
+import { CJ_RETIRADO } from "@/lib/cj/retirado";
 import "server-only";
 
 import { and, desc, eq, inArray, lt } from "drizzle-orm";
@@ -51,24 +52,28 @@ const GUARDAR_DIAS = 30;
 async function actuar(): Promise<Accion[]> {
   const db = getDb();
   const acciones: Accion[] = [];
+  /* CJ retirado (8 nov 2026): las acciones 1, 2 y 3 son contra CJ (barrer
+     su catálogo, reintentar sus tandas, pagarle compras) y no corren. Las
+     fotos (1b) sí, porque también son de los comercios. */
 
   /* 1. Nada de CJ a la venta sin pasar el último filtro; y lo que ya lo
      pasó, a la venta. */
-  try {
-    const b = await barrerNoVerificados();
-    acciones.push({
-      clave: "retirar-no-verificados",
-      titulo: "Retirados de la venta por no tener flete real",
-      cantidad: b.retirados,
-    });
-    acciones.push({
-      clave: "publicar-verificados",
-      titulo: "Publicados por pasar el último filtro",
-      cantidad: b.publicados,
-    });
-  } catch (fallo) {
-    console.error("[vigilante] el barrido falló:", fallo);
-  }
+  if (!CJ_RETIRADO)
+    try {
+      const b = await barrerNoVerificados();
+      acciones.push({
+        clave: "retirar-no-verificados",
+        titulo: "Retirados de la venta por no tener flete real",
+        cantidad: b.retirados,
+      });
+      acciones.push({
+        clave: "publicar-verificados",
+        titulo: "Publicados por pasar el último filtro",
+        cantidad: b.publicados,
+      });
+    } catch (fallo) {
+      console.error("[vigilante] el barrido falló:", fallo);
+    }
 
   /* 1b. Unas fotos de servidores ajenos a nuestro bucket, dentro de la
      cuota de la hora: el reloj ya lo hace cada minuto, esto es por si el
@@ -95,70 +100,73 @@ async function actuar(): Promise<Accion[]> {
 
   /* 2. Las tandas de importación que fallaron por algo pasajero vuelven a
      la cola. Las de un fallo de verdad se quedan para que alguien las mire. */
-  try {
-    const vivas = await db
-      .select({ id: importacionesCj.id })
-      .from(importacionesCj)
-      .where(eq(importacionesCj.estado, "en_curso"));
-    let reintentadas = 0;
-    for (const v of vivas) {
-      const fallidas = await db
-        .select({
-          id: tandasImportacionCj.id,
-          error: tandasImportacionCj.ultimoError,
-        })
-        .from(tandasImportacionCj)
-        .where(
-          and(
-            eq(tandasImportacionCj.importacionId, v.id),
-            eq(tandasImportacionCj.estado, "con_error"),
-          ),
-        )
-        .limit(100);
-      const pasajeras = fallidas.filter((t) => esFalloPasajero(t.error));
-      if (pasajeras.length > 0) {
-        await db
-          .update(tandasImportacionCj)
-          .set({ estado: "pendiente", tomadaEn: null })
+  if (!CJ_RETIRADO)
+    try {
+      const vivas = await db
+        .select({ id: importacionesCj.id })
+        .from(importacionesCj)
+        .where(eq(importacionesCj.estado, "en_curso"));
+      let reintentadas = 0;
+      for (const v of vivas) {
+        const fallidas = await db
+          .select({
+            id: tandasImportacionCj.id,
+            error: tandasImportacionCj.ultimoError,
+          })
+          .from(tandasImportacionCj)
           .where(
-            inArray(
-              tandasImportacionCj.id,
-              pasajeras.map((t) => t.id),
+            and(
+              eq(tandasImportacionCj.importacionId, v.id),
+              eq(tandasImportacionCj.estado, "con_error"),
             ),
-          );
-        reintentadas += pasajeras.length;
+          )
+          .limit(100);
+        const pasajeras = fallidas.filter((t) => esFalloPasajero(t.error));
+        if (pasajeras.length > 0) {
+          await db
+            .update(tandasImportacionCj)
+            .set({ estado: "pendiente", tomadaEn: null })
+            .where(
+              inArray(
+                tandasImportacionCj.id,
+                pasajeras.map((t) => t.id),
+              ),
+            );
+          reintentadas += pasajeras.length;
+        }
       }
+      acciones.push({
+        clave: "reintentar-tandas",
+        titulo:
+          "Tandas de importación devueltas a la cola tras un fallo pasajero",
+        cantidad: reintentadas,
+      });
+    } catch (fallo) {
+      console.error("[vigilante] no se pudieron reintentar tandas:", fallo);
     }
-    acciones.push({
-      clave: "reintentar-tandas",
-      titulo:
-        "Tandas de importación devueltas a la cola tras un fallo pasajero",
-      cantidad: reintentadas,
-    });
-  } catch (fallo) {
-    console.error("[vigilante] no se pudieron reintentar tandas:", fallo);
-  }
 
   /* 3. Las compras a CJ que quedaron sin pagar se vuelven a intentar con el
      saldo, de a pocas (5 sep 2026). Hasta hoy dependían de un clic. */
-  try {
-    const { reintentarPagosPendientesDeCj } = await import("@/lib/cj/pedidos");
-    const r = await reintentarPagosPendientesDeCj(3);
-    if (r.intentadas > 0) {
-      acciones.push({
-        clave: "pagar-cj-pendientes",
-        titulo: `Compras a CJ pagadas del saldo al reintentar (de ${r.intentadas} intentadas${
-          r.motivos.length ? `; ${r.motivos.join(" · ").slice(0, 300)}` : ""
-        })`,
-        cantidad: r.pagadas,
-      });
+  if (!CJ_RETIRADO)
+    try {
+      const { reintentarPagosPendientesDeCj } =
+        await import("@/lib/cj/pedidos");
+      const r = await reintentarPagosPendientesDeCj(3);
+      if (r.intentadas > 0) {
+        acciones.push({
+          clave: "pagar-cj-pendientes",
+          titulo: `Compras a CJ pagadas del saldo al reintentar (de ${r.intentadas} intentadas${
+            r.motivos.length ? `; ${r.motivos.join(" · ").slice(0, 300)}` : ""
+          })`,
+          cantidad: r.pagadas,
+        });
+      }
+    } catch (fallo) {
+      console.error(
+        "[vigilante] no se pudieron reintentar los pagos a CJ:",
+        fallo,
+      );
     }
-  } catch (fallo) {
-    console.error(
-      "[vigilante] no se pudieron reintentar los pagos a CJ:",
-      fallo,
-    );
-  }
 
   return acciones;
 }

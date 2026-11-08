@@ -190,8 +190,11 @@ export function evaluar(h: Hechos): Alerta[] {
     });
   }
 
-  /* 2. Las llaves de las que depende el dinero. */
-  if (h.proveedor === "sin_puntos") {
+  /* 2. Las llaves de las que depende el dinero. Con CJ retirado (8 nov
+     2026) su conexión no se vigila: no es una avería, es una decisión. */
+  if (h.proveedor === "retirado") {
+    /* nada que avisar */
+  } else if (h.proveedor === "sin_puntos") {
     alertas.push({
       clave: "cj-sin-puntos",
       nivel: "ambar",
@@ -220,8 +223,8 @@ export function evaluar(h: Hechos): Alerta[] {
     });
   }
 
-  /* 3. Las importaciones en marcha. */
-  for (const imp of h.importaciones) {
+  /* 3. Las importaciones en marcha (solo si CJ sigue siendo proveedor). */
+  for (const imp of h.proveedor === "retirado" ? [] : h.importaciones) {
     const quieta = minutosDesde(imp.actualizadoEnMs, h.ahoraMs) ?? 0;
     if (
       imp.estado === "en_curso" &&

@@ -15,6 +15,32 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## CJ RETIRADO: SE ACABARON LOS CORREOS DE «LA CONEXIÓN CON CJ NO RESPONDE» (8 nov 2026)
+
+**Qué se veía.** Seguían llegando correos de alarma de que CJ Dropshipping no
+se podía conectar, con Mercatren en pausa y CJ borrado desde el 5 nov.
+Richard: _«el sistema debería saber que no estamos trabajando con esa empresa;
+si no hay conexión, no deberían llegar correos»_.
+
+**La causa real.** Dos piezas juntas. (1) Cada visita al sitio despertaba al
+reloj aunque estuviera en pausa, y el reloj corría el vigilante cada 20
+minutos (lo cortó otra sesión el 8 nov a las 13:06 UTC, commit 4c96557e: el
+último latido del vigilante en la base es de esa hora). (2) El vigilante no
+sabía que CJ se había retirado: sin la llave de CJ, `saludDelProveedor` daba
+«sin_llave» y la regla mandaba la alarma roja por correo.
+
+**Qué se hizo.** `CJ_RETIRADO = true` en `src/lib/cj/retirado.ts`. Con él, la
+sonda de salud dice «retirado» sin llamar a CJ; el vigilante no avisa de la
+conexión, los puntos ni las importaciones de CJ; y no actúa contra CJ
+(barrido de su catálogo, tandas, pagos de compras). Las fotos de los comercios
+siguen su curso. Los pedidos viejos de CJ quedan intactos en la base.
+
+**Candado.** `tests/unit/cj-retirado.test.ts`, comprobado en rojo (regla del
+vigilante sin la excepción y sonda sin el corte). Si algún día vuelve CJ, el
+interruptor en `false` y la alarma vuelve a funcionar (hay prueba de eso).
+
+---
+
 ## EL BOTÓN DE GOOGLE PLAY EN TODOS LOS DOMINIOS (8 nov 2026)
 
 **Qué se pidió:** Mercatren ya es pública en Google Play y la web no ofrecía
