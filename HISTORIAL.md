@@ -15,6 +15,28 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## EL BOTÓN DE GOOGLE PLAY EN TODOS LOS DOMINIOS (8 nov 2026)
+
+**Qué se pidió:** Mercatren ya es pública en Google Play y la web no ofrecía
+la descarga (Richard, vía Gerencia).
+
+**Qué se hizo:** el distintivo oficial de Google («Disponible en Google Play» /
+«Get it on Google Play», bajado de la página de distintivos de Google y sin
+tocar más que el margen transparente) va en la portada, en el pie de todas las
+páginas de la tienda y en Mi cuenta. Enlaza a la ficha en el idioma de la
+página. En el pie va la frase de marca que piden las normas de Google. En un
+celular Android sale además una franja discreta abajo, con una X; no sale en
+iPhone, en tabletas, dentro de la app ni después de cerrarla (se recuerda en
+ese navegador).
+
+**Dónde vive:** `src/lib/app-android/google-play.ts` (enlace, distintivo y
+cuándo ofrecer la app), `components/marca/boton-google-play.tsx`,
+`components/marca/aviso-app-android.tsx`, imágenes en `public/insignias/`.
+Como todos los dominios sirven el mismo worker, sale en todos a la vez.
+
+**Candado:** `tests/unit/google-play.test.ts` (comprobada en rojo quitando el
+botón del pie y dejando salir el aviso dentro de la app).
+
 ## VENEZUELA ENCENDIDA EN LA APP, Y LA TARJETA DE LA APP APAGADA PARA EL PÚBLICO (8 nov 2026)
 
 **Qué se decidió:** Gerencia (con la decisión delegada por Richard) mete la app

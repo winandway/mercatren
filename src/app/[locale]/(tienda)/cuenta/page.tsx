@@ -17,6 +17,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { CambiarClave } from "@/components/cuenta/cambiar-clave";
+import { BotonGooglePlay } from "@/components/marca/boton-google-play";
 import { MenuCuenta } from "@/components/cuenta/menu-cuenta";
 import { Salir } from "@/components/cuenta/salir";
 import { Link } from "@/i18n/navigation";
@@ -71,6 +72,7 @@ export default async function PaginaCuenta({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("cuenta");
+  const tPlay = await getTranslations("googlePlay");
   const usuario = await obtenerUsuario();
 
   if (!usuario) {
@@ -347,6 +349,17 @@ export default async function PaginaCuenta({
             </div>
           ) : null}
         </dl>
+      </section>
+
+      {/* LA APP DE ANDROID (8 nov 2026): la misma cuenta entra en la app. */}
+      <section className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-borde p-5 sm:p-6">
+        <div className="min-w-0">
+          <h2 className="font-bold">{tPlay("tituloCuenta")}</h2>
+          <p className="mt-1 text-sm text-tinta-suave">
+            {tPlay("textoCuenta")}
+          </p>
+        </div>
+        <BotonGooglePlay />
       </section>
 
       {/* SUS CASOS DE AYUDA (1 nov 2026): cada uno abre su chat. Solo sale

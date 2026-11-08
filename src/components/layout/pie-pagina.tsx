@@ -3,6 +3,7 @@ import { ArrowRight, Mail } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { BanderaEEUU } from "@/components/marca/bandera-eeuu";
+import { BotonGooglePlay } from "@/components/marca/boton-google-play";
 import { Logo } from "@/components/marca/logo";
 import { Link } from "@/i18n/navigation";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
@@ -63,6 +64,7 @@ const SECCIONES = [
 
 export async function PiePagina() {
   const t = await getTranslations("piePagina");
+  const tPlay = await getTranslations("googlePlay");
   const anio = new Date().getFullYear();
 
   /**
@@ -134,6 +136,16 @@ export async function PiePagina() {
                 {CORREO_CONTACTO}
               </a>
             </div>
+
+            {/* LA APP DE ANDROID (8 nov 2026): el distintivo oficial de
+                Google Play, en todos los dominios y en los dos idiomas. */}
+            <div className="mt-6">
+              <p className="text-sm font-semibold">{tPlay("tituloPie")}</p>
+              <p className="mt-0.5 mb-3 text-xs text-white/60">
+                {tPlay("textoPie")}
+              </p>
+              <BotonGooglePlay />
+            </div>
           </div>
 
           {/* Las cuatro columnas de enlaces. */}
@@ -175,6 +187,8 @@ export async function PiePagina() {
           <span className="font-semibold text-white/70">{SOCIEDAD.nombre}</span>
           , {SOCIEDAD.pais}.
         </p>
+        {/* La frase de marca que piden las normas de Google Play. */}
+        <p className="mt-2 text-[11px] text-white/40">{tPlay("marca")}</p>
       </div>
 
       {/**

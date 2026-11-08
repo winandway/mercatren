@@ -10,6 +10,7 @@ import {
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { ParaTi } from "@/components/catalogo/para-ti";
+import { BotonGooglePlay } from "@/components/marca/boton-google-play";
 import { HileraVideos } from "@/components/videos/hilera-videos";
 import { HILERAS, ordenarParaHilera, valeLaPena } from "@/lib/videos/hileras";
 import { resumenSocialDe } from "@/lib/videos/social";
@@ -215,10 +216,11 @@ export default async function PaginaInicio({
               pais: nombreDelMercado(mercado, locale),
             })}
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link href="/vender" className="boton-principal">
               {t("abrirTienda")}
             </Link>
+            <BotonGooglePlay />
           </div>
         </div>
       </section>
@@ -314,6 +316,8 @@ export default async function PaginaInicio({
                 {t("calculadoraHero")}
               </Link>
             ) : null}
+            {/* La app de Android, en la primera pantalla (8 nov 2026). */}
+            <BotonGooglePlay className="self-center" />
           </div>
         </div>
       </section>

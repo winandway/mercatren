@@ -4839,5 +4839,18 @@
     "fueraDePlazo": "The withdrawal period for this order has ended.",
     "error": "We couldn't register your withdrawal. Please try again or contact us.",
     "noAplica": "This order can't be withdrawn from here. Contact us and we'll help."
+  },
+  "googlePlay": {
+    "alt": "Get it on Google Play",
+    "tituloPie": "Take Mercatren with you",
+    "textoPie": "Shop and track your orders from the Android app.",
+    "tituloCuenta": "The Mercatren app",
+    "textoCuenta": "Sign in with this same account on your Android phone and track your orders wherever you are.",
+    "tituloInicio": "Shop from the app, too",
+    "avisoAndroid": "Mercatren on Android",
+    "avisoAndroidTexto": "Faster, with your orders at hand.",
+    "abrir": "Get the app",
+    "cerrar": "Dismiss",
+    "marca": "Google Play and the Google Play logo are trademarks of Google LLC."
   }
 }

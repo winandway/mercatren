@@ -4839,5 +4839,18 @@
     "fueraDePlazo": "El plazo para desistir de este pedido ya terminó.",
     "error": "No pudimos registrar tu desistimiento. Inténtalo de nuevo o escríbenos.",
     "noAplica": "Este pedido no se puede desistir desde aquí. Escríbenos y lo vemos."
+  },
+  "googlePlay": {
+    "alt": "Disponible en Google Play",
+    "tituloPie": "Lleva Mercatren en tu celular",
+    "textoPie": "Compra y sigue tus pedidos desde la app de Android.",
+    "tituloCuenta": "La app de Mercatren",
+    "textoCuenta": "Entra con esta misma cuenta desde tu celular Android y sigue tus pedidos donde estés.",
+    "tituloInicio": "Compra también desde la app",
+    "avisoAndroid": "Mercatren en Android",
+    "avisoAndroidTexto": "Más rápida y con tus pedidos a mano.",
+    "abrir": "Descargar",
+    "cerrar": "Cerrar el aviso",
+    "marca": "Google Play y el logotipo de Google Play son marcas comerciales de Google LLC."
   }
 }
