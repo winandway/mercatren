@@ -4,6 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { crearMiCasillero } from "@/lib/casillero/acciones";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 /** Los países a los que se despacha hoy. Se amplía cuando se abra otro. */
 export const PAISES_DESTINO = [
@@ -63,6 +67,9 @@ export function FormularioCasillero({
 }) {
   const [estado, accion] = useActionState(crearMiCasillero, null);
 
+  /* Guardado bien: el borrador ya no hace falta. */
+  if (estado?.codigo) olvidarBorrador("casillero-alta");
+
   const mensajeDeError = (e: string) =>
     ({
       "nombre-incompleto": textos.errorNombre,
@@ -72,7 +79,11 @@ export function FormularioCasillero({
     })[e] ?? textos.errorFallo;
 
   return (
-    <form action={accion} className="space-y-4">
+    <FormularioPersistente
+      llave={"casillero-alta"}
+      action={accion}
+      className="space-y-4"
+    >
       {estado?.error ? (
         <p
           role="alert"
@@ -137,6 +148,6 @@ export function FormularioCasillero({
       </label>
 
       <Boton texto={textos.crear} enviando={textos.enviando} />
-    </form>
+    </FormularioPersistente>
   );
 }

@@ -10,6 +10,7 @@ import { Escudo } from "@/components/cuenta/escudo";
 import { Link } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { destinoConElPaisDeLaCuenta } from "@/lib/mercado/elegir-pais";
+import { ponerCuentaDelNavegador } from "@/lib/formularios/borrador";
 
 /**
  * Entrada al sistema. El panel de administracion solo abre para las cuentas
@@ -74,6 +75,8 @@ export function FormularioEntrar({
      * que hacer: a quien trabaja en el panel, al panel; a quien compra, a la
      * tienda.
      */
+    /* Los borradores son de su dueño: se apunta quién entró. */
+    ponerCuentaDelNavegador((data?.user as { id?: string } | undefined)?.id);
     const rol = (data?.user as { rol?: string } | undefined)?.rol;
     const trabajaEnElPanel =
       rol === "soporte" || rol === "validador" || rol === "vendedor";

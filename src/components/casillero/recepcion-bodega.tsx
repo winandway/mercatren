@@ -7,6 +7,10 @@ import { useFormStatus } from "react-dom";
 import { recibirDesdeBodega } from "@/lib/casillero/bodega-acciones";
 
 import { AsignarHuerfano } from "./asignar-huerfano";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 function Boton({ texto, enviando }: { texto: string; enviando: string }) {
   const { pending } = useFormStatus();
@@ -33,10 +37,17 @@ export function RecepcionBodega({
   textos: Record<string, string>;
 }) {
   const [estado, accion] = useActionState(recibirDesdeBodega, null);
+  /* Caja recibida: el borrador se borra y el formulario nace limpio. */
+  if (estado?.wr) olvidarBorrador("recepcion-bodega");
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-      <form action={accion} key={estado?.wr ?? "nuevo"} className="space-y-4">
+      <FormularioPersistente
+        llave="recepcion-bodega"
+        action={accion}
+        key={estado?.wr ?? "nuevo"}
+        className="space-y-4"
+      >
         <label className="block">
           <span className="text-sm font-semibold">{textos.tracking}</span>
           <input
@@ -101,7 +112,7 @@ export function RecepcionBodega({
         </div>
 
         <Boton texto={textos.recibir} enviando={textos.recibiendo} />
-      </form>
+      </FormularioPersistente>
 
       <aside className="h-fit rounded-xl border border-borde bg-white p-5">
         {!estado ? (

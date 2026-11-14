@@ -17,6 +17,7 @@ import { authClient } from "@/lib/auth-client";
 import { destinoConElPaisDeLaCuenta } from "@/lib/mercado/elegir-pais";
 import { registrarAceptacion } from "@/lib/legal-acciones";
 import { medirClave } from "@/lib/validacion/fortaleza";
+import { ponerCuentaDelNavegador } from "@/lib/formularios/borrador";
 
 /**
  * Alta de cuenta para quien va a comprar.
@@ -98,7 +99,7 @@ export function FormularioRegistro({
     /* El país va en la cuenta (`paisEntrega`), como en la app: de ahí salen
        su moneda y lo que puede comprar. El servidor lo revisa
        (`paisDelAltaValido`). */
-    const { error: fallo } = await authClient.signUp.email(
+    const { data: alta, error: fallo } = await authClient.signUp.email(
       {
         name: nombre.trim(),
         email: correo.trim(),
@@ -109,6 +110,11 @@ export function FormularioRegistro({
     );
 
     setEnviando(false);
+
+    if (!fallo) {
+      /* Los borradores son de su dueño: se apunta quién se registró. */
+      ponerCuentaDelNavegador((alta?.user as { id?: string } | undefined)?.id);
+    }
 
     if (fallo) {
       /**

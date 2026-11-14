@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { cambiarPinDeSeccion, crearSeccion } from "@/lib/secciones/acciones";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 export type SeccionDelPanel = {
   id: string;
@@ -75,7 +79,8 @@ export function PanelSecciones({
        * escrito se queda donde estaba; se limpia solo al guardar bien.
        */}
       {creando ? (
-        <form
+        <FormularioPersistente
+          llave="seccion-nueva"
           onSubmit={async (e) => {
             e.preventDefault();
             const formulario = e.currentTarget;
@@ -86,6 +91,8 @@ export function PanelSecciones({
             setTrabajando(false);
             setAviso({ ok: r.ok, texto: r.mensaje });
             if (r.ok) {
+              /* Antes del reset: si no, el reset lo devuelve del borrador. */
+              olvidarBorrador("seccion-nueva");
               formulario.reset();
               setCreando(false);
               router.refresh();
@@ -155,7 +162,7 @@ export function PanelSecciones({
             ) : null}
             {t("crear")}
           </button>
-        </form>
+        </FormularioPersistente>
       ) : null}
 
       {aviso ? (

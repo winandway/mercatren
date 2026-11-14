@@ -4,6 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { avisarCompra } from "@/lib/casillero/prealerta";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 function Boton({ texto, enviando }: { texto: string; enviando: string }) {
   const { pending } = useFormStatus();
@@ -29,6 +33,7 @@ export function FormularioPrealerta({
   const [estado, accion] = useActionState(avisarCompra, null);
 
   if (estado?.ok) {
+    olvidarBorrador("casillero-prealerta");
     return (
       <p className="rounded-lg border border-precio-600/40 bg-precio-600/10 px-3 py-3 text-sm font-semibold">
         {textos.listo}
@@ -41,7 +46,11 @@ export function FormularioPrealerta({
     : null;
 
   return (
-    <form action={accion} className="space-y-4">
+    <FormularioPersistente
+      llave={"casillero-prealerta"}
+      action={accion}
+      className="space-y-4"
+    >
       {error ? (
         <p
           role="alert"
@@ -113,6 +122,6 @@ export function FormularioPrealerta({
       </label>
 
       <Boton texto={textos.enviar} enviando={textos.enviando} />
-    </form>
+    </FormularioPersistente>
   );
 }

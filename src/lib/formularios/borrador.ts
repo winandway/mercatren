@@ -69,9 +69,101 @@ export type Borrador = {
   guardadoEn: number;
 };
 
-/** La llave de este formulario concreto. */
-export function llaveDeBorrador(nombre: string): string {
-  return `mercatren:borrador:${nombre}`;
+/**
+ * ══ CADA BORRADOR ES DE SU DUEÑO (regla global, 14 nov 2026) ══
+ *
+ * La llave lleva el formulario Y la cuenta. En una computadora compartida, lo
+ * que escribió una persona no le aparece a la siguiente que entre con otra
+ * cuenta. La cuenta se apunta en este navegador al entrar o registrarse
+ * (`ponerCuentaDelNavegador`) y se quita al salir, junto con TODOS los
+ * borradores (`olvidarTodosLosBorradores`). Sin sesión, la cuenta es
+ * «invitado».
+ */
+export const PREFIJO_BORRADOR = "mercatren:borrador:";
+export const LLAVE_CUENTA = "mercatren:cuenta";
+
+type Almacen = Pick<
+  Storage,
+  "getItem" | "setItem" | "removeItem" | "key" | "length"
+>;
+
+function almacen(): Almacen | null {
+  try {
+    return typeof window === "undefined" ? null : window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** La cuenta apuntada en este navegador, o «invitado». */
+export function cuentaDelNavegador(a: Almacen | null = almacen()): string {
+  try {
+    return a?.getItem(LLAVE_CUENTA)?.trim() || "invitado";
+  } catch {
+    return "invitado";
+  }
+}
+
+/** La llave de este formulario concreto, para esta cuenta. */
+export function llaveDeBorrador(
+  nombre: string,
+  cuenta: string = cuentaDelNavegador(),
+): string {
+  return `${PREFIJO_BORRADOR}${cuenta}:${nombre}`;
+}
+
+/** Todas las llaves de borrador guardadas en este navegador. */
+function llavesDeBorrador(a: Almacen): string[] {
+  const llaves: string[] = [];
+  for (let i = 0; i < a.length; i++) {
+    const k = a.key(i);
+    if (k?.startsWith(PREFIJO_BORRADOR)) llaves.push(k);
+  }
+  return llaves;
+}
+
+/** Al salir de la sesión: no queda ni un borrador en el navegador. */
+export function olvidarTodosLosBorradores(a: Almacen | null = almacen()) {
+  if (!a) return;
+  try {
+    for (const k of llavesDeBorrador(a)) a.removeItem(k);
+    a.removeItem(LLAVE_CUENTA);
+  } catch (error) {
+    console.error("[borrador] no se pudieron borrar los borradores", error);
+  }
+}
+
+/**
+ * Al entrar o registrarse: se apunta la cuenta y se borran los borradores de
+ * OTRAS cuentas. Los de invitado se quedan (quien empezó a comprar sin cuenta y
+ * entró a mitad no pierde lo escrito: la próxima vez entran a su cuenta).
+ */
+export function ponerCuentaDelNavegador(
+  cuenta: string | null | undefined,
+  a: Almacen | null = almacen(),
+) {
+  const id = (cuenta ?? "").trim();
+  if (!a || !id) return;
+  try {
+    for (const k of llavesDeBorrador(a)) {
+      const dueno = k.slice(PREFIJO_BORRADOR.length).split(":")[0];
+      if (dueno !== "invitado" && dueno !== id) a.removeItem(k);
+    }
+    /* Lo que escribió como invitado pasa a su cuenta. */
+    for (const k of llavesDeBorrador(a)) {
+      const resto = k.slice(PREFIJO_BORRADOR.length);
+      if (!resto.startsWith("invitado:")) continue;
+      const nombre = resto.slice("invitado:".length);
+      const valor = a.getItem(k);
+      if (valor !== null && a.getItem(llaveDeBorrador(nombre, id)) === null) {
+        a.setItem(llaveDeBorrador(nombre, id), valor);
+      }
+      a.removeItem(k);
+    }
+    a.setItem(LLAVE_CUENTA, id);
+  } catch (error) {
+    console.error("[borrador] no se pudo apuntar la cuenta", error);
+  }
 }
 
 /**

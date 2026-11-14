@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { olvidarTodosLosBorradores } from "@/lib/formularios/borrador";
 
 /**
  * Salir de la sesion.
@@ -45,6 +46,9 @@ export function Salir({
     } catch {
       // Se sale igual: ver el comentario de arriba.
     }
+    /* Lo escrito en los formularios no se queda para el que se siente
+       después en esta computadora. */
+    olvidarTodosLosBorradores();
     window.location.assign(`/${idioma}`);
   }
 

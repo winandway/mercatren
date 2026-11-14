@@ -4,6 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { declararPaquete } from "@/lib/casillero/declarar";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 function Boton({ texto, enviando }: { texto: string; enviando: string }) {
   const { pending } = useFormStatus();
@@ -35,6 +39,7 @@ export function DeclararPaquete({
   const [estado, accion] = useActionState(declararPaquete, null);
 
   if (estado?.ok) {
+    olvidarBorrador(`casillero-declarar:${paqueteId}`);
     return (
       <p className="text-sm font-semibold text-precio-600">{textos.listo}</p>
     );
@@ -44,7 +49,11 @@ export function DeclararPaquete({
     : null;
 
   return (
-    <form action={accion} className="space-y-2">
+    <FormularioPersistente
+      llave={`casillero-declarar:${paqueteId}`}
+      action={accion}
+      className="space-y-2"
+    >
       <input type="hidden" name="paqueteId" value={paqueteId} />
       <p className="text-sm font-semibold">{textos.declarar}</p>
       {error ? (
@@ -69,6 +78,6 @@ export function DeclararPaquete({
         <Boton texto={textos.enviar} enviando={textos.enviando} />
       </div>
       <p className="text-xs text-tinta-suave">{textos.valorAyuda}</p>
-    </form>
+    </FormularioPersistente>
   );
 }

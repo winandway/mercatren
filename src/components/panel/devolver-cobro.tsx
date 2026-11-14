@@ -6,6 +6,10 @@ import { useActionState, useEffect, useState } from "react";
 
 import { useRouter } from "@/i18n/navigation";
 import { devolverCobro } from "@/lib/cobros/devolver";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 /**
  * DEVOLVERLE EL DINERO A QUIEN PAGÓ UN COBRO.
@@ -54,6 +58,7 @@ export function DevolverCobro({
   const [okAtendido, setOkAtendido] = useState<unknown>(null);
   if (estado?.ok && estado !== okAtendido) {
     setOkAtendido(estado);
+    olvidarBorrador(`devolver-cobro:${cobroId}`);
     setAbierto(false);
   }
 
@@ -85,7 +90,9 @@ export function DevolverCobro({
   }
 
   return (
-    <form
+    <FormularioPersistente
+      llave={`devolver-cobro:${cobroId}`}
+
       action={accion}
       className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs"
     >
@@ -156,6 +163,6 @@ export function DevolverCobro({
           {t("cancelar")}
         </button>
       </div>
-    </form>
+    </FormularioPersistente>
   );
 }

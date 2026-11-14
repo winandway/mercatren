@@ -4,6 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { guardarTarifaMaritima } from "@/lib/casillero/tarifas";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 export type TarifaMaritimaFila = {
   pais: string;
@@ -41,6 +45,7 @@ export function FormularioTarifaMaritima({
   textos: Record<string, string>;
 }) {
   const [estado, accion] = useActionState(guardarTarifaMaritima, null);
+  if (estado?.ok) olvidarBorrador("casillero-tarifa-maritima");
   const campo = (
     nombre: string,
     etiqueta: string,
@@ -69,7 +74,9 @@ export function FormularioTarifaMaritima({
   );
 
   return (
-    <form
+    <FormularioPersistente
+      llave="casillero-tarifa-maritima"
+
       action={accion}
       className="space-y-4 rounded-xl border border-borde bg-white p-5"
     >
@@ -156,6 +163,6 @@ export function FormularioTarifaMaritima({
         </span>
       </label>
       <Boton texto={textos.guardar} enviando={textos.guardando} />
-    </form>
+    </FormularioPersistente>
   );
 }

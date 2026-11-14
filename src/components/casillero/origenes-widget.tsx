@@ -4,6 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { crearOrigen } from "@/lib/casillero/origenes";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 type Origen = {
   id: string;
@@ -41,10 +45,13 @@ export function OrigenesWidget({
   textos: Record<string, string>;
 }) {
   const [estado, accion] = useActionState(crearOrigen, null);
+  if (estado?.clave) olvidarBorrador("casillero-origenes");
 
   return (
     <div className="space-y-6">
-      <form
+      <FormularioPersistente
+        llave="casillero-origenes"
+
         action={accion}
         className="flex flex-wrap items-end gap-3 rounded-xl border border-borde bg-white p-4"
       >
@@ -72,7 +79,7 @@ export function OrigenesWidget({
             {textos[`error_${estado.error}`] ?? textos.error_fallo}
           </p>
         ) : null}
-      </form>
+      </FormularioPersistente>
 
       {estado?.clave ? (
         <div className="rounded-xl border border-precio-600/40 bg-precio-600/10 p-4">

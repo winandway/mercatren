@@ -214,7 +214,7 @@ export function FormularioPersistente({
         }
 
         if (campo.value !== guardado) {
-          campo.value = guardado;
+          ponerValor(campo, guardado);
           algoCambio = true;
           /* Los formularios que reaccionan a lo escrito (el de retiros cambia de
              casillas según el país) no se enteran de un cambio hecho a mano. */
@@ -377,4 +377,25 @@ export function FormularioPersistente({
       {children}
     </form>
   );
+}
+
+/**
+ * Pone el valor por el «setter» nativo. Con `campo.value = x` a secas, una
+ * casilla CONTROLADA por React (value + onChange) no se entera: React ve que el
+ * valor ya es ese y se traga el evento, y al siguiente dibujo la deja vacía.
+ * Por el setter del prototipo React sí recibe el `input` y actualiza su estado.
+ */
+export function ponerValor(
+  campo: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
+  valor: string,
+) {
+  const proto =
+    campo instanceof HTMLTextAreaElement
+      ? HTMLTextAreaElement.prototype
+      : campo instanceof HTMLSelectElement
+        ? HTMLSelectElement.prototype
+        : HTMLInputElement.prototype;
+  const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+  if (setter) setter.call(campo, valor);
+  else campo.value = valor;
 }

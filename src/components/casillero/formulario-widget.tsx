@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 /**
  * ══ EL FORMULARIO DEL WIDGET ══
@@ -90,6 +94,7 @@ export function FormularioWidget({
         );
         return;
       }
+      olvidarBorrador("casillero-widget");
       setListo(true);
     } catch {
       setError(t("No hay conexión.", "No connection."));
@@ -122,7 +127,11 @@ export function FormularioWidget({
 
   return (
     <div ref={caja}>
-      <form onSubmit={enviar} className="space-y-3">
+      <FormularioPersistente
+        llave={"casillero-widget"}
+        onSubmit={enviar}
+        className="space-y-3"
+      >
         <p className="text-sm font-semibold text-slate-900">
           {t("Crea tu casillero en Miami", "Create your Miami locker")}
         </p>
@@ -206,7 +215,7 @@ export function FormularioWidget({
             ? t("Creando…", "Creating…")
             : t("Crear mi casillero", "Create my locker")}
         </button>
-      </form>
+      </FormularioPersistente>
     </div>
   );
 }

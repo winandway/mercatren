@@ -8,6 +8,10 @@ import { crearCobroDesdePanel } from "@/lib/cobros/pedir";
 import type { MetodoDeCobro } from "@/lib/cobros/reparto";
 import { cuantasPartes, MAXIMO_PARTES } from "@/lib/cobros/partes";
 import type { ParteCreada } from "@/lib/cobros/pedir";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 /**
  * COBRAR LO QUE ACABA DE CUADRAR (26 ago 2026).
@@ -217,7 +221,9 @@ export function CobrarLoCuadrado({
   }
 
   return (
-    <form
+    <FormularioPersistente
+      llave={"cobrar-lo-cuadrado"}
+
       onSubmit={async (e) => {
         e.preventDefault();
         const formulario = e.currentTarget;
@@ -256,6 +262,7 @@ export function CobrarLoCuadrado({
         }
         setEnviando(false);
         if (r.ok) {
+          olvidarBorrador("cobrar-lo-cuadrado");
           setHecho(r.partes);
           setCorreoSalio(r.correoEnviado);
           setZelleNoSale(r.zelleNoSale);
@@ -381,6 +388,6 @@ export function CobrarLoCuadrado({
         ) : null}
         {t("generarEnlace")}
       </button>
-    </form>
+    </FormularioPersistente>
   );
 }

@@ -8,6 +8,7 @@ import { authClient } from "@/lib/auth-client";
 import { CORREO_CONTACTO } from "@/lib/correo/direcciones";
 import { borrarMiCuenta } from "@/lib/cuenta/borrar-acciones";
 import { PALABRA_DE_CONFIRMACION } from "@/lib/cuenta/borrar-puro";
+import { olvidarTodosLosBorradores } from "@/lib/formularios/borrador";
 
 /**
  * El formulario que borra la cuenta (27 oct 2026).
@@ -57,6 +58,7 @@ export function BorrarCuenta({ correo }: { correo: string }) {
       } catch {
         // La sesión ya no existe en la base: la cookie que quede no sirve.
       }
+      olvidarTodosLosBorradores();
       window.location.assign(`/${idioma}/delete-account?listo=1`);
     });
   }

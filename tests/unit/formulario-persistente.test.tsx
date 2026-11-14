@@ -64,7 +64,7 @@ function Ficha({ llave = "prueba" }: { llave?: string }) {
   );
 }
 
-const LLAVE_REAL = "mercatren:borrador:prueba";
+const LLAVE_REAL = "mercatren:borrador:invitado:prueba";
 
 beforeEach(() => window.localStorage.clear());
 afterEach(() => window.localStorage.clear());
@@ -182,7 +182,7 @@ describe("restituir al volver", () => {
 
   it("el borrador de un formulario no se cuela en otro", async () => {
     window.localStorage.setItem(
-      "mercatren:borrador:moto-a",
+      "mercatren:borrador:invitado:moto-a",
       JSON.stringify({
         campos: { tituloEs: "Moto A" },
         guardadoEn: Date.now(),
@@ -253,7 +253,7 @@ describe("las casillas que aparecen tarde también se recuperan", () => {
      * estabas escribiendo» con el formulario en blanco.
      */
     window.localStorage.setItem(
-      "mercatren:borrador:tardias",
+      "mercatren:borrador:invitado:tardias",
       JSON.stringify({
         campos: { nombre: "Ana", direccion: "500 Main St", estado: "MI" },
         guardadoEn: Date.now(),
@@ -279,7 +279,7 @@ describe("las casillas que aparecen tarde también se recuperan", () => {
        vez que el formulario cambia de forma se borraría lo recién escrito —
        que es justo el problema que este componente vino a resolver. */
     window.localStorage.setItem(
-      "mercatren:borrador:tardias",
+      "mercatren:borrador:invitado:tardias",
       JSON.stringify({
         campos: { nombre: "Del borrador", direccion: "500 Main St" },
         guardadoEn: Date.now(),
@@ -340,7 +340,7 @@ describe("lo escrito vuelve cuando el formulario se reinicia", () => {
     await persona.type(nombre, "Taladro percutor");
     await waitFor(() =>
       expect(
-        window.localStorage.getItem("mercatren:borrador:con-accion"),
+        window.localStorage.getItem("mercatren:borrador:invitado:con-accion"),
       ).toContain("Taladro percutor"),
     );
 
@@ -368,7 +368,7 @@ describe("lo escrito vuelve cuando el formulario se reinicia", () => {
     await persona.click(getByRole("button", { name: "Guardar" }));
     await waitFor(() => expect(llamada).toBe(1));
     expect(
-      window.localStorage.getItem("mercatren:borrador:con-accion"),
+      window.localStorage.getItem("mercatren:borrador:invitado:con-accion"),
     ).toContain("Cemento gris");
     await waitFor(() => expect(nombre.value).toBe("Cemento gris"));
   });

@@ -4,6 +4,10 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { guardarTarifa } from "@/lib/casillero/tarifas";
+import {
+  FormularioPersistente,
+  olvidarBorrador,
+} from "@/components/ui/formulario-persistente";
 
 export type TarifaFila = {
   pais: string;
@@ -52,6 +56,7 @@ export function FormularioTarifa({
   textos: Record<string, string>;
 }) {
   const [estado, accion] = useActionState(guardarTarifa, null);
+  if (estado?.ok) olvidarBorrador("casillero-tarifa");
 
   const campo = (
     nombre: string,
@@ -81,7 +86,9 @@ export function FormularioTarifa({
   );
 
   return (
-    <form
+    <FormularioPersistente
+      llave="casillero-tarifa"
+
       action={accion}
       className="space-y-4 rounded-xl border border-borde bg-white p-5"
     >
@@ -205,6 +212,6 @@ export function FormularioTarifa({
       </label>
 
       <Boton texto={textos.guardar} enviando={textos.guardando} />
-    </form>
+    </FormularioPersistente>
   );
 }
