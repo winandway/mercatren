@@ -6,6 +6,7 @@ import { useActionState, useState } from "react";
 
 import { Campo } from "@/components/ui/campo";
 import { adjuntarFacturaDeCompra } from "@/lib/facturas/acciones";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * El comercio sube su factura contra una orden de compra.
@@ -68,6 +69,7 @@ export function AdjuntarFactura({ ordenId }: { ordenId: string }) {
           className="block w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-riel-900 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-white"
         />
       </label>
+      <BotonCamara />
 
       {estado && !estado.ok ? (
         <p role="alert" className="text-xs text-red-700">

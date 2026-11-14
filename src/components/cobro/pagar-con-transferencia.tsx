@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 
 import { subirComprobanteDeCobro } from "@/lib/cobros/acciones";
 import type { DatosDeTransferencia } from "@/lib/cobros/transferencia";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * PAGAR POR TRANSFERENCIA ACH: los datos del banco, uno a uno y copiables.
@@ -195,6 +196,7 @@ export function PagarConTransferencia({
             {captura ? captura.name : t("achSubirComprobante")}
           </span>
         </label>
+        <BotonCamara />
 
         <label className="mt-3 block">
           <span className="text-sm text-tinta-suave">{t("achReferencia")}</span>

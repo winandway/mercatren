@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/formulario-persistente";
 import { RUTA_UPLOAD } from "@/lib/rutas";
 import { MAX_ADJUNTOS, revisarAdjuntos } from "@/lib/soporte/adjuntos";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 type Motivo =
   | "datos"
@@ -208,6 +209,7 @@ export function ChatDelCaso({ codigo }: { codigo: string }) {
             e.target.value = "";
           }}
         />
+        <BotonCamara />
         <span className="text-xs text-tinta-suave">
           {t("adjuntarAyuda", { maximo: MAX_ADJUNTOS })}
         </span>

@@ -11,6 +11,7 @@ import {
   marcarRetiroPagado,
   rechazarRetiro,
 } from "@/lib/retiros/acciones";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * Lo que se puede hacer con un retiro que está esperando.
@@ -118,6 +119,7 @@ export function AccionesRetiro({
           accept="image/*,application/pdf"
           className="block w-full text-xs file:mr-3 file:rounded-lg file:border file:border-slate-300 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-semibold"
         />
+        <BotonCamara />
         <p className="text-xs text-tinta-suave">{t("capturaAyuda")}</p>
         {error ? (
           <p role="alert" className="text-xs text-red-700">

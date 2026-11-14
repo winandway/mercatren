@@ -28,6 +28,7 @@ import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { pesoLegible, PESO_MAXIMO_ENVIO } from "@/lib/imagenes/medidas";
 import { borrarFoto, guardarProducto } from "@/lib/productos/acciones";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 type Foto = {
   id: string;
@@ -600,6 +601,7 @@ export function FormularioProducto({
             }
           }}
         />
+        <BotonCamara />
       </section>
 
       {/* Inventario */}

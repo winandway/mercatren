@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 
 import { subirComprobanteDeCobro } from "@/lib/cobros/acciones";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * PAGAR UN COBRO POR ZELLE: tres pasos, y el del medio es el que importa.
@@ -245,6 +246,7 @@ export function PagarConZelle({
                 onChange={(e) => setCaptura(e.target.files?.[0] ?? null)}
               />
             </label>
+            <BotonCamara />
 
             <label className="mt-2 block">
               <span className="text-xs text-tinta-suave">{t("zCodigo")}</span>

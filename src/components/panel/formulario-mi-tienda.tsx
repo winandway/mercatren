@@ -12,6 +12,7 @@ import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { LADO_MAXIMO_LOGO, LADO_MAXIMO_PRODUCTO } from "@/lib/imagenes/medidas";
 import { guardarMiTienda } from "@/lib/tiendas/acciones";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 type Tienda = {
   id: string;
@@ -186,6 +187,7 @@ function ElegirImagen({
           }
         }}
       />
+      <BotonCamara />
 
       <button
         type="button"

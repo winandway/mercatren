@@ -12,6 +12,7 @@ import {
 import { formatearPrecio } from "@/lib/dinero";
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { Link } from "@/i18n/navigation";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * El subidor de la búsqueda por foto.
@@ -128,6 +129,7 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
         className="hidden"
         onChange={(e) => elegir(e.target.files?.[0])}
       />
+      <BotonCamara />
       {/* ══ EL ORDEN LO DICTÓ EL DUEÑO (30 ago 2026) ══ Con resultado en
           pantalla, arriba va EL FORMULARIO, no otro botón de buscar: «el
           cliente buscó, no lo hay y continuó — tiene que estar de primero».

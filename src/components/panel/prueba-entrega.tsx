@@ -16,6 +16,7 @@ import {
   guardarPruebaDeEntrega,
 } from "@/lib/pedidos/prueba-entrega";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * LO QUE DEFIENDE UNA VENTA CUANDO LLEGA UN CONTRACARGO.
@@ -218,6 +219,7 @@ export function PruebaDeEntrega({
             className="mt-1 w-full text-sm"
           />
         </label>
+        <BotonCamara />
 
         <button
           type="submit"

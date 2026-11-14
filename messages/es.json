@@ -4852,5 +4852,15 @@
     "abrir": "Descargar",
     "cerrar": "Cerrar el aviso",
     "marca": "Google Play y el logotipo de Google Play son marcas comerciales de Google LLC."
+  },
+  "camara": {
+    "tomarFoto": "Tomar foto",
+    "titulo": "Tomar una foto",
+    "capturar": "Tomar la foto",
+    "cancelar": "Cancelar",
+    "abriendo": "Abriendo la cámara…",
+    "sinCamara": "No encontramos una cámara en este aparato. Sube la foto desde tus archivos.",
+    "sinPermiso": "No tenemos permiso para usar la cámara. Actívalo en tu navegador o sube la foto desde tus archivos.",
+    "subirArchivo": "Subir desde archivos"
   }
 }

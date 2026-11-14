@@ -21,6 +21,7 @@ import {
 import { comprimirImagen } from "@/lib/imagenes/comprimir";
 import { LADO_MAXIMO_PRODUCTO } from "@/lib/imagenes/medidas";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 export type BannerEnFormulario = {
   id: string;
@@ -382,6 +383,7 @@ export function FormularioBanner({
             }
           }}
         />
+        <BotonCamara />
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"

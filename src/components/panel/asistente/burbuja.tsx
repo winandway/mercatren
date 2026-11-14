@@ -24,6 +24,7 @@ import {
   type RespuestaAgente,
 } from "@/lib/asistente/sesion";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * EL ASISTENTE, COMO BURBUJA QUE ACOMPAÑA A TODO EL PANEL.
@@ -480,6 +481,7 @@ export function BurbujaAsistente({ idioma }: { idioma: string }) {
             if (archivo) void mandarImagen(archivo);
           }}
         />
+        <BotonCamara />
       </form>
     </div>
   );

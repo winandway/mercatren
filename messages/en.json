@@ -4852,5 +4852,15 @@
     "abrir": "Get the app",
     "cerrar": "Dismiss",
     "marca": "Google Play and the Google Play logo are trademarks of Google LLC."
+  },
+  "camara": {
+    "tomarFoto": "Take photo",
+    "titulo": "Take a photo",
+    "capturar": "Take the photo",
+    "cancelar": "Cancel",
+    "abriendo": "Opening the camera…",
+    "sinCamara": "We couldn't find a camera on this device. Upload the photo from your files.",
+    "sinPermiso": "We don't have permission to use the camera. Turn it on in your browser or upload the photo from your files.",
+    "subirArchivo": "Upload from files"
   }
 }

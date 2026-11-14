@@ -22,6 +22,7 @@ import {
   MOTIVOS,
 } from "@/lib/devoluciones/reglas";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * DEVOLVER UN PEDIDO.
@@ -124,26 +125,29 @@ export function Devolver({
             no hay foto que sacar, y pedirla ahí es una pared donde no hay nada
             que comprobar. */}
         {pideFotos ? (
-          <label className="block text-sm">
-            <span className="flex items-center gap-1.5 font-semibold">
-              <Camera className="h-4 w-4" aria-hidden />
-              {t("fotos", { maximo: MAXIMO_FOTOS })}
-            </span>
-            <input
-              type="file"
-              name="fotos"
-              multiple
-              /* Lista abierta, NUNCA cerrada: el HEIC es el formato por defecto
+          <>
+            <label className="block text-sm">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <Camera className="h-4 w-4" aria-hidden />
+                {t("fotos", { maximo: MAXIMO_FOTOS })}
+              </span>
+              <input
+                type="file"
+                name="fotos"
+                multiple
+                /* Lista abierta, NUNCA cerrada: el HEIC es el formato por defecto
                  del iPhone, y con una lista de tipos el carrete se le ve en
                  gris a media clientela. */
-              accept="image/*"
-              required
-              className="mt-1 w-full text-sm"
-            />
-            <span className="mt-1 block text-xs text-tinta-suave">
-              {t("fotosPista")}
-            </span>
-          </label>
+                accept="image/*"
+                required
+                className="mt-1 w-full text-sm"
+              />
+              <span className="mt-1 block text-xs text-tinta-suave">
+                {t("fotosPista")}
+              </span>
+            </label>
+            <BotonCamara />
+          </>
         ) : null}
 
         {error ? (

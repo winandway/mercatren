@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 
 import { subirComprobanteDeCobro } from "@/lib/cobros/acciones";
 import type { DatosDeWire } from "@/lib/cobros/wire";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * PAGAR POR CABLE (WIRE): los datos del banco y el costo, a la vista.
@@ -221,6 +222,7 @@ export function PagarConWire({
             {captura ? captura.name : t("wireSubirComprobante")}
           </span>
         </label>
+        <BotonCamara />
 
         <label className="mt-3 block">
           <span className="text-sm text-tinta-suave">

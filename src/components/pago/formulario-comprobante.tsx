@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Camera,
-  CheckCircle2,
-  ImageIcon,
-  ImagePlus,
-  Loader2,
-  X,
-} from "lucide-react";
+import { CheckCircle2, ImageIcon, ImagePlus, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -15,6 +8,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { conceptoDelPago } from "@/lib/pedidos/concepto";
 import { subirComprobante } from "@/lib/pedidos/comprobante";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /** 8 MB, igual que en el servidor. Aqui se avisa antes de subir en balde. */
 const TAMANO_MAXIMO = 8 * 1024 * 1024;
@@ -201,14 +195,9 @@ export function FormularioComprobante({ numero }: { numero: string }) {
           {/* Dos caminos: la camara y la galeria. En el escritorio los dos
               abren el explorador, asi que no molesta tenerlos. */}
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => camara.current?.click()}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-borde px-4 py-2.5 text-sm font-semibold transition-colors hover:border-carga-500"
-            >
-              <Camera className="h-4 w-4" aria-hidden />
-              {t("tomarFoto")}
-            </button>
+            {/* La pieza de todo el sitio: en el celular abre la cámara, en la
+                computadora la cámara web (antes abría el explorador). */}
+            <BotonCamara className="px-4 py-2.5" />
             <button
               type="button"
               onClick={() => galeria.current?.click()}

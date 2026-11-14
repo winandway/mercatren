@@ -26,6 +26,7 @@ import {
 } from "@/lib/cj/proveedor-acciones";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { BotonCamara } from "@/components/comun/boton-camara";
 
 /**
  * LA LISTA DE PEDIDOS EN EL PANEL DE CJ.
@@ -589,6 +590,7 @@ function FacturaDelProveedor({ compra }: { compra: CompraAlProveedor }) {
           required
           className="text-xs"
         />
+        <BotonCamara />
         <button
           type="submit"
           disabled={subiendo}
