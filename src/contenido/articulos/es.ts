@@ -14,6 +14,120 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_ES: Articulo[] = [
   {
+    slug: "tomar-foto-o-subir-desde-archivos",
+    tipo: "documentacion",
+    titulo: "Tomar una foto o subirla desde tus archivos",
+    resumen:
+      "En Mercatren, cada lugar donde se sube una imagen tiene dos caminos: elegirla de tus archivos o tomarla en ese momento con la cámara del celular o de la computadora.",
+    fecha: "2026-11-14",
+    temas: ["compradores", "comercios", "fotos", "cámara", "camara"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Junto a cada casilla de imagen está el botón «Tomar foto». Úsalo para fotografiar un producto, un comprobante de pago o un paquete sin salir de la página.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/camara/tomar-foto-es.png",
+        alt: "Una casilla de foto de producto con los botones «Subir desde archivos» y «Tomar foto», y al lado la ventanita de la cámara web con «Cancelar» y «Tomar la foto»",
+        pie: "Junto a cada casilla de imagen: tus archivos o la cámara.",
+      },
+      { tipo: "subtitulo", texto: "Dónde lo vas a ver" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Al buscar un producto con una foto.",
+          "Al subir el comprobante de un pago con Zelle, transferencia o wire.",
+          "Al pedir una devolución, para mostrar cómo llegó el producto.",
+          "En el chat de un caso de ayuda.",
+          "En el panel del comercio: fotos de productos, logo y portada de la tienda, banners, prueba de entrega, facturas y retiros.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Cómo funciona" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "En el celular",
+            texto:
+              "Toca «Tomar foto» y se abre la cámara trasera. Toma la foto, confírmala y queda puesta en la casilla, lista para enviar.",
+          },
+          {
+            titulo: "En la computadora",
+            texto:
+              "Toca «Tomar foto» y se abre una ventanita con la imagen de tu cámara web. Pulsa «Tomar la foto» y queda puesta en la casilla. «Cancelar» o la tecla Escape la cierran sin guardar nada.",
+          },
+          {
+            titulo: "Desde tus archivos",
+            texto:
+              "Si ya tienes la foto, usa la casilla de siempre para elegirla de tu galería o de tu computadora.",
+          },
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Si la cámara no abre",
+        texto:
+          "Te lo decimos en pantalla: puede que tu aparato no tenga cámara o que el navegador no tenga permiso para usarla. Puedes darle permiso en los ajustes del navegador o subir la foto desde tus archivos.",
+      },
+    ],
+  },
+  {
+    slug: "lo-que-escribes-no-se-pierde",
+    tipo: "documentacion",
+    titulo: "Lo que escribes en un formulario no se pierde",
+    resumen:
+      "Si se cierra la ventana, se va el internet o recargas la página, al volver al formulario está todo lo que habías escrito. Así funciona y así se protege tu información.",
+    fecha: "2026-11-14",
+    temas: ["compradores", "comercios", "formularios", "borrador"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "En una línea",
+        texto:
+          "Mientras escribes, Mercatren guarda un borrador en tu propio navegador. Si algo interrumpe, al volver te avisamos con una línea discreta, «Recuperamos lo que estabas escribiendo», y puedes empezar de nuevo si prefieres.",
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/camara/borrador-recuperado-es.png",
+        alt: "Un formulario con la línea «Recuperamos lo que estabas escribiendo.» y el enlace «Empezar de nuevo», con el nombre y la descripción del producto ya puestos",
+        pie: "Al volver, todo está en su sitio.",
+      },
+      { tipo: "subtitulo", texto: "Cuándo te salva" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Se cerró la pestaña o se apagó la computadora.",
+          "El celular cerró el navegador al abrir la cámara o la galería.",
+          "Se fue el internet justo al enviar, o el envío falló.",
+          "Tocaste «atrás» o recargaste la página sin querer.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "Cómo cuidamos tu información" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Las contraseñas, los códigos de un solo uso y los datos de tarjeta nunca se guardan.",
+          "El borrador vive solo en tu navegador: no viaja a ningún lado hasta que tú envías el formulario.",
+          "Cada borrador es de tu cuenta: si otra persona entra con su cuenta en la misma computadora, no ve lo tuyo.",
+          "Se borra solo cuando el formulario se guarda bien, cuando cierras sesión y después de 24 horas sin tocarlo.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Las fotos se vuelven a elegir",
+        texto:
+          "El borrador guarda lo escrito, no los archivos: una foto pesa mucho para guardarla en el navegador. Si se interrumpe, vuelve a elegirla o tómala otra vez.",
+      },
+    ],
+  },
+  {
     slug: "mercatren-venezuela-in-the-app",
     tipo: "documentacion",
     soloConPais: "VE",

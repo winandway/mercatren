@@ -14,6 +14,127 @@ import { SOCIEDAD } from "@/lib/sociedad";
  */
 export const ARTICULOS_EN: Articulo[] = [
   {
+    slug: "tomar-foto-o-subir-desde-archivos",
+    tipo: "documentacion",
+    titulo: "Take a photo or upload it from your files",
+    resumen:
+      "Everywhere you upload an image on Mercatren, you have two options: pick it from your files or take it right then with your phone or computer camera.",
+    fecha: "2026-11-14",
+    temas: [
+      "compradores",
+      "comercios",
+      "buyers",
+      "sellers",
+      "photos",
+      "camera",
+    ],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          'Next to every image field there\'s a "Take photo" button. Use it to photograph a product, a payment receipt or a package without leaving the page.',
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/camara/tomar-foto-en.png",
+        alt: 'A product photo field with the "Upload from files" and "Take photo" buttons, next to the webcam window with "Cancel" and "Take the photo"',
+        pie: "Next to every image field: your files or the camera.",
+      },
+      { tipo: "subtitulo", texto: "Where you'll see it" },
+      {
+        tipo: "lista",
+        puntos: [
+          "When you search for a product with a photo.",
+          "When you upload the receipt for a Zelle, bank transfer or wire payment.",
+          "When you request a return, to show how the item arrived.",
+          "In the chat of a support case.",
+          "In the seller dashboard: product photos, store logo and cover, banners, proof of delivery, invoices and payouts.",
+        ],
+      },
+      { tipo: "subtitulo", texto: "How it works" },
+      {
+        tipo: "pasos",
+        pasos: [
+          {
+            titulo: "On your phone",
+            texto:
+              'Tap "Take photo" and the rear camera opens. Take the picture, confirm it, and it drops into the field, ready to send.',
+          },
+          {
+            titulo: "On your computer",
+            texto:
+              'Tap "Take photo" and a small window opens with your webcam. Click "Take the photo" and it drops into the field. "Cancel" or the Escape key closes it without saving anything.',
+          },
+          {
+            titulo: "From your files",
+            texto:
+              "If you already have the photo, use the usual field to pick it from your gallery or your computer.",
+          },
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "If the camera doesn't open",
+        texto:
+          "We'll tell you on screen: your device may not have a camera, or your browser may not have permission to use it. You can allow it in your browser settings or upload the photo from your files.",
+      },
+    ],
+  },
+  {
+    slug: "lo-que-escribes-no-se-pierde",
+    tipo: "documentacion",
+    titulo: "What you type in a form is never lost",
+    resumen:
+      "If the window closes, your connection drops or you reload the page, everything you typed is still there when you come back. Here's how it works and how your information stays protected.",
+    fecha: "2026-11-14",
+    temas: ["compradores", "comercios", "buyers", "sellers", "forms", "draft"],
+    cuerpo: [
+      {
+        tipo: "aviso",
+        tono: "acento",
+        titulo: "In one line",
+        texto:
+          'As you type, Mercatren saves a draft in your own browser. If something interrupts you, we let you know with a quiet line, "We restored what you were writing," and you can tap "Start over" if you prefer.',
+      },
+      {
+        tipo: "imagen",
+        src: "/docs/camara/borrador-recuperado-en.png",
+        alt: 'A form with the line "We restored what you were writing." and the "Start over" link, with the product name and description already filled in',
+        pie: "When you come back, everything is where you left it.",
+      },
+      { tipo: "subtitulo", texto: "When it saves you" },
+      {
+        tipo: "lista",
+        puntos: [
+          "The tab closed or the computer shut down.",
+          "Your phone closed the browser when you opened the camera or gallery.",
+          "Your connection dropped right as you hit send, or the submission failed.",
+          'You tapped "Back" or reloaded the page by accident.',
+        ],
+      },
+      { tipo: "subtitulo", texto: "How we protect your information" },
+      {
+        tipo: "lista",
+        puntos: [
+          "Passwords, one-time codes and card details are never saved.",
+          "The draft lives only in your browser: it goes nowhere until you submit the form.",
+          "Each draft belongs to your account: if someone else signs in with their account on the same computer, they don't see yours.",
+          "It's cleared when the form is saved successfully, when you sign out, and after 24 hours untouched.",
+        ],
+      },
+      {
+        tipo: "aviso",
+        tono: "neutro",
+        titulo: "Photos need to be picked again",
+        texto:
+          "The draft saves what you type, not files: a photo is too large to keep in the browser. If you're interrupted, pick it again or take it again.",
+      },
+    ],
+  },
+  {
     slug: "mercatren-venezuela-in-the-app",
     tipo: "documentacion",
     soloConPais: "VE",

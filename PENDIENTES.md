@@ -18,6 +18,30 @@
 
 ---
 
+## Turno de noche del 14 nov 2026: reglas globales al día 💻
+
+- [x] 💻 **La pausa por proveedor y no por país** (detalle abajo, en «CJ en pausa»).
+- [x] 💻 **«Tomar foto» en todas las casillas de imagen** (regla global del 9 nov):
+      una sola pieza, `src/lib/camara.ts` + `src/components/comun/boton-camara.tsx`.
+      En el celular abre la cámara trasera; en la computadora, la cámara web en
+      una ventanita; sin cámara o sin permiso lo dice en palabras. La foto entra
+      en la casilla de siempre. Quince casillas (comprobantes de pago, buscar
+      con foto, devoluciones, chat de ayuda y todo el panel). Candado
+      `tests/unit/camara.test.ts`, que recorre el sitio entero, comprobado en
+      rojo. La app nativa ya la tenía.
+- [x] 💻 **Ningún formulario pierde lo escrito**: el borrador ahora es de su
+      dueño (la llave lleva la cuenta), se borra entero al salir o borrar la
+      cuenta, y al entrar se borran los de otra cuenta. La restitución usa el
+      setter nativo, así también vuelven las casillas controladas. Diez
+      formularios más lo usan (casillero, bodega, tarifas, orígenes del widget,
+      cobrar lo cuadrado, devolver cobro, crear sección). Candado
+      `tests/unit/formularios-no-pierden.test.ts`, con la lista de los que no
+      aplican y su motivo, comprobado en rojo.
+- [x] 💻 Guías públicas en Docs, en los dos idiomas: «Tomar una foto o subirla
+      desde tus archivos» y «Lo que escribes en un formulario no se pierde».
+- [ ] 🟡 💻 Cambiar las imágenes de esas dos guías (hoy son una maqueta fiel)
+      por capturas reales cuando haya un pedido de prueba con comprobante.
+
 ## Escrituras de configuracion con la pausa puesta (8 nov 2026) 💻
 
 - [x] La visita despertaba al reloj en pausa (~300 escrituras por hora en `configuracion`) y la ficha de Chile reescribía la tasa cada 90 s. Arreglado y publicado el 8 nov; detalle en `AUDITORIA-GASTOS.md`.

@@ -15,6 +15,25 @@
 
 Tienda en línea operada por **Mercatren LLC** (Michigan, Estados Unidos).
 
+## TURNO DE NOCHE: PAUSA POR PROVEEDOR, CÁMARA Y BORRADORES DE SU DUEÑO (14 nov 2026)
+
+- **Pausa por proveedor.** Antes la pausa miraba solo el país (`US`); desde
+  que la gente abre tiendas en EE. UU. eso mezclaba a CJ con todos. Ahora
+  `ventaPausada(pais, { tiendaId })` mira primero si la tienda vende lo de un
+  proveedor (`TIENDAS_DE_PROVEEDOR`) y aplica `PROVEEDORES_EN_PAUSA`; si no,
+  la regla del país. Sin `tiendaId` cae en el país: el olvido cierra.
+  Candado `pausa-por-proveedor.test.ts`. **No tocar:** el orden (España sin
+  cobro primero) y el «cerrar por defecto».
+- **Cámara.** `BotonCamara` mete la foto en el `<input type="file">` de
+  siempre con `DataTransfer` y dispara `change`; así pasa por la misma
+  compresión. Va FUERA de los `<label>` (dentro, el clic abriría también el
+  explorador). Candado `camara.test.ts`.
+- **Borradores.** La llave es `mercatren:borrador:<cuenta>:<formulario>`.
+  `Salir` y borrar cuenta llaman `olvidarTodosLosBorradores`; entrar y
+  registrarse, `ponerCuentaDelNavegador`. Cuando un formulario hace `reset()`
+  al guardar bien, `olvidarBorrador` va ANTES del reset (si no, el reset lo
+  devuelve). Candado `formularios-no-pierden.test.ts`.
+
 ## CJ RETIRADO: SE ACABARON LOS CORREOS DE «LA CONEXIÓN CON CJ NO RESPONDE» (8 nov 2026)
 
 **Qué se veía.** Seguían llegando correos de alarma de que CJ Dropshipping no

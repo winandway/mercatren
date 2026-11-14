@@ -129,7 +129,6 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
         className="hidden"
         onChange={(e) => elegir(e.target.files?.[0])}
       />
-      <BotonCamara />
       {/* ══ EL ORDEN LO DICTÓ EL DUEÑO (30 ago 2026) ══ Con resultado en
           pantalla, arriba va EL FORMULARIO, no otro botón de buscar: «el
           cliente buscó, no lo hay y continuó — tiene que estar de primero».
@@ -153,6 +152,10 @@ export function BuscadorPorFoto({ disponible }: { disponible: boolean }) {
             </>
           )}
         </button>
+      ) : null}
+      {/* La cámara, justo debajo del botón de elegir la foto. */}
+      {!resultado || !resultado.ok ? (
+        <BotonCamara className="w-full py-3" deshabilitado={pendiente} />
       ) : null}
 
       {resultado && !resultado.ok ? (
