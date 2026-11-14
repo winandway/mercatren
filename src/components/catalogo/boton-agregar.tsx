@@ -21,6 +21,7 @@ export function BotonAgregar({
   minimo = 1,
   agotado = false,
   paisOrigen,
+  tiendaId,
   esEquipoInterno = false,
 }: {
   linea: Omit<LineaCarrito, "cantidad">;
@@ -29,6 +30,8 @@ export function BotonAgregar({
   agotado?: boolean;
   /** De dónde despacha la tienda. Decide si la venta está en pausa. */
   paisOrigen?: string | null;
+  /** La tienda: si vende lo de un proveedor, la pausa mira el proveedor. */
+  tiendaId?: string | null;
   /** El equipo puede comprar en pausa, para probar el circuito completo. */
   esEquipoInterno?: boolean;
 }) {
@@ -58,7 +61,7 @@ export function BotonAgregar({
    * realidad está en pausa es mentirle al comprador, y además le hace creer que
    * mañana vuelve.
    */
-  if (ventaPausada(paisOrigen, { esEquipoInterno })) {
+  if (ventaPausada(paisOrigen, { esEquipoInterno, tiendaId })) {
     /* En España no es mantenimiento de la tienda: es que el país todavía
        no cobra. Decirle «tienda en mantenimiento» al comercio que acaba de
        abrirla le haría creer que algo suyo está mal. */
@@ -83,7 +86,8 @@ export function BotonAgregar({
     );
   }
 
-  const enPausaParaElPublico = esEquipoInterno && ventaPausada(paisOrigen);
+  const enPausaParaElPublico =
+    esEquipoInterno && ventaPausada(paisOrigen, { tiendaId });
 
   return (
     <div>

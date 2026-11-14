@@ -355,6 +355,7 @@ export default async function PaginaProducto({
       existencias: producto.existencias,
       controlaExistencias: producto.controlaExistencias,
       paisOrigen: ficha.tiendaPais,
+      tiendaId: ficha.tiendaId,
       /* El código PÚBLICO, no el del proveedor: este JSON lo lee Google y
          cualquiera con «ver código fuente». El de CJ es el mismo camino para
          saltarse la tienda que ya se quitó de la ficha. */
@@ -609,6 +610,7 @@ export default async function PaginaProducto({
             {enRevision ? null : variantes.length > 0 ? (
               <SelectorVariante
                 paisOrigen={ficha.tiendaPais}
+                tiendaId={ficha.tiendaId}
                 esEquipoInterno={delEquipo}
                 variantes={variantes}
                 idioma={idioma}
@@ -632,6 +634,7 @@ export default async function PaginaProducto({
                 agotado={agotado}
                 minimo={minimoDeCompra}
                 paisOrigen={ficha.tiendaPais}
+                tiendaId={ficha.tiendaId}
                 esEquipoInterno={delEquipo}
                 linea={{
                   productoId: producto.id,

@@ -90,6 +90,8 @@ export type ProductoParaGoogle = {
   controlaExistencias: boolean;
   /** País de la tienda: con la venta en pausa, no se anuncia como disponible. */
   paisOrigen?: string | null;
+  /** La tienda: si vende lo de un proveedor, la pausa mira el proveedor. */
+  tiendaId?: string | null;
   sku: string | null;
   marca: string | null;
   categoria: string | null;
@@ -104,7 +106,7 @@ export function fichaDeProducto(p: ProductoParaGoogle, locale: string) {
    */
   const hay =
     (!p.controlaExistencias || p.existencias > 0) &&
-    !ventaPausada(p.paisOrigen);
+    !ventaPausada(p.paisOrigen, { tiendaId: p.tiendaId });
 
   return {
     "@context": "https://schema.org",

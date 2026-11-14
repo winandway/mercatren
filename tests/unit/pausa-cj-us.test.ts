@@ -57,6 +57,6 @@ describe("la pausa de Estados Unidos", () => {
       join(__dirname, "..", "..", "src/app/datos/google/route.ts"),
       "utf8",
     );
-    expect(feed).toMatch(/!ventaPausada\("US"\)/);
+    expect(feed).toMatch(/!ventaPausada\("US", \{ tiendaId: p\.tiendaId \}\)/);
   });
 });

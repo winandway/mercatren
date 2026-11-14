@@ -150,12 +150,21 @@ Lo más urgente de todo el proyecto. Nada de lo de abajo importa si esto falla.
 - [ ] 🔴 👤 **Aprobar la prueba de TopDawg** (unos $90 a $135) y **abrir su
       cuenta** Business con prueba gratis. Detalle en `PLAN-B-PROVEEDORES.md`,
       sección 9.
-- [ ] 🟡 💻 **La pausa por proveedor y no por país**, antes de publicar el
-      primer producto de TopDawg. **8 nov 2026: se deja quieta a propósito.**
-      Desde el 5 nov las tiendas de Estados Unidos las crea la gente, y hoy la
-      pausa de `US` también frena sus ventas. Qué debe pausar depende de la
-      decisión 👤 de Richard de abrir o no esa venta (bloque de la app nativa)
-      y del sí a TopDawg; hacerla antes es adivinar.
+- [x] 💻 **La pausa por proveedor y no por país — HECHA el 14 nov 2026.**
+      `src/lib/ventas/pausa.ts` ahora tiene dos llaves: `PROVEEDORES_EN_PAUSA`
+      (CJ dentro) con `TIENDAS_DE_PROVEEDOR` (id de tienda → proveedor, vacío
+      hoy), y `EN_PAUSA`, que ya solo cierra las tiendas DE LA GENTE en
+      Estados Unidos. La ficha, la tarjeta, el carrito, el pedido, la app, el
+      feed de Google y los datos para buscadores pasan el id de la tienda; sin
+      él, cae en la regla del país (el olvido cierra). Para el público no
+      cambia nada hoy. **Al crear la tienda de TopDawg:** agregar su id con
+      `"topdawg"` en `TIENDAS_DE_PROVEEDOR` y su venta queda abierta aunque las
+      tiendas de la gente sigan cerradas. Candado:
+      `tests/unit/pausa-por-proveedor.test.ts`, comprobado en rojo.
+- [ ] 🟠 👤 **Decidir si se abre la venta de las tiendas que abre la gente en
+      Estados Unidos** (`EN_PAUSA` en `src/lib/ventas/pausa.ts`). La tarjeta
+      de EE. UU. en la web está probada (MT-000011); lo que nunca se probó es
+      el saldo y el retiro de un vendedor de EE. UU. que no somos nosotros.
 
 ### 1 nov 2026 · ⛔ EL SITIO ESTÁ EN PAUSA EN YADOMINIOS
 

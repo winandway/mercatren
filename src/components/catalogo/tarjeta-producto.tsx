@@ -211,6 +211,7 @@ export function TarjetaProducto({
           <BotonAgregarRapido
             agotado={agotado}
             paisOrigen={producto.tiendaPais}
+            tiendaId={producto.tiendaId}
             linea={{
               productoId: producto.id,
               slug: producto.slug,

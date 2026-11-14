@@ -127,6 +127,7 @@ type FilaFeed = {
   marca: string | null;
   sku: string | null;
   tienda: string;
+  tiendaId: string;
   foto: string | null;
   fotoClave: string | null;
 };
@@ -147,6 +148,7 @@ async function tandaDesde(cursor: string): Promise<FilaFeed[]> {
       marca: productos.marca,
       sku: productos.sku,
       tienda: tiendas.nombre,
+      tiendaId: tiendas.id,
       /* La primera foto. Si vino del sistema del comercio trae `url`; si se
          subió a nuestro bucket, `clave` y se sirve por /media. */
       foto: sql<
@@ -208,7 +210,9 @@ function articulo(p: FilaFeed): string {
   /* Con la venta de Estados Unidos en pausa (27 oct 2026) todo el feed sale
      «sin existencias»: el feed es solo de tiendas de Estados Unidos, y
      anunciar algo que no se puede comprar va contra Merchant Center. */
-  const hayStock = (!p.controla || p.existencias > 0) && !ventaPausada("US");
+  const hayStock =
+    (!p.controla || p.existencias > 0) &&
+    !ventaPausada("US", { tiendaId: p.tiendaId });
 
   return [
     "<item>",

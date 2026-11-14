@@ -31,6 +31,7 @@ export function SelectorVariante({
   hayTallas,
   hayColores,
   paisOrigen,
+  tiendaId,
   esEquipoInterno = false,
 }: {
   variantes: VarianteVista[];
@@ -41,6 +42,8 @@ export function SelectorVariante({
   hayColores: { nombre: string; hex: string | null }[];
   /** De dónde despacha la tienda. Decide si la venta está en pausa. */
   paisOrigen?: string | null;
+  /** La tienda: si vende lo de un proveedor, la pausa mira el proveedor. */
+  tiendaId?: string | null;
   /** El equipo puede comprar en pausa, para probar el circuito completo. */
   esEquipoInterno?: boolean;
 }) {
@@ -179,6 +182,7 @@ export function SelectorVariante({
       {elegida && !agotada ? (
         <BotonAgregar
           paisOrigen={paisOrigen}
+          tiendaId={tiendaId}
           esEquipoInterno={esEquipoInterno}
           linea={{
             ...linea,

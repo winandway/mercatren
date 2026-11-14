@@ -133,6 +133,8 @@ export type FichaDeLaBase = {
   tiendaSlug: string;
   /** El país de donde sale la mercancía: decide si la venta está en pausa. */
   tiendaPais?: string | null;
+  /** La tienda: si vende lo de un proveedor, la pausa mira el proveedor. */
+  tiendaId?: string | null;
   categoriaNombreEs: string | null;
   categoriaNombreEn: string | null;
   imagenes: Array<{
@@ -163,7 +165,7 @@ export function fichaParaApp(f: FichaDeLaBase, idioma: IdiomaApp) {
     agotado: p.controlaExistencias && p.existencias <= 0,
     /* La MISMA pausa de la web (`ventas/pausa.ts`): con la venta de un país
        en pausa la ficha se ve, pero no se compra. */
-    seVende: !ventaPausada(f.tiendaPais),
+    seVende: !ventaPausada(f.tiendaPais, { tiendaId: f.tiendaId }),
     categoria:
       idioma === "en"
         ? (f.categoriaNombreEn ?? f.categoriaNombreEs)

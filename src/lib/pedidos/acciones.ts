@@ -313,7 +313,7 @@ export async function crearPedido(
 
   if (
     carritoPausado(
-      encontrados.map((p) => p.tiendaPais),
+      encontrados.map((p) => ({ pais: p.tiendaPais, tiendaId: p.tiendaId })),
       {
         esEquipoInterno: delEquipo,
       },

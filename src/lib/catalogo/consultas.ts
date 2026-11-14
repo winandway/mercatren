@@ -259,6 +259,8 @@ export type ProductoLista = {
    * una sería una consulta por producto.
    */
   tiendaPais: string | null;
+  /** La tienda: si vende lo de un proveedor, la pausa mira el proveedor. */
+  tiendaId?: string | null;
   imagenUrl: string | null;
   imagenAlt: string | null;
   /** Solo en los promocionados (Fase 4): para contar el clic. */
@@ -656,6 +658,7 @@ async function listarProductosDeTienda(
     tiendaNombre: tiendas.nombre,
     tiendaSlug: tiendas.slug,
     tiendaPais: tiendas.paisOrigen,
+    tiendaId: tiendas.id,
   };
   const deLaTienda = and(
     sql`${productos.tiendaId} = ${tiendaId}`,
@@ -1616,6 +1619,7 @@ async function productosPorIds(
       tiendaNombre: tiendas.nombre,
       tiendaSlug: tiendas.slug,
       tiendaPais: tiendas.paisOrigen,
+      tiendaId: tiendas.id,
       tiendaEstado: tiendas.estado,
       tiendaMercado: tiendas.mercado,
     })
@@ -1948,6 +1952,7 @@ async function bandasSinCache(
           tiendaNombre: tiendas.nombre,
           tiendaSlug: tiendas.slug,
           tiendaPais: tiendas.paisOrigen,
+          tiendaId: tiendas.id,
         })
         .from(productos)
         .innerJoin(tiendas, eq(tiendas.id, productos.tiendaId))

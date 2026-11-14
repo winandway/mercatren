@@ -27,11 +27,14 @@ export function BotonAgregarRapido({
   linea,
   agotado = false,
   paisOrigen,
+  tiendaId,
 }: {
   linea: Omit<LineaCarrito, "cantidad">;
   agotado?: boolean;
   /** De dónde despacha la tienda. Decide si la venta está en pausa. */
   paisOrigen?: string | null;
+  /** La tienda: si vende lo de un proveedor, la pausa mira el proveedor. */
+  tiendaId?: string | null;
 }) {
   const t = useTranslations("catalogo.producto");
   const agregar = useCarrito((estado) => estado.agregar);
@@ -42,7 +45,7 @@ export function BotonAgregarRapido({
      una parrilla de cien tarjetas, cien avisos amarillos se leen como que el
      sitio entero está roto. El motivo se cuenta entero al abrir la ficha, que
      es donde la persona ya decidió que ese producto le interesa. */
-  if (ventaPausada(paisOrigen)) return null;
+  if (ventaPausada(paisOrigen, { tiendaId })) return null;
 
   if (agotado) return null;
 
