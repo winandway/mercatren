@@ -335,9 +335,11 @@ apruebe Divoox.
       SE REABRE SIN CJ»).
 - [x] ✅ (8 nov 2026: el sitio responde 200, la pausa ya no está) Quitar la pausa de la PLATAFORMA al sitio mercatren (la pidió
       Gerencia a la sesión de YaDominios Cloud). Sin eso nada responde.
-- [ ] 💻 Con la pausa quitada: comprobar en vivo portada, crear tienda,
+- [x] 💻 Con la pausa quitada: comprobar en vivo portada, crear tienda,
       privacidad y términos con 200, y preparar el reenvío a Google Play
-      (lo revisa el auditor de tiendas antes de enviar).
+      (lo revisa el auditor de tiendas antes de enviar). **14 nov 2026:**
+      portada (.com y .com.ve), /es/vender, /en/privacy y /en/terms dan 200;
+      el reenvío a Google ya lo hizo Gerencia el 8 nov.
 - [ ] 🟡 👤 Decidir si se reabren los robots (Google): hoy cerrados, porque
       eran el mayor gasto de la base.
 - [x] ✅ 💻 Alarma de consumo (Fase 0 del plan): `npm run consumo` mide filas
